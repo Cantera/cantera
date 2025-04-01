@@ -40,9 +40,9 @@ struct SensitivityParameter
 };
 
 /**
- * Base class for stirred reactors. Allows using any substance model, with
- * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
- * change.
+ * Base class for reactor objects. Allows using any substance model, with arbitrary
+ * inflow, outflow, heat loss/gain, surface chemistry, and volume change, whenever
+ * defined.
  * @ingroup reactorGroup
  */
 class ReactorBase
@@ -87,9 +87,10 @@ public:
     //! @name Methods to set up a simulation
     //! @{
 
-    //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
-    void setInitialVolume(double vol) {
-        m_vol = vol;
+    //! Set the initial reactor volume.
+    virtual void setInitialVolume(double vol) {
+        throw NotImplementedError("ReactorBase::setInitialVolume",
+            "Volume is undefined for reactors of type '{}'.", type());
     }
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
@@ -103,17 +104,15 @@ public:
     }
 
     //! Connect an inlet FlowDevice to this reactor
-    void addInlet(FlowDevice& inlet);
+    virtual void addInlet(FlowDevice& inlet);
 
     //! Connect an outlet FlowDevice to this reactor
-    void addOutlet(FlowDevice& outlet);
+    virtual void addOutlet(FlowDevice& outlet);
 
-    //! Return a reference to the *n*-th inlet FlowDevice connected to this
-    //! reactor.
+    //! Return a reference to the *n*-th inlet FlowDevice connected to this reactor.
     FlowDevice& inlet(size_t n = 0);
 
-    //! Return a reference to the *n*-th outlet FlowDevice connected to this
-    //! reactor.
+    //! Return a reference to the *n*-th outlet FlowDevice connected to this reactor.
     FlowDevice& outlet(size_t n = 0);
 
     //! Return the number of inlet FlowDevice objects connected to this reactor.
@@ -121,8 +120,7 @@ public:
         return m_inlet.size();
     }
 
-    //! Return the number of outlet FlowDevice objects connected to this
-    //! reactor.
+    //! Return the number of outlet FlowDevice objects connected to this reactor.
     size_t nOutlets() {
         return m_outlet.size();
     }
@@ -138,15 +136,14 @@ public:
      *  this reactor is to the right of the wall. This method is called
      *  automatically for both the left and right reactors by WallBase::install.
      */
-    void addWall(WallBase& w, int lr);
+    virtual void addWall(WallBase& w, int lr);
 
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
     virtual void addSurface(ReactorSurface* surf);
 
-    //! Return a reference to the *n*-th ReactorSurface connected to this
-    //! reactor
+    //! Return a reference to the *n*-th ReactorSurface connected to this reactor.
     ReactorSurface* surface(size_t n);
 
     //! Return the number of surfaces in a reactor
@@ -167,10 +164,13 @@ public:
     //! reactor's current state.
     void restoreState();
 
-    //! Set the state of the reactor to correspond to the state of the
-    //! associated ThermoPhase object. This is the inverse of restoreState().
-    //! Calling this will trigger integrator reinitialization.
-    virtual void syncState();
+    //! Set the state of the reactor to the associated ThermoPhase object.
+    //! This method is the inverse of restoreState() and will trigger integrator
+    //! reinitialization.
+    //! The method needs to be implemented by a ReactorBase specialization.
+    virtual void syncState() {
+        throw NotImplementedError("ReactorBase::syncState");
+    }
 
     //! return a reference to the contents.
     ThermoPhase& contents() {
@@ -239,7 +239,7 @@ public:
 
     //! Returns the mass (kg) of the reactor's contents.
     double mass() const {
-        return m_vol * density();
+        return m_mass;
     }
 
     //! Return the vector of species mass fractions.
@@ -277,6 +277,8 @@ protected:
 
     //! Specify the kinetics manager for the reactor. Called by setSolution().
     //! @since New in %Cantera 3.1.
+    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
+    //!              ReactorBase with Solution object.
     virtual void setKinetics(Kinetics& kin) {
         throw NotImplementedError("ReactorBase::setKinetics");
     }
@@ -285,7 +287,8 @@ protected:
     size_t m_nsp = 0;
 
     ThermoPhase* m_thermo = nullptr;
-    double m_vol = 1.0; //!< Current volume of the reactor [m^3]
+    double m_vol = 0.0; //!< Current volume of the reactor [m^3]
+    double m_mass = 0.0; //!< Current mass of the reactor [kg]
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
     double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]

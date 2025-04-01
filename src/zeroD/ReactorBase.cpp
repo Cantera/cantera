@@ -25,13 +25,8 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
                            "Missing or incomplete Solution object.");
     }
     m_solution = sol;
-    setThermo(*sol->thermo());
-    try {
-        setKinetics(*sol->kinetics());
-    } catch (NotImplementedError&) {
-        // kinetics not used (example: Reservoir)
-    }
     m_solution->thermo()->addSpeciesLock();
+    setThermo(*sol->thermo());
 }
 
 ReactorBase::~ReactorBase()
@@ -67,13 +62,13 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
         m_solution->thermo()->removeSpeciesLock();
     }
     m_solution = sol;
+    m_solution->thermo()->addSpeciesLock();
     setThermo(*sol->thermo());
     try {
         setKinetics(*sol->kinetics());
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }
-    m_solution->thermo()->addSpeciesLock();
 }
 
 void ReactorBase::setThermo(ThermoPhase& thermo)
@@ -81,19 +76,12 @@ void ReactorBase::setThermo(ThermoPhase& thermo)
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
     m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_pressure = m_thermo->pressure();
-}
-
-void ReactorBase::syncState()
-{
-    m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_pressure = m_thermo->pressure();
-    if (m_net) {
-        m_net->setNeedsReinit();
+    m_enthalpy = m_thermo->enthalpy_mass(); // Used by Reservoir
+    m_pressure = m_thermo->pressure(); // Used by Reservoir
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        // some ThermoPhase objects do not implement intEnergy_mass()
     }
 }
 

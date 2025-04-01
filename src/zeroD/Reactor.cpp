@@ -25,7 +25,13 @@ namespace Cantera
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {
-    setKinetics(*sol->kinetics());
+    m_kin = sol->kinetics().get();
+    if (m_kin->nReactions() == 0) {
+        setChemistry(false);
+    } else {
+        setChemistry(true);
+    }
+    m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
@@ -39,6 +45,9 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
 
 void Reactor::setKinetics(Kinetics& kin)
 {
+    warn_deprecated("Reactor::setKinetics",
+        "After Cantera 3.2, a change of reactor contents after instantiation "
+        "will be disabled.");
     m_kin = &kin;
     if (m_kin->nReactions() == 0) {
         setChemistry(false);
@@ -121,8 +130,16 @@ size_t Reactor::nSensParams() const
 
 void Reactor::syncState()
 {
-    ReactorBase::syncState();
+    m_thermo->saveState(m_state);
+    if (m_energy) {
+        m_enthalpy = m_thermo->enthalpy_mass();
+        m_intEnergy = m_thermo->intEnergy_mass();
+    }
+    m_pressure = m_thermo->pressure();
     m_mass = m_thermo->density() * m_vol;
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
 }
 
 void Reactor::updateState(double* y)

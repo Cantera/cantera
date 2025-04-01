@@ -7,22 +7,33 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {
 
-bool ReactorSurface::setDefaultName(map<string, int>& counts)
+ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
+    : ReactorBase(sol, name)
 {
-    if (m_defaultNameSet) {
-        return false;
+    if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
     }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
+
+    if (!sol->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(sol->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
     }
-    counts[type()]++;
-    return true;
+    // todo: move all member variables to use shared pointers after Cantera 3.2
+    m_kinetics = m_solution->kinetics().get();
+    m_thermo = m_solution->thermo().get();
+    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
 }
 
 double ReactorSurface::area() const
@@ -35,21 +46,29 @@ void ReactorSurface::setArea(double a)
     m_area = a;
 }
 
-void ReactorSurface::setKinetics(Kinetics* kin) {
+void ReactorSurface::setKinetics(Kinetics* kin)
+{
+    warn_deprecated("ReactorSurface::setKinetics",
+                    "To be removed after Cantera 3.2.");
     m_kinetics = kin;
     if (kin == nullptr) {
-        m_thermo = nullptr;
+        m_surf = nullptr;
         return;
     }
 
-    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(0));
-    if (m_thermo == nullptr) {
+    m_surf = dynamic_cast<SurfPhase*>(&kin->thermo(0));
+    if (m_surf == nullptr) {
         throw CanteraError("ReactorSurface::setKinetics",
             "Specified kinetics manager does not represent a surface "
             "kinetics mechanism.");
     }
-    m_cov.resize(m_thermo->nSpecies());
-    m_thermo->getCoverages(m_cov.data());
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
+}
+
+void ReactorSurface::setKinetics(Kinetics& kin)
+{
+    setKinetics(&kin);
 }
 
 void ReactorSurface::setReactor(ReactorBase* reactor)
@@ -64,14 +83,14 @@ void ReactorSurface::setCoverages(const double* cov)
 
 void ReactorSurface::setCoverages(const Composition& cov)
 {
-    m_thermo->setCoveragesByName(cov);
-    m_thermo->getCoverages(m_cov.data());
+    m_surf->setCoveragesByName(cov);
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::setCoverages(const string& cov)
 {
-    m_thermo->setCoveragesByName(cov);
-    m_thermo->getCoverages(m_cov.data());
+    m_surf->setCoveragesByName(cov);
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::getCoverages(double* cov) const
@@ -81,8 +100,8 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::syncState()
 {
-    m_thermo->setTemperature(m_reactor->temperature());
-    m_thermo->setCoveragesNoNorm(m_cov.data());
+    m_surf->setTemperature(m_reactor->temperature());
+    m_surf->setCoveragesNoNorm(m_cov.data());
 }
 
 void ReactorSurface::addSensitivityReaction(size_t i)

@@ -11,36 +11,21 @@
 namespace Cantera
 {
 
-class Kinetics;
 class SurfPhase;
 
 //! A surface where reactions can occur that is in contact with the bulk fluid of a
 //! Reactor.
-class ReactorSurface
+//! @ingroup reactorGroup
+class ReactorSurface : public ReactorBase
 {
 public:
-    ReactorSurface(const string& name="(none)") : m_name(name) {}
-    virtual ~ReactorSurface() = default;
-    ReactorSurface(const ReactorSurface&) = delete;
-    ReactorSurface& operator=(const ReactorSurface&) = delete;
+    ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
+    using ReactorBase::ReactorBase; // inherit constructors
 
     //! String indicating the wall model implemented.
-    virtual string type() const {
+    string type() const override {
         return "ReactorSurface";
     }
-
-    //! Retrieve reactor surface name.
-    string name() const {
-        return m_name;
-    }
-
-    //! Set reactor surface name.
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a wall. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Returns the surface area [m^2]
     double area() const;
@@ -50,7 +35,7 @@ public:
 
     //! Accessor for the SurfPhase object
     SurfPhase* thermo() {
-        return m_thermo;
+        return m_surf;
     }
 
     //! Accessor for the InterfaceKinetics object
@@ -59,13 +44,32 @@ public:
     }
 
     //! Set the InterfaceKinetics object for this surface
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
+    //!     Solution object instead.
     void setKinetics(Kinetics* kin);
+
+    void addInlet(FlowDevice& inlet) override {
+        throw NotImplementedError("ReactorSurface::addInlet",
+            "Inlets are undefined for reactors of type '{}'.", type());
+    }
+
+    void addOutlet(FlowDevice& outlet) override {
+        throw NotImplementedError("ReactorSurface::addOutlet",
+            "Outlets are undefined for reactors of type '{}'.", type());
+    }
+
+    void addWall(WallBase& w, int lr) override {
+        throw NotImplementedError("ReactorSurface::addWall");
+    }
+
+    void addSurface(ReactorSurface* surf) override {
+        throw NotImplementedError("ReactorSurface::addSurface");
+    }
 
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
-    //! Number of sensitivity parameters associated with reactions on this
-    //! surface
+    //! Number of sensitivity parameters associated with reactions on this surface
     size_t nSensParams() const {
         return m_params.size();
     }
@@ -87,7 +91,7 @@ public:
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.
-    void syncState();
+    void syncState() override;
 
     //! Enable calculation of sensitivities with respect to the rate constant
     //! for reaction `i`.
@@ -104,12 +108,19 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    string m_name;  //!< Reactor surface name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+    void setThermo(ThermoPhase& thermo) override {}
+
+    //! Set the InterfaceKinetics object for this surface.
+    //! Method is needed to prevent compiler warnings by disambiguating from the
+    //! non-protected variant.
+    //! @since New in %Cantera 3.2.
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
+    //!     Solution object instead.
+    void setKinetics(Kinetics& kin) override;
 
     double m_area = 1.0;
 
-    SurfPhase* m_thermo = nullptr;
+    SurfPhase* m_surf = nullptr;
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
     vector<double> m_cov;
