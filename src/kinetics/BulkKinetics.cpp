@@ -12,10 +12,6 @@ BulkKinetics::BulkKinetics() {
     setDerivativeSettings(AnyMap()); // use default settings
 }
 
-bool BulkKinetics::isReversible(size_t i) {
-    return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
-}
-
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     bool added = Kinetics::addReaction(r, resize);
@@ -33,12 +29,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     m_dn.push_back(dn);
 
-    if (r->reversible) {
-        m_revindex.push_back(nReactions()-1);
-    } else {
-        m_irrev.push_back(nReactions()-1);
-    }
-
     shared_ptr<ReactionRate> rate = r->rate();
     string rtype = rate->subType();
     if (rtype == "") {
@@ -46,10 +36,10 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     }
 
     // If necessary, add new MultiRate evaluator
-    if (m_bulk_types.find(rtype) == m_bulk_types.end()) {
-        m_bulk_types[rtype] = m_bulk_rates.size();
-        m_bulk_rates.push_back(rate->newMultiRate());
-        m_bulk_rates.back()->resize(m_kk, nReactions(), nPhases());
+    if (m_rateTypes.find(rtype) == m_rateTypes.end()) {
+        m_rateTypes[rtype] = m_rateHandlers.size();
+        m_rateHandlers.push_back(rate->newMultiRate());
+        m_rateHandlers.back()->resize(m_kk, nReactions(), nPhases());
     }
 
     // Set index of rate to number of reaction within kinetics
@@ -57,8 +47,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     rate->setContext(*r, *this);
 
     // Add reaction rate to evaluator
-    size_t index = m_bulk_types[rtype];
-    m_bulk_rates[index]->add(nReactions() - 1, *rate);
+    size_t index = m_rateTypes[rtype];
+    m_rateHandlers[index]->add(nReactions() - 1, *rate);
 
     // Add reaction to third-body evaluator
     if (r->thirdBody() != nullptr) {
@@ -102,16 +92,16 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     }
 
     // Ensure that MultiRate evaluator is available
-    if (m_bulk_types.find(rtype) == m_bulk_types.end()) {
+    if (m_rateTypes.find(rtype) == m_rateTypes.end()) {
         throw CanteraError("BulkKinetics::modifyReaction",
                 "Evaluator not available for type '{}'.", rtype);
     }
 
     // Replace reaction rate to evaluator
-    size_t index = m_bulk_types[rtype];
+    size_t index = m_rateTypes[rtype];
     rate->setRateIndex(i);
     rate->setContext(*rNew, *this);
-    m_bulk_rates[index]->replace(i, *rate);
+    m_rateHandlers[index]->replace(i, *rate);
     invalidateCache();
 }
 
@@ -121,7 +111,7 @@ void BulkKinetics::resizeSpecies()
     m_act_conc.resize(m_kk);
     m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
-    for (auto& rates : m_bulk_rates) {
+    for (auto& rates : m_rateHandlers) {
         rates->resize(m_kk, nReactions(), nPhases());
     }
 }
@@ -136,7 +126,7 @@ void BulkKinetics::resizeReactions()
     m_sbuf0.resize(nTotalSpecies());
     m_state.resize(thermo().stateSize());
     m_multi_concm.resizeCoeffs(nTotalSpecies(), nReactions());
-    for (auto& rates : m_bulk_rates) {
+    for (auto& rates : m_rateHandlers) {
         rates->resize(nTotalSpecies(), nReactions(), nPhases());
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in update_rates_T
@@ -495,7 +485,7 @@ void BulkKinetics::updateROP()
     }
 
     // loop over MultiRate evaluators for each reaction type
-    for (auto& rates : m_bulk_rates) {
+    for (auto& rates : m_rateHandlers) {
         bool changed = rates->update(thermo(), *this);
         if (changed) {
             rates->getRateConstants(m_kf0.data());
@@ -518,12 +508,17 @@ void BulkKinetics::updateROP()
     processThirdBodies(m_ropf.data());
     copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
-    // multiply ropf by concentration products
-    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
-
     // for reversible reactions, multiply ropr by concentration products
     applyEquilibriumConstants(m_ropr.data());
+
+    for (auto& rates : m_rateHandlers) {
+        rates->modifyRateConstants(m_ropf.data(), m_ropr.data());
+    }
+
+    // multiply ropf and ropr by concentration products
+    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
     m_revProductStoich.multiply(m_act_conc.data(), m_ropr.data());
+
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
@@ -601,7 +596,7 @@ void BulkKinetics::process_ddT(const vector<double>& in, double* drop)
 {
     // apply temperature derivative
     copy(in.begin(), in.end(), drop);
-    for (auto& rates : m_bulk_rates) {
+    for (auto& rates : m_rateHandlers) {
         rates->processRateConstants_ddT(drop, m_rfn.data(), m_jac_rtol_delta);
     }
 }
@@ -610,7 +605,7 @@ void BulkKinetics::process_ddP(const vector<double>& in, double* drop)
 {
     // apply pressure derivative
     copy(in.begin(), in.end(), drop);
-    for (auto& rates : m_bulk_rates) {
+    for (auto& rates : m_rateHandlers) {
         rates->processRateConstants_ddP(drop, m_rfn.data(), m_jac_rtol_delta);
     }
 }
@@ -641,7 +636,7 @@ void BulkKinetics::process_ddC(StoichManagerN& stoich, const vector<double>& in,
     // derivatives due to reaction rates depending on third-body colliders
     if (!m_jac_skip_falloff) {
         m_multi_concm.scaleM(in.data(), outM.data(), m_concm.data(), ctot_inv);
-        for (auto& rates : m_bulk_rates) {
+        for (auto& rates : m_rateHandlers) {
             // processing step assigns zeros to entries not dependent on M
             rates->processRateConstants_ddM(
                 outM.data(), m_rfn.data(), m_jac_rtol_delta);
@@ -680,7 +675,7 @@ Eigen::SparseMatrix<double> BulkKinetics::calculateCompositionDerivatives(
 
     // derivatives due to reaction rates depending on third-body colliders
     if (!m_jac_skip_falloff) {
-        for (auto& rates : m_bulk_rates) {
+        for (auto& rates : m_rateHandlers) {
             // processing step does not modify entries not dependent on M
             rates->processRateConstants_ddM(
                 outV.data(), m_rfn.data(), m_jac_rtol_delta, false);
