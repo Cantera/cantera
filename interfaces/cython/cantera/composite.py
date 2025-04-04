@@ -392,6 +392,171 @@ for _attr in dir(Solution):
             setattr(Quantity, _attr, _prop(_attr))
 
 
+# A pure-Python class to store weakrefs to
+class _WeakrefProxy:
+    pass
+
+
+def compile_fortran(f90_filename, force=False, fortran_format='f90',
+                    mechanism_lib=None, output=False, remote_install=True):
+    """ Creates dynamic library to compute chemistry source terms for Cantera
+
+    Compile a f90 file (potentially generated through create_mech_f90) containing
+    all routines necessary to return wdot to Cantera during runs. The output is a
+    dynamic library, used in Cantera via the custom kinetics keyword.
+
+    :param f90_filename: name of the f90 file to compile
+    :param force: if True, compiles fortran even if it hasn't been changed
+    :param fortran_format: string specifying if it's for example in f77 format
+    :param mechanism_lib: path to the directory where dynamic libraries are to be compiled
+    :param output: if True displays the output of the make
+    :param remote_install: if False the compilation will be done automatically in the sources
+    :return: None
+    """
+    
+    ## Test to know if subroutine has the right name to do the compiling
+    line_custom = None
+    f = open(f90_filename,'r')
+    for lines in f.readlines():
+        if 'subroutine' in lines.lower() and '(p,t,y,wdot)' in lines.replace(" ","").lower():
+            line_custom = lines
+            break
+    f.close()
+
+    if line_custom == None:
+        print("The main subroutine of the f90 file should be written : 'subroutine customkinetics (P, T, y, wdot)' to work")
+        sys.exit()
+    else:
+        if 'customkinetics' not in line_custom.lower():
+            print("The main subroutine of the f90 file should be written : 'subroutine customkinetics (P, T, y, wdot)' to work")
+            sys.exit()
+
+    # Check installation path
+    if not remote_install:
+        # Finds the path to the cantera module and then copies the f90 file in the correct directory
+        path_to_init = os.path.realpath(__file__)
+
+        terminator = path_to_init.rfind('/lib')
+        path = (path_to_init[:terminator])
+
+        lib_name = '/lib'
+
+        path_to_dir = path + lib_name
+
+        if not os.path.isdir(path_to_dir) and os.path.isdir(path_to_dir + '64'):
+            lib_name = '/lib64'
+            path_to_dir = path + lib_name
+
+        elif not os.path.isdir(path_to_dir) and not os.path.isdir(path_to_dir + '64'):
+            print('There is a problem with your installation, ' + path_to_dir + ' does not exist')
+            sys.exit()
+
+    elif not os.environ.get('CUSTOM_LIB'):
+        if mechanism_lib:
+            path_to_dir = mechanism_lib
+        else:
+            # path_to_file = os.path.realpath(__file__)
+            # terminator = path_to_file.rfind('/')
+            # path = (path_to_file[:terminator])
+            # lib_name = '/mech_lib'
+
+            path_to_dir = './mech_lib'
+
+        path_to_dir = os.path.abspath(path_to_dir)
+
+        if not os.path.isdir(path_to_dir):
+            try:
+                os.mkdir(path_to_dir)
+            except PermissionError:
+                print("Please specify a mech_lib directory to write in that is accessible "
+                      "with the argument mechanism_lib=the_path_you_want")
+                quit()
+            else:
+                print('The directory ' + path_to_dir + ' has been created')
+                print('The necessary files for the compilation and customised kinetics run will be stored there')
+                print("If this location does not suit you, please specify a path as mechanism_lib argument")
+
+    else:
+        path_to_dir = os.environ['CUSTOM_LIB']
+
+    # Correct path definitions
+
+    path_to_ext = path_to_dir + '/customkinetics.f90'
+    path_to_makefile = path_to_dir + '/Makefile'
+
+    make_call = 'make -C ' + path_to_dir
+    if not output:
+        make_call += ' &> compilation_output.txt'
+
+    # Copying f90 file to the right place
+
+    if not f90_filename.endswith('.f90'):
+        f90_filename = f90_filename + '.f90'
+
+    if not os.path.isfile(path_to_ext) or not filecmp.cmp(f90_filename, path_to_ext) or force:
+
+        shutil.copy(f90_filename, path_to_ext)
+
+        # Checks if the Makefile exists, if not creates it
+        if not os.path.isfile(path_to_makefile):
+
+            f = open(path_to_makefile, 'w')
+            text = """\
+customkinetics.so: customkinetics.f90
+\tgfortran -ffixed-line-length-0 -c customkinetics.f90 -g -fPIC -o customkinetics.o
+\tgfortran -shared -o customkinetics.so customkinetics.o            
+    """
+            if fortran_format == 'f77':
+                text = """\
+customkinetics.so: customkinetics.f90
+\tgfortran -ffixed-line-length-0 -ffixed-form -c customkinetics.f90 -g -fPIC -o customkinetics.o
+\tgfortran -shared -o customkinetics.so customkinetics.o            
+    """
+            f.write(text)
+            f.close()
+            print('The Makefile was missing or wrongly named')
+            print('The correct Makefile has been created (' + path_to_makefile + ')')
+
+    # In remote installation, sets the correct LD_LIBRARY_PATH for the dynamic library
+    if not os.environ.get('CUSTOM_LIB'):
+        custom_env_set = 'export CUSTOM_LIB=' + path_to_dir
+        environment_set = 'export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH'
+
+        if mechanism_lib:
+            dir_status = 'you chose'
+        else:
+            dir_status = 'automatically created'
+
+            text = ("""\
+            
+This part is not automated as it would require sneaky modifications of your bashrc and that is privacy violation !
+
+Please copy those commands in your bashrc (or execute them in your shell):
+{0}
+{1} 
+
+It will add the directory {2} to the dynamic library path blab bla bla, informatics stuff ...
+
+I advise you stick to only one directory for the compilation for 2 reasons:
+- 1: it will be boring to add the path again.
+- 2: it's absolutely useless to have several.""")
+
+            print(text.format(custom_env_set, environment_set, dir_status))
+            sys.exit()
+
+    process = subprocess.call(make_call, shell=True)
+
+    if process != 0:
+        print('The compilation of the f90 file failed ! There is something wrong ...')
+        if not output:
+            print('Check compilation_output.txt for intel')
+        exit()
+    else:
+
+        print('Compilation of the f90 successful')
+        subprocess.call('rm -f compilation_output.txt', shell=True)
+        time.sleep(0.05)  # Necessary for python to understand there was a change
+
 class SolutionArray(SolutionArrayBase):
     """
     A class providing a convenient interface for representing many thermodynamic
