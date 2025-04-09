@@ -1,8 +1,12 @@
 function i = ctIsLoaded()
-    if ~libisloaded(ctLib)
-        error('Cantera is not loaded');
+    i = false;
+
+    global ct
+    if ~isempty(ct)
+        i = ct.Loaded;
     end
 
-    i = true;
-
+    if ~i
+        error('Cantera is not loaded.');
+    end
 end
