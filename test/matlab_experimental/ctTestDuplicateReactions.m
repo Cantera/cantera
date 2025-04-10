@@ -18,8 +18,7 @@ classdef ctTestDuplicateReactions < matlab.unittest.TestCase
 
         function testTearDown(self)
             delete('./duplicate-reactions.yaml');
-            ctCleanUp
-            ctTestTearDown
+            ctUnload
         end
 
     end

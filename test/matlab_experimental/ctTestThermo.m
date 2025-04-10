@@ -17,9 +17,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
     methods (TestClassTeardown)
         function testTearDown(self)
-            % Clean up Cantera
-            ctCleanUp
-            ctTestTearDown
+            ctUnload
         end
     end
 
