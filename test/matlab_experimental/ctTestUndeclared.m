@@ -19,8 +19,7 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
+            ctUnload
         end
 
     end
