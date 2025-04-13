@@ -81,6 +81,9 @@ public:
     Eigen::SparseMatrix<double> netRatesOfProgress_ddCi() override;
     //! @}
 
+    virtual vector<double> fwdRateConstantsByIndices(
+        const vector<size_t>& indices) override;
+
     //! @name Rate calculation intermediate methods
     //! @{
 
