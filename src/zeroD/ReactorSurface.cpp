@@ -110,21 +110,21 @@ void ReactorSurface::syncState()
     m_thermo->setCoveragesNoNorm(m_cov.data());
 }
 
-void ReactorSurface::addSensitivityReaction(size_t i)
+void ReactorSurface::addSensitivityReaction(size_t rxn)
 {
-    if (i >= m_kinetics->nReactions()) {
+    if (rxn >= m_kinetics->nReactions()) {
         throw CanteraError("ReactorSurface::addSensitivityReaction",
-                           "Reaction number out of range ({})", i);
+                           "Reaction number out of range ({})", rxn);
     }
     size_t p = m_reactor->network().registerSensitivityParameter(
-        m_kinetics->reaction(i)->equation(), 1.0, 1.0);
-    m_params.emplace_back(
-        SensitivityParameter{i, p, 1.0, SensParameterType::reaction});
+        m_kinetics->reaction(rxn)->equation(), 1.0, 1.0);
+    m_sensParams.emplace_back(
+        SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
 }
 
 void ReactorSurface::setSensitivityParameters(const double* params)
 {
-    for (auto& p : m_params) {
+    for (auto& p : m_sensParams) {
         p.value = m_kinetics->multiplier(p.local);
         m_kinetics->setMultiplier(p.local, p.value*params[p.global]);
     }
@@ -132,7 +132,7 @@ void ReactorSurface::setSensitivityParameters(const double* params)
 
 void ReactorSurface::resetSensitivityParameters()
 {
-    for (auto& p : m_params) {
+    for (auto& p : m_sensParams) {
         m_kinetics->setMultiplier(p.local, p.value);
     }
 }

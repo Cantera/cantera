@@ -268,6 +268,16 @@ public:
     //! Set the ReactorNet that this reactor belongs to.
     void setNetwork(ReactorNet* net);
 
+    //! Add a sensitivity parameter associated with the reaction number *rxn*
+    virtual void addSensitivityReaction(size_t rxn) {
+        throw NotImplementedError("ReactorBase::addSensitivityReaction");
+    }
+
+    //! Number of sensitivity parameters associated with this reactor.
+    virtual size_t nSensParams() const {
+        return m_sensParams.size();
+    }
+
 protected:
     //! Specify the mixture contained in the reactor. Note that a pointer to
     //! this substance is stored, and as the integration proceeds, the state of
@@ -306,6 +316,9 @@ protected:
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
+
+    // Data associated each sensitivity parameter
+    vector<SensitivityParameter> m_sensParams;
 };
 }
 
