@@ -51,12 +51,6 @@ public:
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
-    //! Number of sensitivity parameters associated with reactions on this
-    //! surface
-    size_t nSensParams() const {
-        return m_params.size();
-    }
-
     //! Set the surface coverages. Array `cov` has length equal to the number of
     //! surface species.
     void setCoverages(const double* cov);
@@ -76,9 +70,7 @@ public:
     //! of the attached Reactor.
     void syncState() override;
 
-    //! Enable calculation of sensitivities with respect to the rate constant
-    //! for reaction `i`.
-    void addSensitivityReaction(size_t i);
+    void addSensitivityReaction(size_t rxn) override;
 
     //! Set reaction rate multipliers. `params` is the global vector of
     //! sensitivity parameters. This function is called within
@@ -99,7 +91,6 @@ protected:
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
     vector<double> m_cov;
-    vector<SensitivityParameter> m_params;
 };
 
 }

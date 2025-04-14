@@ -145,13 +145,11 @@ public:
     //! Set the state of the reactor to correspond to the state vector *y*.
     virtual void updateState(double* y);
 
-    //! Number of sensitivity parameters associated with this reactor
+    //! Number of sensitivity parameters associated with this reactor.
     //! (including walls)
-    virtual size_t nSensParams() const;
+    size_t nSensParams() const override;
 
-    //! Add a sensitivity parameter associated with the reaction number *rxn*
-    //! (in the homogeneous phase).
-    virtual void addSensitivityReaction(size_t rxn);
+    void addSensitivityReaction(size_t rxn) override;
 
     //! Add a sensitivity parameter associated with the enthalpy formation of
     //! species *k* (in the homogeneous phase)
@@ -286,9 +284,6 @@ protected:
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector<double> m_advancelimits; //!< Advance step limit
-
-    // Data associated each sensitivity parameter
-    vector<SensitivityParameter> m_sensParams;
 
     //! Vector of triplets representing the jacobian
     vector<Eigen::Triplet<double>> m_jac_trips;
