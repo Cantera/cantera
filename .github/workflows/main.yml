@@ -9,12 +9,17 @@ on:
     branches:
       - main
       - testing
-      - "3.1"
+      # This workflow does not publish artifacts, so we can ignore the cache
+      # poisoning finding.
+      - "3.1" # zizmor: ignore[cache-poisoning]
   pull_request:
     # Build when a pull request targets main or the maintenance branch
     branches:
       - main
       - "3.1"
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,6 +37,7 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
+          persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -96,6 +102,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -162,6 +169,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -221,6 +229,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Write dependencies to a file for caching
       run: |
         echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
@@ -260,9 +269,7 @@ jobs:
       run: scons test-clib-experimental --debug=time
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Upload shared library
-      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
-      # See https://github.com/actions/upload-artifact/issues/589
-      uses: actions/upload-artifact@v4.3.4
+      uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
       with:
         path: build/lib/libcantera_shared.dylib
@@ -282,6 +289,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup python
       uses: actions/setup-python@v5
       with:
@@ -393,6 +401,7 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
+          persist-credentials: false
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -445,24 +454,26 @@ jobs:
         if: failure() || success()
       - name: Determine whether to deploy
         id: deploy-conf
-        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' }}
+        if: github.event_name == 'push' && github.repository_owner == 'Cantera'
         run: |
-          if [[ ${{ github.ref }} =~ ^refs\/heads\/([0-9]+\.[0-9]+)$ ]]; then
+          if [[ ${GITHUB_REF} =~ ^refs\/heads\/([0-9]+\.[0-9]+)$ ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
               echo "rsync_dest=cantera/${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
               echo "commit=true" >> $GITHUB_OUTPUT
               echo "git_dest=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
               echo "git_branch=staging" >> $GITHUB_OUTPUT
-          elif [[ ${{ github.ref }} == "refs/heads/main" ]]; then
+          elif [[ ${GITHUB_REF} == "refs/heads/main" ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
               echo "rsync_dest=cantera/dev" >> $GITHUB_OUTPUT
-          elif [[ ${{ github.ref }} == "refs/heads/testing" ]]; then
+          elif [[ ${GITHUB_REF} == "refs/heads/testing" ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
               echo "rsync_dest=testing.cantera.org/dev" >> $GITHUB_OUTPUT
               echo "commit=true" >> $GITHUB_OUTPUT
               echo "git_dest=testing" >> $GITHUB_OUTPUT
               echo "git_branch=testing" >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_REF: ${{ github.ref }}
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
@@ -551,6 +562,8 @@ jobs:
       # folder, so no need to do a recursive checkout
       - uses: actions/checkout@v4
         name: Checkout the repository
+        with:
+          persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -634,6 +647,7 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
+          persist-credentials: false
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -700,6 +714,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Set up micromamba
       uses: mamba-org/setup-micromamba@v1
       with:
@@ -784,6 +799,7 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
+          persist-credentials: false
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
@@ -847,6 +863,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -886,6 +903,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Set Up Python
       uses: actions/setup-python@v5
       with:
@@ -955,6 +973,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
+      with:
+        persist-credentials: false
     - name: Override default Python (Windows)
       # Other operating systems use default system Python 3
       uses: actions/setup-python@v5

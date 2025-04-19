@@ -17,6 +17,14 @@ on:
     # Run when main is pushed to
     branches:
       - main
+  pull_request:
+    # Run on pull requests when this file is modified
+    branches:
+      - main
+    paths:
+      - .github/workflows/packaging.yml
+
+permissions: {}
 
 jobs:
   build-packages:
@@ -24,24 +32,31 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Set up the job
+        id: setup
         run: |
-          if [ -n "${{ github.event.inputs.outgoing_ref }}" ]; then
-            echo "REF=${{ github.event.inputs.outgoing_ref }}" >> $GITHUB_ENV
+          if [ -n "${OUTGOING_REF}" ]; then
+            echo "REF=${OUTGOING_REF}" >> $GITHUB_OUTPUT
           else
-            echo "REF=${{ github.ref }}" >> $GITHUB_ENV
+            echo "REF=${GITHUB_REF}" >> $GITHUB_OUTPUT
           fi
-          if [ -n "${{ github.event.inputs.upload_to_pypi }}" ]; then
-            echo "UPLOAD_TO_PYPI=${{ github.event.inputs.upload_to_pypi }}" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == refs/tags* ]]; then
-            echo "UPLOAD_TO_PYPI=true" >> $GITHUB_ENV
+          if [ -n "${UPLOAD_TO_PYPI}" ]; then
+            echo "UPLOAD_TO_PYPI=${UPLOAD_TO_PYPI}" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == refs/tags* ]]; then
+            echo "UPLOAD_TO_PYPI=true" >> $GITHUB_OUTPUT
           else
-            echo "UPLOAD_TO_PYPI=false" >> $GITHUB_ENV
+            echo "UPLOAD_TO_PYPI=false" >> $GITHUB_OUTPUT
           fi
+        env:
+          OUTGOING_REF: ${{ github.event.inputs.outgoing_ref }}
+          UPLOAD_TO_PYPI: ${{ github.event.inputs.upload_to_pypi }}
+          GITHUB_REF: ${{ github.ref }}
       - name: Trigger PyPI/Wheel builds
         run: >
           gh workflow run -R cantera/pypi-packages
           python-package.yml
-          -f incoming_ref=${{ env.REF }}
-          -f upload=${{ env.UPLOAD_TO_PYPI }}
+          -f incoming_ref=${REF}
+          -f upload=${UPLOAD_TO_PYPI}
         env:
           GITHUB_TOKEN: ${{ secrets.PYPI_PACKAGE_PAT }}
+          REF: ${{ steps.setup.outputs.REF }}
+          UPLOAD_TO_PYPI: ${{ steps.setup.outputs.UPLOAD_TO_PYPI }}

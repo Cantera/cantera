@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   linter:
     name: Lint checks
@@ -16,6 +19,7 @@ jobs:
         name: Checkout the repository
         with:
           fetch-depth: 100
+          persist-credentials: true
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -35,7 +39,7 @@ jobs:
         if: (success() || failure()) && steps.changed-cxx-files.outputs.any_changed == 'true'
         run: |
           RETCODE=0
-          for file in ${{ steps.changed-cxx-files.outputs.all_changed_files }}; do
+          for file in ${ALL_CHANGED_FILES}; do
             RESULT=`perl -0777 -ne 'while(m/\n\n *\/\*!.*?\*\//gs){print "$&\n";}' $file`
             if [ "$RESULT" ]; then
               echo ------ ${file} ------
@@ -44,6 +48,8 @@ jobs:
             fi
           done
           exit $RETCODE
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-cxx-files.outputs.all_changed_files }}
       - name: Whitespace errors
         if: success() || failure()
         run: |
