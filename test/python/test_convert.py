@@ -635,13 +635,14 @@ class Testck2yaml:
 
     def test_surface_mech3(self):
         # This tests the case where the thermo data for both the gas and surface are
-        # combined in a file separate from the gas and surface definitions.
+        # combined in a file separate from the gas and surface definitions. Also covers
+        # the case where the surface does not have a name specified.
 
         output = self.convert('surface2-gas.inp', thermo='surface2-thermo.dat',
                               surface='surface2.inp', output='surface2')
         captured = self._capsys.readouterr()
         assert "SITE section implicitly ended" in captured.out
-        surf = ct.Interface(output, 'PT_SURFACE')
+        surf = ct.Interface(output, 'surface1')
 
         assert surf.n_species == 6
         assert surf.n_reactions ==  15

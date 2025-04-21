@@ -1721,11 +1721,12 @@ class Parser:
         # First line contains optional parameters, followed by species declarations
         tokens = lines[0,2].split() or ['']
         self.current_range = [lines[0,0]] * 2
-        if '/' in tokens[0]:
-            surf_name = tokens[0].split('/')[1]
+        if tokens[0].startswith('/'):
+            surf_name = tokens[0].strip('/')
+            tokens = tokens[1:]
         else:
             surf_name = 'surface{}'.format(len(self.surfaces)+1)
-        tokens = tokens[1:]
+
         site_density = None
         for token in tokens[:]:
             if token.upper().startswith('SDEN/'):
