@@ -18,7 +18,6 @@ else:
 
 gas.TP = tin, p
 gas.set_equivalence_ratio(phi, fuel, oxidizer)
-# gas.transport_model = 'UnityLewis'
 
 loglevel = 1 
 refine_grid = 'refine'

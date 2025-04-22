@@ -1649,6 +1649,7 @@ phases:
     state:
       T: 300.0
       P: 1.01325e+05
+    transport: unity-Lewis-number
 species:
   - name: H2
     composition:
