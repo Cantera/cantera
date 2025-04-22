@@ -54,3 +54,5 @@ doc/sphinx/matlab/*.rst
 reduced.yaml
 INSTALL_DIR/
 *.code-workspace
+samples/python/AVBP/RESULTS/
+test_problems/cxx_samples/flamespeed.yaml
