@@ -44,6 +44,10 @@ includes:
   ReactorBase:
   - cantera/zeroD/ReactorFactory.h
   - cantera/zeroD/FlowReactor.h
+  ConnectorNode:
+  - cantera/zeroD/ConnectorFactory.h
+  - cantera/zeroD/flowControllers.h
+  - cantera/zeroD/Wall.h
   Domain1D:
   - cantera/oneD/DomainFactory.h
   Flow1D:

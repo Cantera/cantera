@@ -188,6 +188,7 @@ public:
      */
     double heatRate() override;
 
+    //! Set the thermal resistance of the wall [K*m^2/W].
     void setThermalResistance(double Rth) {
         m_rrth = 1.0/Rth;
     }
