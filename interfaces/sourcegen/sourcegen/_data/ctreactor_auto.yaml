@@ -30,7 +30,7 @@ recipes:
 - name: massFraction
 - name: nSensParams
 - name: addSensitivityReaction
-- name: install
+- name: install  # inconsistent API (pre-existing)
   implements: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: setMassFlowRate
