@@ -1,0 +1,43 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's ReactorBase class.
+  Partially implements a replacement for CLib's traditional @c ctreactor library.
+prefix: reactor3
+base: ReactorBase
+parents: []  # List of parent classes
+derived:  # Specialization/prefix dictionary
+  Reactor: reactor3
+  FlowReactor: reactor3
+  ReactorSurface: reactorsurface3
+recipes:
+- name: new
+  implements: newReactorBase
+- name: type
+- name: name
+- name: setName
+- name: setInitialVolume
+- name: setChemistry
+- name: setEnergy
+- name: mass
+- name: volume
+- name: density
+- name: temperature
+- name: enthalpy_mass
+- name: intEnergy_mass
+- name: pressure
+- name: massFraction
+- name: nSensParams
+- name: addSensitivityReaction
+- name: install
+  implements: addSurface(shared_ptr<ReactorBase>)
+# FlowReactor
+- name: setMassFlowRate
+# ReactorSurface
+- name: area
+- name: setArea
+# service functions
+- name: del
+- name: cabinetSize
+- name: parentHandle

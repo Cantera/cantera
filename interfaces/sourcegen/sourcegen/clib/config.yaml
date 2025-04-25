@@ -41,6 +41,9 @@ includes:
   - cantera/kinetics/ReactionPath.h
   Func1:
   - cantera/numerics/Func1Factory.h
+  ReactorBase:
+  - cantera/zeroD/ReactorFactory.h
+  - cantera/zeroD/FlowReactor.h
   Domain1D:
   - cantera/oneD/DomainFactory.h
   Flow1D:
