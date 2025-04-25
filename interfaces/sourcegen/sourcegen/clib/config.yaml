@@ -48,6 +48,8 @@ includes:
   - cantera/zeroD/ConnectorFactory.h
   - cantera/zeroD/flowControllers.h
   - cantera/zeroD/Wall.h
+  ReactorNet:
+  - cantera/zeroD/ReactorNet.h
   Domain1D:
   - cantera/oneD/DomainFactory.h
   Flow1D:
