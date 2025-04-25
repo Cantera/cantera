@@ -141,6 +141,7 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
+    //! Add a ReactorSurface object to a Reactor object.
     virtual void addSurface(ReactorSurface* surf);
 
     //! Add a ReactorSurface object to a Reactor object.
