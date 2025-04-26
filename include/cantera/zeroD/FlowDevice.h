@@ -42,9 +42,32 @@ public:
         }
     }
 
-    //! Update the mass flow rate at time 'time'. This must be overloaded in
-    //! subclasses to update m_mdot.
+    //! Update the mass flow rate at time 'time'.
+    //! This must be overloaded in derived classes to update m_mdot.
     virtual void updateMassFlowRate(double time) {}
+
+    //! Set the fixed mass flow rate (kg/s) through a flow device.
+    virtual void setMassFlowRate(double mdot) {
+        throw NotImplementedError("FlowDevice::setMassFlowRate");
+    }
+
+    //! Get the device coefficient (defined by derived class).
+    //! @since  New in %Cantera 3.2.
+    double deviceCoefficient() {
+        return m_coeff;
+    }
+
+    //! Set the device coefficient (defined by derived class).
+    //! @since  New in %Cantera 3.2.
+    void setDeviceCoefficient(double c) {
+        m_coeff = c;
+    }
+
+    //! Set the primary mass flow controller.
+    //! @since New in %Cantera 3.2.
+    virtual void setPrimary(shared_ptr<ConnectorNode> primary) {
+        throw NotImplementedError("FlowDevice::setPrimary");
+    }
 
     //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species
     //! is not present in the upstream mixture.
