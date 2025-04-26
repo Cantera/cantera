@@ -1244,6 +1244,11 @@ public:
         throw NotImplementedError("Kinetics::getRevRateConstants");
     }
 
+    //! Forward rate constant by reaction index
+    virtual vector<double> fwdRateConstantsByIndices(const vector<size_t>& indices) {
+        throw NotImplementedError("Kinetics::fwdRateConstant");
+    }
+
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{

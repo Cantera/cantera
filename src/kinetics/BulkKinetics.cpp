@@ -454,6 +454,16 @@ Eigen::SparseMatrix<double> BulkKinetics::netRatesOfProgress_ddCi()
     return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates, false);
 }
 
+vector<double> BulkKinetics::fwdRateConstantsByIndices(const vector<size_t>& indices)
+{
+    updateROP();
+    vector<double> rates(indices.size());
+    for (size_t i = 0; i < indices.size(); i++) {
+        rates[i] = m_kf0[indices[i]];
+    }
+    return rates;
+}
+
 void BulkKinetics::updateROP()
 {
     static const int cacheId = m_cache.getId();
