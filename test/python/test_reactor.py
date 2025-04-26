@@ -24,23 +24,22 @@ class TestReactor:
                       T1=300, P1=101325, X1='O2:1.0',
                       T2=300, P2=101325, X2='O2:1.0'):
 
-        self.net = ct.ReactorNet()
-        assert self.net.initial_time == 0.
-
         self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
         self.r1 = self.reactorClass(self.gas1)
-        self.net.add_reactor(self.r1)
 
         if independent:
             self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         else:
             self.gas2 = self.gas1
 
-        if n_reactors >= 2:
+        if n_reactors == 1:
+            self.net = ct.ReactorNet([self.r1])
+        else:
             self.gas2.TPX = T2, P2, X2
             self.r2 = self.reactorClass(self.gas2)
-            self.net.add_reactor(self.r2)
+            self.net = ct.ReactorNet([self.r1, self.r2])
+        assert self.net.initial_time == 0.
 
     def add_wall(self, **kwargs):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
@@ -428,8 +427,7 @@ class TestReactor:
         gas1.TPX = T0, P0, X0
         r1 = ct.IdealGasConstPressureReactor(gas1)
 
-        net = ct.ReactorNet()
-        net.add_reactor(r1)
+        net = ct.ReactorNet([r1])
         net.advance(1.0)
 
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
@@ -743,7 +741,10 @@ class TestReactor:
 
         pc = ct.PressureController(self.r1, outlet_reservoir)
         pc.primary = mfc
-        pc.pressure_coeff = 1e-5
+        pc.pressure_coeff = 2e-5
+        assert pc.pressure_coeff == 2e-5
+        assert pc.device_coefficient == 2e-5
+        pc.device_coefficient = 1e-5
         assert pc.pressure_coeff == 1e-5
 
         t = 0
@@ -1181,8 +1182,7 @@ class TestWellStirredReactorIgnition:
         valve = ct.Valve(self.combustor, exhaust)
         valve.valve_coeff = 1.0
 
-        self.net = ct.ReactorNet()
-        self.net.add_reactor(self.combustor)
+        self.net = ct.ReactorNet([self.combustor])
         self.net.max_err_test_fails = 10
 
     def integrate(self, tf):
@@ -1432,21 +1432,19 @@ class TestIdealGasMoleReactor(TestMoleReactor):
 
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor
-        net1 = ct.ReactorNet()
         T0 = 900
         P0 = ct.one_atm
         gas1 = ct.Solution("gri30.yaml")
         gas1.TP = T0, P0
         gas1.set_equivalence_ratio(1, "CH4", "O2:1, N2:3.76")
         r1 = ct.IdealGasMoleReactor(gas1)
-        net1.add_reactor(r1)
+        net1 = ct.ReactorNet([r1])
         # Network two with mole reactor and preconditioner
-        net2 = ct.ReactorNet()
         gas2 = ct.Solution("gri30.yaml")
         gas2.TP = T0, P0
         gas2.set_equivalence_ratio(1, "CH4", "O2:1, N2:3.76")
         r2 = ct.IdealGasMoleReactor(gas2)
-        net2.add_reactor(r2)
+        net2 = ct.ReactorNet([r2])
         # add preconditioner
         net2.preconditioner = ct.AdaptivePreconditioner()
         net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
@@ -1653,8 +1651,7 @@ class TestFlowReactor:
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
 
-        net = ct.ReactorNet()
-        net.add_reactor(r)
+        net = ct.ReactorNet([r])
 
         x = 0
         v0 = r.speed
@@ -1669,9 +1666,7 @@ class TestFlowReactor:
 
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
-
-        net = ct.ReactorNet()
-        net.add_reactor(r)
+        net = ct.ReactorNet([r])
 
         i = 0
         while net.distance < 1.0:
@@ -2006,18 +2001,15 @@ class TestFlowReactor2:
 
 class TestSurfaceKinetics:
     def make_reactors(self):
-        self.net = ct.ReactorNet()
-
         self.interface = ct.Interface('diamond.yaml', 'diamond_100')
         self.gas = self.interface.adjacent['gas']
         self.gas.TPX = None, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
         self.r1 = ct.IdealGasReactor(self.gas)
         self.r1.volume = 0.01
-        self.net.add_reactor(self.r1)
-
         self.r2 = ct.IdealGasReactor(self.gas)
         self.r2.volume = 0.01
-        self.net.add_reactor(self.r2)
+
+        self.net = ct.ReactorNet([self.r1, self.r2])
 
     def test_coverages(self):
         self.make_reactors()
@@ -2114,11 +2106,10 @@ class TestSurfaceKinetics:
 
 class TestReactorSensitivities:
     def test_sensitivities1(self):
-        net = ct.ReactorNet()
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
         r1 = ct.IdealGasReactor(gas)
-        net.add_reactor(r1)
+        net = ct.ReactorNet([r1])
 
         assert net.n_sensitivity_params == 0
         r1.add_sensitivity_reaction(40)
@@ -2132,19 +2123,17 @@ class TestReactorSensitivities:
         assert S.shape == (net.n_vars, net.n_sensitivity_params)
 
     def test_sensitivities2(self):
-        net = ct.ReactorNet()
-
         interface = ct.Interface("diamond.yaml", "diamond_100")
         gas1 = interface.adjacent["gas"]
         r1 = ct.IdealGasReactor(gas1)
-        net.add_reactor(r1)
-        net.atol_sensitivity = 1e-10
-        net.rtol_sensitivity = 1e-8
 
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
         r2 = ct.IdealGasReactor(gas2)
-        net.add_reactor(r2)
+
+        net = ct.ReactorNet([r1, r2])
+        net.atol_sensitivity = 1e-10
+        net.rtol_sensitivity = 1e-8
 
         surf = ct.ReactorSurface(interface, r1, A=1.5)
 
@@ -2181,11 +2170,9 @@ class TestReactorSensitivities:
         gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(params):
-            net = ct.ReactorNet()
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-
             r = reactorClass(gas)
-            net.add_reactor(r)
+            net = ct.ReactorNet([r])
 
             for kind, p in params:
                 if kind == 'r':
@@ -2236,7 +2223,6 @@ class TestReactorSensitivities:
         gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(reverse=False):
-            net = ct.ReactorNet()
             gas1 = ct.Solution('h2o2.yaml', transport_model=None)
             gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
             rA = ct.IdealGasReactor(gas1)
@@ -2244,12 +2230,10 @@ class TestReactorSensitivities:
             gas2 = ct.Solution('h2o2.yaml', transport_model=None)
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
             rB = ct.IdealGasReactor(gas2)
+            reactors = [rA, rB]
             if reverse:
-                net.add_reactor(rB)
-                net.add_reactor(rA)
-            else:
-                net.add_reactor(rA)
-                net.add_reactor(rB)
+                reactors = reactors[-1::-1]
+            net = ct.ReactorNet(reactors)
 
             return rA, rB, net
 
@@ -2303,7 +2287,6 @@ class TestReactorSensitivities:
         def setup(order):
             gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
             gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-            net = ct.ReactorNet()
             rA = ct.IdealGasReactor(gas1)
             rB = ct.IdealGasReactor(gas2)
 
@@ -2325,11 +2308,9 @@ class TestReactorSensitivities:
             surfY.coverages = C2
 
             if order // 2 == 0:
-                net.add_reactor(rA)
-                net.add_reactor(rB)
+                net = ct.ReactorNet([rA, rB])
             else:
-                net.add_reactor(rB)
-                net.add_reactor(rA)
+                net = ct.ReactorNet([rB, rA])
 
             return rA, rB, surfX, surfY, net
 

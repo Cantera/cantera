@@ -19,11 +19,10 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    auto reactor = newReactor("IdealGasReactor", sol, "simple");
+    auto reactor = newReactor4("IdealGasReactor", sol, "simple");
     ASSERT_EQ(reactor->name(), "simple");
     reactor->initialize();
-    ReactorNet network;
-    network.addReactor(dynamic_cast<IdealGasReactor&>(*reactor));
+    ReactorNet network(reactor);
     network.initialize();
 
     double t = 0.0;
@@ -56,12 +55,20 @@ TEST(zerodim, test_guards)
     EXPECT_THROW(Valve().updateMassFlowRate(0.), CanteraError);
 }
 
+TEST(zerodim, reservoir)
+{
+    auto gas = newSolution("gri30.yaml", "gri30", "none");
+    auto res = newReservoir(gas, "my-reservoir");
+    ASSERT_EQ(res->type(), "Reservoir");
+    ASSERT_EQ(res->name(), "my-reservoir");
+}
+
 TEST(zerodim, flowdevice)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactor("IdealGasReactor", gas, "upstream");
-    auto node1 = newReactor("IdealGasReactor", gas, "downstream");
+    auto node0 = newReactor4("IdealGasReactor", gas, "upstream");
+    auto node1 = newReactor4("IdealGasReactor", gas, "downstream");
 
     auto valve = newFlowDevice("Valve", node0, node1, "valve");
     ASSERT_EQ(valve->name(), "valve");
@@ -78,8 +85,8 @@ TEST(zerodim, wall)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactor("IdealGasReactor", gas, "left");
-    auto node1 = newReactor("IdealGasReactor", gas, "right");
+    auto node0 = newReactor4("IdealGasReactor", gas, "left");
+    auto node1 = newReactor4("IdealGasReactor", gas, "right");
 
     auto wall = newWall("Wall", node0, node1, "wall");
     ASSERT_EQ(wall->name(), "wall");
@@ -108,11 +115,10 @@ TEST(zerodim, mole_reactor)
     mfc->setMassFlowRate(mass/residenceTime);
 
     auto preg = make_shared<PressureController>(stirred, exhaust, "pressure-regulator");
-    preg->setPrimary(mfc.get());
-    preg->setPressureCoeff(1e-3);
+    preg->setPrimary(mfc);
+    preg->setDeviceCoefficient(1e-3);
 
-    auto net = ReactorNet();
-    net.addReactor(*stirred);
+    auto net = ReactorNet(stirred);
     net.initialize();
 }
 
@@ -121,30 +127,28 @@ TEST(zerodim, mole_reactor_2)
     // simplified version of continuous_reactor.py
     auto gas = newSolution("h2o2.yaml", "ohmech", "none");
 
-    auto tank = std::dynamic_pointer_cast<Reservoir>(
-        newReactor("Reservoir", gas, "fuel-air-tank"));
-    auto exhaust = std::dynamic_pointer_cast<Reservoir>(
-        newReactor("Reservoir", gas, "exhaust"));
+    auto tank = newReservoir(gas, "fuel-air-tank");
+    auto exhaust = newReservoir(gas, "exhaust");
 
-    auto stirred = std::dynamic_pointer_cast<IdealGasMoleReactor>(
-        newReactor("IdealGasMoleReactor", gas, "stirred-reactor"));
+    auto stirred = newReactor4(
+        "IdealGasMoleReactor", gas, "stirred-reactor");
     stirred->setEnergy(0);
     stirred->setInitialVolume(30.5 * 1e-6);
 
-    auto mfc = std::dynamic_pointer_cast<MassFlowController>(
-        newConnectorNode("MassFlowController", tank, stirred, "mass-flow-controller"));
+    auto mfc = newFlowDevice(
+        "MassFlowController", tank, stirred, "mass-flow-controller");
     double residenceTime = 2.;
     double mass = stirred->mass();
     mfc->setMassFlowRate(mass/residenceTime);
 
-    auto preg = std::dynamic_pointer_cast<PressureController>(
-        newConnectorNode("PressureController", stirred, exhaust, "pressure-regulator"));
-    preg->setPrimary(mfc.get());
-    preg->setPressureCoeff(1e-3);
+    auto preg = newFlowDevice(
+        "PressureController", stirred, exhaust, "pressure-regulator");
+    preg->setPrimary(mfc);
+    preg->setDeviceCoefficient(1e-3);
 
-    auto net = ReactorNet();
-    net.addReactor(*stirred);
-    net.initialize();
+    vector<shared_ptr<ReactorBase>> reactors{stirred};
+    auto net = newReactorNet(reactors);
+    net->initialize();
 }
 
 // This test ensures that prior reactor initialization of a reactor does
@@ -161,12 +165,11 @@ TEST(zerodim, test_individual_reactor_initialization)
     shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
-    Reactor reactor1(sol1);
+    auto reactor1 = newReactor4("Reactor", sol1);
     // initialize reactor prior to integration to ensure no impact
-    reactor1.initialize();
+    reactor1->initialize();
     // setup reactor network and integrate
-    ReactorNet network;
-    network.addReactor(reactor1);
+    ReactorNet network(reactor1);
     network.initialize();
     network.advance(1.0);
     // secondary gas for comparison
@@ -174,16 +177,16 @@ TEST(zerodim, test_individual_reactor_initialization)
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
-    Reactor reactor2(sol2);
-    reactor2.initialize(0.0);
+    auto reactor2 = newReactor4("Reactor", sol2);
+    reactor2->initialize(0.0);
     // get state of reactors
-    vector<double> state1(reactor1.neq());
-    vector<double> state2(reactor2.neq());
-    reactor1.getState(state1.data());
-    reactor2.getState(state2.data());
+    vector<double> state1(reactor1->neq());
+    vector<double> state2(reactor2->neq());
+    reactor1->getState(state1.data());
+    reactor2->getState(state2.data());
     // compare the reactors.
-    EXPECT_EQ(reactor1.neq(), reactor2.neq());
-    for (size_t i = 0; i < reactor1.neq(); i++) {
+    EXPECT_EQ(reactor1->neq(), reactor2->neq());
+    for (size_t i = 0; i < reactor1->neq(); i++) {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
 }
@@ -273,11 +276,10 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     // setting up solution object and thermo/kinetics pointers
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasMoleReactor reactor(sol);
-    reactor.setInitialVolume(0.5);
+    auto reactor = newReactor4("IdealGasMoleReactor", sol);
+    reactor->setInitialVolume(0.5);
     // setup reactor network and integrate
-    ReactorNet network;
-    network.addReactor(reactor);
+    ReactorNet network(reactor);
     // setup preconditioner
     shared_ptr<SystemJacobian> precon_ptr = newSystemJacobian("Adaptive");
     network.setPreconditioner(precon_ptr);
