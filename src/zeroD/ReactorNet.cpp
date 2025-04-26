@@ -22,6 +22,20 @@ ReactorNet::ReactorNet()
     suppressErrors(true);
 }
 
+ReactorNet::ReactorNet(shared_ptr<ReactorBase> reactor)
+{
+    suppressErrors(true);
+    addReactor(reactor);
+}
+
+ReactorNet::ReactorNet(vector<shared_ptr<ReactorBase>>& reactors)
+{
+    suppressErrors(true);
+    for (auto& reactor : reactors) {
+        addReactor(reactor);
+    }
+}
+
 ReactorNet::~ReactorNet()
 {
 }
@@ -284,6 +298,9 @@ int ReactorNet::lastOrder() const
 
 void ReactorNet::addReactor(Reactor& r)
 {
+    warn_deprecated("ReactorNet::addReactor",
+                    "To be removed after Cantera 3.2. Replaceable by reactor net "
+                    "instantiation with contents.");
     for (auto current : m_reactors) {
         if (current->isOde() != r.isOde()) {
             throw CanteraError("ReactorNet::addReactor",
@@ -307,6 +324,40 @@ void ReactorNet::addReactor(Reactor& r)
         m_integ->setLinearSolverType("DENSE");
     }
     updateNames(r);
+}
+
+void ReactorNet::addReactor(shared_ptr<ReactorBase> reactor)
+{
+    auto r = std::dynamic_pointer_cast<Reactor>(reactor);
+    if (!r) {
+        throw CanteraError("ReactorNet::addReactor",
+                           "Reactor with type '{}' cannot be added to network.",
+                           reactor->type());
+    }
+
+    for (auto current : m_reactors) {
+        if (current->isOde() != r->isOde()) {
+            throw CanteraError("ReactorNet::addReactor",
+                "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
+                current->type(), r->type());
+        }
+        if (current->timeIsIndependent() != r->timeIsIndependent()) {
+            throw CanteraError("ReactorNet::addReactor",
+                "Cannot mix Reactor types using time and space as independent variables"
+                "\n({} and {})", current->type(), r->type());
+        }
+    }
+    m_timeIsIndependent = r->timeIsIndependent();
+    r->setNetwork(this);
+    m_reactors.push_back(r.get());
+    if (!m_integ) {
+        m_integ.reset(newIntegrator(r->isOde() ? "CVODE" : "IDA"));
+        // use backward differencing, with a full Jacobian computed
+        // numerically, and use a Newton linear iterator
+        m_integ->setMethod(BDF_Method);
+        m_integ->setLinearSolverType("DENSE");
+    }
+    updateNames(*r);
 }
 
 void ReactorNet::updateNames(Reactor& r)
@@ -617,6 +668,11 @@ void ReactorNet::checkPreconditionerSupported() const {
                 reactor->type());
         }
     }
+}
+
+shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors)
+{
+    return make_shared<ReactorNet>(reactors);
 }
 
 }
