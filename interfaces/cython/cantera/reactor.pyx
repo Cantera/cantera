@@ -17,8 +17,8 @@ cdef class ReactorBase:
     """
     reactor_type = "none"
     def __cinit__(self, _SolutionBase contents, *args, name="(none)", **kwargs):
-        self._rbase = newReactor(stringify(self.reactor_type),
-                                 contents._base, stringify(name))
+        self._rbase = newReactorBase(stringify(self.reactor_type),
+                                     contents._base, stringify(name))
         self.rbase = self._rbase.get()
 
     def __init__(self, _SolutionBase contents=None, *args,
@@ -1176,7 +1176,7 @@ cdef class Wall(WallBase):
             f = Func1(v)
 
         self._velocity_func = f
-        (<CxxWall*>(self.wall)).setVelocity(f.func)
+        (<CxxWall*>(self.wall)).setVelocity(f._func)
 
     @property
     def heat_flux(self):
@@ -1197,7 +1197,7 @@ cdef class Wall(WallBase):
             f = Func1(q)
 
         self._heat_flux_func = f
-        (<CxxWall*>self.wall).setHeatFlux(f.func)
+        (<CxxWall*>self.wall).setHeatFlux(f._func)
 
 
 cdef class FlowDevice(ConnectorNode):
@@ -1276,7 +1276,7 @@ cdef class FlowDevice(ConnectorNode):
         else:
             f = Func1(k)
         self._rate_func = f
-        self.dev.setPressureFunction(f.func)
+        self.dev.setPressureFunction(f._func)
 
     @property
     def time_function(self):
@@ -1303,8 +1303,25 @@ cdef class FlowDevice(ConnectorNode):
         else:
             g = Func1(k)
         self._time_func = g
-        self.dev.setTimeFunction(g.func)
+        self.dev.setTimeFunction(g._func)
 
+    @property
+    def device_coefficient(self):
+        """
+        Device coefficient (defined by derived class).
+
+        Example:
+
+        >>> v = Valve(res1, reactor1)
+        >>> v.device_coefficient = 1e-4  # Set the 'valve coefficient'
+
+        .. versionadded:: 3.2
+        """
+        return self.dev.deviceCoefficient()
+
+    @device_coefficient.setter
+    def device_coefficient(self, double value):
+        self.dev.setDeviceCoefficient(value)
 
     def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None):
         """
@@ -1509,7 +1526,7 @@ cdef class PressureController(FlowDevice):
 
     @primary.setter
     def primary(self, FlowDevice d):
-        (<CxxPressureController*>self.dev).setPrimary(d.dev)
+        self.dev.setPrimary(d._node)
 
 
 cdef class ReactorNet:
@@ -1528,11 +1545,25 @@ cdef class ReactorNet:
     """
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection
-        for R in reactors:
-            self.add_reactor(R)
+        cdef vector[shared_ptr[CxxReactorBase]] cxx_reactors
+        cdef Reactor r
+        for r in reactors:
+            self._reactors.append(r)
+            cxx_reactors.push_back(r._rbase)
+        self._net = CxxNewReactorNet(cxx_reactors)
+        self.net = self._net.get()
 
     def add_reactor(self, Reactor r):
-        """Add a reactor to the network."""
+        """
+        Add a reactor to the network.
+        .. deprecated:: 3.2
+
+            After Cantera 3.2, a change of reactor net contents after instantiation
+            will be disabled and this method will be removed.
+        """
+        warnings.warn("ReactorNet.add_reactor: A change of reactor net contents after "
+            "instantiation will be disabled and this method will be removed.",
+            DeprecationWarning)
         self._reactors.append(r)
         self.net.addReactor(deref(r.reactor))
 
