@@ -30,6 +30,10 @@ class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
+    //! Create reactor net containing single reactor.
+    ReactorNet(shared_ptr<ReactorBase> reactor);
+    //! Create reactor net from multiple reactors.
+    ReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
     ~ReactorNet() override;
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
@@ -136,6 +140,8 @@ public:
     double step();
 
     //! Add the reactor *r* to this reactor network.
+    //! @deprecated  To be removed after Cantera 3.2. Replaceable by reactor net
+    //!     instantiation with contents.
     void addReactor(Reactor& r);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
@@ -300,6 +306,10 @@ public:
     virtual void setDerivativeSettings(AnyMap& settings);
 
 protected:
+    //! Add the reactor *r* to this reactor network.
+    //! @since  Changed in %Cantera 3.2.
+    void addReactor(shared_ptr<ReactorBase> reactor);
+
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
@@ -363,6 +373,15 @@ protected:
     vector<double> m_LHS;
     vector<double> m_RHS;
 };
+
+/**
+ * Create a reactor network containing one or more coupled reactors.
+ * Wall and FlowDevice objects should be installed prior to calling newReactorNet().
+ * @param reactors  A vector of shared pointers to the reactors to be linked together.
+ * @since New in %Cantera 3.2.
+ */
+shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
+
 }
 
 #endif
