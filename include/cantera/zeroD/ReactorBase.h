@@ -143,6 +143,9 @@ public:
 
     virtual void addSurface(ReactorSurface* surf);
 
+    //! Add a ReactorSurface object to a Reactor object.
+    void addSurface(shared_ptr<ReactorBase> surf);
+
     //! Return a reference to the *n*-th ReactorSurface connected to this reactor.
     ReactorSurface* surface(size_t n);
 
