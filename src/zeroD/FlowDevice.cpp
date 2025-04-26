@@ -16,7 +16,7 @@ FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
 {
     if (!m_nodes.first || !m_nodes.second) {
         warn_deprecated("FlowDevice::FlowDevice",
-            "After Cantera 3.1, Reactors must be provided to a FlowDevice "
+            "After Cantera 3.2, Reactors must be provided to a FlowDevice "
             "constructor.");
         return;
     }
@@ -48,7 +48,7 @@ FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
     warn_deprecated("FlowDevice::install",
-        "To be removed after Cantera 3.1. Reactors should be provided to constructor "
+        "To be removed after Cantera 3.2. Reactors should be provided to constructor "
         "instead.");
     if (m_in || m_out) {
         throw CanteraError("FlowDevice::install", "Already installed");
