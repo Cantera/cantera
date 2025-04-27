@@ -81,6 +81,9 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 
 void FlowDevice::setPressureFunction(Func1* f)
 {
+    warn_deprecated("FlowDevice::setPressureFunction",
+                    "To be removed after Cantera 3.2. Replaceable by version using "
+                    "shared pointer.");
     m_pfunc = f;
 }
 
@@ -95,6 +98,9 @@ double FlowDevice::evalPressureFunction()
 
 void FlowDevice::setTimeFunction(Func1* g)
 {
+    warn_deprecated("FlowDevice::setTimeFunction",
+        "To be removed after Cantera 3.2. Replaceable by version using "
+        "shared pointer.");
     m_tfunc = g;
 }
 
