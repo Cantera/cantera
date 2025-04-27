@@ -30,8 +30,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef shared_ptr[CxxReactorBase] newReactor(string) except +translate_exception
-    cdef shared_ptr[CxxReactorBase] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
+    cdef shared_ptr[CxxReactorBase] newReactorBase(string, shared_ptr[CxxSolution], string) except +translate_exception
     cdef shared_ptr[CxxConnectorNode] newConnectorNode(string, shared_ptr[CxxReactorBase], shared_ptr[CxxReactorBase], string) except +translate_exception
 
     # reactors
@@ -126,9 +125,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setEmissivity(double) except +translate_exception
         double getEmissivity()
         double velocity()
-        void setVelocity(CxxFunc1*)
+        void setVelocity(shared_ptr[CxxFunc1])
         double heatFlux()
-        void setHeatFlux(CxxFunc1*)
+        void setHeatFlux(shared_ptr[CxxFunc1])
 
     # flow devices
 
@@ -137,9 +136,12 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         double evalPressureFunction() except +translate_exception
-        void setPressureFunction(CxxFunc1*) except +translate_exception
+        void setPressureFunction(shared_ptr[CxxFunc1]) except +translate_exception
         double evalTimeFunction() except +translate_exception
-        void setTimeFunction(CxxFunc1*) except +translate_exception
+        void setTimeFunction(shared_ptr[CxxFunc1]) except +translate_exception
+        void setPrimary(shared_ptr[CxxConnectorNode]) except +translate_exception
+        double deviceCoefficient()
+        void setDeviceCoefficient(double)
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
         CxxMassFlowController() except +translate_exception
@@ -156,9 +158,11 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxPressureController()
         double getPressureCoeff()
         void setPressureCoeff(double)
-        void setPrimary(CxxFlowDevice*)
 
     # reactor net
+
+    cdef shared_ptr[CxxReactorNet] CxxNewReactorNet "newReactorNet" (
+        vector[shared_ptr[CxxReactorBase]]&) except +translate_exception
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
@@ -286,7 +290,6 @@ cdef class ConnectorNode:
     """
 
 cdef class WallBase(ConnectorNode):
-    # cdef shared_ptr[CxxWallBase] _wall
     cdef CxxWallBase* wall
     cdef object _velocity_func
     cdef object _heat_flux_func
@@ -297,7 +300,6 @@ cdef class Wall(WallBase):
     pass
 
 cdef class FlowDevice(ConnectorNode):
-    # cdef shared_ptr[CxxFlowDevice] _dev
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func
@@ -314,5 +316,6 @@ cdef class PressureController(FlowDevice):
     pass
 
 cdef class ReactorNet:
-    cdef CxxReactorNet net
+    cdef shared_ptr[CxxReactorNet] _net
+    cdef CxxReactorNet* net
     cdef list _reactors

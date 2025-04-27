@@ -1650,6 +1650,20 @@ extern "C" {
         }
     }
 
+    int ct_suppress_deprecation_warnings(int suppress)
+    {
+        try {
+            if (suppress != 0) {
+                suppress_deprecation_warnings();
+            } else {
+                make_deprecation_warnings_fatal();
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_use_legacy_rate_constants(int legacy)
     {
         try {
