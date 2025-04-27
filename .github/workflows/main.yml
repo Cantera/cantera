@@ -65,9 +65,9 @@ jobs:
           LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
           echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@v2
+        uses: matlab-actions/setup-matlab@718d4320188c73c86eb94ce76b553cbf89778487 # v2.5.0
       - name: Run tests
-        uses: matlab-actions/run-tests@v2
+        uses: matlab-actions/run-tests@f9fc3d8ca29fadef6227fa52884b144b9011fa2f # v2.1.1
         with:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
@@ -342,9 +342,9 @@ jobs:
         LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@v2
+      uses: matlab-actions/setup-matlab@718d4320188c73c86eb94ce76b553cbf89778487 # v2.5.0
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@v1
+      uses: matlab-actions/run-command@67f012f1ee4bc1627a7a95a0ccdeec745c9f6f36 # v2.2.1
       env:
         CANTERA_ROOT: /home/runner/work/cantera/cantera
         CANTERA_DATA: /home/runner/work/cantera/cantera/data
@@ -383,7 +383,7 @@ jobs:
         path: test/matlab_experimental/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab_experimental/matlabCoverage.xml
@@ -403,7 +403,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
         with:
           environment-name: test-env
           create-args: >-
@@ -479,7 +479,7 @@ jobs:
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
         if: steps.deploy-conf.outputs.match == 'true'
-        uses: shimataro/ssh-key-action@v2
+        uses: shimataro/ssh-key-action@d4fffb50872869abe2d9a9098a6d9c5aa7d16be4 # v2.7.0
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
@@ -649,7 +649,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -716,7 +716,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@v1
+      uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -920,7 +920,7 @@ jobs:
         path: ${{env.BOOST_ROOT}}
         key: boost-187-win
     - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@v2
+      uses: egor-tensin/setup-mingw@84c781b557efd538dec66bde06988d81cd3138cf # v2.2.0
       with:
         platform: x64
         static: false
@@ -986,7 +986,7 @@ jobs:
       # Install Python dependencies, which are used by 'dotnet build'
       run: python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@v1
+      uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
