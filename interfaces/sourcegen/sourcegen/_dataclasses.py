@@ -68,6 +68,8 @@ class Param:
         """String representation of the parameter with parameter name."""
         if not self.name:
             raise ValueError(f"Parameter name is undefined: {self}")
+        if self.base:
+            return f"{self.p_type} {self.base}::{self.name}"
         return f"{self.p_type} {self.name}"
 
 
@@ -158,7 +160,7 @@ class CFunc(Func):
     """Represents an annotated function declaration in a C/C++ header file."""
 
     brief: str = ""  #: Brief description (optional)
-    implements: Self = None  #: Implemented C++ function/method (optional)
+    implements: Self | Param = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
     uses: list[Self] | None = None  #: List of auxiliary C++ methods (optional)
@@ -240,7 +242,7 @@ class HeaderFile:
     prefix: str = ""  #: prefix used for CLib function names
     base: str = ""  #: base class of C++ methods (if applicable)
     parents: list[str] | None = None  #: list of C++ parent class(es)
-    derived: list[str] | None = None  #: list of C++ specialization(s)
+    derived: dict[str, str] | None = None  #: dictionary with alternative prefixes
     recipes: list[Recipe] | None = None  #: list of header recipes read from YAML
     docstring: list[str] | None = None  #: lines representing docstring of YAML file
 

@@ -14,7 +14,7 @@ import logging
 
 from jinja2 import Environment, BaseLoader
 
-from .._dataclasses import HeaderFile, CFunc
+from .._dataclasses import HeaderFile, CFunc, Param
 from .._SourceGenerator import SourceGenerator
 
 
@@ -43,13 +43,19 @@ class YamlSourceGenerator(SourceGenerator):
             implements = ""
             if isinstance(c_func.implements, CFunc):
                 implements = c_func.implements.short_declaration()
+            elif isinstance(c_func.implements, Param):
+                implements = c_func.implements.long_str()
+            uses = []
+            for fcn in c_func.uses:
+                uses.append(fcn.short_declaration())
             declarations.append(
                 definition.render(c_func=c_func,
                                   returns=c_func.returns, implements=implements,
-                                  relates=c_func.uses, what=recipe.what))
+                                  uses=uses, what=recipe.what))
 
         filename = headers.output_name(suffix="3.yaml")
-        template = loader.from_string(self._templates["yaml-file"])
+        t_file = Path(__file__).parent / "output_template.yaml.in"
+        template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(filename=filename.name, header_entries=declarations)
 
         out = Path(self._out_dir) / "yaml" / filename.name
