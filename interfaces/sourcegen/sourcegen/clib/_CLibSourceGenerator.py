@@ -52,6 +52,8 @@ class CLibSourceGenerator(SourceGenerator):
         implements = what
         if isinstance(c_func.implements, CFunc):
             implements += f": {c_func.implements.short_declaration()}"
+        elif isinstance(c_func.implements, Param):
+            implements += f": {c_func.implements.long_str()}"
         block = template.render(
             brief=c_func.brief,
             params=[param(par) for par in c_func.arglist],

@@ -211,8 +211,8 @@ class TagFileParser:
             elif not args:
                 # Function does not use arguments
                 known = "\n - ".join([""] + known_args)
-                msg = (f"Need argument list to disambiguate {func_string!r}. "
-                       f"possible matches are:{known}")
+                msg = (f"Need argument list to disambiguate {func_string!r}.\n"
+                       f"Possible matches are:{known}")
                 _LOGGER.critical(msg)
                 sys.exit(1)
             else:
