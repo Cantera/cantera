@@ -1,7 +1,7 @@
-# Adding Features to the .NET API
+# Adding Features to the CLib API
 
 ```{warning}
-The .NET API is an experimental part of Cantera and
+The CLib API is an experimental part of Cantera and
 may be changed or removed without notice.
 ```
 
