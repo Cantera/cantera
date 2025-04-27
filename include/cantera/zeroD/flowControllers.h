@@ -57,6 +57,10 @@ public:
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
+    void setPressureFunction(shared_ptr<Func1> f) override {
+        throw NotImplementedError("MassFlowController::setPressureFunction");
+    }
+
     //! If a function of time has been specified for mdot, then update the
     //! stored mass flow rate. Otherwise, mdot is a constant, and does not
     //! need updating.
@@ -113,6 +117,10 @@ public:
     }
 
     void setTimeFunction(Func1* g) override {
+        throw NotImplementedError("PressureController::setTimeFunction");
+    }
+
+    void setTimeFunction(shared_ptr<Func1> f) override {
         throw NotImplementedError("PressureController::setTimeFunction");
     }
 
