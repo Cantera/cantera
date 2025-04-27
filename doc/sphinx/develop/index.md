@@ -68,6 +68,21 @@ writing-examples
 doc-formatting
 ```
 
+## Generated API Code
+
+- [](sourcegen)
+- [](clib-extensions)
+- [](dotnet-extensions)
+
+```{toctree}
+:caption: Generated API Code
+:hidden:
+
+sourcegen
+clib-extensions
+dotnet-extensions
+```
+
 (sec-distributing)=
 ## Releasing & Distributing Cantera
 
