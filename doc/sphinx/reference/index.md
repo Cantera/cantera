@@ -23,6 +23,24 @@ mechanism files.
 :text-align: center
 ```
 
+```{grid-item-card} CLib API Reference
+:link: /clib/index
+:link-type: doc
+:text-align: center
+```
+
+```{grid-item-card} MATLAB Toolbox Reference
+:link: /matlab/index
+:link-type: doc
+:text-align: center
+```
+
+```{grid-item-card} .NET API Reference
+:link: /dotnet/index
+:link-type: doc
+:text-align: center
+```
+
 ```{grid-item-card} YAML Format Reference
 :link: /yaml/index
 :link-type: doc
@@ -44,6 +62,9 @@ mechanism files.
 
 /python/index
 /yaml/index
+matlab/index
+clib/index
+dotnet/index
 releasenotes/index
 ```
 
