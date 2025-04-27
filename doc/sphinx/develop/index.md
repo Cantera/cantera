@@ -71,6 +71,7 @@ doc-formatting
 ## Generated API Code
 
 - [](sourcegen)
+- [](sourcegen-config)
 - [](clib-extensions)
 - [](dotnet-extensions)
 
@@ -79,6 +80,7 @@ doc-formatting
 :hidden:
 
 sourcegen
+sourcegen-config
 clib-extensions
 dotnet-extensions
 ```
