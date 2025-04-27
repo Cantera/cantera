@@ -42,6 +42,8 @@ void exit_with_error()
 
 int main(int argc, char** argv)
 {
+    ct_suppress_deprecation_warnings(0); // throw errors for deprecated functions
+
     int soln = soln_newSolution("gri30.yaml", "gri30", "default");
     // In principle, one ought to check for errors after every Cantera call. But this
     // is the only one likely to occur in part of this example, due to the input file
@@ -89,7 +91,9 @@ int main(int argc, char** argv)
     printf("\ntime       Temperature\n");
     int reactor = reactor_new("IdealGasReactor", soln, "test");
     int net = reactornet_new();
+    ct_suppress_deprecation_warnings(1);
     reactornet_addreactor(net, reactor);
+    ct_suppress_deprecation_warnings(0);
 
     double t = 0.0;
     int ret = 0;
