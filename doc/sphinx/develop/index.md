@@ -74,6 +74,7 @@ doc-formatting
 - [](sourcegen-config)
 - [](clib-extensions)
 - [](dotnet-extensions)
+- [](yaml-extensions)
 
 ```{toctree}
 :caption: Generated API Code
@@ -83,6 +84,7 @@ sourcegen
 sourcegen-config
 clib-extensions
 dotnet-extensions
+yaml-extensions
 ```
 
 (sec-distributing)=
