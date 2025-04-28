@@ -26,7 +26,7 @@ built around a specific Cantera class. The following fields are supported:
     methods and to better differentiate CLib method names (default: `{}`).
 - `recipes`: List of CLib *recipes* (see below).
 
-(sec-sourcegen-function-types)
+(sec-sourcegen-function-types)=
 ## CLib Function Types
 
 The *sourcegen* utility implements logic to automatically detect CLib functions types

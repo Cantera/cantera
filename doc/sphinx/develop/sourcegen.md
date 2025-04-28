@@ -19,13 +19,13 @@ The sourcegen utility is a command-line tool that is not separately installed. I
 it is run directly from the Cantera source code subfolder at `interfaces/sourcegen/`.
 Running:
 
-```raw
+```shell
 % python run.py --help
 ```
 
 displays the following help text:
 
-```raw
+```shell
 usage: run.py [-h] [-v] [--api API] [--output OUTPUT]
 
 Experimental source generator for creating Cantera interface code.
@@ -117,11 +117,13 @@ language-specific sub-package.
    Each sub-package can contain a yaml-based config file named `config.yaml`. The core
    script recognizes two special keys:
 
-   - `ignore_files`: a list of header file names\
+   - `ignore_files`: a list of YAML specification file names\
      These files will be ignored entirely from source generation, for example because
-     they cannot be parsed directly or contain functionality that is not planned for implementation in the destination language.
-   - `ignore_funcs`: a mapping of header file names to lists of function names\
-     The listed functions contained within those files will not be scaffolded, for
+     they cannot be parsed directly or contain functionality that is not planned for
+     implementation in the destination language.
+   - `ignore_funcs`: a mapping of YAML specification file names to lists of recipe
+     names\
+     The listed recipes contained within those files will not be scaffolded, for
      example because they cannot be translated automatically and need to be written by
      hand in the destination language.
 
@@ -130,3 +132,8 @@ language-specific sub-package.
 
 Further processing of auto-generated code depends on the build process of the
 destination language.
+
+```{tip}
+The [YAML Source Generator](yaml-extensions) serves as an example to illustrate
+code generation based on `HeaderFile` contents.
+```
