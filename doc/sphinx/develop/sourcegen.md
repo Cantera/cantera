@@ -1,11 +1,11 @@
-# Automatic Code Generation Utility
+# Automated Code Generation
 
-```{warning}
-The sourcegen utility is an experimental part of Cantera and may be changed or
+```{caution}
+The **sourcegen** utility is an experimental part of Cantera and may be changed or
 removed without notice.
 ```
 
-Cantera's sourcegen utility is a Python based source generator for creating Cantera
+Cantera's **sourcegen** utility is a Python based source generator for creating Cantera
 interfaces for other languages. The following output options are supported:
 
 - `clib`: [](clib-extensions); used to generate the [CLib API](../clib/index).
@@ -67,11 +67,11 @@ Automatic code generation involves initialization steps to resolve CLib interfac
 information. A subsequent scaffolding step delegates the source generation to a
 language-specific sub-package.
 
-1. **Parse Header Files:**
+1. **Parse Header File Specifications:**
 
-   The commandline utility relies on a `HeaderFileParser` object that parses YAML
-   specification files and generates intermediate `HeaderFile` objects that represent
-   individual CLib modules. The `HeaderFile` dataclass contains the following
+   The commandline utility relies on a `HeaderFileParser` object that parses
+   [](sec-sourcegen-specifications) and generates intermediate `HeaderFile` objects that
+   represent individual CLib modules. The `HeaderFile` dataclass contains the following
    information:
 
    - `path`: Output folder.
@@ -87,7 +87,8 @@ language-specific sub-package.
 
 1. **Resolve Recipes:**
 
-   As a minimum, a [YAML Recipe](sec-sourcegen-recipes) specifies a `name` that either corresponds to a function within the `Cantera` namespace or a method or variable of
+   As a minimum, a [YAML Recipe](sec-sourcegen-recipes) specifies a `name` that either
+   corresponds to a function within the `Cantera` namespace or a method or variable of
    the implemented base class. The `CLibSourceGenerator.resolve_tags` method is used
    to cross-reference individual recipes with known doxygen tags. The information is
    used to detect the [CLib Function Type](sec-sourcegen-function-types) of a recipe and
