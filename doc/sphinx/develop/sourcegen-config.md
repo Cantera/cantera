@@ -49,6 +49,7 @@ based on a recipe, which is subsequently used to scaffold API functions using de
     CLib storage (examples: `cabinetSize`, `parentHandle`) or functions that do not have
     a C++ equivalent (example: `getCanteraError`).
 
+(sec-sourcegen-recipes)=
 ## YAML Recipes
 
 Recipes include all information required for the auto-generation of a corresponding
