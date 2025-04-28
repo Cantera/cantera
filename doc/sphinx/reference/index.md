@@ -61,10 +61,10 @@ mechanism files.
 :caption: API Reference
 
 /python/index
+/matlab/index
+/clib/index
+/dotnet/index
 /yaml/index
-matlab/index
-clib/index
-dotnet/index
 releasenotes/index
 ```
 
