@@ -54,3 +54,79 @@ and methods. For more information, see [](sourcegen-config).
 The utility is used to generate the [CLib API](clib-extensions) itself, as well as
 auto-generated language interfaces built on top of it, such as the .NET interface and
 others.
+
+## Details
+
+```{note}
+The detailed description assumes that header file information is generated based on
+[](sec-sourcegen-specifications). The .NET source generator parses CLib header files
+instead.
+```
+
+Automatic code generation involves initialization steps to resolve CLib interface
+information. A subsequent scaffolding step delegates the source generation to a
+language-specific sub-package.
+
+1. **Parse Header Files:**
+
+   The commandline utility relies on a `HeaderFileParser` object that parses YAML
+   specification files and generates intermediate `HeaderFile` objects that represent
+   individual CLib modules. The `HeaderFile` dataclass contains the following
+   information:
+
+   - `path`: Output folder.
+   - `funcs`: List of functions to be scaffolded (initially empty).
+   - `prefix`: Prefix used for CLib function names.
+   - `base`: Base class of C++ methods (if applicable).
+   - `parents`: List of C++ parent class(es).
+   - `derived`: Dictionary of derived C++ class(es) and alternative prefixes.
+   - `recipes`: List of header recipes read from YAML.
+   - `docstring`: Lines representing docstring of YAML file.
+
+   Each YAML specification file results in exactly one `HeaderFile` object.
+
+1. **Resolve Recipes:**
+
+   As a minimum, a [YAML Recipe](sec-sourcegen-recipes) specifies a `name` that either corresponds to a function within the `Cantera` namespace or a method or variable of
+   the implemented base class. The `CLibSourceGenerator.resolve_tags` method is used
+   to cross-reference individual recipes with known doxygen tags. The information is
+   used to detect the [CLib Function Type](sec-sourcegen-function-types) of a recipe and
+   to generate a corresponding `CFunc` object that holds relevant CLib interface
+   information used for subsequent scaffolding:
+
+   - `ret_type`: Return type of CLib function.
+   - `name`: Name of CLib function.
+   - `arglist`: CLib function argument list.
+   - `brief`: Brief description.
+   - `implements`: Implemented C++ function/method (if applicable).
+   - `returns`: Description of returned value.
+   - `base`: Qualified scope of function/method (if applicable).
+   - `uses`: List of auxiliary C++ methods (if applicable).
+
+   The information is used to update `recipe` list entries and build the `funcs` list
+   for each `HeaderFile` object.
+
+1. **Language-Specific Source Generation:**
+
+   Each language-specific sub-package is required to export a class that derives from
+   `SourceGenerator` and implement a `generate_source` method that takes a list of
+   `HeaderFile` objects with their resolved recipes as an argument. The
+   `generate_source` method uses this information to generate syntactically correct
+   source code in the destination language.
+
+   Each sub-package can contain a yaml-based config file named `config.yaml`. The core
+   script recognizes two special keys:
+
+   - `ignore_files`: a list of header file names\
+     These files will be ignored entirely from source generation, for example because
+     they cannot be parsed directly or contain functionality that is not planned for implementation in the destination language.
+   - `ignore_funcs`: a mapping of header file names to lists of function names\
+     The listed functions contained within those files will not be scaffolded, for
+     example because they cannot be translated automatically and need to be written by
+     hand in the destination language.
+
+   The config file may contain additional values for use by the language-specific
+   sub-package.
+
+Further processing of auto-generated code depends on the build process of the
+destination language.
