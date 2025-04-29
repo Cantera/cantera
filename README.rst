@@ -39,7 +39,7 @@ Follow the steps below for a **local** installation:
 0. Clone the Cantera repository::
 
     cd /Users/$USER/Documents
-    git clone https://nitrox.cerfacs.fr/cantera/cantera-avbp.git
+    git clone git@github.com:cerfacs/cantera.git
 
 1. Create a virtual environment in your home directory::
 
@@ -47,23 +47,28 @@ Follow the steps below for a **local** installation:
     python3 -m venv env_cantera
     source ~/env_cantera/bin/activate
 
-2. (optional) Create an alias to load ``env_cantera``::
+2. Install specific python packages::
+
+    pip install numpy==1.26.4
+    pip install scipy==1.13
+
+3. (optional) Create an alias to load ``env_cantera``::
 
     echo "alias load_cantera_env='source ~/env_cantera/bin/activate'" >> ~/.zshrc
     source ~/.zshrc
 
-3. Navigate to the Cantera directory::
+4. Navigate to the Cantera directory::
 
-    cd /Users/$USER/Documents/cantera-avbp
+    cd /Users/$USER/Documents/cantera
     
-4. Switch to the right branch and run the installation script::
+5. Switch to the right branch and run the installation script::
 
-    git checkout 3.0
+    git checkout dev_cantera-avbp
     python3 install_cantera.py
     
 
-5. When prompted about NFS, answer ``no``.
-6. Wait for the compilation and installation process to complete successfully.
+6. When prompted about NFS, answer ``no``.
+7. Wait for the compilation and installation process to complete successfully.
 
 If everything goes well, you should see the following message::
 
