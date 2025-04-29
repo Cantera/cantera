@@ -59,7 +59,7 @@ Follow the steps below for a **local** installation:
 
 4. Navigate to the Cantera directory::
 
-    cd /Users/$USER/Documents/cantera
+    cd /Users/$USER/Documents/cantera-avbp
     
 5. Switch to the right branch and run the installation script::
 
