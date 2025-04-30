@@ -39,7 +39,7 @@ Follow the steps below for a **local** installation:
 0. Clone the Cantera repository::
 
     cd /Users/$USER/Documents
-    git clone git@github.com:cerfacs/cantera.git
+    git clone git@github.com:cerfacs/cantera-avbp.git
 
 1. Create a virtual environment in your home directory::
 
