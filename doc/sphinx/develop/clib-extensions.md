@@ -1,13 +1,56 @@
 # Auto-Generated CLib API
 
 ```{caution}
-The auto-generated CLib API is an experimental part of Cantera and
-may be changed or removed without notice.
+The auto-generated CLib API is an experimental part of Cantera and may be changed
+without notice.
 ```
 
 In CLib, Cantera objects are stored and referenced by integers - no pointers are passed
 to or from the calling application. Further, the contents of arrays and variables are
 copied, which separates internal C++ memory management from the application using CLib.
+
+**Example:** The CLib source generator expands the `getMolecularWeights` entry:
+
+```yaml
+- name: getMolecularWeights
+  uses: nSpecies
+```
+
+in the [Header Specification File](sec-sourcegen-specifications) `ctthermo_auto.yaml`
+into a CLib header within a generated `ctthermo3.h` file:
+
+```c
+/**
+ *  Copy the vector of molecular weights into array weights.
+ *
+ *  @param handle       Handle to queried Phase object.
+ *  @param[out] weightsLen Length of array reserved for weights.
+ *  @param weights      Output array of molecular weights (kg/kmol)
+ *
+ *  @implements getter: void Phase::getMolecularWeights(double*)
+ *  @relates Phase::nSpecies()
+ */
+int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights);
+```
+
+and an associated CLib implementation within a generated `ctthermo3.cpp` file:
+
+```c
+int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights)
+{
+    // getter: void Phase::getMolecularWeights(double*)
+    try {
+        auto obj = ThermoPhaseCabinet::as<Phase>(handle);
+        if (weightsLen < obj->nSpecies()) {
+            throw ArraySizeError("thermo3_getMolecularWeights", weightsLen, obj->nSpecies());
+        }
+        obj->getMolecularWeights(weights);
+        return 0;
+    } catch (...) {
+        return handleAllExceptions(-1, ERR);
+    }
+}
+```
 
 (sec-sourcegen-clib-install)=
 ## Building the Auto-Generated CLib Interface
@@ -37,23 +80,22 @@ scons build clib_experimental=y
 
 ## CLib Source Generator Overview
 
-The CLib source generator is located in the `interfaces/sourcegen/sourcegen/clib`
-folder. While the overall configuration follows available [](sourcegen-config), the
-CLib source generator introduces additional configuration options.
+The CLib source generator follows the generic layout of sourcegen's
+[automated code generation](sec-sourcegen-details), with all code located in
+the `interfaces/sourcegen/sourcegen/clib` folder. While the overall configuration
+follows available [](sourcegen-config), the CLib source generator introduces additional
+configuration options.
 
 ### Configuration
 
-The YAML file `config.yaml` contains configuration options specific to the CLib
-interface.
+The YAML file `config.yaml` within the `clib` folder contains configuration options
+specific to the CLib interface. Configuration options are static unless new CLib
+modules need to be implemented (see section [](sec-extending-clib)).
 
-- **Generic Options:** These options are common across all sourcegen variants and are
-  based on the names of YAML configuration files. In the context of CLib, they are
-  primarily useful for code updates and maintenance:
-
-    - `ignore_files`: A list of configuration files.
-        Files listed here will be completely ignored during source generation.
-    - `ignore_funcs`: A mapping of configuration file names to lists of recipe names.
-        Functions listed in those files will not be scaffolded.
+- **Generic Options:** As the CLib interface follows directly from
+  [](sec-sourcegen-specifications), override options defined by `ignore_files` and
+  `ignore_funcs` are not needed. While the options are available, they should only be
+  used for testing purposes and otherwise be left at their default values (empty).
 
 - **CLib-Specific Options:** These fields define options specific to the CLib interface
   and use base class names defined within the C++ Cantera namespace. Functions defined
@@ -84,6 +126,7 @@ interface.
 - **Source Code:** The implementation of the CLib source generator is contained in
   `_CLibSourceGenerator.py`.
 
+(sec-extending-clib)=
 ## Extending the CLib API
 
 Sourcegen uses a one-to-one correspondence of YAML configuration files to C++ base

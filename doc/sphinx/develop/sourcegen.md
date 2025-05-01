@@ -1,8 +1,8 @@
 # Automated Code Generation
 
 ```{caution}
-The **sourcegen** utility is an experimental part of Cantera and may be changed or
-removed without notice.
+The **sourcegen** utility is an experimental part of Cantera and may be changed without
+notice.
 ```
 
 Cantera's **sourcegen** utility is a Python based source generator for creating Cantera
@@ -55,13 +55,8 @@ The utility is used to generate the [CLib API](clib-extensions) itself, as well 
 auto-generated language interfaces built on top of it, such as the .NET interface and
 others.
 
+(sec-sourcegen-details)=
 ## Details
-
-```{note}
-The detailed description assumes that header file information is generated based on
-[](sec-sourcegen-specifications). The .NET source generator parses CLib header files
-instead.
-```
 
 Automatic code generation involves initialization steps to resolve CLib interface
 information. A subsequent scaffolding step delegates the source generation to a

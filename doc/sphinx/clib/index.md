@@ -1,8 +1,7 @@
 # CLib Interface Documentation
 
 ```{caution}
-The CLib API is an experimental part of Cantera and may be changed or removed without
-notice.
+The CLib API is an experimental part of Cantera and may be changed without notice.
 ```
 
 Cantera has two CLib interfaces:
