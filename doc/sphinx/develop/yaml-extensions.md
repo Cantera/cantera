@@ -10,8 +10,25 @@ generated language interfaces.
 The YAML source generator generates YAML descriptions that correspond to individual
 CLib modules generated from [specification files](sec-sourcegen-specifications). Each
 output file contains mappings of CLib function names to implementation details
-of individual [recipes](sec-sourcegen-recipes). Each YAML blocks has the following
-fields:
+of individual [recipes](sec-sourcegen-recipes).
+
+**Example:** CLib getter for molecular weights
+
+```yaml
+thermo3_getMolecularWeights:
+  description: Copy the vector of molecular weights into array weights.
+  what: getter
+  declaration: int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights)
+  parameters:
+    handle: Handle to queried Phase object.
+    weightsLen: Length of array reserved for weights.
+    weights: Output array of molecular weights (kg/kmol)
+  implements: void Phase::getMolecularWeights(double*)
+  uses:
+  - size_t Phase::nSpecies()
+```
+
+Individual YAML fields represent the following:
 
 - `description`: Brief doxygen docstring obtained from C++.
 - `what`: Type of recipe, as detected or defined in the corresponding
@@ -21,6 +38,7 @@ fields:
 - `returns`: Docstring of value returned by CLib function.
 - `implements`: Full signature of C++ function/method/variable implemented by CLib (if
   applicable).
+- `uses`: List of auxiliary C++ methods used by the CLib function (if applicable).
 
 ## YAML Output Generation
 

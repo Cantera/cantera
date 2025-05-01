@@ -2,7 +2,7 @@
 
 ```{caution}
 The YAML configuration for the **sourcegen** utility is an experimental part of Cantera
-and may be changed or removed without notice.
+and may be changed without notice.
 ```
 
 The folder `interfaces/sourcegen/sourcegen/_data` holds YAML configuration data for
