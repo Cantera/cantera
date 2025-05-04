@@ -17,6 +17,9 @@ on:
     paths:
       - .github/workflows/post-merge-tests.yml
 
+permissions:
+  contents: read
+
 env:
   PIP_EXTRA_INDEX_URL: https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
   PIP_ONLY_BINARY: ":all:"
@@ -31,6 +34,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -82,6 +86,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Install Apt dependencies
       # Use packages from ubuntu image when possible
       run: |
@@ -130,6 +135,8 @@ jobs:
         git config --global --add safe.directory /__w/cantera/cantera
     - uses: actions/checkout@v4
       name: Checkout the repository
+      with:
+        persist-credentials: false
     - name: Install dependencies
       # Use packages from Fedora
       run: |
@@ -171,6 +178,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -214,6 +222,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+        persist-credentials: false
     # NumPy is installed here for the Python custom rate tests
     - name: Install Brew dependencies
       run: brew install --display-times boost libomp hdf5 python numpy
