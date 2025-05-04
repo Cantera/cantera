@@ -54,6 +54,7 @@ reactor-integration
 - [](running-tests)
 - [](writing-examples)
 - [](doc-formatting)
+- [](continuous-integration)
 
 ```{toctree}
 :caption: Adding New Features to Cantera
