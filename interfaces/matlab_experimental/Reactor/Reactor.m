@@ -119,7 +119,7 @@ classdef Reactor < handle
 
             ctIsLoaded;
 
-            V_0 = 1;
+            V_0 = -1;
             if nargin == 0
                 error('Reactor contents must be specified')
             elseif nargin == 1
@@ -137,11 +137,12 @@ classdef Reactor < handle
                 error('Reactor contents must be an object of type "Solution"');
             end
 
-            r.type = char(typ);
             r.id = ctFunc('reactor_new', typ, content.solnID, name);
             r.contents = content;
-            r.contents = content;
-            r.V = V_0;
+
+            if V_0 ~= -1
+                r.V = V_0;
+            end
         end
 
         %% Reactor Class Destructor
