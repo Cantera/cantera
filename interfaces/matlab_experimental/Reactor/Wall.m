@@ -54,7 +54,6 @@ classdef Wall < Connector
 
     properties (SetAccess = public)
 
-        name  % Name of wall.
         area % Area of the wall in m^2.
         heatRate % Total heat transfer rate through the wall at current time step in W.
         expansionRate % Rate of volumetric change at current time step in m^3/s.
@@ -101,26 +100,9 @@ classdef Wall < Connector
             w.expansionRateCoeff = 0.0;
             w.heatTransferCoeff = 0.0;
 
-            % Check whether the wall is ready.
-            ok = ctFunc('wall_ready', w.id);
-            if ~ok
-                error('The wall object is not ready.');
-            end
-
         end
 
-        %% Wall Class Destructor
-
-        function delete(w)
-            % Clear the :mat:class:`Wall` object.
-
-            if isempty(w.id)
-                return
-            end
-            ctFunc('wall_del', w.id);
-        end
-
-        %% ReactorNet get methods
+        %% Wall get methods
 
         function a = get.area(w)
             a = ctFunc('wall_area', w.id);
@@ -134,7 +116,7 @@ classdef Wall < Connector
             v = ctFunc('wall_expansionRate', w.id);
         end
 
-        %% ReactorNet set methods
+        %% Wall set methods
 
         function set.area(w, a)
             ctFunc('wall_setArea', w.id, a);
