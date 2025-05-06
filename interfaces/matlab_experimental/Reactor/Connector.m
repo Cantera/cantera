@@ -59,7 +59,9 @@ classdef Connector < handle
 
         function delete(c)
             % Delete the :mat:class:`Connector` object.
-
+            if isempty(c.id)
+                return
+            end
             ctFunc('connector_del', c.id);
         end
 
