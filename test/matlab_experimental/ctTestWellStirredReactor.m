@@ -15,6 +15,8 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
+            copyfile('../data/testWellStirredReactor.yaml', ...
+                     './testWellStirredReactor.yaml');
         end
 
     end
@@ -22,6 +24,7 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
+            delete('./testWellStirredReactor.yaml');
             ctCleanUp
             ctTestTearDown
         end
