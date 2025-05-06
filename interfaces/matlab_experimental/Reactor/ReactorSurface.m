@@ -40,7 +40,7 @@ classdef ReactorSurface < Reactor
                 name = '(none)';
             end
 
-            s.surfID = ctFunc('reactor_new', 'ReactorSurface', surf.solnID, name);
+            s@Reactor(surf, 'ReactorSurface', name);
             ctFunc('reactorsurface_install', s.id, reactor.id);
         end
 

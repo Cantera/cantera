@@ -47,13 +47,24 @@ classdef Interface < Solution
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
 
-            % Inherit methods and properties from Solution
+            % Inherit methods and properties from ThermoPhase and Kinetics
             s@Solution(ID);
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
                 s.adjacentNames{i} = ctString('soln_adjacentName', ID, i-1);
             end
+        end
+
+        %% Interface Class Destructor
+
+        function delete(s)
+            % Delete :mat:class:`Interface` object.
+
+            if isempty(s.solnID)
+                return
+            end
+            ctFunc('soln_del', s.solnID);
         end
 
         %% Interface Get Methods
@@ -84,7 +95,7 @@ classdef Interface < Solution
         end
 
         function c = get.concentrations(s)
-            surfID = s.tr_id;
+            surfID = s.tpid;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
