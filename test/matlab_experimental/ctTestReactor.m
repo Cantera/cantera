@@ -105,7 +105,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
         function testV(self)
             g = Solution('h2o2.yaml', '', 'none');
-            r = Reactor(g, '', '', 11);
+            r = Reactor(g, 'Reactor', '', 11);
             self.verifyEqual(r.V, 11, 'AbsTol', self.atol);
 
             r.V = 9;

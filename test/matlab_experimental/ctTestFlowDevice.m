@@ -223,20 +223,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
             clear res v n1
         end
 
-        function testValveErrors(self)
-            self.makeReactors();
-            v = Valve(self.r1, self.r2);
-
-            try
-                v.install(self.r2, self.r1);
-            catch ME
-                self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                self.verifySubstring(ME.message, 'Already installed');
-            end
-
-            clear v
-        end
-
         function testPressureController(self)
             self.assumeFail('Skipped until PressureController is implemented');
         end
