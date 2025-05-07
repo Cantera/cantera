@@ -4,12 +4,14 @@ function buildToolbox()
     if isempty(version)
         version = '0.0.0';  % fallback default
     end
+    fprintf('Building toolbox version: %s\n', version);
 
     % Read the UUID for the toolbox
     uuidFile = fullfile(pwd, 'interfaces', 'matlab_experimental', 'Setup', ...
                         'Cantera_MATLAB_Toolbox.uuid');
     if isfile(uuidFile)
         guid = strtrim(fileread(uuidFile));
+        fprintf('The unique identifier for the toolbox is: %s\n', guid);
     else
         error('A unique identifier for the toolbox does not exist!');
     end
@@ -24,7 +26,8 @@ function buildToolbox()
     mapping = {
         'interfaces/matlab_experimental', 'toolbox';
         'samples/matlab_experimental', 'samples';
-        'test/matlab_experimental', 'tests';
+        'test/matlab_experimental', 'test/matlab_toolbox';
+        'test/data', 'test/data';
         'data', 'data'
         };
 
@@ -37,7 +40,7 @@ function buildToolbox()
         files = dir(fullfile(dest, '**', '*'));
         files = files(~[files.isdir]);
         filesList = fullfile({files.folder}, {files.name})';
-        allFiles = [allFiles; filesList]; 
+        allFiles = [allFiles; filesList];
     end
 
     % Get relative paths
@@ -68,7 +71,7 @@ function buildToolbox()
     opts.SupportedPlatforms.Win64        = true;
     opts.SupportedPlatforms.Glnxa64      = true;
     opts.SupportedPlatforms.Maci64       = true;
-    opts.SupportedPlatforms.MatlabOnline = false; 
+    opts.SupportedPlatforms.MatlabOnline = false;
     % These options will be enabled when we host Cantera binaries somewhere
     % opts.RequiredAdditionalSoftware = [
     %     struct( ...
@@ -88,10 +91,14 @@ function buildToolbox()
     %         "LicenseURL", "placeholder for license url"),
     %     ];
 
-
     % Package the toolbox
-    matlab.addons.toolbox.packageToolbox(opts);
-    
+    try
+        matlab.addons.toolbox.packageToolbox(opts);
+        fprintf('✅ Toolbox built successfully!\n');
+    catch ME
+        fprintf('❌ Toolbox build failed: %s\n', ME.message);
+    end
+
     % Remove the temporary folder
     rmdir(tmpDir, 's');
 end
