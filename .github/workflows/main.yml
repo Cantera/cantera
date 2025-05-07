@@ -70,6 +70,26 @@ jobs:
         uses: matlab-actions/run-tests@f9fc3d8ca29fadef6227fa52884b144b9011fa2f # v2.1.1
         with:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
+      - name: Set TOOLBOX_VERSION environment variable from tag
+        run: |
+          echo "TOOLBOX_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Build MLTBX toolbox
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath('/home/runner/work/cantera/cantera/interfaces/matlab_experimental/Setup');
+            buildToolbox;
+      - name: Upload Toolbox Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cantera_MATLAB_toolbox
+          path: build/*.mltbx
+          retention-days: 14
+      # MLTBX test is disabled until we can download packaged binaries and header files
+      # - name: Test the MLTBX toolbox
+      #   uses: matlab-actions/run-tests@v2
+      #   with:
+      #     select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
   ubuntu-multiple-pythons:
     name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }}
