@@ -32,7 +32,6 @@ struct ElectronCollisionPlasmaData : public ReactionData
         energyLevels.resize(0);
         distribution.resize(0);
         m_dist_number = -1;
-        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
@@ -103,7 +102,6 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
-
     ElectronCollisionPlasmaRate() = default;
 
     ElectronCollisionPlasmaRate(const AnyMap& node,
@@ -143,6 +141,47 @@ public:
         throw NotImplementedError("ElectronCollisionPlasmaRate::ddTScaledFromStruct");
     }
 
+    //! The kind of the process
+    const string& kind() const {
+        return m_kind;
+    }
+
+    //! The target of the process
+    const string& target() const {
+        return m_target;
+    }
+
+    //! The product of the process
+    const string& product() const {
+        return m_product;
+    }
+
+
+    //! Set the value of #m_energyLevels [eV]
+    void set_energyLevels(vector<double> epsilon) {
+        m_energyLevels = epsilon;
+    }
+
+    //! Set the value of #m_crossSections [eV]
+    void set_crossSections(vector<double> sigma) {
+        m_crossSections = sigma;
+    }
+
+    //! Set the value of m_threshold [eV]
+    void set_threshold(double threshold)
+    {
+        m_threshold = threshold;
+    }
+
+    void set_cs_ok() {
+        cs_ok = true;
+    }
+
+    const bool get_cs_ok() const {
+        return cs_ok;
+    }
+
+
     //! The value of #m_energyLevels [eV]
     const vector<double>& energyLevels() const {
         return m_energyLevels;
@@ -158,10 +197,30 @@ public:
         return m_crossSectionsInterpolated;
     }
 
+    //! Set the value of #m_crossSectionsInterpolated
+    void setCrossSectionInterpolated(vector<double>& cs) {
+        m_crossSectionsInterpolated = cs;
+    }
+
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
+    //! The name of the kind of electron collision
+    string m_kind;
+
+    //! The name of the target of electron collision
+    string m_target;
+
+    //! The product of electron collision
+    string m_product;
+
+    //! The energy threshold of electron collision
+    double m_threshold;
+
+    //! Check if a cross-section is define for this rate
+    bool cs_ok = false;
+
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
 

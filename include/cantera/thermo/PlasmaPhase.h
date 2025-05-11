@@ -10,6 +10,8 @@
 #define CT_PLASMAPHASE_H
 
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/kinetics/ElectronCrossSection.h"
+#include "cantera/thermo/EEDFTwoTermApproximation.h"
 #include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
@@ -96,21 +98,22 @@ public:
      */
     explicit PlasmaPhase(const string& inputFile="", const string& id="");
 
-    ~PlasmaPhase();
-
     string type() const override {
         return "plasma";
     }
 
     void initThermo() override;
 
+    //! Overload to signal updating electron energy density function.
+    virtual void setTemperature(const double temp) override;
+
+    bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
+
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  length The length of the @c levels.
-    //! @param  updateEnergyDist update electron energy distribution
-    void setElectronEnergyLevels(const double* levels, size_t length,
-                                 bool updateEnergyDist=true);
+    void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
@@ -126,6 +129,13 @@ public:
     //! @param  length The length of the vectors, which equals #m_nPoints.
     void setDiscretizedElectronEnergyDist(const double* levels,
                                           const double* distrb,
+                                          size_t length);
+
+    //! Set discretized electron energy distribution.
+    //! @param  distrb The vector of electron energy distribution.
+    //!                Length: #m_nPoints.
+    //! @param  length The length of the vectors, which equals #m_nPoints.
+    void setDiscretizedElectronEnergyDist(const double* distrb,
                                           size_t length);
 
     //! Get electron energy distribution.
@@ -220,11 +230,6 @@ public:
         return m_nPoints;
     }
 
-    //! Number of collisions
-    size_t nCollisions() const {
-        return m_collisions.size();
-    }
-
     //! Electron Species Index
     size_t electronSpeciesIndex() const {
         return m_electronSpeciesIndex;
@@ -283,6 +288,9 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
 
+    //! Update electron energy distribution.
+    void updateElectronEnergyDistribution();
+
     //! Electron species name
     string electronSpeciesName() const {
         return speciesName(m_electronSpeciesIndex);
@@ -298,21 +306,108 @@ public:
         return m_levelNum;
     }
 
-    virtual void setSolution(std::weak_ptr<Solution> soln) override;
+    vector<size_t> kInelastic() const {
+        return m_kInelastic;
+    }
 
-    /**
-     * The elastic power loss (J/s/m³)
-     *   @f[
-     *     P_k = N_A N_A C_e e \sum_k C_k K_k,
-     *   @f]
-     * where @f$ C_k @f$ and @f$ C_e @f$ are the concentration (kmol/m³) of the
-     * target species and electrons, respectively. @f$ K_k @f$ is the elastic
-     * electron energy loss coefficient (eV-m³/s).
-     */
-    double elasticPowerLoss();
+    // number of cross section dataset
+    size_t nElectronCrossSections() const {
+        return m_ncs;
+    }
+
+    // target of a specific process
+    string target(size_t k) {
+        return m_ecss[k]->target;
+    }
+
+    // product of a specific process
+    string product(size_t k) {
+        return m_ecss[k]->product;
+    }
+
+    const std::vector<std::string>& products(size_t k) const {
+        return m_ecss[k]->products;  // Directly retrieve the stored product list
+    }
+
+    // kind of a specific process
+    string kind(size_t k) {
+        return m_ecss[k]->kind;
+    }
+
+    // threshold of a specific process
+    double threshold(size_t k) {
+        return m_ecss[k]->threshold;
+    }
+
+    vector<int> shiftFactor() const {
+        return m_shiftFactor;
+    }
+
+    vector<int> inFactor() const {
+        return m_inFactor;
+    }
+
+    // Gas number density [m^-3]
+    double N() const {
+        return molarDensity() * Avogadro;
+    }
+
+    double F() const {
+        return m_F;
+    }
+
+    double E() const {
+        return m_E;
+    }
+
+    double ionDegree() const {
+        return m_ionDegree;
+    }
+
+    double kT() const {
+        return m_kT;
+    }
+
+    double EN() const {
+        return m_EN;
+    }
+
+    vector<vector<double>> crossSections() const {
+        return m_crossSections;
+    }
+
+    vector<vector<double>> energyLevels() const {
+        return m_energyLevels;
+    }
+
+    vector<size_t> kElastic() const {
+        return m_kElastic;
+    }
+
+    //! Set reduced electric field given in [V.m2]
+    void setReducedElectricField(double EN) {
+        m_EN = EN; // [V.m2]
+        m_E = m_EN * molarDensity() * Avogadro; // [V/m]
+    }
+    //! Get elastic electron energy loss rate (eV/s)
+    double elasticElectronEnergyLossRate() {
+        return concentration(m_electronSpeciesIndex) *
+               normalizedElasticElectronEnergyLossRate();
+    }
+
+    //! Get normalized elastic electron energy loss rate (eV-m3/kmol/s)
+    double normalizedElasticElectronEnergyLossRate();
 
 protected:
+
+    void initialize();
+
     void updateThermo() const override;
+
+    //! update interpolated cross sections
+    //! This function needs to be called when the EEDF is updated or
+    //! when the cross sections are updated
+    void updateInterpolatedCrossSections();
 
     //! When electron energy distribution changed, plasma properties such as
     //! electron-collision reaction rates need to be re-evaluated.
@@ -344,9 +439,6 @@ protected:
      */
     void checkElectronEnergyDistribution() const;
 
-    //! Update electron energy distribution.
-    void updateElectronEnergyDistribution();
-
     //! Set isotropic electron energy distribution
     void setIsotropicElectronEnergyDistribution();
 
@@ -357,14 +449,8 @@ protected:
     //! Electron energy distribution norm
     void normalizeElectronEnergyDistribution();
 
-    //! Update interpolated cross section of a collision
-    bool updateInterpolatedCrossSection(size_t k);
-
-    //! Update electron energy distribution difference
-    void updateElectronEnergyDistDifference();
-
     // Electron energy order in the exponential term
-    double m_isotropicShapeFactor = 1.0;
+    double m_isotropicShapeFactor = 2.0;
 
     //! Number of points of electron energy levels
     size_t m_nPoints = 1001;
@@ -382,6 +468,9 @@ protected:
     //! Electron temperature [K]
     double m_electronTemp;
 
+    //! Gas number density
+    //double m_N;
+
     //! Electron energy distribution type
     string m_distributionType = "isotropic";
 
@@ -391,40 +480,76 @@ protected:
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
 
+    //! Indices of inelastic collisions in m_crossSections
+    vector<size_t> m_kInelastic;
+
+    //! electric field [V/m]
+    double m_E;
+
+    //! reduced electric field [V.m2]
+    double m_EN;
+
+    //! reduced electric field [Td]
+    //double m_EN_Td;
+
+    //! electric field freq [Hz]
+    double m_F;
+
+    //! normalized electron energy distribution function
+    Eigen::VectorXd m_f0;
+
+    //! Mole fraction of targets
+    //vector<double> m_X_targets;
+
+    //! list of target species indices in local X EEDF numbering (1 index per cs)
+    //std::vector<size_t> m_klocTargets;
+
+    //! number of cross section sets
+    size_t m_ncs;
+
+    //! array of cross-section object
+    vector<shared_ptr<ElectronCrossSection>> m_ecss;
+
+    //! Cross section data. m_crossSections[i][j], where i is the specific process,
+    //! j is the index of vector. Unit: [m^2]
+    std::vector<vector<double>> m_crossSections;
+
+    //! Electron energy levels correpsonding to the cross section data. m_energyLevels[i][j],
+    //! where i is the specific process, j is the index of vector. Unit: [eV]
+    std::vector<vector<double>> m_energyLevels;
+
+    //! shift factor. This is used for calculating the collision term.
+    std::vector<int> m_shiftFactor;
+
+    //! in factor. This is used for calculating the Q matrix of
+    //! scattering-in processes.
+    std::vector<int> m_inFactor;
+
+    //! Indices of elastic collisions in m_crossSections
+    std::vector<size_t> m_kElastic;
+
+    //! flag of electron energy distribution function
+    bool m_f0_ok;
+
+    //! ionization degree for the electron-electron collisions (tmp is the previous one)
+    double m_ionDegree;
+
+    //! Boltzmann constant times gas temperature [eV]
+    double m_kT;
     //! Data for initiate reaction
     AnyMap m_root;
 
-    //! Electron energy distribution Difference dF/dε (V^-5/2)
-    Eigen::ArrayXd m_electronEnergyDistDiff;
+    //! get the target species index
+    size_t targetSpeciesIndex(shared_ptr<Reaction> R);
 
-    //! Elastic electron energy loss coefficients (eV m3/s)
-    /*! The elastic electron energy loss coefficient for species k is,
-     *   @f[
-     *     K_k = \frac{2 m_e}{m_k} \sqrt{\frac{2 e}{m_e}} \int_0^{\infty} \sigma_k
-     *           \epsilon^2 \left( F_0 + \frac{k_B T}{e}
-     *           \frac{\partial F_0}{\partial \epsilon} \right) d \epsilon,
-     *   @f]
-     * where @f$ m_e @f$ [kg] is the electron mass, @f$ \epsilon @f$ [V] is the
-     * electron energy, @f$ \sigma_k @f$ [m2] is the reaction collision cross section,
-     * @f$ F_0 @f$ [V^(-3/2)] is the normalized electron energy distribution function.
-     */
-    vector<double> m_elasticElectronEnergyLossCoefficients;
-
-    //! Updates the elastic electron energy loss coefficient for collision index i
-    /*! Calculates the elastic energy loss coefficient using the current electron
-        energy distribution and cross sections.
-    */
-    void updateElasticElectronEnergyLossCoefficient(size_t i);
-
-    //! Update elastic electron energy loss coefficients
-    /*! Used by elasticPowerLoss() and other plasma property calculations that
-        depends on #m_elasticElectronEnergyLossCoefficients. This function calls
-        updateInterpolatedCrossSection() before calling
-        updateElasticElectronEnergyLossCoefficient()
-    */
-    void updateElasticElectronEnergyLossCoefficients();
+    //! get cross section interpolated
+    vector<double> crossSection(shared_ptr<Reaction> reaction);
 
 private:
+
+    //! pointer to EEDF solver
+    unique_ptr<EEDFTwoTermApproximation> ptrEEDFSolver = nullptr;
+
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
     int m_distNum = -1;
@@ -436,25 +561,11 @@ private:
     //! The list of shared pointers of plasma collision reactions
     vector<shared_ptr<Reaction>> m_collisions;
 
-    //! The list of shared pointers of collision rates
-    vector<shared_ptr<ElectronCollisionPlasmaRate>> m_collisionRates;
+    //! Indices of elastic collisions
+    vector<size_t> m_elasticCollisionIndices;
 
-    //! The collision-target species indices of #m_collisions
-    vector<size_t> m_targetSpeciesIndices;
-
-    //! Interpolated cross sections. This is used for storing
-    //! interpolated cross sections temporarily.
-    vector<double> m_interp_cs;
-
-    //! The list of whether the interpolated cross sections is ready
-    vector<bool> m_interp_cs_ready;
-
-    //! Set collisions. This function sets the list of collisions and
-    //! the list of target species using #addCollision.
-    void setCollisions();
-
-    //! Add a collision and record the target species
-    void addCollision(std::shared_ptr<Reaction> collision);
+    //! Collision cross section
+    vector<Eigen::ArrayXd> m_interpolatedCrossSections;
 
 };
 
