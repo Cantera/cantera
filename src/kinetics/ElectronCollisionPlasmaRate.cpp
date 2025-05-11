@@ -36,31 +36,61 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     pp.getElectronEnergyDistribution(distribution.data());
 
     // Update energy levels
-    levelChanged = pp.levelNumber() != m_level_number;
-    if (levelChanged) {
+    // levelChanged = pp.levelNumber() != m_level_number;
+    // if (levelChanged) {
         m_level_number = pp.levelNumber();
         energyLevels.resize(pp.nElectronEnergyLevels());
         pp.getElectronEnergyLevels(energyLevels.data());
-    }
+    // }
 
     return true;
 }
 
-void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units) 
 {
     ReactionRate::setParameters(node, rate_units);
-    if (!node.hasKey("energy-levels") && !node.hasKey("cross-sections")) {
-        return;
-    }
-    if (node.hasKey("energy-levels")) {
-        m_energyLevels = node["energy-levels"].asVector<double>();
-    }
-    if (node.hasKey("cross-sections")) {
-        m_crossSections = node["cross-sections"].asVector<double>();
-    }
-    if (m_energyLevels.size() != m_crossSections.size()) {
+
+    //  **Extract kind, target, and product from reaction node**
+    if (node.hasKey("kind")) {
+        m_kind = node["kind"].asString();
+    } /*else {
         throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-            "Energy levels and cross section must have the same length.");
+                           "Missing `kind` field in electron-collision-plasma reaction.");
+    }*/
+
+    if (node.hasKey("target")) {
+        m_target = node["target"].asString();
+    } /*else {
+        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
+                           "Missing `target` field in electron-collision-plasma reaction.");
+    }*/
+
+    if (node.hasKey("product")) {
+        m_product = node["product"].asString();
+    } /*else {
+        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
+                           "Missing `product` field in electron-collision-plasma reaction.");
+    }*/
+
+    //  **First, check if cross-sections are embedded in the reaction itself**
+    if (node.hasKey("energy-levels") && node.hasKey("cross-sections")) {
+        //writelog("Using embedded cross-section data from reaction definition.\n");
+
+        m_energyLevels = node["energy-levels"].asVector<double>();
+        m_crossSections = node["cross-sections"].asVector<double>();
+
+        if (m_energyLevels.size() != m_crossSections.size()) {
+            throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
+                               "Mismatch: `energy-levels` and `cross-sections` must have the same length.");
+        }
+
+        cs_ok = true;  // Mark as valid cross-section data
+    } 
+
+    //  **If no cross-section data was found, defer to PlasmaPhase (old format)**
+    else {
+        //writelog("No cross-section data found in reaction, relying on PlasmaPhase initialization.\n");
+        cs_ok = false;  //  This will be handled later in `PlasmaPhase::initThermo()`
     }
 }
 
@@ -84,9 +114,15 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
-    // the electron energy distribution function
-    if (shared_data.levelChanged) {
-        updateInterpolatedCrossSection(shared_data.energyLevels);
+    // the electron energy distribution function when the interpolated
+    // cross section is empty
+    // Note that the PlasmaPhase should handle the interpolated cross sections
+    // for all ElectronCollisionPlasmaRate reactions
+    if (m_crossSectionsInterpolated.size() == 0) {
+        for (double level : shared_data.energyLevels) {
+            m_crossSectionsInterpolated.push_back(linearInterp(level,
+                                                  m_energyLevels, m_crossSections));
+        }
     }
 
     // Map cross sections to Eigen::ArrayXd
