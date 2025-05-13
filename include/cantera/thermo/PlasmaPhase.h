@@ -98,6 +98,8 @@ public:
      */
     explicit PlasmaPhase(const string& inputFile="", const string& id="");
 
+    ~PlasmaPhase();
+
     string type() const override {
         return "plasma";
     }
@@ -228,6 +230,11 @@ public:
     //! Number of electron levels
     size_t nElectronEnergyLevels() const {
         return m_nPoints;
+    }
+
+    //! Number of collisions
+    size_t nCollisions() const {
+        return m_collisions.size();
     }
 
     //! Electron Species Index
@@ -398,6 +405,19 @@ public:
     //! Get normalized elastic electron energy loss rate (eV-m3/kmol/s)
     double normalizedElasticElectronEnergyLossRate();
 
+    virtual void setSolution(std::weak_ptr<Solution> soln) override;
+
+    /**
+     * The elastic power loss (J/s/m³)
+     *   @f[
+     *     P_k = N_A N_A C_e e \sum_k C_k K_k,
+     *   @f]
+     * where @f$ C_k @f$ and @f$ C_e @f$ are the concentration (kmol/m³) of the
+     * target species and electrons, respectively. @f$ K_k @f$ is the elastic
+     * electron energy loss coefficient (eV-m³/s).
+     */
+    double elasticPowerLoss();
+
 protected:
 
     void initialize();
@@ -448,6 +468,12 @@ protected:
 
     //! Electron energy distribution norm
     void normalizeElectronEnergyDistribution();
+
+    //! Update interpolated cross section of a collision
+    bool updateInterpolatedCrossSection(size_t k);
+
+    //! Update electron energy distribution difference
+    void updateElectronEnergyDistDifference();
 
     // Electron energy order in the exponential term
     double m_isotropicShapeFactor = 2.0;
@@ -545,6 +571,36 @@ protected:
     //! get cross section interpolated
     vector<double> crossSection(shared_ptr<Reaction> reaction);
 
+    //! Electron energy distribution Difference dF/dε (V^-5/2)
+    Eigen::ArrayXd m_electronEnergyDistDiff;
+
+    //! Elastic electron energy loss coefficients (eV m3/s)
+    /*! The elastic electron energy loss coefficient for species k is,
+     *   @f[
+     *     K_k = \frac{2 m_e}{m_k} \sqrt{\frac{2 e}{m_e}} \int_0^{\infty} \sigma_k
+     *           \epsilon^2 \left( F_0 + \frac{k_B T}{e}
+     *           \frac{\partial F_0}{\partial \epsilon} \right) d \epsilon,
+     *   @f]
+     * where @f$ m_e @f$ [kg] is the electron mass, @f$ \epsilon @f$ [V] is the
+     * electron energy, @f$ \sigma_k @f$ [m2] is the reaction collision cross section,
+     * @f$ F_0 @f$ [V^(-3/2)] is the normalized electron energy distribution function.
+     */
+    vector<double> m_elasticElectronEnergyLossCoefficients;
+
+    //! Updates the elastic electron energy loss coefficient for collision index i
+    /*! Calculates the elastic energy loss coefficient using the current electron
+        energy distribution and cross sections.
+    */
+    void updateElasticElectronEnergyLossCoefficient(size_t i);
+
+    //! Update elastic electron energy loss coefficients
+    /*! Used by elasticPowerLoss() and other plasma property calculations that
+        depends on #m_elasticElectronEnergyLossCoefficients. This function calls
+        updateInterpolatedCrossSection() before calling
+        updateElasticElectronEnergyLossCoefficient()
+    */
+    void updateElasticElectronEnergyLossCoefficients();
+
 private:
 
     //! pointer to EEDF solver
@@ -560,6 +616,26 @@ private:
 
     //! The list of shared pointers of plasma collision reactions
     vector<shared_ptr<Reaction>> m_collisions;
+
+    //! The list of shared pointers of collision rates
+    vector<shared_ptr<ElectronCollisionPlasmaRate>> m_collisionRates;
+
+    //! The collision-target species indices of #m_collisions
+    vector<size_t> m_targetSpeciesIndices;
+
+    //! Interpolated cross sections. This is used for storing
+    //! interpolated cross sections temporarily.
+    vector<double> m_interp_cs;
+
+    //! The list of whether the interpolated cross sections is ready
+    vector<bool> m_interp_cs_ready;
+
+    //! Set collisions. This function sets the list of collisions and
+    //! the list of target species using #addCollision.
+    void setCollisions();
+
+    //! Add a collision and record the target species
+    void addCollision(std::shared_ptr<Reaction> collision);
 
     //! Indices of elastic collisions
     vector<size_t> m_elasticCollisionIndices;
