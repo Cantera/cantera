@@ -30,10 +30,14 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     m_electronEnergyLevels = Eigen::ArrayXd::LinSpaced(m_nPoints, 0.0, 1.0);
 
     // initial electron temperature
-    setElectronTemperature(temperature());
+    //setElectronTemperature(temperature());
+    m_electronTemp = temperature();
 
     //CQM TODO set m_nspevib
     m_evib.resize(m_nspevib);
+
+    // resize vectors
+    m_interp_cs.resize(m_nPoints);
 
 }
 
@@ -871,10 +875,19 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
         throw CanteraError("updateElasticElectronEnergyLossCoefficient",
             "EEDF and energy level sizes do not match.");
     }
-    writelog("test");
+    writelog("EEDF f0 = {}\n", fmt::join(m_electronEnergyDist, ", "));
+    writelog("EEDF gradient df/dε = {}\n", fmt::join(m_electronEnergyDistDiff, ", "));
     // Calculate the rate using Simpson's rule or trapezoidal rule
     Eigen::ArrayXd f0_plus = m_electronEnergyDist + Boltzmann * temperature() /
                                 ElectronCharge * m_electronEnergyDistDiff;
+    writelog("f0_plus = {}\n", fmt::format("{}", fmt::join(f0_plus.data(), f0_plus.data() + f0_plus.size(), ", ")));
+
+    // Print cross-section
+    writelog("Cross-section = {}\n", fmt::format("{}", fmt::join(cs_array.data(), cs_array.data() + cs_array.size(), ", ")));
+
+    // Print energy levels^3
+    Eigen::ArrayXd epsilon3 = m_electronEnergyLevels.pow(3.0);
+    writelog("epsilon^3 = {}\n", fmt::format("{}", fmt::join(epsilon3.data(), epsilon3.data() + epsilon3.size(), ", ")));
     
     m_elasticElectronEnergyLossCoefficients[i] = 2.0 * mass_ratio * gamma *
         numericalQuadrature(
