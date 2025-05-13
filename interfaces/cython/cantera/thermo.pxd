@@ -213,8 +213,6 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         string electronSpeciesName()
         double EN()
         void updateElectronEnergyDistribution()
-        double elasticElectronEnergyLossRate()
-        double normalizedElasticElectronEnergyLossRate()
         double elasticPowerLoss() except +translate_exception
 
 
