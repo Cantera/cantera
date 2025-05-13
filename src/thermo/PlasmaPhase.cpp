@@ -32,6 +32,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 
     // initial electron temperature
     m_electronTemp = temperature();
+    writelog("PlasmaPhase ctor: Te initialized to {}\n", m_electronTemp);
 }
 
 void PlasmaPhase::initialize()
@@ -81,10 +82,22 @@ void PlasmaPhase::updateElectronEnergyDistribution()
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
         }
+        bool validEEDF = (
+            m_electronEnergyDist.size() == m_nPoints &&
+            m_electronEnergyDist.allFinite() &&
+            m_electronEnergyDist.maxCoeff() > 0.0 &&
+            m_electronEnergyDist.sum() > 0.0
+        );
+
+        if (validEEDF) {
+            updateElectronTemperatureFromEnergyDist();
+        } else {
+            writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
+        }
     }
     updateElectronEnergyDistDifference();
     electronEnergyDistributionChanged();
-    updateElectronTemperatureFromEnergyDist();
+    
 }
 
 void PlasmaPhase::normalizeElectronEnergyDistribution() {
