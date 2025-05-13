@@ -85,6 +85,7 @@ void PlasmaPhase::updateElectronEnergyDistribution()
                 "Call to calculateDistributionFunction failed.");
         }
     }
+    updateElectronEnergyDistDifference();
     electronEnergyDistributionChanged();
     updateElectronTemperatureFromEnergyDist();
 }
