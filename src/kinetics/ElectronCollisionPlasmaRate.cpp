@@ -100,6 +100,16 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["cross-sections"] = m_crossSections;
 }
 
+void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
+    const vector<double>& sharedLevels) {
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsInterpolated.reserve(sharedLevels.size());
+    for (double level : sharedLevels) {
+        m_crossSectionsInterpolated.emplace_back(linearInterp(level,
+                                            m_energyLevels, m_crossSections));
+    }
+}
+
 double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {

@@ -207,6 +207,9 @@ public:
         m_crossSectionsInterpolated = cs;
     }
 
+    //! Update the value of #m_crossSectionsInterpolated [m2]
+    void updateInterpolatedCrossSection(const vector<double>&);
+
 private:
     //! The name of the kind of electron collision
     string m_kind;
