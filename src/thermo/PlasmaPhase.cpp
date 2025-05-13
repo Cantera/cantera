@@ -144,14 +144,6 @@ void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
     checkElectronEnergyLevels();
     electronEnergyLevelChanged();
     updateElectronEnergyDistribution();
-    m_interp_cs.resize(m_nPoints);
-    // The cross sections are interpolated on the energy levels
-    if (nCollisions() > 0) {
-        for (size_t i = 0; i < m_collisions.size(); i++) {
-            m_interp_cs_ready[i] = false;
-            updateInterpolatedCrossSection(i);
-        }
-    }
 }
 
 void PlasmaPhase::electronEnergyDistributionChanged()
@@ -217,28 +209,23 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
     electronEnergyDistributionChanged();
 }
 
-void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* dist,
-                                                   size_t length)
-{
-    m_distributionType = "discretized";
-    m_nPoints = length;
-    m_electronEnergyDist =
-        Eigen::Map<const Eigen::ArrayXd>(dist, length);
-    checkElectronEnergyLevels();
-    if (m_do_normalizeElectronEnergyDist) {
-        normalizeElectronEnergyDistribution();
-    }
-    checkElectronEnergyDistribution();
-    updateElectronTemperatureFromEnergyDist();
-    electronEnergyDistributionChanged();
-}
-
 void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
 {
     // calculate mean electron energy and electron temperature
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
     double epsilon_m = 2.0 / 5.0 * numericalQuadrature(m_quadratureMethod,
                                                        m_electronEnergyDist, eps52);
+    if (epsilon_m < 0.0 && m_quadratureMethod == "simpson") {
+        // try trapezoidal method
+        epsilon_m = 2.0 / 5.0 * numericalQuadrature(
+            "trapezoidal", m_electronEnergyDist, eps52);
+    }
+
+    if (epsilon_m < 0.0) {
+        throw CanteraError("PlasmaPhase::updateElectronTemperatureFromEnergyDist",
+            "The electron energy distribution produces negative electron temperature.");
+    }
+
     m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
 }
 
