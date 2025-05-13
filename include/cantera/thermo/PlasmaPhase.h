@@ -461,7 +461,7 @@ protected:
     void updateElectronEnergyDistDifference();
 
     // Electron energy order in the exponential term
-    double m_isotropicShapeFactor = 2.0;
+    double m_isotropicShapeFactor = 1.0;
 
     //! Number of points of electron energy levels
     size_t m_nPoints = 1001;
