@@ -151,6 +151,14 @@ void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
     checkElectronEnergyLevels();
     electronEnergyLevelChanged();
     updateElectronEnergyDistribution();
+    m_interp_cs.resize(m_nPoints);
+    // The cross sections are interpolated on the energy levels
+    if (nCollisions() > 0) {
+        for (size_t i = 0; i < m_collisions.size(); i++) {
+            m_interp_cs_ready[i] = false;
+            updateInterpolatedCrossSection(i);
+        }
+    }
 }
 
 void PlasmaPhase::electronEnergyDistributionChanged()
