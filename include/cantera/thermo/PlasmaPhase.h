@@ -133,13 +133,6 @@ public:
                                           const double* distrb,
                                           size_t length);
 
-    //! Set discretized electron energy distribution.
-    //! @param  distrb The vector of electron energy distribution.
-    //!                Length: #m_nPoints.
-    //! @param  length The length of the vectors, which equals #m_nPoints.
-    void setDiscretizedElectronEnergyDist(const double* distrb,
-                                          size_t length);
-
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
