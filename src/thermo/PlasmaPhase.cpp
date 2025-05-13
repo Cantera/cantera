@@ -613,7 +613,7 @@ void PlasmaPhase::initThermo()
     }
 
     // Interpolate cross-sections
-    writelog("Final electron species index: " + std::to_string(m_electronSpeciesIndex) + "\n");
+    //writelog("Final electron species index: " + std::to_string(m_electronSpeciesIndex) + "\n");
     updateInterpolatedCrossSections();
 }
 
@@ -811,10 +811,8 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficients()
 
 void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 {
-    writelog("=== updateElasticElectronEnergyLossCoefficient for i = {} ===\n", i);
     // @todo exclude attachment collisions
     size_t k = m_targetSpeciesIndices[i];
-    writelog("Target species index = {}, MW = {}\n", k, molecularWeight(k));
 
     // Map cross sections to Eigen::ArrayXd
     auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
@@ -824,57 +822,18 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 
     // Mass ratio calculation
     double mass_ratio = ElectronMass / molecularWeight(k) * Avogadro;
-    writelog("Mass ratio = {}\n", mass_ratio);
 
-    writelog("Sizes: EEDF = {}, EEDF diff = {}, cross section = {}, energy levels = {}\n",
-        m_electronEnergyDist.size(),
-        m_electronEnergyDistDiff.size(),
-        cs_array.size(),
-        m_electronEnergyLevels.size()
-    );
-
-    if (m_electronEnergyDist.size() != m_electronEnergyDistDiff.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and EEDF gradient sizes do not match.");
-    }
-
-    if (m_electronEnergyDist.size() != cs_array.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and cross-section sizes do not match.");
-    }
-
-    if (m_electronEnergyDist.size() != m_electronEnergyLevels.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and energy level sizes do not match.");
-    }
-    writelog("EEDF f0 = {}\n", fmt::join(m_electronEnergyDist, ", "));
-    writelog("EEDF gradient df/dε = {}\n", fmt::join(m_electronEnergyDistDiff, ", "));
     // Calculate the rate using Simpson's rule or trapezoidal rule
     Eigen::ArrayXd f0_plus = m_electronEnergyDist + Boltzmann * temperature() /
                                 ElectronCharge * m_electronEnergyDistDiff;
-    writelog("f0_plus = {}\n", fmt::format("{}", fmt::join(f0_plus.data(), f0_plus.data() + f0_plus.size(), ", ")));
-
-    // Print cross-section
-    writelog("Cross-section = {}\n", fmt::format("{}", fmt::join(cs_array.data(), cs_array.data() + cs_array.size(), ", ")));
-
-    // Print energy levels^3
-    Eigen::ArrayXd epsilon3 = m_electronEnergyLevels.pow(3.0);
-    writelog("epsilon^3 = {}\n", fmt::format("{}", fmt::join(epsilon3.data(), epsilon3.data() + epsilon3.size(), ", ")));
-    
     m_elasticElectronEnergyLossCoefficients[i] = 2.0 * mass_ratio * gamma *
         numericalQuadrature(
             m_quadratureMethod, 1.0 / 3.0 * f0_plus.cwiseProduct(cs_array),
             m_electronEnergyLevels.pow(3.0));
-
-    writelog("Coefficient[{}] = {}\n", i, m_elasticElectronEnergyLossCoefficients[i]);
 }
 
 double PlasmaPhase::elasticPowerLoss()
 {
-    writelog("Entering PlasmaPhase::elasticPowerLoss()\n");
-    writelog("Number of collisions: {}\n", m_collisions.size());
-    writelog("Electron species index: {}\n", m_electronSpeciesIndex);
-    writelog("Electron temperature: {}\n", electronTemperature());
     updateElasticElectronEnergyLossCoefficients();
     // The elastic power loss includes the contributions from inelastic
     // collisions (inelastic recoil effects).
