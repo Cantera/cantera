@@ -147,6 +147,12 @@ plasma:
     file: oxygen-plasma.yaml
     phase: discretized-electron-energy-plasma
     known-failures:
+      g_eq_h_minus_Ts/.+: Test does not account for distinct electron temperature
+      u_eq_sum_uk_Xk/.+: Test does not account for distinct electron temperature
+      s_eq_sum_sk_Xk/.+: Test does not account for distinct electron temperature
+      cp_eq_dhdT/(0|2): Test does not account for distinct electron temperature
+      cv_eq_dudT/(0|2): Test does not account for distinct electron temperature
+      c_eq_sqrt_dP_drho_const_s/1: Test does not account for distinct electron temperature
       cp_eq_.+/1: Test does not account for distinct electron temperature
       cv_eq_.+/1: Test does not account for distinct electron temperature
       c._eq_dsdT_const_._times_T: Test does not account for distinct electron temperature

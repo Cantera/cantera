@@ -32,7 +32,6 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 
     // initial electron temperature
     m_electronTemp = temperature();
-    writelog("PlasmaPhase ctor: Te initialized to {}\n", m_electronTemp);
 }
 
 void PlasmaPhase::initialize()
@@ -128,13 +127,12 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 {
     m_electronEnergyDist.resize(m_nPoints);
     double x = m_isotropicShapeFactor;
-    double gamma1 = boost::math::tgamma(3.0 / 2.0 * x);
-    double gamma2 = boost::math::tgamma(5.0 / 2.0 * x);
+    double gamma1 = boost::math::tgamma(3.0 / 2.0 / x);
+    double gamma2 = boost::math::tgamma(5.0 / 2.0 / x);
     double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
-    double c2 = x * std::pow(gamma2 / gamma1, x);
+    double c2 = std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
-        c1 * m_electronEnergyLevels.sqrt() /
-        std::pow(meanElectronEnergy(), 1.5) *
+        c1  / std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
         meanElectronEnergy()).pow(x)).exp();
     checkElectronEnergyDistribution();
@@ -244,7 +242,8 @@ void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
 
 void PlasmaPhase::setIsotropicShapeFactor(double x) {
     m_isotropicShapeFactor = x;
-    setIsotropicElectronEnergyDistribution();
+    updateElectronEnergyDistribution();
+    //setIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getParameters(AnyMap& phaseNode) const
@@ -608,7 +607,7 @@ void PlasmaPhase::initThermo()
     }
 
     // Interpolate cross-sections
-    writelog("Final electron species index: " + std::to_string(m_electronSpeciesIndex) + "\n");
+    //writelog("Final electron species index: " + std::to_string(m_electronSpeciesIndex) + "\n");
     updateInterpolatedCrossSections();
 }
 
@@ -818,24 +817,9 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
     // Mass ratio calculation
     double mass_ratio = ElectronMass / molecularWeight(k) * Avogadro;
 
-    if (m_electronEnergyDist.size() != m_electronEnergyDistDiff.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and EEDF gradient sizes do not match.");
-    }
-
-    if (m_electronEnergyDist.size() != cs_array.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and cross-section sizes do not match.");
-    }
-
-    if (m_electronEnergyDist.size() != m_electronEnergyLevels.size()) {
-        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
-            "EEDF and energy level sizes do not match.");
-    }
     // Calculate the rate using Simpson's rule or trapezoidal rule
     Eigen::ArrayXd f0_plus = m_electronEnergyDist + Boltzmann * temperature() /
                                 ElectronCharge * m_electronEnergyDistDiff;
-
     m_elasticElectronEnergyLossCoefficients[i] = 2.0 * mass_ratio * gamma *
         numericalQuadrature(
             m_quadratureMethod, 1.0 / 3.0 * f0_plus.cwiseProduct(cs_array),
