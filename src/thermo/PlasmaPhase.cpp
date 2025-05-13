@@ -205,6 +205,7 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
         normalizeElectronEnergyDistribution();
     }
     checkElectronEnergyDistribution();
+    updateElectronEnergyDistDifference();
     updateElectronTemperatureFromEnergyDist();
     electronEnergyLevelChanged();
     electronEnergyDistributionChanged();
@@ -833,8 +834,10 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficients()
 
 void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 {
+    writelog("=== updateElasticElectronEnergyLossCoefficient for i = {} ===\n", i);
     // @todo exclude attachment collisions
     size_t k = m_targetSpeciesIndices[i];
+    writelog("Target species index = {}, MW = {}\n", k, molecularWeight(k));
 
     // Map cross sections to Eigen::ArrayXd
     auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
@@ -844,18 +847,48 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 
     // Mass ratio calculation
     double mass_ratio = ElectronMass / molecularWeight(k) * Avogadro;
+    writelog("Mass ratio = {}\n", mass_ratio);
 
+    writelog("Sizes: EEDF = {}, EEDF diff = {}, cross section = {}, energy levels = {}\n",
+        m_electronEnergyDist.size(),
+        m_electronEnergyDistDiff.size(),
+        cs_array.size(),
+        m_electronEnergyLevels.size()
+    );
+
+    if (m_electronEnergyDist.size() != m_electronEnergyDistDiff.size()) {
+        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
+            "EEDF and EEDF gradient sizes do not match.");
+    }
+
+    if (m_electronEnergyDist.size() != cs_array.size()) {
+        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
+            "EEDF and cross-section sizes do not match.");
+    }
+
+    if (m_electronEnergyDist.size() != m_electronEnergyLevels.size()) {
+        throw CanteraError("updateElasticElectronEnergyLossCoefficient",
+            "EEDF and energy level sizes do not match.");
+    }
+    writelog("test");
     // Calculate the rate using Simpson's rule or trapezoidal rule
     Eigen::ArrayXd f0_plus = m_electronEnergyDist + Boltzmann * temperature() /
                                 ElectronCharge * m_electronEnergyDistDiff;
+    
     m_elasticElectronEnergyLossCoefficients[i] = 2.0 * mass_ratio * gamma *
         numericalQuadrature(
             m_quadratureMethod, 1.0 / 3.0 * f0_plus.cwiseProduct(cs_array),
             m_electronEnergyLevels.pow(3.0));
+
+    writelog("Coefficient[{}] = {}\n", i, m_elasticElectronEnergyLossCoefficients[i]);
 }
 
 double PlasmaPhase::elasticPowerLoss()
 {
+    writelog("Entering PlasmaPhase::elasticPowerLoss()\n");
+    writelog("Number of collisions: {}\n", m_collisions.size());
+    writelog("Electron species index: {}\n", m_electronSpeciesIndex);
+    writelog("Electron temperature: {}\n", electronTemperature());
     updateElasticElectronEnergyLossCoefficients();
     // The elastic power loss includes the contributions from inelastic
     // collisions (inelastic recoil effects).
