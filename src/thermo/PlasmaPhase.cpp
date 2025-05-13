@@ -97,7 +97,7 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     }
     updateElectronEnergyDistDifference();
     electronEnergyDistributionChanged();
-    
+
 }
 
 void PlasmaPhase::normalizeElectronEnergyDistribution() {
@@ -745,40 +745,6 @@ vector<double> PlasmaPhase::crossSection(shared_ptr<Reaction> reaction)
         }
         return cs_interp;
     }
-}
-
-double PlasmaPhase::normalizedElasticElectronEnergyLossRate()
-{
-    double rate = 0.0;
-    // calculate dF/depsilon (forward difference)
-    Eigen::ArrayXd dF(nElectronEnergyLevels());
-    for (size_t i = 0; i < nElectronEnergyLevels() - 1; i++) {
-        dF[i] = (m_electronEnergyDist[i+1] - m_electronEnergyDist[i]) /
-                (m_electronEnergyLevels[i+1] - m_electronEnergyLevels[i]);
-    }
-    dF[nElectronEnergyLevels()-1] = dF[nElectronEnergyLevels()-2];
-
-    for (size_t i : m_elasticCollisionIndices) {
-        size_t k = targetSpeciesIndex(m_collisions[i]);
-        // get the interpolated cross sections
-        auto collision = boost::polymorphic_pointer_downcast
-            <ElectronCollisionPlasmaRate>(m_collisions[i]->rate());
-        // Map cross sections to Eigen::ArrayXd
-        auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
-            collision->crossSectionInterpolated().data(),
-            collision->crossSectionInterpolated().size()
-        );
-
-        double mass_ratio = ElectronMass / molecularWeight(k) * Avogadro;
-        rate += mass_ratio * Avogadro * concentration(k) * (
-            simpson(1.0 / 3.0 * m_electronEnergyDist.cwiseProduct(
-                    cs_array), m_electronEnergyLevels.pow(3.0)) +
-            simpson(Boltzmann * temperature() / ElectronCharge *
-                    cs_array.cwiseProduct(dF), m_electronEnergyLevels));
-    }
-    double gamma = sqrt(2 * ElectronCharge / ElectronMass);
-
-    return 2.0 * gamma * rate;
 }
 
 void PlasmaPhase::updateElectronEnergyDistDifference()

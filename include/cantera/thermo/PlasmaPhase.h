@@ -389,14 +389,6 @@ public:
         m_EN = EN; // [V.m2]
         m_E = m_EN * molarDensity() * Avogadro; // [V/m]
     }
-    //! Get elastic electron energy loss rate (eV/s)
-    double elasticElectronEnergyLossRate() {
-        return concentration(m_electronSpeciesIndex) *
-               normalizedElasticElectronEnergyLossRate();
-    }
-
-    //! Get normalized elastic electron energy loss rate (eV-m3/kmol/s)
-    double normalizedElasticElectronEnergyLossRate();
 
     virtual void setSolution(std::weak_ptr<Solution> soln) override;
 
