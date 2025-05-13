@@ -19,6 +19,7 @@ namespace Cantera
 {
 
 class Reaction;
+class ElectronCollisionPlasmaRate;
 
 /**
  * Base class for a phase with plasma properties. This class manages the

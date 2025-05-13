@@ -8,12 +8,17 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/base/global.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/Reaction.h"
 #include <boost/polymorphic_pointer_cast.hpp>
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 
 namespace Cantera {
+
+namespace {
+    const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
+}
 
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
