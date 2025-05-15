@@ -4,6 +4,7 @@ The following style guidelines are recommended for all new code added to Cantera
 Following these guidelines will simplify the review process for pull requests and make
 it easier for others to understand your code in the context of Cantera as a whole.
 
+(sec-style-general)=
 ## General Style
 
 * Try to follow the style of surrounding code, and use variable names that follow
@@ -118,6 +119,7 @@ it easier for others to understand your code in the context of Cantera as a whol
       """ Attributes of a node """
   ```
 
+(sec-style-csharp)=
 ## C#
 
 * C# coding conventions should follow https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions

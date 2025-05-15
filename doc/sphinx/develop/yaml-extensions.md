@@ -12,7 +12,8 @@ CLib modules generated from [specification files](sec-sourcegen-specifications).
 output file contains mappings of CLib function names to implementation details
 of individual [recipes](sec-sourcegen-recipes).
 
-**Example:** CLib getter for molecular weights
+**Example:** Using the same input as in the [](clib-extensions) example, the YAML source
+generator documents the CLib getter for molecular weights as follows:
 
 ```yaml
 thermo3_getMolecularWeights:
