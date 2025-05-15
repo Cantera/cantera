@@ -14,6 +14,14 @@ The .NET API is written in C# and supports .NET Standard 2.0 (for the primary pr
 and .NET 8 (and newer) on all platforms that support both .NET and the Cantera C++
 library. The .NET interface requires an installation of the .NET 8.0 SDK.
 
+The .NET API implementation draws on two parts:
+
+1. [](sec-sourcegen-dotnet-generation), which translates CLib headers into
+   corresponding C# implementations.
+
+1. The .NET API included in `interfaces/dotnet`, which contains hand-coded API wrappers
+   that extend generated code to form the actual user interface.
+
 (sec-sourcegen-dotnet-install)=
 ## Building the .NET Interface
 
@@ -34,6 +42,7 @@ In order to force re-import of generated code from sourcegen, a manual deletion 
 `obj` and `bin` folders in `Cantera`, `Cantera.Tests`, `examples/Applications` and
 `examples/Soundspeed` may be necessary.
 
+(sec-sourcegen-dotnet-generation)=
 ### C# Code Generation
 
 Source generation for the .NET interface is fully integrated into the build process.
@@ -65,9 +74,10 @@ solution with all the examples using `dotnet new`.
 
 ## Extending the .NET API
 
-Like all of Cantera, we welcome contributions to the .NET interface. Contributors should
-review general and C#-specific [coding standards](CONTRIBUTING). Please note that
-contributing to the .NET interface requires a relatively advanced understanding of C#.
+Like all of Cantera, we welcome [contributions](CONTRIBUTING) to the .NET interface.
+Contributors should review [general](sec-style-general) and
+[C#-specific](sec-style-csharp) coding standards. Please note that contributing to the
+.NET interface requires a relatively advanced understanding of C#.
 This includes being comfortable with `unsafe` blocks and interop concepts such as raw
 pointers, understanding how to use `Span<T>` and similar memory APIs, and having a solid
 grip on object-oriented library design.
