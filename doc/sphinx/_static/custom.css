@@ -6,6 +6,13 @@ html[data-theme=light] {
     /* Improve contrast with foreground colors */
     --pst-color-surface: rgb(250, 250, 250);
     --pst-color-primary: rgb(4, 97, 113);
+    /* used by banner */
+    --pst-color-secondary-bg: #fbc58d;
+}
+
+html[data-theme="dark"] {
+    /* used by banner */
+    --pst-color-secondary-bg: #652a02;
 }
 
 p + div.math {
