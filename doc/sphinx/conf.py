@@ -11,7 +11,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, re
+import sys
+import os
+import re
+from datetime import date
 from pathlib import Path
 from sphinx_gallery.sorting import ExplicitOrder
 
@@ -250,7 +253,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Cantera'
-copyright = "2001-2024, Cantera Developers"
+year = date.today().year
+copyright = f"2001-{year}, Cantera Developers"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
