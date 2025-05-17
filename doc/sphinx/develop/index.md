@@ -67,6 +67,7 @@ writing-tests
 running-tests
 writing-examples
 doc-formatting
+continuous-integration
 ```
 
 (sec-distributing)=
