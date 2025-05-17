@@ -341,6 +341,11 @@ html_theme_options = {
             "type": "fontawesome",
         }
    ],
+    "announcement": (
+        "This is a community-supported project. If you'd like to contribute, "
+        "<a href='https://github.com/Cantera/cantera'>check out our GitHub repository</a>. "
+        "Your contributions are welcome!"
+    ),
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
