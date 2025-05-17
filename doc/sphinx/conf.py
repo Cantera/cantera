@@ -11,7 +11,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, re
+import sys
+import os
+import re
+from datetime import date
 from pathlib import Path
 from sphinx_gallery.sorting import ExplicitOrder
 
@@ -250,7 +253,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Cantera'
-copyright = "2001-2024, Cantera Developers"
+year = date.today().year
+copyright = f"2001-{year}, Cantera Developers"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -341,6 +345,11 @@ html_theme_options = {
             "type": "fontawesome",
         }
    ],
+    "announcement": (
+        "This is a community-supported project. If you'd like to contribute, "
+        "<a href='https://github.com/Cantera/cantera'>check out our GitHub repository</a>. "
+        "Your contributions are welcome!"
+    ),
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
