@@ -187,6 +187,7 @@ extern "C" {
     CANTERA_CAPI int ct_getCanteraVersion(int buflen, char* buf);
     CANTERA_CAPI int ct_getGitCommit(int buflen, char* buf);
     CANTERA_CAPI int ct_suppress_thermo_warnings(int suppress);
+    CANTERA_CAPI int ct_suppress_deprecation_warnings(int suppress);
     CANTERA_CAPI int ct_use_legacy_rate_constants(int legacy);
     CANTERA_CAPI int ct_clearStorage();
     CANTERA_CAPI int ct_resetStorage();

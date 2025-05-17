@@ -28,7 +28,7 @@ void run()
     // to have its own set of linked Cantera objects. Multiple threads accessing
     // the same objects at the same time will cause errors.
     vector<shared_ptr<Solution>> sols;
-    vector<unique_ptr<IdealGasConstPressureReactor>> reactors;
+    vector<shared_ptr<IdealGasConstPressureReactor>> reactors;
     vector<unique_ptr<ReactorNet>> nets;
 
     // Create and link the Cantera objects for each thread. This step should be
@@ -37,8 +37,7 @@ void run()
         auto sol = newSolution("gri30.yaml", "gri30", "none");
         sols.emplace_back(sol);
         reactors.emplace_back(new IdealGasConstPressureReactor(sol));
-        nets.emplace_back(new ReactorNet());
-        nets.back()->addReactor(*reactors.back());
+        nets.emplace_back(new ReactorNet(reactors.back()));
     }
 
     // Points at which to compute ignition delay time

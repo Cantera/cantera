@@ -97,17 +97,42 @@ void ReactorFactory::deleteFactory() {
     s_factory = 0;
 }
 
-shared_ptr<ReactorBase> newReactor(const string& model)
+shared_ptr<ReactorBase> newReactorBase(
+    const string& model, shared_ptr<Solution> contents, const string& name)
 {
     return shared_ptr<ReactorBase>(
-        ReactorFactory::factory()->create(model, nullptr, ""));
+        ReactorFactory::factory()->create(model, contents, name));
 }
 
 shared_ptr<ReactorBase> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name)
 {
-    return shared_ptr<ReactorBase>(
-        ReactorFactory::factory()->create(model, contents, name));
+    warn_deprecated("newReactor", "Behavior changes after Cantera 3.2, when a "
+        "'shared_ptr<Reactor>' is returned.\nFor new behavior, use 'newReactor4'.");
+    return newReactorBase(model, contents, name);
+}
+
+shared_ptr<Reactor> newReactor4(
+    const string& model, shared_ptr<Solution> contents, const string& name)
+{
+    auto reactor = std::dynamic_pointer_cast<Reactor>(
+        newReactorBase(model, contents, name));
+    if (!reactor) {
+        throw CanteraError("newReactor4",
+            "Model type '{}' does not specify a bulk reactor.", model);
+    }
+    return reactor;
+}
+
+shared_ptr<Reservoir> newReservoir(shared_ptr<Solution> contents, const string& name)
+{
+    auto reservoir = std::dynamic_pointer_cast<Reservoir>(
+        newReactorBase("Reservoir", contents, name));
+    if (!reservoir) {
+        throw CanteraError("newReservoir",
+            "Caught unexpected inconsistency in factory method.");
+    }
+    return reservoir;
 }
 
 }

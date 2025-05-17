@@ -118,6 +118,16 @@ void ReactorBase::addSurface(ReactorSurface* surf)
     }
 }
 
+void ReactorBase::addSurface(shared_ptr<ReactorBase> surf)
+{
+    auto r = std::dynamic_pointer_cast<ReactorSurface>(surf);
+    if (!r) {
+        throw CanteraError("ReactorBase::addSurface",
+                           "Invalid reactor type '{}'.", surf->type());
+    }
+    addSurface(r.get());
+}
+
 ReactorSurface* ReactorBase::surface(size_t n)
 {
     return m_surfaces[n];

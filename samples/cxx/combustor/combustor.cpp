@@ -28,32 +28,27 @@ void runexample()
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     gas->setState_TPX(300.0, OneAtm, "CH4:1.0");
-    Reservoir fuel_in(sol);
     double fuel_mw = gas->meanMolecularWeight();
-
-    auto air = newSolution("air.yaml", "air", "none");
-    double air_mw = air->thermo()->meanMolecularWeight();
+    auto fuel_in = newReservoir(sol);
 
     // create a reservoir for the air inlet
-    Reservoir air_in(air);
+    auto air = newSolution("air.yaml", "air", "none");
+    double air_mw = air->thermo()->meanMolecularWeight();
+    auto air_in = newReservoir(air);
 
     // to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
     // The steady-state behavior is independent of how we do this, so we'll
     // just use a stream of pure atomic hydrogen.
     gas->setState_TPX(300.0, OneAtm, "H:1.0");
-    Reservoir igniter(sol);
-
+    auto igniter = newReservoir(sol);
 
     // create the combustor, and fill it in initially with N2
     gas->setState_TPX(300.0, OneAtm, "N2:1.0");
-    Reactor combustor(sol);
-    combustor.setInitialVolume(1.0);
+    auto combustor = newReactor4("Reactor", sol);
+    combustor->setInitialVolume(1.0);
 
-
-    // create a reservoir for the exhaust. The initial composition
-    // doesn't matter.
-    Reservoir exhaust(sol);
-
+    // create a reservoir for the exhaust. The initial composition doesn't matter.
+    auto exhaust = newReservoir(sol);
 
     // lean combustion, phi = 0.5
     double equiv_ratio = 0.5;
@@ -66,18 +61,14 @@ void runexample()
     // create and install the mass flow controllers. Controllers
     // m1 and m2 provide constant mass flow rates, and m3 provides
     // a short Gaussian pulse only to ignite the mixture
-    MassFlowController m1;
-    m1.install(fuel_in, combustor);
+    MassFlowController m1(fuel_in, combustor);
     m1.setMassFlowRate(fuel_mdot);
 
     // Now create the air mass flow controller.  Note that this connects
     // two reactors with different reaction mechanisms and different
-    // numbers of species. Downstream and upstream species are matched by
-    // name.
-    MassFlowController m2;
-    m2.install(air_in, combustor);
+    // numbers of species. Downstream and upstream species are matched by name.
+    MassFlowController m2(air_in, combustor);
     m2.setMassFlowRate(air_mdot);
-
 
     // The igniter will use a Gaussian 'functor' object to specify the
     // time-dependent igniter mass flow rate.
@@ -86,22 +77,18 @@ void runexample()
     double t0 = 0.5;
     Gaussian1 igniter_mdot(A, t0, FWHM);
 
-    MassFlowController m3;
-    m3.install(igniter, combustor);
+    MassFlowController m3(igniter, combustor);
     m3.setTimeFunction(&igniter_mdot);
 
     // put a valve on the exhaust line to regulate the pressure
-    Valve v;
-    v.install(combustor, exhaust);
+    Valve v(combustor, exhaust);
     double Kv = 1.0;
     v.setValveCoeff(Kv);
 
     // the simulation only contains one reactor
-    ReactorNet sim;
-    sim.addReactor(combustor);
+    ReactorNet sim(combustor);
 
-    // take single steps to 6 s, writing the results to a CSV file
-    // for later plotting.
+    // take single steps to 6 s, writing the results to a CSV file for later plotting.
     double tfinal = 1.0;
     double tnow = 0.0;
     double tres;
@@ -121,11 +108,11 @@ void runexample()
     while (tnow < tfinal) {
         tnow += 0.005;
         sim.advance(tnow);
-        tres = combustor.mass()/v.massFlowRate();
+        tres = combustor->mass()/v.massFlowRate();
         f << tnow << ", "
-          << combustor.temperature() << ", "
+          << combustor->temperature() << ", "
           << tres << ", ";
-        ThermoPhase& c = combustor.contents();
+        ThermoPhase& c = combustor->contents();
         for (size_t i = 0; i < k_out.size(); i++) {
             f << c.moleFraction(k_out[i]) << ", ";
         }

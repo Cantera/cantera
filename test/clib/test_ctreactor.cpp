@@ -42,7 +42,9 @@ TEST(ctreactor, reactor_simple)
 
     int reactor = reactor_new("IdealGasReactor", sol, "test");
     int net = reactornet_new();
+    suppress_deprecation_warnings();
     int ret = reactornet_addreactor(net, reactor);
+    make_deprecation_warnings_fatal();
     ASSERT_EQ(ret, 0);
 
     double t = 0.0;
