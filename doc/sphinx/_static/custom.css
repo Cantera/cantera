@@ -7,12 +7,12 @@ html[data-theme=light] {
     --pst-color-surface: rgb(250, 250, 250);
     --pst-color-primary: rgb(4, 97, 113);
     /* used by banner */
-    --pst-color-secondary-bg: #fbc58d;
+    --pst-color-secondary-bg: #fdddbe;
 }
 
 html[data-theme="dark"] {
     /* used by banner */
-    --pst-color-secondary-bg: #652a02;
+    --pst-color-secondary-bg: #402001;
 }
 
 p + div.math {
