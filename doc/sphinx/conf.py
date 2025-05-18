@@ -341,14 +341,13 @@ html_theme_options = {
         {
             "name": "GitHub",
             "url": "https://github.com/Cantera/cantera",
-            "icon": "fa-brands fa-square-github",
+            "icon": "fa-brands fa-github",
             "type": "fontawesome",
         }
-   ],
+    ],
     "announcement": (
-        "This is a community-supported project. If you'd like to contribute, "
-        "<a href='https://groups.google.com/group/cantera-users'>check out our User Group</a>. "
-        "Your contributions are welcome!"
+        "Cantera is community-driven and needs your help! "
+        "<a href='https://cantera.org/getting-involved.html'>Get involved here</a>."
     ),
 }
 
