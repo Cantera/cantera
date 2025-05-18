@@ -30,9 +30,11 @@ class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    //! Create reactor net containing single reactor.
+    //! Create reactor network containing single reactor.
+    //! @since New in %Cantera 3.2.
     ReactorNet(shared_ptr<ReactorBase> reactor);
-    //! Create reactor net from multiple reactors.
+    //! Create reactor network from multiple reactors.
+    //! @since New in %Cantera 3.2.
     ReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
     ~ReactorNet() override;
     ReactorNet(const ReactorNet&) = delete;
@@ -140,7 +142,7 @@ public:
     double step();
 
     //! Add the reactor *r* to this reactor network.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by reactor net
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by reactor net
     //!     instantiation with contents.
     void addReactor(Reactor& r);
 
@@ -307,7 +309,7 @@ public:
 
 protected:
     //! Add the reactor *r* to this reactor network.
-    //! @since  Changed in %Cantera 3.2.
+    //! @since  Changed in %Cantera 3.2. Previous version used a reference.
     void addReactor(shared_ptr<ReactorBase> reactor);
 
     //! Check that preconditioning is supported by all reactors in the network

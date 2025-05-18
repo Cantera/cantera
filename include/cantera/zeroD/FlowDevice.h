@@ -53,7 +53,7 @@ public:
 
     //! Get the device coefficient (defined by derived class).
     //! @since  New in %Cantera 3.2.
-    double deviceCoefficient() {
+    double deviceCoefficient() const {
         return m_coeff;
     }
 
@@ -117,7 +117,7 @@ public:
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by version using
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
     //!     shared pointer.
     virtual void setPressureFunction(Func1* f);
 
@@ -125,7 +125,7 @@ public:
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
-    //! @since  Changed in %Cantera 3.2.
+    //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     virtual void setPressureFunction(shared_ptr<Func1> f) {
         m_pfunc = f.get();
     }
@@ -142,7 +142,7 @@ public:
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by version using
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
     //!     shared pointer.
     virtual void setTimeFunction(Func1* g);
 
@@ -150,7 +150,7 @@ public:
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
-    //! @since  Changed in %Cantera 3.2.
+    //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     virtual void setTimeFunction(shared_ptr<Func1> g) {
         m_tfunc = g.get();
     }

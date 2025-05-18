@@ -122,7 +122,7 @@ public:
     double velocity() const;
 
     //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by version using
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
     //!     shared pointer.
     void setVelocity(Func1* f=0) {
         warn_deprecated("Wall::setVelocity",
@@ -134,7 +134,7 @@ public:
     }
 
     //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
-    //! @since  Changed in %Cantera 3.2.
+    //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     void setVelocity(shared_ptr<Func1> f) {
         if (f) {
             m_vf = f.get();
@@ -160,7 +160,7 @@ public:
     double heatFlux() const;
 
     //! Specify the heat flux function @f$ q_0(t) @f$.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by version using
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
     //!     shared pointer.
     void setHeatFlux(Func1* q) {
         warn_deprecated("Wall::setHeatFlux",
@@ -170,7 +170,7 @@ public:
     }
 
     //! Specify the heat flux function @f$ q_0(t) @f$.
-    //! @since  Changed in %Cantera 3.2.
+    //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     void setHeatFlux(shared_ptr<Func1> q) {
         m_qf = q.get();
     }
