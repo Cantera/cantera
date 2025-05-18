@@ -49,6 +49,17 @@ void PressureController::updateMassFlowRate(double time)
     m_mdot = std::max(mdot, 0.0);
 }
 
+void PressureController::setPrimary(shared_ptr<ConnectorNode> primary)
+{
+    auto dev = std::dynamic_pointer_cast<FlowDevice>(primary);
+    if (!dev) {
+        throw CanteraError("PressureController::setPrimary",
+                           "Invalid primary mass flow controller with type {}.",
+                           primary->type());
+    }
+    m_primary = dev.get();
+}
+
 void Valve::updateMassFlowRate(double time)
 {
     if (!ready()) {

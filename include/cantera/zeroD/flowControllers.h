@@ -16,12 +16,12 @@ namespace Cantera
  * A class for mass flow controllers. The mass flow rate is constant or
  * specified as a function of time.
  *
- * The device coefficient *c* is specifies the mass flow coefficient with units of kg/s.
+ * The device coefficient *c* specifies the mass flow coefficient with units of kg/s.
  * The mass flow rate is computed as:
- * @f[\dot{m} = m g(t) @f]
+ * @f[\dot{m} = c g(t) @f]
  * where *g* is a function of time that is set by `setTimeFunction`.
  * If no function is specified, the mass flow rate defaults to:
- * @f[\dot{m} = m @f]
+ * @f[\dot{m} = c @f]
  *
  * @ingroup connectorGroup
  */
@@ -39,7 +39,7 @@ public:
     //! Set the mass flow coefficient.
     /*!
      * *m* has units of kg/s. The mass flow rate is computed as:
-     * @f[\dot{m} = m g(t) @f]
+     *
      * where *g* is a function of time that is set by `setTimeFunction`.
      * If no function is specified, the mass flow rate defaults to:
      * @f[\dot{m} = m @f]
@@ -95,15 +95,7 @@ public:
         return FlowDevice::ready() && m_primary != 0;
     }
 
-    void setPrimary(shared_ptr<ConnectorNode> primary) override {
-        if (!std::dynamic_pointer_cast<MassFlowController>(primary)) {
-            throw CanteraError("PressureController::setPrimary",
-                               "Invalid primary mass flow controller with type {}.",
-                               primary->type());
-        }
-        auto dev = std::dynamic_pointer_cast<FlowDevice>(primary);
-        m_primary = dev.get();
-    }
+    void setPrimary(shared_ptr<ConnectorNode> primary) override;
 
     //! Set the primary mass flow controller.
     //! @since New in %Cantera 3.0.
@@ -125,14 +117,6 @@ public:
     }
 
     //! Set the proportionality constant between pressure drop and mass flow rate.
-    /*!
-     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
-     * @f[\dot{m} = \dot{m}_{primary} + c f(\Delta P) @f]
-     * where *f* is a functions of pressure drop that is set by
-     * `setPressureFunction`. If no functions is specified, the mass flow
-     * rate defaults to:
-     * @f[\dot{m} = \dot{m}_{primary} + c \Delta P @f]
-     */
     void setPressureCoeff(double c) {
         m_coeff = c;
     }
@@ -174,14 +158,6 @@ public:
     }
 
     //! Set the proportionality constant between pressure drop and mass flow rate.
-    /*!
-     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
-     * @f[\dot{m} = c g(t) f(\Delta P) @f]
-     * where *g* and *f* are functions of time and pressure drop that are set
-     * by `setTimeFunction` and `setPressureFunction`, respectively. If no functions are
-     * specified, the mass flow rate defaults to:
-     * @f[\dot{m} = c \Delta P @f]
-     */
     void setValveCoeff(double c) {
         m_coeff = c;
     }
