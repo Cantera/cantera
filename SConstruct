@@ -1984,6 +1984,12 @@ install(env.RecursiveInstall, '$inst_sampledir/cxx',
 install(env.RecursiveInstall, '$inst_sampledir/clib',
         'samples/clib', exclude=sampledir_excludes)
 
+# Install experimental C samples
+if env["clib_experimental"]:
+    SConscript("build/samples/clib_experimental/SConscript")
+    install(env.RecursiveInstall, "$inst_sampledir/clib_experimental",
+            "samples/clib_experimental", exclude=sampledir_excludes)
+
 if env['f90_interface'] == 'y':
     SConscript('build/samples/f77/SConscript')
     SConscript('build/samples/f90/SConscript')
