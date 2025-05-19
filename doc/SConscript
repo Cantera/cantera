@@ -87,6 +87,15 @@ if localenv['sphinx_docs']:
                     localenv.Command(f"#build/doc/samples/clib/{clib_file.name}",
                                      clib_file, Copy("$TARGET", "$SOURCE")))
 
+    # Gather clib_experimental sample files
+    clib3_files = Glob("#samples/clib_experimental/*.c") + \
+                       [File("#samples/clib_experimental/README.rst")]
+    for clib3_file in clib3_files:
+        env.Depends(sphinxdocs,
+                    localenv.Command(
+                        f"#build/doc/samples/clib_experimental/{clib3_file.name}",
+                        clib3_file, Copy("$TARGET", "$SOURCE")))
+
     # Generate documentation for SCons configuration options
     def save_config(target, source, env):
         Path(str(target[0])).parent.mkdir(parents=True, exist_ok=True)
