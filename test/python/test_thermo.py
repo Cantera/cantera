@@ -1297,6 +1297,42 @@ class TestPlasmaPhase:
         phase.isotropic_shape_factor = 1.1
         assert phase.elastic_power_loss == approx(7408711810)
 
+    def test_eedf_solver(self):
+
+        phase = ct.Solution('air-plasma.yaml')
+        phase.TPX = 300., 101325., 'N2:0.79, O2:0.21, N2+:1E-10, Electron:1E-10'
+        phase.EN = 200.0 * 1e-21  # Reduced electric field [V.m^2]
+        phase.update_EEDF()
+
+        grid = phase.electron_energy_levels
+        eedf = phase.electron_energy_distribution
+
+        reference_grid = np.logspace(-1, np.log10(60))
+
+        reference_eedf = np.array([
+            9.1027381e-02, 9.1026393e-02, 9.1025267e-02, 9.1023985e-02, 9.1022523e-02,
+            9.1020858e-02, 9.1015025e-02, 9.1006713e-02, 9.0997242e-02, 9.0986450e-02,
+            9.0974154e-02, 9.0954654e-02, 9.0923885e-02, 9.0888824e-02, 9.0842837e-02,
+            9.0775447e-02, 9.0695937e-02, 9.0578309e-02, 9.0398980e-02, 9.0118320e-02,
+            8.9293838e-02, 8.7498617e-02, 8.3767419e-02, 7.5765714e-02, 6.4856820e-02,
+            5.5592157e-02, 4.9309310e-02, 4.5268611e-02, 4.2261381e-02, 3.9440745e-02,
+            3.6437762e-02, 3.3181527e-02, 2.9616717e-02, 2.5795007e-02, 2.1676205e-02,
+            1.7347058e-02, 1.3022044e-02, 8.9705614e-03, 5.5251937e-03, 3.1894295e-03,
+            1.7301525e-03, 8.4647152e-04, 3.6030983e-04, 1.2894755e-04, 3.7416645e-05,
+            8.4693678e-06, 1.4299900e-06, 1.7026957e-07, 1.3992350e-08, 1.5340110e-09
+        ])
+
+        interp = np.interp(reference_grid, grid, eedf, left=0.0, right=0.0)
+
+        mask = reference_eedf > 1e-8
+        rel_error = np.abs(interp[mask] - reference_eedf[mask]) / reference_eedf[mask]
+
+        assert max(rel_error) < 0.01
+
+        l2_norm = np.linalg.norm(interp - reference_eedf)
+        assert l2_norm < 1e-3
+
+
 class TestImport:
     """
     Tests the various ways of creating a Solution object
