@@ -9,6 +9,19 @@ ignore_funcs:
   ct.h:
     - ct_setLogWriter
 
+# Return type cross-walks
+ret_type_crosswalk:
+  const char*: string
+  const double*: double[]
+  const int*: int[]
+  size_t: nuint
+  char*: byte*
+
+# Parameter type cross-walks
+prop_type_crosswalk:
+  byte*: string
+  double*: double[]
+
 # Replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
 class_crosswalk:

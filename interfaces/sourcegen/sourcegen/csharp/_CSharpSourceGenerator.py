@@ -5,29 +5,50 @@ from pathlib import Path
 import sys
 import logging
 import re
+from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
 from ._dataclasses import CsFunc
-from ._Config import Config
 from .._dataclasses import Func, Param, HeaderFile, ArgList
 from .._SourceGenerator import SourceGenerator
 
+from .._helpers import with_unpack_iter
 
-_logger = logging.getLogger()
-_loader = Environment(loader=BaseLoader)
+
+_LOGGER = logging.getLogger()
+_LOADER = Environment(loader=BaseLoader)
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
+class Config:
+    """Provides configuration info for the CSharpSourceGenerator class."""
+
+    ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
+
+    prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
+
+    class_crosswalk: dict[str, str]
+
+    class_accessors: dict[str, str]
+
+    derived_handles: dict[str, str]
+
+    wrapper_classes: dict[str, dict[str, str]]
+
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
     def __init__(self, out_dir: str, config: dict, templates: dict) -> None:
         if not out_dir:
-            _logger.critical("Non-empty string identifying output path required.")
+            _LOGGER.critical("Non-empty string identifying output path required.")
             sys.exit(1)
         self._out_dir = Path(out_dir)
 
         # use the typed config
-        self._config = Config.from_parsed(**config)
+        self._config = Config(**config)
         self._templates = templates
 
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
@@ -49,7 +70,7 @@ class CSharpSourceGenerator(SourceGenerator):
             CsFunc("", "", "", "", ""))
 
         if prop_type in ["int", "double"]:
-            template = _loader.from_string(self._templates["csharp-property-int-double"])
+            template = _LOADER.from_string(self._templates["csharp-property-int-double"])
             return template.render(
                 prop_type=prop_type, cs_name=cs_name,
                 getter=getter.name, setter=setter.name)
@@ -58,12 +79,12 @@ class CSharpSourceGenerator(SourceGenerator):
             # for get-string type functions we need to look up the type of the second
             # (index 1) param for a cast because sometimes it's an int and other times
             # it's a nuint (size_t)
-            template = _loader.from_string(self._templates["csharp-property-string"])
+            template = _LOADER.from_string(self._templates["csharp-property-string"])
             return template.render(
                 cs_name=cs_name, p_type=getter.arglist[1].p_type,
                 getter=getter.name, setter=setter.name)
 
-        _logger.critical(f"Unable to scaffold properties of type {prop_type!r}!")
+        _LOGGER.critical(f"Unable to scaffold properties of type {prop_type!r}!")
         sys.exit(1)
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
@@ -127,7 +148,7 @@ class CSharpSourceGenerator(SourceGenerator):
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    _logger.critical(f"Cannot scaffold {name!r} with "
+                    _LOGGER.critical(f"Cannot scaffold {name!r} with "
                                      "more than one array of doubles!")
                     sys.exit(1)
 
@@ -150,17 +171,17 @@ class CSharpSourceGenerator(SourceGenerator):
         return func
 
     def _write_file(self, file_name: str, template_name: str, **kwargs) -> None:
-        _logger.info(f"  writing {file_name!r}")
-        template = _loader.from_string(self._templates["csharp-preamble"])
+        _LOGGER.info(f"  writing {file_name!r}")
+        template = _LOADER.from_string(self._templates["csharp-preamble"])
         preamble = template.render(file_name=file_name)
 
-        template = _loader.from_string(self._templates[template_name])
+        template = _LOADER.from_string(self._templates[template_name])
         contents = template.render(preamble=preamble, **kwargs)
 
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]) -> None:
-        template = _loader.from_string(self._templates["csharp-interop-func"])
+        template = _LOADER.from_string(self._templates["csharp-interop-func"])
         function_list = [
             template.render(unsafe=func.unsafe(), declaration=func.declaration())
             for func in cs_funcs]
@@ -171,7 +192,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
     def _scaffold_handles(
             self, header_file_path: Path, handles: dict[str, str]) -> None:
-        template = _loader.from_string(self._templates["csharp-base-handle"])
+        template = _LOADER.from_string(self._templates["csharp-base-handle"])
         handle_list = [
             template.render(class_name=key, release_func_name=val)
             for key, val in handles.items()]
@@ -181,7 +202,7 @@ class CSharpSourceGenerator(SourceGenerator):
             file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
     def _scaffold_derived_handles(self) -> None:
-        template = _loader.from_string(self._templates["csharp-derived-handle"])
+        template = _LOADER.from_string(self._templates["csharp-derived-handle"])
         handle_list = [
             template.render(derived_class_name=key, base_class_name=val)
             for key, val in self._config.derived_handles.items()]
