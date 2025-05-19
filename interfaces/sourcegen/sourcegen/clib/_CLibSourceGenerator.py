@@ -6,17 +6,32 @@
 import sys
 from pathlib import Path
 import logging
+from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
-
-from ._Config import Config
 
 from .._dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
 from .._SourceGenerator import SourceGenerator
 from .._TagFileParser import TagFileParser
+from .._helpers import with_unpack_iter
 
 
 _LOGGER = logging.getLogger()
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
+class Config:
+    """Provides configuration info for the CLibSourceGenerator class"""
+
+    ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
+
+    prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
+
+    preambles: dict[str, str]  #: Preamble text for each header file
+
+    includes: dict[str, list[str]]  #: Include directives for each implementation file
+
 
 class CLibSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating CLib."""
@@ -28,7 +43,7 @@ class CLibSourceGenerator(SourceGenerator):
         if self._out_dir is not None:
             self._out_dir = Path(out_dir)
             self._out_dir.mkdir(parents=True, exist_ok=True)
-        self._config = Config.from_parsed(**config)
+        self._config = Config(**config)
         self._templates = templates
         self._doxygen_tags = None
 

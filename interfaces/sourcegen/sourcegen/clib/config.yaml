@@ -10,6 +10,42 @@ ignore_files: []
 # Example: ctkin_auto.yaml: [phase]
 ignore_funcs: {}
 
+# Return type cross-walks
+ret_type_crosswalk:
+  bool: int
+  void: int
+  int: int
+  size_t: int
+  double: double
+  const double: double
+  shared_ptr<T>: int
+  string: char*
+  const string: char*
+  vector<double>&: double*
+  const vector<double>&: double*
+
+# Parameter type cross-walks
+prop_type_crosswalk:
+  bool: int
+  int: int
+  const int*: const int*
+  size_t: int
+  const size_t: int
+  double: double
+  const double: double
+  double*: double*
+  double* const: double*
+  const double*: const double*
+  const double* const: const double*
+  string: const char*
+  const string&: const char*
+  shared_ptr<T>: int
+  const shared_ptr<T>: int
+  vector<double>&: double*
+  const vector<double>&: const double*
+  vector<shared_ptr<T>>&: int[]
+  const vector<shared_ptr<T>>&: int[]
+
 # Cabinets with associated preambles (headers)
 preambles:
   "": |-
