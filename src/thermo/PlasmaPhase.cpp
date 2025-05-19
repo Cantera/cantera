@@ -319,11 +319,9 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 
             // Check for 'cross-sections' block (Old Format)
             if (rootNode.hasKey("cross-sections")) {
-                writelog("Using explicit `cross-sections` block.\n");
                 for (const auto& item : rootNode["cross-sections"].asVector<AnyMap>()) {
                     addElectronCrossSection(newElectronCrossSection(item));
                 }
-                writelog("m_ncs = {:3d}\n", m_ncs);
                 foundCrossSections = true;
             }
 
@@ -557,7 +555,6 @@ void PlasmaPhase::initThermo()
 
             // If the reaction already has 'energy-levels' and 'cross-sections', use them
             if (R.hasKey("energy-levels") && R.hasKey("cross-sections")) {
-                writelog("Using embedded cross-section data in reaction.\n");
                 rate->set_energyLevels(R["energy-levels"].asVector<double>());
                 rate->set_crossSections(R["cross-sections"].asVector<double>());
                 rate->set_threshold(R.getDouble("threshold", 0.0));
@@ -607,7 +604,6 @@ void PlasmaPhase::initThermo()
     }
 
     // Interpolate cross-sections
-    //writelog("Final electron species index: " + std::to_string(m_electronSpeciesIndex) + "\n");
     updateInterpolatedCrossSections();
 }
 
