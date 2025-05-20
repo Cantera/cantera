@@ -12,14 +12,14 @@ static class InteropUtil
     /// Represents a function that gets the length of an array for a particular property
     /// of a Cantera object represented by <c>handle</c>.
     /// </summary>
-    public delegate nuint GetSizeFunc<THandle>(THandle handle)
+    public delegate int GetSizeFunc<THandle>(THandle handle)
         where THandle : CanteraHandle;
 
     /// <summary>
     /// Represents a function that fills an array pointed to by <c>buffer</c> for
     /// a particular property of a Cantera object represented by <c>handle</c>.
     /// </summary>
-    public unsafe delegate int FillDoubleBufferFunc<THandle>(THandle handle, nuint size,
+    public unsafe delegate int FillDoubleBufferFunc<THandle>(THandle handle, int size,
                                                              double* buffer)
         where THandle : CanteraHandle;
 
@@ -27,13 +27,7 @@ static class InteropUtil
     /// Represents a function that fills a byte buffer representing a native string.
     /// </summary>
     /// <remarks>
-    /// The Cantera C API is not very consistent on whether the size should be specified
-    /// as an int or a nuint (size_t), so users of this delegate may need to wrap their
-    /// LibCantera call in a lambda to perform the appropriate conversions,
-    /// and/or pass in the Cantera handle as a capture. For example:
-    /// <code>
-    /// (size, buffer) => kin_getType(_handle, (nuint) size, buffer)
-    /// </code>
+    /// The Cantera C API specifies the size as an int.
     /// </remarks>
     public unsafe delegate int FillStringBufferFunc(int size, byte* buffer);
 
@@ -45,20 +39,6 @@ static class InteropUtil
         CallbackException.ThrowIfAny();
 
         if (code == Error)
-        {
-            CanteraException.ThrowLatest();
-        }
-
-        return code;
-    }
-
-    public static nuint CheckReturn(nuint code)
-    {
-        var error = unchecked((nuint) (-1));
-
-        CallbackException.ThrowIfAny();
-
-        if (code == error)
         {
             CanteraException.ThrowLatest();
         }
@@ -130,7 +110,7 @@ static class InteropUtil
     {
         fixed(double* buffer = span)
         {
-            CheckReturn(fillBufferFunc(handle, (nuint) span.Length, buffer));
+            CheckReturn(fillBufferFunc(handle, span.Length, buffer));
         }
     }
 
