@@ -1,7 +1,7 @@
 /**
  *  {{ name.upper() }} - Experimental CLib %Cantera interface library.
  *
- *  @file {{ name }}.cpp
+ *  @file {{ name }}.h
  *
 {% if docstring %}
 {% for line in docstring %}

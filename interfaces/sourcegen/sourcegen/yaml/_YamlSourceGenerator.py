@@ -54,7 +54,7 @@ class YamlSourceGenerator(SourceGenerator):
                                   uses=uses, what=recipe.what))
 
         filename = headers.output_name(suffix="3.yaml")
-        t_file = Path(__file__).parent / "output_template.yaml.in"
+        t_file = Path(__file__).parent / "template_output.yaml.in"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(filename=filename.name, header_entries=declarations)
 
