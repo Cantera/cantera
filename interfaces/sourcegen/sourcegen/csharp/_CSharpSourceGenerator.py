@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from jinja2 import Environment, BaseLoader
 
 from ._dataclasses import CsFunc
-from .._dataclasses import Func, Param, HeaderFile, ArgList
+from .._dataclasses import CFunc, Param, HeaderFile, ArgList
 from .._SourceGenerator import SourceGenerator
 
 from .._helpers import with_unpack_iter
@@ -53,20 +53,20 @@ class CSharpSourceGenerator(SourceGenerator):
 
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
                            known_funcs: dict[str, CsFunc]) -> str:
-        getter = known_funcs.get(clib_area + "_" + c_name)
+        getter = known_funcs.get(clib_area + "3_" + c_name)
 
         if getter:
             # here we have found a simple scalar property
             prop_type = getter.ret_type
         else:
             # here we have found an array-like property (string, double[])
-            getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
+            getter = known_funcs[clib_area + "3_get" + c_name.capitalize()]
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
             prop_type = self._config.prop_type_crosswalk[getter.arglist[-1].p_type]
 
         setter = known_funcs.get(
-            clib_area + "_set" + c_name.capitalize(),
+            clib_area + "3_set" + c_name.capitalize(),
             CsFunc("", "", "", "", ""))
 
         if prop_type in ["int", "double"]:
@@ -93,9 +93,10 @@ class CSharpSourceGenerator(SourceGenerator):
     def _get_handle_class_name(self, clib_area: str) -> str:
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
-    def _convert_func(self, parsed: Func) -> CsFunc:
-        ret_type, name, _ = parsed
+    def _convert_func(self, parsed: CFunc) -> CsFunc:
+        ret_type, name, _, _, _, _, _, _ = parsed
         clib_area, method = name.split("_", 1)
+        clib_area = clib_area.rstrip("3")
 
         # Shallow copy the params list
         # Some of the C# params will have the same syntax as the C params.
@@ -180,24 +181,23 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
-    def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]) -> None:
+    def _scaffold_interop(self, header_file: str, cs_funcs: list[CsFunc]) -> None:
         template = _LOADER.from_string(self._templates["csharp-interop-func"])
         function_list = [
             template.render(unsafe=func.unsafe(), declaration=func.declaration())
             for func in cs_funcs]
 
-        file_name = "Interop.LibCantera." + header_file_path.name + ".g.cs"
+        file_name = f"Interop.LibCantera.{header_file}.h.g.cs"
         self._write_file(
             file_name, "csharp-scaffold-interop", cs_functions=function_list)
 
-    def _scaffold_handles(
-            self, header_file_path: Path, handles: dict[str, str]) -> None:
+    def _scaffold_handles(self, header_file: str, handles: dict[str, str]) -> None:
         template = _LOADER.from_string(self._templates["csharp-base-handle"])
         handle_list = [
             template.render(class_name=key, release_func_name=val)
             for key, val in handles.items()]
 
-        file_name = "Interop.Handles." + header_file_path.name + ".g.cs"
+        file_name = f"Interop.Handles.{header_file}.h.g.cs"
         self._write_file(
             file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
@@ -234,7 +234,8 @@ class CSharpSourceGenerator(SourceGenerator):
             cs_funcs = list(map(self._convert_func, header_file.funcs))
             known_funcs.update((f.name, f) for f in cs_funcs)
 
-            self._scaffold_interop(header_file.path, cs_funcs)
+            file_name = header_file.path.name.replace("_auto.yaml", "")
+            self._scaffold_interop(file_name, cs_funcs)
 
             handles = {func.handle_class_name: func.name
                 for func in cs_funcs if func.is_handle_release_func}
@@ -242,7 +243,7 @@ class CSharpSourceGenerator(SourceGenerator):
             if not handles:
                 continue
 
-            self._scaffold_handles(header_file.path, handles)
+            self._scaffold_handles(file_name, handles)
 
         self._scaffold_derived_handles()
 
