@@ -92,38 +92,3 @@ class HeaderFileParser:
 
         return HeaderFile(self._path, [], prefix, base, parents, derived, recipes,
                           docstring)
-
-    @classmethod
-    def headers_from_h(
-            cls: Self, ignore_files: Iterable[str], ignore_funcs: Iterable[str]
-        ) -> list[HeaderFile]:
-        """Parse existing header file."""
-        files = [ff for ff in _CLIB_PATH.glob("*.h")
-                 if ff.name not in ignore_files + _CLIB_IGNORE]
-        files.sort()
-        return [cls(ff, ignore_funcs.get(ff.name, []))._parse_h() for ff in files]
-
-    def _parse_h(self) -> HeaderFile:
-        ct = self._path.read_text(encoding="utf-8")
-
-        matches = re.finditer(r"CANTERA_CAPI.*?;", ct, re.DOTALL)
-        c_functions = [re.sub(r"\s+", " ", m.group()).replace("CANTERA_CAPI ", "")
-                       for m in matches]
-
-        if not c_functions:
-            return
-
-        parsed = map(Func.from_str, c_functions)
-
-        msg = f"  parsing {self._path.name!r}"
-        _LOGGER.info(msg)
-        if self._ignore_funcs:
-            msg = f"    ignoring {self._ignore_funcs!r}"
-            _LOGGER.info(msg)
-
-        parsed = [f for f in parsed if f.name not in self._ignore_funcs]
-
-        if not parsed:
-            return
-
-        return HeaderFile(self._path, parsed)
