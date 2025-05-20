@@ -67,6 +67,8 @@ class CLibSourceGenerator(SourceGenerator):
             implements += f": {c_func.implements.short_declaration()}"
         elif isinstance(c_func.implements, Param):
             implements += f": {c_func.implements.long_str()}"
+        elif isinstance(c_func.implements, str):
+            implements += ": custom code"
         block = template.render(
             brief=c_func.brief,
             params=[param(par) for par in c_func.arglist],
@@ -106,6 +108,8 @@ class CLibSourceGenerator(SourceGenerator):
             else:
                 cxx_func = CFunc(cxx_member.p_type, cxx_member.name, None,
                                  "", None, "", cxx_member.base)
+        elif isinstance(cxx_member, str):
+            cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
         else:
             cxx_func = cxx_member
         cxx_ix = 0
@@ -250,11 +254,15 @@ class CLibSourceGenerator(SourceGenerator):
             else:
                 args.append(c_name)
 
+        cxx_implements = ""
+        if cxx_func.name != "dummy":
+            cxx_implements = cxx_func.short_declaration()
+
         ret = {
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
             "shared": shared, "checks": checks, "error": error, "cxx_rbase": cxx_rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
-            "cxx_implements": cxx_func.short_declaration(),
+            "cxx_implements": cxx_implements,
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
         }
         return ret, bases
@@ -269,7 +277,7 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.code:
             # override auto-generated code
             template = loader.from_string(self._templates["clib-custom-code"])
-            args["lines"] = recipe.code.strip(" \n").split("\n")
+            args["lines"] = c_func.implements.split("\n")
 
         elif recipe.what == "noop":
             template = loader.from_string(self._templates["clib-noop"])
