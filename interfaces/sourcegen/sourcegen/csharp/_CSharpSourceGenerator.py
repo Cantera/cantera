@@ -173,11 +173,9 @@ class CSharpSourceGenerator(SourceGenerator):
 
     def _write_file(self, file_name: str, template_name: str, **kwargs) -> None:
         _LOGGER.info(f"  writing {file_name!r}")
-        template = _LOADER.from_string(self._templates["csharp-preamble"])
-        preamble = template.render(file_name=file_name)
-
-        template = _LOADER.from_string(self._templates[template_name])
-        contents = template.render(preamble=preamble, **kwargs)
+        t_file = Path(__file__).parent / template_name
+        template = _LOADER.from_string(t_file.read_text(encoding="utf-8"))
+        contents = template.render(file_name=file_name, **kwargs)
 
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
@@ -189,7 +187,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = f"Interop.LibCantera.{header_file}.h.g.cs"
         self._write_file(
-            file_name, "csharp-scaffold-interop", cs_functions=function_list)
+            file_name, "template_interop.h.g.cs.in", cs_functions=function_list)
 
     def _scaffold_handles(self, header_file: str, handles: dict[str, str]) -> None:
         template = _LOADER.from_string(self._templates["csharp-base-handle"])
@@ -199,7 +197,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = f"Interop.Handles.{header_file}.h.g.cs"
         self._write_file(
-            file_name, "csharp-scaffold-handles", cs_handles=handle_list)
+            file_name, "template_handles.h.g.cs.in", cs_handles=handle_list)
 
     def _scaffold_derived_handles(self) -> None:
         template = _LOADER.from_string(self._templates["csharp-derived-handle"])
@@ -209,7 +207,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = "Interop.Handles.g.cs"
         self._write_file(
-            file_name, "csharp-scaffold-handles", cs_handles=handle_list)
+            file_name, "template_handles.h.g.cs.in", cs_handles=handle_list)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
                                 known_funcs: dict[str, CsFunc]) -> None:
@@ -221,7 +219,7 @@ class CSharpSourceGenerator(SourceGenerator):
         handle_class_name = self._get_handle_class_name(clib_area)
         file_name = wrapper_class_name + ".g.cs"
         self._write_file(
-            file_name, "csharp-scaffold-wrapper-class",
+            file_name, "template_wrapper.g.cs.in",
             wrapper_class_name=wrapper_class_name, handle_class_name=handle_class_name,
             cs_properties=property_list)
 
