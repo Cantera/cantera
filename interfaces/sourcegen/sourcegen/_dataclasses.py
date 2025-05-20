@@ -6,6 +6,7 @@
 from dataclasses import dataclass
 import re
 from pathlib import Path
+from textwrap import dedent
 from sys import version_info
 
 if version_info.minor < 11:
@@ -160,7 +161,7 @@ class CFunc(Func):
     """Represents an annotated function declaration in a C/C++ header file."""
 
     brief: str = ""  #: Brief description (optional)
-    implements: Self | Param = None  #: Implemented C++ function/method (optional)
+    implements: Self | Param | str = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
     uses: list[Self] | None = None  #: List of auxiliary C++ methods (optional)
@@ -169,25 +170,58 @@ class CFunc(Func):
     def from_str(cls: Self, func: str, brief: str = "") -> Self:
         """Generate annotated CFunc from header block of a function."""
         lines = func.split("\n")
-        func = Func.from_str(lines[-1])
         if len(lines) == 1:
+            func = Func.from_str(lines[-1])
             return cls(*func, brief, None, "", "", [])
+
+        lines = lines[-1::-1]
+
         returns = ""
-        doc_args = {p.name: p for p in func.arglist}
-        for ix, line in enumerate(lines[:-1]):
-            line = line.strip().lstrip("*").strip()
-            if ix == 1 and not brief:
+        uses = []
+        params = []
+        while len(lines) > 1:
+            line = lines.pop().strip()
+            if line in ["/*", "/**"]:
+                continue
+            if line.endswith("*/"):
+                break
+
+            line = line.lstrip("*").strip()
+            if not brief:
                 brief = line
             elif line.startswith("@param"):
-                # match parameter name
-                keys = [k for k in doc_args.keys() if line.split()[1] == k]
-                if len(keys) == 1:
-                    key = keys[0]
-                    doc_args[key] = Param.from_str(doc_args[key].long_str(), line)
+                params.append(line)
             elif line.startswith("@returns"):
                 returns = line.lstrip("@returns").strip()
+            elif line.startswith("@uses"):
+                if ":" in line:
+                    line = line.split(":")[1]
+                else:
+                    line = line.lstrip("@uses")
+                uses.append(CFunc.from_str(line.strip()))
+
+        line = lines.pop().strip()
+        if line.endswith("{"):
+            lines = lines.append("{")
+        func = Func.from_str(line)
+        doc_args = {p.name: p for p in func.arglist}
+        for line in params:
+            # match parameter name
+            keys = [k for k in doc_args.keys() if line.split()[1] == k]
+            if len(keys) == 1:
+                key = keys[0]
+                doc_args[key] = Param.from_str(doc_args[key].long_str(), line)
+
+        code = None
+        if lines:
+            # extract code block
+            code = lines[-1::-1]
+            if code[0].strip() == "{" and code[-1].strip() == "}":
+                code = code[1:-1]
+            code = dedent("\n".join(code))
+
         args = ArgList(list(doc_args.values()))
-        return cls(func.ret_type, func.name, args, brief, None, returns, "", [])
+        return cls(func.ret_type, func.name, args, brief, code, returns, "", uses)
 
     def short_declaration(self) -> str:
         """Return a short string representation."""

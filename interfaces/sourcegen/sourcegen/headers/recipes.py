@@ -216,6 +216,10 @@ class RecipeParser:
             ret_param = Param(
                 "int", "", "Zero for success and -1 for exception handling.")
 
+        elif recipe.code:
+            # Custom code
+            return CFunc.from_str(recipe.code, brief=recipe.brief)
+
         else:
             msg = f"Unable to resolve recipe type for {recipe.name!r}"
             _LOGGER.critical(msg)
