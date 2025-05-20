@@ -152,6 +152,19 @@ jobs:
         path: build/lib/libcantera_shared.so
         name: libcantera_shared-${{ matrix.os }}.so
         retention-days: 2
+    - name: Create archive for Doxygen output
+      run: tar -czf doxygen.tar.gz Cantera.tag  doxygen/xml
+      working-directory: build/doc
+      if: matrix.python-version == '3.11'
+    - name: Upload Doxygen output
+      # Only need one copy from CI run
+      uses: actions/upload-artifact@v4
+      with:
+        path: build/doc/doxygen.tar.gz
+        name: doxygen-tree
+        overwrite: true
+        retention-days: 2
+      if: matrix.python-version == '3.11'
     - name: Save the wheel file to install Cantera
       uses: actions/upload-artifact@v4
       with:
@@ -1023,6 +1036,16 @@ jobs:
       with:
         name: cantera_shared.dll
         path: build/lib
+    - name: Download the Doxygen artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: doxygen-tree
+        path: build/doc
+    - name: Extract Doxygen artifacts
+      run: tar -xzf doxygen.tar.gz
+      working-directory: build/doc
+    - name: Test YAML output generation
+      run: python interfaces/sourcegen/run.py --api=yaml --output=build/yaml -v
     - name: Build the .NET interface
       run: dotnet build
       working-directory: interfaces/dotnet
