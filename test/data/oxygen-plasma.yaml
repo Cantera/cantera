@@ -8,7 +8,7 @@ phases:
   thermo: plasma
   elements: [O, E]
   species:
-  - species: [E]
+  - species: [E, O2(a1dg)]
   - nasa_gas.yaml/species: [O2, O2-]
 
   kinetics: gas
@@ -45,6 +45,17 @@ species:
     h0: -2.04 kJ/mol
     s0: 12.679 J/mol/K
     cp0: 20.786 J/mol/K
+
+- name: O2(a1dg)
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.78535371, -3.2192854e-03, 1.12323443e-05, -1.17254068e-08, 4.17659585e-12,
+      1.02922572e+04, 3.27320239]
+    - [3.45852381, 1.04045351e-03, -2.79664041e-07, 3.11439672e-11, -8.55656058e-16,
+      1.02229063e+04, 4.15264119]
 
 reactions:
 - equation: E + O2 + O2 => O2- + O2
