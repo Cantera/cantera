@@ -44,7 +44,7 @@ class HeaderFileParser:
         ) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
         files = sorted(
-            ff for ff in (_HERE / "_data").glob("*.yaml")
+            ff for ff in (_HERE / "headers").glob("ct*.yaml")
             if ff.name not in ignore_files)
         files = [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
         bases = [f.base for f in files]

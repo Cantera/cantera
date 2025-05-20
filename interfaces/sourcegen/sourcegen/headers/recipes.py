@@ -5,45 +5,26 @@
 
 import sys
 import logging
-
 from dataclasses import dataclass
-from sys import version_info
-
-if version_info.minor < 11:
-    from typing_extensions import Self
-else:
-    from typing import Self
 
 from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
 from .._dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
+from .._helpers import with_unpack_iter
 
 
 _LOGGER = logging.getLogger()
 
 
 @dataclass(frozen=True)
+@with_unpack_iter
 class Config:
-    """Provides configuration info for the CLibSourceGenerator class"""
+    """Provides configuration info for the RecipeParser class"""
 
     ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
 
     prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
-
-    preambles: dict[str, str]  #: Preamble text for each header file
-
-    includes: dict[str, list[str]]  #: Include directives for each implementation file
-
-    @classmethod
-    def from_parsed(cls: Self, *,
-                    ret_type_crosswalk: dict[str, str] | None = None,
-                    prop_type_crosswalk: dict[str, str] | None = None,
-                    preambles: dict[str, str] | None = None,
-                    includes: dict[str, list[str]] | None = None) -> Self:
-        """Create dataclass while including information parsed externally."""
-        return cls(ret_type_crosswalk or {}, prop_type_crosswalk or {},
-                   preambles or {}, includes or {})
 
 
 class RecipeParser:
@@ -52,7 +33,7 @@ class RecipeParser:
     _clib_bases: list[str] = None  #: list of bases provided via YAML configurations
 
     def __init__(self, config: dict, templates: dict, bases: list[str]) -> None:
-        self._config = Config.from_parsed(**config)
+        self._config = Config(**config)
         self._templates = templates
         self._doxygen_tags = None
         self._clib_bases = bases
