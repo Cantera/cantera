@@ -6,8 +6,10 @@ ignore_files:
 
 # Ignore these specific functions:
 ignore_funcs:
-  ct.h:
-    - ct_setLogWriter
+  ct_auto.yaml:
+    - setLogWriter
+  ctfunc_auto.yaml:
+    - new_advanced
 
 # Return type cross-walks
 ret_type_crosswalk:
