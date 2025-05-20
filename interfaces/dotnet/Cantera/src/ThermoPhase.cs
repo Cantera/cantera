@@ -13,10 +13,9 @@ public partial class ThermoPhase
     readonly SolutionHandle _sol;
 
     /// <summary>
-    /// Represents a func that sets a pair of thermo variables using a pointer
-    /// to a pair of doubles to stand in for a stack-allocated array with two elements.
+    /// Represents a func that sets a pair of thermo variables.
     /// </summary>
-    unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* values);
+    delegate int SetPairFunc(ThermoPhaseHandle n, double val0, double val1);
 
     /// <summary>
     /// Using reflection and the fact that CLib follows a naming convention for
@@ -35,7 +34,7 @@ public partial class ThermoPhase
                 (
                     pair: f,
                     method: methods
-                        .SingleOrDefault(m => m.Name == "thermo_set_" + f.Name)
+                        .SingleOrDefault(m => m.Name == "thermo3_set_" + f.Name)
                 ))
                 .Where(t => t.method is not null)
                 .ToDictionary(
@@ -55,8 +54,8 @@ public partial class ThermoPhase
 
     internal ThermoPhase(string filename, string? phaseName)
     {
-        _sol = LibCantera.soln_newSolution(filename, phaseName ?? "", "none");
-        _handle = LibCantera.soln_thermo(_sol);
+        _sol = LibCantera.sol3_newSolution(filename, phaseName ?? "", "none");
+        _handle = LibCantera.sol3_thermo(_sol);
         _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));
@@ -74,7 +73,7 @@ public partial class ThermoPhase
     {
         var interopString = thermoPair.ToInteropString();
 
-        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, solver,
+        var retVal = LibCantera.thermo3_equilibrate(_handle, interopString, solver,
             tolerance, maxSteps, maxIterations, logVerbosity);
 
         InteropUtil.CheckReturn(retVal);
@@ -83,15 +82,13 @@ public partial class ThermoPhase
     /// <summary>
     /// Sets the given pair of thermodynamic properties for this phase together.
     /// </summary>
-    public unsafe void SetPair(ThermoPair pair, double first, double second)
+    public void SetPair(ThermoPair pair, double first, double second)
     {
         if (!s_pairSetters.Value.TryGetValue(pair, out var setter))
         {
             throw new InvalidOperationException($"Cannot set thermo pair {pair}!");
         }
 
-        var tuple = (first, second);
-
-        InteropUtil.CheckReturn(setter(_handle, &tuple));
+        InteropUtil.CheckReturn(setter(_handle, first, second));
     }
 }

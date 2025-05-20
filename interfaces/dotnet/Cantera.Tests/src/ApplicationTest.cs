@@ -142,7 +142,7 @@ public class ApplicationTest
             .GetField("_handle", BindingFlags.NonPublic | BindingFlags.Instance)!
             .GetValue(thermo)!;
 
-        InteropUtil.CheckReturn(LibCantera.thermo_print(handle, InteropConsts.True, 0));
+        InteropUtil.CheckReturn(LibCantera.thermo3_print(handle, InteropConsts.True, 0));
     }
 
     /// <summary>
