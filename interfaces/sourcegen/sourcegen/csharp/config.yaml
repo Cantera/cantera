@@ -1,8 +1,8 @@
 # Ignore these files entirely:
 ignore_files:
-  - ctmatlab.h
-  - ctonedim.h
-  - ctrpath.h
+  - ctonedim_auto.yaml
+  - ctdomain_auto.yaml
+  - ctrdiag_auto.yaml
 
 # Ignore these specific functions:
 ignore_funcs:
@@ -31,23 +31,24 @@ class_crosswalk:
   reactor: Reactor
   reactornet: ReactorNet
   reactorsurface: ReactorSurface
-  soln: Solution
+  sol: Solution
   surf: Surface
   thermo: ThermoPhase
   trans: Transport
   wall: Wall
-  func: Func1
+  func1: Func1
   connector: Connector
+  rxn: Reaction
 
 # Provides information on instance methods that return instances
 # of other C# classes.
 class_accessors:
-  soln_thermo: ThermoPhaseHandle
-  soln_kinetics: KineticsHandle
-  soln_transport: TransportHandle
-  thermo_parent: SolutionHandle
-  kin_parent: SolutionHandle
-  trans_parent: SolutionHandle
+  sol3_thermo: ThermoPhaseHandle
+  sol3_kinetics: KineticsHandle
+  sol3_transport: TransportHandle
+  thermo3_parent: SolutionHandle
+  kin3_parent: SolutionHandle
+  trans3_parent: SolutionHandle
 
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
