@@ -16,7 +16,7 @@ else:
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
-from .clib import CLibSourceGenerator
+from .headers import RecipeParser
 
 
 _LOGGER = logging.getLogger()
@@ -47,13 +47,15 @@ class HeaderFileParser:
             ff for ff in (_HERE / "_data").glob("*.yaml")
             if ff.name not in ignore_files)
         files = [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
+        bases = [f.base for f in files]
 
         # preprocess header information (uses CLibSourceGenerator)
-        config = read_config(_HERE / "clib" / "config.yaml")
-        templates = read_config(_HERE / "clib" / "templates.yaml")
+        config = read_config(_HERE / "headers" / "config.yaml")
+        templates = read_config(_HERE / "headers" / "templates.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             config.pop(key)
-        CLibSourceGenerator(None, config, templates).resolve_tags(files)
+        RecipeParser(config, templates, bases).resolve_tags(files)
+        # CLibSourceGenerator(None, config, templates).resolve_tags(files)
         return files
 
     def _parse_yaml(self) -> HeaderFile:
