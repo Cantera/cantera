@@ -29,57 +29,6 @@ clib-definition: |-
   {{ annotations }}
   {{ declaration }};
 
-clib-reserved-parentHandle-h: |-
-  /**
-   *  Return handle to parent of {{ base }} object.
-   *  @param handle        Handle to queried {{ base }} object.
-   *  @returns             Parent handle or -1 for exception handling.
-   */
-  int {{ prefix }}_parentHandle(int handle);
-
-clib-reserved-cabinetSize-h: |-
-  /**
-   *  Return size of {{ base }} storage.
-   *  @returns             Size or -1 for exception handling.
-   */
-  int {{ prefix }}_cabinetSize();
-
-clib-reserved-getCanteraError-h: |-
-  /**
-   *  Get %Cantera error.
-   *  @param[in] bufLen   Length of reserved array.
-   *  @param[out] buf     String containing %Cantera error.
-   *  @returns            Actual length of string or -1 for exception handling.
-   */
-  int {{ prefix }}_getCanteraError(int bufLen, char* buf);
-
-clib-reserved-setLogWriter-h: |-
-  /**
-   *  Undocumented.
-   */
-  int {{ prefix }}_setLogWriter(void* logger);
-
-clib-reserved-setLogCallback-h: |-
-  /**
-   *  Undocumented.
-   *  @param writer  Callback that is invoked to produce log output.
-   */
-  int {{ prefix }}_setLogCallback(LogCallback writer);
-
-clib-reserved-resetStorage-h: |-
-  /**
-   *  Delete all objects and erase mapping.
-   *  @returns             Zero if successful or -1 for exception handling.
-   */
-  int {{ prefix }}_resetStorage();
-
-clib-reserved-clearStorage-h: |-
-  /**
-   *  Delete all objects with mapping preserved.
-   *  @returns             Zero if successful or -1 for exception handling.
-   */
-  int {{ prefix }}_clearStorage();
-
 clib-function: |-
   // function: {{ cxx_implements }}
   try {
