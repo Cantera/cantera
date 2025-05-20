@@ -329,12 +329,12 @@ clib-noop: |-
   return 0;
 
 clib-custom-code: |-
-  // {{ what }}: {{ cxx_implements }}
-  // ********** custom code begin **********
+  // {{ what }}: custom code
+  // *************** begin ***************
   {% for line in lines %}
   {{ line }}
   {% endfor %}
-  // *********** custom code end ***********
+  // **************** end ****************
 
 clib-implementation: |-
   {{ declaration }}
