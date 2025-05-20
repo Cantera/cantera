@@ -193,6 +193,7 @@ class RecipeParser:
             # No operation
             msg = f"   generating {func_name!r} -> no-operation"
             _LOGGER.debug(msg)
+            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
             brief = "No operation."
             ret_param = Param("int", "", "Always zero.")
 
