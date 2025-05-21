@@ -198,10 +198,14 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest Jinja2
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+    - name: Generate clib_experimental
+      run: |
+        python3 `which scons` doxygen
+        python3 interfaces/sourcegen/run.py --api=clib --output=.
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j4 debug=n --debug=time logging=debug
+        -j4 debug=n --debug=time logging=debug clib_experimental=y
         warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
       run:
@@ -212,13 +216,10 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Generate clib_experimental
-      run: |
-        python3 `which scons` doxygen
-        python3 interfaces/sourcegen/run.py --api=clib --output=.
-        python3 `which scons` build clib_experimental=y
     - name: Run googletests for clib_experimental
       run: python3 `which scons` test-clib-experimental --debug=time
+    - name: Run sample for clib_experimental demo
+      run: python3 `which scons` test-clib-experimental-demo --debug=time
 
   macos-multiple-pythons:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
@@ -312,7 +313,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenblas-openmp-dev libsundials-dev \
-          libhdf5-dev
+          libhdf5-dev doxygen
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
@@ -325,11 +326,15 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
+    - name: Generate clib_experimental
+      run: |
+        python3 `which scons` doxygen
+        python3 interfaces/sourcegen/run.py --api=clib --output=.
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
-        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time
+        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time clib_experimental=y
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests --debug=time
     - name: Run compiled tests
