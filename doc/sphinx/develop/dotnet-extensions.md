@@ -3,11 +3,6 @@
 ```{caution}
 The auto-generated .NET API is an experimental part of Cantera and may be changed or
 removed without notice.
-
-The current .NET API implementation is an early automated code generation prototype.
-It parses CLib header files rather than generating CLib specifications from Doxygen as
-described for the generic sourcegen [automated code generation](sec-sourcegen-details)
-approach. The language-specific source generation is incomplete but stable.
 ```
 
 The .NET API is written in C# and supports .NET Standard 2.0 (for the primary project)
