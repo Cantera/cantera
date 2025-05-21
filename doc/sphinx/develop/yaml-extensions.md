@@ -31,7 +31,7 @@ thermo3_getMolecularWeights:
 
 Individual YAML fields represent the following:
 
-- `description`: Brief doxygen docstring obtained from C++.
+- `brief`: Brief Doxygen docstring obtained from C++.
 - `what`: Type of recipe, as detected or defined in the corresponding
   [](sec-sourcegen-function-types).
 - `declaration`: Full CLib function signature.

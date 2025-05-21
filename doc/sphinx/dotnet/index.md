@@ -22,7 +22,7 @@ dotnet run --project examples/X
 where X is the name of the directory containing the example project, for example
 
 ```bash
-dotnet run --project examples/SoundSpeed`
+dotnet run --project examples/SoundSpeed
 ```
 
 ```{note}
