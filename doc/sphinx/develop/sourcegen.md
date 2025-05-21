@@ -59,8 +59,8 @@ others.
 ## Details
 
 Automatic code generation involves initialization steps to resolve CLib interface
-information. A subsequent scaffolding step delegates the source generation to a
-language-specific sub-package.
+information using [](sourcegen-config). A subsequent scaffolding step delegates the
+source generation to a language-specific sub-package.
 
 1. **Parse Header File Specifications:**
 
@@ -85,7 +85,7 @@ language-specific sub-package.
    As a minimum, a [YAML Recipe](sec-sourcegen-recipes) specifies a `name` that either
    corresponds to a function within the `Cantera` namespace or a method or variable of
    the implemented base class. The `CLibSourceGenerator.resolve_tags` method is used
-   to cross-reference individual recipes with known doxygen tags. The information is
+   to cross-reference individual recipes with known Doxygen tags. The information is
    used to detect the [CLib Function Type](sec-sourcegen-function-types) of a recipe and
    to generate a corresponding `CFunc` object that holds relevant CLib interface
    information used for subsequent scaffolding:
