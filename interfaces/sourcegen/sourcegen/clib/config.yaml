@@ -3,12 +3,23 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-# List of files to ignore entirely:
+# List of files to ignore entirely. For CLib, this option is only used for testing or
+# debugging purposes and should otherwise be left empty.
 ignore_files: []
 
-# Dictionary of file names and list of functions to ignore.
-# Example: ctkin_auto.yaml: [phase]
+# Dictionary of file names and list of functions to ignore. For CLib, this options is
+# only used for testing or debugging purposes and should otherwise be left empty.
 ignore_funcs: {}
+
+# **************************************************************************************
+#  TODO: Cross-walks are still hard-coded, as a prior version used them for the
+#  generation of CLib headers (now moved to HeaderGenerator). In an update, the
+#  cross-walks should be specified here.
+#  The version prior to code refactoring (split of `HeaderGenerator` from
+#  `CLibSourceGenerator`) used cross-walks from C++ to CLib (for the header generation)
+#  and also CLib to C++ (for the CLib source generation), with only one set being
+#  configured here.
+# **************************************************************************************
 
 # Return type cross-walks
 ret_type_crosswalk: {}

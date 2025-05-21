@@ -20,15 +20,15 @@ _LOGGER = logging.getLogger()
 @dataclass(frozen=True)
 @with_unpack_iter
 class Config:
-    """Provides configuration info for the RecipeParser class"""
+    """Provides configuration info for the HeaderGenerator class"""
 
     ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
 
     prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
 
 
-class RecipeParser:
-    """Convert specifications to recipes."""
+class HeaderGenerator:
+    """Convert recipes to header file information."""
 
     _clib_bases: list[str] = None  #: list of bases provided via YAML configurations
 
