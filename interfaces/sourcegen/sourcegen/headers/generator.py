@@ -102,7 +102,7 @@ class HeaderGenerator:
             header = loader.from_string(
                 self._templates[f"clib-reserved-{recipe.name}-h"]
                 ).render(base=recipe.base, prefix=recipe.prefix)
-            return CFunc.from_str(header, brief=recipe.brief)
+            return CFunc.from_snippet(header, brief=recipe.brief)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
@@ -218,7 +218,7 @@ class HeaderGenerator:
 
         elif recipe.code:
             # Custom code
-            return CFunc.from_str(recipe.code, brief=recipe.brief)
+            return CFunc.from_snippet(recipe.code, brief=recipe.brief)
 
         else:
             msg = f"Unable to resolve recipe type for {recipe.name!r}"
