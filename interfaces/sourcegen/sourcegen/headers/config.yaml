@@ -1,13 +1,15 @@
-# Configuration for CLib header parser.
+# Configuration for header generation.
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-# List of files to ignore entirely:
+# List of files to ignore entirely. For the header generator, this option is only used
+# for testing or debugging purposes and should otherwise be left empty.
 ignore_files: []
 
-# Dictionary of file names and list of functions to ignore.
-# Example: ctkin_auto.yaml: [phase]
+# Dictionary of file names and list of functions to ignore. For the header generator,
+# this option is only used for testing or debugging purposes and should otherwise be
+# left empty.
 ignore_funcs: {}
 
 # Return type cross-walks

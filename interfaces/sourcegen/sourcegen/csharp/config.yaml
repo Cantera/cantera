@@ -1,3 +1,8 @@
+# Configuration for C# code generation.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Ignore these files entirely:
 ignore_files:
   - ctonedim_auto.yaml
@@ -23,6 +28,11 @@ ret_type_crosswalk:
 prop_type_crosswalk:
   byte*: string
   double*: double[]
+
+# **************************************************************************************
+#  TODO: Some of the following cross-walks can be automated based on available header
+#  file information.
+# **************************************************************************************
 
 # Replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
