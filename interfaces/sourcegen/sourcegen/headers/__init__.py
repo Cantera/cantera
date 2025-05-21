@@ -1,1 +1,1 @@
-from .recipes import RecipeParser
+from .generator import HeaderGenerator

@@ -16,7 +16,7 @@ else:
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
-from .headers import RecipeParser
+from .headers import HeaderGenerator
 
 
 _LOGGER = logging.getLogger()
@@ -54,7 +54,7 @@ class HeaderFileParser:
         templates = read_config(_HERE / "headers" / "templates.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             config.pop(key)
-        RecipeParser(config, templates, bases).resolve_tags(files)
+        HeaderGenerator(config, templates, bases).resolve_tags(files)
         # CLibSourceGenerator(None, config, templates).resolve_tags(files)
         return files
 
