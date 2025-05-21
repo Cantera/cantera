@@ -146,20 +146,12 @@ class CSharpSourceGenerator(SourceGenerator):
             if param_type == "double*" and method.startswith("set"):
                 setter_double_arrays_count += 1
                 if setter_double_arrays_count > 1:
-                    # We assume a double* can reliably become a double[].
-                    # However, this logic is too simplistic if there is
-                    # more than one array.
-                    _LOGGER.critical(f"Cannot scaffold {name!r} with "
-                                     "more than one array of doubles!")
+                    # We assume a double* can reliably become a double[]. However, this
+                    # logic is too simplistic if there is more than one array.
+                    msg = f"Cannot scaffold {name!r} with multiple arrays of doubles!"
+                    _LOGGER.critical(msg)
                     sys.exit(1)
-
-                if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
-                    # Special case for the functions that set thermo pairs
-                    # This allows the C# side to pass a pointer to the stack
-                    # Rather than allocating an array on the heap (which requires GC)
-                    param_type = "(double, double)*"
-                else:
-                    param_type = "double[]"
+                param_type = "double[]"
 
             params[i] = Param(param_type, param_name)
 
