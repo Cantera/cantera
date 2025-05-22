@@ -59,7 +59,7 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
 
     cythonized = cython_env.Command(
          cython_output, pyxfile,
-         f'''${{python_cmd}} -c "import Cython.Build; Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
+         f'''${{python_cmd}} -c "import setuptools; import Cython.Build; Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
     )
     for pxd in multi_glob(cython_env, "cantera", "pxd"):
         cython_env.Depends(cythonized, pxd)
