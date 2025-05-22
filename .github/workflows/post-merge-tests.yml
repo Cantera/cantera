@@ -145,7 +145,7 @@ jobs:
         python3-devel python3-numpy python3-pandas python3-pint python3-pip \
         python3-pytest python3-pytest-xdist python3-ruamel-yaml python3-scipy \
         python3-scons python3-wheel sundials-devel yaml-cpp-devel hdf5-devel \
-        highfive-devel python3-graphviz python3-packaging
+        highfive-devel python3-graphviz python3-packaging python3-setuptools
     - name: Build Cantera
       run: |
         scons build -j4 debug=n --debug=time logging=debug python_package=y \
