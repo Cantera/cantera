@@ -33,9 +33,11 @@ The .NET test suite is invoked by running
 dotnet test
 ```
 
-In order to force re-import of generated code from sourcegen, a manual deletion of
-`obj` and `bin` folders in `Cantera`, `Cantera.Tests`, `examples/Applications` and
-`examples/Soundspeed` may be necessary.
+In order to force re-import of generated code from sourcegen, run
+
+```bash
+dotnet clean
+```
 
 (sec-sourcegen-dotnet-generation)=
 ### C# Code Generation
