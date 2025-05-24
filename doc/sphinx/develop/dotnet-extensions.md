@@ -3,11 +3,6 @@
 ```{caution}
 The auto-generated .NET API is an experimental part of Cantera and may be changed or
 removed without notice.
-
-The current .NET API implementation is an early automated code generation prototype.
-It parses CLib header files rather than generating CLib specifications from Doxygen as
-described for the generic sourcegen [automated code generation](sec-sourcegen-details)
-approach. The language-specific source generation is incomplete but stable.
 ```
 
 The .NET API is written in C# and supports .NET Standard 2.0 (for the primary project)
@@ -38,9 +33,11 @@ The .NET test suite is invoked by running
 dotnet test
 ```
 
-In order to force re-import of generated code from sourcegen, a manual deletion of
-`obj` and `bin` folders in `Cantera`, `Cantera.Tests`, `examples/Applications` and
-`examples/Soundspeed` may be necessary.
+In order to force re-import of generated code from sourcegen, run
+
+```bash
+dotnet clean
+```
 
 (sec-sourcegen-dotnet-generation)=
 ### C# Code Generation

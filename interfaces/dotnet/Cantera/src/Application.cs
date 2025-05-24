@@ -50,16 +50,16 @@ public static class Application
         };
 
         InteropUtil.CheckReturn(
-            LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate));
+            LibCantera.ct3_setLogCallback(s_invokeMessageLoggedDelegate));
     }
 
     /// <summary>
     /// Represents the delegate that is marshalled to LibCantera as a function pointer.
     /// </summary>
     /// <remarks>
-    /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
+    /// ct3_setLogWriter() needs a delegate which is marshalled as a function pointer to
     /// the C++ Cantera library. We could create one implicitly when calling
-    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would
+    /// <c>LibCantera.ct3_setLogWriter(LogMessage)</c>, but the garbage collector would
     /// not know the native method is using it and could reclaim it. By explicitly
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
@@ -67,10 +67,10 @@ public static class Application
     static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
 
     unsafe static readonly Lazy<string> s_version =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
+        new(() => InteropUtil.GetString(10, LibCantera.ct3_getCanteraVersion));
 
     unsafe static readonly Lazy<string> s_gitCommit =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_getGitCommit));
+        new(() => InteropUtil.GetString(10, LibCantera.ct3_getGitCommit));
 
     static readonly Lazy<DataDirectoryCollection> s_dataDirectories =
         new(() => new DataDirectoryCollection());

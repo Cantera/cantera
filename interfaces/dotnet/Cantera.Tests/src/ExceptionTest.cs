@@ -14,7 +14,7 @@ public class ExceptionTest
     [Fact]
     public void CanteraException_Thrown()
     {
-        var handle = LibCantera.soln_newSolution(".yaml", "", "");
+        var handle = LibCantera.sol3_newSolution(".yaml", "", "");
 
         Assert.True(handle.IsInvalid);
 

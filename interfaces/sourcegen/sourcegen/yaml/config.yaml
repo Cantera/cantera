@@ -5,7 +5,7 @@
 
 # Ignore these files entirely:
 ignore_files:
-- ctfunc_auto.yaml  # for testing purposes
+- ctrdiag_auto.yaml  # for testing purposes
 
 # Ignore these specific functions:
 ignore_funcs: {}

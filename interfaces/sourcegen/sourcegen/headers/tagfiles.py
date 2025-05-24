@@ -18,13 +18,13 @@ import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
-from ._dataclasses import ArgList, Param, CFunc
-from ._helpers import with_unpack_iter
+from .._dataclasses import ArgList, Param, CFunc
+from .._helpers import with_unpack_iter
 
 
 _LOGGER = logging.getLogger(__name__)
 
-_TAG_PATH = Path(__file__).parents[3] / "build" / "doc"
+_TAG_PATH = Path(__file__).parents[4] / "build" / "doc"
 _XML_PATH = _TAG_PATH / "doxygen" / "xml"
 
 

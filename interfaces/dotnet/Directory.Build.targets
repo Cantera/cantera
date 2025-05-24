@@ -1,0 +1,10 @@
+<Project>
+  <Target Name="CleanSourceGen" BeforeTargets="CoreClean">
+    <ItemGroup>
+      <SourceGenFiles Include="$(IntermediateOutputPath)sourcegen\**\*" />
+    </ItemGroup>
+    <Delete Files="@(SourceGenFiles)" />
+    <RemoveDir Directories="$(IntermediateOutputPath)sourcegen" Condition="Exists('$(IntermediateOutputPath)sourcegen')" />
+    <Message Text="Cleaned sourcegen folder: $(IntermediateOutputPath)sourcegen" Importance="high" />
+  </Target>
+</Project>

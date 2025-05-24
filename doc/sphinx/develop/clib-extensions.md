@@ -97,12 +97,18 @@ configuration options.
 
 The YAML file `config.yaml` within the `clib` folder contains configuration options
 specific to the CLib interface. Configuration options are static unless new CLib
-modules need to be implemented (see section [](sec-extending-clib)).
+modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
 
 - **Generic Options:** As the CLib interface follows directly from
   [](sec-sourcegen-specifications), override options defined by `ignore_files` and
   `ignore_funcs` are not needed. While the options are available, they should only be
   used for testing purposes and otherwise be left at their default values (empty).
+
+- **Type Cross-Walks:** These fields map CLib types to their C++ equivalents.
+
+    - `ret_type_crosswalk`: Specifies the types returned by CLib functions and methods.
+    - `prop_type_crosswalk`: Specifies the types passed as parameters in CLib functions
+      and methods.
 
 - **CLib-Specific Options:** These fields define options specific to the CLib interface
   and use base class names defined within the C++ Cantera namespace. Functions defined
@@ -116,25 +122,18 @@ modules need to be implemented (see section [](sec-extending-clib)).
 (sec-sourcegen-clib-details)=
 ### Implementation Details
 
-- **Type Cross-Walks:** This section maps C++ types to their CLib equivalents.
-  Implementation details for type cross-walks are defined in `_Config.py`:
-
-    - `ret_type_crosswalk`: Specifies the types returned by C++ functions and methods.
-    - `prop_type_crosswalk`: Specifies the types passed as parameters in C++ functions
-      and methods.
-
 - **Templates for Scaffolding:** Templates, powered by
   [Jinja](https://jinja.palletsprojects.com), are used to scaffold elements of the CLib
   API. The following files define these templates:
 
     - `templates.yaml`: Defines code blocks within the header and implementation files.
-    - `header_template.h.in`: Defines the template for header files.
-    - `source_template.cpp.in`: Defines the template for implementation files.
+    - `template_header.h.in`: Defines the template for header files.
+    - `template_source.cpp.in`: Defines the template for implementation files.
 
 - **Source Code:** The implementation of the CLib source generator is contained in
   `_CLibSourceGenerator.py`.
 
-(sec-extending-clib)=
+(sec-sourcegen-clib-extend)=
 ## Extending the CLib API
 
 Sourcegen uses a one-to-one correspondence of YAML configuration files to C++ base

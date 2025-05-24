@@ -44,12 +44,8 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
     msg = f"Starting sourcegen for {lang!r} API"
     _LOGGER.info(msg)
 
-    if lang == "csharp":
-        # csharp parses existing (traditional) CLib header files
-        files = HeaderFileParser.headers_from_h(ignore_files, ignore_funcs)
-    else:
-        # generate CLib headers from YAML specifications
-        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
+    # generate CLib headers from YAML specifications
+    files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
 
     # find and instantiate the language-specific SourceGenerator
     msg = f"Generating {lang!r} source files..."
