@@ -25,7 +25,8 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
+def generate_source(lang: str, out_dir: str, root: str = ".", verbose: bool = False,
+                    ) -> None:
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
@@ -44,9 +45,9 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
         exit(1)
 
     module = importlib.import_module(__package__ + "." + lang)
-    root = Path(module.__file__).parent
-    config = read_config(root / "config.yaml")
-    templates = read_config(root / "templates.yaml")
+    here = Path(module.__file__).parent
+    config = read_config(here / "config.yaml")
+    templates = read_config(here / "templates.yaml")
     ignore_files: list[str] = config.pop("ignore_files", [])
     ignore_funcs: dict[str, list[str]] = config.pop("ignore_funcs", {})
 
@@ -54,7 +55,7 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
     _LOGGER.info(msg)
 
     # generate CLib headers from YAML specifications
-    files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
+    files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs, root=root)
 
     # find and instantiate the language-specific SourceGenerator
     msg = f"Generating {lang!r} source files..."
@@ -72,17 +73,26 @@ def create_argparser():
     parser = argparse.ArgumentParser(
         description=(
             "Source generator for creating Cantera interface code."),
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-v", "--verbose", action="store_true", default=False,
-        help="show additional logging output")
+        help="show additional logging output",
+    )
     parser.add_argument(
         "--api", choices=["clib", "csharp", "yaml"],
-        help="language of generated Cantera API code")
+        help="language of generated Cantera API code",
+    )
     parser.add_argument(
         "--output", default="",
-        help="specifies the OUTPUT folder name")
+        help="specifies the OUTPUT folder name",
+    )
+    parser.add_argument(
+        "--root", default=".",
+        help=(
+            "specifies the Cantera source ROOT folder (default is '.')"
+        ),
+    )
 
     return parser
 
@@ -94,4 +104,5 @@ def main():
     lang = args.api
     output = args.output
     verbose = args.verbose
-    generate_source(lang, output, verbose=verbose)
+    root = args.root
+    generate_source(lang, output, verbose=verbose, root=root)

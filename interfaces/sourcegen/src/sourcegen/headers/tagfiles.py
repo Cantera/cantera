@@ -24,9 +24,6 @@ from .._helpers import with_unpack_iter
 
 _LOGGER = logging.getLogger(__name__)
 
-_TAG_PATH = Path(__file__).parents[5] / "build" / "doc"
-_XML_PATH = _TAG_PATH / "doxygen" / "xml"
-
 
 @dataclass(frozen=True)
 @with_unpack_iter
@@ -97,8 +94,15 @@ class TagFileParser:
 
     _known: dict[str, str]  #: Dictionary of known functions and corresponding XML tags
 
-    def __init__(self, bases: dict[str, str]) -> None:
-        tag_file = _TAG_PATH / "Cantera.tag"
+    def __init__(self, root: str, bases: dict[str, str]) -> None:
+        if Path(root).is_dir():
+            self._tag_path = Path(root) / "build" / "doc"
+        else:
+            self._tag_path = Path.cwd() / root / "build" / "doc"
+        self._xml_path = self._tag_path / "doxygen" / "xml"
+
+        tag_file = self._tag_path / "Cantera.tag"
+
         if not tag_file.exists():
             msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
                 "Run 'scons doxygen' to generate.")
@@ -232,7 +236,7 @@ class TagFileParser:
 
     def cxx_member(self, func_string: str, setter: bool = False) -> CFunc | Param:
         """Generate annotated C++ function/variable specification."""
-        details = tag_lookup(self.tag_info(func_string))
+        details = tag_lookup(self._xml_path, self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
 
         if details.kind == "variable":
@@ -259,9 +263,9 @@ class TagFileParser:
                      details.base, [])
 
 
-def tag_lookup(tag_info: TagInfo) -> TagDetails:
+def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
     """Retrieve tag details from doxygen tree."""
-    xml_file = _XML_PATH / tag_info.anchorfile
+    xml_file = xml_path / tag_info.anchorfile
     if not xml_file.exists():
         msg = f"Tag file does not exist at expected location:\n    {xml_file}"
         _LOGGER.error(msg)
