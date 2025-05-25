@@ -12,19 +12,19 @@ ignore_files: []
 ignore_funcs: {}
 
 # **************************************************************************************
-#  TODO: Cross-walks are still hard-coded, as a prior version used them for the
+#  TODO: Crosswalks are still hard-coded, as a prior version used them for the
 #  generation of CLib headers (now moved to HeaderGenerator). In an update, the
-#  cross-walks should be specified here.
+#  crosswalks should be specified here.
 #  The version prior to code refactoring (split of `HeaderGenerator` from
-#  `CLibSourceGenerator`) used cross-walks from C++ to CLib (for the header generation)
+#  `CLibSourceGenerator`) used crosswalks from C++ to CLib (for the header generation)
 #  and also CLib to C++ (for the CLib source generation), with only one set being
 #  configured here.
 # **************************************************************************************
 
-# Return type cross-walks
+# Return type crosswalks
 ret_type_crosswalk: {}
 
-# Parameter type cross-walks
+# Parameter type crosswalks
 prop_type_crosswalk: {}
 
 # Cabinets with associated preambles (headers)

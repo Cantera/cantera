@@ -22,9 +22,9 @@ _LOGGER = logging.getLogger()
 class Config:
     """Provides configuration info for the HeaderGenerator class"""
 
-    ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
+    ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
+    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
 
 class HeaderGenerator:

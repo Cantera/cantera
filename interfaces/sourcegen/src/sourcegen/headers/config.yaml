@@ -12,7 +12,7 @@ ignore_files: []
 # left empty.
 ignore_funcs: {}
 
-# Return type cross-walks
+# Return type crosswalks
 ret_type_crosswalk:
   bool: int
   void: int
@@ -26,7 +26,7 @@ ret_type_crosswalk:
   vector<double>&: double*
   const vector<double>&: double*
 
-# Parameter type cross-walks
+# Parameter type crosswalks
 prop_type_crosswalk:
   bool: int
   int: int
