@@ -6,6 +6,7 @@ doc/ctdeploy_key
 *.os
 *.pyc
 __pycache__
+*.egg-info
 *.obj
 *.exe.manifest
 build/
