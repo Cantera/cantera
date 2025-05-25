@@ -1,4 +1,4 @@
-"""Parser for YAML header configurations or existing CLib headers."""
+"""Parser for YAML header configurations."""
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
@@ -21,7 +21,7 @@ from .headers import HeaderGenerator
 
 _LOGGER = logging.getLogger()
 
-_CLIB_PATH = Path(__file__).parents[3] / "include" / "cantera" / "clib"
+_CLIB_PATH = Path(__file__).parents[4] / "include" / "cantera" / "clib"
 _CLIB_IGNORE = ["clib_defs.h", "ctmatlab.h"]
 
 _HERE = Path(__file__).parent

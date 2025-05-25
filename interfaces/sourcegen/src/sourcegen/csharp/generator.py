@@ -4,14 +4,13 @@
 from pathlib import Path
 import sys
 import logging
-import re
 from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
 from ._dataclasses import CsFunc
 from .._dataclasses import CFunc, Param, HeaderFile, ArgList
-from .._SourceGenerator import SourceGenerator
+from ..generator import SourceGenerator
 
 from .._helpers import with_unpack_iter
 

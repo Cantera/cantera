@@ -15,7 +15,7 @@ import logging
 from jinja2 import Environment, BaseLoader
 
 from .._dataclasses import HeaderFile, CFunc, Param
-from .._SourceGenerator import SourceGenerator
+from ..generator import SourceGenerator
 
 
 _LOGGER = logging.getLogger()

@@ -5,7 +5,7 @@ import sys
 import argparse
 import textwrap
 
-import sourcegen
+from src import sourcegen
 
 def main(argv=None):
     parser = create_argparser()
