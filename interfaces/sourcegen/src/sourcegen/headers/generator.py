@@ -38,7 +38,7 @@ class HeaderGenerator:
         self._doxygen_tags = None
         self._clib_bases = bases
 
-    def resolve_tags(self, headers_files: list[HeaderFile]) -> None:
+    def resolve_tags(self, headers_files: list[HeaderFile], root: str) -> None:
         """Resolve recipe information based on doxygen tags."""
         def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
@@ -50,7 +50,7 @@ class HeaderGenerator:
             return sorted(bases), sorted(classes)
 
         self._clib_bases, classes = get_bases()
-        self._doxygen_tags = TagFileParser(classes)
+        self._doxygen_tags = TagFileParser(root, classes)
 
         for headers in headers_files:
             msg = f"  resolving recipes in {headers.path.name!r}:"

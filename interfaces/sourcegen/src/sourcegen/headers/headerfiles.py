@@ -36,7 +36,8 @@ class HeaderFileParser:
 
     @classmethod
     def headers_from_yaml(
-            cls: Self, ignore_files: Iterable[str], ignore_funcs: Iterable[str]
+            cls: Self, ignore_files: Iterable[str], ignore_funcs: Iterable[str],
+            root: str = ".",
         ) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
         files = sorted(
@@ -50,8 +51,7 @@ class HeaderFileParser:
         templates = read_config(_HERE / "templates.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             config.pop(key)
-        HeaderGenerator(config, templates, bases).resolve_tags(files)
-        # CLibSourceGenerator(None, config, templates).resolve_tags(files)
+        HeaderGenerator(config, templates, bases).resolve_tags(files, root)
         return files
 
     def _parse_yaml(self) -> HeaderFile:

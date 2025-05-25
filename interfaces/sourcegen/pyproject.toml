@@ -12,3 +12,9 @@ dependencies = ["jinja2"]
 
 [project.scripts]
 sourcegen = "sourcegen.api:main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.in"]
