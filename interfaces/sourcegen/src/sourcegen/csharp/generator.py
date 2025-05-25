@@ -8,8 +8,7 @@ from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
-from ._dataclasses import CsFunc
-from .._dataclasses import CFunc, Param, HeaderFile, ArgList
+from ..dataclasses import Func, CFunc, Param, HeaderFile, ArgList
 from ..generator import SourceGenerator
 
 from .._helpers import with_unpack_iter
@@ -35,6 +34,22 @@ class Config:
     derived_handles: dict[str, str]
 
     wrapper_classes: dict[str, dict[str, str]]
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
+class CsFunc(Func):
+    """Represents a C# interop method"""
+    # TODO: this should inherit from CFunc instead (or merged directly).
+    # is_handle_release_func and handle_class_name may be inferred from existing
+    # CFunc properties.
+
+    is_handle_release_func: bool
+    handle_class_name: str | None
+
+    def unsafe(self) -> bool:
+        """Identify pointers within argument lists."""
+        return any(p.p_type.endswith("*") for p in self.arglist)
 
 
 class CSharpSourceGenerator(SourceGenerator):

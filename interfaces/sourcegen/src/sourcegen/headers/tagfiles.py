@@ -18,7 +18,7 @@ import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
-from .._dataclasses import ArgList, Param, CFunc
+from ..dataclasses import ArgList, Param, CFunc
 from .._helpers import with_unpack_iter
 
 

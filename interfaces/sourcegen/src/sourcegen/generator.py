@@ -6,7 +6,7 @@
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
 
-from ._dataclasses import HeaderFile
+from .dataclasses import HeaderFile
 
 
 class SourceGenerator(metaclass=ABCMeta):

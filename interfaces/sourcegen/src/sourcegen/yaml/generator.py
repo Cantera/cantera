@@ -14,7 +14,7 @@ import logging
 
 from jinja2 import Environment, BaseLoader
 
-from .._dataclasses import HeaderFile, CFunc, Param
+from ..dataclasses import HeaderFile, CFunc, Param
 from ..generator import SourceGenerator
 
 

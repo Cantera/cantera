@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
-from .._dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
+from ..dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
 from .._helpers import with_unpack_iter
 
 
