@@ -41,11 +41,10 @@
 
   <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
-      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/run.py))</Script>
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
-    <Exec Command="python3 $(Script) --api=csharp --output=$(GeneratedPath)"
+    <Exec Command="sourcegen --api=csharp --output=$(GeneratedPath)"
       Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>

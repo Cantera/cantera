@@ -1,3 +1,5 @@
+"""Source generator for creating Cantera interface code."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -6,6 +8,7 @@ import inspect
 from pathlib import Path
 import logging
 import sys
+import argparse
 
 from .headers import HeaderFileParser
 from .generator import SourceGenerator
@@ -30,8 +33,14 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
     _LOGGER.addHandler(loghandler)
     _LOGGER.setLevel(logging.DEBUG if verbose else logging.INFO)
 
+    if not lang:
+        _LOGGER.critical("Aborting: sourcegen requires API language specification. "
+                         "Use option --help for more information.")
+        exit(1)
+
     if not out_dir:
-        _LOGGER.critical("Aborting: sourcegen requires output folder information.")
+        _LOGGER.critical("Aborting: sourcegen requires OUTPUT folder information. "
+                         "Use option --help for more information.")
         exit(1)
 
     module = importlib.import_module(__package__ + "." + lang)
@@ -56,3 +65,33 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
 
     scaffolder.generate_source(files)
     _LOGGER.info("Done.")
+
+
+def create_argparser():
+    """Sourcegen argument parser."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Source generator for creating Cantera interface code."),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False,
+        help="show additional logging output")
+    parser.add_argument(
+        "--api", choices=["clib", "csharp", "yaml"],
+        help="language of generated Cantera API code")
+    parser.add_argument(
+        "--output", default="",
+        help="specifies the OUTPUT folder name")
+
+    return parser
+
+
+def main():
+    """Sourcegen CLI."""
+    parser = create_argparser()
+    args = parser.parse_args()
+    lang = args.api
+    output = args.output
+    verbose = args.verbose
+    generate_source(lang, output, verbose=verbose)
