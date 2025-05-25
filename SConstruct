@@ -370,9 +370,9 @@ config_options = [
         False),
     BoolOption(
         "clib_experimental",
-        """Build experimental CLib. Requires running 'scons doxygen' and CLib code
-           generation via 'python3 interfaces/sourcegen/run.py --api=clib --output=.'
-           prior to 'scons build' command.
+        """Build experimental CLib. Requires running 'scons doxygen', installation of
+           sourcegen via 'pip install interfaces/sourcegen' and CLib code generation
+           via 'sourcegen --api=clib --output=.' prior to 'scons build' command.
            """,
         False),
     BoolOption(

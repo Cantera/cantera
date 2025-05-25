@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sourcegen"
+version = "3.2.0a2"
+description = "Source generator for creating Cantera interface code"
+authors = [{name = "Cantera Developers"}]
+requires-python = ">=3.10"
+dependencies = ["jinja2"]
+
+[project.scripts]
+sourcegen = "sourcegen.api:main"
