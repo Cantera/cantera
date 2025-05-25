@@ -7,7 +7,7 @@ from pathlib import Path
 import logging
 import sys
 
-from ._HeaderFileParser import HeaderFileParser
+from .headers import HeaderFileParser
 from .generator import SourceGenerator
 from ._helpers import read_config
 
