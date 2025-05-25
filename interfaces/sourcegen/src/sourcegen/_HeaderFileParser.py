@@ -14,7 +14,7 @@ if version_info.minor < 11:
 else:
     from typing import Iterable, Self
 
-from ._dataclasses import HeaderFile, Func, Recipe
+from .dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
 from .headers import HeaderGenerator
 
