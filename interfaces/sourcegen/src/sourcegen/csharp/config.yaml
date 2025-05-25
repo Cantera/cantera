@@ -16,7 +16,7 @@ ignore_funcs:
   ctfunc_auto.yaml:
     - new_advanced
 
-# Return type cross-walks
+# Return type crosswalks
 ret_type_crosswalk:
   const char*: string
   const double*: double[]
@@ -24,13 +24,13 @@ ret_type_crosswalk:
   size_t: nuint
   char*: byte*
 
-# Parameter type cross-walks
+# Parameter type crosswalks
 prop_type_crosswalk:
   byte*: string
   double*: double[]
 
 # **************************************************************************************
-#  TODO: Some of the following cross-walks can be automated based on available header
+#  TODO: Some of the following crosswalks can be automated based on available header
 #  file information.
 # **************************************************************************************
 

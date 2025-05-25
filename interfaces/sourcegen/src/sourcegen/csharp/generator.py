@@ -23,9 +23,9 @@ _LOADER = Environment(loader=BaseLoader)
 class Config:
     """Provides configuration info for the CSharpSourceGenerator class."""
 
-    ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
+    ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
+    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
     class_crosswalk: dict[str, str]
 

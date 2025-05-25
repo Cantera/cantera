@@ -22,9 +22,9 @@ _LOGGER = logging.getLogger()
 class Config:
     """Provides configuration info for the CLibSourceGenerator class"""
 
-    ret_type_crosswalk: dict[str, str]  #: Return type cross-walks
+    ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type cross-walks
+    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
     preambles: dict[str, str]  #: Preamble text for each header file
 
@@ -173,7 +173,7 @@ class CLibSourceGenerator(SourceGenerator):
 
             cxx_type = cxx_arg.p_type
             if check_array:
-                # Need to handle cross-walked parameter with length information
+                # Need to handle crosswalked parameter with length information
                 c_prev = c_args[c_ix-1].name
                 if "vector<shared_ptr" in cxx_type:
                     # Example: vector<shared_ptr<Domain1D>>
