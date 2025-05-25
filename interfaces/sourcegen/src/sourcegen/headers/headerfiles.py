@@ -5,7 +5,6 @@
 
 from pathlib import Path
 import logging
-import re
 from sys import version_info
 
 if version_info.minor < 11:
@@ -14,15 +13,12 @@ if version_info.minor < 11:
 else:
     from typing import Iterable, Self
 
-from .dataclasses import HeaderFile, Func, Recipe
-from ._helpers import read_config
-from .headers import HeaderGenerator
+from ..dataclasses import HeaderFile, Recipe
+from .._helpers import read_config
+from .generator import HeaderGenerator
 
 
 _LOGGER = logging.getLogger()
-
-_CLIB_PATH = Path(__file__).parents[4] / "include" / "cantera" / "clib"
-_CLIB_IGNORE = ["clib_defs.h", "ctmatlab.h"]
 
 _HERE = Path(__file__).parent
 
@@ -44,14 +40,14 @@ class HeaderFileParser:
         ) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
         files = sorted(
-            ff for ff in (_HERE / "headers").glob("ct*.yaml")
+            ff for ff in _HERE.glob("ct*.yaml")
             if ff.name not in ignore_files)
         files = [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
         bases = [f.base for f in files]
 
         # preprocess header information (uses CLibSourceGenerator)
-        config = read_config(_HERE / "headers" / "config.yaml")
-        templates = read_config(_HERE / "headers" / "templates.yaml")
+        config = read_config(_HERE / "config.yaml")
+        templates = read_config(_HERE / "templates.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             config.pop(key)
         HeaderGenerator(config, templates, bases).resolve_tags(files)

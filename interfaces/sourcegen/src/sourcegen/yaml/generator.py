@@ -58,7 +58,7 @@ class YamlSourceGenerator(SourceGenerator):
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(filename=filename.name, header_entries=declarations)
 
-        out = Path(self._out_dir) / "yaml" / filename.name
+        out = Path(self._out_dir) / filename.name
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
