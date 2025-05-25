@@ -8,7 +8,7 @@ import logging
 import sys
 
 from ._HeaderFileParser import HeaderFileParser
-from ._SourceGenerator import SourceGenerator
+from .generator import SourceGenerator
 from ._helpers import read_config
 
 

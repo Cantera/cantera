@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from jinja2 import Environment, BaseLoader
 
 from .._dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
-from .._SourceGenerator import SourceGenerator
+from ..generator import SourceGenerator
 from .._helpers import with_unpack_iter
 
 

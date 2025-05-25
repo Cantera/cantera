@@ -24,7 +24,7 @@ from .._helpers import with_unpack_iter
 
 _LOGGER = logging.getLogger(__name__)
 
-_TAG_PATH = Path(__file__).parents[4] / "build" / "doc"
+_TAG_PATH = Path(__file__).parents[5] / "build" / "doc"
 _XML_PATH = _TAG_PATH / "doxygen" / "xml"
 
 
