@@ -9,7 +9,8 @@ Run the following command from the Cantera root folder:
 
 ```
 scons doxygen
-python3 interfaces/sourcegen/run.py --api=clib --output=.
+python -m pip install -e interfaces/sourcegen
+sourcegen --api=clib --output=.
 scons build clib_experimental=y
 ```
 
@@ -17,6 +18,7 @@ A rudimentary test suite ensures that code performs as expected:
 
 ```
 scons test-clib-experimental
+scons test-clib-experimental-demo
 ```
 
 ## Status

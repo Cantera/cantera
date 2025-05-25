@@ -20,8 +20,8 @@ The .NET API implementation draws on two parts:
 (sec-sourcegen-dotnet-install)=
 ## Building the .NET Interface
 
-After [building the main Cantera library](sec-compiling), switch to the
-`interfaces/dotnet` directory and run
+After [building the main Cantera library](sec-compiling) with the option
+`clib_experimental=y`, switch to the `interfaces/dotnet` directory and run
 
 ```bash
 dotnet build
@@ -47,10 +47,12 @@ C# files used by the .NET API can be generated for informational purposes by run
 following command from the root folder of the Cantera source code:
 
 ```bash
-python interfaces/sourcegen/run.py --api=csharp --output=build/csharp
+sourcegen --api=csharp --output=build/csharp
 ```
 
-Auto-generated C# files are placed in the output folder `build/csharp`.
+Auto-generated C# files are placed in the output folder `build/csharp`. Note that this
+step requires installation of sourcegen via
+`python -m pip install -e interfaces/sourcegen`.
 
 ## .NET Source Generator Overview
 
