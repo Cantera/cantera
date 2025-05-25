@@ -17,7 +17,7 @@ generator documents the CLib getter for molecular weights as follows:
 
 ```yaml
 thermo3_getMolecularWeights:
-  description: Copy the vector of molecular weights into array weights.
+  brief: Copy the vector of molecular weights into array weights.
   what: getter
   declaration: int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights)
   parameters:

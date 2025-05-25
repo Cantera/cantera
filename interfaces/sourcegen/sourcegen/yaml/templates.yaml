@@ -5,7 +5,7 @@
 
 yaml-definition: |-
   {{ c_func.name }}:
-    description: {{ c_func.brief }}
+    brief: {{ c_func.brief }}
     what: {{ what }}
     declaration: {{ c_func.declaration() }}
     {% if c_func.arglist %}
