@@ -71,9 +71,6 @@ names of YAML configuration files.
 
 ### Implementation Details
 
-- **Type Cross-Walks:** As no cross-walks are used, the YAML source generator does not
-  need a `_Config.py` file.
-
 - **Templates for Scaffolding:** Templates, powered by
   [Jinja](https://jinja.palletsprojects.com), are used to scaffold elements of the YAML
   output. The following files define these templates:
