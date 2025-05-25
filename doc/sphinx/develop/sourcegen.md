@@ -20,28 +20,23 @@ it is run directly from the Cantera source code subfolder at `interfaces/sourceg
 Running:
 
 ```shell
-% python run.py --help
+% sourcegen --help
 ```
 
 displays the following help text:
 
 ```shell
-usage: run.py [-h] [-v] [--api API] [--output OUTPUT]
+usage: sourcegen [-h] [-v] [--api {clib,csharp,yaml}] [--output OUTPUT] [--root ROOT]
 
-Experimental source generator for creating Cantera interface code.
+Source generator for creating Cantera interface code.
 
 options:
-  -h, --help       show this help message and exit
-  -v, --verbose    show additional logging output
-  --api API        language of generated Cantera API code
-  --output OUTPUT  specifies the OUTPUT folder name
-
-The sourcegen utility is invoked as follows::
-
-    python path/to/sourcegen/run.py --api=csharp --output=.
-
-where the relative path has to be provided as the utility is not installed.
-Currently supported API options are: 'csharp', 'clib' and 'yaml'.
+  -h, --help            show this help message and exit
+  -v, --verbose         show additional logging output
+  --api {clib,csharp,yaml}
+                        language of generated Cantera API code
+  --output OUTPUT       specifies the OUTPUT folder name
+  --root ROOT           specifies the Cantera source ROOT folder (default is '.')
 ```
 
 ## Overview
