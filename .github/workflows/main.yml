@@ -137,7 +137,8 @@ jobs:
     - name: Generate clib_experimental
       run: |
         python3 `which scons` doxygen
-        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python3 -m pip install interfaces/sourcegen
+        sourcegen --api=clib --output=.
         python3 `which scons` build clib_experimental=y -j4
       if: matrix.python-version == '3.11'
     - name: Run googletests for clib_experimental
@@ -201,7 +202,8 @@ jobs:
     - name: Generate clib_experimental
       run: |
         python3 `which scons` doxygen
-        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python3 -m pip install interfaces/sourcegen
+        python3 -m sourcegen --api=clib --output=.
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
@@ -276,7 +278,8 @@ jobs:
     - name: Generate clib_experimental
       run: |
         scons doxygen
-        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python -m pip install -e interfaces/sourcegen
+        sourcegen --api=clib --output=.
         scons build clib_experimental=y -j3
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Run googletests for clib_experimental
@@ -329,7 +332,8 @@ jobs:
     - name: Generate clib_experimental
       run: |
         python3 `which scons` doxygen
-        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python3 -m pip install -e interfaces/sourcegen
+        sourcegen --api=clib --output=.
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -784,7 +788,8 @@ jobs:
     - name: Generate clib_experimental
       run: |
         scons doxygen
-        python interfaces/sourcegen/run.py --api=clib --output=.
+        python -m pip install -e interfaces/sourcegen
+        sourcegen --api=clib --output=.
         scons build clib_experimental=y -j4
       if: matrix.python-version == '3.11'
     - name: Run googletests for clib_experimental
@@ -1002,7 +1007,9 @@ jobs:
       if: matrix.os == 'windows-2022'
     - name: Install Python dependencies
       # Install Python dependencies, which are used by 'dotnet build'
-      run: python3 -m pip install ruamel.yaml Jinja2 typing-extensions
+      run: |
+        python3 -m pip install --upgrade pip setuptools wheel build
+        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
       with:
@@ -1049,8 +1056,10 @@ jobs:
     - name: Extract Doxygen artifacts
       run: tar -xzf doxygen.tar.gz
       working-directory: build/doc
+    - name: Install sourcegen
+      run: python -m pip install -e interfaces/sourcegen
     - name: Test YAML output generation
-      run: python interfaces/sourcegen/run.py --api=yaml --output=build/yaml -v
+      run: sourcegen --api=yaml --output=build/yaml -v
     - name: Build the .NET interface
       run: dotnet build
       working-directory: interfaces/dotnet
