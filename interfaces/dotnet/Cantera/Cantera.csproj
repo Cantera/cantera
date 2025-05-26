@@ -44,7 +44,7 @@
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
-    <Exec Command="sourcegen --api=csharp --output=$(GeneratedPath) --root=../../.."
+    <Exec Command="python3 -m sourcegen --api=csharp --output=$(GeneratedPath) --root=../../.."
       Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>

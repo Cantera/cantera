@@ -1,10 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "sourcegen"
 version = "3.2.0a2"
+license-files = ["../../License.txt"]
 description = "Source generator for creating Cantera interface code"
 authors = [{name = "Cantera Developers"}]
 requires-python = ">=3.10"
@@ -12,9 +13,3 @@ dependencies = ["jinja2"]
 
 [project.scripts]
 sourcegen = "sourcegen.api:main"
-
-[tool.setuptools.package-dir]
-"" = "src"
-
-[tool.setuptools.package-data]
-"*" = ["*.yaml", "*.in"]
