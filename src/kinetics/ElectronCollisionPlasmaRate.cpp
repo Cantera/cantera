@@ -154,6 +154,19 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
         return;
     }
 
+    if (m_crossSectionsOffset.size() != shared_data.energyLevels.size()) {
+        m_crossSectionsOffset.resize(shared_data.energyLevels.size());
+        vector<double> superElasticEnergyLevels{0.0};
+        for (size_t i = 1; i < m_energyLevels.size(); i++) {
+            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_energyLevels[0]);
+        }
+        for (size_t i = 0; i < shared_data.energyLevels.size(); i++) {
+            m_crossSectionsOffset[i] = linearInterp(shared_data.energyLevels[i],
+                                                    superElasticEnergyLevels,
+                                                    m_crossSections);
+        }
+    }
+
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
     if (shared_data.levelChanged) {

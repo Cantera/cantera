@@ -86,13 +86,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
         }
     }
 
-    // Start of monitoring
-    m_timer_eedf->start();
-
     converge(m_f0);
-
-    // End of monitoring
-    m_timer_eedf->stop();
 
     // write the EEDF at grid edges
     vector<double> f(m_f0.data(), m_f0.data() + m_f0.rows() * m_f0.cols());

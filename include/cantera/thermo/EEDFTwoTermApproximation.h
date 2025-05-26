@@ -12,7 +12,6 @@
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
-#include "cantera/base/Timer.h"
 
 namespace Cantera
 {
@@ -260,9 +259,6 @@ protected:
 
     //! First call to calculateDistributionFunction
     bool m_first_call;
-
-    //! Timer to monitor EEDF solving
-    Timer* m_timer_eedf = new Timer("timer_eedf");
 
 private:
 
