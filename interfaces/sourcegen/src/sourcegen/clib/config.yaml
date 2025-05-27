@@ -23,16 +23,13 @@ buf_type_crosswalk:
 
 # Parameter type crosswalks
 par_type_crosswalk:
-  int: [
-    bool, int, size_t, const size_t, shared_ptr<T>, const shared_ptr<T>,
-    vector<shared_ptr<T>>&, const vector<shared_ptr<T>>&,
-  ]
-  const int*: [const int*]
+  int: [bool, int, size_t, const size_t, shared_ptr<T>, const shared_ptr<T>]
+  const int*: [const int*, vector<shared_ptr<T>>&, const vector<shared_ptr<T>>&]
   double: [double, const double]
   double*: [double*, double* const, vector<double>&]
   const double*: [const double*, const double* const, const vector<double>&]
   char*: [string]
-  const char*: [string, const string, const string&]
+  const char*: [const string, const string&]
 
 # Cabinets with associated preambles (headers)
 preambles:
