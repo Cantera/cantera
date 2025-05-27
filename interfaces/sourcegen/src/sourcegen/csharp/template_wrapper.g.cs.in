@@ -17,6 +17,8 @@ namespace Cantera;
 
 public partial class {{ wrapper_class_name }} : IDisposable
 {
+    partial void ExtraDispose();
+
     readonly {{ handle_class_name }} _handle;
 
     #pragma warning disable CS1591
@@ -29,6 +31,9 @@ public partial class {{ wrapper_class_name }} : IDisposable
     /// Frees the underlying resources used by the
     /// native Cantera library for this instance.
     /// </summary>
-    public void Dispose() =>
+    public void Dispose()
+    {
         _handle.Dispose();
+        ExtraDispose();
+    }
 }

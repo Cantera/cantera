@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>10</LangVersion>
-    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>12</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -11,8 +11,9 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../build/lib))</LibDir>
-    <DataDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../data))</DataDir>
+    <RootDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../))</RootDir>
+    <LibDir>$([MSBuild]::NormalizePath($(RootDir)build/lib))</LibDir>
+    <DataDir>$([MSBuild]::NormalizePath($(RootDir)data))</DataDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,25 +32,17 @@
     <None Include="$(LibDir)/libcantera_shared.so" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Nullable" Version="1.3.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-  </ItemGroup>
-
   <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
-      <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
+      <GeneratedCodeDir>$([MSBuild]::NormalizePath($(BaseIntermediateOutputPath)/sourcegen/))</GeneratedCodeDir>
     </PropertyGroup>
 
-    <Exec Command="python3 -m sourcegen --api=csharp --output=$(GeneratedPath) --root=../../.."
-      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
+    <Exec Command="python3 -m sourcegen --api=csharp --output=$(GeneratedCodeDir) --root=$(RootDir)"
+      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedCodeDir)')"/>
 
     <ItemGroup>
-      <Compile Remove="$(GeneratedPath)*.cs" />
-      <Compile Include="$(GeneratedPath)*.cs" />
+      <Compile Remove="$(GeneratedCodeDir)*.cs" />
+      <Compile Include="$(GeneratedCodeDir)*.cs" />
     </ItemGroup>
   </Target>
 </Project>

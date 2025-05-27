@@ -4,17 +4,19 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 csharp-interop-func: |-
-  [DllImport(LibFile)]
-  public static extern {{ 'unsafe ' if unsafe }}{{ declaration }};
+  [LibraryImport(LibFile{{', StringMarshalling = StringMarshalling.Utf8' if has_string_param }})]
+  public static {{ 'unsafe ' if needs_unsafe_keyword }}partial {{ declaration }};
 
 csharp-base-handle: |-
+  [NativeMarshalling(typeof(Marshaller<{{ class_name }}>))]
   class {{ class_name }} : CanteraHandle
   {
-      protected override bool ReleaseHandle() =>
-          LibCantera.{{ release_func_name }}(Value) == InteropConsts.Success;
+      protected override void Close() =>
+          LibCantera.{{ release_func_name }}(this);
   }
 
 csharp-derived-handle: |-
+  [NativeMarshalling(typeof(Marshaller<{{ derived_class_name }}>))]
   class {{ derived_class_name }} : {{ base_class_name }} { }
 
 csharp-property-int-double: |-

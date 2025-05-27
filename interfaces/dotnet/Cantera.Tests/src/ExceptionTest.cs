@@ -14,12 +14,8 @@ public class ExceptionTest
     [Fact]
     public void CanteraException_Thrown()
     {
-        var handle = LibCantera.sol3_newSolution(".yaml", "", "");
-
-        Assert.True(handle.IsInvalid);
-
         // test that an error message is gathered from the native library
-        Assert.Throws<CanteraException>(() => CanteraException.ThrowLatest());
+        Assert.Throws<CanteraException>(() => LibCantera.sol3_newSolution(".yaml", "", ""));
     }
 
     [Fact]

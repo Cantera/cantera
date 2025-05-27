@@ -2,41 +2,68 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Cantera.Interop;
 
 /// <summary>
-/// The base class for a handle to a Cantera object.
+/// The base class for a handle to a native Cantera object.
 /// </summary>
 /// <remarks>
-/// We use the SafeHandle class, which has low-level support in the runtime to ensure
-/// proper reference counting and cleanup and is thread-safe. This allows us to use
-/// the dispose pattern easily and safely and without having to write our own finalizer.
-/// Cantera uses signed 32-bit ints for handles, yet SafeHandle uses
-/// "native int" IntPtr. The Value and IsValid properties are designed to account for
-/// this and only consider the lower 32-bit of the IntPtr on 64-bit systems.
+/// <c>CanteraHandle</c> is a thin-wrapper around the integer handle to a native Cantera object.
+/// It provides cleanup of the native object via the dispose pattern and custom marshalling
+/// for use in P/Invoke signatures with <see cref="LibraryImportAttribute"/>.
+/// This allows the P/Invoke signatures to have a touch of object-orientedness instead of using
+/// plain <c>int</c>s to pass the handles.
 /// </remarks>
-abstract class CanteraHandle : SafeHandle
+abstract class CanteraHandle : IDisposable
 {
-    static readonly IntPtr s_invalid = IntPtr.Size == 4
-        ? new IntPtr(-1)                    // 32-bit IntPtr: 0xFFFFFFFF
-        : new IntPtr(unchecked((uint) -1)); // 64-bit IntPtr: 0x00000000FFFFFFFF
+    int _value;
+    // I would prefer an enum or a bool, but int is needed for Interlocked.Exchange call
+    // 0 = uninitialized or disposed, 1 = active
+    // Only the marshaller should set the state to active
+    int _state;
 
-    public CanteraHandle() : base(s_invalid, true) { }
+    abstract protected void Close();
 
-    protected int Value =>
-        IntPtr.Size == 4
-            ? (int) handle
-            : (int)(long) handle; // removes any leading bits
-
-    public override bool IsInvalid =>
-        Value < 0;
-
-    public void EnsureValid()
+    ~CanteraHandle()
     {
-        if (IsInvalid)
+        if (_state == 1)
         {
-            CanteraException.ThrowLatest();
+            Close();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (Interlocked.Exchange(ref _state, 0) == 1)
+        {
+            Close();
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    public sealed override string ToString() =>
+        $"{GetType().Name} {{{_value}}}";
+
+    [CustomMarshaller(typeof(CustomMarshallerAttribute.GenericPlaceholder), MarshalMode.ManagedToUnmanagedIn,
+        typeof(Marshaller<>))]
+    [CustomMarshaller(typeof(CustomMarshallerAttribute.GenericPlaceholder), MarshalMode.ManagedToUnmanagedOut,
+        typeof(Marshaller<>))]
+    public static class Marshaller<T> where T : CanteraHandle, new()
+    {
+        public static int ConvertToUnmanaged(T handle)
+            => handle._value;
+
+        public static T ConvertToManaged(int value)
+        {
+            InteropUtil.CheckReturn(value);
+            T handle = new();
+            // Set the field value separately because the generic constraint only allows parameterless constructors.
+            handle._value = value;
+            handle._state = 1;
+
+            return handle;
         }
     }
 }
