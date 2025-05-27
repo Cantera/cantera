@@ -1,0 +1,25 @@
+description: |-
+  This file contains data for gas excited species
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+species:
+- name: N2(B3)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [ 3.53100528E+00, -1.23660988E-04, -5.02999433E-07, 2.43530612E-09, -1.40881235E-12,  8.42810520E+04, 2.96747038E+00]
+    - [ 2.95257637E+00,  1.39690040E-03, -4.92631603E-07, 7.86010195E-11, -4.60755204E-15,  8.44065610E+04, 5.87188762E+00]
+    note: Shifted enthalpy
+
+- name: N2(C3)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [ 3.53100528E+00, -1.23660988E-04, -5.02999433E-07, 2.43530612E-09, -1.40881235E-12,  1.26974077E+05, 2.96747038E+00]
+    - [ 2.95257637E+00,  1.39690040E-03, -4.92631603E-07, 7.86010195E-11, -4.60755204E-15,  1.27077040E+05, 5.87188762E+00]
+    note: Shifted enthalpy
