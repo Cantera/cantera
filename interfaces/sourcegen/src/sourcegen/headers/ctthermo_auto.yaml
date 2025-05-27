@@ -89,33 +89,47 @@ recipes:
 - name: setState_TPY  # New in Cantera 3.2
   implements: setState_TPY(double, double, const double*)
 - name: set_TP
-  implements: setState_TP(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_TP(double, double)
 - name: set_TD
-  implements: setState_TD(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_TD(double, double)
 - name: set_DP
-  implements: setState_DP(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_DP(double, double)
 - name: set_HP
-  implements: setState_HP(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_HP(double, double)
 - name: set_UV
-  implements: setState_UV(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_UV(double, double)
 - name: set_SV
-  implements: setState_SV(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_SV(double, double)
 - name: set_SP
-  implements: setState_SP(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_SP(double, double)
 - name: set_ST
-  implements: setState_ST(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_ST(double, double)
 - name: set_TV
-  implements: setState_TV(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_TV(double, double)
 - name: set_PV
-  implements: setState_PV(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_PV(double, double)
 - name: set_UP
-  implements: setState_UP(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_UP(double, double)
 - name: set_VH
-  implements: setState_VH(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_VH(double, double)
 - name: set_TH
-  implements: setState_TH(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_TH(double, double)
 - name: set_SH
-  implements: setState_SH(double, double)  # inconsistent API (preexisting)
+  # TODO: Make API consistent, as signature changed compared to old CLib
+  implements: setState_SH(double, double)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)

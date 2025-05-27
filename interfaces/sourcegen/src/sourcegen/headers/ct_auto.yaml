@@ -17,6 +17,7 @@ recipes:
 - name: writeLog
   implements: writelog_direct  # inconsistent API (preexisting)
 - name: addCanteraDirectory
+  # TODO: Make API consistent, as signature changed compared to old CLib
   implements: addDirectory  # inconsistent API (preexisting)
 - name: getDataDirectories
 - name: findInputFile
