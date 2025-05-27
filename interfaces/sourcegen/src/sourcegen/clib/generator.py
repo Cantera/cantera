@@ -24,7 +24,9 @@ class Config:
 
     ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
+    buf_type_crosswalk: dict[str, str]  #: Return buffer type crosswalks
+
+    par_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
     preambles: dict[str, str]  #: Preamble text for each header file
 
@@ -76,6 +78,71 @@ class CLibSourceGenerator(SourceGenerator):
             relates=[f"{uu.base}::{uu.name}()" for uu in c_func.uses])
         return self._javadoc_comment(block)
 
+    def _ret_crosswalk(self, c_func: CFunc, cxx_member: CFunc | Param) -> list[str]:
+        """Crosswalk for C++ return type."""
+        def critical(msg: str) -> None:
+            """Log critical failure."""
+            msg = (f"Scaffolding failed for {c_func.name!r}: {msg}:\n"
+                   f"C: {c_func.declaration()}")
+            if isinstance(cxx_member, CFunc):
+                msg += f"\nC++: {cxx_member.declaration()}"
+            else:  # isinstance(cxx_member, Param):
+                msg += f"\nC++: {cxx_member.long_str()}"
+            _LOGGER.critical(msg)
+            exit(1)
+
+        c_args = c_func.arglist
+        c_type = c_func.ret_type
+        buffer = []
+
+        if isinstance(cxx_member, Param):
+            cxx_type = cxx_member.p_type
+            if cxx_member.direction != "out":
+                if c_type != "int":
+                    critical(f"invalid variable setter return type {c_type!r}")
+                return []  # C return type for a variable setter is an int
+
+        else:  # isinstance(cxx_member, CFunc):
+            cxx_type = cxx_member.ret_type
+            if cxx_type.startswith("virtual "):
+                cxx_type = cxx_type.replace("virtual ", "")
+
+        if not c_args or c_args[-1].name != "buf":
+            # matching actual return arguments
+            if c_type not in self._config.ret_type_crosswalk:
+                critical(f"crosswalk not listed for C return type {c_type!r} (a)")
+            if cxx_type.startswith("shared_ptr<") or cxx_type == "auto":
+                pass
+            elif cxx_type not in self._config.ret_type_crosswalk[c_type]:
+                critical(f"crosswalk not listed for C++ return type {cxx_type!r} (a)")
+
+            if cxx_type == "bool":
+                buffer = [f"{cxx_type} out", "", "int(out)"]
+
+            return buffer
+
+        # buffered return argument
+        c_type = c_args[-1].p_type
+        if c_type not in self._config.buf_type_crosswalk:
+            critical(f"crosswalk not listed for buffered return C type {c_type!r} (b)")
+        if cxx_type not in self._config.buf_type_crosswalk[c_type]:
+            critical(f"crosswalk not listed for C++ return type {cxx_type!r} (b)")
+
+        if "string" in cxx_type:
+            buffer = [
+                "string out",
+                f"copyString(out, {c_args[-1].name}, {c_args[-2].name});",
+                "int(out.size()) + 1",  # include \0
+            ]
+        elif "vector" in cxx_type:
+            buffer = [
+                f"{cxx_type} out",
+                f"std::copy(out.begin(), out.end(), {c_args[-1].name});",
+                "int(out.size())",
+            ]
+
+        return buffer
+
     def _reverse_crosswalk(
             self, c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
         """Translate CLib arguments back to Jinja argument list."""
@@ -98,27 +165,35 @@ class CLibSourceGenerator(SourceGenerator):
                 # Default constructor
                 cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]))
             elif len(c_args) and "char*" in c_args[-1].p_type:
-                cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", "base")
+                cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", base)
             else:
-                cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
+                cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", base)
         elif isinstance(cxx_member, Param):
             if len(c_args) and "char*" in c_args[-1].p_type:
-                cxx_func = CFunc("string", cxx_member.name, None,
+                cxx_func = CFunc("string", cxx_member.name, ArgList([]),
                                  "", None, "", cxx_member.base)
             else:
-                cxx_func = CFunc(cxx_member.p_type, cxx_member.name, None,
+                cxx_func = CFunc(cxx_member.p_type, cxx_member.name, ArgList([]),
                                  "", None, "", cxx_member.base)
         elif isinstance(cxx_member, str):
-            cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
+            cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", base)
         else:
             cxx_func = cxx_member
+
+        # Object handle and buffer for return argument
+        if c_args and cxx_func.base:
+            handle = c_args[0].name
+        if isinstance(cxx_member, (CFunc, Param)):
+            buffer = self._ret_crosswalk(c_func, cxx_member)
+        else:
+            buffer = self._ret_crosswalk(c_func, cxx_func)
+
         cxx_ix = 0
         check_array = False
         for c_ix, c_par in enumerate(c_func.arglist):
             c_name = c_par.name
             if isinstance(cxx_member, Param) or cxx_ix >= len(cxx_func.arglist):
-                if c_ix == 0 and cxx_func.base and "len" not in c_name.lower():
-                    handle = c_name
+                if c_ix == 0 and cxx_func.base:
                     c_ix += 1
                 if isinstance(cxx_member, Param) and cxx_member.direction == "out":
                     pass
@@ -126,32 +201,6 @@ class CLibSourceGenerator(SourceGenerator):
                     break
                 elif c_ix == len(c_args):
                     break
-
-                # Handle output buffer and/or variable assignments
-                cxx_type = cxx_func.ret_type
-                if "string" in cxx_type:
-                    buffer = ["string out",
-                              f"copyString(out, {c_args[c_ix+1].name}, "
-                              f"{c_args[c_ix].name});",
-                              "int(out.size()) + 1"]  # include \0
-                elif "vector" in cxx_type:
-                    buffer = [f"{cxx_type} out",
-                              "std::copy(out.begin(), out.end(), "
-                              f"{c_args[c_ix+1].name});",
-                              "int(out.size())"]
-                elif "bool" in cxx_type:
-                    buffer = [f"{cxx_type} out", "", "int(out)"]
-                elif "double" in cxx_type or "void" in cxx_type:
-                    # can pass values directly
-                    buffer = []
-                elif "int" in cxx_type or "size_t" in cxx_type:
-                    # can pass values directly
-                    buffer = []
-                else:
-                    msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
-                           f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
-                    _LOGGER.critical(msg)
-                    exit(1)
                 break
 
             if isinstance(cxx_member, Param):
