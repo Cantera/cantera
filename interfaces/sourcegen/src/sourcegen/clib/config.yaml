@@ -11,21 +11,28 @@ ignore_files: []
 # only used for testing or debugging purposes and should otherwise be left empty.
 ignore_funcs: {}
 
-# **************************************************************************************
-#  TODO: Crosswalks are still hard-coded, as a prior version used them for the
-#  generation of CLib headers (now moved to HeaderGenerator). In an update, the
-#  crosswalks should be specified here.
-#  The version prior to code refactoring (split of `HeaderGenerator` from
-#  `CLibSourceGenerator`) used crosswalks from C++ to CLib (for the header generation)
-#  and also CLib to C++ (for the CLib source generation), with only one set being
-#  configured here.
-# **************************************************************************************
-
 # Return type crosswalks
-ret_type_crosswalk: {}
+ret_type_crosswalk:
+  int: [bool, void, int, size_t, shared_ptr<T>]
+  double: [double, const double]
+
+# Buffer type crosswalks (cannot be passed directly)
+buf_type_crosswalk:
+  char*: [string, const string]
+  double*: [vector<double>&, const vector<double>&]
 
 # Parameter type crosswalks
-prop_type_crosswalk: {}
+par_type_crosswalk:
+  int: [
+    bool, int, size_t, const size_t, shared_ptr<T>, const shared_ptr<T>,
+    vector<shared_ptr<T>>&, const vector<shared_ptr<T>>&,
+  ]
+  const int*: [const int*]
+  double: [double, const double]
+  double*: [double*, double* const, vector<double>&]
+  const double*: [const double*, const double* const, const vector<double>&]
+  char*: [string]
+  const char*: [string, const string, const string&]
 
 # Cabinets with associated preambles (headers)
 preambles:
