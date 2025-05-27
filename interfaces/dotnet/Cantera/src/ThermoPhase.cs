@@ -56,7 +56,6 @@ public partial class ThermoPhase
     {
         _sol = LibCantera.sol3_newSolution(filename, phaseName ?? "", "none");
         _handle = LibCantera.sol3_thermo(_sol);
-        _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));
     }
@@ -90,5 +89,10 @@ public partial class ThermoPhase
         }
 
         InteropUtil.CheckReturn(setter(_handle, first, second));
+    }
+
+    partial void ExtraDispose()
+    {
+        _sol.Dispose();
     }
 }

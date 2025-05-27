@@ -47,9 +47,13 @@ class CsFunc(Func):
     is_handle_release_func: bool
     handle_class_name: str | None
 
-    def unsafe(self) -> bool:
+    def needs_unsafe_keyword(self) -> bool:
         """Identify pointers within argument lists."""
         return any(p.p_type.endswith("*") for p in self.arglist)
+
+    def has_string_param(self) -> bool:
+        """Identify any parameters that take strings."""
+        return any(p.p_type == 'string' for p in self.arglist)
 
 
 class CSharpSourceGenerator(SourceGenerator):
@@ -131,6 +135,7 @@ class CSharpSourceGenerator(SourceGenerator):
             #   * It wraps an instance method and takes the handle as the first param.
             if method.startswith("del"):
                 release_func_handle_class_name = handle_class_name
+                params[0] = Param(handle_class_name, params[0].name)
             elif method.startswith("new"):
                 ret_type = handle_class_name
             elif name in self._config.class_accessors:
@@ -188,7 +193,8 @@ class CSharpSourceGenerator(SourceGenerator):
     def _scaffold_interop(self, header_file: str, cs_funcs: list[CsFunc]) -> None:
         template = _LOADER.from_string(self._templates["csharp-interop-func"])
         function_list = [
-            template.render(unsafe=func.unsafe(), declaration=func.declaration())
+            template.render(needs_unsafe_keyword=func.needs_unsafe_keyword(), has_string_param=func.has_string_param(),
+                            declaration=func.declaration())
             for func in cs_funcs]
 
         file_name = f"Interop.LibCantera.{header_file}.h.g.cs"

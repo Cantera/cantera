@@ -3,6 +3,7 @@
 
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace Cantera.Interop;
 
@@ -51,6 +52,9 @@ static class InteropUtil
         // Cantera returns this value when the function resulted in an
         // error internal to Cantera
         const int Error1 = -1;
+        // Sometimes Cantera returns this value when the function resulted in an
+        // error internal to Cantera and related to an object handle
+        const int Error2 = -2;
         // Cantera returns this value when the function resulted in an external error
         // Some functions also return a negative value as the amount of space they need
         // to fill a buffer with a string. There is no way to account for the ambiguity
@@ -59,7 +63,7 @@ static class InteropUtil
 
         CallbackException.ThrowIfAny();
 
-        if (code == Error1 || code == Error999)
+        if (code is Error1 or Error2 or Error999)
         {
             CanteraException.ThrowLatest();
         }
@@ -165,7 +169,7 @@ static class InteropUtil
 
                 if (initialSize >= neededSize)
                 {
-                    value = new String((sbyte*) buffer);
+                    value = Encoding.UTF8.GetString(buffer, neededSize - 1); // trim null byte
                     return true;
                 }
             }
