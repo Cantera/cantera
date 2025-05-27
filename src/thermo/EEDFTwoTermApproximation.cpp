@@ -181,7 +181,6 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
 
         SparseMat_fp Q_k = matrix_Q(g, k);
         SparseMat_fp P_k = matrix_P(g, k);
-        double mole_fraction = m_X_targets[m_klocTargets[k]];
 
         PQ += (matrix_Q(g, k) - matrix_P(g, k)) * m_X_targets[m_klocTargets[k]];
     }
@@ -596,7 +595,6 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
         productListStr += "}";
 
         for (size_t i = 0; i < options.m_points; i++) {
-            double cs_value = linearInterp(m_gridCenter[i], x, y);
             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
                                             linearInterp(m_gridCenter[i], x, y);
 
@@ -749,8 +747,6 @@ void EEDFTwoTermApproximation::eeColIntegrals(vector_fp& A1, vector_fp& A2, vect
     // Compute integral terms A1, A2, A3
     for (size_t j = 1; j < nPoints; j++) {
         double eps_j = m_gridCenter[j]; // Electron energy level
-        double f0_j = m_f0[j];          // EEDF at energy level j
-
         double integral_A1 = 0.0;
         double integral_A2 = 0.0;
         double integral_A3 = 0.0;
