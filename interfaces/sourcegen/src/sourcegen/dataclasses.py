@@ -73,6 +73,10 @@ class Param:
             return f"{self.p_type} {self.base}::{self.name}"
         return f"{self.p_type} {self.name}"
 
+    def declaration(self) -> str:
+        """Variable declaration."""
+        return self.long_str()
+
 
 @dataclass(frozen=True)
 class ArgList:
