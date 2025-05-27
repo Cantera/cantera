@@ -1,3 +1,17 @@
+"""
+nanosecondPulse.py
+
+This script demonstrates the simulation of a nanosecond pulse in a reactor setup.
+It uses Cantera's reactor framework to model the reaction dynamics
+over a short timescale.
+
+Functions:
+    - main(): Executes the simulation and outputs the results.
+
+Usage:
+    Run this script as part of the Cantera examples.
+"""
+
 import cantera as ct
 ct.CanteraError.set_stack_trace_depth(10)
 
