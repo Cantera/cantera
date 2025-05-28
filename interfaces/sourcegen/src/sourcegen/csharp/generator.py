@@ -193,9 +193,9 @@ class CSharpSourceGenerator(SourceGenerator):
                             declaration=func.declaration())
             for func in cs_funcs]
 
-        file_name = f"Interop.LibCantera.{header_file}.h.g.cs"
+        file_name = f"Interop.LibCantera.{header_file}.g.cs"
         self._write_file(
-            file_name, "template_interop.h.g.cs.in", cs_functions=function_list)
+            file_name, "template_interop.g.cs.in", cs_functions=function_list)
 
     def _scaffold_handles(self, header_file: str, handles: dict[str, str]) -> None:
         template = _LOADER.from_string(self._templates["csharp-base-handle"])
@@ -203,9 +203,9 @@ class CSharpSourceGenerator(SourceGenerator):
             template.render(class_name=key, release_func_name=val)
             for key, val in handles.items()]
 
-        file_name = f"Interop.Handles.{header_file}.h.g.cs"
+        file_name = f"Interop.Handles.{header_file}.g.cs"
         self._write_file(
-            file_name, "template_handles.h.g.cs.in", cs_handles=handle_list)
+            file_name, "template_handles.g.cs.in", cs_handles=handle_list)
 
     def _scaffold_derived_handles(self) -> None:
         template = _LOADER.from_string(self._templates["csharp-derived-handle"])
@@ -215,7 +215,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = "Interop.Handles.g.cs"
         self._write_file(
-            file_name, "template_handles.h.g.cs.in", cs_handles=handle_list)
+            file_name, "template_handles.g.cs.in", cs_handles=handle_list)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
                                 known_funcs: dict[str, CsFunc]) -> None:
@@ -232,7 +232,12 @@ class CSharpSourceGenerator(SourceGenerator):
             cs_properties=property_list)
 
     def generate_source(self, headers_files: list[HeaderFile]) -> None:
-        self._out_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            self._out_dir.mkdir(parents=True)
+        except FileExistsError:
+            # delete any existing files in the directory
+            for f in self._out_dir.iterdir():
+                f.unlink()
 
         known_funcs: dict[str, list[CsFunc]] = {}
 
