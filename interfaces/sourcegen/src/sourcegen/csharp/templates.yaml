@@ -4,8 +4,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 csharp-interop-func: |-
-  [LibraryImport(LibFile{{', StringMarshalling = StringMarshalling.Utf8' if has_string_param }})]
-  public static {{ 'unsafe ' if needs_unsafe_keyword }}partial {{ declaration }};
+  [LibraryImport(LibFile{{ ', StringMarshalling = StringMarshalling.Utf8' if has_string_param }})]
+  public static partial {{ declaration }};
 
 csharp-base-handle: |-
   [NativeMarshalling(typeof(Marshaller<{{ class_name }}>))]
@@ -31,7 +31,7 @@ csharp-property-int-double: |-
   }
 
 csharp-property-string: |-
-  public unsafe string {{ cs_name }}
+  public string {{ cs_name }}
   {
       get => InteropUtil.GetString(40, (length, buffer) =>
           LibCantera.{{ getter }}(_handle, length, buffer));

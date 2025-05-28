@@ -19,15 +19,15 @@ ignore_funcs:
 # Return type crosswalks
 ret_type_crosswalk:
   const char*: string
-  const double*: double[]
-  const int*: int[]
-  size_t: nuint
-  char*: byte*
+  const double*: ReadOnlySpan<double>
+  const int*: ReadOnlySpan<int>
+  char*: Span<byte>
+  double*: Span<double>
 
 # Parameter type crosswalks
 prop_type_crosswalk:
-  byte*: string
-  double*: double[]
+  Span<byte>: string
+  Span<double>: double[]
 
 # **************************************************************************************
 #  TODO: Some of the following crosswalks can be automated based on available header

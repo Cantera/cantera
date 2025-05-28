@@ -11,7 +11,7 @@ namespace Cantera;
 /// </summary>
 public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
 {
-    unsafe static IEnumerable<DirectoryInfo> GetDirs()
+    static IEnumerable<DirectoryInfo> GetDirs()
     {
         const char sep = ';';
 
