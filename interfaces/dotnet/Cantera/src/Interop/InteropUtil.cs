@@ -20,8 +20,8 @@ static class InteropUtil
     /// Represents a function that fills an array pointed to by <c>buffer</c> for
     /// a particular property of a Cantera object represented by <c>handle</c>.
     /// </summary>
-    public unsafe delegate int FillDoubleBufferFunc<THandle>(THandle handle, int size,
-                                                             double* buffer)
+    public delegate int FillDoubleBufferFunc<THandle>(THandle handle, int size,
+                                                      Span<double> buffer)
         where THandle : CanteraHandle;
 
     /// <summary>
@@ -30,7 +30,7 @@ static class InteropUtil
     /// <remarks>
     /// The Cantera C API specifies the size as an int.
     /// </remarks>
-    public unsafe delegate int FillStringBufferFunc(int size, byte* buffer);
+    public delegate int FillStringBufferFunc(int size, Span<byte> buffer);
 
     public static double CheckReturn(double code)
     {
@@ -81,7 +81,7 @@ static class InteropUtil
                                          FillDoubleBufferFunc<T> fillBufferFunc)
         where T : CanteraHandle
     {
-        var size = getSizeFunc(handle);
+        var size = CheckReturn(getSizeFunc(handle));
         var array = new double[size];
 
         GetDoubles(handle, array, fillBufferFunc);
@@ -108,14 +108,11 @@ static class InteropUtil
     /// Used to fill the supplied <see cref="Span{T}" /> of <see cref="double" /> values
     /// by using <paramref name="fillBufferFunc" /> to fill it.
     /// </summary>
-    public static unsafe void GetDoubles<T>(T handle, Span<double> span,
-                                            FillDoubleBufferFunc<T> fillBufferFunc)
+    public static void GetDoubles<T>(T handle, Span<double> span,
+                                     FillDoubleBufferFunc<T> fillBufferFunc)
         where T : CanteraHandle
     {
-        fixed(double* buffer = span)
-        {
-            CheckReturn(fillBufferFunc(handle, span.Length, buffer));
-        }
+        CheckReturn(fillBufferFunc(handle, span.Length, span));
     }
 
     [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
@@ -158,20 +155,16 @@ static class InteropUtil
         throw new InvalidOperationException(
             "Could not retrieve a string value from Cantera!");
 
-        static unsafe bool TryGetString(Span<byte> span, FillStringBufferFunc func,
+        static bool TryGetString(Span<byte> span, FillStringBufferFunc func,
             [NotNullWhen(true)] out string? value, out int neededSize)
         {
             var initialSize = span.Length;
+            neededSize = CheckReturn(func(initialSize, span));
 
-            fixed(byte* buffer = span)
+            if (initialSize >= neededSize)
             {
-                neededSize = CheckReturn(func(initialSize, buffer));
-
-                if (initialSize >= neededSize)
-                {
-                    value = Encoding.UTF8.GetString(buffer, neededSize - 1); // trim null byte
-                    return true;
-                }
+                value = Encoding.UTF8.GetString(span[..(neededSize - 1)]); // trim null byte
+                return true;
             }
 
             value = null;

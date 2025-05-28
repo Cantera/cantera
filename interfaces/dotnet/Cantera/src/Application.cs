@@ -66,10 +66,10 @@ public static class Application
     /// </remarks>
     static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
 
-    unsafe static readonly Lazy<string> s_version =
+    static readonly Lazy<string> s_version =
         new(() => InteropUtil.GetString(10, LibCantera.ct3_getCanteraVersion));
 
-    unsafe static readonly Lazy<string> s_gitCommit =
+    static readonly Lazy<string> s_gitCommit =
         new(() => InteropUtil.GetString(10, LibCantera.ct3_getGitCommit));
 
     static readonly Lazy<DataDirectoryCollection> s_dataDirectories =

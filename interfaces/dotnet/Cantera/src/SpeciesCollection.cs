@@ -43,7 +43,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// in the order in which they appear in this collection. When setting,
     /// normalizes the mass fractions so they sum to 1.
     /// </summary>
-    public unsafe double[] MassFractions
+    public double[] MassFractions
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count,
             LibCantera.thermo3_getMassFractions);
@@ -62,7 +62,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// in the order in which they appear in this collection. When setting,
     /// normalizes the mole fractions so they sum to 1.
     /// </summary>
-    public unsafe double[] MoleFractions
+    public double[] MoleFractions
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count,
             LibCantera.thermo3_getMoleFractions);
@@ -76,7 +76,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
         }
     }
 
-    internal unsafe SpeciesCollection(ThermoPhaseHandle handle)
+    internal SpeciesCollection(ThermoPhaseHandle handle)
     {
         _handle = handle;
 
@@ -95,7 +95,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
 
             for (var i = 0; i < count; i++)
             {
-                int getName(int length, byte* buffer) => LibCantera
+                int getName(int length, Span<byte> buffer) => LibCantera
                     .thermo3_getSpeciesName(handle, i, length, buffer);
 
                 var name = InteropUtil.GetString(10, getName);
