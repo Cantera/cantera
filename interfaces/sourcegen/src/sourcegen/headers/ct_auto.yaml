@@ -11,11 +11,6 @@ recipes:
   implements: version  # inconsistent API (preexisting)
 - name: getGitCommit
   implements: gitCommit  # inconsistent API (preexisting)
-- name: getCanteraError
-- name: setLogWriter
-- name: setLogCallback
-- name: writeLog
-  implements: writelog_direct  # inconsistent API (preexisting)
 - name: addCanteraDirectory
   implements: addDirectory  # inconsistent API (preexisting)
 - name: getDataDirectories
@@ -44,5 +39,40 @@ recipes:
   implements: permeability_0
 - name: epsilon0
   implements: epsilon_0
+- name: getCanteraError
+  brief: Get %Cantera error.
+  what: function
+  declaration: int ct3_getCanteraError(int bufLen, char* buf)
+  parameters:
+    bufLen: Length of reserved array.
+    buf: String containing %Cantera error.
+  returns: Actual length of string or -1 for exception handling.
+  code: |-
+    string err = Application::Instance()->lastErrorMessage();
+    copyString(err, buf, bufLen);
+    return int(err.size());
+- name: setLogWriter
+  brief: Set log writer.
+  what: function
+  declaration: int ct3_setLogWriter(void* logger)
+  parameters:
+    logger: Logger.
+  code: |-
+    Logger* logwriter = (Logger*)logger;
+    setLogger(logwriter);
+    return 0;
+- name: setLogCallback
+  brief: Set Logger callback.
+  what: function
+  declaration: int ct3_setLogCallback(LogCallback writer)
+  parameters:
+    writer: Callback that is invoked to produce log output.
+  code: |-
+    static unique_ptr<Logger> logwriter;
+    logwriter = make_unique<ExternalLogger>(writer);
+    setLogger(logwriter.get());
+    return 0;
+- name: writeLog
+  implements: writelog_direct  # inconsistent API (preexisting)
 - name: clearStorage
 - name: resetStorage

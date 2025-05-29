@@ -88,7 +88,7 @@ class CLibSourceGenerator(SourceGenerator):
         msg = (f"Scaffolding failed for {c_func.name!r}: {msg}:\n"
                 f"C: {c_func.declaration()}\n")
         if isinstance(cxx_func.implements, str):
-            msg += f"C++: {cxx_func.implements}"
+            msg += f"C++: {cxx_func.implements} (wrapped as {cxx_func.declaration()})"
         else:
             msg += f"C++: {cxx_func.declaration()}"
         _LOGGER.critical(msg)
@@ -120,14 +120,14 @@ class CLibSourceGenerator(SourceGenerator):
                     c_func, cxx_func,
                     f"return crosswalk not listed for C++ template {cxx_template!r}")
             crosswalk_key = cxx_template
-        elif cxx_type in ["auto"]:
+        elif cxx_type in ["auto"] or cxx_func.implements == "custom code":
             pass
         elif cxx_type not in self._config.ret_type_crosswalk:
             self._critical(c_func, cxx_func,
                            f"return crosswalk not listed for C++ type {cxx_type!r}")
 
         # check C type information
-        if cxx_type == "auto":
+        if cxx_type == "auto" or cxx_func.implements == "custom code":
             pass
         elif c_args and c_args[-1].name == "buf":
             if c_type != "int":
@@ -334,8 +334,13 @@ class CLibSourceGenerator(SourceGenerator):
 
         if recipe.code:
             # override auto-generated code
+            if "reserved" in recipe.what:
+                template = loader.from_string(c_func.implements)
+                lines = template.render(cabinets=[kk for kk in self._clib_bases if kk])
+            else:
+                lines = c_func.implements
             template = loader.from_string(self._templates["clib-custom-code"])
-            args["lines"] = c_func.implements.split("\n")
+            args["lines"] = lines.split("\n")
 
         elif recipe.what == "noop":
             template = loader.from_string(self._templates["clib-noop"])
@@ -373,11 +378,6 @@ class CLibSourceGenerator(SourceGenerator):
                 template = loader.from_string(self._templates["clib-array-setter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])
-
-        elif recipe.what == "reserved":
-            args["cabinets"] = [kk for kk in self._clib_bases if kk]
-            template = loader.from_string(
-                self._templates[f"clib-reserved-{recipe.name}-cpp"])
 
         else:
             msg = f"{recipe.what!r} not implemented: {c_func.name!r}."
