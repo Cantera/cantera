@@ -317,7 +317,11 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
             for item in xml_list.findall("parameteritem"):
                 par_list.extend(xml_parameterlist(item))
 
-    return TagDetails(*tag_info,
-                      xml_tree.find("location").attrib["file"],
-                      xml_tree.find("briefdescription").find("para").text.strip(),
-                      par_list)
+    location = xml_tree.find("location").attrib["file"]
+    try:
+        brief = xml_tree.find("briefdescription").find("para").text.strip()
+    except AttributeError:
+        msg = f"Unable to retrieve brief description for {tag_info.qualified_name!r}."
+        _LOGGER.warning(msg)
+
+    return TagDetails(*tag_info, location, brief, par_list)
