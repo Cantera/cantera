@@ -15,9 +15,6 @@ ignore_funcs: {}
 ret_type_crosswalk:
   int: [bool, void, int, size_t, shared_ptr<T>]
   double: [double, const double]
-
-# Buffer type crosswalks (cannot be passed directly)
-buf_type_crosswalk:
   char*: [string, const string]
   double*: [vector<double>&, const vector<double>&]
 
@@ -29,7 +26,7 @@ par_type_crosswalk:
   double*: [double*, double* const, vector<double>&]
   const double*: [const double*, const double* const, const vector<double>&]
   char*: [string]
-  const char*: [const string, const string&]
+  const char*: [string, const string, const string&]
 
 # Cabinets with associated preambles (headers)
 preambles:
