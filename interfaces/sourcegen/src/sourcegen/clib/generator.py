@@ -418,8 +418,7 @@ class CLibSourceGenerator(SourceGenerator):
             name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
             declarations=declarations, base=headers.base, docstring=headers.docstring)
 
-        out = (Path(self._out_dir) /
-               "include" / "cantera" / "clib_experimental" / filename.name)
+        out = Path(self._out_dir) / "include" / "cantera_clib" / filename.name
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -460,7 +459,7 @@ class CLibSourceGenerator(SourceGenerator):
             prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
             includes=includes, other=other, str_utils=str_utils)
 
-        out = Path(self._out_dir) / "src" / "clib_experimental" / filename.name
+        out = Path(self._out_dir) / "src" / filename.name
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
