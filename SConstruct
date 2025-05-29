@@ -134,9 +134,9 @@ if "clean" in COMMAND_LINE_TARGETS:
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
-    for name in Path("include/cantera/clib_experimental").glob("*.h"):
+    for name in Path("interfaces/clib_experimental/include/cantera_clib").glob("*.h"):
         remove_file(name)
-    for name in Path("src/clib_experimental").glob("*.cpp"):
+    for name in Path("interfaces/clib_experimental/src").glob("*.cpp"):
         remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)
@@ -370,11 +370,7 @@ config_options = [
         False),
     BoolOption(
         "clib_experimental",
-        """Build experimental CLib. Requires running 'scons doxygen', installation of
-           sourcegen via 'python -m pip install -e interfaces/sourcegen' and CLib code
-           generation via 'sourcegen --api=clib --output=.' prior to the 'scons build'
-           command.
-           """,
+        "Build experimental CLib instead of traditional CLib.",
         False),
     BoolOption(
         "run_examples",
@@ -1958,6 +1954,10 @@ SConscript('build/ext/SConscript')
 if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
+
+# CLib needs to come before src so auto-generated code is available
+if env["clib_experimental"] and "doxygen" not in COMMAND_LINE_TARGETS:
+    SConscript("interfaces/clib_experimental/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')

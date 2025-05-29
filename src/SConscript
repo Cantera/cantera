@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from buildutils import (logger, remove_file, multi_glob, get_spawn,
                         add_system_include, setup_python_env)
@@ -39,8 +40,6 @@ libs = [('base', ['cpp'], baseSetup),
         ('zeroD', ['cpp'], defaultSetup),
         ('clib', ['cpp'], defaultSetup),
         ]
-if env['clib_experimental']:
-    libs.append(('clib_experimental', ['cpp'], defaultSetup))
 
 localenv = env.Clone()
 localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
@@ -77,6 +76,36 @@ for subdir, extensions, setup in libs:
         env2.Requires(objects, pch)
     libraryTargets.extend(objects)
 
+generated_file_nodes = []
+if localenv["clib_experimental"]:
+    # Handle clib_experimental separately, as generated files have different location
+    auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
+    yaml_files = list(auto_path.glob("*_auto.yaml"))
+
+    env2 = localenv.Clone()
+    env2.Append(CCFLAGS=env2['pch_flags'])
+    # Need to update include paths, where second entry is for clib_utils.h
+    env2.Prepend(CPPPATH=['#interfaces/clib_experimental/include', '#src/clib'])
+
+    objects = []
+    for yaml_file in yaml_files:
+        # compile with explicit source and target files
+        base_name = yaml_file.stem.replace("_auto", "3")
+        source_file = Dir("#interfaces/clib_experimental/src").File(f"{base_name}.cpp")
+        target_file = Dir("#build/src/clib_experimental").File(f"{base_name}.os")
+        obj = env2.SharedObject(
+            target_file,
+            source_file)
+
+        env2.Depends(obj, env2["config_h_target"])
+        if pch:
+            env2.Requires(obj, pch)
+
+        generated_file_nodes.append(source_file)
+        objects.append(obj)
+
+    libraryTargets.extend(objects)
+
 # Handling of extensions written in Python
 if env["python_package"] == "y":
     pyenv = setup_python_env(localenv.Clone())
@@ -95,8 +124,12 @@ if env["python_package"] == "y":
 
 # build the Cantera static library
 staticIndicator = indicatorEnv.SharedObject('extensions/canteraStatic.cpp')
-lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets + staticIndicator,
-                                   SPAWN=get_spawn(localenv)))
+lib_target = localenv.StaticLibrary("../lib/cantera", libraryTargets + staticIndicator,
+                                    SPAWN=get_spawn(localenv))
+if env["clib_experimental"]:
+    localenv.Depends(lib_target, generated_file_nodes)
+
+lib = build(lib_target)
 localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib

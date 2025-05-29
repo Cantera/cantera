@@ -13,8 +13,24 @@ Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 
 if localenv['doxygen_docs'] or localenv['sphinx_docs']:
+    vars = {
+        "@INCLUDE@": "",
+        "@ENABLED_SECTIONS@": "",
+        "@GENERATE_HTML@": "YES",
+        "@GENERATE_XML@": "NO",
+        "@GENERATE_TAGFILE@": "build/doc/Cantera_html.tag",
+        "@WARNINGS@": "YES",
+        "@WARN_IF_DOC_ERROR@": "YES",
+        "@WARN_IF_INCOMPLETE_DOC@": "YES",
+    }
+    if env["clib_experimental"]:
+        vars["@INCLUDE@"] = "interfaces/clib_experimental"
+        vars["@ENABLED_SECTIONS@"] = "CLIB_EXPERIMENTAL"
+    env.Substfile(
+        "#build/doc/Doxyfile", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
+
     docs = build(localenv.Command(
-        '#build/doc/html/cxx/index.html', 'doxygen/Doxyfile',
+        "#build/doc/html/cxx/index.html", "#build/doc/Doxyfile",
         [
             Delete("build/doc/html/cxx"),
             'doxygen $SOURCE',

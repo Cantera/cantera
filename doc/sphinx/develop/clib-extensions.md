@@ -171,7 +171,7 @@ The **sourcegen** utility uses a logging module to provide feedback. Add the ver
 
   ```shell
   [CRITICAL] Tag file does not exist at expected location:
-      <...>/cantera/build/doc/Cantera.tag
+      <...>/cantera/build/doc/Cantera_xml.tag
   Run 'scons doxygen' to generate.
   ```
 
