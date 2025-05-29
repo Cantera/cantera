@@ -12,15 +12,22 @@ localenv = env.Clone()
 Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 
-if localenv['doxygen_docs'] or localenv['sphinx_docs']:
-    docs = build(localenv.Command(
-        '#build/doc/html/cxx/index.html', 'doxygen/Doxyfile',
-        [
+if localenv["doxygen_docs"] or localenv["sphinx_docs"] or localenv["doxygen_xml"]:
+    vars = {"@GENERATE_HTML@": "NO", "@GENERATE_XML@": "YES"}
+    if localenv["doxygen_docs"] or localenv["sphinx_docs"]:
+        vars["@GENERATE_HTML@"] = "YES"
+    localenv.Substfile("#build/doc/Doxyfile", "doxygen/Doxyfile.in", SUBST_DICT=vars)
+    if localenv["sphinx_docs"]:
+        actions = [
             Delete("build/doc/html/cxx"),
-            'doxygen $SOURCE',
+            "doxygen $SOURCE",
             Copy("build/doc/html/cxx", "build/doc/doxygen/html")
         ]
-    ))
+    else:
+        actions = ["doxygen $SOURCE"]
+    docs = build(
+        localenv.Command("#build/doc/Cantera.tag", "#build/doc/Doxyfile", actions)
+    )
     env.Depends(docs, env.Glob('#doc/doxygen/*') +
                       multi_glob(env, '#include/cantera', 'h') +
                       multi_glob(env, '#include/cantera/*', 'h') +
