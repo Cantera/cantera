@@ -124,7 +124,7 @@ clib-variable-setter: |-
       {% endif %}{# handle #}
       return 0;
   } catch (...) {
-      return handleAllExceptions(-1, ERR);
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-constructor: |-
@@ -229,7 +229,7 @@ clib-destructor: |-
       {{ base }}Cabinet::del({{ handle }});
       return 0;
   } catch (...) {
-      return handleAllExceptions(-1, ERR);
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-method: |-
@@ -299,7 +299,7 @@ clib-array-getter: |-
       return 0;
       {% endif %}
   } catch (...) {
-      return handleAllExceptions(-1, ERR);
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-array-setter: |-
@@ -321,7 +321,7 @@ clib-array-setter: |-
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
   } catch (...) {
-      return handleAllExceptions(-1, ERR);
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-noop: |-
@@ -331,11 +331,11 @@ clib-noop: |-
 clib-custom-code: |-
   // {{ what }}: custom code
   try {
-      // *************** begin ***************
+      // *************** begin custom code ***************
       {% for line in lines %}
       {{ line }}
       {% endfor %}
-      // **************** end ****************
+      // **************** end custom code ****************
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
@@ -344,73 +344,4 @@ clib-implementation: |-
   {{ declaration }}
   {
       {{ body | indent(4) }}
-  }
-
-clib-reserved-parentHandle-cpp: |-
-  // reserved: {{ base }} cabinet parent
-  try {
-      return {{ base }}Cabinet::parent(handle);
-  } catch (...) {
-      return handleAllExceptions(-2, ERR);
-  }
-
-clib-reserved-cabinetSize-cpp: |-
-  // reserved: int Cabinet<{{ base }}>.size()
-  try {
-      return {{ base }}Cabinet::size();
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-reserved-getCanteraError-cpp: |-
-  // reserved: string Application::Instance()->lastErrorMessage();
-  try {
-      string err = Application::Instance()->lastErrorMessage();
-      copyString(err, buf, bufLen);
-      return int(err.size());
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-reserved-setLogWriter-cpp: |-
-  // reserved: setLogger
-  try {
-      Logger* logwriter = (Logger*)logger;
-      setLogger(logwriter);
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-reserved-setLogCallback-cpp: |-
-  // reserved: setLogger
-  static unique_ptr<Logger> logwriter;
-  try {
-      logwriter = make_unique<ExternalLogger>(writer);
-      setLogger(logwriter.get());
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-reserved-resetStorage-cpp: |-
-  // reserved: void Cabinet<T>::reset()
-  try {
-      {% for base in cabinets %}
-      {{ base }}Cabinet::reset();
-      {% endfor %}
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-reserved-clearStorage-cpp: |-
-  // reserved: void Cabinet<T>::clear()
-  try {
-      {% for base in cabinets %}
-      {{ base }}Cabinet::clear();
-      {% endfor %}
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
   }

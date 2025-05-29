@@ -7,6 +7,7 @@ import sys
 import logging
 from dataclasses import dataclass
 
+from ruamel import yaml
 from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
@@ -91,18 +92,19 @@ class HeaderGenerator:
             return obj_handle + cxx_member.arglist.params, cxx_member
 
         func_name = f"{recipe.prefix}_{recipe.name}"
-        reserved = ["cabinetSize", "parentHandle",
-                    "getCanteraError", "setLogWriter", "setLogCallback",
-                    "clearStorage", "resetStorage"]
+        reserved = ["cabinetSize", "parentHandle", "clearStorage", "resetStorage"]
         if recipe.name in reserved:
-            recipe.what = "reserved"
             loader = Environment(loader=BaseLoader)
             msg = f"   generating {func_name!r} -> {recipe.what}"
             _LOGGER.debug(msg)
             header = loader.from_string(
-                self._templates[f"clib-reserved-{recipe.name}-h"]
+                self._templates[f"clib-reserved-{recipe.name}"]
                 ).render(base=recipe.base, prefix=recipe.prefix)
-            return CFunc.from_snippet(header, brief=recipe.brief)
+            reader = yaml.YAML(typ="safe")
+            header = reader.load(header)
+            for key, value in header.items():
+                recipe.__setattr__(key, value)
+            return CFunc.from_recipe(recipe)
 
         if recipe.code:
             # Custom code

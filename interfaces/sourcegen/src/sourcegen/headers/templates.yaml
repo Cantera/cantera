@@ -3,53 +3,46 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-clib-reserved-parentHandle-h: |-
-  /**
-   *  Return handle to parent of {{ base }} object.
-   *  @param handle       Handle to queried {{ base }} object.
-   *  @returns            Parent handle or -1 for exception handling.
-   */
-  int {{ prefix }}_parentHandle(int handle);
+clib-reserved-parentHandle: |-
+  brief: Return handle to parent of {{ base }} object.
+  what: reserved CLib function
+  declaration: int {{ prefix }}_parentHandle(int handle)
+  parameters:
+    handle: Handle to queried {{ base }} object.
+  returns: Parent handle or -1 for exception handling.
+  code: |-
+    return {{ base }}Cabinet::parent(handle);
 
-clib-reserved-cabinetSize-h: |-
-  /**
-   *  Return size of {{ base }} storage.
-   *  @returns            Size or -1 for exception handling.
-   */
-  int {{ prefix }}_cabinetSize();
+clib-reserved-cabinetSize: |-
+  brief: Return size of {{ base }} storage.
+  what: reserved CLib function
+  declaration: int {{ prefix }}_cabinetSize()
+  returns: Size or -1 for exception handling.
+  code: |-
+    return {{ base }}Cabinet::size();
 
-clib-reserved-getCanteraError-h: |-
-  /**
-   *  Get %Cantera error.
-   *  @param[in] bufLen   Length of reserved array.
-   *  @param[out] buf     String containing %Cantera error.
-   *  @returns            Actual length of string or -1 for exception handling.
-   */
-  int {{ prefix }}_getCanteraError(int bufLen, char* buf);
+clib-reserved-resetStorage: |-
+  brief: Delete all objects and erase mapping.
+  what: reserved CLib function
+  declaration: int {{ prefix }}_resetStorage()
+  returns: Zero if successful or -1 for exception handling.
+  code: |-
+    {% raw %}
+    {% for base in cabinets %}
+    {{ base }}Cabinet::reset();
+    {% endfor %}
+    return 0;
+    {% endraw %}
 
-clib-reserved-setLogWriter-h: |-
-  /**
-   *  Undocumented.
-   */
-  int {{ prefix }}_setLogWriter(void* logger);
-
-clib-reserved-setLogCallback-h: |-
-  /**
-   *  Undocumented.
-   *  @param writer       Callback that is invoked to produce log output.
-   */
-  int {{ prefix }}_setLogCallback(LogCallback writer);
-
-clib-reserved-resetStorage-h: |-
-  /**
-   *  Delete all objects and erase mapping.
-   *  @returns            Zero if successful or -1 for exception handling.
-   */
-  int {{ prefix }}_resetStorage();
-
-clib-reserved-clearStorage-h: |-
-  /**
-   *  Delete all objects with mapping preserved.
-   *  @returns            Zero if successful or -1 for exception handling.
-   */
-  int {{ prefix }}_clearStorage();
+clib-reserved-clearStorage: |-
+  brief: Delete all objects with mapping preserved.
+  what: reserved CLib function
+  declaration: int {{ prefix }}_clearStorage()
+  returns: Zero if successful or -1 for exception handling.
+  code: |-
+    {% raw %}
+    {% for base in cabinets %}
+    {{ base }}Cabinet::clear();
+    {% endfor %}
+    return 0;
+    {% endraw %}
