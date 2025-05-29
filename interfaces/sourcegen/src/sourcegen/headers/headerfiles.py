@@ -76,10 +76,13 @@ class HeaderFileParser:
                 uses = [uses]
             recipes.append(
                 Recipe(recipe["name"],
-                       recipe.get("implements", ""),
-                       uses,
-                       recipe.get("what", ""),
                        recipe.get("brief", ""),
+                       recipe.get("what", ""),
+                       recipe.get("declaration", ""),
+                       recipe.get("parameters", ""),
+                       recipe.get("returns", ""),
+                       uses,
+                       recipe.get("implements", ""),
                        recipe.get("code", ""),
                        prefix,
                        base,
