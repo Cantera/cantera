@@ -137,28 +137,20 @@ recipes:
   implements: setCoveragesByName(const string&)
 - name: report
 - name: print
+  brief: Print a summary of the state of the phase as a string.
   what: method
+  declaration: int thermo3_print(int handle, int showThermo, double threshold)
+  parameters:
+    handle: Handle to queried ThermoPhase object.
+    showThermo: If true, extra information is printed out about the thermodynamic state of the system.
+    threshold: Show information about species with mole fractions greater than
+  returns: Zero for success or -1 for exception handling.
+  uses:
+  - virtual string ThermoPhase::report(bool, double)
   code: |-
-    /**
-     *  Print a summary of the state of the phase as a string.
-     *
-     *  @param handle       Handle to queried ThermoPhase object.
-     *  @param showThermo   If true, extra information is printed out about the thermodynamic state of the system.
-     *  @param threshold    Show information about species with mole fractions greater than
-     *  @returns            Zero for success or -1 for exception handling.
-     *
-     *  @uses method: virtual string ThermoPhase::report(bool, double)
-     */
-    int thermo3_print(int handle, int showThermo, double threshold)
-    {
-        try {
-            bool show = (showThermo != 0);
-            writelog(ThermoPhaseCabinet::at(handle)->report(show, threshold));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
+    bool show = (showThermo != 0);
+    writelog(ThermoPhaseCabinet::at(handle)->report(show, threshold));
+    return 0;
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

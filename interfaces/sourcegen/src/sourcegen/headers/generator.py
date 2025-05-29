@@ -39,7 +39,7 @@ class HeaderGenerator:
         self._clib_bases = bases
 
     def resolve_tags(self, headers_files: list[HeaderFile], root: str) -> None:
-        """Resolve recipe information based on doxygen tags."""
+        """Resolve recipe information based on Doxygen tags."""
         def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
             classes = set()
@@ -61,7 +61,7 @@ class HeaderGenerator:
             headers.funcs = c_funcs
 
     def resolve_recipe(self, recipe: Recipe) -> CFunc:
-        """Build CLib header from recipe and doxygen annotations."""
+        """Build CLib header from recipe and Doxygen annotations."""
         def merge_params(
                 implements: str, cxx_member: CFunc | Param
             ) -> tuple[list[Param], CFunc]:
@@ -103,6 +103,10 @@ class HeaderGenerator:
                 self._templates[f"clib-reserved-{recipe.name}-h"]
                 ).render(base=recipe.base, prefix=recipe.prefix)
             return CFunc.from_snippet(header, brief=recipe.brief)
+
+        if recipe.code:
+            # Custom code
+            return CFunc.from_recipe(recipe)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
@@ -215,10 +219,6 @@ class HeaderGenerator:
             brief= f"Delete {recipe.base} object."
             ret_param = Param(
                 "int", "", "Zero for success and -1 for exception handling.")
-
-        elif recipe.code:
-            # Custom code
-            return CFunc.from_snippet(recipe.code, brief=recipe.brief)
 
         else:
             msg = f"Unable to resolve recipe type for {recipe.name!r}"
