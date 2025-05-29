@@ -330,11 +330,15 @@ clib-noop: |-
 
 clib-custom-code: |-
   // {{ what }}: custom code
-  // *************** begin ***************
-  {% for line in lines %}
-  {{ line }}
-  {% endfor %}
-  // **************** end ****************
+  try {
+      // *************** begin ***************
+      {% for line in lines %}
+      {{ line }}
+      {% endfor %}
+      // **************** end ****************
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
 
 clib-implementation: |-
   {{ declaration }}

@@ -104,6 +104,10 @@ class HeaderGenerator:
                 ).render(base=recipe.base, prefix=recipe.prefix)
             return CFunc.from_snippet(header, brief=recipe.brief)
 
+        if recipe.code:
+            # Custom code
+            return CFunc.from_recipe(recipe)
+
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
         if not recipe.implements:
@@ -215,10 +219,6 @@ class HeaderGenerator:
             brief= f"Delete {recipe.base} object."
             ret_param = Param(
                 "int", "", "Zero for success and -1 for exception handling.")
-
-        elif recipe.code:
-            # Custom code
-            return CFunc.from_snippet(recipe.code, brief=recipe.brief)
 
         else:
             msg = f"Unable to resolve recipe type for {recipe.name!r}"
