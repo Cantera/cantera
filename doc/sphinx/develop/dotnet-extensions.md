@@ -5,9 +5,9 @@ The auto-generated .NET API is an experimental part of Cantera and may be change
 removed without notice.
 ```
 
-The .NET API is written in C# and supports .NET Standard 2.0 (for the primary project)
-and .NET 8 (and newer) on all platforms that support both .NET and the Cantera C++
-library. The .NET interface requires an installation of the .NET 8.0 SDK.
+The .NET API is written in C# and supports .NET 8 (and newer) on all platforms
+that support both .NET and the Cantera C++ library. The .NET interface requires an
+installation of the .NET 8.0 SDK to build.
 
 The .NET API implementation draws on two parts:
 
@@ -61,8 +61,8 @@ the native Cantera library via the Cantera C interface (CLib), and wraps the low
 interfaces with classes and concepts familiar to a .NET developer. As part of the build
 process, it invokes [sourcegen](sourcegen) to scaffold the interop code and some of the
 code for the wrapper objects, such as simple properties which can mapped directly to
-CLib getter and setter functions. `Cantera.csproj` targets .NET Standard 2.0 and .NET 8.
-This project will be released as a NuGet package.
+CLib getter and setter functions. `Cantera.csproj` targets .NET 8. This project will be
+released as a NuGet package.
 
 `Cantera.Tests.csproj` contains the unit tests for the Cantera .NET library and targets
 .Net 8.
