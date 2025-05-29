@@ -13,20 +13,40 @@ ignore_funcs: {}
 
 # Return type crosswalks
 ret_type_crosswalk:
-  int: [bool, void, int, size_t, shared_ptr<T>]
-  double: [double, const double]
-  char*: [string, const string]
-  double*: [vector<double>&, const vector<double>&]
+  bool: int
+  void: int
+  int: int
+  size_t: int
+  shared_ptr<T>: int
+  double: double
+  const double: double
+  string: char*
+  const string: char*
+  vector<double>&: double*
+  const vector<double>&: double*
 
 # Parameter type crosswalks
-par_type_crosswalk:
-  int: [bool, int, size_t, const size_t, shared_ptr<T>, const shared_ptr<T>]
-  const int*: [const int*, vector<shared_ptr<T>>&, const vector<shared_ptr<T>>&]
-  double: [double, const double]
-  double*: [double*, double* const, vector<double>&]
-  const double*: [const double*, const double* const, const vector<double>&]
-  char*: [string]
-  const char*: [string, const string, const string&]
+prop_type_crosswalk:
+  bool: int
+  int: int
+  size_t: int
+  const size_t: int
+  shared_ptr<T>: int
+  const shared_ptr<T>: int
+  const int*: const int*
+  vector<shared_ptr<T>>&: const int*
+  const vector<shared_ptr<T>>&: const int*
+  double: double
+  const double: double
+  double*: double*
+  double* const: double*
+  vector<double>&: double*
+  const double*: const double*
+  const double* const: const double*
+  const vector<double>&: const double*
+  string: const char*
+  const string: const char*
+  const string&: const char*
 
 # Cabinets with associated preambles (headers)
 preambles:
