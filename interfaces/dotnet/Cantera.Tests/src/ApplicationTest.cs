@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Reflection;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text.RegularExpressions;
 using Cantera.Interop;
 using Xunit;
@@ -46,13 +47,11 @@ public class ApplicationTest
     [Fact]
     public void LogWriter_MessageLogged()
     {
-        LogLevel? logLevel = null;
-        string? report = null;
+        LogMessageEventArgs? args = null;
 
         void LogMessage(object? sender, LogMessageEventArgs e)
         {
-            logLevel = e.LogLevel;
-            report = e.Message;
+            args = e;
         }
 
         try
@@ -61,11 +60,9 @@ public class ApplicationTest
 
             ProduceRealLogOutput();
 
-            Assert.NotNull(logLevel);
-            Assert.NotNull(report);
-
-            Assert.Equal(LogLevel.Info, logLevel);
-            Assert.NotEmpty(report);
+            Assert.Equal(LogLevel.Info, args?.LogLevel);
+            Assert.False(String.IsNullOrEmpty(args?.Category));
+            Assert.False(String.IsNullOrEmpty(args.Message));
         }
         finally
         {
@@ -136,30 +133,36 @@ public class ApplicationTest
     /// </summary>
     static void ProduceRealLogOutput()
     {
-        using var thermo = Application.CreateThermoPhase("gri30.yaml");
-
-        var handle = (ThermoPhaseHandle) typeof(ThermoPhase)
-            .GetField("_handle", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(thermo)!;
-
-        InteropUtil.CheckReturn(LibCantera.thermo3_print(handle, InteropConsts.True, 0));
+        InteropUtil.CheckReturn(LibCantera.ct3_writeLog(s_mockLog.Message + "\n"));
     }
 
     /// <summary>
     /// Produces log output without calling into the native Cantera library.
     /// </summary>
-    static void ProduceMockLogOutput()
+    unsafe static void ProduceMockLogOutput()
     {
         var eventField = typeof(Application).GetField("s_invokeMessageLoggedDelegate",
             BindingFlags.Static | BindingFlags.NonPublic);
 
         Assert.NotNull(eventField);
 
-        var del = (LibCantera.LogCallback) eventField!.GetValue(null)!;
+        var del = (LibCantera.LogCallback) eventField.GetValue(null)!;
 
         Assert.NotNull(del);
 
-        del(s_mockLog.LogLevel, s_mockLog.Category, s_mockLog.Message);
+        byte* category = null;
+        byte* message = null;
+        try
+        {
+            category = Utf8StringMarshaller.ConvertToUnmanaged(s_mockLog.Category);
+            message = Utf8StringMarshaller.ConvertToUnmanaged(s_mockLog.Message);
+            del(s_mockLog.LogLevel, category, message);
+        }
+        finally
+        {
+            Utf8StringMarshaller.Free(category);
+            Utf8StringMarshaller.Free(message);
+        }
 
         CallbackException.ThrowIfAny();
     }

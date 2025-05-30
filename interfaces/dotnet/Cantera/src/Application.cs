@@ -1,6 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+using System.Runtime.InteropServices.Marshalling;
 using Cantera.Interop;
 
 namespace Cantera;
@@ -34,14 +35,20 @@ public class LogMessageEventArgs
 /// </remarks>
 public static class Application
 {
-    static Application()
+    static unsafe Application()
     {
         s_invokeMessageLoggedDelegate = (level, category, message) =>
         {
             try
             {
+                var categoryStr = Utf8StringMarshaller.ConvertToManaged(category);
+                var messageStr = Utf8StringMarshaller.ConvertToManaged(message);
+
+                ArgumentNullException.ThrowIfNull(categoryStr, nameof(category));
+                ArgumentNullException.ThrowIfNull(messageStr, nameof(message));
+
                 MessageLogged
-                    ?.Invoke(null, new LogMessageEventArgs(level, category, message));
+                    ?.Invoke(null, new LogMessageEventArgs(level, categoryStr, messageStr));
             }
             catch (Exception ex)
             {
