@@ -20,7 +20,8 @@ cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method):
 
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
     cdef size_t kk = tran.thermo.nSpecies()
-    cdef np.ndarray[np.double_t, ndim=2] data = np.empty((kk, kk))
+    # getMultiDiffCoeffs returns an array using Fortran ordering
+    cdef np.ndarray[np.double_t, ndim=2, mode='fortran'] data = np.empty((kk, kk), order='F')
     method(tran.transport, kk, &data[0,0])
     return data
 
