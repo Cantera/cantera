@@ -1,15 +1,13 @@
 """
-nanosecondPulse.py
+Nanosecond Pulse Plasma Simulation
+==================================
 
-This script demonstrates the simulation of a nanosecond pulse in a reactor setup.
-It uses Cantera's reactor framework to model the reaction dynamics
-over a short timescale.
+This example simulates a nanosecond-scale pulse discharge in a reactor. 
+A Gaussian-shaped electric field pulse is applied over a short timescale.
 
-Functions:
-    - main(): Executes the simulation and outputs the results.
+Requires: cantera >= 3.0, matplotlib >= 2.0
 
-Usage:
-    Run this script as part of the Cantera examples.
+.. tags:: Python, plasma
 """
 
 import cantera as ct
