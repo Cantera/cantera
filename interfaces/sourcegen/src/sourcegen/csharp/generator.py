@@ -81,7 +81,7 @@ class CSharpSourceGenerator(SourceGenerator):
             clib_area + "3_set" + c_name.capitalize(),
             CsFunc("", "", "", "", ""))
 
-        if prop_type in ["int", "double"]:
+        if prop_type in ["int32_t", "double"]:
             template = _LOADER.from_string(self._templates["csharp-property-int-double"])
             return template.render(
                 prop_type=prop_type, cs_name=cs_name,

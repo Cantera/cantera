@@ -43,7 +43,7 @@ recipes:
 - name: getCanteraError
   brief: Get %Cantera error.
   what: function
-  declaration: int ct3_getCanteraError(int bufLen, char* buf)
+  declaration: int32_t ct3_getCanteraError(int32_t bufLen, char* buf)
   parameters:
     bufLen: Length of reserved array.
     buf: String containing %Cantera error.
@@ -51,11 +51,11 @@ recipes:
   code: |-
     string err = Application::Instance()->lastErrorMessage();
     copyString(err, buf, bufLen);
-    return int(err.size());
+    return int32_t(err.size());
 - name: setLogWriter
   brief: Set log writer.
   what: function
-  declaration: int ct3_setLogWriter(void* logger)
+  declaration: int32_t ct3_setLogWriter(void* logger)
   parameters:
     logger: Logger.
   code: |-
@@ -65,7 +65,7 @@ recipes:
 - name: setLogCallback
   brief: Set Logger callback.
   what: function
-  declaration: int ct3_setLogCallback(LogCallback writer)
+  declaration: int32_t ct3_setLogCallback(LogCallback writer)
   parameters:
     writer: Callback that is invoked to produce log output.
   code: |-

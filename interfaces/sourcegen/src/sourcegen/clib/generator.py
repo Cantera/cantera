@@ -130,9 +130,9 @@ class CLibSourceGenerator(SourceGenerator):
         if cxx_type == "auto" or cxx_func.implements == "custom code":
             pass
         elif c_args and c_args[-1].name == "buf":
-            if c_type != "int":
+            if c_type != "int32_t":
                 self._critical(c_func, cxx_func,
-                               "method with buffered return should return 'int'")
+                               "method with buffered return should return 'int32_t'")
             c_type = c_args[-1].p_type
             if c_type not in self._config.ret_type_crosswalk[crosswalk_key]:  # 1
                 self._critical(
@@ -185,7 +185,7 @@ class CLibSourceGenerator(SourceGenerator):
             check_array = False
             if c_ix > 0 and c_args[c_ix-1].name.endswith("Len"):
                 c_type = c_args[c_ix-1].p_type
-                if c_type != "int":
+                if c_type != "int32_t":
                     self._critical(c_func, cxx_func,
                                    f"invalid variable setter return type {c_type!r}")
                 check_array = True

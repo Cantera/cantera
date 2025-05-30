@@ -39,7 +39,7 @@
 
 void exit_with_error()
 {
-    int buflen = 0;
+    int32_t buflen = 0;
     char* output_buf = 0;
     buflen = ct3_getCanteraError(buflen, output_buf) + 1;
     output_buf = malloc(sizeof(char) * buflen);
@@ -53,14 +53,14 @@ int main(int argc, char** argv)
 {
     ct3_make_deprecation_warnings_fatal(); // throw errors for deprecated functions
 
-    int sol = sol3_newSolution("gri30.yaml", "gri30", "default");
+    int32_t sol = sol3_newSolution("gri30.yaml", "gri30", "default");
     // In principle, one ought to check for errors after every Cantera call. But this
     // is the only one likely to occur in part of this example, due to the input file
     // not being found.
     if (sol < 0) {
         exit_with_error();
     }
-    int thermo = sol3_thermo(sol);
+    int32_t thermo = sol3_thermo(sol);
 
     thermo3_setTemperature(thermo, 500);
     thermo3_setPressure(thermo, 5 * 101325);
@@ -68,8 +68,8 @@ int main(int argc, char** argv)
     thermo3_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     thermo3_print(thermo, 1, 0);
 
-    int kin = sol3_kinetics(sol);
-    size_t nr = kin3_nReactions(kin);
+    int32_t kin = sol3_kinetics(sol);
+    int32_t nr = kin3_nReactions(kin);
     double T = thermo3_temperature(thermo);
     thermo3_setTemperature(thermo, T - 200);
 
@@ -77,19 +77,19 @@ int main(int argc, char** argv)
     double ropf[325];
     printf("\n                   Reaction           Forward ROP\n");
     kin3_getFwdRatesOfProgress(kin, 325, ropf);
-    for (size_t n = 0; n < nr; n++) {
-        int rxn = kin3_reaction(kin, n);
+    for (int32_t n = 0; n < nr; n++) {
+        int32_t rxn = kin3_reaction(kin, n);
         rxn3_equation(rxn, 1000, buf);
         printf("%35s   %8.6e\n", buf, ropf[n]);
         rxn3_del(rxn);
     }
 
-    int tran = sol3_transport(sol);
-    size_t nsp = thermo3_nSpecies(thermo);
+    int32_t tran = sol3_transport(sol);
+    int32_t nsp = thermo3_nSpecies(thermo);
     printf("\n  Species    Mix diff coeff\n");
     double dkm[53];
     trans3_getMixDiffCoeffs(tran, 53, dkm);
-    for (size_t k = 0; k < nsp; k++) {
+    for (int32_t k = 0; k < nsp; k++) {
         thermo3_getSpeciesName(thermo, k, 1000, buf);
         printf("%10s   %8.6e\n", buf, dkm[k]);
     }
@@ -100,13 +100,13 @@ int main(int argc, char** argv)
     thermo3_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
-    int reactor = reactor3_new("IdealGasReactor", sol, "test");
-    int reactors[1];
+    int32_t reactor = reactor3_new("IdealGasReactor", sol, "test");
+    int32_t reactors[1];
     reactors[0] = reactor;
-    int net = reactornet3_new(1, &reactors[0]);
+    int32_t net = reactornet3_new(1, &reactors[0]);
 
     double t = 0.0;
-    int ret = 0;
+    int32_t ret = 0;
     while (t < 0.1 && ret == 0) {
         double T = reactor3_temperature(reactor);
         t = reactornet3_time(net);
