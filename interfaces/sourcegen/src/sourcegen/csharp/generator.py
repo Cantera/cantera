@@ -1,3 +1,5 @@
+"""Generator for C# source files."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -8,7 +10,7 @@ from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
-from ..dataclasses import Func, CFunc, Param, HeaderFile, ArgList
+from ..dataclasses import CFunc, Param, HeaderFile, ArgList
 from ..generator import SourceGenerator
 
 from .._helpers import with_unpack_iter
@@ -38,14 +40,10 @@ class Config:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class CsFunc(Func):
-    """Represents a C# interop method"""
-    # TODO: this should inherit from CFunc instead (or merged directly).
-    # is_handle_release_func and handle_class_name may be inferred from existing
-    # CFunc properties.
-
-    is_handle_release_func: bool
-    handle_class_name: str | None
+class CsFunc(CFunc):
+    """Represents a C# interop method."""
+    is_handle_release_func: bool = None
+    handle_class_name: str | None = None
 
     def has_string_param(self) -> bool:
         """Identify any parameters that take strings."""
@@ -108,7 +106,11 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: CFunc) -> CsFunc:
-        ret_type, name, _, _, _, _, _, _ = parsed
+        # TODO: The CFunc object contains information on CLib header and the underlying
+        # C++ implementation. Some information (brief, implements, returns, base, uses)
+        # is currently preserved but not used.
+        ret_type, name, params, brief, implements, returns, base, uses = parsed
+
         clib_area, method = name.split("_", 1)
         clib_area = clib_area.rstrip("3")
 
@@ -118,7 +120,7 @@ class CSharpSourceGenerator(SourceGenerator):
         # replace their entry in the list.
         # Therefore, copy the list so that we don’t accidentally modify
         # the params list which is attached to the C func.
-        params = parsed.arglist[:]
+        params = params[:]
 
         release_func_handle_class_name = None
 
@@ -173,6 +175,11 @@ class CSharpSourceGenerator(SourceGenerator):
         func = CsFunc(ret_type,
                       name,
                       ArgList(params),
+                      brief,
+                      implements,
+                      returns,
+                      base,
+                      uses,
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 
