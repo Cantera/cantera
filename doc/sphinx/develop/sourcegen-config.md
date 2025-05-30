@@ -61,6 +61,8 @@ Recipes include all information required for the auto-generation of a correspond
 CLib function. Each YAML recipe uses the following fields:
 
 - `name`: Name of the CLib function to be generated (without prefix).
+- `brief`: Optional override for brief description from Doxygen documentation.
+- `what`: Optional override for auto-detected recipe/CLib function type.
 - `implements`: Optional name or signature of the implemented C++ function/method or
     variable. If left empty, *sourcegen* searches for Doxygen tags matching the `name`
     field. A name is sufficient if C++ functions/methods are unique, for example
@@ -70,9 +72,13 @@ CLib function. Each YAML recipe uses the following fields:
     it can be inferred based on the fields `base`, `parents` or `derived`.
 - `uses`: Optional list of auxiliary C++ class methods used by the CLib function. The
     exact usage depends on the type of the implemented CLib function.
-- `what`: Optional override for auto-detected recipe/CLib function type.
-- `brief`: Optional override for brief description from Doxygen documentation.
-- `code`: Optional custom code to override auto-generated code (**experimental**).
+
+For custom code, additional fields are required to replace auto-generated information:
+
+- `declaration`: Full CLib declaration.
+- `parameters`: Mapping of parameter doc-strings.
+- `returns`: Return doc-string.
+- `code`: Custom code to be executed.
 
 (sec-sourcegen-headers)=
 ## CLib Header Generator
@@ -94,7 +100,7 @@ modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
 - **Type Crosswalks:** These fields map C++ types to their CLib equivalents.
 
     - `ret_type_crosswalk`: Specifies the types returned by C++ functions and methods.
-    - `prop_type_crosswalk`: Specifies the types passed as parameters in C++ functions
+    - `par_type_crosswalk`: Specifies the types passed as parameters in C++ functions
       and methods.
 
 (sec-sourcegen-headers-details)=

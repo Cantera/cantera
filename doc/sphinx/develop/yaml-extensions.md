@@ -16,10 +16,10 @@ of individual [recipes](sec-sourcegen-recipes).
 generator documents the CLib getter for molecular weights as follows:
 
 ```yaml
-thermo3_getMolecularWeights:
+thermo_getMolecularWeights:
   brief: Copy the vector of molecular weights into array weights.
   what: getter
-  declaration: int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights)
+  declaration: int32_t thermo_getMolecularWeights(int32_t handle, int32_t weightsLen, double* weights)
   parameters:
     handle: Handle to queried Phase object.
     weightsLen: Length of array reserved for weights.
@@ -78,7 +78,7 @@ names of YAML configuration files.
   output. The following files define these templates:
 
     - `templates.yaml`: Defines YAML code blocks within the output files.
-    - `output_template.yaml.in`: Defines the template for output files.
+    - `template_output.yaml.in`: Defines the template for output files.
 
 - **Source Code:** The implementation of the YAML source generator is contained in
   `generator.py`.
