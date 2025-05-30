@@ -190,13 +190,13 @@ void PlasmaPhase::checkElectronEnergyDistribution() const
         throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
             "Values of electron energy distribution cannot be negative.");
     }
-    if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
+    /* if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
         warn_user("PlasmaPhase::checkElectronEnergyDistribution",
         "The value of the last element of electron energy distribution exceed 0.01. "
         "This indicates that the value of electron energy level is not high enough "
         "to contain the isotropic distribution at mean electron energy of "
         "{} eV", meanElectronEnergy());
-    }
+    } */
 }
 
 void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,

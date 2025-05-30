@@ -103,7 +103,15 @@ class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
     ElectronCollisionPlasmaRate() = default;
-
+    //! Constructor from YAML input for ElectronCollisionPlasmaRate.
+    /*!
+    * This constructor is used to initialize an electron collision plasma rate
+    * from an input YAML file. It extracts the energy levels, cross-sections,
+    * and reaction metadata used in the rate coefficient calculation.
+    *
+    * @param node         The AnyMap node containing rate fields from YAML
+    * @param rate_units   Units used for interpreting the rate fields
+    */
     ElectronCollisionPlasmaRate(const AnyMap& node,
                                 const UnitStack& rate_units={})
     {
@@ -131,6 +139,10 @@ public:
      */
     double evalFromStruct(const ElectronCollisionPlasmaData& shared_data);
 
+    //! Calculate the reverse rate coefficient for super-elastic collisions
+    //! @param shared_data Data structure with energy levels and EEDF
+    //! @param kf Forward rate coefficient (input, unused)
+    //! @param kr Reverse rate coefficient (output, modified)
     void modifyRateConstants(const ElectronCollisionPlasmaData& shared_data,
                              double& kf, double& kr);
 
@@ -173,10 +185,12 @@ public:
         m_threshold = threshold;
     }
 
+    //! Mark the cross-section as valid and available for use.
     void set_cs_ok() {
         cs_ok = true;
     }
 
+    //! Check if the cross-section data has been set and validated.
     const bool get_cs_ok() const {
         return cs_ok;
     }
