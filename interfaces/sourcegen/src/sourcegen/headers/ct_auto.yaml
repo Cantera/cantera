@@ -14,6 +14,8 @@ recipes:
 - name: getCanteraError
 - name: setLogWriter
 - name: setLogCallback
+- name: writeLog
+  implements: writelog_direct  # inconsistent API (preexisting)
 - name: addCanteraDirectory
   implements: addDirectory  # inconsistent API (preexisting)
 - name: getDataDirectories
