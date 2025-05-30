@@ -50,6 +50,32 @@ class TestTransport:
         assert Dbin1 == approx(Dbin2)
         assert Dbin1 == approx(Dbin1.T)
 
+    def test_multicomponent(self, phase):
+        phase.transport_model = 'multicomponent'
+        Dmulti = phase.multi_diff_coeffs
+
+        assert Dmulti.shape == (phase.n_species, phase.n_species)
+        assert all(Dmulti.diagonal() == 0)
+
+        # The sum of mass fluxes should equal zero for any consistent vector of mole
+        # fraction gradients (that is, where the sum of mole fraction gradients is zero)
+        W = phase.molecular_weights
+        W_mean = phase.mean_molecular_weight
+        rho = phase.density
+
+        net_flux = 0.0
+        flux_scale = 0.0
+        grad_X = np.array([0.1, 0.2, -0.3, 0.4, -0.6, 0.2, 0.1, -0.2, 0.5, -0.4])
+        rng = np.random.default_rng(123)
+        for _ in range(10):
+            rng.shuffle(grad_X)
+            for k in range(phase.n_species):
+                flux_k = rho * W[k] / W_mean**2 * sum(W * Dmulti[k,:] * grad_X)
+                net_flux += flux_k
+                flux_scale += abs(flux_k)
+
+            assert net_flux == approx(0.0, abs=1e-14 * flux_scale)
+
     def test_mixDiffCoeffsChange(self, phase):
         # This test is mainly to make code coverage in GasTransport.cpp
         # consistent by always covering the path where the binary diffusion
