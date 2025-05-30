@@ -40,7 +40,7 @@ class HeaderGenerator:
         self._clib_bases = bases
 
     def resolve_tags(self, headers_files: list[HeaderFile], root: str) -> None:
-        """Resolve recipe information based on doxygen tags."""
+        """Resolve recipe information based on Doxygen tags."""
         def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
             classes = set()
@@ -62,7 +62,7 @@ class HeaderGenerator:
             headers.funcs = c_funcs
 
     def resolve_recipe(self, recipe: Recipe) -> CFunc:
-        """Build CLib header from recipe and doxygen annotations."""
+        """Build CLib header from recipe and Doxygen annotations."""
         def merge_params(
                 implements: str, cxx_member: CFunc | Param
             ) -> tuple[list[Param], CFunc]:
