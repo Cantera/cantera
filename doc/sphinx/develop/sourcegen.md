@@ -15,8 +15,15 @@ interfaces for other languages. The following output options are supported:
 
 ## Usage
 
-The sourcegen utility is a command-line tool that is used for code generation. It
-should be installed into the same virtual environment as used by SCons (for example
+The sourcegen utility is a command-line tool that is used for code generation. It can be
+invoked without intallation as
+
+```bash
+python -m interfaces.sourcegen.src.sourcegen <list-of-options>
+```
+
+from the root folder of the Cantera source code. For frequent usage, it is recommended
+to install sourcegen into the same virtual environment as used by SCons (for example
 the Conda environment used to compile Cantera from source) via:
 
 ```bash
