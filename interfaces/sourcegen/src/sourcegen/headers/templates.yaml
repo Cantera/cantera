@@ -6,7 +6,7 @@
 clib-reserved-parentHandle: |-
   brief: Return handle to parent of {{ base }} object.
   what: reserved CLib function
-  declaration: int {{ prefix }}_parentHandle(int handle)
+  declaration: int32_t {{ prefix }}_parentHandle(int32_t handle)
   parameters:
     handle: Handle to queried {{ base }} object.
   returns: Parent handle or -1 for exception handling.
@@ -16,7 +16,7 @@ clib-reserved-parentHandle: |-
 clib-reserved-cabinetSize: |-
   brief: Return size of {{ base }} storage.
   what: reserved CLib function
-  declaration: int {{ prefix }}_cabinetSize()
+  declaration: int32_t {{ prefix }}_cabinetSize()
   returns: Size or -1 for exception handling.
   code: |-
     return {{ base }}Cabinet::size();
@@ -24,7 +24,7 @@ clib-reserved-cabinetSize: |-
 clib-reserved-resetStorage: |-
   brief: Delete all objects and erase mapping.
   what: reserved CLib function
-  declaration: int {{ prefix }}_resetStorage()
+  declaration: int32_t {{ prefix }}_resetStorage()
   returns: Zero if successful or -1 for exception handling.
   code: |-
     {% raw %}
@@ -37,7 +37,7 @@ clib-reserved-resetStorage: |-
 clib-reserved-clearStorage: |-
   brief: Delete all objects with mapping preserved.
   what: reserved CLib function
-  declaration: int {{ prefix }}_clearStorage()
+  declaration: int32_t {{ prefix }}_clearStorage()
   returns: Zero if successful or -1 for exception handling.
   code: |-
     {% raw %}

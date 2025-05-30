@@ -13,11 +13,11 @@ ignore_funcs: {}
 
 # Return type crosswalks
 ret_type_crosswalk:
-  bool: int
-  void: int
-  int: int
-  size_t: int
-  shared_ptr<T>: int
+  bool: int32_t
+  void: int32_t
+  int: int32_t
+  size_t: int32_t
+  shared_ptr<T>: int32_t
   double: double
   const double: double
   string: char*
@@ -27,15 +27,15 @@ ret_type_crosswalk:
 
 # Parameter type crosswalks
 prop_type_crosswalk:
-  bool: int
-  int: int
-  size_t: int
-  const size_t: int
-  shared_ptr<T>: int
-  const shared_ptr<T>: int
-  const int*: const int*
-  vector<shared_ptr<T>>&: const int*
-  const vector<shared_ptr<T>>&: const int*
+  bool: int32_t
+  int: int32_t
+  size_t: int32_t
+  const size_t: int32_t
+  shared_ptr<T>: int32_t
+  const shared_ptr<T>: int32_t
+  const int*: const int32_t*
+  vector<shared_ptr<T>>&: const int32_t*
+  const vector<shared_ptr<T>>&: const int32_t*
   double: double
   const double: double
   double*: double*
@@ -52,6 +52,7 @@ prop_type_crosswalk:
 preambles:
   "": |-
     #include "../clib/clib_defs.h"
+    #include <stdint.h>  // for 32-bit int32_t / 64-bit int64_t
 
 # Cabinets with associated includes (implementation files)
 includes:

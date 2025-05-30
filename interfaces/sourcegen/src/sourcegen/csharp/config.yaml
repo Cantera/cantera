@@ -16,15 +16,18 @@ ignore_funcs:
   ctfunc_auto.yaml:
     - new_advanced
 
-# Return type crosswalks
+# Return type crosswalks;
+# map C type names to C# type names where they differ
 ret_type_crosswalk:
   const char*: string
   const double*: ReadOnlySpan<double>
-  const int*: ReadOnlySpan<int>
+  const int32_t*: ReadOnlySpan<int>
   char*: Span<byte>
   double*: Span<double>
+  int32_t: int
 
-# Parameter type crosswalks
+# Parameter type crosswalks;
+# map Span type used in interop call to appropriate return type
 prop_type_crosswalk:
   Span<byte>: string
   Span<double>: double[]
