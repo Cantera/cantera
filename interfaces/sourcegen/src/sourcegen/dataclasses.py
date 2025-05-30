@@ -158,35 +158,12 @@ class ArgList:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class Func:
+class CFunc:
     """Represents a function declaration in a C/C++ header file."""
 
     ret_type: str  #: Return type; may include leading specifier
     name: str  #: Function name
     arglist: ArgList  #: Argument list
-
-    @classmethod
-    def from_str(cls: Self, func: str) -> Self:
-        """Generate Func from declaration string of a function."""
-        func = func.rstrip(";").strip()
-        # match all characters before an opening parenthesis "(" or end of line
-        name = re.findall(r".*?(?=\(|$)", func)[0]
-        arglist = ArgList.from_str(func.replace(name, "").strip())
-        r_type = ""
-        if " " in name:
-            r_type, name = name.rsplit(" ", 1)
-        return cls(r_type, name, arglist)
-
-    def declaration(self) -> str:
-        """Return a string representation of the function without semicolon."""
-        return (f"{self.ret_type} {self.name}{self.arglist.long_str()}").strip()
-
-
-@dataclass(frozen=True)
-@with_unpack_iter
-class CFunc(Func):
-    """Represents an annotated function declaration in a C/C++ header file."""
-
     brief: str = ""  #: Brief description (optional)
     implements: Self | Param | str = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
@@ -195,10 +172,26 @@ class CFunc(Func):
 
     @classmethod
     def from_str(cls: Self, func: str, brief: str = "") -> Self:
-        """Generate CFunc from a string."""
-        lines = func.split("\n")
-        func = Func.from_str(lines[-1])
-        return cls(*func, brief, None, "", "", [])
+        """Generate CFunc from declaration string of a function."""
+        func = func.split("\n")[-1].rstrip(";").strip()
+        # match all characters before an opening parenthesis "(" or end of line
+        name = re.findall(r".*?(?=\(|$)", func)[0]
+        arglist = ArgList.from_str(func.replace(name, "").strip())
+        r_type = ""
+        if " " in name:
+            r_type, name = name.rsplit(" ", 1)
+        return cls(r_type, name, arglist, brief, None, "", "", [])
+
+    def declaration(self) -> str:
+        """Return a string representation of the function without semicolon."""
+        return (f"{self.ret_type} {self.name}{self.arglist.long_str()}").strip()
+
+    # @classmethod
+    # def from_str(cls: Self, func: str, brief: str = "") -> Self:
+    #     """Generate CFunc from a string."""
+    #     lines = func.split("\n")[-1]
+    #     func = CFunc._from_str(lines[-1])
+    #     return cls(*func, brief, None, "", "", [])
 
     @classmethod
     def from_recipe(cls: Self, recipe: Recipe) -> Self:
@@ -238,7 +231,7 @@ class HeaderFile:
     """Represents information about a parsed C header file."""
 
     path: Path  #: output folder
-    funcs: list[Func]  #: list of functions to be scaffolded
+    funcs: list[CFunc]  #: list of functions to be scaffolded
 
     prefix: str = ""  #: prefix used for CLib function names
     base: str = ""  #: base class of C++ methods (if applicable)
