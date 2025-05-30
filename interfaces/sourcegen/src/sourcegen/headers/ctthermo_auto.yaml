@@ -139,7 +139,7 @@ recipes:
 - name: print
   brief: Print a summary of the state of the phase as a string.
   what: method
-  declaration: int thermo3_print(int handle, int showThermo, double threshold)
+  declaration: int32_t thermo3_print(int32_t handle, int32_t showThermo, double threshold)
   parameters:
     handle: Handle to queried ThermoPhase object.
     showThermo: If true, extra information is printed out about the thermodynamic state of the system.
