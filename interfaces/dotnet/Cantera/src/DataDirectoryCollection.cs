@@ -45,7 +45,7 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
     /// <inheritdoc cref="Add(string)"/>
     public void Add(DirectoryInfo dir)
     {
-        InteropUtil.CheckReturn(LibCantera.ct_addDataDirectory(dir.FullName));
+        LibCantera.ct_addDataDirectory(dir.FullName);
 
         _dirs.Clear();
         _dirs.AddRange(GetDirs());
