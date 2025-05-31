@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Cantera.Interop;
 
@@ -9,8 +10,7 @@ static partial class LibCantera
 {
     const string LibFile = "cantera_shared";
 
-    public unsafe delegate void LogCallback(LogLevel logLevel, byte* category, byte* message);
-
-    [LibraryImport(LibFile, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial string yo();
+    public delegate void LogCallback(LogLevel logLevel,
+                                     [MarshalAs(UnmanagedType.LPUTF8Str)] string category,
+                                     [MarshalAs(UnmanagedType.LPUTF8Str)] string message);
 }
