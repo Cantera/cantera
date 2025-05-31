@@ -9,7 +9,7 @@ namespace Cantera;
 /// <summary>
 /// Contains information about a log message.
 /// </summary>
-public class LogMessageEventArgs
+public class LogMessage
 {
 #pragma warning disable CS1591
     public LogLevel LogLevel { get; }
@@ -17,7 +17,7 @@ public class LogMessageEventArgs
     public string Message { get; }
 #pragma warning restore CS1591
 
-    internal LogMessageEventArgs(LogLevel logLevel, string category, string message)
+    internal LogMessage(LogLevel logLevel, string category, string message)
     {
         LogLevel = logLevel;
         Category = category;
@@ -35,20 +35,14 @@ public class LogMessageEventArgs
 /// </remarks>
 public static class Application
 {
-    static unsafe Application()
+    static Application()
     {
-        s_invokeMessageLoggedDelegate = (level, category, message) =>
+        s_invokeMessageLoggedDelegate = (level, categoryStr, messageStr) =>
         {
             try
             {
-                var categoryStr = Utf8StringMarshaller.ConvertToManaged(category);
-                var messageStr = Utf8StringMarshaller.ConvertToManaged(message);
-
-                ArgumentNullException.ThrowIfNull(categoryStr, nameof(category));
-                ArgumentNullException.ThrowIfNull(messageStr, nameof(message));
-
                 MessageLogged
-                    ?.Invoke(null, new LogMessageEventArgs(level, categoryStr, messageStr));
+                    ?.Invoke(null, new LogMessage(level, categoryStr, messageStr));
             }
             catch (Exception ex)
             {
@@ -85,7 +79,7 @@ public static class Application
     /// <summary>
     /// Occurs when the Cantera native library attempts to log a message.
     /// </summary>
-    public static event EventHandler<LogMessageEventArgs>? MessageLogged;
+    public static event EventHandler<LogMessage>? MessageLogged;
 
 #pragma warning disable CS1591
     public static string Version =>
@@ -110,7 +104,7 @@ public static class Application
     public static void RemoveConsoleLogging() =>
         MessageLogged -= LogToConsole;
 
-    static void LogToConsole(object? sender, LogMessageEventArgs e)
+    static void LogToConsole(object? sender, LogMessage e)
     {
         var logLevel = e.LogLevel.ToString().ToUpperInvariant();
 

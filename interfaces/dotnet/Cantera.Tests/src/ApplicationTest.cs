@@ -2,7 +2,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Reflection;
-using System.Runtime.InteropServices.Marshalling;
 using System.Text.RegularExpressions;
 using Cantera.Interop;
 using Xunit;
@@ -14,8 +13,13 @@ public class ApplicationTest
 {
     class FooException : Exception { }
 
-    readonly static LogMessageEventArgs s_mockLog =
-        new(LogLevel.Warning, "Testing", "This is a test message.");
+    readonly static LogMessage s_mockLog =
+        new(LogLevel.Warning, "Testing",
+            // a message with non-ASCII characters to test UTF-8 round-tripping
+            """
+            Besser spät als nie.
+            ¯\_(ツ)_/¯
+            """);
 
     [Fact]
     public void CanteraInfo_VersionRetrieved()
@@ -47,9 +51,9 @@ public class ApplicationTest
     [Fact]
     public void LogWriter_MessageLogged()
     {
-        LogMessageEventArgs? args = null;
+        LogMessage? args = null;
 
-        void LogMessage(object? sender, LogMessageEventArgs e)
+        void LogMessage(object? sender, LogMessage e)
         {
             args = e;
         }
@@ -58,11 +62,9 @@ public class ApplicationTest
         {
             Application.MessageLogged += LogMessage;
 
-            ProduceRealLogOutput();
+            ProduceRealLogOutput(s_mockLog.Message);
 
-            Assert.Equal(LogLevel.Info, args?.LogLevel);
-            Assert.False(String.IsNullOrEmpty(args?.Category));
-            Assert.False(String.IsNullOrEmpty(args.Message));
+            Assert.Equal(s_mockLog.Message, args?.Message);
         }
         finally
         {
@@ -80,7 +82,7 @@ public class ApplicationTest
         {
             Console.SetOut(consoleOut);
             Application.AddConsoleLogging();
-            ProduceMockLogOutput();
+            ProduceMockLogOutput(s_mockLog);
 
             var output = consoleOut.ToString();
 
@@ -108,7 +110,7 @@ public class ApplicationTest
     [Fact]
     public void LogWriter_ExceptionRegistered()
     {
-        static void LogMessage(object? sender, LogMessageEventArgs e) =>
+        static void LogMessage(object? sender, LogMessage e) =>
             throw new FooException();
 
         try
@@ -116,9 +118,9 @@ public class ApplicationTest
             Application.MessageLogged += LogMessage;
 
             var thrown =
-                Assert.Throws<CallbackException>(() => ProduceMockLogOutput());
+                Assert.Throws<CallbackException>(() => ProduceMockLogOutput(s_mockLog));
 
-            Assert.NotNull(thrown.InnerException);
+            Assert.Single(thrown.InnerExceptions);
             Assert.IsType<FooException>(thrown.InnerException);
         }
         finally
@@ -131,15 +133,15 @@ public class ApplicationTest
     /// Produces log output by calling into the native Cantera library to invoke
     /// the logging callback.
     /// </summary>
-    static void ProduceRealLogOutput()
+    static void ProduceRealLogOutput(string message)
     {
-        InteropUtil.CheckReturn(LibCantera.ct_writeLog(s_mockLog.Message + "\n"));
+        InteropUtil.CheckReturn(LibCantera.ct_writeLog(message + "\n"));
     }
 
     /// <summary>
     /// Produces log output without calling into the native Cantera library.
     /// </summary>
-    unsafe static void ProduceMockLogOutput()
+    static void ProduceMockLogOutput(LogMessage log)
     {
         var eventField = typeof(Application).GetField("s_invokeMessageLoggedDelegate",
             BindingFlags.Static | BindingFlags.NonPublic);
@@ -150,19 +152,7 @@ public class ApplicationTest
 
         Assert.NotNull(del);
 
-        byte* category = null;
-        byte* message = null;
-        try
-        {
-            category = Utf8StringMarshaller.ConvertToUnmanaged(s_mockLog.Category);
-            message = Utf8StringMarshaller.ConvertToUnmanaged(s_mockLog.Message);
-            del(s_mockLog.LogLevel, category, message);
-        }
-        finally
-        {
-            Utf8StringMarshaller.Free(category);
-            Utf8StringMarshaller.Free(message);
-        }
+        del(log.LogLevel, log.Category, log.Message);
 
         CallbackException.ThrowIfAny();
     }
