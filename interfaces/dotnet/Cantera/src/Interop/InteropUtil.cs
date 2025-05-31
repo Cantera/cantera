@@ -32,21 +32,14 @@ static class InteropUtil
     /// </remarks>
     public delegate int FillStringBufferFunc(int size, Span<byte> buffer);
 
-    public static double CheckReturn(double code)
-    {
-        // Cantera returns this value when the function resulted in error
-        const double Error = -999.999;
-
-        CallbackException.ThrowIfAny();
-
-        if (code == Error)
-        {
-            CanteraException.ThrowLatest();
-        }
-
-        return code;
-    }
-
+    /// <summary>
+    /// Checks the return code of the call into the native Cantera library
+    /// and throws a <see cref="CanteraException"/> if necessary
+    /// </summary>
+    /// <remarks>
+    /// This method is automatically called by P/Invoke return type marshallers.
+    /// You should not need to call it elsewhere.
+    /// </remarks>
     public static int CheckReturn(int code)
     {
         // Cantera returns this value when the function resulted in an
@@ -81,7 +74,7 @@ static class InteropUtil
                                          FillDoubleBufferFunc<T> fillBufferFunc)
         where T : CanteraHandle
     {
-        var size = CheckReturn(getSizeFunc(handle));
+        var size = getSizeFunc(handle);
         var array = new double[size];
 
         GetDoubles(handle, array, fillBufferFunc);
@@ -112,7 +105,7 @@ static class InteropUtil
                                      FillDoubleBufferFunc<T> fillBufferFunc)
         where T : CanteraHandle
     {
-        CheckReturn(fillBufferFunc(handle, span.Length, span));
+        fillBufferFunc(handle, span.Length, span);
     }
 
     [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
@@ -159,7 +152,7 @@ static class InteropUtil
             [NotNullWhen(true)] out string? value, out int neededSize)
         {
             var initialSize = span.Length;
-            neededSize = CheckReturn(func(initialSize, span));
+            neededSize = func(initialSize, span);
 
             if (initialSize >= neededSize)
             {

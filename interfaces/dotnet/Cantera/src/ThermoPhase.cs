@@ -72,10 +72,8 @@ public partial class ThermoPhase
     {
         var interopString = thermoPair.ToInteropString();
 
-        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, solver,
+        LibCantera.thermo_equilibrate(_handle, interopString, solver,
             tolerance, maxSteps, maxIterations, logVerbosity);
-
-        InteropUtil.CheckReturn(retVal);
     }
 
     /// <summary>
@@ -88,7 +86,7 @@ public partial class ThermoPhase
             throw new InvalidOperationException($"Cannot set thermo pair {pair}!");
         }
 
-        InteropUtil.CheckReturn(setter(_handle, first, second));
+        setter(_handle, first, second);
     }
 
     partial void ExtraDispose()

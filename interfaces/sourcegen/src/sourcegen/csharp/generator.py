@@ -49,6 +49,10 @@ class CsFunc(Func):
         """Identify any parameters that take strings."""
         return any(p.p_type == 'string' for p in self.arglist)
 
+    def returns_handle(self) -> bool:
+        """True if this function returns a handle."""
+        return self.ret_type.endswith("Handle")
+
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
@@ -191,7 +195,9 @@ class CSharpSourceGenerator(SourceGenerator):
         template = _LOADER.from_string(self._templates["csharp-interop-func"])
         function_list = [
             template.render(has_string_param=func.has_string_param(),
-                            declaration=func.declaration())
+                            declaration=func.declaration(),
+                            check_return=(not func.is_handle_release_func
+                                          and not func.returns_handle()))
             for func in cs_funcs]
 
         file_name = f"Interop.LibCantera.{header_file}.g.cs"

@@ -13,4 +13,27 @@ static partial class LibCantera
     public delegate void LogCallback(LogLevel logLevel,
                                      [MarshalAs(UnmanagedType.LPUTF8Str)] string category,
                                      [MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+    [CustomMarshaller(typeof(int), MarshalMode.ManagedToUnmanagedOut, typeof(ReturnCodeChecker))]
+    [CustomMarshaller(typeof(double), MarshalMode.ManagedToUnmanagedOut, typeof(ReturnCodeChecker))]
+    static class ReturnCodeChecker
+    {
+        public static int ConvertToManaged(int value) =>
+            InteropUtil.CheckReturn(value);
+
+        public static double ConvertToManaged(double value)
+        {
+            // Cantera returns this value when the function resulted in error
+            const double Error = -999.999;
+
+            CallbackException.ThrowIfAny();
+
+            if (value == Error)
+            {
+                CanteraException.ThrowLatest();
+            }
+
+            return value;
+        }
+    }
 }

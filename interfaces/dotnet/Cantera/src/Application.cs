@@ -50,8 +50,7 @@ public static class Application
             }
         };
 
-        InteropUtil.CheckReturn(
-            LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate));
+        LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate);
     }
 
     /// <summary>

@@ -5,6 +5,9 @@
 
 csharp-interop-func: |-
   [LibraryImport(LibFile{{ ', StringMarshalling = StringMarshalling.Utf8' if has_string_param }})]
+  {%- if check_return %}
+  [return: MarshalUsing(typeof(ReturnCodeChecker))]
+  {%- endif %}
   public static partial {{ declaration }};
 
 csharp-base-handle: |-
@@ -22,11 +25,9 @@ csharp-derived-handle: |-
 csharp-property-int-double: |-
   public {{ prop_type }} {{ cs_name }}
   {
-      get => InteropUtil.CheckReturn(
-          LibCantera.{{ getter }}(_handle));
+      get => LibCantera.{{ getter }}(_handle);
       {%- if setter %}
-      set => InteropUtil.CheckReturn(
-          LibCantera.{{ setter }}(_handle, value));
+      set => LibCantera.{{ setter }}(_handle, value);
       {%- endif %}
   }
 
@@ -36,7 +37,6 @@ csharp-property-string: |-
       get => InteropUtil.GetString(40, (length, buffer) =>
           LibCantera.{{ getter }}(_handle, length, buffer));
       {% if setter -%}
-      set => InteropUtil.CheckReturn(
-          LibCantera.{{ setter }}(_handle, value));
+      set => LibCantera.{{ setter }}(_handle, value);
       {%- endif %}
   }

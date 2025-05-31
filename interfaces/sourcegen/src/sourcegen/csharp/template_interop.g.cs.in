@@ -12,6 +12,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Cantera.Interop;
 
