@@ -11,15 +11,19 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <RootDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../))</RootDir>
-    <LibDir>$([MSBuild]::NormalizePath($(RootDir)build/lib))</LibDir>
-    <DataDir>$([MSBuild]::NormalizePath($(RootDir)data))</DataDir>
+    <RootDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../..))</RootDir>
+    <LibDir>$([MSBuild]::NormalizePath($(RootDir)/build/lib))</LibDir>
+    <DataDir>$([MSBuild]::NormalizePath($(RootDir)/data))</DataDir>
+    <!-- Don’t use BaseIntermediateOutputPath because it may not have been calculated yet -->
+    <SourceGenDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/obj/sourcegen))</SourceGenDir>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Cantera.Tests" />
 
     <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
+
+    <SourceGenFiles Include="$(SourceGenDir)/*" />
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
@@ -33,17 +37,17 @@
   </ItemGroup>
 
   <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
-    <PropertyGroup>
-      <GeneratedCodeDir>$([MSBuild]::NormalizePath($(BaseIntermediateOutputPath)/sourcegen/))</GeneratedCodeDir>
-    </PropertyGroup>
-
-    <Exec Command="python3 -m interfaces.sourcegen.src.sourcegen --api=csharp --output=$(GeneratedCodeDir)"
+    <Exec Command="python3 -m interfaces.sourcegen.src.sourcegen --api=csharp --output=$(SourceGenDir)"
       WorkingDirectory="$(RootDir)"
-      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedCodeDir)')"/>
+      Condition="$(GenerateInterop) == 'true' Or !Exists(@(SourceGenFiles))"/>
 
     <ItemGroup>
-      <Compile Remove="$(GeneratedCodeDir)*.cs" />
-      <Compile Include="$(GeneratedCodeDir)*.cs" />
+      <!-- Recalculate list of SourceGen files to capture what may have just been created -->
+      <Compile Include="$(SourceGenDir)/*" />
     </ItemGroup>
+  </Target>
+
+  <Target Name="CleanSourceGen" BeforeTargets="CoreClean">
+    <Delete Files="@(SourceGenFiles)" />
   </Target>
 </Project>
