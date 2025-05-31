@@ -11,6 +11,9 @@
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/numerics/eigen_sparse.h"
+#include "cantera/kinetics/ElectronCrossSection.h"
+#include "cantera/thermo/EEDFTwoTermApproximation.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -18,66 +21,44 @@ namespace Cantera
 class Reaction;
 class ElectronCollisionPlasmaRate;
 
-//! Base class for handling plasma properties, specifically focusing on the
-//! electron energy distribution.
-/*!
- * This class provides functionality to manage the the electron energy distribution
- * using two primary methods for defining the electron distribution and electron
- * temperature.
- *
- * The first method utilizes setElectronTemperature(), which sets the electron
- * temperature and calculates the electron energy distribution assuming an
- * isotropic-velocity model. Note that all units in PlasmaPhase are in SI, except
- * for electron energy, which is measured in volts.
- *
- * The generalized electron energy distribution for an isotropic-velocity
- * distribution (as described by Gudmundsson @cite gudmundsson2001 and Khalilpour
- * and Foroutan @cite khalilpour2020)
- * is given by:
+/**
+ * Base class for a phase with plasma properties. This class manages the
+ * plasma properties such as electron energy distribution function (EEDF).
+ * There are two ways to define the electron distribution and electron
+ * temperature. The first method uses setElectronTemperature() to set
+ * the electron temperature which is used to calculate the electron energy
+ * distribution with isotropic-velocity model. The generalized electron
+ * energy distribution for isotropic-velocity distribution can be
+ * expressed as [1,2],
  *   @f[
  *          f(\epsilon) = c_1 \frac{\sqrt{\epsilon}}{\epsilon_m^{3/2}}
- *          \exp \left(-c_2 \left(\frac{\epsilon}{\epsilon_m}\right)^x \right),
+ *          \exp(-c_2 (\frac{\epsilon}{\epsilon_m})^x),
  *   @f]
- * where @f$ x = 1 @f$ corresponds to a Maxwellian distribution and
- * @f$ x = 2 @f$ corresponds to a Druyvesteyn distribution.
- * Here, @f$ \epsilon_m = \frac{3}{2} T_e @f$ [V] represents the
- * mean electron energy.
+ * where @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the Maxwellian and
+ * Druyvesteyn (default) electron energy distribution, respectively.
+ * @f$ \epsilon_m = 3/2 T_e @f$ [eV] (mean electron energy). The second
+ * method uses setDiscretizedElectronEnergyDist() to manually set electron
+ * energy distribution and calculate electron temperature from mean electron
+ * energy, which is calculated as [3],
+ *   @f[
+ *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
+ *   @f]
+ * which can be calculated using trapezoidal rule,
+ *   @f[
+ *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
+ *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
+ *   @f]
+ * where @f$ i @f$ is the index of energy levels.
  *
- * The total probability distribution integrates to one:
- *   @f[
- *           \int_0^{\infty} f(\epsilon) d\epsilon = 1.
- *   @f]
- * According to Hagelaar and Pitchford @cite hagelaar2005, the electron energy
- * probability function can be defined as
- * @f$ F(\epsilon) = \frac{f(\epsilon)}{\sqrt{\epsilon}} @f$ with units of
- * [V@f$^{-3/2}@f$]. The generalized form of the electron energy probability
- * function for isotropic-velocity distributions is:
- *   @f[
- *          F(\epsilon) = c_1 \frac{1}{\epsilon_m^{3/2}}
- *          \exp\left(-c_2 \left(\frac{\epsilon}{\epsilon_m}\right)^x\right),
- *   @f]
- * and this form is used to model the isotropic electron energy distribution
- * in PlasmaPhase.
- *
- * The second method allows for manual definition of the electron energy
- * distribution using setDiscretizedElectronEnergyDist(). In this approach,
- * the electron temperature is derived from the mean electron energy,
- * @f$ \epsilon_m @f$, which can be calculated as follows @cite hagelaar2005 :
- *   @f[
- *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} F(\epsilon) d\epsilon.
- *   @f]
- * This integral can be approximated using the trapezoidal rule,
- *   @f[
- *          \epsilon_m = \sum_i \left(\epsilon_{i+1}^{5/2} - \epsilon_i^{5/2}\right)
- *                       \frac{F(\epsilon_{i+1}) + F(\epsilon_i)}{2},
- *   @f]
- * where @f$ i @f$ is the index of discrete energy levels, or Simpson's rule.
+ * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
+ * @cite khalilpour2020; Hagelaar and Pitchford @cite hagelaar2005, and BOLOS
+ * @cite BOLOS.
  *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
  * @todo Implement electron Boltzmann equation solver to solve EEDF.
  *       https://github.com/Cantera/enhancements/issues/127
- * @ingroup thermoprops
+ * @ingroup phase
  */
 class PlasmaPhase: public IdealGasPhase
 {
@@ -104,13 +85,16 @@ public:
 
     void initThermo() override;
 
+    //! Overload to signal updating electron energy density function.
+    virtual void setTemperature(const double temp) override;
+
+    bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
+
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  length The length of the @c levels.
-    //! @param  updateEnergyDist update electron energy distribution
-    void setElectronEnergyLevels(const double* levels, size_t length,
-                                 bool updateEnergyDist=true);
+    void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
@@ -240,25 +224,25 @@ public:
      * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
-     * @see MultiSpeciesThermo
+     * \see MultiSpeciesThermo
      */
     double enthalpy_mole() const override;
 
-    double cp_mole() const override {
-        throw NotImplementedError("PlasmaPhase::cp_mole");
-    }
+    // TODO correct for electron
+    // take function from IdealGasPhase from now...
+    //double cp_mole() const override;
 
-    double entropy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::entropy_mole");
-    }
+    // TODO correct for electron
+    // take function from IdealGasPhase from now...
+    //double entropy_mole() const override;
 
-    double gibbs_mole() const override {
-        throw NotImplementedError("PlasmaPhase::gibbs_mole");
-    }
+    // TODO correct for electron
+    // take function from IdealGasPhase from now...
+    //double gibbs_mole() const override;
 
-    double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
-    }
+    // TODO correct for electron
+    // take function from IdealGasPhase from now...
+    //double intEnergy_mole() const override;
 
     void getEntropy_R(double* sr) const override;
 
@@ -283,6 +267,9 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
 
+    //! Update electron energy distribution.
+    void updateElectronEnergyDistribution();
+
     //! Electron species name
     string electronSpeciesName() const {
         return speciesName(m_electronSpeciesIndex);
@@ -298,6 +285,138 @@ public:
         return m_levelNum;
     }
 
+    vector<size_t> kInelastic() const {
+        return m_kInelastic;
+    }
+
+    void compute_nDensity() const;
+
+    void compute_electronMobility() const;
+
+    // number of cross section dataset
+    size_t nElectronCrossSections() const {
+        return m_ncs;
+    }
+
+    // target of a specific process
+    string target(size_t k) {
+        return m_ecss[k]->target;
+    }
+
+    // product of a specific process
+    string product(size_t k) {
+        return m_ecss[k]->product;
+    }
+
+    const std::vector<std::string>& products(size_t k) const {
+        return m_ecss[k]->products;  // Directly retrieve the stored product list
+    }
+
+    // kind of a specific process
+    string kind(size_t k) {
+        return m_ecss[k]->kind;
+    }
+
+    // threshold of a specific process
+    double threshold(size_t k) {
+        return m_ecss[k]->threshold;
+    }
+
+    vector<int> shiftFactor() const {
+        return m_shiftFactor;
+    }
+
+    vector<int> inFactor() const {
+        return m_inFactor;
+    }
+
+    // Gas number density [m^-3]
+    double N() const {
+        return molarDensity() * Avogadro;
+    }
+
+    double F() const {
+        return m_F;
+    }
+
+    double E() const {
+        return m_E;
+    }
+
+    double ionDegree() const {
+        return m_ionDegree;
+    }
+
+    double kT() const {
+        return m_kT;
+    }
+
+    double EN() const {
+        return m_EN;
+    }
+
+    bool hasSpecies(const std::string& name) const {
+        for (size_t i = 0; i < m_kk; ++i) {
+            if (speciesName(i) == name) {
+                return true;
+            }
+        }
+        return false;
+    }
+   
+
+    double nElectron() const {
+        compute_nDensity();
+        size_t e_index = npos;
+        if (hasSpecies("Electron")) {
+            e_index = speciesIndex("Electron");
+        } else if (hasSpecies("e")) {
+            e_index = speciesIndex("e");
+        } else {
+            throw CanteraError("PlasmaPhase::nElectron",
+                "Electron species not found (tried 'Electron' and 'e')");
+        }
+
+        double ne_val = m_nDensity[e_index];
+        return ne_val;
+    }
+
+    // electron mobility
+    double electronMobility() const {
+        compute_electronMobility();
+        return m_electronMobility;
+    }
+
+    vector<vector<double>> crossSections() const {
+        return m_crossSections;
+    }
+
+    vector<vector<double>> energyLevels() const {
+        return m_energyLevels;
+    }
+
+    vector<size_t> kElastic() const {
+        return m_kElastic;
+    }
+
+    //! Set reduced electric field given in [V.m2]
+    void setReducedElectricField(double EN) {
+        m_EN = EN; // [V.m2]
+        m_E = m_EN * molarDensity() * Avogadro; // [V/m]
+    }
+
+    size_t nsp_evib() const {
+        return m_nspevib;
+    }
+
+    //! Get the species vibrational energies
+    //!     @param[out] evib Array of species vibrational energies, length m_nspevib
+    void getVibrationalEnergies(double* const evib) const;
+
+    //! Set the species vibrational energies to the specified values.
+    //!     @param[in] evib Array of species vibrational energy values.
+    virtual void setVibrationalEnergies(const double* const evib);
+
     virtual void setSolution(std::weak_ptr<Solution> soln) override;
 
     /**
@@ -312,7 +431,15 @@ public:
     double elasticPowerLoss();
 
 protected:
+
+    void initialize();
+
     void updateThermo() const override;
+
+    //! update interpolated cross sections
+    //! This function needs to be called when the EEDF is updated or
+    //! when the cross sections are updated
+    void updateInterpolatedCrossSections();
 
     //! When electron energy distribution changed, plasma properties such as
     //! electron-collision reaction rates need to be re-evaluated.
@@ -343,9 +470,6 @@ protected:
      *  energy levels.
      */
     void checkElectronEnergyDistribution() const;
-
-    //! Update electron energy distribution.
-    void updateElectronEnergyDistribution();
 
     //! Set isotropic electron energy distribution
     void setIsotropicElectronEnergyDistribution();
@@ -382,6 +506,9 @@ protected:
     //! Electron temperature [K]
     double m_electronTemp;
 
+    //! Gas number density
+    //double m_N;
+
     //! Electron energy distribution type
     string m_distributionType = "isotropic";
 
@@ -391,8 +518,82 @@ protected:
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
 
+    //! Indices of inelastic collisions in m_crossSections
+    vector<size_t> m_kInelastic;
+
+    //! electric field [V/m]
+    double m_E;
+
+    //! reduced electric field [V.m2]
+    double m_EN;
+
+    //! reduced electric field [Td]
+    //double m_EN_Td;
+
+    //! electric field freq [Hz]
+    double m_F;
+
+    //! normalized electron energy distribution function
+    Eigen::VectorXd m_f0;
+
+    //! Mole fraction of targets
+    //vector<double> m_X_targets;
+
+    //! list of target species indices in local X EEDF numbering (1 index per cs)
+    //std::vector<size_t> m_klocTargets;
+
+    //! number of cross section sets
+    size_t m_ncs;
+
+    //! array of cross-section object
+    vector<shared_ptr<ElectronCrossSection>> m_ecss;
+
+    //! Cross section data. m_crossSections[i][j], where i is the specific process,
+    //! j is the index of vector. Unit: [m^2]
+    std::vector<vector<double>> m_crossSections;
+
+    //! Electron energy levels correpsonding to the cross section data. m_energyLevels[i][j],
+    //! where i is the specific process, j is the index of vector. Unit: [eV]
+    std::vector<vector<double>> m_energyLevels;
+
+    //! shift factor. This is used for calculating the collision term.
+    std::vector<int> m_shiftFactor;
+
+    //! in factor. This is used for calculating the Q matrix of
+    //! scattering-in processes.
+    std::vector<int> m_inFactor;
+
+    //! Indices of elastic collisions in m_crossSections
+    std::vector<size_t> m_kElastic;
+
+    //! flag of electron energy distribution function
+    bool m_f0_ok;
+
+    //! ionization degree for the electron-electron collisions (tmp is the previous one)
+    double m_ionDegree;
+
+    //! Boltzmann constant times gas temperature [eV]
+    double m_kT;
     //! Data for initiate reaction
     AnyMap m_root;
+
+    //! get the target species index
+    size_t targetSpeciesIndex(shared_ptr<Reaction> R);
+
+    //! get cross section interpolated
+    vector<double> crossSection(shared_ptr<Reaction> reaction);
+
+    //! number of species with vibrational excitation
+    size_t m_nspevib = 1;
+
+    //! species vibrational energies
+    vector<double> m_evib;
+
+    //! list of number densities
+    mutable vector<double> m_nDensity;
+
+    //! Electron mobility
+    mutable double m_electronMobility;
 
     //! Electron energy distribution Difference dF/dε (V^-5/2)
     Eigen::ArrayXd m_electronEnergyDistDiff;
@@ -425,6 +626,10 @@ protected:
     void updateElasticElectronEnergyLossCoefficients();
 
 private:
+
+    //! pointer to EEDF solver
+    unique_ptr<EEDFTwoTermApproximation> ptrEEDFSolver = nullptr;
+
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
     int m_distNum = -1;
@@ -455,6 +660,12 @@ private:
 
     //! Add a collision and record the target species
     void addCollision(std::shared_ptr<Reaction> collision);
+
+    //! Indices of elastic collisions
+    vector<size_t> m_elasticCollisionIndices;
+
+    //! Collision cross section
+    vector<Eigen::ArrayXd> m_interpolatedCrossSections;
 
 };
 
