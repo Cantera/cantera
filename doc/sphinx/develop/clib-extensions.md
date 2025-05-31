@@ -33,13 +33,13 @@ into a CLib header within a generated `ctthermo3.h` file:
  *  @implements getter: void Phase::getMolecularWeights(double*)
  *  @relates Phase::nSpecies()
  */
-int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights);
+int32_t thermo3_getMolecularWeights(int32_t handle, int32_t weightsLen, double* weights);
 ```
 
 and an associated CLib implementation within a generated `ctthermo3.cpp` file:
 
 ```c
-int thermo3_getMolecularWeights(int handle, int weightsLen, double* weights)
+int32_t thermo3_getMolecularWeights(int32_t handle, int32_t weightsLen, double* weights)
 {
     // getter: void Phase::getMolecularWeights(double*)
     try {
@@ -110,7 +110,7 @@ modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
   `ignore_funcs` are not needed. While the options are available, they should only be
   used for testing purposes and otherwise be left at their default values (empty).
 
-- **Type Crosswalks:** These fields map CLib types to their C++ equivalents.
+- **Type Crosswalks:** These fields map C++ types to their CLib equivalents.
 
     - `ret_type_crosswalk`: Specifies the types returned by CLib functions and methods.
     - `prop_type_crosswalk`: Specifies the types passed as parameters in CLib functions

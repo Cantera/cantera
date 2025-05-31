@@ -20,9 +20,10 @@ ignore_funcs:
 ret_type_crosswalk:
   const char*: string
   const double*: ReadOnlySpan<double>
-  const int*: ReadOnlySpan<int>
+  const int32_t*: ReadOnlySpan<int>
   char*: Span<byte>
   double*: Span<double>
+  int32_t: int
 
 # Parameter type crosswalks
 prop_type_crosswalk:

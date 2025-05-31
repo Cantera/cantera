@@ -18,6 +18,36 @@ else:
 from ._helpers import with_unpack_iter
 
 
+@dataclass
+@with_unpack_iter
+class Recipe:
+    """
+    Represents a recipe for a CLib method.
+
+    Class holds contents of YAML header configuration.
+    """
+
+    name: str  #: name of method (without prefix)
+    brief: str  #: override brief description from doxygen documentation
+    what: str  #: override auto-detection of recipe type
+    declaration: str  #: override auto-generated CLib declaration (custom code only)
+    parameters: list  #: override auto-detected parameter doc-strings
+    returns: str  #: override auto-detected return doc-string
+    uses: str | list[str]  #: auxiliary C++ methods used by recipe
+    implements: str  #: signature of implemented C++ function/method
+    code: str  #: custom code
+
+    prefix: str  #: prefix used for CLib access function
+    base: str  #: C++ class implementing method (if applicable)
+    parents: list[str]  #: list of C++ parent classes (if applicable)
+    derived: dict[str, str]  #: dictionary of C++ specialization/prefix (if applicable)
+
+    @property
+    def bases(self) -> list[str]:
+        """Return all bases of a recipe."""
+        return [self.base] + self.parents + list(self.derived.keys())
+
+
 @dataclass(frozen=True)
 @with_unpack_iter
 class Param:
@@ -40,14 +70,7 @@ class Param:
             param, _, default = param.partition("=")
         parts = param.strip().rsplit(" ", 1)
         if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
-            if "@param" not in doc:
-                return cls(*parts, "", "", default)
-            items = doc.split()
-            if items[1] != parts[1]:
-                msg = f"Documented variable {items[1]!r} does not match {parts[1]!r}"
-                raise ValueError(msg)
-            direction = items[0].split("[")[1].split("]")[0] if "[" in items[0] else ""
-            return cls(*parts, " ".join(items[2:]), direction, default)
+            return cls(*parts, doc, "", default)
         return cls(param)
 
     @classmethod
@@ -72,6 +95,10 @@ class Param:
         if self.base:
             return f"{self.p_type} {self.base}::{self.name}"
         return f"{self.p_type} {self.name}"
+
+    def declaration(self) -> str:
+        """Variable declaration."""
+        return self.long_str()
 
 
 @dataclass(frozen=True)
@@ -131,35 +158,12 @@ class ArgList:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class Func:
+class CFunc:
     """Represents a function declaration in a C/C++ header file."""
 
     ret_type: str  #: Return type; may include leading specifier
     name: str  #: Function name
     arglist: ArgList  #: Argument list
-
-    @classmethod
-    def from_str(cls: Self, func: str) -> Self:
-        """Generate Func from declaration string of a function."""
-        func = func.rstrip(";").strip()
-        # match all characters before an opening parenthesis "(" or end of line
-        name = re.findall(r".*?(?=\(|$)", func)[0]
-        arglist = ArgList.from_str(func.replace(name, "").strip())
-        r_type = ""
-        if " " in name:
-            r_type, name = name.rsplit(" ", 1)
-        return cls(r_type, name, arglist)
-
-    def declaration(self) -> str:
-        """Return a string representation of the function without semicolon."""
-        return (f"{self.ret_type} {self.name}{self.arglist.long_str()}").strip()
-
-
-@dataclass(frozen=True)
-@with_unpack_iter
-class CFunc(Func):
-    """Represents an annotated function declaration in a C/C++ header file."""
-
     brief: str = ""  #: Brief description (optional)
     implements: Self | Param | str = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
@@ -168,72 +172,43 @@ class CFunc(Func):
 
     @classmethod
     def from_str(cls: Self, func: str, brief: str = "") -> Self:
-        """Generate CFunc from a string."""
-        lines = func.split("\n")
-        if len(lines) == 1:
-            func = Func.from_str(lines[-1])
-            return cls(*func, brief, None, "", "", [])
-        raise ValueError("For multi-line code blocks, use 'from_snippet'.")
+        """Generate CFunc from declaration string of a function."""
+        func = func.split("\n")[-1].rstrip(";").strip()
+        # match all characters before an opening parenthesis "(" or end of line
+        name = re.findall(r".*?(?=\(|$)", func)[0]
+        arglist = ArgList.from_str(func.replace(name, "").strip())
+        r_type = ""
+        if " " in name:
+            r_type, name = name.rsplit(" ", 1)
+        return cls(r_type, name, arglist, brief, None, "", "", [])
+
+    def declaration(self) -> str:
+        """Return a string representation of the function without semicolon."""
+        return (f"{self.ret_type} {self.name}{self.arglist.long_str()}").strip()
+
+    # @classmethod
+    # def from_str(cls: Self, func: str, brief: str = "") -> Self:
+    #     """Generate CFunc from a string."""
+    #     lines = func.split("\n")[-1]
+    #     func = CFunc._from_str(lines[-1])
+    #     return cls(*func, brief, None, "", "", [])
 
     @classmethod
-    def from_snippet(cls: Self, func: str, brief: str = "") -> Self:
-        """Generate annotated CFunc from header block of a function."""
-        # TODO: As the main use for this is parsing of reserved and custom functions, it
-        # should use structured YAML input instead (same syntax as the one generated by
-        # YAMLSourceGenerator).
-        lines = func.split("\n")
-        if len(lines) == 1:
-            func = Func.from_str(lines[-1])
-            return cls(*func, brief, None, "", "", [])
+    def from_recipe(cls: Self, recipe: Recipe) -> Self:
+        """Generate annotated CFunc from recipe."""
+        func = CFunc.from_str(recipe.declaration)
 
-        lines = lines[-1::-1]
+        uses = [CFunc.from_str(uu) for uu in recipe.uses]
 
-        returns = ""
-        uses = []
-        params = []
-        while len(lines) > 1:
-            line = lines.pop().strip()
-            if line in ["/*", "/**"]:
-                continue
-            if line.endswith("*/"):
-                break
+        doc_args = []
+        for arg in func.arglist:
+            if arg.name not in recipe.parameters:
+                msg = f"Recipe does not specify doc-string for parameter {arg.name!r}."
+                raise KeyError(msg)
+            doc_args.append(Param.from_str(arg.long_str(), recipe.parameters[arg.name]))
 
-            line = line.lstrip("*").strip()
-            if not brief:
-                brief = line
-            elif line.startswith("@param"):
-                params.append(line)
-            elif line.startswith("@returns"):
-                returns = line.lstrip("@returns").strip()
-            elif line.startswith("@uses"):
-                if ": " in line:
-                    line = line.split(": ")[1]
-                else:
-                    line = line.lstrip("@uses")
-                uses.append(CFunc.from_str(line.strip()))
-
-        line = lines.pop().strip()
-        if line.endswith("{"):
-            lines = lines.append("{")
-        func = Func.from_str(line)
-        doc_args = {p.name: p for p in func.arglist}
-        for line in params:
-            # match parameter name
-            keys = [k for k in doc_args.keys() if line.split()[1] == k]
-            if len(keys) == 1:
-                key = keys[0]
-                doc_args[key] = Param.from_str(doc_args[key].long_str(), line)
-
-        code = None
-        if lines:
-            # extract code block
-            code = lines[-1::-1]
-            if code[0].strip() == "{" and code[-1].strip() == "}":
-                code = code[1:-1]
-            code = dedent("\n".join(code))
-
-        args = ArgList(list(doc_args.values()))
-        return cls(func.ret_type, func.name, args, brief, code, returns, "", uses)
+        return cls(func.ret_type, func.name, ArgList(doc_args), recipe.brief,
+                   recipe.code, recipe.returns, "", uses)
 
     def short_declaration(self) -> str:
         """Return a short string representation."""
@@ -252,38 +227,11 @@ class CFunc(Func):
 
 
 @dataclass
-@with_unpack_iter
-class Recipe:
-    """
-    Represents a recipe for a CLib method.
-
-    Class holds contents of YAML header configuration.
-    """
-
-    name: str  #: name of method (without prefix)
-    implements: str  #: signature of implemented C++ function/method
-    uses: str | list[str]  #: auxiliary C++ methods used by recipe
-    what: str  #: override auto-detection of recipe type
-    brief: str  #: override brief description from doxygen documentation
-    code: str  #: custom code to override autogenerated code (stub: to be implemented)
-
-    prefix: str  #: prefix used for CLib access function
-    base: str  #: C++ class implementing method (if applicable)
-    parents: list[str]  #: list of C++ parent classes (if applicable)
-    derived: dict[str, str]  #: dictionary of C++ specialization/prefix (if applicable)
-
-    @property
-    def bases(self) -> list[str]:
-        """Return all bases of a recipe."""
-        return [self.base] + self.parents + list(self.derived.keys())
-
-
-@dataclass
 class HeaderFile:
     """Represents information about a parsed C header file."""
 
     path: Path  #: output folder
-    funcs: list[Func]  #: list of functions to be scaffolded
+    funcs: list[CFunc]  #: list of functions to be scaffolded
 
     prefix: str = ""  #: prefix used for CLib function names
     base: str = ""  #: base class of C++ methods (if applicable)

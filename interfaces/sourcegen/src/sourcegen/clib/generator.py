@@ -76,102 +76,141 @@ class CLibSourceGenerator(SourceGenerator):
             relates=[f"{uu.base}::{uu.name}()" for uu in c_func.uses])
         return self._javadoc_comment(block)
 
-    def _reverse_crosswalk(
-            self, c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
-        """Translate CLib arguments back to Jinja argument list."""
+    @staticmethod
+    def _shared_object(cxx_type) -> str:
+        """Extract object type from shared_ptr."""
+        if "shared_ptr<" not in cxx_type:
+            return None
+        return cxx_type.split("<")[-1].split(">")[0]
+
+    @staticmethod
+    def _critical(c_func: CFunc, cxx_func: CFunc, msg) -> None:
+        msg = (f"Scaffolding failed for {c_func.name!r}: {msg}:\n"
+                f"C: {c_func.declaration()}\n")
+        if isinstance(cxx_func.implements, str):
+            msg += f"C++: {cxx_func.implements} (wrapped as {cxx_func.declaration()})"
+        else:
+            msg += f"C++: {cxx_func.declaration()}"
+        _LOGGER.critical(msg)
+        exit(1)
+
+    def _ret_crosswalk(self, c_func: CFunc, cxx_func: CFunc, base: str
+                       ) -> tuple[str, list, str | None]:
+        """Crosswalk for C++ return type."""
+        c_args = c_func.arglist
+        c_type = c_func.ret_type
         handle = ""
+        buffer = []
+        cxx_rbase = None
+
+        cxx_type = cxx_func.ret_type
+        if cxx_type.startswith("virtual "):
+            cxx_type = cxx_type.replace("virtual ", "")
+
+        if c_args and cxx_func.base:
+            handle = c_args[0].name
+
+        # check C++ type information
+        shared_base = self._shared_object(cxx_type)
+        cxx_template = cxx_type.replace(shared_base, "T") if shared_base else None
+        crosswalk_key = cxx_type
+        if cxx_template:
+            if cxx_template not in self._config.prop_type_crosswalk:
+                self._critical(
+                    c_func, cxx_func,
+                    f"return crosswalk not listed for C++ template {cxx_template!r}")
+            crosswalk_key = cxx_template
+        elif cxx_type in ["auto"] or cxx_func.implements == "custom code":
+            pass
+        elif cxx_type not in self._config.ret_type_crosswalk:
+            self._critical(c_func, cxx_func,
+                           f"return crosswalk not listed for C++ type {cxx_type!r}")
+
+        # check C type information
+        if cxx_type == "auto" or cxx_func.implements == "custom code":
+            pass
+        elif c_args and c_args[-1].name == "buf":
+            if c_type != "int32_t":
+                self._critical(c_func, cxx_func,
+                               "method with buffered return should return 'int32_t'")
+            c_type = c_args[-1].p_type
+            if c_type not in self._config.ret_type_crosswalk[crosswalk_key]:  # 1
+                self._critical(
+                    c_func, cxx_func,
+                    f"buffered return crosswalk not listed for C type {c_type!r}")
+        else:
+            if c_type not in self._config.ret_type_crosswalk[crosswalk_key]:  # 2
+                self._critical(c_func, cxx_func,
+                               f"return crosswalk not listed for C type {c_type!r}")
+
+        if cxx_type == "bool":
+            buffer = [f"{cxx_type} out", "", "int(out)"]
+        elif cxx_type.endswith("void"):
+            buffer = ["", "", "0"]
+        elif "string" in cxx_type:
+            buffer = [
+                "string out",
+                f"copyString(out, {c_args[-1].name}, {c_args[-2].name});",
+                "int(out.size()) + 1",  # include \0
+            ]
+        elif "shared_ptr" in cxx_type:
+            cxx_rbase = self._shared_object(cxx_type)
+            if cxx_rbase == base:
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj)"]
+            else:
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj, {handle})"]
+        elif "vector" in cxx_type:
+            buffer = [
+                f"{cxx_type} out",
+                f"std::copy(out.begin(), out.end(), {c_args[-1].name});",
+                "int(out.size())",
+            ]
+
+        return handle, buffer, cxx_rbase
+
+    def _par_crosswalk(self, c_func: CFunc, cxx_func: CFunc, base: str
+                       ) -> tuple[list, list, set]:
+        """Crosswalk for C++ return type."""
         args = []
         lines = []
-        buffer = []
         bases = set()
 
-        def shared_object(cxx_type) -> str:
-            """Extract object type from shared_ptr."""
-            if "shared_ptr<" not in cxx_type:
-                return None
-            return cxx_type.split("<")[-1].split(">")[0]
-
         c_args = c_func.arglist
-        cxx_member = c_func.implements
-        if not cxx_member:
-            if c_func.name.endswith("new"):
-                # Default constructor
-                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]))
-            elif len(c_args) and "char*" in c_args[-1].p_type:
-                cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", "base")
-            else:
-                cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
-        elif isinstance(cxx_member, Param):
-            if len(c_args) and "char*" in c_args[-1].p_type:
-                cxx_func = CFunc("string", cxx_member.name, None,
-                                 "", None, "", cxx_member.base)
-            else:
-                cxx_func = CFunc(cxx_member.p_type, cxx_member.name, None,
-                                 "", None, "", cxx_member.base)
-        elif isinstance(cxx_member, str):
-            cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
-        else:
-            cxx_func = cxx_member
-        cxx_ix = 0
-        check_array = False
-        for c_ix, c_par in enumerate(c_func.arglist):
-            c_name = c_par.name
-            if isinstance(cxx_member, Param) or cxx_ix >= len(cxx_func.arglist):
-                if c_ix == 0 and cxx_func.base and "len" not in c_name.lower():
-                    handle = c_name
-                    c_ix += 1
-                if isinstance(cxx_member, Param) and cxx_member.direction == "out":
-                    pass
-                elif isinstance(cxx_member, Param):
-                    break
-                elif c_ix == len(c_args):
-                    break
+        cxx_args = cxx_func.arglist
 
-                # Handle output buffer and/or variable assignments
-                cxx_type = cxx_func.ret_type
-                if "string" in cxx_type:
-                    buffer = ["string out",
-                              f"copyString(out, {c_args[c_ix+1].name}, "
-                              f"{c_args[c_ix].name});",
-                              "int(out.size()) + 1"]  # include \0
-                elif "vector" in cxx_type:
-                    buffer = [f"{cxx_type} out",
-                              "std::copy(out.begin(), out.end(), "
-                              f"{c_args[c_ix+1].name});",
-                              "int(out.size())"]
-                elif "bool" in cxx_type:
-                    buffer = [f"{cxx_type} out", "", "int(out)"]
-                elif "double" in cxx_type or "void" in cxx_type:
-                    # can pass values directly
-                    buffer = []
-                elif "int" in cxx_type or "size_t" in cxx_type:
-                    # can pass values directly
-                    buffer = []
-                else:
-                    msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
-                           f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
-                    _LOGGER.critical(msg)
-                    exit(1)
-                break
+        c_ix = 0
+        for cxx_arg in cxx_args:
+            while c_args[c_ix].name != cxx_arg.name:
+                c_ix += 1
+            check_array = False
+            if c_ix > 0 and c_args[c_ix-1].name.endswith("Len"):
+                c_type = c_args[c_ix-1].p_type
+                if c_type != "int32_t":
+                    self._critical(c_func, cxx_func,
+                                   f"invalid variable setter return type {c_type!r}")
+                check_array = True
 
-            if isinstance(cxx_member, Param):
-                cxx_arg = cxx_member
-            else:
-                cxx_arg = cxx_func.arglist[cxx_ix]
-            if c_name != cxx_arg.name:
-                # Encountered object handle or length indicator
-                if c_name.endswith("Len"):
-                    check_array = True
-                elif c_ix == 0:
-                    handle = c_name
-                else:
-                    msg = (f"Scaffolding failed for {c_func.name!r}: "
-                           f"unexpected behavior for {c_name!r}.")
-                    _LOGGER.critical(msg)
-                    exit(1)
-                continue
-
+            c_name = c_args[c_ix].name
+            c_type = c_args[c_ix].p_type
             cxx_type = cxx_arg.p_type
+
+            shared_base = self._shared_object(cxx_type)
+            cxx_template = cxx_type.replace(shared_base, "T") if shared_base else None
+            crosswalk_key = cxx_type
+            if cxx_template:
+                if cxx_template not in self._config.prop_type_crosswalk:
+                    self._critical(
+                        c_func, cxx_func,
+                        f"crosswalk not listed for C++ template {cxx_template!r}")
+                crosswalk_key = cxx_template
+            elif cxx_type not in self._config.prop_type_crosswalk:
+                self._critical(c_func, cxx_func,
+                               f"crosswalk not listed for C++ type {cxx_type!r}")
+
+            if c_type not in self._config.prop_type_crosswalk[crosswalk_key]:
+                self._critical(c_func, cxx_func,
+                               f"crosswalk not listed for C type {c_type!r}")
+
             if check_array:
                 # Need to handle crosswalked parameter with length information
                 c_prev = c_args[c_ix-1].name
@@ -179,7 +218,7 @@ class CLibSourceGenerator(SourceGenerator):
                     # Example: vector<shared_ptr<Domain1D>>
                     cxx_type = cxx_type.lstrip("const ").rstrip("&")
                     cxx_base = cxx_type.rstrip(">").split("<")[-1]
-                    bases |= {cxx_base}
+                    bases.add(cxx_base)
                     lines.extend([
                         f"{cxx_type} {c_name}_;",
                         f"for (int i = 0; i < {c_prev}; i++) {{",
@@ -197,70 +236,89 @@ class CLibSourceGenerator(SourceGenerator):
                     # Can be passed directly; example: double *const
                     args.append(c_name)
                 else:
-                    msg = (f"Scaffolding failed for {c_func.name!r}: reverse "
-                           f"crosswalk not implemented for {cxx_type!r}.")
-                    _LOGGER.critical(msg)
-                    exit(1)
-                check_array = False
+                    self._critical(c_func, cxx_func,
+                                   f"crosswalk not implemented for C++ {cxx_type!r}.")
             elif "shared_ptr" in cxx_type:
                 # Retrieve object from cabinet
-                cxx_base = shared_object(cxx_type)
-                args.append(f"{cxx_base}Cabinet::at({c_name})")
-                if cxx_base != base:
-                    bases |= {cxx_base}
+                args.append(f"{shared_base}Cabinet::at({c_name})")
+                if shared_base != base:
+                    bases.add(shared_base)
             elif cxx_type == "bool":
                 lines.append(f"bool {c_name}_ = ({c_name} != 0);")
                 args.append(f"{c_name}_")
             else:
                 # Regular parameter
                 args.append(c_name)
-            cxx_ix += 1
+
+        return args, lines, bases
+
+    def _crosswalk(self, c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
+        """Translate CLib arguments back to Jinja argument list."""
+        c_args = c_func.arglist
+        cxx_implements = None
+        cxx_member = c_func.implements
+        if not cxx_member:
+            if c_func.name.endswith("new"):
+                cxx_implements = f"default constructor for {base}"
+                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]),
+                                 "", cxx_implements, "", base)
+            elif len(c_args) and "char*" in c_args[-1].p_type:
+                cxx_implements = "reserved function/method"
+                cxx_func = CFunc("string", "dummy", ArgList([]),
+                                 "", cxx_implements, "", base)
+            else:
+                cxx_implements = f"reserved function/method: {c_func.name}"
+                cxx_func = CFunc("void", "dummy", ArgList([]),
+                                 "", cxx_implements, "", base)
+        elif isinstance(cxx_member, Param):
+            if cxx_member.direction == "in":
+                cxx_implements = f"variable setter: {cxx_member.name}"
+                cxx_func = CFunc("int", cxx_member.name, ArgList([cxx_member]),
+                                 "", cxx_implements, "", cxx_member.base)
+            else:  # cxx_member.direction == "out"
+                cxx_implements = f"variable getter: {cxx_member.name}"
+                if len(c_args) and "char*" in c_args[-1].p_type:
+                    cxx_func = CFunc("string", cxx_member.name, ArgList([]),
+                                     "", cxx_implements, "", cxx_member.base)
+                else:
+                    cxx_func = CFunc(cxx_member.p_type, cxx_member.name, ArgList([]),
+                                     "", cxx_implements, "", cxx_member.base)
+        elif isinstance(cxx_member, str):
+            cxx_implements = "custom code"
+            cxx_func = CFunc("void", "dummy", ArgList([]), "", cxx_implements, "", base)
+        else:
+            cxx_implements = cxx_member.short_declaration()
+            cxx_func = cxx_member
+
+        handle, buffer, rbase = self._ret_crosswalk(c_func, cxx_func, base)
+        args, lines, bases = self._par_crosswalk(c_func, cxx_func, base)
+        if rbase:
+            bases.add(rbase)
 
         # Obtain class and getter for managed objects
         shared = []
         checks = []
         for uu in c_func.uses:
-            obj = shared_object(uu.ret_type)
+            obj = self._shared_object(uu.ret_type)
             if obj:
                 shared.append((obj, uu.name))
-                bases |= {obj}
+                bases.add(obj)
             else:
                 checks.append(uu.name)
 
         # Ensure that all error codes are set correctly
         error = [-1, "ERR"]
         cxx_rtype = cxx_func.ret_type
-        cxx_rbase = None
         if cxx_rtype.endswith(("int", "size_t")):
             error = ["ERR", "ERR"]
         elif cxx_rtype.endswith("double"):
             error = ["DERR", "DERR"]
         elif "shared_ptr" in cxx_rtype:
-            cxx_rbase = shared_object(cxx_rtype)
-            if cxx_rbase == base:
-                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj)"]
-            else:
-                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj, {handle})"]
-                bases |= {cxx_rbase}
             error = ["-2", "ERR"]
-        elif cxx_rtype.endswith("void"):
-            buffer = ["", "", "0"]
-
-        if isinstance(cxx_member, Param) and cxx_member.direction == "in":
-            c_name = c_func.arglist[-1].name
-            if cxx_rtype.endswith("bool"):
-                lines = [f"bool {c_name}_ = ({c_name} != 0);"]
-                args.append(f"{c_name}_")
-            else:
-                args.append(c_name)
-
-        cxx_implements = ""
-        if cxx_func.name != "dummy":
-            cxx_implements = cxx_func.short_declaration()
 
         ret = {
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
-            "shared": shared, "checks": checks, "error": error, "cxx_rbase": cxx_rbase,
+            "shared": shared, "checks": checks, "error": error, "cxx_rbase": rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
             "cxx_implements": cxx_implements,
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
@@ -271,13 +329,18 @@ class CLibSourceGenerator(SourceGenerator):
         """Scaffold body of generic CLib function via Jinja."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True,
                              line_comment_prefix="##")
-        args, bases = self._reverse_crosswalk(c_func, recipe.base)
+        args, bases = self._crosswalk(c_func, recipe.base)
         args["what"] = recipe.what
 
         if recipe.code:
             # override auto-generated code
+            if "reserved" in recipe.what:
+                template = loader.from_string(c_func.implements)
+                lines = template.render(cabinets=[kk for kk in self._clib_bases if kk])
+            else:
+                lines = c_func.implements
             template = loader.from_string(self._templates["clib-custom-code"])
-            args["lines"] = c_func.implements.split("\n")
+            args["lines"] = lines.split("\n")
 
         elif recipe.what == "noop":
             template = loader.from_string(self._templates["clib-noop"])
@@ -315,11 +378,6 @@ class CLibSourceGenerator(SourceGenerator):
                 template = loader.from_string(self._templates["clib-array-setter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])
-
-        elif recipe.what == "reserved":
-            args["cabinets"] = [kk for kk in self._clib_bases if kk]
-            template = loader.from_string(
-                self._templates[f"clib-reserved-{recipe.name}-cpp"])
 
         else:
             msg = f"{recipe.what!r} not implemented: {c_func.name!r}."

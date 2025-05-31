@@ -136,6 +136,7 @@ jobs:
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Generate clib_experimental
       run: |
+        doxygen --version
         python3 `which scons` doxygen
         python3 -m pip install interfaces/sourcegen
         sourcegen --api=clib --output=.
@@ -201,6 +202,7 @@ jobs:
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Generate clib_experimental
       run: |
+        doxygen --version
         python3 `which scons` doxygen
         python3 -m pip install interfaces/sourcegen
         python3 -m sourcegen --api=clib --output=.
@@ -277,6 +279,7 @@ jobs:
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Generate clib_experimental
       run: |
+        doxygen --version
         scons doxygen
         python -m pip install -e interfaces/sourcegen
         sourcegen --api=clib --output=.
@@ -331,6 +334,7 @@ jobs:
         dotnet-version: '8.x'
     - name: Generate clib_experimental
       run: |
+        doxygen --version
         python3 `which scons` doxygen
         python3 -m pip install -e interfaces/sourcegen
         sourcegen --api=clib --output=.
@@ -787,6 +791,7 @@ jobs:
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
     - name: Generate clib_experimental
       run: |
+        doxygen --version
         scons doxygen
         python -m pip install -e interfaces/sourcegen
         sourcegen --api=clib --output=.

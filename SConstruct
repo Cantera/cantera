@@ -38,7 +38,7 @@ Basic usage:
 
     'scons sphinx' - Build the Sphinx documentation
 
-    'scons doxygen' - Build the Doxygen documentation
+    'scons doxygen' - Build the Doxygen documentation or the Doxygen XML tree
 
 Additional command options:
 
@@ -361,8 +361,14 @@ config_options = [
            Available only when compiling with gcc.""",
         False),
     BoolOption(
+        "doxygen_xml",
+        "Build XML tree for the C++ interface using Doxygen.",
+        False),
+    BoolOption(
         "doxygen_docs",
-        "Build HTML documentation for the C++ interface using Doxygen.",
+        """Build HTML documentation for the C++ interface using Doxygen. By default,
+           the command 'scons doxygen' will build the XML tree only, while HTML output
+           will be produced when running 'scons sphinx'.""",
         False),
     BoolOption(
         "sphinx_docs",
@@ -373,8 +379,7 @@ config_options = [
         """Build experimental CLib. Requires running 'scons doxygen', installation of
            sourcegen via 'python -m pip install -e interfaces/sourcegen' and CLib code
            generation via 'sourcegen --api=clib --output=.' prior to the 'scons build'
-           command.
-           """,
+           command.""",
         False),
     BoolOption(
         "run_examples",
@@ -972,8 +977,9 @@ if "help" in COMMAND_LINE_TARGETS:
         sys.exit(1)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
-    env['doxygen_docs'] = True
+    env["doxygen_xml"] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
+    env['doxygen_docs'] = True
     env['sphinx_docs'] = True
 for arg in ARGUMENTS:
     if arg not in config:
@@ -1970,7 +1976,7 @@ if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if env['doxygen_docs'] or env['sphinx_docs']:
+if env["doxygen_xml"] or env["sphinx_docs"]:
     SConscript('doc/SConscript')
 
 # Sample programs (also used from test_problems/SConscript)

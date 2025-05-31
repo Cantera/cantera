@@ -7,6 +7,7 @@ import sys
 import logging
 from dataclasses import dataclass
 
+from ruamel import yaml
 from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
@@ -39,7 +40,7 @@ class HeaderGenerator:
         self._clib_bases = bases
 
     def resolve_tags(self, headers_files: list[HeaderFile], root: str) -> None:
-        """Resolve recipe information based on doxygen tags."""
+        """Resolve recipe information based on Doxygen tags."""
         def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
             classes = set()
@@ -61,7 +62,7 @@ class HeaderGenerator:
             headers.funcs = c_funcs
 
     def resolve_recipe(self, recipe: Recipe) -> CFunc:
-        """Build CLib header from recipe and doxygen annotations."""
+        """Build CLib header from recipe and Doxygen annotations."""
         def merge_params(
                 implements: str, cxx_member: CFunc | Param
             ) -> tuple[list[Param], CFunc]:
@@ -91,18 +92,23 @@ class HeaderGenerator:
             return obj_handle + cxx_member.arglist.params, cxx_member
 
         func_name = f"{recipe.prefix}_{recipe.name}"
-        reserved = ["cabinetSize", "parentHandle",
-                    "getCanteraError", "setLogWriter", "setLogCallback",
-                    "clearStorage", "resetStorage"]
+        reserved = ["cabinetSize", "parentHandle", "clearStorage", "resetStorage"]
         if recipe.name in reserved:
-            recipe.what = "reserved"
             loader = Environment(loader=BaseLoader)
             msg = f"   generating {func_name!r} -> {recipe.what}"
             _LOGGER.debug(msg)
             header = loader.from_string(
-                self._templates[f"clib-reserved-{recipe.name}-h"]
+                self._templates[f"clib-reserved-{recipe.name}"]
                 ).render(base=recipe.base, prefix=recipe.prefix)
-            return CFunc.from_snippet(header, brief=recipe.brief)
+            reader = yaml.YAML(typ="safe")
+            header = reader.load(header)
+            for key, value in header.items():
+                recipe.__setattr__(key, value)
+            return CFunc.from_recipe(recipe)
+
+        if recipe.code:
+            # Custom code
+            return CFunc.from_recipe(recipe)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
@@ -193,9 +199,9 @@ class HeaderGenerator:
             # No operation
             msg = f"   generating {func_name!r} -> no-operation"
             _LOGGER.debug(msg)
-            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
+            args = [Param("int32_t", "handle", f"Handle to {recipe.base} object.")]
             brief = "No operation."
-            ret_param = Param("int", "", "Always zero.")
+            ret_param = Param("int32_t", "", "Always zero.")
 
         elif recipe.name == "new":
             # Default constructor
@@ -204,21 +210,17 @@ class HeaderGenerator:
             _LOGGER.debug(msg)
             brief= f"Instantiate {recipe.base} object using default constructor."
             ret_param = Param(
-                "int", "", "Object handle if successful and -1 for exception handling.")
+                "int32_t", "", "Object handle if successful and -1 for exception handling.")
 
         elif recipe.name == "del":
             # Default destructor
             recipe.what = "destructor"
             msg = f"   generating {func_name!r} -> default destructor"
             _LOGGER.debug(msg)
-            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
+            args = [Param("int32_t", "handle", f"Handle to {recipe.base} object.")]
             brief= f"Delete {recipe.base} object."
             ret_param = Param(
-                "int", "", "Zero for success and -1 for exception handling.")
-
-        elif recipe.code:
-            # Custom code
-            return CFunc.from_snippet(recipe.code, brief=recipe.brief)
+                "int32_t", "", "Zero for success and -1 for exception handling.")
 
         else:
             msg = f"Unable to resolve recipe type for {recipe.name!r}"
@@ -263,19 +265,19 @@ class HeaderGenerator:
             if ret_type == "char*":
                 # string expressions require special handling
                 returns = Param(
-                    "int", "", "Actual length of string including string-terminating "
+                    "int32_t", "", "Actual length of string including string-terminating "
                     "null byte, \\0, or -1 for exception handling.")
                 buffer = [
-                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param("int32_t", "bufLen", "Length of reserved array.", "in"),
                     Param(ret_type, "buf", "Returned string value.", "out")]
                 return returns, buffer
             if ret_type.endswith("*"):
                 # return type involves pointer to reserved buffer
                 returns = Param(
-                    "int", "",
+                    "int32_t", "",
                     "Actual length of value array or -1 for exception handling.")
                 buffer = [
-                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param("int32_t", "bufLen", "Length of reserved array.", "in"),
                     Param(ret_type, "buf", "Returned array value.", "out")]
                 return returns, buffer
             if not any([what.startswith("shared_ptr"), ret_type.endswith("[]")]):
@@ -289,7 +291,7 @@ class HeaderGenerator:
             handle = self._handle_crosswalk(
                 what, self._config.ret_type_crosswalk, derived)
             returns = Param(
-                "int", "",
+                "int32_t", "",
                 f"Handle to stored {handle} object or -1 for exception handling.")
             return returns, []
 
@@ -308,12 +310,12 @@ class HeaderGenerator:
             if what in self._config.prop_type_crosswalk:
                 if "vector<" in what:
                     params.append(
-                        Param("int", f"{par.name}Len",
+                        Param("int32_t", f"{par.name}Len",
                               f"Length of vector reserved for {par.name}.", "in"))
                 elif what.endswith("* const") or what.endswith("double*"):
                     direction = "in" if what.startswith("const") else "out"
                     params.append(
-                        Param("int", f"{par.name}Len",
+                        Param("int32_t", f"{par.name}Len",
                               f"Length of array reserved for {par.name}.", direction))
                 ret_type = self._config.prop_type_crosswalk[what]
                 params.append(Param(ret_type, par.name, par.description, par.direction))
@@ -322,16 +324,16 @@ class HeaderGenerator:
                     what, self._config.prop_type_crosswalk, {})
                 if "vector<" in what:
                     params.append(
-                        Param("int", f"{par.name}Len",
+                        Param("int32_t", f"{par.name}Len",
                               f"Length of array reserved for {par.name}.", "in"))
                     description = f"Memory holding {handle} objects. "
                     description += par.description
-                    params.append(Param("const int*", par.name, description.strip()))
+                    params.append(Param("const int32_t*", par.name, description.strip()))
                 else:
                     description = f"Integer handle to {handle} object. "
                     description += par.description
                     params.append(
-                        Param("int", par.name, description.strip(), par.direction))
+                        Param("int32_t", par.name, description.strip(), par.direction))
             else:
                 msg = f"Failed crosswalk for argument type {what!r}."
                 _LOGGER.critical(msg)
