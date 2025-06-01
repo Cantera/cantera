@@ -9,6 +9,10 @@ namespace Cantera.Interop;
 static partial class LibCantera
 {
     const string LibFile = "cantera_shared";
+    const int BufferSize = 360;
+
+    static void ThrowOnBadString() =>
+        throw new InvalidOperationException("Could not retrieve a string value from Cantera!");
 
     public delegate void LogCallback(LogLevel logLevel,
                                      [MarshalAs(UnmanagedType.LPUTF8Str)] string category,
