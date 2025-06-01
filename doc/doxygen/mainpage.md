@@ -6,7 +6,7 @@ shortcuts:
 * Overview of [**Cantera C++ Modules**](modules.html)
 * Index of [**Cantera C++ Classes**](classes.html)
 
-A topical overview is provided as follows:
+A **topical overview** is provided as follows:
 
 * @ref solnGroup (interface to %Cantera core objects)
 * @ref thermoprops (temperature, pressure, energy, ...)
@@ -15,6 +15,14 @@ A topical overview is provided as follows:
 * @ref zerodGroup (reactors, walls, flow devices, ...)
 * @ref onedGroup (flames, flow domains, boundaries, ...)
 * @ref physConstants (universal constants, built into %Cantera for convenience)
+
+@cond CLIB_EXPERIMENTAL
+Experimental CLib:
+
+* @subpage clibPage (CLib overview)
+* @ref clibGroup (CLib components)
+
+@endcond
 
 Details on the fundamental scientific theories used in the implementation of %Cantera
 are located in the

@@ -134,9 +134,9 @@ if "clean" in COMMAND_LINE_TARGETS:
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
-    for name in Path("interfaces/clib_experimental/include/cantera_clib").glob("*.h"):
+    for name in Path("interfaces/clib_experimental/include/cantera_clib").glob("ct*.h"):
         remove_file(name)
-    for name in Path("interfaces/clib_experimental/src").glob("*.cpp"):
+    for name in Path("interfaces/clib_experimental/src").glob("ct*.cpp"):
         remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)

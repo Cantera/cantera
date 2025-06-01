@@ -36,7 +36,27 @@
 extern "C" {
 #endif
 
+    /**
+     *  @defgroup {{ name }}Group {{ name }} API
+    {% if docstring %}
+     *  @brief {{ docstring[0] }}
+    {% for line in docstring[1:] %}
+     *  {{ line }}
+    {% endfor %}
+    {% endif %}
+     *  @ingroup clibGroup
+     */
+
+    /**
+     *  @addtogroup {{ name }}Group
+     *  @{
+     */
+
     {{ declarations | indent(4) }}
+
+    /**
+     *  @}
+     */
 
 #ifdef __cplusplus
 }

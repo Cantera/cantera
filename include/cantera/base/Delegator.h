@@ -339,7 +339,7 @@ protected:
         m_funcs_v_cAMr_cUSr[name] = &target;
     }
 
-    //! Install a function with the signature `void(const string&, void*) as being
+    //! Install a function with the signature `void(const string&, void*)` as being
     //! delegatable
     void install(const string& name, function<void(const string&, void*)>& target,
                  const function<void(const string&, void*)>& func)
