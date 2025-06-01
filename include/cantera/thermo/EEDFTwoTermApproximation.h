@@ -251,7 +251,7 @@ protected:
     bool m_eeCol = false;
 
     //! Compute electron-electron collision integrals
-    void eeColIntegrals(vector_fp& A1, vector_fp& A2, vector_fp& A3, 
+    void eeColIntegrals(vector_fp& A1, vector_fp& A2, vector_fp& A3,
                         double& a, size_t nPoints);
 
     //! flag of having an EEDF

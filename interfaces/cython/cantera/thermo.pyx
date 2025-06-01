@@ -1826,7 +1826,7 @@ cdef class ThermoPhase(_SolutionBase):
             raise TypeError('This method is invalid for '
                             f'thermo model: {self.thermo_model}.')
         self.plasma.updateElectronEnergyDistribution()
-    
+
     property n_electron_energy_levels:
         """ Number of electron energy levels """
         def __get__(self):
