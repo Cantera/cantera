@@ -141,9 +141,41 @@ public:
     //! (time or space). Returns the new value of the independent variable [s or m].
     double step();
 
-    //! Solve for the steady-state solution
+    //! Solve directly for the steady-state solution.
+    //!
+    //! This approach is generally more efficient than time marching to the
+    //! steady-state, but imposes a few limitations:
+    //!
+    //! - The volume of control volume reactor types (such as Reactor and
+    //!   IdealGasMoleReactor) must be constant; no moving walls can be used.
+    //! - The mass of constant pressure reactor types (such as ConstPressureReactor and
+    //!   IdealGasConstPressureReactor) must be constant; if flow devices are used,
+    //!   inlet and outlet flows must be balanced.
+    //! - The solver is currently not compatible with the ConstPressureMoleReactor or
+    //!   IdealGasConstPressureMoleReactor classes.
+    //!
+    //! @param loglevel  Print information about solver progress to aid in understanding
+    //!     cases where the solver fails to converge. Higher levels are more verbose.
+    //!     - 0: No logging.
+    //!     - 1: Basic info about each steady-state attempt and round of time stepping.
+    //!     - 2: Adds details about each time step and steady-state Newton iteration.
+    //!     - 3: Adds details about Newton iterations for each time step.
+    //!     - 4: Adds details about state variables that are limiting steady-state
+    //!       Newton step sizes.
+    //!     - 5: Adds details about state variables that are limiting time-stepping
+    //!       Newton step sizes.
+    //!     - 6: Print current state vector after different solver stages
+    //!     - 7: Print current residual vector after different solver stages
+    //!
+    //! @see SteadyStateSystem, MultiNewton
+    //! @since New in %Cantera 3.2.
     void solveSteady(int loglevel=0);
 
+    //! Get the Jacobian used by the steady-state solver.
+    //!
+    //! @param rdt  Reciprocal of the pseudo-timestep [1/s]. Default of 0.0 returns the
+    //!     steady-state Jacobian.
+    //! @since New in %Cantera 3.2.
     Eigen::SparseMatrix<double> steadyJacobian(double rdt=0.0);
 
     //! Add the reactor *r* to this reactor network.
@@ -387,6 +419,11 @@ protected:
     vector<double> m_RHS;
 };
 
+
+//! Adapter class to enable using the SteadyStateSystem solver with ReactorNet.
+//!
+//! @see ReactorNet::solveSteady
+//! @since New in %Cantera 3.2.
 class SteadyReactorSolver : public SteadyStateSystem
 {
 public:
@@ -401,8 +438,12 @@ public:
 
 private:
     ReactorNet* m_net = nullptr;
-    vector<double> m_prev_state;
-    vector<double> m_dxdt;
+
+    //! Initial value of each state variable
+    vector<double> m_initialState;
+
+    //! Indices of variables that are held constant in the time-stepping mode of the
+    //! steady-state solver.
     vector<size_t> m_algebraic;
 };
 

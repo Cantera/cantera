@@ -1556,6 +1556,7 @@ cdef class ReactorNet:
     def add_reactor(self, Reactor r):
         """
         Add a reactor to the network.
+
         .. deprecated:: 3.2
 
             After Cantera 3.2, a change of reactor net contents after instantiation
@@ -1590,9 +1591,51 @@ cdef class ReactorNet:
         return self.net.step()
 
     def solve_steady(self, int loglevel=0):
+        """
+        Solve directly for the steady-state solution. This approach is generally more
+        efficient than time marching to the steady-state (using the
+        `advance_to_steady_state` method), but imposes a few limitations:
+
+        - The volume of control volume reactor types (such as `Reactor` and
+          `IdealGasMoleReactor`) must be constant; no moving walls can be used.
+        - The mass of constant pressure reactor types (such as `ConstPressureReactor`
+          and `IdealGasConstPressureReactor`) must be constant; if flow devices are
+          used, inlet and outlet flows must be balanced.
+        - The solver is currently not compatible with the `ConstPressureMoleReactor` or
+          `IdealGasConstPressureMoleReactor` classes.
+
+        :param loglevel:
+            Print information about solver progress to aid in understanding
+            cases where the solver fails to converge. Higher levels are more verbose.
+
+            - 0: No logging.
+            - 1: Basic info about each steady-state attempt and round of time stepping.
+            - 2: Adds details about each time step and steady-state Newton iteration.
+            - 3: Adds details about Newton iterations for each time step.
+            - 4: Adds details about state variables that are limiting steady-state
+              Newton step sizes.
+            - 5: Adds details about state variables that are limiting time-stepping
+              Newton step sizes.
+            - 6: Print current state vector after different solver stages
+            - 7: Print current residual vector after different solver stages
+
+        Uses the hybrid time marching / damped Newton's method solver implemented by
+        classes :ct:`SteadyStateSystem` and :ct:`MultiNewton`.
+
+        .. versionadded:: 3.2
+        """
         self.net.solveSteady(loglevel)
 
     def steady_jacobian(self, float rdt=0.0):
+        """
+        Get the Jacobian used by the steady-state solver.
+
+        :param rdt:
+            Reciprocal of the pseudo-timestep [1/s]. Default of 0.0 returns the
+            steady-state Jacobian.
+
+        .. versionadded:: 3.2
+        """
         return get_from_sparse(self.net.steadyJacobian(rdt), self.n_vars, self.n_vars)
 
     def initialize(self):
