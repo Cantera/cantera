@@ -58,6 +58,16 @@ class CsFunc(Func):
         return (len(self.arglist) >= 2
                 and self.arglist[-1].p_type == "Span<byte>")
 
+    def gets_double_array(self) -> bool:
+        """True if this function is used to get an array of doubles."""
+        return (len(self.arglist) >= 2
+                and self.arglist[-1].p_type == "Span<double>")
+
+    def sets_array(self) -> bool:
+        """True if this function is used to set an array."""
+        return (len(self.arglist) >= 2
+                and self.arglist[-1].p_type.startswith("ReadOnlySpan"))
+
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
@@ -93,7 +103,10 @@ class CSharpSourceGenerator(SourceGenerator):
                 # This is a simple scalar property
                 prop_type = getter.ret_type
             case 3:
-                # This is a property that returns an array or string
+                # This is a property that returns an array or string.
+                # Note that _scaffold_interop generates wrappers that avoid needing
+                # explicit size or buffer arguments. The property will use these
+                # wrappers, not the function discovered here.
                 prop_type = getter.arglist[-1].p_type
                 prop_type = self._config.prop_type_crosswalk[prop_type]
             case _:
@@ -101,15 +114,11 @@ class CSharpSourceGenerator(SourceGenerator):
                     "unsupported signature!")
                 sys.exit(1)
 
-        if prop_type in ["int", "double", "string"]:
+        if prop_type in ["int", "double", "string", "double[]"]:
             template = _LOADER.from_string(self._templates["csharp-property"])
             return template.render(
                 prop_type=prop_type, cs_name=cs_name,
                 getter=getter_name, setter=setter_name)
-
-        # TODO: Add ability to scaffold properties the use arrays of doubles.
-        # This will require looking up the function that gets the size
-        # of the array.
 
         _LOGGER.critical(f"Unable to scaffold properties of type {prop_type!r}!")
         sys.exit(1)
@@ -197,7 +206,9 @@ class CSharpSourceGenerator(SourceGenerator):
                                     declaration=func.declaration(),
                                     check_return=(not func.is_handle_release_func
                                                   and not func.returns_handle()),
-                                    public=not func.gets_string())
+                                    public=(not func.gets_string())
+                                            and not func.gets_double_array()
+                                            and not func.sets_array())
             for func in cs_funcs]
 
         # Add wrappers for functions that get strings.
@@ -213,6 +224,48 @@ class CSharpSourceGenerator(SourceGenerator):
                                       length_param_name=func.arglist[-2].name,
                                       span_param_name=func.arglist[-1].name)
             for func in cs_funcs if func.gets_string())
+
+        # Add wrappers for functions that get or set arrays of doubles.
+        def transform_to_span_func(func: CsFunc) -> CsFunc:
+            arglist = ArgList([*func.arglist[:-2], func.arglist[-1]])
+            return CsFunc('void', func.name, arglist, False, None)
+
+        span_template = _LOADER.from_string(self._templates["csharp-span-func"])
+        function_list += (
+            span_template.render(declaration=(transform_to_span_func(func)
+                                     .declaration()),
+                                 invocation=func.invocation(),
+                                 length_param_name=func.arglist[-2].name,
+                                 span_param_name=func.arglist[-1].name)
+            for func in cs_funcs if func.gets_double_array()
+                                    or func.sets_array())
+
+        # Add convenience overloads for functions that get arrays of doubles
+        # to allocate the array and return it.
+        def transform_to_getarray_func(func: CsFunc) -> CsFunc:
+            arglist = ArgList([*func.arglist[:-2]])
+            return CsFunc('double[]', func.name, arglist, False, None)
+
+        def find_get_size_func(func: CsFunc) -> CsFunc:
+            # Find the get-size function that wraps the C++ member
+            # used by this function.
+            return next(f for f in cs_funcs if f.wraps == func.uses[0])
+
+        getarray_template = _LOADER.from_string(self._templates["csharp-getarray-func"])
+        function_list += (
+            getarray_template.render(declaration=(transform_to_getarray_func(func)
+                                         .declaration()),
+                                     get_size_invocation=(find_get_size_func(func)
+                                         .invocation()),
+                                     invocation=func.invocation(),
+                                     length_param_name=func.arglist[-2].name,
+                                     span_param_name=func.arglist[-1].name)
+            for func in cs_funcs if func.gets_double_array() and func.uses)
+
+        for f in cs_funcs:
+            if f.gets_double_array() and not f.uses:
+                _LOGGER.warning("Unable to generate simple get-array wrapper for "
+                                f"{f.name!r} because the get-size function is unknown.")
 
         file_name = f"Interop.LibCantera.{header_file}.g.cs"
         self._write_file(
