@@ -38,8 +38,10 @@ libs = [('base', ['cpp'], baseSetup),
         ('transport', ['cpp'], defaultSetup),
         ('oneD', ['cpp'], defaultSetup),
         ('zeroD', ['cpp'], defaultSetup),
-        ('clib', ['cpp'], defaultSetup),
         ]
+if not env["clib_experimental"]:
+    libs.append(('clib', ['cpp'], defaultSetup))
+
 
 localenv = env.Clone()
 localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
@@ -83,9 +85,9 @@ if localenv["clib_experimental"]:
     yaml_files = list(auto_path.glob("*_auto.yaml"))
 
     env2 = localenv.Clone()
-    env2.Append(CCFLAGS=env2['pch_flags'])
-    # Need to update include paths, where second entry is for clib_utils.h
-    env2.Prepend(CPPPATH=['#interfaces/clib_experimental/include', '#src/clib'])
+    env2.Append(CCFLAGS=env2["pch_flags"])
+    # Need to update include paths, where second entry is for application.h
+    env2.Prepend(CPPPATH=["#interfaces/clib_experimental/include", "#src/base"])
 
     objects = []
     for yaml_file in yaml_files:
