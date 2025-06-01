@@ -13,11 +13,9 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
 {
     static IEnumerable<DirectoryInfo> GetDirs()
     {
-        const char sep = ';';
+        const string sep = ";";
 
-        return InteropUtil
-            .GetString(500, (size, buffer) =>
-                LibCantera.ct_getDataDirectories(sep.ToString(), size, buffer))
+        return LibCantera.ct_getDataDirectories(sep)
             .Split(sep)
             .Select(d => new DirectoryInfo(d));
     }

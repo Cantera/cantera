@@ -83,10 +83,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
 
             for (var i = 0; i < count; i++)
             {
-                int getName(int length, Span<byte> buffer) => LibCantera
-                    .thermo_speciesName(handle, i, length, buffer);
-
-                var name = InteropUtil.GetString(10, getName);
+                var name = LibCantera.thermo_speciesName(handle, i);
 
                 _species.Add(new
                 (

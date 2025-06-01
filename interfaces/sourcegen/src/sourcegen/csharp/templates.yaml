@@ -8,7 +8,48 @@ csharp-interop-func: |-
   {%- if check_return %}
   [return: MarshalUsing(typeof(ReturnCodeChecker))]
   {%- endif %}
-  public static partial {{ declaration }};
+  {% if public %}public {% else %}private {% endif %}static partial {{ declaration }};
+
+csharp-getstring-func: |-
+  [SkipLocalsInit]
+  public static {{ declaration }}
+  {
+      // try with stack-allocated buffer
+      Span<byte> {{ span_param_name }} = stackalloc byte[BufferSize];
+      var {{ length_param_name }} = BufferSize;
+
+      var neededSize = {{ invocation }};
+      if (neededSize <= {{ length_param_name }})
+      {
+          // remove null terminator byte
+          {{ span_param_name }} = {{ span_param_name }}[..(neededSize - 1)];
+          return Encoding.UTF8.GetString({{ span_param_name }});
+      }
+
+      // try with rented array buffer
+      // array will be at least neededSize but could be larger
+      var array = ArrayPool<byte>.Shared.Rent(neededSize);
+      {{ span_param_name }} = array;
+      {{ length_param_name }} = array.Length;
+      try
+      {
+          neededSize = {{ invocation }};
+          if (neededSize <= {{ length_param_name }})
+          {
+              // remove null terminator byte
+              {{ span_param_name }} = {{ span_param_name }}[..(neededSize - 1)];
+              // use span overload, which skips bounds checks
+              return Encoding.UTF8.GetString({{ span_param_name }});
+          }
+      }
+      finally
+      {
+        ArrayPool<byte>.Shared.Return(array);
+      }
+
+      ThrowOnBadString();
+      return null; // not reached
+  }
 
 csharp-base-handle: |-
   [NativeMarshalling(typeof(Marshaller<{{ class_name }}>))]
@@ -22,21 +63,11 @@ csharp-derived-handle: |-
   [NativeMarshalling(typeof(Marshaller<{{ derived_class_name }}>))]
   class {{ derived_class_name }} : {{ base_class_name }} { }
 
-csharp-property-int-double: |-
+csharp-property: |-
   public {{ prop_type }} {{ cs_name }}
   {
       get => LibCantera.{{ getter }}(_handle);
       {%- if setter %}
-      set => LibCantera.{{ setter }}(_handle, value);
-      {%- endif %}
-  }
-
-csharp-property-string: |-
-  public string {{ cs_name }}
-  {
-      get => InteropUtil.GetString(40, (length, buffer) =>
-          LibCantera.{{ getter }}(_handle, length, buffer));
-      {% if setter -%}
       set => LibCantera.{{ setter }}(_handle, value);
       {%- endif %}
   }

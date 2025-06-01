@@ -53,6 +53,11 @@ class CsFunc(Func):
         """True if this function returns a handle."""
         return self.ret_type.endswith("Handle")
 
+    def gets_string(self) -> bool:
+        """True if this function is used to get a string."""
+        return (len(self.arglist) >= 2
+                and self.arglist[-1].p_type == "Span<byte>")
+
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
@@ -96,16 +101,10 @@ class CSharpSourceGenerator(SourceGenerator):
                     "unsupported signature!")
                 sys.exit(1)
 
-        if prop_type in ["int", "double"]:
-            template = _LOADER.from_string(self._templates["csharp-property-int-double"])
+        if prop_type in ["int", "double", "string"]:
+            template = _LOADER.from_string(self._templates["csharp-property"])
             return template.render(
                 prop_type=prop_type, cs_name=cs_name,
-                getter=getter_name, setter=setter_name)
-
-        if prop_type == "string":
-            template = _LOADER.from_string(self._templates["csharp-property-string"])
-            return template.render(
-                cs_name=cs_name, p_type="string",
                 getter=getter_name, setter=setter_name)
 
         # TODO: Add ability to scaffold properties the use arrays of doubles.
@@ -192,13 +191,28 @@ class CSharpSourceGenerator(SourceGenerator):
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file: str, cs_funcs: list[CsFunc]) -> None:
-        template = _LOADER.from_string(self._templates["csharp-interop-func"])
+        pinvoke_template = _LOADER.from_string(self._templates["csharp-interop-func"])
         function_list = [
-            template.render(has_string_param=func.has_string_param(),
-                            declaration=func.declaration(),
-                            check_return=(not func.is_handle_release_func
-                                          and not func.returns_handle()))
+            pinvoke_template.render(has_string_param=func.has_string_param(),
+                                    declaration=func.declaration(),
+                                    check_return=(not func.is_handle_release_func
+                                                  and not func.returns_handle()),
+                                    public=not func.gets_string())
             for func in cs_funcs]
+
+        # Add wrappers for functions that get strings.
+        def transform_to_getstring_func(func: CsFunc) -> CsFunc:
+            arglist = ArgList(func.arglist[:-2])
+            return CsFunc('string', func.name, arglist, False, None)
+
+        getstring_template = _LOADER.from_string(self._templates["csharp-getstring-func"])
+        function_list += (
+            getstring_template.render(declaration=(transform_to_getstring_func(func)
+                                          .declaration()),
+                                      invocation=func.invocation(),
+                                      length_param_name=func.arglist[-2].name,
+                                      span_param_name=func.arglist[-1].name)
+            for func in cs_funcs if func.gets_string())
 
         file_name = f"Interop.LibCantera.{header_file}.g.cs"
         self._write_file(
