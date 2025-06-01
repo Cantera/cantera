@@ -403,6 +403,7 @@ private:
     ReactorNet* m_net = nullptr;
     vector<double> m_prev_state;
     vector<double> m_dxdt;
+    vector<size_t> m_algebraic;
 };
 
 

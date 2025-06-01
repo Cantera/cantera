@@ -36,6 +36,12 @@ public:
 
     void eval(double t, double* LHS, double* RHS) override;
 
+    vector<size_t> steadyConstraints() const override {
+        throw CanteraError("ConstPressureMoleReactor::steadyConstraints",
+            "ConstPressureMoleReactor is not currently compatible with the steady-state"
+            " solver.");
+    }
+
     void updateState(double* y) override;
 
 protected:
