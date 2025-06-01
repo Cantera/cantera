@@ -17,6 +17,9 @@ class MultiNewton;
 
 //! Base class for representing a system of differential-algebraic equations and solving
 //! for its steady-state response.
+//!
+//! @since New in %Cantera 3.2.
+//! @ingroup numerics
 class SteadyStateSystem
 {
 public:
@@ -273,10 +276,10 @@ protected:
     vector<int> m_steps = { 10 };
 
     double m_tstep = 1.0e-5; //!< Initial timestep
-    double m_tmin = 1e-16; //!< minimum timestep size
-    double m_tmax = 1e+08; //!< maximum timestep size
+    double m_tmin = 1e-16; //!< Minimum timestep size
+    double m_tmax = 1e+08; //!< Maximum timestep size
 
-    //! factor time step is multiplied by  if time stepping fails ( < 1 )
+    //! Factor time step is multiplied by if time stepping fails ( < 1 )
     double m_tfactor = 0.5;
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
@@ -288,13 +291,13 @@ protected:
     vector<double> m_xlast_ts;
 
     unique_ptr<MultiNewton> m_newt; //!< Newton iterator
-    double m_rdt = 0.0; //!< reciprocal of time step
+    double m_rdt = 0.0; //!< Reciprocal of time step
 
     shared_ptr<SystemJacobian> m_jac; //!< Jacobian evaluator
-    bool m_jac_ok = false; //!< if true, Jacobian is current
+    bool m_jac_ok = false; //!< If `true`, Jacobian is current
 
     size_t m_bw = 0; //!< Jacobian bandwidth
-    size_t m_size = 0; //!< solution vector size
+    size_t m_size = 0; //!< %Solution vector size
 
     //! Work arrays used during Jacobian evaluation
     vector<double> m_work1, m_work2;
