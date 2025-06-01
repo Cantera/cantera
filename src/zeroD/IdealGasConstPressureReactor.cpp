@@ -152,4 +152,24 @@ string IdealGasConstPressureReactor::componentName(size_t k) {
     }
 }
 
+double IdealGasConstPressureReactor::upperBound(size_t k) const
+{
+    if (k == 1) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 1.5 * m_thermo->maxTemp();
+    } else {
+        return ConstPressureReactor::upperBound(k);
+    }
+}
+
+double IdealGasConstPressureReactor::lowerBound(size_t k) const
+{
+    if (k == 1) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 0.5 * m_thermo->minTemp();
+    } else {
+        return ConstPressureReactor::lowerBound(k);
+    }
+}
+
 }
