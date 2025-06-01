@@ -605,6 +605,7 @@ string ReactorNet::componentName(size_t i) const
 
 double ReactorNet::upperBound(size_t i) const
 {
+    size_t i0 = i;
     for (auto r : m_reactors) {
         if (i < r->neq()) {
             return r->upperBound(i);
@@ -612,11 +613,12 @@ double ReactorNet::upperBound(size_t i) const
             i -= r->neq();
         }
     }
-    throw CanteraError("ReactorNet::upperBound", "Index {} out of bounds", i);
+    throw CanteraError("ReactorNet::upperBound", "Index {} out of bounds", i0);
 }
 
 double ReactorNet::lowerBound(size_t i) const
 {
+    size_t i0 = i;
     for (auto r : m_reactors) {
         if (i < r->neq()) {
             return r->lowerBound(i);
@@ -624,7 +626,7 @@ double ReactorNet::lowerBound(size_t i) const
             i -= r->neq();
         }
     }
-    throw CanteraError("ReactorNet::lowerBound", "Index {} out of bounds", i);
+    throw CanteraError("ReactorNet::lowerBound", "Index {} out of bounds", i0);
 }
 
 size_t ReactorNet::registerSensitivityParameter(

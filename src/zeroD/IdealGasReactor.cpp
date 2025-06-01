@@ -159,5 +159,22 @@ string IdealGasReactor::componentName(size_t k) {
     }
 }
 
+double IdealGasReactor::upperBound(size_t k) const {
+    if (k == 2) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 1.5 * m_thermo->maxTemp();
+    } else {
+        return Reactor::upperBound(k);
+    }
+}
+
+double IdealGasReactor::lowerBound(size_t k) const {
+    if (k == 2) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 0.5 * m_thermo->minTemp();
+    } else {
+        return Reactor::lowerBound(k);
+    }
+}
 
 }
