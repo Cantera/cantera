@@ -1,5 +1,5 @@
 /**
- * @file clib3_defs.h
+ * @file clib_defs.h
  *
  * @warning  This module is an experimental part of the %Cantera API and
  *      may be changed or removed without notice.
@@ -13,8 +13,8 @@
  * @brief %Cantera's experimental CLib interface.
  */
 
-#ifndef __CLIB3_DEFS_H__
-#define __CLIB3_DEFS_H__
+#ifndef __CLIB_DEFS_H__
+#define __CLIB_DEFS_H__
 
 #include "cantera/base/config.h"
 #include <stdlib.h>
@@ -28,13 +28,11 @@
 # define DERR -999.999
 #endif
 
-// // Used by external logger
-// enum LogLevel { INFO, WARN , ERROR };
+// Used by external logger
+enum LogLevel { INFO, WARN , ERROR };
 
-// //! Represents a callback that is invoked to produce log output.
-// //! TODO: Only needed in the main CLib library. Should be moved once the
-// //! traditional CLib is removed.
-// typedef void
-//     (*LogCallback)(enum LogLevel logLevel, const char* category, const char* message);
+//! Represents a callback that is invoked to produce log output.
+typedef void
+    (*LogCallback)(enum LogLevel logLevel, const char* category, const char* message);
 
 #endif

@@ -34,9 +34,7 @@ using namespace Cantera;
 {% if base %}
 // Define Cabinet<{{ base }}> (single-instance object)
 typedef Cabinet<{{ base }}> {{ base }}Cabinet;
-// Note: cabinet is already created by the traditional CLib interface
-// template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0; // initialized here
-template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage; // temporary
+template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0; // initialized here
 
 {% endif %}
 {% if other %}

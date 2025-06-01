@@ -448,6 +448,8 @@ class CLibSourceGenerator(SourceGenerator):
         if not headers.base:
             # main CLib file receives references to all cabinets
             other = [kk for kk in self._clib_bases if kk]
+        elif headers.base in other:
+            other.remove(headers.base)
         includes = []
         for obj in [headers.base] + list(other):
             includes += self._config.includes[obj]
