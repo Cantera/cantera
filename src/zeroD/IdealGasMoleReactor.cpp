@@ -79,6 +79,24 @@ void IdealGasMoleReactor::initialize(double t0)
     m_uk.resize(m_nsp, 0.0);
 }
 
+double IdealGasMoleReactor::upperBound(size_t k) const {
+    if (k == 0) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 1.5 * m_thermo->maxTemp();
+    } else {
+        return MoleReactor::upperBound(k);
+    }
+}
+
+double IdealGasMoleReactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 0.5 * m_thermo->minTemp();
+    } else {
+        return MoleReactor::lowerBound(k);
+    }
+}
+
 void IdealGasMoleReactor::updateState(double* y)
 {
     // the components of y are: [0] the temperature, [1] the volume, [2...K+1) are the

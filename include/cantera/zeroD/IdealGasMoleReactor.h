@@ -27,8 +27,9 @@ public:
     }
 
     size_t componentIndex(const string& nm) const override;
-
     string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
 
     void getState(double* y) override;
 
