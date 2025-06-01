@@ -27,7 +27,7 @@ reactions:
 - equation: O2+ + Electron => O + O  # Kossyi(40)
   type: two-temperature-plasma
   rate-constant: {A: 6.0e-5, b: 0.0, Ea_gas: 0.0, be: -1.0, Ea_electron: 0.0}
- 
+
 cross-sections:
 - target: N2
   data:

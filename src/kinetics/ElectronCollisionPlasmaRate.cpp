@@ -46,7 +46,7 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     return true;
 }
 
-void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units) 
+void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
 
@@ -85,7 +85,7 @@ void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitSt
         }
 
         cs_ok = true;  // Mark as valid cross-section data
-    } 
+    }
 
     //  **If no cross-section data was found, defer to PlasmaPhase (old format)**
     else {

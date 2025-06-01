@@ -302,8 +302,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                                         eedf["energy-levels"].asVector<double>().size());
             }
             setIsotropicElectronEnergyDistribution();
-        } 
-        
+        }
+
         else if (m_distributionType == "discretized") {
             if (!eedf.hasKey("energy-levels")) {
                 throw CanteraError("PlasmaPhase::setParameters",
@@ -319,8 +319,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             setDiscretizedElectronEnergyDist(eedf["energy-levels"].asVector<double>().data(),
                                              eedf["distribution"].asVector<double>().data(),
                                              eedf["energy-levels"].asVector<double>().size());
-        } 
-        
+        }
+
         else if (m_distributionType == "TwoTermApproximation") {
             bool foundCrossSections = false;
 
@@ -424,8 +424,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 
                         // store the correctly identified data
                         newCrossSection["target"] = targetSpecies;
-                        newCrossSection["products"] = productSpeciesList;  
-                        newCrossSection["product"] = productSpeciesList.empty() ? "unknown" : productSpeciesList[0]; 
+                        newCrossSection["products"] = productSpeciesList;
+                        newCrossSection["product"] = productSpeciesList.empty() ? "unknown" : productSpeciesList[0];
                         newCrossSection["kind"] = kind;
                         newCrossSection["energy-levels"] = collisionItem["energy-levels"].asVector<double>();
                         newCrossSection["cross-sections"] = collisionItem["cross-sections"].asVector<double>();
@@ -583,7 +583,7 @@ void PlasmaPhase::initThermo()
             }
 
             // Check if cross-section data exists
-            if (!(rate->get_cs_ok())) {   
+            if (!(rate->get_cs_ok())) {
                 throw CanteraError("PlasmaPhase::initThermo",
                                    "Energy levels and cross-sections are undefined for an electron-collision-plasma reaction.");
             }
