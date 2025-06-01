@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "cantera/core.h"
-#include "cantera/clib_experimental/ctfunc3.h"
+#include "cantera_clib/ctfunc3.h"
 #include "cantera/numerics/Func1Factory.h"
 
 using namespace Cantera;
