@@ -33,6 +33,9 @@ public:
 
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
+    vector<size_t> steadyConstraints() const override {
+        return {0}; // mass
+    }
 
     void updateState(double* y) override;
 
