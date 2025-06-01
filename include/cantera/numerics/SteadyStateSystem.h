@@ -17,6 +17,9 @@ class MultiNewton;
 
 //! Base class for representing a system of differential-algebraic equations and solving
 //! for its steady-state response.
+//!
+//! @since New in %Cantera 3.2.
+//! @ingroup numerics
 class SteadyStateSystem
 {
 public:
