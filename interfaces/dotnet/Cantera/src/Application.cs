@@ -67,10 +67,10 @@ public static class Application
     static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
 
     static readonly Lazy<string> s_version =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_version));
+        new(LibCantera.ct_version);
 
     static readonly Lazy<string> s_gitCommit =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_gitCommit));
+        new(LibCantera.ct_gitCommit);
 
     static readonly Lazy<DataDirectoryCollection> s_dataDirectories =
         new(() => new DataDirectoryCollection());

@@ -14,11 +14,8 @@ public class CanteraException : ExternalException
 {
     private CanteraException(string message) : base(message) { }
 
-    internal static void ThrowLatest()
-    {
-        var errorMessage = InteropUtil.GetString(500, LibCantera.ct_getCanteraError);
-        throw new CanteraException(errorMessage);
-    }
+    internal static void ThrowLatest() =>
+        throw new CanteraException(LibCantera.ct_getCanteraError());
 }
 
 /// <summary>

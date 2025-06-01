@@ -148,6 +148,11 @@ class ArgList:
     def __iter__(self) -> Iterator[Param]:
         return iter(self.params)
 
+    def param_names_str(self) -> str:
+        """String representation of the argument list parameter names."""
+        args = ", ".join(par.name for par in self.params)
+        return f"({args})"
+
     def short_str(self) -> str:
         """String representation of the argument list without parameter names."""
         args = ", ".join(par.short_str() for par in self.params)
@@ -193,6 +198,10 @@ class Func:
         if " " in name:
             r_type, name = name.rsplit(" ", 1)
         return cls(r_type, name, arglist, brief, None, "", "", [])
+
+    def invocation(self) -> str:
+        """Return a string representation of calling the function in an expression."""
+        return (f"{self.name}{self.arglist.param_names_str()}")
 
     def declaration(self) -> str:
         """Return a string representation of the function without semicolon."""
