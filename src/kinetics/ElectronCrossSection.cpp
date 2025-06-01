@@ -47,9 +47,9 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
     }
 
     if (node.hasKey("threshold")){
-    	ecs->threshold = node["threshold"].asDouble(); //std::stof(node.attrib("threshold"));
+        ecs->threshold = node["threshold"].asDouble(); //std::stof(node.attrib("threshold"));
     } else {
-    	ecs->threshold = 0.0;
+        ecs->threshold = 0.0;
 
         if (ecs->kind == "excitation" || ecs->kind == "ionization" || ecs->kind == "attachment") {
             for (size_t i = 0; i < ecs->energyLevel.size(); i++) {
@@ -74,9 +74,9 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
     }
 
     /*if (node.hasKey("product")) {
-    	ecs->product = node["product"].asString();
+        ecs->product = node["product"].asString();
     } else {
-    	ecs->product = ecs->target;
+        ecs->product = ecs->target;
     }*/
 
     // Some writelog to check the datas loaded concerning the cross section

@@ -1,6 +1,6 @@
 """
 EEDF calculation
-==============
+================
 Compute EEDF with two term approximation solver at constant E/N.
 Compare with results from BOLOS.
 
