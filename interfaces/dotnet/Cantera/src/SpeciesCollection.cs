@@ -45,10 +45,14 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// </summary>
     public double[] MassFractions
     {
-        get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo_getMassFractions);
+        get
+        {
+            var array = new double[_species.Count];
+            LibCantera.thermo_getMassFractions(_handle, array);
+            return array;
+        }
 
-        set => LibCantera.thermo_setMassFractions(_handle,  value.Length, value);
+        set => LibCantera.thermo_setMassFractions(_handle, value);
     }
 
     /// <summary>
@@ -58,10 +62,14 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// </summary>
     public double[] MoleFractions
     {
-        get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo_getMoleFractions);
+        get
+        {
+            var array = new double[_species.Count];
+            LibCantera.thermo_getMoleFractions(_handle, array);
+            return array;
+        }
 
-        set => LibCantera.thermo_setMoleFractions(_handle, value.Length, value);
+        set => LibCantera.thermo_setMoleFractions(_handle, value);
     }
 
     internal SpeciesCollection(ThermoPhaseHandle handle)
@@ -75,9 +83,8 @@ public class SpeciesCollection : IReadOnlyList<Species>
         using (pool.Rent(count, out var molecularWeights))
         using (pool.Rent(count, out var charges))
         {
-            InteropUtil.GetDoubles(handle, molecularWeights,
-                LibCantera.thermo_getMolecularWeights);
-            InteropUtil.GetDoubles(handle, charges, LibCantera.thermo_getCharges);
+            LibCantera.thermo_getMolecularWeights(handle, molecularWeights);
+            LibCantera.thermo_getCharges(handle, charges);
 
             _species = new(count);
 

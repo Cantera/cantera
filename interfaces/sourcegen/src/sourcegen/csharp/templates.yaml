@@ -51,6 +51,24 @@ csharp-getstring-func: |-
       return null; // not reached
   }
 
+csharp-span-func: |-
+  [SkipLocalsInit]
+  public static {{ declaration }}
+  {
+    var {{ length_param_name }} = {{ span_param_name }}.Length;
+    {{ invocation }};
+  }
+
+csharp-getarray-func: |-
+  [SkipLocalsInit]
+  public static {{ declaration }}
+  {
+    var {{ length_param_name }} = {{ get_size_invocation }};
+    var {{ span_param_name }} = new double[{{ length_param_name }}];
+    {{ invocation }};
+    return {{ span_param_name }};
+  }
+
 csharp-base-handle: |-
   [NativeMarshalling(typeof(Marshaller<{{ class_name }}>))]
   class {{ class_name }} : CanteraHandle
