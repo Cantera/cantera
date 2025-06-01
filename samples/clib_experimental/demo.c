@@ -13,14 +13,14 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/clib_experimental/ct3.h"
-#include "cantera/clib_experimental/ctkin3.h"
-#include "cantera/clib_experimental/ctrxn3.h"
-#include "cantera/clib_experimental/ctsol3.h"
-#include "cantera/clib_experimental/ctthermo3.h"
-#include "cantera/clib_experimental/cttrans3.h"
-#include "cantera/clib_experimental/ctreactor3.h"
-#include "cantera/clib_experimental/ctreactornet3.h"
+#include "cantera_clib/ct3.h"
+#include "cantera_clib/ctkin3.h"
+#include "cantera_clib/ctrxn3.h"
+#include "cantera_clib/ctsol3.h"
+#include "cantera_clib/ctthermo3.h"
+#include "cantera_clib/cttrans3.h"
+#include "cantera_clib/ctreactor3.h"
+#include "cantera_clib/ctreactornet3.h"
 
 #include <stdio.h>
 
@@ -28,12 +28,12 @@
 // The following header files are not used by this example, but are nevertheless added
 // here to ensure C-compatibility of Cantera's experimental clib includes in continuous
 // testing.
-#include "cantera/clib_experimental/ctconnector3.h"
-#include "cantera/clib_experimental/ctdomain3.h"
-#include "cantera/clib_experimental/ctfunc3.h"
-#include "cantera/clib_experimental/ctmix3.h"
-#include "cantera/clib_experimental/ctonedim3.h"
-#include "cantera/clib_experimental/ctrdiag3.h"
+#include "cantera_clib/ctconnector3.h"
+#include "cantera_clib/ctdomain3.h"
+#include "cantera_clib/ctfunc3.h"
+#include "cantera_clib/ctmix3.h"
+#include "cantera_clib/ctonedim3.h"
+#include "cantera_clib/ctrdiag3.h"
 
 // sphinx_gallery_end_ignore
 
