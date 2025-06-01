@@ -1,3 +1,5 @@
+@page clibPage Experimental CLib Interface
+
 # Cantera – Experimental CLib Interface
 
 This directory and the associated `src/clib_experimental` folder contain an
@@ -20,6 +22,10 @@ A rudimentary test suite ensures that code performs as expected:
 scons test-clib-experimental
 scons test-clib-experimental-demo
 ```
+
+## CLib Group
+
+* @ref clibGroup (CLib Group)
 
 ## Status
 

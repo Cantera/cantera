@@ -51,7 +51,7 @@ prop_type_crosswalk:
 # Cabinets with associated preambles (headers)
 preambles:
   "": |-
-    #include "cantera/clib/clib_defs.h"
+    #include "cantera_clib/clib3_defs.h"
     #include <stdint.h>  // for 32-bit int32_t / 64-bit int64_t
 
 # Cabinets with associated includes (implementation files)

@@ -404,7 +404,7 @@ protected:
 
 //! Create a new reaction path diagram.
 /**
- *  Returns a shared ReactionPath instance where the fluxes of `element`
+ *  Returns a shared ReactionPathDiagram instance where the fluxes of `element`
  *  are calculated according to instantaneous net reaction rates.
  *  @param kin  Shared pointer to Kinetics object.
  *  @param element  Element used for the calculation of net reaction rates.

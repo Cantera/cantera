@@ -1273,6 +1273,7 @@ private:
      * @name Pure fluid properties
      * These are the pure fluid properties of each species that are needed to compute
      * the mixture properties for the Chung viscosity and thermal conductivity models.
+     * @{
      */
     vector<double> m_sigma_i; //!< Effective molecular diameter [Angstroms]
     vector<double> m_epsilon_over_k_i; //!< Characteristic temperature [K]
