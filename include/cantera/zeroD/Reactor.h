@@ -144,6 +144,16 @@ public:
         throw NotImplementedError("Reactor::getConstraints");
     }
 
+    //! Get the indices of equations that are algebraic constraints when solving the
+    //! steady-state problem.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 3.2
+    virtual vector<size_t> steadyConstraints() const {
+        return {1}; // volume
+    }
+
     void syncState() override;
 
     //! Set the state of the reactor to correspond to the state vector *y*.

@@ -48,6 +48,10 @@ public:
     void evalDae(double t, double* y, double* ydot, double* residual) override;
 
     void getConstraints(double* constraints) override;
+    vector<size_t> steadyConstraints() const override {
+        throw CanteraError("FlowReactor::steadyConstraints",
+            "FlowReactor is not compatible with time-dependent steady-state solver.");
+    }
 
     //! Set the mass flow rate through the reactor [kg/s]
     void setMassFlowRate(double mdot);

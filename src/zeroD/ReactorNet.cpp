@@ -740,7 +740,17 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     m_prev_state.assign(x0, x0 + m_size);
     setInitialGuess(x0);
     m_mask.assign(m_size, 1);
-    m_mask[1] = 0; // Temporary hack
+    size_t start = 0;
+    for (size_t i = 0; i < net->nReactors(); i++) {
+        auto& R = net->reactor(i);
+        for (auto& m : R.steadyConstraints()) {
+            m_algebraic.push_back(start + m);
+        }
+        start += R.neq();
+    }
+    for (auto& n : m_algebraic) {
+        m_mask[n] = 0;
+    }
 }
 
 void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
@@ -753,8 +763,10 @@ void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
     for (size_t i = 0; i < size(); i++) {
         r[i] -= (x[i] - m_prev_state[i]) * rdt;
     }
-    // Temporary hack for single Reactor
-    r[1] = x[1] - m_prev_state[1];
+    // Hold algebraic constraints fixed
+    for (auto& n : m_algebraic) {
+        r[n] = x[n] - m_prev_state[n];
+    }
 }
 
 void SteadyReactorSolver::initTimeInteg(double dt, double* x)
