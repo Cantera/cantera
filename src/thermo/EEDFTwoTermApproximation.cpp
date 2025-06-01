@@ -50,9 +50,9 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     {
 
         for (size_t k = 0; k < m_phase->nElectronCrossSections(); k++) {
-        
+
             std::string target = m_phase->target(k);
-            std::vector<std::string> products = m_phase->products(k);  
+            std::vector<std::string> products = m_phase->products(k);
 
             // Print all identified products
             std::string productListStr = "{ ";
@@ -111,22 +111,22 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
     double delta = options.m_delta0;
 
     if (options.m_maxn == 0) {
-        throw CanteraError("EEDFTwoTermApproximation::converge", 
+        throw CanteraError("EEDFTwoTermApproximation::converge",
                            "options.m_maxn is zero; no iterations will occur.");
     }
     if (options.m_points == 0) {
-        throw CanteraError("EEDFTwoTermApproximation::converge", 
+        throw CanteraError("EEDFTwoTermApproximation::converge",
                            "options.m_points is zero; the EEDF grid is empty.");
     }
     if (std::isnan(delta) || delta == 0.0) {
-        throw CanteraError("EEDFTwoTermApproximation::converge", 
+        throw CanteraError("EEDFTwoTermApproximation::converge",
                            "options.m_delta0 is NaN or zero; solver cannot update.");
     }
 
     for (size_t n = 0; n < options.m_maxn; n++) {
         if (0.0 < err1 && err1 < err0) {
             delta *= log(options.m_factorM) / (log(err0) - log(err1));
-        } 
+        }
 
         Eigen::VectorXd f0_old = f0;
         f0 = iterate(f0_old, delta);
@@ -138,12 +138,12 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
         }
         err1 = norm(Df0, m_gridCenter);
 
-        if ((f0.array() != f0.array()).any()) {  
-            throw CanteraError("EEDFTwoTermApproximation::converge", 
+        if ((f0.array() != f0.array()).any()) {
+            throw CanteraError("EEDFTwoTermApproximation::converge",
                                "NaN detected in EEDF solution.");
         }
         if ((f0.array().abs() > 1e300).any()) {
-            throw CanteraError("EEDFTwoTermApproximation::converge", 
+            throw CanteraError("EEDFTwoTermApproximation::converge",
                                "Inf detected in EEDF solution.");
         }
 
@@ -162,7 +162,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     // must be refactored!!
 
     if ((f0.array() != f0.array()).any()) {
-        throw CanteraError("EEDFTwoTermApproximation::iterate", 
+        throw CanteraError("EEDFTwoTermApproximation::iterate",
                            "NaN detected in input f0.");
     }
 
@@ -206,7 +206,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     A += I;
 
     if (A.rows() == 0 || A.cols() == 0) {
-        throw CanteraError("EEDFTwoTermApproximation::iterate", 
+        throw CanteraError("EEDFTwoTermApproximation::iterate",
                            "Matrix A has zero rows/columns.");
     }
 
@@ -233,12 +233,12 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     }
 
     if ((f1.array() != f1.array()).any()) {
-        throw CanteraError("EEDFTwoTermApproximation::iterate", 
+        throw CanteraError("EEDFTwoTermApproximation::iterate",
                            "NaN detected in computed f1.");
     }
 
     f1 /= norm(f1, m_gridCenter);
-    
+
     return f1;
 }
 
@@ -269,7 +269,7 @@ double EEDFTwoTermApproximation::integralPQ(double a, double b, double u0, doubl
     return c0 * A1 + c1 * A2;
 }
 
-vector_fp EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0) 
+vector_fp EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
 {
     vector_fp g(options.m_points, 0.0);
     const double f_min = 1e-300;  // Smallest safe floating-point value
@@ -710,7 +710,7 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
 }
 
 
-void EEDFTwoTermApproximation::eeColIntegrals(vector_fp& A1, vector_fp& A2, vector_fp& A3, 
+void EEDFTwoTermApproximation::eeColIntegrals(vector_fp& A1, vector_fp& A2, vector_fp& A3,
                                               double& a, size_t nPoints)
 {
     // Ensure vectors are initialized
@@ -718,7 +718,7 @@ void EEDFTwoTermApproximation::eeColIntegrals(vector_fp& A1, vector_fp& A2, vect
     A2.assign(nPoints, 0.0);
     A3.assign(nPoints, 0.0);
 
-    // Compute net production frequency 
+    // Compute net production frequency
     double nu = netProductionFreq(m_f0);
     // simulations with repeated calls to update EEDF will produce numerical instability here
     double nu_floor = 1e-40; // adjust as needed for stability
