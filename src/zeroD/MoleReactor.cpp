@@ -319,4 +319,21 @@ string MoleReactor::componentName(size_t k) {
     throw CanteraError("MoleReactor::componentName", "Index is out of bounds.");
 }
 
+double MoleReactor::upperBound(size_t k) const {
+    // Component is either int_energy, volume, or moles of a bulk or surface species
+    return BigNumber;
+}
+
+double MoleReactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        return -BigNumber; // int_energy
+    } else if (k == 1) {
+        return 0; // volume
+    } else if (k >= 2 && k < m_nv) {
+        return -Tiny; // moles of bulk or surface species
+    } else {
+        throw CanteraError("MoleReactor::lowerBound", "Index {} is out of bounds.", k);
+    }
+}
+
 }

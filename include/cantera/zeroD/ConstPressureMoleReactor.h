@@ -26,10 +26,6 @@ public:
         return "ConstPressureMoleReactor";
     };
 
-    size_t componentIndex(const string& nm) const override;
-
-    string componentName(size_t k) override;
-
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
@@ -43,6 +39,11 @@ public:
     }
 
     void updateState(double* y) override;
+
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
 
 protected:
     const size_t m_sidx = 1;
