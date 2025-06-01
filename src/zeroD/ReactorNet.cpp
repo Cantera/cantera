@@ -739,7 +739,7 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     m_size = m_net->neq();
     m_jac = newSystemJacobian("eigen-sparse-direct");
     SteadyStateSystem::resize();
-    m_prev_state.assign(x0, x0 + m_size);
+    m_initialState.assign(x0, x0 + m_size);
     setInitialGuess(x0);
     m_mask.assign(m_size, 1);
     size_t start = 0;
@@ -763,18 +763,18 @@ void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
     vector<double> xv(x, x + size());
     m_net->eval(0.0, x, r, nullptr);
     for (size_t i = 0; i < size(); i++) {
-        r[i] -= (x[i] - m_prev_state[i]) * rdt;
+        r[i] -= (x[i] - m_initialState[i]) * rdt;
     }
     // Hold algebraic constraints fixed
     for (auto& n : m_algebraic) {
-        r[n] = x[n] - m_prev_state[n];
+        r[n] = x[n] - m_initialState[n];
     }
 }
 
 void SteadyReactorSolver::initTimeInteg(double dt, double* x)
 {
     SteadyStateSystem::initTimeInteg(dt, x);
-    m_prev_state.assign(x, x + size());
+    m_initialState.assign(x, x + size());
 }
 
 void SteadyReactorSolver::evalJacobian(double* x0)
