@@ -136,13 +136,10 @@ jobs:
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Generate clib_experimental
       run: |
-        python3 `which scons` doxygen
-        python3 -m pip install interfaces/sourcegen
-        sourcegen --api=clib --output=.
         python3 `which scons` build clib_experimental=y -j4
       if: matrix.python-version == '3.11'
     - name: Run googletests for clib_experimental
-      run: scons test-clib-experimental --debug=time
+      run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
@@ -199,11 +196,6 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest Jinja2
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
-    - name: Generate clib_experimental
-      run: |
-        python3 `which scons` doxygen
-        python3 -m pip install interfaces/sourcegen
-        python3 -m sourcegen --api=clib --output=.
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
@@ -219,9 +211,9 @@ jobs:
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Run googletests for clib_experimental
-      run: python3 `which scons` test-clib-experimental --debug=time
+      run: python3 `which scons` test-clib --debug=time
     - name: Run sample for clib_experimental demo
-      run: python3 `which scons` test-clib-experimental-demo --debug=time
+      run: python3 `which scons` test-clib-demo --debug=time
 
   macos-multiple-pythons:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
@@ -277,13 +269,10 @@ jobs:
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Generate clib_experimental
       run: |
-        scons doxygen
-        python -m pip install -e interfaces/sourcegen
-        sourcegen --api=clib --output=.
         scons build clib_experimental=y -j3
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Run googletests for clib_experimental
-      run: scons test-clib-experimental --debug=time
+      run: scons test-clib --debug=time
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Upload shared library
       uses: actions/upload-artifact@v4
@@ -329,11 +318,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-    - name: Generate clib_experimental
-      run: |
-        python3 `which scons` doxygen
-        python3 -m pip install -e interfaces/sourcegen
-        sourcegen --api=clib --output=.
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -448,7 +432,7 @@ jobs:
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
-        run: scons build -j4 debug=n optimize=y use_pch=n
+        run: scons build -j4 debug=n optimize=y use_pch=n clib_experimental=y
       - name: Build documentation
         run: |
           scons sphinx doxygen logging=debug \
@@ -787,13 +771,10 @@ jobs:
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
     - name: Generate clib_experimental
       run: |
-        scons doxygen
-        python -m pip install -e interfaces/sourcegen
-        sourcegen --api=clib --output=.
         scons build clib_experimental=y -j4
       if: matrix.python-version == '3.11'
     - name: Run googletests for clib_experimental
-      run: scons test-clib-experimental --debug=time
+      run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
@@ -1056,10 +1037,6 @@ jobs:
     - name: Extract Doxygen artifacts
       run: tar -xzf doxygen.tar.gz
       working-directory: build/doc
-    - name: Install sourcegen
-      run: python -m pip install -e interfaces/sourcegen
-    - name: Test YAML output generation
-      run: sourcegen --api=yaml --output=build/yaml -v
     - name: Build the .NET interface
       run: dotnet build
       working-directory: interfaces/dotnet
@@ -1071,3 +1048,13 @@ jobs:
         dotnet run --project examples/Application
         dotnet run --project examples/SoundSpeed
       working-directory: interfaces/dotnet
+    - name: Clean .NET
+      run: |
+        dotnet clean
+        if [ -d "Cantera/obj/sourcegen" ]; then exit 1; fi
+      shell: bash
+      working-directory: interfaces/dotnet
+    - name: Install sourcegen
+      run: python -m pip install -e interfaces/sourcegen
+    - name: Test YAML output generation
+      run: sourcegen --api=yaml --output=build/yaml -v
