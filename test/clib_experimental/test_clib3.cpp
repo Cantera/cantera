@@ -4,11 +4,11 @@
 
 #include "cantera/core.h"
 #include "cantera/clib/clib_defs.h"
-#include "cantera_clib/ct3.h"
-#include "cantera_clib/ctsol3.h"
-#include "cantera_clib/ctthermo3.h"
-#include "cantera_clib/ctkin3.h"
-#include "cantera_clib/cttrans3.h"
+#include "cantera_clib/ct.h"
+#include "cantera_clib/ctsol.h"
+#include "cantera_clib/ctthermo.h"
+#include "cantera_clib/ctkin.h"
+#include "cantera_clib/cttrans.h"
 
 using namespace Cantera;
 using ::testing::HasSubstr;

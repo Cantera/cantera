@@ -4,9 +4,9 @@
 
 #include "cantera/core.h"
 #include "cantera/clib/clib_defs.h"
-#include "cantera_clib/ct3.h"
-#include "cantera_clib/ctsol3.h"
-#include "cantera_clib/ctmix3.h"
+#include "cantera_clib/ct.h"
+#include "cantera_clib/ctsol.h"
+#include "cantera_clib/ctmix.h"
 
 using namespace Cantera;
 

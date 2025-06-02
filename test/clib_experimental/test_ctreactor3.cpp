@@ -3,11 +3,11 @@
 #include "cantera/core.h"
 #include "cantera/zerodim.h"
 
-#include "cantera_clib/ct3.h"
-#include "cantera_clib/ctsol3.h"
-#include "cantera_clib/ctthermo3.h"
-#include "cantera_clib/ctreactor3.h"
-#include "cantera_clib/ctreactornet3.h"
+#include "cantera_clib/ct.h"
+#include "cantera_clib/ctsol.h"
+#include "cantera_clib/ctthermo.h"
+#include "cantera_clib/ctreactor.h"
+#include "cantera_clib/ctreactornet.h"
 
 using namespace Cantera;
 

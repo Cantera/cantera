@@ -34,7 +34,7 @@ generated_files = []
 auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
 yaml_files = auto_path.glob("*_auto.yaml")
 for yaml_file in yaml_files:
-    base_name = yaml_file.stem.replace("_auto", "3")
+    base_name = yaml_file.stem.replace("_auto", "")
     generated_files.extend([
         f"#interfaces/clib_experimental/include/cantera_clib/{base_name}.h",
         f"#interfaces/clib_experimental/src/{base_name}.cpp",

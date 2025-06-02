@@ -5,12 +5,12 @@
 #include "cantera/core.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/clib/clib_defs.h"
-#include "cantera_clib/ct3.h"
-#include "cantera_clib/ctsol3.h"
-#include "cantera_clib/ctthermo3.h"
-#include "cantera_clib/ctkin3.h"
-#include "cantera_clib/ctrxn3.h"
-#include "cantera_clib/ctrdiag3.h"
+#include "cantera_clib/ct.h"
+#include "cantera_clib/ctsol.h"
+#include "cantera_clib/ctthermo.h"
+#include "cantera_clib/ctkin.h"
+#include "cantera_clib/ctrxn.h"
+#include "cantera_clib/ctrdiag.h"
 
 using namespace Cantera;
 using ::testing::HasSubstr;
