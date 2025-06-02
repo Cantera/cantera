@@ -4,13 +4,13 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's ConnectorNode class.
   Partially implements a replacement for CLib's traditional @c ctreactor library.
-prefix: connector3
+prefix: connector
 base: ConnectorNode
 parents: []  # List of parent classes
 derived:  # Specialization/prefix dictionary
-  FlowDevice: flowdev3
-  WallBase: wall3
-  Wall: wall3
+  FlowDevice: flowdev
+  WallBase: wall
+  Wall: wall
 recipes:
 - name: new
   implements: newConnector

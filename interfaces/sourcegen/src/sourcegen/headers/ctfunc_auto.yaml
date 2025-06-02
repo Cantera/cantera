@@ -4,7 +4,7 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Func1 class.
   Implements a replacement for CLib's traditional @c ctfunc library.
-prefix: func13
+prefix: func1
 base: Func1
 recipes:
 - name: check

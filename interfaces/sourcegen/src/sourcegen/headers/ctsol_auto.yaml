@@ -4,10 +4,10 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Solution class.
   Partially implements a replacement for CLib's traditional @c ct library.
-prefix: sol3
+prefix: sol
 base: Solution
 parents: []  # List of parent classes
-derived: {Interface: sol3}  # Specialization/prefix dictionary
+derived: {Interface: sol}  # Specialization/prefix dictionary
 recipes:
 - name: newSolution
   implements: newSolution(const string&, const string&, const string&)

@@ -4,13 +4,13 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Domain1D class.
   Partially implements a replacement for CLib's traditional @c ctonedim library.
-prefix: domain3
+prefix: domain
 base: Domain1D
 parents: []  # List of parent classes
 derived:  # Specialization/prefix dictionary
-  Boundary1D: bdry3
-  ReactingSurf1D: reactingsurf3
-  Flow1D: flow3
+  Boundary1D: bdry
+  ReactingSurf1D: reactingsurf
+  Flow1D: flow
 recipes:
 - name: newFlow1D
 - name: newBoundary1D
