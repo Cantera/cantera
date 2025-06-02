@@ -145,7 +145,22 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 
         // compute the next undamped step that would result if x1 is accepted
         // J(x_k)^-1 F(x_k+1)
-        step(x1, step1, r, loglevel-1);
+        try {
+            // Allow solver to continue after step failure (which can involve problems
+            // such as errors setting the thermodynamic state) by returning to time
+            // stepping mode.
+            step(x1, step1, r, loglevel-1);
+        } catch (CanteraError& err) {
+            if (r.rdt() == 0) {
+                if (loglevel > 1) {
+                    writelog("\n  Steady-state Newton step failed:"
+                             "\n  {}:\n    {}", err.getMethod(), err.getMessage());
+                }
+                return -5;
+            } else {
+                throw;
+            }
+        }
 
         // compute the weighted norm of step1
         s1 = r.weightedNorm(step1);
@@ -209,7 +224,22 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
 
         if (forceNewJac) {
             r.evalJacobian(&m_x[0]);
-            jac->updateTransient(rdt, r.transientMask().data());
+            try {
+                jac->updateTransient(rdt, r.transientMask().data());
+            } catch (CanteraError& err) {
+                // Allow solver to continue after failure to factorize the steady-state
+                // Jacobian by returning to time stepping mode
+                if (rdt == 0.0) {
+                    if (loglevel > 1) {
+                        writelog("\n  Steady Jacobian factorization failed:"
+                                "\n    {}:\n    {}",
+                                err.getMethod(), err.getMessage());
+                    }
+                    return -4;
+                } else {
+                    throw;
+                }
+            }
             forceNewJac = false;
         }
 
