@@ -46,11 +46,11 @@ public class SpeciesCollection : IReadOnlyList<Species>
     public double[] MassFractions
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo3_getMassFractions);
+            LibCantera.thermo_getMassFractions);
 
         set
         {
-            var retval = LibCantera.thermo3_setMassFractions(_handle,
+            var retval = LibCantera.thermo_setMassFractions(_handle,
                 value.Length, value);
 
             InteropUtil.CheckReturn(retval);
@@ -65,11 +65,11 @@ public class SpeciesCollection : IReadOnlyList<Species>
     public double[] MoleFractions
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo3_getMoleFractions);
+            LibCantera.thermo_getMoleFractions);
 
         set
         {
-            var retval = LibCantera.thermo3_setMoleFractions(_handle,
+            var retval = LibCantera.thermo_setMoleFractions(_handle,
                 value.Length, value);
 
             InteropUtil.CheckReturn(retval);
@@ -80,7 +80,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     {
         _handle = handle;
 
-        var count = InteropUtil.CheckReturn(LibCantera.thermo3_nSpecies(handle));
+        var count = InteropUtil.CheckReturn(LibCantera.thermo_nSpecies(handle));
 
         var pool = MemoryPool<double>.Shared;
 
@@ -88,15 +88,15 @@ public class SpeciesCollection : IReadOnlyList<Species>
         using (pool.Rent(count, out var charges))
         {
             InteropUtil.GetDoubles(handle, molecularWeights,
-                LibCantera.thermo3_getMolecularWeights);
-            InteropUtil.GetDoubles(handle, charges, LibCantera.thermo3_getCharges);
+                LibCantera.thermo_getMolecularWeights);
+            InteropUtil.GetDoubles(handle, charges, LibCantera.thermo_getCharges);
 
             _species = new(count);
 
             for (var i = 0; i < count; i++)
             {
                 int getName(int length, Span<byte> buffer) => LibCantera
-                    .thermo3_getSpeciesName(handle, i, length, buffer);
+                    .thermo_speciesName(handle, i, length, buffer);
 
                 var name = InteropUtil.GetString(10, getName);
 

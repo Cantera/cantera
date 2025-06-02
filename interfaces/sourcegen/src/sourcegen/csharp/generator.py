@@ -25,9 +25,9 @@ _LOADER = Environment(loader=BaseLoader)
 class Config:
     """Provides configuration info for the CSharpSourceGenerator class."""
 
-    ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
+    c_type_crosswalk: dict[str, str]  #: C type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
+    prop_type_crosswalk: dict[str, str]  #: Span type crosswalks
 
     class_crosswalk: dict[str, str]
 
@@ -65,21 +65,25 @@ class CSharpSourceGenerator(SourceGenerator):
 
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
                            known_funcs: dict[str, CsFunc]) -> str:
-        getter = known_funcs.get(clib_area + "3_" + c_name)
+        getter_name = f"{clib_area}_{c_name}"
+        getter = known_funcs.get(getter_name)
 
         if getter:
-            # here we have found a simple scalar property
-            prop_type = getter.ret_type
+            if len(getter.arglist) == 1:
+                # here we have found a simple scalar property
+                prop_type = getter.ret_type
+            else:
+                # array-like property (string or vector)
+                prop_type = getter.arglist[-1].p_type
         else:
             # here we have found an array-like property (string, double[])
-            getter = known_funcs[clib_area + "3_get" + c_name.capitalize()]
+            getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
             prop_type = self._config.prop_type_crosswalk[getter.arglist[-1].p_type]
 
-        setter = known_funcs.get(
-            clib_area + "3_set" + c_name.capitalize(),
-            CsFunc("", "", "", "", ""))
+        setter_name = f"{clib_area}_set{c_name.capitalize()}"
+        setter = known_funcs.get(setter_name, CsFunc("", "", "", "", ""))
 
         if prop_type in ["int", "double"]:
             template = _LOADER.from_string(self._templates["csharp-property-int-double"])
@@ -87,13 +91,11 @@ class CSharpSourceGenerator(SourceGenerator):
                 prop_type=prop_type, cs_name=cs_name,
                 getter=getter.name, setter=setter.name)
 
-        if prop_type == "string":
-            # for get-string type functions we need to look up the type of the second
-            # (index 1) param for a cast because sometimes it's an int and other times
-            # it's a nuint (size_t)
+        if prop_type in ["Span<byte>", "string"]:
+            # get-string type functions should always return a string
             template = _LOADER.from_string(self._templates["csharp-property-string"])
             return template.render(
-                cs_name=cs_name, p_type=getter.arglist[1].p_type,
+                cs_name=cs_name, p_type="string",
                 getter=getter.name, setter=setter.name)
 
         _LOGGER.critical(f"Unable to scaffold properties of type {prop_type!r}!")
@@ -106,13 +108,13 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: CFunc) -> CsFunc:
+        """Convert CLib signature to C# signature."""
         # TODO: The CFunc object contains information on CLib header and the underlying
         # C++ implementation. Some information (brief, implements, returns, base, uses)
         # is currently preserved but not used.
         ret_type, name, params, brief, implements, returns, base, uses = parsed
 
         clib_area, method = name.split("_", 1)
-        clib_area = clib_area.rstrip("3")
 
         # Shallow copy the params list
         # Some of the C# params will have the same syntax as the C params.
@@ -142,21 +144,21 @@ class CSharpSourceGenerator(SourceGenerator):
             elif params:
                 params[0] = Param(handle_class_name, params[0].name)
 
-        for c_type, cs_type in self._config.ret_type_crosswalk.items():
-            if ret_type == c_type:
-                ret_type = cs_type
-                break
+        def crosswalk(par: str) -> str:
+            """Crosswalk of C/C# types."""
+            if par in self._config.c_type_crosswalk:
+                return self._config.c_type_crosswalk[par]
+            par = par.removeprefix("const ")  # C# doesn't recognize const
+            if par in self._config.c_type_crosswalk:
+                return self._config.c_type_crosswalk[par]
+            return par  # no conversion necessary
+
+        ret_type = crosswalk(ret_type)
 
         setter_double_arrays_count = 0
 
         for i, param in enumerate(params):
-            param_type = param.p_type
-            param_name = param.name
-
-            for c_type, cs_type in self._config.ret_type_crosswalk.items():
-                if param_type == c_type:
-                    param_type = cs_type
-                    break
+            param_type = crosswalk(param.p_type)
 
             # Most "setter" functions for arrays in CLib use a const double*,
             # but we also need to handle the cases for a plain double*
@@ -170,7 +172,8 @@ class CSharpSourceGenerator(SourceGenerator):
                     sys.exit(1)
                 param_type = "double[]"
 
-            params[i] = Param(param_type, param_name)
+            params[i] = Param(param_type, param.name, param.description,
+                              param.direction, param.default, param.base)
 
         func = CsFunc(ret_type,
                       name,

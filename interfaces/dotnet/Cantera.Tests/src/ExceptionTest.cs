@@ -15,7 +15,7 @@ public class ExceptionTest
     public void CanteraException_Thrown()
     {
         // test that an error message is gathered from the native library
-        Assert.Throws<CanteraException>(() => LibCantera.sol3_newSolution(".yaml", "", ""));
+        Assert.Throws<CanteraException>(() => LibCantera.sol_newSolution(".yaml", "", ""));
     }
 
     [Fact]

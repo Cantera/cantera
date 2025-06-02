@@ -34,7 +34,7 @@ public partial class ThermoPhase
                 (
                     pair: f,
                     method: methods
-                        .SingleOrDefault(m => m.Name == "thermo3_set_" + f.Name)
+                        .SingleOrDefault(m => m.Name == "thermo_setState_" + f.Name)
                 ))
                 .Where(t => t.method is not null)
                 .ToDictionary(
@@ -54,8 +54,8 @@ public partial class ThermoPhase
 
     internal ThermoPhase(string filename, string? phaseName)
     {
-        _sol = LibCantera.sol3_newSolution(filename, phaseName ?? "", "none");
-        _handle = LibCantera.sol3_thermo(_sol);
+        _sol = LibCantera.sol_newSolution(filename, phaseName ?? "", "none");
+        _handle = LibCantera.sol_thermo(_sol);
 
         _species = new(() => new SpeciesCollection(_handle));
     }
@@ -72,7 +72,7 @@ public partial class ThermoPhase
     {
         var interopString = thermoPair.ToInteropString();
 
-        var retVal = LibCantera.thermo3_equilibrate(_handle, interopString, solver,
+        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, solver,
             tolerance, maxSteps, maxIterations, logVerbosity);
 
         InteropUtil.CheckReturn(retVal);
