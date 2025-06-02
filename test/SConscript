@@ -25,7 +25,7 @@ if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
 
 if env["clib_experimental"]:
-    localenv.Prepend(CPPPATH=["#interfaces/clib_experimental/include"])
+    localenv.Prepend(CPPPATH=["#interfaces/clib/include"])
 
 # Turn off optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
@@ -212,7 +212,7 @@ def addPythonTest(testname, subset):
 
 # Instantiate tests
 if localenv['clib_experimental']:
-    addTestProgram('clib_experimental', 'clib-experimental')
+    addTestProgram('clib_experimental', 'clib')
 else:
     addTestProgram('clib', 'clib')
 addTestProgram('equil', 'equil')

@@ -8,7 +8,7 @@ samples = [('demo', ['demo.c'])]
 
 for programName, sources in samples:
     buildSample(localenv.Program, programName, sources,
-                CPPPATH=["#interfaces/clib_experimental/include", "#include"],
+                CPPPATH=["#interfaces/clib/include", "#include"],
                 LIBS=env['cantera_shared_libs'],
                 LIBPATH=env['extra_lib_dirs'] + ['#build/lib'])
 

@@ -134,9 +134,9 @@ if "clean" in COMMAND_LINE_TARGETS:
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
-    for name in Path("interfaces/clib_experimental/include/cantera_clib").glob("ct*.h"):
+    for name in Path("interfaces/clib/include/cantera_clib").glob("ct*.h"):
         remove_file(name)
-    for name in Path("interfaces/clib_experimental/src").glob("ct*.cpp"):
+    for name in Path("interfaces/clib/src").glob("ct*.cpp"):
         remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)
@@ -1957,7 +1957,7 @@ if env['f90_interface'] == 'y':
 
 # CLib needs to come before src so auto-generated code is available
 if env["clib_experimental"] and "doxygen" not in COMMAND_LINE_TARGETS:
-    SConscript("interfaces/clib_experimental/SConscript")
+    SConscript("interfaces/clib/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')

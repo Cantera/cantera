@@ -87,13 +87,13 @@ if localenv["clib_experimental"]:
     env2 = localenv.Clone()
     env2.Append(CCFLAGS=env2["pch_flags"])
     # Need to update include paths, where second entry is for application.h
-    env2.Prepend(CPPPATH=["#interfaces/clib_experimental/include", "#src/base"])
+    env2.Prepend(CPPPATH=["#interfaces/clib/include", "#src/base"])
 
     objects = []
     for yaml_file in yaml_files:
         # compile with explicit source and target files
         base_name = yaml_file.stem.replace("_auto", "")
-        source_file = Dir("#interfaces/clib_experimental/src").File(f"{base_name}.cpp")
+        source_file = Dir("#interfaces/clib/src").File(f"{base_name}.cpp")
         target_file = Dir("#build/src/clib_experimental").File(f"{base_name}.os")
         obj = env2.SharedObject(
             target_file,
