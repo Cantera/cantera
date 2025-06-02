@@ -7,12 +7,10 @@ docstring: |-
 prefix: ct
 base: ""
 recipes:
-- name: getCanteraVersion
-  implements: version  # inconsistent API (preexisting)
-- name: getGitCommit
-  implements: gitCommit  # inconsistent API (preexisting)
-- name: addCanteraDirectory
-  implements: addDirectory  # inconsistent API (preexisting)
+- name: version  # Renamed in Cantera 3.2 (previously getCanteraVersion)
+- name: gitCommit  # Renamed in Cantera 3.2 (previously getGitCommit)
+- name: addDataDirectory
+  implements: addDirectory  # TODO: Make API consistent (deprecate C++ version)
 - name: getDataDirectories
 - name: findInputFile
 - name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)

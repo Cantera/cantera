@@ -20,8 +20,8 @@ recipes:
 # FlowDevice
 - name: setPrimary
 - name: massFlowRate
-- name: deviceCoefficient  # new in Cantera 3.2
-- name: setDeviceCoefficient  # new in Cantera 3.2
+- name: deviceCoefficient  # New in Cantera 3.2
+- name: setDeviceCoefficient  # New in Cantera 3.2
 - name: setPressureFunction
   implements: setPressureFunction(shared_ptr<Func1>)  # alternative is deprecated
 - name: setTimeFunction

@@ -7,30 +7,23 @@ docstring: |-
 prefix: func1
 base: Func1
 recipes:
-- name: check
-  implements: checkFunc1  # inconsistent API (preexisting)
-- name: new_basic  # inconsistent API (snake_case; preexisting)
+- name: checkFunc1  # Renamed in Cantera 3.2 (previously check)
+- name: newBasic  # Renamed in Cantera 3.2 (previously new_basic)
   implements: newFunc1(const string&, double)
-- name: new_advanced  # inconsistent API (snake_case; preexisting)
+- name: newAdvanced  # Renamed in Cantera 3.2 (previously new_advanced)
   implements: newFunc1(const string&, const vector<double>&)
-- name: new_compound  # inconsistent API (snake_case; preexisting)
+- name: newCompound  # Renamed in Cantera 3.2 (previously new_compound)
   implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
-- name: new_modified  # inconsistent API (snake_case; preexisting)
+- name: newModified  # Renamed in Cantera 3.2 (previously new_modified)
   implements: newFunc1(const string&, const shared_ptr<Func1>, double)
-- name: new_sum
-  implements: newSumFunction  # inconsistent API (preexisting)
-- name: new_diff
-  implements: newDiffFunction  # inconsistent API (preexisting)
-- name: new_prod
-  implements: newProdFunction  # inconsistent API (preexisting)
-- name: new_ratio
-  implements: newRatioFunction  # inconsistent API (preexisting)
+- name: newSumFunction  # Renamed in Cantera 3.2 (previously new_sum)
+- name: newDiffFunction  # Renamed in Cantera 3.2 (previously new_diff)
+- name: newProdFunction   # Renamed in Cantera 3.2 (previously new_prod)
+- name: newRatioFunction  # Renamed in Cantera 3.2 (previously new_ratio)
 - name: type
-- name: value
-  implements: eval  # inconsistent API (preexisting)
+- name: eval  # Renamed in Cantera 3.2 (previously value)
 - name: derivative
   what: accessor
-# - name: duplicate  <--- unnecessary: traditional CLib duplicates function
 - name: write
 - name: del
   what: destructor

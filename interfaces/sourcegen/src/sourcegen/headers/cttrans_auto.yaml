@@ -15,8 +15,7 @@ recipes:
 - name: electricalConductivity
 - name: getThermalDiffCoeffs
 - name: getMixDiffCoeffs
-- name: getBinDiffCoeffs
-  implements: getBinaryDiffCoeffs  # inconsistent API (preexisting)
+- name: getBinaryDiffCoeffs  # Renamed in Cantera 3.2 (previously getBinDiffCoeffs)
 - name: getMultiDiffCoeffs
 - name: getMolarFluxes
 - name: getMassFluxes
