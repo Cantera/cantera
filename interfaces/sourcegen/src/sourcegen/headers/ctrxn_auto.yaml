@@ -4,7 +4,7 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Reaction class.
   Implements an extension of CLib's traditional @c ct library.
-prefix: rxn3
+prefix: rxn
 base: Reaction
 parents: []  # List of parent classes
 derived: {}  # Specialization/prefix dictionary

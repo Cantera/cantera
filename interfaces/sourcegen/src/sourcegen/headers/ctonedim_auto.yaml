@@ -4,7 +4,7 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Sim1D class.
   Partially implements a replacement for CLib's traditional @c ctonedim library.
-prefix: sim1D3
+prefix: sim1D
 base: Sim1D
 parents: [OneDim]  # List of parent classes
 recipes:

@@ -4,7 +4,7 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's ReactionPathDiagram class.
   Implements a replacement for CLib's traditional @c ctrpath library.
-prefix: rdiag3
+prefix: rdiag
 base: ReactionPathDiagram
 parents: []  # List of parent classes
 derived: {}  # Specialization/prefix dictionary

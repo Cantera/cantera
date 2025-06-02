@@ -4,13 +4,13 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's ReactorBase class.
   Partially implements a replacement for CLib's traditional @c ctreactor library.
-prefix: reactor3
+prefix: reactor
 base: ReactorBase
 parents: []  # List of parent classes
 derived:  # Specialization/prefix dictionary
-  Reactor: reactor3
-  FlowReactor: reactor3
-  ReactorSurface: reactorsurface3
+  Reactor: reactor
+  FlowReactor: reactor
+  ReactorSurface: reactorsurface
 recipes:
 - name: new
   implements: newReactorBase

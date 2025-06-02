@@ -4,10 +4,10 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Kinetics class.
   Partially implements a replacement for CLib's traditional @c ct library.
-prefix: kin3
+prefix: kin
 base: Kinetics
 parents: []  # List of parent classes
-derived: {InterfaceKinetics: kin3}  # Specialization/prefix dictionary
+derived: {InterfaceKinetics: kin}  # Specialization/prefix dictionary
 recipes:
 - name: getType
   implements: kineticsType  # inconsistent API (preexisting)

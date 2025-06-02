@@ -5,10 +5,10 @@ docstring: |-
   Auto-generated CLib API for %Cantera's ThermoPhase class.
   Partially implements a replacement for CLib's traditional @c ct and
   @c ctsurf libraries.
-prefix: thermo3
+prefix: thermo
 base: ThermoPhase
 parents: [Phase]  # List of parent classes
-derived: {SurfPhase: surf3}  # Specialization/prefix dictionary
+derived: {SurfPhase: surf}  # Specialization/prefix dictionary
 recipes:
 - name: getName
   implements: name  # inconsistent API (preexisting)
@@ -88,34 +88,20 @@ recipes:
   implements: setState_TPX(double, double, const double*)
 - name: setState_TPY  # New in Cantera 3.2
   implements: setState_TPY(double, double, const double*)
-- name: set_TP
-  implements: setState_TP(double, double)  # inconsistent API (preexisting)
-- name: set_TD
-  implements: setState_TD(double, double)  # inconsistent API (preexisting)
-- name: set_DP
-  implements: setState_DP(double, double)  # inconsistent API (preexisting)
-- name: set_HP
-  implements: setState_HP(double, double)  # inconsistent API (preexisting)
-- name: set_UV
-  implements: setState_UV(double, double)  # inconsistent API (preexisting)
-- name: set_SV
-  implements: setState_SV(double, double)  # inconsistent API (preexisting)
-- name: set_SP
-  implements: setState_SP(double, double)  # inconsistent API (preexisting)
-- name: set_ST
-  implements: setState_ST(double, double)  # inconsistent API (preexisting)
-- name: set_TV
-  implements: setState_TV(double, double)  # inconsistent API (preexisting)
-- name: set_PV
-  implements: setState_PV(double, double)  # inconsistent API (preexisting)
-- name: set_UP
-  implements: setState_UP(double, double)  # inconsistent API (preexisting)
-- name: set_VH
-  implements: setState_VH(double, double)  # inconsistent API (preexisting)
-- name: set_TH
-  implements: setState_TH(double, double)  # inconsistent API (preexisting)
-- name: set_SH
-  implements: setState_SH(double, double)  # inconsistent API (preexisting)
+- name: setState_TP  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_TD  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_DP  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_HP  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_UV  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_SV  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_SP  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_ST  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_TV  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_PV  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_UP  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_VH  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_TH  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_SH  # Changed in Cantera 3.2 (renamed/different signature)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
@@ -137,9 +123,9 @@ recipes:
   implements: setCoveragesByName(const string&)
 - name: report
 - name: print
-  brief: Print a summary of the state of the phase as a string.
+  brief: Print a summary of the state of the phase to the logger.
   what: method
-  declaration: int32_t thermo3_print(int32_t handle, int32_t showThermo, double threshold)
+  declaration: int32_t thermo_print(int32_t handle, int32_t showThermo, double threshold)
   parameters:
     handle: Handle to queried ThermoPhase object.
     showThermo: If true, extra information is printed out about the thermodynamic state of the system.

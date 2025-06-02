@@ -4,7 +4,7 @@
 docstring: |-
   The main library of the auto-generated CLib API contains %Cantera service functions.
   Partially implements a replacement for CLib's traditional @c ct library.
-prefix: ct3
+prefix: ct
 base: ""
 recipes:
 - name: getCanteraVersion
@@ -42,7 +42,7 @@ recipes:
 - name: getCanteraError
   brief: Get %Cantera error.
   what: function
-  declaration: int32_t ct3_getCanteraError(int32_t bufLen, char* buf)
+  declaration: int32_t ct_getCanteraError(int32_t bufLen, char* buf)
   parameters:
     bufLen: Length of reserved array.
     buf: String containing %Cantera error.
@@ -50,21 +50,11 @@ recipes:
   code: |-
     string err = Application::Instance()->lastErrorMessage();
     copyString(err, buf, bufLen);
-    return int32_t(err.size());
-- name: setLogWriter
-  brief: Set log writer.
-  what: function
-  declaration: int32_t ct3_setLogWriter(void* logger)
-  parameters:
-    logger: Logger.
-  code: |-
-    Logger* logwriter = (Logger*)logger;
-    setLogger(logwriter);
-    return 0;
+    return static_cast<int32_t>(err.size());
 - name: setLogCallback
   brief: Set Logger callback.
   what: function
-  declaration: int32_t ct3_setLogCallback(LogCallback writer)
+  declaration: int32_t ct_setLogCallback(LogCallback writer)
   parameters:
     writer: Callback that is invoked to produce log output.
   code: |-
