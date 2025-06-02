@@ -119,6 +119,8 @@ public:
      *   - `-2` no suitable damping coefficient was found within the maximum iterations.
      *   - `-3` the current solution `x0` is too close to the solution bounds and the
      *          step would exceed the bounds on one or more components.
+     *   - `-4` Steady-state Jacobian factorization failed.
+     *   - `-5` Error taking Newton step
      *
      * @since Starting in %Cantera 3.2, the Jacobian is accessed via the
      * SteadyStateSystem object.
