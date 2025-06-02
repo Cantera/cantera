@@ -23,12 +23,12 @@ if localenv['doxygen_docs'] or localenv['sphinx_docs']:
     }
     if env["clib_experimental"]:
         vars["@INCLUDE@"] = "interfaces/clib"
-        vars["@ENABLED_SECTIONS@"] = "CLIB_EXPERIMENTAL"
+        vars["@ENABLED_SECTIONS@"] = "CLIB_GENERATED"
     env.Substfile(
-        "#build/doc/Doxyfile", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
+        "#build/doc/Doxyfile_html", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
 
     docs = build(localenv.Command(
-        "#build/doc/html/cxx/index.html", "#build/doc/Doxyfile",
+        "#build/doc/html/cxx/index.html", "#build/doc/Doxyfile_html",
         [
             Delete("build/doc/html/cxx"),
             'doxygen $SOURCE',

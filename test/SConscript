@@ -211,8 +211,8 @@ def addPythonTest(testname, subset):
 
 
 # Instantiate tests
-if localenv['clib_experimental']:
-    addTestProgram('clib_experimental', 'clib')
+if localenv["clib_experimental"]:
+    addTestProgram("clib_experimental", "clib")
 else:
     addTestProgram('clib', 'clib')
 addTestProgram('equil', 'equil')

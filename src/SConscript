@@ -80,7 +80,7 @@ for subdir, extensions, setup in libs:
 
 generated_file_nodes = []
 if localenv["clib_experimental"]:
-    # Handle clib_experimental separately, as generated files have different location
+    # Handle generated CLib separately, as generated files have different location
     auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
     yaml_files = list(auto_path.glob("*_auto.yaml"))
 

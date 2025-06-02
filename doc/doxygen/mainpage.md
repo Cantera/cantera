@@ -16,7 +16,7 @@ A **topical overview** is provided as follows:
 * @ref onedGroup (flames, flow domains, boundaries, ...)
 * @ref physConstants (universal constants, built into %Cantera for convenience)
 
-@cond CLIB_EXPERIMENTAL
+@cond CLIB_GENERATED
 Experimental CLib:
 
 * @subpage clibPage (CLib overview)
