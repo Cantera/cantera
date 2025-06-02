@@ -1141,7 +1141,8 @@ class TestIdealGasReactor(TestReactor):
 class TestWellStirredReactorIgnition:
     """ Ignition (or not) of a well-stirred reactor """
 
-    def setup_reactor(self, T0, P0, mdot_fuel, mdot_ox):
+    def setup_reactor(self, T0, P0, mdot_fuel, mdot_ox,
+                      reactor_class=ct.IdealGasReactor):
         """ Runs before tests """
         gas_def = """
         phases:
@@ -1168,7 +1169,7 @@ class TestWellStirredReactorIgnition:
 
         # reactor, initially filled with N2
         self.gas.TPX = T0, P0, "N2:1.0"
-        self.combustor = ct.IdealGasReactor(self.gas)
+        self.combustor = reactor_class(self.gas)
         self.combustor.volume = 1.0
 
         # outlet
@@ -1242,8 +1243,10 @@ class TestWellStirredReactorIgnition:
         t,T = self.integrate(100.0)
         assert T[-1] < 910 # mixture did not ignite
 
-    def test_steady_state(self):
-        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0)
+    @pytest.mark.parametrize("reactor_class",
+        [ct.Reactor, ct.IdealGasReactor, ct.MoleReactor, ct.IdealGasMoleReactor])
+    def test_advance_to_steady_state(self, reactor_class):
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0, reactor_class)
         residuals = self.net.advance_to_steady_state(return_residuals=True)
         # test if steady state is reached
         assert residuals[-1] < 10. * self.net.rtol
@@ -1252,6 +1255,15 @@ class TestWellStirredReactorIgnition:
         assert self.combustor.thermo['H2O'].Y[0] == approx(0.103658, rel=1e-5)
         assert self.combustor.thermo['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
+    @pytest.mark.parametrize("reactor_class",
+        [ct.Reactor, ct.IdealGasReactor, ct.MoleReactor, ct.IdealGasMoleReactor])
+    def test_solve_steady(self, reactor_class):
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0, reactor_class)
+        self.net.solve_steady()
+        # regression test; based on test_advance_to_steady_state
+        assert self.combustor.T == approx(2498.94, rel=1e-5)
+        assert self.combustor.thermo['H2O'].Y[0] == approx(0.103658, rel=1e-5)
+        assert self.combustor.thermo['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
 class TestConstPressureReactor:
     """
