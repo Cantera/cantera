@@ -92,7 +92,7 @@ if localenv["clib_experimental"]:
     objects = []
     for yaml_file in yaml_files:
         # compile with explicit source and target files
-        base_name = yaml_file.stem.replace("_auto", "3")
+        base_name = yaml_file.stem.replace("_auto", "")
         source_file = Dir("#interfaces/clib_experimental/src").File(f"{base_name}.cpp")
         target_file = Dir("#build/src/clib_experimental").File(f"{base_name}.os")
         obj = env2.SharedObject(
