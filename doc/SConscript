@@ -17,8 +17,6 @@ if localenv['doxygen_docs'] or localenv['sphinx_docs']:
         "@INCLUDE@": "",
         "@ENABLED_SECTIONS@": "",
         "@GENERATE_HTML@": "YES",
-        "@GENERATE_XML@": "NO",
-        "@GENERATE_TAGFILE@": "build/doc/Cantera_html.tag",
         "@WARNINGS@": "YES",
         "@WARN_IF_DOC_ERROR@": "YES",
         "@WARN_IF_INCOMPLETE_DOC@": "YES",

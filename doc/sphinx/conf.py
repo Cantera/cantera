@@ -205,7 +205,7 @@ def setup(app):
 autoclass_content = 'both'
 
 doxylink = {
-    'ct': (os.path.abspath('../Cantera_html.tag'),
+    'ct': (os.path.abspath('../Cantera.tag'),
            'cxx/')
 }
 
