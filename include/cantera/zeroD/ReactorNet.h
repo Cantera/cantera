@@ -433,8 +433,10 @@ public:
     void evalJacobian(double* x0) override;
     double weightedNorm(const double* step) const override;
     string componentName(size_t i) const override;
-    virtual double upperBound(size_t i) const override;
-    virtual double lowerBound(size_t i) const override;
+    double upperBound(size_t i) const override;
+    double lowerBound(size_t i) const override;
+    void writeDebugInfo(const string& header_suffix, const string& message,
+                        int loglevel, int attempt_counter) override;
 
 private:
     ReactorNet* m_net = nullptr;
