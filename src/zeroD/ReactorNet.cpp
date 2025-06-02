@@ -839,6 +839,26 @@ double SteadyReactorSolver::lowerBound(size_t i) const
     return m_net->lowerBound(i);
 }
 
+void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,
+    const string& message, int loglevel, int attempt_counter)
+{
+    if (loglevel >= 6 && !m_state->empty()) {
+        const auto& state = *m_state;
+        writelog("Current state ({}):\n[", header_suffix);
+        for (size_t i = 0; i < state.size() - 1; i++) {
+            writelog("{}, ", state[i]);
+        }
+        writelog("{}]\n", state.back());
+    }
+    if (loglevel >= 7 && !m_xnew.empty()) {
+        writelog("Current residual ({}):\n[", header_suffix);
+        for (size_t i = 0; i < m_xnew.size() - 1; i++) {
+            writelog("{}, ", m_xnew[i]);
+        }
+        writelog("{}]\n", m_xnew.back());
+    }
+}
+
 shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors)
 {
     return make_shared<ReactorNet>(reactors);
