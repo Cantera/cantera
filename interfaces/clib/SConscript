@@ -8,8 +8,6 @@ vars = {
     "@INCLUDE@": "",
     "@ENABLED_SECTIONS@": "",
     "@GENERATE_HTML@": "NO",
-    "@GENERATE_XML@": "YES",
-    "@GENERATE_TAGFILE@": "build/doc/Cantera_xml.tag",
     # Ignore warnings during tag file generation
     # (they are turned on for `scons doxygen`)
     "@WARNINGS@": "NO",
@@ -20,7 +18,7 @@ env.Substfile(
     "#build/doc/Doxyfile_xml", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
 logger.info("Generating Doxygen tagfile.")
 tags = env.Command(
-        "#build/doc/Cantera_xml.tag", "#build/doc/Doxyfile_xml", "doxygen $SOURCE")
+        "#build/doc/Cantera.tag", "#build/doc/Doxyfile_xml", "doxygen $SOURCE")
 cxx_files = list(env.Glob("#doc/doxygen/*") +
                  multi_glob(env, "#include/cantera", "h") +
                  multi_glob(env, "#include/cantera/*", "h") +

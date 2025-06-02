@@ -1,33 +1,27 @@
 @page clibPage Experimental CLib Interface
 
-# Cantera – Experimental CLib Interface
+# %Cantera – Experimental CLib Interface
 
 This directory and the associated `src/clib_experimental` folder contain an
 experimental re-implementation of Cantera's traditional CLib interface.
 
 ## Code Generation
 
-Run the following command from the Cantera root folder:
+The auto-generated CLib interface is available if %Cantera is built with the the
+`clib_experimental=y` option:
 
 ```
-scons doxygen
-python -m pip install -e interfaces/sourcegen
-sourcegen --api=clib --output=.
 scons build clib_experimental=y
 ```
 
-A rudimentary test suite ensures that code performs as expected:
+A test suite ensures that code performs as expected:
 
 ```
-scons test-clib-experimental
-scons test-clib-experimental-demo
+scons test-clib
+scons test-clib-demo
 ```
 
-## CLib Group
+## CLib Modules
 
-* @ref clibGroup (CLib Group)
-
-## Status
-
-The experimental CLib Interface is in preview and still missing many features
-needed for parity with the traditional CLib interface.
+%Cantera classes and CLib modules have a one-to-one relationship. The @ref clibGroup
+page provides a list of currently available classes.

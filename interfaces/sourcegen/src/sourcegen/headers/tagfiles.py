@@ -101,7 +101,7 @@ class TagFileParser:
             self._tag_path = Path.cwd() / root / "build" / "doc"
         self._xml_path = self._tag_path / "doxygen" / "xml"
 
-        tag_file = self._tag_path / "Cantera_xml.tag"
+        tag_file = self._tag_path / "Cantera.tag"
 
         if not tag_file.exists():
             msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
