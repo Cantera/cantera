@@ -120,10 +120,10 @@ shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
 
 //! Create a new advanced functor object (see @ref func1advanced).
 //! @param func1Type  String identifying functor type.
-//! @param params  Parameter vector; definition depends on functor type.
+//! @param arr  Parameter vector; definition depends on functor type.
 //! @ingroup func1advanced
 //! @since New in %Cantera 3.0
-shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& params);
+shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& arr);
 
 //! Create a new compound functor object (see @ref func1compound).
 //! @param func1Type  String identifying functor type.

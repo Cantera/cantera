@@ -148,10 +148,10 @@ shared_ptr<Func1> newFunc1(const string& func1Type, double coeff)
         Func1Factory::factory()->create(func1Type, {coeff}));
 }
 
-shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& params)
+shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& arr)
 {
     return shared_ptr<Func1>(
-        Func1Factory::factory()->create(func1Type, params));
+        Func1Factory::factory()->create(func1Type, arr));
 }
 
 shared_ptr<Func1> newFunc1(const string& func1Type, const shared_ptr<Func1> f1,
