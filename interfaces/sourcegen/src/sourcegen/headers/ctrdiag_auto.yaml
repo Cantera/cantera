@@ -74,9 +74,9 @@ recipes:
   what: variable-setter
 - name: add
 - name: displayOnly
-- name: getDot  # previously part of rdiag_write
-- name: getData  # previously part of rdiag_write
-- name: build  # previously rbuild_build
+- name: getDot  # Changed in Cantera 3.2 (previously part of rdiag_write)
+- name: getData  # Changed in Cantera 3.2 (previously part of rdiag_write)
+- name: build  # Changed in Cantera 3.2 (previously rbuild_build)
 - name: getLog  # New in Cantera 3.2
 - name: findMajor
   implements: findMajorPaths

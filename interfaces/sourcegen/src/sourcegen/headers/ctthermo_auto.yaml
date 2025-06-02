@@ -10,11 +10,9 @@ base: ThermoPhase
 parents: [Phase]  # List of parent classes
 derived: {SurfPhase: surf}  # Specialization/prefix dictionary
 recipes:
-- name: getName
-  implements: name  # inconsistent API (preexisting)
+- name: name  # Renamed in Cantera 3.2 (previously getName)
 - name: setName
-- name: getEosType
-  implements: type  # inconsistent API (preexisting)
+- name: type  # Renamed in Cantera 3.2 (previously getEosType)
 - name: nElements
 - name: nSpecies
 - name: temperature
@@ -41,17 +39,14 @@ recipes:
   implements: setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
   implements: setMassFractionsByName(const string&)
-- name: getAtomicWeights
+- name: atomicWeights  # Renamed in Cantera 3.2 (previously getAtomicWeights)
   uses: nElements
-  implements: atomicWeights  # inconsistent API (preexisting)
 - name: getMolecularWeights
   uses: nSpecies
 - name: getCharges
   uses: nElements
-- name: getElementName
-  implements: elementName(int)  # inconsistent API (preexisting)
-- name: getSpeciesName
-  implements: speciesName(int)  # inconsistent API (preexisting)
+- name: elementName  # Renamed in Cantera 3.2 (previously getElementName)
+- name: speciesName  # Renamed in Cantera 3.2 (previously getSpeciesName)
 - name: elementIndex
 - name: speciesIndex
 - name: nAtoms
@@ -71,10 +66,8 @@ recipes:
 - name: cp_mass
 - name: cv_mole
 - name: cv_mass
-- name: chemPotentials
-  implements: getChemPotentials  # inconsistent API (preexisting)
-- name: electroChemPotentials
-  implements: getElectrochemPotentials  # inconsistent API (preexisting)
+- name: getChemPotentials  # Renamed in Cantera 3.2 (previously chemPotentials)
+- name: getElectrochemPotentials  # Renamed in Cantera 3.2 (previously electroChemPotentials)
 - name: electricPotential
 - name: setElectricPotential
 - name: thermalExpansionCoeff
@@ -88,20 +81,31 @@ recipes:
   implements: setState_TPX(double, double, const double*)
 - name: setState_TPY  # New in Cantera 3.2
   implements: setState_TPY(double, double, const double*)
-- name: setState_TP  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_TD  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_DP  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_HP  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_UV  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_SV  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_SP  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_ST  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_TV  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_PV  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_UP  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_VH  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_TH  # Changed in Cantera 3.2 (renamed/different signature)
-- name: setState_SH  # Changed in Cantera 3.2 (renamed/different signature)
+- name: setState_TP  # Renamed in Cantera 3.2 (previously set_TP)
+- name: setState_TD  # Renamed in Cantera 3.2 (previously set_TD)
+- name: setState_DP  # Renamed in Cantera 3.2 (previously set_DP)
+- name: setState_HP  # Renamed in Cantera 3.2 (previously set_HP)
+  implements: setState_HP(double, double)
+- name: setState_UV  # Renamed in Cantera 3.2 (previously set_UV)
+  implements: setState_UV(double, double)
+- name: setState_SV  # Renamed in Cantera 3.2 (previously set_SV)
+  implements: setState_SV(double, double)
+- name: setState_SP  # Renamed in Cantera 3.2 (previously set_SP)
+  implements: setState_SP(double, double)
+- name: setState_ST  # Renamed in Cantera 3.2 (previously set_ST)
+  implements: setState_ST(double, double)
+- name: setState_TV  # Renamed in Cantera 3.2 (previously set_TV)
+  implements: setState_TV(double, double)
+- name: setState_PV  # Renamed in Cantera 3.2 (previously set_PV)
+  implements: setState_PV(double, double)
+- name: setState_UP  # Renamed in Cantera 3.2 (previously set_UP)
+  implements: setState_UP(double, double)
+- name: setState_VH  # Renamed in Cantera 3.2 (previously set_VH)
+  implements: setState_VH(double, double)
+- name: setState_TH  # Renamed in Cantera 3.2 (previously set_TH)
+  implements: setState_TH(double, double)
+- name: setState_SH  # Renamed in Cantera 3.2 (previously set_SH)
+  implements: setState_SH(double, double)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
@@ -115,8 +119,8 @@ recipes:
 - name: setState_Tsat
 - name: getCoverages
 - name: setCoverages
-- name: getConcentrations  # previously: used 'surf' prefix'
-- name: setConcentrations  # previously: used 'surf' prefix'
+- name: getConcentrations  # Changed in Cantera 3.2 (previously used 'surf' prefix')
+- name: setConcentrations  # Changed in Cantera 3.2 (previously used 'surf' prefix')
 - name: siteDensity
 - name: setSiteDensity
 - name: setCoveragesByName

@@ -10,8 +10,8 @@ parents: []  # List of parent classes
 derived: {}  # Specialization/prefix dictionary
 recipes:
 - name: new
-- name: equation  # previously: ctkin_getReactionString
-- name: type  # previously: ctkin_getReactionType
+- name: equation  # Changed in Cantera 3.2 (previously ctkin_getReactionString)
+- name: type  # Changed in Cantera 3.2 (previously ctkin_getReactionType)
 - name: usesThirdBody
 - name: valid
 - name: id

@@ -30,7 +30,7 @@ recipes:
 - name: massFraction
 - name: nSensParams
 - name: addSensitivityReaction
-- name: install  # inconsistent API (pre-existing)
+- name: addSurface  # Renamed in Cantera 3.2 (previously install)
   implements: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: setMassFlowRate

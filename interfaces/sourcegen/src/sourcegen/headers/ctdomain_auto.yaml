@@ -47,8 +47,7 @@ recipes:
 - name: pressure
 - name: setFixedTempProfile
 - name: solveEnergyEqn
-- name: enableCoverageEqs
-  implements: enableCoverageEquations
+- name: enableCoverageEquations  # Renamed in Cantera 3.2 (previously enableCoverageEqs)
 - name: del
 - name: cabinetSize
 - name: parentHandle
