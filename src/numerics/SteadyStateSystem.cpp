@@ -62,10 +62,27 @@ void SteadyStateSystem::solve(int loglevel)
         debuglog("\nAttempt Newton solution of steady-state problem.", loglevel);
         if (!m_jac_ok) {
             evalJacobian(m_state->data());
-            m_jac->updateTransient(m_rdt, m_mask.data());
-            m_jac_ok = true;
+            try {
+                m_jac->updateTransient(m_rdt, m_mask.data());
+                m_jac_ok = true;
+            } catch (CanteraError& err) {
+                // Allow solver to continue after failure to factorize the steady-state
+                // Jacobian by returning to time stepping mode
+                if (m_rdt == 0.0) {
+                    if (loglevel > 1) {
+                        writelog("\nSteady Jacobian factorization failed:"
+                                "\n  {}:\n    {}",
+                                err.getMethod(), err.getMessage());
+                    }
+                } else {
+                    throw;
+                }
+            }
         }
-        int m = newton().solve(m_state->data(), m_xnew.data(), *this, loglevel);
+        int m = -1;
+        if (m_jac_ok) {
+            m = newton().solve(m_state->data(), m_xnew.data(), *this, loglevel);
+        }
         if (m == 1) {
             *m_state = m_xnew;
             writeDebugInfo("NewtonSuccess", "After successful Newton solve",
