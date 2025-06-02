@@ -24,7 +24,7 @@ if localenv['doxygen_docs'] or localenv['sphinx_docs']:
         "@WARN_IF_INCOMPLETE_DOC@": "YES",
     }
     if env["clib_experimental"]:
-        vars["@INCLUDE@"] = "interfaces/clib_experimental"
+        vars["@INCLUDE@"] = "interfaces/clib"
         vars["@ENABLED_SECTIONS@"] = "CLIB_EXPERIMENTAL"
     env.Substfile(
         "#build/doc/Doxyfile", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)

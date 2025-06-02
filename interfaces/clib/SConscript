@@ -36,8 +36,8 @@ yaml_files = auto_path.glob("*_auto.yaml")
 for yaml_file in yaml_files:
     base_name = yaml_file.stem.replace("_auto", "")
     generated_files.extend([
-        f"#interfaces/clib_experimental/include/cantera_clib/{base_name}.h",
-        f"#interfaces/clib_experimental/src/{base_name}.cpp",
+        f"#interfaces/clib/include/cantera_clib/{base_name}.h",
+        f"#interfaces/clib/src/{base_name}.cpp",
     ])
 
 # Run sourcegen without installation
@@ -46,7 +46,7 @@ sourcegen = env.Command(
     generated_files,
     tags,
     ("$python_cmd -m interfaces.sourcegen.src.sourcegen "
-     f"--api=clib --output={Path(Dir('#interfaces/clib_experimental').abspath)}")
+     f"--api=clib --output={Path(Dir('#interfaces/clib').abspath)}")
 )
 env.Depends(sourcegen, [File(ff) for ff in yaml_files])
 

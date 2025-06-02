@@ -245,11 +245,10 @@ Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
      'rankine_blessed.txt')
 
 if env["clib_experimental"]:
-     Test('clib-experimental-demo', 'clib',
-          '#build/samples/clib_experimental/demo', 'clib_demo_blessed.txt')
+    Test('clib-demo', 'clib',
+         '#build/samples/clib_experimental/demo', 'clib_demo_blessed.txt')
 else:
-     Test('clib-demo', 'clib', '#build/samples/clib/demo', 'clib_demo_blessed.txt')
-
+    Test('clib-demo', 'clib', '#build/samples/clib/demo', 'clib_demo_blessed.txt')
 
 # C++ programs from User Guide
 Test('cxx-guide-demo1a', 'cxx_userguide', '#build/samples/userguide/demo1a',
