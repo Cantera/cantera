@@ -25,7 +25,7 @@ class Config:
 
     ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
+    par_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
 
 class HeaderGenerator:
@@ -148,9 +148,11 @@ class HeaderGenerator:
                 args = prop_params + buffer_params
                 brief = cxx_member.brief
             elif recipe.what == "variable-setter":
-                ret_param = Param("int")
+                ret_param = Param("int32_t")
                 par_list, cxx_member = merge_params(recipe.implements, cxx_member)
                 args = self._prop_crosswalk(par_list)
+                if args[-1].p_type == "char*":
+                    args[-1] = Param.to_const(args[-1])
                 brief = cxx_member.description
             else:
                 # Variable getter
@@ -255,18 +257,22 @@ class HeaderGenerator:
     def _ret_crosswalk(
             self, what: str, derived: list[str]) -> tuple[Param, list[Param]]:
         """Crosswalk for return type."""
-        what = what.replace("virtual ", "")
-        if what in self._config.ret_type_crosswalk:
-            ret_type = self._config.ret_type_crosswalk[what]
+        what = what.removeprefix("virtual ")
+        ret_key = what.removeprefix("const ").removesuffix(" const").rstrip("&")
+        if ret_key in self._config.ret_type_crosswalk:
+            ret_type = self._config.ret_type_crosswalk[ret_key]
+            if what.startswith("const "):
+                ret_type = f"const {ret_type}"
             if ret_type == "void":
                 returns = Param(
-                    "int", "", "Zero for success or -1 for exception handling.")
+                    "int32_t", "", "Zero for success or -1 for exception handling.")
                 return returns, []
-            if ret_type == "char*":
+            if ret_type.endswith("char*"):
                 # string expressions require special handling
                 returns = Param(
                     "int32_t", "", "Actual length of string including string-terminating "
                     "null byte, \\0, or -1 for exception handling.")
+                ret_type = ret_type.removeprefix("const ")
                 buffer = [
                     Param("int32_t", "bufLen", "Length of reserved array.", "in"),
                     Param(ret_type, "buf", "Returned string value.", "out")]
@@ -276,6 +282,7 @@ class HeaderGenerator:
                 returns = Param(
                     "int32_t", "",
                     "Actual length of value array or -1 for exception handling.")
+                ret_type = ret_type.removeprefix("const ")
                 buffer = [
                     Param("int32_t", "bufLen", "Length of reserved array.", "in"),
                     Param(ret_type, "buf", "Returned array value.", "out")]
@@ -307,35 +314,45 @@ class HeaderGenerator:
         params = []
         for par in par_list:
             what = par.p_type
-            if what in self._config.prop_type_crosswalk:
-                if "vector<" in what:
+            par_key = what.removeprefix("const ").removesuffix(" const").rstrip("&")
+            if par_key in self._config.par_type_crosswalk:
+                if "vector<" in par_key:
                     params.append(
                         Param("int32_t", f"{par.name}Len",
                               f"Length of vector reserved for {par.name}.", "in"))
-                elif what.endswith("* const") or what.endswith("double*"):
+                elif par_key.endswith("*"):
                     direction = "in" if what.startswith("const") else "out"
                     params.append(
                         Param("int32_t", f"{par.name}Len",
                               f"Length of array reserved for {par.name}.", direction))
-                ret_type = self._config.prop_type_crosswalk[what]
+                ret_type = self._config.par_type_crosswalk[par_key]
+                if what.startswith("const "):
+                    ret_type = f"const {ret_type}"
                 params.append(Param(ret_type, par.name, par.description, par.direction))
-            elif "shared_ptr" in what:
+            elif "shared_ptr" in par_key:
                 handle = self._handle_crosswalk(
-                    what, self._config.prop_type_crosswalk, {})
-                if "vector<" in what:
+                    par_key, self._config.par_type_crosswalk, {})
+                par_key = par_key.replace(handle, "T")
+                if "vector<" in par_key:
                     params.append(
                         Param("int32_t", f"{par.name}Len",
                               f"Length of array reserved for {par.name}.", "in"))
                     description = f"Memory holding {handle} objects. "
                     description += par.description
-                    params.append(Param("const int32_t*", par.name, description.strip()))
+                    ret_type = self._config.par_type_crosswalk[par_key]
+                    if what.startswith("const "):
+                        ret_type = f"const {ret_type}"
+                    params.append(Param(ret_type, par.name, description.strip()))
                 else:
                     description = f"Integer handle to {handle} object. "
                     description += par.description
+                    ret_type = self._config.par_type_crosswalk[par_key]
+                    if what.startswith("const "):
+                        ret_type = f"const {ret_type}"
                     params.append(
-                        Param("int32_t", par.name, description.strip(), par.direction))
+                        Param(ret_type, par.name, description.strip(), par.direction))
             else:
-                msg = f"Failed crosswalk for argument type {what!r}."
+                msg = f"Failed crosswalk for argument type {par_key!r}."
                 _LOGGER.critical(msg)
                 sys.exit(1)
         return params

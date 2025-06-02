@@ -20,30 +20,18 @@ ret_type_crosswalk:
   size_t: int32_t
   shared_ptr<T>: int32_t
   double: double
-  const double: double
   string: char*
-  const string: char*
-  vector<double>&: double*
-  const vector<double>&: double*
+  vector<double>: double*
 
 # Parameter type crosswalks
-prop_type_crosswalk:
+par_type_crosswalk:
   bool: int32_t
   int: int32_t
   size_t: int32_t
-  const size_t: int32_t
-  const int*: const int32_t*
   shared_ptr<T>: int32_t
-  const shared_ptr<T>: int32_t
-  vector<shared_ptr<T>>&: int32_t*
-  const vector<shared_ptr<T>>&: int32_t*
+  int*: int32_t*
+  vector<shared_ptr<T>>: int32_t*
   double: double
-  const double: double
   double*: double*
-  double* const: double*
-  const double*: const double*
-  const double* const: const double*
-  vector<double>&: double*
-  const vector<double>&: const double*
-  string: const char*
-  const string&: const char*
+  vector<double>: double*
+  string: char*

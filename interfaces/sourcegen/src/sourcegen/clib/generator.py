@@ -24,7 +24,7 @@ class Config:
 
     ret_type_crosswalk: dict[str, str]  #: Return type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
+    par_type_crosswalk: dict[str, str]  #: Parameter type crosswalks
 
     preambles: dict[str, str]  #: Preamble text for each header file
 
@@ -106,25 +106,25 @@ class CLibSourceGenerator(SourceGenerator):
         cxx_type = cxx_func.ret_type
         if cxx_type.startswith("virtual "):
             cxx_type = cxx_type.replace("virtual ", "")
+        ret_key = cxx_type.removeprefix("const ").removesuffix(" const").rstrip("&")
 
         if c_args and cxx_func.base:
             handle = c_args[0].name
 
         # check C++ type information
-        shared_base = self._shared_object(cxx_type)
-        cxx_template = cxx_type.replace(shared_base, "T") if shared_base else None
-        crosswalk_key = cxx_type
+        shared_base = self._shared_object(ret_key)
+        cxx_template = ret_key.replace(shared_base, "T") if shared_base else None
         if cxx_template:
-            if cxx_template not in self._config.prop_type_crosswalk:
+            ret_key = cxx_template
+            if ret_key not in self._config.par_type_crosswalk:
                 self._critical(
                     c_func, cxx_func,
-                    f"return crosswalk not listed for C++ template {cxx_template!r}")
-            crosswalk_key = cxx_template
+                    f"return crosswalk not listed for C++ template {ret_key!r}")
         elif cxx_type in ["auto"] or cxx_func.implements == "custom code":
             pass
-        elif cxx_type not in self._config.ret_type_crosswalk:
+        elif ret_key not in self._config.ret_type_crosswalk:
             self._critical(c_func, cxx_func,
-                           f"return crosswalk not listed for C++ type {cxx_type!r}")
+                           f"return crosswalk not listed for C++ type {ret_key!r}")
 
         # check C type information
         if cxx_type == "auto" or cxx_func.implements == "custom code":
@@ -134,14 +134,16 @@ class CLibSourceGenerator(SourceGenerator):
                 self._critical(c_func, cxx_func,
                                "method with buffered return should return 'int32_t'")
             c_type = c_args[-1].p_type
-            if c_type not in self._config.ret_type_crosswalk[crosswalk_key]:  # 1
+            c_key = c_type.removeprefix("const ")
+            if c_key not in self._config.ret_type_crosswalk[ret_key]:  # 1
                 self._critical(
                     c_func, cxx_func,
-                    f"buffered return crosswalk not listed for C type {c_type!r}")
+                    f"buffered return crosswalk not listed for C type {c_key!r}")
         else:
-            if c_type not in self._config.ret_type_crosswalk[crosswalk_key]:  # 2
+            c_key = c_type.removeprefix("const ")
+            if c_key not in self._config.ret_type_crosswalk[ret_key]:  # 2
                 self._critical(c_func, cxx_func,
-                               f"return crosswalk not listed for C type {c_type!r}")
+                               f"return crosswalk not listed for C type {c_key!r}")
 
         if cxx_type == "bool":
             buffer = [f"{cxx_type} out", "", "int(out)"]
@@ -192,31 +194,33 @@ class CLibSourceGenerator(SourceGenerator):
 
             c_name = c_args[c_ix].name
             c_type = c_args[c_ix].p_type
-            cxx_type = cxx_arg.p_type
+            cxx_type = cxx_arg.p_type.removesuffix(" const")
 
-            shared_base = self._shared_object(cxx_type)
-            cxx_template = cxx_type.replace(shared_base, "T") if shared_base else None
-            crosswalk_key = cxx_type
+            par_key = cxx_type.removeprefix("const ").removesuffix(" const").rstrip("&")
+            shared_base = self._shared_object(par_key)
+            cxx_template = par_key.replace(shared_base, "T") if shared_base else None
             if cxx_template:
-                if cxx_template not in self._config.prop_type_crosswalk:
+                par_key = cxx_template
+                if par_key not in self._config.par_type_crosswalk:
                     self._critical(
                         c_func, cxx_func,
-                        f"crosswalk not listed for C++ template {cxx_template!r}")
-                crosswalk_key = cxx_template
-            elif cxx_type not in self._config.prop_type_crosswalk:
+                        f"crosswalk not listed for C++ template {par_key!r}")
+                par_key = cxx_template
+            elif par_key not in self._config.par_type_crosswalk:
                 self._critical(c_func, cxx_func,
-                               f"crosswalk not listed for C++ type {cxx_type!r}")
+                               f"crosswalk not listed for C++ type {par_key!r}")
 
-            if c_type not in self._config.prop_type_crosswalk[crosswalk_key]:
+            c_key = c_type.removeprefix("const ")
+            if c_key not in self._config.par_type_crosswalk[par_key]:
                 self._critical(c_func, cxx_func,
-                               f"crosswalk not listed for C type {c_type!r}")
+                               f"crosswalk not listed for C type {c_key!r}")
 
             if check_array:
                 # Need to handle crosswalked parameter with length information
                 c_prev = c_args[c_ix-1].name
                 if "vector<shared_ptr" in cxx_type:
                     # Example: vector<shared_ptr<Domain1D>>
-                    cxx_type = cxx_type.lstrip("const ").rstrip("&")
+                    cxx_type = cxx_type.removeprefix("const ").rstrip("&")
                     cxx_base = cxx_type.rstrip(">").split("<")[-1]
                     bases.add(cxx_base)
                     lines.extend([

@@ -84,6 +84,22 @@ class Param:
             param = param.replace(*rep)
         return cls.from_str(param.strip())
 
+    @classmethod
+    def to_const(cls: Self, pp: Self) -> Self:
+        """Create a constant version of the same parameter."""
+        if pp.p_type.startswith("const "):
+            return pp
+        p_type = f"const {pp.p_type}"
+        return cls(p_type, pp.name, pp.description, pp.direction, pp.default, pp.base)
+
+    @classmethod
+    def from_const(cls: Self, pp: Self) -> Self:
+        """Create a non-constant version of the same parameter."""
+        if not pp.p_type.startswith("const "):
+            return pp
+        p_type = pp.removeprefix("const ")
+        return cls(p_type, pp.name, pp.description, pp.direction, pp.default, pp.base)
+
     def short_str(self) -> str:
         """String representation of the parameter without parameter name."""
         return self.p_type
