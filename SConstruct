@@ -1955,8 +1955,9 @@ if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
 
-# CLib needs to come before src so auto-generated code is available
-if env["clib_experimental"] and "doxygen" not in COMMAND_LINE_TARGETS:
+# CLib needs to come before src so auto-generated code is available but we don't want
+# to run this for scons doxygen and scons sphinx
+if env["clib_experimental"] and not {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS):
     SConscript("interfaces/clib/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
