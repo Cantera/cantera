@@ -14,16 +14,16 @@ Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 if localenv['doxygen_docs'] or localenv['sphinx_docs']:
     vars = {
-        "@INCLUDE@": "",
-        "@ENABLED_SECTIONS@": "",
+        "@INCLUDE@": "interfaces/clib",
+        "@ENABLED_SECTIONS@": "CLIB_GENERATED",
         "@GENERATE_HTML@": "YES",
         "@WARNINGS@": "YES",
         "@WARN_IF_DOC_ERROR@": "YES",
         "@WARN_IF_INCOMPLETE_DOC@": "YES",
     }
-    if env["clib_experimental"]:
-        vars["@INCLUDE@"] = "interfaces/clib"
-        vars["@ENABLED_SECTIONS@"] = "CLIB_GENERATED"
+    if env["clib_legacy"]:
+        vars["@INCLUDE@"] = ""
+        vars["@ENABLED_SECTIONS@"] = ""
     env.Substfile(
         "#build/doc/Doxyfile_html", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
 
@@ -95,19 +95,20 @@ if localenv['sphinx_docs']:
                                      fort_file, Copy("$TARGET", "$SOURCE")))
 
     # Gather clib sample files
-    clib_files = Glob("#samples/clib/*.c") + [File("#samples/clib/README.rst")]
-    for clib_file in clib_files:
+    clib_legacy_files = Glob("#samples/clib_legacy/*.c")
+    clib_legacy_files.append(File("#samples/clib_legacy/README.rst"))
+    for clib_file in clib_legacy_files:
         env.Depends(sphinxdocs,
-                    localenv.Command(f"#build/doc/samples/clib/{clib_file.name}",
+                    localenv.Command(f"#build/doc/samples/clib_legacy/{clib_file.name}",
                                      clib_file, Copy("$TARGET", "$SOURCE")))
 
-    # Gather clib_experimental sample files
-    clib3_files = Glob("#samples/clib_experimental/*.c") + \
-                       [File("#samples/clib_experimental/README.rst")]
-    for clib3_file in clib3_files:
+    # Gather clib_generated sample files
+    clib_files = Glob("#samples/clib_generated/*.c")
+    clib_files.append(File("#samples/clib_generated/README.rst"))
+    for clib3_file in clib_files:
         env.Depends(sphinxdocs,
                     localenv.Command(
-                        f"#build/doc/samples/clib_experimental/{clib3_file.name}",
+                        f"#build/doc/samples/clib_generated/{clib3_file.name}",
                         clib3_file, Copy("$TARGET", "$SOURCE")))
 
     # Generate documentation for SCons configuration options
