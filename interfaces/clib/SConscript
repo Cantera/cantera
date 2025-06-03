@@ -1,4 +1,4 @@
-"""SConscript file for auto-generated CLib."""
+"""SConscript file for generated CLib."""
 from pathlib import Path
 from buildutils import multi_glob, logger
 

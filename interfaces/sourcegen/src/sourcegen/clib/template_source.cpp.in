@@ -1,5 +1,5 @@
 /**
- *  {{ name.upper() }} - Auto-Generated CLib %Cantera interface library.
+ *  {{ name.upper() }} - Generated CLib %Cantera interface library.
  *
  *  @file {{ name }}.cpp
  *
@@ -13,7 +13,7 @@
  *  %Cantera build process. Do not manually edit.
  *
  *  @warning  This module is an experimental part of the %Cantera API and
- *      may be changed or removed without notice.
+ *      may be changed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -31,19 +31,24 @@
 
 using namespace Cantera;
 
+//! @cond
+//! Cabinet type definitions will be ignored by Doxygen
+
 {% if base %}
-/* Define Cabinet<{{ base }}> (single-instance object) */
+// Define Cabinet<{{ base }}> (single-instance object)
 typedef Cabinet<{{ base }}> {{ base }}Cabinet;
-template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0; // initialized here
+template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0;  // initialized here
 
 {% endif %}
 {% if other %}
 {% for entry in other %}
 typedef Cabinet<{{ entry }}> {{ entry }}Cabinet;
-template<> {{ entry }}Cabinet* {{ entry }}Cabinet::s_storage; // initialized elsewhere
+template<> {{ entry }}Cabinet* {{ entry }}Cabinet::s_storage;  // initialized elsewhere
 
 {% endfor %}
 {% endif %}
+//! @endcond
+
 extern "C" {
 
     {{ implementations | indent(4) }}

@@ -2,8 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Auto-generated CLib API for %Cantera's Transport class.
-  Partially implements a replacement for CLib's legacy @c ct library.
+  Generated CLib API for %Cantera's Transport class.
 prefix: trans
 base: Transport
 parents: []  # List of parent classes

@@ -2,8 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  The main library of the auto-generated CLib API contains %Cantera service functions.
-  Partially implements a replacement for CLib's legacy @c ct library.
+  The main library of the generated CLib API contains %Cantera service functions.
 prefix: ct
 base: ""
 recipes:

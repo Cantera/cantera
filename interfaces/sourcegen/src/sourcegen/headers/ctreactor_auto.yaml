@@ -2,8 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Auto-generated CLib API for %Cantera's ReactorBase class.
-  Partially implements a replacement for CLib's legacy @c ctreactor library.
+  Generated CLib API for %Cantera's ReactorBase class.
 prefix: reactor
 base: ReactorBase
 parents: []  # List of parent classes

@@ -1,29 +1,31 @@
-@page clibPage Auto-Generated CLib Interface
+@page clibPage Generated C Interface (CLib)
 
-# %Cantera – Auto-Generated CLib Interface
+# Generated C Interface (CLib)
 
-> **Note:** The auto-generated CLib API is a re-implementation of %Cantera's
-> _legacy_ CLib interface. It will replace the legacy CLib API starting in %Cantera 3.2.
->
-> While many function names remain unchanged, the auto-generated CLib is not meant to
-> be a drop-in replacement. Breaking changes involve improved consistency with the C++
-> code base in terms of nomenclature and function/method signatures.
+@remark  The generated CLib API is a re-implementation of %Cantera's _legacy_ C
+interface. It replaces the legacy CLib API starting in %Cantera 3.2.
+
+@remark  While many function names remain unchanged, the generated CLib is not meant to
+be a drop-in replacement. Breaking changes involve improved consistency with the C++
+code base in terms of nomenclature and function/method signatures.
+
+The generated C interface consists of a set of modules that are designed to encapsulate
+%Cantera functionality and to make it available for use in languages and applications
+other than C++. Each modules provides a library of functions that are declared
+`extern "C"`. All %Cantera objects are stored and referenced by integers - no pointers
+are passed to or from the calling application.
 
 ## CLib Modules
 
-%Cantera classes and CLib modules have a one-to-one relationship. The @ref clibGroup
-page provides a list of currently available modules.
+@warning  The generated CLib API is an experimental part of %Cantera and may be changed
+without notice.
+
+%Cantera classes and generated CLib modules have a one-to-one relationship. The
+@ref clibGroup page provides a list of currently available modules.
 
 ## Code Generation
 
-The auto-generated CLib interface is available if %Cantera is built with default
-options:
-
-```
-scons build
-```
-
-A test suite ensures that code performs as expected:
+The generated CLib interface is installed by default if %Cantera was built with default options. A test suite ensures that code performs as expected:
 
 ```
 scons test-clib

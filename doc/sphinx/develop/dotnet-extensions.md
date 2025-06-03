@@ -1,7 +1,7 @@
-# Auto-Generated .NET API
+# Generated .NET API
 
 ```{caution}
-The auto-generated .NET API is an experimental part of Cantera and may be changed or
+The generated .NET API is an experimental part of Cantera and may be changed or
 removed without notice.
 ```
 
@@ -50,7 +50,7 @@ following command from the root folder of the Cantera source code:
 sourcegen --api=csharp --output=build/csharp
 ```
 
-Auto-generated C# files are placed in the output folder `build/csharp`. Note that this
+Generated C# files are placed in the output folder `build/csharp`. Note that this
 step requires installation of sourcegen via
 `python -m pip install -e interfaces/sourcegen`.
 

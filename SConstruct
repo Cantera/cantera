@@ -370,7 +370,7 @@ config_options = [
         False),
     BoolOption(
         "clib_legacy",
-        "Build the legacy CLib instead of the auto-generated CLib.",
+        "Build the legacy CLib instead of the generated CLib.",
         False),
     BoolOption(
         "run_examples",
@@ -1955,7 +1955,7 @@ if env['f90_interface'] == 'y':
     VariantDir('build/src/fortran/', 'src/fortran', duplicate=1)
     SConscript('build/src/fortran/SConscript')
 
-# CLib needs to come before src so auto-generated code is available but we don't want
+# CLib needs to come before src so generated code is available but we don't want
 # to run this for scons doxygen and scons sphinx
 if not (env["clib_legacy"] or {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS)):
     SConscript("interfaces/clib/SConscript")

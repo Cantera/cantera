@@ -2,8 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Auto-generated CLib API for %Cantera's Reaction class.
-  Implements an extension of CLib's legacy @c ct library.
+  Generated CLib API for %Cantera's Reaction class.
 prefix: rxn
 base: Reaction
 parents: []  # List of parent classes

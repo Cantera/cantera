@@ -99,7 +99,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [Jinja2][https://jinja.palletsprojects.com/en/stable/]
 
-  - Required for auto-generated CLib and .NET.
+  - Required for generated CLib and .NET.
   - Expected to work with versions >= 2.6.
   - Version 2.10 or newer is recommended.
 

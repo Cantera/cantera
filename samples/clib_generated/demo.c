@@ -2,7 +2,7 @@
  * CLib Demo
  * =========
  *
- * This program illustrates using Cantera's auto-generated C-library interface to
+ * This program illustrates using Cantera's generated C-library interface to
  * compute thermodynamic, kinetic, and transport properties of a gas mixture. In
  * addition, a simple reactor network simulation is illustrated.
  *
@@ -26,7 +26,7 @@
 
 // sphinx_gallery_start_ignore
 // The following header files are not used by this example, but are nevertheless added
-// here to ensure C-compatibility of Cantera's auto-generated CLib includes in
+// here to ensure C-compatibility of Cantera's generated CLib includes in
 // continuous testing.
 #include "cantera_clib/ctconnector.h"
 #include "cantera_clib/ctdomain.h"
