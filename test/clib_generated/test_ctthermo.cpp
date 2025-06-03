@@ -12,9 +12,9 @@ using namespace Cantera;
 
 TEST(ctthermo, thermo)
 {
-    int ret;
-    int sol = sol_newSolution("gri30.yaml", "gri30", "none");
-    int thermo = sol_thermo(sol);
+    int32_t ret;
+    int32_t sol = sol_newSolution("gri30.yaml", "gri30", "none");
+    int32_t thermo = sol_thermo(sol);
     ASSERT_GE(thermo, 0);
     size_t nsp = thermo_nSpecies(thermo);
     ASSERT_EQ(nsp, 53u);
@@ -60,16 +60,16 @@ TEST(ctthermo, thermo)
 
 TEST(ctthermo, atomicWeights)
 {
-    int ret;
-    int sol = sol_newSolution("h2o2.yaml", "", "none");
-    int thermo = sol_thermo(sol);
+    int32_t ret;
+    int32_t sol = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t thermo = sol_thermo(sol);
 
     auto cxx_sol = newSolution("h2o2.yaml", "", "none");
     auto cxx_thermo = cxx_sol->thermo();
     auto cxx_weights = cxx_thermo->atomicWeights();
     ASSERT_EQ(cxx_weights.size(), cxx_thermo->nElements());
 
-    int buflen = thermo_nElements(thermo);
+    int32_t buflen = thermo_nElements(thermo);
     ASSERT_EQ(buflen, cxx_thermo->nElements());  // 4
     vector<double> buf(buflen);
     ret = thermo_atomicWeights(thermo, buflen, buf.data());

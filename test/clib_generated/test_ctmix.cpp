@@ -12,11 +12,11 @@ using namespace Cantera;
 
 TEST(ctmix, new)
 {
-    int sol0 = sol_newSolution("h2o2.yaml", "", "none");
-    int thermo = sol_thermo(sol0);
-    int mix = mix_new();
+    int32_t sol0 = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t thermo = sol_thermo(sol0);
+    int32_t mix = mix_new();
     ASSERT_GE(mix, 0);
-    int ret = mix_addPhase(mix, thermo, 1.);
+    int32_t ret = mix_addPhase(mix, thermo, 1.);
     ASSERT_EQ(ret, 0);
 
     ASSERT_EQ(mix_nPhases(mix), 1);
