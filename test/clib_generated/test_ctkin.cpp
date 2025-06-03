@@ -20,9 +20,9 @@ string reportError();  // forward declaration
 
 TEST(ctkin, kinetics)
 {
-    int sol0 = sol_newSolution("gri30.yaml", "gri30", "none");
-    int thermo = sol_thermo(sol0);
-    int kin = sol_kinetics(sol0);
+    int32_t sol0 = sol_newSolution("gri30.yaml", "gri30", "none");
+    int32_t thermo = sol_thermo(sol0);
+    int32_t kin = sol_kinetics(sol0);
     ASSERT_GE(kin, 0);
 
     size_t nr = kin_nReactions(kin);
@@ -52,8 +52,8 @@ TEST(ctkin, kinetics)
 
 TEST(ctkin, exceptions)
 {
-    int sol0 = sol_newSolution("h2o2.yaml", "", "none");
-    int kin = sol_kinetics(sol0);
+    int32_t sol0 = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t kin = sol_kinetics(sol0);
 
     kin_reaction(kin, 998);
     string err = reportError();
@@ -62,15 +62,15 @@ TEST(ctkin, exceptions)
 
 TEST(ctrxn, reaction)
 {
-    int sol0 = sol_newSolution("h2o2.yaml", "", "none");
-    int kin = sol_kinetics(sol0);
-    int rxn = kin_reaction(kin, 0);
+    int32_t sol0 = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t kin = sol_kinetics(sol0);
+    int32_t rxn = kin_reaction(kin, 0);
 
     auto sol = newSolution("h2o2.yaml", "", "none");
     auto kinetics = sol->kinetics();
     auto reaction = kinetics->reaction(0);
 
-    int buflen = rxn_type(rxn, 0, 0);
+    int32_t buflen = rxn_type(rxn, 0, 0);
     vector<char> buf(buflen);
     rxn_type(rxn, buflen, buf.data());
     string text = buf.data();
@@ -86,7 +86,7 @@ TEST(ctrxn, reaction)
     ASSERT_EQ(rxn_usesThirdBody(rxn), 1);
     ASSERT_EQ(rxn_allowNonreactantOrders(rxn), 0);
     ASSERT_EQ(rxn_allowNonreactantOrders(rxn),
-              int(reaction->allow_nonreactant_orders));
+              static_cast<int32_t>(reaction->allow_nonreactant_orders));
 
     buflen = rxn_id(rxn, 0, 0);
     buf.resize(buflen);
@@ -105,18 +105,18 @@ TEST(ctrxn, reaction)
 
 TEST(ctrdiag, diagram)
 {
-    int sol = sol_newSolution("h2o2.yaml", "", "none");
-    int thermo = sol_thermo(sol);
-    int kin = sol_kinetics(sol);
+    int32_t sol = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t thermo = sol_thermo(sol);
+    int32_t kin = sol_kinetics(sol);
     thermo_setState_TP(thermo, 1000., ct_OneAtm());
 
-    int diag = rdiag_newReactionPathDiagram(kin, "H");
+    int32_t diag = rdiag_newReactionPathDiagram(kin, "H");
     ASSERT_EQ(rdiag_boldThreshold(diag), 0.2);
 
     rdiag_setFlowType(diag, "spam");
     string text = reportError();
     EXPECT_THAT(text, HasSubstr("Unknown flow type 'spam'"));
-    int buflen = rdiag_flowType(diag, 0, 0);
+    int32_t buflen = rdiag_flowType(diag, 0, 0);
     vector<char> buf(buflen);
     rdiag_flowType(diag, buflen, buf.data());
     text = buf.data();
