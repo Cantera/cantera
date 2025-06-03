@@ -54,10 +54,10 @@ jobs:
       - name: Install Python dependencies
         run: |
           python3 -m pip install ruamel.yaml scons==4.0.1 packaging
-      - name: Build Cantera
+      - name: Build Cantera with legacy CLib
         run: |
           python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-          cc_flags=-D_GLIBCXX_ASSERTIONS
+          cc_flags=-D_GLIBCXX_ASSERTIONS clib_legacy=y
       - name: Set LD_PRELOAD environment variable for MATLAB
         run: |
           LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
@@ -121,10 +121,10 @@ jobs:
         python3 -m pip install ruamel.yaml scons==4.0.1 numpy${{ matrix.numpy }} \
           cython${{ matrix.cython }} pandas pytest \
           pytest-github-actions-annotate-failures pytest-xdist pint graphviz Jinja2
-    - name: Build Cantera
+    - name: Build Cantera with legacy CLib
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-        system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS
+        system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS clib_legacy=y
     - name: Build Tests
       run:
         python3 `which scons` -j4 build-tests --debug=time
@@ -134,11 +134,11 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Generate clib_experimental
+    - name: Rebuild Cantera with generated CLib
       run: |
-        python3 `which scons` build clib_experimental=y -j4
+        python3 `which scons` build  clib_legacy=n -j4
       if: matrix.python-version == '3.11'
-    - name: Run googletests for clib_experimental
+    - name: Run googletests for clib_generated
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library
@@ -199,7 +199,7 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j4 debug=n --debug=time logging=debug clib_experimental=y
+        -j4 debug=n --debug=time logging=debug
         warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
       run:
@@ -210,9 +210,9 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Run googletests for clib_experimental
+    - name: Run googletests
       run: python3 `which scons` test-clib --debug=time
-    - name: Run sample for clib_experimental demo
+    - name: Run sample demo
       run: python3 `which scons` test-clib-demo --debug=time
 
   macos-multiple-pythons:
@@ -256,9 +256,9 @@ jobs:
       run: python -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python -m pip install -r requirements.txt
-    - name: Build Cantera
+    - name: Build Cantera with legacy CLib
       run: scons build env_vars=all -j3 debug=n --debug=time
-        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
+        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }} clib_legacy=y
     - name: Build Tests
       run: scons -j3 build-tests --debug=time
     - name: Run compiled tests
@@ -267,11 +267,11 @@ jobs:
       run: |
         export DYLD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Generate clib_experimental
+    - name: Rebuild Cantera with generated CLib
       run: |
-        scons build clib_experimental=y -j3
+        scons build clib_legacy=n -j3
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
-    - name: Run googletests for clib_experimental
+    - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Upload shared library
@@ -318,30 +318,19 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-    - name: Build Cantera
+    - name: Build Cantera with legacy CLib
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
-        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time clib_experimental=y
+        FORTRANFLAGS='-O0' env_vars=all clib_legacy=y -j4 --debug=time
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests --debug=time
     - name: Run compiled tests
       run: python3 `which scons` test-gtest test-legacy --debug=time
     - name: Run Python tests
       run: python3 `which scons` test-python show_long_tests=yes verbose_tests=yes
-    - name: Build the .NET interface
-      run: dotnet build
-      working-directory: interfaces/dotnet
-    - name: Test the .NET interface
-      # Collect coverage info using Coverlet (identified by magic string below)
-      run: |
-        dotnet test --collect:"XPlat Code Coverage"
-        mv Cantera.Tests/TestResults/*/coverage.cobertura.xml .
-        dotnet new tool-manifest
-        dotnet tool install --local dotnet-reportgenerator-globaltool
-        dotnet reportgenerator -reports:"coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
-      working-directory: interfaces/dotnet
     - name: Set environment variables for MATLAB
+      # MATLAB requires the legacy CLib
       run: |
         LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
         LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
@@ -358,6 +347,22 @@ jobs:
         command: |
           addpath('/home/runner/work/cantera/cantera/test/matlab_experimental');
           matlabCoverage;
+    - name: Rebuild Cantera with generated CLib
+      run: scons build clib_legacy=n -j4
+    - name: Run googletests for generated CLib
+      run: scons test-clib --debug=time
+    - name: Build the .NET interface
+      run: dotnet build
+      working-directory: interfaces/dotnet
+    - name: Test the .NET interface
+      # Collect coverage info using Coverlet (identified by magic string below)
+      run: |
+        dotnet test --collect:"XPlat Code Coverage"
+        mv Cantera.Tests/TestResults/*/coverage.cobertura.xml .
+        dotnet new tool-manifest
+        dotnet tool install --local dotnet-reportgenerator-globaltool
+        dotnet reportgenerator -reports:"coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
+      working-directory: interfaces/dotnet
     - name: Process coverage files
       run: |
         gcovr --root . --exclude-unreachable-branches --exclude-throw-branches \
@@ -432,7 +437,7 @@ jobs:
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
-        run: scons build -j4 debug=n optimize=y use_pch=n clib_experimental=y
+        run: scons build -j4 debug=n optimize=y use_pch=n
       - name: Build documentation
         run: |
           scons sphinx doxygen logging=debug \
@@ -664,7 +669,7 @@ jobs:
             python=${{ env.PYTHON_VERSION }} sundials=${{ matrix.sundials-ver }} scons
             numpy ruamel.yaml cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
             pandas libgomp openblas pytest pytest-xdist highfive python-graphviz
-            setuptools
+            setuptools Jinja2 doxygen
           post-cleanup: none
       - name: Build Cantera
         run: |
@@ -734,10 +739,10 @@ jobs:
           fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen
         post-cleanup: none
         init-shell: powershell
-    - name: Build Cantera
+    - name: Build Cantera with legacy CLib
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
-        --debug=time -j4
+        --debug=time clib_legacy=y -j4
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -769,11 +774,11 @@ jobs:
         if (-not (Test-Path ch4_ion-test.yaml)) { exit 1 }
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
-    - name: Generate clib_experimental
+    - name: Rebuild Cantera with generated CLib
       run: |
-        scons build clib_experimental=y -j4
+        scons build clib_legacy=n -j4
       if: matrix.python-version == '3.11'
-    - name: Run googletests for clib_experimental
+    - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library
@@ -832,7 +837,7 @@ jobs:
         shell: bash
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
-          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS
+          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
@@ -862,7 +867,8 @@ jobs:
       timeout-minutes: 15
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
-        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev
+        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev \
+        doxygen
     - uses: actions/checkout@v4
       name: Checkout the repository
       with:
@@ -878,7 +884,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
-        pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+        pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
@@ -942,7 +948,7 @@ jobs:
     - name: Build Cantera
       run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
-        toolchain=mingw f90_interface=n --debug=time
+        toolchain=mingw f90_interface=n --debug=time clib_legacy=y
     - name: Upload Wheel
       uses: actions/upload-artifact@v4
       with:
