@@ -33,6 +33,8 @@ class Config:
 
     class_accessors: dict[str, str]
 
+    handle_array_takers: dict[str, str]
+
     derived_handles: dict[str, str]
 
     wrapper_classes: dict[str, dict[str, str]]
@@ -172,8 +174,15 @@ class CSharpSourceGenerator(SourceGenerator):
 
         ret_type = crosswalk(ret_type)
 
+        handle_array_type = self._config.handle_array_takers.get(name)
+
         for i, param in enumerate(params):
             param_type = crosswalk(param.p_type)
+            if handle_array_type and param_type.endswith("Span<int>"):
+                # Always scaffold a ReadOnlySpan of the handle type,
+                # as changes to the native collection wouldn’t be copied
+                # back by the marshaller.
+                param_type = f"ReadOnlySpan<{handle_array_type}>"
 
             params[i] = Param(param_type, param.name, param.description,
                               param.direction, param.default, param.base)
@@ -225,7 +234,7 @@ class CSharpSourceGenerator(SourceGenerator):
                                       span_param_name=func.arglist[-1].name)
             for func in cs_funcs if func.gets_string())
 
-        # Add wrappers for functions that get or set arrays of doubles.
+        # Add wrappers for functions that get or set arrays.
         def transform_to_span_func(func: CsFunc) -> CsFunc:
             arglist = ArgList([*func.arglist[:-2], func.arglist[-1]])
             return CsFunc('void', func.name, arglist, False, None)

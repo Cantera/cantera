@@ -68,6 +68,12 @@ class_accessors:
   kin_parent: SolutionHandle
   trans_parent: SolutionHandle
 
+# Functions that are typed to take an array of ints, but are really
+# supposed to take an array of handles
+handle_array_takers:
+  sol_newInterface: SolutionHandle
+  reactornet_new: ReactorHandle
+
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
 # discover the type name from the delete.
