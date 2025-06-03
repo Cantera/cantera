@@ -23,7 +23,7 @@ mechanism files.
 :text-align: center
 ```
 
-```{grid-item-card} CLib API Reference
+```{grid-item-card} C API Reference
 :link: /clib/index
 :link-type: doc
 :text-align: center

@@ -1,7 +1,7 @@
-# Auto-Generated YAML Output
+# Generated YAML Output
 
 ```{note}
-The auto-generated YAML output summarizes elements of the CLib API in YAML format
+The generated YAML output summarizes elements of the CLib API in YAML format
 and serves for illustration purposes. The YAML source code generator may be used to
 generate diagnostic output as well as a starting point for the creation of additional
 generated language interfaces.
@@ -50,7 +50,7 @@ Cantera source code:
 scons doxygen && sourcegen --api=yaml --output=build/yaml
 ```
 
-Auto-generated YAML files are placed in the output folder `build/yaml`. Note that this
+Generated YAML files are placed in the output folder `build/yaml`. Note that this
 step requires installation of sourcegen via
 `python -m pip install -e interfaces/sourcegen`.
 

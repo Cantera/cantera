@@ -16,7 +16,7 @@ interfaces for other languages. The following output options are supported:
 ## Usage
 
 The sourcegen utility is a command-line tool that is used for code generation. It can be
-invoked without intallation as
+invoked without installation as
 
 ```bash
 python -m interfaces.sourcegen.src.sourcegen <list-of-options>
@@ -61,7 +61,7 @@ instructions for constructing CLib interface functions from underlying C++ funct
 and methods. For more information, see [](sourcegen-config).
 
 The utility is used to generate the [CLib API](clib-extensions) itself, as well as
-auto-generated language interfaces built on top of it, such as the .NET interface and
+generated language interfaces built on top of it, such as the .NET interface and
 others.
 
 (sec-sourcegen-details)=
@@ -135,7 +135,7 @@ source generation to a language-specific sub-package.
    The config file may contain additional values for use by the language-specific
    sub-package.
 
-Further processing of auto-generated code depends on the build process of the
+Further processing of generated code depends on the build process of the
 destination language.
 
 ```{tip}

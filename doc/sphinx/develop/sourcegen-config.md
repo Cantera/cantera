@@ -1,4 +1,4 @@
-# Auto-Generated CLib Headers
+# Generated CLib Headers
 
 ```{caution}
 The YAML configuration for the **sourcegen** utility is an experimental part of Cantera
@@ -18,7 +18,7 @@ represents annotated CLib functions that form the basis for specific APIs genera
 Each YAML file contains information for CLib headers that implement functions and
 methods built around a specific Cantera class. The following fields are supported:
 
-- `docstring`: Used as part of the docstring of the auto-generated API file.
+- `docstring`: Used as part of the docstring of the generated API file.
 - `prefix`: Prefix used for CLib functions.
 - `base`: Base class of the CLib library; examples: `Solution`, `ThermoPhase`.
     Stand-alone functions defined in the `Cantera` namespace use `""` as a base.
@@ -73,7 +73,7 @@ CLib function. Each YAML recipe uses the following fields:
 - `uses`: Optional list of auxiliary C++ class methods used by the CLib function. The
     exact usage depends on the type of the implemented CLib function.
 
-For custom code, additional fields are required to replace auto-generated information:
+For custom code, additional fields are required to replace generated information:
 
 - `declaration`: Full CLib declaration.
 - `parameters`: Mapping of parameter doc-strings.

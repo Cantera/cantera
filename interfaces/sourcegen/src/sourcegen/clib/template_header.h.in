@@ -1,5 +1,5 @@
 /**
- *  {{ name.upper() }} - Auto-Generated CLib %Cantera interface library.
+ *  {{ name.upper() }} - Generated CLib %Cantera interface library.
  *
  *  @file {{ name }}.h
  *
@@ -19,7 +19,7 @@
  *  %Cantera build process. Do not manually edit.
  *
  *  @warning  This module is an experimental part of the %Cantera API and
- *      may be changed or removed without notice.
+ *      may be changed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
     /**
-     *  @defgroup {{ name }}Group {{ name }} API
+     *  @defgroup {{ name }}Group {{ name }} Module
     {% if docstring %}
      *  @brief {{ docstring[0] }}
     {% for line in docstring[1:] %}
@@ -45,6 +45,8 @@ extern "C" {
     {% endfor %}
     {% endif %}
      *  @ingroup clibGroup
+     *  @warning  This module is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
 
     /**
