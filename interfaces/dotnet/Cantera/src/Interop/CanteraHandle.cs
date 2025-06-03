@@ -46,10 +46,8 @@ abstract class CanteraHandle : IDisposable
     public sealed override string ToString() =>
         $"{GetType().Name} {{{_value}}}";
 
-    [CustomMarshaller(typeof(CustomMarshallerAttribute.GenericPlaceholder), MarshalMode.ManagedToUnmanagedIn,
-        typeof(Marshaller<>))]
-    [CustomMarshaller(typeof(CustomMarshallerAttribute.GenericPlaceholder), MarshalMode.ManagedToUnmanagedOut,
-        typeof(Marshaller<>))]
+    [CustomMarshaller(typeof(CustomMarshallerAttribute.GenericPlaceholder),
+        MarshalMode.Default, typeof(Marshaller<>))]
     public static class Marshaller<T> where T : CanteraHandle, new()
     {
         public static int ConvertToUnmanaged(T handle)
