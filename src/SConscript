@@ -39,7 +39,7 @@ libs = [('base', ['cpp'], baseSetup),
         ('oneD', ['cpp'], defaultSetup),
         ('zeroD', ['cpp'], defaultSetup),
         ]
-if not env["clib_experimental"]:
+if env["clib_legacy"]:
     libs.append(('clib', ['cpp'], defaultSetup))
 
 
@@ -79,7 +79,7 @@ for subdir, extensions, setup in libs:
     libraryTargets.extend(objects)
 
 generated_file_nodes = []
-if localenv["clib_experimental"]:
+if not localenv["clib_legacy"]:
     # Handle generated CLib separately, as generated files have different location
     auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
     yaml_files = list(auto_path.glob("*_auto.yaml"))
@@ -94,7 +94,7 @@ if localenv["clib_experimental"]:
         # compile with explicit source and target files
         base_name = yaml_file.stem.replace("_auto", "")
         source_file = Dir("#interfaces/clib/src").File(f"{base_name}.cpp")
-        target_file = Dir("#build/src/clib_experimental").File(f"{base_name}.os")
+        target_file = Dir("#build/src/clib_generated").File(f"{base_name}.os")
         obj = env2.SharedObject(
             target_file,
             source_file)
@@ -128,7 +128,7 @@ if env["python_package"] == "y":
 staticIndicator = indicatorEnv.SharedObject('extensions/canteraStatic.cpp')
 lib_target = localenv.StaticLibrary("../lib/cantera", libraryTargets + staticIndicator,
                                     SPAWN=get_spawn(localenv))
-if env["clib_experimental"]:
+if not env["clib_legacy"]:
     localenv.Depends(lib_target, generated_file_nodes)
 
 lib = build(lib_target)

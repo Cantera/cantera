@@ -24,7 +24,7 @@ if env['googletest'] == 'submodule':
 if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
 
-if env["clib_experimental"]:
+if not env["clib_legacy"]:
     localenv.Prepend(CPPPATH=["#interfaces/clib/include"])
 
 # Turn off optimization to speed up compilation
@@ -211,10 +211,10 @@ def addPythonTest(testname, subset):
 
 
 # Instantiate tests
-if localenv["clib_experimental"]:
-    addTestProgram("clib_experimental", "clib")
+if localenv["clib_legacy"]:
+    addTestProgram("clib_legacy", "clib")
 else:
-    addTestProgram('clib', 'clib')
+    addTestProgram("clib_generated", "clib")
 addTestProgram('equil', 'equil')
 addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')

@@ -369,8 +369,8 @@ config_options = [
         "Build HTML documentation for Cantera using Sphinx.",
         False),
     BoolOption(
-        "clib_experimental",
-        "Build experimental CLib instead of traditional CLib.",
+        "clib_legacy",
+        "Build the legacy CLib instead of the auto-generated CLib.",
         False),
     BoolOption(
         "run_examples",
@@ -1957,7 +1957,7 @@ if env['f90_interface'] == 'y':
 
 # CLib needs to come before src so auto-generated code is available but we don't want
 # to run this for scons doxygen and scons sphinx
-if env["clib_experimental"] and not {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS):
+if not (env["clib_legacy"] or {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS)):
     SConscript("interfaces/clib/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
@@ -1978,19 +1978,20 @@ if env['doxygen_docs'] or env['sphinx_docs']:
 VariantDir('build/samples', 'samples', duplicate=0)
 sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
 SConscript('build/samples/cxx/SConscript')
-SConscript('build/samples/clib/SConscript')
 
-# Install C++ / C samples
+# Install C++
 install(env.RecursiveInstall, '$inst_sampledir/cxx',
         'samples/cxx', exclude=sampledir_excludes)
-install(env.RecursiveInstall, '$inst_sampledir/clib',
-        'samples/clib', exclude=sampledir_excludes)
 
-# Install experimental C samples
-if env["clib_experimental"]:
-    SConscript("build/samples/clib_experimental/SConscript")
-    install(env.RecursiveInstall, "$inst_sampledir/clib_experimental",
-            "samples/clib_experimental", exclude=sampledir_excludes)
+# Install C samples
+if env["clib_legacy"]:
+    SConscript('build/samples/clib_legacy/SConscript')
+    install(env.RecursiveInstall, '$inst_sampledir/clib_legacy',
+            'samples/clib_legacy', exclude=sampledir_excludes)
+else:
+    SConscript("build/samples/clib_generated/SConscript")
+    install(env.RecursiveInstall, "$inst_sampledir/clib_generated",
+            "samples/clib_generated", exclude=sampledir_excludes)
 
 if env['f90_interface'] == 'y':
     SConscript('build/samples/f77/SConscript')
