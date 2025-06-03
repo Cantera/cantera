@@ -119,6 +119,8 @@ public:
     //! integrator will take before reaching the next output point
     int maxSteps();
 
+    //! @}
+
     /**
      * Advance the state of all reactors in the independent variable (time or space).
      * Take as many internal steps as necessary to reach *t*.
