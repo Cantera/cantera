@@ -3,7 +3,7 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's ConnectorNode class.
-  Partially implements a replacement for CLib's traditional @c ctreactor library.
+  Partially implements a replacement for CLib's legacy @c ctreactor library.
 prefix: connector
 base: ConnectorNode
 parents: []  # List of parent classes

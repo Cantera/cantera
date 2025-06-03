@@ -1,7 +1,7 @@
-C (traditional) Examples
+C (legacy) Examples
 ========================
 
-These examples demonstrate the usage of Cantera's traditional C interface library,
+These examples demonstrate the usage of Cantera's legacy C interface library,
 ``clib``, which can also be used to call Cantera from other languages that are able to
 call C functions.
 

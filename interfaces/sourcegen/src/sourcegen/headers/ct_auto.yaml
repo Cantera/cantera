@@ -3,7 +3,7 @@
 
 docstring: |-
   The main library of the auto-generated CLib API contains %Cantera service functions.
-  Partially implements a replacement for CLib's traditional @c ct library.
+  Partially implements a replacement for CLib's legacy @c ct library.
 prefix: ct
 base: ""
 recipes:

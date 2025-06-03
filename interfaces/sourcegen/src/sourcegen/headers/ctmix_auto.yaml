@@ -3,7 +3,7 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's MultiPhase class.
-  Implements a replacement for CLib's traditional @c ctmultiphase library.
+  Implements a replacement for CLib's legacy @c ctmultiphase library.
 prefix: mix
 base: MultiPhase
 parents: []  # List of parent classes

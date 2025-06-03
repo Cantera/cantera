@@ -3,7 +3,7 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's Func1 class.
-  Implements a replacement for CLib's traditional @c ctfunc library.
+  Implements a replacement for CLib's legacy @c ctfunc library.
 prefix: func1
 base: Func1
 recipes:

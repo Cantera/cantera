@@ -1,5 +1,5 @@
 /**
- *  {{ name.upper() }} - Experimental CLib %Cantera interface library.
+ *  {{ name.upper() }} - Auto-Generated CLib %Cantera interface library.
  *
  *  @file {{ name }}.cpp
  *

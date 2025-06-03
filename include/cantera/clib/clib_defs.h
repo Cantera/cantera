@@ -9,7 +9,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef __CLIB_DEFS_H__
-#define __CLIB_DEFS_H__  // use same guards as clib_experimental
+#define __CLIB_DEFS_H__  // use same guards as clib_generated
 
 #include "cantera/base/config.h"
 #include <stdlib.h>
@@ -33,7 +33,7 @@ enum LogLevel { INFO, WARN , ERROR };
 
 //! Represents a callback that is invoked to produce log output.
 //! TODO: Only needed in the main CLib library. Should be moved once the
-//! traditional CLib is removed.
+//! legacy CLib is removed.
 typedef void
     (*LogCallback)(enum LogLevel logLevel, const char* category, const char* message);
 

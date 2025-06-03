@@ -1,10 +1,10 @@
 /*
- * Experimental CLib Demo
- * ======================
+ * CLib Demo
+ * =========
  *
- * This program illustrates using Cantera's experimental C-library interface to compute
- * thermodynamic, kinetic, and transport properties of a gas mixture. In addition,
- * a simple reactor network simulation is illustrated.
+ * This program illustrates using Cantera's auto-generated C-library interface to
+ * compute thermodynamic, kinetic, and transport properties of a gas mixture. In
+ * addition, a simple reactor network simulation is illustrated.
  *
  * .. tags:: C, tutorial, equilibrium, thermodynamics, kinetics, transport,
  *           reactor network
@@ -26,8 +26,8 @@
 
 // sphinx_gallery_start_ignore
 // The following header files are not used by this example, but are nevertheless added
-// here to ensure C-compatibility of Cantera's experimental clib includes in continuous
-// testing.
+// here to ensure C-compatibility of Cantera's auto-generated CLib includes in
+// continuous testing.
 #include "cantera_clib/ctconnector.h"
 #include "cantera_clib/ctdomain.h"
 #include "cantera_clib/ctfunc.h"

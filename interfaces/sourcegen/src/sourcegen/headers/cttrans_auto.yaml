@@ -3,7 +3,7 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's Transport class.
-  Partially implements a replacement for CLib's traditional @c ct library.
+  Partially implements a replacement for CLib's legacy @c ct library.
 prefix: trans
 base: Transport
 parents: []  # List of parent classes
