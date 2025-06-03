@@ -131,6 +131,8 @@ compile Cantera on your operating system.
   - pytest  # needed for the Python test suite
   # - pytest-cov  # optional (needed if running with test coverage enabled)
   - ruamel.yaml  # needed for converter scripts
+  - doxygen  # needed for code generation and documentation
+  - jinja2  # needed for code generation
   # - pandas  # optional (needed for pandas interface and some examples)
   # - scipy  # optional (needed for some examples)
   # - matplotlib  # optional (needed for plots and some examples)
@@ -148,14 +150,12 @@ compile Cantera on your operating system.
   # - sphinxcontrib-bibtex  # optional (needed for documentation)
   # - sphinxcontrib-matlabdomain  # optional (needed for documentation)
   # - sphinxcontrib-doxylink  # optional (needed for documentation)
-  # - doxygen  # optional (needed for documentation and code generation)
   # - graphviz  # optional (needed for documentation)
   # - texlive-core  # optional (needed for documentation)
   # - perl  # optional (needed for documentation)
   # - coolprop  # optional (needed for some examples)
   # - pint  # optional (needed for some examples)
   # - typing-extensions  # optional (needed for code generation with Python<3.11)
-  # - jinja2  # optional (needed for code generation)
   # - pip:  # optional (list of PyPI managed packages)
   #   - "git+https://github.com/Cantera/sphinx-tags.git@main"  # optional (needed for documentation)
   ```

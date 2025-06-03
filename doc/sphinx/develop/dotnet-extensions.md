@@ -20,8 +20,8 @@ The .NET API implementation draws on two parts:
 (sec-sourcegen-dotnet-install)=
 ## Building the .NET Interface
 
-After [building the main Cantera library](sec-compiling) with the option
-`clib_experimental=y`, switch to the `interfaces/dotnet` directory and run
+After [building the main Cantera library](sec-compiling) with default options, switch
+to the `interfaces/dotnet` directory and run
 
 ```bash
 dotnet build

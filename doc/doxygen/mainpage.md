@@ -17,7 +17,7 @@ A **topical overview** is provided as follows:
 * @ref physConstants (universal constants, built into %Cantera for convenience)
 
 @cond CLIB_GENERATED
-Experimental CLib:
+Auto-Generated CLib:
 
 * @subpage clibPage (CLib overview)
 * @ref clibGroup (CLib components)

@@ -1,8 +1,8 @@
 /*
- * CLib Demo
- * =========
+ * Legacy CLib Demo
+ * ================
  *
- * This program illustrates using Cantera's C-library interface to compute
+ * This program illustrates using Cantera's legacy C-library interface to compute
  * thermodynamic, kinetic, and transport properties of a gas mixture. In addition,
  * a simple reactor network simulation is illustrated.
  *
@@ -20,7 +20,8 @@
 
 // sphinx_gallery_start_ignore
 // The following header files are not used by this example, but are nevertheless added
-// here to ensure C-compatibility of Cantera's clib includes in continuous testing.
+// here to ensure C-compatibility of Cantera's legacy clib includes in continuous
+// testing.
 #include "cantera/clib/ctfunc.h"
 #include "cantera/clib/ctmultiphase.h"
 #include "cantera/clib/ctonedim.h"

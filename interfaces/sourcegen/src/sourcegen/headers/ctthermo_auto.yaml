@@ -3,7 +3,7 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's ThermoPhase class.
-  Partially implements a replacement for CLib's traditional @c ct and
+  Partially implements a replacement for CLib's legacy @c ct and
   @c ctsurf libraries.
 prefix: thermo
 base: ThermoPhase

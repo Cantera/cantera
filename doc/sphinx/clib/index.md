@@ -6,29 +6,31 @@ The CLib API is an experimental part of Cantera and may be changed without notic
 
 Cantera has two CLib interfaces:
 
-- The _traditional_ CLib is hand-coded and is not feature-complete.
+- The [](../develop/clib-extensions) replaces the _legacy_ CLib starting in Cantera 3.2.
 
-- The [](../develop/clib-extensions) is currently in preview and will replace the
-  _traditional_ CLib starting in Cantera 3.2.
+- The _legacy_ CLib is hand-coded and is not feature-complete.
 
-## Traditional CLib
+## Auto-Generated CLib
 
-The (undocumented) traditional CLib is installed by default when building Cantera:
+The auto-generated CLib is {ct}`fully documented <clibPage>`. The API is installed by
+default when building Cantera:
 
 ```bash
 scons build
 ```
 
-## Auto-generated CLib
+While the auto-generated CLib is not feature-complete compared to the C++ API, it
+re-implements all features of the legacy CLib and is easily extensible. See
+[](../develop/clib-extensions) for further information.
 
-The auto-generated CLib is {ct}`fully documented <clibPage>`. The API is available when
-Cantera is built with the `clib_experimental=y` option:
+## Legacy CLib
+
+The (undocumented) legacy CLib is available when Cantera is built with the
+`clib_legacy=y` option:
 
 ```bash
-scons build clib_experimental=y
+scons build clib_legacy=y
 ```
-
-See [](../develop/clib-extensions) for further information.
 
 ```{toctree}
 :hidden:

@@ -91,6 +91,18 @@ compiler is required only if you plan to build the Fortran module.
   - <https://github.com/jbeder/yaml-cpp>
   - Known to work with version 0.7.0. Version 0.6.0 or newer is required.
 
+- [Doxygen](http://doxygen.nl/)
+
+  - Required for building the C++ API Documentation
+  - Required to generate the C and .NET interfaces.
+  - Version 1.8 or newer is recommended.
+
+- [Jinja2][https://jinja.palletsprojects.com/en/stable/]
+
+  - Required for auto-generated CLib and .NET.
+  - Expected to work with versions >= 2.6.
+  - Version 2.10 or newer is recommended.
+
 ## Optional Dependencies
 
 - [Numpy](https://www.numpy.org/)
@@ -193,11 +205,6 @@ compiler is required only if you plan to build the Fortran module.
     - [Pint](https://pint.readthedocs.io/en/stable/)
     - [Matplotlib](https://matplotlib.org/)
     - [(python-)graphviz](https://graphviz.readthedocs.io/en/stable/)
-
-- [Doxygen](http://doxygen.nl/)
-
-  - Required for building the C++ API Documentation
-  - Version 1.8 or newer is recommended.
 
 - [Graphviz](https://www.graphviz.org/)
 
