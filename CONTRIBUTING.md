@@ -51,8 +51,9 @@ provide a starting point for contributing code to Cantera.
     and selecting "Settings". Then, select the "Emails" section from the list on the
     left of the page.
 * If you have made a significant contribution (more than just fixing a typo), please add
-  your name, GitHub handle, and institutional affiliation (if desired) to the `AUTHORS`
-  file as part of your pull request.
+  your name, GitHub handle, and institutional affiliation (if desired) to the
+  [Cantera authors](https://github.com/Cantera/cantera/blob/main/AUTHORS.md) file
+  `AUTHORS.md` as part of your pull request.
 * Do not add any author acknowledgements to individual files.
 
 ## Git Workflow
