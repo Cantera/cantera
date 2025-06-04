@@ -103,7 +103,7 @@ source generation to a language-specific sub-package.
    - `name`: Name of CLib function.
    - `arglist`: CLib function argument list.
    - `brief`: Brief description.
-   - `implements`: Implemented C++ function/method (if applicable).
+   - `wraps`: Implemented C++ function/method (if applicable).
    - `returns`: Description of returned value.
    - `base`: Qualified scope of function/method (if applicable).
    - `uses`: List of auxiliary C++ methods (if applicable).

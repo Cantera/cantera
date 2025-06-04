@@ -24,7 +24,7 @@ thermo_getMolecularWeights:
     handle: Handle to queried Phase object.
     weightsLen: Length of array reserved for weights.
     weights: Output array of molecular weights (kg/kmol)
-  implements: void Phase::getMolecularWeights(double*)
+  wraps: void Phase::getMolecularWeights(double*)
   uses:
   - size_t Phase::nSpecies()
 ```
@@ -37,7 +37,7 @@ Individual YAML fields represent the following:
 - `declaration`: Full CLib function signature.
 - `parameters`: Mapping of CLib function arguments to respective docstrings.
 - `returns`: Docstring of value returned by CLib function.
-- `implements`: Full signature of C++ function/method/variable implemented by CLib (if
+- `wraps`: Full signature of C++ function/method/variable implemented by CLib (if
   applicable).
 - `uses`: List of auxiliary C++ methods used by the CLib function (if applicable).
 

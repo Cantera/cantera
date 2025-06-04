@@ -39,7 +39,7 @@ based on a recipe, which is subsequently used to scaffold API functions using de
     names should start with `new`. As all objects are handled via smart `shared_ptr<>`,
     CLib constructors require C++ utility functions that return a pointer to a new
     object. Constructors with the name `new` will use the C++ default constructor.
-- `accessor`: a CLib accessor adds existing or spawned C++ objects to CLib storage.
+- `accessor`: A CLib accessor adds existing or spawned C++ objects to CLib storage.
 - `destructor`: A CLib destructor removes a C++ object from CLib. Destructor names
     should start with `del`.
 - `getter`: Implements a getter method of a C++ class.
@@ -63,7 +63,7 @@ CLib function. Each YAML recipe uses the following fields:
 - `name`: Name of the CLib function to be generated (without prefix).
 - `brief`: Optional override for brief description from Doxygen documentation.
 - `what`: Optional override for auto-detected recipe/CLib function type.
-- `implements`: Optional name or signature of the implemented C++ function/method or
+- `wraps`: Optional name or signature of the implemented C++ function/method or
     variable. If left empty, *sourcegen* searches for Doxygen tags matching the `name`
     field. A name is sufficient if C++ functions/methods are unique, for example
     `Func1::type`. A signature is required whenever shortened signatures with default
