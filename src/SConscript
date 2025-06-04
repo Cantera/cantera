@@ -95,6 +95,7 @@ if not localenv["clib_legacy"]:
         base_name = yaml_file.stem.replace("_auto", "")
         source_file = Dir("#interfaces/clib/src").File(f"{base_name}.cpp")
         target_file = Dir("#build/src/clib_generated").File(f"{base_name}.os")
+        # TODO: Rename target to "#build/src/clib" after removal of legacy CLib
         obj = env2.SharedObject(
             target_file,
             source_file)

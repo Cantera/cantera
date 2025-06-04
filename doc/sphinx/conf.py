@@ -63,16 +63,16 @@ sphinx_gallery_conf = {
     'examples_dirs': [
        '../samples/python/',
        '../samples/cxx/',
+       '../samples/clib/',
        '../samples/clib_legacy/',
-       '../samples/clib_generated/',
        '../samples/fortran/',
        '../samples/matlab_experimental/',
     ],
     'gallery_dirs': [
        'examples/python',
        'examples/cxx',
+       'examples/clib',
        'examples/clib_legacy',
-       'examples/clib_generated',
        'examples/fortran',
        'examples/matlab_experimental',
     ],
