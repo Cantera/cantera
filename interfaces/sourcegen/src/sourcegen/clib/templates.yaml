@@ -16,13 +16,14 @@ clib-comment: |-
   {{ '@returns' + 12*' ' + returns }}
   {% endif %}
   {% if params or returns %}
+  {% endif %}
+  {% if wraps %}
 
+  Wraps C++ {{ what }}: {{ wraps }}
   {% endif %}
-  {% if implements %}
-  {{ '@implements ' + implements }}
-  {% endif %}
-  {% if relates %}
-  {{ '@relates ' + ', '.join(relates) }}
+  {% if uses %}
+
+  Uses: {{ ", ".join(uses) }}
   {% endif %}
 
 clib-definition: |-
