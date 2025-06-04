@@ -32,7 +32,7 @@
 using namespace Cantera;
 
 {% if base %}
-// Define Cabinet<{{ base }}> (single-instance object)
+/* Define Cabinet<{{ base }}> (single-instance object) */
 typedef Cabinet<{{ base }}> {{ base }}Cabinet;
 template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0; // initialized here
 
