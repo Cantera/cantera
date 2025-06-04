@@ -41,10 +41,10 @@ class YamlSourceGenerator(SourceGenerator):
             msg = f"   scaffolding {c_func.name!r} implementation"
             _LOGGER.debug(msg)
             implements = ""
-            if isinstance(c_func.implements, Func):
-                implements = c_func.implements.short_declaration()
-            elif isinstance(c_func.implements, Param):
-                implements = c_func.implements.long_str()
+            if isinstance(c_func.wraps, Func):
+                implements = c_func.wraps.short_declaration()
+            elif isinstance(c_func.wraps, Param):
+                implements = c_func.wraps.long_str()
             uses = []
             for fcn in c_func.uses:
                 uses.append(fcn.short_declaration())

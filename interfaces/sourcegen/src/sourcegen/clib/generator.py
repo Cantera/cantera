@@ -63,11 +63,11 @@ class CLibSourceGenerator(SourceGenerator):
             ret = par_template.render(par=item)
             return f"{ret:<19} {item.description}"
 
-        if isinstance(c_func.implements, Func):
-            wraps = c_func.implements.short_declaration(doxygen=True, scope="Cantera")
-        elif isinstance(c_func.implements, Param):
-            wraps = c_func.implements.long_str(doxygen=True, scope="Cantera")
-        elif isinstance(c_func.implements, str):
+        if isinstance(c_func.wraps, Func):
+            wraps = c_func.wraps.short_declaration(doxygen=True, scope="Cantera")
+        elif isinstance(c_func.wraps, Param):
+            wraps = c_func.wraps.long_str(doxygen=True, scope="Cantera")
+        elif isinstance(c_func.wraps, str):
             wraps = "custom code"
         else:
             wraps = "undefined"
@@ -92,8 +92,8 @@ class CLibSourceGenerator(SourceGenerator):
     def _critical(c_func: Func, cxx_func: Func, msg) -> None:
         msg = (f"Scaffolding failed for {c_func.name!r}: {msg}:\n"
                 f"C: {c_func.declaration()}\n")
-        if isinstance(cxx_func.implements, str):
-            msg += f"C++: {cxx_func.implements} (wrapped as {cxx_func.declaration()})"
+        if isinstance(cxx_func.wraps, str):
+            msg += f"C++: {cxx_func.wraps} (wrapped as {cxx_func.declaration()})"
         else:
             msg += f"C++: {cxx_func.declaration()}"
         _LOGGER.critical(msg)
@@ -125,14 +125,14 @@ class CLibSourceGenerator(SourceGenerator):
                 self._critical(
                     c_func, cxx_func,
                     f"return crosswalk not listed for C++ template {ret_key!r}")
-        elif cxx_type in ["auto"] or cxx_func.implements == "custom code":
+        elif cxx_type in ["auto"] or cxx_func.wraps == "custom code":
             pass
         elif ret_key not in self._config.ret_type_crosswalk:
             self._critical(c_func, cxx_func,
                            f"return crosswalk not listed for C++ type {ret_key!r}")
 
         # check C type information
-        if cxx_type == "auto" or cxx_func.implements == "custom code":
+        if cxx_type == "auto" or cxx_func.wraps == "custom code":
             pass
         elif c_args and c_args[-1].name == "buf":
             if c_type != "int32_t":
@@ -264,39 +264,39 @@ class CLibSourceGenerator(SourceGenerator):
     def _crosswalk(self, c_func: Func, base: str) -> tuple[dict[str, str], set[str]]:
         """Translate CLib arguments back to Jinja argument list."""
         c_args = c_func.arglist
-        cxx_implements = None
-        cxx_member = c_func.implements
+        cxx_wraps = None
+        cxx_member = c_func.wraps
         if not cxx_member:
             if c_func.name.endswith("new"):
-                cxx_implements = f"default constructor for {base}"
+                cxx_wraps = f"default constructor for {base}"
                 cxx_func = Func("auto", f"make_shared<{base}>", ArgList([]),
-                                 "", cxx_implements, "", base)
+                                "", cxx_wraps, "", base)
             elif len(c_args) and "char*" in c_args[-1].p_type:
-                cxx_implements = "reserved function/method"
+                cxx_wraps = "reserved function/method"
                 cxx_func = Func("string", "dummy", ArgList([]),
-                                 "", cxx_implements, "", base)
+                                "", cxx_wraps, "", base)
             else:
-                cxx_implements = f"reserved function/method: {c_func.name}"
+                cxx_wraps = f"reserved function/method: {c_func.name}"
                 cxx_func = Func("void", "dummy", ArgList([]),
-                                 "", cxx_implements, "", base)
+                                "", cxx_wraps, "", base)
         elif isinstance(cxx_member, Param):
             if cxx_member.direction == "in":
-                cxx_implements = f"variable setter: {cxx_member.name}"
+                cxx_wraps = f"variable setter: {cxx_member.name}"
                 cxx_func = Func("int", cxx_member.name, ArgList([cxx_member]),
-                                 "", cxx_implements, "", cxx_member.base)
+                                "", cxx_wraps, "", cxx_member.base)
             else:  # cxx_member.direction == "out"
-                cxx_implements = f"variable getter: {cxx_member.name}"
+                cxx_wraps = f"variable getter: {cxx_member.name}"
                 if len(c_args) and "char*" in c_args[-1].p_type:
                     cxx_func = Func("string", cxx_member.name, ArgList([]),
-                                     "", cxx_implements, "", cxx_member.base)
+                                    "", cxx_wraps, "", cxx_member.base)
                 else:
                     cxx_func = Func(cxx_member.p_type, cxx_member.name, ArgList([]),
-                                     "", cxx_implements, "", cxx_member.base)
+                                    "", cxx_wraps, "", cxx_member.base)
         elif isinstance(cxx_member, str):
-            cxx_implements = "custom code"
-            cxx_func = Func("void", "dummy", ArgList([]), "", cxx_implements, "", base)
+            cxx_wraps = "custom code"
+            cxx_func = Func("void", "dummy", ArgList([]), "", cxx_wraps, "", base)
         else:
-            cxx_implements = cxx_member.short_declaration()
+            cxx_wraps = cxx_member.short_declaration()
             cxx_func = cxx_member
 
         handle, buffer, rbase = self._ret_crosswalk(c_func, cxx_func, base)
@@ -329,7 +329,7 @@ class CLibSourceGenerator(SourceGenerator):
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
             "shared": shared, "checks": checks, "error": error, "cxx_rbase": rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
-            "cxx_implements": cxx_implements,
+            "cxx_wraps": cxx_wraps,
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
         }
         return ret, bases
@@ -344,10 +344,10 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.code:
             # override auto-generated code
             if "reserved" in recipe.what:
-                template = loader.from_string(c_func.implements)
+                template = loader.from_string(c_func.wraps)
                 lines = template.render(cabinets=[kk for kk in self._clib_bases if kk])
             else:
-                lines = c_func.implements
+                lines = c_func.wraps
             template = loader.from_string(self._templates["clib-custom-code"])
             args["lines"] = lines.split("\n")
 
@@ -376,14 +376,14 @@ class CLibSourceGenerator(SourceGenerator):
             template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "getter":
-            ret_type = c_func.implements.ret_type
+            ret_type = c_func.wraps.ret_type
             if "void" in ret_type or "vector" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "setter":
-            if "*" in c_func.implements.arglist[0].p_type:
+            if "*" in c_func.wraps.arglist[0].p_type:
                 template = loader.from_string(self._templates["clib-array-setter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])

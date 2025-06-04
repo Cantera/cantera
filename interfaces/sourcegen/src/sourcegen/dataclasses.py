@@ -187,7 +187,7 @@ class Func:
     name: str  #: Function name
     arglist: ArgList  #: Argument list
     brief: str = ""  #: Brief description (optional)
-    implements: Self | Param | str = None  #: Implemented C++ function/method (optional)
+    wraps: Self | Param | str = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
     uses: list[Self] | None = None  #: List of auxiliary C++ methods (optional)
