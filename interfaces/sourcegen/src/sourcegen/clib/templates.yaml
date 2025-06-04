@@ -31,7 +31,7 @@ clib-definition: |-
   {{ declaration }};
 
 clib-function: |-
-  // function: {{ cxx_implements }}
+  // function: {{ cxx_wraps }}
   try {
       {% for line in lines %}
       {{ line }}
@@ -54,7 +54,7 @@ clib-function: |-
   }
 
 clib-variable-getter: |-
-  // variable (getter): {{ cxx_implements }}
+  // variable (getter): {{ cxx_wraps }}
   try {
       {% if handle %}
       ## access class member variable
@@ -104,7 +104,7 @@ clib-variable-getter: |-
   }
 
 clib-variable-setter: |-
-  // variable (setter): {{ cxx_implements }}
+  // variable (setter): {{ cxx_wraps }}
   try {
       {% for line in lines %}
       ## add lines used for CLib/C++ variable crosswalk
@@ -130,7 +130,7 @@ clib-variable-setter: |-
 
 clib-constructor: |-
   ## CLib constructor template: instantiates new object
-  // constructor: {{ cxx_implements }}
+  // constructor: {{ cxx_wraps }}
   try {
       {% for line in lines %}
       ## add lines used for CLib/C++ variable crosswalk
@@ -158,7 +158,7 @@ clib-constructor: |-
 
 clib-accessor: |-
   ## CLib accessor template: exposes existing C++ object to CLib
-  // accessor: {{ cxx_implements }}
+  // accessor: {{ cxx_wraps }}
   try {
       {% for line in lines %}
       ## add lines used for CLib/C++ variable crosswalk
@@ -236,7 +236,7 @@ clib-destructor: |-
 clib-method: |-
   ## CLib method template:
   ## covers methods as well as getters and setters for scalars
-  // {{ what }}: {{ cxx_implements }}
+  // {{ what }}: {{ cxx_wraps }}
   try {
       {% for line in lines %}
       ## add lines used for CLib/C++ variable crosswalk
@@ -273,7 +273,7 @@ clib-method: |-
 
 clib-array-getter: |-
   ## CLib array getter template
-  // getter: {{ cxx_implements }}
+  // getter: {{ cxx_wraps }}
   try {
       {% if cxx_base == base %}
       ## object can be accessed directly
@@ -305,7 +305,7 @@ clib-array-getter: |-
 
 clib-array-setter: |-
   ## CLib array setter template
-  // setter: {{ cxx_implements }}
+  // setter: {{ cxx_wraps }}
   try {
       {% if cxx_base == base %}
       auto& obj = {{ base }}Cabinet::at({{ handle }});

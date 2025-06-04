@@ -86,7 +86,7 @@ class HeaderGenerator:
             if len(args_short) < len(cxx_member.arglist):
                 cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
                 cxx_member = Func(cxx_member.ret_type, cxx_member.name,
-                                   cxx_arglist, cxx_member.brief, cxx_member.implements,
+                                   cxx_arglist, cxx_member.brief, cxx_member.wraps,
                                    cxx_member.returns, cxx_member.base, cxx_member.uses)
 
             return obj_handle + cxx_member.arglist.params, cxx_member

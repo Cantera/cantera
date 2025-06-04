@@ -110,9 +110,9 @@ class CSharpSourceGenerator(SourceGenerator):
     def _convert_func(self, parsed: Func) -> CsFunc:
         """Convert CLib signature to C# signature."""
         # TODO: The Func object contains information on CLib header and the underlying
-        # C++ implementation. Some information (brief, implements, returns, base, uses)
+        # C++ implementation. Some information (brief, wraps, returns, base, uses)
         # is currently preserved but not used.
-        ret_type, name, params, brief, implements, returns, base, uses = parsed
+        ret_type, name, params, brief, wraps, returns, base, uses = parsed
 
         clib_area, method = name.split("_", 1)
 
@@ -179,7 +179,7 @@ class CSharpSourceGenerator(SourceGenerator):
                       name,
                       ArgList(params),
                       brief,
-                      implements,
+                      wraps,
                       returns,
                       base,
                       uses,
