@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
-from ..dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
+from ..dataclasses import HeaderFile, Param, ArgList, Func, Recipe
 from ..generator import SourceGenerator
 from .._helpers import with_unpack_iter
 
@@ -52,7 +52,7 @@ class CLibSourceGenerator(SourceGenerator):
         block = "\n *  ".join(block).strip() + "\n */"
         return "\n".join([line.rstrip() for line in block.split("\n")])
 
-    def _scaffold_annotation(self, c_func: CFunc, what: str) -> str:
+    def _scaffold_annotation(self, c_func: Func, what: str) -> str:
         """Build annotation block via Jinja."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
         par_template = loader.from_string(self._templates["clib-param"])
@@ -63,7 +63,7 @@ class CLibSourceGenerator(SourceGenerator):
             return f"{ret:<19} {item.description}"
 
         implements = what
-        if isinstance(c_func.implements, CFunc):
+        if isinstance(c_func.implements, Func):
             implements += f": {c_func.implements.short_declaration()}"
         elif isinstance(c_func.implements, Param):
             implements += f": {c_func.implements.long_str()}"
@@ -84,7 +84,7 @@ class CLibSourceGenerator(SourceGenerator):
         return cxx_type.split("<")[-1].split(">")[0]
 
     @staticmethod
-    def _critical(c_func: CFunc, cxx_func: CFunc, msg) -> None:
+    def _critical(c_func: Func, cxx_func: Func, msg) -> None:
         msg = (f"Scaffolding failed for {c_func.name!r}: {msg}:\n"
                 f"C: {c_func.declaration()}\n")
         if isinstance(cxx_func.implements, str):
@@ -94,7 +94,7 @@ class CLibSourceGenerator(SourceGenerator):
         _LOGGER.critical(msg)
         exit(1)
 
-    def _ret_crosswalk(self, c_func: CFunc, cxx_func: CFunc, base: str
+    def _ret_crosswalk(self, c_func: Func, cxx_func: Func, base: str
                        ) -> tuple[str, list, str | None]:
         """Crosswalk for C++ return type."""
         c_args = c_func.arglist
@@ -170,7 +170,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         return handle, buffer, cxx_rbase
 
-    def _par_crosswalk(self, c_func: CFunc, cxx_func: CFunc, base: str
+    def _par_crosswalk(self, c_func: Func, cxx_func: Func, base: str
                        ) -> tuple[list, list, set]:
         """Crosswalk for C++ return type."""
         args = []
@@ -256,7 +256,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         return args, lines, bases
 
-    def _crosswalk(self, c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
+    def _crosswalk(self, c_func: Func, base: str) -> tuple[dict[str, str], set[str]]:
         """Translate CLib arguments back to Jinja argument list."""
         c_args = c_func.arglist
         cxx_implements = None
@@ -264,32 +264,32 @@ class CLibSourceGenerator(SourceGenerator):
         if not cxx_member:
             if c_func.name.endswith("new"):
                 cxx_implements = f"default constructor for {base}"
-                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]),
+                cxx_func = Func("auto", f"make_shared<{base}>", ArgList([]),
                                  "", cxx_implements, "", base)
             elif len(c_args) and "char*" in c_args[-1].p_type:
                 cxx_implements = "reserved function/method"
-                cxx_func = CFunc("string", "dummy", ArgList([]),
+                cxx_func = Func("string", "dummy", ArgList([]),
                                  "", cxx_implements, "", base)
             else:
                 cxx_implements = f"reserved function/method: {c_func.name}"
-                cxx_func = CFunc("void", "dummy", ArgList([]),
+                cxx_func = Func("void", "dummy", ArgList([]),
                                  "", cxx_implements, "", base)
         elif isinstance(cxx_member, Param):
             if cxx_member.direction == "in":
                 cxx_implements = f"variable setter: {cxx_member.name}"
-                cxx_func = CFunc("int", cxx_member.name, ArgList([cxx_member]),
+                cxx_func = Func("int", cxx_member.name, ArgList([cxx_member]),
                                  "", cxx_implements, "", cxx_member.base)
             else:  # cxx_member.direction == "out"
                 cxx_implements = f"variable getter: {cxx_member.name}"
                 if len(c_args) and "char*" in c_args[-1].p_type:
-                    cxx_func = CFunc("string", cxx_member.name, ArgList([]),
+                    cxx_func = Func("string", cxx_member.name, ArgList([]),
                                      "", cxx_implements, "", cxx_member.base)
                 else:
-                    cxx_func = CFunc(cxx_member.p_type, cxx_member.name, ArgList([]),
+                    cxx_func = Func(cxx_member.p_type, cxx_member.name, ArgList([]),
                                      "", cxx_implements, "", cxx_member.base)
         elif isinstance(cxx_member, str):
             cxx_implements = "custom code"
-            cxx_func = CFunc("void", "dummy", ArgList([]), "", cxx_implements, "", base)
+            cxx_func = Func("void", "dummy", ArgList([]), "", cxx_implements, "", base)
         else:
             cxx_implements = cxx_member.short_declaration()
             cxx_func = cxx_member
@@ -329,7 +329,7 @@ class CLibSourceGenerator(SourceGenerator):
         }
         return ret, bases
 
-    def _scaffold_body(self, c_func: CFunc, recipe: Recipe) -> tuple[str, set[str]]:
+    def _scaffold_body(self, c_func: Func, recipe: Recipe) -> tuple[str, set[str]]:
         """Scaffold body of generic CLib function via Jinja."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True,
                              line_comment_prefix="##")
