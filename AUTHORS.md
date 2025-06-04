@@ -20,7 +20,7 @@ update, please report on Cantera's
 - **Victor Brunini** [@vbrunini](https://github.com/vbrunini) - Sandia National Laboratory
 - **Bang-Shiuh Chen** [@BangShiuh](https://github.com/BangShiuh) - Purdue University
 - **Parker Clayton** [@parkerclayton](https://github.com/parkerclayton)
-- **Ryan Crisanti**
+- **Ryan Crisanti** [@rcrisanti](https://github.com/rcrisanti)
 - **Nicholas Curtis** [@arghdos](https://github.com/arghdos)
 - **Steven DeCaluwe** [@decaluwe](https://github.com/decaluwe) - Colorado School of Mines
 - **Vishesh Devgan** [@vdevgan](https://github.com/vdevgan)
@@ -51,8 +51,8 @@ update, please report on Cantera's
 - **Nicholas Malaya** [@nicholasmalaya](https://github.com/nicholasmalaya) - University of Texas at Austin
 - **Thanasis Mattas** [@ThanasisMattas](https://github.com/ThanasisMattas) - Aristotle University of Thessaloniki
 - **Manik Mayur** [@manikmayur](https://github.com/manikmayur)
-- **Evan McCorkle**
-- **Joseph Meadows** - Virginia Tech
+- **Evan McCorkle** [@emccorkle](https://github.com/emccorkle)
+- **Joseph Meadows** [@jwmeadows](https://github.com/jwmeadows) - Virginia Tech
 - **Phillip Mestas** [@xMestas](https://github.com/xMestas)
 - **Ivan Mitrichev** [@imitrichev](https://github.com/imitrichev) - Mendeleev University of Chemical Technology of Russia
 - **Harry Moffat** [@hkmoffat](https://github.com/hkmoffat) - Sandia National Laboratory
@@ -71,7 +71,7 @@ update, please report on Cantera's
 - **Patrick Singal** [@pjsingal](https://github.com/pjsingal) - Columbia University
 - **Harsh Sinha** [@sin-ha](https://github.com/sin-ha)
 - **Sai Krishna Sirumalla** [@skrsna](https://github.com/skrsna) - Northeastern University
-- **David Sondak**
+- **David Sondak** [@dsondak](https://github.com/dsondak)
 - **Raymond Speth** [@speth](https://github.com/speth) - Massachusetts Institute of Technology
 - **Su Sun** [@ssun30](https://github.com/ssun30) - Northeastern University
 - **Daniel Thomas** [@d-e-t](https://github.com/d-e-t) - University of Minnesota
