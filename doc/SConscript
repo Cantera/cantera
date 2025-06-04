@@ -108,7 +108,7 @@ if localenv['sphinx_docs']:
     for clib3_file in clib_files:
         env.Depends(sphinxdocs,
                     localenv.Command(
-                        f"#build/doc/samples/clib_generated/{clib3_file.name}",
+                        f"#build/doc/samples/clib/{clib3_file.name}",
                         clib3_file, Copy("$TARGET", "$SOURCE")))
 
     # Generate documentation for SCons configuration options

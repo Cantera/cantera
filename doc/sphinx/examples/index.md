@@ -61,7 +61,7 @@ interface.
 ```
 
 ```{grid-item-card} C
-:link: clib_generated/index
+:link: clib/index
 :link-type: doc
 :text-align: center
 ```
@@ -108,7 +108,7 @@ interface.
 
 python/index
 cxx/index
-clib_generated/index
+clib/index
 clib_legacy/index
 matlab_experimental/index
 fortran/index
