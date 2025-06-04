@@ -8,8 +8,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef __CLIB_DEFS_H__
-#define __CLIB_DEFS_H__  // use same guards as clib_generated
+#ifndef CLIB_DEFS_H
+#define CLIB_DEFS_H  // use same guards as clib_generated
 
 #include "cantera/base/config.h"
 #include <stdlib.h>

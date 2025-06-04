@@ -15,8 +15,8 @@
  *  This section compiles all currently available modules.
  */
 
-#ifndef __CLIB_DEFS_H__
-#define __CLIB_DEFS_H__
+#ifndef CLIB_DEFS_H
+#define CLIB_DEFS_H
 
 #include "cantera/base/config.h"
 #include <stdlib.h>

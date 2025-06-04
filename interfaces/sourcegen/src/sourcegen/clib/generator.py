@@ -415,7 +415,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         preamble = self._config.preambles.get(headers.base)
 
-        guard = f"__{filename.name.upper().replace('.', '_')}__"
+        guard = filename.name.upper().replace(".", "_")
         t_file = Path(__file__).parent / "template_header.h.in"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
