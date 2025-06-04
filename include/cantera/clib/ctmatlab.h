@@ -1,8 +1,8 @@
 /**
  * @file ctmatlab.h
  *
- * @warning  This module is an experimental part of the %Cantera API and
- *      may be changed or removed without notice.
+ * @deprecated  Deprecated in %Cantera 3.2 and to be removed thereafter.
+ *      The legacy CLib is superseded by the generated CLib.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
