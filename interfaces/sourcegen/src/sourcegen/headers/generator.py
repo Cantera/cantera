@@ -11,7 +11,7 @@ from ruamel import yaml
 from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
-from ..dataclasses import HeaderFile, Param, ArgList, CFunc, Recipe
+from ..dataclasses import HeaderFile, Param, ArgList, Func, Recipe
 from .._helpers import with_unpack_iter
 
 
@@ -61,11 +61,11 @@ class HeaderGenerator:
                 c_funcs.append(self.resolve_recipe(recipe))
             headers.funcs = c_funcs
 
-    def resolve_recipe(self, recipe: Recipe) -> CFunc:
+    def resolve_recipe(self, recipe: Recipe) -> Func:
         """Build CLib header from recipe and Doxygen annotations."""
         def merge_params(
-                implements: str, cxx_member: CFunc | Param
-            ) -> tuple[list[Param], CFunc]:
+                implements: str, cxx_member: Func | Param
+            ) -> tuple[list[Param], Func]:
             """Create preliminary CLib argument list."""
             obj_handle = []
             if "::" in implements:
@@ -82,10 +82,10 @@ class HeaderGenerator:
                 return obj_handle + cxx_member.arglist.params, cxx_member
 
             # Signature may skip C++ default parameters
-            args_short = CFunc.from_str(implements).arglist
+            args_short = Func.from_str(implements).arglist
             if len(args_short) < len(cxx_member.arglist):
                 cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
-                cxx_member = CFunc(cxx_member.ret_type, cxx_member.name,
+                cxx_member = Func(cxx_member.ret_type, cxx_member.name,
                                    cxx_arglist, cxx_member.brief, cxx_member.implements,
                                    cxx_member.returns, cxx_member.base, cxx_member.uses)
 
@@ -104,11 +104,11 @@ class HeaderGenerator:
             header = reader.load(header)
             for key, value in header.items():
                 recipe.__setattr__(key, value)
-            return CFunc.from_recipe(recipe)
+            return Func.from_recipe(recipe)
 
         if recipe.code:
             # Custom code
-            return CFunc.from_recipe(recipe)
+            return Func.from_recipe(recipe)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
@@ -138,7 +138,7 @@ class HeaderGenerator:
             msg = f"   generating {func_name!r} -> {recipe.implements}"
             _LOGGER.debug(msg)
 
-            if isinstance(cxx_member, CFunc):
+            if isinstance(cxx_member, Func):
                 # Convert C++ return type to format suitable for crosswalk:
                 # Incompatible return parameters are buffered and appended to back
                 ret_param, buffer_params = self._ret_crosswalk(
@@ -232,7 +232,7 @@ class HeaderGenerator:
         if recipe.brief:
             brief = recipe.brief
         uses = [self._doxygen_tags.cxx_member(uu) for uu in recipe.uses]
-        return CFunc(ret_param.p_type, func_name, ArgList(args), brief, cxx_member,
+        return Func(ret_param.p_type, func_name, ArgList(args), brief, cxx_member,
                      ret_param.description, None, uses)
 
     def _handle_crosswalk(

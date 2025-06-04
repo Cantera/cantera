@@ -14,7 +14,7 @@ import logging
 
 from jinja2 import Environment, BaseLoader
 
-from ..dataclasses import HeaderFile, CFunc, Param
+from ..dataclasses import HeaderFile, Func, Param
 from ..generator import SourceGenerator
 
 
@@ -41,7 +41,7 @@ class YamlSourceGenerator(SourceGenerator):
             msg = f"   scaffolding {c_func.name!r} implementation"
             _LOGGER.debug(msg)
             implements = ""
-            if isinstance(c_func.implements, CFunc):
+            if isinstance(c_func.implements, Func):
                 implements = c_func.implements.short_declaration()
             elif isinstance(c_func.implements, Param):
                 implements = c_func.implements.long_str()

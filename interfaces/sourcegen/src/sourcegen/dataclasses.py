@@ -6,7 +6,6 @@
 from dataclasses import dataclass
 import re
 from pathlib import Path
-from textwrap import dedent
 from sys import version_info
 
 if version_info.minor < 11:
@@ -162,8 +161,17 @@ class ArgList:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class CFunc:
-    """Represents a function declaration in a C/C++ header file."""
+class Func:
+    """Represents a function declaration.
+
+    Func objects are a fundamental building block for code generation, where they
+    hold information on C/C++ functions or their destination language equivalents. In
+    addition to information used for function declarations, Func objects also contain
+    annotations based on docstrings, where attribute names correspond to information
+    retrieved from Doxygen tags. Future updates to ``sourcegen`` may introduce
+    additional attributes, for example ``details``, ``remark`` and ``exception``, which
+    can be obtained from C++ docstrings via the Doxygen XML tree.
+    """
 
     ret_type: str  #: Return type; may include leading specifier
     name: str  #: Function name
@@ -176,7 +184,7 @@ class CFunc:
 
     @classmethod
     def from_str(cls: Self, func: str, brief: str = "") -> Self:
-        """Generate CFunc from declaration string of a function."""
+        """Generate Func from declaration string of a function declaration."""
         func = func.split("\n")[-1].rstrip(";").strip()
         # match all characters before an opening parenthesis "(" or end of line
         name = re.findall(r".*?(?=\(|$)", func)[0]
@@ -192,10 +200,10 @@ class CFunc:
 
     @classmethod
     def from_recipe(cls: Self, recipe: Recipe) -> Self:
-        """Generate annotated CFunc from recipe."""
-        func = CFunc.from_str(recipe.declaration)
+        """Generate annotated Func from recipe."""
+        func = Func.from_str(recipe.declaration)
 
-        uses = [CFunc.from_str(uu) for uu in recipe.uses]
+        uses = [Func.from_str(uu) for uu in recipe.uses]
 
         doc_args = []
         for arg in func.arglist:
@@ -228,7 +236,7 @@ class HeaderFile:
     """Represents information about a parsed C header file."""
 
     path: Path  #: output folder
-    funcs: list[CFunc]  #: list of functions to be scaffolded
+    funcs: list[Func]  #: list of functions to be scaffolded
 
     prefix: str = ""  #: prefix used for CLib function names
     base: str = ""  #: base class of C++ methods (if applicable)

@@ -18,7 +18,7 @@ import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
-from ..dataclasses import ArgList, Param, CFunc
+from ..dataclasses import ArgList, Param, Func
 from .._helpers import with_unpack_iter
 
 
@@ -234,7 +234,7 @@ class TagFileParser:
 
         return TagInfo.from_xml(cxx_member, self._known[cxx_member][ix])
 
-    def cxx_member(self, func_string: str, setter: bool = False) -> CFunc | Param:
+    def cxx_member(self, func_string: str, setter: bool = False) -> Func | Param:
         """Generate annotated C++ function/variable specification."""
         details = tag_lookup(self._xml_path, self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
@@ -258,7 +258,7 @@ class TagFileParser:
             else:
                 args_merged.append(Param(arg.p_type, arg.name, "Undocumented."))
 
-        return CFunc(ret_param.p_type, details.name, ArgList(args_merged),
+        return Func(ret_param.p_type, details.name, ArgList(args_merged),
                      details.briefdescription, None, ret_param.description,
                      details.base, [])
 
