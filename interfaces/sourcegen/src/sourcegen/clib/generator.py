@@ -5,6 +5,7 @@
 
 from pathlib import Path
 import logging
+import re
 from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
@@ -62,18 +63,22 @@ class CLibSourceGenerator(SourceGenerator):
             ret = par_template.render(par=item)
             return f"{ret:<19} {item.description}"
 
-        implements = what
         if isinstance(c_func.implements, Func):
-            implements += f": {c_func.implements.short_declaration()}"
+            wraps = c_func.implements.short_declaration(doxygen=True, scope="Cantera")
         elif isinstance(c_func.implements, Param):
-            implements += f": {c_func.implements.long_str()}"
+            wraps = c_func.implements.long_str(doxygen=True, scope="Cantera")
         elif isinstance(c_func.implements, str):
-            implements += ": custom code"
+            wraps = "custom code"
+        else:
+            wraps = "undefined"
+        # Escape %Cantera: a '%' would have been stripped by a previous pass of Doxygen
+        brief = re.sub(r"(?<!\w)Cantera(?!\w)", "%Cantera", c_func.brief)
+        uses = [ uu.short_declaration(doxygen=True, scope="Cantera")
+                for uu in c_func.uses]
         block = template.render(
-            brief=c_func.brief,
+            brief=brief,
             params=[param(par) for par in c_func.arglist],
-            returns=c_func.returns, implements=implements,
-            relates=[f"{uu.base}::{uu.name}()" for uu in c_func.uses])
+            returns=c_func.returns, what=what, wraps=wraps, uses=uses)
         return self._javadoc_comment(block)
 
     @staticmethod

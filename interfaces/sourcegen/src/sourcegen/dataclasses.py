@@ -91,17 +91,27 @@ class Param:
         p_type = f"const {pp.p_type}"
         return cls(p_type, pp.name, pp.description, pp.direction, pp.default, pp.base)
 
-    def short_str(self) -> str:
+    def short_str(self, doxygen: bool=False) -> str:
         """String representation of the parameter without parameter name."""
+        if doxygen:
+            ret = self.p_type
+            for rep in [("& ", " &"), ("<", "< "), (">", " >"), ("* ", " *")]:
+                ret = ret.replace(*rep)
+            return ret
         return self.p_type
 
-    def long_str(self) -> str:
+    def long_str(self, doxygen=False, scope="") -> str:
         """String representation of the parameter with parameter name."""
         if not self.name:
             raise ValueError(f"Parameter name is undefined: {self}")
+        ret = self.name
         if self.base:
-            return f"{self.p_type} {self.base}::{self.name}"
-        return f"{self.p_type} {self.name}"
+            ret = f"{self.base}::{ret}"
+        if scope:
+            ret = f"{scope}::{ret}"
+        if doxygen:
+            return ret
+        return f"{self.p_type} {ret}"
 
 
 @dataclass(frozen=True)
@@ -148,9 +158,9 @@ class ArgList:
     def __iter__(self) -> Iterator[Param]:
         return iter(self.params)
 
-    def short_str(self) -> str:
+    def short_str(self, doxygen: bool=False) -> str:
         """String representation of the argument list without parameter names."""
-        args = ", ".join(par.short_str() for par in self.params)
+        args = ", ".join(par.short_str(doxygen=doxygen) for par in self.params)
         return f"({args}) {self.spec}".strip()
 
     def long_str(self) -> str:
@@ -215,15 +225,20 @@ class Func:
         return cls(func.ret_type, func.name, ArgList(doc_args), recipe.brief,
                    recipe.code, recipe.returns, "", uses)
 
-    def short_declaration(self) -> str:
+    def short_declaration(self, doxygen: bool=False, scope: str="") -> str:
         """Return a short string representation."""
         if self.arglist is None:
             ret = (f"{self.name}").strip()
         else:
-            ret = (f"{self.name}{self.arglist.short_str()}").strip()
+            ret = (f"{self.name}{self.arglist.short_str(doxygen=doxygen)}").strip()
         if self.base:
-            return f"{self.ret_type} {self.base}::{ret}"
+            ret = f"{self.base}::{ret}"
+        if scope:
+            ret = f"{scope}::{ret}"
+        if doxygen:
+            return ret
         return f"{self.ret_type} {ret}"
+
 
     @property
     def ret_param(self) -> Param:
