@@ -1,4 +1,4 @@
-@page clibPage Generated C Interface (CLib)
+@page CAPImain Generated C Interface
 
 # Generated C Interface (CLib)
 
@@ -9,19 +9,18 @@ interface. It replaces the legacy CLib API starting in %Cantera 3.2.
 be a drop-in replacement. Breaking changes involve improved consistency with the C++
 code base in terms of nomenclature and function/method signatures.
 
-The generated C interface consists of a set of modules that are designed to encapsulate
-%Cantera functionality and to make it available for use in languages and applications
-other than C++. Each modules provides a library of functions that are declared
+The generated C interface consists of a set of libraries that are designed to
+encapsulate %Cantera functionality and to make it available for use in languages and
+applications other than C++. Each library provides functions that are declared
 `extern "C"`. All %Cantera objects are stored and referenced by integers - no pointers
 are passed to or from the calling application.
 
-## CLib Modules
+## CLib Libraries
 
 @warning  The generated CLib API is an experimental part of %Cantera and may be changed
 without notice.
 
-%Cantera classes and generated CLib modules have a one-to-one relationship. The
-@ref clibGroup page provides a list of currently available modules.
+The @ref CAPIindex page provides a list of currently available libraries.
 
 ## Code Generation
 
