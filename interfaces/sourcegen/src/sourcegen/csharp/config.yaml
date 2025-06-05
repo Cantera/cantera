@@ -26,6 +26,8 @@ c_type_crosswalk:
   double*: Span<double>
   int32_t*: Span<int>
   int32_t: int
+  const double: double
+  const int32_t: int
 
 # Span type crosswalks;
 # map Span type used in interop call to appropriate return type
