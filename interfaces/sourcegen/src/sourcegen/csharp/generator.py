@@ -67,36 +67,46 @@ class CSharpSourceGenerator(SourceGenerator):
                            known_funcs: dict[str, CsFunc]) -> str:
         getter_name = f"{clib_area}_{c_name}"
         getter = known_funcs.get(getter_name)
-
-        if getter:
-            if len(getter.arglist) == 1:
-                # here we have found a simple scalar property
-                prop_type = getter.ret_type
-            else:
-                # array-like property (string or vector)
-                prop_type = getter.arglist[-1].p_type
-        else:
-            # here we have found an array-like property (string, double[])
-            getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
-            # this assumes the last param in the function is a pointer type,
-            # from which we determine the appropriate C# type
-            prop_type = self._config.prop_type_crosswalk[getter.arglist[-1].p_type]
+        if not getter:
+            getter_name = f"{clib_area}_get{c_name.capitalize()}"
+            getter = known_funcs.get(getter_name)
+        if not getter:
+            _LOGGER.critical(f"No getter found for {c_name!r}!")
+            sys.exit(1)
 
         setter_name = f"{clib_area}_set{c_name.capitalize()}"
-        setter = known_funcs.get(setter_name, CsFunc("", "", "", "", ""))
+        setter = known_funcs.get(setter_name)
+        if not setter:
+            setter_name = None
+
+        match len(getter.arglist):
+            case 1:
+                # This is a simple scalar property
+                prop_type = getter.ret_type
+            case 3:
+                # This is a property that returns an array or string
+                prop_type = getter.arglist[-1].p_type
+                prop_type = self._config.prop_type_crosswalk[prop_type]
+            case _:
+                _LOGGER.critical(f"Getter {getter_name!r} has an "
+                    "unsupported signature!")
+                sys.exit(1)
 
         if prop_type in ["int", "double"]:
             template = _LOADER.from_string(self._templates["csharp-property-int-double"])
             return template.render(
                 prop_type=prop_type, cs_name=cs_name,
-                getter=getter.name, setter=setter.name)
+                getter=getter_name, setter=setter_name)
 
-        if prop_type in ["Span<byte>", "string"]:
-            # get-string type functions should always return a string
+        if prop_type == "string":
             template = _LOADER.from_string(self._templates["csharp-property-string"])
             return template.render(
                 cs_name=cs_name, p_type="string",
-                getter=getter.name, setter=setter.name)
+                getter=getter_name, setter=setter_name)
+
+        # TODO: Add ability to scaffold properties the use arrays of doubles.
+        # This will require looking up the function that gets the size
+        # of the array.
 
         _LOGGER.critical(f"Unable to scaffold properties of type {prop_type!r}!")
         sys.exit(1)
@@ -146,31 +156,12 @@ class CSharpSourceGenerator(SourceGenerator):
 
         def crosswalk(par: str) -> str:
             """Crosswalk of C/C# types."""
-            if par in self._config.c_type_crosswalk:
-                return self._config.c_type_crosswalk[par]
-            par = par.removeprefix("const ")  # C# doesn't recognize const
-            if par in self._config.c_type_crosswalk:
-                return self._config.c_type_crosswalk[par]
-            return par  # no conversion necessary
+            return self._config.c_type_crosswalk.get(par) or par
 
         ret_type = crosswalk(ret_type)
 
-        setter_double_arrays_count = 0
-
         for i, param in enumerate(params):
             param_type = crosswalk(param.p_type)
-
-            # Most "setter" functions for arrays in CLib use a const double*,
-            # but we also need to handle the cases for a plain double*
-            if param_type == "double*" and method.startswith("set"):
-                setter_double_arrays_count += 1
-                if setter_double_arrays_count > 1:
-                    # We assume a double* can reliably become a double[]. However, this
-                    # logic is too simplistic if there is more than one array.
-                    msg = f"Cannot scaffold {name!r} with multiple arrays of doubles!"
-                    _LOGGER.critical(msg)
-                    sys.exit(1)
-                param_type = "double[]"
 
             params[i] = Param(param_type, param.name, param.description,
                               param.direction, param.default, param.base)
