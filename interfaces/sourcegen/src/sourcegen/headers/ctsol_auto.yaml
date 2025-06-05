@@ -9,10 +9,10 @@ parents: []  # List of parent classes
 derived: {Interface: sol}  # Specialization/prefix dictionary
 recipes:
 - name: newSolution
-  implements: newSolution(const string&, const string&, const string&)
+  wraps: newSolution(const string&, const string&, const string&)
   uses: [thermo, kinetics, transport]
 - name: newInterface
-  implements:
+  wraps:
     newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
   uses: [thermo, kinetics]
 - name: del
@@ -28,7 +28,7 @@ recipes:
   what: accessor
 - name: nAdjacent
 - name: adjacent
-  implements: adjacent(size_t)
+  wraps: adjacent(size_t)
   uses: [nAdjacent, thermo, kinetics, transport]
   what: accessor
 - name: adjacentName

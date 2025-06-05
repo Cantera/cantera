@@ -21,7 +21,7 @@ recipes:
 - name: setRefineCriteria
 - name: setGridMin
 - name: save
-  implements: save(const string&, const string&, const string&)
+  wraps: save(const string&, const string&, const string&)
 # - name: restore  # TODO: requires AnyMap
 - name: writeStats
 - name: domainIndex
@@ -29,7 +29,7 @@ recipes:
 - name: workValue
 - name: eval
 - name: setMaxJacAge
-  implements: setJacAge
+  wraps: setJacAge
 - name: setFixedTemperature
 - name: del
 - name: cabinetSize

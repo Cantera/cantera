@@ -9,7 +9,7 @@ parents: []  # List of parent classes
 derived: {InterfaceKinetics: kin}  # Specialization/prefix dictionary
 recipes:
 - name: getType
-  implements: kineticsType  # inconsistent API (preexisting)
+  wraps: kineticsType  # inconsistent API (preexisting)
 - name: nReactions
 - name: reaction  # New in Cantera 3.2
   uses: nReactions
@@ -36,9 +36,9 @@ recipes:
 - name: setMultiplier
 - name: isReversible
 - name: speciesIndex
-  implements: kineticsSpeciesIndex(const string&)  # inconsistent API (preexisting)
+  wraps: kineticsSpeciesIndex(const string&)  # inconsistent API (preexisting)
 - name: advanceCoverages
-  implements: advanceCoverages(double)
+  wraps: advanceCoverages(double)
 - name: getDeltaEnthalpy  # Changed in Cantera 3.2 (previously part of getDelta)
 - name: getDeltaGibbs  # Changed in Cantera 3.2 (previously part of getDelta)
 - name: getDeltaEntropy  # Changed in Cantera 3.2 (previously part of getDelta)

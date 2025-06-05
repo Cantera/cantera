@@ -12,7 +12,7 @@ derived:  # Specialization/prefix dictionary
   ReactorSurface: reactorsurface
 recipes:
 - name: new
-  implements: newReactorBase
+  wraps: newReactorBase
 - name: type
 - name: name
 - name: setName
@@ -30,7 +30,7 @@ recipes:
 - name: nSensParams
 - name: addSensitivityReaction
 - name: addSurface  # Renamed in Cantera 3.2 (previously install)
-  implements: addSurface(shared_ptr<ReactorBase>)
+  wraps: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: setMassFlowRate
 # ReactorSurface
