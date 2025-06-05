@@ -10,11 +10,11 @@ Cantera has two C interfaces (CLib):
 
 - The _legacy_ CLib is hand-coded and is not feature-complete.
 
-Both C interfaces consists of a set of modules that are designed to encapsulate
+Both C interfaces consists of a set of libraries that are designed to encapsulate
 Cantera functionality and to make it available for use in languages and applications
-other than C++. Each modules provides a library of functions that are declared
-`extern "C"`. All Cantera objects are stored and referenced by integers - no
-pointers are passed to or from the calling application.
+other than C++. Each library provides functions that are declared `extern "C"`. All
+Cantera objects are stored and referenced by integers - no pointers are passed to or
+from the calling application.
 
 ## Generated C Interface
 
@@ -22,7 +22,7 @@ pointers are passed to or from the calling application.
 Replaces the _legacy_ C interface starting in Cantera 3.2.
 :::
 
-The generated CLib is {ct}`fully documented in Doxygen <clibPage>` and is installed by
+The generated CLib is {ct}`fully documented in Doxygen <CAPImain>` and is installed by
 default.
 
 While the generated CLib is not feature-complete compared to the C++ API, it

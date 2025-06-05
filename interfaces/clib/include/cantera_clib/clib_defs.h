@@ -9,13 +9,13 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 /**
- *  @defgroup clibGroup Generated CLib Modules
- *  @brief %Cantera's generated CLib interface.
- *  %Cantera classes and generated CLib modules have a one-to-one relationship.
- *  This section compiles all currently available modules.
- *
+ *  @defgroup CAPIindex Generated C Libraries
+ *  @brief %Cantera's generated C interface (CLib).
  *  @warning  The generated CLib API is an experimental part of %Cantera and
  *      may be changed without notice.
+ *
+ *  %Cantera classes and generated CLib libraries have a one-to-one relationship.
+ *  This section provides a list of all currently available libraries.
  */
 
 #ifndef CLIB_DEFS_H

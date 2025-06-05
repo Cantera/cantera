@@ -19,8 +19,8 @@ A **topical overview** is provided as follows:
 @cond CLIB_GENERATED
 Generated C Interface (CLib):
 
-* @subpage clibPage (CLib overview)
-* @ref clibGroup (CLib components)
+* Overview of @subpage CAPImain
+* Index of @ref CAPIindex
 
 @endcond
 
