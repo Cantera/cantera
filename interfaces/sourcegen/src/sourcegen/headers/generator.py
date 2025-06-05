@@ -64,13 +64,13 @@ class HeaderGenerator:
     def resolve_recipe(self, recipe: Recipe) -> Func:
         """Build CLib header from recipe and Doxygen annotations."""
         def merge_params(
-                implements: str, cxx_member: Func | Param
+                wraps: str, cxx_member: Func | Param
             ) -> tuple[list[Param], Func]:
             """Create preliminary CLib argument list."""
             obj_handle = []
-            if "::" in implements:
+            if "::" in wraps:
                 # If class method, add handle as first parameter
-                what = implements.split("::")[0]
+                what = wraps.split("::")[0]
                 obj_handle.append(
                     Param("int", "handle", f"Handle to queried {what} object."))
             if isinstance(cxx_member, Param):
@@ -78,16 +78,16 @@ class HeaderGenerator:
                     return obj_handle + [cxx_member], cxx_member
                 return obj_handle, cxx_member
 
-            if "(" not in implements:
+            if "(" not in wraps:
                 return obj_handle + cxx_member.arglist.params, cxx_member
 
             # Signature may skip C++ default parameters
-            args_short = Func.from_str(implements).arglist
+            args_short = Func.from_str(wraps).arglist
             if len(args_short) < len(cxx_member.arglist):
                 cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
                 cxx_member = Func(cxx_member.ret_type, cxx_member.name,
-                                   cxx_arglist, cxx_member.brief, cxx_member.wraps,
-                                   cxx_member.returns, cxx_member.base, cxx_member.uses)
+                                  cxx_arglist, cxx_member.brief, cxx_member.wraps,
+                                  cxx_member.returns, cxx_member.base, cxx_member.uses)
 
             return obj_handle + cxx_member.arglist.params, cxx_member
 
@@ -112,12 +112,12 @@ class HeaderGenerator:
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
         bases = recipe.bases
-        if not recipe.implements:
-            recipe.implements = self._doxygen_tags.detect(recipe.name, bases)
-        elif recipe.base and "::" not in recipe.implements:
-            parts = list(recipe.implements.partition("("))
+        if not recipe.wraps:
+            recipe.wraps = self._doxygen_tags.detect(recipe.name, bases)
+        elif recipe.base and "::" not in recipe.wraps:
+            parts = list(recipe.wraps.partition("("))
             parts[0] = self._doxygen_tags.detect(parts[0], bases)
-            recipe.implements = "".join(parts)
+            recipe.wraps = "".join(parts)
         recipe.uses = [self._doxygen_tags.detect(uu.split("(")[0], bases, False)
                        for uu in recipe.uses]
 
@@ -126,16 +126,16 @@ class HeaderGenerator:
         args = []
         brief = ""
 
-        if recipe.implements:
+        if recipe.wraps:
             cxx_member = self._doxygen_tags.cxx_member(
-                recipe.implements, recipe.what.endswith("setter"))
+                recipe.wraps, recipe.what.endswith("setter"))
 
             if cxx_member.base in recipe.derived:
                 # Use alternative prefix for class specialization
                 recipe.prefix = recipe.derived.get(cxx_member.base, recipe.prefix)
                 func_name = f"{recipe.prefix}_{recipe.name}"
 
-            msg = f"   generating {func_name!r} -> {recipe.implements}"
+            msg = f"   generating {func_name!r} -> {recipe.wraps}"
             _LOGGER.debug(msg)
 
             if isinstance(cxx_member, Func):
@@ -143,20 +143,20 @@ class HeaderGenerator:
                 # Incompatible return parameters are buffered and appended to back
                 ret_param, buffer_params = self._ret_crosswalk(
                     cxx_member.ret_type, recipe.derived)
-                par_list, cxx_member = merge_params(recipe.implements, cxx_member)
+                par_list, cxx_member = merge_params(recipe.wraps, cxx_member)
                 prop_params = self._prop_crosswalk(par_list)
                 args = prop_params + buffer_params
                 brief = cxx_member.brief
             elif recipe.what == "variable-setter":
                 ret_param = Param("int32_t")
-                par_list, cxx_member = merge_params(recipe.implements, cxx_member)
+                par_list, cxx_member = merge_params(recipe.wraps, cxx_member)
                 args = self._prop_crosswalk(par_list)
                 if args[-1].p_type == "char*":
                     args[-1] = Param.to_const(args[-1])
                 brief = cxx_member.description
             else:
                 # Variable getter
-                prop_params, cxx_member = merge_params(recipe.implements, cxx_member)
+                prop_params, cxx_member = merge_params(recipe.wraps, cxx_member)
                 ret_param, buffer_params = self._ret_crosswalk(
                     cxx_member.p_type, recipe.derived)
                 args = prop_params + buffer_params
@@ -190,7 +190,7 @@ class HeaderGenerator:
                     recipe.what = "getter"  # getter assigns to existing array
                 else:
                     recipe.what = "setter"
-            elif any(recipe.implements.startswith(base) for base in recipe.bases):
+            elif any(recipe.wraps.startswith(base) for base in recipe.bases):
                 recipe.what = "method"
             else:
                 msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."

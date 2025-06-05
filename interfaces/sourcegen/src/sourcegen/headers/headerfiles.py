@@ -82,7 +82,7 @@ class HeaderFileParser:
                        recipe.get("parameters", ""),
                        recipe.get("returns", ""),
                        uses,
-                       recipe.get("implements", ""),
+                       recipe.get("wraps", ""),
                        recipe.get("code", ""),
                        prefix,
                        base,

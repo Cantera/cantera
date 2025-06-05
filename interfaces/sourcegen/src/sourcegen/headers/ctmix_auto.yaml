@@ -10,14 +10,14 @@ derived: {}  # Specialization/prefix dictionary
 recipes:
 - name: new
 - name: addPhase
-  implements: addPhase(shared_ptr<ThermoPhase>, double)
+  wraps: addPhase(shared_ptr<ThermoPhase>, double)
 - name: init
 - name: updatePhases
 - name: nElements
 - name: elementIndex
 - name: nSpecies
 - name: speciesIndex
-  implements: speciesIndex(size_t, size_t)
+  wraps: speciesIndex(size_t, size_t)
 - name: temperature
 - name: setTemperature
 - name: minTemp
@@ -32,11 +32,11 @@ recipes:
 - name: setPhaseMoles
 - name: setMoles
 - name: setMolesByName
-  implements: setMolesByName(const string&)
+  wraps: setMolesByName(const string&)
 - name: speciesMoles
 - name: elementMoles
 - name: equilibrate
-  implements: equilibrate(int, const char*, double, int, int, int)
+  wraps: equilibrate(int, const char*, double, int, int, int)
 - name: getChemPotentials
 - name: enthalpy
 - name: entropy

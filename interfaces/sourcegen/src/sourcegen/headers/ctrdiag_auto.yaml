@@ -10,66 +10,66 @@ derived: {}  # Specialization/prefix dictionary
 recipes:
 - name: newReactionPathDiagram  # absorbs rbuild_init
 - name: showDetails
-  implements: show_details
+  wraps: show_details
 - name: setShowDetails  # replacement for rdiag_detailed/rdiag_brief
-  implements: show_details
+  wraps: show_details
   what: variable-setter
 - name: threshold
 - name: setThreshold
-  implements: threshold
+  wraps: threshold
   what: variable-setter
 - name: boldThreshold
-  implements: bold_min
+  wraps: bold_min
 - name: setBoldThreshold
-  implements: bold_min
+  wraps: bold_min
   what: variable-setter
 - name: normalThreshold
-  implements: dashed_max
+  wraps: dashed_max
 - name: setNormalThreshold
-  implements: dashed_max
+  wraps: dashed_max
   what: variable-setter
 - name: labelThreshold
-  implements: label_min
+  wraps: label_min
 - name: setLabelThreshold
-  implements: label_min
+  wraps: label_min
   what: variable-setter
 - name: boldColor
-  implements: bold_color
+  wraps: bold_color
 - name: setBoldColor
-  implements: bold_color
+  wraps: bold_color
   what: variable-setter
 - name: normalColor
-  implements: normal_color
+  wraps: normal_color
 - name: setNormalColor
-  implements: normal_color
+  wraps: normal_color
   what: variable-setter
 - name: dashedColor
-  implements: dashed_color
+  wraps: dashed_color
 - name: setDashedColor
-  implements: dashed_color
+  wraps: dashed_color
   what: variable-setter
 - name: dotOptions
-  implements: dot_options
+  wraps: dot_options
 - name: setDotOptions
-  implements: dot_options
+  wraps: dot_options
   what: variable-setter
 - name: font
-  implements: m_font
+  wraps: m_font
 - name: setFont
 - name: scale
 - name: setScale
-  implements: scale
+  wraps: scale
   what: variable-setter
 - name: flowType
 - name: setFlowType
 - name: arrowWidth
-  implements: arrow_width
+  wraps: arrow_width
 - name: setArrowWidth
-  implements: arrow_width
+  wraps: arrow_width
   what: variable-setter
 - name: title
 - name: setTitle
-  implements: title
+  wraps: title
   what: variable-setter
 - name: add
 - name: displayOnly
@@ -78,7 +78,7 @@ recipes:
 - name: build  # Changed in Cantera 3.2 (previously rbuild_build)
 - name: getLog  # New in Cantera 3.2
 - name: findMajor
-  implements: findMajorPaths
+  wraps: findMajorPaths
 - name: del
 - name: cabinetSize
 - name: parentHandle

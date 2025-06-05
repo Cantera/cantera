@@ -9,7 +9,7 @@ recipes:
 - name: version  # Renamed in Cantera 3.2 (previously getCanteraVersion)
 - name: gitCommit  # Renamed in Cantera 3.2 (previously getGitCommit)
 - name: addDataDirectory
-  implements: addDirectory  # TODO: Make API consistent (deprecate C++ version)
+  wraps: addDirectory  # TODO: Make API consistent (deprecate C++ version)
 - name: getDataDirectories
 - name: findInputFile
 - name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
@@ -33,9 +33,9 @@ recipes:
 - name: StefanBoltz
 - name: Faraday
 - name: permeability0
-  implements: permeability_0
+  wraps: permeability_0
 - name: epsilon0
-  implements: epsilon_0
+  wraps: epsilon_0
 - name: getCanteraError
   brief: Get %Cantera error.
   what: function
@@ -60,6 +60,6 @@ recipes:
     setLogger(logwriter.get());
     return 0;
 - name: writeLog
-  implements: writelog_direct  # inconsistent API (preexisting)
+  wraps: writelog_direct  # inconsistent API (preexisting)
 - name: clearStorage
 - name: resetStorage

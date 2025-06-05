@@ -7,19 +7,19 @@ prefix: reactornet
 base: ReactorNet
 recipes:
 - name: new
-  implements: newReactorNet
+  wraps: newReactorNet
 - name: setInitialTime
 - name: setMaxTimeStep
 - name: setTolerances
 - name: setSensitivityTolerances
 - name: advance
-  implements: advance(double)
+  wraps: advance(double)
 - name: step
 - name: time
 - name: rtol
 - name: atol
 - name: sensitivity
-  implements: sensitivity(const string&, size_t, int)
+  wraps: sensitivity(const string&, size_t, int)
 # service functions
 - name: del
 - name: cabinetSize

@@ -40,17 +40,17 @@ class YamlSourceGenerator(SourceGenerator):
         for c_func, recipe in zip(headers.funcs, headers.recipes):
             msg = f"   scaffolding {c_func.name!r} implementation"
             _LOGGER.debug(msg)
-            implements = ""
+            wraps = ""
             if isinstance(c_func.wraps, Func):
-                implements = c_func.wraps.short_declaration()
+                wraps = c_func.wraps.short_declaration()
             elif isinstance(c_func.wraps, Param):
-                implements = c_func.wraps.long_str()
+                wraps = c_func.wraps.long_str()
             uses = []
             for fcn in c_func.uses:
                 uses.append(fcn.short_declaration())
             declarations.append(
                 definition.render(c_func=c_func,
-                                  returns=c_func.returns, implements=implements,
+                                  returns=c_func.returns, wraps=wraps,
                                   uses=uses, what=recipe.what))
 
         filename = headers.output_name(suffix="3.yaml")

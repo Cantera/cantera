@@ -33,7 +33,7 @@ class Recipe:
     parameters: list  #: override auto-detected parameter doc-strings
     returns: str  #: override auto-detected return doc-string
     uses: str | list[str]  #: auxiliary C++ methods used by recipe
-    implements: str  #: signature of implemented C++ function/method
+    wraps: str  #: signature of implemented C++ function/method
     code: str  #: custom code
 
     prefix: str  #: prefix used for CLib access function

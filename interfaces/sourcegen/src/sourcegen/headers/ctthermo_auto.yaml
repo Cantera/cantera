@@ -22,9 +22,9 @@ recipes:
 - name: molarDensity
 - name: meanMolecularWeight
 - name: moleFraction
-  implements: moleFraction(size_t)
+  wraps: moleFraction(size_t)
 - name: massFraction
-  implements: massFraction(size_t)
+  wraps: massFraction(size_t)
 - name: getMoleFractions
   uses: nSpecies
 - name: getMassFractions
@@ -34,9 +34,9 @@ recipes:
 - name: setMassFractions
   uses: nSpecies
 - name: setMoleFractionsByName
-  implements: setMoleFractionsByName(const string&)
+  wraps: setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
-  implements: setMassFractionsByName(const string&)
+  wraps: setMassFractionsByName(const string&)
 - name: atomicWeights  # Renamed in Cantera 3.2 (previously getAtomicWeights)
   uses: nElements
 - name: getMolecularWeights
@@ -76,36 +76,36 @@ recipes:
 - name: getPartialMolarCp
 - name: getPartialMolarVolumes
 - name: setState_TPX  # New in Cantera 3.2
-  implements: setState_TPX(double, double, const double*)
+  wraps: setState_TPX(double, double, const double*)
 - name: setState_TPY  # New in Cantera 3.2
-  implements: setState_TPY(double, double, const double*)
+  wraps: setState_TPY(double, double, const double*)
 - name: setState_TP  # Renamed in Cantera 3.2 (previously set_TP)
 - name: setState_TD  # Renamed in Cantera 3.2 (previously set_TD)
 - name: setState_DP  # Renamed in Cantera 3.2 (previously set_DP)
 - name: setState_HP  # Renamed in Cantera 3.2 (previously set_HP)
-  implements: setState_HP(double, double)
+  wraps: setState_HP(double, double)
 - name: setState_UV  # Renamed in Cantera 3.2 (previously set_UV)
-  implements: setState_UV(double, double)
+  wraps: setState_UV(double, double)
 - name: setState_SV  # Renamed in Cantera 3.2 (previously set_SV)
-  implements: setState_SV(double, double)
+  wraps: setState_SV(double, double)
 - name: setState_SP  # Renamed in Cantera 3.2 (previously set_SP)
-  implements: setState_SP(double, double)
+  wraps: setState_SP(double, double)
 - name: setState_ST  # Renamed in Cantera 3.2 (previously set_ST)
-  implements: setState_ST(double, double)
+  wraps: setState_ST(double, double)
 - name: setState_TV  # Renamed in Cantera 3.2 (previously set_TV)
-  implements: setState_TV(double, double)
+  wraps: setState_TV(double, double)
 - name: setState_PV  # Renamed in Cantera 3.2 (previously set_PV)
-  implements: setState_PV(double, double)
+  wraps: setState_PV(double, double)
 - name: setState_UP  # Renamed in Cantera 3.2 (previously set_UP)
-  implements: setState_UP(double, double)
+  wraps: setState_UP(double, double)
 - name: setState_VH  # Renamed in Cantera 3.2 (previously set_VH)
-  implements: setState_VH(double, double)
+  wraps: setState_VH(double, double)
 - name: setState_TH  # Renamed in Cantera 3.2 (previously set_TH)
-  implements: setState_TH(double, double)
+  wraps: setState_TH(double, double)
 - name: setState_SH  # Renamed in Cantera 3.2 (previously set_SH)
-  implements: setState_SH(double, double)
+  wraps: setState_SH(double, double)
 - name: equilibrate
-  implements:
+  wraps:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
 - name: critTemperature
 - name: critPressure
@@ -122,7 +122,7 @@ recipes:
 - name: siteDensity
 - name: setSiteDensity
 - name: setCoveragesByName
-  implements: setCoveragesByName(const string&)
+  wraps: setCoveragesByName(const string&)
 - name: report
 - name: print
   brief: Print a summary of the state of the phase to the logger.

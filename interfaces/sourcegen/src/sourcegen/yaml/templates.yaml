@@ -17,8 +17,8 @@ yaml-definition: |-
     {% if c_func.returns %}
     {{ 'returns: ' + c_func.returns }}
     {% endif %}
-    {% if implements %}
-    implements: {{ implements }}
+    {% if wraps %}
+    wraps: {{ wraps }}
     {% endif %}
     {% if uses %}
     uses:
