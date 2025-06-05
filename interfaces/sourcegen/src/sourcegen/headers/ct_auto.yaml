@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  The main library of the generated CLib API contains %Cantera service functions.
+  The main library of the generated CLib API contains Cantera service functions.
 prefix: ct
 base: ""
 recipes:
@@ -32,17 +32,15 @@ recipes:
 - name: GasConstant
 - name: StefanBoltz
 - name: Faraday
-- name: permeability0
-  wraps: permeability_0
-- name: epsilon0
-  wraps: epsilon_0
+- name: permeability_0  # Renamed in Cantera 3.2 (previously permeability0)
+- name: epsilon_0  # Renamed in Cantera 3.2 (previously epsilon0)
 - name: getCanteraError
-  brief: Get %Cantera error.
+  brief: Get Cantera error.
   what: function
   declaration: int32_t ct_getCanteraError(int32_t bufLen, char* buf)
   parameters:
     bufLen: Length of reserved array.
-    buf: String containing %Cantera error.
+    buf: String containing Cantera error.
   returns: Actual length of string or -1 for exception handling.
   code: |-
     string err = Application::Instance()->lastErrorMessage();

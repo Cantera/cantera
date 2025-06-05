@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's ReactionPathDiagram class.
+  Generated CLib API for Cantera's ReactionPathDiagram class.
 prefix: rdiag
 base: ReactionPathDiagram
 parents: []  # List of parent classes

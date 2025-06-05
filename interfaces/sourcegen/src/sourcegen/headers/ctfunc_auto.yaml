@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's Func1 class.
+  Generated CLib API for Cantera's Func1 class.
 prefix: func1
 base: Func1
 recipes:

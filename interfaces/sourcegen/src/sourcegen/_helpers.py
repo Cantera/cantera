@@ -3,6 +3,7 @@
 
 from dataclasses import fields
 from pathlib import Path
+from re import sub
 from ruamel import yaml
 
 
@@ -20,3 +21,8 @@ def with_unpack_iter(cls: type) -> type:
     cls.__iter__ = lambda self: (getattr(self, f.name) for f in fields(self))
 
     return cls
+
+
+def escape_token(text: str, token: str) -> str:
+    """Escape token to prevent linking in Doxygen."""
+    return sub(rf"(?<!\w){token}(?!\w)", f"%{token}", text)

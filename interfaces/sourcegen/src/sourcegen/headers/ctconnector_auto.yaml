@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's ConnectorNode class.
+  Generated CLib API for Cantera's ConnectorNode class.
 prefix: connector
 base: ConnectorNode
 parents: []  # List of parent classes
@@ -12,7 +12,7 @@ derived:  # Specialization/prefix dictionary
   Wall: wall
 recipes:
 - name: new
-  wraps: newConnector
+  wraps: newConnectorNode
 - name: type
 - name: name
 - name: setName

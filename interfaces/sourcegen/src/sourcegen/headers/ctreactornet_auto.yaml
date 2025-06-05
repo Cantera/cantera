@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's ReactorNet class.
+  Generated CLib API for Cantera's ReactorNet class.
 prefix: reactornet
 base: ReactorNet
 recipes:
