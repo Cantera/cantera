@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's MultiPhase class.
+  Generated CLib API for Cantera's MultiPhase class.
 prefix: mix
 base: MultiPhase
 parents: []  # List of parent classes

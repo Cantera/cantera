@@ -5,14 +5,13 @@
 
 from pathlib import Path
 import logging
-import re
 from dataclasses import dataclass
 
 from jinja2 import Environment, BaseLoader
 
 from ..dataclasses import HeaderFile, Param, ArgList, Func, Recipe
 from ..generator import SourceGenerator
-from .._helpers import with_unpack_iter
+from .._helpers import with_unpack_iter, escape_token
 
 
 _LOGGER = logging.getLogger()
@@ -71,12 +70,9 @@ class CLibSourceGenerator(SourceGenerator):
             wraps = "custom code"
         else:
             wraps = "undefined"
-        # Escape %Cantera: a '%' would have been stripped by a previous pass of Doxygen
-        brief = re.sub(r"(?<!\w)Cantera(?!\w)", "%Cantera", c_func.brief)
-        uses = [ uu.short_declaration()
-                for uu in c_func.uses]
+        uses = [ uu.short_declaration() for uu in c_func.uses]
         block = template.render(
-            brief=brief,
+            brief=escape_token(c_func.brief, "Cantera"),
             params=[param(par) for par in c_func.arglist],
             returns=c_func.returns, what=what, wraps=wraps, uses=uses)
         return self._javadoc_comment(block)
@@ -423,9 +419,10 @@ class CLibSourceGenerator(SourceGenerator):
         guard = filename.name.upper().replace(".", "_")
         t_file = Path(__file__).parent / "template_header.h.in"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
+        docstring = [escape_token(dd, "Cantera") for dd in headers.docstring]
         output = template.render(
             name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
-            declarations=declarations, base=headers.base, docstring=headers.docstring)
+            declarations=declarations, base=headers.base, docstring=docstring)
 
         out = Path(self._out_dir) / "include" / "cantera_clib" / filename.name
         msg = f"  writing {filename.name!r}"

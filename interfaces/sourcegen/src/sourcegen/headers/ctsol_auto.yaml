@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's Solution class.
+  Generated CLib API for Cantera's Solution class.
 prefix: sol
 base: Solution
 parents: []  # List of parent classes

@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 docstring: |-
-  Generated CLib API for %Cantera's Sim1D class.
+  Generated CLib API for Cantera's Sim1D class.
 prefix: sim1D
 base: Sim1D
 parents: [OneDim]  # List of parent classes
