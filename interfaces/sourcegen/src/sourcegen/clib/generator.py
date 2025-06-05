@@ -64,16 +64,16 @@ class CLibSourceGenerator(SourceGenerator):
             return f"{ret:<19} {item.description}"
 
         if isinstance(c_func.wraps, Func):
-            wraps = c_func.wraps.short_declaration(doxygen=True, scope="Cantera")
+            wraps = c_func.wraps.short_declaration()
         elif isinstance(c_func.wraps, Param):
-            wraps = c_func.wraps.long_str(doxygen=True, scope="Cantera")
+            wraps = c_func.wraps.long_str()
         elif isinstance(c_func.wraps, str):
             wraps = "custom code"
         else:
             wraps = "undefined"
         # Escape %Cantera: a '%' would have been stripped by a previous pass of Doxygen
         brief = re.sub(r"(?<!\w)Cantera(?!\w)", "%Cantera", c_func.brief)
-        uses = [ uu.short_declaration(doxygen=True, scope="Cantera")
+        uses = [ uu.short_declaration()
                 for uu in c_func.uses]
         block = template.render(
             brief=brief,

@@ -259,8 +259,8 @@ class TagFileParser:
                 args_merged.append(Param(arg.p_type, arg.name, "Undocumented."))
 
         return Func(ret_param.p_type, details.name, ArgList(args_merged),
-                     details.briefdescription, None, ret_param.description,
-                     details.base, [])
+                    details.briefdescription, None, ret_param.description,
+                    details.base, [])
 
 
 def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:

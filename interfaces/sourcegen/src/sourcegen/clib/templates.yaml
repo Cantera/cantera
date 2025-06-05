@@ -9,6 +9,17 @@ clib-param: |-
 clib-comment: |-
   {{ brief }}
 
+  {% if wraps %}
+  Wraps C++ {{ what }}: `{{ wraps }}`
+
+  {% endif %}
+  {% if uses %}
+  Uses:
+  {% for uu in uses %}
+  - `{{ uu }}`
+  {% endfor %}
+
+  {% endif %}
   {% for par in params %}
   {{ par }}
   {% endfor %}
@@ -16,14 +27,6 @@ clib-comment: |-
   {{ '@returns' + 12*' ' + returns }}
   {% endif %}
   {% if params or returns %}
-  {% endif %}
-  {% if wraps %}
-
-  Wraps C++ {{ what }}: {{ wraps }}
-  {% endif %}
-  {% if uses %}
-
-  Uses: {{ ", ".join(uses) }}
   {% endif %}
 
 clib-definition: |-

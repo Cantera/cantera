@@ -233,7 +233,7 @@ class HeaderGenerator:
             brief = recipe.brief
         uses = [self._doxygen_tags.cxx_member(uu) for uu in recipe.uses]
         return Func(ret_param.p_type, func_name, ArgList(args), brief, cxx_member,
-                     ret_param.description, None, uses)
+                    ret_param.description, None, uses)
 
     def _handle_crosswalk(
             self, what: str, crosswalk: dict, derived: dict[str, str]) -> str:
