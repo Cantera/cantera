@@ -321,10 +321,9 @@ class HeaderGenerator:
                         Param("int32_t", f"{par.name}Len",
                               f"Length of vector reserved for {par.name}.", "in"))
                 elif par_key.endswith("*"):
-                    direction = "in" if what.startswith("const") else "out"
                     params.append(
                         Param("int32_t", f"{par.name}Len",
-                              f"Length of array reserved for {par.name}.", direction))
+                              f"Length of array reserved for {par.name}.", "in"))
                 ret_type = self._config.par_type_crosswalk[par_key]
                 if what.startswith("const "):
                     ret_type = f"const {ret_type}"
