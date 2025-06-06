@@ -43,13 +43,13 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev libopenblas-dev libhdf5-dev
+        sudo apt install libboost-dev libopenblas-dev libhdf5-dev doxygen
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy pandas pytest pint \
-          pytest-xdist pytest-github-actions-annotate-failures graphviz
+          pytest-xdist pytest-github-actions-annotate-failures graphviz Jinja2
         python3 -m pip install --pre cython
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
@@ -96,7 +96,7 @@ jobs:
         libgtest-dev libgmock-dev libeigen3-dev libsundials-dev \
         cython3 python3-numpy python3-pandas python3-pint python3-graphviz \
         python3-ruamel.yaml python3-setuptools python3-wheel python3-pytest \
-        python3-pytest-xdist
+        python3-pytest-xdist doxygen python3-jinja2
         gcc --version
     - name: Install Python dependencies
       run: |
@@ -145,7 +145,8 @@ jobs:
         python3-devel python3-numpy python3-pandas python3-pint python3-pip \
         python3-pytest python3-pytest-xdist python3-ruamel-yaml python3-scipy \
         python3-scons python3-wheel sundials-devel yaml-cpp-devel hdf5-devel \
-        highfive-devel python3-graphviz python3-packaging python3-setuptools
+        highfive-devel python3-graphviz python3-packaging python3-setuptools \
+        python3-jinja2 doxygen
     - name: Build Cantera
       run: |
         scons build -j4 debug=n --debug=time logging=debug python_package=y \
@@ -170,7 +171,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.13']
+        python-version: ['3.14']
         os: ['ubuntu-22.04', 'ubuntu-24.04']
       fail-fast: false
     steps:
@@ -189,14 +190,14 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenmpi-dev \
-        libblas-dev liblapack-dev libhdf5-dev libfmt-dev
+        libblas-dev liblapack-dev libhdf5-dev libfmt-dev doxygen
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel packaging
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons pytest \
-        pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+        pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2
         python3 -m pip install --pre numpy cython pandas scipy
     - name: Build Cantera
       run: |
@@ -214,9 +215,14 @@ jobs:
         PYTHONPATH: build/python
 
   macos-homebrew:
-    runs-on: macos-14
-    name: Install Latest Python with Homebrew
+    name: Install Latest Python ${{ matrix.python-version }} with Homebrew on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    strategy:
+      matrix:
+        python-version: ['3.13']
+        os: ['macos-14', 'macos-15']
+      fail-fast: false
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -225,14 +231,14 @@ jobs:
         persist-credentials: false
     # NumPy is installed here for the Python custom rate tests
     - name: Install Brew dependencies
-      run: brew install --display-times boost libomp hdf5 python numpy
+      run: brew install --display-times boost libomp hdf5 python numpy doxygen
     - name: Set Include folder
       run: echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
     # This is necessary because of PEP 668 https://peps.python.org/pep-0668/
     # PEP 668 prohibits installation to system Python packages via pip
     - name: Create a virtualenv for dependencies
       run: |
-        $(brew --prefix)/bin/python3.12 -m venv .venv
+        $(brew --prefix)/bin/python${{ matrix.python-version }} -m venv .venv
     - name: Install Python dependencies
       # SCons must be installed into the virtualenv because packaging is a dependency
       # and we can't install packaging for the homebrew Python
@@ -240,7 +246,7 @@ jobs:
         ./.venv/bin/python -m pip install -U pip setuptools wheel build
         ./.venv/bin/python -m pip install ruamel.yaml numpy cython pandas pytest \
           pytest-xdist pytest-github-actions-annotate-failures pint graphviz \
-          scons packaging
+          scons packaging Jinja2
     - name: Build Cantera
       run: |
         ./.venv/bin/scons build env_vars=all -j3 debug=n --debug=time logging=debug \
