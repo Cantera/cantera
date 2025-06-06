@@ -2,7 +2,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Cantera.Interop;
 
 namespace Cantera;
@@ -10,7 +9,7 @@ namespace Cantera;
 /// <summary>
 /// Represents a error that occurred in the native Cantera library.
 /// </summary>
-public class CanteraException : ExternalException
+public class CanteraException : Exception
 {
     private CanteraException(string message) : base(message) { }
 
@@ -28,18 +27,11 @@ public class CallbackException : AggregateException
     [ThreadStatic]
     static Stack<Exception>? t_exceptions;
 
-    private CallbackException(string message, Exception[] innerExceptions)
+    private CallbackException(string message, IEnumerable<Exception> innerExceptions)
         : base(message, innerExceptions) { }
 
-    internal static void Register(Exception ex)
-    {
-        if (t_exceptions == null)
-        {
-            t_exceptions = new();
-        }
-
-        t_exceptions.Push(ex);
-    }
+    internal static void Register(Exception ex) =>
+        (t_exceptions ??= new()).Push(ex);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void ThrowIfAny()
@@ -54,16 +46,12 @@ public class CallbackException : AggregateException
         // Separate this bit out so the most likely case can be inlined.
         static void DoThrow()
         {
-            var exceptionsToThrow = t_exceptions!.ToArray();
+            CallbackException exceptionToThrow =
+                new("An exception occurred while executing a callback", t_exceptions!);
 
-            // Typically I would prefer mark a field as readonly and not reset it,
-            // but in this case it’s ThreadStatic, and thus cannot be reliably
-            // eager-initialized. Plus, we’re in a hot path, so setting and comparing to
-            // null is the fastest thing to do.
             t_exceptions = null;
 
-            throw new CallbackException("An exception occurred while executing a callback",
-                exceptionsToThrow);
+            throw exceptionToThrow;
         }
     }
 }
