@@ -5,6 +5,7 @@
 #distutils: language=c++
 
 from libcpp.unordered_map cimport unordered_map
+from libcpp.memory cimport unique_ptr, make_unique
 
 from .ctcxx cimport *
 from .units cimport UnitSystem, CxxUnits
@@ -95,10 +96,11 @@ cdef extern from "cantera/cython/utils_utils.h":
     cdef string get_cantera_version_py()
     cdef string get_cantera_git_commit_py()
     cdef string get_sundials_version()
+
     cdef cppclass CxxPythonLogger "PythonLogger":
         pass
 
-    cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
+    cdef void CxxSetLogger "setLogger" (unique_ptr[CxxPythonLogger])
 
 cdef class AnyMap(dict):
     cdef _set_CxxUnitSystem(self, shared_ptr[CxxUnitSystem] units)

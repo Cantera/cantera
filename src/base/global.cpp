@@ -33,6 +33,15 @@ void setLogger(Logger* logwriter)
     }
 }
 
+void setLogger(unique_ptr<Logger> logwriter)
+{
+    try {
+        app()->setLogger(std::move(logwriter));
+    } catch (const std::bad_alloc&) {
+        logwriter->error("bad alloc thrown by app()");
+    }
+}
+
 void writelog_direct(const string& msg)
 {
     app()->writelog(msg);

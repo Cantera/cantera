@@ -193,6 +193,11 @@ void Application::setLogger(Logger* _logwriter)
     m_logwriter.reset(_logwriter);
 }
 
+void Application::setLogger(unique_ptr<Logger> _logwriter)
+{
+    m_logwriter = std::move(_logwriter);
+}
+
 void Application::writelog(const string& msg)
 {
     m_logwriter->write(msg);
