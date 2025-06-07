@@ -1,11 +1,15 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Cantera;
 
 /// <summary>
 /// Represents a pair of thermodynamic properties that are set or held together.
 /// </summary>
+[SuppressMessage("Design", "CA1027: Mark enums with FlagsAttribute",
+    Justification = "Warning is a false-positive seen rarely in CI.")]
 public enum ThermoPair
 {
 #pragma warning disable CS1591 // names are obvious for long constants

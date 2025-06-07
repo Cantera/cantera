@@ -4,7 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Enable all optional code analyzers -->
+    <AnalysisMode>All</AnalysisMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Warnings that are suppressed for the entire assembly.
+         Unlike the core assembly, feel free to add to this list,
+         as long as the analyzer is not flagging an issue with
+         the testing logic. -->
+    <NoWarn>
+      CA1032; <!-- standard exception constructors missing -->
+      CA1064; <!-- exception class is not public -->
+      CA1707; <!-- no underscores in type names -->
+      CA1711; <!-- improper suffix in type name -->
+      CA1851; <!-- possible multiple enumerations -->
+      CA1852; <!-- class can be sealed -->
+    </NoWarn>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using Cantera.Interop;
 
@@ -10,7 +11,7 @@ namespace Cantera;
 /// <summary>
 /// Contains information about a log message.
 /// </summary>
-public class LogMessage
+public class LogMessageEventArgs : EventArgs
 {
 #pragma warning disable CS1591
     public LogLevel LogLevel { get; }
@@ -18,7 +19,7 @@ public class LogMessage
     public string Message { get; }
 #pragma warning restore CS1591
 
-    internal LogMessage(LogLevel logLevel, string category, string message)
+    internal LogMessageEventArgs(LogLevel logLevel, string category, string message)
     {
         LogLevel = logLevel;
         Category = category;
@@ -49,7 +50,7 @@ public static class Application
     /// <remarks>
     /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
     /// the C++ Cantera library. We could create one implicitly when calling
-    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would
+    /// <c>LibCantera.ct_setLogWriter(LogMessageEventArgs)</c>, but the garbage collector would
     /// not know the native method is using it and could reclaim it. By explicitly
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
@@ -61,7 +62,7 @@ public static class Application
         {
             Application.
             MessageLogged
-                ?.Invoke(null, new LogMessage(level, categoryStr, messageStr));
+                ?.Invoke(null, new LogMessageEventArgs(level, categoryStr, messageStr));
         }
         catch (Exception ex)
         {
@@ -81,7 +82,7 @@ public static class Application
     /// <summary>
     /// Occurs when the Cantera native library attempts to log a message.
     /// </summary>
-    public static event EventHandler<LogMessage>? MessageLogged;
+    public static event EventHandler<LogMessageEventArgs>? MessageLogged;
 
 #pragma warning disable CS1591
     public static string Version =>
@@ -106,11 +107,12 @@ public static class Application
     public static void RemoveConsoleLogging() =>
         MessageLogged -= LogToConsole;
 
-    static void LogToConsole(object? sender, LogMessage e)
+    static void LogToConsole(object? sender, LogMessageEventArgs e)
     {
         var logLevel = e.LogLevel.ToString().ToUpperInvariant();
 
-        var nowString = DateTimeOffset.Now.ToString("yyyy-MM-ddThh:mm:ss.fffzzz");
+        var nowString = DateTimeOffset.Now.ToString(
+            "yyyy-MM-ddThh:mm:ss.fffzzz", CultureInfo.InvariantCulture);
 
         var message = $"{logLevel} ({e.Category}) {nowString}: {e.Message}";
 
