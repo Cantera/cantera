@@ -30,6 +30,7 @@ public:
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
+    vector<size_t> steadyConstraints() const override;
 
     void getState(double* y) override;
 
