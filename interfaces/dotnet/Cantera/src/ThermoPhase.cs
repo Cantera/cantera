@@ -12,39 +12,6 @@ public partial class ThermoPhase
 {
     readonly SolutionHandle _sol;
 
-    /// <summary>
-    /// Represents a func that sets a pair of thermo variables.
-    /// </summary>
-    delegate int SetPairFunc(ThermoPhaseHandle n, double val0, double val1);
-
-    /// <summary>
-    /// Using reflection and the fact that CLib follows a naming convention for
-    /// the functions that set the pairs of thermodynamic variables simultaneously
-    /// </summary>
-    static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> s_pairSetters;
-
-    static ThermoPhase()
-    {
-        s_pairSetters = new(() =>
-        {
-            var methods = typeof(LibCantera).GetMethods();
-
-            var pairs = ThermoPairExtensions.GetThermoPairEnumFieldsWithTwoCharName()
-                .Select(f =>
-                (
-                    pair: f,
-                    method: methods
-                        .SingleOrDefault(m => m.Name == "thermo_setState_" + f.Name)
-                ))
-                .Where(t => t.method is not null)
-                .ToDictionary(
-                    t => (ThermoPair) t.pair.GetValue(null)!,
-                    t => (SetPairFunc) t.method!.CreateDelegate(typeof(SetPairFunc)));
-
-            return pairs;
-        });
-    }
-
     readonly Lazy<SpeciesCollection> _species;
 
     /// <summary>
@@ -79,15 +46,24 @@ public partial class ThermoPhase
     /// <summary>
     /// Sets the given pair of thermodynamic properties for this phase together.
     /// </summary>
-    public void SetPair(ThermoPair pair, double first, double second)
-    {
-        if (!s_pairSetters.Value.TryGetValue(pair, out var setter))
+    public void SetPair(ThermoPair pair, double first, double second) =>
+        _ = pair switch
         {
-            throw new InvalidOperationException($"Cannot set thermo pair {pair}!");
-        }
-
-        setter(_handle, first, second);
-    }
+            ThermoPair.DP => LibCantera.thermo_setState_DP(_handle, first, second),
+            ThermoPair.TV => LibCantera.thermo_setState_TV(_handle, first, second),
+            ThermoPair.HP => LibCantera.thermo_setState_HP(_handle, first, second),
+            ThermoPair.SP => LibCantera.thermo_setState_SP(_handle, first, second),
+            ThermoPair.PV => LibCantera.thermo_setState_PV(_handle, first, second),
+            ThermoPair.TP => LibCantera.thermo_setState_TP(_handle, first, second),
+            ThermoPair.UV => LibCantera.thermo_setState_UV(_handle, first, second),
+            ThermoPair.ST => LibCantera.thermo_setState_ST(_handle, first, second),
+            ThermoPair.SV => LibCantera.thermo_setState_SV(_handle, first, second),
+            ThermoPair.UP => LibCantera.thermo_setState_UP(_handle, first, second),
+            ThermoPair.VH => LibCantera.thermo_setState_VH(_handle, first, second),
+            ThermoPair.TH => LibCantera.thermo_setState_TH(_handle, first, second),
+            ThermoPair.SH => LibCantera.thermo_setState_SH(_handle, first, second),
+            _ => throw new ArgumentOutOfRangeException(nameof(pair))
+        };
 
     partial void ExtraDispose()
     {
