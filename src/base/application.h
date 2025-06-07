@@ -366,8 +366,21 @@ public:
      * @param logwriter Pointer to a logger object
      * @see Logger.
      * @ingroup logGroup
+     *
+     * @deprecated To be removed after %Cantera 3.2. Replaced by version taking
+     *     `unique_ptr`.
      */
     void setLogger(Logger* logwriter);
+
+    //! Install a Logger.
+    /*!
+     * Called by the language interfaces to install an appropriate logger.
+     * The logger is used for the writelog() function
+     *
+     * @since Changed in %Cantera 3.2 to take `unique_ptr` instead of bare pointer.
+     * @ingroup logGroup
+     */
+    void setLogger(unique_ptr<Logger> logwriter);
 
     //! Delete and free memory allocated per thread in multithreaded applications
     /*!

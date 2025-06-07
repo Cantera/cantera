@@ -1687,10 +1687,9 @@ extern "C" {
 
     int ct_setLogCallback(LogCallback writer)
     {
-        static unique_ptr<Logger> logwriter;
         try {
-            logwriter = make_unique<ExternalLogger>(writer);
-            setLogger(logwriter.get());
+            auto logwriter = make_unique<ExternalLogger>(writer);
+            setLogger(std::move(logwriter));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

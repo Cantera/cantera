@@ -5,6 +5,7 @@ import sys
 import os
 import warnings
 from cpython.ref cimport PyObject
+from libcpp.utility cimport move
 import numbers
 import importlib.metadata
 from collections import namedtuple
@@ -27,8 +28,8 @@ def _import_scipy_sparse():
         from scipy import sparse as _scipy_sparse
 
 
-cdef CxxPythonLogger* _logger = new CxxPythonLogger()
-CxxSetLogger(_logger)
+cdef unique_ptr[CxxPythonLogger] _logger = make_unique[CxxPythonLogger]()
+CxxSetLogger(move(_logger))
 
 cdef string stringify(x) except *:
     """ Converts Python strings to std::string. """

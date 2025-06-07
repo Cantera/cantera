@@ -53,9 +53,8 @@ recipes:
   parameters:
     writer: Callback that is invoked to produce log output.
   code: |-
-    static unique_ptr<Logger> logwriter;
-    logwriter = make_unique<ExternalLogger>(writer);
-    setLogger(logwriter.get());
+    auto logwriter = make_unique<ExternalLogger>(writer);
+    setLogger(std::move(logwriter));
     return 0;
 - name: writeLog
   wraps: writelog_direct  # inconsistent API (preexisting)
