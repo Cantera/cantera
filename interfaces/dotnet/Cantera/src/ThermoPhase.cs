@@ -1,6 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+using System.Diagnostics.CodeAnalysis;
 using Cantera.Interop;
 
 namespace Cantera;
@@ -10,6 +11,8 @@ namespace Cantera;
 /// </summary>
 public partial class ThermoPhase
 {
+    [SuppressMessage("Usage", "CA2213: Disposable field not disposed",
+        Justification = "Field actually is disposed, in ExtraDispose()")]
     readonly SolutionHandle _sol;
 
     readonly Lazy<SpeciesCollection> _species;

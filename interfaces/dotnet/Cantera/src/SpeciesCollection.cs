@@ -118,8 +118,12 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// Determines the index of the given <see cref="Species" /> in this collection,
     /// returning -1 if the species is not found.
     /// </summary>
-    public int IndexOf(Species species) =>
-        IndexOf(species.Name);
+    public int IndexOf(Species species)
+    {
+        ArgumentNullException.ThrowIfNull(species);
+
+        return IndexOf(species.Name);
+    }
 
     /// <summary>
     /// Determines the index of a <see cref="Species" /> with the given name in
@@ -138,8 +142,12 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <summary>
     /// Reports whether the given <see cref="Species" /> is found in this collection.
     /// </summary>
-    public bool Contains(Species species) =>
-        Contains(species.Name);
+    public bool Contains(Species species)
+    {
+        ArgumentNullException.ThrowIfNull(species);
+
+        return Contains(species.Name);
+    }
 
 
     /// <summary>
@@ -153,15 +161,15 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// Sets the mass fractions for a subset of the species, given as pairs of
     /// their name and fraction. The fractions of all the species are then normalized.
     /// </summary>
-    public void SetMassFractions(params (string speciesName, double fraction)[] tuples)
-    {
+    public void SetMassFractions(params (string speciesName, double fraction)[] tuples) =>
         SetMassFractions((IEnumerable<(string, double)>)tuples);
-    }
 
     /// <inheritdoc cref="SetMassFractions(ValueTuple{string, double}[])" />
     public void SetMassFractions(
                               IEnumerable<(string speciesName, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (name, fraction) in tuples)
@@ -181,6 +189,8 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <inheritdoc cref="SetMassFractions(ValueTuple{Species, double}[])" />
     public void SetMassFractions(IEnumerable<(Species species, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (species, fraction) in tuples)
@@ -200,8 +210,10 @@ public class SpeciesCollection : IReadOnlyList<Species>
 
     /// <inheritdoc cref="SetMoleFractions(ValueTuple{string, double}[])" />
     public void SetMoleFractions(
-                              IEnumerable<(string speciesName, double fraction)> tuples)
+        IEnumerable<(string speciesName, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (speciesName, fraction) in tuples)
@@ -221,6 +233,8 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <inheritdoc cref="SetMoleFractions(ValueTuple{Species, double}[])" />
     public void SetMoleFractions(IEnumerable<(Species species, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (species, fraction) in tuples)
