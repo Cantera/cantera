@@ -1,7 +1,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Runtime.InteropServices.Marshalling;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Cantera.Interop;
 
 namespace Cantera;
@@ -26,30 +27,19 @@ public class LogMessage
 }
 
 /// <summary>
-/// The primary API for accessing the Cantera library.
+/// Provides APIs for accessing the Cantera library.
 /// </summary>
-/// <remarks>
-/// All access to Cantera should funnel through this class.
-/// This ensures that any necessary initialization can be run in
-/// the static constructor.
-/// </remarks>
 public static class Application
 {
-    static Application()
+    /// <remarks>
+    /// This method is automatically called by the runtime to initialize
+    /// the native Cantera library. You should not need to call it elsewhere.
+    /// </remarks>
+    [ModuleInitializer]
+    [SuppressMessage("Usage", "CA2255: No ModuleInitializerAttribute in library code.",
+        Justification = "Initialization code is essential.")]
+    internal static void Initialize()
     {
-        s_invokeMessageLoggedDelegate = (level, categoryStr, messageStr) =>
-        {
-            try
-            {
-                MessageLogged
-                    ?.Invoke(null, new LogMessage(level, categoryStr, messageStr));
-            }
-            catch (Exception ex)
-            {
-                CallbackException.Register(ex);
-            }
-        };
-
         LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate);
     }
 
@@ -64,7 +54,20 @@ public static class Application
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
-    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
+    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate =
+        (level, categoryStr, messageStr) =>
+    {
+        try
+        {
+            Application.
+            MessageLogged
+                ?.Invoke(null, new LogMessage(level, categoryStr, messageStr));
+        }
+        catch (Exception ex)
+        {
+            CallbackException.Register(ex);
+        }
+    };
 
     static readonly Lazy<string> s_version =
         new(LibCantera.ct_version);
