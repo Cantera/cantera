@@ -1,12 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>12</LangVersion>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Enable all optional code analyzers -->
+    <AnalysisMode>All</AnalysisMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Warnings that are suppressed for the entire assembly.
+         Consider suppressing inline before adding to this list -->
+    <NoWarn>
+      CA5392; <!-- P/Invoke missing DefaultDllImportSearchPathsAttribute (system default is OK) -->
+      CA1032; <!-- Standard exception constructors missing (exception are only meant to be thrown by this assembly) -->
+      CA1063; <!-- Implement full dispose pattern (derived classes would not own unmanaged resources) -->
+      CA1819; <!-- Properties should not return array (this is a data-centric library so arrays are expected) -->
+    </NoWarn>
     <AssemblyName>CanteraDotNet</AssemblyName>
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

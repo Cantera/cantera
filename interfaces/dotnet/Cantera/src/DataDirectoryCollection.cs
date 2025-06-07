@@ -43,6 +43,8 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
     /// <inheritdoc cref="Add(string)"/>
     public void Add(DirectoryInfo dir)
     {
+        ArgumentNullException.ThrowIfNull(dir);
+
         LibCantera.ct_addDataDirectory(dir.FullName);
 
         _dirs.Clear();
