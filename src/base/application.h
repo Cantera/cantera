@@ -45,8 +45,7 @@ protected:
     class Messages
     {
     public:
-        Messages();
-
+        Messages() = default;
         Messages(const Messages& r) = delete;
         Messages& operator=(const Messages& r) = delete;
 
@@ -114,49 +113,9 @@ protected:
          */
         void logErrors();
 
-        //!  Write a message to the screen.
-        /*!
-         * The string may be of any length, and may contain end-of-line
-         * characters. This method is used throughout %Cantera to write log
-         * messages. It can also be called by user programs.  The advantage of
-         * using writelog over writing directly to the standard output is that
-         * messages written with writelog will display correctly even when
-         * %Cantera is used from MATLAB or other application that do not have a
-         * standard output stream.
-         *
-         * @param msg  c++ string to be written to the screen
-         * @ingroup logGroup
-         */
-        void writelog(const string& msg);
-
-        //! Write an end of line character to the screen and flush output
-        void writelogendl();
-
-        //!  Write a warning message to the screen.
-        /*!
-         * @param warning  String specifying type of warning; see Logger::warn()
-         * @param msg  String to be written to the screen
-         * @ingroup logGroup
-         */
-        void warnlog(const string& warning, const string& msg);
-
-        //! Install a logger.
-        /*!
-         * Called by the language interfaces to install an appropriate logger.
-         * The logger is used for the writelog() function
-         *
-         * @param logwriter Pointer to a logger object
-         * @see Logger.
-         * @ingroup logGroup
-         */
-        void setLogger(Logger* logwriter);
-
     protected:
         //! Current list of error messages
         vector<string> errorMessage;
-
-        //! Current pointer to the logwriter
-        unique_ptr<Logger> logwriter;
     };
 
     //! Typedef for thread specific messages
@@ -301,20 +260,30 @@ public:
                                    string& value, const string& defaultValue);
 #endif
 
-    //! @copydoc Messages::writelog
-    void writelog(const string& msg) {
-        pMessenger->writelog(msg);
-    }
+    //! Write a message to the logger.
+    /*!
+     * The string may be of any length, and may contain end-of-line characters. This
+     * method is used throughout %Cantera to write log messages. It can also be called
+     * by user programs.  The advantage of using writelog over writing directly to the
+     * standard output is that messages written with writelog will display correctly
+     * even when %Cantera is used from MATLAB or other application that do not have a
+     * standard output stream.
+     *
+     * @param msg  C++ string to be written to the logger
+     * @ingroup logGroup
+     */
+    void writelog(const string& msg);
 
-    //! Write an endl to the screen and flush output
-    void writelogendl() {
-        pMessenger->writelogendl();
-    }
+    //! Write an end of line character to the logger and flush output
+    void writelogendl();
 
-    //! @copydoc Messages::warnlog
-    void warnlog(const string& warning, const string& msg) {
-        pMessenger->warnlog(warning, msg);
-    }
+    //! Write a warning message to the logger.
+    /*!
+     * @param warning  Type of warning; see Logger::warn()
+     * @param msg  Message to be written to the logger
+     * @ingroup logGroup
+     */
+    void warnlog(const string& warning, const string& msg);
 
     //! Print a warning indicating that *method* is deprecated. Additional
     //! information (removal version, alternatives) can be specified in
@@ -389,10 +358,16 @@ public:
         return m_use_legacy_rate_constants;
     }
 
-    //! @copydoc Messages::setLogger
-    void setLogger(Logger* logwriter) {
-        pMessenger->setLogger(logwriter);
-    }
+    //! Install a logger.
+    /*!
+     * Called by the language interfaces to install an appropriate logger.
+     * The logger is used for the writelog() function
+     *
+     * @param logwriter Pointer to a logger object
+     * @see Logger.
+     * @ingroup logGroup
+     */
+    void setLogger(Logger* logwriter);
 
     //! Delete and free memory allocated per thread in multithreaded applications
     /*!
@@ -449,6 +424,9 @@ protected:
     set<pair<string, string>> m_loaded_extensions;
 
     ThreadMessages pMessenger;
+
+    //! Current log writer
+    unique_ptr<Logger> m_logwriter;
 
 private:
     //! Pointer to the single Application instance

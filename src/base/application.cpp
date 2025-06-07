@@ -35,13 +35,6 @@ static std::mutex dir_mutex;
 //! Mutex for creating singletons within the application object
 static std::mutex app_mutex;
 
-Application::Messages::Messages()
-{
-    // install a default logwriter that writes to standard
-    // output / standard error
-    logwriter = make_unique<Logger>();
-}
-
 void Application::Messages::addError(const string& r, const string& msg)
 {
     if (msg.size() != 0) {
@@ -59,26 +52,6 @@ void Application::Messages::addError(const string& r, const string& msg)
 int Application::Messages::getErrorCount()
 {
     return static_cast<int>(errorMessage.size());
-}
-
-void Application::Messages::setLogger(Logger* _logwriter)
-{
-    logwriter.reset(_logwriter);
-}
-
-void Application::Messages::writelog(const string& msg)
-{
-    logwriter->write(msg);
-}
-
-void Application::Messages::writelogendl()
-{
-    logwriter->writeendl();
-}
-
-void Application::Messages::warnlog(const string& warning, const string& msg)
-{
-    logwriter->warn(warning, msg);
 }
 
 //! Mutex for access to string messages
@@ -109,8 +82,8 @@ void Application::ThreadMessages::removeThreadMessages()
 
 Application::Application()
 {
-    // install a default logwriter that writes to standard
-    // output / standard error
+    // install a default logwriter that writes to standard output / standard error
+    m_logwriter = make_unique<Logger>();
     setDefaultDirectories();
 }
 
@@ -207,10 +180,32 @@ void Application::Messages::getErrors(std::ostream& f)
 void Application::Messages::logErrors()
 {
     for (size_t j = 0; j < errorMessage.size(); j++) {
-        writelog(errorMessage[j]);
-        writelogendl();
+        Cantera::writelog(errorMessage[j]);
+        Cantera::writelogendl();
     }
     errorMessage.clear();
+}
+
+// Application methods
+
+void Application::setLogger(Logger* _logwriter)
+{
+    m_logwriter.reset(_logwriter);
+}
+
+void Application::writelog(const string& msg)
+{
+    m_logwriter->write(msg);
+}
+
+void Application::writelogendl()
+{
+    m_logwriter->writeendl();
+}
+
+void Application::warnlog(const string& warning, const string& msg)
+{
+    m_logwriter->warn(warning, msg);
 }
 
 void Application::setDefaultDirectories()

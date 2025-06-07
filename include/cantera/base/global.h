@@ -147,7 +147,7 @@ bool usesHDF5();
 //! @addtogroup logGroup
 //! @{
 
-//! @copydoc Application::Messages::writelog(const string&)
+//! @copydoc Application::writelog(const string&)
 void writelog_direct(const string& msg);
 
 //! Write a message to the log only if loglevel > 0
@@ -307,7 +307,7 @@ bool legacy_rate_constants_used();
 
 // @} End of globalSettings group
 
-//! @copydoc Application::Messages::setLogger
+//! @copydoc Application::setLogger
 //! @ingroup logGroup
 void setLogger(Logger* logwriter);
 
