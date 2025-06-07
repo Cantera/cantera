@@ -501,7 +501,7 @@ void PlasmaPhase::updateThermo() const
 
 double PlasmaPhase::enthalpy_mole() const {
     double value = IdealGasPhase::enthalpy_mole();
-    value += GasConstant * (electronTemperature() - temperature()) *
+    value -= GasConstant * temperature() *
              moleFraction(m_electronSpeciesIndex) *
              m_h0_RT[m_electronSpeciesIndex];
     return value;
