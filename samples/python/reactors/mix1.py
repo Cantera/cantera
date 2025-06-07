@@ -16,7 +16,7 @@ contain all species that might be present in any upstream reactor.
 Compare this approach for the transient problem to the method used for the
 steady-state problem in :doc:`mixing.py <../thermo/mixing>`.
 
-Requires: cantera >= 3.1.0, graphviz
+Requires: cantera >= 3.2, graphviz
 
 .. tags:: Python, thermodynamics, reactor network, mixture
 """
@@ -75,8 +75,8 @@ sim = ct.ReactorNet([mixer])
 # Get the mixed state
 # -------------------
 #
-# Since the mixer is a reactor, we need to integrate in time to reach steady state.
-sim.advance_to_steady_state()
+# Since the mixer is a reactor, we need to solve for the steady state.
+sim.solve_steady()
 
 # view the state of the gas in the mixer
 print(mixer.thermo.report())
