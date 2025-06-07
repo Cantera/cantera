@@ -1,9 +1,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Reflection;
-using System.Text.RegularExpressions;
-
 namespace Cantera;
 
 /// <summary>
@@ -81,24 +78,24 @@ public enum ThermoPair
 
 static class ThermoPairExtensions
 {
-    static readonly Lazy<IReadOnlyDictionary<ThermoPair, string>> s_interopStringMap =
-        new(() => GetThermoPairEnumFieldsWithTwoCharName()
-            .ToDictionary(f => (ThermoPair) f.GetValue(null)!, f => f.Name));
-
-    internal static IEnumerable<FieldInfo> GetThermoPairEnumFieldsWithTwoCharName() =>
-        typeof(ThermoPair)
-            .GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Where(f => Regex.IsMatch(f.Name, "^[A-Z]{2}$")); // exactly two uppercase
-
-    public static string ToInteropString(this ThermoPair thermoPair)
-    {
-        if (s_interopStringMap.Value.TryGetValue(thermoPair, out var interopString))
+    public static string ToInteropString(this ThermoPair thermoPair) =>
+        thermoPair switch
         {
-            return interopString;
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(thermoPair));
-    }
+            ThermoPair.DP => "DP",
+            ThermoPair.TV => "TV",
+            ThermoPair.HP => "HP",
+            ThermoPair.SP => "SP",
+            ThermoPair.PV => "PV",
+            ThermoPair.TP => "TP",
+            ThermoPair.UV => "UV",
+            ThermoPair.ST => "ST",
+            ThermoPair.SV => "SV",
+            ThermoPair.UP => "UP",
+            ThermoPair.VH => "VH",
+            ThermoPair.TH => "TH",
+            ThermoPair.SH => "SH",
+            _ => throw new ArgumentOutOfRangeException(nameof(thermoPair))
+        };
 }
 
 // the constants MUST match what CLib is expecting
