@@ -1603,6 +1603,8 @@ cdef class ReactorNet:
           used, inlet and outlet flows must be balanced.
         - The solver is currently not compatible with the `ConstPressureMoleReactor` or
           `IdealGasConstPressureMoleReactor` classes.
+        - Only ideal gas reactor types can be used for when the energy equation is
+          disabled (fixed temperature simulations).
 
         :param loglevel:
             Print information about solver progress to aid in understanding

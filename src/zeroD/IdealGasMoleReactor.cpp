@@ -97,6 +97,15 @@ double IdealGasMoleReactor::lowerBound(size_t k) const {
     }
 }
 
+vector<size_t> IdealGasMoleReactor::steadyConstraints() const
+{
+    if (energyEnabled()) {
+        return {1}; // volume
+    } else {
+        return {0, 1}; // temperature and volume
+    }
+}
+
 void IdealGasMoleReactor::updateState(double* y)
 {
     // the components of y are: [0] the temperature, [1] the volume, [2...K+1) are the
