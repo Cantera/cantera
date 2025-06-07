@@ -1,6 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Cantera.Interop;
@@ -13,7 +14,7 @@ public class ApplicationTest
 {
     class FooException : Exception { }
 
-    readonly static LogMessage s_mockLog =
+    readonly static LogMessageEventArgs s_mockLog =
         new(LogLevel.Warning, "Testing",
             // a message with non-ASCII characters to test UTF-8 round-tripping
             """
@@ -49,11 +50,13 @@ public class ApplicationTest
     }
 
     [Fact]
+    [SuppressMessage("Maintainability", "CA1508: Avoid dead conditional code",
+        Justification = "args is not always null; is it set in the callback.")]
     public void LogWriter_MessageLogged()
     {
-        LogMessage? args = null;
+        LogMessageEventArgs? args = null;
 
-        void LogMessage(object? sender, LogMessage e)
+        void LogMessage(object? sender, LogMessageEventArgs e)
         {
             args = e;
         }
@@ -76,7 +79,7 @@ public class ApplicationTest
     public void LogWriter_ConsoleLogged()
     {
         var stdOut = Console.Out;
-        var consoleOut = new StringWriter();
+        using var consoleOut = new StringWriter();
 
         try
         {
@@ -110,7 +113,7 @@ public class ApplicationTest
     [Fact]
     public void LogWriter_ExceptionRegistered()
     {
-        static void LogMessage(object? sender, LogMessage e) =>
+        static void LogMessage(object? sender, LogMessageEventArgs e) =>
             throw new FooException();
 
         try
@@ -141,7 +144,7 @@ public class ApplicationTest
     /// <summary>
     /// Produces log output without calling into the native Cantera library.
     /// </summary>
-    static void ProduceMockLogOutput(LogMessage log)
+    static void ProduceMockLogOutput(LogMessageEventArgs log)
     {
         var eventField = typeof(Application).GetField("s_invokeMessageLoggedDelegate",
             BindingFlags.Static | BindingFlags.NonPublic);
