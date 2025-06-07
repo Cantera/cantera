@@ -135,6 +135,15 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+vector<size_t> IdealGasReactor::steadyConstraints() const
+{
+    if (energyEnabled()) {
+        return {1}; // volume
+    } else {
+        return {1, 2}; // volume and temperature
+    }
+}
+
 size_t IdealGasReactor::componentIndex(const string& nm) const
 {
     size_t k = speciesIndex(nm);

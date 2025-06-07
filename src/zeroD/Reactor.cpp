@@ -331,6 +331,16 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
+vector<size_t> Reactor::steadyConstraints() const
+{
+    if (!energyEnabled()) {
+        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+            " be used with {0} when energy equation is disabled."
+            "\nConsider using IdealGas{0} instead.", type());
+    }
+    return {1}; // volume
+}
+
 Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
 {
     if (m_nv == 0) {
