@@ -123,13 +123,4 @@ public static class Application
             Console.WriteLine(message);
         }
     }
-
-    /// <summary>
-    /// Returns a new <see cref="ThermoPhase" /> object by loading and parsing the
-    /// given configuration file. Optionally chooses the phase to load by
-    /// looking up the given name.
-    /// </summary>
-    public static ThermoPhase CreateThermoPhase(string filename,
-                                                string? phaseName = null) =>
-        new ThermoPhase(filename, phaseName);
 }

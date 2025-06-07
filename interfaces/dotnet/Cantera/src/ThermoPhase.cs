@@ -10,7 +10,7 @@ namespace Cantera;
 /// </summary>
 public partial class ThermoPhase
 {
-    readonly SolutionHandle _sol;
+    readonly SolutionHandle _solutionHandle;
 
     /// <summary>
     /// Represents a func that sets a pair of thermo variables.
@@ -52,13 +52,21 @@ public partial class ThermoPhase
     /// </summary>
     public SpeciesCollection Species => _species.Value;
 
-    internal ThermoPhase(string filename, string? phaseName)
+    ThermoPhase(SolutionHandle solutionHandle)
     {
-        _sol = LibCantera.sol_newSolution(filename, phaseName ?? "", "none");
-        _handle = LibCantera.sol_thermo(_sol);
+        _solutionHandle = solutionHandle;
+        _handle = LibCantera.sol_thermo(_solutionHandle);
 
         _species = new(() => new SpeciesCollection(_handle));
     }
+
+    /// <summary>
+    /// Returns a new <see cref="ThermoPhase" /> object by loading and parsing the
+    /// given configuration file. Optionally chooses the phase to load by
+    /// looking up the given name.
+    /// </summary>
+    public static ThermoPhase Load(string filename, string? phaseName = null) =>
+        new(LibCantera.sol_newSolution(filename, phaseName ?? "", "none"));
 
     /// <summary>
     /// Simulates bringing the phase to thermodynamic equilibrium by holding the
@@ -91,6 +99,6 @@ public partial class ThermoPhase
 
     partial void ExtraDispose()
     {
-        _sol.Dispose();
+        _solutionHandle.Dispose();
     }
 }
