@@ -14,7 +14,7 @@ depends on variables other than time by capturing these variables from the
 enclosing scope. Also shows the use of a `PressureController` to create a constant
 pressure reactor with a fixed volume.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, well-stirred reactor, plotting
 """
@@ -79,7 +79,7 @@ states = ct.SolutionArray(gas, extra=['tres'])
 residence_time = 0.1  # starting residence time
 while combustor.T > 500:
     sim.initial_time = 0.0  # reset the integrator
-    sim.advance_to_steady_state()
+    sim.solve_steady()
     print('tres = {:.2e}; T = {:.1f}'.format(residence_time, combustor.T))
     states.append(combustor.thermo.state, tres=residence_time)
     residence_time *= 0.9  # decrease the residence time for the next iteration
