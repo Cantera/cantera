@@ -278,6 +278,7 @@ void ReactorNet::solveSteady(int loglevel)
     vector<double> y(neq());
     getState(y.data());
     SteadyReactorSolver solver(this, y.data());
+    solver.setMaxTimeStepCount(maxSteps());
     solver.solve(loglevel);
     solver.getState(y.data());
     updateState(y.data());
