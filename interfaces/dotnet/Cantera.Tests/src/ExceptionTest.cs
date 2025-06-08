@@ -3,13 +3,12 @@
 
 using System.Text.RegularExpressions;
 using Cantera.Interop;
-using Xunit;
 
 namespace Cantera.Tests;
 
 public class ExceptionTest
 {
-    class FooException : Exception { }
+    class FooException : Exception;
 
     [Fact]
     public void CanteraException_Thrown()
