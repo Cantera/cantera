@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Cantera.Interop;
-using Xunit;
 
 namespace Cantera.Tests;
 
