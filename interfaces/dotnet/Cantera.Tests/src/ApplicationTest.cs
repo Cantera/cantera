@@ -5,14 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Cantera.Interop;
-using Xunit;
 
 namespace Cantera.Tests;
 
-[Collection("Application")]
 public class ApplicationTest
 {
-    class FooException : Exception { }
+    class FooException : Exception;
 
     readonly static LogMessageEventArgs s_mockLog =
         new(LogLevel.Warning, "Testing",

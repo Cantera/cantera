@@ -3,7 +3,6 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Xunit;
 
 namespace Cantera.Tests;
 
