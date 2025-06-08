@@ -339,6 +339,11 @@ vector<size_t> Reactor::steadyConstraints() const
             "\nConsider using IdealGas{0} instead.\n"
             "See https://github.com/Cantera/enhancements/issues/234", type());
     }
+    if (nSurfs() != 0) {
+        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+            " currently be used when reactor surfaces are present.\n"
+            "See https://github.com/Cantera/enhancements/issues/234.");
+    }
     return {1}; // volume
 }
 

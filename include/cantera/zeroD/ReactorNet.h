@@ -155,6 +155,9 @@ public:
     //!   inlet and outlet flows must be balanced.
     //! - The solver is currently not compatible with the ConstPressureMoleReactor or
     //!   IdealGasConstPressureMoleReactor classes.
+    //! - Only ideal gas reactor types can be used for when the energy equation is
+    //!   disabled (fixed temperature simulations).
+    //! - Reacting surfaces are not yet supported.
     //!
     //! @param loglevel  Print information about solver progress to aid in understanding
     //!     cases where the solver fails to converge. Higher levels are more verbose.

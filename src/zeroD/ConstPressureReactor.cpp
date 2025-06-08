@@ -118,6 +118,16 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+vector<size_t> ConstPressureReactor::steadyConstraints() const {
+    if (nSurfs() != 0) {
+        throw CanteraError("ConstPressureReactor::steadyConstraints",
+            "Steady state solver cannot currently be used with ConstPressureReactor"
+            " when reactor surfaces are present.\n"
+            "See https://github.com/Cantera/enhancements/issues/234");
+    }
+    return {0}; // mass
+}
+
 size_t ConstPressureReactor::componentIndex(const string& nm) const
 {
     size_t k = speciesIndex(nm);
