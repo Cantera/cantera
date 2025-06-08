@@ -137,6 +137,11 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 
 vector<size_t> IdealGasReactor::steadyConstraints() const
 {
+    if (nSurfs() != 0) {
+        throw CanteraError("IdealGasReactor::steadyConstraints",
+            "Steady state solver cannot currently be used with IdealGasReactor"
+            " when reactor surfaces are present.");
+    }
     if (energyEnabled()) {
         return {1}; // volume
     } else {

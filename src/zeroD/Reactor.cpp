@@ -338,6 +338,10 @@ vector<size_t> Reactor::steadyConstraints() const
             " be used with {0} when energy equation is disabled."
             "\nConsider using IdealGas{0} instead.", type());
     }
+    if (nSurfs() != 0) {
+        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+            " currently be used when reactor surfaces are present.");
+    }
     return {1}; // volume
 }
 
