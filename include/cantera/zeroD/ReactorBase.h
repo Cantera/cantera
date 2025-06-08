@@ -151,7 +151,7 @@ public:
     ReactorSurface* surface(size_t n);
 
     //! Return the number of surfaces in a reactor
-    virtual size_t nSurfs() {
+    virtual size_t nSurfs() const {
         return m_surfaces.size();
     }
 
