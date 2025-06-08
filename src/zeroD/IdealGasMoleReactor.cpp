@@ -99,6 +99,12 @@ double IdealGasMoleReactor::lowerBound(size_t k) const {
 
 vector<size_t> IdealGasMoleReactor::steadyConstraints() const
 {
+    if (nSurfs() != 0) {
+        throw CanteraError("IdealGasMoleReactor::steadyConstraints",
+            "Steady state solver cannot currently be used with IdealGasMoleReactor"
+            " when reactor surfaces are present.\n"
+            "See https://github.com/Cantera/enhancements/issues/234");
+    }
     if (energyEnabled()) {
         return {1}; // volume
     } else {

@@ -1605,6 +1605,7 @@ cdef class ReactorNet:
           `IdealGasConstPressureMoleReactor` classes.
         - Only ideal gas reactor types can be used for when the energy equation is
           disabled (fixed temperature simulations).
+        - Reacting surfaces are not yet supported.
 
         :param loglevel:
             Print information about solver progress to aid in understanding

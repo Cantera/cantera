@@ -32,8 +32,8 @@ public:
 
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
-
     void updateState(double* y) override;
+    vector<size_t> steadyConstraints() const override;
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass",

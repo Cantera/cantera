@@ -130,6 +130,21 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+vector<size_t> IdealGasConstPressureReactor::steadyConstraints() const
+{
+    if (nSurfs() != 0) {
+        throw CanteraError("IdealGasConstPressureReactor::steadyConstraints",
+            "Steady state solver cannot currently be used with "
+            " IdealGasConstPressureReactor when reactor surfaces are present.\n"
+            "See https://github.com/Cantera/enhancements/issues/234");
+    }
+    if (energyEnabled()) {
+        return {0}; // mass
+    } else {
+        return {0, 1}; // mass and temperature
+    }
+}
+
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
 {
     size_t k = speciesIndex(nm);
