@@ -8,12 +8,12 @@ version = "@cantera_version@"
 description = "Cantera is an open-source suite of tools for problems involving chemical kinetics, thermodynamics, and transport processes."
 authors = [{name = "Cantera Developers", email = "developers@cantera.org"}]
 keywords = ["chemistry physics"]
-license = { file = "License.txt" }
+license = "BSD-3-Clause"
+license-files = ["License.txt"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",

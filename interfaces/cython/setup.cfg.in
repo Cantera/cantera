@@ -9,12 +9,11 @@ url = https://cantera.org
 author = Cantera Developers
 author_email = developers@cantera.org
 keywords = chemistry physics
-license = BSD 3-Clause License
+license = BSD-3-Clause
 classifiers =
     Development Status :: 5 - Production/Stable
     Intended Audience :: Education
     Intended Audience :: Science/Research
-    License :: OSI Approved :: BSD License
     Operating System :: MacOS :: MacOS X
     Operating System :: Microsoft :: Windows
     Operating System :: POSIX :: Linux
