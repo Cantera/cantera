@@ -43,28 +43,28 @@ static int ida_rhs(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f
     return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
 }
 
-//! Function called by IDA when an error is encountered instead of writing to stdout.
-//! Here, save the error message provided by IDA so that it can be included in the
-//! subsequently raised CanteraError.
-static void ida_err(int error_code, const char* module,
-                    const char* function, char* msg, void* eh_data)
-{
-    IdasIntegrator* integrator = (IdasIntegrator*) eh_data;
-    integrator->m_error_message = msg;
-    integrator->m_error_message += "\n";
-}
-
-//! Function called by CVodes when an error is encountered instead of
-//! writing to stdout. Here, save the error message provided by CVodes so
-//! that it can be included in the subsequently raised CanteraError. Used by
-//! SUNDIALS 7.0 and newer.
 #if SUNDIALS_VERSION_MAJOR >= 7
+    //! Function called by CVodes when an error is encountered instead of
+    //! writing to stdout. Here, save the error message provided by CVodes so
+    //! that it can be included in the subsequently raised CanteraError. Used by
+    //! SUNDIALS 7.0 and newer.
     static void sundials_err(int line, const char *func, const char *file,
                             const char *msg, SUNErrCode err_code,
                             void *err_user_data, SUNContext sunctx)
     {
         IdasIntegrator* integrator = (IdasIntegrator*) err_user_data;
         integrator->m_error_message = fmt::format("{}: {}\n", func, msg);
+    }
+#else
+    //! Function called by IDA when an error is encountered instead of writing to
+    //! stdout. Here, save the error message provided by IDA so that it can be included
+    //! in the subsequently raised CanteraError.
+    static void ida_err(int error_code, const char* module,
+                        const char* function, char* msg, void* eh_data)
+    {
+        IdasIntegrator* integrator = (IdasIntegrator*) eh_data;
+        integrator->m_error_message = msg;
+        integrator->m_error_message += "\n";
     }
 #endif
 
