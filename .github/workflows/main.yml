@@ -794,15 +794,14 @@ jobs:
         retention-days: 2
 
   windows:
-    name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
-    runs-on: windows-2019
+    name: "Windows 2025, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
+    runs-on: windows-2025
     timeout-minutes: 60
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     strategy:
       matrix:
-        vs-toolset: ['14.2']
         python-version: ["3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     steps:
@@ -840,7 +839,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
+          f90_interface=n --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
