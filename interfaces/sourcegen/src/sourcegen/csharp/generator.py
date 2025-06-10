@@ -27,13 +27,14 @@ class Config:
 
     c_type_crosswalk: dict[str, str]  #: C type crosswalks
 
-    prop_type_crosswalk: dict[str, str]  #: Span type crosswalks
+    span_type_crosswalk: dict[str, str]  #: Span type crosswalks
 
     class_crosswalk: dict[str, str]
 
     class_accessors: dict[str, str]
 
-    handle_array_takers: dict[str, str]
+    handle_array_takers: dict[str, str]  #: Map of functions that should take an array
+                                         #  to the type of handle they take
 
     derived_handles: dict[str, str]
 
@@ -110,7 +111,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 # explicit size or buffer arguments. The property will use these
                 # wrappers, not the function discovered here.
                 prop_type = getter.arglist[-1].p_type
-                prop_type = self._config.prop_type_crosswalk[prop_type]
+                prop_type = self._config.span_type_crosswalk[prop_type]
             case _:
                 _LOGGER.critical(f"Getter {getter_name!r} has an "
                     "unsupported signature!")
@@ -153,24 +154,32 @@ class CSharpSourceGenerator(SourceGenerator):
         if clib_area != "ct":
             handle_class_name = self._get_handle_class_name(clib_area)
 
+            def use_handle_param():
+                params[0] = Param(handle_class_name, params[0].name, params[0].description,
+                                  params[0].direction, params[0].default, params[0].base)
+
             # It’s not a “global” function, therefore:
             #   * It wraps a constructor and returns a handle,
             #   * It wraps an instance method that returns a handle, or
             #   * It wraps an instance method and takes the handle as the first param.
             if method.startswith("del"):
                 release_func_handle_class_name = handle_class_name
-                params[0] = Param(handle_class_name, params[0].name)
+                use_handle_param()
             elif method.startswith("new"):
                 ret_type = handle_class_name
             elif name in self._config.class_accessors:
                 ret_type = self._config.class_accessors[name]
-                params[0] = Param(handle_class_name, params[0].name)
+                use_handle_param()
             elif params:
-                params[0] = Param(handle_class_name, params[0].name)
+                use_handle_param()
 
         def crosswalk(par: str) -> str:
             """Crosswalk of C/C# types."""
-            return self._config.c_type_crosswalk.get(par) or par
+            if par.endswith("Handle"):
+                # We have already converted this to a handle param
+                return par
+
+            return self._config.c_type_crosswalk[par]
 
         ret_type = crosswalk(ret_type)
 
@@ -211,49 +220,62 @@ class CSharpSourceGenerator(SourceGenerator):
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file: str, cs_funcs: list[CsFunc]) -> None:
+        def region(description, functions: list[str]) -> list[str]:
+            """If there are any functions, wrap them in a region block"""
+            if not functions:
+                return []
+
+            return ["#region " + description, *functions, "#endregion"]
+
+        function_list = []
+
         pinvoke_template = _LOADER.from_string(self._templates["csharp-interop-func"])
-        function_list = [
-            pinvoke_template.render(has_string_param=func.has_string_param(),
-                                    declaration=func.declaration(),
-                                    check_return=(not func.is_handle_release_func
-                                                  and not func.returns_handle()),
-                                    public=(not func.gets_string())
-                                            and not func.gets_double_array()
-                                            and not func.sets_array())
-            for func in cs_funcs]
+        function_list += region("Functions that directly wrap a P/Invoke into "
+                                "the native cantera Library",
+            [pinvoke_template.render(has_string_param=func.has_string_param(),
+                                     declaration=func.declaration(),
+                                     check_return=(not func.is_handle_release_func
+                                                   and not func.returns_handle()),
+                                     public=(not func.gets_string())
+                                             and not func.gets_double_array()
+                                             and not func.sets_array())
+             for func in cs_funcs])
 
         # Add wrappers for functions that get strings.
         def transform_to_getstring_func(func: CsFunc) -> CsFunc:
+            # strip the size and buffer parameters
             arglist = ArgList(func.arglist[:-2])
             return CsFunc('string', func.name, arglist, False, None)
 
         getstring_template = _LOADER.from_string(self._templates["csharp-getstring-func"])
-        function_list += (
-            getstring_template.render(declaration=(transform_to_getstring_func(func)
-                                          .declaration()),
-                                      invocation=func.invocation(),
-                                      length_param_name=func.arglist[-2].name,
-                                      span_param_name=func.arglist[-1].name)
-            for func in cs_funcs if func.gets_string())
+        function_list += region("Functions for retrieving a string value from Cantera",
+            [getstring_template.render(declaration=(transform_to_getstring_func(func)
+                                           .declaration()),
+                                       invocation=func.invocation(),
+                                       length_param_name=func.arglist[-2].name,
+                                       span_param_name=func.arglist[-1].name)
+             for func in cs_funcs if func.gets_string()])
 
         # Add wrappers for functions that get or set arrays.
         def transform_to_span_func(func: CsFunc) -> CsFunc:
+            # remove the size parameter
             arglist = ArgList([*func.arglist[:-2], func.arglist[-1]])
             return CsFunc('void', func.name, arglist, False, None)
 
         span_template = _LOADER.from_string(self._templates["csharp-span-func"])
-        function_list += (
-            span_template.render(declaration=(transform_to_span_func(func)
-                                     .declaration()),
-                                 invocation=func.invocation(),
-                                 length_param_name=func.arglist[-2].name,
-                                 span_param_name=func.arglist[-1].name)
-            for func in cs_funcs if func.gets_double_array()
-                                    or func.sets_array())
+        function_list += region("Functions for getting or setting a collection of "
+                                "scalar values using spans",
+            [span_template.render(declaration=(transform_to_span_func(func)
+                                      .declaration()),
+                                  invocation=func.invocation(),
+                                  length_param_name=func.arglist[-2].name,
+                                  span_param_name=func.arglist[-1].name)
+             for func in cs_funcs if func.gets_double_array() or func.sets_array()])
 
         # Add convenience overloads for functions that get arrays of doubles
         # to allocate the array and return it.
         def transform_to_getarray_func(func: CsFunc) -> CsFunc:
+            # strip the size and buffer parameters
             arglist = ArgList([*func.arglist[:-2]])
             return CsFunc('double[]', func.name, arglist, False, None)
 
@@ -263,15 +285,16 @@ class CSharpSourceGenerator(SourceGenerator):
             return next(f for f in cs_funcs if f.wraps == func.uses[0])
 
         getarray_template = _LOADER.from_string(self._templates["csharp-getarray-func"])
-        function_list += (
-            getarray_template.render(declaration=(transform_to_getarray_func(func)
-                                         .declaration()),
-                                     get_size_invocation=(find_get_size_func(func)
-                                         .invocation()),
-                                     invocation=func.invocation(),
-                                     length_param_name=func.arglist[-2].name,
-                                     span_param_name=func.arglist[-1].name)
-            for func in cs_funcs if func.gets_double_array() and func.uses)
+        function_list += region("Functions for retrieving a collection of scalar values "
+                                "as an array",
+            [getarray_template.render(declaration=(transform_to_getarray_func(func)
+                                          .declaration()),
+                                      get_size_invocation=(find_get_size_func(func)
+                                          .invocation()),
+                                      invocation=func.invocation(),
+                                      length_param_name=func.arglist[-2].name,
+                                      span_param_name=func.arglist[-1].name)
+             for func in cs_funcs if func.gets_double_array() and func.uses])
 
         for f in cs_funcs:
             if f.gets_double_array() and not f.uses:
@@ -280,7 +303,8 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = f"Interop.LibCantera.{header_file}.g.cs"
         self._write_file(
-            file_name, "template_interop.g.cs.in", cs_functions=function_list)
+            file_name, "template_interop.g.cs.in",
+            header_file=header_file, cs_functions=function_list)
 
     def _scaffold_handles(self, header_file: str, handles: dict[str, str]) -> None:
         template = _LOADER.from_string(self._templates["csharp-base-handle"])

@@ -26,12 +26,14 @@ c_type_crosswalk:
   double*: Span<double>
   int32_t*: Span<int>
   int32_t: int
-  const double: double
+  double: double
   const int32_t: int
+  const double: double
+  LogCallback: LogCallback
 
 # Span type crosswalks;
 # map Span type used in interop call to appropriate return type
-prop_type_crosswalk:
+span_type_crosswalk:
   Span<byte>: string
   Span<double>: double[]
 
