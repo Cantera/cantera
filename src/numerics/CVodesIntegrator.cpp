@@ -42,29 +42,29 @@ extern "C" {
         return f->evalNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
     }
 
-    //! Function called by CVodes when an error is encountered instead of
-    //! writing to stdout. Here, save the error message provided by CVodes so
-    //! that it can be included in the subsequently raised CanteraError. Used by
-    //! SUNDIALS 6.x and older.
-    static void cvodes_err(int error_code, const char* module,
-                           const char* function, char* msg, void* eh_data)
-    {
-        CVodesIntegrator* integrator = (CVodesIntegrator*) eh_data;
-        integrator->m_error_message = msg;
-        integrator->m_error_message += "\n";
-    }
-
-    //! Function called by CVodes when an error is encountered instead of
-    //! writing to stdout. Here, save the error message provided by CVodes so
-    //! that it can be included in the subsequently raised CanteraError. Used by
-    //! SUNDIALS 7.0 and newer.
     #if SUNDIALS_VERSION_MAJOR >= 7
+        //! Function called by CVodes when an error is encountered instead of
+        //! writing to stdout. Here, save the error message provided by CVodes so
+        //! that it can be included in the subsequently raised CanteraError. Used by
+        //! SUNDIALS 7.0 and newer.
         static void sundials_err(int line, const char *func, const char *file,
                                 const char *msg, SUNErrCode err_code,
                                 void *err_user_data, SUNContext sunctx)
         {
             CVodesIntegrator* integrator = (CVodesIntegrator*) err_user_data;
             integrator->m_error_message = fmt::format("{}: {}\n", func, msg);
+        }
+    #else
+        //! Function called by CVodes when an error is encountered instead of
+        //! writing to stdout. Here, save the error message provided by CVodes so
+        //! that it can be included in the subsequently raised CanteraError. Used by
+        //! SUNDIALS 6.x and older.
+        static void cvodes_err(int error_code, const char* module,
+                            const char* function, char* msg, void* eh_data)
+        {
+            CVodesIntegrator* integrator = (CVodesIntegrator*) eh_data;
+            integrator->m_error_message = msg;
+            integrator->m_error_message += "\n";
         }
     #endif
 
