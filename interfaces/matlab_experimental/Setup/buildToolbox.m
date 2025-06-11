@@ -1,13 +1,15 @@
-function buildToolbox()
-    % Get Cantera version from environment variable
-    version = getenv('TOOLBOX_VERSION');
-    if isempty(version)
-        version = '0.0.0';  % fallback default
+function buildToolbox(arg)
+    arguments
+        arg.version (1,:) char = '0.0.0';
+        arg.ctRoot (1,:) char = pwd;
     end
-    fprintf('Building toolbox version: %s\n', version);
+
+    ver = regexp(arg.version, '^\d+\.\d+\.\d+', 'match', 'once');
+
+    fprintf('Building toolbox version: %s\n', ver);
 
     % Read the UUID for the toolbox
-    uuidFile = fullfile(pwd, 'interfaces', 'matlab_experimental', 'Setup', ...
+    uuidFile = fullfile(arg.ctRoot, 'interfaces', 'matlab_experimental', 'Setup', ...
                         'Cantera_MATLAB_Toolbox.uuid');
     if isfile(uuidFile)
         guid = strtrim(fileread(uuidFile));
@@ -17,11 +19,11 @@ function buildToolbox()
     end
 
     % Define output file
-    outputFile = fullfile(pwd, 'interfaces', 'matlab_experimental', ...
-                          ['Cantera_MATLAB_Toolbox_', version, '.mltbx']);
+    outputFile = fullfile(arg.ctRoot, 'interfaces', 'matlab_experimental', ...
+                          ['Cantera_MATLAB_Toolbox_', ver, '.mltbx']);
 
     % Create temporary folder for reorganizing and faster execution
-    tmpDir = fullfile(pwd, 'tmpDir');
+    tmpDir = fullfile(arg.ctRoot, 'build', 'mltbx');
     mkdir(tmpDir);
     mapping = {
         'interfaces/matlab_experimental', 'toolbox';
@@ -34,7 +36,7 @@ function buildToolbox()
     % Move all files to temporary folder
     allFiles = {};
     for i = 1:size(mapping, 1)
-        src = fullfile(pwd, mapping{i, 1});
+        src = fullfile(arg.ctRoot, mapping{i, 1});
         dest = fullfile(tmpDir, mapping{i, 2});
         copyfile(src, dest);
         files = dir(fullfile(dest, '**', '*'));
@@ -45,16 +47,16 @@ function buildToolbox()
 
     % Get relative paths
     allPaths = strsplit(genpath(tmpDir), pathsep);
-    relPaths = cellfun(@(p) erase(p, [pwd filesep]), allPaths, 'UniformOutput', false);
+    relPaths = cellfun(@(p) erase(p, [arg.ctRoot filesep]), allPaths, 'UniformOutput', false);
     relPaths = relPaths(~cellfun(@isempty, relPaths));
 
     % Get path to the icon file
-    iconFile = fullfile(pwd, 'doc', 'sphinx', '_static', 'images', 'cantera-logo.png');
+    iconFile = fullfile(arg.ctRoot, 'doc', 'sphinx', '_static', 'images', 'cantera-logo.png');
 
     % Set up toolbox options
     opts = matlab.addons.toolbox.ToolboxOptions(tmpDir, guid);
     opts.ToolboxName                     = 'Cantera MATLAB Toolbox';
-    opts.ToolboxVersion                  = version;
+    opts.ToolboxVersion                  = ver;
     opts.Summary                         = 'MATLAB interface for Cantera.';
     opts.Description                     = [
         'Cantera is an open-source suite of tools for problems involving', ...
