@@ -1,52 +1,18 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
-
 namespace Cantera.Interop;
 
 static class InteropUtil
 {
     /// <summary>
-    /// Represents a function that gets the length of an array for a particular property
-    /// of a Cantera object represented by <c>handle</c>.
-    /// </summary>
-    public delegate int GetSizeFunc<THandle>(THandle handle)
-        where THandle : CanteraHandle;
-
-    /// <summary>
-    /// Represents a function that fills an array pointed to by <c>buffer</c> for
-    /// a particular property of a Cantera object represented by <c>handle</c>.
-    /// </summary>
-    public delegate int FillDoubleBufferFunc<THandle>(THandle handle, int size,
-                                                      Span<double> buffer)
-        where THandle : CanteraHandle;
-
-    /// <summary>
-    /// Represents a function that fills a byte buffer representing a native string.
+    /// Checks the return code of the call into the native Cantera library
+    /// and throws a <see cref="CanteraException"/> if necessary
     /// </summary>
     /// <remarks>
-    /// The Cantera C API specifies the size as an int.
+    /// This method is automatically called by P/Invoke return type marshallers.
+    /// You should not need to call it elsewhere.
     /// </remarks>
-    public delegate int FillStringBufferFunc(int size, Span<byte> buffer);
-
-    public static double CheckReturn(double code)
-    {
-        // Cantera returns this value when the function resulted in error
-        const double Error = -999.999;
-
-        CallbackException.ThrowIfAny();
-
-        if (code == Error)
-        {
-            CanteraException.ThrowLatest();
-        }
-
-        return code;
-    }
-
     public static int CheckReturn(int code)
     {
         // Cantera returns this value when the function resulted in an
@@ -68,108 +34,7 @@ static class InteropUtil
             CanteraException.ThrowLatest();
         }
 
-        // some functions return negative when they want more chars, others positive!
-        return Math.Abs(code);
-    }
-
-    /// <summary>
-    /// Used to return an an array of <see cref="double" /> values by first
-    /// looking up the needed size using <paramref name="getSizeFunc" />
-    /// and then calling <paramref name="fillBufferFunc" /> to fill the array.
-    /// </summary>
-    public static double[] GetDoubles<T>(T handle, GetSizeFunc<T> getSizeFunc,
-                                         FillDoubleBufferFunc<T> fillBufferFunc)
-        where T : CanteraHandle
-    {
-        var size = CheckReturn(getSizeFunc(handle));
-        var array = new double[size];
-
-        GetDoubles(handle, array, fillBufferFunc);
-
-        return array;
-    }
-
-    /// <summary>
-    /// Used to return an an array of <see cref="double" /> values when the size
-    /// is already known by using <paramref name="fillBufferFunc" /> to fill the array.
-    /// </summary>
-    public static double[] GetDoubles<T>(T handle, int count,
-                                         FillDoubleBufferFunc<T> fillBufferFunc)
-        where T : CanteraHandle
-    {
-        var array = new double[count];
-
-        GetDoubles(handle, array, fillBufferFunc);
-
-        return array;
-    }
-
-    /// <summary>
-    /// Used to fill the supplied <see cref="Span{T}" /> of <see cref="double" /> values
-    /// by using <paramref name="fillBufferFunc" /> to fill it.
-    /// </summary>
-    public static void GetDoubles<T>(T handle, Span<double> span,
-                                     FillDoubleBufferFunc<T> fillBufferFunc)
-        where T : CanteraHandle
-    {
-        CheckReturn(fillBufferFunc(handle, span.Length, span));
-    }
-
-    [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
-        Justification = "Loop is executed at most twice.")]
-    public static string GetString(int initialSize, FillStringBufferFunc func)
-    {
-        // take up to two tries
-        // 1) use the initial size
-        //    if the initial size was large enough, return the string
-        //    if the initial size was not large enough ...
-        // 2) try again with the needed size
-        //    if the needed size was large enough, return the string
-        //    otherwise, catastrophe, throw!
-        for (var i = 0; i < 2; i++)
-        {
-            int neededSize;
-
-            if (initialSize <= 120)
-            {
-                Span<byte> span = stackalloc byte[initialSize];
-                if (TryGetString(span, func, out var value, out neededSize))
-                {
-                    return value;
-                }
-            }
-            else
-            {
-                using (MemoryPool<byte>.Shared.Rent(initialSize, out var span))
-                {
-                    if (TryGetString(span, func, out var value, out neededSize))
-                    {
-                        return value;
-                    }
-                }
-            }
-
-            initialSize = neededSize;
-        }
-
-        throw new InvalidOperationException(
-            "Could not retrieve a string value from Cantera!");
-
-        static bool TryGetString(Span<byte> span, FillStringBufferFunc func,
-            [NotNullWhen(true)] out string? value, out int neededSize)
-        {
-            var initialSize = span.Length;
-            neededSize = CheckReturn(func(initialSize, span));
-
-            if (initialSize >= neededSize)
-            {
-                value = Encoding.UTF8.GetString(span[..(neededSize - 1)]); // trim null byte
-                return true;
-            }
-
-            value = null;
-            return false;
-        }
+        return code;
     }
 
     public static int GetInteropBool(bool value) =>

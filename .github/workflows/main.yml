@@ -1058,7 +1058,10 @@ jobs:
     - name: Clean .NET
       run: |
         dotnet clean
-        if [ -d "Cantera/obj/sourcegen" ]; then exit 1; fi
+        if [ -e Cantera/obj/sourcegen/* ]; then
+          echo 'Cantera/obj/sourcegen not cleaned as expected!' >&2
+          exit 1
+        fi
       shell: bash
       working-directory: interfaces/dotnet
     - name: Install sourcegen

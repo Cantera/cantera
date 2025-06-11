@@ -26,10 +26,14 @@ c_type_crosswalk:
   double*: Span<double>
   int32_t*: Span<int>
   int32_t: int
+  double: double
+  const int32_t: int
+  const double: double
+  LogCallback: LogCallback
 
 # Span type crosswalks;
 # map Span type used in interop call to appropriate return type
-prop_type_crosswalk:
+span_type_crosswalk:
   Span<byte>: string
   Span<double>: double[]
 
@@ -65,6 +69,12 @@ class_accessors:
   thermo_parent: SolutionHandle
   kin_parent: SolutionHandle
   trans_parent: SolutionHandle
+
+# Functions that are typed to take an array of ints, but are really
+# supposed to take an array of handles
+handle_array_takers:
+  sol_newInterface: SolutionHandle
+  reactornet_new: ReactorHandle
 
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
