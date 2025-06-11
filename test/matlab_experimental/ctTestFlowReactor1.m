@@ -47,8 +47,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
 
-            self.net = ReactorNet();
-            self.net.addReactor(self.reactor);
+            self.net = ReactorNet(self.reactor);
 
             self.assumeFail('Skipped until Reactor.speed is implemeneted');
             % x = 0;
@@ -66,8 +65,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
 
-            self.net = ReactorNet();
-            self.net.addReactor(self.reactor);
+            self.net = ReactorNet(self.reactor);
 
             self.assumeFail('Skipped until Reactor.speed is implemeneted');
 

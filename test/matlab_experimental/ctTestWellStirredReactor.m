@@ -71,8 +71,7 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
             self.valve = Valve(self.combustor, self.exhaust);
             self.valve.valveCoeff = 1.0;
 
-            self.net = ReactorNet();
-            self.net.addReactor(self.combustor);
+            self.net = ReactorNet(self.combustor);
             % self.net.maxErrTestFails = 10;
         end
 

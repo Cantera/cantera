@@ -49,16 +49,14 @@ classdef ctTestSurfaceKinetics < matlab.unittest.TestCase
     methods
 
         function makeReactors(self)
-            self.net = ReactorNet();
             self.interface = Interface('diamond.yaml', 'diamond_100');
             self.gas = self.interface.adjacent('gas');
             self.gas.TPX = {self.gas.T, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'};
             self.r1 = IdealGasReactor(self.gas);
             self.r1.V = 0.01;
-            self.net.addReactor(self.r1);
             self.r2 = IdealGasReactor(self.gas);
             self.r2.V = 0.01;
-            self.net.addReactor(self.r2);
+            self.net = ReactorNet({self.r1, self.r2});
         end
 
     end
