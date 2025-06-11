@@ -94,12 +94,6 @@ classdef ReactorNet < handle
 
         %% ReactorNet Utility Methods
 
-        function addReactor(n, r)
-            % Add a reactor to the network.
-
-            ctFunc('reactornet_addreactor', n.id, r.id);
-        end
-
         function advance(n, tout)
             % Advance the state of the reactor network in time. ::
             %
