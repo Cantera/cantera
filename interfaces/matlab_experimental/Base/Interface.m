@@ -47,7 +47,7 @@ classdef Interface < Solution
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
 
-            % Inherit methods and properties from ThermoPhase and Kinetics
+            % Inherit methods and properties from Solution
             s@Solution(ID);
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
