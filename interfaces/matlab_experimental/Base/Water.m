@@ -22,6 +22,6 @@ function w = Water(backend)
     elseif strcmp(backend, 'IAPWS95')
         w = Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
     else
-        error(['Unknow backend: ', backend]);
+        error(['Unknown backend: ', backend]);
     end
 end
