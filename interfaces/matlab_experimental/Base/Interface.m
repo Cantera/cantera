@@ -61,10 +61,7 @@ classdef Interface < Solution
         function delete(s)
             % Delete :mat:class:`Interface` object.
 
-            if isempty(s.solnID)
-                return
-            end
-            ctFunc('soln_del', s.solnID);
+            delete@Solution(s);
         end
 
         %% Interface Get Methods
