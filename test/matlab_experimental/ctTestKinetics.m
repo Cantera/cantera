@@ -13,12 +13,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/air-no-reactions.yaml', ...
-                     './air-no-reactions.yaml');
-            copyfile('../data/chemically-activated-reaction.yaml', ...
-                     './chemically-activated-reaction.yaml');
-            copyfile('../data/addReactions_err_test.yaml', ...
-                     './addReactions_err_test.yaml');
         end
 
     end
@@ -26,9 +20,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./air-no-reactions.yaml');
-            delete('./chemically-activated-reaction.yaml');
-            delete('./addReactions_err_test.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -227,7 +218,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         function testEmptyKinetics(self)
             try
-                gas = Solution('air-no-reactions.yaml');
+                gas = Solution('../data/air-no-reactions.yaml');
                 arr = zeros(1, gas.nSpecies);
                 tol = ones(1, gas.nSpecies) .* self.atol;
 
@@ -246,7 +237,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         function testChemicallyActivated(self)
             try
-                gas = Solution('chemically-activated-reaction.yaml');
+                gas = Solution('../data/chemically-activated-reaction.yaml');
 
                 P = [2026.5, 202650.0, 10132500.0];
                 Rf = [2.851022e-04, 2.775924e+00, 2.481792e+03];
@@ -267,7 +258,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         function testPdepError(self)
             try
-                gas = Solution('addReactions_err_test.yaml');
+                gas = Solution('../data/addReactions_err_test.yaml');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Invalid rate coefficient');

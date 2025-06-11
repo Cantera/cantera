@@ -163,16 +163,16 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
         end
 
         function testPdepX(self)
-            self.checkRatesX('pdep-test.yaml');
+            self.checkRatesX('../data/pdep-test.yaml');
         end
 
         function testPdepT(self)
-            self.checkRatesT1('pdep-test.yaml');
-            self.checkRatesT2('pdep-test.yaml');
+            self.checkRatesT1('../data/pdep-test.yaml');
+            self.checkRatesT2('../data/pdep-test.yaml');
         end
 
         function testPdepP(self)
-            self.checkRatesP('pdep-test.yaml');
+            self.checkRatesP('../data/pdep-test.yaml');
         end
 
     end

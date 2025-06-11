@@ -12,8 +12,6 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/testConstPressureReactor.yaml', ...
-                     './testConstPressureReactor.yaml');
         end
 
     end
@@ -21,7 +19,6 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./testConstPressureReactor.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -45,7 +42,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
     methods (Test)
 
         function testNonReacting(self)
-            self.gas = Solution('testConstPressureReactor.yaml');
+            self.gas = Solution('../data/testConstPressureReactor.yaml');
             self.gas.TPX = {300, OneAtm, 'O2:1.0'};
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
@@ -64,7 +61,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
         end
 
         function testReacting(self)
-            self.gas = Solution('testConstPressureReactor.yaml');
+            self.gas = Solution('../data/testConstPressureReactor.yaml');
             self.gas.TPX = {1400, 20 * OneAtm, 'CO:1.0, H2O:1.0'};
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
