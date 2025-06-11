@@ -23,8 +23,6 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/testConstPressureReactor.yaml', ...
-                     './testConstPressureReactor.yaml');
         end
 
     end
@@ -32,7 +30,6 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./testConstPressureReactor.yaml');
             ctCleanUp
             ctTestTearDown
         end
