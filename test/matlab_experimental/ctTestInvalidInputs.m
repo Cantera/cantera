@@ -5,14 +5,12 @@ classdef ctTestInvalidInputs < matlab.unittest.TestCase
     end
 
     properties (SetAccess = protected)
-        inputfile = 'invalid-inputs.yaml';
+        inputfile = '../data/invalid-inputs.yaml';
     end
 
     methods (TestClassSetup)
 
         function testSetUp(self)
-            copyfile('../data/invalid-inputs.yaml', ...
-                     './invalid-inputs.yaml');
             ctTestSetUp
         end
 
@@ -21,7 +19,6 @@ classdef ctTestInvalidInputs < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./invalid-inputs.yaml');
             ctCleanUp
             ctTestTearDown
         end

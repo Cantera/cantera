@@ -13,8 +13,6 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/ET_test.yaml', './ET_test.yaml');
-            copyfile('../data/ch4_ion.yaml', './ch4_ion.yaml');
         end
 
     end
@@ -22,8 +20,6 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./ET_test.yaml');
-            delete('./ch4_ion.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -33,7 +29,7 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
     methods (TestMethodSetup)
 
         function createPhase(self)
-            src = 'ch4_ion.yaml';
+            src = '../data/ch4_ion.yaml';
             self.phase = Solution(src);
             self.phase.TPX = {2237, OneAtm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'};
         end
@@ -109,7 +105,7 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
         end
 
         function testIonizedLowT(self)
-            gas = Solution('ET_test.yaml');
+            gas = Solution('../data/ET_test.yaml');
 
             kO2m = gas.speciesIndex('O2^-');
             kC10H8 = gas.speciesIndex('C10H8');

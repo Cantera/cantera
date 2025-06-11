@@ -14,11 +14,6 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/equilibrium.yaml', './equilibrium.yaml');
-            copyfile('../data/IdealSolidSolnPhaseExample.yaml', ...
-                     './IdealSolidSolnPhaseExample.yaml');
-            copyfile('../data/koh-equil-TP.csv', './koh-equil-TP.csv');
-            copyfile('../data/koh-equil-HP.csv', './koh-equil-HP.csv');
         end
 
     end
@@ -26,10 +21,6 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./equilibrium.yaml');
-            delete('./IdealSolidSolnPhaseExample.yaml');
-            delete('./koh-equil-TP.csv');
-            delete('./koh-equil-HP.csv');
             ctCleanUp
             ctTestTearDown
         end
@@ -64,7 +55,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
     methods (Test)
 
         function testEquilCompleteStoichiometric(self)
-            self.phase = Solution('equilibrium.yaml', 'complete');
+            self.phase = Solution('../data/equilibrium.yaml', 'complete');
             self.phase.TPX = {298, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP');
 
@@ -74,7 +65,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilCompleteLean(self)
-            self.phase = Solution('equilibrium.yaml', 'complete');
+            self.phase = Solution('../data/equilibrium.yaml', 'complete');
             self.phase.TPX = {298, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP');
 
@@ -84,7 +75,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilIncompleteStoichiometric(self)
-            self.phase = Solution('equilibrium.yaml', 'incomplete');
+            self.phase = Solution('../data/equilibrium.yaml', 'incomplete');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP');
 
@@ -94,7 +85,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilIncompleteLean(self)
-            self.phase = Solution('equilibrium.yaml', 'incomplete');
+            self.phase = Solution('../data/equilibrium.yaml', 'incomplete');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP');
 
@@ -124,7 +115,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilOverconstrained1(self)
-            self.phase = Solution('equilibrium.yaml', 'overconstrained-1');
+            self.phase = Solution('../data/equilibrium.yaml', 'overconstrained-1');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:1.0'};
             self.phase.equilibrate('TP');
 
@@ -134,7 +125,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilOverconstrained2(self)
-            self.phase = Solution('equilibrium.yaml', 'overconstrained-2');
+            self.phase = Solution('../data/equilibrium.yaml', 'overconstrained-2');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:1.0'};
             self.phase.equilibrate('TP');
 
@@ -144,7 +135,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilGriStoichiometricGibbs(self)
-            self.phase = Solution('equilibrium.yaml', '', 'none');
+            self.phase = Solution('../data/equilibrium.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP', 'gibbs');
 
@@ -156,7 +147,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
         end
 
         function testEquilGriLeanGibbs(self)
-            self.phase = Solution('equilibrium.yaml', '', 'none');
+            self.phase = Solution('../data/equilibrium.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP', 'gibbs');
 
@@ -188,7 +179,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
                 data(i, 2:end) = self.mix.speciesMoles;
             end
 
-            refData = readmatrix('koh-equil-TP.csv');
+            refData = readmatrix('../data/koh-equil-TP.csv');
             self.verifySize(data, size(refData), ...
                             'Generated data does not match reference size');
             self.verifyEqual(data, refData, 'AbsTol', self.atol);
@@ -219,14 +210,14 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
                 data(i, 3:end) = self.mix.speciesMoles;
             end
 
-            refData = readmatrix('koh-equil-HP.csv');
+            refData = readmatrix('../data/koh-equil-HP.csv');
             self.verifySize(data, size(refData), ...
                             'Generated data does not match reference size');
             self.verifyEqual(data, refData, 'AbsTol', self.atol);
         end
 
         function testIdealSolidSolnPhaseEquil(self)
-            self.phase = Solution('IdealSolidSolnPhaseExample.yaml');
+            self.phase = Solution('../data/IdealSolidSolnPhaseExample.yaml');
             self.phase.TPX = {500, OneAtm, 'C2H2-graph: 1.0'};
             self.phase.equilibrate('TP', 'element_potential');
 
