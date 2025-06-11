@@ -50,11 +50,10 @@ classdef ctTestReactorSensitivities < matlab.unittest.TestCase
     methods (Test)
 
         function testSensitivities1(self)
-            self.net = ReactorNet();
             self.gas1 = Solution('gri30.yaml', '', 'none');
             self.gas1.TPX = {1300, 20 * OneAtm, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'};
             self.r1 = IdealGasReactor(self.gas1);
-            self.net.addReactor(self.r1);
+            self.net = ReactorNet(self.r1);
 
             self.assumeFail('Skipped until more methods are implemented for ReactorNet');
             % self.verifyEqual(self.net.nSensitivityParams, 0);
@@ -74,17 +73,17 @@ classdef ctTestReactorSensitivities < matlab.unittest.TestCase
         end
 
         function testCoveragesRegression1(self)
-            self.net = ReactorNet();
             self.interface = Interface('diamond.yaml', 'diamond_100');
             self.gas1 = self.interface.adjacent('gas');
             self.r1 = IdealGasReactor(self.gas1);
-            self.net.addReactor(self.r1);
-            self.net.setSensitivityTolerances(1e-8, 1e-10);
 
             self.gas2 = Solution('h2o2.yaml', '', 'none');
             self.gas2.TPX = {900, OneAtm, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'};
             self.r2 = IdealGasReactor(self.gas2);
-            self.net.addReactor(self.r2);
+
+            self.net = ReactorNet({self.r1, self.r2});
+            self.net.setSensitivityTolerances(1e-8, 1e-10);
+
 
             self.surf = ReactorSurface(self.interface, self.r1);
             self.surf.area = 1.5;
