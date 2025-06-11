@@ -59,13 +59,9 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
                 arg.X2 (1,:) char = 'O2:1.0';
             end
 
-            self.net = ReactorNet();
-            self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
-
             self.gas1 = Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
             self.r1 = Reactor(self.gas1);
-            self.net.addReactor(self.r1);
 
             if arg.independent
                 self.gas2 = Solution('h2o2.yaml', '', 'none');
@@ -73,12 +69,16 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
                 self.gas2 = self.gas1;
             end
 
-            if arg.nr >= 2
+            if arg.nr == 1
+                self.net = ReactorNet(self.r1);
+            elseif arg.nr >= 2
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = Reactor(self.gas2);
                 self.r2.energy = 'on';
-                self.net.addReactor(self.r2);
+                self.net = ReactorNet({self.r1, self.r2});
             end
+
+            self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
         end
 
     end
