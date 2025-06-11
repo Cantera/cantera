@@ -122,25 +122,35 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             % self.net2.maxErrTestFails = 10;
         end
 
-        function integrate(self, arg)
+        function assertReactorStatesEqual(self, surf)
             arguments
                 self
-                arg.surf (1,1) logical = false
+                surf (1,1) logical = false
+            end
+
+            self.verifyEqual(self.r1.contents.Y, self.r2.contents.Y, ...
+                            'RelTol', 5e-4, 'AbsTol', 1e-6);
+            self.verifyEqual(self.r1.T, self.r2.T, 'RelTol', 5e-5);
+            self.verifyEqual(self.r1.P, self.r2.P, 'RelTol', 1e-6);
+
+            if surf
+                self.verifyEqual(self.interface1.coverages, ...
+                                self.interface2.coverages, ...
+                                'RelTol', 1e-4, 'AbsTol', 1e-8);
+            end
+        end
+
+
+        function integrate(self, surf)
+            arguments
+                self
+                surf (1,1) logical = false
             end
 
             for t = 0.5:1.0:50
                 self.net1.advance(t);
                 self.net2.advance(t);
-                self.verifyEqual(self.r1.contents.Y, self.r2.contents.Y, ...
-                                 'RelTol', 5e-4, 'AbsTol', 1e-6);
-                self.verifyEqual(self.r1.T, self.r2.T, 'RelTol', 5e-5);
-                self.verifyEqual(self.r1.P, self.r2.P, 'RelTol', 1e-6);
-
-                if arg.surf
-                    self.verifyEqual(self.interface1.coverages, ...
-                                     self.interface2.coverages, ...
-                                     'RelTol', 1e-4, 'AbsTol', 1e-8);
-                end
+                self.assertReactorStatesEqual(surf)
             end
         end
 
