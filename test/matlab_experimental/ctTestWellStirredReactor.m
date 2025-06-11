@@ -15,8 +15,6 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/testWellStirredReactor.yaml', ...
-                     './testWellStirredReactor.yaml');
         end
 
     end
@@ -24,7 +22,6 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./testWellStirredReactor.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -48,7 +45,7 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
     methods
 
         function makeReactors(self, T0, P0, mdot_fuel, mdot_ox)
-            self.gas = Solution('testWellStirredReactor.yaml');
+            self.gas = Solution('../data/testWellStirredReactor.yaml');
 
             % fuel inlet
             self.gas.TPX = {T0, P0, 'CH4:1.0'};

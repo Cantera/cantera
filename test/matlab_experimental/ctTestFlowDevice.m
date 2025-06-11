@@ -17,7 +17,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/equilibrium.yaml', './equilibrium.yaml');
         end
 
     end
@@ -25,7 +24,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./equilibrium.yaml');
             ctCleanUp
             ctTestTearDown
         end
