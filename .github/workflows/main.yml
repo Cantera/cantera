@@ -66,6 +66,15 @@ jobs:
           echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@718d4320188c73c86eb94ce76b553cbf89778487 # v2.5.0
+      - name: Set MATLAB search paths for tests and build MLTBX toolbox # v2.2.1
+        uses: matlab-actions/run-command@67f012f1ee4bc1627a7a95a0ccdeec745c9f6f36
+        with:
+          command: |
+            toolboxPath = fullfile(getenv('CANTERA_ROOT'));
+            libPath = fullfile(toolboxPath, 'build', 'lib');
+            includePath = fullfile(toolboxPath, 'include');
+            addpath(fullfile(toolboxPath, 'interfaces', 'matlab_experimental', 'Utility'));
+            ctPaths(libPath, includePath, toolboxPath);
       - name: Run tests
         uses: matlab-actions/run-tests@f9fc3d8ca29fadef6227fa52884b144b9011fa2f # v2.1.1
         with:
