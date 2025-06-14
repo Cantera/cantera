@@ -102,7 +102,7 @@ classdef Wall < Connector
 
         end
 
-        %% ReactorNet get methods
+        %% Wall get methods
 
         function a = get.area(w)
             a = ctFunc('wall_area', w.id);
@@ -116,7 +116,7 @@ classdef Wall < Connector
             v = ctFunc('wall_expansionRate', w.id);
         end
 
-        %% ReactorNet set methods
+        %% Wall set methods
 
         function set.area(w, a)
             ctFunc('wall_setArea', w.id, a);
