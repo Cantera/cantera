@@ -26,10 +26,6 @@ public:
         return "IdealGasConstPressureMoleReactor";
     };
 
-    size_t componentIndex(const string& nm) const override;
-
-    string componentName(size_t k) override;
-
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
@@ -46,6 +42,11 @@ public:
     Eigen::SparseMatrix<double> jacobian() override;
 
     bool preconditionerSupported() const override { return true; };
+
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
 
 protected:
     void setThermo(ThermoPhase& thermo) override;

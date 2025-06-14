@@ -69,6 +69,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         }
 
         flow->setupGrid(nz, &z[0]);
+        flow->setSteadyTolerances(1e-5, 1e-11);
 
         //------- step 2: create the inlet  -----------------------
 

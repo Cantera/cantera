@@ -331,6 +331,20 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
+vector<size_t> Reactor::steadyConstraints() const
+{
+    if (!energyEnabled()) {
+        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+            " be used with {0} when energy equation is disabled."
+            "\nConsider using IdealGas{0} instead.", type());
+    }
+    if (nSurfs() != 0) {
+        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+            " currently be used when reactor surfaces are present.");
+    }
+    return {1}; // volume
+}
+
 Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
 {
     if (m_nv == 0) {
@@ -503,6 +517,34 @@ string Reactor::componentName(size_t k) {
         }
     }
     throw CanteraError("Reactor::componentName", "Index is out of bounds.");
+}
+
+double Reactor::upperBound(size_t k) const {
+    if (k == 0) {
+        return BigNumber; // mass
+    } else if (k == 1) {
+        return BigNumber; // volume
+    } else if (k == 2) {
+        return BigNumber; // internal energy
+    } else if (k >= 3 && k < m_nv) {
+        return 1.0; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("Reactor::upperBound", "Index {} is out of bounds.", k);
+    }
+}
+
+double Reactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        return 0; // mass
+    } else if (k == 1) {
+        return 0; // volume
+    } else if (k == 2) {
+        return -BigNumber; // internal energy
+    } else if (k >= 3 && k < m_nv) {
+        return -Tiny; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("Reactor::lowerBound", "Index {} is out of bounds.", k);
+    }
 }
 
 void Reactor::applySensitivity(double* params)

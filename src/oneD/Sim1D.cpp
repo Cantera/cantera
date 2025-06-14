@@ -32,10 +32,6 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(m_state->data() + start(n));
     }
-
-    // set some defaults
-    m_tstep = 1.0e-5;
-    m_steps = { 10 };
 }
 
 void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
@@ -375,123 +371,38 @@ void Sim1D::finalize()
     }
 }
 
-void Sim1D::setTimeStep(double stepsize, size_t n, const int* tsteps)
-{
-    m_tstep = stepsize;
-    m_steps.resize(n);
-    for (size_t i = 0; i < n; i++) {
-        m_steps[i] = tsteps[i];
-    }
-}
-
-int Sim1D::newtonSolve(int loglevel)
-{
-    int m = OneDim::solve(m_state->data(), m_xnew.data(), loglevel);
-    if (m >= 0) {
-        *m_state = m_xnew;
-        return 0;
-    } else if (m > -10) {
-        return -1;
-    } else {
-        throw CanteraError("Sim1D::newtonSolve",
-                           "ERROR: OneDim::solve returned m = {}", m);
-    }
-}
-
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
     int new_points = 1;
-    double dt = m_tstep;
-    m_nsteps = 0;
+    m_attempt_counter = 0;
     finalize();
-
-    // For debugging outputs
-    int attempt_counter = 0;
-    const int max_history = 10; // Store up to 10 previous solutions
     if (loglevel > 6) {
         clearDebugFile();
     }
 
     while (new_points > 0) {
-        size_t istep = 0;
-        int nsteps = m_steps[istep];
-
-        bool ok = false;
+        SteadyStateSystem::solve(loglevel);
         if (loglevel > 0) {
-            writeline('.', 78, true, true);
-        }
-        while (!ok) {
-             // Keep the attempt_counter in the range of [1, max_history]
-             attempt_counter = (attempt_counter % max_history) + 1;
-
-            // Attempt to solve the steady problem
-            setSteadyMode();
-            newton().setOptions(m_ss_jac_age);
-            debuglog("\nAttempt Newton solution of steady-state problem.", loglevel);
-            int status = newtonSolve(loglevel);
-
-            if (status == 0) {
-                if (loglevel > 0) {
-                    writelog("\nNewton steady-state solve succeeded.\n\n");
-                    writelog("Problem solved on [");
-                    for (size_t mm = 1; mm < nDomains(); mm+=2) {
-                        writelog("{}", domain(mm).nPoints());
-                        if (mm + 2 < nDomains()) {
-                            writelog(", ");
-                        }
-                    }
-                    writelog("] point grid(s).\n");
+            writelog("\nNewton steady-state solve succeeded.\n\n");
+            writelog("Problem solved on [");
+            for (size_t mm = 1; mm < nDomains(); mm+=2) {
+                writelog("{}", domain(mm).nPoints());
+                if (mm + 2 < nDomains()) {
+                    writelog(", ");
                 }
-                if (m_steady_callback) {
-                    m_steady_callback->eval(0);
-                }
-                writeDebugInfo("NewtonSuccess", "After successful Newton solve",
-                               loglevel, attempt_counter);
-
-                ok = true;
-            } else {
-                debuglog("\nNewton steady-state solve failed.\n", loglevel);
-                writeDebugInfo("NewtonFail", "After unsuccessful Newton solve",
-                               loglevel, attempt_counter);
-
-                if (loglevel > 0) {
-                    writelog("\nAttempt {} timesteps.", nsteps);
-                }
-
-                dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
-                m_xlast_ts = *m_state;
-                writeDebugInfo("Timestepping", "After timestepping", loglevel,
-                               attempt_counter);
-
-                // Repeat the last timestep's data for logging purposes
-                if (loglevel == 1) {
-                    writelog("\nFinal timestep info: dt= {:<10.4g} log(ss)= {:<10.4g}\n", dt,
-                             log10(ssnorm(m_state->data(), m_xnew.data())));
-                }
-                istep++;
-                if (istep >= m_steps.size()) {
-                    nsteps = m_steps.back();
-                } else {
-                    nsteps = m_steps[istep];
-                }
-                dt = std::min(dt, m_tmax);
+            }
+            writelog("] point grid(s).\n");
+            if (loglevel > 3) {
+                show();
             }
         }
-        if (loglevel > 0) {
-            writeline('.', 78, true, true);
+        if (m_steady_callback) {
+            m_steady_callback->eval(0);
         }
-        if (loglevel > 3) {
-            show();
-        }
-
         if (refine_grid) {
             new_points = refine(loglevel);
-            if (new_points) {
-                // If the grid has changed, preemptively reduce the timestep
-                // to avoid multiple successive failed time steps.
-                dt = m_tstep;
-            }
-            writeDebugInfo("Regridding", "After regridding", loglevel, attempt_counter);
+            writeDebugInfo("Regridding", "After regridding", loglevel,
+                           m_attempt_counter);
         } else {
             debuglog("grid refinement disabled.\n", loglevel);
             new_points = 0;
