@@ -2,15 +2,42 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Cantera.Interop;
 
 static partial class LibCantera
 {
     const string LibFile = "cantera_shared";
+    const int BufferSize = 360;
 
-    public unsafe delegate void LogCallback(LogLevel logLevel, byte* category, byte* message);
+    static void ThrowOnBadString() =>
+        throw new InvalidOperationException("Could not retrieve a string value from Cantera!");
 
-    [LibraryImport(LibFile, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial string yo();
+    public delegate void LogCallback(LogLevel logLevel,
+                                     [MarshalAs(UnmanagedType.LPUTF8Str)] string category,
+                                     [MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+    [CustomMarshaller(typeof(int), MarshalMode.ManagedToUnmanagedOut, typeof(ReturnCodeChecker))]
+    [CustomMarshaller(typeof(double), MarshalMode.ManagedToUnmanagedOut, typeof(ReturnCodeChecker))]
+    static class ReturnCodeChecker
+    {
+        public static int ConvertToManaged(int value) =>
+            InteropUtil.CheckReturn(value);
+
+        public static double ConvertToManaged(double value)
+        {
+            // Cantera returns this value when the function resulted in error
+            const double Error = -999.999;
+
+            CallbackException.ThrowIfAny();
+
+            if (value == Error)
+            {
+                CanteraException.ThrowLatest();
+            }
+
+            return value;
+        }
+    }
 }

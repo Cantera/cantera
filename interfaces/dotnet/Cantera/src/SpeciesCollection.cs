@@ -45,16 +45,14 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// </summary>
     public double[] MassFractions
     {
-        get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo_getMassFractions);
-
-        set
+        get
         {
-            var retval = LibCantera.thermo_setMassFractions(_handle,
-                value.Length, value);
-
-            InteropUtil.CheckReturn(retval);
+            var array = new double[_species.Count];
+            LibCantera.thermo_getMassFractions(_handle, array);
+            return array;
         }
+
+        set => LibCantera.thermo_setMassFractions(_handle, value);
     }
 
     /// <summary>
@@ -64,41 +62,35 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// </summary>
     public double[] MoleFractions
     {
-        get => InteropUtil.GetDoubles(_handle, _species.Count,
-            LibCantera.thermo_getMoleFractions);
-
-        set
+        get
         {
-            var retval = LibCantera.thermo_setMoleFractions(_handle,
-                value.Length, value);
-
-            InteropUtil.CheckReturn(retval);
+            var array = new double[_species.Count];
+            LibCantera.thermo_getMoleFractions(_handle, array);
+            return array;
         }
+
+        set => LibCantera.thermo_setMoleFractions(_handle, value);
     }
 
     internal SpeciesCollection(ThermoPhaseHandle handle)
     {
         _handle = handle;
 
-        var count = InteropUtil.CheckReturn(LibCantera.thermo_nSpecies(handle));
+        var count = LibCantera.thermo_nSpecies(handle);
 
         var pool = MemoryPool<double>.Shared;
 
         using (pool.Rent(count, out var molecularWeights))
         using (pool.Rent(count, out var charges))
         {
-            InteropUtil.GetDoubles(handle, molecularWeights,
-                LibCantera.thermo_getMolecularWeights);
-            InteropUtil.GetDoubles(handle, charges, LibCantera.thermo_getCharges);
+            LibCantera.thermo_getMolecularWeights(handle, molecularWeights);
+            LibCantera.thermo_getCharges(handle, charges);
 
             _species = new(count);
 
             for (var i = 0; i < count; i++)
             {
-                int getName(int length, Span<byte> buffer) => LibCantera
-                    .thermo_speciesName(handle, i, length, buffer);
-
-                var name = InteropUtil.GetString(10, getName);
+                var name = LibCantera.thermo_speciesName(handle, i);
 
                 _species.Add(new
                 (
@@ -126,8 +118,12 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// Determines the index of the given <see cref="Species" /> in this collection,
     /// returning -1 if the species is not found.
     /// </summary>
-    public int IndexOf(Species species) =>
-        IndexOf(species.Name);
+    public int IndexOf(Species species)
+    {
+        ArgumentNullException.ThrowIfNull(species);
+
+        return IndexOf(species.Name);
+    }
 
     /// <summary>
     /// Determines the index of a <see cref="Species" /> with the given name in
@@ -146,8 +142,12 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <summary>
     /// Reports whether the given <see cref="Species" /> is found in this collection.
     /// </summary>
-    public bool Contains(Species species) =>
-        Contains(species.Name);
+    public bool Contains(Species species)
+    {
+        ArgumentNullException.ThrowIfNull(species);
+
+        return Contains(species.Name);
+    }
 
 
     /// <summary>
@@ -161,15 +161,15 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// Sets the mass fractions for a subset of the species, given as pairs of
     /// their name and fraction. The fractions of all the species are then normalized.
     /// </summary>
-    public void SetMassFractions(params (string speciesName, double fraction)[] tuples)
-    {
+    public void SetMassFractions(params (string speciesName, double fraction)[] tuples) =>
         SetMassFractions((IEnumerable<(string, double)>)tuples);
-    }
 
     /// <inheritdoc cref="SetMassFractions(ValueTuple{string, double}[])" />
     public void SetMassFractions(
                               IEnumerable<(string speciesName, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (name, fraction) in tuples)
@@ -189,6 +189,8 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <inheritdoc cref="SetMassFractions(ValueTuple{Species, double}[])" />
     public void SetMassFractions(IEnumerable<(Species species, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (species, fraction) in tuples)
@@ -208,8 +210,10 @@ public class SpeciesCollection : IReadOnlyList<Species>
 
     /// <inheritdoc cref="SetMoleFractions(ValueTuple{string, double}[])" />
     public void SetMoleFractions(
-                              IEnumerable<(string speciesName, double fraction)> tuples)
+        IEnumerable<(string speciesName, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (speciesName, fraction) in tuples)
@@ -229,6 +233,8 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// <inheritdoc cref="SetMoleFractions(ValueTuple{Species, double}[])" />
     public void SetMoleFractions(IEnumerable<(Species species, double fraction)> tuples)
     {
+        ArgumentNullException.ThrowIfNull(tuples);
+
         var fractions = new double[_species.Count];
 
         foreach(var (species, fraction) in tuples)

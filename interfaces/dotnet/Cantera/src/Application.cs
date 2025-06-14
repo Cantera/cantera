@@ -1,7 +1,9 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Runtime.InteropServices.Marshalling;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using Cantera.Interop;
 
 namespace Cantera;
@@ -9,7 +11,7 @@ namespace Cantera;
 /// <summary>
 /// Contains information about a log message.
 /// </summary>
-public class LogMessageEventArgs
+public class LogMessageEventArgs : EventArgs
 {
 #pragma warning disable CS1591
     public LogLevel LogLevel { get; }
@@ -26,38 +28,20 @@ public class LogMessageEventArgs
 }
 
 /// <summary>
-/// The primary API for accessing the Cantera library.
+/// Provides APIs for accessing the Cantera library.
 /// </summary>
-/// <remarks>
-/// All access to Cantera should funnel through this class.
-/// This ensures that any necessary initialization can be run in
-/// the static constructor.
-/// </remarks>
 public static class Application
 {
-    static unsafe Application()
+    /// <remarks>
+    /// This method is automatically called by the runtime to initialize
+    /// the native Cantera library. You should not need to call it elsewhere.
+    /// </remarks>
+    [ModuleInitializer]
+    [SuppressMessage("Usage", "CA2255: No ModuleInitializerAttribute in library code.",
+        Justification = "Initialization code is essential.")]
+    internal static void Initialize()
     {
-        s_invokeMessageLoggedDelegate = (level, category, message) =>
-        {
-            try
-            {
-                var categoryStr = Utf8StringMarshaller.ConvertToManaged(category);
-                var messageStr = Utf8StringMarshaller.ConvertToManaged(message);
-
-                ArgumentNullException.ThrowIfNull(categoryStr, nameof(category));
-                ArgumentNullException.ThrowIfNull(messageStr, nameof(message));
-
-                MessageLogged
-                    ?.Invoke(null, new LogMessageEventArgs(level, categoryStr, messageStr));
-            }
-            catch (Exception ex)
-            {
-                CallbackException.Register(ex);
-            }
-        };
-
-        InteropUtil.CheckReturn(
-            LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate));
+        LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate);
     }
 
     /// <summary>
@@ -66,18 +50,31 @@ public static class Application
     /// <remarks>
     /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
     /// the C++ Cantera library. We could create one implicitly when calling
-    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would
+    /// <c>LibCantera.ct_setLogWriter(LogMessageEventArgs)</c>, but the garbage collector would
     /// not know the native method is using it and could reclaim it. By explicitly
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
-    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
+    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate =
+        (level, categoryStr, messageStr) =>
+    {
+        try
+        {
+            Application.
+            MessageLogged
+                ?.Invoke(null, new LogMessageEventArgs(level, categoryStr, messageStr));
+        }
+        catch (Exception ex)
+        {
+            CallbackException.Register(ex);
+        }
+    };
 
     static readonly Lazy<string> s_version =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_version));
+        new(LibCantera.ct_version);
 
     static readonly Lazy<string> s_gitCommit =
-        new(() => InteropUtil.GetString(10, LibCantera.ct_gitCommit));
+        new(LibCantera.ct_gitCommit);
 
     static readonly Lazy<DataDirectoryCollection> s_dataDirectories =
         new(() => new DataDirectoryCollection());
@@ -114,7 +111,8 @@ public static class Application
     {
         var logLevel = e.LogLevel.ToString().ToUpperInvariant();
 
-        var nowString = DateTimeOffset.Now.ToString("yyyy-MM-ddThh:mm:ss.fffzzz");
+        var nowString = DateTimeOffset.Now.ToString(
+            "yyyy-MM-ddThh:mm:ss.fffzzz", CultureInfo.InvariantCulture);
 
         var message = $"{logLevel} ({e.Category}) {nowString}: {e.Message}";
 
