@@ -8,7 +8,7 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
-
+#include "cantera/numerics/SteadyStateSystem.h"
 
 namespace Cantera
 {
@@ -119,6 +119,8 @@ public:
     //! integrator will take before reaching the next output point
     int maxSteps();
 
+    //! @}
+
     /**
      * Advance the state of all reactors in the independent variable (time or space).
      * Take as many internal steps as necessary to reach *t*.
@@ -140,6 +142,46 @@ public:
     //! Advance the state of all reactors with respect to the independent variable
     //! (time or space). Returns the new value of the independent variable [s or m].
     double step();
+
+    //! Solve directly for the steady-state solution.
+    //!
+    //! This approach is generally more efficient than time marching to the
+    //! steady-state, but imposes a few limitations:
+    //!
+    //! - The volume of control volume reactor types (such as Reactor and
+    //!   IdealGasMoleReactor) must be constant; no moving walls can be used.
+    //! - The mass of constant pressure reactor types (such as ConstPressureReactor and
+    //!   IdealGasConstPressureReactor) must be constant; if flow devices are used,
+    //!   inlet and outlet flows must be balanced.
+    //! - The solver is currently not compatible with the ConstPressureMoleReactor or
+    //!   IdealGasConstPressureMoleReactor classes.
+    //! - Only "ideal gas" reactor types can be used for when the energy equation is
+    //!   disabled (fixed temperature simulations).
+    //! - Reacting surfaces are not yet supported.
+    //!
+    //! @param loglevel  Print information about solver progress to aid in understanding
+    //!     cases where the solver fails to converge. Higher levels are more verbose.
+    //!     - 0: No logging.
+    //!     - 1: Basic info about each steady-state attempt and round of time stepping.
+    //!     - 2: Adds details about each time step and steady-state Newton iteration.
+    //!     - 3: Adds details about Newton iterations for each time step.
+    //!     - 4: Adds details about state variables that are limiting steady-state
+    //!       Newton step sizes.
+    //!     - 5: Adds details about state variables that are limiting time-stepping
+    //!       Newton step sizes.
+    //!     - 6: Print current state vector after different solver stages
+    //!     - 7: Print current residual vector after different solver stages
+    //!
+    //! @see SteadyStateSystem, MultiNewton
+    //! @since New in %Cantera 3.2.
+    void solveSteady(int loglevel=0);
+
+    //! Get the Jacobian used by the steady-state solver.
+    //!
+    //! @param rdt  Reciprocal of the pseudo-timestep [1/s]. Default of 0.0 returns the
+    //!     steady-state Jacobian.
+    //! @since New in %Cantera 3.2.
+    Eigen::SparseMatrix<double> steadyJacobian(double rdt=0.0);
 
     //! Add the reactor *r* to this reactor network.
     //! @deprecated  To be removed after %Cantera 3.2. Replaceable by reactor net
@@ -248,6 +290,12 @@ public:
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
     string componentName(size_t i) const;
+
+    //! Get the upper bound on the i-th component of the global state vector.
+    double upperBound(size_t i) const;
+
+    //! Get the lower bound on the i-th component of the global state vector.
+    double lowerBound(size_t i) const;
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -375,6 +423,37 @@ protected:
     vector<double> m_LHS;
     vector<double> m_RHS;
 };
+
+
+//! Adapter class to enable using the SteadyStateSystem solver with ReactorNet.
+//!
+//! @see ReactorNet::solveSteady
+//! @since New in %Cantera 3.2.
+class SteadyReactorSolver : public SteadyStateSystem
+{
+public:
+    SteadyReactorSolver(ReactorNet* net, double* x0);
+    void eval(double* x, double* r, double rdt=-1.0, int count=1) override;
+    void initTimeInteg(double dt, double* x) override;
+    void evalJacobian(double* x0) override;
+    double weightedNorm(const double* step) const override;
+    string componentName(size_t i) const override;
+    double upperBound(size_t i) const override;
+    double lowerBound(size_t i) const override;
+    void writeDebugInfo(const string& header_suffix, const string& message,
+                        int loglevel, int attempt_counter) override;
+
+private:
+    ReactorNet* m_net = nullptr;
+
+    //! Initial value of each state variable
+    vector<double> m_initialState;
+
+    //! Indices of variables that are held constant in the time-stepping mode of the
+    //! steady-state solver.
+    vector<size_t> m_algebraic;
+};
+
 
 /**
  * Create a reactor network containing one or more coupled reactors.

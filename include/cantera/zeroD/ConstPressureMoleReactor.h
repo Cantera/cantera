@@ -26,17 +26,24 @@ public:
         return "ConstPressureMoleReactor";
     };
 
-    size_t componentIndex(const string& nm) const override;
-
-    string componentName(size_t k) override;
-
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
 
     void eval(double t, double* LHS, double* RHS) override;
 
+    vector<size_t> steadyConstraints() const override {
+        throw CanteraError("ConstPressureMoleReactor::steadyConstraints",
+            "ConstPressureMoleReactor is not currently compatible with the steady-state"
+            " solver.");
+    }
+
     void updateState(double* y) override;
+
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
 
 protected:
     const size_t m_sidx = 1;

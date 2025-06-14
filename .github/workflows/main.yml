@@ -839,7 +839,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          f90_interface=n --debug=time
+          toolchain=msvc f90_interface=n --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
