@@ -1,7 +1,7 @@
 function w = Water(backend)
     % Return an object representing water. ::
     %
-    %     >> w = Water()
+    %     >> w = Water(backend)
     %
     % The object returned by this method implements an accurate equation of
     % state for water that can be used in the liquid, vapor, saturated
@@ -15,6 +15,8 @@ function w = Water(backend)
     % For more details, see classes Cantera::PureFluid and tpx::water in the
     % Cantera C++ source code documentation.
     %
+    % :param backend:
+    %     Can be either 'water' or 'liquid-water-IAPWS95'.
     % :return:
     %     Instance of class :mat:class:`Solution`.
     if nargin == 0 | strcmp(backend, 'Reynolds')
@@ -22,6 +24,6 @@ function w = Water(backend)
     elseif strcmp(backend, 'IAPWS95')
         w = Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
     else
-        error(['Unknown backend: ', backend]);
+        error(['Backend must be either ''water'' or ''liquid-water-IAPWS95''']);
     end
 end
