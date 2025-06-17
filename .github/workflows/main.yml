@@ -815,6 +815,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+          check-latest: true
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
@@ -825,7 +826,6 @@ jobs:
         with:
           path: ${{env.BOOST_ROOT}}
           key: boost-187-win
-
       - name: Install Boost Headers
         if: steps.cache-boost.outputs.cache-hit != 'true'
         run: |
@@ -839,7 +839,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          f90_interface=n --debug=time
+          f90_interface=n toolchain=msvc --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
