@@ -183,6 +183,11 @@ public:
     //! Get the lower bound on the k-th component of the local state vector.
     virtual double lowerBound(size_t k) const;
 
+    //! Reset physically or mathematically problematic values, such as negative species
+    //! concentrations.
+    //! @param[inout] y  current state vector, to be updated; length neq()
+    virtual void resetBadValues(double* y);
+
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
     void setAdvanceLimits(const double* limits);
