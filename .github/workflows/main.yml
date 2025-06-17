@@ -815,17 +815,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+          check-latest: true
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
           python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
       - name: Restore Boost cache
         uses: actions/cache@v4
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
           key: boost-187-win
-
       - name: Install Boost Headers
         if: steps.cache-boost.outputs.cache-hit != 'true'
         run: |
