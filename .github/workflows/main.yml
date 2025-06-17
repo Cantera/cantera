@@ -820,10 +820,6 @@ jobs:
         run: |
           python -m pip install -U pip setuptools wheel
           python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
-      - name: Set up MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
       - name: Restore Boost cache
         uses: actions/cache@v4
         id: cache-boost
@@ -843,7 +839,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          f90_interface=n --debug=time
+          f90_interface=n toolchain=msvc --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
