@@ -630,6 +630,13 @@ double ReactorNet::lowerBound(size_t i) const
     throw CanteraError("ReactorNet::lowerBound", "Index {} out of bounds", i0);
 }
 
+void ReactorNet::resetBadValues(double* y) {
+    size_t i = 0;
+    for (auto r : m_reactors) {
+        r->resetBadValues(y + m_start[i++]);
+    }
+}
+
 size_t ReactorNet::registerSensitivityParameter(
     const string& name, double value, double scale)
 {
@@ -838,6 +845,11 @@ double SteadyReactorSolver::upperBound(size_t i) const
 double SteadyReactorSolver::lowerBound(size_t i) const
 {
     return m_net->lowerBound(i);
+}
+
+void SteadyReactorSolver::resetBadValues(double* x)
+{
+    m_net->resetBadValues(x);
 }
 
 void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,

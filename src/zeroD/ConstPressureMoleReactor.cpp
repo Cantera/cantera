@@ -157,4 +157,10 @@ double ConstPressureMoleReactor::lowerBound(size_t k) const {
     }
 }
 
+void ConstPressureMoleReactor::resetBadValues(double* y) {
+    for (size_t k = m_sidx; k < m_nv; k++) {
+        y[k] = std::max(y[k], 0.0);
+    }
+}
+
 }
