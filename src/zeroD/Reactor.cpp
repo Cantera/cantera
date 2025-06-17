@@ -549,6 +549,12 @@ double Reactor::lowerBound(size_t k) const {
     }
 }
 
+void Reactor::resetBadValues(double* y) {
+    for (size_t k = 3; k < m_nv; k++) {
+        y[k] = std::max(y[k], 0.0);
+    }
+}
+
 void Reactor::applySensitivity(double* params)
 {
     if (!params) {

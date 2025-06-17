@@ -297,6 +297,14 @@ public:
     //! Get the lower bound on the i-th component of the global state vector.
     double lowerBound(size_t i) const;
 
+    //! Reset physically or mathematically problematic values, such as negative species
+    //! concentrations.
+    //!
+    //! This method is used within solveSteady() if certain errors are encountered.
+    //!
+    //! @param[inout] y  current state vector, to be updated; length neq()
+    void resetBadValues(double* y);
+
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
@@ -440,6 +448,7 @@ public:
     string componentName(size_t i) const override;
     double upperBound(size_t i) const override;
     double lowerBound(size_t i) const override;
+    void resetBadValues(double* x) override;
     void writeDebugInfo(const string& header_suffix, const string& message,
                         int loglevel, int attempt_counter) override;
 
