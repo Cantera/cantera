@@ -54,14 +54,9 @@ classdef Sim1D < handle
 
         %% Sim1D Utility Methods
 
-        function display(s, fname)
+        function display(s)
             % Show all domains.
-
-            if nargin == 1
-                fname = '-';
-            end
-
-            ctFunc('sim1D_show', s.stID, fname);
+            ctFunc('sim1D_show', s.stID);
         end
 
         function restore(s, fname, id)
