@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from pytest import approx
+import re
 
 import cantera as ct
 
@@ -195,10 +196,10 @@ class TestFreeFlame:
         self.sim.inlet.T = Tin
         self.sim.inlet.X = reactants
 
-    def solve_fixed_T(self):
+    def solve_fixed_T(self, loglevel=0):
         # Solve with the energy equation disabled
         self.sim.energy_enabled = False
-        self.sim.solve(loglevel=0, refine_grid=False)
+        self.sim.solve(loglevel=loglevel, refine_grid=False)
 
         assert not self.sim.energy_enabled
 
@@ -428,6 +429,40 @@ class TestFreeFlame:
 
         assert "fixed-point" in new_settings
         assert "location" in new_settings["fixed-point"]
+
+    def test_log_solution_bounds(self, capsys):
+        self.create_sim(p=ct.one_atm, Tin=300, reactants="H2:1.1, O2:1, AR:5")
+        self.solve_fixed_T(loglevel=4)
+
+        out = capsys.readouterr().out
+        assert "Undamped Newton step takes solution out of bounds" in out
+        m = re.search(r"     ={60,}\n(.*?)\n     ={60,}\n(.*?)\n     ={60,}", out,
+                      re.DOTALL)
+        assert m is not None
+
+        header = m.group(1).splitlines()
+        body = m.group(2).splitlines()
+        assert re.match(" +Value +Min +Max +$", header[0])
+        assert re.match(" +Domain +Pt. Component +Value +Change +Bound +Bound +$",
+                        header[1])
+        assert len(body) > 0
+        for line in body:
+            assert re.match(r" +flame +\d+ +[A-Z0-9]+ +([0-9.e+\-]+ *){4}$", line)
+
+    def test_timestep_jacobian_limits(self, capsys):
+        # Use log output to confirm that maximum timestep count and Jacobian age
+        # limits are active
+        self.create_sim(p=ct.one_atm, Tin=300, reactants="H2:1.1, O2:1, AR:5")
+        self.sim.set_time_step(1e-8, [2, 3, 10])
+        self.sim.set_max_jac_age(3, 5)
+        self.solve_fixed_T(loglevel=3)
+        out = capsys.readouterr().out
+
+        assert "Maximum Jacobian age reached (3)" in out
+        assert "Maximum Jacobian age reached (5)" in out
+        assert "Attempt 2 timesteps" in out
+        assert "Attempt 3 timesteps" in out
+        assert "Attempt 10 timesteps" in out
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)

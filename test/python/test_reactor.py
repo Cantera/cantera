@@ -3186,3 +3186,89 @@ class TestSteadySolver:
         net.solve_steady()
         assert r.thermo.T == approx(T0)
         assert r.thermo["H2O"].Y[0] == approx(0.2161327927)
+
+    def test_multiple_reactors(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        downstream = ct.Reservoir(gas)
+        V0 = 1e-3
+        r1 = ct.IdealGasReactor(gas, volume=V0)
+        r2 = ct.MoleReactor(gas, volume=2*V0)
+        inlet = ct.MassFlowController(upstream, r1, mdot=120)
+        middle = ct.PressureController(r1, r2, primary=inlet)
+        ct.PressureController(r2, downstream, primary=inlet)
+        net = ct.ReactorNet([r1, r2])
+        net.solve_steady()
+
+        # reference values obtained from net.advance(1.0)
+        assert r1.thermo.T == approx(2429.27092)
+        assert r2.thermo.T == approx(2538.63069)
+
+    def test_jacobian(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        gas.set_multiplier(0.0)
+        downstream = ct.Reservoir(gas)
+        V0 = 1e-3
+        mdot = 120
+        r = ct.MoleReactor(gas, volume=V0)
+        inlet = ct.MassFlowController(upstream, r, mdot=mdot)
+        ct.MassFlowController(r, downstream, mdot=mdot)
+        net = ct.ReactorNet([r])
+        net.initialize()
+        J = net.steady_jacobian()
+
+        # Compare analytical derivatives of species equations which include only terms related to
+        # outlet mass flow since reactions are disabled.
+        W = gas.molecular_weights
+        Y = r.thermo.Y
+        mass = r.mass
+        names = gas.species_names
+        for i, k in np.ndindex(gas.n_species, gas.n_species):
+            if i == k:
+                test = - mdot / mass * (1 - Y[k])
+            else:
+                test = mdot / mass * Y[i] * W[k] / W[i]
+            assert J[i+2,k+2] == approx(test, rel=1e-4), (names[i], names[k])
+
+    def test_logging(self, capsys):
+        messages = [
+            ("Attempt Newton solution of steady-state problem", 1),
+            ("Attempt 10 timesteps", 1),
+            ("Damping coefficient found", 2),
+            ("Maximum Jacobian age reached", 2),
+            ("Timestep (1) succeeded", 3),
+            ("Undamped Newton step takes solution out of bounds", 4),
+            ("Current state (NewtonSuccess)", 6),
+            ("Current residual (NewtonSuccess)", 7)
+        ]
+
+        for loglevel in range(8):
+            gas = ct.Solution("h2o2.yaml", transport_model=None)
+            gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+            gas.TP = 500, 20 * ct.one_atm
+
+            upstream = ct.Reservoir(gas)
+            gas.equilibrate("HP")
+            downstream = ct.Reservoir(gas)
+            V0 = 1e-3
+            r = ct.IdealGasReactor(gas, volume=V0)
+            inlet = ct.MassFlowController(upstream, r, mdot=120)
+            ct.PressureController(r, downstream, primary=inlet)
+            net = ct.ReactorNet([r])
+
+            net.solve_steady(loglevel=loglevel)
+            out = capsys.readouterr().out
+            for msg, level in messages:
+                if level <= loglevel:
+                    assert msg in out
+                else:
+                    assert msg not in out
