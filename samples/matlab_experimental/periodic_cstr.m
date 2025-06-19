@@ -109,6 +109,8 @@ function periodic_cstr
     plot(tm, y)
     legend('H2', 'O2', 'H2O')
     title('Mass Fractions')
+    ylabel('Mass Fractions')
+    xlabel('Time (s)')
 
     toc
 end
