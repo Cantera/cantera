@@ -3147,7 +3147,8 @@ class TestSteadySolver:
         assert r.mass == approx(0.002288176)
 
     @pytest.mark.parametrize("reactor_class",
-        [ct.ConstPressureReactor, ct.IdealGasConstPressureReactor])
+        [ct.ConstPressureReactor, ct.IdealGasConstPressureReactor,
+         ct.ConstPressureMoleReactor, ct.IdealGasConstPressureMoleReactor])
     def test_const_pressure(self, reactor_class):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
         gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
@@ -3161,10 +3162,17 @@ class TestSteadySolver:
         ct.MassFlowController(upstream, r, mdot=160)
         ct.MassFlowController(r, downstream, mdot=160)
         net = ct.ReactorNet([r])
-        net.solve_steady()
 
-        assert r.mass == approx(m0)
-        assert r.thermo.T == approx(2407.35011)
+        if "Mole" not in reactor_class.__name__:
+            net.solve_steady()
+
+            assert r.mass == approx(m0)
+            assert r.thermo.T == approx(2407.35011)
+        else:
+            # Expected to raise until https://github.com/Cantera/enhancements/issues/234
+            # is implemented
+            with pytest.raises(ct.CanteraError, match="See https://github.com"):
+                net.solve_steady()
 
     @pytest.mark.parametrize("reactor_class",
         [ct.IdealGasReactor, ct.IdealGasMoleReactor])
@@ -3186,3 +3194,118 @@ class TestSteadySolver:
         net.solve_steady()
         assert r.thermo.T == approx(T0)
         assert r.thermo["H2O"].Y[0] == approx(0.2161327927)
+
+    def test_multiple_reactors(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        downstream = ct.Reservoir(gas)
+        V0 = 1e-3
+        r1 = ct.IdealGasReactor(gas, volume=V0)
+        r2 = ct.MoleReactor(gas, volume=2*V0)
+        inlet = ct.MassFlowController(upstream, r1, mdot=120)
+        middle = ct.PressureController(r1, r2, primary=inlet)
+        ct.PressureController(r2, downstream, primary=inlet)
+        net = ct.ReactorNet([r1, r2])
+        net.solve_steady()
+
+        # reference values obtained from net.advance(1.0)
+        assert r1.thermo.T == approx(2429.27092)
+        assert r2.thermo.T == approx(2538.63069)
+
+    @pytest.mark.parametrize("reactor_class",
+        [ct.ConstPressureReactor, ct.IdealGasConstPressureReactor,
+         ct.ConstPressureMoleReactor, ct.IdealGasConstPressureMoleReactor])
+    def test_steady_surface_disabled(self, reactor_class):
+        # This case demonstrated in this test should work after
+        # https://github.com/Cantera/enhancements/issues/234 is implemented
+        surf = ct.Interface("methane_pox_on_pt.yaml", "Pt_surf")
+        gas = surf.adjacent["gas"]
+        gas.set_equivalence_ratio(0.22, "CH4:1.0", "O2:1.0, AR:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        downstream = ct.Reservoir(gas)
+        r = reactor_class(gas, volume=1e-2)
+        ct.ReactorSurface(surf, r, A=0.1)
+        mdot = 0.2
+        inlet = ct.MassFlowController(upstream, r, mdot=mdot)
+        ct.MassFlowController(r, downstream, mdot=mdot)
+        net = ct.ReactorNet([r])
+
+        with pytest.raises(ct.CanteraError, match="See https://github.com"):
+            net.solve_steady()
+
+        # Regression values based on net.advance_to_steady_state():
+        # assert r.thermo.T == approx(983.7363377)
+        # assert r.thermo.coverages[0] == approx(0.387425501)
+        # assert sum(r.thermo.coverages) == approx(1.0)
+
+    def test_jacobian(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        gas.set_multiplier(0.0)
+        downstream = ct.Reservoir(gas)
+        V0 = 1e-3
+        mdot = 120
+        r = ct.MoleReactor(gas, volume=V0)
+        inlet = ct.MassFlowController(upstream, r, mdot=mdot)
+        ct.MassFlowController(r, downstream, mdot=mdot)
+        net = ct.ReactorNet([r])
+        net.initialize()
+        J = net.steady_jacobian()
+
+        # Compare analytical derivatives of species equations which include only terms
+        # related to outlet mass flow since reactions are disabled.
+        W = gas.molecular_weights
+        Y = r.thermo.Y
+        mass = r.mass
+        names = gas.species_names
+        for i, k in np.ndindex(gas.n_species, gas.n_species):
+            if i == k:
+                test = - mdot / mass * (1 - Y[k])
+            else:
+                test = mdot / mass * Y[i] * W[k] / W[i]
+            assert J[i+2,k+2] == approx(test, rel=1e-4), (names[i], names[k])
+
+    def test_logging(self, capsys):
+        messages = [
+            ("Attempt Newton solution of steady-state problem", 1),
+            ("Attempt 10 timesteps", 1),
+            ("Damping coefficient found", 2),
+            ("Maximum Jacobian age reached", 2),
+            ("Timestep (1) succeeded", 3),
+            ("Undamped Newton step takes solution out of bounds", 4),
+            ("Current state (NewtonSuccess)", 6),
+            ("Current residual (NewtonSuccess)", 7)
+        ]
+
+        for loglevel in range(8):
+            gas = ct.Solution("h2o2.yaml", transport_model=None)
+            gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+            gas.TP = 500, 20 * ct.one_atm
+
+            upstream = ct.Reservoir(gas)
+            gas.equilibrate("HP")
+            downstream = ct.Reservoir(gas)
+            V0 = 1e-3
+            r = ct.IdealGasReactor(gas, volume=V0)
+            inlet = ct.MassFlowController(upstream, r, mdot=120)
+            ct.PressureController(r, downstream, primary=inlet)
+            net = ct.ReactorNet([r])
+
+            net.solve_steady(loglevel=loglevel)
+            out = capsys.readouterr().out
+            for msg, level in messages:
+                if level <= loglevel:
+                    assert msg in out
+                else:
+                    assert msg not in out
