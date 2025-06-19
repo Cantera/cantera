@@ -1914,6 +1914,33 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.elasticPowerLoss()
 
+    property electron_enthalpy_mole:
+        """
+        Molar enthalpy of electron (J/kmol)
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electronEnthalpy_mole()
+
+    property electron_int_energy_mole:
+        """
+        Molar internal energy of electron (J/kmol)
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electronIntEnergy_mole()
+
+    property gas_molar_density:
+        """
+        Molar density of heavy species (non-electron species) in kmol/m³.
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.gasMolarDensity()
+
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):

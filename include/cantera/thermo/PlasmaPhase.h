@@ -207,6 +207,15 @@ public:
     }
 
     /**
+     * Pressure. Units: Pa.
+     * For an ideal gas mixture,
+     * @f[ P = n \hat R T. @f]
+     */
+    double pressure() const override {
+        return GasConstant * gasMolarDensity() * temperature();
+    }
+
+    /**
      * Electron pressure. Units: Pa.
      * @f[P = n_{k_e} R T_e @f]
      */
@@ -230,11 +239,24 @@ public:
         return m_electronSpeciesIndex;
     }
 
+    //! Return the molar density of heavy species (non-electron species)
+    /*!
+     * Calculates the molar density of the gas excluding electrons by multiplying
+     * the total molar density by the fraction of non-electron species.
+     *
+     * Units: kmol/m³
+     *
+     * @returns The molar density of heavy species (all species except electrons)
+     */
+    double gasMolarDensity() const {
+        return molarDensity() * (1.0 - moleFraction(m_electronSpeciesIndex));
+    }
+
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
-     * For an ideal gas mixture with additional electron,
+     * For an ideal gas mixture excluding electron,
      * @f[
-     * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
+     * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T),
      * @f]
      * and is a function only of temperature. The standard-state pure-species
      * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
@@ -243,6 +265,19 @@ public:
      * @see MultiSpeciesThermo
      */
     double enthalpy_mole() const override;
+
+    //! Return the Molar enthalpy of electron. Units: J/kmol.
+    /*!
+     * @f[
+     * \hat h(T) = X_{k_e} \hat h^0_{k_e}(T_e),
+     * @f]
+     * and is a function only of electron temperature.
+     */
+    double electronEnthalpy_mole() const {
+        return GasConstant * electronTemperature() *
+                moleFraction(m_electronSpeciesIndex) *
+                enthalpy_RT_ref()[m_electronSpeciesIndex];
+    }
 
     double cp_mole() const override {
         throw NotImplementedError("PlasmaPhase::cp_mole");
@@ -257,7 +292,12 @@ public:
     }
 
     double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
+        return enthalpy_mole() - pressure() / gasMolarDensity();
+    }
+
+    double electronIntEnergy_mole() const {
+        return electronEnthalpy_mole() - electronPressure() /
+                concentration(m_electronSpeciesIndex);
     }
 
     void getEntropy_R(double* sr) const override;
