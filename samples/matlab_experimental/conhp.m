@@ -6,6 +6,7 @@ function dydt = conhp(t, y, gas, mw)
     % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
 
     % Set the state of the gas, based on the current solution vector.
+    gas.basis = 'mass';
     gas.Y = y(2:end);
     gas.TP = {y(1), gas.P};
     nsp = gas.nSpecies;
@@ -13,7 +14,6 @@ function dydt = conhp(t, y, gas, mw)
     % energy equation
     wdot = gas.netProdRates;
     H = gas.partialMolarEnthalpies';
-    gas.basis = 'mass';
     tdot =- 1 / (gas.D * gas.cp) .* wdot * H;
 
     % set up column vector for dydt
