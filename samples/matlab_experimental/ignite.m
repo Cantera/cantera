@@ -25,7 +25,7 @@ function plotdata = ignite(g)
     gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
     y0 = [gas.U
-          1.0 / gas.D
+          1.0 / gas.massDensity
           gas.Y'];
 
     time_interval = [0 0.001];
