@@ -738,13 +738,13 @@ jobs:
         create-args: >-
           python=${{ matrix.python-version }} scons numpy cython!=3.1.2 ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
-          fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen
+          fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen openblas
         post-cleanup: none
         init-shell: powershell
     - name: Build Cantera with legacy CLib
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
-        --debug=time clib_legacy=y -j4
+        --debug=time clib_legacy=y -j4 blas_lapack_libs=openblas optimize=n
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -839,7 +839,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          f90_interface=n toolchain=msvc --debug=time
+          f90_interface=n toolchain=msvc --debug=time optimize=n
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
@@ -1005,7 +1005,7 @@ jobs:
         # fmt needs to match the version of the windows-2022 runner selected to upload
         # the cantera_shared.dll artifact
         create-args: >-
-          yaml-cpp mkl highfive fmt=9.1
+          yaml-cpp openblas highfive fmt=9.1
         init-shell: bash powershell
         post-cleanup: none
       if: matrix.os == 'windows-2022'
