@@ -99,7 +99,7 @@ rho_calc = zeros(length(x_calc), 1);
 
 T_calc(1) = gas_calc.T;
 Y_calc(1, :) = gas_calc.Y;
-rho_calc(1) = gas_calc.D;
+rho_calc(1) = gas_calc.massDensity;
 
 for i = 2:length(x_calc)
 

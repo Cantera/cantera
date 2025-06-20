@@ -72,7 +72,7 @@ function periodic_cstr
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
     sccm = 1.25;
     vdot = sccm * 1.0e-6/60.0 * ((OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
-    mdot = gas.D * vdot; % kg/s
+    mdot = gas.massDensity * vdot; % kg/s
     mfc = MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
 
@@ -109,6 +109,8 @@ function periodic_cstr
     plot(tm, y)
     legend('H2', 'O2', 'H2O')
     title('Mass Fractions')
+    ylabel('Mass Fractions')
+    xlabel('Time (s)')
 
     toc
 end
