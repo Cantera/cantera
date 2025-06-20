@@ -66,6 +66,8 @@ classdef ThermoPhase < handle
         %     Scalar double mean molecular weight. Units: kg/kmol.
         meanMolecularWeight
 
+        massDensity % Mass basis density. Units: kg/m^3.
+
         molarDensity % Molar basis density. Units: kmol/m^3.
 
         molecularWeights % Molecular weights of the species. Units: kg/kmol.
@@ -901,6 +903,10 @@ classdef ThermoPhase < handle
 
         function mmw = get.meanMolecularWeight(tp)
             mmw = ctFunc('thermo_meanMolecularWeight', tp.tpID);
+        end
+
+        function density = get.massDensity(tp)
+            density = ctFunc('thermo_density', tp.tpID);
         end
 
         function density = get.molarDensity(tp)

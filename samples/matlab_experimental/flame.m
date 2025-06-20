@@ -32,7 +32,7 @@ function f = flame(gas, left, flow, right)
     f = Sim1D({left flow right});
 
     % set default initial profiles.
-    rho0 = gas.D;
+    rho0 = gas.massDensity;
 
     % find the adiabatic flame temperature and corresponding
     % equilibrium composition
