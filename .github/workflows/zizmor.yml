@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: ["**"]
 
+permissions: {}
+
 jobs:
   zizmor:
     name: zizmor latest via PyPI
@@ -18,16 +20,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb # v6.1.0
-
       - name: Run zizmor 🌈
-        run: uvx zizmor --format=sarif . > results.sarif
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f # v3.28.18
-        with:
-          sarif_file: results.sarif
-          category: zizmor
+        uses: zizmorcore/zizmor-action@f52a838cfabf134edcbaa7c8b3677dde20045018 # v0.1.1
