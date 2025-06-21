@@ -8,7 +8,6 @@ classdef ctTestWaterTransportIAPWS95 < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/thermo-models.yaml', './thermal-models.yaml');
         end
 
     end
@@ -16,7 +15,6 @@ classdef ctTestWaterTransportIAPWS95 < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./thermal-models.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -26,15 +24,21 @@ classdef ctTestWaterTransportIAPWS95 < matlab.unittest.TestCase
     methods (TestMethodSetup)
 
         function createPhase(self)
-            self.phase = Solution('thermal-models.yaml', 'liquid-water');
+            self.phase = Solution('../data/thermo-models.yaml', 'liquid-water');
         end
 
     end
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end

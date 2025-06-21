@@ -56,6 +56,14 @@ classdef Interface < Solution
             end
         end
 
+        %% Interface Class Destructor
+
+        function delete(s)
+            % Delete :mat:class:`Interface` object.
+
+            delete@Solution(s);
+        end
+
         %% Interface Get Methods
 
         function adj = adjacent(s, name)
@@ -84,7 +92,7 @@ classdef Interface < Solution
         end
 
         function c = get.concentrations(s)
-            surfID = s.tr_id;
+            surfID = s.tpid;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
