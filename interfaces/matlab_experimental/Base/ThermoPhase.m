@@ -169,14 +169,6 @@ classdef ThermoPhase < handle
 
         refPressure % Reference pressure for standard-state. Units: Pa.
 
-        % Generate a report describing the thermodynamic state of this phase.
-        % To print the report to the terminal, simply call the phase object.
-        % The following two statements are equivalent ::
-        %
-        %     >> phase
-        %     >> disp(phase.report)
-        report
-
         % Saturation pressure at current temperature ::
         %
         %     >> p = tp.satPressure.
@@ -531,25 +523,12 @@ classdef ThermoPhase < handle
                     for j = 1:n
                         k(i, j) = ctFunc('thermo_elementIndex', ...
                                         tp.tpID, name{i, j}) + 1;
-
-                        if k(i, j) > 1e3
-                            warning(['Element ', name{i, j}, ...
-                                    ' does not exist in the phase']);
-                            k(i, j) = -1;
-                        end
-
                     end
 
                 end
 
             elseif ischar(name)
                 k = ctFunc('thermo_elementIndex', tp.tpID, name) + 1;
-
-                if k > 1e3
-                    warning(['Element ', name, ' does not exist in the phase']);
-                    k = -1;
-                end
-
             else
                 error('name must be either a string or cell array of strings')
             end
@@ -682,25 +661,12 @@ classdef ThermoPhase < handle
                     for j = 1:n
                         k(i, j) = ctFunc('thermo_speciesIndex', ...
                                         tp.tpID, name{i, j}) + 1;
-
-                        if k(i, j) > 1e6
-                            warning(['Species ', name{i, j}, ...
-                                    ' does not exist in the phase']);
-                            k(i, j) = -1;
-                        end
-
                     end
 
                 end
 
             elseif ischar(name)
                 k = ctFunc('thermo_speciesIndex', tp.tpID, name) + 1;
-
-                if k > 1e6
-                    warning(['Species ', name, ' does not exist in the phase.']);
-                    k = -1;
-                end
-
             else
                 error('Name must be either a string or cell array of strings.')
             end
@@ -960,7 +926,13 @@ classdef ThermoPhase < handle
             s = ctString('thermo_getName', tp.tpID);
         end
 
-        function str = get.report(tp, threshold)
+        function str = report(tp, threshold)
+            % Generate a report describing the thermodynamic state of this phase.
+            % To print the report to the terminal, simply call the phase object.
+            % The following two statements are equivalent ::
+            %
+            %     >> phase
+            %     >> disp(phase.report)
             if nargin < 2
                 threshold = 1e-14;
             end
@@ -1341,10 +1313,6 @@ classdef ThermoPhase < handle
 
             if isa(xx, 'double')
                 nsp = tp.nSpecies;
-                if length(xx) ~= nsp
-                    error('Length of array must be equal to number of species.')
-                end
-
                 if length(xx) ~= nsp
                     error('Length of array must be equal to number of species.')
                 end

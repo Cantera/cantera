@@ -30,8 +30,7 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
             delete('./IdealSolidSolnPhaseExample.yaml');
             delete('./koh-equil-TP.csv');
             delete('./koh-equil-HP.csv');
-            ctCleanUp
-            ctTestTearDown
+            ctUnload
         end
 
     end
@@ -145,7 +144,6 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
             names = {'CH4', 'O2', 'H2O', 'CO2'};
             moles = [0, 0, 2, 1];
 
-            % self.assumeFail('Skipping multi-phase equilibrium test');
             self.checkval(names, moles);
         end
 
@@ -157,7 +155,6 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
             names = {'CH4', 'O2', 'H2O', 'CO2'};
             moles = [0, 1, 2, 1];
 
-            % self.assumeFail('Skipping multi-phase equilibrium test');
             self.checkval(names, moles);
         end
 
