@@ -35,8 +35,10 @@ public:
     void eval(double t, double* LHS, double* RHS) override;
 
     size_t componentIndex(const string& nm) const override;
-
     string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
+    void resetBadValues(double* y) override;
 
 protected:
     //! For each surface in the reactor, update vector of triplets with all relevant

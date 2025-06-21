@@ -33,6 +33,7 @@ public:
 
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
+    vector<size_t> steadyConstraints() const override;
 
     void updateState(double* y) override;
 
@@ -42,6 +43,9 @@ public:
     //! species.
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
+    void resetBadValues(double* y) override;
 };
 
 }

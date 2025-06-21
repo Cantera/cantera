@@ -142,4 +142,25 @@ string ConstPressureMoleReactor::componentName(size_t k) {
                        "Index is out of bounds.");
 }
 
+double ConstPressureMoleReactor::upperBound(size_t k) const {
+    // Component is either enthalpy or moles of a bulk or surface species
+    return BigNumber;
+}
+
+double ConstPressureMoleReactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        return -BigNumber; // enthalpy
+    } else if (k >= 1 && k < m_nv) {
+        return -Tiny; // moles of bulk or surface species
+    } else {
+        throw CanteraError("ConstPressureMoleReactor::lowerBound", "Index {} is out of bounds.", k);
+    }
+}
+
+void ConstPressureMoleReactor::resetBadValues(double* y) {
+    for (size_t k = m_sidx; k < m_nv; k++) {
+        y[k] = std::max(y[k], 0.0);
+    }
+}
+
 }

@@ -144,6 +144,14 @@ public:
         throw NotImplementedError("Reactor::getConstraints");
     }
 
+    //! Get the indices of equations that are algebraic constraints when solving the
+    //! steady-state problem.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 3.2.
+    virtual vector<size_t> steadyConstraints() const;
+
     void syncState() override;
 
     //! Set the state of the reactor to correspond to the state vector *y*.
@@ -168,6 +176,17 @@ public:
     //! Return the name of the solution component with index *i*.
     //! @see componentIndex()
     virtual string componentName(size_t k);
+
+    //! Get the upper bound on the k-th component of the local state vector.
+    virtual double upperBound(size_t k) const;
+
+    //! Get the lower bound on the k-th component of the local state vector.
+    virtual double lowerBound(size_t k) const;
+
+    //! Reset physically or mathematically problematic values, such as negative species
+    //! concentrations.
+    //! @param[inout] y  current state vector, to be updated; length neq()
+    virtual void resetBadValues(double* y);
 
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq

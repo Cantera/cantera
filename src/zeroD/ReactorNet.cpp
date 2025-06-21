@@ -11,6 +11,10 @@
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowReactor.h"
+#include "cantera/numerics/SystemJacobianFactory.h"
+#include "cantera/numerics/EigenSparseJacobian.h"
+#include "cantera/oneD/MultiJac.h"
+#include "cantera/oneD/MultiNewton.h"
 
 #include <cstdio>
 
@@ -262,6 +266,40 @@ double ReactorNet::step()
     m_time = m_integ->step(m_time + 1.0);
     updateState(m_integ->solution());
     return m_time;
+}
+
+void ReactorNet::solveSteady(int loglevel)
+{
+    if (!m_init) {
+        initialize();
+    } else if (!m_integrator_init) {
+        reinitialize();
+    }
+    vector<double> y(neq());
+    getState(y.data());
+    SteadyReactorSolver solver(this, y.data());
+    solver.setMaxTimeStepCount(maxSteps());
+    solver.solve(loglevel);
+    solver.getState(y.data());
+    updateState(y.data());
+}
+
+Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
+{
+    if (!m_init) {
+        initialize();
+    } else if (!m_integrator_init) {
+        reinitialize();
+    }
+    vector<double> y0(neq());
+    vector<double> y1(neq());
+    getState(y0.data());
+    SteadyReactorSolver solver(this, y0.data());
+    solver.evalJacobian(y0.data());
+    if (rdt) {
+        solver.linearSolver()->updateTransient(rdt, solver.transientMask().data());
+    }
+    return std::dynamic_pointer_cast<EigenSparseJacobian>(solver.linearSolver())->jacobian();
 }
 
 void ReactorNet::getEstimate(double time, int k, double* yest)
@@ -566,6 +604,39 @@ string ReactorNet::componentName(size_t i) const
     throw CanteraError("ReactorNet::componentName", "Index out of bounds");
 }
 
+double ReactorNet::upperBound(size_t i) const
+{
+    size_t i0 = i;
+    for (auto r : m_reactors) {
+        if (i < r->neq()) {
+            return r->upperBound(i);
+        } else {
+            i -= r->neq();
+        }
+    }
+    throw CanteraError("ReactorNet::upperBound", "Index {} out of bounds", i0);
+}
+
+double ReactorNet::lowerBound(size_t i) const
+{
+    size_t i0 = i;
+    for (auto r : m_reactors) {
+        if (i < r->neq()) {
+            return r->lowerBound(i);
+        } else {
+            i -= r->neq();
+        }
+    }
+    throw CanteraError("ReactorNet::lowerBound", "Index {} out of bounds", i0);
+}
+
+void ReactorNet::resetBadValues(double* y) {
+    size_t i = 0;
+    for (auto r : m_reactors) {
+        r->resetBadValues(y + m_start[i++]);
+    }
+}
+
 size_t ReactorNet::registerSensitivityParameter(
     const string& name, double value, double scale)
 {
@@ -667,6 +738,137 @@ void ReactorNet::checkPreconditionerSupported() const {
                 "Reactor type given: '{}'.",
                 reactor->type());
         }
+    }
+}
+
+SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
+    : m_net(net)
+{
+    m_size = m_net->neq();
+    m_jac = newSystemJacobian("eigen-sparse-direct");
+    SteadyStateSystem::resize();
+    m_initialState.assign(x0, x0 + m_size);
+    setInitialGuess(x0);
+    m_mask.assign(m_size, 1);
+    size_t start = 0;
+    for (size_t i = 0; i < net->nReactors(); i++) {
+        auto& R = net->reactor(i);
+        for (auto& m : R.steadyConstraints()) {
+            m_algebraic.push_back(start + m);
+        }
+        start += R.neq();
+    }
+    for (auto& n : m_algebraic) {
+        m_mask[n] = 0;
+    }
+}
+
+void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
+{
+    if (rdt < 0.0) {
+        rdt = m_rdt;
+    }
+    vector<double> xv(x, x + size());
+    m_net->eval(0.0, x, r, nullptr);
+    for (size_t i = 0; i < size(); i++) {
+        r[i] -= (x[i] - m_initialState[i]) * rdt;
+    }
+    // Hold algebraic constraints fixed
+    for (auto& n : m_algebraic) {
+        r[n] = x[n] - m_initialState[n];
+    }
+}
+
+void SteadyReactorSolver::initTimeInteg(double dt, double* x)
+{
+    SteadyStateSystem::initTimeInteg(dt, x);
+    m_initialState.assign(x, x + size());
+}
+
+void SteadyReactorSolver::evalJacobian(double* x0)
+{
+    m_jac->reset();
+    clock_t t0 = clock();
+    m_work1.resize(size());
+    m_work2.resize(size());
+    eval(x0, m_work1.data(), 0.0, 0);
+    for (size_t j = 0; j < size(); j++) {
+        // perturb x(n); preserve sign(x(n))
+        double xsave = x0[j];
+        double dx = fabs(xsave) * m_jacobianRelPerturb + m_jacobianAbsPerturb;
+        if (xsave < 0) {
+            dx = -dx;
+        }
+        x0[j] = xsave + dx;
+        double rdx = 1.0 / (x0[j] - xsave);
+
+        // calculate perturbed residual
+        eval(x0, m_work2.data(), 0.0, 0);
+
+        // compute nth column of Jacobian
+        for (size_t i = 0; i < size(); i++) {
+            double delta = m_work2[i] - m_work1[i];
+            if (std::abs(delta) > m_jacobianThreshold || i == j) {
+                m_jac->setValue(i, j, delta * rdx);
+            }
+        }
+        x0[j] = xsave;
+    }
+
+    m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
+    m_jac->incrementEvals();
+    m_jac->setAge(0);
+}
+
+double SteadyReactorSolver::weightedNorm(const double* step) const
+{
+    double sum = 0.0;
+    const double* x = m_state->data();
+    for (size_t i = 0; i < size(); i++) {
+        double ewt = m_net->rtol()*x[i] + m_net->atol();
+        double f = step[i] / ewt;
+        sum += f*f;
+    }
+    return sqrt(sum / size());
+}
+
+string SteadyReactorSolver::componentName(size_t i) const
+{
+    return m_net->componentName(i);
+}
+
+double SteadyReactorSolver::upperBound(size_t i) const
+{
+    return m_net->upperBound(i);
+}
+
+double SteadyReactorSolver::lowerBound(size_t i) const
+{
+    return m_net->lowerBound(i);
+}
+
+void SteadyReactorSolver::resetBadValues(double* x)
+{
+    m_net->resetBadValues(x);
+}
+
+void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,
+    const string& message, int loglevel, int attempt_counter)
+{
+    if (loglevel >= 6 && !m_state->empty()) {
+        const auto& state = *m_state;
+        writelog("Current state ({}):\n[", header_suffix);
+        for (size_t i = 0; i < state.size() - 1; i++) {
+            writelog("{}, ", state[i]);
+        }
+        writelog("{}]\n", state.back());
+    }
+    if (loglevel >= 7 && !m_xnew.empty()) {
+        writelog("Current residual ({}):\n[", header_suffix);
+        for (size_t i = 0; i < m_xnew.size() - 1; i++) {
+            writelog("{}, ", m_xnew[i]);
+        }
+        writelog("{}]\n", m_xnew.back());
     }
 }
 

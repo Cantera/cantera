@@ -271,4 +271,22 @@ string IdealGasConstPressureMoleReactor::componentName(size_t k) {
                        "Index is out of bounds.");
 }
 
+double IdealGasConstPressureMoleReactor::upperBound(size_t k) const {
+    if (k == 0) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 1.5 * m_thermo->maxTemp();
+    } else {
+        return BigNumber; // moles of a bulk or surface species
+    }
+}
+
+double IdealGasConstPressureMoleReactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 0.5 * m_thermo->minTemp();
+    } else {
+        return ConstPressureMoleReactor::lowerBound(k);
+    }
+}
+
 }

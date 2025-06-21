@@ -135,6 +135,20 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+vector<size_t> IdealGasReactor::steadyConstraints() const
+{
+    if (nSurfs() != 0) {
+        throw CanteraError("IdealGasReactor::steadyConstraints",
+            "Steady state solver cannot currently be used with IdealGasReactor"
+            " when reactor surfaces are present.");
+    }
+    if (energyEnabled()) {
+        return {1}; // volume
+    } else {
+        return {1, 2}; // volume and temperature
+    }
+}
+
 size_t IdealGasReactor::componentIndex(const string& nm) const
 {
     size_t k = speciesIndex(nm);
@@ -159,5 +173,22 @@ string IdealGasReactor::componentName(size_t k) {
     }
 }
 
+double IdealGasReactor::upperBound(size_t k) const {
+    if (k == 2) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 1.5 * m_thermo->maxTemp();
+    } else {
+        return Reactor::upperBound(k);
+    }
+}
+
+double IdealGasReactor::lowerBound(size_t k) const {
+    if (k == 2) {
+        //@todo: Revise pending resolution of https://github.com/Cantera/enhancements/issues/229
+        return 0.5 * m_thermo->minTemp();
+    } else {
+        return Reactor::lowerBound(k);
+    }
+}
 
 }
