@@ -1,0 +1,20 @@
+# Requirements to build Cantera
+scons
+cython !=3.1.2
+numpy
+jinja2
+setuptools
+wheel
+packaging
+build
+
+# Requirements for running the Python interface
+pandas
+pint
+graphviz
+ruamel.yaml
+
+# Requirements for testing
+pytest
+pytest-xdist
+pytest-github-actions-annotate-failures

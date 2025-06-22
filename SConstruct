@@ -1639,9 +1639,6 @@ env["cython_version_spec"] = cython_version_spec
 env["cython_version_spec_str"] = str(cython_version_spec)
 env["numpy_version_spec"] = numpy_version_spec
 env["numpy_version_spec_str"] = str(numpy_version_spec)
-
-# We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
-# available in the Ubuntu 22.04 repositories.
 env["ruamel_version_spec"] = ruamel_version_spec
 env["ruamel_version_spec_str"] = str(ruamel_version_spec)
 
