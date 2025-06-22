@@ -21,8 +21,8 @@ permissions:
   contents: read
 
 env:
-  PIP_EXTRA_INDEX_URL: https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-  PIP_ONLY_BINARY: ":all:"
+  UV_INDEX: https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+  REQUIREMENTS_TXT_FILE: "platform/ci_support/post_merge_reqs.txt"
 
 jobs:
   prerelease-cython:
@@ -38,29 +38,34 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.11
-        architecture: x64
+        python-version: 3.12
+    - name: Install uv
+      uses: astral-sh/setup-uv@445689ea25e0de0a23313031f5fe577c74ae45a1 # v6.3.0
+      with:
+        python-version: 3.12
+        cache-dependency-glob: |
+          ${{ env.REQUIREMENTS_TXT_FILE }}
+        enable-cache: true
     - name: Install Apt dependencies
       run: |
         sudo apt update
         sudo apt install libboost-dev libopenblas-dev libhdf5-dev doxygen
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy pandas pytest pint \
-          pytest-xdist pytest-github-actions-annotate-failures graphviz Jinja2
-        python3 -m pip install --pre cython
+        uv venv --python 3.12 --seed
+        sed -i 's/cython.*//g' "${REQUIREMENTS_TXT_FILE}"
+        uv pip install -r "${REQUIREMENTS_TXT_FILE}"
+        uv pip install --prerelease=allow --only-binary=":all:" cython
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all
+      run: uv run scons build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j4 debug=n --debug=time logging=debug python_package=y
     - name: Build Tests
-      run: python3 `which scons` -j4 build-tests
+      run: uv run scons -j4 build-tests
     - name: Run compiled tests
-      run: python3 `which scons` test-gtest test-legacy --debug=time
+      run: uv run scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: uv run pytest -raP -v -n auto --durations=50 test/python
       env:
         LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
         PYTHONPATH: build/python
@@ -79,7 +84,7 @@ jobs:
     - name: Install git on ubuntu:${{ matrix.image }}
       run: |
         apt update -y
-        apt install -y git
+        apt install -y --no-install-recommends git ca-certificates
         git config --global init.defaultBranch main
         git config --global --add safe.directory /__w/cantera/cantera
     - uses: actions/checkout@v4
@@ -90,7 +95,7 @@ jobs:
     - name: Install Apt dependencies
       # Use packages from ubuntu image when possible
       run: |
-        apt install -y python3 python3-pip pipenv scons build-essential \
+        apt install -y --no-install-recommends python3 python3-pip pipenv scons build-essential \
         libboost-dev gfortran libopenmpi-dev libpython3-dev \
         libblas-dev liblapack-dev libhdf5-dev libfmt-dev libyaml-cpp-dev \
         libgtest-dev libgmock-dev libeigen3-dev libsundials-dev \
@@ -184,43 +189,49 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: x64
         allow-prereleases: true
+    - name: Install uv
+      uses: astral-sh/setup-uv@445689ea25e0de0a23313031f5fe577c74ae45a1 # v6.3.0
+      with:
+        python-version: ${{ matrix.python-version }}
+        enable-cache: true
+        cache-dependency-glob: |
+          ${{ env.REQUIREMENTS_TXT_FILE }}
     - name: Install Apt dependencies
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenmpi-dev \
-        libblas-dev liblapack-dev libhdf5-dev libfmt-dev doxygen
+        libblas-dev liblapack-dev libhdf5-dev libfmt-dev doxygen \
+        libopenblas-dev
         gcc --version
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel packaging
+    # As of June 22, 2025, Pandas does not have nightly wheels for Python 3.14
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons pytest \
-        pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2
-        python3 -m pip install --pre numpy cython pandas scipy
+        uv venv --python ${{ matrix.python-version }} --seed
+        sed -i 's/cython.*\|pandas\|numpy\|scipy//g' "${REQUIREMENTS_TXT_FILE}"
+        uv pip install -r "${REQUIREMENTS_TXT_FILE}"
+        uv pip install --prerelease=allow numpy cython pandas scipy
     - name: Build Cantera
       run: |
-        python3 `which scons` build env_vars=all -j4 debug=n --debug=time logging=debug \
+        uv run scons build env_vars=all -j4 debug=n --debug=time logging=debug \
         system_fmt=y system_blas_lapack=y hdf_support=y cc_flags=-D_GLIBCXX_ASSERTIONS \
         python_package=y
     - name: Build Tests
-      run: python3 `which scons` -j4 build-tests
+      run: uv run scons -j4 build-tests
     - name: Run compiled tests
-      run: python3 `which scons` test-gtest test-legacy --debug=time
+      run: uv run scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: uv run pytest -raP -v -n auto --durations=50 test/python
       env:
         LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
         PYTHONPATH: build/python
 
   macos-homebrew:
-    name: Install Latest Python ${{ matrix.python-version }} with Homebrew on ${{ matrix.os }}
+    name: Install Latest Python with Homebrew on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     strategy:
       matrix:
-        python-version: ['3.13']
         os: ['macos-14', 'macos-15']
       fail-fast: false
     steps:
@@ -229,34 +240,38 @@ jobs:
       with:
         submodules: recursive
         persist-credentials: false
+    - name: Setup uv
+      uses: astral-sh/setup-uv@445689ea25e0de0a23313031f5fe577c74ae45a1 # v6.3.0
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          ${{ env.REQUIREMENTS_TXT_FILE }}
     # NumPy is installed here for the Python custom rate tests
     - name: Install Brew dependencies
-      run: brew install --display-times boost libomp hdf5 python numpy doxygen
+      run: |
+        brew install --display-times boost libomp hdf5 python numpy doxygen
     - name: Set Include folder
       run: echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
     # This is necessary because of PEP 668 https://peps.python.org/pep-0668/
     # PEP 668 prohibits installation to system Python packages via pip
     - name: Create a virtualenv for dependencies
       run: |
-        $(brew --prefix)/bin/python${{ matrix.python-version }} -m venv .venv
+        uv venv --python "$(brew --prefix)/bin/python3" --seed
     - name: Install Python dependencies
       # SCons must be installed into the virtualenv because packaging is a dependency
       # and we can't install packaging for the homebrew Python
       run: |
-        ./.venv/bin/python -m pip install -U pip setuptools wheel build
-        ./.venv/bin/python -m pip install ruamel.yaml numpy cython pandas pytest \
-          pytest-xdist pytest-github-actions-annotate-failures pint graphviz \
-          scons packaging Jinja2
+        uv pip install -r "${REQUIREMENTS_TXT_FILE}"
     - name: Build Cantera
       run: |
-        ./.venv/bin/scons build env_vars=all -j3 debug=n --debug=time logging=debug \
+        uv run scons build env_vars=all -j3 debug=n --debug=time logging=debug \
         boost_inc_dir=${BOOST_INC_DIR} python_package=y
     - name: Build Tests
-      run: ./.venv/bin/scons -j3 build-tests
+      run: uv run scons -j3 build-tests
     - name: Run compiled tests
-      run: ./.venv/bin/scons test-gtest test-legacy --debug=time
+      run: uv run scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: ./.venv/bin/python -m pytest -raP -v -n auto --durations=50 test/python
+      run: uv run pytest -raP -v -n auto --durations=50 test/python
       env:
         DYLD_LIBRARY_PATH: "${DYLD_LIBRARY_PATH}:build/lib"
         PYTHONPATH: build/python
