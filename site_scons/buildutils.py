@@ -1726,9 +1726,9 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
               compatible version of SUNDIALS was found in the system directories.
             * ``"sundials_version"``: String with the parsed version of SUNDIALS with
               periods between the version components.
-            * ``"sundials_blas_lapack"``: Boolean or integer indicating whether SUNDIALS was built
-              with BLAS/LAPACK support. Always ``False`` if ``"system_sundials"`` is
-              ``"n"``.
+            * ``"has_sundials_lapack"``: Boolean or integer indicating whether SUNDIALS
+              was built with BLAS/LAPACK support. Always ``False`` if
+              ``"system_sundials"`` is ``"n"``.
 
     Raises:
         ``config_error``: If the user specified ``system_sundials==y`` but a compatible
@@ -1737,13 +1737,37 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
     sundials_ver = parse_version(
         ".".join(sundials_version.strip().replace('"', "").split())
     )
+    bundled_sundials = {
+        "system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
     should_exit_with_error = conf.env["system_sundials"] == "y"
+
     if sundials_ver < parse_version("5.0") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
             config_error(f"Sundials version must be >=5.0,<8.0. Found {sundials_ver}.")
-        return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
+        return bundled_sundials
     elif sundials_ver > parse_version("7.2.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
+
+    if sundials_ver >= parse_version("7.0.0"):
+        _, uses_mpi = run_preprocessor(
+            conf, ['"sundials/sundials_config.h"'], "SUNDIALS_MPI_ENABLED")
+        mpi_header = conf.CheckCXXHeader('mpi.h', '""')
+        if uses_mpi == "1" and not mpi_header:
+            if should_exit_with_error:
+                config_error(
+                    f"System installation of Sundials version {sundials_ver} has MPI "
+                    "support enabled,\nbut the required 'mpi.h' header file cannot be "
+                    "found. To resolve this issue,\nchoose one of the following "
+                    "options when running the 'scons build' command:\n"
+                    "- Add 'CC=mpicc CXX=mpicxx' (as well as 'FORTRAN=mpifort', if "
+                    "applicable)\n  to use MPI compiler wrappers, or\n"
+                    "- Remove 'system_sundials=y' to disable the system Sundials "
+                    "installation.")
+            logger.warning(
+                f"System installation of Sundials version {sundials_ver} has MPI "
+                "support enabled,\nbut the 'mpi.h' header file cannot be found. "
+                "Using private Sundials version instead.")
+            return bundled_sundials
 
     cvode_checks = {
         SpecifierSet(">=5.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
@@ -1770,7 +1794,7 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
                         "Could not link to the Sundials library. Did you set the "
                         "include/library paths?"
                     )
-                return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
+                return bundled_sundials
             break
 
     logger.info(f"Using system installation of Sundials version {sundials_ver}.")
