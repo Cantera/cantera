@@ -1386,7 +1386,7 @@ private:
      *          dw = C_0 * M_0 (density of water) (kg/m3)
      *             = 1.0E3 at 25C
      */
-    mutable double m_A_Debye;
+    mutable double m_A_Debye = 1.172576;
 
     //! Water standard state calculator
     /*!
