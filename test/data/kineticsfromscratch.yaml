@@ -12,7 +12,6 @@ units: {activation-energy: cal/mol}
 phases:
 - name: ohmech
   thermo: ideal-gas
-  elements: [O, H, Ar]
   species:
   - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
   kinetics: gas
@@ -32,6 +31,14 @@ phases:
     T: 900.0
     coverages: {PT(S): 0.35, H(S): 0.35, H2O(S): .1, OH(S): 0.1, O(S): 0.1}
   site-density: 2.7063e-09
+- name: ions
+  thermo: ideal-gas
+  species:
+  - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
+  - ch4_ion.yaml/species: [E, O2-, H3O+]
+  kinetics: gas
+  reactions: none
+  state: {T: 300.0, P: 1.01325e+05}
 
 reactions:
 - equation: O + H2 <=> H + OH  # Reaction 1

@@ -624,9 +624,9 @@ void Reaction::checkBalance(const Kinetics& kin) const
     string msg;
     bool ok = true;
     for (const auto& [elem, balance] : balr) {
-        double elemsum = balr[elem] + balp[elem];
+        double scale = std::max(std::abs(balr[elem]), std::abs(balp[elem]));
         double elemdiff = fabs(balp[elem] - balr[elem]);
-        if (elemsum > 0.0 && elemdiff / elemsum > 1e-4) {
+        if (elemdiff > 1e-4 * scale) {
             ok = false;
             msg += fmt::format("  {}           {}           {}\n",
                                elem, balr[elem], balp[elem]);
