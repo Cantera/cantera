@@ -71,10 +71,16 @@ jobs:
         PYTHONPATH: build/python
 
   ubuntu-docker:
-    name: Docker 'ubuntu:${{ matrix.image }}' image
+    name: Docker 'ubuntu:${{ matrix.image }}' image with Sundials MPI ${{ matrix.mpi }}
     strategy:
       matrix:
-        image: [devel, rolling]
+        include:
+        - image: "devel"
+          options: ""
+          mpi: override  # fall back to bundled Sundials (system_sundials=default)
+        - image: "rolling"
+          options: "system_sundials=y CC=mpicc CXX=mpicxx FORTRAN=mpifort"
+          mpi: enabled  # use MPI compiler wrappers
       fail-fast: false
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -95,10 +101,11 @@ jobs:
     - name: Install Apt dependencies
       # Use packages from ubuntu image when possible
       run: |
-        apt install -y --no-install-recommends python3 python3-pip pipenv scons build-essential \
-        libboost-dev gfortran libopenmpi-dev libpython3-dev \
+        apt install -y --no-install-recommends python3 python3-pip pipenv scons \
+        build-essential libboost-dev gfortran libopenmpi-dev libpython3-dev \
         libblas-dev liblapack-dev libhdf5-dev libfmt-dev libyaml-cpp-dev \
         libgtest-dev libgmock-dev libeigen3-dev libsundials-dev \
+        openmpi-bin libopenmpi-dev \
         cython3 python3-numpy python3-pandas python3-pint python3-graphviz \
         python3-ruamel.yaml python3-setuptools python3-wheel python3-pytest \
         python3-pytest-xdist doxygen python3-jinja2
@@ -109,9 +116,9 @@ jobs:
     - name: Build Cantera
       run: |
         scons build env_vars=all -j4 debug=n --debug=time logging=debug \
-        system_eigen=y system_fmt=y system_sundials=y system_yamlcpp=y \
-        system_blas_lapack=y hdf_support=y f90_interface=y \
-        cc_flags=-D_GLIBCXX_ASSERTIONS python_package=y
+        system_eigen=y system_fmt=y ${{ matrix.options }} \
+        system_yamlcpp=y system_blas_lapack=y hdf_support=y \
+        cc_flags=-D_GLIBCXX_ASSERTIONS python_package=y f90_interface=y
     - name: Build Tests
       run: scons -j4 build-tests
     - name: Run compiled tests
