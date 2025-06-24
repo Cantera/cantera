@@ -567,6 +567,38 @@ TEST_F(KineticsFromScratch, invalid_nonreactant_order)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch, unbalanced_neutral)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 H2O:1");
+    auto rate = make_shared<ArrheniusRate>(1.0, 0.0, 0.0);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
+}
+
+TEST(KineticsFromScratch2, unbalanced_positive_ion)
+{
+    auto soln = newSolution("kineticsfromscratch.yaml", "ions");
+    Composition reac = parseCompString("H3O+:1");
+    Composition prod = parseCompString("H2O:1 H:1");
+    auto rate = make_shared<ArrheniusRate>(1.0, 0.0, 0.0);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    ASSERT_THROW(soln->kinetics()->addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, soln->kinetics()->nReactions());
+}
+
+TEST(KineticsFromScratch2, unbalanced_negative_ion)
+{
+    auto soln = newSolution("kineticsfromscratch.yaml", "ions");
+    Composition reac = parseCompString("O2-:1");
+    Composition prod = parseCompString("O2:1 E:2");
+    auto rate = make_shared<ArrheniusRate>(1.0, 0.0, 0.0);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    ASSERT_THROW(soln->kinetics()->addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, soln->kinetics()->nReactions());
+}
+
 class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
