@@ -177,7 +177,7 @@ def addPythonTest(testname, subset):
                 if class_name.startswith("build.python.cantera.test."):
                     class_name = class_name[26:]
                 test_name = "python: {}.{}".format(class_name, test.get('name'))
-                if test.findall('failure'):
+                if test.findall('failure') or test.findall('error'):
                     test_results.failed[test_name] = 1
                     failures += 1
                 else:
