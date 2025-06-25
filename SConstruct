@@ -1582,22 +1582,41 @@ end program main
 
 set_fortran("{}FLAGS", env["FORTRANFLAGS"])
 
-if env["using_apple_clang"] and env["f90_interface"] == "default":
+if (env["using_apple_clang"] and env["f90_interface"] == "default" and
+    not env["FORTRAN"]):
     env["f90_interface"] = "n"
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
-    if env['FORTRAN']:
+    fortran_used = ""
+    if "mpifort" in env["FORTRAN"]:
+        foundF90 = check_fortran(env["FORTRAN"], True)
+        fortran_used = get_command_output("mpifort", "--show").split()[0]
+    elif env["FORTRAN"]:
         foundF90 = check_fortran(env['FORTRAN'], True)
+        fortran_used = env["FORTRAN"]
 
     for compiler in ("pgfortran", "gfortran", "ifort", "ifx", "g95"):
         if foundF90:
             break
+        fortran_used = compiler
         foundF90 = check_fortran(compiler)
 
     if foundF90:
         logger.info(f"Using {env['FORTRAN']!r} to build the Fortran 90 interface")
         env['f90_interface'] = 'y'
+
+        if "pgfortran" in fortran_used:
+            env["FORTRANMODDIRPREFIX"] = "-module "
+        elif "gfortran" in fortran_used:
+            env["FORTRANMODDIRPREFIX"] = "-J"
+        elif "g95" in fortran_used:
+            env["FORTRANMODDIRPREFIX"] = "-fmod="
+        elif "ifort" in fortran_used:
+            env["FORTRANMODDIRPREFIX"] = "-module "
+        elif "ifx" in fortran_used:
+            env["FORTRANMODDIRPREFIX"] = "-module "
+
     else:
         if env['f90_interface'] == 'y':
             logger.error("Could not find a suitable Fortran compiler to build the Fortran 90 interface.")
@@ -1607,20 +1626,9 @@ if env['f90_interface'] in ('y','default'):
             env['FORTRAN'] = ''
             logger.info("Skipping compilation of the Fortran 90 interface.")
 
-if 'pgfortran' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-module '
-elif 'gfortran' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-J'
-elif 'g95' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-fmod='
-elif 'ifort' in env['FORTRAN']:
-    env['FORTRANMODDIRPREFIX'] = '-module '
-elif "ifx" in env["FORTRAN"]:
-    env["FORTRANMODDIRPREFIX"] = "-module "
-
-set_fortran("{}", env["FORTRAN"])
-set_fortran("SH{}", env["FORTRAN"])
-env['FORTRANMODDIR'] = '${TARGET.dir}'
+    set_fortran("{}", env["FORTRAN"])
+    set_fortran("SH{}", env["FORTRAN"])
+    env["FORTRANMODDIR"] = "${TARGET.dir}"
 
 env = conf.Finish()
 
