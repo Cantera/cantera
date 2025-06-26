@@ -91,10 +91,6 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-
-            if isempty(s.solnID)
-                return
-            end
             ctFunc('soln_del', s.solnID);
         end
 
