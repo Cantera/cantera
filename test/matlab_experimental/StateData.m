@@ -1,4 +1,11 @@
 classdef StateData
+    % Container for thermodynamic state data used in pure fluid tests.
+    % Used primarily in test cases like ctTestPureFluidCase to set target states
+    % for fluids in different phases with an optional tolerance modifier.
+    %
+    % To minimize errors when transcribing tabulated data, the input units are:
+    % T: K, P: MPa, D: kg/m3, v: m3/kg, (U,H): kJ/kg, S: kJ/kg-K
+    % Which are then converted to SI
 
     properties
         phase
