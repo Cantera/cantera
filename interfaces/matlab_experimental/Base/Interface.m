@@ -100,55 +100,24 @@ classdef Interface < Solution
             c = pt.Value;
         end
 
-        function set.coverages(s, val)
-            % Set surface coverages of the species on an interface.
+        function set.coverages(s, cov)
+            % Set the fraction of sites covered by each species.
             %
-            % s.coverages = {cov, norm}
+            % s.coverages = cov
             %
             % :param s:
             %      Instance of class :mat:class:`Interface`
             % :param cov:
-            %      Coverage of the species. ``cov`` can be either a vector of
-            %      length ``n_surf_species``, or a string in the format
-            %      ``'Species:Coverage, Species:Coverage'``
-            % :param norm:
-            %      Optional flag that denotes whether or not to normalize the species
-            %      coverages. ``norm`` is either of the two strings ``'nonorm'``` or
-            %      ``'norm'``. If left unset, the default is `norm`. This only works if
-            %      ``s`` is a vector, not a string. Since unnormalized coverages can lead to
-            %      unphysical results, ``'nonorm'`` should be used only in rare cases, such
-            %      as computing partial derivatives with respect to a species coverage.
-
-            if iscell(val) && numel(val) >= 1 && numel(val) <= 2
-                cov = val{1};
-                norm_flag = 1;
-
-                if numel(val) == 2
-                    norm = val{2};
-                    if strcmp(norm, 'nonorm')
-                        norm_flag = 0;
-                    end
-                end
-            else
-                error('Input must be a cell array {cov} or {cov, norm}');
-            end
+            %      Vector or string coverage of the species.
 
             surfID = s.tpID;
             nsp = s.nSpecies;
-            [m, n] = size(cov);
-
             if isa(cov, 'double')
-                sz = length(cov);
-
-                if sz ~= nsp
+                if length(cov) ~= nsp
                     error('wrong size for coverage array');
                 end
 
-                if ((m == nsp && n == 1) || (m == 1 & n == nsp))
-                    ctFunc('surf_setCoverages', surfID, cov, norm_flag);
-                else error('wrong size for coverage array');
-                end
-
+                ctFunc('surf_setCoverages', surfID, cov, 1);
             elseif isa(cov, 'char')
                 ctFunc('surf_setCoveragesByName', surfID, cov);
             end
@@ -168,6 +137,32 @@ classdef Interface < Solution
 
             surfID = s.tpID;
             ctFunc('surf_setSiteDensity', surfID, d);
+        end
+
+        function setUnnormalizedCoverages(s, cov)
+            % Set surface coverages without normalizing to force sumo(cov) == 1.0.
+            % This should be used only when calculating partial derivatives
+            % with respect to cov[k] by finite difference.
+            %
+            % s.setUnnormalizedCoverages(cov)
+            %
+            % :param s:
+            %      Instance of class :mat:class:`Interface`
+            % :param cov:
+            %      Vector coverage of the species.
+
+            surfID = s.tpID;
+            nsp = s.nSpecies;
+            if isa(cov, 'double')
+                if length(cov) ~= nsp
+                    error('wrong size for coverage array');
+                end
+
+                ctFunc('surf_setCoverages', surfID, cov, 0);
+            else
+                error('Coverage must be a numeric array');
+            end
+
         end
 
     end
