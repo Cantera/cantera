@@ -93,7 +93,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
             self.surf = Interface('methane_pox_on_pt.yaml', 'Pt_surf');
             self.surf.TP = {T0, P0};
 
-            self.assumeFail('Skipped until more Reactor methods are implemented');
+            self.assumeFail('Skipped until Reactor.surfaceAreaToVolumeRatio is implemented');
 
             self.gas = self.surf.adjacent('gas');
             self.gas.TPX = {T0, P0, X0};
@@ -116,7 +116,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
         end
 
         function testComponentNames(self)
-            self.assumeFail('Skipped until component names are implemented');
+            self.assumeFail('Skipped until Reactor.componentName is implemented');
         end
 
     end
