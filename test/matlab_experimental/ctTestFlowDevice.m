@@ -98,8 +98,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
             self.verifyTrue(startsWith(mfc.name, 'MassFlowController_'));
             mfc.name = 'name-of-mfc';
             self.verifyEqual(mfc.name, 'name-of-mfc');
-
-            clear n1 mfc
         end
 
         function testMFCErrors(self)
@@ -143,8 +141,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
             self.verifyEqual(m1a .* Y1a + m2a .* Y2a, m1b .* Y1b + m2b .* Y2b, ...
                              'AbsTol', self.atol);
             self.verifyEqual(Y1a, Y1b, 'AbsTol', self.atol);
-
-            clear valve
         end
 
         function testValve2(self)
@@ -181,8 +177,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
                 self.verifyEqual(m1a + m2a, m1 + m2, 'AbsTol', self.atol);
                 self.verifyEqual(self.r1.Y, Y1, 'AbsTol', self.atol);
             end
-
-            clear valve
         end
 
         function testValve3(self)
@@ -205,8 +199,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
             self.verifyTrue(startsWith(v.name, 'Valve_'));
             v.name = 'name-of-valve';
             self.verifyEqual(v.name, 'name-of-valve');
-
-            clear res v n1
         end
 
         function testValveType2(self)
@@ -217,8 +209,6 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
 
             self.verifyTrue(startsWith(self.r1.name, sprintf('%s_', self.r1.type)));
             self.verifyTrue(startsWith(res.name, sprintf('%s_', res.type)));
-
-            clear res v n1
         end
 
         function testPressureController(self)

@@ -98,14 +98,8 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
                 gas = Solution(self.inputfile, 'gas');
                 surf = Interface(self.inputfile, 'Pt_surf', gas);
                 self.verifyEqual(surf.nReactions, 14);
-
-                clear gas
-                clear surf
-
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                clear gas
-                clear surf
             end
         end
 

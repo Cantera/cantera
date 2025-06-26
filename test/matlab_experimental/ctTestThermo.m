@@ -295,7 +295,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
                 idx = chargePhase.speciesIndex(species);
                 self.verifyEqual(charges(idx), charge);
             end
-            clear chargePhase
         end
 
         function testReport(self)
