@@ -105,7 +105,6 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
                 C = zeros(1, self.interface1.nSpecies);
                 C(1) = 0.3;
                 C(5) = 0.7;
-                C = {C};
 
                 self.surf1 = ReactorSurface(self.interface1, self.r1);
                 self.surf1.area = 0.2;
