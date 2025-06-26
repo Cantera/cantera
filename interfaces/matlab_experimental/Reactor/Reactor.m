@@ -132,6 +132,7 @@ classdef Reactor < handle
                 error('Reactor contents must be an object of type "Solution"');
             end
 
+            r.type = char(typ);
             r.id = ctFunc('reactor_new', typ, content.solnID, name);
             r.contents = content;
         end
