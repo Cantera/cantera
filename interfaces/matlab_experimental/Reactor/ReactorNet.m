@@ -18,17 +18,6 @@ classdef ReactorNet < handle
 
     properties (SetAccess = public)
 
-        % Internal time step in s. ::
-        %
-        %     >> t = n.dt
-        %
-        % The integrator used to integrate the ODEs (CVODE) takes
-        % variable-size steps, chosen so that a specified error
-        % tolerance is maintained. At times when the solution is
-        % rapidly changing, the time step becomes smaller to resolve
-        % the solution.
-        dt
-
         % Current time in s.
         % The setter method sets the time at which integration should be
         % restarted, using the current state as the initial condition.
@@ -167,10 +156,6 @@ classdef ReactorNet < handle
         end
 
         %% ReactorNet get methods
-
-        function t = get.dt(n)
-            t = ctFunc('reactornet_step', n.id);
-        end
 
         function t = get.time(n)
             t = ctFunc('reactornet_time', n.id);
