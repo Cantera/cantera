@@ -83,7 +83,7 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
             self.getPhases();
             self.makeReactors();
 
-            self.assumeFail('Skipped until more Reactor methods are implemented');
+            self.assumeFail('Skipped until ReactorNet.initialize is implemented');
 
             try
                 self.net.initialize();
@@ -110,15 +110,15 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
         end
 
         function testUnrecoverableIntegratorError(self)
-            self.assumeFail('Skipped until addReactions is implemented');
+            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
         end
 
         function testIntegratorErrorAdvance(self)
-            self.assumeFail('Skipped until addReactions is implemented');
+            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
         end
 
         function testRecoverableIntegratorErrors(self)
-            self.assumeFail('Skipped until addReactions is implemented');
+            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
         end
 
         function testMaxSteps(self)
@@ -127,7 +127,7 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
             self.surf.TP = self.gas.TP;
             self.makeReactors();
 
-            self.assumeFail('Skipped until maxSteps is implemented');
+            self.assumeFail('Skipped until ReactorNet.maxSteps is implemented');
 
             % self.net.maxSteps = 13;
             % self.verifyEqual(self.net.maxSteps, 13);
@@ -205,7 +205,7 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
             self.surf.TP = self.gas.TP;
             self.makeReactors();
 
-            self.assumeFail('Skipped until more ReactorNet methods are implemented');
+            self.assumeFail('Skipped until more ReactorNet.initialize are implemented');
 
             % try
             %     t = self.net.maxOrder = -1;
@@ -222,7 +222,7 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
             self.makeReactors();
             self.reactor.massFlowRate = 0.01;
 
-            self.assumeFail('Skipped until syncState is implemented');
+            self.assumeFail('Skipped until Reactor.syncState is implemented');
         end
 
         function testInitialConditionTolerances(self)
@@ -232,7 +232,7 @@ classdef ctTestFlowReactor2 < matlab.unittest.TestCase
             self.surf.TP = self.gas.TP;
             self.makeReactors();
 
-            self.assumeFail('Skipped until initialize is implemented');
+            self.assumeFail('Skipped until ReactorNet.initialize is implemented');
         end
 
     end
