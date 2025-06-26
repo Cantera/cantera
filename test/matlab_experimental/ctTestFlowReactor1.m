@@ -42,7 +42,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
     methods (Test)
 
         function testNonReacting(self)
-            self.gas = Solution('../data/testConstPressureReactor.yaml');
+            self.gas = Solution('../data/ch4_minimal.yaml', 'testConstPressureReactor');
             self.gas.TPX = {300, OneAtm, 'O2:1.0'};
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
@@ -60,7 +60,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
         end
 
         function testReacting(self)
-            self.gas = Solution('../data/testConstPressureReactor.yaml');
+            self.gas = Solution('../data/ch4_minimal.yaml', 'testConstPressureReactor');
             self.gas.TPX = {1400, 20 * OneAtm, 'CO:1.0, H2O:1.0'};
             self.reactor = FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;

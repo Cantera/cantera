@@ -60,13 +60,13 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
                 arg.addSurf (1,1) logical = false
             end
 
-            src = '../data/testConstPressureReactor.yaml';
+            src = '../data/ch4_minimal.yaml';
 
-            self.gas = Solution(src);
+            self.gas = Solution(src, 'testConstPressureReactor');
             self.gas.TPX = {900, 25 * OneAtm, 'CO:0.5, H2O:0.2'};
 
-            self.gas1 = Solution(src);
-            self.gas2 = Solution(src);
+            self.gas1 = Solution(src, 'testConstPressureReactor');
+            self.gas2 = Solution(src, 'testConstPressureReactor');
 
             self.resGas = Solution(src);
             self.solid = Solution('diamond.yaml', 'diamond');
