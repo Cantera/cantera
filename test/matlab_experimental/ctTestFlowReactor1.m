@@ -49,7 +49,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
 
             self.net = ReactorNet(self.reactor);
 
-            self.assumeFail('Skipped until Reactor.speed is implemeneted');
+            self.assumeFail('Skipped until Reactor.speed is implemented');
             % x = 0;
             % v0 = self.reactor.speed;
             % self.verifyEqual(v0, 10 / r.D, 'RelTol', self.rtol);
@@ -67,7 +67,7 @@ classdef ctTestFlowReactor1 < matlab.unittest.TestCase
 
             self.net = ReactorNet(self.reactor);
 
-            self.assumeFail('Skipped until Reactor.speed is implemeneted');
+            self.assumeFail('Skipped until Reactor.speed is implemented');
 
             % i = 0
             % while self.net.distance < 1.0
