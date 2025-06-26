@@ -185,16 +185,16 @@ classdef ReactorNet < handle
         end
 
         function s = sensitivity(n, component, p, r)
-            % Sensitivity of the solution variable `c` in reactor `rxtr`
+            % Sensitivity of the solution variable `c` in reactor `r`
             % with respect to the parameter `p` ::
             %
-            %     >> s = n.sensitivity(component, p, rxtr)
+            %     >> s = n.sensitivity(component, p, r)
             %
             % :param component:
             %    String name of variable.
             % :param p:
             %    Integer sensitivity parameter.
-            % :param rxtr:
+            % :param r:
             %    Instance of class :mat:class:`reactor`.
 
             if isa(component, 'string')

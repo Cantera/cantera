@@ -16,7 +16,7 @@ function w = Water(backend)
     % Cantera C++ source code documentation.
     %
     % :param backend:
-    %     Can be either 'water' or 'liquid-water-IAPWS95'.
+    %     Can be either 'Reynolds' or 'IAPWS95'.
     % :return:
     %     Instance of class :mat:class:`Solution`.
     if nargin == 0 | strcmp(backend, 'Reynolds')
@@ -24,6 +24,6 @@ function w = Water(backend)
     elseif strcmp(backend, 'IAPWS95')
         w = Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
     else
-        error(['Backend must be either ''water'' or ''liquid-water-IAPWS95''']);
+        error(['Backend must be either ''Reynolds'' or ''IAPWS95''']);
     end
 end
