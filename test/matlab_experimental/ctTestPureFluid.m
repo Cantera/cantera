@@ -86,8 +86,6 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
             CO2 = CarbonDioxide;
             self.verifyEqual(CO2.minTemp, 216.54, 'RelTol', self.rtol);
             self.verifyEqual(CO2.maxTemp, 1500.0, 'RelTol', self.rtol);
-
-            clear CO2
         end
 
         function testCriticalProperties(self)
@@ -187,8 +185,6 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
 
             self.verifyEqual(ref.isothermalCompressibility, ...
                              self.fluid.isothermalCompressibility, 'RelTol', 1e-5);
-
-            clear ref
         end
 
         function testThermalExpansionCoeffLowP(self)
@@ -198,8 +194,6 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
 
             self.verifyEqual(ref.thermalExpansionCoeff, ...
                              self.fluid.thermalExpansionCoeff, 'RelTol', 1e-2);
-
-            clear ref
         end
 
         function testThermalExpansionCoeffTD(self)
