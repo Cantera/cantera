@@ -49,10 +49,6 @@ classdef Sim1D < handle
 
         function delete(s)
             % Delete the :mat:class:`Sim1D` object.
-
-            if isempty(s.stID)
-                return
-            end
             ctFunc('sim1D_del', s.stID);
         end
 

@@ -137,10 +137,6 @@ classdef Func1 < handle
 
         function delete(f)
             % Delete the :mat:class:`Func1` object.
-
-            if isempty(f.id)
-                return
-            end
             ctFunc('func_del', f.id);
         end
 

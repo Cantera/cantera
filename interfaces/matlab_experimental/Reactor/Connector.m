@@ -47,7 +47,7 @@ classdef Connector < handle
                 name = '(none)';
             end
 
-            if ~isa(r1, 'Reactor') || ~isa(r1, 'Reactor')
+            if ~isa(r1, 'Reactor') || ~isa(r2, 'Reactor')
                 error(['Connectors can only be installed between', ...
                        'reactors or reservoirs']);
             end
@@ -59,9 +59,6 @@ classdef Connector < handle
 
         function delete(c)
             % Delete the :mat:class:`Connector` object.
-            if isempty(c.id)
-                return
-            end
             ctFunc('connector_del', c.id);
         end
 
