@@ -92,7 +92,7 @@ classdef Interface < Solution
         end
 
         function c = get.concentrations(s)
-            surfID = s.tpid;
+            surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
