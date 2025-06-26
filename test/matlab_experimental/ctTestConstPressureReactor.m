@@ -9,6 +9,8 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
         solid
         resGas
         env
+        w1
+        w2
         mfc1
         mfc2
         interface1
@@ -68,7 +70,7 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             self.gas1 = Solution(src, 'testConstPressureReactor');
             self.gas2 = Solution(src, 'testConstPressureReactor');
 
-            self.resGas = Solution(src);
+            self.resGas = Solution(src, 'testConstPressureReactor');
             self.solid = Solution('diamond.yaml', 'diamond');
 
             T0 = 1200;
@@ -79,7 +81,7 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             self.gas2.TPX = {T0, P0, X0};
 
             self.r1 = IdealGasReactor(self.gas1);
-            self.r2 = Reactor(self.gas2);
+            self.r2 = ConstPressureReactor(self.gas2);
 
             self.r1.V = 0.2;
             self.r2.V = 0.2;
@@ -88,6 +90,15 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             self.env = Reservoir(self.resGas);
 
             U = 300 * arg.addQ;
+
+            self.w1 = Wall(self.r1, self.env);
+            self.w1.area = 0.1;
+            self.w1.expansionRateCoeff = 1e3;
+            self.w1.heatTransferCoeff = U;
+
+            self.w2 = Wall(self.r2, self.env);
+            self.w2.area = 0.1;
+            self.w2.heatTransferCoeff = U;
 
             if arg.addMdot
                 self.mfc1 = MassFlowController(self.env, self.r1);
@@ -118,7 +129,6 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             self.net2 = ReactorNet(self.r2);
             self.net1.maxTimeStep = 0.05;
             self.net2.maxTimeStep = 0.05;
-            % self.net2.maxErrTestFails = 10;
         end
 
         function assertReactorStatesEqual(self, surf)
