@@ -156,7 +156,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
             while t < tEnd
                 tPrev = t;
-                t = self.net.dt;
+                t = self.net.step;
                 self.verifyLessThanOrEqual(t - tPrev, 1.0001 * dtMax);
                 self.verifyEqual(t, self.net.time, 'AbsTol', self.atol);
             end
