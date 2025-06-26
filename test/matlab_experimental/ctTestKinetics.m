@@ -68,7 +68,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
             diamond = Solution('diamond.yaml', 'diamond_100', 'none');
             self.verifyFalse(diamond.isReversible(20));
-            clear diamond
         end
 
         function testMultipler(self)
@@ -226,11 +225,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
                 self.verifyEqual(gas.creationRates, arr, 'AbsTol', tol);
                 self.verifyEqual(gas.destructionRates, arr, 'AbsTol', tol);
                 self.verifyEqual(gas.netProdRates, arr, 'AbsTol', tol);
-
-                clear gas
-
             catch ME
-                clear gas
                 rethrow(ME);
             end
         end
@@ -247,11 +242,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
                     gas.TPX = {900.0, P(i), xx};
                     self.verifyEqual(gas.forwardRatesOfProgress(1), Rf(i), 'RelTol', 2.0e-05);
                 end
-
-                clear gas
-
             catch ME
-                clear gas
                 rethrow(ME);
             end
         end
@@ -262,7 +253,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Invalid rate coefficient');
-                clear gas
             end
         end
 

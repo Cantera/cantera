@@ -100,8 +100,6 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
 
             self.verifyEqual(Dkm1, Dkm2, 'AbsTol', self.atol);
             self.verifyEqual(Dbin1, Dbin2, 'AbsTol', self.atol);
-
-            clear gas
         end
 
         function testIonizedLowT(self)
@@ -119,8 +117,6 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
             Dbin = gas.binDiffCoeffs;
             self.verifyEqual(Dbin(kO2m, kC10H8), 2.92899733e-06, ...
                              'RelTol', self.rtol);
-
-            clear gas
         end
 
     end

@@ -107,8 +107,6 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
             r.V = 9;
             self.verifyEqual(r.V, 9.0, 'AbsTol', self.atol);
-
-            clear g r
         end
 
         function testTypes(self)
@@ -176,8 +174,6 @@ classdef ctTestReactor < matlab.unittest.TestCase
             w = Wall(self.r1, res);
             net = ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
-
-            clear res w net
         end
 
         function testWall3(self)
@@ -186,8 +182,6 @@ classdef ctTestReactor < matlab.unittest.TestCase
             w = Wall(res, self.r1);
             net = ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
-
-            clear res w net
         end
 
         function testEqualizePressure(self)
@@ -307,8 +301,6 @@ classdef ctTestReactor < matlab.unittest.TestCase
             self.verifyEqual(self.r1.D, gas.D, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.P, gas.P, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.contents.X, gas.X, 'RelTol', self.rtol);
-
-            clear gas
         end
 
         function testEquilibriumHP(self)
