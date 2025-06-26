@@ -1,4 +1,6 @@
 classdef Tolerances
+    % Container for relative tolerances used in thermodynamic validation tests.
+    % Default values can be overridden as needed via name-value arguments.
 
     properties
         P

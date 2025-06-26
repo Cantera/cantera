@@ -1,4 +1,8 @@
 classdef ctTestConstPressureReactor < matlab.unittest.TestCase
+    % The constant pressure reactor should give essentially the same results as
+    % as a regular "Reactor" with a wall with a very high expansion rate
+    % coefficient. Replicates the tests done in the Python test suite in
+    % class `TestConstPressureReactor`.
 
     properties
         gas

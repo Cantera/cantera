@@ -1,4 +1,15 @@
 function phases = ImportPhases(src, phasenames)
+    % ImportPhases ::
+    %
+    % phases = ImportPhases(src, phasenames)
+    %
+    % :param src:
+    %      YAML file containing the interface or edge phase.
+    % :param phasenames:
+    %      Name of a single phase (char/string) or a cell array of phase names.
+    % :return:
+    %      A cell array of :mat:class:`Solution` objects created from each phase.
+
     ctIsLoaded;
 
     if nargin < 2

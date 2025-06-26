@@ -1,4 +1,5 @@
 classdef ctTestWellStirredReactor < matlab.unittest.TestCase
+    % Ignition (or not) of a well-stirred reactor
 
     properties
         gas
