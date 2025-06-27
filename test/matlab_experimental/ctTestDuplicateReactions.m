@@ -8,8 +8,6 @@ classdef ctTestDuplicateReactions < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
-            copyfile('../data/duplicate-reactions.yaml', ...
-                     './duplicate-reactions.yaml');
         end
 
     end
@@ -17,7 +15,6 @@ classdef ctTestDuplicateReactions < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./duplicate-reactions.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -26,8 +23,14 @@ classdef ctTestDuplicateReactions < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end
@@ -36,7 +39,7 @@ classdef ctTestDuplicateReactions < matlab.unittest.TestCase
 
         function check(self, name)
             try
-                self.phase = Solution('duplicate-reactions.yaml', name);
+                self.phase = Solution('../data/duplicate-reactions.yaml', name);
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'duplicate reaction');

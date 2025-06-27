@@ -1,6 +1,6 @@
 classdef ctTestFunc1 < matlab.unittest.TestCase
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
     end
@@ -22,6 +22,20 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
 
     end
 
+    methods (TestMethodTeardown)
+
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
+        end
+
+    end
+
     methods (Test)
 
         function testFunction(self)
@@ -29,8 +43,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             for i = [0, 0.1, 0.7]
                 self.verifyEqual(f(i), sin(i), 'AbsTol', self.atol);
             end
-
-            clear f
         end
 
         function testLambda(self)
@@ -41,8 +53,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             for i = [0.1, 0.7, 4.5]
                 self.verifyEqual(f(i), sin(i)*sqrt(i), 'AbsTol', self.atol);
             end
-
-            clear f1 f2 f
         end
 
         function testConstant(self)
@@ -51,8 +61,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             for i = [0.1, 0.7, 4.5]
                 self.verifyEqual(f(i), 5, 'AbsTol', self.atol);
             end
-
-            clear f
         end
 
         function testSimple(self)
@@ -67,7 +75,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
                     self.verifyEqual(f(val), feval(name{:}, coeff*val), ...
                                      'AbsTol', self.atol);
                 end
-                clear f
             end
         end
 
@@ -90,7 +97,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
                     x2 = f(f1(v), f2(v));
                     self.verifyEqual(x1, x2, 'absTol', self.atol);
                 end
-                clear func
             end
 
             f3 = Func1('sum', f0, f1);
@@ -111,8 +117,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             catch ME
                 self.verifySubstring(ME.message, 'Invalid arguments');
             end
-
-            clear f1 f2 f3 f4
         end
 
         function testNewSum(self)
@@ -121,24 +125,18 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             f2 = f1 + 0;
             self.verifyEqual(f2.type, 'sin');
             self.verifyEqual(f2(0.5), sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = 0 + f1;
             self.verifyEqual(f2.type, 'sin');
             self.verifyEqual(f2(0.5), sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = f1 + Func1('constant', 1);
             self.verifyEqual(f2.type, 'plus-constant');
             self.verifyEqual(f2(0.5), sin(0.5 * 3) + 1, 'absTol', self.atol);
-            clear f2
 
             f2 = f1 + f1;
             self.verifyEqual(f2.type, 'times-constant');
             self.verifyEqual(f2(0.5), sin(0.5 * 3) * 2, 'absTol', self.atol);
-            clear f2
-
-            clear f1
         end
 
         function testNewDiff(self)
@@ -147,24 +145,18 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             f2 = f1 - 0;
             self.verifyEqual(f2.type, 'sin');
             self.verifyEqual(f2(0.5), sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = 0 - f1;
             self.verifyEqual(f2.type, 'times-constant');
             self.verifyEqual(f2(0.5), -sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = f1 - Func1('constant', 1);
             self.verifyEqual(f2.type, 'plus-constant');
             self.verifyEqual(f2(0.5), sin(0.5 * 3) - 1, 'absTol', self.atol);
-            clear f2
 
             f2 = f1 - f1;
             self.verifyEqual(f2.type, 'constant');
             self.verifyEqual(f2(0.5), 0, 'absTol', self.atol);
-            clear f2
-
-            clear f1
         end
 
         function testNewProd(self)
@@ -173,19 +165,14 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             f2 = f1 * Func1('constant', 1);
             self.verifyEqual(f2.type, 'sin');
             self.verifyEqual(f2(0.5), sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = f1 * 2;
             self.verifyEqual(f2.type, 'times-constant');
             self.verifyEqual(f2(0.5), sin(0.5 * 3) * 2, 'absTol', self.atol);
-            clear f2
 
             f2 = f1 * 0;
             self.verifyEqual(f2.type, 'constant');
             self.verifyEqual(f2(0.5), 0, 'absTol', self.atol);
-            clear f2
-
-            clear f1
         end
 
         function testNewRatio(self)
@@ -194,27 +181,21 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             f2 = f1 / Func1('constant', 1);
             self.verifyEqual(f2.type, 'sin');
             self.verifyEqual(f2(0.5), sin(0.5 * 3), 'absTol', self.atol);
-            clear f2
 
             f2 = 0 / f1;
             self.verifyEqual(f2.type, 'constant');
             self.verifyEqual(f2(0.5), 0, 'absTol', self.atol);
-            clear f2
 
             f2 = f1 / 2;
             self.verifyEqual(f2.type, 'times-constant');
             self.verifyEqual(f2(0.5), sin(0.5 * 3) / 2, 'absTol', self.atol);
-            clear f2
 
             try
                 f2 = f1 / 0;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Division by zero');
-                clear f2
             end
-
-            clear f1
         end
 
         function testModified(self)
@@ -235,7 +216,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
                     x2 = f(f1(v), const);
                     self.verifyEqual(x1, x2, 'absTol', self.atol);
                 end
-                clear func
 
                 try
                     func = Func1(k{:}, const, f1);
@@ -281,8 +261,6 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
             catch ME
                 self.verifySubstring(ME.message, 'monotonically');
             end
-
-            clear func1 func2
         end
 
     end

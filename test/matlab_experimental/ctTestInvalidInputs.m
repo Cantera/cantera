@@ -4,15 +4,13 @@ classdef ctTestInvalidInputs < matlab.unittest.TestCase
         phase
     end
 
-    properties (SetAccess = immutable)
-        inputfile = 'invalid-inputs.yaml';
+    properties (SetAccess = protected)
+        inputfile = '../data/invalid-inputs.yaml';
     end
 
     methods (TestClassSetup)
 
         function testSetUp(self)
-            copyfile('../data/invalid-inputs.yaml', ...
-                     './invalid-inputs.yaml');
             ctTestSetUp
         end
 
@@ -21,7 +19,6 @@ classdef ctTestInvalidInputs < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./invalid-inputs.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -30,8 +27,14 @@ classdef ctTestInvalidInputs < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end

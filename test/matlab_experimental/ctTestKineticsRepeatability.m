@@ -6,7 +6,7 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
         X1
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         T0 = 1200;
         T1 = 1300;
         rho0 = 2.4;
@@ -39,8 +39,14 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end
@@ -48,7 +54,6 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
     methods
 
         function setup_phase(self, mech)
-            clear self.phase
             self.phase = Solution(mech);
             self.X0 = 1 + sin(1:self.phase.nSpecies);
             self.X1 = 1 + sin(2:self.phase.nSpecies + 1);
@@ -157,16 +162,16 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
         end
 
         function testPdepX(self)
-            self.checkRatesX('pdep-test.yaml');
+            self.checkRatesX('../data/pdep-test.yaml');
         end
 
         function testPdepT(self)
-            self.checkRatesT1('pdep-test.yaml');
-            self.checkRatesT2('pdep-test.yaml');
+            self.checkRatesT1('../data/pdep-test.yaml');
+            self.checkRatesT2('../data/pdep-test.yaml');
         end
 
         function testPdepP(self)
-            self.checkRatesP('pdep-test.yaml');
+            self.checkRatesP('../data/pdep-test.yaml');
         end
 
     end

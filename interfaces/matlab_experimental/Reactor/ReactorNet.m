@@ -16,18 +16,7 @@ classdef ReactorNet < handle
         id
     end
 
-    properties (SetAccess = protected)
-
-        % Internal time step in s. ::
-        %
-        %     >> t = r.dt
-        %
-        % The integrator used to integrate the ODEs (CVODE) takes
-        % variable-size steps, chosen so that a specified error
-        % tolerance is maintained. At times when the solution is
-        % rapidly changing, the time step becomes smaller to resolve
-        % the solution.
-        dt
+    properties (SetAccess = public)
 
         % Current time in s.
         % The setter method sets the time at which integration should be
@@ -54,49 +43,46 @@ classdef ReactorNet < handle
     methods
         %% ReactorNet Class Constructor
 
-        function r = ReactorNet(reactors)
+        function n = ReactorNet(reactors)
             % Create a :mat:class:`ReactorNet` object.
 
             ctIsLoaded;
 
-            if nargin ~= 1
-                error('Wrong number of arguments to ReactorNet constructor.');
+            if nargin == 0
+                reactors = {};
             end
 
             if isa(reactors, 'Reactor')
                 % Allow simpler syntax for creating a network with one
                 % reactor.
-                reactors = {reactor};
+                reactors = {reactors};
             end
 
-            r.id = ctFunc('reactornet_new');
+            n.id = ctFunc('reactornet_new');
 
             % add reactors
             nr = length(reactors);
-
             for i = 1:nr
-                ctFunc('reactornet_addreactor', r.id, reactors{i}.id);
+                ctFunc('reactornet_addreactor', n.id, reactors{i}.id);
             end
+
+            n.time = 0;
 
         end
 
         %% ReactorNet Class Destructor
 
-        function delete(r)
+        function delete(n)
             % Delete the :mat:class:`ReactorNet` object object.
-
-            if isempty(r.id)
-                return
-            end
-            ctFunc('reactornet_del', r.id);
+            ctFunc('reactornet_del', n.id);
         end
 
         %% ReactorNet Utility Methods
 
-        function advance(r, tout)
+        function advance(n, tout)
             % Advance the state of the reactor network in time. ::
             %
-            %     >> r.advance(tout)
+            %     >> n.advance(tout)
             %
             % Method `advance` integrates the system of ODEs that determine
             % the rate of change of the volume, the mass of each species,
@@ -108,19 +94,29 @@ classdef ReactorNet < handle
             % :param tout:
             %    End time of the integration. Unit: s.
 
-            ctFunc('reactornet_advance', r.id, tout);
+            ctFunc('reactornet_advance', n.id, tout);
+        end
+
+        function t = step(n)
+            % Take a single internal step. ::
+            %
+            %     >> n.step()
+            %
+            % The time/distance after taking the step is returned.
+
+            t = ctFunc('reactornet_step', n.id);
         end
 
         %% ReactorNet set methods
 
-        function set.time(r, t)
-            ctFunc('reactornet_setInitialTime', r.id, t);
+        function set.time(n, t)
+            ctFunc('reactornet_setInitialTime', n.id, t);
         end
 
-        function set.maxTimeStep(r, maxstep)
+        function set.maxTimeStep(n, maxstep)
             % Set the maximum time step. ::
             %
-            %     >> r.setMaxTimeStep(maxstep)
+            %     >> n.setMaxTimeStep(maxstep)
             %
             % The integrator chooses a step size based on the desired error
             % tolerance and the rate at which the solution is changing.
@@ -133,65 +129,61 @@ classdef ReactorNet < handle
             % :param maxstep:
             %    Scalar max time step.
 
-            ctFunc('reactornet_setMaxTimeStep', r.id, maxstep);
+            ctFunc('reactornet_setMaxTimeStep', n.id, maxstep);
         end
 
-        function setSensitivityTolerances(r, rerr, aerr)
+        function setSensitivityTolerances(n, rerr, aerr)
             % Set the error tolerance for sensitivity analysis. ::
             %
-            %     >> r.setSensitivityTOlerances(rerr, aerr)
+            %     >> n.setSensitivityTOlerances(nerr, aerr)
             %
             % :param rerr:
             %    Scalar relative error tolerance.
             % :param aerr:
             %    Scalar absolute error tolerance.
 
-            ctFunc('reactornet_setSensitivityTolerances', r.id, rerr, aerr);
+            ctFunc('reactornet_setSensitivityTolerances', n.id, rerr, aerr);
         end
 
-        function set.atol(r, aeer)
-            rerr = r.rtol;
-            ctFunc('reactornet_setTolerances', r.id, rerr, aerr);
+        function set.atol(n, aerr)
+            rerr = n.rtol;
+            ctFunc('reactornet_setTolerances', n.id, rerr, aerr);
         end
 
-        function set.rtol(r, reer)
-            aerr = r.atol;
-            ctFunc('reactornet_setTolerances', r.id, rerr, aerr);
+        function set.rtol(n, rerr)
+            aerr = n.atol;
+            ctFunc('reactornet_setTolerances', n.id, rerr, aerr);
         end
 
         %% ReactorNet get methods
 
-        function t = get.dt(r)
-            t = ctFunc('reactor_step', r.id);
+        function t = get.time(n)
+            t = ctFunc('reactornet_time', n.id);
         end
 
-        function t = get.time(r)
-            t = ctFunc('reactornet_time', r.id);
+        function t = get.atol(n)
+            t = ctFunc('reactornet_atol', n.id);
         end
 
-        function t = get.atol(r)
-            t = ctFunc('reactornet_atol', r.id);
+        function t = get.rtol(n)
+            t = ctFunc('reactornet_rtol', n.id);
         end
 
-        function t = get.rtol(r)
-            t = ctFunc('reactornet_rtol', r.id);
-        end
-
-        function s = sensitivity(r, component, p, rxtr)
-            % Sensitivity of the solution variable `c` in reactor `rxtr`
+        function s = sensitivity(n, component, p, r)
+            % Sensitivity of the solution variable `c` in reactor `r`
             % with respect to the parameter `p` ::
             %
-            %     >> s = r.sensitivity(component, p, rxtr)
+            %     >> s = n.sensitivity(component, p, r)
             %
             % :param component:
             %    String name of variable.
             % :param p:
             %    Integer sensitivity parameter.
-            % :param rxtr:
+            % :param r:
             %    Instance of class :mat:class:`reactor`.
 
             if isa(component, 'string')
-                ctFunc('reactornet_sensitivity', r.id, component, p, rxtr.id);
+                s = ctFunc('reactornet_sensitivity', n.id, component, p, r.id);
             end
 
         end
