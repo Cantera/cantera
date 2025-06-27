@@ -54,15 +54,15 @@ function reactor2(g)
     subplot(2, 2, 2)
     plot(tim, x(:, 1));
     xlabel('Time (s)');
-    ylabel('OH Mole Fraction (K)');
+    ylabel('OH Mole Fraction');
     subplot(2, 2, 3)
     plot(tim, x(:, 2));
     xlabel('Time (s)');
-    ylabel('H Mole Fraction (K)');
+    ylabel('H Mole Fraction');
     subplot(2, 2, 4)
     plot(tim, x(:, 3));
     xlabel('Time (s)');
-    ylabel('H2 Mole Fraction (K)');
+    ylabel('H2 Mole Fraction');
 
     toc
 end
