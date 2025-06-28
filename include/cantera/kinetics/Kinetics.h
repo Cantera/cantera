@@ -137,6 +137,13 @@ public:
     Kinetics(const Kinetics&) = delete;
     Kinetics& operator=(const Kinetics&)= delete;
 
+    //! Create a new Kinetics object with the same kinetics model and reactions as
+    //! this one.
+    //! @param phases Phases used to specify the state for the newly cloned Kinetics
+    //!     object. These can be created from the phases used by this object using the
+    //!     ThermoPhase::clone() method.
+    shared_ptr<Kinetics> clone(const vector<shared_ptr<ThermoPhase>>& phases) const;
+
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
