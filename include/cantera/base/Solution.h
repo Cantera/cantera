@@ -58,7 +58,10 @@ public:
     //! Create a new Solution object with cloned ThermoPhase and Kinetics objects that
     //! use the same species definitions, thermodynamic parameters, and reactions as
     //! this one.
-    shared_ptr<Solution> clone() const;
+    //! @param adjacent  For surface phases, an optional list of new adjacent phases
+    //!     to link to the InterfaceKinetics object. If not provided, the existing
+    //!     adjacent phases will be cloned.
+    shared_ptr<Solution> clone(const vector<shared_ptr<Solution>>& adjacent={}) const;
 
     //! Return the name of this Solution object
     string name() const;

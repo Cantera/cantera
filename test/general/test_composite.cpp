@@ -15,16 +15,69 @@ TEST(Solution, clone_idealgas)
     EXPECT_EQ(nsp, dup->thermo()->nSpecies());
     EXPECT_EQ(soln->kinetics()->nReactions(), dup->kinetics()->nReactions());
     EXPECT_EQ(soln->thermo()->name(), dup->thermo()->name());
-    EXPECT_FLOAT_EQ(soln->thermo()->enthalpy_mass(), dup->thermo()->enthalpy_mass());
+    EXPECT_NEAR(soln->thermo()->enthalpy_mass(), dup->thermo()->enthalpy_mass(), 1e-5);
     soln->kinetics()->getFwdRateConstants(kf1.data());
     dup->kinetics()->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < nrxn; i++) {
-        EXPECT_FLOAT_EQ(kf1[i], kf2[i]);
+        EXPECT_NEAR(kf1[i], kf2[i], 1e-12*kf1[i]);
     }
     dup->thermo()->setState_TP(600, OneAtm);
-    EXPECT_EQ(soln->thermo()->temperature(), 400.0);
+    EXPECT_DOUBLE_EQ(soln->thermo()->temperature(), 400.0);
     dup->kinetics()->getFwdRateConstants(kf2.data());
     EXPECT_GT(kf2[2], kf1[2]);
+}
+
+TEST(Solution, clone_surf_complete)
+{
+    auto soln1 = newInterface("ptcombust.yaml", "Pt_surf");
+    soln1->thermo()->setState_TPX(500, 3*OneAtm, "PT(S):0.8, H(S):0.2");
+    soln1->adjacent("gas")->thermo()->setState_TPX(500, 3*OneAtm, "H2:0.5, O2:0.5");
+    size_t nrxn = soln1->kinetics()->nReactions();
+    auto soln2 = soln1->clone();
+    EXPECT_DOUBLE_EQ(soln2->thermo()->temperature(), 500.0);
+    EXPECT_DOUBLE_EQ(soln2->adjacent("gas")->thermo()->pressure(), 3*OneAtm);
+
+    vector<double> ropf1(nrxn), ropf2(nrxn);
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    soln2->kinetics()->getFwdRatesOfProgress(ropf2.data());
+    for (size_t i = 0; i < nrxn; i++) {
+        EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
+        soln2->kinetics()->setMultiplier(i, 0.0);
+    }
+    // Original mixture should still have same (non-zero) rates
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    for (size_t i = 0; i < nrxn; i++) {
+        EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
+    }
+}
+
+TEST(Solution, clone_surf_manual)
+{
+    auto soln1 = newInterface("ptcombust.yaml", "Pt_surf");
+    soln1->thermo()->setState_TPX(500, 3*OneAtm, "PT(S):0.8, H(S):0.2");
+    soln1->adjacent("gas")->thermo()->setState_TPX(500, 3*OneAtm, "H2:0.5, O2:0.5");
+    size_t nrxn = soln1->kinetics()->nReactions();
+
+    auto gas2 = soln1->adjacent("gas")->clone();
+    auto soln2 = soln1->clone({gas2});
+    EXPECT_EQ(gas2->thermo().get(), soln2->adjacent("gas")->thermo().get());
+    EXPECT_NE(soln1->adjacent("gas")->thermo().get(),
+              soln2->adjacent("gas")->thermo().get());
+    EXPECT_DOUBLE_EQ(soln2->thermo()->temperature(), 500.0);
+    EXPECT_DOUBLE_EQ(soln2->adjacent("gas")->thermo()->pressure(), 3*OneAtm);
+
+    vector<double> ropf1(nrxn), ropf2(nrxn);
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    soln2->kinetics()->getFwdRatesOfProgress(ropf2.data());
+    for (size_t i = 0; i < nrxn; i++) {
+        EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
+        soln2->kinetics()->setMultiplier(i, 0.0);
+    }
+    // Original mixture should still have same (non-zero) rates
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    for (size_t i = 0; i < nrxn; i++) {
+        EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
+    }
 }
 
 TEST(Interface, incompatible_phase)
