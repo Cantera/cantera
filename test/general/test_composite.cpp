@@ -4,6 +4,29 @@
 
 using namespace Cantera;
 
+TEST(Solution, clone_idealgas)
+{
+    auto soln = newSolution("h2o2.yaml");
+    size_t nsp = soln->thermo()->nSpecies();
+    size_t nrxn = soln->kinetics()->nReactions();
+    soln->thermo()->setState_TPX(400, 2 * OneAtm, "H2O:0.4, N2:0.6");
+    vector<double> kf1(nrxn), kf2(nrxn);
+    auto dup = soln->clone();
+    EXPECT_EQ(nsp, dup->thermo()->nSpecies());
+    EXPECT_EQ(soln->kinetics()->nReactions(), dup->kinetics()->nReactions());
+    EXPECT_EQ(soln->thermo()->name(), dup->thermo()->name());
+    EXPECT_FLOAT_EQ(soln->thermo()->enthalpy_mass(), dup->thermo()->enthalpy_mass());
+    soln->kinetics()->getFwdRateConstants(kf1.data());
+    dup->kinetics()->getFwdRateConstants(kf2.data());
+    for (size_t i = 0; i < nrxn; i++) {
+        EXPECT_FLOAT_EQ(kf1[i], kf2[i]);
+    }
+    dup->thermo()->setState_TP(600, OneAtm);
+    EXPECT_EQ(soln->thermo()->temperature(), 400.0);
+    dup->kinetics()->getFwdRateConstants(kf2.data());
+    EXPECT_GT(kf2[2], kf1[2]);
+}
+
 TEST(Interface, incompatible_phase)
 {
     ASSERT_THROW(newInterface("h2o2.yaml", "ohmech"), CanteraError);

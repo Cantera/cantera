@@ -213,7 +213,9 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     if (add_rxn_err.size()) {
         throw CanteraError("addReactions", to_string(add_rxn_err));
     }
-    kin.checkDuplicates();
+    // Hidden flag possibly set by Kinetics::clone
+    bool fixDuplicates = phaseNode.getBool("__fix-duplicate-reactions__", false);
+    kin.checkDuplicates(!fixDuplicates, fixDuplicates);
     kin.resizeReactions();
 }
 

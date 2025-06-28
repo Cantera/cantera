@@ -22,6 +22,15 @@
 namespace Cantera
 {
 
+shared_ptr<Solution> Solution::clone() const
+{
+    shared_ptr<Solution> out = create();
+    out->setThermo(m_thermo->clone());
+    out->setKinetics(m_kinetics->clone({out->thermo()}));
+    out->setName(name());
+    return out;
+}
+
 string Solution::name() const {
     if (m_thermo) {
         return m_thermo->name();
