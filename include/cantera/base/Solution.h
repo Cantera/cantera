@@ -55,6 +55,11 @@ public:
         return shared_ptr<Solution>( new Solution );
     }
 
+    //! Create a new Solution object with cloned ThermoPhase and Kinetics objects that
+    //! use the same species definitions, thermodynamic parameters, and reactions as
+    //! this one.
+    shared_ptr<Solution> clone() const;
+
     //! Return the name of this Solution object
     string name() const;
 
