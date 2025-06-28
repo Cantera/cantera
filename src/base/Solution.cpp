@@ -22,27 +22,37 @@
 namespace Cantera
 {
 
-shared_ptr<Solution> Solution::clone(const vector<shared_ptr<Solution>>& adjacent) const
+shared_ptr<Solution> Solution::clone(const vector<shared_ptr<Solution>>& adjacent,
+    bool withKinetics, bool withTransport) const
 {
     shared_ptr<Solution> out = create();
     out->setThermo(m_thermo->clone());
     vector<shared_ptr<ThermoPhase>> kinPhases;
-    kinPhases.push_back(out->thermo());
-    if (!adjacent.empty()) {
-        // Use the provided adjacent phases
-        for (auto& soln : adjacent) {
-            kinPhases.push_back(soln->thermo());
-            out->addAdjacent(soln);
+    if (withKinetics) {
+        kinPhases.push_back(out->thermo());
+        if (!adjacent.empty()) {
+            // Use the provided adjacent phases
+            for (auto& soln : adjacent) {
+                kinPhases.push_back(soln->thermo());
+                out->addAdjacent(soln);
+            }
+        } else {
+            // Clone new adjacent phases
+            for (size_t i = 1; i < m_kinetics->nPhases(); i++) {
+                auto soln = m_kinetics->phase(i)->root()->clone();
+                kinPhases.push_back(soln->thermo());
+                out->addAdjacent(soln);
+            }
         }
+        out->setKinetics(m_kinetics->clone(kinPhases));
     } else {
-        // Clone new adjacent phases
-        for (size_t i = 1; i < m_kinetics->nPhases(); i++) {
-            auto soln = m_kinetics->phase(i)->root()->clone();
-            kinPhases.push_back(soln->thermo());
-            out->addAdjacent(soln);
-        }
+        out->setKinetics(newKinetics("none"));
     }
-    out->setKinetics(m_kinetics->clone(kinPhases));
+    if (withTransport) {
+        out->setTransport(m_transport->clone(out->thermo()));
+    } else {
+        out->setTransport(newTransport(m_thermo, "none"));
+    }
     return out;
 }
 
