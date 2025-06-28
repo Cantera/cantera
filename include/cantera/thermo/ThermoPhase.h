@@ -396,6 +396,10 @@ public:
     //! so this constructor should not be called explicitly.
     ThermoPhase() = default;
 
+    //! Create a new ThermoPhase object using the same species definitions,
+    //! thermodynamic parameters, and state as this one.
+    shared_ptr<ThermoPhase> clone() const;
+
     //! @name  Information Methods
     //! @{
 

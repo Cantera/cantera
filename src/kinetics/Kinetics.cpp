@@ -24,6 +24,21 @@ using namespace std;
 namespace Cantera
 {
 
+shared_ptr<Kinetics> Kinetics::clone(
+    const vector<shared_ptr<ThermoPhase>>& phases) const
+{
+    vector<AnyMap> reactionDefs;
+    for (size_t i = 0; i < nReactions(); i++) {
+        reactionDefs.push_back(reaction(i)->parameters());
+    }
+    AnyMap phaseNode = parameters();
+    phaseNode["__fix-duplicate-reactions__"] = true;
+    AnyMap rootNode;
+    rootNode["reactions"] = std::move(reactionDefs);
+    rootNode.applyUnits();
+    return newKinetics(phases, phaseNode, rootNode, phases[0]->root());
+}
+
 void Kinetics::checkReactionIndex(size_t i) const
 {
     if (i >= nReactions()) {
