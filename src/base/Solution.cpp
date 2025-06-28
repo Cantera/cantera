@@ -22,12 +22,27 @@
 namespace Cantera
 {
 
-shared_ptr<Solution> Solution::clone() const
+shared_ptr<Solution> Solution::clone(const vector<shared_ptr<Solution>>& adjacent) const
 {
     shared_ptr<Solution> out = create();
     out->setThermo(m_thermo->clone());
-    out->setKinetics(m_kinetics->clone({out->thermo()}));
-    out->setName(name());
+    vector<shared_ptr<ThermoPhase>> kinPhases;
+    kinPhases.push_back(out->thermo());
+    if (!adjacent.empty()) {
+        // Use the provided adjacent phases
+        for (auto& soln : adjacent) {
+            kinPhases.push_back(soln->thermo());
+            out->addAdjacent(soln);
+        }
+    } else {
+        // Clone new adjacent phases
+        for (size_t i = 1; i < m_kinetics->nPhases(); i++) {
+            auto soln = m_kinetics->phase(i)->root()->clone();
+            kinPhases.push_back(soln->thermo());
+            out->addAdjacent(soln);
+        }
+    }
+    out->setKinetics(m_kinetics->clone(kinPhases));
     return out;
 }
 
