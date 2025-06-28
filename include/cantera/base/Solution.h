@@ -61,7 +61,12 @@ public:
     //! @param adjacent  For surface phases, an optional list of new adjacent phases
     //!     to link to the InterfaceKinetics object. If not provided, the existing
     //!     adjacent phases will be cloned.
-    shared_ptr<Solution> clone(const vector<shared_ptr<Solution>>& adjacent={}) const;
+    //! @param withKinetics  Flag indicating whether to clone the Kinetics object
+    //!    associated with this phase
+    //! @param withTransport  Flag indicating whether to clone the Transport object
+    //!    associated with this phase
+    shared_ptr<Solution> clone(const vector<shared_ptr<Solution>>& adjacent={},
+                               bool withKinetics=true, bool withTransport=true) const;
 
     //! Return the name of this Solution object
     string name() const;

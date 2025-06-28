@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/base/Interface.h"
 #include "cantera/base/SolutionArray.h"
+#include "cantera/transport/Transport.h"
 
 using namespace Cantera;
 
@@ -21,6 +22,8 @@ TEST(Solution, clone_idealgas)
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-12*kf1[i]);
     }
+    EXPECT_NEAR(soln->transport()->thermalConductivity(),
+                dup->transport()->thermalConductivity(), 1e-11);
     dup->thermo()->setState_TP(600, OneAtm);
     EXPECT_DOUBLE_EQ(soln->thermo()->temperature(), 400.0);
     dup->kinetics()->getFwdRateConstants(kf2.data());
