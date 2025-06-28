@@ -2035,6 +2035,13 @@ public:
         m_soln = soln;
     }
 
+    //! Get the Solution object containing this ThermoPhase object and linked
+    //! Kinetics and Transport objects.
+    //! @since New in %Cantera 3.2.
+    shared_ptr<Solution> root() const {
+        return m_soln.lock();
+    }
+
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
