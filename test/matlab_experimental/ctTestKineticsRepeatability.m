@@ -1,4 +1,4 @@
-classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
+classdef ctTestKineticsRepeatability < ctTestCase
 
     properties
         phase
@@ -15,40 +15,6 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
         P1 = 3.7e+06;
         rtol = 1e-6;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-            copyfile('../data/pdep-test.yaml', ...
-                     './pdep-test.yaml');
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            delete('./pdep-test.yaml');
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
-        end
-
     end
 
     methods

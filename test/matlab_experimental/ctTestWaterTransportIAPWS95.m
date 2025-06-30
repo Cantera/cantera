@@ -1,44 +1,12 @@
-classdef ctTestWaterTransportIAPWS95 < matlab.unittest.TestCase
-
+classdef ctTestWaterTransportIAPWS95 < ctTestCase
     properties
         phase
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
     end
 
     methods (TestMethodSetup)
 
         function createPhase(self)
             self.phase = Solution('../data/thermo-models.yaml', 'liquid-water');
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
         end
 
     end

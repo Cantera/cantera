@@ -1,4 +1,4 @@
-classdef ctTestPureFluidCases < matlab.unittest.TestCase
+classdef ctTestPureFluidCases < ctTestCase
 
     properties
         fluid
@@ -7,37 +7,6 @@ classdef ctTestPureFluidCases < matlab.unittest.TestCase
         tol
         u0
         s0
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
-        end
-
     end
 
     methods
