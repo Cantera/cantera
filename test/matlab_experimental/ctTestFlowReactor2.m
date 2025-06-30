@@ -78,18 +78,6 @@ classdef ctTestFlowReactor2 < ctTestCase
             delete(r2);
         end
 
-        function testUnrecoverableIntegratorError(self)
-            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
-        end
-
-        function testIntegratorErrorAdvance(self)
-            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
-        end
-
-        function testRecoverableIntegratorErrors(self)
-            self.assumeFail('Skipped until Kinetics.addReactions is implemented');
-        end
-
         function testMaxSteps(self)
             self.getPhases();
             self.gas.TPX = {1500, 4000, 'NH3:1.0, SiF4:0.4'};
