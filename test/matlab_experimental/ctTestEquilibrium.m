@@ -1,4 +1,4 @@
-classdef ctTestEquilibrium < matlab.unittest.TestCase
+classdef ctTestEquilibrium < ctTestCase
 
     properties
         phase
@@ -8,37 +8,6 @@ classdef ctTestEquilibrium < matlab.unittest.TestCase
     properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
-        end
-
     end
 
     methods

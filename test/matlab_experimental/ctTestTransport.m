@@ -1,4 +1,4 @@
-classdef ctTestTransport < matlab.unittest.TestCase
+classdef ctTestTransport < ctTestCase
 
     properties
         phase
@@ -10,23 +10,6 @@ classdef ctTestTransport < matlab.unittest.TestCase
         atol = 1e-8;
     end
 
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
     methods (TestMethodSetup)
 
         function createPhase(self)
@@ -34,20 +17,6 @@ classdef ctTestTransport < matlab.unittest.TestCase
             self.phase = Solution(src);
             self.phase.TPX = {800, 2*OneAtm, ...
                               [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]};
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
         end
 
     end

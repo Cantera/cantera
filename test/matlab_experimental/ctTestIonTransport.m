@@ -1,4 +1,4 @@
-classdef ctTestIonTransport < matlab.unittest.TestCase
+classdef ctTestIonTransport < ctTestCase
 
     properties
         phase
@@ -9,43 +9,12 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
         atol = 1e-8;
     end
 
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
     methods (TestMethodSetup)
 
         function createPhase(self)
             src = '../data/ch4_ion.yaml';
             self.phase = Solution(src);
             self.phase.TPX = {2237, OneAtm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'};
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
         end
 
     end

@@ -1,4 +1,4 @@
-classdef ctTestThermo < matlab.unittest.TestCase
+classdef ctTestThermo < ctTestCase
 
     properties
         phase
@@ -9,19 +9,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
         atol = 1e-8;
     end
 
-    methods (TestClassSetup)
-        function testSetUp(self)
-            ctTestSetUp
-        end
-    end
-
-    methods (TestClassTeardown)
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-    end
-
     methods (TestMethodSetup)
 
         function createPhase(self)
@@ -29,20 +16,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
             id = 'ohmech';
             transport = 'none';
             self.phase = Solution(src, id, transport);
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
         end
 
     end

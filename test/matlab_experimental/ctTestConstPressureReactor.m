@@ -1,4 +1,4 @@
-classdef ctTestConstPressureReactor < matlab.unittest.TestCase
+classdef ctTestConstPressureReactor < ctTestCase
     % The constant pressure reactor should give essentially the same results as
     % as a regular "Reactor" with a wall with a very high expansion rate
     % coefficient. Replicates the tests done in the Python test suite in
@@ -23,37 +23,6 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
         surf2
         net1
         net2
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
-        end
-
     end
 
     methods

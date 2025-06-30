@@ -1,4 +1,4 @@
-classdef ctTestUndeclared < matlab.unittest.TestCase
+classdef ctTestUndeclared < ctTestCase
 
     properties
         phase
@@ -6,37 +6,6 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
 
     properties (SetAccess = protected)
         inputfile = '../data/undeclared-tests.yaml';
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
-        end
-
     end
 
     methods (Test)

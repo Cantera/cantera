@@ -1,4 +1,4 @@
-classdef ctTestKinetics < matlab.unittest.TestCase
+classdef ctTestKinetics < ctTestCase
 
     properties
         phase
@@ -7,23 +7,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
     properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
     end
 
     methods (TestMethodSetup)
@@ -35,20 +18,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             self.phase = Solution(src, id, transport);
             self.phase.TPX = {800, 2 * OneAtm, ...
                               [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]};
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteObjects(self)
-            props = properties(self);
-            for i = 1:length(props)
-                prop = self.(props{i});
-                if isa(prop, 'handle')
-                    delete(prop)
-                end
-            end
         end
 
     end
