@@ -142,9 +142,15 @@ public:
     WallBase& wall(size_t n);
 
     //! Add a ReactorSurface object to a Reactor object.
+    //! @attention This method should generally not be called directly by users.
+    //!     Reactor and ReactorSurface objects should be connected by providing adjacent
+    //!     reactors to the newReactorSurface factory function.
     virtual void addSurface(ReactorSurface* surf);
 
     //! Add a ReactorSurface object to a Reactor object.
+    //! @attention This method should generally not be called directly by users.
+    //!     Reactor and ReactorSurface objects should be connected by providing adjacent
+    //!     reactors to the newReactorSurface factory function.
     void addSurface(shared_ptr<ReactorBase> surf);
 
     //! Return a reference to the *n*-th ReactorSurface connected to this reactor.

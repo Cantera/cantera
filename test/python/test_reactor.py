@@ -1287,7 +1287,8 @@ class TestConstPressureReactor:
 
     reactorClass = ct.ConstPressureReactor
 
-    def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
+    def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False,
+                        use_surf_install=False):
         gas_def = """
         phases:
         - name: gas
@@ -1342,12 +1343,19 @@ class TestConstPressureReactor:
             C = np.zeros(self.interface1.n_species)
             C[0] = 0.3
             C[4] = 0.7
-            self.surf1 = ct.ReactorSurface(self.interface1, A=0.2)
-            self.surf2 = ct.ReactorSurface(self.interface2, A=0.2)
-            self.surf1.coverages = C
-            self.surf2.coverages = C
-            self.surf1.install(self.r1)
-            self.surf2.install(self.r2)
+            if use_surf_install:
+                with pytest.deprecated_call():
+                    self.surf1 = ct.ReactorSurface(self.interface1, A=0.2)
+                    self.surf2 = ct.ReactorSurface(self.interface2, A=0.2)
+                self.surf1.coverages = C
+                self.surf2.coverages = C
+                self.surf1.install(self.r1)
+                self.surf2.install(self.r2)
+            else:
+                self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2)
+                self.surf2 = ct.ReactorSurface(self.interface2, r=[self.r2], A=0.2)
+                self.surf1.coverages = C
+                self.surf2.coverages = C
 
         self.net1 = ct.ReactorNet([self.r1])
         self.net2 = ct.ReactorNet([self.r2])
@@ -1407,6 +1415,12 @@ class TestConstPressureReactor:
 
     def test_with_surface_reactions(self):
         self.create_reactors(add_surf=True)
+        self.net1.atol = self.net2.atol = 1e-18
+        self.net1.rtol = self.net2.rtol = 1e-9
+        self.integrate(surf=True)
+
+    def test_surf_install_deprecated(self):
+        self.create_reactors(add_surf=True, use_surf_install=True)
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
@@ -1616,12 +1630,10 @@ class TestReactorJacobians:
         C[0] = 0.3
         C[4] = 0.7
         # creating reactor surfaces
-        surf1 = ct.ReactorSurface(interface1, A=1e-3)
-        surf2 = ct.ReactorSurface(interface2, A=1e-3)
+        surf1 = ct.ReactorSurface(interface1, r=r1, A=1e-3)
+        surf2 = ct.ReactorSurface(interface2, r=r2, A=1e-3)
         surf1.coverages = C
         surf2.coverages = C
-        surf1.install(r1)
-        surf2.install(r2)
         # create reactor network
         net = ct.ReactorNet([r1, r2])
         # set derivative settings
@@ -3046,8 +3058,7 @@ class TestExtensibleReactor:
         r1 = SurfReactor(gas)
         r1.volume = 1e-6 # 1 cm^3
         r1.energy_enabled = False
-        rsurf = ct.ReactorSurface(surf, A=0.01)
-        rsurf.install(r1)
+        rsurf = ct.ReactorSurface(surf, r=r1, A=0.01)
         net = ct.ReactorNet([r1])
 
         Hweight = ct.Element("H").weight
