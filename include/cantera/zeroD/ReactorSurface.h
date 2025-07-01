@@ -19,6 +19,18 @@ class SurfPhase;
 class ReactorSurface : public ReactorBase
 {
 public:
+    //! Create a new ReactorSurface
+    //! @param soln  Thermodynamic and kinetic model representing species and reactions
+    //!     on the surface
+    //! @param reactors  One or more reactors whose phases participate in reactions
+    //!     occurring on the surface. For the purpose of rate evaluation, the
+    //!     temperature of the surface is set equal to the temperature of the first
+    //!     reactor specified.
+    //! @param name  Name used to identify the surface
+    ReactorSurface(shared_ptr<Solution> soln,
+                   const vector<shared_ptr<ReactorBase>>& reactors,
+                   const string& name="(none)");
+
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorBase::ReactorBase; // inherit constructors
 
@@ -67,6 +79,8 @@ public:
     }
 
     //! Set the reactor that this Surface interacts with
+    //! @deprecated To be removed after %Cantera 3.2. Superseded by constructor taking
+    //!     a list of adjacent reactors.
     void setReactor(ReactorBase* reactor);
 
     //! Set the surface coverages. Array `cov` has length equal to the number of
@@ -115,7 +129,7 @@ protected:
 
     SurfPhase* m_surf = nullptr;
     Kinetics* m_kinetics = nullptr;
-    ReactorBase* m_reactor = nullptr;
+    vector<ReactorBase*> m_reactors;
     vector<double> m_cov;
 };
 
