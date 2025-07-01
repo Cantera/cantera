@@ -16,9 +16,10 @@ cdef class ReactorBase:
     """
     reactor_type = "none"
     def __cinit__(self, _SolutionBase contents, *args, name="(none)", **kwargs):
-        self._rbase = newReactorBase(stringify(self.reactor_type),
-                                     contents._base, stringify(name))
-        self.rbase = self._rbase.get()
+        if self.reactor_type != "ReactorSurface":
+            self._rbase = newReactorBase(stringify(self.reactor_type),
+                                        contents._base, stringify(name))
+            self.rbase = self._rbase.get()
 
     def __init__(self, _SolutionBase contents=None, *args,
                  name="(none)", volume=None, node_attr=None):
@@ -789,7 +790,7 @@ cdef class ReactorSurface(ReactorBase):
         The `Kinetics` or `Interface` object representing reactions on this
         surface.
     :param r:
-        The `Reactor` into which this surface should be installed.
+        A `Reactor` or list of `Reactor`s that this surface is adjacent to.
     :param A:
         The area of the reacting surface [m²].
     :param node_attr:
@@ -798,18 +799,42 @@ cdef class ReactorSurface(ReactorBase):
 
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
+
+    .. versionchanged:: 3.2
+       Handle surfaces that are adjacent to multiple reactors.
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, _SolutionBase contents, r=None, name="(none)", **kwargs):
+        cdef ReactorBase adj
+        cdef vector[shared_ptr[CxxReactorBase]] cxx_adj
+        if isinstance(r, ReactorBase):
+            adj = <ReactorBase>r
+            adj._surfaces.append(self)
+            cxx_adj.push_back(adj._rbase)
+            self._reactors = [r]
+        elif hasattr(r, "__len__"):
+            self._reactors = r
+            for ri in r:
+                adj = <Reactor>ri
+                adj._surfaces.append(self)
+                cxx_adj.push_back(adj._rbase)
+        elif r is None:
+            warnings.warn("ReactorSurface.__init__: After Cantera 3.2, the list of "
+                "adjacent reactors `r` will be a required constructor argument and the "
+                "install method will be removed.",
+                DeprecationWarning)
+
+            self._reactors = []
+
+        self._rbase = CxxNewReactorSurface(contents._base, cxx_adj, stringify(name))
+        self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, contents=None, Reactor r=None, *,
+    def __init__(self, contents=None, r=None, *,
                  name="(none)", A=None, node_attr=None):
         super().__init__(contents, name=name)
 
-        if r is not None:
-            self.install(r)
         if A is not None:
             self.area = A
         self.node_attr = node_attr or {'shape': 'underline'}
@@ -817,10 +842,14 @@ cdef class ReactorSurface(ReactorBase):
     def install(self, Reactor r):
         """
         Add this `ReactorSurface` to the specified `Reactor`
+
+        .. deprecated:: 3.2
+           Replaced by specifying list of adjacent reactors in the `ReactorSurface`
+           constructor.
         """
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
-        self._reactor = r
+        self._reactors.append(r)
 
     property area:
         """Area on which reactions can occur [m²]."""
@@ -868,7 +897,22 @@ cdef class ReactorSurface(ReactorBase):
 
         .. versionadded:: 3.1
         """
-        return self._reactor
+        if len(self._reactors) > 1:
+            warnings.warn("ReactorSurface.reactor: Call is ambiguous because surface is"
+                " linked to multiple reactors. Use 'ReactorSurface.reactors' instead.",
+                UserWarning)
+
+        return self._reactors[0]
+
+    @property
+    def reactors(self):
+        """
+        A list of of `Reactor` objects containing phases that participate in reactions
+        on this surface.
+
+        .. versionadded:: 3.2
+        """
+        return self._reactors
 
     def draw(self, graph=None, *, graph_attr=None, node_attr=None,
              surface_edge_attr=None,  print_state=False, species=None,

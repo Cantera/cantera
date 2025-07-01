@@ -69,6 +69,7 @@ includes:
   - cantera/numerics/Func1Factory.h
   ReactorBase:
   - cantera/zeroD/ReactorFactory.h
+  - cantera/zeroD/ReactorSurface.h
   - cantera/zeroD/FlowReactor.h
   ConnectorNode:
   - cantera/zeroD/ConnectorFactory.h

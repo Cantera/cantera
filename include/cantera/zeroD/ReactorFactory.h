@@ -69,6 +69,13 @@ shared_ptr<Reactor> newReactor4(
 shared_ptr<Reservoir> newReservoir(
     shared_ptr<Solution> contents, const string& name="(none)");
 
+//! Create a ReactorSurface object with the specified contents and adjacent reactors
+//! participating in surface reactions.
+//! @since  New in %Cantera 3.2.
+shared_ptr<ReactorSurface> newReactorSurface(
+    shared_ptr<Solution> soln, const vector<shared_ptr<ReactorBase>>& reactors,
+    const string& name="(none)");
+
 //! @}
 
 }
