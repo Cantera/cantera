@@ -420,7 +420,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
+        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
         with:
           environment-name: test-env
           create-args: >-
@@ -666,7 +666,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
+        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -733,7 +733,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
+      uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -1003,7 +1003,7 @@ jobs:
         python3 -m pip install --upgrade pip setuptools wheel build
         python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v2.0.4
+      uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
