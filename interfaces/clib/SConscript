@@ -52,6 +52,8 @@ sourcegen = env.Command(
      f"--api=clib --output={Path(Dir('#interfaces/clib').abspath)}")
 )
 env.Depends(sourcegen, [File(ff) for ff in yaml_files])
+env.Depends(sourcegen, env.Glob("#interfaces/sourcegen/src/sourcegen/*.py"))
+env.Depends(sourcegen, env.Glob("#interfaces/sourcegen/src/sourcegen/clib/*.*"))
 
 build(tags)
 build(sourcegen)
