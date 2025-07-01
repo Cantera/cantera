@@ -135,4 +135,10 @@ shared_ptr<Reservoir> newReservoir(shared_ptr<Solution> contents, const string& 
     return reservoir;
 }
 
+shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> soln,
+    const vector<shared_ptr<ReactorBase>>& reactors, const string& name)
+{
+    return make_shared<ReactorSurface>(soln, reactors, name);
+}
+
 }

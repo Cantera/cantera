@@ -83,7 +83,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # reactor surface
 
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        CxxReactorSurface(string) except +translate_exception
         string type()
         string name()
         void setName(string) except +translate_exception
@@ -93,6 +92,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
+
+    cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
+        shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&, string) except +translate_exception
 
     # connectors
 
@@ -277,7 +279,7 @@ cdef class ExtensibleReactor(Reactor):
 
 cdef class ReactorSurface(ReactorBase):
     cdef CxxReactorSurface* surface
-    cdef ReactorBase _reactor
+    cdef list _reactors
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node
