@@ -1,39 +1,11 @@
-classdef ctTestUndeclared < matlab.unittest.TestCase
+classdef ctTestUndeclared < ctTestCase
 
     properties
         phase
     end
 
-    properties (SetAccess = immutable)
-        inputfile = 'undeclared-tests.yaml';
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            copyfile('../data/undeclared-tests.yaml', ...
-                     './undeclared-tests.yaml');
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            delete('./undeclared-tests.yaml');
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteSolution(self)
-            clear self.phase;
-        end
-
+    properties (SetAccess = protected)
+        inputfile = '../data/undeclared-tests.yaml';
     end
 
     methods (Test)
@@ -95,14 +67,8 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
                 gas = Solution(self.inputfile, 'gas');
                 surf = Interface(self.inputfile, 'Pt_surf', gas);
                 self.verifyEqual(surf.nReactions, 14);
-
-                clear gas
-                clear surf
-
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                clear gas
-                clear surf
             end
         end
 

@@ -5,11 +5,7 @@ classdef MassFlowController < FlowDevice
     %
     % Creates an instance of class :mat:class:`FlowDevice` configured to
     % simulate a mass flow controller that maintains a constant mass flow
-    % rate independent of upstream or downstream conditions. If two reactor
-    % objects are supplied as arguments, the controller is installed
-    % between the two reactors. Otherwise, the :mat:func:`install` method
-    % should be used to install the :mat:class:`MassFlowController` between
-    % reactors.
+    % rate independent of upstream or downstream conditions.
     %
     % see also: :mat:class:`FlowDevice`, :mat:class:`Valve`
     %

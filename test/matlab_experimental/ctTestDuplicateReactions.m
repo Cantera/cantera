@@ -1,42 +1,14 @@
-classdef ctTestDuplicateReactions < matlab.unittest.TestCase
+classdef ctTestDuplicateReactions < ctTestCase
 
     properties
         phase
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-            copyfile('../data/duplicate-reactions.yaml', ...
-                     './duplicate-reactions.yaml');
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            delete('./duplicate-reactions.yaml');
-            ctCleanUp
-            ctTestTearDown
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteSolution(self)
-            clear self.phase;
-        end
-
     end
 
     methods
 
         function check(self, name)
             try
-                self.phase = Solution('duplicate-reactions.yaml', name);
+                self.phase = Solution('../data/duplicate-reactions.yaml', name);
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'duplicate reaction');

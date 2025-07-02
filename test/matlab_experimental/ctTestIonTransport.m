@@ -1,49 +1,20 @@
-classdef ctTestIonTransport < matlab.unittest.TestCase
+classdef ctTestIonTransport < ctTestCase
 
     properties
         phase
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-            copyfile('../data/ET_test.yaml', './ET_test.yaml');
-            copyfile('../data/ch4_ion.yaml', './ch4_ion.yaml');
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            delete('./ET_test.yaml');
-            delete('./ch4_ion.yaml');
-            ctCleanUp
-            ctTestTearDown
-        end
-
     end
 
     methods (TestMethodSetup)
 
         function createPhase(self)
-            src = 'ch4_ion.yaml';
+            src = '../data/ch4_ion.yaml';
             self.phase = Solution(src);
             self.phase.TPX = {2237, OneAtm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'};
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteSolution(self)
-            clear self.phase;
         end
 
     end
@@ -98,12 +69,10 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
 
             self.verifyEqual(Dkm1, Dkm2, 'AbsTol', self.atol);
             self.verifyEqual(Dbin1, Dbin2, 'AbsTol', self.atol);
-
-            clear gas
         end
 
         function testIonizedLowT(self)
-            gas = Solution('ET_test.yaml');
+            gas = Solution('../data/ET_test.yaml');
 
             kO2m = gas.speciesIndex('O2^-');
             kC10H8 = gas.speciesIndex('C10H8');
@@ -117,8 +86,6 @@ classdef ctTestIonTransport < matlab.unittest.TestCase
             Dbin = gas.binDiffCoeffs;
             self.verifyEqual(Dbin(kO2m, kC10H8), 2.92899733e-06, ...
                              'RelTol', self.rtol);
-
-            clear gas
         end
 
     end

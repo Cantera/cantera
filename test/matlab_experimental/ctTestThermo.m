@@ -1,26 +1,12 @@
-classdef ctTestThermo < matlab.unittest.TestCase
+classdef ctTestThermo < ctTestCase
 
     properties
         phase
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-        function testSetUp(self)
-            ctTestSetUp
-        end
-    end
-
-    methods (TestClassTeardown)
-        function testTearDown(self)
-            % Clean up Cantera
-            ctCleanUp
-            ctTestTearDown
-        end
     end
 
     methods (TestMethodSetup)
@@ -30,14 +16,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
             id = 'ohmech';
             transport = 'none';
             self.phase = Solution(src, id, transport);
-        end
-
-    end
-
-    methods (TestMethodTeardown)
-
-        function deleteSolution(self)
-            clear self.phase;
         end
 
     end
@@ -290,7 +268,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
                 idx = chargePhase.speciesIndex(species);
                 self.verifyEqual(charges(idx), charge);
             end
-            clear chargePhase
         end
 
         function testReport(self)

@@ -1,30 +1,13 @@
-classdef ctTestTransport < matlab.unittest.TestCase
+classdef ctTestTransport < ctTestCase
 
     properties
         phase
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol_min = 1e-8;
         rtol_max = 1e-2;
         atol = 1e-8;
-    end
-
-    methods (TestClassSetup)
-
-        function testSetUp(self)
-            ctTestSetUp
-        end
-
-    end
-
-    methods (TestClassTeardown)
-
-        function testTearDown(self)
-            ctCleanUp
-            ctTestTearDown
-        end
-
     end
 
     methods (TestMethodSetup)
@@ -34,15 +17,6 @@ classdef ctTestTransport < matlab.unittest.TestCase
             self.phase = Solution(src);
             self.phase.TPX = {800, 2*OneAtm, ...
                               [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]};
-        end
-
-    end
-
-
-    methods (TestMethodTeardown)
-
-        function deleteSolution(self)
-            clear self.phase;
         end
 
     end

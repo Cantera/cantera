@@ -1,3 +1,6 @@
+% generateCodeCoverageReport.m
+% Generate a Cobertura-style code coverage report for the experimental MATLAB interface.
+
 import matlab.unittest.TestRunner
 import matlab.unittest.plugins.CodeCoveragePlugin
 import matlab.unittest.plugins.codecoverage.CoberturaFormat
