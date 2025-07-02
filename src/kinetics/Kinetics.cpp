@@ -582,7 +582,7 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
     resizeSpecies();
 }
 
-AnyMap Kinetics::parameters()
+AnyMap Kinetics::parameters() const
 {
     AnyMap out;
     string name = KineticsFactory::factory()->canonicalize(kineticsType());
