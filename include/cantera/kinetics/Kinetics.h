@@ -1280,7 +1280,7 @@ public:
     //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newKinetics function. This
     //! excludes the reaction definitions, which are handled separately.
-    AnyMap parameters();
+    AnyMap parameters() const;
 
     /**
      * Resize arrays with sizes that depend on the total number of species.
