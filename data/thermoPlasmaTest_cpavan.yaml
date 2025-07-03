@@ -1,0 +1,145 @@
+description: |-
+  This file contains data for gas excited species
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+species:
+- name: N2(v1)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 5667.0801, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 5765.1823, 5.980528]
+  note: Shifted enthalpy by 0.29 eV from ground-state N2
+
+- name: N2(v2)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 12355.0601, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 12453.1623, 5.980528]
+  note: Shifted enthalpy by 0.58 eV from ground-state N2
+
+- name: N2(v3)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 19043.0401, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 19141.1423, 5.980528]
+  note: Shifted enthalpy by 0.87 eV from ground-state N2
+
+- name: N2(v4)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 25731.0201, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 25829.1223, 5.980528]
+  note: Shifted enthalpy by 1.16 eV from ground-state N2
+
+- name: N2(v5)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 32419.0001, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 32517.1023, 5.980528]
+  note: Shifted enthalpy by 1.45 eV from ground-state N2
+
+- name: N2(v6)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 39106.9801, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 39205.0823, 5.980528]
+  note: Shifted enthalpy by 1.74 eV from ground-state N2
+
+- name: N2(v7)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 45794.9601, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 45893.0623, 5.980528]
+  note: Shifted enthalpy by 2.03 eV from ground-state N2
+
+- name: N2(v8)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12, 52482.9401, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15, 52581.0423, 5.980528]
+  note: Shifted enthalpy by 2.32 eV from ground-state N2
+
+- name: N2(A)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12,
+       141271.6401, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
+       141369.7423, 5.980528]
+  note: Shifted enthalpy by 6.17 eV from ground-state N2
+
+- name: N2(B)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12,
+       187165.0201, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
+       187263.1223, 5.980528]
+  note: Shifted enthalpy by 8.16 eV from ground-state N2
+
+- name: N2(a')
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12,
+       73561.6081, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
+       73659.7103, 5.980528]
+  note: Shifted enthalpy by 3.234 eV from ground-state N2
+
+- name: N2(C)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12,
+       134214.6681, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
+       134312.7703, 5.980528]
+  note: Shifted enthalpy by 5.864 eV from ground-state N2
+
+- name: CH4+
+  composition: {C: 1, H: 4, E: -1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08,
+       1.66693956e-11, 68984.3086312, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09,
+       -1.0181523e-13, 69762.6116412, 18.437318]
+  note: Rate-weighted CH4+ enthalpy from 4 dissociative recombination channels
