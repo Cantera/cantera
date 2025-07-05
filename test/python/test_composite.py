@@ -1179,6 +1179,13 @@ class TestSolutionSerialization:
         assert 'kinetics' not in data
         assert 'transport' not in data
 
+    def test_input_data_rate_multipliers(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_multiplier(0.25, 3)
+        gas.set_multiplier(0.5, 5)
+        multipliers = {"default": 1.0, "3": 0.25, "5": 0.5}
+        assert gas.input_data["rate-multipliers"] == multipliers
+
     def test_yaml_simple(self):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
@@ -1296,6 +1303,19 @@ class TestSolutionSerialization:
         gas2.modify_species(gas2.species_index('H2'), h2)
         with pytest.raises(ct.CanteraError, match="different definitions"):
             gas.write_yaml(self.test_work_path / "h2o2-error.yaml", phases=gas2)
+
+    def test_yaml_rate_multipliers(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        gas.set_multiplier(0.0)
+        gas.set_multiplier(2.0, 3)
+        gas.write_yaml(self.test_work_path / "h2o2-multipliers.yaml")
+        generated = ct.Solution(self.test_work_path / "h2o2-multipliers.yaml")
+
+        kf_gen = generated.forward_rate_constants
+        for i in range(gas.n_reactions):
+            if i != 3:
+                assert kf_gen[i] == 0.0
+        assert gas.multiplier(3) == 2.0
 
     def test_yaml_user_data(self):
         gas = ct.Solution("h2o2.yaml")
