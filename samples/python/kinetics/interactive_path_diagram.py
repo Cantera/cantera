@@ -84,9 +84,9 @@ time = 0
 steps = 0
 while time < residence_time:
     profiles["time"].append(time)
-    profiles["pressure"].append(gas.P)
-    profiles["temperature"].append(gas.T)
-    profiles["mole_fractions"].append(gas.X)
+    profiles["pressure"].append(reactor.thermo.P)
+    profiles["temperature"].append(reactor.thermo.T)
+    profiles["mole_fractions"].append(reactor.thermo.X)
     time = reactor_network.step()
     steps += 1
 

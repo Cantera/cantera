@@ -38,6 +38,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxReactorBase() except +translate_exception
         string type()
         void setSolution(shared_ptr[CxxSolution]) except +translate_exception
+        shared_ptr[CxxSolution] solution()
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
         double volume()
