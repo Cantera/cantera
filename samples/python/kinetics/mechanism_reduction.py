@@ -56,7 +56,7 @@ while sim.time < 0.04:
     sim.step()
     tt.append(1000 * sim.time)
     TT.append(r.T)
-    rnet = abs(gas.net_rates_of_progress)
+    rnet = abs(r.thermo.net_rates_of_progress)
     rnet /= max(rnet)
     Rmax = np.maximum(Rmax, rnet)
 

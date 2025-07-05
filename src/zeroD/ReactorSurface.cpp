@@ -16,12 +16,35 @@ namespace Cantera
 ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
                                const vector<shared_ptr<ReactorBase>>& reactors,
                                const string& name)
-    : ReactorSurface(soln, name)
+    : ReactorBase(name)
 {
-    for (auto& r : reactors) {
-        r->addSurface(this);
-        m_reactors.push_back(r.get());
+    vector<shared_ptr<Solution>> adjacent;
+    for (auto R : reactors) {
+        adjacent.push_back(R->solution());
+        m_reactors.push_back(R.get());
+        R->addSurface(this);
     }
+    m_solution = soln->clone(adjacent, true, false);
+    m_solution->thermo()->addSpeciesLock();
+    setThermo(*m_solution->thermo());
+    if (!std::dynamic_pointer_cast<SurfPhase>(soln->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
+    }
+
+    if (!soln->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(soln->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
+    }
+    // todo: move all member variables to use shared pointers after Cantera 3.2
+    m_kinetics = m_solution->kinetics().get();
+    m_thermo = m_solution->thermo().get();
+    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
 }
 
 ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)

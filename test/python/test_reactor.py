@@ -259,7 +259,7 @@ class TestReactor:
         self.net.advance(1.0)
 
         assert self.net.time == approx(1.0)
-        assert self.gas1.P == approx(self.gas2.P)
+        assert self.r1.thermo.P == approx(self.r2.thermo.P)
         assert self.r1.T != approx(self.r2.T)
 
     def test_tolerances(self, rtol_lim=1e-10, atol_lim=1e-20):
@@ -1203,7 +1203,7 @@ class TestWellStirredReactorIgnition:
         mdot_o = 5.0
         T0 = 900.0
         self.setup_reactor(T0, 10*ct.one_atm, mdot_f, mdot_o)
-        self.gas.set_multiplier(0.0)
+        self.combustor.thermo.set_multiplier(0.0)
         t,T = self.integrate(100.0)
 
         for i in range(len(t)):
@@ -1406,7 +1406,7 @@ class TestConstPressureReactor:
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
-    def test_surf_install_deprecated(self):
+    def test_surf_install_deprecated(self, allow_deprecated):
         self.create_reactors(add_surf=True, use_surf_install=True)
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
@@ -1642,9 +1642,10 @@ class FailRateData(ct.ExtensibleRateData):
 
 @ct.extension(name="fail-rate", data=FailRateData)
 class FailRate(ct.ExtensibleRate):
-    def __init__(self, *args, recoverable, **kwargs):
+    def __init__(self, *args, recoverable=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.recoverable = recoverable
+        if recoverable is not None:
+            self.recoverable = recoverable
         self.count = 0
 
     def eval(self, data):
@@ -1653,6 +1654,12 @@ class FailRate(ct.ExtensibleRate):
             if self.count < 3 or not self.recoverable:
                 raise ValueError("spam")
         return 0.0
+
+    def get_parameters(self, params):
+        params["recoverable"] = self.recoverable
+
+    def set_parameters(self, params, rate_coeff_units):
+        self.recoverable = params["recoverable"]
 
 
 class TestFlowReactor:
@@ -1859,7 +1866,7 @@ class TestFlowReactor2:
             sim.step()
 
         # At least some "recoverable" errors occurred
-        assert fail.rate.count > 0
+        assert r.thermo.reaction(gas.n_reactions - 1).rate.count > 0
 
     def test_max_steps(self):
         surf, gas = self.import_phases()
@@ -1982,8 +1989,8 @@ class TestFlowReactor2:
         cov1 = rsurf.kinetics.coverages
 
         # Reset the reactor to the same initial state
-        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
-        surf.TP = gas.TP
+        r.thermo.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = 1700, 4000
         r.mass_flow_rate = 0.01
         r.syncState()
 
@@ -2354,7 +2361,7 @@ class TestReactorSensitivities:
 
             rA, rB, surfX, surfY, net = setup(order)
             for (obj,k) in [(surfY,2), (surfX,2), (rB,18),
-                            (surfX,0), (rB,2)]:
+                            (surfY,0), (rB,2)]:
                 obj.add_sensitivity_reaction(k)
 
             integrate(rB, net)
@@ -2963,7 +2970,7 @@ class TestExtensibleReactor:
         # compare heat added (add_heat) to the equivalent energy contained by the solid
         # and gaseous mass in the reactor
         r1_heat = (mass_lump * cp_lump * (r1.thermo.T - 500) +
-                   mass_gas * (self.gas.enthalpy_mass - gas_initial_enthalpy))
+                   mass_gas * (r1.thermo.enthalpy_mass - gas_initial_enthalpy))
         add_heat = Q * time
         assert add_heat == approx(r1_heat, abs=1e-5)
 
@@ -3051,9 +3058,9 @@ class TestExtensibleReactor:
         Hweight = ct.Element("H").weight
         total_sites = rsurf.area * surf.site_density
         def masses():
-            mass_H = (gas.elemental_mass_fraction("H") * r1.mass +
+            mass_H = (r1.thermo.elemental_mass_fraction("H") * r1.mass +
                       total_sites * r1.surfaces[0].kinetics["H(s)"].X * Hweight)
-            mass_O = gas.elemental_mass_fraction("O") * r1.mass
+            mass_O = r1.thermo.elemental_mass_fraction("O") * r1.mass
             return mass_H, mass_O
 
         net.step()
@@ -3263,11 +3270,11 @@ class TestSteadySolver:
 
         upstream = ct.Reservoir(gas)
         gas.equilibrate("HP")
-        gas.set_multiplier(0.0)
         downstream = ct.Reservoir(gas)
         V0 = 1e-3
         mdot = 120
         r = ct.MoleReactor(gas, volume=V0)
+        r.thermo.set_multiplier(0.0)
         inlet = ct.MassFlowController(upstream, r, mdot=mdot)
         ct.MassFlowController(r, downstream, mdot=mdot)
         net = ct.ReactorNet([r])

@@ -27,15 +27,14 @@ void run()
     // Containers for Cantera objects to be used in different. Each thread needs
     // to have its own set of linked Cantera objects. Multiple threads accessing
     // the same objects at the same time will cause errors.
-    vector<shared_ptr<Solution>> sols;
     vector<shared_ptr<IdealGasConstPressureReactor>> reactors;
     vector<unique_ptr<ReactorNet>> nets;
 
     // Create and link the Cantera objects for each thread. This step should be
-    // done in serial
+    // done in serial. Only one initial Solution object is needed because a copy will
+    // be created for each new Reactor automatically.
+    auto sol = newSolution("gri30.yaml", "gri30", "none");
     for (int i = 0; i < nThreads; i++) {
-        auto sol = newSolution("gri30.yaml", "gri30", "none");
-        sols.emplace_back(sol);
         reactors.emplace_back(new IdealGasConstPressureReactor(sol));
         nets.emplace_back(new ReactorNet(reactors.back()));
     }
@@ -61,7 +60,7 @@ void run()
     for (int i = 0; i < nPoints; i++) {
         // Get the Cantera objects that were initialized for this thread
         size_t j = omp_get_thread_num();
-        auto gas = sols[j]->thermo();
+        auto gas = reactors[j]->solution()->thermo();
         Reactor& reactor = *reactors[j];
         ReactorNet& net = *nets[j];
 
