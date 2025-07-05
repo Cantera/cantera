@@ -597,6 +597,23 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
     resizeSpecies();
 }
 
+void Kinetics::setParameters(const AnyMap& phaseNode) {
+    skipUndeclaredThirdBodies(phaseNode.getBool("skip-undeclared-third-bodies", false));
+    setExplicitThirdBodyDuplicateHandling(
+        phaseNode.getString("explicit-third-body-duplicates", "warn"));
+
+    if (phaseNode.hasKey("rate-multipliers")) {
+        const auto& defaultMultipliers = phaseNode["rate-multipliers"];
+        for (auto& [key, val] : defaultMultipliers) {
+            if (key == "default") {
+                m_defaultPerturb[-1] = val.asDouble();
+            } else {
+                m_defaultPerturb[stoi(key)] = val.asDouble();
+            }
+        }
+    }
+}
+
 AnyMap Kinetics::parameters() const
 {
     AnyMap out;
@@ -614,6 +631,28 @@ AnyMap Kinetics::parameters() const
             // and "modify-efficiency" do not need to be propagated here as their
             // effects are already applied to the corresponding reactions.
             out["explicit-third-body-duplicates"] = "error";
+        }
+        map<double, int> multipliers;
+        for (auto m : m_perturb) {
+            multipliers[m] += 1;
+        }
+        if (multipliers[1.0] != nReactions()) {
+            int defaultCount = 0;
+            double defaultMultiplier = 1.0;
+            for (auto& [m, count] : multipliers) {
+                if (count > defaultCount) {
+                    defaultCount = count;
+                    defaultMultiplier = m;
+                }
+            }
+            AnyMap multiplierMap;
+            multiplierMap["default"] = defaultMultiplier;
+            for (size_t i = 0; i < nReactions(); i++) {
+                if (m_perturb[i] != defaultMultiplier) {
+                    multiplierMap[to_string(i)] = m_perturb[i];
+                }
+            }
+            out["rate-multipliers"] = multiplierMap;
         }
     }
     return out;
@@ -710,7 +749,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
-    m_perturb.push_back(1.0);
+    m_perturb.push_back(getValue(m_defaultPerturb, irxn, m_defaultPerturb[-1]));
     m_dH.push_back(0.0);
 
     if (resize) {
