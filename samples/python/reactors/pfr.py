@@ -115,17 +115,18 @@ m = ct.MassFlowController(upstream, r2, mdot=mass_flow_rate2)
 v = ct.PressureController(r2, downstream, primary=m, K=1e-5)
 
 sim2 = ct.ReactorNet([r2])
+sim2.max_time_step = 1e4
 
 # define time, space, and other information vectors
 z2 = (np.arange(n_steps) + 1) * dz
 t_r2 = np.zeros_like(z2)  # residence time in each reactor
 u2 = np.zeros_like(z2)
 t2 = np.zeros_like(z2)
-states2 = ct.SolutionArray(r2.thermo)
+states2 = ct.SolutionArray(gas2)
 # iterate through the PFR cells
 for n in range(n_steps):
     # Set the state of the reservoir to match that of the previous reactor
-    gas2.TDY = r2.thermo.TDY
+    upstream.thermo.TDY = r2.thermo.TDY
     upstream.syncState()
     # integrate the reactor forward in time until steady state is reached
     sim2.reinitialize()
