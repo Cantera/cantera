@@ -84,6 +84,9 @@ public:
     //!              ReactorBase with Solution object.
     void setSolution(shared_ptr<Solution> sol);
 
+    //! Access the Solution object used to represent the contents of this reactor.
+    shared_ptr<Solution> solution() { return m_solution; }
+
     //! @name Methods to set up a simulation
     //! @{
 

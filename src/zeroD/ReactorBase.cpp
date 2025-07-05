@@ -24,7 +24,7 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
         throw CanteraError("ReactorBase::ReactorBase",
                            "Missing or incomplete Solution object.");
     }
-    m_solution = sol;
+    m_solution = sol->clone({}, true, false);
     m_solution->thermo()->addSpeciesLock();
     m_thermo = m_solution->thermo().get();
     m_nsp = m_thermo->nSpecies();
@@ -72,9 +72,9 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
     }
     m_solution = sol;
     m_solution->thermo()->addSpeciesLock();
-    setThermo(*sol->thermo());
+    setThermo(*m_solution->thermo());
     try {
-        setKinetics(*sol->kinetics());
+        setKinetics(*m_solution->kinetics());
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }

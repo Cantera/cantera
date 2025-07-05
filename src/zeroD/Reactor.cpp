@@ -25,7 +25,7 @@ namespace Cantera
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {
-    m_kin = sol->kinetics().get();
+    m_kin = m_solution->kinetics().get();
     if (m_kin->nReactions() == 0) {
         setChemistry(false);
     } else {
