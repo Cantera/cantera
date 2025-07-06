@@ -151,15 +151,12 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
             // stepping mode.
             step(x1, step1, r, loglevel-1);
         } catch (CanteraError& err) {
-            if (r.rdt() == 0) {
-                if (loglevel > 1) {
-                    writelog("\n  Steady-state Newton step failed:"
-                             "\n  {}:\n    {}", err.getMethod(), err.getMessage());
-                }
-                return -5;
-            } else {
-                throw;
+            if (loglevel > 1) {
+                writelog("\n  Reducing step size due to evaluation failure on trial step:"
+                            "\n  {}:\n    {}", err.getMethod(), err.getMessage());
             }
+            alpha /= m_dampFactor;
+            continue;
         }
 
         // compute the weighted norm of step1
