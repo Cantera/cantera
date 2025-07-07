@@ -8,7 +8,6 @@
 #include "cantera/oneD/Flow1D.h"
 #include "cantera/oneD/Flamelet.h"
 #include "cantera/oneD/IonFlow.h"
-#include "cantera/oneD/StFlow.h"
 #include "cantera/transport/Transport.h"
 
 namespace Cantera
@@ -40,11 +39,11 @@ DomainFactory::DomainFactory()
     reg("reacting-surface", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
         return new ReactingSurf1D(solution, id);
     });
-    reg("gas-flow", [](shared_ptr<Solution> solution, const string& id) {
-        return new Flow1D(solution, id);
+    reg("gas-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+        return new Flow1D(solution, id, sections);
     });
     reg("legacy-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
-        return new StFlow(solution, id, sections);
+        return new Flow1D(solution, id, sections);
     });
     reg("ion-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
         return new IonFlow(solution, id);
@@ -54,7 +53,7 @@ DomainFactory::DomainFactory()
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new StFlow(solution, id, sections);
+            ret = new Flow1D(solution, id, sections);
         }
         ret->setFreeFlow();
         return ret;
@@ -74,13 +73,13 @@ DomainFactory::DomainFactory()
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new StFlow(solution, id, sections);
+            ret = new Flow1D(solution, id, sections);
         }
         ret->setUnstrainedFlow();
         return ret;
     });
     reg("flamelet-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
-        StFlow* ret;
+        Flow1D* ret;
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {

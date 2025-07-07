@@ -44,7 +44,7 @@ f.energy_enabled = False
 f.flame.set_fixed_temp_profile(z/max(z), T)
 
 # Setting the transport model to mixture-averaged
-f.transport_model = 'Mix'
+f.transport_model = 'mixture-averaged'
 
 # Setting mesh refinement criteria
 f.set_refine_criteria(ratio=2.0, slope=0.1, curve=0.1)
@@ -53,7 +53,7 @@ f.set_refine_criteria(ratio=2.0, slope=0.1, curve=0.1)
 f.solve(1, 'refine')
 
 # Showing the result
-f.show_solution()
+f.show()
 
 # Saving the result
 if ct.__version__ >= '2.5.0':

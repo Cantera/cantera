@@ -36,7 +36,7 @@ void Boundary1D::_init(size_t n)
         if (!r.isConnector()) { // multi-point domain
             m_left_nv = r.nComponents();
 
-            if (m_type == cFlameletFlow) { 
+            if (domainType() == "flamelet-flow") { 
                 if (m_left_nv > c_offset_Yflamelet) {
                     m_left_nsp = m_left_nv - c_offset_Yflamelet;
                 } else {
@@ -69,7 +69,7 @@ void Boundary1D::_init(size_t n)
         if (!r.isConnector()) { // multi-point domain
             m_right_nv = r.nComponents();
 
-            if (m_type == cFlameletFlow) {  
+            if (domainType() == "flamelet-flow") {  
                 if (m_right_nv > c_offset_Yflamelet) {
                     m_right_nsp = m_right_nv - c_offset_Yflamelet;
                 } else {

@@ -6,7 +6,7 @@
 
 // Author: Q. Cazeres, A. Felden, P. Pepiot
 
-#include "GasKinetics.h"
+#include "BulkKinetics.h"
 
 namespace Cantera
 {
@@ -14,7 +14,7 @@ namespace Cantera
    *  Kinetics manager implementing reaction mechanism GRI-Mech 3.0
    *  @deprecated
    */
-  class CustomKinetics : public GasKinetics
+  class CustomKinetics : public BulkKinetics
   {
   public:
     /// Default constructor.

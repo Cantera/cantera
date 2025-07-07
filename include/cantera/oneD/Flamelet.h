@@ -3,7 +3,7 @@
 
 // #include "Domain1D.h"
 #include "cantera/base/Array.h"
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -20,7 +20,7 @@
 namespace Cantera
 {
 
-class Flamelet : public StFlow
+class Flamelet : public Flow1D
 {
 public:
     Flamelet(IdealGasPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Yflamelet, size_t points = 1);
@@ -39,12 +39,8 @@ public:
 
     virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
 
-    virtual string type() const override{
+    string domainType() const override{
         return "flamelet-flow";
-    }
-
-    virtual string flowType() const override{
-	    return "Flamelet";
     }
 
     virtual void resize(size_t components, size_t points) override;

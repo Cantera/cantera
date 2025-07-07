@@ -1,12 +1,8 @@
 // ! Flamelet definitions
 //
-
-#include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
-
-
 #include "cantera/base/SolutionArray.h"
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/transport/Transport.h"
 #include "cantera/transport/TransportFactory.h"
@@ -24,20 +20,20 @@ namespace Cantera
 {
 
 Flamelet::Flamelet(IdealGasPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t points) :
-	StFlow(ph, nsp, nsoot, neq, points) {
+	Flow1D(ph, nsp, nsoot, neq, points) {
 	m_dovisc = true;
 	m_updateChi = true;
 	m_do_unityLewisNumber = true;
     }
 
 Flamelet::Flamelet(shared_ptr<ThermoPhase> th, size_t nsp, size_t nsoot, size_t neq, size_t points)
-    : StFlow(th.get(), nsp, nsoot, neq, points) {
+    : Flow1D(th.get(), nsp, nsoot, neq, points) {
     m_solution = Solution::create();
     m_solution->setThermo(th);
     }
 
 Flamelet::Flamelet(shared_ptr<Solution> sol, const string& id, size_t nsoot, size_t neq, size_t points)
-    : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), nsoot, neq, points) {
+    : Flow1D(sol->thermo().get(), sol->thermo()->nSpecies(), nsoot, neq, points) {
     m_solution = sol;
     m_id = id;
     m_kin = m_solution->kinetics().get();
@@ -50,7 +46,7 @@ Flamelet::Flamelet(shared_ptr<Solution> sol, const string& id, size_t nsoot, siz
 
     if (m_trans->transportModel() == "none") {
         // @deprecated
-        warn_deprecated("StFlow",
+        warn_deprecated("Flow1D",
             "An appropriate transport model\nshould be set when instantiating the "
             "Solution ('gas') object.\nImplicit setting of the transport model "
             "is deprecated and\nwill be removed after Cantera 3.0.");

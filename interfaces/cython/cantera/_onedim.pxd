@@ -106,7 +106,6 @@ cdef extern from "cantera/oneD/Flow1D.h":
         void setSections(size_t)
         size_t getSections()
         void setFlameletFlow()
-        string flowType()
 
 
         void setPrecursors(vector[size_t]&)
@@ -216,8 +215,8 @@ cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 
 cdef extern from "cantera/oneD/Flamelet.h":
-    cdef cppclass CxxFlamelet "Cantera::Flamelet" (CxxStFlow):
-        CxxFlamelet(CxxStFlow*) 
+    cdef cppclass CxxFlamelet "Cantera::Flamelet" (CxxFlow1D):
+        CxxFlamelet(CxxFlow1D*) 
         double chiSt() #except +translate_exception
         double zSt() #except +translate_exception
         void setChiSt(double) #except +translate_exception
@@ -239,7 +238,7 @@ cdef class ReactingSurface1D(Boundary1D):
 cdef class FlowBase(Domain1D):
     cdef CxxFlow1D* flow
 
-cdef class FlameletFlow(_FlowBase):
+cdef class FlameletFlow(FlowBase):
     cdef CxxFlamelet* flamelet
 
 cdef class Sim1D:

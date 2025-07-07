@@ -418,21 +418,6 @@ cdef class ReactingSurface1D(Boundary1D):
         gas phase.
     """
     _domain_type = "reacting-surface"
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        # once legacy path is removed, the parent __cinit__ is sufficient
-        self.legacy = phase.phase_of_matter == "gas"
-        if self.legacy:
-            # legacy pathway - deprecation is handled in __init__
-            self.surf = new CxxReactingSurf1D()
-            self.domain = <CxxDomain1D*>(self.surf)
-        else:
-            self._domain = CxxNewDomain1D(stringify(self._domain_type), phase._base, stringify(name),
-                #add kwargs if kwargs provided
-                kwargs['sections'] if 'sections' in kwargs else 0,
-            )
-            self.domain = self._domain.get()
-            self.surf = <CxxReactingSurf1D*>self.domain
-        self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __init__(self, _SolutionBase phase, name=None):
         gas = None
@@ -1170,18 +1155,6 @@ cdef class FlowBase(Domain1D):
         mass fluxes.
         """
         self.flow.setFlameletFlow()
-
-    property flow_type:
-        """
-        Return the type of flow domain being represented, either "Free Flame" or
-        "Axisymmetric Stagnation".
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `domain_type`.
-        """
-        def __get__(self):
-            return pystr(self.flow.flowType())
 
     @property
     def type(self):

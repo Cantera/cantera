@@ -19,7 +19,7 @@ using namespace std;
 
 namespace Cantera 
 {
-  CustomKinetics::CustomKinetics() : GasKinetics() 
+  CustomKinetics::CustomKinetics() : BulkKinetics() 
   {
     printf("WARNING: Using customized kinetics from f90 file.\n");
     handle = dlopen("customkinetics.so", RTLD_LAZY);
