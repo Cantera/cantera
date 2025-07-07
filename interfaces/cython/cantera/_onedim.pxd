@@ -241,6 +241,9 @@ cdef class FlowBase(Domain1D):
 cdef class FlameletFlow(FlowBase):
     cdef CxxFlamelet* flamelet
 
+cdef class FlameletFlow(_FlowBase):
+    cdef CxxFlamelet* flamelet
+
 cdef class Sim1D:
     cdef CxxSim1D* sim
     cdef readonly object domains

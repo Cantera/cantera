@@ -19,7 +19,7 @@ else:
 z, T = np.genfromtxt('./inputs/T_vs_x.dat').T
 
 # Creating flame object of the same size as the experimental flame with 25 soot sections
-f = ct.BurnerFlame(gas=gas, width=z[-1], sections = 2)
+f = ct.BurnerFlame(gas=gas, width=z[-1], sections = 25)
 
 # Setting transport model
 f.transport_model = 'mixture-averaged'
