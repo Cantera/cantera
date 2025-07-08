@@ -1321,26 +1321,30 @@ class TestSolutionSerialization:
         yaml_gen = generated_file.read_text()
         assert re.search("extra:.*key1.*key2", yaml_gen)
 
-
     def test_duplicate_reactions(self):
-        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        R = [
+            ct.Reaction(equation='H2 + O = OH + H', rate=ct.ArrheniusRate(100, 0, 0)),
+            ct.Reaction(equation='H2 + O = OH + H', rate=ct.ArrheniusRate(50, 0.5, 0)),
+            ct.Reaction(equation='OH + H2 = H + H2O', rate=ct.ArrheniusRate(10, 2, 0)),
+        ]
+        R[2].duplicate = True
 
-        reactions = [gas.reaction(i) for i in range(gas.n_reactions) if i != 25]
-        gas_reduced = ct.Solution(name="gas", thermo="ideal-gas", kinetics="bulk",
-                                  species=gas.species(), reactions=reactions)
-        gas_reduced.write_yaml(self.test_work_path / "h2o2-reduced-duplicates-err.yaml")
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                          species=ct.Species.list_from_file('h2o2.yaml'), reactions=R)
+        gas.TPX = 900, 2 * ct.one_atm, 'H2:1.0, O2:1.0'
 
-        with pytest.raises(ct.CanteraError, match="No duplicate found .+ number 24"):
-            test = ct.Solution(self.test_work_path / "h2o2-reduced-duplicates-err.yaml")
+        yaml_file = self.test_work_path / "marking-duplicates.yaml"
+        gas.write_yaml(yaml_file)
+        restored = ct.Solution(yaml_file)
+        assert restored.reaction(0).duplicate is True
+        assert restored.reaction(1).duplicate is True
+        assert restored.reaction(2).duplicate is False
 
-        reactions[24].duplicate = False
-        assert 'duplicate' not in reactions[24].input_data
-        gas_reduced = ct.Solution(name="gas", thermo="ideal-gas", kinetics="bulk",
-                                  species=gas.species(), reactions=reactions)
-        gas_reduced.write_yaml(self.test_work_path / "h2o2-reduced-duplicates-ok.yaml")
-        test = ct.Solution(self.test_work_path / "h2o2-reduced-duplicates-ok.yaml")
-        assert not gas_reduced.reaction(24).duplicate
+        assert gas.forward_rate_constants == approx(restored.forward_rate_constants)
 
+        assert 'duplicate' in restored.reaction(0).input_data
+        restored.reaction(0).duplicate = False
+        assert 'duplicate' not in restored.reaction(0).input_data
 
 class TestSpeciesSerialization:
 

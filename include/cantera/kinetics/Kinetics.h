@@ -1383,16 +1383,19 @@ public:
 
     //! @}
     //! Check for unmarked duplicate reactions and unmatched marked duplicates
-    /**
-     * If `throw_err` is true, then an exception will be thrown if either any
-     * unmarked duplicate reactions are found, or if any marked duplicate
-     * reactions do not have a matching duplicate reaction. If `throw_err` is
-     * false, the indices of the first pair of duplicate reactions found will be
-     * returned, or the index of the unmatched duplicate will be returned as
-     * both elements of the pair. If no unmarked duplicates or unmatched marked
-     * duplicate reactions are found, returns `(npos, npos)`.
-     */
-    virtual pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
+    //!
+    //! @param throw_err  If `true`, raise an exception that identifies any unmarked
+    //!     duplicate reactions and any reactions marked as duplicate that do not
+    //!     actually have a matching reaction.
+    //! @param fix  If `true` (and if `throw_err` is false), update the `duplicate`
+    //!     flag on all reactions to correctly indicate whether or not they are
+    //!     duplicates.
+    //! @return  If `throw_err` and `fix` are `false`, the indices of the first pair
+    //!     of duplicate reactions or the index of an unmatched duplicate as both
+    //!     elements of the `pair`. Otherwise, `(npos, npos)` if no errors were detected
+    //!     or if the errors were fixed.
+    //! @since  The `fix` argument was added in %Cantera 3.2.
+    virtual pair<size_t, size_t> checkDuplicates(bool throw_err=true, bool fix=false);
 
     //! Set root Solution holding all phase information
     virtual void setRoot(shared_ptr<Solution> root) {

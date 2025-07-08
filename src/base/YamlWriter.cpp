@@ -128,6 +128,8 @@ string YamlWriter::toYamlString() const
         if (!kin || !kin->nReactions()) {
             continue;
         }
+        // Update duplicate reaction labels in case of a dynamically-built mechanism
+        kin->checkDuplicates(false, true);
         vector<AnyMap> reactions;
         for (size_t i = 0; i < kin->nReactions(); i++) {
             reactions.push_back(kin->reaction(i)->parameters(!m_skip_user_defined));

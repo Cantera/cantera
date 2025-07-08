@@ -103,7 +103,7 @@ void Kinetics::setExplicitThirdBodyDuplicateHandling(const string& flag)
     }
 }
 
-pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
+pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err, bool fix)
 {
     //! Map of (key indicating participating species) to reaction numbers
     map<size_t, vector<size_t>> participants;
@@ -204,6 +204,9 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
                         m+1, R.equation(), i+1, other.equation());
+            } else if (fix) {
+                R.duplicate = true;
+                other.duplicate = true;
             } else {
                 return {i,m};
             }
@@ -211,14 +214,17 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         participants[key].push_back(i);
     }
     if (unmatched_duplicates.size()) {
-        size_t i = *unmatched_duplicates.begin();
-        if (throw_err) {
-            errs.emplace_back("Kinetics::checkDuplicates",
-                m_reactions[i]->input,
-                "No duplicate found for declared duplicate reaction number {}"
-                " ({})", i, m_reactions[i]->equation());
-        } else {
-            return {i, i};
+        for (auto i : unmatched_duplicates) {
+            if (throw_err) {
+                errs.emplace_back("Kinetics::checkDuplicates",
+                    m_reactions[i]->input,
+                    "No duplicate found for declared duplicate reaction number {}"
+                    " ({})", i, m_reactions[i]->equation());
+            } else if (fix) {
+                m_reactions[i]->duplicate = false;
+            } else {
+                return {i, i};
+            }
         }
     }
     if (errs.empty()) {
