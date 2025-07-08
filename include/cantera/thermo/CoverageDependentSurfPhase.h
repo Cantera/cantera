@@ -157,6 +157,35 @@ public:
         //! boolean indicating whether the dependency is linear
         bool isLinear;
     };
+    
+    struct TotalPolynomialDependency
+    {
+        /*!
+         * @param k index of a target species whose enthalpy and entropy are calculated
+         * @param j index of a species whose coverage affects enthalpy and entropy of
+         *          a target species
+         * @param dep_map map of coverage-dependency parameters
+         */
+        TotalPolynomialDependency(size_t k, size_t j, const AnyMap& dep_map);
+
+        //! index of a target species whose enthalpy and entropy is calculated
+        size_t k;
+        //! index of a species whose coverage affects enthalpy and entropy of
+        //! a target species
+        size_t j;
+        //! array of polynomial coefficients describing coverage-dependent enthalpy
+        //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
+        //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
+        //! in the linear or the polynomial dependency model)
+        vector<double> enthalpy_coeffs;
+        //! array of polynomial coefficients describing coverage-dependent entropy
+        //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
+        //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
+        //! in the linear or the polynomial dependency model)
+        vector<double> entropy_coeffs;
+        //! boolean indicating whether the dependency is linear
+        bool isLinear;
+    };
 
     //! A struct to store sets of parameters used in coverage-dependent enthalpy
     //! and entropy calculations by a interpolative equation or a piecewise-linear
@@ -171,6 +200,31 @@ public:
          * @param node species node of a target species
          */
         InterpolativeDependency(size_t k, size_t j,
+                                const AnyMap& dep_map, const AnyBase& node);
+
+        //! index of a target species whose enthalpy and entropy are calculated
+        size_t k;
+        //! index of a species whose coverage affects enthalpy and entropy of
+        //! a target species
+        size_t j;
+        //! map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
+        map<double, double> enthalpy_map;
+        //! map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
+        map<double, double> entropy_map;
+        //! boolean indicating whether the dependency is piecewise-linear
+        bool isPiecewise;
+    };
+    
+    struct TotalInterpolativeDependency
+    {
+        /*!
+         * @param k index of a target species whose enthalpy and entropy are calculated
+         * @param j index of a species whose coverage affects enthalpy and entropy of
+         *          a target species
+         * @param dep_map map of coverage-dependency parameters
+         * @param node species node of a target species
+         */
+        TotalInterpolativeDependency(size_t k, size_t j,
                                 const AnyMap& dep_map, const AnyBase& node);
 
         //! index of a target species whose enthalpy and entropy are calculated
@@ -209,6 +263,28 @@ public:
         //! heat capacity model
         double coeff_b;
     };
+    
+    struct TotalHeatCapacityDependency
+    {
+        /*!
+         * @param k index of a target species whose heat capacity is calculated
+         * @param j index of a species whose coverage affects heat capacity of
+         *          a target species
+         */
+        TotalHeatCapacityDependency(size_t k, size_t j):
+                               k(k), j(j), coeff_a(0.0), coeff_b(0.0) {}
+        //! index of a target species whose heat capacity is calculated
+        size_t k;
+        //! index of a species whose coverage affects heat capacity of
+        //! a target species
+        size_t j;
+        //! coefficient @f$ c^{(a)} @f$ [J/kmol/K] in the coverage-dependent
+        //! heat capacity model
+        double coeff_a;
+        //! coefficient @f$ c^{(b)} @f$ [J/kmol/K] in the coverage-dependent
+        //! heat capacity model
+        double coeff_b;
+    };
 
     //! Construct and initialize a CoverageDependentSurfPhase ThermoPhase object
     //! directly from an ASCII input file.
@@ -229,6 +305,7 @@ public:
      *  @param int_deps  list of parameters as an InterpolativeDependency object
      */
     void addInterpolativeDependency(const InterpolativeDependency& int_deps);
+    void addInterpolativeDependency_Total(const TotalInterpolativeDependency& int_deps);
 
     void initThermo() override;
     bool addSpecies(shared_ptr<Species> spec) override;
@@ -411,13 +488,16 @@ protected:
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the linear and polynomial dependency equations.
     vector<PolynomialDependency> m_PolynomialDependency;
+    vector<TotalPolynomialDependency> m_TotalPolynomialDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the piecewise-linear and interpolative dependency equations.
     vector<InterpolativeDependency> m_InterpolativeDependency;
+    vector<TotalInterpolativeDependency> m_TotalInterpolativeDependency;
 
     //! Array of heat capacity coverage dependency parameters.
     vector<HeatCapacityDependency> m_HeatCapacityDependency;
+    vector<TotalHeatCapacityDependency> m_TotalHeatCapacityDependency;
 
 private:
     //! Storage for the user-defined reference state coverage which has to be
