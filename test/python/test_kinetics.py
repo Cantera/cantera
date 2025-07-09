@@ -733,7 +733,7 @@ class TestReactionPath:
         gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
 
         # Advance the reactor
-        r = ct.IdealGasReactor(gas)
+        r = ct.IdealGasReactor(gas, clone=False)
         net = ct.ReactorNet([r])
         T = r.T
         while T < 1900:

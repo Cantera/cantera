@@ -22,7 +22,7 @@ class Reservoir;
 //! ```cpp
 //!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
 //! ```
-class ReactorFactory : public Factory<ReactorBase, shared_ptr<Solution>, const string&>
+class ReactorFactory : public Factory<ReactorBase, shared_ptr<Solution>, bool, const string&>
 {
 public:
     static ReactorFactory* factory();
@@ -49,7 +49,8 @@ private:
 //! Create a ReactorBase object of the specified type and contents.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorBase> newReactorBase(
-    const string& model, shared_ptr<Solution> contents, const string& name="(none)");
+    const string& model, shared_ptr<Solution> contents, bool clone=true,
+    const string& name="(none)");
 
 //! Create a Reactor object of the specified type and contents
 //! @since Starting in %Cantera 3.1, this method requires a valid Solution object and
@@ -62,19 +63,20 @@ shared_ptr<ReactorBase> newReactor(
 //! Create a Reactor object of the specified type and contents
 //! @since  New in %Cantera 3.2. Transitional method returning a `Reactor` object.
 shared_ptr<Reactor> newReactor4(
-    const string& model, shared_ptr<Solution> contents, const string& name="(none)");
+    const string& model, shared_ptr<Solution> contents, bool clone=true,
+    const string& name="(none)");
 
 //! Create a Reservoir object with the specified contents
 //! @since New in %Cantera 3.2.
 shared_ptr<Reservoir> newReservoir(
-    shared_ptr<Solution> contents, const string& name="(none)");
+    shared_ptr<Solution> contents, bool clone=true, const string& name="(none)");
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
 //! participating in surface reactions.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorSurface> newReactorSurface(
     shared_ptr<Solution> soln, const vector<shared_ptr<ReactorBase>>& reactors,
-    const string& name="(none)");
+    bool clone=true, const string& name="(none)");
 
 //! @}
 

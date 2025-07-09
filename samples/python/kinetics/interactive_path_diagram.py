@@ -71,7 +71,7 @@ residence_time = 1e-3
 # %%
 # Create a batch reactor object and set solver tolerances
 
-reactor = ct.IdealGasConstPressureReactor(gas, energy="on")
+reactor = ct.IdealGasConstPressureReactor(gas, energy="on", clone=False)
 reactor_network = ct.ReactorNet([reactor])
 reactor_network.atol = 1e-12
 reactor_network.rtol = 1e-12

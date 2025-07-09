@@ -34,6 +34,18 @@ Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
+Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
+    : ReactorBase(sol, clone, name)
+{
+    m_kin = m_solution->kinetics().get();
+    if (m_kin->nReactions() == 0) {
+        setChemistry(false);
+    } else {
+        setChemistry(true);
+    }
+    m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
+}
+
 void Reactor::setDerivativeSettings(AnyMap& settings)
 {
     m_kin->setDerivativeSettings(settings);

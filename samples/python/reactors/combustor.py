@@ -34,7 +34,7 @@ gas = ct.Solution('gri30.yaml', transport_model=None)
 equiv_ratio = 0.5  # lean combustion
 gas.TP = 300.0, ct.one_atm
 gas.set_equivalence_ratio(equiv_ratio, 'CH4:1.0', 'O2:1.0, N2:3.76')
-inlet = ct.Reservoir(gas)
+inlet = ct.Reservoir(gas, clone=True)
 
 # %%
 # Create the combustor, and fill it initially with a mixture consisting of the
@@ -43,12 +43,12 @@ inlet = ct.Reservoir(gas)
 # initial condition from which to reach a steady-state solution on the reacting
 # branch.
 gas.equilibrate('HP')
-combustor = ct.IdealGasReactor(gas)
+combustor = ct.IdealGasReactor(gas, clone=True)
 combustor.volume = 1.0
 
 # %%
 # Create a reservoir for the exhaust:
-exhaust = ct.Reservoir(gas)
+exhaust = ct.Reservoir(gas, clone=True)
 
 # %%
 # Use a variable mass flow rate to keep the residence time in the reactor

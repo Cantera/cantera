@@ -26,7 +26,7 @@ class TestReactor:
 
         self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
-        self.r1 = self.reactorClass(self.gas1)
+        self.r1 = self.reactorClass(self.gas1, clone=True)
 
         if independent:
             self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
@@ -37,7 +37,7 @@ class TestReactor:
             self.net = ct.ReactorNet([self.r1])
         else:
             self.gas2.TPX = T2, P2, X2
-            self.r2 = self.reactorClass(self.gas2)
+            self.r2 = self.reactorClass(self.gas2, clone=True)
             self.net = ct.ReactorNet([self.r1, self.r2])
         assert self.net.initial_time == 0.
 
@@ -53,7 +53,7 @@ class TestReactor:
 
     def test_volume(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
-        R = self.reactorClass(g, volume=11)
+        R = self.reactorClass(g, volume=11, clone=True)
         assert R.volume == 11
 
         R.volume = 9
@@ -231,7 +231,7 @@ class TestReactor:
 
     def test_wall_type2(self):
         self.make_reactors(n_reactors=1)
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         w = ct.Wall(self.r1, res)
         net = ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
@@ -240,7 +240,7 @@ class TestReactor:
 
     def test_wall_type3(self):
         self.make_reactors(n_reactors=1)
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         w = ct.Wall(res, self.r1)
         net = ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
@@ -425,7 +425,7 @@ class TestReactor:
 
         gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         gas1.TPX = T0, P0, X0
-        r1 = ct.IdealGasConstPressureReactor(gas1)
+        r1 = ct.IdealGasConstPressureReactor(gas1, clone=True)
 
         net = ct.ReactorNet([r1])
         net.advance(1.0)
@@ -510,7 +510,7 @@ class TestReactor:
         self.make_reactors(n_reactors=1)
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 300, 10*101325, 'H2:1.0'
-        reservoir = ct.Reservoir(gas2)
+        reservoir = ct.Reservoir(gas2, clone=True)
 
         # Apply a mass flow rate that is not a smooth function of time. This
         # demonstrates the accuracy that can be achieved by having the mass flow rate
@@ -708,7 +708,7 @@ class TestReactor:
 
     def test_valve_type1(self):
         self.make_reactors()
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         v = ct.Valve(self.r1, res)
         ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
@@ -720,7 +720,7 @@ class TestReactor:
 
     def test_valve_type2(self):
         self.make_reactors()
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         ct.Valve(res, self.r1)
         ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
@@ -730,9 +730,9 @@ class TestReactor:
         self.make_reactors(n_reactors=1)
         g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
-        inlet_reservoir = ct.Reservoir(g)
+        inlet_reservoir = ct.Reservoir(g, clone=True)
         g.TP = 300, 101325
-        outlet_reservoir = ct.Reservoir(g)
+        outlet_reservoir = ct.Reservoir(g, clone=True)
 
         mfc = ct.MassFlowController(inlet_reservoir, self.r1)
         mdot = lambda t: np.exp(-100*(t-0.5)**2)
@@ -758,9 +758,9 @@ class TestReactor:
         self.make_reactors(n_reactors=1)
         g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
-        inlet_reservoir = ct.Reservoir(g)
+        inlet_reservoir = ct.Reservoir(g, clone=True)
         g.TP = 300, 101325
-        outlet_reservoir = ct.Reservoir(g)
+        outlet_reservoir = ct.Reservoir(g, clone=True)
 
         mfc = ct.MassFlowController(inlet_reservoir, self.r1)
         mdot = lambda t: np.exp(-100*(t-0.5)**2)
@@ -782,7 +782,7 @@ class TestReactor:
 
     def test_pressure_controller_type(self):
         self.make_reactors()
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
         p = ct.PressureController(self.r1, self.r2, primary=mfc, K=0.5)
         net = ct.ReactorNet([self.r1, self.r2])  # assigns default names
@@ -793,7 +793,7 @@ class TestReactor:
 
     def test_pressure_controller_errors(self):
         self.make_reactors()
-        res = ct.Reservoir(self.gas1)
+        res = ct.Reservoir(self.gas1, clone=True)
         mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
 
         p = ct.PressureController(self.r1, self.r2, primary=mfc, K=0.5)
@@ -904,9 +904,9 @@ class TestReactor:
 
     def test_bad_kwarg(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
-        self.reactorClass(g, name='ok')
+        self.reactorClass(g, name='ok', clone=True)
         with pytest.raises(TypeError):
-            self.reactorClass(g, foobar=3.14)
+            self.reactorClass(g, foobar=3.14, clone=True)
 
     def test_preconditioner_unsupported(self):
         self.make_reactors()
@@ -922,7 +922,7 @@ class TestReactor:
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         self.gas1.TPX = T1, P1, X1
         # set attributes during creation
-        r1 = self.reactorClass(self.gas1, node_attr={'fillcolor': 'red'})
+        r1 = self.reactorClass(self.gas1, node_attr={'fillcolor': 'red'}, clone=True)
         r1.name = "Name"
         # overwrite fillcolor in object attributes
         r1.node_attr = {'style': 'filled', 'fillcolor': 'green'}
@@ -1038,9 +1038,9 @@ class TestReactor:
         self.r1.name = "Reactor"
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 300, 10*101325, 'H2:1.0'
-        inlet_reservoir = ct.Reservoir(gas2, name='Inlet')
+        inlet_reservoir = ct.Reservoir(gas2, name='Inlet', clone=True)
         gas2.TPX = 300, 101325, 'H2:1.0'
-        outlet_reservoir = ct.Reservoir(gas2, name='Outlet')
+        outlet_reservoir = ct.Reservoir(gas2, name='Outlet', clone=True)
         mfc = ct.MassFlowController(inlet_reservoir, self.r1, mdot=2,
                                     edge_attr={'xlabel': 'MFC'}, name="MFC")
         ct.PressureController(self.r1, outlet_reservoir, primary=mfc, name="PC")
@@ -1060,10 +1060,10 @@ class TestReactor:
         self.add_wall(U=10, name="wall")
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 600, 101325, 'O2:1.0'
-        hot_inlet = ct.Reservoir(gas2, name='InH')
+        hot_inlet = ct.Reservoir(gas2, name='InH', clone=True)
         gas2.TPX = 200, 101325, 'O2:1.0'
-        cold_inlet = ct.Reservoir(gas2, name='InC')
-        outlet = ct.Reservoir(gas2, name='Out')
+        cold_inlet = ct.Reservoir(gas2, name='InC', clone=True)
+        outlet = ct.Reservoir(gas2, name='Out', clone=True)
         mfc_hot1 = ct.MassFlowController(hot_inlet, self.r1, mdot=1.5, name='mfc_h1')
         mfc_hot2 = ct.MassFlowController(hot_inlet, self.r1, mdot=1, name='mfc_h2')
         mfc_cold = ct.MassFlowController(cold_inlet, self.r2, mdot=2, name='mfc_c')
@@ -1111,25 +1111,25 @@ class TestMoleReactor(TestReactor):
         gas1 = ct.Solution(model, transport_model=None)
         gas1.TP = T0, P0
         gas1.set_equivalence_ratio(equiv_ratio, fuel, air)
-        r1 = self.reactorClass(gas1)
+        r1 = self.reactorClass(gas1, clone=True)
         # comparison reactor
         gas2 = ct.Solution(model, transport_model=None)
         gas2.TP = T0, P0
         gas2.set_equivalence_ratio(equiv_ratio, fuel, air)
         if "ConstPressure" in r1.type:
-            r2 = ct.ConstPressureReactor(gas2)
+            r2 = ct.ConstPressureReactor(gas2, clone=True)
         else:
-            r2 = ct.Reactor(gas2)
+            r2 = ct.Reactor(gas2, clone=True)
         # surf 1
         surf1 = ct.Interface(model, "Pt_surf", [gas1])
         surf1.TP = T0, P0
         surf1.coverages = {"PT(S)":1}
-        rsurf1 = ct.ReactorSurface(surf1, r1, A=surf_area)
+        rsurf1 = ct.ReactorSurface(surf1, r1, A=surf_area, clone=True)
         # surf 2
         surf2 = ct.Interface(model, "Pt_surf", [gas2])
         surf2.TP = T0, P0
         surf2.coverages = {"PT(S)":1}
-        rsurf2 = ct.ReactorSurface(surf2, r2, A=surf_area)
+        rsurf2 = ct.ReactorSurface(surf2, r2, A=surf_area, clone=True)
         # reactor network setup
         net1 = ct.ReactorNet([r1,])
         net2 = ct.ReactorNet([r2,])
@@ -1174,19 +1174,19 @@ class TestWellStirredReactorIgnition:
 
         # fuel inlet
         self.gas.TPX = T0, P0, "CH4:1.0"
-        fuel_in = ct.Reservoir(self.gas)
+        fuel_in = ct.Reservoir(self.gas, clone=True)
 
         # oxidizer inlet
         self.gas.TPX = T0, P0, "N2:3.76, O2:1.0"
-        oxidizer_in = ct.Reservoir(self.gas)
+        oxidizer_in = ct.Reservoir(self.gas, clone=True)
 
         # reactor, initially filled with N2
         self.gas.TPX = T0, P0, "N2:1.0"
-        self.combustor = reactor_class(self.gas)
+        self.combustor = reactor_class(self.gas, clone=True)
         self.combustor.volume = 1.0
 
         # outlet
-        exhaust = ct.Reservoir(self.gas)
+        exhaust = ct.Reservoir(self.gas, clone=True)
 
         # connect the reactor to the reservoirs
         fuel_mfc = ct.MassFlowController(fuel_in, self.combustor)
@@ -1316,14 +1316,14 @@ class TestConstPressureReactor:
         self.gas1.TPX = T0, P0, X0
         self.gas2.TPX = T0, P0, X0
 
-        self.r1 = ct.IdealGasReactor(self.gas1)
-        self.r2 = self.reactorClass(self.gas2)
+        self.r1 = ct.IdealGasReactor(self.gas1, clone=True)
+        self.r2 = self.reactorClass(self.gas2, clone=True)
 
         self.r1.volume = 0.2
         self.r2.volume = 0.2
 
         resGas.TP = T0 - 300, P0
-        env = ct.Reservoir(resGas)
+        env = ct.Reservoir(resGas, clone=True)
 
         U = 300 if add_Q else 0
 
@@ -1345,15 +1345,17 @@ class TestConstPressureReactor:
             C[4] = 0.7
             if use_surf_install:
                 with pytest.deprecated_call():
-                    self.surf1 = ct.ReactorSurface(self.interface1, A=0.2)
-                    self.surf2 = ct.ReactorSurface(self.interface2, A=0.2)
+                    self.surf1 = ct.ReactorSurface(self.interface1, A=0.2, clone=True)
+                    self.surf2 = ct.ReactorSurface(self.interface2, A=0.2, clone=True)
                 self.surf1.coverages = C
                 self.surf2.coverages = C
                 self.surf1.install(self.r1)
                 self.surf2.install(self.r2)
             else:
-                self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2)
-                self.surf2 = ct.ReactorSurface(self.interface2, r=[self.r2], A=0.2)
+                self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2,
+                                               clone=True)
+                self.surf2 = ct.ReactorSurface(self.interface2, r=[self.r2], A=0.2,
+                                               clone=True)
                 self.surf1.coverages = C
                 self.surf2.coverages = C
 
@@ -1476,13 +1478,13 @@ class TestIdealGasMoleReactor(TestMoleReactor):
         gas1 = ct.Solution("gri30.yaml")
         gas1.TP = T0, P0
         gas1.set_equivalence_ratio(1, "CH4", "O2:1, N2:3.76")
-        r1 = ct.IdealGasMoleReactor(gas1)
+        r1 = ct.IdealGasMoleReactor(gas1, clone=True)
         net1 = ct.ReactorNet([r1])
         # Network two with mole reactor and preconditioner
         gas2 = ct.Solution("gri30.yaml")
         gas2.TP = T0, P0
         gas2.set_equivalence_ratio(1, "CH4", "O2:1, N2:3.76")
-        r2 = ct.IdealGasMoleReactor(gas2)
+        r2 = ct.IdealGasMoleReactor(gas2, clone=True)
         net2 = ct.ReactorNet([r2])
         # add preconditioner
         net2.preconditioner = ct.AdaptivePreconditioner()
@@ -1515,11 +1517,11 @@ class TestReactorJacobians:
         surf.coverages = 'A(S):0.1, B(S):0.2, C(S):0.3, D(S):0.2, (S):0.2'
         surf2.coverages = 'A(S):0.1, D(S):0.2, (S):0.2'
         # create reactor
-        r = ct.IdealGasMoleReactor(gas)
+        r = ct.IdealGasMoleReactor(gas, clone=True)
         r.volume = 3
         # create surfaces
-        rsurf1 = ct.ReactorSurface(surf, r, A=9e-4)
-        rsurf2 = ct.ReactorSurface(surf2, r, A=5e-4)
+        rsurf1 = ct.ReactorSurface(surf, r, A=9e-4, clone=True)
+        rsurf2 = ct.ReactorSurface(surf2, r, A=5e-4, clone=True)
         # create network
         net = ct.ReactorNet([r])
         net.step()
@@ -1543,7 +1545,7 @@ class TestReactorJacobians:
         gas = ct.Solution(yml, "gas")
         gas.TPX = 1000, 2e5, fuel
         # create reactor
-        r = ct.IdealGasMoleReactor(gas)
+        r = ct.IdealGasMoleReactor(gas, clone=True)
         r.volume = 1
         # create network
         net = ct.ReactorNet([r])
@@ -1560,7 +1562,7 @@ class TestReactorJacobians:
         gas.set_multiplier(0)
         gas.set_multiplier(1, 14)
         # create reactor
-        r = ct.IdealGasMoleReactor(gas)
+        r = ct.IdealGasMoleReactor(gas, clone=True)
         r.volume = 2
         # create network
         net = ct.ReactorNet([r])
@@ -1586,7 +1588,7 @@ class TestReactorJacobians:
         gas.set_multiplier(0)
         gas.set_multiplier(1, 14)
         # create reactor
-        r = ct.IdealGasConstPressureMoleReactor(gas)
+        r = ct.IdealGasConstPressureMoleReactor(gas, clone=True)
         r.volume = 2
         # create network
         net = ct.ReactorNet([r])
@@ -1615,8 +1617,8 @@ class TestReactorJacobians:
         X0 = 'CH4:0.5, H2O:0.2, CO:0.3'
         gas.TPX = T0, P0, X0
         # create reactors
-        r1 = ct.IdealGasMoleReactor(gas)
-        r2 = ct.IdealGasMoleReactor(gas)
+        r1 = ct.IdealGasMoleReactor(gas, clone=True)
+        r2 = ct.IdealGasMoleReactor(gas, clone=True)
         r1.volume = 0.1
         r2.volume = 0.1
         # create solid and interfaces
@@ -1630,8 +1632,8 @@ class TestReactorJacobians:
         C[0] = 0.3
         C[4] = 0.7
         # creating reactor surfaces
-        surf1 = ct.ReactorSurface(interface1, r=r1, A=1e-3)
-        surf2 = ct.ReactorSurface(interface2, r=r2, A=1e-3)
+        surf1 = ct.ReactorSurface(interface1, r=r1, A=1e-3, clone=True)
+        surf2 = ct.ReactorSurface(interface2, r=r2, A=1e-3, clone=True)
         surf1.coverages = C
         surf2.coverages = C
         # create reactor network
@@ -1692,7 +1694,7 @@ class TestFlowReactor:
     def test_nonreacting(self):
         g = ct.Solution(yaml=self.gas_def)
         g.TPX = 300, 101325, 'O2:1.0'
-        r = ct.FlowReactor(g)
+        r = ct.FlowReactor(g, clone=True)
         r.mass_flow_rate = 10
 
         net = ct.ReactorNet([r])
@@ -1708,7 +1710,7 @@ class TestFlowReactor:
         g = ct.Solution(yaml=self.gas_def)
         g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
 
-        r = ct.FlowReactor(g)
+        r = ct.FlowReactor(g, clone=True)
         r.mass_flow_rate = 10
         net = ct.ReactorNet([r])
 
@@ -1738,7 +1740,7 @@ class TestFlowReactor:
         gas.TPX = T0, P0, X0
         surf.TP = T0, P0
 
-        r = ct.FlowReactor(gas)
+        r = ct.FlowReactor(gas, clone=True)
         r.area = 1e-4
         porosity = 0.3
         velocity = 0.4 / 60
@@ -1747,7 +1749,7 @@ class TestFlowReactor:
         r.mass_flow_rate = mdot
         r.energy_enabled = False
 
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.ReactorSurface(surf, r, clone=True)
 
         sim = ct.ReactorNet([r])
         kCH4 = gas.species_index('CH4')
@@ -1772,9 +1774,9 @@ class TestFlowReactor:
     def test_component_names(self):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
         gas = surf.adjacent['gas']
-        r = ct.FlowReactor(gas)
+        r = ct.FlowReactor(gas, clone=True)
         r.mass_flow_rate = 0.1
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.ReactorSurface(surf, r, clone=True)
         sim = ct.ReactorNet([r])
         sim.initialize()
 
@@ -1797,11 +1799,11 @@ class TestFlowReactor2:
         return surf, surf.adjacent['gas']
 
     def make_reactors(self, gas, surf):
-        r = ct.FlowReactor(gas)
+        r = ct.FlowReactor(gas, clone=True)
         r.area = 1e-4
         r.surface_area_to_volume_ratio = 5000
         r.mass_flow_rate = 0.02
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.ReactorSurface(surf, r, clone=True)
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
 
@@ -1816,16 +1818,16 @@ class TestFlowReactor2:
 
     def test_no_mass_flow_rate(self):
         surf, gas = self.import_phases()
-        r = ct.FlowReactor(gas)
-        rsurf = ct.ReactorSurface(surf, r)
+        r = ct.FlowReactor(gas, clone=True)
+        rsurf = ct.ReactorSurface(surf, r, clone=True)
         sim = ct.ReactorNet([r])
         with pytest.raises(ct.CanteraError, match="mass flow rate"):
             sim.initialize()
 
     def test_mixed_reactor_types(self):
         surf, gas = self.import_phases()
-        r1 = ct.FlowReactor(gas)
-        r2 = ct.IdealGasReactor(gas)
+        r1 = ct.FlowReactor(gas, clone=True)
+        r2 = ct.IdealGasReactor(gas, clone=True)
         with pytest.raises(ct.CanteraError, match="Cannot mix Reactor types"):
             ct.ReactorNet([r1, r2])
 
@@ -2048,16 +2050,16 @@ class TestSurfaceKinetics:
         self.interface = ct.Interface('diamond.yaml', 'diamond_100')
         self.gas = self.interface.adjacent['gas']
         self.gas.TPX = None, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
-        self.r1 = ct.IdealGasReactor(self.gas)
+        self.r1 = ct.IdealGasReactor(self.gas, clone=True)
         self.r1.volume = 0.01
-        self.r2 = ct.IdealGasReactor(self.gas)
+        self.r2 = ct.IdealGasReactor(self.gas, clone=True)
         self.r2.volume = 0.01
 
         self.net = ct.ReactorNet([self.r1, self.r2])
 
     def test_coverages(self):
         self.make_reactors()
-        surf1 = ct.ReactorSurface(self.interface, self.r1)
+        surf1 = ct.ReactorSurface(self.interface, self.r1, clone=True)
 
         surf1.coverages = {'c6HH':0.3, 'c6HM':0.7}
         assert surf1.coverages[0] == approx(0.3)
@@ -2067,7 +2069,7 @@ class TestSurfaceKinetics:
         C_left = surf1.coverages
 
         self.make_reactors()
-        surf2 = ct.ReactorSurface(self.interface, self.r2)
+        surf2 = ct.ReactorSurface(self.interface, self.r2, clone=True)
         surf2.coverages = 'c6HH:0.3, c6HM:0.7'
         assert surf2.coverages[0] == approx(0.3)
         assert surf2.coverages[4] == approx(0.7)
@@ -2085,7 +2087,7 @@ class TestSurfaceKinetics:
         self.make_reactors()
         self.r1.energy_enabled = False
         self.r2.energy_enabled = False
-        surf1 = ct.ReactorSurface(self.interface, self.r1)
+        surf1 = ct.ReactorSurface(self.interface, self.r1, clone=True)
 
         C = np.zeros(self.interface.n_species)
         C[0] = 0.3
@@ -2110,7 +2112,7 @@ class TestSurfaceKinetics:
     def test_coverages_regression2(self, test_data_path):
         # Test with energy equation enabled
         self.make_reactors()
-        surf = ct.ReactorSurface(self.interface, self.r1)
+        surf = ct.ReactorSurface(self.interface, self.r1, clone=True)
 
         C = np.zeros(self.interface.n_species)
         C[0] = 0.3
@@ -2135,7 +2137,7 @@ class TestSurfaceKinetics:
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_ReactorSurface(self):
         self.make_reactors()
-        surf = ct.ReactorSurface(self.interface, self.r1)
+        surf = ct.ReactorSurface(self.interface, self.r1, clone=True)
         self.r1.name = "Reactor"
 
         graph = surf.draw(node_attr={'style': 'filled'},
@@ -2152,7 +2154,7 @@ class TestReactorSensitivities:
     def test_sensitivities1(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
-        r1 = ct.IdealGasReactor(gas)
+        r1 = ct.IdealGasReactor(gas, clone=True)
         net = ct.ReactorNet([r1])
 
         assert net.n_sensitivity_params == 0
@@ -2169,17 +2171,17 @@ class TestReactorSensitivities:
     def test_sensitivities2(self):
         interface = ct.Interface("diamond.yaml", "diamond_100")
         gas1 = interface.adjacent["gas"]
-        r1 = ct.IdealGasReactor(gas1)
+        r1 = ct.IdealGasReactor(gas1, clone=True)
 
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-        r2 = ct.IdealGasReactor(gas2)
+        r2 = ct.IdealGasReactor(gas2, clone=True)
 
         net = ct.ReactorNet([r1, r2])
         net.atol_sensitivity = 1e-10
         net.rtol_sensitivity = 1e-8
 
-        surf = ct.ReactorSurface(interface, r1, A=1.5)
+        surf = ct.ReactorSurface(interface, r1, A=1.5, clone=True)
 
         C = np.zeros(interface.n_species)
         C[0] = 0.3
@@ -2215,7 +2217,7 @@ class TestReactorSensitivities:
 
         def setup(params):
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-            r = reactorClass(gas)
+            r = reactorClass(gas, clone=True)
             net = ct.ReactorNet([r])
 
             for kind, p in params:
@@ -2269,11 +2271,11 @@ class TestReactorSensitivities:
         def setup(reverse=False):
             gas1 = ct.Solution('h2o2.yaml', transport_model=None)
             gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-            rA = ct.IdealGasReactor(gas1)
+            rA = ct.IdealGasReactor(gas1, clone=True)
 
             gas2 = ct.Solution('h2o2.yaml', transport_model=None)
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
-            rB = ct.IdealGasReactor(gas2)
+            rB = ct.IdealGasReactor(gas2, clone=True)
             reactors = [rA, rB]
             if reverse:
                 reactors = reactors[-1::-1]
@@ -2331,15 +2333,15 @@ class TestReactorSensitivities:
         def setup(order):
             gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
             gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
-            rA = ct.IdealGasReactor(gas1)
-            rB = ct.IdealGasReactor(gas2)
+            rA = ct.IdealGasReactor(gas1, clone=True)
+            rB = ct.IdealGasReactor(gas2, clone=True)
 
             if order % 2 == 0:
-                surfX = ct.ReactorSurface(interface, rA, A=0.1)
-                surfY = ct.ReactorSurface(interface, rA, A=10)
+                surfX = ct.ReactorSurface(interface, rA, A=0.1, clone=True)
+                surfY = ct.ReactorSurface(interface, rA, A=10, clone=True)
             else:
-                surfY = ct.ReactorSurface(interface, rA, A=10)
-                surfX = ct.ReactorSurface(interface, rA, A=0.1)
+                surfY = ct.ReactorSurface(interface, rA, A=10, clone=True)
+                surfX = ct.ReactorSurface(interface, rA, A=0.1, clone=True)
 
             C1 = np.zeros(interface.n_species)
             C2 = np.zeros(interface.n_species)
@@ -2388,7 +2390,7 @@ class TestReactorSensitivities:
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TP = 900, 5*ct.one_atm
         gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
-        r = ct.IdealGasReactor(gas)
+        r = ct.IdealGasReactor(gas, clone=True)
         net = ct.ReactorNet([r])
         net.rtol_sensitivity = 2e-5
         return gas, r, net
@@ -2479,26 +2481,26 @@ class TestCombustor:
 
         # create a reservoir for the fuel inlet, and set to pure methane.
         gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
-        fuel_in = ct.Reservoir(gas)
+        fuel_in = ct.Reservoir(gas, clone=True)
         fuel_mw = gas.mean_molecular_weight
 
         # Oxidizer inlet
         gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
-        oxidizer_in = ct.Reservoir(gas)
+        oxidizer_in = ct.Reservoir(gas, clone=True)
         oxidizer_mw = gas.mean_molecular_weight
 
         # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
         # The steady-state behavior is independent of how we do this, so we'll
         # just use a stream of pure atomic hydrogen.
         gas.TPX = 300.0, ct.one_atm, 'H:1.0'
-        igniter = ct.Reservoir(gas)
+        igniter = ct.Reservoir(gas, clone=True)
 
         # create the combustor, and fill it with a diluent
         gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
-        combustor = ct.IdealGasReactor(gas)
+        combustor = ct.IdealGasReactor(gas, clone=True)
 
         # create a reservoir for the exhaust
-        exhaust = ct.Reservoir(gas)
+        exhaust = ct.Reservoir(gas, clone=True)
 
         # compute fuel and air mass flow rates
         factor = 0.1
@@ -2615,17 +2617,17 @@ class TestWall:
         # reservoir to represent the environment
         gas0 = ct.Solution("air.yaml")
         gas0.TP = 300, ct.one_atm
-        env = ct.Reservoir(gas0)
+        env = ct.Reservoir(gas0, clone=True)
 
         # reactor to represent the side filled with Argon
         gas1 = ct.Solution("air.yaml")
         gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
-        r1 = ct.Reactor(gas1)
+        r1 = ct.Reactor(gas1, clone=True)
 
         # reactor to represent the combustible mixture
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
-        r2 = ct.Reactor(gas2)
+        r2 = ct.Reactor(gas2, clone=True)
 
         # Wall between the two reactors
         w1 = ct.Wall(r2, r1, A=1.0, K=2e-4, U=400.0)
@@ -2676,15 +2678,15 @@ class TestPureFluidReactor:
         air = ct.Solution("air.yaml")
 
         phase.TP = 93, 4e5
-        r1 = ct.Reactor(phase)
+        r1 = ct.Reactor(phase, clone=True)
         r1.volume = 0.1
 
         air.TP = 300, 4e5
-        r2 = ct.Reactor(air)
+        r2 = ct.Reactor(air, clone=True)
         r2.volume = 10.0
 
         air.TP = 500, 4e5
-        env = ct.Reservoir(air)
+        env = ct.Reservoir(air, clone=True)
 
         w1 = ct.Wall(r1,r2)
         w1.expansion_rate_coeff = 1e-3
@@ -2707,11 +2709,11 @@ class TestPureFluidReactor:
         air = ct.Solution("air.yaml")
 
         phase.TP = 218, 5e6
-        r1 = ct.Reactor(phase)
+        r1 = ct.Reactor(phase, clone=True)
         r1.volume = 0.1
 
         air.TP = 500, 5e6
-        r2 = ct.Reactor(air)
+        r2 = ct.Reactor(air, clone=True)
         r2.volume = 10.0
 
         w1 = ct.Wall(r1, r2, U=10000, A=1)
@@ -2733,11 +2735,11 @@ class TestPureFluidReactor:
         air = ct.Solution("air.yaml")
 
         phase.TP = 75, 4e5
-        r1 = ct.ConstPressureReactor(phase)
+        r1 = ct.ConstPressureReactor(phase, clone=True)
         r1.volume = 0.1
 
         air.TP = 500, 4e5
-        env = ct.Reservoir(air)
+        env = ct.Reservoir(air, clone=True)
 
         w2 = ct.Wall(env,r1, Q=250000, A=1)
         net = ct.ReactorNet([r1])
@@ -2832,9 +2834,9 @@ class TestExtensibleReactor:
                     return 'v_wall'
 
         self.gas.TP = 300, ct.one_atm
-        res = ct.Reservoir(self.gas)
+        res = ct.Reservoir(self.gas, clone=True)
         self.gas.TP = 300, 2 * ct.one_atm
-        r = InertialWallReactor(self.gas, neighbor=res)
+        r = InertialWallReactor(self.gas, neighbor=res, clone=True)
         w = ct.Wall(r, res)
         net = ct.ReactorNet([r])
 
@@ -2868,7 +2870,7 @@ class TestExtensibleReactor:
             def replace_eval(self, t, LHS, RHS):
                 RHS[:] = - self.y / tau
 
-        r = DummyReactor(self.gas)
+        r = DummyReactor(self.gas, clone=True)
         net = ct.ReactorNet([r])
         net.rtol *= 0.1
 
@@ -2882,7 +2884,7 @@ class TestExtensibleReactor:
                 pass
 
         with pytest.raises(ValueError, match="right number of arguments"):
-            DummyReactor1(self.gas)
+            DummyReactor1(self.gas, clone=True)
 
         class DummyReactor2(ct.ExtensibleReactor):
             def replace_component_index(self, name):
@@ -2892,7 +2894,7 @@ class TestExtensibleReactor:
                     return "spam"
                 # Otherwise, does not return a value
 
-        r2 = DummyReactor2(self.gas)
+        r2 = DummyReactor2(self.gas, clone=True)
         assert r2.component_index("succeed") == 0
         with pytest.raises(TypeError):
             r2.component_index("wrong-type")
@@ -2915,7 +2917,7 @@ class TestExtensibleReactor:
                 if name == "fail":
                     raise TestException()
 
-        r = DummyReactor(self.gas)
+        r = DummyReactor(self.gas, clone=True)
         net = ct.ReactorNet([r])
         net.max_steps = 10
 
@@ -2930,8 +2932,8 @@ class TestExtensibleReactor:
 
     def test_misc(self):
         class DummyReactor(ct.ExtensibleReactor):
-            def __init__(self, gas):
-                super().__init__(gas)
+            def __init__(self, gas, *args, **kwargs):
+                super().__init__(gas, *args, **kwargs)
                 self.sync_calls = 0
 
             def after_species_index(self, name):
@@ -2942,7 +2944,7 @@ class TestExtensibleReactor:
             def before_sync_state(self):
                 self.sync_calls += 1
 
-        r = DummyReactor(self.gas)
+        r = DummyReactor(self.gas, clone=True)
         net = ct.ReactorNet([r])
         assert r.component_index("H2") == 5 + 3 + self.gas.species_index("H2")
         r.syncState()
@@ -2973,7 +2975,7 @@ class TestExtensibleReactor:
                 LHS[1] = mass_lump * cp_lump + self.m_mass * self.thermo.cp_mass
                 RHS[1] = Q
 
-        r1 = DummyReactor(self.gas)
+        r1 = DummyReactor(self.gas, clone=True)
         r1_net = ct.ReactorNet([r1])
 
         for n in range(n_steps):
@@ -2997,8 +2999,8 @@ class TestExtensibleReactor:
                 self.heat_rate += Qext
 
         self.gas.TPX = 300, ct.one_atm, "N2:1.0"
-        r1 = HeatedReactor(self.gas)
-        res = ct.Reservoir(self.gas)
+        r1 = HeatedReactor(self.gas, clone=True)
+        res = ct.Reservoir(self.gas, clone=True)
         wall = ct.Wall(res, r1, Q=Qwall, A=1)
         net = ct.ReactorNet([r1])
         U0 = r1.thermo.int_energy_mass * r1.mass
@@ -3062,10 +3064,10 @@ class TestExtensibleReactor:
                 # this is the same thing the original method does
                 self.surfaces[0].coverages = y
 
-        r1 = SurfReactor(gas)
+        r1 = SurfReactor(gas, clone=True)
         r1.volume = 1e-6 # 1 cm^3
         r1.energy_enabled = False
-        rsurf = ct.ReactorSurface(surf, r=r1, A=0.01)
+        rsurf = ct.ReactorSurface(surf, r=r1, A=0.01, clone=True)
         net = ct.ReactorNet([r1])
 
         Hweight = ct.Element("H").weight
@@ -3096,8 +3098,8 @@ class TestExtensibleReactor:
         # Reactors connected by a movable, H2-permeable surface
         kH2 = self.gas.species_index("H2")
         class TestReactor(ct.ExtensibleIdealGasReactor):
-            def __init__(self, gas):
-                super().__init__(gas)
+            def __init__(self, gas, *args, **kwargs):
+                super().__init__(gas, *args, **kwargs)
                 self.neighbor = None
                 self.h2coeff = 12  # mass transfer coeff
                 self.p_coeff = 5 # expansion coeff
@@ -3120,9 +3122,9 @@ class TestExtensibleReactor:
                     # enthalpy flux is neglected, so energy isn't properly conserved
 
         self.gas.TPX = 300, 2*101325, "H2:0.8, N2:0.2"
-        r1 = TestReactor(self.gas)
+        r1 = TestReactor(self.gas, clone=True)
         self.gas.TPX = 300, 101325, "H2:0.1, O2:0.9"
-        r2 = TestReactor(self.gas)
+        r2 = TestReactor(self.gas, clone=True)
         r1.neighbor = r2
         r2.neighbor = r1
         net = ct.ReactorNet([r1, r2])
@@ -3164,11 +3166,11 @@ class TestSteadySolver:
         gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
         gas.TP = 500, 20 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("HP")
-        downstream = ct.Reservoir(gas)
+        downstream = ct.Reservoir(gas, clone=True)
         V0 = 1e-3
-        r = reactor_class(gas, volume=V0)
+        r = reactor_class(gas, volume=V0, clone=True)
         inlet = ct.MassFlowController(upstream, r, mdot=120)
         ct.PressureController(r, downstream, primary=inlet)
         net = ct.ReactorNet([r])
@@ -3185,10 +3187,10 @@ class TestSteadySolver:
         gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
         gas.TP = 500, 20 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("HP")
-        downstream = ct.Reservoir(gas)
-        r = reactor_class(gas, volume=1e-3)
+        downstream = ct.Reservoir(gas, clone=True)
+        r = reactor_class(gas, volume=1e-3, clone=True)
         m0 = r.mass
         ct.MassFlowController(upstream, r, mdot=160)
         ct.MassFlowController(r, downstream, mdot=160)
@@ -3213,11 +3215,11 @@ class TestSteadySolver:
         T0 = 1700
         gas.TP = T0, 5 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("TP")
-        downstream = ct.Reservoir(gas)
+        downstream = ct.Reservoir(gas, clone=True)
         V0 = 1e-3
-        r = reactor_class(gas, volume=V0)
+        r = reactor_class(gas, volume=V0, clone=True)
         r.energy_enabled = False
         inlet = ct.MassFlowController(upstream, r, mdot=120)
         ct.PressureController(r, downstream, primary=inlet)
@@ -3231,12 +3233,12 @@ class TestSteadySolver:
         gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
         gas.TP = 500, 20 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("HP")
-        downstream = ct.Reservoir(gas)
+        downstream = ct.Reservoir(gas, clone=True)
         V0 = 1e-3
-        r1 = ct.IdealGasReactor(gas, volume=V0)
-        r2 = ct.MoleReactor(gas, volume=2*V0)
+        r1 = ct.IdealGasReactor(gas, volume=V0, clone=True)
+        r2 = ct.MoleReactor(gas, volume=2*V0, clone=True)
         inlet = ct.MassFlowController(upstream, r1, mdot=120)
         middle = ct.PressureController(r1, r2, primary=inlet)
         ct.PressureController(r2, downstream, primary=inlet)
@@ -3258,11 +3260,11 @@ class TestSteadySolver:
         gas.set_equivalence_ratio(0.22, "CH4:1.0", "O2:1.0, AR:3.76")
         gas.TP = 500, 20 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("HP")
-        downstream = ct.Reservoir(gas)
-        r = reactor_class(gas, volume=1e-2)
-        ct.ReactorSurface(surf, r, A=0.1)
+        downstream = ct.Reservoir(gas, clone=True)
+        r = reactor_class(gas, volume=1e-2, clone=True)
+        ct.ReactorSurface(surf, r, A=0.1, clone=True)
         mdot = 0.2
         inlet = ct.MassFlowController(upstream, r, mdot=mdot)
         ct.MassFlowController(r, downstream, mdot=mdot)
@@ -3281,12 +3283,12 @@ class TestSteadySolver:
         gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
         gas.TP = 500, 20 * ct.one_atm
 
-        upstream = ct.Reservoir(gas)
+        upstream = ct.Reservoir(gas, clone=True)
         gas.equilibrate("HP")
-        downstream = ct.Reservoir(gas)
+        downstream = ct.Reservoir(gas, clone=True)
         V0 = 1e-3
         mdot = 120
-        r = ct.MoleReactor(gas, volume=V0)
+        r = ct.MoleReactor(gas, volume=V0, clone=True)
         r.thermo.set_multiplier(0.0)
         inlet = ct.MassFlowController(upstream, r, mdot=mdot)
         ct.MassFlowController(r, downstream, mdot=mdot)
@@ -3324,11 +3326,11 @@ class TestSteadySolver:
             gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
             gas.TP = 500, 20 * ct.one_atm
 
-            upstream = ct.Reservoir(gas)
+            upstream = ct.Reservoir(gas, clone=True)
             gas.equilibrate("HP")
-            downstream = ct.Reservoir(gas)
+            downstream = ct.Reservoir(gas, clone=True)
             V0 = 1e-3
-            r = ct.IdealGasReactor(gas, volume=V0)
+            r = ct.IdealGasReactor(gas, volume=V0, clone=True)
             inlet = ct.MassFlowController(upstream, r, mdot=120)
             ct.PressureController(r, downstream, primary=inlet)
             net = ct.ReactorNet([r])

@@ -117,7 +117,7 @@ real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
 
 # Create a reactor object and add it to a reactor network
 # In this example, this will be the only reactor in the network
-r = ct.Reactor(contents=real_gas)
+r = ct.Reactor(contents=real_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
 time_history_RG = ct.SolutionArray(real_gas, extra=['t'])
 
@@ -154,7 +154,7 @@ ideal_gas.TP = reactor_temperature, reactor_pressure
 ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                 oxidizer={'o2': 1.0, 'n2': 3.76})
 
-r = ct.Reactor(contents=ideal_gas)
+r = ct.Reactor(contents=ideal_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
 time_history_IG = ct.SolutionArray(ideal_gas, extra=['t'])
 
@@ -231,7 +231,7 @@ for i, temperature in enumerate(T):
     real_gas.TP = reactor_temperature, reactor_pressure
     real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                    oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(contents=real_gas)
+    r = ct.Reactor(contents=real_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
 
     # create an array of solution states
@@ -263,7 +263,7 @@ for i, temperature in enumerate(T):
     ideal_gas.TP = reactor_temperature, reactor_pressure
     ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                     oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(contents=ideal_gas)
+    r = ct.Reactor(contents=ideal_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
 
     # create an array of solution states

@@ -183,6 +183,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
     def __init__(self, *args, props, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.thermo.transport_model = "mixture-averaged"
         self.Ts = props.TsInit                     # initial temperature of the solid
         self.neighbor_left = None                  # reference to reactor on the left
         self.neighbor_right = None                 # reference to reactor on the right
@@ -355,7 +356,7 @@ for rL in lengths:
             TsInit=TsInit,
             solid=YZA40PPI)
 
-        reactors.append(PMReactor(gas_init, props=props))
+        reactors.append(PMReactor(gas_init, props=props, clone=True))
 
     elif midpoint < total_length * 0.75:
         # for 2 inches < x < 3 inches, fill the reactors with hot 3 PPI SiC
@@ -367,7 +368,7 @@ for rL in lengths:
             TsInit=gas_hot.T,
             solid=SiC3PPI)
 
-        reactors.append(PMReactor(gas_hot, props=props))
+        reactors.append(PMReactor(gas_hot, props=props, clone=True))
 
     else:
         # x >= 3 inches, fill the reactors with hot 10 PPI SiC
@@ -379,7 +380,7 @@ for rL in lengths:
             TsInit=gas_hot.T,
             solid=SiC10PPI)
 
-        reactors.append(PMReactor(gas_hot, props=props))
+        reactors.append(PMReactor(gas_hot, props=props, clone=True))
 
 # set the neighbor relations between the reactors
 for i, r in enumerate(reactors):

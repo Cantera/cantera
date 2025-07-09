@@ -27,7 +27,7 @@ def integrate_reactor(preconditioner=True):
     gas = ct.Solution('example_data/n-hexane-NUIG-2015.yaml')
     gas.TP = 1000, ct.one_atm
     gas.set_equivalence_ratio(1, 'NC6H14', 'N2:3.76, O2:1.0')
-    reactor = ct.IdealGasConstPressureMoleReactor(gas)
+    reactor = ct.IdealGasConstPressureMoleReactor(gas, clone=False)
     # set volume for reactors
     reactor.volume = 0.1
     # Create reactor network

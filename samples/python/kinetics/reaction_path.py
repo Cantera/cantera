@@ -26,7 +26,7 @@ import cantera as ct
 # an object of a class derived from class Kinetics in some state.
 gas = ct.Solution('gri30.yaml')
 gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
-r = ct.IdealGasReactor(gas)
+r = ct.IdealGasReactor(gas, clone=False)
 net = ct.ReactorNet([r])
 T = r.T
 while T < 1900:

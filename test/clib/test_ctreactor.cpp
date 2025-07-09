@@ -14,7 +14,7 @@ using namespace Cantera;
 TEST(ctreactor, reactor_soln)
 {
     int32_t sol = sol_newSolution("gri30.yaml", "gri30", "none");
-    int32_t reactor = reactor_new("IdealGasReactor", sol, "test");
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
     ASSERT_EQ(reactor, 0);
 
     int32_t ret = reactor_setName(reactor, "spam");
@@ -43,7 +43,7 @@ TEST(ctreactor, reactor_simple)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int32_t reactor = reactor_new("IdealGasReactor", sol, "test");
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
     vector<int32_t> reactors{reactor};
     int32_t net = reactornet_new(1, reactors.data());
     ASSERT_EQ(net, 0);

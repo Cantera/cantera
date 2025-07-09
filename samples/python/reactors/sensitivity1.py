@@ -17,7 +17,7 @@ temp = 1500.0
 pres = ct.one_atm
 
 gas.TPX = temp, pres, 'CH4:0.1, O2:2, N2:7.52'
-r = ct.IdealGasConstPressureReactor(gas, name='R1')
+r = ct.IdealGasConstPressureReactor(gas, name='R1', clone=False)
 sim = ct.ReactorNet([r])
 
 # enable sensitivity with respect to the rates of the first 10

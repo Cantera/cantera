@@ -49,11 +49,24 @@ class ReactorBase
 {
 public:
     explicit ReactorBase(const string& name="(none)");
+
     //! Instantiate a ReactorBase object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
     ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
+
+    //! Instantiate a ReactorBase object with Solution contents.
+    //! @param sol  Solution object representing the contents of this reactor
+    //! @param clone  Determines whether to clone `sol` so that the internal state of
+    //!     this reactor is independent of the original Solution object and any Solution
+    //!     objects used by other reactors in the network.
+    //! @param name  Name of the reactor.
+    //! @since Added the `clone` argument in %Cantera 3.2. If not specified, the default
+    //!     behavior in %Cantera 3.2 is not to clone the Solution object. This will
+    //!     change after %Cantera 3.2 to default to `true`.
+    ReactorBase(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
+
     virtual ~ReactorBase();
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;

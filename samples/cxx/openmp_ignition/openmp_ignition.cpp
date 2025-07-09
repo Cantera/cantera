@@ -35,7 +35,7 @@ void run()
     // be created for each new Reactor automatically.
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     for (int i = 0; i < nThreads; i++) {
-        reactors.emplace_back(new IdealGasConstPressureReactor(sol));
+        reactors.emplace_back(new IdealGasConstPressureReactor(sol, true));
         nets.emplace_back(new ReactorNet(reactors.back()));
     }
 

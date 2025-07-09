@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     thermo_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
-    int32_t reactor = reactor_new("IdealGasReactor", sol, "test");
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
     int32_t reactors[1];
     reactors[0] = reactor;
     int32_t net = reactornet_new(1, &reactors[0]);

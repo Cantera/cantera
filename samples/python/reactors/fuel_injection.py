@@ -24,13 +24,13 @@ gas.case_sensitive_species_names = True
 
 # Create a Reservoir for the fuel inlet, set to pure dodecane
 gas.TPX = 300, 20*ct.one_atm, 'c12h26:1.0'
-inlet = ct.Reservoir(gas)
+inlet = ct.Reservoir(gas, clone=True)
 
 # Create Reactor and set initial contents to be products of lean combustion
 gas.TP = 1000, 20*ct.one_atm
 gas.set_equivalence_ratio(0.30, 'c12h26', 'n2:3.76, o2:1.0')
 gas.equilibrate('TP')
-r = ct.IdealGasReactor(gas)
+r = ct.IdealGasReactor(gas, clone=True)
 r.volume = 0.001  # 1 liter
 
 def fuel_mdot(total_mass=3.0e-3, std_dev=0.5, center_time=2.0):
