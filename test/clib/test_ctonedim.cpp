@@ -182,7 +182,7 @@ TEST(ctonedim, freeflame)
     sim1D_setFixedTemperature(flame, 0.85 * T + .15 * Tad);
 
     // solve and save
-    stflow_solveEnergyEqn(flow, 1);
+    flow1D_solveEnergyEqn(flow, 1);
     const char* refine_grid = "disabled";
     int loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);
