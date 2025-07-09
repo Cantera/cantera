@@ -20,31 +20,31 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES yaml-cpp
 )
 
-set(SUNDIALS_VERSION 7.0.0)
+set(SUNDIALS_VERSION 7.1.1)
 FetchContent_Declare(
   sundials
   URL https://github.com/LLNL/sundials/releases/download/v${SUNDIALS_VERSION}/sundials-${SUNDIALS_VERSION}.tar.gz
-  URL_HASH SHA256=d762a7950ef4097fbe9d289f67a8fb717a0b9f90f87ed82170eb5c36c0a07989
+  URL_HASH SHA256=ea7d6edfb52448ddfdc1ec48f89a721fe6c0a259c10f8ef56f60fcded87a94bb
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS 7.0.0 EXACT NAMES SUNDIALS
+  FIND_PACKAGE_ARGS NAMES SUNDIALS
 )
 
-set(FMT_VERSION 10.2.1)
+set(FMT_VERSION 11.0.2)
 FetchContent_Declare(
   fmt
   URL https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip
-  URL_HASH SHA256=312151a2d13c8327f5c9c586ac6cf7cddc1658e8f53edae0ec56509c8fa516c9
+  URL_HASH SHA256=40fc58bebcf38c759e11a7bd8fdc163507d2423ef5058bba7f26280c5b9c5465
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
-set(HIGHFIVE_VERSION 2.9.0)
+set(HIGHFIVE_VERSION 2.10.0)
 FetchContent_Declare(
   HighFive
   URL https://github.com/BlueBrain/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-  URL_HASH SHA256=6301def8ceb9f4d7a595988612db288b448a3c0546f6c83417dab38c64994d7e
+  URL_HASH SHA256=c29e8e1520e7298fabb26545f804e35bb3af257005c1c2df62e39986458d7c38
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES HighFive
@@ -74,6 +74,21 @@ set(HIGHFIVE_BUILD_DOCS OFF)
 # SUNDIALS build options
 set(EXAMPLES_INSTALL OFF)
 set(EXAMPLES_ENABLE_C OFF)
+set(BUILD_ARKODE OFF)
+set(BUILD_CVODE OFF)
+set(BUILD_IDA OFF)
+set(BUILD_KINSOL OFF)
+set(BUILD_CPODES OFF)
+set(BUILD_FORTRAN_MODULE_INTERFACE OFF)
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set(ENABLE_LAPACK ON)
+    set(BLA_VENDOR Apple)
+    set(SUNDIALS_LAPACK_CASE "LOWER")
+    set(SUNDIALS_LAPACK_UNDERSCORES "NONE")
+elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(ENABLE_LAPACK ON)
+    set(BLA_VENDOR OpenBLAS)
+endif()
 
 # fmt build options
 set(FMT_INSTALL OFF)
@@ -96,22 +111,37 @@ file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
+if (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    find_package(LAPACK REQUIRED)
+    find_package(BLAS REQUIRED)
+    set(CT_USE_LAPACK 1)
+    set(CT_SUNDIALS_USE_LAPACK 1)
+    set (SUNDIALS_LIBRARIES BLAS::BLAS LAPACK::LAPACK SUNDIALS::sunlinsollapackdense SUNDIALS::sunlinsollapackband)
+else()
+    set (SUNDIALS_LIBRARIES SUNDIALS::sunlinsoldense SUNDIALS::sunlinsolband)
+    set(CT_USE_LAPACK 0)
+    set(CT_SUNDIALS_USE_LAPACK 0)
+endif()
+
+configure_file("../include/cantera/base/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/../include/cantera/base/config.h")
+
 add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
-target_include_directories(cantera_lib PRIVATE "../include" "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
+target_include_directories(cantera_lib PRIVATE "../include")
+target_include_directories(cantera_lib SYSTEM PRIVATE "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
 set_target_properties(cantera_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(cantera_lib PUBLIC
     yaml-cpp::yaml-cpp
     fmt::fmt
     Eigen3::Eigen
     HighFive
-    SUNDIALS::core_static
-    SUNDIALS::nvecserial_static
-    SUNDIALS::cvodes_static
-    SUNDIALS::idas_static
-    SUNDIALS::sunmatrixband_static
-    SUNDIALS::sunmatrixdense_static
-    SUNDIALS::sunmatrixsparse_static
-    SUNDIALS::sunlinsoldense_static
-    SUNDIALS::sunlinsolband_static
-    SUNDIALS::sunlinsolspgmr_static
-    SUNDIALS::sunnonlinsolnewton_static)
+    SUNDIALS::core
+    SUNDIALS::nvecserial
+    SUNDIALS::cvodes
+    SUNDIALS::idas
+    SUNDIALS::sunmatrixband
+    SUNDIALS::sunmatrixdense
+    SUNDIALS::sunmatrixsparse
+    SUNDIALS::sunlinsolspgmr
+    SUNDIALS::sunnonlinsolnewton
+    ${SUNDIALS_LIBRARIES}
+)

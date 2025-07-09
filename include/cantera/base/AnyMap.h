@@ -35,6 +35,7 @@ class AnyBase {
 public:
     AnyBase() = default;
     virtual ~AnyBase() = default;
+    AnyBase& operator=(const AnyBase& other);
 
     //! For values which are derived from an input file, set the line and column
     //! of this value in that file. Used for providing context for some error
@@ -472,6 +473,7 @@ public:
 
     //! Add items from `other` to this AnyMap. If keys in `other` also exist in
     //! this AnyMap, the `keepExisting` option determines which item is used.
+    //! Local units defined in `other` are not retained.
     void update(const AnyMap& other, bool keepExisting=true);
 
     //! Mark `key` as excluded from this map. This prevents `key` from being added
@@ -583,7 +585,7 @@ public:
     class OrderedProxy {
     public:
         OrderedProxy() {}
-        OrderedProxy(const AnyMap& data);
+        OrderedProxy(const AnyMap& data, bool withUnits);
         OrderedIterator begin() const;
         OrderedIterator end() const;
 
@@ -620,10 +622,13 @@ public:
         OrderedProxy::OrderVector::const_iterator m_stop;
     };
 
-    // Return a proxy object that allows iteration in an order determined by the
-    // order of insertion, the location in an input file, and rules specified by
-    // the addOrderingRules() method.
-    OrderedProxy ordered() const { return OrderedProxy(*this); }
+    //! Return a proxy object that allows iteration in an order determined by the order
+    //! of insertion, the location in an input file, and rules specified by the
+    //! addOrderingRules() method. The `withUnits` flag determines whether to include a
+    //! `units` directive, if any local units are defined (for use by the YAML emitter).
+    OrderedProxy ordered(bool withUnits=false) const {
+        return OrderedProxy(*this, withUnits);
+    }
 
     //! Returns the number of elements in this map
     size_t size() const;
@@ -672,7 +677,8 @@ public:
      * Enables specifying keys that should appear at either the beginning
      * or end of the generated YAML mapping. Only programmatically-added keys
      * are rearranged. Keys which come from YAML input retain their existing
-     * ordering, and are output after programmatically-added keys.
+     * ordering, and are output after programmatically-added keys. Keys are
+     * output in the order provided to this method.
      *
      * This function should be called exactly once for any given spec that
      * is to be added. To facilitate this, the method returns a bool so that

@@ -20,15 +20,15 @@
 using namespace std;
 using namespace Cantera;
 
-typedef SharedCabinet<Sim1D> SimCabinet;
-typedef SharedCabinet<Domain1D> DomainCabinet;
+typedef Cabinet<Sim1D> SimCabinet;
+typedef Cabinet<Domain1D> DomainCabinet;
 template<> SimCabinet* SimCabinet::s_storage = 0;
 template<> DomainCabinet* DomainCabinet::s_storage = 0;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Transport> TransportCabinet;
-typedef SharedCabinet<Solution> SolutionCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
+typedef Cabinet<Solution> SolutionCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
@@ -50,7 +50,7 @@ extern "C" {
     int domain_new(const char* type, int i, const char* id)
     {
         try {
-            auto soln = SolutionCabinet::at(i);
+            auto& soln = SolutionCabinet::at(i);
             auto d = newDomain(type, soln, id);
             return DomainCabinet::add(d);
         } catch (...) {
@@ -71,7 +71,7 @@ extern "C" {
     int domain_type(int i, size_t lennm, char* nm)
     {
         try {
-            return static_cast<int>(copyString(DomainCabinet::item(i).type(), nm, lennm));
+            return static_cast<int>(copyString(DomainCabinet::at(i)->type(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -80,7 +80,7 @@ extern "C" {
     size_t domain_index(int i)
     {
         try {
-            return DomainCabinet::item(i).domainIndex();
+            return DomainCabinet::at(i)->domainIndex();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -89,7 +89,7 @@ extern "C" {
     size_t domain_nComponents(int i)
     {
         try {
-            return DomainCabinet::item(i).nComponents();
+            return DomainCabinet::at(i)->nComponents();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -98,7 +98,7 @@ extern "C" {
     size_t domain_nPoints(int i)
     {
         try {
-            return DomainCabinet::item(i).nPoints();
+            return DomainCabinet::at(i)->nPoints();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -107,9 +107,9 @@ extern "C" {
     int domain_componentName(int i, int n, int sz, char* buf)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            return static_cast<int>(copyString(dom.componentName(n), buf, sz));
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            return static_cast<int>(copyString(dom->componentName(n), buf, sz));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -118,7 +118,7 @@ extern "C" {
     size_t domain_componentIndex(int i, const char* name)
     {
         try {
-            return DomainCabinet::item(i).componentIndex(name);
+            return DomainCabinet::at(i)->componentIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -127,9 +127,9 @@ extern "C" {
     double domain_grid(int i, int n)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkPointIndex(n);
-            return dom.grid(n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkPointIndex(n);
+            return dom->z(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -138,9 +138,9 @@ extern "C" {
     int domain_setBounds(int i, int n, double lower, double upper)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            dom.setBounds(n, lower, upper);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            dom->setBounds(n, lower, upper);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -150,9 +150,9 @@ extern "C" {
     double domain_upperBound(int i, int n)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            return dom.upperBound(n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            return dom->upperBound(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -161,9 +161,9 @@ extern "C" {
     double domain_lowerBound(int i, int n)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            return dom.lowerBound(n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            return dom->lowerBound(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -173,9 +173,9 @@ extern "C" {
                                    double atol)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            dom.setSteadyTolerances(rtol, atol, n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            dom->setSteadyTolerances(rtol, atol, n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -186,9 +186,9 @@ extern "C" {
                                       double atol)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            dom.setTransientTolerances(rtol, atol, n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            dom->setTransientTolerances(rtol, atol, n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -198,9 +198,9 @@ extern "C" {
     double domain_rtol(int i, int n)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            return dom.rtol(n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            return dom->rtol(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -209,9 +209,9 @@ extern "C" {
     double domain_atol(int i, int n)
     {
         try {
-            Domain1D& dom = DomainCabinet::item(i);
-            dom.checkComponentIndex(n);
-            return dom.atol(n);
+            auto& dom = DomainCabinet::at(i);
+            dom->checkComponentIndex(n);
+            return dom->atol(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -220,7 +220,7 @@ extern "C" {
     int domain_setupGrid(int i, size_t npts, const double* grid)
     {
         try {
-            DomainCabinet::item(i).setupGrid(npts, grid);
+            DomainCabinet::at(i)->setupGrid(npts, grid);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -230,62 +230,8 @@ extern "C" {
     int domain_setID(int i, const char* id)
     {
         try {
-            DomainCabinet::item(i).setID(id);
+            DomainCabinet::at(i)->setID(id);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int inlet_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Inlet1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int surf_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Surf1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactingsurf_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<ReactingSurf1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int symm_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Symm1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int outlet_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Outlet1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int outletres_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<OutletRes1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -352,7 +298,7 @@ extern "C" {
     double bdry_massFraction(int i, int k)
     {
         try {
-            return DomainCabinet::get<Boundary1D>(i).massFraction(k);
+            return DomainCabinet::as<Boundary1D>(i)->massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -361,37 +307,16 @@ extern "C" {
     double bdry_mdot(int i)
     {
         try {
-            return DomainCabinet::get<Boundary1D>(i).mdot();
+            return DomainCabinet::as<Boundary1D>(i)->mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    int reactingsurf_setkineticsmgr(int i, int j)
-    {
-        try {
-            auto k = KineticsCabinet::at(j);
-            DomainCabinet::get<ReactingSurf1D>(i).setKinetics(k);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
         }
     }
 
     int reactingsurf_enableCoverageEqs(int i, int onoff)
     {
         try {
-            DomainCabinet::get<ReactingSurf1D>(i).enableCoverageEquations(onoff != 0);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int inlet_setSpreadRate(int i, double v)
-    {
-        try {
-            DomainCabinet::get<Inlet1D>(i).setSpreadRate(v);
+            DomainCabinet::as<ReactingSurf1D>(i)->enableCoverageEquations(onoff != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -403,7 +328,7 @@ extern "C" {
     int flow1D_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            auto ph = ThermoCabinet::at(iph);
+            auto& ph = ThermoCabinet::at(iph);
             auto x = make_shared<Flow1D>(ph, ph->nSpecies(), 2);
             if (itype == 1) {
                 x->setAxisymmetricFlow();
@@ -423,7 +348,7 @@ extern "C" {
     int flow1D_setTransport(int i, int itr)
     {
         try {
-            DomainCabinet::get<Flow1D>(i).setTransport(TransportCabinet::at(itr));
+            DomainCabinet::as<Flow1D>(i)->setTransport(TransportCabinet::at(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -434,7 +359,7 @@ extern "C" {
     {
         try {
             bool withSoret = (iSoret > 0);
-            DomainCabinet::get<Flow1D>(i).enableSoret(withSoret);
+            DomainCabinet::as<Flow1D>(i)->enableSoret(withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -444,7 +369,7 @@ extern "C" {
     int flow1D_setPressure(int i, double p)
     {
         try {
-            DomainCabinet::get<Flow1D>(i).setPressure(p);
+            DomainCabinet::as<Flow1D>(i)->setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -454,7 +379,7 @@ extern "C" {
     double flow1D_pressure(int i)
     {
         try {
-            return DomainCabinet::get<Flow1D>(i).pressure();
+            return DomainCabinet::as<Flow1D>(i)->pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -469,7 +394,7 @@ extern "C" {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
-            DomainCabinet::get<Flow1D>(i).setFixedTempProfile(vpos, vtemp);
+            DomainCabinet::as<Flow1D>(i)->setFixedTempProfile(vpos, vtemp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -480,82 +405,11 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                DomainCabinet::get<Flow1D>(i).solveEnergyEqn(npos);
+                DomainCabinet::as<Flow1D>(i)->solveEnergyEqn(npos);
             } else {
-                DomainCabinet::get<Flow1D>(i).fixTemperature(npos);
+                DomainCabinet::as<Flow1D>(i)->fixTemperature(npos);
             }
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int stflow_new(int iph, int ikin, int itr, int itype)
-    {
-        try {
-            throw NotImplementedError("stflow_new",
-                "Function replaced by 'flow1D_new'.");
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int stflow_setTransport(int i, int itr)
-    {
-        try {
-            throw NotImplementedError("stflow_setTransport",
-                "Function replaced by 'flow1D_setTransport'.");
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int stflow_enableSoret(int i, int iSoret)
-    {
-        try {
-            throw NotImplementedError("stflow_enableSoret",
-                "Function replaced by 'flow1D_enableSoret'.");
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int stflow_setPressure(int i, double p)
-    {
-        try {
-            throw NotImplementedError("stflow_setPressure",
-                "Function replaced by 'flow1D_setPressure'.");
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    double stflow_pressure(int i)
-    {
-        try {
-            throw NotImplementedError("stflow_pressure",
-                "Function replaced by 'flow1D_pressure'.");
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
-                                   size_t m, const double* temp)
-    {
-        try {
-            throw NotImplementedError("stflow_setFixedTempProfile",
-                "Function replaced by 'flow1D_setFixedTempProfile'.");
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int stflow_solveEnergyEqn(int i, int flag)
-    {
-        try {
-            throw NotImplementedError("stflow_solveEnergyEqn",
-                "Function replaced by 'flow1D_solveEnergyEqn'.");
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -589,7 +443,7 @@ extern "C" {
     int sim1D_setValue(int i, int dom, int comp, int localPoint, double value)
     {
         try {
-            SimCabinet::item(i).setValue(dom, comp, localPoint, value);
+            SimCabinet::at(i)->setValue(dom, comp, localPoint, value);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -600,15 +454,15 @@ extern "C" {
                          size_t nv, const double* v)
     {
         try {
-            Sim1D& sim = SimCabinet::item(i);
-            sim.checkDomainIndex(dom);
-            sim.domain(dom).checkComponentIndex(comp);
+            auto& sim = SimCabinet::at(i);
+            sim->checkDomainIndex(dom);
+            sim->domain(dom).checkComponentIndex(comp);
             vector<double> vv, pv;
             for (size_t n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
-            sim.setProfile(dom, comp, pv, vv);
+            sim->setProfile(dom, comp, pv, vv);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -618,10 +472,10 @@ extern "C" {
     int sim1D_setFlatProfile(int i, int dom, int comp, double v)
     {
         try {
-            Sim1D& sim = SimCabinet::item(i);
-            sim.checkDomainIndex(dom);
-            sim.domain(dom).checkComponentIndex(comp);
-            sim.setFlatProfile(dom, comp, v);
+            auto& sim = SimCabinet::at(i);
+            sim->checkDomainIndex(dom);
+            sim->domain(dom).checkComponentIndex(comp);
+            sim->setFlatProfile(dom, comp, v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -633,10 +487,10 @@ extern "C" {
         try {
             string fn = string(fname);
             if (fn == "-") {
-                SimCabinet::item(i).show();
+                SimCabinet::at(i)->show();
             } else {
                 ofstream fout(fname);
-                SimCabinet::item(i).show(fout);
+                SimCabinet::at(i)->show(fout);
             }
             return 0;
         } catch (...) {
@@ -647,7 +501,7 @@ extern "C" {
     int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps)
     {
         try {
-            SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);
+            SimCabinet::at(i)->setTimeStep(stepsize, ns, nsteps);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -657,7 +511,7 @@ extern "C" {
     int sim1D_getInitialSoln(int i)
     {
         try {
-            SimCabinet::item(i).getInitialSoln();
+            SimCabinet::at(i)->getInitialSoln();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -669,7 +523,7 @@ extern "C" {
         try {
             // bool r = (refine_grid == 0 ? false : true);
             string r = (std::strcmp(refine_grid, "remesh") ? "disabled" : "refine");
-            SimCabinet::item(i).solve(loglevel, r);
+            SimCabinet::at(i)->solve(loglevel, r);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -679,7 +533,7 @@ extern "C" {
     int sim1D_refine(int i, int loglevel)
     {
         try {
-            SimCabinet::item(i).refine(loglevel);
+            SimCabinet::at(i)->refine(loglevel);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -690,7 +544,7 @@ extern "C" {
                                 double slope, double curve, double prune)
     {
         try {
-            SimCabinet::item(i).setRefineCriteria(dom, ratio, slope, curve, prune);
+            SimCabinet::at(i)->setRefineCriteria(dom, ratio, slope, curve, prune);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -700,7 +554,7 @@ extern "C" {
     int sim1D_setGridMin(int i, int dom, double gridmin)
     {
         try {
-            SimCabinet::item(i).setGridMin(dom, gridmin);
+            SimCabinet::at(i)->setGridMin(dom, gridmin);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -710,7 +564,7 @@ extern "C" {
     int sim1D_save(int i, const char* fname, const char* id, const char* desc)
     {
         try {
-            SimCabinet::item(i).save(fname, id, desc);
+            SimCabinet::at(i)->save(fname, id, desc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -720,7 +574,7 @@ extern "C" {
     int sim1D_restore(int i, const char* fname, const char* id)
     {
         try {
-            SimCabinet::item(i).restore(fname, id);
+            SimCabinet::at(i)->restore(fname, id);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -730,7 +584,7 @@ extern "C" {
     int sim1D_writeStats(int i, int printTime)
     {
         try {
-            SimCabinet::item(i).writeStats(printTime);
+            SimCabinet::at(i)->writeStats(printTime);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -740,7 +594,7 @@ extern "C" {
     int sim1D_domainIndex(int i, const char* name)
     {
         try {
-            return (int) SimCabinet::item(i).domainIndex(name);
+            return (int) SimCabinet::at(i)->domainIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -749,10 +603,10 @@ extern "C" {
     double sim1D_value(int i, int idom, int icomp, int localPoint)
     {
         try {
-            Sim1D& sim = SimCabinet::item(i);
-            sim.checkDomainIndex(idom);
-            sim.domain(idom).checkComponentIndex(icomp);
-            return sim.value(idom, icomp, localPoint);
+            auto& sim = SimCabinet::at(i);
+            sim->checkDomainIndex(idom);
+            sim->domain(idom).checkComponentIndex(icomp);
+            return sim->value(idom, icomp, localPoint);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -761,10 +615,10 @@ extern "C" {
     double sim1D_workValue(int i, int idom, int icomp, int localPoint)
     {
         try {
-            Sim1D& sim = SimCabinet::item(i);
-            sim.checkDomainIndex(idom);
-            sim.domain(idom).checkComponentIndex(icomp);
-            return sim.workValue(idom, icomp, localPoint);
+            auto& sim = SimCabinet::at(i);
+            sim->checkDomainIndex(idom);
+            sim->domain(idom).checkComponentIndex(icomp);
+            return sim->workValue(idom, icomp, localPoint);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -773,7 +627,7 @@ extern "C" {
     int sim1D_eval(int i, double rdt, int count)
     {
         try {
-            SimCabinet::item(i).eval(rdt, count);
+            SimCabinet::at(i)->eval(rdt, count);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -783,7 +637,7 @@ extern "C" {
     int sim1D_setMaxJacAge(int i, int ss_age, int ts_age)
     {
         try {
-            SimCabinet::item(i).setJacAge(ss_age, ts_age);
+            SimCabinet::at(i)->setJacAge(ss_age, ts_age);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -793,7 +647,7 @@ extern "C" {
     int sim1D_setFixedTemperature(int i, double temp)
     {
         try {
-            SimCabinet::item(i).setFixedTemperature(temp);
+            SimCabinet::at(i)->setFixedTemperature(temp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

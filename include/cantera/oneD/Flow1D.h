@@ -57,11 +57,11 @@ public:
     //--------------------------------
 
     //! Create a new flow domain.
-    //! @param ph Object representing the gas phase. This object will be used
+    //! @param ph  Object representing the gas phase. This object will be used
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
-    //! @param n_eq Number of non-species equations (default = 4 for spatial resolution)
+    //! @param n_eq Number of non-species equations (default = 6 for spatial resolution)
     Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Y, size_t points = 1);
 
     //! Delegating constructor
@@ -86,23 +86,22 @@ public:
 
     virtual void resetBadValues(double* xg) override;
 
+    //! Access the phase object used to compute thermodynamic properties for points in
+    //! this domain.
     ThermoPhase& phase() {
         return *m_thermo;
     }
 
+    //! Access the Kinetics object used to compute reaction rates for points in this
+    //! domain.
     Kinetics& kinetics() {
         return *m_kin;
     }
 
-    /**
-     * Set the thermo manager.
-     *
-     * @deprecated To be removed after %Cantera 3.0 (unused)
-     */
-    // void setThermo(ThermoPhase& th);
-
+    //! Set the Kinetics object used for reaction rate calculations.
     void setKinetics(shared_ptr<Kinetics> kin) override;
 
+    //! Set the transport manager used for transport property calculations
     void setTransport(shared_ptr<Transport> trans) override;
 
     //! Set the transport model
@@ -119,6 +118,8 @@ public:
     void enableSoret(bool withSoret) {
         m_do_soret = withSoret;
     }
+
+    //! Indicates if thermal diffusion (Soret effect) term is being calculated.
     bool withSoret() const {
         return m_do_soret;
     }
@@ -127,7 +128,7 @@ public:
     //! their mass fraction gradients (fluxGradientBasis = ThermoBasis::mass)
     //! or mole fraction gradients (fluxGradientBasis = ThermoBasis::molar, default)
     //! when using the mixture-averaged transport model.
-    //! @param fluxGradientBasis set flux computation to mass or mole basis
+    //! @param fluxGradientBasis  set flux computation to mass or mole basis
     //! @since New in %Cantera 3.1.
     void setFluxGradientBasis(ThermoBasis fluxGradientBasis);
 
@@ -247,16 +248,13 @@ public:
         m_usesLambda = true;
     }
 
-    //! Return the type of flow domain being represented, either "Free Flame" or
-    //! "Axisymmetric Stagnation".
-    //! @see setFreeFlow setAxisymmetricFlow
-    //! @deprecated To be removed after %Cantera 3.0; replaced by type().
-    // virtual string flowType() const;
-
     virtual void setFuelSpecies(const std::string fuel) {
 	m_fuel = fuel;
     }
 
+    //! Specify that the energy equation should be solved at point `j`.
+    //! The converse of this method is fixTemperature().
+    //! @param j  Point at which to enable the energy equation. `npos` means all points.
     void solveEnergyEqn(size_t j=npos);
 
     //! Get the solving stage (used by IonFlow specialization)
@@ -659,6 +657,11 @@ public:
     double getThick() const {
       return m_thick;
     }
+
+    //! Specify that the the temperature should be held fixed at point `j`.
+    //! The converse of this method is enableEnergyEqn().
+    //! @param j  Point at which to specify a fixed temperature. `npos` means all
+    //!           points.
     void fixTemperature(size_t j=npos);
 
     /**
@@ -718,6 +721,8 @@ public:
     }
     //! @}
 
+    //! `true` if the energy equation is solved at point `j` or `false` if a fixed
+    //! temperature condition is imposed.
     bool doEnergy(size_t j) {
         return m_do_energy[j];
     }
@@ -732,6 +737,7 @@ public:
     //! between j and j + 1.
     virtual void setGasAtMidpoint(const double* x, size_t j);
 
+    //! Get the density [kg/m³] at point `j`
     double density(size_t j) const {
         return m_rho[j];
     }
@@ -774,6 +780,7 @@ public:
         return m_usesLambda;
     }
 
+    //! Specify if the viscosity term should be included in the momentum equation
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
     }
@@ -809,7 +816,7 @@ public:
      *  @param[out] rsdGlobal  Global residual vector
      *  @param[out] diagGlobal  Global boolean mask indicating whether each solution
      *      component has a time derivative (1) or not (0).
-     *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-state.)
+     *  @param[in] rdt  Reciprocal of the timestep (`rdt=0` implies steady-state.)
      */
     void eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
               integer* diagGlobal, double rdt) override;
@@ -996,7 +1003,6 @@ protected:
      * between `j` and `j + 1` to compute the transport properties. For example,
      * the viscosity at element `j`  is the viscosity evaluated at the midpoint
      * between `j` and `j + 1`.
-     *
      */
     virtual void updateTransport(double* x, size_t j0, size_t j1);
 
@@ -1030,6 +1036,7 @@ protected:
     //! @name Governing Equations
     //! Methods called by eval() to calculate residuals for individual governing
     //! equations.
+    //! @{
 
     /**
      * Evaluate the continuity equation residual.
@@ -1054,15 +1061,15 @@ protected:
      * (@f$ u = 0 @f$) at the right boundary. Because the equation is a first order
      * equation, only one boundary condition is needed.
      *
-     * @param[in] x Local domain state vector, includes variables like temperature,
+     * @param[in] x  Local domain state vector, includes variables like temperature,
      *               density, etc.
-     * @param[out] rsd Local domain residual vector that stores the continuity
+     * @param[out] rsd  Local domain residual vector that stores the continuity
      *                  equation residuals.
-     * @param[out] diag Local domain diagonal matrix that controls whether an entry
+     * @param[out] diag  Local domain diagonal matrix that controls whether an entry
      *                   has a time-derivative (used by the solver).
-     * @param[in] rdt Reciprocal of the timestep.
-     * @param[in] jmin The index for the starting point in the local domain grid.
-     * @param[in] jmax The index for the ending point in the local domain grid.
+     * @param[in] rdt  Reciprocal of the timestep.
+     * @param[in] jmin  The index for the starting point in the local domain grid.
+     * @param[in] jmax  The index for the ending point in the local domain grid.
      */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
@@ -1179,49 +1186,69 @@ protected:
     //! @name Solution components
     //! @{
 
+    //! Get the temperature at point `j` from the local state vector `x`.
     virtual double T(const double* x, size_t j) const {
         return x[index(c_offset_T, j)];
     }
+
+    //! Get the temperature at point `j` from the local state vector `x`.
     virtual double& T(double* x, size_t j) {
         return x[index(c_offset_T, j)];
     }
+
+    //! Get the temperature at point `j` from the previous time step.
     virtual double T_prev(size_t j) const {
         return prevSoln(c_offset_T, j);
     }
 
+    //! Get the axial mass flux [kg/m²/s] at point `j` from the local state vector `x`.
     double rho_u(const double* x, size_t j) const {
         return m_rho[j]*x[index(c_offset_U, j)];
     }
 
+    //! Get the axial velocity [m/s] at point `j` from the local state vector `x`.
     double u(const double* x, size_t j) const {
         return x[index(c_offset_U, j)];
     }
 
+    //! Get the spread rate (tangential velocity gradient) [1/s] at point `j` from the
+    //! local state vector `x`.
     double V(const double* x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
 
+    //! Get the spread rate [1/s] at point `j` from the previous time step.
     double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
 
+    //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
+    //! `x`
     double lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 
-    //! Solution component for oxidizer velocity, @see evalUo
+    //! Get the oxidizer inlet velocity [m/s] linked to point `j` from the local state
+    //! vector `x`.
+    //!
+    //! @see evalUo()
     virtual double Uo(const double* x, size_t j) const {
         return x[index(c_offset_Uo, j)];
     }
 
+    //! Get the mass fraction of species `k` at point `j` from the local state vector
+    //! `x`.
     virtual double Y(const double* x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
 
+    //! Get the mass fraction of species `k` at point `j` from the local state vector
+    //! `x`.
     virtual double& Y(double* x, size_t k, size_t j) {
         return x[index(c_offset_Y + k, j)];
     }
 
+    //! Get the mass fraction of species `k` at point `j` from the previous time step.
     virtual double Y_prev(size_t k, size_t j) const {
         return prevSoln(c_offset_Y + k, j);
     }
@@ -1240,10 +1267,13 @@ protected:
     }
     //----
 
+    //! Get the mole fraction of species `k` at point `j` from the local state vector
+    //! `x`.
     double X(const double* x, size_t k, size_t j) const {
         return m_wtm[j]*Y(x,k,j)/m_wt[k];
     }
 
+    //! Get the diffusive mass flux [kg/m²/s] of species `k` at point `j`
     double flux(size_t k, size_t j) const {
         return m_flux(k, j);
     }
@@ -1274,8 +1304,8 @@ protected:
      * velocity is negative, the value of @f$ \ell @f$ is j + 1. A positive velocity
      * means that the flow is moving left-to-right.
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] j The grid point index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] j  The grid point index at which the derivative is computed.
      */
     double dVdz(const double* x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -1288,9 +1318,9 @@ protected:
      *
      * For details on the upwinding scheme, see dVdz().
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] k The species index.
-     * @param[in] j The grid point index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] k  The species index.
+     * @param[in] j  The grid point index at which the derivative is computed.
      */
     double dYdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -1309,8 +1339,8 @@ protected:
      *
      * For details on the upwinding scheme, see dVdz().
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] j The grid point index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] j  The grid point index at which the derivative is computed.
      */
     double dTdz(const double* x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -1337,8 +1367,8 @@ protected:
      *   \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}}
      * @f]
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] j The grid point index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] j  The grid point index at which the derivative is computed.
      */
     double shear(const double* x, size_t j) const {
         double A_left = m_visc[j-1]*(V(x, j) - V(x, j-1)) / (z(j) - z(j-1));
@@ -1352,8 +1382,8 @@ protected:
      *
      * For the details about the discretization, see shear().
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] j The grid point index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] j  The grid point index at which the derivative is computed.
      */
     double conduction(const double* x, size_t j) const {
         double A_left = m_tcon[j-1]*(T(x, j) - T(x, j-1)) / (z(j) - z(j-1));
@@ -1371,9 +1401,9 @@ protected:
      * Array access mapping for a 3D array stored in a 1D vector. Used for
      * accessing data in the #m_multidiff member variable.
      *
-     * @param[in] k First species index.
-     * @param[in] j The grid point index.
-     * @param[in] m The second species index.
+     * @param[in] k  First species index.
+     * @param[in] j  The grid point index.
+     * @param[in] m  The second species index.
      */
     size_t mindex(size_t k, size_t j, size_t m) {
         return m*m_nsp*m_nsp + m_nsp*j + k;
@@ -1389,8 +1419,8 @@ protected:
      *
      * For details on the upwinding scheme, see dVdz().
      *
-     * @param[in] x The local domain state vector.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] x  The local domain state vector.
+     * @param[in] j  The index at which the derivative is computed.
      */
     virtual void grad_hk(const double* x, size_t j);
 
@@ -1398,14 +1428,14 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    double m_press = -1.0; // pressure
+    double m_press = -1.0; //!< pressure [Pa]
 
-    // Grid spacing. Element j holds the value of grid(j+1) - grid(j)
+    //! Grid spacing. Element `j` holds the value of `z(j+1) - z(j)`.
     vector<double> m_dz;
 
     // mixture thermo properties
-    vector<double> m_rho;  //!< Vector of size #m_nsp to cache densities
-    vector<double> m_wtm;  //!< Vector of size #m_nsp to cache mean molecular weights
+    vector<double> m_rho;  //!< Density at each grid point
+    vector<double> m_wtm;  //!< Mean molecular weight at each grid point
     // P. Wolf
     vector<double> m_zmixfrac;
 
@@ -1413,20 +1443,24 @@ protected:
     vector<double> m_h;
 
     // species thermo properties
-    vector<double> m_wt;
-    vector<double> m_cp;  //!< Vector of size #m_nsp to cache specific heat capacities
+    vector<double> m_wt;  //!< Molecular weight of each species
+    vector<double> m_cp;  //!< Specific heat capacity at each grid poin
 
     // transport properties
     vector<double> m_ybar; // CERFACS : Added to the public part to be accessible for Flamelet computations 
-    vector<double> m_visc;
-    vector<double> m_tcon;
+    vector<double> m_visc; //!< Dynamic viscosity at each grid point [Pa∙s]
+    vector<double> m_tcon; //!< Thermal conductivity at each grid point [W/m/K]
 
-    //! Vector of size #m_nsp by #m_points for saving density times diffusion
-    //! coefficient times species molar mass divided by mean molecular weight
+    //! Coefficient used in diffusion calculations for each species at each grid point.
+    //!
+    //! The value stored is different depending on the transport model (multicomponent
+    //! versus mixture averaged) and flux gradient basis (mass or molar). Vector size is
+    //! #m_nsp × #m_points, where `m_diff[k + j*m_nsp]` contains the value for species
+    //! `k` at point `j`.
     vector<double> m_diff;
 
-    //! Vector of size #m_nsp by #m_nsp by #m_points for saving multicomponent
-    //! diffusion coefficients.
+    //! Vector of size #m_nsp × #m_nsp × #m_points for saving multicomponent
+    //! diffusion coefficients. Order of elements is defined by mindex().
     vector<double> m_multidiff;
 
     //! Array of size #m_nsp by #m_points for saving thermal diffusion coefficients
@@ -1451,14 +1485,21 @@ protected:
     size_t m_nsoot;
     std::string m_fuel;
 
+    //! Phase object used for calculating thermodynamic properties
     ThermoPhase* m_thermo = nullptr;
+
+    //! Kinetics object used for calculating species production rates
     Kinetics* m_kin = nullptr;
+
+    //! Transport object used for calculating transport properties
     Transport* m_trans = nullptr;
 
-    MultiJac* m_jac = nullptr;
-
-    // boundary emissivities for the radiation calculations
+    //! Emissivity of the surface to the left of the domain. Used for calculating
+    //! radiative heat loss.
     double m_epsilon_left = 0.0;
+
+    //! Emissivity of the surface to the right of the domain. Used for calculating
+    //! radiative heat loss.
     double m_epsilon_right = 0.0;
 
     //! Indices within the ThermoPhase of the radiating species. First index is
@@ -1479,15 +1520,48 @@ protected:
     vector<double> avbp_thick;
     double m_thick = 1.0;
 
-    // flags
+    //! @name flags
+    //! @{
+
+    //! For each point in the domain, `true` if energy equation is solved or `false` if
+    //! temperature is held constant.
+    //! @see doEnergy, fixTemperature
     vector<bool> m_do_energy;
+
+    //! `true` if the Soret diffusion term should be calculated.
     bool m_do_soret = false;
+
+    //! Determines whether diffusive fluxes are computed using gradients of mass
+    //! fraction or mole fraction.
+    //! @see setFluxGradientBasis, fluxGradientBasis
     ThermoBasis m_fluxGradientBasis = ThermoBasis::molar;
-    vector<bool> m_do_species;
+
+    //! `true` if transport fluxes are computed using the multicomponent diffusion
+    //! coefficients, or `false` if mixture-averaged diffusion coefficients are used.
     bool m_do_multicomponent = false;
 
-    //! flag for the radiative heat loss
+    //! Determines whether radiative heat loss is calculated.
+    //! @see enableRadiation, radiationEnabled, computeRadiation
     bool m_do_radiation = false;
+
+    //! Determines whether the viscosity term in the momentum equation is calculated
+    //! @see setViscosityFlag, setFreeFlow, setAxisymmetricFlow, setUnstrainedFlow,
+    //!      updateTransport, shear
+    bool m_dovisc;
+
+    //! Flag that is `true` for freely propagating flames anchored by a temperature
+    //! fixed point.
+    //! @see setFreeFlow, setAxisymmetricFlow, setUnstrainedFlow
+    bool m_isFree;
+
+    //! Flag that is `true` for counterflow configurations that use the pressure
+    //! eigenvalue @f$ \Lambda @f$ in the radial momentum equation.
+    //! @see setFreeFlow, setAxisymmetricFlow, setUnstrainedFlow
+    bool m_usesLambda;
+
+    //! Flag for activating two-point flame control
+    bool m_twoPointControl = false;
+    //! @}
 
     //! radiative heat loss vector
     vector<double> m_qdotRadiation;
@@ -1583,22 +1657,31 @@ protected:
     // -----------------------------
 
     // fixed T and Y values
+    //! Fixed values of the temperature at each grid point that are used when solving
+    //! with the energy equation disabled.
+    //!
+    //! Values are interpolated from profiles specified with the setFixedTempProfile
+    //! method as part of _finalize().
     vector<double> m_fixedtemp;
+
+    //! Relative coordinates used to specify a fixed temperature profile.
+    //!
+    //! 0 corresponds to the left edge of the domain and 1 corresponds to the right edge
+    //! of the domain. Length is the same as the #m_tfix array.
+    //! @see setFixedTempProfile, _finalize
     vector<double> m_zfix;
+
+    //! Fixed temperature values at the relative coordinates specified in #m_zfix.
+    //! @see setFixedTempProfile, _finalize
     vector<double> m_tfix;
 
-    //! Index of species with a large mass fraction at each boundary, for which
-    //! the mass fraction may be calculated as 1 minus the sum of the other mass
-    //! fractions
+    //! Index of species with a large mass fraction at the left boundary, for which the
+    //! mass fraction may be calculated as 1 minus the sum of the other mass fractions
     size_t m_kExcessLeft = 0;
+
+    //! Index of species with a large mass fraction at the right boundary, for which the
+    //! mass fraction may be calculated as 1 minus the sum of the other mass fractions
     size_t m_kExcessRight = 0;
-
-    bool m_dovisc;
-    bool m_isFree;
-    bool m_usesLambda;
-
-    //! Flag for activating two-point flame control
-    bool m_twoPointControl = false;
 
     //! Location of the left control point when two-point control is enabled
     double m_zLeft = Undef;

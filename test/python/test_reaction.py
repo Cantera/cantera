@@ -1,35 +1,32 @@
-from math import exp
-from pathlib import Path
-import sys
-import textwrap
 import gc
-
-import cantera as ct
 import numpy as np
-from . import utilities
-from .utilities import has_temperature_derivative_warnings
+from pathlib import Path
 import pytest
 from pytest import approx
+import sys
+import textwrap
+
+import cantera as ct
+from .utilities import load_yaml
 
 
-class TestImplicitThirdBody(utilities.CanteraTest):
-    # tests for three-body reactions with specified collision partner
+class TestImplicitThirdBody:
+    """Tests for three-body reactions with specified collision partner """
 
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution("gri30.yaml")
+    @pytest.fixture(scope='class')
+    def gas(self):
+        return ct.Solution("gri30.yaml")
 
-    def test_implicit_three_body(self):
+    def test_implicit_three_body(self, gas):
         # check equivalency of auto-detected and explicit specification
         yaml1 = """
             equation: H + 2 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn1 = ct.Reaction.from_yaml(yaml1, self.gas)
-        self.assertEqual(rxn1.reaction_type, "three-body-Arrhenius")
-        self.assertEqual(rxn1.third_body.default_efficiency, 0.)
-        self.assertEqual(rxn1.third_body.efficiencies, {"O2": 1})
+        rxn1 = ct.Reaction.from_yaml(yaml1, gas)
+        assert rxn1.reaction_type == "three-body-Arrhenius"
+        assert rxn1.third_body.default_efficiency == 0.
+        assert rxn1.third_body.efficiencies == {"O2": 1}
 
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
@@ -37,9 +34,9 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             default-efficiency: 0
             efficiencies: {O2: 1.0}
             """
-        rxn2 = ct.Reaction.from_yaml(yaml2, self.gas)
-        self.assertEqual(rxn1.third_body.efficiencies, rxn2.third_body.efficiencies)
-        self.assertEqual(rxn1.third_body.default_efficiency, rxn2.third_body.default_efficiency)
+        rxn2 = ct.Reaction.from_yaml(yaml2, gas)
+        assert rxn1.third_body.efficiencies == rxn2.third_body.efficiencies
+        assert rxn1.third_body.default_efficiency == rxn2.third_body.default_efficiency
 
     def test_duplicate(self):
         yaml = """
@@ -117,52 +114,52 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         assert ("explicit-third-body-duplicates: error"
                 in gas.write_yaml(skip_user_defined=True))
 
-    def test_short_serialization(self):
+    def test_short_serialization(self, gas):
         # check that serialized output is compact
         yaml = """
             equation: H + O2 + H2O <=> HO2 + H2O
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, gas)
         input_data = rxn.input_data
 
-        self.assertNotIn("type", input_data)
-        self.assertNotIn("default-efficiency", input_data)
-        self.assertNotIn("efficiencies", input_data)
+        assert "type" not in input_data
+        assert "default-efficiency" not in input_data
+        assert "efficiencies" not in input_data
 
-    def test_non_integer_stoich(self):
+    def test_non_integer_stoich(self, gas):
         # check that non-integer coefficients prevent automatic conversion
         yaml = """
             equation: 2 H + 1.5 O2 <=> H2O + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "Arrhenius")
+        rxn = ct.Reaction.from_yaml(yaml, gas)
+        assert rxn.reaction_type == "Arrhenius"
 
-    def test_not_three_body(self):
+    def test_not_three_body(self, gas):
         # check that insufficient reactants prevent automatic conversion
         yaml = """
             equation: HCNO + H <=> H + HNCO  # Reaction 270
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "Arrhenius")
+        rxn = ct.Reaction.from_yaml(yaml, gas)
+        assert rxn.reaction_type == "Arrhenius"
 
-    def test_user_override(self):
+    def test_user_override(self, gas):
         # check that type specification prevents automatic conversion
         yaml = """
             equation: H + 2 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             type: elementary
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "Arrhenius")
+        rxn = ct.Reaction.from_yaml(yaml, gas)
+        assert rxn.reaction_type == "Arrhenius"
         assert "type" in rxn.input_data
         assert rxn.input_data["type"] == "elementary"
 
 
 class ReactionRateTests:
-    # test suite for reaction rate expressions
+    """Test suite for reaction rate expressions"""
 
     _cls = None # reaction rate object to be tested
     _type = None # name of reaction rate
@@ -171,12 +168,13 @@ class ReactionRateTests:
     _input = None # input parameters (dict corresponding to YAML)
     _yaml = None # yaml string specifying parameters
 
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.soln = ct.Solution("kineticsfromscratch.yaml")
+    @pytest.fixture(scope='class')
+    def solution(self):
+        return ct.Solution("kineticsfromscratch.yaml")
 
-    def setUp(self):
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_test_data(self, solution):
+        self.soln = solution
         self.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
         self.soln.TP = 900, 2 * ct.one_atm
 
@@ -193,7 +191,7 @@ class ReactionRateTests:
         if input is None:
             input = self._input
         else:
-            self.assertIsInstance(input, dict)
+            assert isinstance(input, dict)
         return self.finalize(self._cls(input_data=input))
 
     def from_yaml(self):
@@ -205,7 +203,7 @@ class ReactionRateTests:
         if input is None:
             input = self.from_yaml().input_data
         else:
-            self.assertIsInstance(input, dict)
+            assert isinstance(input, dict)
         return self.finalize(ct.ReactionRate.from_dict(input))
 
     def eval(self, rate):
@@ -214,11 +212,11 @@ class ReactionRateTests:
 
     def check_rate(self, rate):
         # check rates
-        self.assertEqual(self._type, rate.type)
-        self.assertIn(self._cls.__name__, f"{rate}")
+        assert self._type == rate.type
+        assert self._cls.__name__ in f"{rate}"
         value = self.eval(rate)
-        self.assertIsFinite(value)
-        self.assertNear(value, self.soln.forward_rate_constants[self._index])
+        assert np.isfinite(value)
+        assert value == approx(self.soln.forward_rate_constants[self._index])
 
     def test_from_parts(self):
         # check constructors (from argument list)
@@ -239,11 +237,11 @@ class ReactionRateTests:
     def test_unconfigured(self):
         # check behavior of unconfigured rate object
         rate0 = self.from_input({})
-        self.assertIsNaN(self.eval(rate0))
+        assert np.isnan(self.eval(rate0))
         input_data = rate0.input_data
         rate1 = self.from_dict(input_data)
-        self.assertEqual(rate1.type, self._type)
-        self.assertIsNaN(self.eval(rate1))
+        assert rate1.type == self._type
+        assert np.isnan(self.eval(rate1))
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
@@ -258,7 +256,7 @@ class ReactionRateTests:
         units = "units: {length: cm, quantity: mol}"
         yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
         if "sticking" not in yaml:
-            with self.assertRaisesRegex(Exception, "undefined units"):
+            with pytest.raises(Exception, match="undefined units"):
                 ct.ReactionRate.from_yaml(yaml)
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
@@ -275,7 +273,7 @@ class ReactionRateTests:
         drate += self.soln.forward_rate_constants_ddC * dcdt
         self.soln.TP = self.soln.T + deltaT, self.soln.P
         k1 = self.eval(rate)
-        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
     def test_derivative_ddP(self):
         # check pressure derivative against numerical derivative
@@ -287,11 +285,10 @@ class ReactionRateTests:
         drate = self.soln.forward_rate_constants_ddP
         self.soln.TP = self.soln.T, self.soln.P + deltaP
         k1 = self.eval(rate)
-        self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
-
-class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
-    # test Arrhenius rate expressions
+class TestArrheniusRate(ReactionRateTests):
+    """Test Arrhenius rate expressions"""
 
     _cls = ct.ArrheniusRate
     _type = "Arrhenius"
@@ -302,22 +299,22 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
 
     def test_from_parts(self):
         rate = self.from_parts()
-        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
-        self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertNear(self._parts["Ea"], rate.activation_energy)
+        assert self._parts["A"] == rate.pre_exponential_factor
+        assert self._parts["b"] == rate.temperature_exponent
+        assert self._parts["Ea"] == approx(rate.activation_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
         # test reaction rate property
         rate = self.from_parts()
-        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        assert not rate.allow_negative_pre_exponential_factor
         rate.allow_negative_pre_exponential_factor = True
-        self.assertTrue(rate.allow_negative_pre_exponential_factor)
+        assert rate.allow_negative_pre_exponential_factor
 
     def test_standalone(self):
         # test creation with unsupported alternative units
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
-        with self.assertRaisesRegex(Exception, "undefined units"):
+        with pytest.raises(Exception, match="undefined units"):
             ct.ReactionRate.from_yaml(yaml)
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
@@ -332,20 +329,19 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         b =  rate.temperature_exponent
         A = rate.pre_exponential_factor
         k0 = self.eval(rate)
-        self.assertNear(k0, A * T**b * np.exp(-Ea/R/T))
+        assert k0 == approx(A * T**b * np.exp(-Ea/R/T))
 
         scaled_ddT = (Ea / R / T + b) / T
 
         dkdT = self.soln.forward_rate_constants_ddT[self._index]
-        self.assertNear(dkdT, k0 * scaled_ddT) # exact
+        assert dkdT == approx(k0 * scaled_ddT) # exact
 
         dT = 1.e-6
         dkdT_numeric = (rate(T + dT) - rate(T)) / dT
-        self.assertNear(dkdT, dkdT_numeric, 1.e-6)
+        assert dkdT == approx(dkdT_numeric, rel=1.e-6)
 
-
-class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
-    # test Blowers-Masel rate expressions
+class TestBlowersMaselRate(ReactionRateTests):
+    """Test Blowers-Masel rate expressions"""
 
     _cls = ct.BlowersMaselRate
     _type = "Blowers-Masel"
@@ -364,27 +360,26 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
 
     def test_from_parts(self):
         rate = self.from_parts()
-        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
-        self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertNear(self._parts["Ea0"], rate.activation_energy)
-        self.assertNear(self._parts["w"], rate.bond_energy)
+        assert self._parts["A"] == rate.pre_exponential_factor
+        assert self._parts["b"] == rate.temperature_exponent
+        assert self._parts["Ea0"] == approx(rate.activation_energy)
+        assert self._parts["w"] == approx(rate.bond_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
         # test reaction rate property
         rate = self.from_parts()
-        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        assert not rate.allow_negative_pre_exponential_factor
         rate.allow_negative_pre_exponential_factor = True
-        self.assertTrue(rate.allow_negative_pre_exponential_factor)
+        assert rate.allow_negative_pre_exponential_factor
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(enthalpy|electron).*:UserWarning")
     def test_derivative_ddT(self):
         super().test_derivative_ddT()
 
-
-class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
-    # test TwoTempPlasma rate expressions
+class TestTwoTempPlasmaRate(ReactionRateTests):
+    """Test TwoTempPlasma rate expressions"""
 
     _cls = ct.TwoTempPlasmaRate
     _type = "two-temperature-plasma"
@@ -402,18 +397,18 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
 
     def test_from_parts(self):
         rate = self.from_parts()
-        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
-        self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertAlmostEqual(self._parts["Ea_gas"], rate.activation_energy)
-        self.assertAlmostEqual(self._parts["Ea_electron"], rate.activation_electron_energy)
+        assert self._parts["A"] == rate.pre_exponential_factor
+        assert self._parts["b"] == rate.temperature_exponent
+        assert self._parts["Ea_gas"] == approx(rate.activation_energy)
+        assert self._parts["Ea_electron"] == approx(rate.activation_electron_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
         # test reaction rate property
         rate = self.from_parts()
-        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        assert not rate.allow_negative_pre_exponential_factor
         rate.allow_negative_pre_exponential_factor = True
-        self.assertTrue(rate.allow_negative_pre_exponential_factor)
+        assert rate.allow_negative_pre_exponential_factor
 
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(enthalpy|electron).*:UserWarning")
     def test_derivative_ddT(self):
@@ -430,11 +425,11 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
         self.soln.TP = self.soln.T + deltaT, self.soln.P
         # Due to Te changes automatically with T, the initial value is used instead.
         k1 = rate(self.soln.T, self.soln.Te - deltaT)
-        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
 
-class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate, utilities.CanteraTest):
-    # test TwoTempPlasma rate expressions
+class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
+    """Test TwoTempPlasma rate expressions"""
 
     _index = 12
     _input = {"rate-constant": {"A": 17283, "b": -3.1}}
@@ -446,25 +441,25 @@ class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate, utilities.CanteraTest):
 
     def test_from_parts(self):
         rate = self.from_parts()
-        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
-        self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertAlmostEqual(rate.activation_energy, 0.)
-        self.assertAlmostEqual(rate.activation_electron_energy, 0.)
+        assert self._parts["A"] == rate.pre_exponential_factor
+        assert self._parts["b"] == rate.temperature_exponent
+        assert rate.activation_energy == approx(0.)
+        assert rate.activation_electron_energy == approx(0.)
         self.check_rate(rate)
 
 
 class FalloffRateTests(ReactionRateTests):
-    # test Falloff rate expressions
+    """Test Falloff rate expressions"""
+
     _type = "falloff"
     _n_data = [0] # list of valid falloff coefficient array lengths
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
-        param = cls._input["low-P-rate-constant"]
-        cls._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._input["high-P-rate-constant"]
-        cls._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    @pytest.fixture(scope='class', autouse=True)
+    def setup_falloff_data(self):
+        param = self._input["low-P-rate-constant"]
+        self._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = self._input["high-P-rate-constant"]
+        self._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
 
     def eval(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
@@ -487,7 +482,7 @@ class FalloffRateTests(ReactionRateTests):
         drate = self.soln.forward_rate_constants_ddT
         self.soln.TP = self.soln.T * (1 + pert), self.soln.P * (1 + pert)
         k1 = self.eval(rate)
-        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
         # derivative at constant pressure
         self.soln.TP = TP
@@ -495,7 +490,7 @@ class FalloffRateTests(ReactionRateTests):
         drate += self.soln.forward_rate_constants_ddC * dcdt
         self.soln.TP = self.soln.T * (1 + pert), self.soln.P
         k1 = self.eval(rate)
-        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
     def test_derivative_ddP(self):
         pert = self.soln.derivative_settings["rtol-delta"]
@@ -509,11 +504,10 @@ class FalloffRateTests(ReactionRateTests):
         drate += self.soln.forward_rate_constants_ddC * dcdp
         self.soln.TP = self.soln.T, self.soln.P + deltaP
         k1 = self.eval(rate)
-        self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
-
-class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
-    # test Lindemann rate expressions
+class TestLindemannRate(FalloffRateTests):
+    """Test Lindemann rate expressions"""
 
     _cls = ct.LindemannRate
     _index = 7
@@ -536,9 +530,8 @@ class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
         # Falloff-function for Lindemann is unity by definition
         assert np.isclose(rate.falloff_function(300, 0.), 1.)
 
-
-class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
-    # test Troe rate expressions
+class TestTroeRate(FalloffRateTests):
+    """Test Troe rate expressions"""
 
     _cls = ct.TroeRate
     _index = 2
@@ -568,9 +561,8 @@ class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
         with pytest.warns(UserWarning, match="Unexpected parameter value T2=0"):
             ct.ReactionRate.from_yaml(yaml)
 
-
-class TestSriRate(FalloffRateTests, utilities.CanteraTest):
-    # test SRI rate expressions
+class TestSriRate(FalloffRateTests):
+    """Test SRI rate expressions"""
 
     _cls = ct.SriRate
     _index = 8
@@ -589,9 +581,8 @@ class TestSriRate(FalloffRateTests, utilities.CanteraTest):
         """
     _n_data = [3, 5]
 
-
-class TestTsangRate(FalloffRateTests, utilities.CanteraTest):
-    # test Tsang rate expressions
+class TestTsangRate(FalloffRateTests):
+    """Test Tsang rate expressions"""
 
     _cls = ct.TsangRate
     _index = 9
@@ -611,8 +602,8 @@ class TestTsangRate(FalloffRateTests, utilities.CanteraTest):
     _n_data = [1, 2]
 
 
-class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
-    # test Plog rate expressions
+class TestPlogRate(ReactionRateTests):
+    """Test Plog rate expressions"""
 
     _cls = ct.PlogRate
     _type = "pressure-dependent-Arrhenius"
@@ -631,12 +622,11 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
-        cls._parts = {
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_plog_data(self):
+        self._parts = {
             "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
-                      for rc in cls._input["rate-constants"]],
+                      for rc in self._input["rate-constants"]],
             }
 
     def eval(self, rate):
@@ -647,16 +637,16 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         # test getter for property rates
         rate = self.from_parts()
         rates = rate.rates
-        self.assertIsInstance(rates, list)
+        assert isinstance(rates, list)
 
         other = self._input["rate-constants"]
-        self.assertEqual(len(rates), len(other))
+        assert len(rates) == len(other)
         for index, item in enumerate(rates):
             P, rate = item
-            self.assertNear(P, other[index]["P"])
-            self.assertNear(rate.pre_exponential_factor, other[index]["A"])
-            self.assertNear(rate.temperature_exponent, other[index]["b"])
-            self.assertNear(rate.activation_energy, other[index]["Ea"])
+            assert P == approx(other[index]["P"])
+            assert rate.pre_exponential_factor == approx(other[index]["A"])
+            assert rate.temperature_exponent == approx(other[index]["b"])
+            assert rate.activation_energy == approx(other[index]["Ea"])
 
     def test_set_rates(self):
         # test setter for property rates
@@ -667,19 +657,19 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         rate = ct.PlogRate([(o["P"], ct.Arrhenius(o["A"], o["b"], o["Ea"]))
                             for o in other])
         rates = rate.rates
-        self.assertEqual(len(rates), len(other))
+        assert len(rates) == len(other)
 
         for index, item in enumerate(rates):
             P, rate = item
-            self.assertNear(P, other[index]["P"])
-            self.assertNear(rate.pre_exponential_factor, other[index]["A"])
-            self.assertNear(rate.temperature_exponent, other[index]["b"])
-            self.assertNear(rate.activation_energy, other[index]["Ea"])
+            assert P == approx(other[index]["P"])
+            assert rate.pre_exponential_factor == approx(other[index]["A"])
+            assert rate.temperature_exponent == approx(other[index]["b"])
+            assert rate.activation_energy == approx(other[index]["Ea"])
 
     def test_no_rates(self):
         # test instantiation of empty rate
         rate = ct.PlogRate()
-        self.assertIsInstance(rate.rates, list)
+        assert isinstance(rate.rates, list)
 
     def test_standalone(self):
         yaml = """
@@ -690,12 +680,12 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
             - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
             - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
             """
-        with self.assertRaisesRegex(Exception, "undefined units"):
+        with pytest.raises(Exception, match="undefined units"):
             ct.ReactionRate.from_yaml(yaml)
 
 
-class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
-    # test Chebyshev rate expressions
+class TestChebyshevRate(ReactionRateTests):
+    """Test Chebyshev rate expressions"""
 
     _cls = ct.ChebyshevRate
     _type = "Chebyshev"
@@ -715,13 +705,12 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
-        cls._parts = {
-            "pressure_range": cls._input["pressure-range"],
-            "temperature_range": cls._input["temperature-range"],
-            "data": cls._input["data"],
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_chebyshev_data(self):
+        self._parts = {
+            "pressure_range": self._input["pressure-range"],
+            "temperature_range": self._input["temperature-range"],
+            "data": self._input["data"],
         }
 
     def eval(self, rate):
@@ -731,26 +720,142 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     def test_from_parts(self):
         rate = self.from_parts()
         temperature_range = self._parts["temperature_range"]
-        self.assertEqual(temperature_range[0], rate.temperature_range[0])
-        self.assertEqual(temperature_range[1], rate.temperature_range[1])
+        assert temperature_range[0] == rate.temperature_range[0]
+        assert temperature_range[1] == rate.temperature_range[1]
         pressure_range = self._parts["pressure_range"]
-        self.assertEqual(pressure_range[0], rate.pressure_range[0])
-        self.assertEqual(pressure_range[1], rate.pressure_range[1])
-        self.assertTrue(np.all(self._parts["data"] == rate.data))
-        self.assertEqual(rate.n_pressure, rate.data.shape[1])
-        self.assertEqual(rate.n_temperature, rate.data.shape[0])
+        assert pressure_range[0] == rate.pressure_range[0]
+        assert pressure_range[1] == rate.pressure_range[1]
+        assert np.all(self._parts["data"] == rate.data)
+        assert rate.n_pressure == rate.data.shape[1]
+        assert rate.n_temperature == rate.data.shape[0]
+
+
+class TestLinearBurkeRate(ReactionRateTests):
+    _cls = ct.LinearBurkeRate
+    _type = "linear-Burke"
+    _index = 14
+    _input = {
+        "colliders": [
+            {"name": "M",
+             "type": "pressure-dependent-Arrhenius",
+             "rate-constants": [
+                 {"P": 10132.5, "A": 5.13043e+15, "b": -2.80388, "Ea": 5.08801e+02 * 4184},
+                 {"P": 101325.0, "A": 5.47458e+16, "b": -2.81214, "Ea": 5.50629e+02 * 4184},
+                 {"P": 1013250.0, "A": 1.04665e+18, "b": -2.89077, "Ea": 8.27164e+02 * 4184},
+             ],
+            },
+            {"name": "H2O",
+             "efficiency": {"A": 10, "b": 0, "Ea": 0}},
+            {"name": "O2",
+             "type": "falloff",
+             "efficiency": {"A": 1.24932e+02, "b": -5.93263e-01, "Ea": 5.40921e+02 * 4184},
+             "low-P-rate-constant": [6.366e+20, -1.72, 524.8 * 4184],
+             "high-P-rate-constant": [4.7e+12, 0.44, 0.0],
+             "Troe": {"A": 0.5, "T3": 1.0e-30, "T1": 1.0e+30}
+            },
+        ]
+    }
+    _yaml = """
+        units: {activation-energy: cal/mol}
+        type: linear-Burke
+        colliders:
+        - name: M
+          type: pressure-dependent-Arrhenius
+          rate-constants:
+          - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
+          - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+          - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+        - name: H2O
+          efficiency: {A: 10, b: 0, Ea: 0}
+        - name: O2
+          type: falloff
+          efficiency: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
+          low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+          high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+          Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    """
+
+    @pytest.mark.skip("construction from parts not yet supported")
+    def test_from_parts(self):
+        pass
+
+    @pytest.mark.skip("deferred construction not yet supported")
+    def test_unconfigured(self):
+        pass
+
+    def eval(self, rate):
+        # Rate can only be evaluated in the context of a Kinetics object
+        gas = ct.Solution(thermo='ideal-gas', kinetics='bulk',
+                          species=self.soln.species())
+        gas.add_reaction(ct.Reaction(equation='H + O = OH', rate=rate))
+        gas.TPX = self.soln.TPX
+        return gas.forward_rate_constants[0]
+
+    @pytest.mark.parametrize("section,message", [
+        ("no-colliders", "'colliders' key missing"),
+        ("no-name-first", "'name' key missing from collider entry"),
+        ("no-name-later", "'name' key missing from collider entry"),
+        ("no-M", "The first collider must be 'M'"),
+        ("missing-eig0", "Collider 'H2O' lacks an 'eig0' key"),
+        ("missing-efficiency", "Collider 'H2O' lacks an 'efficiency' key."),
+        ("eig0-and-efficiency", "Collider 'AR' cannot contain both"),
+        ("missing-M-rate", "'type' key missing for 'M'"),
+        ("bad-M-rate", "Collider 'M' must be specified"),
+        ("bad-M-efficiency", "not necessary to provide an 'efficiency' for 'M'"),
+        ("bad-other-rate", "Collider 'H2O': 'Arrhenius' rate parameterization"),
+        ("negative-efficiency", "Invalid 'efficiency' entry for collider 'AR'"),
+    ])
+    def test_input_errors(self, section, message):
+        with pytest.raises(ct.CanteraError, match=message):
+            ct.Reaction.list_from_file("linearBurke-test.yaml", self.soln,
+                                       f"reactions-{section}")
+
+    def test_serialization1(self):
+        gas = ct.Solution("linearBurke-test.yaml", "linear-Burke_mechanism")
+        Mdata = []
+        for R in gas.reactions():
+            R.clear_user_data()
+            colliders = R.input_data["colliders"]
+            assert colliders[0]["name"] == "M"
+            Mdata.append(colliders[0])
+
+        assert Mdata[0]["type"] == "pressure-dependent-Arrhenius"
+        assert len(Mdata[0]["rate-constants"]) == 9
+        assert Mdata[1]["type"] == "falloff"
+        assert "Troe" in Mdata[1]
+        assert Mdata[2]["type"] == "Chebyshev"
+        assert Mdata[2]["data"][0][0] == approx(-1.5843e+01)
+
+    def test_serialization2(self):
+        gas = ct.Solution("linearBurke-test.yaml", "linear-Burke-complex")
+        rdata = []
+        for R in gas.reactions():
+            R.clear_user_data()
+            rdata.append(R.input_data)
+        colliders = rdata[0]["colliders"]
+
+        for field in ["type", "temperature-range", "pressure-range", "data"]:
+            assert colliders[0][field] == rdata[1][field], field
+        for field in ["type", "rate-constants"]:
+            assert colliders[1][field] == rdata[2][field], field
+        for field in ["type", "low-P-rate-constant", "high-P-rate-constant", "Troe"]:
+            assert colliders[2][field] == rdata[3][field], field
+        for field in ["type", "temperature-range", "pressure-range", "data"]:
+            assert colliders[3][field] == rdata[1][field], field
+        assert colliders[4] == {"name": "R6", "efficiency": {"A": 7, "b": 0, "Ea": 0}}
 
 
 class SurfaceReactionRateTests(ReactionRateTests):
-    # test suite for surface reaction rate expressions
+    """Test suite for surface reaction rate expressions"""
 
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
-        cls.gas = cls.soln.adjacent["ohmech"]
+    @pytest.fixture(scope='class', autouse=True)
+    def solution(self):
+        return ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
 
-    def setUp(self):
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_test_data(self, solution):
+        self.soln = solution
+        self.gas = self.soln.adjacent['ohmech']
         self.soln.TP = 900, ct.one_atm
         self.gas.X = "H2:0.05, H2O:0.01, O:1e-4, OH: 1e5, H:2e-5, O2:0.21, AR:0.79"
         self.gas.TP = 900, ct.one_atm
@@ -760,7 +865,7 @@ class SurfaceReactionRateTests(ReactionRateTests):
         if species:
             rate.set_species(self.soln.species_names)
         rate.site_density = self.soln.site_density
-        self.assertEqual(rate.site_density, self.soln.site_density)
+        assert rate.site_density == self.soln.site_density
         if "Blowers-Masel" in self._type:
             rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
         with pytest.warns(UserWarning, match="InterfaceData::update"):
@@ -777,18 +882,18 @@ class SurfaceReactionRateTests(ReactionRateTests):
         rate = self.from_yaml()
         value = self.eval(rate, species=False)
         if "coverage-dependencies" in self._input:
-            self.assertIsNaN(value)
+            assert np.isnan(value)
         else:
-            self.assertIsFinite(value)
+            assert np.isfinite(value)
 
     def test_from_parts(self):
         rate = self.from_parts()
-        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
-        self.assertEqual(self._parts["b"], rate.temperature_exponent)
+        assert self._parts["A"] == rate.pre_exponential_factor
+        assert self._parts["b"] == rate.temperature_exponent
         if "Ea" in self._parts:
-            self.assertNear(self._parts["Ea"], rate.activation_energy)
+            assert self._parts["Ea"] == approx(rate.activation_energy)
         else:
-            self.assertNear(self._parts["w"], rate.bond_energy)
+            assert self._parts["w"] == approx(rate.bond_energy)
         self.check_rate(rate)
 
     @pytest.mark.skip("Derivative is not supported")
@@ -799,9 +904,8 @@ class SurfaceReactionRateTests(ReactionRateTests):
     def test_derivative_ddP(self):
         pass
 
-
 class StickingReactionRateTests(SurfaceReactionRateTests):
-    # test suite for surface reaction rate expressions
+    """Test suite for surface reaction rate expressions"""
 
     _sticking_species = None
     _sticking_order = None
@@ -824,11 +928,10 @@ class StickingReactionRateTests(SurfaceReactionRateTests):
         weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
         assert rate.sticking_species == self._sticking_species
         assert rate.sticking_order == self._sticking_order
-        assert rate.sticking_weight == pytest.approx(weight)
+        assert rate.sticking_weight == approx(weight)
 
-
-class TestSurfaceArrheniusRate(SurfaceReactionRateTests, utilities.CanteraTest):
-    # test interface-Arrhenius rate expressions without coverage dependency
+class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
+    """Test interface-Arrhenius rate expressions without coverage dependency"""
 
     _cls = ct.InterfaceArrheniusRate
     _type = "interface-Arrhenius"
@@ -840,9 +943,8 @@ class TestSurfaceArrheniusRate(SurfaceReactionRateTests, utilities.CanteraTest):
         type: interface-Arrhenius
         """
 
-
-class TestInterfaceArrheniusRate(SurfaceReactionRateTests, utilities.CanteraTest):
-    # test interface-Arrhenius rate expressions with coverage dependency
+class TestInterfaceArrheniusRate(SurfaceReactionRateTests):
+    """Test interface-Arrhenius rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceArrheniusRate
     _type = "interface-Arrhenius"
@@ -859,8 +961,8 @@ class TestInterfaceArrheniusRate(SurfaceReactionRateTests, utilities.CanteraTest
         type: interface-Arrhenius
         """
 
-class TestStickingRate(StickingReactionRateTests, utilities.CanteraTest):
-    # test surface-sticking rate expressions without coverage dependency
+class TestStickingRate(StickingReactionRateTests):
+    """Test surface-sticking rate expressions without coverage dependency"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -874,9 +976,8 @@ class TestStickingRate(StickingReactionRateTests, utilities.CanteraTest):
         type: sticking-Arrhenius
         """
 
-
-class TestCoverageStickingRate(StickingReactionRateTests, utilities.CanteraTest):
-    # test sticking rate expressions with coverage dependency
+class TestCoverageStickingRate(StickingReactionRateTests):
+    """Test sticking rate expressions with coverage dependency"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -895,9 +996,8 @@ class TestCoverageStickingRate(StickingReactionRateTests, utilities.CanteraTest)
         type: sticking-Arrhenius
         """
 
-
-class TestMotzWiseStickingRate(StickingReactionRateTests, utilities.CanteraTest):
-    # test interface reaction with coverages
+class TestMotzWiseStickingRate(StickingReactionRateTests):
+    """Test interface reaction with coverages"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -915,9 +1015,8 @@ class TestMotzWiseStickingRate(StickingReactionRateTests, utilities.CanteraTest)
         type: sticking-Arrhenius
         """
 
-
-class TestSurfaceBMRate(SurfaceReactionRateTests, utilities.CanteraTest):
-    # test coverage-Blowers-Masel rate expressions with coverage dependency
+class TestSurfaceBMRate(SurfaceReactionRateTests):
+    """Test coverage-Blowers-Masel rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceBlowersMaselRate
     _type = "interface-Blowers-Masel"
@@ -931,9 +1030,8 @@ class TestSurfaceBMRate(SurfaceReactionRateTests, utilities.CanteraTest):
         type: interface-Blowers-Masel
         """
 
-
-class TestSurfaceBMRate(SurfaceReactionRateTests, utilities.CanteraTest):
-    # test coverage-Blowers-Masel rate expressions with coverage dependency
+class TestSurfaceBMRate(SurfaceReactionRateTests):
+    """Test coverage-Blowers-Masel rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceBlowersMaselRate
     _type = "interface-Blowers-Masel"
@@ -950,9 +1048,8 @@ class TestSurfaceBMRate(SurfaceReactionRateTests, utilities.CanteraTest):
         type: interface-Blowers-Masel
         """
 
-
-class TestBMStickate(StickingReactionRateTests, utilities.CanteraTest):
-    # test coverage-Blowers-Masel stick expressions with coverage dependency
+class TestBMStickate(StickingReactionRateTests):
+    """Test coverage-Blowers-Masel stick expressions with coverage dependency"""
 
     _cls = ct.StickingBlowersMaselRate
     _type = "sticking-Blowers-Masel"
@@ -971,8 +1068,20 @@ class TestBMStickate(StickingReactionRateTests, utilities.CanteraTest):
         """
 
 
+@pytest.fixture(scope='class')
+def setup_reaction_tests(request):
+    request.cls.soln = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
+    request.cls.species = request.cls.soln.species()
+    request.cls.adj = []
+
+@pytest.fixture(scope='function')
+def reaction_data(request, setup_reaction_tests):
+    request.cls.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
+    request.cls.soln.TP = 900, 2*ct.one_atm
+    request.cls.adj = []
+
 class ReactionTests:
-    # test suite for reaction expressions
+    """Test suite for reaction expressions"""
 
     _cls = ct.Reaction # reaction object to be tested
     _rate_cls = None # corresponding reaction rate type
@@ -985,17 +1094,6 @@ class ReactionTests:
     _rate_type = None # name of reaction rate type
     _yaml = None # YAML parameterization
     _rc_units = None # Units of the rate coefficient
-
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.soln = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
-        cls.species = cls.soln.species()
-
-    def setUp(self):
-        self.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
-        self.soln.TP = 900, 2*ct.one_atm
-        self.adj = []
 
     def eval_rate(self, rate):
         # evaluate rate expression
@@ -1038,13 +1136,13 @@ class ReactionTests:
 
     def check_rate(self, rate_obj):
         rate = self.eval_rate(rate_obj)
-        self.assertNear(rate, self.soln.forward_rate_constants[self._index])
+        assert rate == approx(self.soln.forward_rate_constants[self._index])
 
     def check_rxn(self, rxn):
         # helper function that checks reaction configuration
         ix = self._index
-        self.assertEqual(rxn.reactants, self.soln.reaction(ix).reactants)
-        self.assertEqual(rxn.products, self.soln.reaction(ix).products)
+        assert rxn.reactants == self.soln.reaction(ix).reactants
+        assert rxn.products == self.soln.reaction(ix).products
         self.check_rate(rxn.rate)
 
         if self.soln.thermo_model.lower() == "ideal-surface":
@@ -1070,10 +1168,10 @@ class ReactionTests:
     def check_solution(self, sol2):
         # helper function that checks evaluation of reaction rates
         ix = self._index
-        self.assertNear(sol2.forward_rate_constants[0],
-                        self.soln.forward_rate_constants[ix])
-        self.assertNear(sol2.net_rates_of_progress[0],
-                        self.soln.net_rates_of_progress[ix])
+        assert (sol2.forward_rate_constants[0]
+                == approx(self.soln.forward_rate_constants[ix]))
+        assert (sol2.net_rates_of_progress[0]
+                == approx(self.soln.net_rates_of_progress[ix]))
 
     def test_rate(self):
         # check consistency of reaction rate and forward rate constant
@@ -1112,7 +1210,8 @@ class ReactionTests:
             sol2.coverages = self.soln.coverages
             sol2.TP = self.soln.TP
         else:
-            sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
+            sol2 = ct.Solution(thermo=self.soln.thermo_model,
+                               kinetics=self.soln.kinetics_model,
                                species=self.species, reactions=[])
             sol2.TPX = self.soln.TPX
             # need to setup electron energy distribution for plasma
@@ -1128,19 +1227,19 @@ class ReactionTests:
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate(tuple())
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate("spam")
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate(False)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate(1.)
 
     def test_no_rate(self):
         # check behavior for instantiation from keywords / no rate
         rxn = self.from_empty()
-        self.assertIsNaN(self.eval_rate(rxn.rate))
+        assert np.isnan(self.eval_rate(rxn.rate))
 
         with pytest.raises(ct.CanteraError, match="validate"):
             ct.Solution(thermo=self.soln.thermo_model,
@@ -1175,16 +1274,24 @@ class ReactionTests:
 
     def check_equal(self, one, two):
         # helper function for deprecation tests
-        self.assertEqual(type(one), type(two))
+        assert type(one) == type(two)
         if isinstance(one, (list, tuple, np.ndarray)):
-            self.assertArrayNear(one, two)
+            assert one == approx(two)
         elif isinstance(one, (dict, str)):
             assert one == two
         else:
-            self.assertNear(one, two)
+            assert one == approx(two)
 
+@pytest.fixture(scope='class')
+def setup_elementary_tests(request, setup_reaction_tests):
+    """
+    Uses the base class's fixture as a dependency to make sure the
+    execution order is correct.
+    """
+    request.cls._rate_obj = ct.ArrheniusRate(**request.cls._rate)
 
-class TestElementary(ReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_elementary_tests")
+class TestElementary(ReactionTests):
     # test elementary reaction
 
     _rate_cls = ct.ArrheniusRate
@@ -1199,12 +1306,8 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        cls._rate_obj = ct.ArrheniusRate(**cls._rate)
 
-
+@pytest.mark.usefixtures("setup_elementary_tests")
 class TestThreeBody(TestElementary):
     # test three-body reaction
 
@@ -1223,7 +1326,7 @@ class TestThreeBody(TestElementary):
     def test_efficiencies(self):
         # check efficiencies
         rxn = self.from_rate(self._rate_obj)
-        self.assertEqual(rxn.third_body.efficiencies, self._3rd_body.efficiencies)
+        assert rxn.third_body.efficiencies == self._3rd_body.efficiencies
 
     def test_serialization_type(self):
         # test serialization output
@@ -1250,8 +1353,8 @@ class TestImplicitThreeBody(TestThreeBody):
     def test_efficiencies(self):
         # overload of default tester
         rxn = self.from_rate(self._rate_obj)
-        self.assertEqual(rxn.third_body.efficiencies, {"O2": 1.})
-        self.assertEqual(rxn.third_body.default_efficiency, 0.)
+        assert rxn.third_body.efficiencies == {"O2": 1.}
+        assert rxn.third_body.default_efficiency == 0.
 
     def test_serialization_type(self):
         # test serialization output
@@ -1263,7 +1366,8 @@ class TestImplicitThreeBody(TestThreeBody):
         assert "efficiencies" not in orig.input_data
 
 
-class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestTwoTempPlasma(ReactionTests):
     # test two-temperature plasma reaction
 
     _rate_cls = ct.TwoTempPlasmaRate
@@ -1285,11 +1389,11 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
     def test_reversible(self):
         orig = self.soln.reaction(self._index)
         rxn = ct.Reaction(orig.reactants, orig.products, rate=self._rate_obj)
-        with self.assertRaisesRegex(ct.CanteraError, "does not support reversible"):
+        with pytest.raises(ct.CanteraError, match="does not support reversible"):
             self.check_rxn(rxn)
 
-
-class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestBlowersMasel(ReactionTests):
     # test elementary version of Blowers-Masel reaction
 
     _rate_cls = ct.BlowersMaselRate
@@ -1325,7 +1429,18 @@ class TestThreeBodyBlowersMasel(TestBlowersMasel):
     _rc_units = ct.Units("m^6 / kmol^2 / s")
 
 
-class TestTroe(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_troe_tests(request, setup_reaction_tests):
+    param = request.cls._rate["low_P_rate_constant"]
+    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    param = request.cls._rate["high_P_rate_constant"]
+    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    param = request.cls._rate["Troe"]
+    data = [param["A"], param["T3"], param["T1"], param["T2"]]
+    request.cls._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
+
+@pytest.mark.usefixtures("setup_troe_tests")
+class TestTroe(ReactionTests):
     # test Troe falloff reaction
 
     _rate_cls = ct.TroeRate
@@ -1349,23 +1464,21 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
-        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
-        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["Troe"]
-        data = [param["A"], param["T3"], param["T1"], param["T2"]]
-        cls._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
-
     def eval_rate(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
         return rate(self.soln.T, concm)
 
 
-class TestLindemann(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_lindemann_tests(request, setup_reaction_tests):
+    param = request.cls._rate["low_P_rate_constant"]
+    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    param = request.cls._rate["high_P_rate_constant"]
+    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    request.cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
+
+@pytest.mark.usefixtures("setup_lindemann_tests")
+class TestLindemann(ReactionTests):
     # test Lindemann falloff reaction
 
     _rate_cls = ct.LindemannRate
@@ -1388,21 +1501,22 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
-        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
-        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
-
     def eval_rate(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
         return rate(self.soln.T, concm)
 
 
-class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_chemically_activated_tests(request, setup_reaction_tests):
+    param = request.cls._rate["low_P_rate_constant"]
+    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    param = request.cls._rate["high_P_rate_constant"]
+    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    request.cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
+    request.cls._rate_obj.chemically_activated = True
+
+@pytest.mark.usefixtures("setup_chemically_activated_tests")
+class TestChemicallyActivated(ReactionTests):
     # test Chemically Activated falloff reaction
 
     _rate_cls = ct.LindemannRate
@@ -1423,22 +1537,17 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
-        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
-        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
-        cls._rate_obj.chemically_activated = True
-
     def eval_rate(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
         return rate(self.soln.T, concm)
 
 
-class TestPlog(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_plog_tests(request, setup_reaction_tests):
+    request.cls._rate_obj = ct.ReactionRate.from_dict(request.cls._rate)
+
+@pytest.mark.usefixtures("setup_plog_tests")
+class TestPlog(ReactionTests):
     # test Plog reaction
 
     _rate_cls = ct.PlogRate
@@ -1463,26 +1572,23 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        cls._rate_obj = ct.ReactionRate.from_dict(cls._rate)
-
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.P)
 
     def check_rates(self, rates, other):
         # helper function used by deprecation tests
-        self.assertEqual(len(rates), len(other))
+        assert len(rates) == len(other)
         for index, item in enumerate(rates):
             P, rate = item
-            self.assertNear(P, other[index][0])
-            self.assertNear(rate.pre_exponential_factor, other[index][1].pre_exponential_factor)
-            self.assertNear(rate.temperature_exponent, other[index][1].temperature_exponent)
-            self.assertNear(rate.activation_energy, other[index][1].activation_energy)
+            assert P == approx(other[index][0])
+            assert (rate.pre_exponential_factor
+                    == approx(other[index][1].pre_exponential_factor))
+            assert (rate.temperature_exponent
+                    == approx(other[index][1].temperature_exponent))
+            assert rate.activation_energy == approx(other[index][1].activation_energy)
 
-
-class TestChebyshev(ReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("reaction_data")
+class TestChebyshev(ReactionTests):
     # test Chebyshev reaction
 
     _rate_cls = ct.ChebyshevRate
@@ -1517,23 +1623,19 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.P)
 
-
-class TestCustom(ReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("reaction_data")
+class TestCustom(ReactionTests):
     # test Custom reaction
 
     # probe O + H2 <=> H + OH
     _rate_cls = ct.CustomRate
     _equation = "H2 + O <=> H + OH"
-    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+    _rate = staticmethod(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
+    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
     _index = 0
     _rate_type = "custom-rate-function"
     _yaml = None
     _rc_units = ct.Units("m^3 / kmol / s")
-
-    def setUp(self):
-        # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
-        super().setUp()
-        self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
     def from_yaml(self):
         pytest.skip("Reactions with CustomRate do not support YAML")
@@ -1543,9 +1645,9 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate(tuple())
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.from_rate("spam")
 
     def test_from_func1(self):
@@ -1558,11 +1660,11 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         # check result of rate expression
         f = ct.Func1(self._rate)
         rate = ct.CustomRate(f)
-        self.assertNear(rate(self.soln.T), self.soln.forward_rate_constants[self._index])
+        assert rate(self.soln.T) == approx(self.soln.forward_rate_constants[self._index])
 
     def test_custom_lambda(self):
         # check instantiation from keywords / rate provided as lambda function
-        rxn = self.from_rate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+        rxn = self.from_rate(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
         self.check_rxn(rxn)
 
     def test_persistent(self):
@@ -1616,10 +1718,15 @@ class UserRate1(ct.ExtensibleRate):
     def eval(self, data):
         if self.eval_error:
             raise ValueError("Error evaluating rate")
-        return self.A * data.T**2.7 * exp(-3150.15428/data.T)
+        return self.A * data.T**2.7 * np.exp(-3150.15428/data.T)
 
 
-class TestExtensible(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='function')
+def setup_extensible_tests(request, reaction_data):
+    request.cls._rate_obj = ct.ReactionRate.from_dict(request.cls._rate)
+
+@pytest.mark.usefixtures("setup_extensible_tests")
+class TestExtensible(ReactionTests):
     # test general functionality of ExtensibleRate
     _phase_def = """
     phases:
@@ -1646,10 +1753,6 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
         A: 38.7
     """
     _rc_units = ct.Units("m^3 / kmol / s")
-
-    def setUp(self):
-        super().setUp()
-        self._rate_obj = ct.ReactionRate.from_dict(self._rate)
 
     def eval_rate(self, rate):
         gas = ct.Solution(yaml=self._phase_def)
@@ -1686,7 +1789,14 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
             self.eval_rate(R)
 
 
-class TestExtensible2(utilities.CanteraTest):
+@pytest.fixture(scope='function')
+def setup_extensible2_tests(request):
+    here = str(Path(__file__).parent)
+    if here not in sys.path:
+        sys.path.append(here)
+
+@pytest.mark.usefixtures("setup_extensible2_tests")
+class TestExtensible2:
     # Test handling of ExtensibleRate defined in a separate Python module
 
     _input_template = """
@@ -1703,18 +1813,12 @@ class TestExtensible2(utilities.CanteraTest):
       state: {{T: 300.0, P: 1 atm}}
     """
 
-    @classmethod
-    def setUpClass(cls):
-        here = str(Path(__file__).parent)
-        if here not in sys.path:
-            sys.path.append(here)
-
     def test_load_module(self):
         gas = ct.Solution("extensible-reactions.yaml", transport_model=None)
 
         for T in np.linspace(300, 3000, 10):
             gas.TP = T, None
-            assert gas.forward_rate_constants[0] == pytest.approx(3.14 * T**2)
+            assert gas.forward_rate_constants[0] == approx(3.14 * T**2)
 
     def test_missing_module(self):
         with pytest.raises(ct.CanteraError, match="No module named 'fake_ext'"):
@@ -1783,13 +1887,15 @@ class UserRate2(ct.ExtensibleRate):
             raise ValueError(f"Negative length found in reaction {equation}")
 
     def eval(self, data):
-        return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)
+        return self.A * (self.length / 2.0)**2 * np.exp(-self.Ta/data.T)
 
-class TestExtensible3(utilities.CanteraTest):
+@pytest.fixture(scope='function')
+def setup_extensible3_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+@pytest.mark.usefixtures("setup_extensible3_tests")
+class TestExtensible3:
     # Additional ExtensibleRate tests
-
-    def setUp(self):
-        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_explicit_units(self):
         rxn = """
@@ -1801,7 +1907,7 @@ class TestExtensible3(utilities.CanteraTest):
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
         assert rxn.rate.length == 2
-        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+        assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
     def test_implicit_units(self):
         rxn = """
@@ -1814,7 +1920,7 @@ class TestExtensible3(utilities.CanteraTest):
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
         assert rxn.rate.length == 2
-        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+        assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
     def test_output_units(self):
         rxn = """
@@ -1831,12 +1937,12 @@ class TestExtensible3(utilities.CanteraTest):
         self.gas.write_yaml(self.test_work_path / 'user-rate-units.yaml',
                             units={'length': 'mm', 'activation-energy': 'eV'})
 
-        yml = utilities.load_yaml(self.test_work_path / 'user-rate-units.yaml')
+        yml = load_yaml(self.test_work_path / 'user-rate-units.yaml')
         rxn = yml['reactions'][-1]
         assert rxn['type'] == 'user-rate-2'
-        assert rxn['A'] == pytest.approx(1000 * 1000**3)
-        assert rxn['L'] == pytest.approx(200 * 1000)
-        assert rxn['Ea'] == pytest.approx(50 / ct.faraday)
+        assert rxn['A'] == approx(1000 * 1000**3)
+        assert rxn['L'] == approx(200 * 1000)
+        assert rxn['Ea'] == approx(50 / ct.faraday)
 
     def test_validate_error(self):
         rxn = """
@@ -1862,7 +1968,7 @@ class TestExtensible3(utilities.CanteraTest):
         rxn = ct.Reaction(equation='H2 + OH = H2O + H', rate=rate)
         self.gas.add_reaction(rxn)
 
-        kf = rate.A * (rate.length / 2.0)**2 * exp(-rate.Ta/self.gas.T)
+        kf = rate.A * (rate.length / 2.0)**2 * np.exp(-rate.Ta/self.gas.T)
         assert self.gas.forward_rate_constants[-1] == approx(kf)
 
         rxn2 = self.gas.reaction(self.gas.n_reactions - 1)
@@ -1883,34 +1989,34 @@ class TestExtensible3(utilities.CanteraTest):
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=gas)
         gas.add_reaction(rxn)
-        kf = 1000 * (200 / 2.0)**2 * exp(-1000/gas.T)
+        kf = 1000 * (200 / 2.0)**2 * np.exp(-1000/gas.T)
         assert gas.forward_rate_constants[-1] == approx(kf)
 
+
+@pytest.fixture(scope='class')
+def setup_interface_reaction_tests(request):
+    request.cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
+    request.cls.adj = [request.cls.soln.adjacent["ohmech"]]
+    request.cls.gas = request.cls.adj[0]
+    request.cls.species = request.cls.soln.species()
+    request.cls.concentrations = request.cls.soln.concentrations
+    if request.cls._rate_cls is not None:
+        request.cls._rate_obj = request.cls._rate_cls(**request.cls._rate)
+        if request.cls._coverage_deps:
+            request.cls._rate_obj.coverage_dependencies = request.cls._coverage_deps
+
+@pytest.fixture(scope='function')
+def interface_reaction_data(request, setup_interface_reaction_tests):
+    request.cls.soln.TP = 900, ct.one_atm
+    gas = request.cls.adj[0]
+    gas.X = "H2:0.05, H2O:0.01, O:1e-4, OH: 1e5, H:2e-5, O2:0.21, AR:0.79"
+    gas.TP = 900, ct.one_atm
 
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
 
     _value = np.nan # reference value
     _coverage_deps = None
-
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
-        cls.adj = [cls.soln.adjacent["ohmech"]]
-        cls.gas = cls.adj[0]
-        cls.species = cls.soln.species()
-        cls.concentrations = cls.soln.concentrations
-        if cls._rate_cls is not None:
-            cls._rate_obj = cls._rate_cls(**cls._rate)
-            if cls._coverage_deps:
-                cls._rate_obj.coverage_dependencies = cls._coverage_deps
-
-    def setUp(self):
-        self.soln.TP = 900, ct.one_atm
-        gas = self.adj[0]
-        gas.X = "H2:0.05, H2O:0.01, O:1e-4, OH: 1e5, H:2e-5, O2:0.21, AR:0.79"
-        gas.TP = 900, ct.one_atm
 
     def finalize(self, rxn):
         rxn = super().finalize(rxn)
@@ -1919,7 +2025,7 @@ class InterfaceReactionTests(ReactionTests):
     def eval_rate(self, rate):
         rate.set_species(self.soln.species_names)
         rate.site_density = self.soln.site_density
-        self.assertEqual(rate.site_density, self.soln.site_density)
+        assert rate.site_density == self.soln.site_density
         if "Blowers-Masel" in self._rate_type:
             rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
         with pytest.warns(UserWarning, match="InterfaceData::update"):
@@ -1927,8 +2033,8 @@ class InterfaceReactionTests(ReactionTests):
 
     def check_rate(self, rate_obj):
         rate = self.eval_rate(rate_obj)
-        self.assertNear(self._value, rate)
-        self.assertNear(self._value, self.soln.forward_rate_constants[self._index])
+        assert self._value == approx(rate)
+        assert self._value == approx(self.soln.forward_rate_constants[self._index])
 
     def from_rate(self, rate):
         if isinstance(rate, dict):
@@ -1943,8 +2049,8 @@ class InterfaceReactionTests(ReactionTests):
         assert not rate2.uses_electrochemistry
         assert np.isnan(rate2.beta)
 
-
-class TestArrheniusInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("interface_reaction_data")
+class TestArrheniusInterfaceReaction(InterfaceReactionTests):
     # test interface reaction without coverages
 
     _equation = "H(S) + O(S) <=> OH(S) + PT(S)"
@@ -1960,8 +2066,8 @@ class TestArrheniusInterfaceReaction(InterfaceReactionTests, utilities.CanteraTe
     _rc_units = ct.Units("m^2 / kmol / s")
     _value = 7.9574172975288e+19
 
-
-class TestArrheniusCoverageReaction(InterfaceReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("interface_reaction_data")
+class TestArrheniusCoverageReaction(InterfaceReactionTests):
     # test interface reaction with coverages
 
     _equation = "2 O(S) => O2 + 2 PT(S)"
@@ -1981,8 +2087,8 @@ class TestArrheniusCoverageReaction(InterfaceReactionTests, utilities.CanteraTes
     _rc_units = ct.Units("m^2 / kmol / s")
     _value = 349029090.19755
 
-
-class TestBMInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("interface_reaction_data")
+class TestBMInterfaceReaction(InterfaceReactionTests):
     # test coverage-Blowers-Masel rate expressions with coverage dependency
 
     _equation = "2 H(S) => H2 + 2 PT(S)"
@@ -1999,8 +2105,8 @@ class TestBMInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^2 / kmol / s")
     _value = 1.2891970390741e+14
 
-
-class TestBMCoverageReaction(InterfaceReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("interface_reaction_data")
+class TestBMCoverageReaction(InterfaceReactionTests):
     # test coverage-Blowers-Masel rate expressions with coverage dependency
 
     _equation = "2 H(S) => H2 + 2 PT(S)"
@@ -2021,18 +2127,19 @@ class TestBMCoverageReaction(InterfaceReactionTests, utilities.CanteraTest):
     _value = 1.7068593925679e+14
 
 
+@pytest.fixture(scope='function')
+def stick_reaction_data(request, setup_interface_reaction_tests):
+    weight = request.cls.gas[request.cls._sticking_species].molecular_weights[0]
+    request.cls._rate_obj.sticking_species = request.cls._sticking_species
+    request.cls._rate_obj.sticking_order = request.cls._sticking_order
+    request.cls._rate_obj.sticking_weight = weight
+    request.cls._rate_obj.motz_wise_correction = "Motz-Wise" in request.cls._yaml
+
 class StickReactionTests(InterfaceReactionTests):
     # test suite for surface reaction expressions
 
     _sticking_species = None
     _sticking_order = None
-
-    def setUp(self):
-        weight = self.gas[self._sticking_species].molecular_weights[0]
-        self._rate_obj.sticking_species = self._sticking_species
-        self._rate_obj.sticking_order = self._sticking_order
-        self._rate_obj.sticking_weight = weight
-        self._rate_obj.motz_wise_correction = "Motz-Wise" in self._yaml
 
     def finalize(self, rxn):
         rxn = super().finalize(rxn)
@@ -2055,24 +2162,23 @@ class StickReactionTests(InterfaceReactionTests):
     def test_sticking_coeffs(self):
         rxn = self.from_yaml()
         if "Motz-Wise" in self._yaml:
-            self.assertTrue(rxn.rate.motz_wise_correction)
+            assert rxn.rate.motz_wise_correction
         else:
-            self.assertFalse(rxn.rate.motz_wise_correction)
+            assert not rxn.rate.motz_wise_correction
         weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
         assert rxn.rate.sticking_species == self._sticking_species
         assert rxn.rate.sticking_order == self._sticking_order
-        assert rxn.rate.sticking_weight == pytest.approx(weight)
+        assert rxn.rate.sticking_weight == approx(weight)
 
     def test_site_density(self):
-        self.assertEqual(self.soln.site_density,
-            self.soln.reaction(self._index).rate.site_density)
+        assert self.soln.site_density == self.soln.reaction(self._index).rate.site_density
 
     def test_rate_conversion_units(self):
         rxn = self.from_yaml()
         assert str(rxn.rate.conversion_units) == str(ct.Units('1'))
 
-
-class TestArrheniusStickReaction(StickReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("stick_reaction_data")
+class TestArrheniusStickReaction(StickReactionTests):
     # test interface reaction without coverages
 
     _equation = "H + PT(S) => H(S)"
@@ -2091,8 +2197,8 @@ class TestArrheniusStickReaction(StickReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
     _value = 401644856274.97
 
-
-class TestArrheniusCovStickReaction(StickReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("stick_reaction_data")
+class TestArrheniusCovStickReaction(StickReactionTests):
     # test interface reaction with coverages
 
     _equation = "H2 + 2 PT(S) => 2 H(S)"
@@ -2114,8 +2220,8 @@ class TestArrheniusCovStickReaction(StickReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^5 / kmol^2 / s")
     _value = 1.3792438668539e+19
 
-
-class TestArrheniusMotzStickReaction(StickReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("stick_reaction_data")
+class TestArrheniusMotzStickReaction(StickReactionTests):
     # test interface reaction with coverages
 
     _equation = "OH + PT(S) => OH(S)"
@@ -2135,8 +2241,8 @@ class TestArrheniusMotzStickReaction(StickReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
     _value = 195563866595.97
 
-
-class TestBlowersMaselStickReaction(StickReactionTests, utilities.CanteraTest):
+@pytest.mark.usefixtures("stick_reaction_data")
+class TestBlowersMaselStickReaction(StickReactionTests):
     # test interface reaction with coverages
 
     _equation = "OH + PT(S) => OH(S)"
@@ -2157,7 +2263,22 @@ class TestBlowersMaselStickReaction(StickReactionTests, utilities.CanteraTest):
     _value = 195563866595.97
 
 
-class TestElectronCollisionPlasmaReaction(ReactionTests, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_electron_reaction_tests(request):
+    request.cls.soln = ct.Solution("oxygen-plasma.yaml",
+                                   "discretized-electron-energy-plasma",
+                                   transport_model=None)
+    request.cls.species = request.cls.soln.species()
+
+@pytest.fixture(scope='function')
+def electron_reaction_data(request, setup_electron_reaction_tests):
+    request.cls.soln.X = "O2:1.0, E:1e-10"
+    request.cls.soln.TP = 300, ct.one_atm
+    request.cls.adj = []
+    request.cls._rate_obj = ct.ReactionRate.from_dict(request.cls._rate)
+
+@pytest.mark.usefixtures("electron_reaction_data")
+class TestElectronCollisionPlasmaReaction(ReactionTests):
     # This test only test the data input and output but not evaluating the reaction
     # rate. The rate evaluation is tested in kineticsFromYaml.cpp because plasma
     # reaction rate is much complicated and depends on electron energy distribution
@@ -2195,20 +2316,6 @@ class TestElectronCollisionPlasmaReaction(ReactionTests, utilities.CanteraTest):
         normalize: False
     """
     _rc_units = ct.Units("m^3 / kmol / s")
-
-    @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
-        cls.soln = ct.Solution("oxygen-plasma.yaml",
-                               "discretized-electron-energy-plasma",
-                               transport_model=None)
-        cls.species = cls.soln.species()
-
-    def setUp(self):
-        self.soln.X = "O2:1.0, E:1e-10"
-        self.soln.TP = 300, ct.one_atm
-        self.adj = []
-        self._rate_obj = ct.ReactionRate.from_dict(self._rate)
 
     def eval_rate(self, rate):
         gas = ct.Solution(yaml=self._phase_def)

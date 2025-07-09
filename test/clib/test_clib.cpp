@@ -10,14 +10,11 @@ using ::testing::HasSubstr;
 
 string reportError()
 {
-    int buflen = 0;
-    char* output_buf = 0;
-    buflen = ct_getCanteraError(buflen, output_buf) + 1;
-    output_buf = new char[buflen];
-    ct_getCanteraError(buflen, output_buf);
-    string err = output_buf;
-    delete[] output_buf;
-    return err;
+    vector<char> output_buf;
+    int buflen = ct_getCanteraError(0, output_buf.data()) + 1;
+    output_buf.resize(buflen);
+    ct_getCanteraError(buflen, output_buf.data());
+    return string(output_buf.data());
 }
 
 TEST(ct, cabinet_exceptions)
@@ -62,34 +59,29 @@ TEST(ct, new_solution)
     int thermo = soln_thermo(ref);
     ASSERT_EQ(thermo_parent(thermo), ref);
 
-    char* buf = new char[buflen];
-    soln_name(ref, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(ref, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, name);
-    delete[] buf;
 }
 
 TEST(ct, soln_objects)
 {
     ct_resetStorage();
 
-    int thermo0 = thermo_newFromFile("gri30.yaml", "gri30");
-    ASSERT_EQ(thermo_size(), 1);
-
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
-    ASSERT_EQ(thermo_size(), 2);
+    ASSERT_EQ(thermo_size(), 1); // one ThermoPhase object
+
     int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "default");
     ASSERT_EQ(ref2, 1);
-    ASSERT_EQ(thermo_size(), 3);
-
-    ASSERT_EQ(thermo_parent(thermo0), -1);
+    ASSERT_EQ(thermo_size(), 2); // two ThermoPhase objects
 
     int thermo = soln_thermo(ref);
     ASSERT_EQ(thermo_parent(thermo), ref);
 
     int thermo2 = soln_thermo(ref2);
-    ASSERT_EQ(thermo2, 2);
+    ASSERT_EQ(thermo2, 1); // references stored object with index '1'
     ASSERT_EQ(thermo_nSpecies(thermo2), 10u);
     ASSERT_EQ(thermo_parent(thermo2), ref2);
 
@@ -146,19 +138,17 @@ TEST(ct, new_interface)
 
     int ph_surf = soln_thermo(surf);
     int buflen = soln_name(ph_surf, 0, 0) + 1; // include \0
-    char* buf = new char[buflen];
-    soln_name(ph_surf, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(ph_surf, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, "Pt_surf");
-    delete[] buf;
 
     int kin_surf = soln_kinetics(surf);
     buflen = kin_getType(kin_surf, 0, 0) + 1; // include \0
-    buf = new char[buflen];
-    kin_getType(ph_surf, buflen, buf);
-    string kinType = buf;
+    buf.resize(buflen);
+    kin_getType(ph_surf, buflen, buf.data());
+    string kinType(buf.data());
     ASSERT_EQ(kinType, "surface");
-    delete[] buf;
 }
 
 TEST(ct, new_interface_auto)
@@ -174,24 +164,23 @@ TEST(ct, new_interface_auto)
     ASSERT_EQ(gas, 1);
 
     int buflen = soln_name(gas, 0, 0) + 1; // include \0
-    char* buf = new char[buflen];
-    soln_name(gas, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(gas, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, "gas");
-    delete[] buf;
 
     buflen = soln_adjacentName(surf, 0, 0, 0) + 1;
-    char* buf2 = new char[buflen];
-    soln_adjacentName(surf, 0, buflen, buf2);
-    solName = buf2;
+    buf.resize(buflen);
+    soln_adjacentName(surf, 0, buflen, buf.data());
+    solName = buf.data();
     ASSERT_EQ(solName, "gas");
-    delete[] buf2;
 }
 
 TEST(ct, thermo)
 {
     int ret;
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol);
     ASSERT_GE(thermo, 0);
     size_t nsp = thermo_nSpecies(thermo);
     ASSERT_EQ(nsp, 53u);
@@ -203,7 +192,7 @@ TEST(ct, thermo)
     ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
     ASSERT_EQ(ret, 0);
 
-    ret = thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    ret = thermo_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     ASSERT_EQ(ret, 0);
     double T = thermo_temperature(thermo);
     ASSERT_GT(T, 2200);
@@ -238,14 +227,15 @@ TEST(ct, thermo)
 
 TEST(ct, kinetics)
 {
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
+    int sol0 = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol0);
+    int kin = soln_kinetics(sol0);
     ASSERT_GE(kin, 0);
 
     size_t nr = kin_nReactions(kin);
     ASSERT_EQ(nr, 325u);
 
-    thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    thermo_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     double T = thermo_temperature(thermo);
     thermo_setTemperature(thermo, T - 200);
 
@@ -269,9 +259,9 @@ TEST(ct, kinetics)
 
 TEST(ct, transport)
 {
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int tran = trans_newDefault(thermo, 0);
-    ASSERT_GE(tran, 0);
+    int sol0 = soln_newSolution("gri30.yaml", "gri30", "default");
+    int thermo = soln_thermo(sol0);
+    int tran = soln_transport(sol0);
 
     size_t nsp = thermo_nSpecies(thermo);
     vector<double> c_dkm(nsp);

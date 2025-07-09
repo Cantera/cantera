@@ -14,6 +14,7 @@
 #include "cantera/kinetics/Custom.h"
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/LinearBurkeRate.h"
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
@@ -73,6 +74,11 @@ ReactionRateFactory::ReactionRateFactory()
     // PlogRate evaluator
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const UnitStack& rate_units) {
         return new PlogRate(node, rate_units);
+    });
+
+    // LinearBurkeRate evaluator
+    reg("linear-Burke", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new LinearBurkeRate(node, rate_units);
     });
 
     // ChebyshevRate evaluator

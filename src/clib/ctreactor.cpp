@@ -12,19 +12,20 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/zerodim.h"
+#include "cantera/base/stringUtils.h"
 #include "clib_utils.h"
 
 using namespace Cantera;
 
-typedef SharedCabinet<ReactorBase> ReactorCabinet;
-typedef SharedCabinet<ReactorNet> NetworkCabinet;
-typedef SharedCabinet<FlowDevice> FlowDeviceCabinet;
-typedef SharedCabinet<WallBase> WallCabinet;
-typedef SharedCabinet<Func1> FuncCabinet;
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Solution> SolutionCabinet;
-typedef SharedCabinet<ReactorSurface> ReactorSurfaceCabinet;
+typedef Cabinet<ReactorBase> ReactorCabinet;
+typedef Cabinet<ReactorNet> NetworkCabinet;
+typedef Cabinet<FlowDevice> FlowDeviceCabinet;
+typedef Cabinet<WallBase> WallCabinet;
+typedef Cabinet<Func1> FuncCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Solution> SolutionCabinet;
+typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
@@ -40,16 +41,7 @@ extern "C" {
 
     // reactor
 
-    int reactor_new(const char* type)
-    {
-        try {
-            return ReactorCabinet::add(newReactor(type));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_new3(const char* type, int n, const char* name)
+    int reactor_new(const char* type, int n, const char* name)
     {
         try {
             return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n), name));
@@ -68,10 +60,30 @@ extern "C" {
         }
     }
 
+    int reactor_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ReactorCabinet::at(i)->name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_setName(int i, const char* name)
+    {
+        try {
+            ReactorCabinet::at(i)->setName(name);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_setInitialVolume(int i, double v)
     {
         try {
-            ReactorCabinet::item(i).setInitialVolume(v);
+            ReactorCabinet::at(i)->setInitialVolume(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -81,7 +93,7 @@ extern "C" {
     int reactor_setThermoMgr(int i, int n)
     {
         try {
-            ReactorCabinet::item(i).setThermoMgr(ThermoCabinet::item(n));
+            ReactorCabinet::at(i)->setThermoMgr(*ThermoCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -91,7 +103,7 @@ extern "C" {
     int reactor_setKineticsMgr(int i, int n)
     {
         try {
-            ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
+            ReactorCabinet::at(i)->setKineticsMgr(*KineticsCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -101,7 +113,7 @@ extern "C" {
     int reactor_insert(int i, int n)
     {
         try {
-            ReactorCabinet::get<Reactor>(i).insert(SolutionCabinet::at(n));
+            ReactorCabinet::as<Reactor>(i)->insert(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -111,7 +123,7 @@ extern "C" {
     double reactor_mass(int i)
     {
         try {
-            return ReactorCabinet::item(i).mass();
+            return ReactorCabinet::at(i)->mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -120,7 +132,7 @@ extern "C" {
     double reactor_volume(int i)
     {
         try {
-            return ReactorCabinet::item(i).volume();
+            return ReactorCabinet::at(i)->volume();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -129,7 +141,7 @@ extern "C" {
     double reactor_density(int i)
     {
         try {
-            return ReactorCabinet::item(i).density();
+            return ReactorCabinet::at(i)->density();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -138,7 +150,7 @@ extern "C" {
     double reactor_temperature(int i)
     {
         try {
-            return ReactorCabinet::item(i).temperature();
+            return ReactorCabinet::at(i)->temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -147,7 +159,7 @@ extern "C" {
     double reactor_enthalpy_mass(int i)
     {
         try {
-            return ReactorCabinet::item(i).enthalpy_mass();
+            return ReactorCabinet::at(i)->enthalpy_mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -156,7 +168,7 @@ extern "C" {
     double reactor_intEnergy_mass(int i)
     {
         try {
-            return ReactorCabinet::item(i).intEnergy_mass();
+            return ReactorCabinet::at(i)->intEnergy_mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -165,7 +177,7 @@ extern "C" {
     double reactor_pressure(int i)
     {
         try {
-            return ReactorCabinet::item(i).pressure();
+            return ReactorCabinet::at(i)->pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -174,7 +186,7 @@ extern "C" {
     double reactor_massFraction(int i, int k)
     {
         try {
-            return ReactorCabinet::item(i).massFraction(k);
+            return ReactorCabinet::at(i)->massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -183,7 +195,7 @@ extern "C" {
     int reactor_setChemistry(int i, int cflag)
     {
         try {
-            ReactorCabinet::get<Reactor>(i).setChemistry(cflag != 0);
+            ReactorCabinet::as<Reactor>(i)->setChemistry(cflag != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -193,17 +205,17 @@ extern "C" {
     int reactor_setEnergy(int i, int eflag)
     {
         try {
-            ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
+            ReactorCabinet::as<Reactor>(i)->setEnergy(eflag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int flowReactor_setMassFlowRate(int i, double mdot)
+    int reactor_setMassFlowRate(int i, double mdot)
     {
         try {
-            ReactorCabinet::get<FlowReactor>(i).setMassFlowRate(mdot);
+            ReactorCabinet::as<FlowReactor>(i)->setMassFlowRate(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -213,7 +225,7 @@ extern "C" {
     size_t reactor_nSensParams(int i)
     {
         try {
-            return ReactorCabinet::get<Reactor>(i).nSensParams();
+            return ReactorCabinet::as<Reactor>(i)->nSensParams();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -222,7 +234,7 @@ extern "C" {
     int reactor_addSensitivityReaction(int i, int rxn)
     {
         try {
-            ReactorCabinet::get<Reactor>(i).addSensitivityReaction(rxn);
+            ReactorCabinet::as<Reactor>(i)->addSensitivityReaction(rxn);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -253,7 +265,7 @@ extern "C" {
     int reactornet_setInitialTime(int i, double t)
     {
         try {
-            NetworkCabinet::item(i).setInitialTime(t);
+            NetworkCabinet::at(i)->setInitialTime(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -263,7 +275,7 @@ extern "C" {
     int reactornet_setMaxTimeStep(int i, double maxstep)
     {
         try {
-            NetworkCabinet::item(i).setMaxTimeStep(maxstep);
+            NetworkCabinet::at(i)->setMaxTimeStep(maxstep);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -273,7 +285,7 @@ extern "C" {
     int reactornet_setTolerances(int i, double rtol, double atol)
     {
         try {
-            NetworkCabinet::item(i).setTolerances(rtol, atol);
+            NetworkCabinet::at(i)->setTolerances(rtol, atol);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -283,7 +295,7 @@ extern "C" {
     int reactornet_setSensitivityTolerances(int i, double rtol, double atol)
     {
         try {
-            NetworkCabinet::item(i).setSensitivityTolerances(rtol, atol);
+            NetworkCabinet::at(i)->setSensitivityTolerances(rtol, atol);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -293,8 +305,8 @@ extern "C" {
     int reactornet_addreactor(int i, int n)
     {
         try {
-            NetworkCabinet::item(i).addReactor(
-                dynamic_cast<Reactor&>(ReactorCabinet::item(n)));
+            NetworkCabinet::at(i)->addReactor(
+                dynamic_cast<Reactor&>(*ReactorCabinet::at(n)));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -304,7 +316,7 @@ extern "C" {
     int reactornet_advance(int i, double t)
     {
         try {
-            NetworkCabinet::item(i).advance(t);
+            NetworkCabinet::at(i)->advance(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -314,7 +326,7 @@ extern "C" {
     double reactornet_step(int i)
     {
         try {
-            return NetworkCabinet::item(i).step();
+            return NetworkCabinet::at(i)->step();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -323,7 +335,7 @@ extern "C" {
     double reactornet_time(int i)
     {
         try {
-            return NetworkCabinet::item(i).time();
+            return NetworkCabinet::at(i)->time();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -332,7 +344,7 @@ extern "C" {
     double reactornet_rtol(int i)
     {
         try {
-            return NetworkCabinet::item(i).rtol();
+            return NetworkCabinet::at(i)->rtol();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -341,7 +353,7 @@ extern "C" {
     double reactornet_atol(int i)
     {
         try {
-            return NetworkCabinet::item(i).atol();
+            return NetworkCabinet::at(i)->atol();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -350,7 +362,7 @@ extern "C" {
     double reactornet_sensitivity(int i, const char* v, int p, int r)
     {
         try {
-            return NetworkCabinet::item(i).sensitivity(v, p, r);
+            return NetworkCabinet::at(i)->sensitivity(v, p, r);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -358,10 +370,10 @@ extern "C" {
 
     // flow devices
 
-    int flowdev_new(const char* type)
+    int flowdev_new(const char* type, const char* name)
     {
         try {
-            return FlowDeviceCabinet::add(newFlowDevice(type));
+            return FlowDeviceCabinet::add(newFlowDevice(type, name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -377,11 +389,31 @@ extern "C" {
         }
     }
 
+    int flowdev_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(FlowDeviceCabinet::at(i)->name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setName(int i, const char* name)
+    {
+        try {
+            FlowDeviceCabinet::at(i)->setName(name);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int flowdev_install(int i, int n, int m)
     {
         try {
-            bool ok = FlowDeviceCabinet::item(i).install(ReactorCabinet::item(n),
-                      ReactorCabinet::item(m));
+            bool ok = FlowDeviceCabinet::at(i)->install(*ReactorCabinet::at(n),
+                                                        *ReactorCabinet::at(m));
             if (!ok) {
                 throw CanteraError("flowdev_install",
                                    "Could not install flow device.");
@@ -395,8 +427,8 @@ extern "C" {
     int flowdev_setPrimary(int i, int n)
     {
         try {
-            FlowDeviceCabinet::get<PressureController>(i).setPrimary(
-                &FlowDeviceCabinet::item(n));
+            FlowDeviceCabinet::as<PressureController>(i)->setPrimary(
+                FlowDeviceCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -406,7 +438,7 @@ extern "C" {
     double flowdev_massFlowRate(int i)
     {
         try {
-            return FlowDeviceCabinet::item(i).massFlowRate();
+            return FlowDeviceCabinet::at(i)->massFlowRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -415,7 +447,7 @@ extern "C" {
     int flowdev_setMassFlowCoeff(int i, double v)
     {
         try {
-            FlowDeviceCabinet::get<MassFlowController>(i).setMassFlowCoeff(v);
+            FlowDeviceCabinet::as<MassFlowController>(i)->setMassFlowCoeff(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -425,7 +457,7 @@ extern "C" {
     int flowdev_setValveCoeff(int i, double v)
     {
         try {
-            FlowDeviceCabinet::get<Valve>(i).setValveCoeff(v);
+            FlowDeviceCabinet::as<Valve>(i)->setValveCoeff(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -435,7 +467,7 @@ extern "C" {
     int flowdev_setPressureCoeff(int i, double v)
     {
         try {
-            FlowDeviceCabinet::get<PressureController>(i).setPressureCoeff(v);
+            FlowDeviceCabinet::as<PressureController>(i)->setPressureCoeff(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -445,7 +477,7 @@ extern "C" {
     int flowdev_setPressureFunction(int i, int n)
     {
         try {
-            FlowDeviceCabinet::item(i).setPressureFunction(&FuncCabinet::item(n));
+            FlowDeviceCabinet::at(i)->setPressureFunction(FuncCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -455,7 +487,7 @@ extern "C" {
     int flowdev_setTimeFunction(int i, int n)
     {
         try {
-            FlowDeviceCabinet::item(i).setTimeFunction(&FuncCabinet::item(n));
+            FlowDeviceCabinet::at(i)->setTimeFunction(FuncCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -464,10 +496,10 @@ extern "C" {
 
     /////////////    Walls   ///////////////////////
 
-    int wall_new(const char* type)
+    int wall_new(const char* type, const char* name)
     {
         try {
-            return WallCabinet::add(newWall(type));
+            return WallCabinet::add(newWall(type, name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -483,11 +515,31 @@ extern "C" {
         }
     }
 
+    int wall_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(WallCabinet::at(i)->name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int wall_setName(int i, const char* name)
+    {
+        try {
+            WallCabinet::at(i)->setName(name);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int wall_install(int i, int n, int m)
     {
         try {
-            WallCabinet::item(i).install(ReactorCabinet::item(n),
-                                         ReactorCabinet::item(m));
+            WallCabinet::at(i)->install(*ReactorCabinet::at(n),
+                                        *ReactorCabinet::at(m));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -497,7 +549,7 @@ extern "C" {
     double wall_expansionRate(int i)
     {
         try {
-            return WallCabinet::item(i).expansionRate();
+            return WallCabinet::at(i)->expansionRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -506,7 +558,7 @@ extern "C" {
     double wall_heatRate(int i)
     {
         try {
-            return WallCabinet::item(i).heatRate();
+            return WallCabinet::at(i)->heatRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -515,7 +567,7 @@ extern "C" {
     double wall_area(int i)
     {
         try {
-            return WallCabinet::item(i).area();
+            return WallCabinet::at(i)->area();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -524,7 +576,7 @@ extern "C" {
     int wall_setArea(int i, double v)
     {
         try {
-            WallCabinet::item(i).setArea(v);
+            WallCabinet::at(i)->setArea(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -534,7 +586,7 @@ extern "C" {
     int wall_setThermalResistance(int i, double rth)
     {
         try {
-            WallCabinet::get<Wall>(i).setThermalResistance(rth);
+            WallCabinet::as<Wall>(i)->setThermalResistance(rth);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -544,7 +596,7 @@ extern "C" {
     int wall_setHeatTransferCoeff(int i, double u)
     {
         try {
-            WallCabinet::get<Wall>(i).setHeatTransferCoeff(u);
+            WallCabinet::as<Wall>(i)->setHeatTransferCoeff(u);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -554,7 +606,7 @@ extern "C" {
     int wall_setHeatFlux(int i, int n)
     {
         try {
-            WallCabinet::get<Wall>(i).setHeatFlux(&FuncCabinet::item(n));
+            WallCabinet::as<Wall>(i)->setHeatFlux(FuncCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -564,7 +616,7 @@ extern "C" {
     int wall_setExpansionRateCoeff(int i, double k)
     {
         try {
-            WallCabinet::get<Wall>(i).setExpansionRateCoeff(k);
+            WallCabinet::as<Wall>(i)->setExpansionRateCoeff(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -574,7 +626,7 @@ extern "C" {
     int wall_setVelocity(int i, int n)
     {
         try {
-            WallCabinet::get<Wall>(i).setVelocity(&FuncCabinet::item(n));
+            WallCabinet::as<Wall>(i)->setVelocity(FuncCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -584,7 +636,7 @@ extern "C" {
     int wall_setEmissivity(int i, double epsilon)
     {
         try {
-            WallCabinet::get<Wall>(i).setEmissivity(epsilon);
+            WallCabinet::as<Wall>(i)->setEmissivity(epsilon);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -594,7 +646,7 @@ extern "C" {
     int wall_ready(int i)
     {
         try {
-            return int(WallCabinet::item(i).ready());
+            return int(WallCabinet::at(i)->ready());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -602,10 +654,10 @@ extern "C" {
 
     // ReactorSurface
 
-    int reactorsurface_new(int type)
+    int reactorsurface_new(const char* name)
     {
         try {
-            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>());
+            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>(name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -621,10 +673,30 @@ extern "C" {
         }
     }
 
+    int reactorsurface_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ReactorSurfaceCabinet::at(i)->name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_setName(int i, const char* name)
+    {
+        try {
+            ReactorSurfaceCabinet::at(i)->setName(name);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactorsurface_install(int i, int n)
     {
         try {
-            ReactorCabinet::item(n).addSurface(&ReactorSurfaceCabinet::item(i));
+            ReactorCabinet::at(n)->addSurface(ReactorSurfaceCabinet::at(i).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -634,7 +706,7 @@ extern "C" {
     int reactorsurface_setkinetics(int i, int n)
     {
         try {
-            ReactorSurfaceCabinet::item(i).setKinetics(&KineticsCabinet::item(n));
+            ReactorSurfaceCabinet::at(i)->setKinetics(KineticsCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -644,7 +716,7 @@ extern "C" {
     double reactorsurface_area(int i)
     {
         try {
-            return ReactorSurfaceCabinet::item(i).area();
+            return ReactorSurfaceCabinet::at(i)->area();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -653,7 +725,7 @@ extern "C" {
     int reactorsurface_setArea(int i, double v)
     {
         try {
-            ReactorSurfaceCabinet::item(i).setArea(v);
+            ReactorSurfaceCabinet::at(i)->setArea(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -663,7 +735,7 @@ extern "C" {
     int reactorsurface_addSensitivityReaction(int i, int rxn)
     {
         try {
-            ReactorSurfaceCabinet::item(i).addSensitivityReaction(rxn);
+            ReactorSurfaceCabinet::at(i)->addSensitivityReaction(rxn);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -14,11 +14,9 @@ namespace Cantera
 
 //! @defgroup zerodGroup Zero-Dimensional Reactor Networks
 //!
-//! @details See the
-//! [Reactor Science](https://cantera.org/science/reactors/reactors.html)
-//! section of the %Cantera website for a description of the governing equations for
-//! specific reactor types and the methods used for solving networks of interconnected
-//! reactors.
+//! @details See the [Reactor Science](../reference/reactors/index.html) section of the
+//! %Cantera website for a description of the governing equations for specific reactor
+//! types and the methods used for solving networks of interconnected reactors.
 
 class FlowDevice;
 class WallBase;
@@ -50,12 +48,12 @@ struct SensitivityParameter
 class ReactorBase
 {
 public:
-    explicit ReactorBase(const string& name = "(none)");
+    explicit ReactorBase(const string& name="(none)");
     //! Instantiate a ReactorBase object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
-    ReactorBase(shared_ptr<Solution> sol, const string& name = "(none)");
+    ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
     virtual ~ReactorBase();
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
@@ -75,6 +73,9 @@ public:
     void setName(const string& name) {
         m_name = name;
     }
+
+    //! Set the default name of a reactor. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
 
     //! Set the Solution specifying the ReactorBase content.
     //! @param sol  Solution object to be set.
@@ -307,7 +308,8 @@ protected:
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
     vector<int> m_lr;
-    string m_name;
+    string m_name;  //!< Reactor name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;

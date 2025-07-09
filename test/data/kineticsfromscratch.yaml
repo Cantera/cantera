@@ -101,6 +101,23 @@ reactions:
 - equation: O + H2 + M <=> H2O + M  # Reaction 14
   type: Blowers-Masel
   rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+- equation: H + OH <=> H2O  # Reaction 15
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+  - name: O2
+    type: falloff
+    efficiency: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
 
 surface:
 - units: {length: cm, quantity: mol, activation-energy: J/mol}

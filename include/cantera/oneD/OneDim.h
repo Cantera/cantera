@@ -26,6 +26,7 @@ class AnyMap;
 class OneDim
 {
 public:
+    //! Default constructor
     OneDim();
 
     //! Construct a OneDim container for the domains in the list *domains*.
@@ -69,6 +70,7 @@ public:
         return *m_dom[i];
     }
 
+    //! Get the index of the domain named `name`.
     size_t domainIndex(const string& name);
 
     //! Check that the specified domain index is in range.
@@ -116,13 +118,12 @@ public:
         return m_dom.back().get();
     }
 
-    //! Number of solution components at global point jg.
+    //! Number of solution components at global point `jg`.
     size_t nVars(size_t jg) {
         return m_nvars[jg];
     }
 
-    //! Location in the solution vector of the first component of global point
-    //! jg.
+    //! Location in the solution vector of the first component of global point `jg`.
     size_t loc(size_t jg) {
         return m_loc[jg];
     }
@@ -204,6 +205,8 @@ public:
     //! Call after one or more grids has changed size, for example after being refined.
     virtual void resize();
 
+    //! Access the vector indicating which equations contain a transient term.
+    //! Elements are 1 for equations with a transient terms and 0 otherwise.
     vector<int>& transientMask() {
         return m_mask;
     }
@@ -211,15 +214,17 @@ public:
     /**
      * Take time steps using Backward Euler.
      *
-     * @param nsteps number of steps
-     * @param dt initial step size
-     * @param x current solution vector
-     * @param r solution vector after time stepping
-     * @param loglevel controls amount of printed diagnostics
+     * @param nsteps  number of steps
+     * @param dt  initial step size
+     * @param x  current solution vector
+     * @param r  solution vector after time stepping
+     * @param loglevel  controls amount of printed diagnostics
      * @returns size of last timestep taken
      */
     double timeStep(int nsteps, double dt, double* x, double* r, int loglevel);
 
+    //! Reset values such as negative species concentrations in each domain.
+    //! @see Domain1D::resetBadValues
     void resetBadValues(double* x);
 
     //! Write statistics about the number of iterations and Jacobians at each
@@ -231,10 +236,15 @@ public:
      */
     void writeStats(int printTime = 1);
 
-    // options
+    //! @name Options
+    //! @{
+
+    //! Set the minimum time step allowed during time stepping
     void setMinTimeStep(double tmin) {
         m_tmin = tmin;
     }
+
+    //! Set the maximum time step allowed during time stepping
     void setMaxTimeStep(double tmax) {
         m_tmax = tmax;
     }
@@ -243,7 +253,7 @@ public:
      * Sets a factor by which the time step is reduced if the time stepping
      * fails. The default value is 0.5.
      *
-     * @param tfactor factor time step is multiplied by if time stepping fails
+     * @param tfactor  factor time step is multiplied by if time stepping fails
      */
     void setTimeStepFactor(double tfactor) {
         m_tfactor = tfactor;
@@ -260,7 +270,13 @@ public:
     int maxTimeStepCount() const {
         return m_nsteps_max;
     }
+    //! @}
 
+    //! Set the maximum number of steps that can be taken using the same Jacobian
+    //! before it must be re-evaluated.
+    //! @param ss_age  Age limit during steady-state mode
+    //! @param ts_age  Age limit during time stepping mode. If not specified, the
+    //!     steady-state age is also used during time stepping.
     void setJacAge(int ss_age, int ts_age=-1);
 
     /**
@@ -334,7 +350,10 @@ public:
     }
 
 protected:
-    void evalSSJacobian(double* x, double* xnew);
+    //! Evaluate the steady-state Jacobian, accessible via jacobian()
+    //! @param[in] x  Current state vector, length size()
+    //! @param[out] rsd  Storage for the residual, length size()
+    void evalSSJacobian(double* x, double* rsd);
 
     double m_tmin = 1e-16; //!< minimum timestep size
     double m_tmax = 1e+08; //!< maximum timestep size
@@ -352,19 +371,34 @@ protected:
     size_t m_bw = 0; //!< Jacobian bandwidth
     size_t m_size = 0; //!< solution vector size
 
+    //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;
+
+    //! All connector and boundary domains
     vector<shared_ptr<Domain1D>> m_connect;
+
+    //! All bulk/flow domains
     vector<shared_ptr<Domain1D>> m_bulk;
 
+    //! Indicates whether one-time initialization for each domain has been completed.
     bool m_init = false;
+
+    //! Number of variables at each point, across all domains. Length points().
+    //! Accessed with nVars().
     vector<size_t> m_nvars;
+
+    //! Location in the state vector of the first component of each point, across all
+    //! domains. Accessed with loc().
     vector<size_t> m_loc;
+
+    //! Transient mask. See transientMask().
     vector<int> m_mask;
+
+    //! Total number of points.
     size_t m_pts = 0;
 
-    // options
-    int m_ss_jac_age = 20;
-    int m_ts_jac_age = 20;
+    int m_ss_jac_age = 20; //!< Maximum age of the Jacobian in steady-state mode.
+    int m_ts_jac_age = 20; //!< Maximum age of the Jacobian in time-stepping mode.
 
     //! Function called at the start of every call to #eval.
     Func1* m_interrupt = nullptr;
@@ -379,18 +413,29 @@ protected:
     int m_nsteps_max = 5000;
 
 private:
-    // statistics
-    int m_nevals = 0;
-    double m_evaltime = 0;
-    vector<size_t> m_gridpts;
-    vector<int> m_jacEvals;
-    vector<double> m_jacElapsed;
+    //! @name Statistics
+    //! Solver stats are collected after successfully solving on a particular grid.
+    //! @{
+    int m_nevals = 0; //!< Number of calls to eval()
+    double m_evaltime = 0; //!< Total time [s] spent in eval()
+
+    vector<size_t> m_gridpts; //!< Number of grid points in this grid
+    vector<int> m_jacEvals; //!< Number of Jacobian evaluations on this grid
+    vector<double> m_jacElapsed; //!< Time [s] spent evaluating Jacobians on this grid
+
+    //! Number of residual function evaluations on this grid (not counting evaluations
+    //! used to construct Jacobians).
     vector<int> m_funcEvals;
+
+    //! Time [s] spent on residual function evaluations on this grid (not counting
+    //! evaluations used to construct Jacobians).
     vector<double> m_funcElapsed;
 
     //! Number of time steps taken in each call to solve() (for example, for each
     //! successive grid refinement)
     vector<int> m_timeSteps;
+
+    //! @}
 };
 
 }

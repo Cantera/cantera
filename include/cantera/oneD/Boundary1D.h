@@ -42,6 +42,7 @@ const int RightInlet = -1;
 class Boundary1D : public Domain1D
 {
 public:
+    //! Default constructor
     Boundary1D();
 
     void init() override {
@@ -66,6 +67,7 @@ public:
         return m_temp;
     }
 
+    //! Get the number of species
     virtual size_t nSpecies() {
         return 0;
     }
@@ -95,7 +97,7 @@ public:
         throw NotImplementedError("Boundary1D::massFraction");
     }
 
-    //! Set the total mass flow rate.
+    //! Set the total mass flow rate [kg/m²/s].
     virtual void setMdot(double mdot) {
         m_mdot = mdot;
     }
@@ -120,24 +122,18 @@ public:
     void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
+    //! Initialize member variables based on the adjacent domains.
+    //! @param n  Number of state variables associated with the boundary object
     void _init(size_t n);
 
-    Flow1D* m_flow_left = nullptr;
-    Flow1D* m_flow_right = nullptr;
-    size_t m_ilr = 0;
-    size_t m_left_nv = 0;
-    size_t m_right_nv = 0;
-    size_t m_left_loc = 0;
-    size_t m_right_loc = 0;
-    size_t m_left_points = 0;
-    size_t m_left_nsp = 0;
-    size_t m_right_nsp = 0;
-    size_t m_sp_left = 0;
-    size_t m_sp_right = 0;
-    size_t m_start_left = 0;
-    size_t m_start_right = 0;
-    ThermoPhase* m_phase_left = nullptr;
-    ThermoPhase* m_phase_right = nullptr;
+    Flow1D* m_flow_left = nullptr; //!< Flow domain to the left of this boundary
+    Flow1D* m_flow_right = nullptr; //! Flow domain to the right of this boundary
+    size_t m_left_nv = 0; //!< Number of state vector components in left flow domain
+    size_t m_right_nv = 0; //!< Number of state vector components in right flow domain
+    size_t m_left_nsp = 0; //!< Number of species in left flow domain
+    size_t m_right_nsp = 0; //!< Number of species in right flow domain
+    ThermoPhase* m_phase_left = nullptr; //!< Thermo object used by left flow domain
+    ThermoPhase* m_phase_right = nullptr; //!< Thermo object used by right flow domain
 
     //! Temperature of the boundary.
     double m_temp = 0.0;
@@ -154,8 +150,12 @@ protected:
 class Inlet1D : public Boundary1D
 {
 public:
+    //! Default constructor
     Inlet1D();
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     Inlet1D(shared_ptr<Solution> solution, const string& id="");
 
     string domainType() const override {
@@ -196,10 +196,10 @@ protected:
     //! The spread rate of the inlet [1/s]
     double m_V0 = 0.0;
 
-    size_t m_nsp = 0;
-    vector<double> m_yin;
-    string m_xstr;
-    Flow1D* m_flow = nullptr;
+    size_t m_nsp = 0; //!< Number of species in the adjacent flow domain
+    vector<double> m_yin; //!< inlet mass fractions
+    string m_xstr; //!< inlet mass fractions. Parsing deferred to init()
+    Flow1D* m_flow = nullptr; //!< the adjacent flow domain
 };
 
 /**
@@ -208,8 +208,12 @@ protected:
 class Empty1D : public Boundary1D
 {
 public:
+    //! Default constructor
     Empty1D() = default;
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents
+    //! @param id  Name used to identify this domain
     Empty1D(shared_ptr<Solution> solution, const string& id="") : Empty1D() {
         setSolution(solution);
         m_id = id;
@@ -235,8 +239,12 @@ public:
 class Symm1D : public Boundary1D
 {
 public:
+    //! Default constructor
     Symm1D() = default;
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     Symm1D(shared_ptr<Solution> solution, const string& id="") : Symm1D() {
         setSolution(solution);
         m_id = id;
@@ -261,8 +269,12 @@ public:
 class Outlet1D : public Boundary1D
 {
 public:
+    //! Default constructor
     Outlet1D() = default;
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     Outlet1D(shared_ptr<Solution> solution, const string& id="") : Outlet1D() {
         setSolution(solution);
         m_id = id;
@@ -287,8 +299,12 @@ public:
 class OutletRes1D : public Boundary1D
 {
 public:
+    //! Default constructor
     OutletRes1D();
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     OutletRes1D(shared_ptr<Solution> solution, const string& id="");
 
     string domainType() const override {
@@ -313,10 +329,10 @@ public:
     void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
-    size_t m_nsp = 0;
-    vector<double> m_yres;
-    string m_xstr;
-    Flow1D* m_flow = nullptr;
+    size_t m_nsp = 0; //!< Number of species in the adjacent flow domain
+    vector<double> m_yres; //!< Mass fractions in the reservoir
+    string m_xstr; //!< Mole fractions in the reservoir
+    Flow1D* m_flow = nullptr; //!< The adjacent flow domain
 };
 
 /**
@@ -327,8 +343,12 @@ protected:
 class Surf1D : public Boundary1D
 {
 public:
+    //! Default constructor
     Surf1D() = default;
 
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     Surf1D(shared_ptr<Solution> solution, const string& id="") : Surf1D() {
         setSolution(solution);
         m_id = id;
@@ -345,6 +365,7 @@ public:
     shared_ptr<SolutionArray> asArray(const double* soln) const override;
     void fromArray(SolutionArray& arr, double* soln) override;
 
+    //! @deprecated To be removed after Cantera 3.1.
     void show(std::ostream& s, const double* x) override;
 
     void show(const double* x) override;
@@ -356,7 +377,12 @@ public:
 class ReactingSurf1D : public Boundary1D
 {
 public:
+    //! Default constructor
     ReactingSurf1D();
+
+    //! Constructor with contents
+    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param id  Name used to identify this domain
     ReactingSurf1D(shared_ptr<Solution> solution, const string& id="");
 
     string domainType() const override {
@@ -365,10 +391,13 @@ public:
 
     void setKinetics(shared_ptr<Kinetics> kin) override;
 
+    //! Set whether to solve the equations for the surface species coverages
     void enableCoverageEquations(bool docov) {
         m_enabled = docov;
     }
 
+    //! Indicates whether the equations for the surface species coverages are being
+    //! solved
     bool coverageEnabled() {
         return m_enabled;
     }
@@ -394,11 +423,17 @@ public:
     void show(const double* x) override;
 
 protected:
-    InterfaceKinetics* m_kin = nullptr;
-    SurfPhase* m_sphase = nullptr;
-    size_t m_nsp = 0;
-    bool m_enabled = false;
+    InterfaceKinetics* m_kin = nullptr; //!< surface kinetics mechanism
+    SurfPhase* m_sphase = nullptr; //!< phase representing the surface species
+    size_t m_nsp = 0; //!< the number of surface phase species
+    bool m_enabled = false; //!< True if coverage equations are being solved
+
+    //! temporary vector used to store coverages and production rates. Size is total
+    //! number of species in the kinetic mechanism
     vector<double> m_work;
+
+    //! Fixed values of the coverages used when coverage equations are not being solved.
+    //! Length is #m_nsp.
     vector<double> m_fixed_cov;
 };
 

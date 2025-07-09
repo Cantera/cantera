@@ -20,10 +20,28 @@ class SurfPhase;
 class ReactorSurface
 {
 public:
-    ReactorSurface() = default;
+    ReactorSurface(const string& name="(none)") : m_name(name) {}
     virtual ~ReactorSurface() = default;
     ReactorSurface(const ReactorSurface&) = delete;
     ReactorSurface& operator=(const ReactorSurface&) = delete;
+
+    //! String indicating the wall model implemented.
+    virtual string type() const {
+        return "ReactorSurface";
+    }
+
+    //! Retrieve reactor surface name.
+    string name() const {
+        return m_name;
+    }
+
+    //! Set reactor surface name.
+    void setName(const string& name) {
+        m_name = name;
+    }
+
+    //! Set the default name of a wall. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
 
     //! Returns the surface area [m^2]
     double area() const;
@@ -87,6 +105,9 @@ public:
     void resetSensitivityParameters();
 
 protected:
+    string m_name;  //!< Reactor surface name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+
     double m_area = 1.0;
 
     SurfPhase* m_thermo = nullptr;

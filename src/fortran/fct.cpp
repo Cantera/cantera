@@ -25,9 +25,9 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Transport> TransportCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
@@ -39,17 +39,17 @@ namespace {
 
 ThermoPhase* _fph(const integer* n)
 {
-    return &ThermoCabinet::item(*n);
+    return ThermoCabinet::at(*n).get();
 }
 
 static Kinetics* _fkin(const integer* n)
 {
-    return &KineticsCabinet::item(*n);
+    return KineticsCabinet::at(*n).get();
 }
 
 ThermoPhase* _fth(const integer* n)
 {
-    return &ThermoCabinet::item(*n);
+    return ThermoCabinet::at(*n).get();
 }
 
 shared_ptr<ThermoPhase> _fthermo(const integer* n)
@@ -59,7 +59,7 @@ shared_ptr<ThermoPhase> _fthermo(const integer* n)
 
 Transport* _ftrans(const integer* n)
 {
-    return &TransportCabinet::item(*n);
+    return TransportCabinet::at(*n).get();
 }
 
 } // unnamed namespace

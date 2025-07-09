@@ -30,7 +30,7 @@ public:
 
     /**
      * Standard constructor.
-     * @param domains A vector of shared pointers to the domains to be linked together.
+     * @param domains  A vector of shared pointers to the domains to be linked together.
      *     The domain pointers must be entered in left-to-right order --- that is,
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
@@ -44,10 +44,10 @@ public:
 
     //! Set initial guess for one component for all domains
     /**
-     * @param component component name
-     * @param locs A vector of relative positions, beginning with 0.0 at the
+     * @param component  component name
+     * @param locs  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param vals A vector of values corresponding to the relative position
+     * @param vals  A vector of values corresponding to the relative position
      *     locations.
      */
     void setInitialGuess(const string& component, vector<double>& locs,
@@ -55,32 +55,37 @@ public:
 
     /**
      * Set a single value in the solution vector.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param localPoint grid point within the domain, beginning with 0 for
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
-     * @param value the value.
+     * @param value  the value.
      */
     void setValue(size_t dom, size_t comp, size_t localPoint, double value);
 
     /**
      * Get one entry in the solution vector.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param localPoint grid point within the domain, beginning with 0 for
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      */
     double value(size_t dom, size_t comp, size_t localPoint) const;
 
+    //! Get an entry in the work vector, which may contain either a new system state
+    //! or the current residual of the system.
+    //! @param dom  domain index
+    //! @param comp  component index
+    //! @param localPoint  grid point within the domain
     double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
      * Specify a profile for one component of one domain.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param pos A vector of relative positions, beginning with 0.0 at the
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param pos  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param values A vector of values corresponding to the relative position
+     * @param values  A vector of values corresponding to the relative position
      *     locations.
      *
      * Note that the vector pos and values can have lengths different than the
@@ -104,6 +109,7 @@ public:
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
      * @since New in %Cantera 3.0.
+     * @deprecated To be removed after Cantera 3.1.
      */
     void show(std::ostream& s);
 
@@ -201,8 +207,33 @@ public:
 
     //! @}
 
+    //! Set the number of time steps to try when the steady Newton solver is
+    //! unsuccessful.
+    //! @param stepsize  Initial time step size [s]
+    //! @param n  Length of `tsteps` array
+    //! @param tsteps  A sequence of time step counts to take after subsequent failures
+    //!     of the steady-state solver. The last value in `tsteps` will be used again
+    //!     after further unsuccessful solution attempts.
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
+    /**
+     * Performs the hybrid Newton steady/time-stepping solution.
+     *
+     * The solver attempts to solve the steady-state problem first. If the steady-state
+     * solver fails, the time-stepping solver is used to take multiple time steps to
+     * move the solution closer to the steady-state solution. The steady-state solver is
+     * called again after the timesteps to make further progress towards the steady-state
+     * solution. This process is repeated until the steady-state solver converges or the
+     * maximum number of timesteps is reached.
+     *
+     * At the end of a successful solve, if the `refine_grid` flag is set, the grid will be
+     * analyzed and refined if necessary. If the grid is refined, the solution process
+     * described above is repeated with the new grid. This process is repeated until the
+     * grid no longer needs refinement based on the refine criteria.
+     *
+     * @param loglevel  Controls the amount of diagnostic output.
+     * @param refine_grid  If `refine`, the grid will be refined
+     */
     void solve(int loglevel = 0, const string& refine_grid = "refine");
 
     void eval(double rdt=-1.0, int count = 1) {
@@ -215,6 +246,12 @@ public:
     }
 
     //! Refine the grid in all domains.
+    //!
+    //! @returns If positive, the number of new grid points added. If negative, the
+    //!     number of grid points removed. If zero, the grid is unchanged.
+    //!
+    //! @since Changed in %Cantera 3.1. Previously, the return value was zero if points
+    //!     were removed but not added.
     int refine(int loglevel=0);
 
     /// Remesh the grid in all domains.
@@ -281,15 +318,15 @@ public:
     /**
      * Get the maximum number of grid points in this domain. @see Refiner::maxPoints
      *
-     * @param dom domain number, beginning with 0 for the leftmost domain.
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
      */
     size_t maxGridPoints(size_t dom);
 
     //! Set the minimum grid spacing in the specified domain(s).
     /*!
-     * @param dom Domain index. If dom == -1, the specified spacing is applied
-     *            to all domains.
-     * @param gridmin The minimum allowable grid spacing [m]
+     * @param dom  Domain index. If dom == -1, the specified spacing is applied
+     *             to all domains.
+     * @param gridmin  The minimum allowable grid spacing [m]
      */
     void setGridMin(int dom, double gridmin);
 
@@ -303,10 +340,13 @@ public:
     //! failure during grid refinement.
     void restoreSteadySolution();
 
+    //! Get the initial value of the system state from each domain in the simulation.
     void getInitialSoln();
 
+    //! Get the Jacobian element @f$ J_{ij} = \partial f_i / \partial x_j \f$
     double jacobian(int i, int j);
 
+    //! Evaluate the Jacobian in steady-state mode.
     void evalSSJacobian();
 
     //! Solve the equation @f$ J^T \lambda = b @f$.

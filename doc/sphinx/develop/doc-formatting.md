@@ -51,12 +51,21 @@ This page provides some notes on useful syntax for writing in these various form
    ```
 
 ## Useful reST syntax
+reStructuredText is used in the docstrings for the Python package and in the comment
+blocks in the examples that are parsed by Sphinx Gallery.
+
+- Linking to a Sphinx label:
+  - `` :ref:`sec-label-name` `` (automatic name)
+  - `` :ref:`link text <sec-label-name>` `` (specified link text)
 - Linking to a Sphinx page:
   - `` :doc:`/absolute/path` `` (automatic name)
-- Caution on usage of single backticks versus double backticks -- the former are only for linking to things using the default role (that is, Python objects)
+- Linking to examples:
+  - `` :doc:`example_name.py </examples/python/subdir/example_name>` ``
+- Caution on usage of single backticks versus double backticks -- the former are only
+  for linking to things using the default role (that is, Python objects)
 
 ## Useful Doxygen syntax
-- Linking to a Sphinx page: `[link text](../reference/science/phasethermo/lattice.html)`
+- Linking to a Sphinx page: `[link text](../reference/thermo/species-thermo.html)`
 - Citations: `@cite authorYYYY` will generate a numbered citation like `[8]`, assuming
   `authorYYYY` is a key in `doc/doxygen/cantera.bib`.
 - Equations can be added using LaTeX input bracketed by `@f[` and `@f]`.

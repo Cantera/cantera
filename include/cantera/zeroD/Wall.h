@@ -21,7 +21,7 @@ class Func1;
 class WallBase
 {
 public:
-    WallBase() = default;
+    WallBase(const string& name="(none)") : m_name(name) {}
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -32,6 +32,19 @@ public:
     virtual string type() const {
         return "WallBase";
     }
+
+    //! Retrieve wall name.
+    string name() const {
+        return m_name;
+    }
+
+    //! Set wall name.
+    void setName(const string& name) {
+        m_name = name;
+    }
+
+    //! Set the default name of a wall. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
 
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
@@ -79,7 +92,7 @@ public:
     }
 
     //! Return a reference to the Reactor or Reservoir to the right of the wall.
-    const ReactorBase& right() {
+    ReactorBase& right() {
         return *m_right;
     }
 
@@ -92,6 +105,9 @@ public:
     }
 
 protected:
+    string m_name;  //!< Wall name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
@@ -110,7 +126,7 @@ protected:
 class Wall : public WallBase
 {
 public:
-    Wall() = default;
+    using WallBase::WallBase;  // inherit constructors
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.

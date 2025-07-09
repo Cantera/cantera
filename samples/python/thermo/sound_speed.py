@@ -4,7 +4,7 @@ Sound speeds
 
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
-Requires: cantera >= 3.0.0
+Requires: cantera >= 3.0.0, matplotlib
 
 .. tags:: Python, thermodynamics, equilibrium
 """
@@ -12,9 +12,10 @@ Requires: cantera >= 3.0.0
 import cantera as ct
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
+def equilSoundSpeeds(gas, rtol=1.0e-8, max_iter=5000):
     """
     Returns a tuple containing the equilibrium and frozen sound speeds for a
     gas with an equilibrium composition.  The gas is first set to an
@@ -51,12 +52,28 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
 
     return aequil, afrozen, afrozen2
 
+# %%
+# Calculate sound speed at a range of temperatures
+gas = ct.Solution('gri30_highT.yaml')
+gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
+T_range = np.arange(300, 5901, 200)
+data = []
+print('   T     Equilibrium  Frozen manual  Frozen built-in')
+print('  [K]       [m/s]         [m/s]           [m/s]')
+print('-------  -----------  -------------  ---------------')
+for T in T_range:
+    gas.TP = T, ct.one_atm
+    aequil, afrozen, afrozen2 = equilSoundSpeeds(gas)
+    data.append((T, aequil, afrozen, afrozen2))
+    print(f'{T:6.1f}  {aequil:12.2f}  {afrozen:13.2f}  {afrozen2:15.2f}')
 
-# test program
-if __name__ == "__main__":
-    gas = ct.Solution('gri30.yaml')
-    gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.arange(300, 2901, 100)
-    for T in T_range:
-        gas.TP = T, ct.one_atm
-        print(T, equilSoundSpeeds(gas))
+# %%
+# Plot results
+data = np.array(data)
+fig, ax = plt.subplots()
+ax.plot(data[:,0], data[:,1], label='Equilibrium')
+ax.plot(data[:,0], data[:,2], label='Frozen (manual)')
+ax.plot(data[:,0], data[:,3], linestyle='none', marker='.', label='Frozen (built-in)')
+ax.set(xlabel='T [K]', ylabel='Sound Speed [m/s]')
+ax.legend()
+plt.show()

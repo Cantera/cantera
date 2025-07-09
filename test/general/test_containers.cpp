@@ -356,6 +356,18 @@ TEST(AnyMap, sizes) {
     EXPECT_EQ(m.size(), 0U);
 }
 
+TEST(AnyMap, error_loc) {
+    AnyMap m = AnyMap::fromYamlString("{spam: 4, eggs: 12}");
+    try {
+        m.at("fake");
+        FAIL();
+    } catch (CanteraError& err) {
+        EXPECT_THAT(err.what(), testing::HasSubstr("Error on line 1"));
+        // Column marker lines up with opening brace
+        EXPECT_THAT(err.what(), testing::HasSubstr("\n          ^"));
+    }
+}
+
 TEST(AnyMap, loadYaml)
 {
     AnyMap m = AnyMap::fromYamlString(
@@ -470,10 +482,14 @@ TEST(AnyMap, definedKeyOrdering)
     m["two"] = 2;
     m["three"] = 3;
     m["four"] = 4;
+    m["five"] = 5;
+    m["six"] = 6;
     m["__type__"] = "Test";
 
     AnyMap::addOrderingRules("Test", {
         {"head", "three"},
+        {"head", "five"},
+        {"tail", "six"},
         {"tail", "one"}
     });
 
@@ -487,4 +503,6 @@ TEST(AnyMap, definedKeyOrdering)
     EXPECT_LT(loc["four"], loc["one"]);
     EXPECT_LT(loc["one"], loc["half"]);
     EXPECT_LT(loc["zero"], loc["half"]);
+    EXPECT_LT(loc["three"], loc["five"]);
+    EXPECT_LT(loc["six"], loc["one"]);
 }

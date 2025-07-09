@@ -1,7 +1,7 @@
 classdef FlowDevice < handle
     % FlowDevice Class ::
     %
-    %     >> x = FlowDevice(typ)
+    %     >> x = FlowDevice(typ, name)
     %
     % Base class for devices that allow flow between reactors.
     % :mat:class:`FlowDevice` objects are assumed to be adiabatic,
@@ -18,6 +18,8 @@ classdef FlowDevice < handle
     %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
     %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
     %     :mat:class:`PressureController`, and ``typ='Valve'`` for :mat:class:`Valve`.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowDevice`.
 
@@ -29,6 +31,8 @@ classdef FlowDevice < handle
     end
 
     properties (SetAccess = public)
+
+        name  % Name of flow device.
 
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
@@ -56,7 +60,7 @@ classdef FlowDevice < handle
     methods
         %% FlowDevice Class Constructor
 
-        function x = FlowDevice(typ)
+        function x = FlowDevice(typ, name)
             % Create a :mat:class:`FlowDevice` object.
 
             ctIsLoaded;
@@ -64,9 +68,12 @@ classdef FlowDevice < handle
             if nargin == 0
                 error('please specify the type of flow device to be created');
             end
+            if nargin < 2
+                name = '(none)';
+            end
 
             x.type = typ;
-            x.id = ctFunc('flowdev_new', typ);
+            x.id = ctFunc('flowdev_new', typ, name);
             x.upstream = -1;
             x.downstream = -1;
         end
@@ -112,11 +119,19 @@ classdef FlowDevice < handle
 
         %% FlowDevice Get Methods
 
+        function name = get.name(f)
+            name = ctString('flowdev_name', f.id);
+        end
+
         function mdot = get.massFlowRate(f)
             mdot = ctFunc('flowdev_massFlowRate2', f.id);
         end
 
         %% FlowDevice Set Methods
+
+        function set.name(f, name)
+            ctFunc('flowdev_setName', f.id, name);
+        end
 
         function set.massFlowRate(f, mdot)
 

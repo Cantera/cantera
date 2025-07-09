@@ -1,6 +1,6 @@
 generator: ck2yaml
 input-files: [err-nonreactant-order.inp, dummy-thermo.dat]
-cantera-version: 3.1.0a2
+cantera-version: 3.1.0
 date: Fri, 28 Jun 2024 13:10:15 -0400
 
 units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}

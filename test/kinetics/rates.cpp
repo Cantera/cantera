@@ -176,4 +176,76 @@ TEST(InterfaceReaction, CoverageDependency) {
     EXPECT_NEAR(kf[1], 3.7e20 * exp(-(67.4e6-6e6*0.3)/(GasConstant*T)), 1e-14*kf[1]);
 }
 
+TEST(LinearBurkeRate, RateCombinations)
+{
+    auto sol = newSolution("linearBurke-test.yaml", "linear-Burke-complex", "none");
+    auto& thermo = *sol->thermo();
+    auto& kin = *sol->kinetics();
+    size_t nR = kin.nReactions();
+    ASSERT_EQ(nR, 4);
+    double P0 = 2.0 * OneAtm;
+    double T = 800;
+
+    auto kf = [&](size_t iRxn, double T, double P, const string& X="P1:1.0") {
+        thermo.setState_TPX(T, P, X);
+        vector<double> rates(kin.nReactions());
+        kin.getFwdRateConstants(rates.data());
+        return rates[iRxn];
+    };
+
+    double atol = kf(0, T, P0, "R2: 0.6, R3: 0.4") * 1e-9;
+
+    // For a mixture only containing species treated as M, kf should be the same as
+    // this rate coefficient evaluated at the same P
+    EXPECT_NEAR(kf(0, T, P0, "R2: 0.6, R3: 0.4"), kf(1, T, P0), atol);
+
+    // For a collider that specifies the same rate constant as M, kf should be the same
+    EXPECT_NEAR(kf(0, T, P0, "R2: 0.2, P5A: 0.8"),
+                kf(0, T, P0, "R2: 0.6, R3: 0.4"), atol);
+
+    // For a pure mixture of another collider, the rate should be the same as for that
+    // collider treated as a separate reaction (that is, Peff == P)
+    EXPECT_NEAR(kf(0, T, P0, "P3A: 1.0"), kf(2, T, P0), atol);
+    EXPECT_NEAR(kf(0, T, P0, "P3B: 1.0"), kf(3, T, P0), atol);
+
+    // A binary mixture containing one non-M collider (P3A: X = 0.2, efficiency = 3.0)
+    // and one M collider (R2: X = 0.8, efficiency = 1.0)
+    double X_P3A = 0.2;
+    double X_R2 = 1 - X_P3A;
+    double eps_mix = X_P3A * 3.0 + X_R2 * 1.0;
+    double Peff_P3A = P0 * eps_mix / 3.0;
+    double Peff_R2 = P0 * eps_mix;
+    double Pr_P3A = 3.0 / eps_mix * X_P3A; // reduced pressure
+    double Pr_R2 = 1 / eps_mix * X_R2;
+    EXPECT_NEAR(kf(0, T, P0, "P3A: 0.2, R2: 0.8"),
+                kf(2, T, Peff_P3A) * Pr_P3A + kf(1, T, Peff_R2) * Pr_R2, atol);
+
+    // A binary mixture containing two non-M colliders (P3A: X = 0.3, efficiency = 3.0)
+    // and (P3B: X = 0.7, efficiency = 5)
+    X_P3A = 0.3;
+    double X_P3B = 1 - X_P3A;
+    eps_mix = X_P3A * 3.0 + X_P3B * 5.0;
+    Peff_P3A = P0 * eps_mix / 3.0;
+    double Peff_P3B = P0 * eps_mix / 5.0;
+    Pr_P3A = 3.0 / eps_mix * X_P3A;
+    double Pr_P3B = 5.0 / eps_mix * X_P3B;
+    EXPECT_NEAR(kf(0, T, P0, "P3A: 0.3, P3B: 0.7"),
+                kf(2, T, Peff_P3A) * Pr_P3A + kf(3, T, Peff_P3B) * Pr_P3B, atol);
+
+    // A binary mixture containing two non-M colliders, where the second collider
+    // specifies only an efficiency (P3A: X = 0.4, efficiency = 3.0;
+    // R6: X = 0.6, efficiency = 7). For this collider, Peff == Peff_M, but the reduced
+    // pressure Pr is calculated using the efficiency and mole fraction of that species.
+    X_P3A = 0.4;
+    double X_R6 = 1 - X_P3A;
+    eps_mix = X_P3A * 3.0 + X_R6 * 7.0;
+    Peff_P3A = P0 * eps_mix / 3.0;
+    double Peff_M = P0 * eps_mix;
+    Pr_P3A = 3.0 / eps_mix * X_P3A;
+    double Pr_R6 = 7.0 / eps_mix * X_R6;
+    EXPECT_NEAR(kf(0, T, P0, "P3A: 0.4, R6: 0.6"),
+                kf(2, T, Peff_P3A) * Pr_P3A + kf(1, T, Peff_M) * Pr_R6, atol);
+}
+
+
 }

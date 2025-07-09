@@ -23,114 +23,70 @@ TEST(ctonedim, freeflow)
     thermo_setTemperature(ph, T);
     thermo_setPressure(ph, P);
 
-    int flow = domain_new("free-flow", sol, "flow");
+    int flow = domain_new("free-flow", sol, "");
     ASSERT_GE(flow, 0);
     domain_setID(flow, "flow");
     ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
     int buflen = domain_type(flow, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(flow, buflen, buf);
-    string domName = buf;
-    ASSERT_EQ(domName, "free-flow");
-    delete[] buf;
-}
-
-TEST(ctonedim, freeflow_from_parts)
-{
-    ct_resetStorage();
-
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
-    int ph = soln_thermo(sol);
-    ASSERT_GE(ph, 0);
-    int kin = soln_kinetics(sol);
-    ASSERT_GE(kin, 0);
-    int tr = soln_transport(sol);
-    ASSERT_GE(tr, 0);
-
-    double T = 1050;
-    double P = 5 * 101325;
-    string X = "CH4:1.0, O2:2.0, N2:7.52";
-    thermo_setMoleFractionsByName(ph, X.c_str());
-    thermo_setTemperature(ph, T);
-    thermo_setPressure(ph, P);
-
-    int itype = 2; // free flow
-    int flow = flow1D_new(ph, kin, tr, itype);
-    ASSERT_GE(flow, 0);
-    domain_setID(flow, "flow");
-    ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
-
-    int buflen = domain_type(flow, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(flow, buflen, buf);
-    string domName = buf;
-    ASSERT_EQ(domName, "free-flow");
-    delete[] buf;
+    vector<char> buf(buflen);
+    domain_type(flow, buflen, buf.data());
+    string domType(buf.data());
+    ASSERT_EQ(domType, "free-flow");
 }
 
 TEST(ctonedim, inlet)
 {
-    int inlet = inlet_new();
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
+    int inlet = domain_new("inlet", sol, "");
     ASSERT_GE(inlet, 0);
 
     int buflen = domain_type(inlet, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(inlet, buflen, buf);
-    string domName = buf;
-    ASSERT_EQ(domName, "inlet");
-    delete[] buf;
+    vector<char> buf(buflen);
+    domain_type(inlet, buflen, buf.data());
+    string domType(buf.data());
+    ASSERT_EQ(domType, "inlet");
 }
 
 TEST(ctonedim, outlet)
 {
-    int index = outlet_new();
-    ASSERT_GE(index, 0);
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
+    int outlet = domain_new("outlet", sol, "");
+    ASSERT_GE(outlet, 0);
+
+    int buflen = domain_type(outlet, 0, 0);
+    vector<char> buf(buflen);
+    domain_type(outlet, buflen, buf.data());
+    string domType(buf.data());
+    ASSERT_EQ(domType, "outlet");
 }
 
 TEST(ctonedim, reacting_surface)
 {
-    int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
-    int index = domain_new("reacting-surface", surf, "surface");
-    ASSERT_GE(index, 0);
+    int interface = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
+    int surf = domain_new("reacting-surface", interface, "");
+    ASSERT_GE(surf, 0);
+
+    int buflen = domain_type(surf, 0, 0);
+    vector<char> buf(buflen);
+    domain_type(surf, buflen, buf.data());
+    string domType(buf.data());
+    ASSERT_EQ(domType, "reacting-surface");
 }
 
-TEST(ctonedim, reacting_surface_from_parts)
-{
-    int index = reactingsurf_new();
-    ASSERT_GE(index, 0);
-
-    int gas = thermo_newFromFile("ptcombust.yaml", "gas");
-    int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
-    ASSERT_GE(kin, 0);
-
-    int ret = reactingsurf_setkineticsmgr(index, kin);
-    ASSERT_EQ(ret, 0);
-}
-
-TEST(ctonedim, catcomb_stack)
+TEST(ctonedim, catcomb)
 {
     int sol = soln_newSolution("ptcombust.yaml", "gas", "default");
-    int gas = soln_thermo(sol);
-    int gas_kin = soln_kinetics(sol);
-    int trans = soln_transport(sol);
+    int interface = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
 
-    int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int surf_kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
-
-    // inlet
-    int inlet = inlet_new();
-
-    // flow
-    int itype = 1; // free flow
-    int flow = flow1D_new(gas, gas_kin, trans, itype);
-    domain_setID(flow, "flow");
+    // inlet and flow domains
+    int inlet = domain_new("inlet", sol, "inlet");
+    int flow = domain_new("axisymmetric-flow", sol, "flow");
+    ASSERT_EQ(flow, inlet+1);
 
     // reacting surface
-    int reac_surf = reactingsurf_new();
-    int ret = reactingsurf_setkineticsmgr(reac_surf, surf_kin);
-    ASSERT_EQ(ret, 0);
+    int reac_surf = domain_new("reacting-surface", interface, "surface");
+    ASSERT_EQ(reac_surf, flow+1);
 
     // set up stack
     vector<int> doms{inlet, flow, reac_surf};
@@ -140,15 +96,13 @@ TEST(ctonedim, catcomb_stack)
     ASSERT_GE(dom, 0);
 }
 
-TEST(ctonedim, freeflame_from_parts)
+TEST(ctonedim, freeflame)
 {
     ct_resetStorage();
     auto gas = newThermo("h2o2.yaml", "ohmech");
 
     int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
     int ph = soln_thermo(sol);
-    int kin = soln_kinetics(sol);
-    int tr = soln_transport(sol);
     size_t nsp = thermo_nSpecies(ph);
 
     // reactants
@@ -164,7 +118,7 @@ TEST(ctonedim, freeflame_from_parts)
     thermo_getMassFractions(ph, nsp, yin.data());
 
     // product estimate
-    int ret = thermo_equilibrate(ph, "HP", 0, 1e-9, 50000, 1000, 0);
+    int ret = thermo_equilibrate(ph, "HP", "auto", 1e-9, 50000, 1000, 0);
     ASSERT_GE(ret, 0);
     double rho_out = thermo_density(ph);
     double Tad = thermo_temperature(ph);
@@ -172,9 +126,7 @@ TEST(ctonedim, freeflame_from_parts)
     thermo_getMassFractions(ph, nsp, yout.data());
 
     // flow
-    int itype = 2; // free flow
-    int flow = flow1D_new(ph, kin, tr, itype);
-    domain_setID(flow, "flow");
+    int flow = domain_new("free-flow", sol, "flow");
 
     // grid
     int nz = 21;
@@ -188,15 +140,13 @@ TEST(ctonedim, freeflame_from_parts)
     domain_setupGrid(flow, nz, z.data());
 
     // inlet
-    int reac = inlet_new();
-    domain_setID(reac, "inlet");
+    int reac = domain_new("inlet", sol, "inlet");
     bdry_setMoleFractions(reac, X.c_str());
     bdry_setMdot(reac, uin * rho_in);
     bdry_setTemperature(reac, T);
 
     // outlet
-    int prod = outlet_new();
-    domain_setID(prod, "outlet");
+    int prod = domain_new("outlet", sol, "outlet");
     double uout = bdry_mdot(reac) / rho_out;
 
     // set up stack
@@ -216,11 +166,11 @@ TEST(ctonedim, freeflame_from_parts)
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
         int buflen = thermo_getSpeciesName(ph, i, 0, 0) + 1; // include \0
-        char* buf = new char[buflen];
-        thermo_getSpeciesName(ph, i, buflen, buf);
-        string name = buf;
+        vector<char> buf(buflen);
+        thermo_getSpeciesName(ph, i, buflen, buf.data());
+        string name(buf.data());
         ASSERT_EQ(name, gas->speciesName(i));
-        comp = static_cast<int>(domain_componentIndex(flow, buf));
+        comp = static_cast<int>(domain_componentIndex(flow, buf.data()));
         sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     }
 
@@ -253,26 +203,4 @@ TEST(ctonedim, freeflame_from_parts)
         ASSERT_GE(T, Tprev);
         Tprev = T;
     }
-}
-
-TEST(ctonedim, stflow_tests)
-{
-    //! @todo: To be removed after Cantera 3.1
-    ct_resetStorage();
-    auto gas = newThermo("h2o2.yaml", "ohmech");
-
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
-    int ph = soln_thermo(sol);
-    int kin = soln_kinetics(sol);
-    int tr = soln_transport(sol);
-
-    // spot check some errors
-    int itype = 2; // free flow
-    int ret = stflow_new(ph, kin, tr, itype);
-    ASSERT_EQ(ret, -1);  // -1 is an error code
-
-    int flow = flow1D_new(ph, kin, tr, itype);
-    ASSERT_EQ(stflow_setTransport(flow, tr), -1);
-    ASSERT_EQ(stflow_pressure(flow), DERR);  // DERR is an error code
-    ASSERT_EQ(stflow_setPressure(flow, OneAtm), -1);
 }

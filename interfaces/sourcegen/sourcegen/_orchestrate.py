@@ -4,40 +4,47 @@
 import importlib
 import inspect
 from pathlib import Path
+import logging
+import sys
 from typing import List, Dict
-import ruamel.yaml
 
 from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
+from ._helpers import read_config
 
 
-_clib_path = Path(__file__).parent.joinpath("../../../include/cantera/clib").resolve()
-_clib_defs_path = _clib_path.joinpath("clib_defs.h")
+_logger = logging.getLogger()
 
-def generate_source(lang: str, out_dir: str):
-    print("Generating source files...")
+class CustomFormatter(logging.Formatter):
+    """Minimalistic logging output"""
+
+    def format(self, record):
+        formatter = logging.Formatter("[%(levelname)s] %(message)s")
+        return formatter.format(record)
+
+
+def generate_source(lang: str, out_dir: str=""):
+    """Main entry point of sourcegen."""
+    loghandler = logging.StreamHandler(sys.stdout)
+    loghandler.setFormatter(CustomFormatter())
+    _logger.handlers.clear()
+    _logger.addHandler(loghandler)
+    _logger.setLevel(logging.DEBUG)
+    _logger.info(f"Generating {lang!r} source files...")
 
     module = importlib.import_module(__package__ + "." + lang)
-    config_path = Path(module.__file__).parent.joinpath("config.yaml")
+    root = Path(module.__file__).parent
+    config = read_config(root / "config.yaml")
+    templates = read_config(root / "templates.yaml")
+    ignore_files: List[str] = config.pop("ignore_files", [])
+    ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
 
-    config = {}
-    if config_path.exists():
-        with config_path.open() as config_file:
-            reader = ruamel.yaml.YAML(typ="safe")
-            config = reader.load(config_file)
-
-    ignore_files: List[str] = config.get("ignore_files", [])
-    ignore_funcs: Dict[str, List[str]] = config.get("ignore_funcs", {})
-
-    files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
-        for f in _clib_path.glob("*.h")
-        if f != _clib_defs_path and f.name not in ignore_files)
-    # removes instances where HeaderFile.parse() returned None
-    files = list(filter(None, files))
+    files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
-    scaffolder: SourceGenerator = scaffolder_type(Path(out_dir), config)
+    scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
 
     scaffolder.generate_source(files)
+    _logger.info("Done.")

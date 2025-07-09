@@ -924,24 +924,13 @@ AnyMap preamble(const string& desc)
     }
     data["generator"] = "Cantera SolutionArray";
     data["cantera-version"] = CANTERA_VERSION;
-    // escape commit to ensure commits are read correctly from YAML
-    // example: prevent '3491027e7' from being converted to an integer
-    data["git-commit"] = "'" + gitCommit() + "'";
+    data["git-commit"] = gitCommit();
 
     // Add a timestamp indicating the current time
     time_t aclock;
     ::time(&aclock); // Get time in seconds
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
     data["date"] = stripnonprint(asctime(newtime));
-
-    // Force metadata fields to the top of the file
-    if (data.hasKey("description")) {
-        data["description"].setLoc(-6, 0);
-    }
-    data["generator"].setLoc(-5, 0);
-    data["cantera-version"].setLoc(-4, 0);
-    data["git-commit"].setLoc(-3, 0);
-    data["date"].setLoc(-2, 0);
 
     return data;
 }
@@ -1234,8 +1223,12 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
     }
     data.update(m_meta);
 
-    for (auto& [key, value] : *m_extra) {
-        data[key] = value;
+    if (m_size > 1) {
+        data["components"] = componentNames();
+    }
+
+    for (auto& [_, key] : *m_order) {
+        data[key] = m_extra->at(key);
     }
 
     auto phase = m_sol->thermo();
@@ -1263,36 +1256,24 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
             data["mass-fractions"] = std::move(items);
         }
     } else if (m_size > 1) {
-        const auto& nativeState = phase->nativeState();
-        for (auto& [key, offset] : nativeState) {
-            if (key == "X" || key == "Y") {
+        for (auto& code : phase->nativeMode()) {
+            string name(1, code);
+            if (name == "X" || name == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
                 }
-                data["basis"] = key == "X" ? "mole" : "mass";
+                data["basis"] = name == "X" ? "mole" : "mass";
             } else {
-                data[key] = getComponent(key);
+                data[name] = getComponent(name);
             }
         }
-        data["components"] = componentNames();
     }
 
-    // add ordering rules
-    vector<vector<string>> ordering = {};
-    if (data.hasKey("components")) {
-        auto components = data["components"].as<vector<string>>();
-        for (auto component : boost::adaptors::reverse(components)) {
-            ordering.push_back({"head", component});
-        }
+    static bool reg = AnyMap::addOrderingRules("SolutionArray",
+        {{"head", "type"}, {"head", "size"}, {"head", "basis"}});
+    if (reg) {
+        data["__type__"] = "SolutionArray";
     }
-
-    const vector<string> header = { "type", "size", "basis", "components" };
-    for (auto entry : boost::adaptors::reverse(header)) {
-        ordering.push_back({"head", entry});
-    }
-
-    data["__type__"] = "SolutionArray";
-    AnyMap::addOrderingRules("SolutionArray", ordering);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {

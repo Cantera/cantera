@@ -25,8 +25,13 @@ gas0 = ct.Solution(mech)
 species = gas0.species()
 reactions = gas0.reactions()
 
-# construct reactions based on CustomRate: replace two reactions with equivalent
-# custom versions (uses Func1 functors defined by Python lambda functions)
+# %%
+# Define custom reaction rates
+# ----------------------------
+
+# %%
+# Construct reactions based on `CustomRate`: replace two reactions with equivalent
+# custom versions (uses `Func1` functors defined by Python lambda functions)
 reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
     rate=lambda T: 38.7 * T**2.7 * exp(-3150.1542797022735/T))
@@ -37,8 +42,9 @@ reactions[4] = ct.Reaction(
 gas1a = ct.Solution(thermo='ideal-gas', kinetics='gas',
                     species=species, reactions=reactions)
 
-# construct reactions based on CustomRate: replace two reactions with equivalent
-# custom versions (uses Func1 functors defined by C++ class Arrhenius1)
+# %%
+# construct reactions based on `CustomRate`: replace two reactions with equivalent
+# custom versions (uses `Func1` functors defined by C++ class :ct:`Arrhenius1`)
 reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
     rate=ct.Func1("Arrhenius", [38.7, 2.7, 3150.1542797022735]))
@@ -49,7 +55,8 @@ reactions[4] = ct.Reaction(
 gas1b = ct.Solution(thermo='ideal-gas', kinetics='gas',
                     species=species, reactions=reactions)
 
-# construct reactions based on ExtensibleRate: replace two reactions with equivalent
+# %%
+# Construct reactions based on `ExtensibleRate`: replace two reactions with equivalent
 # extensible versions
 class ExtensibleArrheniusData(ct.ExtensibleRateData):
     __slots__ = ("T",)
@@ -107,6 +114,7 @@ reactions[4] = ct.Reaction.from_yaml(extensible_yaml4, gas0)
 gas2 = ct.Solution(thermo="ideal-gas", kinetics="gas",
                    species=species, reactions=reactions)
 
+# %%
 # construct test case - simulate ignition
 
 def ignition(gas, dT=0):
@@ -124,7 +132,9 @@ def ignition(gas, dT=0):
 
     return t2 - t1, net.solver_stats['steps']
 
-# output results
+# %%
+# Run simulations and output results
+# ----------------------------------
 
 repeat = 100
 print(f"Average time of {repeat} simulation runs for '{mech}' ({fuel})")

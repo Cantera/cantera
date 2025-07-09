@@ -660,11 +660,32 @@ cdef class PlogRate(ReactionRate):
             self._rate.reset(new CxxPlogRate(ratemap))
             self.rate = self._rate.get()
 
+cdef class LinearBurkeRate(ReactionRate):
+    r"""
+    A reaction rate dependent on both pressure and mixture composition that accounts for
+    collisions between reactants and bath gas species.
+    """
+    _reaction_rate_type = "linear-Burke"
+
+    def __cinit__(self, input_data=None, init=True):
+        self.set_cxx_object()
+
+        if init:
+            if isinstance(input_data, dict):
+                self._rate.reset(new CxxLinearBurkeRate(py_to_anymap(input_data)))
+            elif input_data:
+                raise TypeError("'input_data' must be a dict")
+            else:
+                raise ValueError("No input data provided")
+            self.set_cxx_object()
+
+    cdef CxxLinearBurkeRate* cxx_object(self):
+        return <CxxLinearBurkeRate*>self.rate
 
 cdef class ChebyshevRate(ReactionRate):
     r"""
-    A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
-    polynomial in temperature and pressure.
+    A pressure-dependent reaction rate parameterized by a bivariate Chebyshev polynomial
+    in temperature and pressure.
     """
     _reaction_rate_type = "Chebyshev"
 
@@ -681,7 +702,8 @@ cdef class ChebyshevRate(ReactionRate):
                 Pmin = pressure_range[0]
                 Pmax = pressure_range[1]
                 self._rate.reset(
-                    new CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data)))
+                    new CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data))
+                    )
             elif all([arg is None
                     for arg in [temperature_range, pressure_range, data, input_data]]):
                 self._rate.reset(new CxxChebyshevRate(py_to_anymap({})))

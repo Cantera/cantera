@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="121.32545mm"
+   height="97.715263mm"
+   viewBox="0 0 121.32546 97.715263"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
+   sodipodi:docname="refinement_slope_metric_plot.svg"
+   inkscape:export-filename="refinement_diagram.png"
+   inkscape:export-xdpi="150"
+   inkscape:export-ydpi="150"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="4.0000001"
+     inkscape:cx="111.25"
+     inkscape:cy="196.99999"
+     inkscape:window-width="1920"
+     inkscape:window-height="968"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="RoundedArrow"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Rounded arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path8" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="RoundedArrow-6"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Rounded arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path8-2" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-50.977305,-129.03255)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 57.259601,207.0688 c 0,0 19.669152,-5.52272 28.046649,-11.62467 8.377497,-6.10195 12.458429,-41.68225 20.10434,-38.673 7.64591,3.00925 10.92339,37.19674 23.59007,40.65589 12.66668,3.45915 26.85354,0.69416 26.85354,0.69416"
+       id="path1"
+       sodipodi:nodetypes="czzzc"
+       inkscape:export-filename="refinement_slope_metric_plot.svg"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.64444px;line-height:1.25;font-family:sans-serif;fill:#dd2020;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="61.928387"
+       y="148.2516"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="font-size:5.64444px;fill:#dd2020;fill-opacity:1;stroke-width:0.264583"
+         x="61.928387"
+         y="148.2516">x</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.64444px;line-height:1.25;font-family:sans-serif;fill:#dd2020;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-opacity:1"
+       x="83.889641"
+       y="196.81033"
+       id="text3-5"><tspan
+         sodipodi:role="line"
+         id="tspan3-3"
+         style="font-size:5.64444px;fill:#dd2020;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-opacity:1"
+         x="83.889641"
+         y="196.81033">x</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529168;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.05833, 1.05833;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 76.846396,199.57401 V 219.5475"
+       id="path2985-9-8-0-4"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529166;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.05833, 1.05833;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 94.298086,176.32336 v 43.57355"
+       id="path2985-9-8-0-4-3-6"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.329;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#RoundedArrow)"
+       d="M 59.1118,204.18732 67.273645,189.914"
+       id="path2985-9-8-0-4-3-6-3"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.329;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#RoundedArrow-6)"
+       d="m 110.87758,158.68416 7.82847,-0.85875"
+       id="path2985-9-8-0-4-3-6-3-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529168;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.05833, 1.05833;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 107.2627,159.6349 v 60.2292"
+       id="path2985-9-8-0-4-3-6-8"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.05833, 1.05833;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 120.75643,189.53871 v 30.06792"
+       id="path2985-9-8-0-4-3-6-8-9"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.058, 1.058;stroke-dashoffset:1.0051;stroke-opacity:1"
+       d="m 132.26575,198.6618 v 21.24378"
+       id="path2985-9-8-0-4-3-6-8-9-6"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <text
+       id="text4421-6-2-2-1-1-5-0-9"
+       y="224.88576"
+       x="76.315643"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.86238px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="224.88576"
+         x="76.315643"
+         id="tspan4423-1-3-2-6-1-8-8-0"
+         sodipodi:role="line"
+         style="font-size:6.20793px;line-height:1.25;stroke-width:0.548101">j</tspan></text>
+    <ellipse
+       style="fill:#3ec639;fill-opacity:1;fill-rule:evenodd;stroke:#3ec639;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="76.846397"
+       cy="199.83282"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-5"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="57.520294"
+       cy="207.07172"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <ellipse
+       style="fill:#3ec639;fill-opacity:1;fill-rule:evenodd;stroke:#3ec639;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="94.298088"
+       cy="176.24991"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6-3"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="107.52728"
+       cy="158.68416"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6-3-9"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="120.75642"
+       cy="189.4789"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1.05833, 1.05833;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 113.83457,172.10579 v 47.79979"
+       id="path2985-9-8-0-4-3-6-8-9-3"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6-3-9-7"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="113.83456"
+       cy="172.04599"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6-3-9-0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="132.39804"
+       cy="198.47461"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.431493;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.862983, 0.862983;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 155.10949,198.25224 v 21.20859"
+       id="path2985-9-8-0-4-3-6-8-9-6-9"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-4-2-1-4-6-3-9-0-3"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="155.05644"
+       cy="198.12094"
+       rx="1.3269223"
+       ry="1.3336277" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#RoundedArrow)"
+       d="M 163.58984,219.90557 H 57.524184"
+       id="path2985-7-3"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529169;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#RoundedArrow)"
+       d="m 57.520294,141.27697 v 78.33074"
+       id="path2985-7-3-7"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500" />
+    <text
+       id="text4421-6-2-2-1-1-5-0-0"
+       y="221.67558"
+       x="168.6572"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46667px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="221.67558"
+         x="168.6572"
+         id="tspan4423-1-3-2-6-1-8-8-1"
+         sodipodi:role="line"
+         style="font-size:8.46667px;line-height:1.25;stroke-width:0.548101">z</tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-5-0-0-0"
+       y="135.13217"
+       x="50.862034"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46667px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="135.13217"
+         x="50.862034"
+         id="tspan4423-1-3-2-6-1-8-8-1-8"
+         sodipodi:role="line"
+         style="font-size:8.46667px;line-height:1.25;stroke-width:0.548101">x<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan1">n</tspan>(z)</tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-5-0-0-5"
+       y="159.35216"
+       x="118.8532"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46667px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="159.35216"
+         x="118.8532"
+         id="tspan4423-1-3-2-6-1-8-8-1-4"
+         sodipodi:role="line"
+         style="font-size:8.46667px;line-height:1.25;stroke-width:0.548101">x<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan2">n,max</tspan></tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-5-0-0-5-8"
+       y="185.90906"
+       x="60.509605"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46667px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="185.90906"
+         x="60.509605"
+         id="tspan4423-1-3-2-6-1-8-8-1-4-8"
+         sodipodi:role="line"
+         style="font-size:8.46667px;line-height:1.25;stroke-width:0.548101">x<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan2-6">n,min</tspan></tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-4-0-4"
+       y="224.88576"
+       x="91.169647"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.86238px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="224.88576"
+         x="91.169647"
+         id="tspan4423-1-3-2-6-1-1-3-0"
+         sodipodi:role="line"
+         style="font-size:6.20793px;line-height:1.25;stroke-width:0.548101">j+1</tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-1-1-4"
+       y="152.8609"
+       x="65.432526"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="152.8609"
+         x="65.432526"
+         id="tspan4423-1-3-2-6-1-7-7-1"
+         sodipodi:role="line"
+         style="font-size:4.23333px;line-height:1.25;stroke-width:0.548101">=keep</tspan></text>
+    <text
+       id="text4421-6-2-2-1-1-1-1-4-7"
+       y="147.64732"
+       x="65.432526"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:0%;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.548101"
+       xml:space="preserve"
+       transform="scale(0.99748285,1.0025235)"><tspan
+         y="147.64732"
+         x="65.432526"
+         id="tspan4423-1-3-2-6-1-7-7-1-7"
+         sodipodi:role="line"
+         style="font-size:4.23333px;line-height:1.25;stroke-width:0.548101">=point to be added</tspan></text>
+    <ellipse
+       style="fill:#3ec639;fill-opacity:1;fill-rule:evenodd;stroke:#3ec639;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3755-74-0-9-8-2-9-6"
+       inkscape:export-filename="C:\Users\chrisneal\Google Drive\School\Mechanical Engineering - Graduate\Advanced CFD - Bala\Homework\Homework 5\Diagrams\Finite Volume Diagram.png"
+       inkscape:export-xdpi="500"
+       inkscape:export-ydpi="500"
+       cx="63.296387"
+       cy="151.71986"
+       rx="1.3269223"
+       ry="1.3336277" />
+  </g>
+</svg>

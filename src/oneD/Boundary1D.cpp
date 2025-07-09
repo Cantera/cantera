@@ -49,9 +49,6 @@ void Boundary1D::_init(size_t n)
                     m_left_nsp = 0;
                 }
             }
-
-            m_left_loc = container().start(m_index-1);
-            m_left_points = r.nPoints();
             m_flow_left = dynamic_cast<Flow1D*>(&r);
             if (m_flow_left != nullptr) {
                 m_phase_left = &m_flow_left->phase();
@@ -82,7 +79,6 @@ void Boundary1D::_init(size_t n)
                     m_right_nsp = 0;
                 }
             }
-            m_right_loc = container().start(m_index+1);
             m_flow_right = dynamic_cast<Flow1D*>(&r);
             if (m_flow_right != nullptr) {
                 m_phase_right = &m_flow_right->phase();

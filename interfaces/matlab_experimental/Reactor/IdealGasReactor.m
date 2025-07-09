@@ -1,7 +1,7 @@
 classdef IdealGasReactor < Reactor
     % Create a reactor with an ideal gas. ::
     %
-    %     >> r = IdealGasReactor(contents)
+    %     >> r = IdealGasReactor(contents, name)
     %
     % An :mat:class:`IdealGasReactor` is an instance of :mat:class:`Reactor` where
     % the governing equations are specialized for the ideal gas equation of state
@@ -9,26 +9,27 @@ classdef IdealGasReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = IdealGasReactor         % an empty reactor
     %     r2 = IdealGasReactor(gas)    % a reactor containing a gas
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`IdealGasReactor`.
 
     methods
 
-        function r = IdealGasReactor(contents)
+        function r = IdealGasReactor(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)';
             end
 
-            r@Reactor(contents, 'IdealGasReactor');
+            r@Reactor(contents, 'IdealGasReactor', name);
         end
 
     end

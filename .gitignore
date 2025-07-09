@@ -39,6 +39,7 @@ environment.y*
 *.msi
 *.mex*
 *.asv
+*.gv*
 .cproject
 .project
 .pydevproject

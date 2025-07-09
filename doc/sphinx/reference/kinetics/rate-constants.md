@@ -235,6 +235,102 @@ Chebyshev reactions can be defined in the YAML format using the
 [`Chebyshev`](sec-yaml-Chebyshev) reaction `type`.
 ```
 
+(sec-linear-Burke)=
+## Linear Burke Rate Expressions
+
+Linear Burke rate expressions employ the reduced-pressure linear mixture rule (LMR-R).
+This mixture rule is used to evaluate the rate constants of complex-forming reactions,
+and is a weighted sum of the bath gas rate constants (when pure) evaluated
+at the reduced pressure ($R$) and temperature ($T$) of the mixture.
+
+$$ k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{i}
+k_{i}(T,R_{\text{LMR}})\tilde{X}_{i,\text{LMR}} $$
+
+where the reduced pressure, $R_{\text{LMR}}$, in its most general form
+
+$$ R_{\text{LMR}}(T,P,\boldsymbol{X}) = \frac{\sum_{i}
+\Lambda_{0,i}(T)X_i[M]}{\Lambda_{\infty}(T)} $$
+
+and the fractional contribution of each component to the reduced pressure,
+$\tilde{X}_{i}$
+
+$$ \tilde{X}_{i,\text{LMR}}(T,P,\boldsymbol{X})=\frac{\Lambda_{0,i}(T)X_i}{\sum_{j}
+\Lambda_{0,j}(T)X_j} $$
+
+can be cast in terms of the absolute value of the least negative chemically significant
+eigenvalue of the master equation for the $i^{th}$ collider (when pure) in the
+low-pressure limit, $\Lambda_{0,i}(T)[M]$, and high-pressure limit,
+$\Lambda_{\infty}(T)$, and $[M]$ is the total concentration.
+
+Evaluating all rate constants at the reduced pressure ($R$)---instead of the pressure
+($P$)---of the mixture takes advantage of the fact that rate constants (and their
+chemically significant eigenvectors) for different colliders are usually far more
+similar at the same $R$ than the same $P$. In practice, since rate constants are usually
+expressed with respect to pressure $P$ (which has units of Pa, Torr, bar, atm, etc.)
+rather than reduced pressure $R$ (which is dimensionless), one needs to find the
+effective pressure for the $i^{th}$ collider, $P_{i}^{\text{ eff}}$ (with units of $P$),
+such that the reduced pressure of pure collider $i$ is equal to the reduced pressure of
+the mixture. This can be shown to be
+
+$$ P_{i,\text{LMR}}^{\text{ eff}}(T,P,\boldsymbol{X}) = \frac{\sum_{j}
+\Lambda_{0,j}(T)X_j}{\Lambda_{0,i}(T)}P $$
+
+such that an alternate version of the generalized LMR-R equation can be written as
+
+$$ k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{i} k_{i}(T,P_{i,\text{LMR}}^{\text{
+eff}})\tilde{X}_{i,\text{LMR}} $$
+
+It is worth noting two convenient implications of this change in basis. First, when
+LMR-R is implemented with the above equation, it is not necessary to specify
+$\Lambda_{\infty}(T)$, which cancels out in evaluating $P_{i}^{\text{ eff}}$. Second,
+only ratios of $\Lambda_{0,i}(T)$ appear in the calculations of
+$\tilde{X}_{i,\text{LMR}}(T,P,\boldsymbol{X})$ and $P_{i,\text{LMR}}^{\text{
+eff}}(T,P,\boldsymbol{X})$, such that third-body efficiencies
+$\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)$ (where the user must assign
+$\epsilon_{0,\text{M}}(T)=1$, as this is true by definition), can be implemented by the
+user in lieu of $\Lambda_{0,i}(T)$.
+
+While full implementation of LMR-R via the above equation would require $k_i(T,P)$ be
+specified in addition to $\Lambda_{0,i}(T)$ or $\epsilon_{0,i}(T)$ for each important
+collider, often data for $k_i(T,P)$ (that is, the complete $T,P$-dependence) for each
+collider is not available even when $\Lambda_{0,i}(T)$ or $\epsilon_{0,i}(T)$ have
+available data or can be estimated using typical values (as is typically done in kinetic
+models for reactions in modified Lindemann expressions). Therefore, for colliders with
+unique $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) but without $k_i(T,P)$, the same
+reduced-pressure dependence as M (that is, $k_{i}(T,R)=k_{M}(T,R)$) is assumed:
+
+$$ k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{
+eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}})
+\left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right) $$
+
+where the sum over $n$ is only for the colliders for which unique $k_n(T,P)$ are
+available. Each $k_n(T,P)$ can be specified in the user's choice of Troe, Plog, or
+Chebyshev formats. For the Troe format, the effective third-body concentration is
+calculated by dividing $P_{i}^{\text{ eff}}$ by the temperature and ideal gas constant.
+For the other formats, $P_{i}^{\text{ eff}}$ is implemented directly as the 'pressure'
+of interest.
+
+While not required if unique $k_i(T,P)$ data are available, this approximation, like
+LMR-R, takes advantage of the fact that rate constants for colliders with even very
+different third-body efficiencies often are much more similar at the same reduced
+pressure ($R$) than at the same pressure ($P$) and, in fact, are exactly the same if
+they differ in only their collision frequency (but have the same energy- and
+angular-momentum-transfer kernel). This equation forms the basis of the computational
+implementation of LMR-R in Cantera via the {ct}`LinearBurkeRate` reaction class, as it
+enables the most accurate representation of $k_{\text{LMR-R}}(T,P,\boldsymbol{X})$
+possible given limitations in the completeness of the dataset at any given moment.
+Further description of the LMR-R theory and computational method is available in
+{cite:t}`singal2024`.
+
+```{admonition} YAML Usage
+:class: tip
+Linear Burke rate expressions can be defined in the YAML format using the
+[`linear-Burke`](sec-yaml-linear-Burke) reaction `type`.
+```
+
+```{versionadded} 3.1
+```
+
 (sec-blowers-masel)=
 ## Blowers-Masel Reactions
 
@@ -378,4 +474,39 @@ constant.
 Two-temperature plasma reactions can be defined in the YAML format by specifying
 [`two-temperature-plasma`](sec-yaml-two-temperature-plasma) as the reaction `type` and
 providing the two activation energies as part of the `rate-constant`.
+:::
+
+(sec-electron-collision-plasma-rate)=
+## Electron Collision Plasma Reactions
+
+The electron collision plasma reaction rate uses the electron collision data and the
+electron energy distribution to calculate the reaction rate. Hagelaar and Pitchford
+{cite:t}`hagelaar2005` define the reaction rate coefficient (Eqn. 63) as,
+
+$$  k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon  $$
+
+where $\gamma = \sqrt{2/m_e}$ (Eqn.4 in Hagelaar {cite:t}`hagelaar2015`), $m_e$ [kg] is
+the electron mass, $\epsilon$ [J] is the electron energy, $\sigma(\epsilon)$ [m²] is the
+reaction collision cross section, $F_0(\epsilon)$ [$\t{J^{-3/2}}$] is the normalized
+electron energy distribution function, and $k$ has units of [m³/s].
+
+To recast this in terms of moles rather than molecules, and letting $\epsilon_V$ be the
+electron energy expressed in volts, the forward rate coefficient can be rewritten as
+
+$$  k_f = \sqrt{\frac{e}{2 m_e}} N_A
+          \int_0^{\infty} \sigma(\epsilon_V) F_0(\epsilon_V) d{{\epsilon_V}^2}
+$$
+
+where $e$ is the elementary charge [C] and $N_A$ is the Avogadro constant
+[$\t{kmol^{-1}}$].
+
+```{versionadded} 3.1
+```
+
+:::{admonition} YAML Usage
+:class: tip
+
+Electron collision reactions can be defined in the YAML format by specifying
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) as the reaction `type`
+and providing lists with the `cross-sections` and corresponding `energy-levels`.
 :::

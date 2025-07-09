@@ -17,7 +17,7 @@ troubleshooting.
 
 See the [FAQ](faq) for answers to some common issues that arise when using
 Cantera. If your question isn't answered here, consider asking us on the
-<a href="https://cantera.org/community.html#the-cantera-users-group">Cantera Users' Group</a>.
+[Cantera Users' Group](https://cantera.org/community.html#the-cantera-users-group).
 
 ## Task Guides
 
@@ -54,7 +54,7 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
   point for writing your own code.
 - Finally, if you have trouble using Cantera and can't find an answer here in the
   documentation, please visit the
-  <a href="https://cantera.org/community.html#the-cantera-users-group">Cantera Users' Group</a>.
+  [Cantera Users' Group](https://cantera.org/community.html#the-cantera-users-group).
 
 ```{toctree}
 :hidden:

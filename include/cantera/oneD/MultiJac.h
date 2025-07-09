@@ -23,6 +23,8 @@ namespace Cantera
 class MultiJac : public BandMatrix
 {
 public:
+    //! Constructor.
+    //! @param r  The nonlinear system for which to compute the Jacobian.
     MultiJac(OneDim& r);
 
     /**
@@ -36,9 +38,9 @@ public:
      * perturbing each variable, evaluating the residual function, and then
      * estimating the partial derivatives numerically using finite differences.
      *
-     * @param x0    Solution vector at which to evaluate the Jacobian
-     * @param resid0 Residual vector at x0
-     * @param rdt   Reciprocal of the time step
+     * @param x0  Solution vector at which to evaluate the Jacobian
+     * @param resid0  Residual vector at x0
+     * @param rdt  Reciprocal of the time step
      */
     void eval(double* x0, double* resid0, double rdt);
 
@@ -75,6 +77,7 @@ public:
         return m_mask;
     }
 
+    //! @deprecated To be removed after Cantera 3.1.
     void incrementDiagonal(int j, double d);
 
 protected:
@@ -87,16 +90,18 @@ protected:
 
     vector<double> m_r1; //!< Perturbed residual vector
     double m_rtol = 1e-5; //!< Relative tolerance for perturbing solution components
+
+    //! Absolute tolerance for perturbing solution components
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
+
     double m_elapsed = 0.0; //!< Elapsed CPU time taken to compute the Jacobian
     vector<double> m_ssdiag; //!< Diagonal of the steady-state Jacobian
 
     //! Transient mask for transient terms, 1 if transient, 0 if steady-state
     vector<int> m_mask;
-    int m_nevals = 0;
-    int m_age = 100000; //!< Age of the Jacobian (times 'incrementAge' has been called)
-    size_t m_size;
-    size_t m_points;
+
+    int m_nevals = 0; //!< Number of Jacobian evaluations.
+    int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 };
 }
 

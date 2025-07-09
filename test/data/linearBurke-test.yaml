@@ -1,0 +1,477 @@
+description: |-
+  This mechanism includes three complex-forming reactions, shown with and without the
+  linear-Burke implementation. All parameters are idealized and are only intended for
+  demonstration. Do not use this mechanism for any other scientific purposes. The
+  thermodynamic and transport data were taken directly from Alzueta et al. [1], and the
+  reactions were adapted from the linear-Burke model of Singal et al. [2].
+
+  References:
+
+    [1] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation,
+    Combust. Flame 257 (2023) 112438.
+
+    [2] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New
+    Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
+    Proc. Combust. Inst. 40 (2024) 105779.
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: baseline_mechanism
+  thermo: ideal-gas
+  elements: [O, H]
+  species: [H, OH, H2O, O2, HO2, H2O2]
+  reactions: [baseline-pdep_reactions]
+  kinetics: gas
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
+
+- name: linear-Burke_mechanism
+  thermo: ideal-gas
+  elements: [O, H]
+  species: [H, OH, H2O, O2, HO2, H2O2]
+  reactions: [linear-Burke_reactions]
+  kinetics: gas
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
+
+- name: linear-Burke-complex
+  thermo: ideal-gas
+  species:
+  - pdep-test.yaml/species: all
+  kinetics: bulk
+  reactions: [reactions-complex]
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.49975925, 6.73824499e-07, 1.11807261e-09, -3.70192126e-12, 2.14233822e-15,
+      2.54737665e+04, -0.445574009]
+    - [2.49985211, 2.34582548e-07, -1.16171641e-10, 2.25708298e-14, -1.52992005e-18,
+      2.54738024e+04, -0.445864645]
+    note: |-
+      ATcT3E
+       H <g> ATcT ver. 1.122, DHf298 = 217.998 ?? 0.000 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 145.0
+    diameter: 2.05
+- name: OH
+  composition: {H: 1, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.97585165, -2.28555291e-03, 4.33442882e-06, -3.5992664e-09, 1.2670693e-12,
+      3393.41137, -0.0355397262]
+    - [2.84581721, 1.09723818e-03, -2.89121101e-07, 4.0909991e-11, -2.31382258e-15,
+      3717.0661, 5.80339915]
+    note: |-
+      ATcT3E
+       OH <g> ATcT ver. 1.122, DHf298 = 37.490 ?? 0.027 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 80.0
+    diameter: 2.75
+- name: HO2
+  composition: {H: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.2625125, -4.45642032e-03, 2.05164934e-05, -2.35794011e-08, 9.05614257e-12,
+      262.442356, 3.88223684]
+    - [4.1056401, 2.04046836e-03, -3.65877562e-07, 1.85973044e-11, 4.98818315e-16,
+      43.2898769, 3.30808126]
+    note: |-
+      ATcT3E
+       HO2 <g> ATcT ver. 1.122, DHf298 = 12.26 ?? 0.16 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 107.4
+    diameter: 3.458
+    rotational-relaxation: 1.0
+    note: '*'
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.20147551, -2.05583546e-03, 6.56547207e-06, -5.5290696e-09, 1.78282605e-12,
+      -3.02950066e+04, -0.860610906]
+    - [2.73117512, 2.95136995e-03, -8.35359785e-07, 1.26088593e-10, -8.40531676e-15,
+      -2.99169082e+04, 6.55183]
+    note: |-
+      ATcT3E
+       H2O <g> ATcT ver. 1.122, DHf298 = -241.833 ?? 0.027 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 572.4
+    diameter: 2.605
+    dipole: 1.844
+    rotational-relaxation: 4.0
+- name: H2O2
+  composition: {H: 2, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.2385416, -2.49610911e-04, 1.59857901e-05, -2.06919945e-08, 8.2976632e-12,
+      -1.76486003e+04, 3.58850097]
+    - [4.5401748, 4.15970971e-03, -1.30876777e-06, 2.00823615e-10, -1.15509243e-14,
+      -1.79514029e+04, 0.855881745]
+    note: |-
+      ATcT3E
+       H2O2 <g> ATcT ver. 1.122, DHf298 = -135.457 ?? 0.064 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 107.4
+    diameter: 3.458
+    rotational-relaxation: 3.8
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.78498258, -3.02002233e-03, 9.92029171e-06, -9.77840434e-09, 3.28877702e-12,
+      -1064.13589, 3.64780709]
+    - [3.65980488, 6.59877372e-04, -1.44158172e-07, 2.14656037e-11, -1.36503784e-15,
+      -1216.03048, 3.42074148]
+    note: |-
+      ATcT3E
+       O2 <g> ATcT ver. 1.122, DHf298 = 0.000 ?? 0.000 kJ/mol - fit JAN17
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 107.4
+    diameter: 3.458
+    polarizability: 1.6
+    rotational-relaxation: 3.8
+
+baseline-pdep_reactions:
+- equation: H + OH <=> H2O
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 1.000e-04 atm, A: 5.30514e+12, b: -2.80725e+00, Ea: 4.99267e+02}
+  - {P: 1.000e-03 atm, A: 5.25581e+13, b: -2.80630e+00, Ea: 4.99946e+02}
+  - {P: 1.000e-02 atm, A: 5.18795e+14, b: -2.80495e+00, Ea: 5.01765e+02}
+  - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
+  - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+  - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - {P: 1.000e+02 atm, A: 6.24786e+18, b: -2.80241e+00, Ea: 1.43320e+03}
+  - {P: 1.000e+03 atm, A: 4.28006e+15, b: -1.57172e+00, Ea: 9.80056e+02}
+  - {P: 1.000e+04 atm, A: 6.79586e+12, b: -5.77830e-01, Ea: 4.56911e+02}
+
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: falloff
+  low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+  high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+
+- equation: H2O2 <=> 2 OH
+  type: Chebyshev
+  temperature-range: [200.0, 2000.0]
+  pressure-range: [1.000e-01 atm, 1.000e+02 atm]
+  data:
+  - [-1.5843e+01, 8.7088e-01, -9.4364e-02, -2.8099e-03, -4.4803e-04, 1.5809e-03,
+    -2.5088e-04]
+  - [2.3154e+01, 5.2739e-01, 2.8862e-02, -5.4601e-03, 7.0783e-04, -3.0282e-03,
+    7.8121e-04]
+  - [-3.8008e-01, 8.6349e-02, 4.0292e-02, -7.2269e-03, 5.7570e-04, 2.7944e-03,
+    -1.4912e-03]
+  - [-1.4800e-01, -7.1798e-03, 2.2052e-02, 6.2269e-03, -5.9801e-03, -8.2205e-06,
+    1.9243e-03]
+  - [-6.0604e-02, -1.4203e-02, 1.3414e-03, 9.6228e-03, 1.7002e-03, -3.6506e-03,
+    -4.3168e-04]
+  - [-2.4557e-02, -9.7102e-03, -5.8753e-03, 3.0456e-03, 5.8666e-03, 1.5037e-03,
+    -2.0073e-03]
+  - [-1.5400e-02, -5.2427e-03, -6.9148e-03, -5.9440e-03, -1.2183e-03, 2.1694e-03,
+    1.5925e-03]
+
+linear-Burke_reactions:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e-04 atm, A: 5.30514e+12, b: -2.80725e+00, Ea: 4.99267e+02}
+    - {P: 1.000e-03 atm, A: 5.25581e+13, b: -2.80630e+00, Ea: 4.99946e+02}
+    - {P: 1.000e-02 atm, A: 5.18795e+14, b: -2.80495e+00, Ea: 5.01765e+02}
+    - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+    - {P: 1.000e+02 atm, A: 6.24786e+18, b: -2.80241e+00, Ea: 1.43320e+03}
+    - {P: 1.000e+03 atm, A: 4.28006e+15, b: -1.57172e+00, Ea: 9.80056e+02}
+    - {P: 1.000e+04 atm, A: 6.79586e+12, b: -5.77830e-01, Ea: 4.56911e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    efficiency: {A: 1.0, b: 0.0, Ea: 0}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+- equation: H2O2 <=> 2 OH
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: Chebyshev
+    temperature-range: [200.0, 2000.0]
+    pressure-range: [1.000e-01 atm, 1.000e+02 atm]
+    data:
+    - [-1.5843e+01, 8.7088e-01, -9.4364e-02, -2.8099e-03, -4.4803e-04, 1.5809e-03,
+      -2.5088e-04]
+    - [2.3154e+01, 5.2739e-01, 2.8862e-02, -5.4601e-03, 7.0783e-04, -3.0282e-03,
+      7.8121e-04]
+    - [-3.8008e-01, 8.6349e-02, 4.0292e-02, -7.2269e-03, 5.7570e-04, 2.7944e-03,
+      -1.4912e-03]
+    - [-1.4800e-01, -7.1798e-03, 2.2052e-02, 6.2269e-03, -5.9801e-03, -8.2205e-06,
+      1.9243e-03]
+    - [-6.0604e-02, -1.4203e-02, 1.3414e-03, 9.6228e-03, 1.7002e-03, -3.6506e-03,
+      -4.3168e-04]
+    - [-2.4557e-02, -9.7102e-03, -5.8753e-03, 3.0456e-03, 5.8666e-03, 1.5037e-03,
+      -2.0073e-03]
+    - [-1.5400e-02, -5.2427e-03, -6.9148e-03, -5.9440e-03, -1.2183e-03, 2.1694e-03,
+      1.5925e-03]
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+# A more complex linear-Burke definition with multiple colliders that use different
+# parameterizations. Duplicate reactions using the baseline parameterizations are
+# included for rate comparisons
+reactions-complex:
+- equation: R1A + R1B (+M) <=> P1 + H (+M) # Reaction 1
+  type: linear-Burke
+  duplicate: true
+  colliders:
+  - name: M
+    type: Chebyshev
+    temperature-range: [300.0, 2000.0]
+    pressure-range: [1e3, 1e7]
+    data:
+    - [8.2883, -1.1397, -0.12059, 0.016034]
+    - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+    - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    - [-0.031285, -0.039412, 0.044375, 0.014458]
+  - name: P3A
+    efficiency: {A: 3.0, b: 0.0, Ea: 0.0}
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+    - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+    - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+    - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+  - name: P3B
+    efficiency: {A: 5.0, b: 0.0, Ea: 0.0}
+    type: falloff
+    low-P-rate-constant: {A: 2.3e+18, b: -0.9, Ea: -1700.0}
+    high-P-rate-constant: {A: 7.4e+13, b: -0.37, Ea: 0.0}
+    Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+  - name: P5A  # identical rate to M, unity efficiency
+    type: Chebyshev
+    efficiency: {A: 1.0, b: 0.0, Ea: 0.0}
+    temperature-range: [300.0, 2000.0]
+    pressure-range: [1e3, 1e7]
+    data:
+    - [8.2883, -1.1397, -0.12059, 0.016034]
+    - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+    - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    - [-0.031285, -0.039412, 0.044375, 0.014458]
+  - name: R6
+    efficiency: {A: 7.0, b: 0.0, Ea: 0.0}
+
+- equation: R1A + R1B <=> P1 + H  # M for Reaction 1
+  type: Chebyshev
+  duplicate: true
+  temperature-range: [300.0, 2000.0]
+  pressure-range: [1e3, 1e7]
+  data:
+  - [8.2883, -1.1397, -0.12059, 0.016034]
+  - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+  - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+  - [-0.031285, -0.039412, 0.044375, 0.014458]
+
+- equation: R1A + R1B <=> P1 + H  # collider P3A for Reaction 1
+  type: pressure-dependent-Arrhenius
+  duplicate: true
+  rate-constants:
+  - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+  - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+  - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+  - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+
+- equation: R1A + R1B (+M) <=> P1 + H (+M)  # collider P3B for Reaction 1
+  type: falloff
+  duplicate: true
+  low-P-rate-constant: {A: 2.3e+18, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+13, b: -0.37, Ea: 0.0}
+  Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+
+
+# Invalid reaction definitions to test various input errors
+
+reactions-no-colliders:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  name: M
+  low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+  high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+
+reactions-no-name-first:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-no-name-later:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+  - type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+    efficiency: {A: 3.0, b: 0, Ea: 0}
+
+reactions-no-M:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-missing-eig0:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+    eig0: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-missing-efficiency:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    type: falloff
+    low-P-rate-constant: {A: 2.4e+14, b: 0.206, Ea: -1550.0}
+    high-P-rate-constant: {A: 1.5e+15, b: -0.41, Ea: 0.0}
+    Troe: {A: 0.82, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
+
+reactions-eig0-and-efficiency:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+  - name: AR
+    efficiency: {A: 5, b: 0, Ea: 0}
+    eig0: {A: 2.4e+14, b: 0.206, Ea: -1550.0}
+
+reactions-missing-M-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-M-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: Arrhenius
+    rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-M-efficiency:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    efficiency: {A: 1.0, b: 0.5, Ea: 0}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-other-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+    type: Arrhenius
+    rate-constant: {A: 1.6e+34, b: -5.49, Ea: 1987.0}
+
+reactions-negative-efficiency:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: AR
+    efficiency: {A: -3.1, b: 0.5, Ea: 0}

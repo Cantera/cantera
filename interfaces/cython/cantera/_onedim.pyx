@@ -258,7 +258,7 @@ cdef class Domain1D:
             cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.n_points)
             cdef int i
             for i in range(self.n_points):
-                grid[i] = self.domain.grid(i)
+                grid[i] = self.domain.z(i)
             return grid
 
         def __set__(self, grid):

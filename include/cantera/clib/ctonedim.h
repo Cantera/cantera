@@ -49,19 +49,8 @@ extern "C" {
     CANTERA_CAPI double bdry_massFraction(int i, int k);
     CANTERA_CAPI double bdry_mdot(int i);
 
-    CANTERA_CAPI int reactingsurf_setkineticsmgr(int i, int j);
     CANTERA_CAPI int reactingsurf_enableCoverageEqs(int i, int onoff);
 
-    CANTERA_CAPI int inlet_new();
-    CANTERA_CAPI int outlet_new();
-    CANTERA_CAPI int outletres_new();
-    CANTERA_CAPI int symm_new();
-    CANTERA_CAPI int surf_new();
-    CANTERA_CAPI int reactingsurf_new();
-
-    CANTERA_CAPI int inlet_setSpreadRate(int i, double v);
-
-    CANTERA_CAPI int flow1D_new(int iph, int ikin, int itr, int itype);
     CANTERA_CAPI int flow1D_setTransport(int i, int itr);
     CANTERA_CAPI int flow1D_enableSoret(int i, int iSoret);
     CANTERA_CAPI int flow1D_setPressure(int i, double p);
@@ -69,16 +58,6 @@ extern "C" {
     CANTERA_CAPI int flow1D_setFixedTempProfile(int i, size_t n, const double* pos,
             size_t m, const double* temp);
     CANTERA_CAPI int flow1D_solveEnergyEqn(int i, int flag);
-
-    //! @todo: Remove all functions with `stflow` prefix after %Cantera 3.1
-    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr, int itype);
-    CANTERA_CAPI int stflow_setTransport(int i, int itr);
-    CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
-    CANTERA_CAPI int stflow_setPressure(int i, double p);
-    CANTERA_CAPI double stflow_pressure(int i);
-    CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
-            size_t m, const double* temp);
-    CANTERA_CAPI int stflow_solveEnergyEqn(int i, int flag);
 
     CANTERA_CAPI int sim1D_new(size_t nd, const int* domains);
     CANTERA_CAPI int sim1D_del(int i);

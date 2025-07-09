@@ -1,4 +1,4 @@
-from buildutils import *
+from buildutils import multi_glob, get_spawn
 
 Import('env', 'build', 'install')
 

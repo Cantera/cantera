@@ -1,7 +1,7 @@
 classdef Valve < FlowDevice
     % Create a valve. ::
     %
-    %     >> v = Valve(upstream, downstream)
+    %     >> v = Valve(upstream, downstream, name)
     %
     % Create an instance of class :mat:class:`FlowDevice` configured to
     % simulate a valve that produces a flow rate proportional to the
@@ -26,20 +26,22 @@ classdef Valve < FlowDevice
     %     Upstream reactor or reservoir.
     % :param downstream:
     %     Downstream Reactor or reservoir.
+    % :param name:
+    %     Valve name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowDevice`.
 
     methods
 
-        function v = Valve(upstream, downstream)
+        function v = Valve(upstream, downstream, name)
             % Constructor
 
-            v@FlowDevice('Valve');
-
-            if nargin == 2
-                v.install(upstream, downstream)
+            if nargin < 3
+                name = '(none)';
             end
 
+            v@FlowDevice('Valve', name);
+            v.install(upstream, downstream)
         end
 
     end

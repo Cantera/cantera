@@ -296,7 +296,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& [name, value] : rhs.ordered()) {
+        for (const auto& [name, value] : rhs.ordered(true)) {
             string valueStr;
             bool foundType = true;
             bool needsQuotes = false;
@@ -339,7 +339,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& [key, value] : rhs.ordered()) {
+        for (const auto& [key, value] : rhs.ordered(true)) {
             out << key;
             out << value;
         }
@@ -601,6 +601,18 @@ std::unordered_map<string, vector<string>> AnyMap::s_headFields;
 std::unordered_map<string, vector<string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
+
+AnyBase& AnyBase::operator=(const AnyBase& other)
+{
+    m_metadata = other.m_metadata;
+    // Copy location information only if it's been set from an input file. Otherwise,
+    // the ordering information at the destination is more important to preserve.
+    if (other.m_line != -1 && other.m_column >= 0) {
+        m_line = other.m_line;
+        m_column = other.m_column;
+    }
+    return *this;
+}
 
 void AnyBase::setLoc(int line, int column)
 {
@@ -1480,7 +1492,7 @@ void AnyMap::clear()
 
 void AnyMap::update(const AnyMap& other, bool keepExisting)
 {
-    for (const auto& [key, value] : other) {
+    for (const auto& [key, value] : other.ordered()) {
         if (!keepExisting || m_data.count(key) == 0) {
             (*this)[key] = value;
         }
@@ -1627,11 +1639,13 @@ AnyMap::Iterator& AnyMap::Iterator::operator++()
 }
 
 
-AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
+AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data, bool withUnits)
     : m_data(&data)
 {
     // Units always come first
-    if (m_data->hasKey("__units__") && m_data->at("__units__").as<AnyMap>().size()) {
+    if (withUnits && m_data->hasKey("__units__")
+        && m_data->at("__units__").as<AnyMap>().size())
+    {
         m_units = make_unique<pair<const string, AnyValue>>(
             "units", m_data->at("__units__"));
         m_units->second.setFlowStyle();
@@ -1778,7 +1792,7 @@ void AnyMap::setUnits(const UnitSystem& units)
 }
 
 void AnyMap::setFlowStyle(bool flow) {
-    (*this)["__flow__"] = flow;
+    m_data["__flow__"] = flow;
 }
 
 bool AnyMap::addOrderingRules(const string& objectType,
@@ -1787,7 +1801,8 @@ bool AnyMap::addOrderingRules(const string& objectType,
     std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
     for (const auto& spec : specs) {
         if (spec.at(0) == "head") {
-            s_headFields[objectType].push_back(spec.at(1));
+            s_headFields[objectType].insert(s_headFields[objectType].begin(),
+                                            spec.at(1));
         } else if (spec.at(0) == "tail") {
             s_tailFields[objectType].push_back(spec.at(1));
         } else {
@@ -1818,6 +1833,7 @@ AnyMap AnyMap::fromYamlString(const string& yaml) {
         throw InputFileError("AnyMap::fromYamlString", fake, err.msg);
     }
     amap.setMetadata("file-contents", AnyValue(yaml));
+    amap.setLoc(0, 0);
     amap.applyUnits();
     return amap;
 }
@@ -1871,6 +1887,7 @@ AnyMap AnyMap::fromYamlFile(const string& name, const string& parent_name)
         throw;
     }
     cache_item["__file__"] = fullName;
+    cache_item.setLoc(0, 0);
 
     if (cache_item.hasKey("deprecated")) {
         warn_deprecated(fullName, cache_item["deprecated"].asString());

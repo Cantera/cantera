@@ -1,5 +1,6 @@
-from os.path import join as pjoin, relpath
-from buildutils import *
+from os.path import join as pjoin
+
+from buildutils import quoted
 
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
@@ -24,7 +25,7 @@ for programName, sources in samples:
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
         libdirs.extend(localenv["extra_lib_dirs"])
-        libdirs = list(set(libdirs))
+        libdirs = sorted(set(libdirs))
 
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
 

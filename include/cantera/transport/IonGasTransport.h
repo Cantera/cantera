@@ -40,7 +40,7 @@ public:
         return "ionized-gas";
     }
 
-    void init(ThermoPhase* thermo, int mode, int log_level) override;
+    void init(ThermoPhase* thermo, int mode, int log_level=-7) override;
 
     //! Viscosity of the mixture  (kg/m/s).
     //! Only Neutral species contribute to Viscosity.

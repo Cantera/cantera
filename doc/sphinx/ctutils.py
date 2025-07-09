@@ -6,7 +6,6 @@ class ResetArgv:
     wants_plot = {
         "adiabatic.py",
         "premixed_counterflow_twin_flame.py",
-        "piston.py",
         "reactor1.py",
         "reactor2.py",
         "sensitivity1.py",

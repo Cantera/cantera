@@ -1,7 +1,7 @@
 classdef ReactorSurface < handle
     % ReactorSurface Class ::
     %
-    %     >> s = ReactorSurface(surf, reactor, area)
+    %     >> s = ReactorSurface(surf, reactor, name)
     %
     % A surface on which heterogeneous reactions take place. The
     % mechanism object (typically an instance of :mat:class:`Interface`)
@@ -10,18 +10,14 @@ classdef ReactorSurface < handle
     % temperature on each side is taken to be equal to the
     % temperature of the reactor.
     %
-    % Note: all of the arguments are optional and can be activated
-    % after initial construction by using the various methods of
-    % the :mat:class:`ReactorSurface` class.
-    %
     % :param surf:
     %    Surface reaction mechanisms for the left-facing surface.
     %    This must bean instance of class :mat:class:`Kinetics`, or of a class
     %    derived from Kinetics, such as :mat:class:`Interface`.
     % :param reactor:
     %    Instance of class 'Reactor' to be used as the adjacent bulk phase.
-    % :param area:
-    %    The area of the surface in m^2. Defaults to 1.0 m^2 if not specified.
+    % :param name:
+    %    Reactor surface name (optional; default is ``(none)``).
     % :return:
     %    Instance of class :mat:class:`ReactorSurface`.
 
@@ -29,56 +25,30 @@ classdef ReactorSurface < handle
         surfID
     end
 
-    properties (SetAccess = protected)
-        reactor
-    end
-
     properties (SetAccess = public)
+        name  % Name of reactor surface.
+
         area % Area of the reactor surface in m^2.
     end
 
     methods
         %% ReactorSurface Class Constructor
 
-        function s = ReactorSurface(surf, reactor, area)
+        function s = ReactorSurface(surf, reactor, name)
             % Create a :mat:class:`ReactorSurface` object.
 
             ctIsLoaded;
 
-            s.surfID = ctFunc('reactorsurface_new', 0);
-            s.reactor = -1;
-
-            if nargin >= 1
-                ikin = 0;
-
-                if isa(surf, 'Kinetics')
-                    ikin = surf.kinID;
-                end
-
-                ctFunc('reactorsurface_setkinetics', s.surfID, ikin);
+            if ~isa(surf, 'Kinetics') || ~isa(reactor, 'Reactor')
+                error('Invalid parameters.')
+            end
+            if nargin < 3
+                name = '(none)';
             end
 
-            if nargin >= 2
-
-                if isa(reactor, 'Reactor')
-                    s.reactor = reactor;
-                    ctFunc('reactorsurface_install', s.surfID, reactor.id);
-                else
-                    warning('Reactor was not installed due to incorrect type');
-                end
-
-            end
-
-            if nargin >= 3
-
-                if isnumeric(area)
-                    s.area = area;
-                else
-                    warning('Area was not a number and was not set');
-                end
-
-            end
-
+            s.surfID = ctFunc('reactorsurface_new', name);
+            ctFunc('reactorsurface_setkinetics', s.surfID, surf.kinID);
+            ctFunc('reactorsurface_install', s.surfID, reactor.id);
         end
 
         %% ReactorSurface Class Destructor
@@ -106,11 +76,19 @@ classdef ReactorSurface < handle
 
         %% ReactorSurface Get Methods
 
+        function name = get.name(s)
+            name = ctString('reactorsurface_name', s.surfID);
+        end
+
         function a = get.area(s)
             a = ctFunc('reactorsurface_area', s.surfID);
         end
 
         %% ReactorSurface Set Methods
+
+        function set.name(s, name)
+            ctFunc('reactorsurface_setName', s.surfID, name);
+        end
 
         function set.area(s, a)
             ctFunc('reactorsurface_setArea', s.surfID, a);

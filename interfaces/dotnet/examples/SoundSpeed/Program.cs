@@ -50,7 +50,7 @@ static (double equil, double frozen, double frozen2)
     var p1 = p0 * 1.0001;
 
     // Set the gas to a state with the same entropy and composition but
-    // the perturbed pressure..
+    // the perturbed pressure.
     gas.SetPair(ThermoPair.EntropyPressure, s0, p1);
 
     // frozen sound speed

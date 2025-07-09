@@ -32,7 +32,7 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t poi
     m_thermo = ph;
 
     size_t nsp2 = m_thermo->nSpecies();
-    m_nv = m_neq + m_nsp + m_nsoot;
+    m_nv = m_neq + m_nsp + m_nsoot; // CERFACS the number of variable is number of equations + number of species + number of soot sections (soot sections are placed after the species.) 
 
     // CERFACS : I don't understand why do we do that ? nsp2 will always be different than nsp if we have soots. And even if we have soots, the domain size should already have the correct size. 
     if (nsp2 + m_nsoot != m_nsp) {
@@ -46,10 +46,7 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t poi
     // set pressure based on associated thermo object
     setPressure(m_thermo->pressure());
 
-    // enable all species equations by default
-    m_do_species.resize(m_nsp, true);
-
-    // but turn off the energy equation at all points
+    // Turn off the energy equation at all points
     m_do_energy.resize(m_points,false);
 
     m_diff.resize(m_nsp*m_points);
@@ -650,15 +647,15 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
     } else if (m_isFree) { // "free-flow"
         for (size_t j = j0; j <= j1; j++) {
             // terms involving V are zero as V=0 by definition
-            if (grid(j) > m_zfixed) {
+            if (z(j) > m_zfixed) {
                 rsd[index(c_offset_U, j)] = -(rho_u(x, j) - rho_u(x, j-1))/m_dz[j-1];
-            } else if (grid(j) == m_zfixed) {
+            } else if (z(j) == m_zfixed) {
                 if (m_do_energy[j]) {
                     rsd[index(c_offset_U, j)] = (T(x, j) - m_tfixed);
                 } else {
                     rsd[index(c_offset_U, j)] = (rho_u(x, j) - m_rho[0]*0.3); // why 0.3?
                 }
-            } else { // grid(j < m_zfixed
+            } else { // z(j) < m_zfixed
                 rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j];
             }
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
@@ -697,9 +694,13 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     for (size_t j = j0; j <= j1; j++) { // interior points
         rsd[index(c_offset_V, j)] = (shear(x, j) - lambda(x, j)
                                      - rho_u(x, j) * dVdz(x, j)
-                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
-                                    - rdt * (V(x, j) - V_prev(j));
-        diag[index(c_offset_V, j)] = 1;
+                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j];
+        if (!m_twoPointControl) {
+            rsd[index(c_offset_V, j)] -= rdt * (V(x, j) - V_prev(j));
+            diag[index(c_offset_V, j)] = 1;
+        } else {
+            diag[index(c_offset_V, j)] = 0;
+        }
     }
 }
 
@@ -732,11 +733,11 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (grid(j) == m_zLeft) {
+            if (z(j) == m_zLeft) {
                 rsd[index(c_offset_L, j)] = T(x,j) - m_tLeft;
-            } else if (grid(j) > m_zLeft) {
+            } else if (z(j) > m_zLeft) {
                 rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
-            } else if (grid(j) < m_zLeft) {
+            } else if (z(j) < m_zLeft) {
                 rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j+1);
             }
         } else {
@@ -775,9 +776,13 @@ void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
             rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x, j)*dTdz(x, j)
                                         - AVBPdivHeatFlux(x, j) - sum/avbp_thick[j] - sum2;
             rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-            rsd[index(c_offset_T, j)] -= rdt*(T(x, j) - T_prev(j));
             rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
-            diag[index(c_offset_T, j)] = 1;
+            if (!m_twoPointControl || (m_z[j] != m_tLeft && m_z[j] != m_tRight)) {
+                rsd[index(c_offset_T, j)] -= rdt*(T(x, j) - T_prev(j));
+                diag[index(c_offset_T, j)] = 1;
+            } else {
+                diag[index(c_offset_T, j)] = 0;
+            }
         } else {
             // residual equations if the energy equation is disabled
             rsd[index(c_offset_T, j)] = T(x, j) - T_fixed(j);
@@ -814,11 +819,11 @@ void Flow1D::evalUo(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (grid(j) == m_zRight) {
+            if (z(j) == m_zRight) {
                 rsd[index(c_offset_Uo, j)] = T(x, j) - m_tRight;
-            } else if (grid(j) > m_zRight) {
+            } else if (z(j) > m_zRight) {
                 rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j-1);
-            } else if (grid(j) < m_zRight) {
+            } else if (z(j) < m_zRight) {
                 rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j+1);
             }
         }
@@ -1053,15 +1058,6 @@ AnyMap Flow1D::getMeta() const
 
     state["flux-gradient-basis"] = static_cast<long int>(m_fluxGradientBasis);
 
-    set<bool> species_flags(m_do_species.begin(), m_do_species.end());
-    if (species_flags.size() == 1) {
-        state["species-enabled"] = m_do_species[0];
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
-        }
-    }
-
     state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
     state["refine-criteria"]["slope"] = m_refiner->maxDelta();
     state["refine-criteria"]["curve"] = m_refiner->maxSlope();
@@ -1132,6 +1128,7 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
 
     const auto grid = arr.getComponent("grid").as<vector<double>>();
     setupGrid(nPoints(), &grid[0]);
+    setMeta(arr.meta()); // can affect which components are active
 
     for (size_t i = 0; i < nComponents(); i++) {
         if (!componentActive(i)) {
@@ -1176,7 +1173,6 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
     }
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
-    setMeta(arr.meta());
 }
 
 void Flow1D::setMeta(const AnyMap& state)
@@ -1199,15 +1195,6 @@ void Flow1D::setMeta(const AnyMap& state)
     if (state.hasKey("flux-gradient-basis")) {
         m_fluxGradientBasis = static_cast<ThermoBasis>(
                 state["flux-gradient-basis"].asInt());
-    }
-
-    if (state.hasKey("species-enabled")) {
-        const AnyValue& se = state["species-enabled"];
-        if (se.isScalar()) {
-            m_do_species.assign(m_thermo->nSpecies(), se.asBool());
-        } else {
-            m_do_species = se.asVector<bool>(m_thermo->nSpecies());
-        }
     }
 
     if (state.hasKey("radiation-enabled")) {
@@ -2478,6 +2465,9 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
 {
     if (isStrained()) {
         m_twoPointControl = twoPointControl;
+        // Prevent finding spurious solutions with negative velocity (outflow) at either
+        // inlet.
+        setBounds(c_offset_V, -1e-5, 1e20);
     } else {
         throw CanteraError("Flow1D::enableTwoPointControl",
             "Invalid operation: two-point control can only be used"

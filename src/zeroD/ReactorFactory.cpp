@@ -24,32 +24,60 @@ std::mutex ReactorFactory::reactor_mutex;
 
 ReactorFactory::ReactorFactory()
 {
-    reg("Reservoir", []() { return new Reservoir(); });
-    reg("Reactor", []() { return new Reactor(); });
-    reg("ConstPressureReactor", []() { return new ConstPressureReactor(); });
-    reg("FlowReactor", []() { return new FlowReactor(); });
-    reg("IdealGasReactor", []() { return new IdealGasReactor(); });
-    reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
-    reg("ExtensibleReactor", []() { return new ReactorDelegator<Reactor>(); });
+    reg("Reservoir",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new Reservoir(sol, name); });
+    reg("Reactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new Reactor(sol, name); });
+    reg("ConstPressureReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ConstPressureReactor(sol, name); });
+    reg("FlowReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new FlowReactor(sol, name); });
+    reg("IdealGasReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new IdealGasReactor(sol, name); });
+    reg("IdealGasConstPressureReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new IdealGasConstPressureReactor(sol, name); });
+    reg("ExtensibleReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<Reactor>(sol, name); });
     reg("ExtensibleIdealGasReactor",
-        []() { return new ReactorDelegator<IdealGasReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<IdealGasReactor>(sol, name); });
     reg("ExtensibleConstPressureReactor",
-        []() { return new ReactorDelegator<ConstPressureReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<ConstPressureReactor>(sol, name); });
     reg("ExtensibleIdealGasConstPressureReactor",
-        []() { return new ReactorDelegator<IdealGasConstPressureReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<IdealGasConstPressureReactor>(sol, name); });
     reg("ExtensibleMoleReactor",
-        []() { return new ReactorDelegator<MoleReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<MoleReactor>(sol, name); });
     reg("ExtensibleConstPressureMoleReactor",
-        []() { return new ReactorDelegator<ConstPressureMoleReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<ConstPressureMoleReactor>(sol, name); });
     reg("ExtensibleIdealGasMoleReactor",
-        []() { return new ReactorDelegator<IdealGasMoleReactor>(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<IdealGasMoleReactor>(sol, name); });
     reg("ExtensibleIdealGasConstPressureMoleReactor",
-        []() { return new ReactorDelegator<IdealGasConstPressureMoleReactor>(); });
-    reg("IdealGasConstPressureMoleReactor", []() { return new
-        IdealGasConstPressureMoleReactor(); });
-    reg("IdealGasMoleReactor", []() { return new IdealGasMoleReactor(); });
-    reg("ConstPressureMoleReactor", []() { return new ConstPressureMoleReactor(); });
-    reg("MoleReactor", []() { return new MoleReactor(); });
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorDelegator<IdealGasConstPressureMoleReactor>(sol, name); });
+    reg("IdealGasConstPressureMoleReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new IdealGasConstPressureMoleReactor(sol, name); });
+    reg("IdealGasMoleReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new IdealGasMoleReactor(sol, name); });
+    reg("ConstPressureMoleReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ConstPressureMoleReactor(sol, name); });
+    reg("MoleReactor",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new MoleReactor(sol, name); });
 }
 
 ReactorFactory* ReactorFactory::factory() {
@@ -68,21 +96,15 @@ void ReactorFactory::deleteFactory() {
 
 shared_ptr<ReactorBase> newReactor(const string& model)
 {
-    warn_deprecated("newReactor",
-        "Creation of empty reactor objects is deprecated in Cantera 3.1 and will be \n"
-        "removed thereafter; reactor contents should be provided in the constructor.");
-    return shared_ptr<ReactorBase>(ReactorFactory::factory()->create(model));
+    return shared_ptr<ReactorBase>(
+        ReactorFactory::factory()->create(model, nullptr, ""));
 }
 
 shared_ptr<ReactorBase> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name)
 {
-    // once empty reactors are no longer supported, the create factory method should
-    // support passing a Solution object and a name
-    auto ret = shared_ptr<ReactorBase>(ReactorFactory::factory()->create(model));
-    ret->setSolution(contents);
-    ret->setName(name);
-    return ret;
+    return shared_ptr<ReactorBase>(
+        ReactorFactory::factory()->create(model, contents, name));
 }
 
 shared_ptr<ReactorBase> newReactor3(const string& model)

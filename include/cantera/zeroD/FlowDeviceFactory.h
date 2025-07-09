@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<FlowDevice> mfc = newFlowDevice("MassFlowController");
 //! ```
-class FlowDeviceFactory : public Factory<FlowDevice>
+class FlowDeviceFactory : public Factory<FlowDevice, const string&>
 {
 public:
     static FlowDeviceFactory* factory();
@@ -34,22 +34,22 @@ private:
 
 //! @defgroup flowDeviceGroup Flow Devices
 //! Flow device objects connect zero-dimensional reactors.
-//! FlowDevice objects should be instantiated via the newFlowDevice() function, for
+//! FlowDevice objects should be instantiated via the newFlowDevice function, for
 //! example:
 //!
 //! ```cpp
-//!     shared_ptr<FlowDevice> mfc = newFlowDevice("MassFlowController");
+//!     shared_ptr<FlowDevice> mfc = newFlowDevice("MassFlowController", "my_mfc");
 //! ```
 //! @ingroup zerodGroup
 //! @{
 
 //! Create a FlowDevice object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
-shared_ptr<FlowDevice> newFlowDevice(const string& model);
+shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name="(none)");
 
 //! Create a FlowDevice object of the specified type
 //! @since New in %Cantera 3.0.
-//! @deprecated Transitional method. Use newFlowDevice() instead.
+//! @deprecated Replaced by newFlowDevice. To be removed after %Cantera 3.1.
 shared_ptr<FlowDevice> newFlowDevice3(const string& model);
 
 //! @}

@@ -1,7 +1,7 @@
 classdef IdealGasConstPressureReactor < Reactor
     % Create a constant pressure reactor with an ideal gas. ::
     %
-    %     >> r = IdealGasConstPressureReactor(contents)
+    %     >> r = IdealGasConstPressureReactor(contents, name)
     %
     % An :mat:class:`IdealGasConstPressureReactor` is an instance of
     % :mat:class:`Reactor` where the pressure is held constant.
@@ -13,26 +13,27 @@ classdef IdealGasConstPressureReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = IdealGasConstPressureReactor      % an empty reactor
     %     r2 = IdealGasConstPressureReactor(gas) % a reactor containing a gas
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`IdealGasConstPressureReactor`.
 
     methods
 
-        function r = IdealGasConstPressureReactor(contents)
+        function r = IdealGasConstPressureReactor(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)';
             end
 
-            r@Reactor(contents, 'IdealGasConstPressureReactor');
+            r@Reactor(contents, 'IdealGasConstPressureReactor', name);
         end
 
     end

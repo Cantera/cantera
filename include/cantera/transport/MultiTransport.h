@@ -100,7 +100,9 @@ public:
     void getMassFluxes(const double* state1, const double* state2, double delta,
                        double* fluxes) override;
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0, int log_level=-7) override;
+
+    void invalidateCache() override;
 
 protected:
     //! Update basic temperature-dependent quantities if the temperature has

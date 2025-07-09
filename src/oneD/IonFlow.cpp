@@ -84,7 +84,6 @@ string IonFlow::domainType() const {
 void IonFlow::resize(size_t components, size_t points){
     Flow1D::resize(components, points);
     m_mobility.resize(m_nsp*m_points);
-    m_do_species.resize(m_nsp,true);
     m_do_electric_field.resize(m_points,false);
 }
 

@@ -59,7 +59,6 @@ fedora-rhel
 opensuse
 gentoo
 freebsd
-windows
 ```
 
 ## Troubleshooting

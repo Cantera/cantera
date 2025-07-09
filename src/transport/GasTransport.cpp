@@ -29,7 +29,7 @@ void GasTransport::update_T()
 {
     if (m_thermo->nSpecies() != m_nsp) {
         // Rebuild data structures if number of species has changed
-        init(m_thermo, m_mode, m_log_level);
+        init(m_thermo, m_mode, m_log_level != 0 ? m_log_level : -7);
     }
 
     double T = m_thermo->temperature();
@@ -263,6 +263,12 @@ void GasTransport::init(ThermoPhase* thermo, int mode, int log_level)
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
+    if (log_level == -7) {
+        log_level = 0;
+    } else {
+        warn_deprecated("Transport::init", "The log_level parameter "
+            "is deprecated and will be removed after Cantera 3.1.");
+    }
     m_log_level = log_level;
 
     // set up Monchick and Mason collision integrals
@@ -351,6 +357,16 @@ void GasTransport::setupCollisionParameters()
     }
 }
 
+void GasTransport::invalidateCache()
+{
+    Transport::invalidateCache();
+    m_temp = Undef;
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+}
+
 void GasTransport::setupCollisionIntegral()
 {
     double tstar_min = 1.e8, tstar_max = 0.0;
@@ -372,7 +388,7 @@ void GasTransport::setupCollisionIntegral()
     // initialize the collision integral calculator for the desired T* range
     debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
-    integrals.init(tstar_min, tstar_max, m_log_level);
+    integrals.init(tstar_min, tstar_max, m_log_level != 0 ? m_log_level : -7);
     fitCollisionIntegrals(integrals);
     debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
@@ -616,6 +632,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             mxerr = std::max(mxerr, fabs(err));
             mxrelerr = std::max(mxrelerr, fabs(relerr));
         }
+        m_fittingErrors["viscosity-max-abs-error"] = mxerr;
+        m_fittingErrors["viscosity-max-rel-error"] = mxrelerr;
 
         // evaluate max fit errors for conductivity
         for (size_t n = 0; n < np; n++) {
@@ -635,6 +653,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
         m_visccoeffs.push_back(c);
         m_condcoeffs.push_back(c2);
+        m_fittingErrors["conductivity-max-abs-error"] = mxerr_cond;
+        m_fittingErrors["conductivity-max-rel-error"] = mxrelerr_cond;
 
         if (m_log_level >= 2) {
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
@@ -690,8 +710,7 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
 
     // vector of polynomial coefficients
     vector<double> c(degree + 1), c2(degree + 1);
-    double err, relerr,
-               mxerr = 0.0, mxrelerr = 0.0;
+    double err, relerr, mxerr = 0.0, mxrelerr = 0.0;
 
     vector<double> diff(np + 1);
     m_diffcoeffs.clear();
@@ -744,6 +763,9 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
             }
         }
     }
+
+    m_fittingErrors["diff-coeff-max-abs-error"] = mxerr;
+    m_fittingErrors["diff-coeff-max-rel-error"] = mxrelerr;
     if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
@@ -806,6 +828,7 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
 
 void GasTransport::getViscosityPolynomial(size_t i, double* coeffs) const
 {
+    checkSpeciesIndex(i);
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_visccoeffs[i][k];
     }
@@ -813,6 +836,7 @@ void GasTransport::getViscosityPolynomial(size_t i, double* coeffs) const
 
 void GasTransport::getConductivityPolynomial(size_t i, double* coeffs) const
 {
+    checkSpeciesIndex(i);
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_condcoeffs[i][k];
     }
@@ -820,6 +844,8 @@ void GasTransport::getConductivityPolynomial(size_t i, double* coeffs) const
 
 void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const
 {
+    checkSpeciesIndex(i);
+    checkSpeciesIndex(j);
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
     size_t ic = 0;
@@ -838,6 +864,8 @@ void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j,
                                                  double* bstar_coeffs,
                                                  double* cstar_coeffs) const
 {
+    checkSpeciesIndex(i);
+    checkSpeciesIndex(j);
     for (int k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
         astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
         bstar_coeffs[k] = m_bstar_poly[m_poly[i][j]][k];
@@ -847,32 +875,26 @@ void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j,
 
 void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
 {
+    checkSpeciesIndex(i);
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_visccoeffs[i][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
 {
+    checkSpeciesIndex(i);
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_condcoeffs[i][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs)
 {
+    checkSpeciesIndex(i);
+    checkSpeciesIndex(j);
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
     size_t ic = 0;
@@ -884,12 +906,7 @@ void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_diffcoeffs[ic][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
@@ -897,6 +914,8 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
                                                   double* bstar_coeffs,
                                                   double* cstar_coeffs, bool actualT)
 {
+    checkSpeciesIndex(i);
+    checkSpeciesIndex(j);
     size_t degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
     vector<double> ca(degree+1), cb(degree+1), cc(degree+1);
 
@@ -909,18 +928,9 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
     m_astar_poly.push_back(ca);
     m_bstar_poly.push_back(cb);
     m_cstar_poly.push_back(cc);
-    m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
-    m_poly[j][i] = m_poly[i][j];
-    if (actualT) {
-        m_star_poly_uses_actualT[i][j] = 1;
-        m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j];
-    }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    m_poly[j][i] = m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
+    m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j] = (actualT) ? 1 : 0;
+    invalidateCache();
 }
 
 }

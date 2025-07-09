@@ -1,8 +1,8 @@
 (sec-install-ubuntu)=
 # Ubuntu Packages
 
-As of Cantera 3.0.0, packages are available for Ubuntu 20.04 (Focal Fossa), Ubuntu 22.04
-(Jammy Jellyfish), Ubuntu 23.04 (Lunar Lobster), and Ubuntu 23.10 (Mantic Minotaur).
+As of Cantera 3.1.0, packages are available for Ubuntu 20.04 (Focal Fossa), Ubuntu 22.04
+(Jammy Jellyfish), Ubuntu 24.04 (Noble Numbat) and Ubuntu 24.10 (Oracular Oriole).
 Generally, packages are available for the two most-recent LTS releases as well as the
 non-LTS releases supported on [Launchpad](https://launchpad.net/ubuntu) at the time of
 the Cantera release. To see which Ubuntu releases and Cantera versions are currently
@@ -11,12 +11,12 @@ supported, visit the
 
 The available packages are:
 
-- `cantera-python3` - The Cantera Python module for Python 3.
+- `python3-cantera` - The Cantera Python module for Python 3.
 - `libcantera-dev` - Libraries and header files for compiling your own C, C++ and
   Fortran 90 programs that use Cantera.
 - `cantera-common` - Cantera data files and example programs
-- `libcantera3.0` - The Cantera C++ library, for use by packaged C++ applications.
-- `libcantera-fortran3.0` - The Cantera Fortran 90 library, for use by packaged
+- `libcantera3.1` - The Cantera C++ library, for use by packaged C++ applications.
+- `libcantera-fortran3.1` - The Cantera Fortran 90 library, for use by packaged
   Fortran 90 applications.
 - `cantera` - A metapackage that will install everything except for the development
   files.
@@ -33,7 +33,7 @@ sudo apt-add-repository ppa:cantera-team/cantera
 To install all of the Cantera packages:
 
 ```bash
-sudo apt install cantera-python3 libcantera-dev
+sudo apt install python3-cantera libcantera-dev
 ```
 
 or install whichever subset you need by adjusting the above command. The
@@ -58,7 +58,7 @@ you have the latest available version installed by running:
 
 ```bash
 sudo apt update
-sudo apt install cantera-python3
+sudo apt install python3-cantera
 ```
 
 If you also have the `libcantera-dev` package installed, it should also be included on
@@ -88,6 +88,6 @@ version, run the commands:
 
 ```bash
 sudo apt-add-repository --remove ppa:cantera-team/cantera-unstable
-sudo apt remove cantera cantera-common libcantera-dev cantera-python3
-sudo apt install cantera-python3 libcantera-dev
+sudo apt remove cantera cantera-common libcantera-dev python3-cantera
+sudo apt install python3-cantera libcantera-dev
 ```

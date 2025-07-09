@@ -1,19 +1,25 @@
-import unittest
-
 import numpy as np
+import pytest
+from pytest import approx
 
 import cantera as ct
-from . import utilities
-
+from .utilities import (
+    compare
+)
 
 class EquilTestCases:
-    def __init__(self, solver):
-        self.solver = solver
+    """
+    Base class for equilibrium test cases, parameterized by the solver to use.
+    """
+    solver = None # must be set by subclass
 
     def check(self, gas, **moles):
+        """
+        Check that the mole fractions in `gas` match the expected values in `moles`.
+        """
         nTotal = sum(moles.values())
         for name, X in moles.items():
-            self.assertAlmostEqual(gas[name].X[0], X/nTotal)
+            assert gas[name].X[0] == approx(X/nTotal)
 
     def test_equil_complete_stoichiometric(self):
         """
@@ -71,25 +77,29 @@ class EquilTestCases:
         self.check(gas, CH4=1, O2=1)
 
 
-class ChemEquilTest(EquilTestCases, utilities.CanteraTest):
-    def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'element_potential')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+class TestChemEquil(EquilTestCases):
+    """
+    Tests using the 'element_potential' solver.
+    """
+
+    solver = 'element_potential'
 
 
-class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
-    def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'gibbs')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+class TestMultiphaseEquil(EquilTestCases):
+    """
+    Tests using the 'gibbs' solver.
+    """
 
-    @unittest.expectedFailure
+    solver = 'gibbs'
+
+    @pytest.mark.xfail
     def test_equil_gri_stoichiometric(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_equil_gri_lean(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
@@ -97,54 +107,67 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
 
-class EquilExtraElements(utilities.CanteraTest):
-    def setUp(self):
-        s = """
-        phases:
-        - name: gas
-          thermo: ideal-gas
-          elements: [H, Ar, C, O, Cl, N]
-          species: [{gri30.yaml/species: [AR, N2, CH4, O2, CO2, H2O, CO, H2, OH]}]
-        """
-        self.gas = ct.Solution(yaml=s)
-        self.gas.TP = 300, 101325
-        self.gas.set_equivalence_ratio(0.8, 'CH4', 'O2:1.0, N2:3.76')
+@pytest.fixture(scope='function')
+def extra_elements(request):
+    s = """
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      elements: [H, Ar, C, O, Cl, N]
+      species: [{gri30.yaml/species: [AR, N2, CH4, O2, CO2, H2O, CO, H2, OH]}]
+    """
+    request.cls.gas = ct.Solution(yaml=s)
+    request.cls.gas.TP = 300, 101325
+    request.cls.gas.set_equivalence_ratio(0.8, 'CH4', 'O2:1.0, N2:3.76')
+
+@pytest.mark.usefixtures('extra_elements')
+class TestEquilExtraElements:
+    """
+    Tests equilibrium with extra elements that are not involved in the reactions.
+    """
 
     def test_auto(self):
         # Succeeds after falling back to VCS
         self.gas.equilibrate('TP')
-        self.assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_element_potential(self):
         self.gas.equilibrate('TP', solver='element_potential')
-        self.assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
     def test_gibbs(self):
         self.gas.equilibrate('TP', solver='gibbs')
-        self.assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
     def test_vcs(self):
         self.gas.equilibrate('TP', solver='vcs')
-        self.assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
 
-class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
-    def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'vcs')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+class TestVCS_EquilTest(EquilTestCases):
+    """
+    Tests using the 'vcs' solver.
+    """
+
+    solver = 'vcs'
 
 
-class TestKOH_Equil(utilities.CanteraTest):
-    "Test roughly based on examples/multiphase/plasma_equilibrium.py"
-    def setUp(self):
-        self.phases = ct.import_phases("KOH.yaml",
-                ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
-                 'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
-                 'KOH_plasma'])
-        self.mix = ct.Mixture(self.phases)
+@pytest.fixture(scope='function')
+def koh_equil(request):
+    phases = ct.import_phases("KOH.yaml",
+            ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
+             'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
+             'KOH_plasma'])
+    request.cls.mix = ct.Mixture(phases)
 
-    def test_equil_TP(self):
+@pytest.mark.usefixtures('koh_equil')
+class TestKOH_Equil:
+    """
+    Test roughly based on examples/multiphase/plasma_equilibrium.py
+    """
+
+    def test_equil_TP(self, test_data_path):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+1))
         data[:,0] = temperatures
@@ -161,10 +184,10 @@ class TestKOH_Equil(utilities.CanteraTest):
         # VCS solver extrapolating thermo polynomials outside of their valid range. See
         # https://github.com/Cantera/cantera/issues/270. The results show ice at
         # temperatures of over 1000 K, and liquid water for temperatures of 2000-5000 K.
-        self.compare(data, self.test_data_path / "koh-equil-TP.csv")
+        compare(data, test_data_path / "koh-equil-TP.csv")
 
-    @utilities.slow_test
-    def test_equil_HP(self):
+    @pytest.mark.slow_test
+    def test_equil_HP(self, test_data_path):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+2))
         data[:,0] = temperatures
@@ -185,17 +208,24 @@ class TestKOH_Equil(utilities.CanteraTest):
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles
 
-        self.compare(data, self.test_data_path / "koh-equil-HP.csv")
+        compare(data, test_data_path / "koh-equil-HP.csv")
 
 
-class TestEquil_GasCarbon(utilities.CanteraTest):
-    "Test rougly based on examples/multiphase/adiabatic.py"
-    def setUp(self):
-        self.gas = ct.Solution('gri30.yaml', transport_model=None)
-        self.carbon = ct.Solution("graphite.yaml")
-        self.fuel = 'CH4'
-        self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]
-        self.n_species = self.gas.n_species + self.carbon.n_species
+@pytest.fixture(scope='function')
+def carbon_equil(request):
+    request.cls.gas = ct.Solution('gri30.yaml', transport_model=None)
+    request.cls.carbon = ct.Solution("graphite.yaml")
+    request.cls.fuel = 'CH4'
+    request.cls.mix_phases = [(request.cls.gas, 1.0), (request.cls.carbon, 0.0)]
+    request.cls.n_species = request.cls.gas.n_species + request.cls.carbon.n_species
+
+@pytest.mark.usefixtures('carbon_equil')
+class TestEquil_GasCarbon:
+    "Test roughly based on examples/multiphase/adiabatic.py"
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
 
     def solve(self, solver, **kwargs):
         n_points = 12
@@ -215,13 +245,13 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
-        self.compare(data, self.test_data_path / "gas-carbon-equil.csv")
+        compare(data, self.test_data_path / "gas-carbon-equil.csv")
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gibbs(self):
         self.solve('gibbs')
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_vcs(self):
         self.solve('vcs')
 
@@ -229,11 +259,11 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
         self.solve('vcs', estimate_equil=-1)
 
 
-class Test_IdealSolidSolnPhase_Equil(utilities.CanteraTest):
+class Test_IdealSolidSolnPhase_Equil:
     def test_equil(self):
         gas = ct.ThermoPhase("IdealSolidSolnPhaseExample.yaml")
         gas.TPX = 500, ct.one_atm, 'C2H2-graph: 1.0'
 
         gas.equilibrate('TP', solver='element_potential')
-        self.assertNear(gas['C-graph'].X[0], 2.0 / 3.0)
-        self.assertNear(gas['H2-solute'].X[0], 1.0 / 3.0)
+        assert gas['C-graph'].X[0] == approx(2.0 / 3.0)
+        assert gas['H2-solute'].X[0] == approx(1.0 / 3.0)

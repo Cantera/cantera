@@ -5,14 +5,16 @@ on:
     # Build on tags that look like releases
     tags:
       - v*
-    # Build when main or testing is pushed to
+    # Build when main, testing, or the maintenance branch is pushed to
     branches:
       - main
       - testing
+      - "3.1"
   pull_request:
-    # Build when a pull request targets main
+    # Build when a pull request targets main or the maintenance branch
     branches:
       - main
+      - "3.1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,19 +61,27 @@ jobs:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
   ubuntu-multiple-pythons:
-    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.8', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.10', '3.11', '3.12', '3.13']
         os: ['ubuntu-20.04', 'ubuntu-22.04']
         numpy: ['']
+        cython: ['']
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
           os: 'ubuntu-24.04'
           numpy: "'<2.0'"
+          # Keep some test cases with older Cython versions
+        - python-version: '3.10'
+          os: 'ubuntu-24.04'
+          cython: "==0.29.31" # minimum supported version
+        - python-version: '3.11'
+          os: 'ubuntu-24.04'
+          cython: "==3.0.8" # System version for Ubuntu 24.04
 
       fail-fast: false
     steps:
@@ -95,8 +105,8 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons==3.1.2 numpy${{ matrix.numpy }} \
-          cython pandas pytest pytest-github-actions-annotate-failures pytest-xdist \
-          pint graphviz
+          cython${{ matrix.cython }} pandas pytest \
+          pytest-github-actions-annotate-failures pytest-xdist pint graphviz
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
@@ -171,14 +181,16 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        macos-version: ['macos-12', 'macos-14']
-        python-version: ['3.11', '3.12']
+        macos-version: ['macos-13', 'macos-14', 'macos-15']
+        python-version: ['3.12', '3.13']
         include:
-          - macos-version: 'macos-12'
+          - macos-version: 'macos-13'
             python-version: '3.8'
           - macos-version: 'macos-14'
             python-version: '3.10'
             extra-build-args: cxx_flags='-std=c++20'
+          - macos-version: 'macos-15'
+            python-version: '3.11'
       fail-fast: false
     steps:
     - uses: actions/checkout@v4
@@ -210,7 +222,7 @@ jobs:
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
       uses: actions/upload-artifact@v4.3.4
-      if: matrix.python-version == '3.11' && matrix.macos-version == 'macos-12'
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
       with:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
@@ -252,7 +264,8 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
-        pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz
+        pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
+        Jinja2
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
@@ -305,10 +318,9 @@ jobs:
         path: interfaces/dotnet/coveragereport*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         verbose: true
-        token: ${{secrets.CODECOV_TOKEN}}
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml
         fail_ci_if_error: true
 
@@ -319,8 +331,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    env:
-      DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
       - uses: actions/checkout@v4
         name: Checkout the repository
@@ -369,28 +379,72 @@ jobs:
           cd build/doc
           tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
-      - name: Store archive of docs output
+      - name: Store a copy of docs output
         uses: actions/upload-artifact@v4
         with:
           path: build/doc/docs.tar.gz
           name: docs
           retention-days: 14
         if: failure() || success()
+      - name: Determine whether to deploy
+        id: deploy-conf
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' }}
+        run: |
+          if [[ ${{ github.ref }} =~ ^refs\/heads\/([0-9]+\.[0-9]+)$ ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "rsync_dest=cantera/${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+              echo "commit=true" >> $GITHUB_OUTPUT
+              echo "git_dest=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+              echo "git_branch=staging" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == "refs/heads/main" ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "rsync_dest=cantera/dev" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == "refs/heads/testing" ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "rsync_dest=testing.cantera.org/dev" >> $GITHUB_OUTPUT
+              echo "commit=true" >> $GITHUB_OUTPUT
+              echo "git_dest=testing" >> $GITHUB_OUTPUT
+              echo "git_branch=testing" >> $GITHUB_OUTPUT
+          fi
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
-        if: env.DEPLOY == 'true'
+        if: steps.deploy-conf.outputs.match == 'true'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
-      - name: Upload the docs
-        if: env.DEPLOY == 'true'
+      - name: Commit docs to api-docs repo
+        if: steps.deploy-conf.outputs.commit == 'true'
+        env:
+          CANTERABOT_DOCS_TOKEN: ${{ secrets.CANTERABOT_DOCS_TOKEN }}
+          # Directory in api-docs repo: either the version (X.Y) or "testing"
+          GIT_DEST: ${{ steps.deploy-conf.outputs.git_dest }}
+          # Branch in api-docs to commit to: either 'staging' or 'testing'
+          BRANCH: ${{ steps.deploy-conf.outputs.git_branch }}
+        run: |
+          set -ex
+          REPO_SHA=`git rev-parse --short=8 HEAD`
+          git clone https://canterabot:${CANTERABOT_DOCS_TOKEN}@github.com/Cantera/api-docs
+
+          cd api-docs
+          git config user.name "CanteraBot"
+          git config user.email "96191898+CanteraBot@users.noreply.github.com"
+
+          git checkout --track origin/${BRANCH}
+          mkdir -p ${GIT_DEST}
+          tar -zxf ../build/doc/docs.tar.gz -C ${GIT_DEST}
+          git add .
+          git commit -m "Update for Cantera ${GIT_DEST} - Cantera/cantera@${REPO_SHA}"
+          git show --stat HEAD
+          git push origin
+      - name: Upload the docs to cantera.org
+        if: steps.deploy-conf.outputs.match == 'true'
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
-          RSYNC_DEST: "cantera/dev"
+          RSYNC_DEST: ${{ steps.deploy-conf.outputs.rsync_dest }}
           DOCS_OUTPUT_DIR: "./build/doc/html/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
@@ -430,6 +484,9 @@ jobs:
         - os: "ubuntu-20.04"
           python-version: "3.12"
           numpy: ""
+        - os: "ubuntu-22.04"
+          python-version: "3.13"
+          numpy: ""
       fail-fast: false
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
@@ -466,10 +523,11 @@ jobs:
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
         # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
         # Increase figure limit to handle flame_speed_convergence_analysis.py.
+        # Skip equations_of_state.py in cases where CoolProp is broken (temporarily, for Python 3.13)
         run: |
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
-          rm samples/python/reactors/continuous_reactor.py
+          python3 -m CoolProp || rm samples/python/thermo/equations_of_state.py
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
@@ -568,9 +626,6 @@ jobs:
     name: Windows 2022, Python ${{ matrix.python-version }}, fmt ${{ matrix.fmt-ver }}
     runs-on: windows-2022
     timeout-minutes: 60
-    defaults:
-      run:
-        shell: bash -l {0}
     strategy:
       matrix:
         include:
@@ -582,7 +637,7 @@ jobs:
           fmt-ver: '9.1'
         - python-version: '3.12'
           fmt-ver: '7.1'
-        - python-version: '3.12'
+        - python-version: '3.13'
           fmt-ver: '11.0'
           extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
       fail-fast: false
@@ -602,13 +657,12 @@ jobs:
           python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
           fmt=${{ matrix.fmt-ver }} setuptools
-        init-shell: powershell bash
         post-cleanup: none
+        init-shell: powershell
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
         --debug=time -j4
-      shell: pwsh
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
@@ -625,30 +679,30 @@ jobs:
     - name: Run Python tests
       run: |
         pytest -raP -v -n auto --durations=50 test/python
-      shell: pwsh
     - name: Test Install
       # spot-check installation locations
       run: |
-        set -x
         scons install
-        test -f ${CONDA_PREFIX}/Library/bin/cantera_shared.dll
-        test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
-        test -f ${CONDA_PREFIX}/Scripts/ck2yaml
-        test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
-        test -d ${CONDA_PREFIX}/share/cantera/samples
-        test -d ${CONDA_PREFIX}/share/cantera/samples/python
-        test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
+        $paths = @('Library/bin/cantera_shared.dll',
+            'Library/include/cantera/base/Solution.h', 'Scripts/ck2yaml.exe',
+            'share/cantera/data/gri30.yaml', 'share/cantera/samples',
+            'share/cantera/samples/python', 'Lib/site-packages/cantera')
+        Foreach ($path in $paths) {
+          if (-not (Test-Path $Env:CONDA_PREFIX/$path)) {
+            echo "$path not found in install directory"
+            exit 1
+          }
+        }
     - name: Test Essentials
       # ensure that Python package loads and converter scripts work
       run: |
-        set -x
         python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.1.0") else sys.exit(1)'
         ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
-        test -f h2o2-test.yaml
+        if (-not (Test-Path h2o2-test.yaml)) { exit 1 }
         cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
-        test -f ch4_ion-test.yaml
+        if (-not (Test-Path ch4_ion-test.yaml)) { exit 1 }
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
-        test -f h2o2-test.ck
+        if (-not (Test-Path h2o2-test.ck)) { exit 1 }
 
   windows:
     name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
@@ -660,7 +714,7 @@ jobs:
     strategy:
       matrix:
         vs-toolset: ['14.2']
-        python-version: ["3.8", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -694,10 +748,9 @@ jobs:
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
-        run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+        run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
-        shell: cmd
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
@@ -802,10 +855,9 @@ jobs:
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
-      run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+      run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
-      shell: cmd
     - name: Upload Wheel
       uses: actions/upload-artifact@v4
       with:
@@ -842,7 +894,7 @@ jobs:
       name: Checkout the repository
     - name: Install Python dependencies
       # Install for the default system Python 3, which is used by 'dotnet build'
-      run: python3 -m pip install ruamel.yaml
+      run: python3 -m pip install ruamel.yaml Jinja2
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@v1
       with:

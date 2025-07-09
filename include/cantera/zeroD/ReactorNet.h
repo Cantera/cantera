@@ -305,6 +305,9 @@ protected:
 
     void updatePreconditioner(double gamma) override;
 
+    //! Create reproducible names for reactors and walls/connectors.
+    void updateNames(Reactor& r);
+
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
@@ -316,6 +319,7 @@ protected:
     virtual int lastOrder() const;
 
     vector<Reactor*> m_reactors;
+    map<string, int> m_counts;  //!< Map used for default name generation
     unique_ptr<Integrator> m_integ;
 
     //! The independent variable in the system. May be either time or space depending

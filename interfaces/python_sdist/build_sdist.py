@@ -46,12 +46,12 @@ def do_configure_substitution(
         "FTN_TRAILING_UNDERSCORE": "#define FTN_TRAILING_UNDERSCORE 1",
         "LAPACK_FTN_STRING_LEN_AT_END": "#define LAPACK_FTN_STRING_LEN_AT_END 1",
         "LAPACK_FTN_TRAILING_UNDERSCORE": "#define LAPACK_FTN_TRAILING_UNDERSCORE 1",
-        "CT_USE_LAPACK": "#define CT_USE_LAPACK 0",
+        "CT_USE_LAPACK": "#cmakedefine01 CT_USE_LAPACK",
         "CT_USE_SYSTEM_EIGEN": "#define CT_USE_SYSTEM_EIGEN 1",
         "CT_USE_SYSTEM_EIGEN_PREFIXED": "/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */",
         "CT_USE_SYSTEM_FMT": "#define CT_USE_SYSTEM_FMT 1",
         "CT_USE_SYSTEM_YAMLCPP": "#define CT_USE_SYSTEM_YAMLCPP 1",
-        "CT_SUNDIALS_USE_LAPACK": "#define CT_SUNDIALS_USE_LAPACK 0",
+        "CT_SUNDIALS_USE_LAPACK": "#cmakedefine01 CT_SUNDIALS_USE_LAPACK",
         "CT_USE_HDF5": "#define CT_USE_HDF5 1",
         "CT_USE_SYSTEM_HIGHFIVE": "#define CT_USE_SYSTEM_HIGHFIVE 1",
         "CT_USE_HIGHFIVE_BOOLEAN": "#define CT_USE_HIGHFIVE_BOOLEAN 1",
@@ -175,7 +175,7 @@ def main(
 
     config_h_in = Path("include", "cantera", "base", "config.h.in")
     configure_source = source_directory / config_h_in
-    configure_target = target_directory / config_h_in.with_suffix("")
+    configure_target = target_directory / config_h_in
     configure_target.write_text(
         do_configure_substitution(
             configure_source, cantera_version, cantera_short_version

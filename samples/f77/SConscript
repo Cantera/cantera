@@ -1,5 +1,4 @@
-from os.path import join as pjoin, relpath
-from buildutils import *
+from buildutils import compiler_flag_list
 
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
@@ -40,12 +39,12 @@ else:
     incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
     incdirs.append(localenv["hdf_include"])
     incdirs.extend(localenv["extra_inc_dirs"])
-    incdirs = list(set(incdirs))
+    incdirs = sorted(set(incdirs))
 
     libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
     libdirs.append(localenv["hdf_libdir"])
     libdirs.extend(localenv["extra_lib_dirs"])
-    libdirs = list(set(libdirs))
+    libdirs = sorted(set(libdirs))
 
 libs = ["cantera_fortran"] + localenv["cantera_libs"] + localenv["cxx_stdlib"]
 

@@ -36,7 +36,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double steady_atol(size_t)
         double transient_rtol(size_t)
         double transient_atol(size_t)
-        double grid(size_t)
+        double z(size_t)
         void setupGrid(size_t, double*) except +translate_exception
         void setupGrid(size_t) except +translate_exception
         void setID(string)

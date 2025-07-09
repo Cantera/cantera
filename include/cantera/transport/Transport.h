@@ -20,12 +20,12 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
 class ThermoPhase;
-class AnyMap;
 
 /**
  * @addtogroup tranprops
@@ -389,6 +389,16 @@ public:
     //! separately.
     AnyMap parameters() const;
 
+    //! Get error metrics about any functional fits calculated for pure species
+    //! transport properties.
+    //!
+    //! See GasTransport::fitDiffCoeffs and GasTransport::fitProperties.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!      changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    AnyMap fittingErrors() const { return m_fittingErrors; };
+
     //! @name Transport manager construction
     //!
     //! These methods are used during construction.
@@ -403,8 +413,10 @@ public:
      * @param mode    Chemkin compatible mode or not. This alters the
      *                 specification of the collision integrals. defaults to no.
      * @param log_level Defaults to zero, no logging
+     * @deprecated The `log_level` parameter is deprecated and will be removed after
+     *     %Cantera 3.1.
      */
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0) {}
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=-7) {}
 
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.
@@ -415,12 +427,20 @@ public:
 
     //! @}
 
+    //! Invalidate any cached values which are normally updated only when a
+    //! change in state is detected
+    //! @since New in %Cantera 3.1.
+    virtual void invalidateCache() {}
+
 protected:
     //! pointer to the object representing the phase
     ThermoPhase* m_thermo;
 
     //! Number of species
     size_t m_nsp = 0;
+
+    //! Maximum errors associated with fitting pure species transport properties.
+    AnyMap m_fittingErrors;
 };
 
 }

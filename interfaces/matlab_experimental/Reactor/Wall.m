@@ -1,7 +1,7 @@
 classdef Wall < handle
     % Wall Class ::
     %
-    %     >> x = Wall(l, r)
+    %     >> x = Wall(l, r, name)
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -40,6 +40,8 @@ classdef Wall < handle
     % :param r:
     %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
     %    on the right side of the wall.
+    % :param name:
+    %     Wall name (optional; default is ``(none)``).
     % :return:
     %    Instance of class :mat:class:`Wall`.
 
@@ -51,6 +53,8 @@ classdef Wall < handle
     end
 
     properties (SetAccess = protected)
+
+        name  % Name of wall.
 
         left % Reactor on the left.
         right % Reactor on the right.
@@ -87,15 +91,18 @@ classdef Wall < handle
     methods
         %% Wall Class Constructor
 
-        function w = Wall(l, r)
+        function w = Wall(l, r, name)
             % Create a :mat:class:`Wall` object.
             ctIsLoaded;
 
             % At the moment, only one wall type is implemented
             typ = 'Wall';
+            if nargin < 3
+                name = '(none)';
+            end
 
             w.type = char(typ);
-            w.id = ctFunc('wall_new', w.type);
+            w.id = ctFunc('wall_new', w.type, name);
 
             % Install the wall between left and right reactors
             w.left = l;
@@ -109,9 +116,7 @@ classdef Wall < handle
 
             % Check whether the wall is ready.
             ok = ctFunc('wall_ready', w.id);
-            if ok
-                disp('The wall object is ready.');
-            else
+            if ~ok
                 error('The wall object is not ready.');
             end
 
@@ -127,6 +132,10 @@ classdef Wall < handle
 
         %% ReactorNet get methods
 
+        function name = get.name(w)
+            name = ctString('wall_name', w.id);
+        end
+
         function a = get.area(w)
             a = ctFunc('wall_area', w.id);
         end
@@ -140,6 +149,10 @@ classdef Wall < handle
         end
 
         %% ReactorNet set methods
+
+        function set.name(w, name)
+            ctFunc('wall_setName', w.id, name);
+        end
 
         function set.area(w, a)
             ctFunc('wall_setArea', w.id, a);

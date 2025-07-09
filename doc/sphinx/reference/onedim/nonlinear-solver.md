@@ -65,7 +65,7 @@ $$
 J(x) =\pxpy{F(x)}{x}
 $$
 
-For the vector-value residual $F(x)$, the Jacobian matrix has elmenets that are
+For the vector-value residual $F(x)$, the Jacobian matrix has elements that are
 partial derivatives of the residuals with respect to each solution component at each
 grid point.
 
@@ -160,7 +160,7 @@ $$
 During the search for the correct value of $\lambda$, the value of $\lambda$ starts
 at 1, it is adjusted down to a value that keeps the solution within the trust region.
 The process then begins for finding $\lambda$, failures result in the damping factor
-being reduced by a constant factor. The current factor in  Cantera is the $\sqrt{2}$.
+being reduced by a constant factor. The current factor in Cantera is the $\sqrt{2}$.
 
 During the damped Newton method, the Jacobian is kept at the $x^{(k)}$ value. This
 sometimes can cause issues with convergence if the Jacobian becomes out of date
@@ -284,7 +284,7 @@ F(x_n, x_{n+1}) = -\frac{\alpha}{\Delta t}(x_{n+1} - x_n) + F_{ss}(x_{n+1})
 $$
 
 For the Newton method, we linearize the residual equation about the solution vector at
-the next iteration(not timestep) by using a Taylor series expansion. The linearized
+the next iteration (not time step) by using a Taylor series expansion. The linearized
 equation is given by:
 
 $$
@@ -339,7 +339,7 @@ J_{ss}(x^{(k)}) \Delta x^{(k)} = -\lambda^{(k)} F_{ss}(x^{(k)})
 $$
 
 The transient equation has the same form as the steady-state equation, and so the same
-damped Newton method can be used to solve the transient problem for a single timestep.
+damped Newton method can be used to solve the transient problem for a single time step.
 
 $$
 J(x_{n+1}^{(k)}) \Delta x_{n+1}^{(k)} = -\lambda^{(k)} F(x_n, x_{n+1}^{(k)})

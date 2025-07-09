@@ -86,15 +86,21 @@ import atexit
 import subprocess
 import re
 import textwrap
+from copy import deepcopy
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 import SCons
 
+from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuration,
+                        logger, remove_directory, remove_file, test_results,
+                        add_RegressionTest, get_command_output, listify, which,
+                        ConfigBuilder, multi_glob, quoted, add_system_include,
+                        checkout_submodule, check_for_python, check_sundials,
+                        config_error, run_preprocessor, make_relative_path_absolute)
+
 # ensure that Python and SCons versions are sufficient for the build process
 EnsurePythonVersion(3, 7)
 EnsureSConsVersion(3, 0, 0)
-
-from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -157,21 +163,26 @@ logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
 
-cantera_version = "3.1.0a4"
+cantera_version = "3.1.0"
 # For use where pre-release tags are not permitted (MSI, sonames)
 cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
 cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
 
-try:
-    cantera_git_commit = get_command_output("git", "rev-parse", "--short", "HEAD")
+cantera_git_commit = os.environ.get("CT_GIT_COMMIT")
+if not cantera_git_commit:
+    try:
+        cantera_git_commit = get_command_output("git", "rev-parse", "--short", "HEAD")
+        logger.info(f"Building Cantera from git commit {cantera_git_commit!r}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        cantera_git_commit = "unknown"
+else:
     logger.info(f"Building Cantera from git commit {cantera_git_commit!r}")
-except (subprocess.CalledProcessError, FileNotFoundError):
-    cantera_git_commit = "unknown"
+
 
 # Python Package Settings
 python_min_version = parse_version("3.8")
 # Newest Python version not supported/tested by Cantera
-python_max_version = parse_version("3.13")
+python_max_version = parse_version("3.14")
 # The string is used to set python_requires in setup.cfg.in
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
@@ -782,6 +793,11 @@ if "help" in COMMAND_LINE_TARGETS:
 
         sys.exit(0)
 
+if "sphinx" in COMMAND_LINE_TARGETS:
+    # need to buffer all options before system-dependent selections are applied
+    windows_options_full = deepcopy(windows_options)
+    config_options_full = deepcopy(config_options)
+
 # **************************************
 # *** Read user-configurable options ***
 # **************************************
@@ -982,8 +998,11 @@ for arg in ARGUMENTS:
 
 # Store full config for doc build
 if env['sphinx_docs']:
-    config.add(windows_options)
-    env['config'] = config
+    # rebuild configuration from buffered options
+    config_full = Configuration()
+    config_full.add(windows_options_full)
+    config_full.add(config_options_full)
+    env['config'] = config_full
 def get_processor_name():
     """Check processor name"""
     # adapted from:
@@ -1244,7 +1263,7 @@ if env['system_fmt'] in ('y', 'default'):
                     f"version {fmt_min_version} or higher is required.")
         else:
             env['system_fmt'] = True
-            logger.info(f"Using system installation of fmt library.")
+            logger.info("Using system installation of fmt library.")
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
             'could not be found.')
@@ -1261,7 +1280,7 @@ if env['system_fmt'] in ('n', 'default'):
 
     fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
-    logger.info(f"Using private installation of fmt library.")
+    logger.info("Using private installation of fmt library.")
 
 if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
     # Workaround for symbols not exported on Windows in older fmt versions
@@ -1356,7 +1375,7 @@ env['HAS_OPENMP'] = conf.CheckLibWithHeader(
     ["iomp5", "omp", "gomp"], "omp.h", language="C++"
 )
 
-_, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
+retcode, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
                  "'boost_inc_dir' to point to the boost headers.")
@@ -1848,7 +1867,7 @@ cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
-                       ConfigBuilder(configh))
+                             ConfigBuilder(configh))
 # This separate copy operation, which SCons will skip if config.h.build is
 # unmodified, prevents unnecessary rebuilds of the precompiled header
 config_h = env.Command('include/cantera/base/config.h',

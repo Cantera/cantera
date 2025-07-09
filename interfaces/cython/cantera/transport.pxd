@@ -18,7 +18,7 @@ cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
         void getSpeciesViscosities(double*) except +translate_exception
         void getCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC) except +translate_exception
         void setCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC, cbool flag) except +translate_exception
-
+        CxxAnyMap fittingErrors()
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
     cdef cppclass CxxDustyGasTransport "Cantera::DustyGasTransport":

@@ -13,14 +13,20 @@
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name)
+ReactorBase::ReactorBase(const string& name) : m_name(name)
 {
-    m_name = name;
 }
 
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
+    : ReactorBase(name)
 {
-    m_name = name;
+    if (!sol || !(sol->thermo())) {
+        warn_deprecated("ReactorBase::ReactorBase",
+            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
+            "raise\nexceptions thereafter; reactor contents should be provided in the "
+            "constructor.");
+        return;
+    }
     setSolution(sol);
 }
 
@@ -29,6 +35,19 @@ ReactorBase::~ReactorBase()
     if (m_solution) {
         m_solution->thermo()->removeSpeciesLock();
     }
+}
+
+bool ReactorBase::setDefaultName(map<string, int>& counts)
+{
+    if (m_defaultNameSet) {
+        return false;
+    }
+    m_defaultNameSet = true;
+    if (m_name == "(none)" || m_name == "") {
+        m_name = fmt::format("{}_{}", type(), counts[type()]);
+    }
+    counts[type()]++;
+    return true;
 }
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {

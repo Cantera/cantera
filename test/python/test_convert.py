@@ -5,16 +5,16 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-from . import utilities
-from .utilities import allow_deprecated
-
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
+from .utilities import load_yaml
 
-class ck2yamlTest(utilities.CanteraTest):
+
+class Testck2yaml:
     @pytest.fixture(autouse=True)
-    def inject_fixtures(self, capsys):
+    def inject_fixtures(self, capsys, test_data_path):
         self._capsys = capsys
+        self.test_data_path = test_data_path
 
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, extra=None, **kwargs):
@@ -43,18 +43,18 @@ class ck2yamlTest(utilities.CanteraTest):
         ref = ct.Solution(refFile)
         gas = ct.Solution(testFile)
 
-        self.assertEqual(ref.element_names, gas.element_names)
-        self.assertEqual(ref.species_names, gas.species_names)
+        assert ref.element_names == gas.element_names
+        assert ref.species_names == gas.species_names
         coeffs_ref = ref.reactant_stoich_coeffs
         coeffs_gas = gas.reactant_stoich_coeffs
-        self.assertEqual(coeffs_gas.shape, coeffs_ref.shape)
-        self.assertTrue((coeffs_gas == coeffs_ref).all())
+        assert coeffs_gas.shape == coeffs_ref.shape
+        assert (coeffs_gas == coeffs_ref).all()
 
         compositionA = [[ref.n_atoms(i,j) for j in range(ref.n_elements)]
                         for i in range(ref.n_species)]
         compositionB = [[gas.n_atoms(i,j) for j in range(gas.n_elements)]
                         for i in range(gas.n_species)]
-        self.assertEqual(compositionA, compositionB)
+        assert compositionA == compositionB
 
         return ref, gas
 
@@ -70,9 +70,9 @@ class ck2yamlTest(utilities.CanteraTest):
             gas_s = gas.standard_entropies_R
             for i in range(gas.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                self.assertNear(ref_cp[i], gas_cp[i], 1e-7, msg='cp'+message)
-                self.assertNear(ref_h[i], gas_h[i], 1e-7, msg='h'+message)
-                self.assertNear(ref_s[i], gas_s[i], 1e-7, msg='s'+message)
+                assert ref_cp[i] == approx(gas_cp[i], rel=1e-7), 'cp' + message
+                assert ref_h[i] == approx(gas_h[i], rel=1e-7), 'h' + message
+                assert ref_s[i] == approx(gas_s[i], rel=1e-7), 's' + message
 
     def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
@@ -84,10 +84,10 @@ class ck2yamlTest(utilities.CanteraTest):
             gas_kr = gas.reverse_rate_constants
             for i in range(gas.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf' + message)
-                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
+                assert ref_kf[i] == approx(gas_kf[i], rel=tol), 'kf' + message
+                assert ref_kr[i] == approx(gas_kr[i], rel=tol), 'kr' + message
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         output = self.convert('gri30.inp', thermo='gri30_thermo.dat',
                               transport='gri30_tran.dat', output='gri30_test')
@@ -112,8 +112,8 @@ class ck2yamlTest(utilities.CanteraTest):
                 "[{dummy-thermo-from-ck.yaml/species: [R1A, R1B, P1]}], "
                 "thermo: ideal-gas}]}")
         gas = ct.Solution(yaml=yaml)
-        self.assertEqual(gas.n_species, 3)
-        self.assertEqual(gas.n_reactions, 0)
+        assert gas.n_species == 3
+        assert gas.n_reactions == 0
 
     def test_missing_thermo(self):
         with pytest.raises(ck2yaml.InputError):
@@ -210,33 +210,33 @@ class ck2yamlTest(utilities.CanteraTest):
         output = self.convert('species-names.inp')
         gas = ct.Solution(output)
 
-        self.assertEqual(gas.n_species, 10)
-        self.assertEqual(gas.species_name(0), '(Parens)')
-        self.assertEqual(gas.species_name(1), '@#$%^-2')
-        self.assertEqual(gas.species_index('co:lons:'), 2)
-        self.assertEqual(gas.species_name(3), '[xy2]*{.}')
-        self.assertEqual(gas.species_name(4), 'plus+')
-        self.assertEqual(gas.species_name(5), 'eq=uals')
-        self.assertEqual(gas.species_name(6), 'plus')
-        self.assertEqual(gas.species_name(7), 'trans_butene')
-        self.assertEqual(gas.species_name(8), 'co')
-        self.assertEqual(gas.species_name(9), "amp&ersand")
+        assert gas.n_species == 10
+        assert gas.species_name(0) == '(Parens)'
+        assert gas.species_name(1) == '@#$%^-2'
+        assert gas.species_index('co:lons:') == 2
+        assert gas.species_name(3) == '[xy2]*{.}'
+        assert gas.species_name(4) == 'plus+'
+        assert gas.species_name(5) == 'eq=uals'
+        assert gas.species_name(6) == 'plus'
+        assert gas.species_name(7) == 'trans_butene'
+        assert gas.species_name(8) == 'co'
+        assert gas.species_name(9) == "amp&ersand"
 
-        self.assertEqual(gas.n_reactions, 13)
+        assert gas.n_reactions == 13
         nu = gas.product_stoich_coeffs - gas.reactant_stoich_coeffs
-        self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,2]), [-1, 0, 0, 0, 1, 0, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,3]), [3, 0, 0, 0, -2, -1, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,4]), [2, 0, 0, 0, -1, 0, -1, 0, 0, 0])
-        self.assertEqual(list(nu[:,5]), [1, 0, 0, 0, 1, -1, -1, 0, 0, 0])
-        self.assertEqual(list(nu[:,6]), [2, 0, -1, 0, 0, -1, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,7]), [0, 0, 0, 0, -1, 1, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,8]), [0, 0, 0, 0, -1, 1, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,9]), [0, 0, 0, 0, -1, 1, 0, 0, 0, 0])
-        self.assertEqual(list(nu[:,10]), [0, 0, -1, 0, 2, 0, 0, -1, 0, 0])
-        self.assertEqual(list(nu[:,11]), [0, 0, -1, 0, 2, 0, 0, 0, -1, 0])
-        self.assertEqual(list(nu[:,12]), [0, 0, 0, 0, 1, 0, 0, 0, 0, -1])
+        assert list(nu[:,0]) == [-1, -1, 0, 2, 0, 0, 0, 0, 0, 0]
+        assert list(nu[:,1]) == [-2, 3, 0, -1, 0, 0, 0, 0, 0, 0]
+        assert list(nu[:,2]) == [-1, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+        assert list(nu[:,3]) == [3, 0, 0, 0, -2, -1, 0, 0, 0, 0]
+        assert list(nu[:,4]) == [2, 0, 0, 0, -1, 0, -1, 0, 0, 0]
+        assert list(nu[:,5]) == [1, 0, 0, 0, 1, -1, -1, 0, 0, 0]
+        assert list(nu[:,6]) == [2, 0, -1, 0, 0, -1, 0, 0, 0, 0]
+        assert list(nu[:,7]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,8]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,9]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,10]) == [0, 0, -1, 0, 2, 0, 0, -1, 0, 0]
+        assert list(nu[:,11]) == [0, 0, -1, 0, 2, 0, 0, 0, -1, 0]
+        assert list(nu[:,12]) == [0, 0, 0, 0, 1, 0, 0, 0, 0, -1]
 
     def test_unterminatedSections(self):
         output = self.convert('unterminated-sections.inp', quiet=False)
@@ -244,8 +244,8 @@ class ck2yamlTest(utilities.CanteraTest):
         for section in ["ELEMENTS", "SPECIES", "THERMO", "REACTIONS"]:
             assert f"{section} section implicitly ended" in captured.out
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_species, 3)
-        self.assertEqual(gas.n_reactions, 2)
+        assert gas.n_species == 3
+        assert gas.n_reactions == 2
 
     def test_unterminatedSections2(self):
         output = self.convert('unterminated-sections2.inp', quiet=False)
@@ -254,8 +254,8 @@ class ck2yamlTest(utilities.CanteraTest):
             assert f"{section} section implicitly ended" in captured.out
 
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_species, 3)
-        self.assertEqual(gas.n_reactions, 2)
+        assert gas.n_species == 3
+        assert gas.n_reactions == 2
 
     def test_unrecognized_section(self):
         with pytest.raises(ck2yaml.InputError):
@@ -320,19 +320,19 @@ class ck2yamlTest(utilities.CanteraTest):
         # two irreversible reactions with reactants and products swapped, unless
         # the explicit reverse rate is zero so only the forward reaction is used.
         Rr = gas.reverse_rate_constants
-        self.assertEqual(Rr[0], 0.0)
-        self.assertEqual(Rr[1], 0.0)
-        self.assertEqual(Rr[2], 0.0)
-        self.assertEqual(Rr[3], 0.0)
-        self.assertEqual(Rr[4], 0.0)
+        assert Rr[0] == 0.0
+        assert Rr[1] == 0.0
+        assert Rr[2] == 0.0
+        assert Rr[3] == 0.0
+        assert Rr[4] == 0.0
         Rstoich = gas.reactant_stoich_coeffs
         Pstoich = gas.product_stoich_coeffs
-        self.assertEqual(list(Rstoich[:, 0]), list(Pstoich[:, 1]))
-        self.assertEqual(list(Rstoich[:, 1]), list(Pstoich[:, 0]))
-        self.assertEqual(list(Rstoich[:, 2]), list(Pstoich[:, 3]))
-        self.assertEqual(list(Rstoich[:, 3]), list(Pstoich[:, 2]))
+        assert list(Rstoich[:, 0]) == list(Pstoich[:, 1])
+        assert list(Rstoich[:, 1]) == list(Pstoich[:, 0])
+        assert list(Rstoich[:, 2]) == list(Pstoich[:, 3])
+        assert list(Rstoich[:, 3]) == list(Pstoich[:, 2])
 
-        self.assertEqual(gas.n_reactions, 5)
+        assert gas.n_reactions == 5
 
     def test_explicit_forward_order(self):
         output = self.convert("explicit-forward-order.inp", thermo="dummy-thermo.dat")
@@ -358,10 +358,10 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_negative_A_factor(self):
         output = self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
         gas = ct.Solution(output)  # Validate the mechanism
-        self.assertLess(gas.reaction(4).rate.pre_exponential_factor, 0)
-        self.assertLess(gas.reaction(1).rate.pre_exponential_factor, 0)
-        self.assertLess(gas.reaction(2).rate.pre_exponential_factor, 0)
-        self.assertLess(gas.forward_rate_constants[5], 0)
+        assert gas.reaction(4).rate.pre_exponential_factor < 0
+        assert gas.reaction(1).rate.pre_exponential_factor < 0
+        assert gas.reaction(2).rate.pre_exponential_factor < 0
+        assert gas.forward_rate_constants[5] < 0
 
     def test_bad_troe_value(self):
         with pytest.raises(ck2yaml.InputError):
@@ -384,7 +384,7 @@ class ck2yamlTest(utilities.CanteraTest):
         captured = self._capsys.readouterr()
         assert "Third bodies do not match: 'M' and 'AR'" in captured.out
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_reaction_units(self):
         out_def = self.convert('units-default.inp', thermo='dummy-thermo.dat')
         out_cus = self.convert('units-custom.inp', thermo='dummy-thermo.dat')
@@ -398,10 +398,10 @@ class ck2yamlTest(utilities.CanteraTest):
 
         R = gas.reactant_stoich_coeffs
         P = gas.product_stoich_coeffs
-        self.assertArrayNear(R[:,0], [0, 1.5, 0.5, 0])
-        self.assertArrayNear(P[:,0], [1, 0, 0, 1])
-        self.assertArrayNear(R[:,1], [1, 0, 0, 1])
-        self.assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
+        assert R[:,0] == approx([0, 1.5, 0.5, 0])
+        assert P[:,0] == approx([1, 0, 0, 1])
+        assert R[:,1] == approx([1, 0, 0, 1])
+        assert P[:,1] == approx([0, 0.33, 1.67, 0])
 
     def test_unparsable_reaction(self):
         with pytest.raises(ck2yaml.InputError, match="Unparsable line"):
@@ -458,7 +458,7 @@ class ck2yamlTest(utilities.CanteraTest):
 
         gas = ct.Solution(output)
         gas.TPX = 300, 101325, 'H2:1.0, O2:1.0'
-        self.assertAlmostEqual(gas.thermal_conductivity, 0.07663, 4)
+        assert gas.thermal_conductivity == approx(0.07663, rel=1e-4)
 
     def test_transport_embedded(self):
         output = self.convert('with-transport.inp')
@@ -466,7 +466,7 @@ class ck2yamlTest(utilities.CanteraTest):
         gas.X = [0.2, 0.3, 0.5]
         D = gas.mix_diff_coeffs
         for d in D:
-            self.assertTrue(d > 0.0)
+            assert d > 0.0
 
     def test_transport_missing_species(self):
         with pytest.raises(ck2yaml.InputError):
@@ -548,30 +548,30 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_empty_reaction_section(self):
         output = self.convert('h2o2_emptyReactions.inp')
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_species, 9)
-        self.assertEqual(gas.n_reactions, 0)
+        assert gas.n_species == 9
+        assert gas.n_reactions == 0
 
     def test_reaction_comments1(self):
         output = self.convert('pdep-test.inp')
         text = output.read_text()
-        self.assertIn('Generic mechanism header', text)
-        self.assertIn('Single PLOG reaction', text)
-        self.assertIn('Multiple PLOG expressions at the same pressure', text)
+        assert 'Generic mechanism header' in text
+        assert 'Single PLOG reaction' in text
+        assert 'Multiple PLOG expressions at the same pressure' in text
 
     def test_reaction_comments2(self):
         output = self.convert('explicit-third-bodies.inp', thermo='dummy-thermo.dat')
         text = output.read_text()
-        self.assertIn('An end of line comment', text)
-        self.assertIn('A comment after the last reaction', text)
+        assert 'An end of line comment' in text
+        assert 'A comment after the last reaction' in text
 
     def test_custom_element(self):
         output = self.convert('custom-elements.inp')
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_elements, 4)
-        self.assertNear(gas.atomic_weight(2), 13.003)
-        self.assertEqual(gas.n_atoms('ethane', 'C'), 2)
-        self.assertEqual(gas.n_atoms('CC', 'C'), 1)
-        self.assertEqual(gas.n_atoms('CC', 'Ci'), 1)
+        assert gas.n_elements == 4
+        assert gas.atomic_weight(2) == approx(13.003)
+        assert gas.n_atoms('ethane', 'C') == 2
+        assert gas.n_atoms('CC', 'C') == 1
+        assert gas.n_atoms('CC', 'Ci') == 1
 
     def test_surface_mech(self):
         output = self.convert('surface1-gas.inp', surface='surface1.inp',
@@ -580,31 +580,31 @@ class ck2yamlTest(utilities.CanteraTest):
         surf = ct.Interface(output, 'PT_SURFACE')
         gas = surf.adjacent["gas"]
 
-        self.assertEqual(gas.n_reactions, 11)
-        self.assertEqual(surf.n_reactions, 15)
-        self.assertEqual(surf.species('O2_Pt').size, 3)
+        assert gas.n_reactions == 11
+        assert surf.n_reactions == 15
+        assert surf.species('O2_Pt').size == 3
 
         # Different units for rate constants in each input file
         # 62.1 kJ/gmol = 6.21e7 J/kmol
-        self.assertNear(gas.reaction(0).rate.activation_energy, 6.21e7)
+        assert gas.reaction(0).rate.activation_energy == approx(6.21e7)
         # 67400 J/mol = 6.74e7 J/kmol
-        self.assertNear(surf.reaction(1).rate.activation_energy, 6.74e7)
+        assert surf.reaction(1).rate.activation_energy == approx(6.74e7)
 
         # Sticking coefficients
-        self.assertTrue(surf.reaction(4).duplicate)
-        self.assertNotIsInstance(surf.reaction(1).rate, ct.StickingArrheniusRate)
-        self.assertIsInstance(surf.reaction(2).rate, ct.StickingArrheniusRate)
-        self.assertTrue(surf.reaction(2).rate.motz_wise_correction)
-        self.assertIsInstance(surf.reaction(4).rate, ct.StickingArrheniusRate)
-        self.assertFalse(surf.reaction(4).rate.motz_wise_correction)
-        self.assertTrue(surf.reaction(6).rate.motz_wise_correction)
+        assert surf.reaction(4).duplicate
+        assert not isinstance(surf.reaction(1).rate, ct.StickingArrheniusRate)
+        assert isinstance(surf.reaction(2).rate, ct.StickingArrheniusRate)
+        assert surf.reaction(2).rate.motz_wise_correction
+        assert isinstance(surf.reaction(4).rate, ct.StickingArrheniusRate)
+        assert not surf.reaction(4).rate.motz_wise_correction
+        assert surf.reaction(6).rate.motz_wise_correction
 
         # Coverage dependencies
         covdeps = surf.reaction(1).rate.coverage_dependencies
-        self.assertEqual(len(covdeps), 2)
-        self.assertIn("H_Pt", covdeps)
-        self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
-        self.assertNear(covdeps["H_Pt"]["E"], -6e6) # 6000 J/gmol = 6e6 J/kmol
+        assert len(covdeps) == 2
+        assert "H_Pt" in covdeps
+        assert covdeps["OH_Pt"]["m"] == 1.0
+        assert covdeps["H_Pt"]["E"] == approx(-6e6) # 6000 J/gmol = 6e6 J/kmol
 
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
@@ -613,13 +613,13 @@ class ck2yamlTest(utilities.CanteraTest):
         gas = ct.Solution(output, 'gas')
         surf = ct.Interface(output, 'PT_SURFACE', [gas])
 
-        self.assertEqual(gas.n_reactions, 0)
-        self.assertEqual(surf.n_reactions, 15)
+        assert gas.n_reactions == 0
+        assert surf.n_reactions == 15
 
         covdeps = surf.reaction(1).rate.coverage_dependencies
-        self.assertIn("H_Pt", covdeps)
-        self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
-        self.assertNear(covdeps["H_Pt"]["E"], -6e6)
+        assert "H_Pt" in covdeps
+        assert covdeps["OH_Pt"]["m"] == 1.0
+        assert covdeps["H_Pt"]["E"] == approx(-6e6)
 
     def test_surf_bad_files(self):
         with pytest.raises(ck2yaml.InputError):
@@ -663,12 +663,12 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_reactions, 2)
+        assert gas.n_reactions == 2
 
     def test_blank_line_in_header(self):
         output = self.convert("blank_line_in_header.inp")
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_reactions, 1)
+        assert gas.n_reactions == 1
 
     def test_missing_input_files(self):
         with pytest.raises(IOError, match="Missing input file"):
@@ -682,12 +682,12 @@ class ck2yamlTest(utilities.CanteraTest):
 
     def test_extra(self):
         output = self.convert("h2o2.inp", output="h2o2_extra", extra="extra.yaml")
-        yml = utilities.load_yaml(output)
+        yml = load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
-        self.assertEqual(desc, 'This is an alternative description.')
+        assert desc == 'This is an alternative description.'
         for key in ['foo', 'bar']:
-            self.assertIn(key, yml.keys())
+            assert key in yml.keys()
 
     def test_extra_reserved(self):
         with pytest.raises(ck2yaml.InputError,
@@ -706,11 +706,11 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0
         output = self.convert('sri_convert_test.txt')
-        mech = utilities.load_yaml(output)
+        mech = load_yaml(output)
         D = mech['reactions'][0]['SRI']['D']
         E = mech['reactions'][0]['SRI']['E']
-        self.assertEqual(D, 0)
-        self.assertEqual(E, 0)
+        assert D == 0
+        assert E == 0
 
     def test_duplicate_reactions(self):
         # Running a test this way instead of using the convertMech function
@@ -743,7 +743,7 @@ class ck2yamlTest(utilities.CanteraTest):
         output = self.convert(None, thermo="thermo_single_Tint.dat",
                               output="thermo_single_Tint",
                               single_intermediate_temperature=True)
-        mech = utilities.load_yaml(output)
+        mech = load_yaml(output)
 
         # Al(cr)
         thermo = mech["species"][0]["thermo"]
@@ -777,9 +777,13 @@ class ck2yamlTest(utilities.CanteraTest):
         assert "no more than 3 digits." in captured.out
 
 
-class yaml2ckTest(utilities.CanteraTest):
+class Testyaml2ck:
     """Test yaml2ck by converting to CK then back to YAML to read with Cantera."""
     ext: str = "-from-yaml2ck.yaml"
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
 
     def _convert_to_ck(
         self,
@@ -853,23 +857,22 @@ class yaml2ckTest(utilities.CanteraTest):
         ck_phase = cls(ckname, **kwargs)
         yaml_phase = cls(basename, phase_name, **kwargs)
 
-        self.assertEqual(set(ck_phase.element_names), set(yaml_phase.element_names))
-        self.assertEqual(set(ck_phase.species_names), set(yaml_phase.species_names))
+        assert set(ck_phase.element_names) == set(yaml_phase.element_names)
+        assert set(ck_phase.species_names) == set(yaml_phase.species_names)
 
         yamlSpecies = [yaml_phase.species(s) for s in ck_phase.species_names]
         for C, Y in zip(ck_phase.species(), yamlSpecies):
-            self.assertEqual(C.composition, Y.composition)
+            assert C.composition == Y.composition
 
-        self.assertEqual(ck_phase.n_reactions, yaml_phase.n_reactions)
+        assert ck_phase.n_reactions == yaml_phase.n_reactions
         for C, Y in zip(ck_phase.reactions(), yaml_phase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
-            self.assertEqual(C.reactants, Y.reactants)
-            self.assertEqual(C.products, Y.products)
-            self.assertEqual(C.duplicate, Y.duplicate)
+            assert C.__class__ == Y.__class__
+            assert C.reactants == Y.reactants
+            assert C.products == Y.products
+            assert C.duplicate == Y.duplicate
 
         for i, sp in zip(range(ck_phase.n_reactions), ck_phase.kinetics_species_names):
-            self.assertEqual(ck_phase.reactant_stoich_coeff(sp, i),
-                             yaml_phase.reactant_stoich_coeff(sp, i))
+            assert ck_phase.reactant_stoich_coeff(sp, i) == yaml_phase.reactant_stoich_coeff(sp, i)
 
         return ck_phase, yaml_phase
 
@@ -885,12 +888,12 @@ class yaml2ckTest(utilities.CanteraTest):
             h_yaml = yaml_phase.partial_molar_enthalpies
             s_ck = ck_phase.partial_molar_entropies
             s_yaml = yaml_phase.partial_molar_entropies
-            self.assertNear(ck_phase.density, yaml_phase.density)
+            assert ck_phase.density == approx(yaml_phase.density)
             for i in range(ck_phase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                self.assertNear(cp_ck[i], cp_yaml[yaml_idx[i]], tol, msg='cp'+message)
-                self.assertNear(h_ck[i], h_yaml[yaml_idx[i]], tol, msg='h'+message)
-                self.assertNear(s_ck[i], s_yaml[yaml_idx[i]], tol, msg='s'+message)
+                assert cp_ck[i] == approx(cp_yaml[yaml_idx[i]], rel=tol), 'cp' + message
+                assert h_ck[i] == approx(h_yaml[yaml_idx[i]], rel=tol), 'h' + message
+                assert s_ck[i] == approx(s_yaml[yaml_idx[i]], rel=tol), 's' + message
 
     def check_kinetics(self, ck_phase, yaml_phase, temperatures, pressures, tol=1e-7):
         for T, P in itertools.product(temperatures, pressures):
@@ -902,8 +905,8 @@ class yaml2ckTest(utilities.CanteraTest):
             kr_yaml = yaml_phase.reverse_rate_constants
             for i in range(yaml_phase.n_reactions):
                 message = f"for reaction {i+1}: {yaml_phase.reaction(i)} at T = {T}, P = {P}"
-                self.assertNear(kf_ck[i], kf_yaml[i], rtol=tol, msg="kf " + message)
-                self.assertNear(kr_ck[i], kr_yaml[i], rtol=tol, msg="kr " + message)
+                assert kf_ck[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_ck[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def check_transport(self, ck_phase, yaml_phase, temperatures, model="mixture-averaged"):
         yaml_idx = {ck_phase.species_index(s): yaml_phase.species_index(s) for s in ck_phase.species_names}
@@ -912,18 +915,17 @@ class yaml2ckTest(utilities.CanteraTest):
         for T in temperatures:
             ck_phase.TP = T, ct.one_atm
             yaml_phase.TP = T, ct.one_atm
-            self.assertNear(ck_phase.viscosity, yaml_phase.viscosity)
-            self.assertNear(ck_phase.thermal_conductivity,
-                            yaml_phase.thermal_conductivity)
+            assert ck_phase.viscosity == approx(yaml_phase.viscosity)
+            assert ck_phase.thermal_conductivity == approx(yaml_phase.thermal_conductivity)
             Dkm_ck = ck_phase.mix_diff_coeffs
             Dkm_yaml = yaml_phase.mix_diff_coeffs
             for i in range(ck_phase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                self.assertNear(Dkm_ck[i], Dkm_yaml[yaml_idx[i]], msg=message)
+                assert Dkm_ck[i] == approx(Dkm_yaml[yaml_idx[i]]), message
 
-    @utilities.slow_test
-    def test_gri30(self):
-        input_file = self.cantera_data_path / "gri30.yaml"
+    @pytest.mark.slow_test
+    def test_gri30(self, cantera_data_path):
+        input_file = cantera_data_path / "gri30.yaml"
         self.convert(input_file)
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ck_phase, yaml_phase = self.check_conversion(input_file)
@@ -940,8 +942,8 @@ class yaml2ckTest(utilities.CanteraTest):
         self.check_thermo(ck_phase, yaml_phase, [300, 500])
         self.check_kinetics(ck_phase, yaml_phase, [300, 1001, 2500], [1e5, 10e5])
 
-    def test_phase_id(self):
-        input_file = self.cantera_data_path / "nDodecane_Reitz.yaml"
+    def test_phase_id(self, cantera_data_path):
+        input_file = cantera_data_path / "nDodecane_Reitz.yaml"
         self.convert(input_file, "nDodecane_IG")
         ck_phase, yaml_phase = self.check_conversion(input_file, name="nDodecane_IG")
         ck_phase.X = "h2:1"
@@ -1081,7 +1083,12 @@ class yaml2ckTest(utilities.CanteraTest):
         assert ck_phase.species("H2").input_data["thermo"]["note"] == "Line 1\nLine 2"
 
 
-class cti2yamlTest(utilities.CanteraTest):
+class Testcti2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, basename, src_dir=None, encoding=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1097,21 +1104,20 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiPhase = cls(f"{basename}-from-cti.yaml", adjacent=ctiphases, **kwargs)
         yamlPhase = cls(f"{basename}.yaml", adjacent=yamlphases, **kwargs)
 
-        self.assertEqual(ctiPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctiPhase.species_names, yamlPhase.species_names)
-        self.assertEqual(ctiPhase.n_reactions, yamlPhase.n_reactions)
+        assert ctiPhase.element_names == yamlPhase.element_names
+        assert ctiPhase.species_names == yamlPhase.species_names
+        assert ctiPhase.n_reactions == yamlPhase.n_reactions
         for C, Y in zip(ctiPhase.species(), yamlPhase.species()):
-            self.assertEqual(C.composition, Y.composition)
+            assert C.composition == Y.composition
 
         for C, Y in zip(ctiPhase.reactions(), yamlPhase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
-            self.assertEqual(C.reactants, Y.reactants)
-            self.assertEqual(C.products, Y.products)
-            self.assertEqual(C.duplicate, Y.duplicate)
+            assert C.__class__ == Y.__class__
+            assert C.reactants == Y.reactants
+            assert C.products == Y.products
+            assert C.duplicate == Y.duplicate
 
         for i, sp in zip(range(ctiPhase.n_reactions), ctiPhase.kinetics_species_names):
-            self.assertEqual(ctiPhase.reactant_stoich_coeff(sp, i),
-                             yamlPhase.reactant_stoich_coeff(sp, i))
+            assert ctiPhase.reactant_stoich_coeff(sp, i) == yamlPhase.reactant_stoich_coeff(sp, i)
 
         return ctiPhase, yamlPhase
 
@@ -1129,13 +1135,13 @@ class cti2yamlTest(utilities.CanteraTest):
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_cti = ctiPhase.partial_molar_entropies
             s_yaml = yamlPhase.partial_molar_entropies
-            self.assertNear(ctiPhase.density, yamlPhase.density)
+            assert ctiPhase.density == approx(yamlPhase.density)
             for i in range(ctiPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
                 if check_cp:
-                    self.assertNear(cp_cti[i], cp_yaml[i], tol, msg='cp'+message)
-                self.assertNear(h_cti[i], h_yaml[i], tol, msg='h'+message)
-                self.assertNear(s_cti[i], s_yaml[i], tol, msg='s'+message)
+                    cp_cti[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert h_cti[i] == approx(h_yaml[i], rel=tol), 'h' + message
+                assert s_cti[i] == approx(s_yaml[i], rel=tol), 's' + message
 
     def checkKinetics(self, ctiPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1147,8 +1153,8 @@ class cti2yamlTest(utilities.CanteraTest):
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                self.assertNear(kf_cti[i], kf_yaml[i], rtol=tol, msg='kf '+message)
-                self.assertNear(kr_cti[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+                assert kf_cti[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_cti[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def checkTransport(self, ctiPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1157,16 +1163,15 @@ class cti2yamlTest(utilities.CanteraTest):
         for T in temperatures:
             ctiPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            self.assertNear(ctiPhase.viscosity, yamlPhase.viscosity)
-            self.assertNear(ctiPhase.thermal_conductivity,
-                            yamlPhase.thermal_conductivity)
+            assert ctiPhase.viscosity == approx(yamlPhase.viscosity)
+            assert ctiPhase.thermal_conductivity == approx(yamlPhase.thermal_conductivity)
             Dkm_cti = ctiPhase.mix_diff_coeffs
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctiPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                self.assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
+                assert Dkm_cti[i] == approx(Dkm_yaml[i]), message
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         self.convert("gri30")
         ctiPhase, yamlPhase = self.checkConversion('gri30')
@@ -1195,7 +1200,7 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_ptcombust_motzwise(self):
         self.convert("ptcombust-motzwise")
         ctiSurf, yamlSurf = self.checkConversion("ptcombust-motzwise", ct.Interface,
@@ -1213,8 +1218,8 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiMetal, ctiMSurf, ctiOSurf = cti_tpb.adjacent.values()
         yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
 
-        self.assertIn("oxide_bulk", ctiOSurf.adjacent)
-        self.assertIn("gas", ctiOSurf.adjacent)
+        assert "oxide_bulk" in ctiOSurf.adjacent
+        assert "gas" in ctiOSurf.adjacent
 
         self.checkThermo(ctiMSurf, yamlMSurf, [900, 1000, 1100])
         self.checkThermo(ctiOSurf, yamlOSurf, [900, 1000, 1100])
@@ -1223,7 +1228,7 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiMetal.electric_potential = yamlMetal.electric_potential = 4
         self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_liquidvapor(self):
         self.convert("liquidvapor")
         for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
@@ -1305,7 +1310,12 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctiGas, yamlGas, [300, 1001, 2500], [1e5, 10e5])
 
 
-class ctml2yamlTest(utilities.CanteraTest):
+class Testctml2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, basename, src_dir=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1320,21 +1330,21 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlPhase = cls(f"{basename}-from-xml.yaml", adjacent=ctmlphases, **kwargs)
         yamlPhase = cls(f"{basename}.yaml", adjacent=yamlphases, **kwargs)
 
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
-        self.assertEqual(ctmlPhase.n_reactions, yamlPhase.n_reactions)
+        assert ctmlPhase.element_names == yamlPhase.element_names
+        assert ctmlPhase.species_names == yamlPhase.species_names
+        assert ctmlPhase.n_reactions == yamlPhase.n_reactions
         for C, Y in zip(ctmlPhase.species(), yamlPhase.species()):
-            self.assertEqual(C.composition, Y.composition)
+            assert C.composition == Y.composition
 
         for C, Y in zip(ctmlPhase.reactions(), yamlPhase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
-            self.assertEqual(C.reactants, Y.reactants)
-            self.assertEqual(C.products, Y.products)
-            self.assertEqual(C.duplicate, Y.duplicate)
+            assert C.__class__ == Y.__class__
+            assert C.reactants == Y.reactants
+            assert C.products == Y.products
+            assert C.duplicate == Y.duplicate
 
         for i, sp in zip(range(ctmlPhase.n_reactions), ctmlPhase.kinetics_species_names):
-            self.assertEqual(ctmlPhase.reactant_stoich_coeff(sp, i),
-                             yamlPhase.reactant_stoich_coeff(sp, i))
+            assert (ctmlPhase.reactant_stoich_coeff(sp, i)
+                    == yamlPhase.reactant_stoich_coeff(sp, i))
 
         return ctmlPhase, yamlPhase
 
@@ -1353,13 +1363,13 @@ class ctml2yamlTest(utilities.CanteraTest):
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_ctml = ctmlPhase.partial_molar_entropies
             s_yaml = yamlPhase.partial_molar_entropies
-            self.assertNear(ctmlPhase.density, yamlPhase.density)
+            assert ctmlPhase.density == approx(yamlPhase.density)
             for i in range(ctmlPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
                 if check_cp:
-                    self.assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
-                self.assertNear(h_ctml[i], h_yaml[i], tol, msg='h'+message)
-                self.assertNear(s_ctml[i], s_yaml[i], tol, msg='s'+message)
+                    assert cp_ctml[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert h_ctml[i] == approx(h_yaml[i], rel=tol), 'h' + message
+                assert s_ctml[i] == approx(s_yaml[i], rel=tol), 's' + message
 
     def checkKinetics(self, ctmlPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1371,8 +1381,8 @@ class ctml2yamlTest(utilities.CanteraTest):
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                self.assertNear(kf_ctml[i], kf_yaml[i], rtol=tol, msg='kf '+message)
-                self.assertNear(kr_ctml[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+                assert kf_ctml[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_ctml[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def checkTransport(self, ctmlPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1381,16 +1391,15 @@ class ctml2yamlTest(utilities.CanteraTest):
         for T in temperatures:
             ctmlPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            self.assertNear(ctmlPhase.viscosity, yamlPhase.viscosity)
-            self.assertNear(ctmlPhase.thermal_conductivity,
-                            yamlPhase.thermal_conductivity)
+            assert ctmlPhase.viscosity == approx(yamlPhase.viscosity)
+            assert ctmlPhase.thermal_conductivity ==  approx(yamlPhase.thermal_conductivity)
             Dkm_ctml = ctmlPhase.mix_diff_coeffs
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctmlPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                self.assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
+                assert Dkm_ctml[i] == approx(Dkm_yaml[i]), message
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         self.convert("gri30")
         ctmlPhase, yamlPhase = self.checkConversion('gri30')
@@ -1435,8 +1444,8 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlMetal, ctmlMSurf, ctmlOSurf = ctml_tpb.adjacent.values()
         yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
 
-        self.assertIn("oxide_bulk", ctmlOSurf.adjacent)
-        self.assertIn("gas", ctmlOSurf.adjacent)
+        assert "oxide_bulk" in ctmlOSurf.adjacent
+        assert "gas" in  ctmlOSurf.adjacent
 
         self.checkThermo(ctmlMSurf, yamlMSurf, [900, 1000, 1100])
         self.checkThermo(ctmlOSurf, yamlOSurf, [900, 1000, 1100])
@@ -1559,15 +1568,14 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.convert("liquid-water")
         ctmlWater, yamlWater = self.checkConversion("liquid-water")
         self.checkThermo(ctmlWater, yamlWater, [300, 500, 1300, 2000], pressure=22064000.0)
-        self.assertEqual(ctmlWater.transport_model, yamlWater.transport_model)
+        assert ctmlWater.transport_model == yamlWater.transport_model
         ctmlWater.TP = yamlWater.TP = 300, 22064000.0
         dens = ctmlWater.density
         for T in [298, 1001, 2400]:
             ctmlWater.TD = T, dens
             yamlWater.TD = T, dens
-            self.assertNear(ctmlWater.viscosity, yamlWater.viscosity)
-            self.assertNear(ctmlWater.thermal_conductivity,
-                            yamlWater.thermal_conductivity)
+            assert ctmlWater.viscosity == approx(yamlWater.viscosity)
+            assert ctmlWater.thermal_conductivity == approx(yamlWater.thermal_conductivity)
 
     def test_hmw_nacl_phase(self):
         basename = "HMW_NaCl_sp1977_alt"
@@ -1625,7 +1633,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_idealsolidsoln(self):
-        with self.assertWarnsRegex(UserWarning, "SolidKinetics type is not implemented"):
+        with pytest.warns(UserWarning, match="SolidKinetics type is not implemented"):
             self.convert("IdealSolidSolnPhaseExample")
 
         # SolidKinetics is not implemented, so can't create a Kinetics class instance.
@@ -1633,8 +1641,8 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlPhase = ct.ThermoPhase(basename + "-from-xml.yaml")
         yamlPhase = ct.ThermoPhase(basename + ".yaml")
 
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        assert ctmlPhase.element_names == yamlPhase.element_names
+        assert ctmlPhase.species_names == yamlPhase.species_names
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_idealmolalsoln(self):
@@ -1660,12 +1668,17 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_duplicate_section_ids(self):
-        with self.assertWarnsRegex(UserWarning, "Duplicate 'speciesData' id"):
+        with pytest.warns(UserWarning, match="Duplicate 'speciesData' id"):
             self.convert("duplicate-speciesData-ids")
-        with self.assertWarnsRegex(UserWarning, "Duplicate 'reactionData' id"):
+        with pytest.warns(UserWarning, match="Duplicate 'reactionData' id"):
             self.convert("duplicate-reactionData-ids")
 
-class lxcat2yamlTest(utilities.CanteraTest):
+class Testlxcat2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, inputFile=None, database=None, mechFile=None, phase=None,
                 insert=True, output=None):
         if inputFile is not None:
