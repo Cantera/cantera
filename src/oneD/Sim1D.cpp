@@ -425,9 +425,9 @@ void Sim1D::solve(int loglevel, const string& refine_grid)
     for (size_t n = 0; n < nDomains(); n++)
     {
       Domain1D& d = domain(n);
-      size_t length = d.grid().size();
+      size_t length = d.z().size();
 
-      domain_size += d.grid(length-1);
+      domain_size += d.z(length-1);
     }
     domain_size = domain_size/2.0;
 
@@ -609,10 +609,10 @@ int Sim1D::refine(int loglevel)
         Refiner& r = d.refiner();
 
         // Save the old grid corresponding to the converged solution
-        m_grid_last_ss.push_back(d.grid());
+        m_grid_last_ss.push_back(d.z());
 
         // determine where new points are needed
-        r.analyze(d.grid().size(), d.grid().data(), m_state->data() + start(n));
+        r.analyze(d.z().size(), d.z().data(), m_state->data() + start(n));
 
         if (loglevel > 0) {
             r.show();
@@ -698,8 +698,8 @@ double Sim1D::remesh(int loglevel, double dist_min, double domain_size) //from M
     //   double this_distance = r.remeshFromSolution( d.grid().size(),
     //                                                    d.grid().data(), &m_state[start(n)],
     //                                                    dist_min, domain_size );
-      double this_distance = r.remeshFromSolution( d.grid().size(),
-                                                       d.grid().data(), m_state->data() + start(n),
+      double this_distance = r.remeshFromSolution( d.z().size(),
+                                                       d.z().data(), m_state->data() + start(n),
                                                        dist_min, domain_size );
       distance += this_distance;
 
@@ -716,9 +716,9 @@ double Sim1D::remesh(int loglevel, double dist_min, double domain_size) //from M
           // interpolation
           if (np_new>1)
           {
-            int m_old = r.indxtp(np_old,znew_curr,d.grid().data());
-            double z0_old = d.grid(m_old  );
-            double z1_old = d.grid(m_old+1);
+            int m_old = r.indxtp(np_old,znew_curr,d.z().data());
+            double z0_old = d.z(m_old  );
+            double z1_old = d.z(m_old+1);
             for (size_t i = 0; i < d.nComponents(); i++)
             {
               double x0_old = value(n,i,m_old  );
@@ -767,7 +767,7 @@ void Sim1D::getRatio() //from MUTAGEN
       Domain1D& d = domain(n);
       Refiner& r = d.refiner();
     //   r.getRatio(d.grid().size(), d.grid().data(), &m_state[start(n)]);
-      r.getRatio(d.grid().size(), d.grid().data(), m_state->data() + start(n));
+      r.getRatio(d.z().size(), d.z().data(), m_state->data() + start(n));
     }
 }
 
@@ -806,7 +806,7 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
 
         if (np_old>0)
         {
-          if (zpoint<d.grid(0))
+          if (zpoint<d.z(0))
           {
             np_new++;
             // add new position to the znew array
@@ -822,7 +822,7 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
           for (size_t m = 0; m < np_old; m++)
           {
             // check that zpoint is not in the current grid
-            if (zpoint==d.grid(m))
+            if (zpoint==d.z(m))
             {
               // add new position to the znew array
               znew.push_back(zpoint);
@@ -835,7 +835,7 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
             else
             {
               // add current position to the znew array
-              znew.push_back(d.grid(m));
+              znew.push_back(d.z(m));
               // add current data to the xnew array
               for (size_t i = 0; i < ncomp; i++)
               {
@@ -845,8 +845,8 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
               if (m!=np_old-1)
               {
                 // current and next position
-                double z_curr = d.grid(m  );
-                double z_next = d.grid(m+1);
+                double z_curr = d.z(m  );
+                double z_next = d.z(m+1);
                 // if the new point is in the current interval
                 if ((z_curr<zpoint)&&(zpoint<z_next))
                 {
@@ -863,7 +863,7 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
             }
           }
 
-          if (d.grid(np_old-1)<zpoint)
+          if (d.z(np_old-1)<zpoint)
           {
             // add new position to the znew array
             np_new++;
@@ -893,7 +893,7 @@ void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int l
         for (size_t m = 0; m < np_old; m++)
         {
           // add current position to the znew array
-          znew.push_back(d.grid(m));
+          znew.push_back(d.z(m));
           // add current data to the xnew array
           for (size_t i = 0; i < ncomp; i++)
           {

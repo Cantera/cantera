@@ -517,12 +517,12 @@ public:
     void setProfile(const string& name, double* values, double* soln);
 
     //! Access the array of grid coordinates [m]
-    vector<double>& grid() {
+    vector<double>& z() {
         return m_z;
     }
 
     //! Access the array of grid coordinates [m]
-    const vector<double>& grid() const {
+    const vector<double>& z() const {
         return m_z;
     }
 
