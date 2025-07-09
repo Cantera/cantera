@@ -20,7 +20,7 @@ up an isolated reactor in Python.
 import cantera as ct
 gas = ct.Solution("gri30.yaml")
 gas.TPX = 1000.0, ct.one_atm, "H2:2,O2:1,N2:4"
-reac = ct.IdealGasReactor(gas)
+reac = ct.IdealGasReactor(gas, clone=False)
 sim = ct.ReactorNet([reac])
 ```
 

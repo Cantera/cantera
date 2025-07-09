@@ -43,9 +43,9 @@ gas1.TPX = 900.0, ct.one_atm, 'H2:2, O2:1, AR:20'
 gas2 = ct.Solution('gri30.yaml')
 gas2.TPX = 900.0, ct.one_atm, 'CO:2, H2O:0.01, O2:5'
 
-r1 = ct.IdealGasReactor(gas1)
+r1 = ct.IdealGasReactor(gas1, clone=True)
 r1.volume = 0.5
-r2 = ct.IdealGasReactor(gas2)
+r2 = ct.IdealGasReactor(gas2, clone=True)
 r2.volume = 0.1
 
 # %%

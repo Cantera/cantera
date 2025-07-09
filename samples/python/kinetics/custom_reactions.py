@@ -121,7 +121,7 @@ def ignition(gas, dT=0):
     # set up reactor
     gas.TP = 1000 + dT, 5 * ct.one_atm
     gas.set_equivalence_ratio(0.8, fuel, 'O2:1.0, N2:3.773')
-    r = ct.IdealGasReactor(gas)
+    r = ct.IdealGasReactor(gas, clone=False)
     net = ct.ReactorNet([r])
     net.rtol_sensitivity = 2.e-5
 

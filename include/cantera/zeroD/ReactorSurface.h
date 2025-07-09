@@ -22,13 +22,19 @@ public:
     //! Create a new ReactorSurface
     //! @param soln  Thermodynamic and kinetic model representing species and reactions
     //!     on the surface
+    //! @param clone  Determines whether to clone `soln` so that the internal state of
+    //!     this reactor surface is independent of the original Solution (Interface)
+    //!     object and any Solution objects used by other reactors in the network.
     //! @param reactors  One or more reactors whose phases participate in reactions
     //!     occurring on the surface. For the purpose of rate evaluation, the
     //!     temperature of the surface is set equal to the temperature of the first
     //!     reactor specified.
     //! @param name  Name used to identify the surface
+    //! @since  Constructor signature including `reactors` and `clone` arguments
+    //!     introduced in %Cantera 3.2.
     ReactorSurface(shared_ptr<Solution> soln,
                    const vector<shared_ptr<ReactorBase>>& reactors,
+                   bool clone,
                    const string& name="(none)");
 
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");

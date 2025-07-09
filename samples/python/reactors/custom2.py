@@ -76,8 +76,8 @@ P = ct.one_atm
 gas.TPY = 920, P, 'H2:1.0, O2:1.0, N2:3.76'
 
 # Set up the reactor network
-res = ct.Reservoir(gas)
-r = InertialWallReactor(gas, neighbor=res)
+res = ct.Reservoir(gas, clone=True)
+r = InertialWallReactor(gas, clone=True, neighbor=res)
 w = ct.Wall(r, res)
 net = ct.ReactorNet([r])
 

@@ -59,8 +59,8 @@ template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
-    ReactorDelegator(shared_ptr<Solution> contents, const string& name="(none)")
-        : R(contents, name)
+    ReactorDelegator(shared_ptr<Solution> contents, bool clone, const string& name="(none)")
+        : R(contents, clone, name)
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("syncState", m_syncState, [this]() { R::syncState(); });

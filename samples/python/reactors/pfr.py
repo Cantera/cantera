@@ -50,7 +50,7 @@ gas1.TPX = T_0, pressure, composition_0
 mass_flow_rate1 = u_0 * gas1.density * area
 
 # create a new reactor
-r1 = ct.IdealGasConstPressureReactor(gas1)
+r1 = ct.IdealGasConstPressureReactor(gas1, clone=True)
 # create a reactor network for performing time integration
 sim1 = ct.ReactorNet([r1])
 
@@ -94,16 +94,16 @@ dz = length / n_steps
 r_vol = area * dz
 
 # create a new reactor
-r2 = ct.IdealGasReactor(gas2)
+r2 = ct.IdealGasReactor(gas2, clone=True)
 r2.volume = r_vol
 
 # create a reservoir to represent the reactor immediately upstream. Note
 # that the gas object is set already to the state of the upstream reactor
-upstream = ct.Reservoir(gas2, name='upstream')
+upstream = ct.Reservoir(gas2, name='upstream', clone=True)
 
 # create a reservoir for the reactor to exhaust into. The composition of
 # this reservoir is irrelevant.
-downstream = ct.Reservoir(gas2, name='downstream')
+downstream = ct.Reservoir(gas2, name='downstream', clone=True)
 
 # The mass flow rate into the reactor will be fixed by using a
 # MassFlowController object.

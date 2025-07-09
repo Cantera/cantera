@@ -20,6 +20,9 @@ ReactorBase::ReactorBase(const string& name) : m_name(name)
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {
+    warn_deprecated("ReactorBase::ReactorBase", "`clone` argument not specified; "
+        "Default behavior will change from `clone=False` to `clone=True` after "
+        "Cantera 3.2.");
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::ReactorBase",
                            "Missing or incomplete Solution object.");
@@ -37,6 +40,32 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
         // some ThermoPhase objects do not implement intEnergy_mass()
     }
 }
+
+ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& name)
+    : ReactorBase(name)
+{
+    if (!sol || !(sol->thermo())) {
+        throw CanteraError("ReactorBase::ReactorBase",
+                           "Missing or incomplete Solution object.");
+    }
+    if (clone) {
+        m_solution = sol->clone({}, true, false);
+    } else {
+        m_solution = sol;
+    }
+    m_solution->thermo()->addSpeciesLock();
+    m_thermo = m_solution->thermo().get();
+    m_nsp = m_thermo->nSpecies();
+    m_thermo->saveState(m_state);
+    m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
+    m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        // some ThermoPhase objects do not implement intEnergy_mass()
+    }
+}
+
 
 ReactorBase::~ReactorBase()
 {

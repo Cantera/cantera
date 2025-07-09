@@ -43,7 +43,7 @@ gas.TPX = 300., 101325., 'CH4:0.095, O2:0.19, N2:0.715, e:1E-11'
 gas.reduced_electric_field = gaussian_EN(0)
 gas.update_electron_energy_distribution()
 
-r = ct.ConstPressureReactor(gas, energy="off")
+r = ct.ConstPressureReactor(gas, energy="off", clone=False)
 
 sim = ct.ReactorNet([r])
 sim.verbose = False

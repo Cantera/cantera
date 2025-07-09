@@ -16,7 +16,7 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    auto reactor = newReactor4("IdealGasReactor", sol, "simple");
+    auto reactor = newReactor4("IdealGasReactor", sol, true, "simple");
     ASSERT_EQ(reactor->name(), "simple");
     reactor->initialize();
     ReactorNet network(reactor);
@@ -55,7 +55,7 @@ TEST(zerodim, test_guards)
 TEST(zerodim, reservoir)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
-    auto res = newReservoir(gas, "my-reservoir");
+    auto res = newReservoir(gas, true, "my-reservoir");
     ASSERT_EQ(res->type(), "Reservoir");
     ASSERT_EQ(res->name(), "my-reservoir");
 }
@@ -64,8 +64,8 @@ TEST(zerodim, flowdevice)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactor4("IdealGasReactor", gas, "upstream");
-    auto node1 = newReactor4("IdealGasReactor", gas, "downstream");
+    auto node0 = newReactor4("IdealGasReactor", gas, true, "upstream");
+    auto node1 = newReactor4("IdealGasReactor", gas, true, "downstream");
 
     auto valve = newFlowDevice("Valve", node0, node1, "valve");
     ASSERT_EQ(valve->name(), "valve");
@@ -82,8 +82,8 @@ TEST(zerodim, wall)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactor4("IdealGasReactor", gas, "left");
-    auto node1 = newReactor4("IdealGasReactor", gas, "right");
+    auto node0 = newReactor4("IdealGasReactor", gas, true, "left");
+    auto node1 = newReactor4("IdealGasReactor", gas, true, "right");
 
     auto wall = newWall("Wall", node0, node1, "wall");
     ASSERT_EQ(wall->name(), "wall");
@@ -99,10 +99,10 @@ TEST(zerodim, mole_reactor)
     // simplified version of continuous_reactor.py
     auto gas = newSolution("h2o2.yaml", "ohmech", "none");
 
-    auto tank = make_shared<Reservoir>(gas, "fuel-air-tank");
-    auto exhaust = make_shared<Reservoir>(gas, "exhaust");
+    auto tank = make_shared<Reservoir>(gas, true, "fuel-air-tank");
+    auto exhaust = make_shared<Reservoir>(gas, true, "exhaust");
 
-    auto stirred = make_shared<IdealGasMoleReactor>(gas, "stirred-reactor");
+    auto stirred = make_shared<IdealGasMoleReactor>(gas, true, "stirred-reactor");
     stirred->setEnergy(0);
     stirred->setInitialVolume(30.5 * 1e-6);
 
@@ -124,11 +124,11 @@ TEST(zerodim, mole_reactor_2)
     // simplified version of continuous_reactor.py
     auto gas = newSolution("h2o2.yaml", "ohmech", "none");
 
-    auto tank = newReservoir(gas, "fuel-air-tank");
-    auto exhaust = newReservoir(gas, "exhaust");
+    auto tank = newReservoir(gas, true, "fuel-air-tank");
+    auto exhaust = newReservoir(gas, true, "exhaust");
 
     auto stirred = newReactor4(
-        "IdealGasMoleReactor", gas, "stirred-reactor");
+        "IdealGasMoleReactor", gas, true, "stirred-reactor");
     stirred->setEnergy(0);
     stirred->setInitialVolume(30.5 * 1e-6);
 
@@ -162,7 +162,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
-    auto reactor1 = newReactor4("Reactor", sol1);
+    auto reactor1 = newReactor4("Reactor", sol1, true);
     // initialize reactor prior to integration to ensure no impact
     reactor1->initialize();
     // setup reactor network and integrate
@@ -174,7 +174,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
-    auto reactor2 = newReactor4("Reactor", sol2);
+    auto reactor2 = newReactor4("Reactor", sol2, true);
     reactor2->initialize(0.0);
     // get state of reactors
     vector<double> state1(reactor1->neq());
@@ -194,7 +194,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     double tol = 1e-8;
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasConstPressureMoleReactor reactor(sol);
+    IdealGasConstPressureMoleReactor reactor(sol, true);
     reactor.setInitialVolume(0.5);
     reactor.setEnergy(false);
     reactor.initialize();
@@ -273,7 +273,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     // setting up solution object and thermo/kinetics pointers
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    auto reactor = newReactor4("IdealGasMoleReactor", sol);
+    auto reactor = newReactor4("IdealGasMoleReactor", sol, true);
     reactor->setInitialVolume(0.5);
     // setup reactor network and integrate
     ReactorNet network(reactor);

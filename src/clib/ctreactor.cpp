@@ -41,7 +41,9 @@ extern "C" {
     {
         try {
             return ReactorCabinet::add(
-                newReactorBase(type, SolutionCabinet::at(n), name));
+                // Legacy clib will continue to use use input Solution objects without
+                // cloning
+                newReactorBase(type, SolutionCabinet::at(n), false, name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

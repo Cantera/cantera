@@ -103,10 +103,11 @@ max_simulation_time = 50  # seconds
 # Initialize the stirred reactor and connect all peripherals
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-fuel_air_mixture_tank = ct.Reservoir(gas)
-exhaust = ct.Reservoir(gas)
+fuel_air_mixture_tank = ct.Reservoir(gas, clone=True)
+exhaust = ct.Reservoir(gas, clone=True)
 
-stirred_reactor = ct.IdealGasMoleReactor(gas, energy="off", volume=reactor_volume)
+stirred_reactor = ct.IdealGasMoleReactor(gas, energy="off",
+                                         clone=True, volume=reactor_volume)
 
 mass_flow_controller = ct.MassFlowController(
     upstream=fuel_air_mixture_tank,
@@ -221,11 +222,15 @@ reactor_X = inlet_X
 
 for reactor_temperature in T:
     gas.TPX = reactor_temperature, reactor_pressure, inlet_X
-    fuel_air_mixture_tank = ct.Reservoir(gas)
+    fuel_air_mixture_tank = ct.Reservoir(gas, clone=True)
 
     # Use composition from the previous iteration to speed up convergence
     gas.TPX = reactor_temperature, reactor_pressure, reactor_X
-    stirred_reactor = ct.IdealGasReactor(gas, energy="off", volume=reactor_volume)
+    stirred_reactor = ct.IdealGasReactor(gas, energy="off", clone=True,
+                                         volume=reactor_volume)
+    fuel_air_mixture_tank = ct.Reservoir(gas, clone=True)
+    stirred_reactor = ct.IdealGasReactor(gas, energy="off", clone=True,
+                                         volume=reactor_volume)
     mass_flow_controller = ct.MassFlowController(
         upstream=fuel_air_mixture_tank,
         downstream=stirred_reactor,
