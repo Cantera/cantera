@@ -15,6 +15,7 @@ namespace Cantera
 
 ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
                                const vector<shared_ptr<ReactorBase>>& reactors,
+                               bool clone,
                                const string& name)
     : ReactorBase(name)
 {
@@ -24,7 +25,11 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         m_reactors.push_back(R.get());
         R->addSurface(this);
     }
-    m_solution = soln->clone(adjacent, true, false);
+    if (clone) {
+        m_solution = soln->clone(adjacent, true, false);
+    } else {
+        m_solution = soln;
+    }
     m_solution->thermo()->addSpeciesLock();
     setThermo(*m_solution->thermo());
     if (!std::dynamic_pointer_cast<SurfPhase>(soln->thermo())) {
@@ -48,7 +53,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
 }
 
 ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(sol, name)
+    : ReactorBase(sol, false, name)
 {
     if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
         throw CanteraError("ReactorSurface::ReactorSurface",
