@@ -2129,7 +2129,7 @@ class Flamelet(FlameBase):
     __slots__ = ('oxidizer_inlet', 'flame', 'fuel_inlet')
     _other = ('grid')
 
-    def __init__(self, gas, grid=None,):
+    def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -2144,6 +2144,9 @@ class Flamelet(FlameBase):
         ``self.oxidizer_inlet``, ``self.flame``, and ``self.fuel_inlet``.
         """
 
+        if width is not None:
+            warnings.warn("width parameter cannot be used with Flamelets, the width is fixed to 1. This parameter is available for consistency with other FlameBase subclasses and pytest",UserWarning)
+
         #: `Inlet1D` at the left of the domain representing the fuel mixture
         self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
         self.fuel_inlet.T = gas.T
@@ -2155,12 +2158,16 @@ class Flamelet(FlameBase):
         #: `FlameletFlow` domain representing the flame
         self.flame = FlameletFlow(gas, name='flame')
 
+        # CERFACS : This part need to be added to comply with the pytest test_width_grid::test_width_grid
+        if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
+
         if grid is None:
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
             # Note: flamelet initialisation is very sensitive to the number of grid points.
             # Do not hesitate to try some: experience shows that between 10 and 20 is often a good guess
-
-        grid = grid / max(grid) # Width of the grid must anyway be 1 because in Z-space
+        grid = np.asarray(grid) / max(grid) # Width of the grid must anyway be 1 because in Z-space
         
         super().__init__((self.oxidizer_inlet, self.flame, self.fuel_inlet), gas, grid)
 

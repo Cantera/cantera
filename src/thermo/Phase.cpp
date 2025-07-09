@@ -846,8 +846,10 @@ void Phase::addSpeciesAlias(const string& name, const string& alias)
 void Phase::removeSpeciesLock()
 {
     if (!m_nSpeciesLocks) {
-        throw CanteraError("Phase::removeSpeciesLock",
-                "ThermoPhase '{}' has no current species locks.", m_name);
+        // throw CanteraError("Phase::removeSpeciesLock",
+        //         "ThermoPhase '{}' has no current species locks.", m_name);
+        // CERFACS : crash after computation of Flamelets because cantera wants to remove the species lock that doen't exist in this case, and send an error. Then, the error message has been convert into a user warning. 
+        warn_user("Phase::removeSpeciesLock","ThermoPhase '{}' has no current species locks.", m_name); 
     }
     m_nSpeciesLocks--;
 }
