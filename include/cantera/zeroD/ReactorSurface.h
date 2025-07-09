@@ -29,6 +29,7 @@ public:
     //! @param name  Name used to identify the surface
     ReactorSurface(shared_ptr<Solution> soln,
                    const vector<shared_ptr<ReactorBase>>& reactors,
+                   bool clone,
                    const string& name="(none)");
 
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
