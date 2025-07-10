@@ -222,6 +222,8 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err, bool fix)
             } else if (fix) {
                 R.duplicate = true;
                 other.duplicate = true;
+                unmatched_duplicates.erase(i);
+                unmatched_duplicates.erase(m);
             } else {
                 return {i,m};
             }
