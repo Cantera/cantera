@@ -83,15 +83,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
         }
     }
 
-    shared_ptr<Kinetics> kin;
-    if (soln && soln->thermo() && soln->thermo()->kinetics()) {
-        // If kinetics was initiated in thermo already, use it directly
-        kin = soln->thermo()->kinetics();
-    } else {
-        // Otherwise, create a new kinetics
-        kin = std::shared_ptr<Kinetics>(KineticsFactory::factory()->newKinetics(kinType));
-    }
-
+    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
     if (soln) {
         soln->setKinetics(kin);
     }
