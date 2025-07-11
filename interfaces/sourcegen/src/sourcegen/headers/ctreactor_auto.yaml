@@ -16,6 +16,8 @@ recipes:
 - name: type
 - name: name
 - name: setName
+- name: solution
+  what: accessor
 - name: setInitialVolume
 - name: setChemistry
 - name: setEnergy
