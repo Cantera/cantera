@@ -626,9 +626,10 @@ void PlasmaPhase::setCollisions()
 
     if (shared_ptr<Solution> soln = m_soln.lock()) {
         shared_ptr<Kinetics> kin = soln->kinetics();
-        if (!kin) {
+        if (!kin || kin.get() == m_collisionKinSource) {
             return;
         }
+        m_collisionKinSource = kin.get();
 
         // add collision from the initial list of reactions
         for (size_t i = 0; i < kin->nReactions(); i++) {
