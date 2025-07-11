@@ -40,7 +40,7 @@ function periodic_cstr
     gas.TPX = {300, p, 'H2:2, O2:1'};
 
     %%
-    % Create an upstream reservoir that will supply the reactor.  
+    % Create an upstream reservoir that will supply the reactor.
     % The temperature, pressure, and composition of the upstream reservoir are
     % set to those of the 'gas' object at the time the reservoir is
     % created.
