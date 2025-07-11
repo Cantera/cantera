@@ -27,12 +27,12 @@ function run_test_examples()
             fprintf('An error occurred while running %s: %s\n', scriptName, ME.message);
             fprintf('Identifier: %s\n', ME.identifier);
             if strcmp(ME.identifier, 'Cantera:ctError')
-                fprintf('Caught a CanteraError. Continuing execution...\n');
+                disp('Caught a CanteraError. Continuing execution...\n');
             end
             failed{end+1} = scriptName;
         end
     end
-    
+
 
         % Summary report
     disp(' ');
@@ -57,6 +57,6 @@ function run_test_examples()
     clear all
     close all
     ctUnload
-    
+
     disp('Test example run successfully.');
 end
