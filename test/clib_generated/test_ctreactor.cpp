@@ -43,10 +43,10 @@ TEST(ctreactor, reactor_simple)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 0, "test");
     vector<int32_t> reactors{reactor};
     int32_t net = reactornet_new(1, reactors.data());
-    ASSERT_EQ(net, 0);
+    ASSERT_GE(net, 0);
 
     double t = 0.0;
     int32_t count = 0;
@@ -58,4 +58,46 @@ TEST(ctreactor, reactor_simple)
         ASSERT_EQ(ret, 0);
         count++;
     }
+    // Reactor contents should be the same Solution & ThermoPhase objects
+    int32_t contents = reactor_solution(reactor);
+    EXPECT_EQ(contents, sol);
+    int32_t contents_thermo = sol_thermo(contents);
+    EXPECT_EQ(contents_thermo, thermo);
+    EXPECT_GT(thermo_temperature(contents_thermo), T);
+}
+
+TEST(ctreactor, reactor_clone)
+{
+    double T = 1050;
+    double P = 5 * 101325;
+    string X = "CH4:1.0, O2:2.0, N2:7.52";
+
+    int32_t sol = sol_newSolution("gri30.yaml", "gri30", "none");
+    int32_t thermo = sol_thermo(sol);
+    thermo_setMoleFractionsByName(thermo, X.c_str());
+    thermo_setTemperature(thermo, T);
+    thermo_setPressure(thermo, P);
+
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
+    vector<int32_t> reactors{reactor};
+    int32_t net = reactornet_new(1, reactors.data());
+    ASSERT_GE(net, 0);
+
+    double t = 0.0;
+    int32_t count = 0;
+    while (t < 0.1) {
+        double Tref = T_ctreactor[count];
+        ASSERT_NEAR(reactor_temperature(reactor), Tref, 1e-2);
+        t = reactornet_time(net) + 5e-3;
+        int32_t ret = reactornet_advance(net, t);
+        ASSERT_EQ(ret, 0);
+        count++;
+    }
+    // Reactor contents should be independent objects with a distinct state
+    int32_t contents = reactor_solution(reactor);
+    ASSERT_GE(contents, 0);
+    EXPECT_NE(sol, contents);
+    int32_t contents_thermo = sol_thermo(contents);
+    ASSERT_GE(contents_thermo, 0);
+    EXPECT_GT(thermo_temperature(contents_thermo), T);
 }
