@@ -62,7 +62,7 @@ cdef class _SolutionBase:
         cdef _SolutionBase other
         if origin is not None:
             other = <_SolutionBase?>origin
-            _assign_Solution(self, other._base, False)
+            _assign_Solution(self, other._base, False, weak=False, hold=False)
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
             self._adjacent = other._adjacent
@@ -417,7 +417,7 @@ cdef class _SolutionBase:
 # These cdef functions are declared as free functions to avoid creating layout
 # conflicts with types derived from _SolutionBase
 cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
-                      pybool reset_adjacent, pybool weak=False):
+                      pybool reset_adjacent, pybool weak=False, pybool hold=True):
     if not weak:
         # _SolutionBase owns the C++ Solution object by holding the shared_ptr instance
         if soln._base.get() != NULL:
@@ -453,7 +453,9 @@ cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
 
     cdef shared_ptr[CxxExternalHandle] handle
     handle.reset(new CxxPythonHandle(<PyObject*>soln, not weak))
-    soln.base.holdExternalHandle(stringify("python"), handle)
+    if hold:
+        # Sliced Solution objects should not replace the existing handle
+        soln.base.holdExternalHandle(stringify("python"), handle)
 
 
 cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
@@ -461,6 +463,12 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
     Wrap an existing Solution object with a Python object of the correct
     derived type.
     """
+    # If the Solution already has a Python wrapper, extract that from the stored handle
+    cdef CxxPythonHandle* handle = dynamic_pointer_cast[CxxPythonHandle, CxxExternalHandle](
+        cxx_soln.get().getExternalHandle(stringify("python"))).get()
+    if handle != NULL and handle.get() != NULL:
+        return <_SolutionBase>(<PyObject*>handle.get())
+
     # Need to explicitly import these classes from the non-compiled Python module to
     # make them available inside Cython
     from cantera import Solution, Interface

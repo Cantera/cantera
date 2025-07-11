@@ -52,6 +52,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         size_t nAdjacent()
         shared_ptr[CxxSolution] adjacent(size_t)
         void holdExternalHandle(string&, shared_ptr[CxxExternalHandle])
+        shared_ptr[CxxExternalHandle] getExternalHandle(string&)
         void registerChangedCallback(void*, function[void()])
         void removeChangedCallback(void*)
 
@@ -101,7 +102,7 @@ ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +t
 ctypedef void (*transportPolyMethod2i)(CxxTransport*, size_t, size_t, double*) except +translate_exception
 
 cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
-                      pybool reset_adjacent, pybool weak=?)
+                      pybool reset_adjacent, pybool weak=?, pybool hold=?)
 cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln)
 
 cdef class _SolutionBase:
