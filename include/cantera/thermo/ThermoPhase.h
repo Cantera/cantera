@@ -2031,10 +2031,6 @@ public:
         m_soln = soln;
     }
 
-    shared_ptr<Kinetics> kinetics() {
-        return m_kinetics;
-    }
-
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
@@ -2074,11 +2070,6 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_soln;
-
-    //! The kinetics object associates with ThermoPhase
-    //! Some phase requires Kinetics to perform calculation
-    //! such as PlasmaPhase
-    shared_ptr<Kinetics> m_kinetics;
 };
 
 }

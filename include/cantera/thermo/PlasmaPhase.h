@@ -521,6 +521,9 @@ protected:
     //! array of cross-section object
     vector<shared_ptr<ElectronCrossSection>> m_ecss;
 
+    //! Kinetics object used for handling elastic collision rates
+    shared_ptr<Kinetics> m_kinetics;
+
     //! Cross section data. m_crossSections[i][j], where i is the specific process,
     //! j is the index of vector. Unit: [m^2]
     std::vector<vector<double>> m_crossSections;
@@ -618,6 +621,9 @@ private:
     //! Set collisions. This function sets the list of collisions and
     //! the list of target species using #addCollision.
     void setCollisions();
+
+    //! The last Kinetics object seen by setCollisions. Used to avoid spurious updates
+    Kinetics* m_collisionKinSource = nullptr;
 
     //! Add a collision and record the target species
     void addCollision(std::shared_ptr<Reaction> collision);
