@@ -3,6 +3,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+
 """Convert legacy CTML input to YAML format.
 
 There are two main entry points to this script, `main` and `convert`. The former is
@@ -11,27 +12,40 @@ accepts either the name of the CTML input file or a string containing the CTML
 content.
 """
 
-from pathlib import Path
-import sys
-import re
-import argparse
+from __future__ import annotations
 
-import xml.etree.ElementTree as etree
-from email.utils import formatdate
-import warnings
 import copy
-
-from typing import Any, Dict, Union, Iterable, Optional, List, Tuple, TypedDict
-from typing import TYPE_CHECKING
+import re
+import sys
+import warnings
+import xml.etree.ElementTree as etree
+from argparse import ArgumentParser
+from collections.abc import Iterable
+from email.utils import formatdate
+from pathlib import Path
+from typing import (
+    ClassVar,
+    Literal,
+    TypeAlias,
+    TypedDict,
+    TypeGuard,
+    TypeVar,
+    cast,
+    get_args,
+)
 
 import numpy as np
 from ruamel import yaml
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.nodes import MappingNode, ScalarNode
+from ruamel.yaml.representer import RoundTripRepresenter, SafeRepresenter
+from typing_extensions import Required, TypeForm
 
 # yaml.version_info is a tuple with the three parts of the version
-yaml_version = yaml.version_info
+yaml_version: tuple[int, int, int] = yaml.version_info
 # We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
 # available in the Ubuntu 22.04 repositories.
-yaml_min_version = (0, 17, 16)
+yaml_min_version: tuple[int, int, int] = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
         "The minimum supported version of ruamel.yaml is 0.17.16. If you "
@@ -39,66 +53,144 @@ if yaml_version < yaml_min_version:
         "please install an updated version using pip or conda."
     )
 
+QuantityType: TypeAlias = float | str
 
-if TYPE_CHECKING:
-    QUANTITY = Union[float, str]
+RedlichKwongInput = TypedDict(
+    "RedlichKwongInput",
+    {
+        "a": list[QuantityType],
+        "b": QuantityType,
+        "binary-a": dict[str, list[QuantityType]],
+    },
+    total=False,
+)
 
-    RK_EOS_DICT = TypedDict(
-        "RK_EOS_DICT",
-        {"a": List[QUANTITY], "b": QUANTITY, "binary-a": Dict[str, List[QUANTITY]]},
-        total=False,
-    )
-    DH_BETA_MATRIX = TypedDict(
-        "DH_BETA_MATRIX", {"species": List[str], "beta": QUANTITY}, total=False
-    )
-    ARRHENIUS_PARAMS = Dict[str, Union[str, QUANTITY]]
-    EFFICIENCY_PARAMS = Dict[str, float]
-    LINDEMANN_PARAMS = Union[str, ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]
-    TROE_PARAMS = Dict[str, float]
-    SRI_PARAMS = Dict[str, float]
-    COVERAGE_PARAMS = Dict[str, ARRHENIUS_PARAMS]
+class DebyeHuckelBetaMatrix(TypedDict, total=False):
+    species: list[str]
+    beta: QuantityType
 
-    ARRHENIUS_TYPE = Dict[str, ARRHENIUS_PARAMS]
-    INTERFACE_TYPE = Dict[
-        str, Union[ARRHENIUS_PARAMS, bool, str, COVERAGE_PARAMS, float]
-    ]
-    NESTED_LIST_OF_FLOATS = List[List[float]]
-    CHEBYSHEV_TYPE = Dict[str, Union[List[float], NESTED_LIST_OF_FLOATS, str]]
-    PLOG_TYPE = Dict[str, Union[str, List[ARRHENIUS_PARAMS]]]
-    CHEMACT_TYPE = Dict[
-        str, Union[str, ARRHENIUS_PARAMS, EFFICIENCY_PARAMS, TROE_PARAMS]
-    ]
-    LINDEMANN_TYPE = Dict[str, LINDEMANN_PARAMS]
-    TROE_TYPE = Dict[str, Union[LINDEMANN_PARAMS, TROE_PARAMS]]
-    THREEBODY_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]]
-    SRI_TYPE = Dict[str, Union[LINDEMANN_PARAMS, SRI_PARAMS]]
+ReactionInput = TypedDict(
+    "ReactionInput",
+    {
+        "type": Required[
+            Literal[
+                "arrhenius",
+                "threebody",
+                "Lindemann",
+                "Troe",
+                "SRI",
+                "plog",
+                "chebyshev",
+                "interface",
+            ]
+        ],
+        "temperature-ranges": list[float],
+    },
+    total=False,
+)
+ArrheniusParams: TypeAlias = dict[str, QuantityType]
+EfficiencyParams: TypeAlias = dict[str, float]
+LindemannParams: TypeAlias = str | ArrheniusParams | EfficiencyParams
+TroeParams: TypeAlias = dict[str, float]
+SriParams: TypeAlias = dict[str, float]
+CoverageParams: TypeAlias = dict[str, ArrheniusParams]
 
-    THERMO_POLY_TYPE = Union[List[List[float]], List[float]]
-    HKFT_THERMO_TYPE = Union[str, QUANTITY, List[QUANTITY]]
-    # The last Union[str, float] here is not a QUANTITY
-    HMW_THERMO_TYPE = Union[
-        str, QUANTITY, bool, Dict[str, Union[float, List[Union[str, float]]]]
-    ]
+ArrheniusType: TypeAlias = dict[str, ArrheniusParams]
+InterfaceType: TypeAlias = dict[
+    str, ArrheniusParams | bool | str | CoverageParams | float
+]
+ChebyshevType = TypedDict(
+    "ChebyshevType",
+    {
+        "type": str,
+        "temperature-range": list[QuantityType],
+        "pressure-range": list[QuantityType],
+        "data": list[list[float]],
+    },
+)
+PlogType: TypeAlias = dict[str, str | list[ArrheniusParams]]
+ChemActType: TypeAlias = dict[
+    str, str | ArrheniusParams | EfficiencyParams | TroeParams
+]
+LindemannType: TypeAlias = dict[str, LindemannParams]
+TroeType: TypeAlias = dict[str, LindemannParams | TroeParams]
+ThreebodyType: TypeAlias = dict[str, ArrheniusParams | EfficiencyParams]
+SriType: TypeAlias = dict[str, LindemannParams | SriParams]
 
-BlockMap = yaml.comments.CommentedMap
+ThermoPolyType: TypeAlias = list[list[float]] | list[float]
+SpeciesThermoInput = TypedDict(
+    "SpeciesThermoInput",
+    {
+        "model": Required[str],
+        "temperature-ranges": list[float],
+        "data": ThermoPolyType,
+    },
+    total=False,
+)
+ConstCpThermoInput = TypedDict(
+    "ConstCpThermoInput",
+    {
+        "model": Required[str],
+        "T0": QuantityType,
+        "h0": QuantityType,
+        "s0": QuantityType,
+        "cp0": QuantityType,
+        "T-min": float,
+        "T-max": float,
+    },
+    total=False,
+)
+Mu0ThermoInput = TypedDict(
+    "Mu0ThermoInput",
+    {
+        "model": Required[str],
+        "reference-pressure": float,
+        "h0": float | str,
+        "T-min": float,
+        "T-max": float,
+        "temperature-ranges": list[float],
+        "data": dict[float, str | float],
+        "dimensionless": bool,
+    },
+    total=False,
+)
+HkftThermoType: TypeAlias = QuantityType | list[QuantityType]
+# The last str | float here is not a QUANTITY
+HmwThermoType: TypeAlias = (
+    QuantityType | bool | dict[str, float | list[str | float]]
+)
+
+_T = TypeVar("_T")
 
 
-def FlowMap(*args, **kwargs):
+def literal_type_guard(tag: str, literal: TypeForm[_T]) -> TypeGuard[_T]:
+    """Utility function for narrowing strings to specified literals."""
+    return tag in get_args(literal)
+
+
+BlockMap: type[CommentedMap] = CommentedMap
+
+
+_KT = TypeVar("_KT")  # Key type.
+_VT = TypeVar("_VT")  # Value type.
+
+
+def FlowMap(*args: dict[_KT, _VT], **kwargs: _VT) -> dict[_KT, _VT]:
     """A YAML mapping that flows onto one line."""
-    m = yaml.comments.CommentedMap(*args, **kwargs)
+    m: CommentedMap = CommentedMap(*args, **kwargs)
     m.fa.set_flow_style()
     return m
 
 
-def FlowList(*args, **kwargs):
+def FlowList(*args: Iterable[_VT], **kwargs: _VT) -> list[_VT]:
     """A YAML sequence that flows onto one line."""
-    lst = yaml.comments.CommentedSeq(*args, **kwargs)
+    lst: CommentedSeq = CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
-    return lst
+    return cast(list[_VT], lst)
 
 
 class MissingXMLNode(LookupError):
-    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+    def __init__(self, message: str = "", node: etree.Element | None = None) -> None:
         """Error raised when a required node is missing in the XML tree.
 
         :param message:
@@ -117,7 +209,7 @@ class MissingXMLNode(LookupError):
 
 
 class MissingXMLAttribute(LookupError):
-    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+    def __init__(self, message: str = "", node: etree.Element | None = None) -> None:
         """Error raised when a required attribute is missing in the XML node.
 
         :param message:
@@ -136,7 +228,7 @@ class MissingXMLAttribute(LookupError):
 
 
 class MissingNodeText(LookupError):
-    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+    def __init__(self, message: str = "", node: etree.Element | None = None) -> None:
         """Error raised when the text of an XML node is missing.
 
         :param message:
@@ -171,7 +263,7 @@ def float2string(data: float) -> str:
         return np.format_float_scientific(data, trim="0")
 
 
-def represent_float(self: Any, data: Any) -> Any:
+def represent_float(self: SafeRepresenter, data: float) -> ScalarNode:
     """Format floating point numbers for ruamel YAML.
 
     :param data:
@@ -192,10 +284,10 @@ def represent_float(self: Any, data: Any) -> Any:
     return self.represent_scalar("tag:yaml.org,2002:float", value)
 
 
-yaml.RoundTripRepresenter.add_representer(float, represent_float)
+RoundTripRepresenter.add_representer(float, represent_float)
 
 
-def get_float_or_quantity(node: etree.Element) -> "QUANTITY":
+def get_float_or_quantity(node: etree.Element) -> QuantityType:
     """Process an XML node into a float value or a value with units.
 
     :param node:
@@ -220,12 +312,12 @@ def get_float_or_quantity(node: etree.Element) -> "QUANTITY":
     if units:
         units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", units)
         units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", units)
-        return "{} {}".format(float2string(value), units)
+        return f"{float2string(value)} {units}"
     else:
         return value
 
 
-def split_species_value_string(node: etree.Element) -> Dict[str, float]:
+def split_species_value_string(node: etree.Element) -> dict[str, float]:
     """Split a string of species:value pairs into a dictionary.
 
     :param node:
@@ -238,7 +330,7 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     The algorithm is reimplemented from :ct:`parseCompString`.
     """
     text = clean_node_text(node)
-    pairs = FlowMap({})
+    pairs: dict[str, float] = FlowMap({})
     start, stop, left = 0, 0, 0
     # \S matches the first non-whitespace character
     non_whitespace = re.compile(r"\S")
@@ -300,7 +392,7 @@ def clean_node_text(node: etree.Element) -> str:
 
 
 class Phase:
-    thermo_model_mapping = {
+    thermo_model_mapping: ClassVar[dict[str, str]] = {
         "IdealGas": "ideal-gas",
         "Incompressible": "constant-density",
         "Surface": "ideal-surface",
@@ -334,7 +426,7 @@ class Phase:
         "Water": "liquid-water-IAPWS95",
         "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
     }
-    kinetics_model_mapping = {
+    kinetics_model_mapping: ClassVar[dict[str, str | None]] = {
         "GasKinetics": "gas",
         "Interface": "surface",
         "none": None,
@@ -342,7 +434,7 @@ class Phase:
         "None": None,
         "SolidKinetics": None,
     }
-    transport_model_mapping = {
+    transport_model_mapping: ClassVar[dict[str | None, str | None]] = {
         "Mix": "mixture-averaged",
         "Multi": "multicomponent",
         "None": None,
@@ -356,7 +448,7 @@ class Phase:
         "HighP": "high-pressure",
     }
 
-    state_properties_mapping = {
+    state_properties_mapping: ClassVar[dict[str, str]] = {
         "moleFractions": "X",
         "massFractions": "Y",
         "temperature": "T",
@@ -365,7 +457,7 @@ class Phase:
         "soluteMolalities": "molalities",
     }
 
-    pure_fluid_mapping = {
+    pure_fluid_mapping: ClassVar[dict[str, str]] = {
         "0": "water",
         "1": "nitrogen",
         "2": "methane",
@@ -379,9 +471,9 @@ class Phase:
     def __init__(
         self,
         phase: etree.Element,
-        species_data: Dict[str, List["Species"]],
-        reaction_data: Dict[str, List["Reaction"]],
-    ):
+        species_data: dict[str, list[Species]],
+        reaction_data: dict[str, list[Reaction]],
+    ) -> None:
         """Represent an XML ``phase`` node.
 
         :param phase:
@@ -401,7 +493,7 @@ class Phase:
             raise MissingXMLAttribute(
                 "The 'phase' node requires an 'id' attribute.", phase
             )
-        self.attribs = BlockMap({"name": phase_name})
+        self.attribs: CommentedMap = BlockMap({"name": phase_name})
 
         elem_text = phase.findtext("elementArray")
         if elem_text is not None:
@@ -523,7 +615,7 @@ class Phase:
                     "The 'LatticeSolid' phase thermo requires a 'LatticeArray' node.",
                     phase_thermo,
                 )
-            self.lattice_nodes = []  # type: List[Phase]
+            self.lattice_nodes: list[Phase] = []
             for lattice_phase_node in lattice_array_node.findall("phase"):
                 self.lattice_nodes.append(
                     Phase(lattice_phase_node, species_data, reaction_data)
@@ -603,7 +695,7 @@ class Phase:
 
         state_node = phase.find("state")
         if state_node is not None:
-            phase_state = FlowMap()
+            phase_state: dict[str, float | str | dict[str, float]] = FlowMap()
             for prop in state_node:
                 property_name = self.state_properties_mapping[prop.tag]
                 if prop.tag in [
@@ -634,7 +726,7 @@ class Phase:
 
     def ideal_molal_solution(
         self, activity_coeffs: etree.Element
-    ) -> Dict[str, Union[str, "QUANTITY"]]:
+    ) -> dict[str, QuantityType]:
         """Process the cutoff data in an ``IdealMolalSolution`` phase-thermo type.
 
         :param activity_coeffs:
@@ -646,7 +738,7 @@ class Phase:
         dictionary will be empty when there are no cutoff nodes in the
         ``activityCoefficients`` node.
         """
-        cutoff = {}  # type: Dict[str, Union[str, QUANTITY]]
+        cutoff: dict[str, QuantityType] = {}
         cutoff_node = activity_coeffs.find("idealMolalSolnCutoff")
         if cutoff_node is not None:
             cutoff_model = cutoff_node.get("model")
@@ -660,7 +752,7 @@ class Phase:
 
     def margules(
         self, activity_coeffs: etree.Element
-    ) -> List[Dict[str, List[Union[str, "QUANTITY"]]]]:
+    ) -> list[dict[str, list[QuantityType]]]:
         """Process activity coefficients for a ``Margules`` phase-thermo type.
 
         :param activity_coeffs:
@@ -674,7 +766,7 @@ class Phase:
         because this function would have to go through the same nodes again.
         """
         all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
-        interactions = []
+        interactions: list[dict[str, list[QuantityType]]] = []
         for binary_params in all_binary_params:
             species_A = binary_params.get("speciesA")
             species_B = binary_params.get("speciesB")
@@ -684,9 +776,9 @@ class Phase:
                     "'speciesB' attributes",
                     binary_params,
                 )
-            this_node = {
+            this_node: dict[str, list[QuantityType]] = {
                 "species": FlowList([species_A, species_B])
-            }  # type: Dict[str, List[Union[str, QUANTITY]]]
+            }
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
             if excess_enthalpy_node is not None:
                 excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
@@ -745,7 +837,7 @@ class Phase:
 
     def redlich_kister(
         self, activity_coeffs: etree.Element
-    ) -> List[Dict[str, List[Union[str, "QUANTITY"]]]]:
+    ) -> list[dict[str, list[QuantityType]]]:
         """Process activity coefficients for a Redlich-Kister phase-thermo type.
 
         :param activity_coeffs:
@@ -762,7 +854,7 @@ class Phase:
                 "'binaryNeutralSpeciesParameters' node",
                 activity_coeffs,
             )
-        interactions = []
+        interactions: list[dict[str, list[QuantityType]]] = []
         for binary_params in all_binary_params:
             species_A = binary_params.get("speciesA")
             species_B = binary_params.get("speciesB")
@@ -772,9 +864,9 @@ class Phase:
                     "'speciesB' attributes",
                     binary_params,
                 )
-            this_node = {
+            this_node: dict[str, list[QuantityType]] = {
                 "species": FlowList([species_A, species_B])
-            }  # type: Dict[str, List[Union[str, QUANTITY]]]
+            }
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
             if excess_enthalpy_node is not None:
                 excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
@@ -802,8 +894,8 @@ class Phase:
 
     def check_elements(
         self,
-        this_phase_species: List[Dict[str, Iterable[str]]],
-        species_data: Dict[str, List["Species"]],
+        this_phase_species: list[dict[str, Iterable[str]]],
+        species_data: dict[str, list[Species]],
     ) -> None:
         """Check the species elements for inclusion in the `Phase`-level specification.
 
@@ -841,9 +933,9 @@ class Phase:
 
     def move_RK_coeffs_to_species(
         self,
-        this_phase_species: List[Dict[str, Iterable[str]]],
+        this_phase_species: list[dict[str, Iterable[str]]],
         activity_coeffs: etree.Element,
-        species_data: Dict[str, List["Species"]],
+        species_data: dict[str, list[Species]],
     ) -> None:
         """Move the Redlich-Kwong activity coefficient data from phase to species.
 
@@ -862,9 +954,11 @@ class Phase:
         parameters from the `Phase` node into the `Species` nodes. This modifies the
         `Species` objects in-place in the ``species_data`` list.
         """
-        all_species_eos = {}  # type: Dict[str, RK_EOS_DICT]
+        all_species_eos: dict[str, RedlichKwongInput] = {}
         for pure_param in activity_coeffs.iterfind("pureFluidParameters"):
-            eq_of_state = BlockMap({"model": "Redlich-Kwong"})
+            eq_of_state: RedlichKwongInput = cast(
+                RedlichKwongInput, BlockMap({"model": "Redlich-Kwong"})
+            )
             pure_species = pure_param.get("species")
             if pure_species is None:
                 raise MissingXMLAttribute(
@@ -963,9 +1057,9 @@ class Phase:
 
     def move_density_to_species(
         self,
-        this_phase_species: List[Dict[str, Iterable[str]]],
+        this_phase_species: list[dict[str, Iterable[str]]],
         phase_thermo: etree.Element,
-        species_data: Dict[str, List["Species"]],
+        species_data: dict[str, list[Species]],
     ) -> None:
         """Move the phase density information into each species definition.
 
@@ -1019,7 +1113,7 @@ class Phase:
 
     def get_species_array(
         self, speciesArray_node: etree.Element
-    ) -> Dict[str, Iterable[str]]:
+    ) -> dict[str, Iterable[str]]:
         """Process a list of species from a ``speciesArray`` node.
 
         :param speciesArray_node:
@@ -1041,15 +1135,15 @@ class Phase:
             name = str(Path(filename).with_suffix(".yaml"))
             if location == "species_data":
                 location = "species"
-            new_datasrc = "{}/{}".format(name, location)
+            new_datasrc = f"{name}/{location}"
 
         return {new_datasrc: species_list}
 
     def get_reaction_array(
         self,
         reactionArray_node: etree.Element,
-        reaction_data: Dict[str, List["Reaction"]],
-    ) -> Dict[str, str]:
+        reaction_data: dict[str, list[Reaction]],
+    ) -> dict[str, str]:
         """Process reactions from a ``reactionArray`` node in a phase definition.
 
         :param reactionArray_node:
@@ -1115,7 +1209,7 @@ class Phase:
         return {datasrc: reaction_option}
 
     def filter_reaction_list(
-        self, datasrc: str, filter_text: str, reaction_data: Dict[str, List["Reaction"]]
+        self, datasrc: str, filter_text: str, reaction_data: dict[str, list[Reaction]]
     ) -> str:
         """Filter the reaction_data list to only include specified reactions.
 
@@ -1147,11 +1241,12 @@ class Phase:
 
         if not hits:
             raise ValueError(
-                "The filter text '{}' resulted in an empty set of "
-                "reactions".format(filter_text)
+                "The filter text '{}' resulted in an empty set of reactions".format(
+                    filter_text
+                )
             )
         else:
-            new_datasrc = self.attribs["name"] + "-reactions"
+            new_datasrc: str = self.attribs["name"] + "-reactions"
             reaction_data[new_datasrc] = hits
             # If misses is not empty, replace the old list of reactions with
             # a new list where filtered out reactions are removed. If there
@@ -1164,7 +1259,7 @@ class Phase:
 
             return new_datasrc
 
-    def get_tabulated_thermo(self, tab_thermo_node: etree.Element) -> Dict[str, str]:
+    def get_tabulated_thermo(self, tab_thermo_node: etree.Element) -> dict[str, str]:
         """Process data from the ``tabulatedThermo`` node.
 
         :param tab_thermo_node:
@@ -1180,7 +1275,8 @@ class Phase:
         enthalpy_units = enthalpy_node.get("units", "").split("/")
         if not enthalpy_units:
             raise MissingXMLAttribute(
-                "The 'enthalpy' node must have a 'units' attribute.", enthalpy_node,
+                "The 'enthalpy' node must have a 'units' attribute.",
+                enthalpy_node,
             )
         entropy_node = tab_thermo_node.find("entropy")
         if entropy_node is None:
@@ -1191,7 +1287,8 @@ class Phase:
         entropy_units = entropy_node.get("units", "").split("/")
         if not entropy_units:
             raise MissingXMLAttribute(
-                "The 'entropy' node must have a 'units' attribute.", enthalpy_node,
+                "The 'entropy' node must have a 'units' attribute.",
+                enthalpy_node,
             )
         if enthalpy_units[:2] != entropy_units[:2]:
             raise ValueError("Tabulated thermo must have the same units.")
@@ -1228,9 +1325,7 @@ class Phase:
 
         return tab_thermo
 
-    def hmw_electrolyte(
-        self, activity_node: etree.Element
-    ) -> Dict[str, "HMW_THERMO_TYPE"]:
+    def hmw_electrolyte(self, activity_node: etree.Element) -> dict[str, HmwThermoType]:
         """Process the activity coefficients for an ``HMW`` phase-thermo type.
 
         :param activity_coeffs:
@@ -1271,7 +1366,9 @@ class Phase:
                 "zetaCation",
             ]:
                 continue
-            this_interaction = {"species": FlowList([i[1] for i in inter_node.items()])}
+            this_interaction: dict[str, list[str] | list[float] | float] = {
+                "species": FlowList([i[1] for i in inter_node.items()])
+            }
             for param_node in inter_node:
                 data = clean_node_text(param_node).split(",")
                 param_name = param_node.tag.lower()
@@ -1287,10 +1384,10 @@ class Phase:
 
     def debye_huckel(
         self,
-        this_phase_species: List[Dict[str, Iterable[str]]],
+        this_phase_species: list[dict[str, Iterable[str]]],
         activity_node: etree.Element,
-        species_data: Dict[str, List["Species"]],
-    ) -> Dict[str, Union[str, "QUANTITY", bool]]:
+        species_data: dict[str, list["Species"]],
+    ) -> dict[str, QuantityType | bool]:
         """Process the activity coefficients for the ``DebyeHuckel`` phase-thermo type.
 
         :param this_phase_species:
@@ -1343,7 +1440,7 @@ class Phase:
             activity_data["B-dot"] = get_float_or_quantity(B_dot_node)
 
         ionic_radius_node = activity_node.find("ionicRadius")
-        species_ionic_radii = {}  # type: Dict[str, QUANTITY]
+        species_ionic_radii: dict[str, QuantityType] = {}
         if ionic_radius_node is not None:
             default_radius = ionic_radius_node.get("default")
             radius_units = ionic_radius_node.get("units")
@@ -1374,9 +1471,9 @@ class Phase:
                 # names in this matrix do not contain colons, so we retain that
                 # behavior here.
                 species_1, species_2, beta_value = beta_text.split(":")
-                beta_dict = {
+                beta_dict: DebyeHuckelBetaMatrix = {
                     "species": FlowList([species_1, species_2])
-                }  # type: DH_BETA_MATRIX
+                }
                 if beta_units is not None:
                     beta_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", beta_units)
                     beta_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", beta_units)
@@ -1446,7 +1543,7 @@ class Phase:
         return activity_data
 
     @classmethod
-    def to_yaml(cls, representer, data):
+    def to_yaml(cls, representer: SafeRepresenter, data: Phase) -> MappingNode:
         """Serialize the class instance to YAML format suitable for ruamel.yaml.
 
         :param representer:
@@ -1477,11 +1574,11 @@ class SpeciesThermo:
         if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
-        self.attribs = func(thermo)
+        self.attribs: SpeciesThermoInput = func(thermo)
 
     def process_polynomial(
         self, thermo: etree.Element, poly_type: str
-    ) -> Tuple[List[List[float]], List[float]]:
+    ) -> tuple[list[list[float]], list[float]]:
         """Process the `Species` thermodynamic polynomial for several types.
 
         :param thermo:
@@ -1494,7 +1591,7 @@ class SpeciesThermo:
         This method converts the polynomial data for the ``NASA``, ``NASA9``, and
         ``Shomate`` thermodynamic types into the appropriate YAML structure.
         """
-        temperature_ranges = set()
+        temperature_ranges: set[float] = set()
         model_nodes = thermo.findall(poly_type)
         unsorted_data = {}
         for node in model_nodes:
@@ -1526,55 +1623,53 @@ class SpeciesThermo:
 
         return data, FlowList(sorted(temperature_ranges))
 
-    def Shomate(
-        self, thermo: etree.Element
-    ) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
+    def Shomate(self, thermo: etree.Element) -> SpeciesThermoInput:
         """Process a Shomate `Species` thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``Shomate``.
         """
-        thermo_attribs = BlockMap({"model": "Shomate"})
+        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "Shomate"}))
         data, temperature_ranges = self.process_polynomial(thermo, "Shomate")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
+    def NASA(self, thermo: etree.Element) -> SpeciesThermoInput:
         """Process a NASA 7-coefficient thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``NASA``.
         """
-        thermo_attribs = BlockMap({"model": "NASA7"})
+        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "NASA7"}))
         data, temperature_ranges = self.process_polynomial(thermo, "NASA")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA9(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
+    def NASA9(self, thermo: etree.Element) -> SpeciesThermoInput:
         """Process a NASA 9-coefficient thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``NASA9``.
         """
-        thermo_attribs = BlockMap({"model": "NASA9"})
+        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "NASA9"}))
         data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, "QUANTITY"]]:
+    def const_cp(self, thermo: etree.Element) -> ConstCpThermoInput:
         """Process a `Species` thermodynamic type with constant specific heat.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one child node with the tag
             ``const_cp``.
         """
-        thermo_attribs = BlockMap({"model": "constant-cp"})
+        thermo_attribs = cast(ConstCpThermoInput, BlockMap({"model": "constant-cp"}))
         const_cp_node = thermo.find("const_cp")
         if const_cp_node is None:
             raise MissingXMLNode(
@@ -1584,27 +1679,27 @@ class SpeciesThermo:
             tag = node.tag
             if tag == "t0":
                 tag = "T0"
-            thermo_attribs[tag] = get_float_or_quantity(node)
 
-        tmin = const_cp_node.get('Tmin')
-        if tmin is not None and tmin != '100.0':
-            thermo_attribs['T-min'] = float(tmin)
-        tmax = const_cp_node.get('Tmax')
-        if tmax is not None and tmax != '5000.0':
-            thermo_attribs['T-max'] = float(tmax)
+            if literal_type_guard(tag, Literal["T0", "h0", "s0", "cp0"]):
+                thermo_attribs[tag] = get_float_or_quantity(node)
+
+        tmin = const_cp_node.get("Tmin")
+        if tmin is not None and tmin != "100.0":
+            thermo_attribs["T-min"] = float(tmin)
+        tmax = const_cp_node.get("Tmax")
+        if tmax is not None and tmax != "5000.0":
+            thermo_attribs["T-max"] = float(tmax)
 
         return thermo_attribs
 
-    def Mu0(
-        self, thermo: etree.Element
-    ) -> Dict[str, Union[str, Dict[float, Iterable]]]:
+    def Mu0(self, thermo: etree.Element) -> Mu0ThermoInput:
         """Process a piecewise Gibbs Free Energy thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one child node with the tag
             ``Mu0``.
         """
-        thermo_attribs = BlockMap({"model": "piecewise-Gibbs"})
+        thermo_attribs = cast(Mu0ThermoInput, BlockMap({"model": "piecewise-Gibbs"}))
         Mu0_node = thermo.find("Mu0")
         if Mu0_node is None:
             raise MissingXMLNode("The 'thermo' node must contain a 'Mu0' node.", thermo)
@@ -1620,12 +1715,14 @@ class SpeciesThermo:
                 "The 'Mu0' node must contain an 'H298' node.", Mu0_node
             )
         thermo_attribs["h0"] = get_float_or_quantity(H298_node)
-        tmin = Mu0_node.get('Tmin')
+        tmin = Mu0_node.get("Tmin")
         if tmin is not None:
-            thermo_attribs['T-min'] = float(tmin)
-        tmax = Mu0_node.get('Tmax')
+            thermo_attribs["T-min"] = float(tmin)
+        tmax = Mu0_node.get("Tmax")
         if tmax is not None:
-            thermo_attribs['T-max'] = float(tmax)
+            thermo_attribs["T-max"] = float(tmax)
+        values: Iterable[float] | Iterable[str] = []
+        temperatures: map[float] = map(float, ())
         for float_node in Mu0_node.iterfind("floatArray"):
             title = float_node.get("title")
             if title == "Mu0Values":
@@ -1633,19 +1730,18 @@ class SpeciesThermo:
                 if dimensions == "Dimensionless":
                     thermo_attribs["dimensionless"] = True
                     dimensions = ""
-                values = []  # type: Union[Iterable[float], Iterable[str]]
                 values = map(float, clean_node_text(float_node).split(","))
                 if dimensions:
                     values = [float2string(v) + " " + dimensions for v in values]
             elif title == "Mu0Temperatures":
                 temperatures = map(float, clean_node_text(float_node).split(","))
 
-        thermo_attribs["data"] = dict(zip(temperatures, values))
+        thermo_attribs["data"] = dict(zip(temperatures, values, strict=True))
 
         return thermo_attribs
 
     @classmethod
-    def to_yaml(cls, representer, data):
+    def to_yaml(cls, representer: SafeRepresenter, data: SpeciesThermo) -> MappingNode:
         """Serialize the class instance to YAML format suitable for ruamel.yaml.
 
         :param representer:
@@ -1661,8 +1757,8 @@ class SpeciesThermo:
 
 
 class SpeciesTransport:
-    species_transport_mapping = {"gas_transport": "gas"}
-    transport_properties_mapping = {
+    species_transport_mapping: ClassVar[dict[str, str]] = {"gas_transport": "gas"}
+    transport_properties_mapping: ClassVar[dict[str, str]] = {
         "LJ_welldepth": "well-depth",
         "LJ_diameter": "diameter",
         "polarizability": "polarizability",
@@ -1680,7 +1776,7 @@ class SpeciesTransport:
 
         This class only supports one type of transport model, ``gas_transport``.
         """
-        self.attribs = BlockMap({})
+        self.attribs: CommentedMap = BlockMap({})
         transport_model = transport.get("model")
         if transport_model not in self.species_transport_mapping:
             raise TypeError(
@@ -1702,7 +1798,9 @@ class SpeciesTransport:
             self.attribs[name] = value
 
     @classmethod
-    def to_yaml(cls, representer, data):
+    def to_yaml(
+        cls, representer: SafeRepresenter, data: SpeciesTransport
+    ) -> MappingNode:
         """Serialize the class instance to YAML format suitable for ruamel.yaml.
 
         :param representer:
@@ -1718,7 +1816,7 @@ class SpeciesTransport:
 
 
 class Species:
-    standard_state_model_mapping = {
+    standard_state_model_mapping: ClassVar[dict[str, str]] = {
         "ideal-gas": "ideal-gas",
         "constant_incompressible": "constant-volume",
         "constant-incompressible": "constant-volume",
@@ -1727,7 +1825,7 @@ class Species:
         "temperature_polynomial": "molar-volume-temperature-polynomial",
         "density_temperature_polynomial": "density-temperature-polynomial",
     }
-    electrolyte_species_type_mapping = {
+    electrolyte_species_type_mapping: ClassVar[dict[str, str]] = {
         "weakAcidAssociated": "weak-acid-associated",
         "chargedSpecies": "charged-species",
         "strongAcidAssociated": "strong-acid-associated",
@@ -1735,7 +1833,7 @@ class Species:
         "nonpolarNeutral": "nonpolar-neutral",
     }
 
-    def __init__(self, species_node: etree.Element):
+    def __init__(self, species_node: etree.Element) -> None:
         """Represent an XML ``species`` node.
 
         :param species_node:
@@ -1746,7 +1844,7 @@ class Species:
         attribute and automatically formatted to YAML by the `~Species.to_yaml` class
         method.
         """
-        self.attribs = BlockMap()
+        self.attribs: CommentedMap = BlockMap()
         species_name = species_node.get("name")
         if species_name is None:
             raise MissingXMLAttribute(
@@ -1813,7 +1911,7 @@ class Species:
         self.process_standard_state_node(species_node)
 
         electrolyte = species_node.findtext("electrolyteSpeciesType")
-        debye_huckel = {}
+        debye_huckel: dict[str, str | float] = {}
         if electrolyte is not None:
             electrolyte = self.electrolyte_species_type_mapping[electrolyte.strip()]
             debye_huckel["electrolyte-species-type"] = electrolyte
@@ -1824,7 +1922,7 @@ class Species:
         if debye_huckel:
             self.attribs["Debye-Huckel"] = debye_huckel
 
-    def hkft(self, species_node: etree.Element) -> Dict[str, "HKFT_THERMO_TYPE"]:
+    def hkft(self, species_node: etree.Element) -> dict[str, HkftThermoType]:
         """Process a species with HKFT thermo type.
 
         :param species_node:
@@ -1895,9 +1993,9 @@ class Species:
                 # species __init__ function
                 return
 
-            eqn_of_state = {
+            eqn_of_state: dict[str, QuantityType | list[QuantityType]] = {
                 "model": self.standard_state_model_mapping[std_state_model]
-            }  # type: Dict[str, Union[str, QUANTITY, List[QUANTITY]]]
+            }
             if std_state_model == "constant_incompressible":
                 molar_volume_node = std_state.find("molarVolume")
                 if molar_volume_node is None:
@@ -1934,15 +2032,17 @@ class Species:
                     # (for example, if the units are g/L) and there's no way to specify
                     # YAML node-level units of volume.
                     data = []
-                    for v, suffix in zip(values, ("", "/K", "/K^2", "/K^3")):
-                        data.append("{} {}{}".format(v.strip(), poly_units, suffix))
+                    for v, suffix in zip(
+                        values, ("", "/K", "/K^2", "/K^3"), strict=False
+                    ):
+                        data.append(f"{v.strip()} {poly_units}{suffix}")
 
                     eqn_of_state["data"] = FlowList(data)
 
             self.attribs["equation-of-state"] = eqn_of_state
 
     @classmethod
-    def to_yaml(cls, representer, data):
+    def to_yaml(cls, representer: SafeRepresenter, data: Species) -> MappingNode:
         """Serialize the class instance to YAML format suitable for ruamel.yaml.
 
         :param representer:
@@ -1958,7 +2058,7 @@ class Species:
 
 
 class Reaction:
-    def __init__(self, reaction: etree.Element, node_motz_wise: bool):
+    def __init__(self, reaction: etree.Element, node_motz_wise: bool) -> None:
         """Represent an XML ``reaction`` node.
 
         :param reaction:
@@ -1970,8 +2070,8 @@ class Reaction:
             `Phase`-level option because the reactions are processed before the phases,
             so it isn't known at this point what phase these reactions will apply to.
         """
-        self.attribs = BlockMap({})
-        reaction_id = reaction.get("id", False)  # type: Union[str, int, bool]
+        self.attribs: CommentedMap = BlockMap({})
+        reaction_id: str | int | bool = reaction.get("id", False)
         if reaction_id:
             # If the reaction_id can be converted to an integer, it was likely
             # added automatically, so there's no need to include it in the
@@ -2036,8 +2136,9 @@ class Reaction:
             reaction_type = "plog"
         elif reaction_type == "chebyshev":
             # Remove deprecated '(+M)' third body notation
-            self.attribs["equation"] = re.sub(r" *\( *\+ *M *\)", "",
-                                              self.attribs["equation"])
+            self.attribs["equation"] = re.sub(
+                r" *\( *\+ *M *\)", "", self.attribs["equation"]
+            )
             # There's only one way to spell Chebyshev, so no need to change the
             # reaction_type.
         elif reaction_type in [
@@ -2106,7 +2207,7 @@ class Reaction:
             self.attribs["duplicate"] = True
 
     @classmethod
-    def to_yaml(cls, representer, data):
+    def to_yaml(cls, representer: SafeRepresenter, data: Reaction) -> MappingNode:
         """Serialize the class instance to YAML format suitable for ruamel.yaml.
 
         :param representer:
@@ -2120,7 +2221,7 @@ class Reaction:
         """
         return representer.represent_dict(data.attribs)
 
-    def sri(self, rate_coeff: etree.Element) -> "SRI_TYPE":
+    def sri(self, rate_coeff: etree.Element) -> SriType:
         """Process an SRI reaction.
 
         :param rate_coeff:
@@ -2138,13 +2239,13 @@ class Reaction:
         reaction_attribs["SRI"] = SRI_data
         return reaction_attribs
 
-    def threebody(self, rate_coeff: etree.Element) -> "THREEBODY_TYPE":
+    def threebody(self, rate_coeff: etree.Element) -> ThreebodyType:
         """Process a three-body reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = FlowMap({"type": "three-body"})
+        reaction_attribs = cast(ThreebodyType, FlowMap({"type": "three-body"}))
         reaction_attribs["rate-constant"] = self.process_arrhenius_parameters(
             rate_coeff.find("Arrhenius")
         )
@@ -2154,22 +2255,22 @@ class Reaction:
 
         return reaction_attribs
 
-    def lindemann(self, rate_coeff: etree.Element) -> "LINDEMANN_TYPE":
+    def lindemann(self, rate_coeff: etree.Element) -> LindemannType:
         """Process a Lindemann falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = FlowMap({"type": "falloff"})
+        reaction_attribs = cast(LindemannType, FlowMap({"type": "falloff"}))
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             if arr_coeff.get("name") == "k0":
-                reaction_attribs[
-                    "low-P-rate-constant"
-                ] = self.process_arrhenius_parameters(arr_coeff)
+                reaction_attribs["low-P-rate-constant"] = (
+                    self.process_arrhenius_parameters(arr_coeff)
+                )
             elif arr_coeff.get("name") is None:
-                reaction_attribs[
-                    "high-P-rate-constant"
-                ] = self.process_arrhenius_parameters(arr_coeff)
+                reaction_attribs["high-P-rate-constant"] = (
+                    self.process_arrhenius_parameters(arr_coeff)
+                )
             else:
                 raise TypeError("Too many 'Arrhenius' nodes")
         eff_node = rate_coeff.find("efficiencies")
@@ -2178,14 +2279,14 @@ class Reaction:
 
         return reaction_attribs
 
-    def troe(self, rate_coeff: etree.Element) -> "TROE_TYPE":
+    def troe(self, rate_coeff: etree.Element) -> TroeType:
         """Process a Troe falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
         # This gets the low-p and high-p rate constants and the efficiencies
-        reaction_attribs = self.lindemann(rate_coeff)
+        reaction_attribs: TroeType = self.lindemann(rate_coeff)
 
         troe_node = rate_coeff.find("falloff")
         if troe_node is None:
@@ -2194,31 +2295,32 @@ class Reaction:
             )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
-        reaction_attribs["Troe"] = FlowMap()
+        reaction_attribs["Troe"] = cast(TroeParams, FlowMap())
+        assert not isinstance(reaction_attribs["Troe"], str)
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (that is, troe_params is three elements long), it
         # will be omitted here as well.
-        for name, param in zip(troe_names, troe_params):
-            reaction_attribs["Troe"].update({name: float(param)})  # type: ignore
+        for name, param in zip(troe_names, troe_params, strict=False):
+            reaction_attribs["Troe"].update({name: float(param)})
 
         return reaction_attribs
 
-    def chemact(self, rate_coeff: etree.Element) -> "CHEMACT_TYPE":
+    def chemact(self, rate_coeff: etree.Element) -> ChemActType:
         """Process a chemically activated falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = FlowMap({"type": "chemically-activated"})
+        reaction_attribs = cast(ChemActType, FlowMap({"type": "chemically-activated"}))
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             if arr_coeff.get("name") == "kHigh":
-                reaction_attribs[
-                    "high-P-rate-constant"
-                ] = self.process_arrhenius_parameters(arr_coeff)
+                reaction_attribs["high-P-rate-constant"] = (
+                    self.process_arrhenius_parameters(arr_coeff)
+                )
             elif arr_coeff.get("name") is None:
-                reaction_attribs[
-                    "low-P-rate-constant"
-                ] = self.process_arrhenius_parameters(arr_coeff)
+                reaction_attribs["low-P-rate-constant"] = (
+                    self.process_arrhenius_parameters(arr_coeff)
+                )
             else:
                 raise TypeError("Too many 'Arrhenius' nodes")
         eff_node = rate_coeff.find("efficiencies")
@@ -2233,22 +2335,25 @@ class Reaction:
             )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
-        reaction_attribs["Troe"] = FlowMap()
+        reaction_attribs["Troe"] = cast(TroeParams, FlowMap())
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (that is, troe_params is three elements long), it
         # will be omitted here as well.
-        for name, param in zip(troe_names, troe_params):
+        for name, param in zip(troe_names, troe_params, strict=False):
+            assert isinstance(reaction_attribs["Troe"], dict)
             reaction_attribs["Troe"].update({name: float(param)})
 
         return reaction_attribs
 
-    def plog(self, rate_coeff: etree.Element) -> "PLOG_TYPE":
+    def plog(self, rate_coeff: etree.Element) -> PlogType:
         """Process a PLOG reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attributes = FlowMap({"type": "pressure-dependent-Arrhenius"})
+        reaction_attributes = cast(
+            PlogType, FlowMap({"type": "pressure-dependent-Arrhenius"})
+        )
         rate_constants = []
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             rate_constant = self.process_arrhenius_parameters(arr_coeff)
@@ -2263,25 +2368,28 @@ class Reaction:
 
         return reaction_attributes
 
-    def chebyshev(self, rate_coeff: etree.Element) -> "CHEBYSHEV_TYPE":
+    def chebyshev(self, rate_coeff: etree.Element) -> ChebyshevType:
         """Process a Chebyshev reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attributes = FlowMap(
-            {
-                "type": "Chebyshev",
-                "temperature-range": FlowList(),
-                "pressure-range": FlowList(),
-            }
+        reaction_attributes: ChebyshevType = cast(
+            ChebyshevType,
+            FlowMap(
+                {
+                    "type": "Chebyshev",
+                    "temperature-range": FlowList(),
+                    "pressure-range": FlowList(),
+                    "data": FlowList(),
+                }
+            ),
         )
         for range_tag in ["Tmin", "Tmax", "Pmin", "Pmax"]:
             range_node = rate_coeff.find(range_tag)
             if range_node is None:
                 raise MissingXMLNode(
-                    "A Chebyshev 'reaction' node must include a '{}' "
-                    "node".format(range_tag),
+                    f"A Chebyshev 'reaction' node must include a '{range_tag}' node",
                     rate_coeff,
                 )
             if range_tag.startswith("T"):
@@ -2320,7 +2428,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def interface(self, rate_coeff: etree.Element) -> "INTERFACE_TYPE":
+    def interface(self, rate_coeff: etree.Element) -> InterfaceType:
         """Process an interface reaction.
 
         :param rate_coeff:
@@ -2334,8 +2442,15 @@ class Reaction:
                 "An interface 'reaction' node requires an 'Arrhenius' node", rate_coeff
             )
         if arr_node.get("type", "").lower() == "stick":
-            reaction_attributes = FlowMap(
-                {"sticking-coefficient": self.process_arrhenius_parameters(arr_node)}
+            reaction_attributes = cast(
+                InterfaceType,
+                FlowMap(
+                    {
+                        "sticking-coefficient": self.process_arrhenius_parameters(
+                            arr_node
+                        )
+                    }
+                ),
             )
             species = arr_node.get("species", "")
             if species:
@@ -2346,12 +2461,14 @@ class Reaction:
             elif motz_wise == "false":
                 reaction_attributes["Motz-Wise"] = False
         else:
-            reaction_attributes = FlowMap(
-                {"rate-constant": self.process_arrhenius_parameters(arr_node)}
+            reaction_attributes = cast(
+                InterfaceType,
+                FlowMap({"rate-constant": self.process_arrhenius_parameters(arr_node)}),
             )
         cov_node = arr_node.find("coverage")
         if cov_node is not None:
             cov_species = cov_node.get("species")
+            assert cov_species is not None
             cov_a = cov_node.find("a")
             if cov_a is None:
                 raise MissingXMLNode(
@@ -2385,7 +2502,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def arrhenius(self, rate_coeff: etree.Element) -> "ARRHENIUS_TYPE":
+    def arrhenius(self, rate_coeff: etree.Element) -> ArrheniusType:
         """Process a standard Arrhenius-type reaction.
 
         :param rate_coeff:
@@ -2400,8 +2517,8 @@ class Reaction:
         )
 
     def process_arrhenius_parameters(
-        self, arr_node: Optional[etree.Element]
-    ) -> "ARRHENIUS_PARAMS":
+        self, arr_node: etree.Element | None
+    ) -> ArrheniusParams:
         """Process the parameters from an ``Arrhenius`` child of a ``rateCoeff`` node.
 
         :param arr_node:
@@ -2427,7 +2544,7 @@ class Reaction:
             }
         )
 
-    def process_efficiencies(self, eff_node: etree.Element) -> "EFFICIENCY_PARAMS":
+    def process_efficiencies(self, eff_node: etree.Element) -> EfficiencyParams:
         """Process the efficiency information about a reaction.
 
         :param eff_node:
@@ -2438,7 +2555,7 @@ class Reaction:
         return FlowMap({s: float(e) for s, e in efficiencies})
 
 
-def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Species]]:
+def create_species_from_data_node(ctml_tree: etree.Element) -> dict[str, list[Species]]:
     """Generate lists of `Species` instances mapped to the ``speciesData`` id string.
 
     :param ctml_tree:
@@ -2455,7 +2572,7 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
     If ``speciesData`` nodes with the same ``id`` attribute are found, only the first
     section with that ``id`` is put into the YAML output file.
     """
-    species = {}  # type: Dict[str, List[Species]]
+    species: dict[str, list[Species]] = {}
     for species_data_node in ctml_tree.iterfind("speciesData"):
         this_data_node_id = species_data_node.get("id", "")
         if this_data_node_id in species:
@@ -2473,7 +2590,7 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
 
 def create_reactions_from_data_node(
     ctml_tree: etree.Element,
-) -> Dict[str, List[Reaction]]:
+) -> dict[str, list[Reaction]]:
     """Generate lists of `Reaction` instances mapped to the ``reactionData`` id string.
 
     :param ctml_tree:
@@ -2490,7 +2607,7 @@ def create_reactions_from_data_node(
     If ``reactionData`` nodes with the same ``id`` attribute are found, only the first
     section with that ``id`` is put into the YAML output file.
     """
-    reactions = {}  # type: Dict[str, List[Reaction]]
+    reactions: dict[str, list[Reaction]] = {}
     for reactionData_node in ctml_tree.iterfind("reactionData"):
         node_motz_wise = False
         if reactionData_node.get("motz_wise", "").lower() == "true":
@@ -2511,9 +2628,9 @@ def create_reactions_from_data_node(
 
 def create_phases_from_data_node(
     ctml_tree: etree.Element,
-    species_data: Dict[str, List[Species]],
-    reaction_data: Dict[str, List[Reaction]],
-) -> List[Phase]:
+    species_data: dict[str, list[Species]],
+    reaction_data: dict[str, list[Reaction]],
+) -> list[Phase]:
     """Generate a list of `Phase` instances from XML ``phase`` nodes.
 
     :param ctml_tree:
@@ -2527,7 +2644,7 @@ def create_phases_from_data_node(
     instances. For any Lattice-type phases, the child ``phase`` nodes are un-nested
     from their parent node.
     """
-    phases = [
+    phases: list[Phase] = [
         Phase(node, species_data, reaction_data) for node in ctml_tree.iterfind("phase")
     ]
     l_nodes = []
@@ -2541,9 +2658,9 @@ def create_phases_from_data_node(
 
 
 def convert(
-    inpfile: Union[str, Path] = None,
-    outfile: Union[str, Path] = None,
-    text: str = None,
+    inpfile: str | Path | None = None,
+    outfile: str | Path | None = None,
+    text: str | None = None,
 ) -> None:
     """Convert an input legacy CTML file to a YAML file.
 
@@ -2587,39 +2704,43 @@ def convert(
     ctml_text = re.sub("&(?!amp;|quot;|apos;|lt;|gt;)", "&amp;", ctml_text)
     ctml_tree = etree.fromstring(ctml_text)
 
-    species_data = create_species_from_data_node(ctml_tree)
-    reaction_data = create_reactions_from_data_node(ctml_tree)
-    phases = create_phases_from_data_node(ctml_tree, species_data, reaction_data)
+    species_data: dict[str, list[Species]] = create_species_from_data_node(ctml_tree)
+    reaction_data: dict[str, list[Reaction]] = create_reactions_from_data_node(
+        ctml_tree
+    )
+    phases: list[Phase] = create_phases_from_data_node(
+        ctml_tree, species_data, reaction_data
+    )
 
     # This should be done after phase processing
-    output_species = BlockMap({})
+    output_species: dict[str, list[Species]] = BlockMap({})
     for species_node_id, species_list in species_data.items():
         if not species_list:
             continue
         if species_node_id == "species_data":
             species_node_id = "species"
         output_species[species_node_id] = species_list
-        output_species.yaml_set_comment_before_after_key(species_node_id, before="\n")
+        output_species.yaml_set_comment_before_after_key(species_node_id, before="\n")  # type: ignore[attr-defined]
 
-    output_reactions = BlockMap({})
+    output_reactions: dict[str, list[Reaction]] = BlockMap({})
     for reaction_node_id, reaction_list in reaction_data.items():
         if not reaction_list:
             continue
         if reaction_node_id == "reaction_data":
             reaction_node_id = "reactions"
         output_reactions[reaction_node_id] = reaction_list
-        output_reactions.yaml_set_comment_before_after_key(
+        output_reactions.yaml_set_comment_before_after_key(  # type: ignore[attr-defined]
             reaction_node_id, before="\n"
         )
 
-    output_phases = BlockMap({"phases": phases})
+    output_phases: CommentedMap = BlockMap({"phases": phases})
     output_phases.yaml_set_comment_before_after_key("phases", before="\n")
 
     emitter = yaml.YAML()
     for cl in [Phase, Species, SpeciesThermo, SpeciesTransport, Reaction]:
         emitter.register_class(cl)
 
-    metadata = BlockMap(
+    metadata: CommentedMap = BlockMap(
         {
             "generator": "ctml2yaml",
             "cantera-version": "3.2.0a4",
@@ -2637,11 +2758,11 @@ def convert(
             emitter.dump(output_reactions, output_file)
 
 
-def create_argparser():
+def create_argparser() -> ArgumentParser:
     """
     Create argparse parser
     """
-    parser = argparse.ArgumentParser(
+    parser: ArgumentParser = ArgumentParser(
         description="Convert legacy CTML input files to YAML format",
         epilog=(
             "The 'output' argument is optional. If it is not given, an output "
@@ -2655,14 +2776,14 @@ def create_argparser():
     return parser
 
 
-def main():
+def main() -> None:
     """Parse command line arguments and pass them to `convert`."""
     parser = create_argparser()
     if len(sys.argv) not in [2, 3]:
         if len(sys.argv) > 3:
             print(
                 "ctml2yaml.py: error: unrecognized arguments:",
-                ' '.join(sys.argv[3:]),
+                " ".join(sys.argv[3:]),
                 file=sys.stderr,
             )
         parser.print_help(sys.stderr)
