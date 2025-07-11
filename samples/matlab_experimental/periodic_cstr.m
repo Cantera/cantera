@@ -30,7 +30,7 @@ function periodic_cstr
     tic
     help periodic_cstr
 
-    % create the gas mixture
+    %% create the gas mixture
     gas = Solution('h2o2.yaml', 'ohmech');
 
     % pressure = 60 Torr, T = 770 K
@@ -39,26 +39,27 @@ function periodic_cstr
 
     gas.TPX = {300, p, 'H2:2, O2:1'};
 
-    % create an upstream reservoir that will supply the reactor.  The
-    % temperature, pressure, and composition of the upstream reservoir are
+    %%
+    % Create an upstream reservoir that will supply the reactor.
+    % The temperature, pressure, and composition of the upstream reservoir are
     % set to those of the 'gas' object at the time the reservoir is
     % created.
     upstream = Reservoir(gas);
-
+    %%
     % Now set the gas to the initial temperature of the reactor, and create
     % the reactor object.
     gas.TP = {t, p};
     cstr = IdealGasReactor(gas);
-
+    %%
     % Set its volume to 10 cm^3. In this problem, the reactor volume is
     % fixed, so the initial volume is the volume at all later times.
     cstr.V = 10.0 * 1.0e-6;
-
+    %%
     % We need to have heat loss to see the oscillations. Create a
     % reservoir to represent the environment, and initialize its
     % temperature to the reactor temperature.
     env = Reservoir(gas);
-
+    %%
     % Create a heat-conducting wall between the reactor and the
     % environment. Set its area, and its overall heat transfer
     % coefficient. Larger U causes the reactor to be closer to isothermal.
@@ -67,7 +68,7 @@ function periodic_cstr
     w = Wall(cstr, env);
     w.area = 1.0;
     w.heatTransferCoeff = 0.02;
-
+    %%
     % Connect the upstream reservoir to the reactor with a mass flow
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
     sccm = 1.25;
@@ -75,19 +76,19 @@ function periodic_cstr
     mdot = gas.massDensity * vdot; % kg/s
     mfc = MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
-
+    %%
     % now create a downstream reservoir to exhaust into.
     downstream = Reservoir(gas);
-
+    %%
     % connect the reactor to the downstream reservoir with a valve, and
     % set the coefficient sufficiently large to keep the reactor pressure
     % close to the downstream pressure of 60 Torr.
     v = Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
-
+    %%
     % create the network
     network = ReactorNet({cstr});
-
+    %%
     % now integrate in time
     tme = 0.0;
     dt = 0.1;
@@ -104,6 +105,12 @@ function periodic_cstr
         y(3, n) = cstr.massFraction('H2O');
     end
 
+    for i = 2:length(tm)
+        if abs(y(3, i-1) - y(3, i)) > (y(3, i-1) * 5)
+            disp(tm(i))
+        end
+    end
+    %% plot
     clf
     figure(1)
     plot(tm, y)
