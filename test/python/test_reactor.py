@@ -26,20 +26,18 @@ class TestReactor:
 
         self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
-        self.r1 = self.reactorClass(self.gas1, clone=True)
-
-        if independent:
-            self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
-        else:
-            self.gas2 = self.gas1
+        self.r1 = self.reactorClass(self.gas1, clone=independent)
 
         if n_reactors == 1:
             self.net = ct.ReactorNet([self.r1])
         else:
-            self.gas2.TPX = T2, P2, X2
-            self.r2 = self.reactorClass(self.gas2, clone=True)
+            self.gas1.TPX = T2, P2, X2
+            self.r2 = self.reactorClass(self.gas1, clone=independent)
             self.net = ct.ReactorNet([self.r1, self.r2])
         assert self.net.initial_time == 0.
+        if n_reactors == 2 and not independent:
+            with pytest.warns(UserWarning, match="using the same Solution"):
+                self.net.initialize()
 
     def add_wall(self, **kwargs):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
@@ -110,10 +108,10 @@ class TestReactor:
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
-        assert T1 == approx(self.gas1.T)
-        assert T2 == approx(self.gas2.T)
-        assert P1 == approx(self.gas1.P)
-        assert P2 == approx(self.gas2.P)
+        assert T1 == approx(self.r1.thermo.T)
+        assert T2 == approx(self.r2.thermo.T)
+        assert P1 == approx(self.r1.thermo.P)
+        assert P2 == approx(self.r2.thermo.P)
 
     def test_disjoint2(self):
         T1, P1 = 300, 101325
@@ -867,12 +865,12 @@ class TestReactor:
 
     def test_reservoir_sync(self):
         self.make_reactors(T1=800, n_reactors=1)
-        self.gas2.TP = 900, ct.one_atm
-        reservoir = ct.Reservoir(self.gas2)
+        self.gas1.TP = 900, ct.one_atm
+        reservoir = ct.Reservoir(self.gas1, clone=True)
         wall = ct.Wall(self.r1, reservoir, U=500)
         self.net.advance(1.0)
         assert self.r1.T == approx(872.099, rel=1e-3)
-        self.gas2.TP = 700, ct.one_atm
+        reservoir.thermo.TP = 700, ct.one_atm
         reservoir.syncState()
         self.net.reinitialize()
         self.net.advance(2.0)
