@@ -52,6 +52,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         size_t nAdjacent()
         shared_ptr[CxxSolution] adjacent(size_t)
         void holdExternalHandle(string&, shared_ptr[CxxExternalHandle])
+        shared_ptr[CxxExternalHandle] getExternalHandle(string&)
         void registerChangedCallback(void*, function[void()])
         void removeChangedCallback(void*)
 
