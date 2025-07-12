@@ -423,23 +423,6 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         newCrossSection["energy-levels"] = collisionItem["energy-levels"].asVector<double>();
                         newCrossSection["cross-sections"] = collisionItem["cross-sections"].asVector<double>();
 
-                        // Convert 'energy-levels' and 'cross-sections' into 'data' format
-                        std::vector<std::vector<double>> dataPairs;
-                        std::vector<double> energyLevels = collisionItem["energy-levels"].asVector<double>();
-                        std::vector<double> crossSections = collisionItem["cross-sections"].asVector<double>();
-
-                        if (energyLevels.size() != crossSections.size()) {
-                            throw CanteraError("PlasmaPhase::setParameters",
-                                                "Mismatch: `energy-levels` and `cross-sections` must have the same length.");
-                        }
-
-                        // Properly format 'data' field
-                        for (size_t i = 0; i < energyLevels.size(); i++) {
-                            dataPairs.push_back({energyLevels[i], crossSections[i]});
-                        }
-
-                        newCrossSection["data"] = dataPairs;
-
                         addElectronCrossSection(newElectronCrossSection(newCrossSection));
                         foundCrossSections = true;
                     }
