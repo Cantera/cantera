@@ -40,11 +40,9 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
     ecs->kind = node["kind"].asString();
     ecs->target = node["target"].asString();
 
-    auto& data = node["data"].asVector<vector<double>>();
-    for (size_t i = 0; i < data.size(); i++) {
-        ecs->energyLevel.push_back(data[i][0]);
-        ecs->crossSection.push_back(data[i][1]);
-    }
+    ecs->energyLevel = node["energy-levels"].asVector<double>();
+    ecs->crossSection = node["cross-sections"].asVector<double>(
+        ecs->energyLevel.size());
 
     if (node.hasKey("threshold")){
         ecs->threshold = node["threshold"].asDouble(); //std::stof(node.attrib("threshold"));
