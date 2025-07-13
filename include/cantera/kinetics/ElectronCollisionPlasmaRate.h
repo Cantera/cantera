@@ -167,34 +167,6 @@ public:
         return m_product;
     }
 
-
-    //! Set the value of #m_energyLevels [eV]
-    void set_energyLevels(vector<double> epsilon) {
-        m_energyLevels = epsilon;
-    }
-
-    //! Set the value of #m_crossSections [eV]
-    void set_crossSections(vector<double> sigma) {
-        m_crossSections = sigma;
-    }
-
-    //! Set the value of m_threshold [eV]
-    void set_threshold(double threshold)
-    {
-        m_threshold = threshold;
-    }
-
-    //! Mark the cross-section as valid and available for use.
-    void set_cs_ok() {
-        cs_ok = true;
-    }
-
-    //! Check if the cross-section data has been set and validated.
-    const bool get_cs_ok() const {
-        return cs_ok;
-    }
-
-
     //! The value of #m_energyLevels [eV]
     const vector<double>& energyLevels() const {
         return m_energyLevels;
@@ -230,9 +202,6 @@ private:
 
     //! The energy threshold of electron collision
     double m_threshold;
-
-    //! Check if a cross-section is define for this rate
-    bool cs_ok = false;
 
     //! electron energy levels [eV]
     vector<double> m_energyLevels;

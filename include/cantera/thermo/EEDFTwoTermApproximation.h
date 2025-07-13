@@ -69,6 +69,8 @@ public:
 
     void setLinearGrid(double& kTe_max, size_t& ncell);
 
+    void setGridCache();
+
     /**
      * Options controlling how the calculation is carried out.
      * @see TwoTermOpt
@@ -183,8 +185,6 @@ protected:
     void calculateTotalElasticCrossSection();
 
     void calculateTotalCrossSection();
-
-    void setGridCache();
 
     double norm(const Eigen::VectorXd& f, const Eigen::VectorXd& grid);
 
