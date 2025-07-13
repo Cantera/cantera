@@ -12,6 +12,10 @@ namespace Cantera
 
 double linearInterp(double x, const vector<double>& xpts, const vector<double>& fpts)
 {
+    AssertThrowMsg(!xpts.empty(), "linearInterp", "x data empty");
+    AssertThrowMsg(!fpts.empty(), "linearInterp", "f(x) data empty");
+    AssertThrowMsg(xpts.size() == fpts.size(), "linearInterp",
+        "len(xpts) = {}, len(fpts) = {}", xpts.size(), fpts.size());
     if (x <= xpts[0]) {
         return fpts[0];
     }
