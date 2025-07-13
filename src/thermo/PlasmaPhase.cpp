@@ -8,6 +8,7 @@
 #include <boost/math/special_functions/gamma.hpp>
 #include "cantera/thermo/Species.h"
 #include "cantera/base/global.h"
+#include "cantera/numerics/eigen_dense.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
@@ -27,11 +28,18 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 
     initThermoFile(inputFile, id_);
 
-    // initial grid
-    m_electronEnergyLevels = Eigen::ArrayXd::LinSpaced(m_nPoints, 0.0, 1.0);
-
     // initial electron temperature
     m_electronTemp = temperature();
+
+    // Initialize the Boltzmann Solver
+    ptrEEDFSolver = make_unique<EEDFTwoTermApproximation>(*this);
+
+    // Set Energy Grid (Hardcoded Defaults for Now)
+    double kTe_max = 60;
+    size_t nGridCells = 301;
+    m_nPoints = nGridCells + 1;
+    ptrEEDFSolver->setLinearGrid(kTe_max, nGridCells);
+    m_electronEnergyLevels = MappedVector(ptrEEDFSolver->getGridEdge().data(), m_nPoints);
 }
 
 void PlasmaPhase::initialize()
@@ -72,10 +80,7 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "TwoTermApproximation") {
         auto ierr = ptrEEDFSolver->calculateDistributionFunction();
         if (ierr == 0) {
-            auto x = ptrEEDFSolver->getGridEdge();
             auto y = ptrEEDFSolver->getEEDFEdge();
-            m_nPoints = x.size();
-            m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(x.data(), m_nPoints);
             m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(y.data(), m_nPoints);
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
@@ -315,134 +320,12 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
         }
 
         else if (m_distributionType == "TwoTermApproximation") {
-            bool foundCrossSections = false;
-
             // Check for 'cross-sections' block (Old Format)
             if (rootNode.hasKey("cross-sections")) {
                 for (const auto& item : rootNode["cross-sections"].asVector<AnyMap>()) {
                     addElectronCrossSection(newElectronCrossSection(item));
                 }
-                foundCrossSections = true;
             }
-
-            // Check for 'electron-collision-plasma' reactions (New Format)
-            if (rootNode.hasKey("reactions")) {
-                for (const auto& reactionItem : rootNode["reactions"].asVector<AnyMap>()) {
-                    if (reactionItem.hasKey("type") &&
-                        reactionItem["type"].asString() == "electron-collision-plasma" &&
-                        reactionItem.hasKey("energy-levels") &&
-                        reactionItem.hasKey("cross-sections")) {
-
-                        // Convert reaction into cross-section format
-                        AnyMap newCrossSection;
-                        newCrossSection["target"] = reactionItem.getString("target", "unknown");
-                        newCrossSection["product"] = reactionItem.getString("product", "unknown");
-                        newCrossSection["kind"] = reactionItem.getString("kind", "unknown");
-                        newCrossSection["energy-levels"] = reactionItem["energy-levels"].asVector<double>();
-                        newCrossSection["cross-sections"] = reactionItem["cross-sections"].asVector<double>();
-
-                        addElectronCrossSection(newElectronCrossSection(newCrossSection));
-                        foundCrossSections = true;
-                    }
-                }
-            }
-
-           if (rootNode.hasKey("collisions")) {
-                for (const auto& collisionItem : rootNode["collisions"].asVector<AnyMap>()) {
-                    if (collisionItem.hasKey("type") &&
-                        collisionItem["type"].asString() == "electron-collision-plasma" &&
-                        collisionItem.hasKey("energy-levels") &&
-                        collisionItem.hasKey("cross-sections")) {
-
-                        AnyMap newCrossSection;
-
-                        // Extract target from equation if not explicitly defined
-                        std::string equation = collisionItem.getString("equation", "");
-                        std::string targetSpecies = "unknown";
-                        std::vector<std::string> productSpeciesList;
-
-                        if (!equation.empty()) {
-                            size_t arrowPos = equation.find("=>");
-                            if (arrowPos != std::string::npos) {
-                                // Extract reactants
-                                std::string reactantSide = equation.substr(0, arrowPos);
-                                std::vector<std::string> reactants;
-                                std::stringstream ssReactants(reactantSide);
-                                std::string reactant;
-                                while (ssReactants >> reactant) {
-                                    if (reactant != "+" && reactant != "e") {  // Ignore '+' and 'e'
-                                        reactants.push_back(reactant);
-                                    }
-                                }
-
-                                // First reactant (non-electron) is the target species
-                                if (!reactants.empty()) {
-                                    targetSpecies = reactants[0];
-                                }
-
-                                // Extract products
-                                std::string productSide = equation.substr(arrowPos + 2);
-                                std::stringstream ssProducts(productSide);
-                                std::string product;
-                                while (ssProducts >> product) {
-                                    if (product != "+" && product != "e") {
-                                        productSpeciesList.push_back(product);
-                                    }
-                                }
-
-                            }
-                        }
-
-                        std::string productListStr = "{ ";
-                        for (const auto& p : productSpeciesList) {
-                            productListStr += p + " ";
-                        }
-                        productListStr += "}";
-
-                        std::string kind = "excitation"; // Default type
-                        if (productSpeciesList.size() == 1 && productSpeciesList[0] == targetSpecies) {
-                            kind = "effective";  // Elastic collision (momentum transfer)
-                        } else {
-                            for (const auto& p : productSpeciesList) {
-                                if (p.back() == '+') {
-                                    kind = "ionization";
-                                    break;
-                                }
-                                if (p.back() == '-') {
-                                    kind = "attachment";
-                                    break;
-                                }
-                            }
-                        }
-
-                        // store the correctly identified data
-                        newCrossSection["target"] = targetSpecies;
-                        newCrossSection["products"] = productSpeciesList;
-                        newCrossSection["product"] = productSpeciesList.empty() ? "unknown" : productSpeciesList[0];
-                        newCrossSection["kind"] = kind;
-                        newCrossSection["energy-levels"] = collisionItem["energy-levels"].asVector<double>();
-                        newCrossSection["cross-sections"] = collisionItem["cross-sections"].asVector<double>();
-
-                        addElectronCrossSection(newElectronCrossSection(newCrossSection));
-                        foundCrossSections = true;
-                    }
-                }
-            }
-
-            // Throw error if no valid cross-section data is found
-            if (!foundCrossSections) {
-                throw CanteraError("PlasmaPhase::setParameters",
-                    "No valid electron collision cross-section data found.");
-            }
-
-            // Initialize the Boltzmann Solver
-            ptrEEDFSolver = make_unique<EEDFTwoTermApproximation>(*this);
-
-            // Set Energy Grid (Hardcoded Defaults for Now)
-            double kTe_max = 60;
-            size_t nGridCells = 301;
-            m_nPoints = nGridCells + 1;
-            ptrEEDFSolver->setLinearGrid(kTe_max, nGridCells);
         }
     }
 }
@@ -490,6 +373,7 @@ bool PlasmaPhase::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
     m_ncs++;
 
     m_f0_ok = false;
+    ptrEEDFSolver->setGridCache();
 
     return true;
 }
@@ -527,67 +411,6 @@ void PlasmaPhase::initThermo()
     // Initialize kinetics
     m_kinetics = newKinetics("bulk");
     m_kinetics->addThermo(shared_from_this());
-
-    vector<shared_ptr<Reaction>> reactions;
-    for (AnyMap R : reactionsAnyMapList(*m_kinetics, m_input, m_root)) {
-        shared_ptr<Reaction> reaction = newReaction(R, *m_kinetics);
-
-        // Check if this is an 'electron-collision-plasma' reaction
-        if (reaction->type() == "electron-collision-plasma") {
-            auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(reaction->rate());
-
-            // If the reaction already has 'energy-levels' and 'cross-sections', use them
-            if (R.hasKey("energy-levels") && R.hasKey("cross-sections")) {
-                rate->set_energyLevels(R["energy-levels"].asVector<double>());
-                rate->set_crossSections(R["cross-sections"].asVector<double>());
-                rate->set_threshold(R.getDouble("threshold", 0.0));
-                rate->set_cs_ok();  // Mark as valid cross-section data
-
-            } else {
-                // Try to match with preloaded cross-sections in 'm_ecss[]' (old format)
-                for (size_t k = 0; k < m_ncs; k++) {
-                    if (rate->target() == m_ecss[k]->target &&
-                        rate->product() == m_ecss[k]->product &&
-                        rate->kind() == m_ecss[k]->kind) {
-
-                        rate->set_crossSections(m_ecss[k]->crossSection);
-                        rate->set_energyLevels(m_ecss[k]->energyLevel);
-                        rate->set_threshold(m_ecss[k]->threshold);
-                        rate->set_cs_ok();
-                    }
-                }
-            }
-
-            // Check if cross-section data exists
-            if (!(rate->get_cs_ok())) {
-                throw CanteraError("PlasmaPhase::initThermo",
-                                   "Energy levels and cross-sections are undefined for an electron-collision-plasma reaction.");
-            }
-        }
-
-        reactions.push_back(reaction);
-    }
-
-    // Add reactions to the kinetics object
-    addReactions(*m_kinetics, reactions);
-
-    // Initialize 'm_collisions' and identify elastic collisions
-    m_collisions.clear();
-    size_t i = 0;
-    for (shared_ptr<Reaction> reaction : reactions) {
-        if (reaction->type() == "electron-collision-plasma") {
-            m_collisions.push_back(reaction);
-
-            // Check if the reaction is elastic (reactants = products)
-            if (reaction->reactants == reaction->products) {
-                m_elasticCollisionIndices.push_back(i);
-            }
-            i++;  // Count only 'electron-collision-plasma' reactions
-        }
-    }
-
-    // Interpolate cross-sections
-    updateInterpolatedCrossSections();
 }
 
 void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
@@ -659,9 +482,51 @@ void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
     m_collisionRates.emplace_back(
         std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate()));
     m_interp_cs_ready.emplace_back(false);
+    // Check if the reaction is elastic (reactants = products)
+    if (collision->reactants == collision->products) {
+        m_elasticCollisionIndices.push_back(i);
+    }
 
     // resize parameters
     m_elasticElectronEnergyLossCoefficients.resize(nCollisions());
+    updateInterpolatedCrossSections();
+
+    // Set up data used by Boltzmann solver
+    auto& rate = *m_collisionRates.back();
+    AnyMap cs;
+    cs["equation"] = collision->equation();
+    auto target = collision->reactants;
+    auto products = collision->products;
+    target.erase(speciesName(electronSpeciesIndex()));
+    if (target.empty()) {
+        throw CanteraError("PlasmaPhase::addCollision", "Error identifying target for"
+            " collision with equation '{}'", collision->equation());
+    }
+    cs["target"] = target.begin()->first;
+    products.erase(speciesName(electronSpeciesIndex()));
+
+    // Determine collision type from reaction equation
+    string kind = "excitation"; // default
+    vector<string> productList;
+    if (products == target) {
+        kind = "effective";
+    } else {
+        for (const auto& [p, stoich] : products) {
+            double q = charge(speciesIndex(p));
+            productList.push_back(p);
+            if (q > 0) {
+                kind = "ionization";
+            } else if (q < 0) {
+                kind = "attachment";
+            }
+        }
+    }
+
+    cs["kind"] = kind;
+    cs["products"] = productList;
+    cs["energy-levels"] = rate.energyLevels();
+    cs["cross-sections"] = rate.crossSections();
+    addElectronCrossSection(newElectronCrossSection(cs));
 }
 
 bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)

@@ -81,14 +81,6 @@ void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitSt
             throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
                                "Mismatch: `energy-levels` and `cross-sections` must have the same length.");
         }
-
-        cs_ok = true;  // Mark as valid cross-section data
-    }
-
-    //  **If no cross-section data was found, defer to PlasmaPhase (old format)**
-    else {
-        //writelog("No cross-section data found in reaction, relying on PlasmaPhase initialization.\n");
-        cs_ok = false;  //  This will be handled later in `PlasmaPhase::initThermo()`
     }
 }
 
