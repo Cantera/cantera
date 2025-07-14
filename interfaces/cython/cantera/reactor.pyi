@@ -479,7 +479,7 @@ class ReactorNet:
         max_steps: int,
         residual_threshold: float,
         atol: float,
-        return_residual: Literal[False],
+        return_residual: Literal[False] = False,
     ) -> None: ...
     @overload
     def advance_to_steady_state(
