@@ -28,11 +28,19 @@ Reaction::Reaction(const Composition& reactants_,
                    const Composition& products_,
                    shared_ptr<ReactionRate> rate_,
                    shared_ptr<ThirdBody> tbody_)
-    : reactants(reactants_)
-    , products(products_)
-    , m_from_composition(true)
+    : m_from_composition(true)
     , m_third_body(tbody_)
 {
+    for (auto& [species, stoich] : reactants_) {
+        if (stoich != 0.0) {
+            reactants[species] = stoich;
+        }
+    }
+    for (auto& [species, stoich] : products_) {
+        if (stoich != 0.0) {
+            products[species] = stoich;
+        }
+    }
     if (reactants.count("M") || products.count("M")) {
         throw CanteraError("Reaction::Reaction",
             "Third body 'M' must not be included in either reactant or product maps.");
@@ -56,7 +64,9 @@ Reaction::Reaction(const Composition& reactants_,
         if (name != "M") {
             m_third_body->explicit_3rd = true;
         }
-    } else if (!tbody_ && third.size() == 1) {
+    } else if (!tbody_ && third.size() == 1
+               && m_rate->type() != "electron-collision-plasma")
+    {
         // implicit third body
         string name = third.begin()->first;
         m_third_body = make_shared<ThirdBody>(name);

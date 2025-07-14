@@ -10,7 +10,6 @@
 #define CT_PLASMAPHASE_H
 
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/ElectronCrossSection.h"
 #include "cantera/thermo/EEDFTwoTermApproximation.h"
 #include "cantera/numerics/eigen_sparse.h"
 
@@ -108,8 +107,6 @@ public:
 
     //! Overload to signal updating electron energy density function.
     virtual void setTemperature(const double temp) override;
-
-    bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
@@ -312,32 +309,19 @@ public:
 
     // number of cross section dataset
     size_t nElectronCrossSections() const {
-        return m_ncs;
+        return m_collisions.size();
     }
 
     // target of a specific process
-    string target(size_t k) {
-        return m_ecss[k]->target;
-    }
-
-    // product of a specific process
-    string product(size_t k) {
-        return m_ecss[k]->product;
-    }
-
-    const std::vector<std::string>& products(size_t k) const {
-        return m_ecss[k]->products;  // Directly retrieve the stored product list
+    size_t targetIndex(size_t i) const {
+        return m_targetSpeciesIndices[i];
     }
 
     // kind of a specific process
-    string kind(size_t k) {
-        return m_ecss[k]->kind;
-    }
+    string kind(size_t k) const;
 
     // threshold of a specific process
-    double threshold(size_t k) {
-        return m_ecss[k]->threshold;
-    }
+    double threshold(size_t k) const;
 
     vector<int> shiftFactor() const {
         return m_shiftFactor;
@@ -515,15 +499,6 @@ protected:
     //! list of target species indices in local X EEDF numbering (1 index per cs)
     //std::vector<size_t> m_klocTargets;
 
-    //! number of cross section sets
-    size_t m_ncs;
-
-    //! array of cross-section object
-    vector<shared_ptr<ElectronCrossSection>> m_ecss;
-
-    //! Kinetics object used for handling elastic collision rates
-    shared_ptr<Kinetics> m_kinetics;
-
     //! Cross section data. m_crossSections[i][j], where i is the specific process,
     //! j is the index of vector. Unit: [m^2]
     std::vector<vector<double>> m_crossSections;
@@ -621,9 +596,6 @@ private:
     //! Set collisions. This function sets the list of collisions and
     //! the list of target species using #addCollision.
     void setCollisions();
-
-    //! The last Kinetics object seen by setCollisions. Used to avoid spurious updates
-    Kinetics* m_collisionKinSource = nullptr;
 
     //! Add a collision and record the target species
     void addCollision(std::shared_ptr<Reaction> collision);

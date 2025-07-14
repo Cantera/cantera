@@ -82,12 +82,17 @@ void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitSt
                                "Mismatch: `energy-levels` and `cross-sections` must have the same length.");
         }
     }
+
+    m_threshold = node.getDouble("threshold", 0.0);
 }
 
 void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["type"] = type();
     node["energy-levels"] = m_energyLevels;
     node["cross-sections"] = m_crossSections;
+    if (!m_kind.empty()) {
+        node["kind"] = m_kind;
+    }
 }
 
 void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
@@ -185,10 +190,11 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
 
 void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
+    const ThermoPhase& thermo = kin.thermo();
     // get electron species name
     string electronName;
-    if (kin.thermo().type() == "plasma") {
-        electronName = dynamic_cast<const PlasmaPhase&>(kin.thermo()).electronSpeciesName();
+    if (thermo.type() == "plasma") {
+        electronName = dynamic_cast<const PlasmaPhase&>(thermo).electronSpeciesName();
     } else {
         throw CanteraError("ElectronCollisionPlasmaRate::setContext",
                            "ElectronCollisionPlasmaRate requires plasma phase");
@@ -205,6 +211,37 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
     if (rxn.reactants.at(electronName) != 1) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires one and only one electron");
+    }
+
+    // Determine the "kind" of collision if not specified explicitly
+    if (m_kind.empty()) {
+        m_kind = "excitation"; // default
+        if (rxn.reactants == rxn.products) {
+            m_kind = "effective";
+        } else {
+            for (const auto& [p, stoich] : rxn.products) {
+                if (p == electronName) {
+                    continue;
+                }
+                double q = thermo.charge(thermo.speciesIndex(p));
+                if (q > 0) {
+                    m_kind = "ionization";
+                } else if (q < 0) {
+                    m_kind = "attachment";
+                }
+            }
+        }
+    }
+
+    if (m_threshold == 0.0 &&
+        (m_kind == "excitation" || m_kind == "ionization" || m_kind == "attachment"))
+    {
+        for (size_t i = 0; i < m_energyLevels.size(); i++) {
+            if (m_energyLevels[i] > 0.0) {  // Look for first non-zero cross-section
+                m_threshold = m_energyLevels[i];
+                break;
+            }
+        }
     }
 
     if (!rxn.reversible) {
