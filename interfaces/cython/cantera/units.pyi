@@ -1,4 +1,4 @@
-from typing import Sequence, TypedDict, overload
+from typing import TypedDict, overload
 
 from cantera._types import Array
 
@@ -56,7 +56,7 @@ class UnitSystem:
     def convert_to(self, quantity: Array, dest: str | Units) -> Array: ...
     @overload
     def convert_to(
-        self, quantity: Sequence[str | float], dest: str | Units
+        self, quantity: list[str | float] | tuple[str | float, ...], dest: str | Units
     ) -> list[float]: ...
     @overload
     def convert_activation_energy_to(
@@ -68,7 +68,7 @@ class UnitSystem:
     ) -> Array: ...
     @overload
     def convert_activation_energy_to(
-        self, quantity: Sequence[str | float], dest: str | Units
+        self, quantity: list[str | float] | tuple[str | float, ...], dest: str | Units
     ) -> list[float]: ...
     @overload
     def convert_rate_coeff_to(
@@ -80,5 +80,7 @@ class UnitSystem:
     ) -> Array: ...
     @overload
     def convert_rate_coeff_to(
-        self, quantity: Sequence[str | float], dest: str | Units | UnitStack
+        self,
+        quantity: list[str | float] | tuple[str | float, ...],
+        dest: str | Units | UnitStack,
     ) -> list[float]: ...
