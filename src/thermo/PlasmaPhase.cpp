@@ -13,6 +13,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
 #include <boost/polymorphic_pointer_cast.hpp>
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 
@@ -44,7 +45,6 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 
 void PlasmaPhase::initialize()
 {
-    m_ncs = 0;
     m_f0_ok = false;
     m_EN = 0.0;
     m_E = 0.0;
@@ -319,63 +319,28 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                                              eedf["energy-levels"].asVector<double>().size());
         }
 
-        else if (m_distributionType == "TwoTermApproximation") {
-            // Check for 'cross-sections' block (Old Format)
-            if (rootNode.hasKey("cross-sections")) {
-                for (const auto& item : rootNode["cross-sections"].asVector<AnyMap>()) {
-                    addElectronCrossSection(newElectronCrossSection(item));
+        if (rootNode.hasKey("cross-sections")) {
+            for (const auto& item : rootNode["cross-sections"].asVector<AnyMap>()) {
+                auto rate = make_shared<ElectronCollisionPlasmaRate>(item);
+                Composition reactants, products;
+                reactants[item["target"].asString()] = 1;
+                reactants[electronSpeciesName()] = 1;
+                if (item.hasKey("product")) {
+                    products[item["product"].asString()] = 1;
+                } else {
+                    products[item["target"].asString()] = 1;
                 }
+                products[electronSpeciesName()] = 1;
+                if (rate->kind() == "ionization") {
+                    products[electronSpeciesName()] += 1;
+                } else if (rate->kind() == "attachment") {
+                    products[electronSpeciesName()] -= 1;
+                }
+                auto R = make_shared<Reaction>(reactants, products, rate);
+                addCollision(R);
             }
         }
     }
-}
-
-
-bool PlasmaPhase::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
-{
-    // ecs->validate();
-    m_ecss.push_back(ecs);
-
-    m_energyLevels.push_back(ecs->energyLevel);
-    m_crossSections.push_back(ecs->crossSection);
-
-    // shift factor
-    if (ecs->kind == "ionization") {
-        m_shiftFactor.push_back(2);
-    } else {
-        m_shiftFactor.push_back(1);
-    }
-
-    // scattering-in factor
-    if (ecs->kind == "ionization") {
-        m_inFactor.push_back(2);
-    } else if (ecs->kind == "attachment") {
-        m_inFactor.push_back(0);
-    } else {
-        m_inFactor.push_back(1);
-    }
-
-    if (ecs->kind == "effective" || ecs->kind == "elastic") {
-        for (size_t k = 0; k < m_ncs; k++) {
-            if (target(k) == ecs->target)
-                if (kind(k) == "elastic" || kind(k) == "effective") {
-                    throw CanteraError("PlasmaPhase::addElectronCrossSection"
-                                       "Already contains a data of effective/ELASTIC cross section for '{}'.",
-                                       ecs->target);
-            }
-        }
-        m_kElastic.push_back(m_ncs);
-    } else {
-        m_kInelastic.push_back(m_ncs);
-    }
-
-    // add one to number of cross sections
-    m_ncs++;
-
-    m_f0_ok = false;
-    ptrEEDFSolver->setGridCache();
-
-    return true;
 }
 
 bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
@@ -407,10 +372,6 @@ void PlasmaPhase::initThermo()
         throw CanteraError("PlasmaPhase::initThermo",
                            "No electron species found.");
     }
-
-    // Initialize kinetics
-    m_kinetics = newKinetics("bulk");
-    m_kinetics->addThermo(shared_from_this());
 }
 
 void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
@@ -426,21 +387,22 @@ void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
 
 void PlasmaPhase::setCollisions()
 {
-    m_collisions.clear();
-    m_collisionRates.clear();
-    m_targetSpeciesIndices.clear();
-
     if (shared_ptr<Solution> soln = m_soln.lock()) {
         shared_ptr<Kinetics> kin = soln->kinetics();
-        if (!kin || kin.get() == m_collisionKinSource) {
+        if (!kin) {
             return;
         }
-        m_collisionKinSource = kin.get();
 
-        // add collision from the initial list of reactions
+        // add collision from the initial list of reactions. Only add reactions we
+        // haven't seen before
+        set<Reaction*> existing;
+        for (auto& R : m_collisions) {
+            existing.insert(R.get());
+        }
         for (size_t i = 0; i < kin->nReactions(); i++) {
             std::shared_ptr<Reaction> R = kin->reaction(i);
-            if (R->rate()->type() != "electron-collision-plasma") {
+            if (R->rate()->type() != "electron-collision-plasma"
+                || existing.count(R.get())) {
                 continue;
             }
             addCollision(R);
@@ -470,12 +432,18 @@ void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
     });
 
     // Identify target species for electron-collision reactions
+    string target;
     for (const auto& [name, _] : collision->reactants) {
         // Reactants are expected to be electrons and the target species
         if (name != electronSpeciesName()) {
             m_targetSpeciesIndices.emplace_back(speciesIndex(name));
+            target = name;
             break;
         }
+    }
+    if (target.empty()) {
+        throw CanteraError("PlasmaPhase::addCollision", "Error identifying target for"
+            " collision with equation '{}'", collision->equation());
     }
 
     m_collisions.emplace_back(collision);
@@ -493,40 +461,42 @@ void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
 
     // Set up data used by Boltzmann solver
     auto& rate = *m_collisionRates.back();
-    AnyMap cs;
-    cs["equation"] = collision->equation();
-    auto target = collision->reactants;
-    auto products = collision->products;
-    target.erase(speciesName(electronSpeciesIndex()));
-    if (target.empty()) {
-        throw CanteraError("PlasmaPhase::addCollision", "Error identifying target for"
-            " collision with equation '{}'", collision->equation());
-    }
-    cs["target"] = target.begin()->first;
-    products.erase(speciesName(electronSpeciesIndex()));
+    string kind = m_collisionRates.back()->kind();
 
-    // Determine collision type from reaction equation
-    string kind = "excitation"; // default
-    vector<string> productList;
-    if (products == target) {
-        kind = "effective";
+    // shift factor
+    if (kind == "ionization") {
+        m_shiftFactor.push_back(2);
     } else {
-        for (const auto& [p, stoich] : products) {
-            double q = charge(speciesIndex(p));
-            productList.push_back(p);
-            if (q > 0) {
-                kind = "ionization";
-            } else if (q < 0) {
-                kind = "attachment";
+        m_shiftFactor.push_back(1);
+    }
+
+    // scattering-in factor
+    if (kind == "ionization") {
+        m_inFactor.push_back(2);
+    } else if (kind == "attachment") {
+        m_inFactor.push_back(0);
+    } else {
+        m_inFactor.push_back(1);
+    }
+
+    if (kind == "effective" || kind == "elastic") {
+        for (size_t k = 0; k < m_collisions.size() - 1; k++) {
+            if (m_collisions[k]->reactants == collision->reactants)
+                if (this->kind(k) == "elastic" || this->kind(k) == "effective") {
+                    throw CanteraError("PlasmaPhase::addCollision"
+                                       "Already contains a data of effective/ELASTIC cross section for '{}'.",
+                                       target);
             }
         }
+        m_kElastic.push_back(i);
+    } else {
+        m_kInelastic.push_back(i);
     }
 
-    cs["kind"] = kind;
-    cs["products"] = productList;
-    cs["energy-levels"] = rate.energyLevels();
-    cs["cross-sections"] = rate.crossSections();
-    addElectronCrossSection(newElectronCrossSection(cs));
+    m_f0_ok = false;
+    m_energyLevels.push_back(rate.energyLevels());
+    m_crossSections.push_back(rate.crossSections());
+    ptrEEDFSolver->setGridCache();
 }
 
 bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)
@@ -706,6 +676,15 @@ void PlasmaPhase::updateThermo() const
     m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
     // update the nDensity array
 }
+
+string PlasmaPhase::kind(size_t k) const {
+    return m_collisionRates[k]->kind();
+}
+
+double PlasmaPhase::threshold(size_t k) const {
+    return m_collisionRates[k]->threshold();
+}
+
 
 double PlasmaPhase::enthalpy_mole() const {
     double value = IdealGasPhase::enthalpy_mole();

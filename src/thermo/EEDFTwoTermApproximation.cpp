@@ -46,26 +46,9 @@ void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
 
 int EEDFTwoTermApproximation::calculateDistributionFunction()
 {
-    if (m_first_call)
-    {
-
-        for (size_t k = 0; k < m_phase->nElectronCrossSections(); k++) {
-
-            std::string target = m_phase->target(k);
-            std::vector<std::string> products = m_phase->products(k);
-
-            // Print all identified products
-            std::string productListStr = "{ ";
-            for (const auto& p : products) {
-                productListStr += p + " ";
-            }
-            productListStr += "}";
-
+    if (m_first_call) {
         initSpeciesIndexCS();
         m_first_call = false;
-        }
-    } else {
-
     }
 
     update_mole_fractions();
@@ -170,18 +153,8 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     vector_fp g = vector_g(f0);
 
     for (size_t k : m_phase->kInelastic()) {
-        std::vector<std::string> products = m_phase->products(k);  // Retrieve all products
-
-        // Format product list as a string
-        std::string productListStr = "{ ";
-        for (const auto& p : products) {
-            productListStr += p + " ";
-        }
-        productListStr += "}";
-
         SparseMat_fp Q_k = matrix_Q(g, k);
         SparseMat_fp P_k = matrix_P(g, k);
-
         PQ += (matrix_Q(g, k) - matrix_P(g, k)) * m_X_targets[m_klocTargets[k]];
     }
 
@@ -503,12 +476,7 @@ void EEDFTwoTermApproximation::initSpeciesIndexCS()
     for (size_t k = 0; k < m_phase->nElectronCrossSections(); k++)
     {
 
-        m_kTargets[k] = m_phase->speciesIndex(m_phase->target(k));
-        if (m_kTargets[k] == string::npos) {
-            throw CanteraError("EEDFTwoTermApproximation::initSpeciesIndexCS"
-                               " species not found!",
-                               m_phase->target(k));
-        }
+        m_kTargets[k] = m_phase->targetIndex(k);
         // Check if it is a new target or not :
         auto it = find(m_k_lg_Targets.begin(), m_k_lg_Targets.end(), m_kTargets[k]);
 
@@ -584,15 +552,6 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
     for (size_t k = 0; k < m_phase->nElectronCrossSections(); k++) {
         vector_fp x = m_phase->energyLevels()[k];
         vector_fp y = m_phase->crossSections()[k];
-
-        std::vector<std::string> products = m_phase->products(k);  // Retrieve all products
-
-        // Format product list as a string
-        std::string productListStr = "{ ";
-        for (const auto& p : products) {
-            productListStr += p + " ";
-        }
-        productListStr += "}";
 
         for (size_t i = 0; i < options.m_points; i++) {
             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *

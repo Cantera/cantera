@@ -167,6 +167,11 @@ public:
         return m_product;
     }
 
+    //! Get the energy threshold of electron collision [eV]
+    double threshold() const {
+        return m_threshold;
+    }
+
     //! The value of #m_energyLevels [eV]
     const vector<double>& energyLevels() const {
         return m_energyLevels;
