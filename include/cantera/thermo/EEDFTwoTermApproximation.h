@@ -90,12 +90,6 @@ public:
     }
 
 protected:
-    /**
-     * Prepare for EEDF calculations.
-     * @param s object representing the solution phase.
-     */
-    void initialize(PlasmaPhase& s);
-
     //! Pointer to the PlasmaPhase object used to initialize this object.
     /*!
      * This PlasmaPhase object must be compatible with the PlasmaPhase objects
