@@ -105,6 +105,18 @@ jobs:
       with:
         submodules: recursive
         persist-credentials: false
+    - name: Check out updated example data
+      if: github.event_name == 'pull_request'
+      env:
+        BASE_PR: ${{ github.event.number }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd data/example_data
+        gh repo set-default Cantera/cantera-example-data
+        DATA_PR=$(gh pr list --repo Cantera/cantera-example-data --jq '.[] | select(.title | test("Cantera/cantera#'${BASE_PR}'")) | .number'  --json title,number)
+        if [ -n "$DATA_PR" ]; then
+          gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
+        fi
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -419,6 +431,17 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
+      - name: Check out updated example data
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_PR: ${{ github.event.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd data/example_data
+          DATA_PR=$(gh pr list --repo Cantera/cantera-example-data --jq '.[] | select(.title | test("Cantera/cantera#'${BASE_PR}'")) | .number'  --json title,number)
+          if [ -n "$DATA_PR" ]; then
+            gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
+          fi
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
         with:
