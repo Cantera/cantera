@@ -105,9 +105,6 @@ public:
 
     void initThermo() override;
 
-    //! Overload to signal updating electron energy density function.
-    virtual void setTemperature(const double temp) override;
-
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
@@ -331,11 +328,6 @@ public:
         return m_inFactor;
     }
 
-    // Gas number density [m^-3]
-    double N() const {
-        return molarDensity() * Avogadro;
-    }
-
     double F() const {
         return m_F;
     }
@@ -346,10 +338,6 @@ public:
 
     double ionDegree() const {
         return m_ionDegree;
-    }
-
-    double kT() const {
-        return m_kT;
     }
 
     double EN() const {
@@ -484,26 +472,17 @@ protected:
     //! reduced electric field [V.m2]
     double m_EN;
 
-    //! reduced electric field [Td]
-    //double m_EN_Td;
-
     //! electric field freq [Hz]
     double m_F;
 
     //! normalized electron energy distribution function
     Eigen::VectorXd m_f0;
 
-    //! Mole fraction of targets
-    //vector<double> m_X_targets;
-
-    //! list of target species indices in local X EEDF numbering (1 index per cs)
-    //std::vector<size_t> m_klocTargets;
-
     //! Cross section data. m_crossSections[i][j], where i is the specific process,
     //! j is the index of vector. Unit: [m^2]
     std::vector<vector<double>> m_crossSections;
 
-    //! Electron energy levels correpsonding to the cross section data. m_energyLevels[i][j],
+    //! Electron energy levels corresponding to the cross section data. m_energyLevels[i][j],
     //! where i is the specific process, j is the index of vector. Unit: [eV]
     std::vector<vector<double>> m_energyLevels;
 
@@ -523,8 +502,6 @@ protected:
     //! ionization degree for the electron-electron collisions (tmp is the previous one)
     double m_ionDegree;
 
-    //! Boltzmann constant times gas temperature [eV]
-    double m_kT;
     //! Data for initiate reaction
     AnyMap m_root;
 
