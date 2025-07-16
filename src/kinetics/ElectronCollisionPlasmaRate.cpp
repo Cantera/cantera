@@ -36,13 +36,11 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     pp.getElectronEnergyDistribution(distribution.data());
 
     // Update energy levels
-    // levelChanged = pp.levelNumber() != m_level_number;
-    // if (levelChanged) {
-        m_level_number = pp.levelNumber();
+    if (pp.levelNumber() != levelNumber || energyLevels.empty()) {
+        levelNumber = pp.levelNumber();
         energyLevels.resize(pp.nElectronEnergyLevels());
         pp.getElectronEnergyLevels(energyLevels.data());
-    // }
-
+    }
     return true;
 }
 
@@ -114,16 +112,19 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
-    // the electron energy distribution function when the interpolated
-    // cross section is empty
-    // Note that the PlasmaPhase should handle the interpolated cross sections
-    // for all ElectronCollisionPlasmaRate reactions
-    if (m_crossSectionsInterpolated.size() == 0) {
+    // the electron energy distribution function when the EEDF from the phase changes
+    if (m_levelNumber != shared_data.levelNumber) {
+        m_crossSectionsInterpolated.clear();
         for (double level : shared_data.energyLevels) {
             m_crossSectionsInterpolated.push_back(linearInterp(level,
                                                   m_energyLevels, m_crossSections));
         }
+        m_levelNumber = shared_data.levelNumber;
     }
+
+    AssertThrowMsg(m_crossSectionsInterpolated.size() == shared_data.distribution.size(),
+        "ECPR:evalFromStruct", "Size mismatch: len(interp) = {}, len(distrib) = {}",
+        m_crossSectionsInterpolated.size(), shared_data.distribution.size());
 
     // Map cross sections to Eigen::ArrayXd
     auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
@@ -154,22 +155,9 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
         return;
     }
 
-    if (m_crossSectionsOffset.size() != shared_data.energyLevels.size()) {
-        m_crossSectionsOffset.resize(shared_data.energyLevels.size());
-        vector<double> superElasticEnergyLevels{0.0};
-        for (size_t i = 1; i < m_energyLevels.size(); i++) {
-            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_energyLevels[0]);
-        }
-        for (size_t i = 0; i < shared_data.energyLevels.size(); i++) {
-            m_crossSectionsOffset[i] = linearInterp(shared_data.energyLevels[i],
-                                                    superElasticEnergyLevels,
-                                                    m_crossSections);
-        }
-    }
-
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
-    if (shared_data.levelChanged) {
+    if (m_levelNumberSuperelastic != shared_data.levelNumber) {
         // super elastic collision energy levels and cross-sections
         vector<double> superElasticEnergyLevels{0.0};
         m_crossSectionsOffset.resize(shared_data.energyLevels.size());
@@ -184,6 +172,7 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
                                                         superElasticEnergyLevels,
                                                         m_crossSections);
         }
+        m_levelNumberSuperelastic = shared_data.levelNumber;
     }
 
     // Map energyLevels in Eigen::ArrayXd
