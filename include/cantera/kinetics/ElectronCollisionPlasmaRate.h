@@ -35,14 +35,13 @@ struct ElectronCollisionPlasmaData : public ReactionData
 
     vector<double> energyLevels; //!< electron energy levels
     vector<double> distribution; //!< electron energy distribution
-    bool levelChanged;
+
+    //! integer that is incremented when electron energy levels change
+    int levelNumber = -2;
 
 protected:
     //! integer that is incremented when electron energy distribution changes
-    int m_dist_number = -1;
-
-    //! integer that is incremented when electron energy level changes
-    int m_level_number = -1;
+    int m_dist_number = -2;
 };
 
 
@@ -239,6 +238,13 @@ private:
 
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
+
+    //! Counter used to indicate when #m_energyLevels needs to be synced with the phase
+    int m_levelNumber = -3;
+
+    //! Counter used to indicate when #m_crossSectionsOffset needs to be synced with the
+    //! phase
+    int m_levelNumberSuperelastic = -2;
 
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
