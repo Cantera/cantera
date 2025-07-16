@@ -232,7 +232,10 @@ public:
     }
 
     //! Returns the current internal energy (J/kg) of the reactor's contents.
+    //! @deprecated  To be removed after %Cantera 3.2.
     double intEnergy_mass() const {
+        warn_deprecated("ReactorBase::intEnergy_mass",
+                        "To be removed after Cantera 3.2.");
         return m_intEnergy;
     }
 
@@ -304,7 +307,10 @@ protected:
     double m_vol = 0.0; //!< Current volume of the reactor [m^3]
     double m_mass = 0.0; //!< Current mass of the reactor [kg]
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
-    double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
+
+    //! Current internal energy of the reactor [J/kg]
+    //! @deprecated  To be removed after %Cantera 3.2
+    double m_intEnergy = 0.0;
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
     vector<double> m_state;
     vector<FlowDevice*> m_inlet, m_outlet;
