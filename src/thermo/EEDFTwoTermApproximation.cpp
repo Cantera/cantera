@@ -17,11 +17,6 @@ namespace Cantera
 
 EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase& s)
 {
-    initialize(s);
-}
-
-void EEDFTwoTermApproximation::initialize(PlasmaPhase& s)
-{
     // store a pointer to s.
     m_phase = &s;
     m_first_call = true;
@@ -326,11 +321,12 @@ SparseMat_fp EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         eeColIntegrals(A1, A2, A3, a, options.m_points);
     }
 
+    double nDensity = m_phase->molarDensity() * Avogadro;
     double alpha;
     if (options.m_growth == "spatial") {
         double mu = electronMobility(f0);
         double D = electronDiffusivity(f0);
-        alpha = (mu * m_phase->E() - sqrt(pow(mu * m_phase->E(), 2) - 4 * D * nu * m_phase->N())) / 2.0 / D / m_phase->N();
+        alpha = (mu * m_phase->E() - sqrt(pow(mu * m_phase->E(), 2) - 4 * D * nu * nDensity)) / 2.0 / D / nDensity;
     } else {
         alpha = 0.0;
     }
@@ -344,18 +340,18 @@ SparseMat_fp EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         else {
             sigma_tilde = m_totalCrossSectionEdge[j];
         }
-        double q = omega / (m_phase->N() * m_gamma * pow(m_gridEdge[j], 0.5));
+        double q = omega / (nDensity * m_gamma * pow(m_gridEdge[j], 0.5));
         double W = -m_gamma * m_gridEdge[j] * m_gridEdge[j] * m_sigmaElastic[j];
         double F = sigma_tilde * sigma_tilde / (sigma_tilde * sigma_tilde + q * q);
-        double DA = m_gamma / 3.0 * pow(m_phase->E() / m_phase->N(), 2.0) * m_gridEdge[j];
-        double DB = m_gamma * m_phase->kT() * m_gridEdge[j] * m_gridEdge[j] * m_sigmaElastic[j];
+        double DA = m_gamma / 3.0 * pow(m_phase->E() / nDensity, 2.0) * m_gridEdge[j];
+        double DB = m_gamma * m_phase->temperature() * Boltzmann / ElectronCharge * m_gridEdge[j] * m_gridEdge[j] * m_sigmaElastic[j];
         double D = DA / sigma_tilde * F + DB;
         if (m_eeCol) {
             W -= 3 * a * m_phase->ionDegree() * A1[j];
             D += 2 * a * m_phase->ionDegree() * (A2[j] + pow(m_gridEdge[j], 1.5) * A3[j]);
         }
         if (options.m_growth == "spatial") {
-            W -= m_gamma / 3.0 * 2 * alpha * m_phase->E() / m_phase->N() * m_gridEdge[j] / sigma_tilde;
+            W -= m_gamma / 3.0 * 2 * alpha * m_phase->E() / nDensity * m_gridEdge[j] / sigma_tilde;
         }
 
         double z = W * (m_gridCenter[j] - m_gridCenter[j-1]) / D;
@@ -364,7 +360,7 @@ SparseMat_fp EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         }
         if (std::abs(z) > 500) {
             writelog("Warning: Large Peclet number z = {:.3e} at j = {}. W = {:.3e}, D = {:.3e}, E/N = {:.3e}\n",
-                    z, j, W, D, m_phase->E() / m_phase->N());
+                    z, j, W, D, m_phase->E() / nDensity);
         }
         a0[j] = W / (1 - std::exp(-z));
         a1[j] = W / (1 - std::exp(z));
@@ -403,10 +399,11 @@ SparseMat_fp EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         }
     }
     else if (options.m_growth == "spatial") {
+        double nDensity = m_phase->molarDensity() * Avogadro;
         for (size_t i = 0; i < options.m_points; i++) {
             double sigma_c = 0.5 * (m_totalCrossSectionEdge[i] + m_totalCrossSectionEdge[i + 1]);
             G.insert(i, i) = - alpha * m_gamma / 3 * (alpha * (pow(m_gridEdge[i + 1], 2) - pow(m_gridEdge[i], 2)) / sigma_c / 2
-                 - m_phase->E() / m_phase->N() * (m_gridEdge[i + 1] / m_totalCrossSectionEdge[i + 1] - m_gridEdge[i] / m_totalCrossSectionEdge[i]));
+                 - m_phase->E() / nDensity * (m_gridEdge[i + 1] / m_totalCrossSectionEdge[i + 1] - m_gridEdge[i] / m_totalCrossSectionEdge[i]));
         }
     }
 
@@ -446,9 +443,10 @@ double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
                    (m_totalCrossSectionCenter[i] + nu / m_gamma / pow(m_gridCenter[i], 0.5));
         }
     }
+    double nDensity = m_phase->molarDensity() * Avogadro;
     auto f = Eigen::Map<const Eigen::ArrayXd>(y.data(), y.size());
     auto x = Eigen::Map<const Eigen::ArrayXd>(m_gridCenter.data(), m_gridCenter.size());
-    return 1./3. * m_gamma * simpson(f, x) / m_phase->N();
+    return 1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
 double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
@@ -463,9 +461,10 @@ double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
                    (m_totalCrossSectionEdge[i] + nu / m_gamma / pow(m_gridEdge[i], 0.5));
         }
     }
+    double nDensity = m_phase->molarDensity() * Avogadro;
     auto f = Eigen::Map<const Eigen::ArrayXd>(y.data(), y.size());
     auto x = Eigen::Map<const Eigen::ArrayXd>(m_gridEdge.data(), m_gridEdge.size());
-    return -1./3. * m_gamma * simpson(f, x) / m_phase->N();
+    return -1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
 void EEDFTwoTermApproximation::initSpeciesIndexCS()

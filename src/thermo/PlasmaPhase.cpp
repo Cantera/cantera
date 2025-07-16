@@ -64,12 +64,6 @@ PlasmaPhase::~PlasmaPhase()
     }
 }
 
-void PlasmaPhase::setTemperature(const double temp)
-{
-    Phase::setTemperature(temp);
-    m_kT = Boltzmann * temp / ElectronCharge;
-}
-
 void PlasmaPhase::updateElectronEnergyDistribution()
 {
     if (m_distributionType == "discretized") {
