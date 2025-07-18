@@ -59,7 +59,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     }
 
     m_concm.push_back(NAN);
-    m_ready = resize;
     return true;
 }
 
