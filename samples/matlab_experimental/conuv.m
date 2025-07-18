@@ -6,6 +6,7 @@ function dydt = conuv(t, y, gas, mw)
     % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
 
     % Set the state of the gas, based on the current solution vector.
+    gas.basis = 'mass';
     gas.Y = y(2:end);
     gas.TD = {y(1), gas.D};
     nsp = gas.nSpecies;
@@ -13,7 +14,6 @@ function dydt = conuv(t, y, gas, mw)
     % energy equation
     wdot = gas.netProdRates;
     U = gas.partialMolarIntEnergies';
-    gas.basis = 'mass';
     tdot =- 1 / (gas.D * gas.cv) .* wdot * U;
 
     % set up column vector for dydt

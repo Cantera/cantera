@@ -19,13 +19,13 @@ function reactor2(g)
         gas = Solution('gri30.yaml', 'gri30', 'none');
     end
 
-    % set the initial conditions
+    %% set the initial conditions
     gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
 
-    % create a reactor, and insert the gas
+    %% create a reactor, and insert the gas
     r = IdealGasReactor(gas);
 
-    % create a reactor network and insert the reactor
+    %% create a reactor network and insert the reactor
     network = ReactorNet({r});
 
     nSteps = 100;
