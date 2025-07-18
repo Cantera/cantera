@@ -12,7 +12,7 @@ phases:
   - nasa_gas.yaml/species: [Electron, O2, N2, O2+, N2+, O, O2-]
   state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
   electron-energy-distribution:
-    type: TwoTermApproximation
+    type: Boltzmann-two-term
     energy-levels: [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0,
       24.0, 26.0, 28.0, 30.0, 32.0, 34.0, 36.0, 38.0, 40.0]
 
@@ -46,7 +46,7 @@ reactions:
     0.0, 0.0, 5.50781e-42, 0.0, 0.0, 4.20596e-42, 0.0, 0.0, 0.0]
   threshold: 0.0
 
-cross-sections:
+electron-collisions:
 - target: N2
   energy-levels: [0.0, 0.015, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.7, 1.2, 1.5, 1.9,
     2.2, 2.8, 3.3, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 75.0, 150.0]

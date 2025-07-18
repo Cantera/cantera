@@ -6,6 +6,7 @@
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/numerics/funcs.h"
 
 namespace Cantera
@@ -47,42 +48,22 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
 void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
-
-    //  **Extract kind, target, and product from reaction node**
-    if (node.hasKey("kind")) {
-        m_kind = node["kind"].asString();
-    } /*else {
-        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-                           "Missing `kind` field in electron-collision-plasma reaction.");
-    }*/
-
-    if (node.hasKey("target")) {
-        m_target = node["target"].asString();
-    } /*else {
-        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-                           "Missing `target` field in electron-collision-plasma reaction.");
-    }*/
-
-    if (node.hasKey("product")) {
-        m_product = node["product"].asString();
-    } /*else {
-        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-                           "Missing `product` field in electron-collision-plasma reaction.");
-    }*/
-
-    //  **First, check if cross-sections are embedded in the reaction itself**
-    if (node.hasKey("energy-levels") && node.hasKey("cross-sections")) {
-        //writelog("Using embedded cross-section data from reaction definition.\n");
-
-        m_energyLevels = node["energy-levels"].asVector<double>();
-        m_crossSections = node["cross-sections"].asVector<double>();
-
-        if (m_energyLevels.size() != m_crossSections.size()) {
-            throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-                               "Mismatch: `energy-levels` and `cross-sections` must have the same length.");
-        }
+    if (!node.hasKey("energy-levels") && !node.hasKey("cross-sections")) {
+        return;
     }
 
+    if (node.hasKey("kind")) {
+        m_kind = node["kind"].asString();
+    }
+    if (node.hasKey("target")) {
+        m_target = node["target"].asString();
+    }
+    if (node.hasKey("product")) {
+        m_product = node["product"].asString();
+    }
+
+    m_energyLevels = node["energy-levels"].asVector<double>();
+    m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
     m_threshold = node.getDouble("threshold", 0.0);
 }
 
