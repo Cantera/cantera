@@ -473,13 +473,13 @@ void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
         m_inFactor.push_back(1);
     }
 
-    if (kind == "effective" || kind == "elastic") {
+    if ((kind == "effective" || kind == "elastic") && !collision->duplicate) {
         for (size_t k = 0; k < m_collisions.size() - 1; k++) {
-            if (m_collisions[k]->reactants == collision->reactants)
-                if (this->kind(k) == "elastic" || this->kind(k) == "effective") {
-                    throw CanteraError("PlasmaPhase::addCollision"
-                                       "Already contains a data of effective/ELASTIC cross section for '{}'.",
-                                       target);
+            if (m_collisions[k]->reactants == collision->reactants &&
+                (this->kind(k) == "elastic" || this->kind(k) == "effective"))
+            {
+                throw CanteraError("PlasmaPhase::addCollision", "Phase already contains"
+                    " an effective/elastic cross section for '{}'.", target);
             }
         }
         m_kElastic.push_back(i);

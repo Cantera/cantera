@@ -1197,7 +1197,8 @@ class TestPlasmaPhase:
             "type": "electron-collision-plasma",
             "energy-levels": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
             "cross-sections": [0.0, 3.83e-20, 4.47e-20, 4.79e-20, 5.07e-20, 5.31e-20,
-                               5.49e-20, 5.64e-20, 5.77e-20, 5.87e-20, 5.97e-20]
+                               5.49e-20, 5.64e-20, 5.77e-20, 5.87e-20, 5.97e-20],
+            "duplicate": True,
         }
 
     def test_converting_electron_energy_to_temperature(self, phase):
@@ -1266,6 +1267,8 @@ class TestPlasmaPhase:
         assert phase.elastic_power_loss == approx(11765800095)
 
     def test_elastic_power_loss_add_reaction(self, phase):
+        phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
+                             species=phase.species(), reactions=[])
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
         assert phase.elastic_power_loss == approx(18612132428)
