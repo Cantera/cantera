@@ -1304,7 +1304,7 @@ class TestPlasmaPhase:
 
         phase = ct.Solution('air-plasma.yaml')
         phase.TPX = 300., 101325., 'N2:0.79, O2:0.21, N2+:1E-10, Electron:1E-10'
-        phase.EN = 200.0 * 1e-21  # Reduced electric field [V.m^2]
+        phase.reduced_electric_field = 200.0 * 1e-21  # Reduced electric field [V.m^2]
         phase.update_EEDF()
 
         grid = phase.electron_energy_levels

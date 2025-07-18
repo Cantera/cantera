@@ -1783,12 +1783,16 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.electronPressure()
 
-    property EN:
-        """Get/Set EN [V.m2]."""
+    property reduced_electric_field:
+        """
+        Get/Set the reduced electric field (E/N) [V·m²].
+
+        .. versionadded:: 3.2
+        """
         def __get__(self):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.EN()
+            return self.plasma.reducedElectricField()
 
         def __set__(self, value):
             if not self._enable_plasma:
@@ -1822,6 +1826,12 @@ cdef class ThermoPhase(_SolutionBase):
                                                      len(levels))
 
     def update_EEDF(self):
+        """
+        Update the electron energy distribution function to account for changes in
+        composition, temperature, pressure, or electric field strength.
+
+        .. versionadded:: 3.2
+        """
         if not self._enable_plasma:
             raise TypeError('This method is invalid for '
                             f'thermo model: {self.thermo_model}.')

@@ -10,18 +10,11 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/eigen_sparse.h"
-#include "cantera/numerics/funcs.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 class PlasmaPhase;
-
-typedef Eigen::SparseMatrix<double> SparseMat_fp;
-typedef Eigen::Triplet<double> Triplet_fp;
-typedef vector<double> vector_fp;
-
 
 /**
  *  EEDF solver options. Used internally by class EEDFTwoTermApproximation.
@@ -43,11 +36,16 @@ public:
 
 }; // end of class TwoTermOpt
 
+//! Boltzmann equation solver for the electron energy distribution function based on
+//! the two-term approximation.
+//!
+//! @since New in %Cantera 3.2.
+//! @warning This class is an experimental part of %Cantera and may be changed without
+//!     notice.
 class EEDFTwoTermApproximation
 {
 public:
     EEDFTwoTermApproximation() = default;
-
 
     //! Constructor combined with the initialization function
     /*!
@@ -115,7 +113,7 @@ protected:
      * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i+1}}{F_{0, i-1}})
      * \f]
      */
-    vector_fp vector_g(const Eigen::VectorXd& f0);
+    vector<double> vector_g(const Eigen::VectorXd& f0);
 
     //! The matrix of scattering-out.
     /**
@@ -124,7 +122,7 @@ protected:
      * \epsilon \sigma_k exp[(\epsilon_i - \epsilon)g_i] d \epsilon
      * \f]
      */
-    SparseMat_fp matrix_P(const vector_fp& g, size_t k);
+    Eigen::SparseMatrix<double> matrix_P(const vector<double>& g, size_t k);
 
     //! The matrix of scattering-in
     /**
@@ -143,7 +141,7 @@ protected:
      * \epsilon_2 = \min(\max(\epsilon_{i+1/2}+u_k, \epsilon_{j-1/2}),\epsilon_{j+1/2})
      * \f]
      */
-    SparseMat_fp matrix_Q(const vector_fp& g, size_t k);
+    Eigen::SparseMatrix<double> matrix_Q(const vector<double>& g, size_t k);
 
     //! Matrix A (Ax = b) of the equation of EEDF, which is discretized by the exponential scheme
     //! of Scharfetter and Gummel,
@@ -155,7 +153,7 @@ protected:
      * \f]
      * where \f$ z_{i+1/2} = \tilde{w}_{i+1/2} / \tilde{D}_{i+1/2} \f$ (Peclet number).
      */
-    SparseMat_fp matrix_A(const Eigen::VectorXd& f0);
+    Eigen::SparseMatrix<double> matrix_A(const Eigen::VectorXd& f0);
 
     //! Reduced net production frequency. Equation (10) of ref. [1]
     //! divided by N.
@@ -188,7 +186,7 @@ protected:
     Eigen::VectorXd m_gridCenter;
 
     //! Grid of electron energy (cell boundary i-1/2) [eV]
-    vector_fp m_gridEdge;
+    vector<double> m_gridEdge;
 
     //! Location of cell j for grid cache
     vector<vector<size_t>> m_j;
@@ -197,29 +195,29 @@ protected:
     vector<vector<size_t>> m_i;
 
     //! Cross section at the boundaries of the overlap of cell i and j
-    vector<vector<vector_fp>> m_sigma;
+    vector<vector<vector<double>>> m_sigma;
 
     //! The energy boundaries of the overlap of cell i and j
-    vector<vector<vector_fp>> m_eps;
+    vector<vector<vector<double>>> m_eps;
 
     //! The cross section at the center of a cell
-    std::vector<vector_fp> m_sigma_offset;
+    vector<vector<double>> m_sigma_offset;
 
     //! normalized electron energy distribution function
     Eigen::VectorXd m_f0;
 
     //! EEDF at grid edges (cell boundaries)
-    vector_fp m_f0_edge;
+    vector<double> m_f0_edge;
 
     //! Total electron cross section on the cell center of energy grid
-    vector_fp m_totalCrossSectionCenter;
+    vector<double> m_totalCrossSectionCenter;
 
     //! Total electron cross section on the cell boundary (i-1/2) of
     //! energy grid
-    vector_fp m_totalCrossSectionEdge;
+    vector<double> m_totalCrossSectionEdge;
 
     //! vector of total elastic cross section weighted with mass ratio
-    vector_fp m_sigmaElastic;
+    vector<double> m_sigmaElastic;
 
     //! list of target species indices in global Cantera numbering (1 index per cs)
     vector<size_t> m_kTargets;
@@ -234,10 +232,14 @@ protected:
     vector<size_t> m_k_lg_Targets;
 
     //! Mole fraction of targets
-    vector_fp m_X_targets;
+    vector<double> m_X_targets;
 
     //! Previous mole fraction of targets used to compute eedf
-    vector_fp m_X_targets_prev;
+    vector<double> m_X_targets_prev;
+
+    //! in factor. This is used for calculating the Q matrix of
+    //! scattering-in processes.
+    vector<int> m_inFactor;
 
     double m_gamma;
 
@@ -245,7 +247,7 @@ protected:
     bool m_eeCol = false;
 
     //! Compute electron-electron collision integrals
-    void eeColIntegrals(vector_fp& A1, vector_fp& A2, vector_fp& A3,
+    void eeColIntegrals(vector<double>& A1, vector<double>& A2, vector<double>& A3,
                         double& a, size_t nPoints);
 
     //! flag of having an EEDF
@@ -253,11 +255,6 @@ protected:
 
     //! First call to calculateDistributionFunction
     bool m_first_call;
-
-private:
-
-
-
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera

@@ -219,9 +219,22 @@ public:
         return m_nPoints;
     }
 
-    //! Number of collisions
+    //! Number of electron collision cross sections
     size_t nCollisions() const {
         return m_collisions.size();
+    }
+
+    //! Get the Reaction object associated with electron collision *i*.
+    //! @since New in %Cantera 3.2.
+    const shared_ptr<Reaction> collision(size_t i) const {
+        return m_collisions[i];
+    }
+
+    //! Get the ElectronCollisionPlasmaRate object associated with electron collision
+    //! *i*.
+    //! @since New in %Cantera 3.2.
+    const shared_ptr<ElectronCollisionPlasmaRate> collisionRate(size_t i) const {
+        return m_collisionRates[i];
     }
 
     //! Electron Species Index
@@ -282,7 +295,7 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
 
-    //! Update electron energy distribution.
+    //! Update the electron energy distribution.
     void updateElectronEnergyDistribution();
 
     //! Electron species name
@@ -300,66 +313,47 @@ public:
         return m_levelNum;
     }
 
-    vector<size_t> kInelastic() const {
+    //! Get the indicies for inelastic electron collisions
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kInelastic() const {
         return m_kInelastic;
     }
 
-    // number of cross section dataset
-    size_t nElectronCrossSections() const {
-        return m_collisions.size();
+    //! Get the indices for elastic electron collisions
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kElastic() const {
+        return m_kElastic;
     }
 
-    // target of a specific process
+    //! target of a specific process
+    //! @since New in %Cantera 3.2.
     size_t targetIndex(size_t i) const {
         return m_targetSpeciesIndices[i];
     }
 
-    // kind of a specific process
-    string kind(size_t k) const;
-
-    // threshold of a specific process
-    double threshold(size_t k) const;
-
-    vector<int> shiftFactor() const {
-        return m_shiftFactor;
+    //! Get the frequency of the applied electric field [Hz]
+    //! @since New in %Cantera 3.2.
+    double electricFieldFrequency() const {
+        return m_electricFieldFrequency;
     }
 
-    vector<int> inFactor() const {
-        return m_inFactor;
-    }
-
-    double F() const {
-        return m_F;
-    }
-
-    double E() const {
-        return m_E;
+    //! Get the applied electric field strength [V/m]
+    double electricField() const {
+        return m_electricField;
     }
 
     double ionDegree() const {
         return m_ionDegree;
     }
 
-    double EN() const {
-        return m_EN;
+    //! Get the reduced electric field strength [V·m²]
+    double reducedElectricField() const {
+        return m_electricField / (molarDensity() * Avogadro);
     }
 
-    vector<vector<double>> crossSections() const {
-        return m_crossSections;
-    }
-
-    vector<vector<double>> energyLevels() const {
-        return m_energyLevels;
-    }
-
-    vector<size_t> kElastic() const {
-        return m_kElastic;
-    }
-
-    //! Set reduced electric field given in [V.m2]
+    //! Set reduced electric field given in [V·m²]
     void setReducedElectricField(double EN) {
-        m_EN = EN; // [V.m2]
-        m_E = m_EN * molarDensity() * Avogadro; // [V/m]
+        m_electricField = EN * molarDensity() * Avogadro; // [V/m]
     }
 
     virtual void setSolution(std::weak_ptr<Solution> soln) override;
@@ -376,15 +370,7 @@ public:
     double elasticPowerLoss();
 
 protected:
-
-    void initialize();
-
     void updateThermo() const override;
-
-    //! update interpolated cross sections
-    //! This function needs to be called when the EEDF is updated or
-    //! when the cross sections are updated
-    void updateInterpolatedCrossSections();
 
     //! When electron energy distribution changed, plasma properties such as
     //! electron-collision reaction rates need to be re-evaluated.
@@ -451,9 +437,6 @@ protected:
     //! Electron temperature [K]
     double m_electronTemp;
 
-    //! Gas number density
-    //double m_N;
-
     //! Electron energy distribution type
     string m_distributionType = "isotropic";
 
@@ -466,50 +449,25 @@ protected:
     //! Indices of inelastic collisions in m_crossSections
     vector<size_t> m_kInelastic;
 
-    //! electric field [V/m]
-    double m_E;
+    //! Indices of elastic collisions in m_crossSections
+    vector<size_t> m_kElastic;
 
-    //! reduced electric field [V.m2]
-    double m_EN;
+    //! electric field [V/m]
+    double m_electricField = 0.0;
 
     //! electric field freq [Hz]
-    double m_F;
-
-    //! normalized electron energy distribution function
-    Eigen::VectorXd m_f0;
+    double m_electricFieldFrequency = 0.0;
 
     //! Cross section data. m_crossSections[i][j], where i is the specific process,
     //! j is the index of vector. Unit: [m^2]
-    std::vector<vector<double>> m_crossSections;
+    vector<vector<double>> m_crossSections;
 
     //! Electron energy levels corresponding to the cross section data. m_energyLevels[i][j],
     //! where i is the specific process, j is the index of vector. Unit: [eV]
-    std::vector<vector<double>> m_energyLevels;
-
-    //! shift factor. This is used for calculating the collision term.
-    std::vector<int> m_shiftFactor;
-
-    //! in factor. This is used for calculating the Q matrix of
-    //! scattering-in processes.
-    std::vector<int> m_inFactor;
-
-    //! Indices of elastic collisions in m_crossSections
-    std::vector<size_t> m_kElastic;
-
-    //! flag of electron energy distribution function
-    bool m_f0_ok;
+    vector<vector<double>> m_energyLevels;
 
     //! ionization degree for the electron-electron collisions (tmp is the previous one)
-    double m_ionDegree;
-
-    //! Data for initiate reaction
-    AnyMap m_root;
-
-    //! get the target species index
-    size_t targetSpeciesIndex(shared_ptr<Reaction> R);
-
-    //! get cross section interpolated
-    vector<double> crossSection(shared_ptr<Reaction> reaction);
+    double m_ionDegree = 0.0;
 
     //! Electron energy distribution Difference dF/dε (V^-5/2)
     Eigen::ArrayXd m_electronEnergyDistDiff;
@@ -543,8 +501,8 @@ protected:
 
 private:
 
-    //! pointer to EEDF solver
-    unique_ptr<EEDFTwoTermApproximation> ptrEEDFSolver = nullptr;
+    //! Solver used to calculate the EEDF based on electron collision rates
+    unique_ptr<EEDFTwoTermApproximation> m_eedfSolver = nullptr;
 
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
@@ -563,10 +521,6 @@ private:
     //! The collision-target species indices of #m_collisions
     vector<size_t> m_targetSpeciesIndices;
 
-    //! Interpolated cross sections. This is used for storing
-    //! interpolated cross sections temporarily.
-    vector<double> m_interp_cs;
-
     //! The list of whether the interpolated cross sections is ready
     vector<bool> m_interp_cs_ready;
 
@@ -575,14 +529,7 @@ private:
     void setCollisions();
 
     //! Add a collision and record the target species
-    void addCollision(std::shared_ptr<Reaction> collision);
-
-    //! Indices of elastic collisions
-    vector<size_t> m_elasticCollisionIndices;
-
-    //! Collision cross section
-    vector<Eigen::ArrayXd> m_interpolatedCrossSections;
-
+    void addCollision(shared_ptr<Reaction> collision);
 };
 
 }

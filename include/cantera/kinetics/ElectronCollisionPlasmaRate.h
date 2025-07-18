@@ -7,10 +7,10 @@
 #ifndef CT_ELECTRONCOLLISIONPLASMARATE_H
 #define CT_ELECTRONCOLLISIONPLASMARATE_H
 
-#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/kinetics/ReactionData.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -153,21 +153,25 @@ public:
     }
 
     //! The kind of the process
+    //! @since New in Cantera 3.2.
     const string& kind() const {
         return m_kind;
     }
 
     //! The target of the process
+    //! @since New in Cantera 3.2.
     const string& target() const {
         return m_target;
     }
 
     //! The product of the process
+    //! @since New in Cantera 3.2.
     const string& product() const {
         return m_product;
     }
 
     //! Get the energy threshold of electron collision [eV]
+    //! @since New in Cantera 3.2.
     double threshold() const {
         return m_threshold;
     }
@@ -185,11 +189,6 @@ public:
     //! The value of #m_crossSectionsInterpolated [m2]
     const vector<double>& crossSectionInterpolated() const {
         return m_crossSectionsInterpolated;
-    }
-
-    //! Set the value of #m_crossSectionsInterpolated
-    void setCrossSectionInterpolated(vector<double>& cs) {
-        m_crossSectionsInterpolated = cs;
     }
 
     //! Update the value of #m_crossSectionsInterpolated [m2]

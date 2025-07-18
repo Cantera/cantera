@@ -5,33 +5,30 @@ Nanosecond Pulse Plasma Simulation
 This example simulates a nanosecond-scale pulse discharge in a reactor.
 A Gaussian-shaped electric field pulse is applied over a short timescale.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
-.. tags:: Python, plasma
+.. tags:: Python, plasma, reactor network
 """
 
 import cantera as ct
-ct.CanteraError.set_stack_trace_depth(10)
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Gaussian pulse parameters
-EN_peak = 190 * 1e-21  # Td
-pulse_center = 24e-9
-pulse_width = 3e-9    # standard deviation in ns
+EN_peak = 190 * 1e-21  # 190 Td
+pulse_center = 24e-9  # 24 ns
+pulse_width = 3e-9  # standard deviation (3 ns)
 
 def gaussian_EN(t):
     return EN_peak * np.exp(-((t - pulse_center)**2) / (2 * pulse_width**2))
 
 # setup
-gas = ct.Solution('example_data/gri30_plasma_cpavan.yaml')
+gas = ct.Solution('example_data/methane-plasma-pavan-2023.yaml')
 gas.TPX = 300., 101325., 'CH4:0.095, O2:0.19, N2:0.715, e:1E-11'
-gas.EN = gaussian_EN(0)
+gas.reduced_electric_field = gaussian_EN(0)
 gas.update_EEDF()
 
 r = ct.ConstPressureReactor(gas, energy="off")
-#r.dis_vol = 5e-3 * np.pi * (1e-3)**2 / 4
 
 sim = ct.ReactorNet([r])
 sim.verbose = False
@@ -57,7 +54,7 @@ while t < t_total:
             sim.time, r.T, r.thermo.P, r.thermo.h))
 
     EN_t = gaussian_EN(t)
-    gas.EN = EN_t
+    gas.reduced_electric_field = EN_t
     gas.update_EEDF()
 
     # reinitialize integrator with new source terms
@@ -66,7 +63,7 @@ while t < t_total:
     t = t_end
 
 # Plotting
-fig, ax = plt.subplots(2)
+fig, ax = plt.subplots(2, layout="constrained")
 
 ax[0].plot(states.t, states.X[:, gas.species_index('e')], label='e')
 ax[0].plot(states.t, states.X[:, gas.species_index('O2+')], label='O2+')
@@ -105,11 +102,10 @@ ax2.set_ylabel('E/N', color='tab:red')
 ax2.tick_params(axis='y', labelcolor='tab:red')
 
 for axx in ax:
-    axx.legend(loc='lower right')
+    axx.legend(loc='lower right', ncol=2)
     axx.set_xlabel('Time [s]')
 
 ax[0].set_ylabel('Mole fraction [-]')
 ax[1].set_ylabel('Temperature [K]')
 
-plt.tight_layout()
 plt.show()

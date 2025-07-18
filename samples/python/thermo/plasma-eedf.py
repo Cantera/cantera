@@ -4,7 +4,7 @@ EEDF calculation
 Compute EEDF with two term approximation solver at constant E/N.
 Compare with results from BOLOS.
 
-Requires: cantera >= XX.
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, plasma
 """
@@ -13,9 +13,9 @@ Requires: cantera >= XX.
 import matplotlib.pyplot as plt
 import cantera as ct
 
-gas = ct.Solution('example_data/air-plasma_Phelps.yaml')
+gas = ct.Solution('example_data/air-plasma-Phelps.yaml')
 gas.TPX = 300., 101325., 'N2:0.79, O2:0.21, N2+:1E-10, Electron:1E-10'
-gas.EN = 200.0 * 1e-21 # Reduced electric field [V.m^2]
+gas.reduced_electric_field = 200.0 * 1e-21 # Reduced electric field [V.m^2]
 gas.update_EEDF()
 
 grid = gas.electron_energy_levels
@@ -41,15 +41,8 @@ cf0 = [1.445e-01, 1.445e-01, 1.445e-01, 1.445e-01, 1.445e-01, 1.445e-01, 1.445e-
 
 fig, ax = plt.subplots()
 
-ax.plot(grid, eedf, c='k', label='CANTERA')
-ax.plot(cgrid, cf0, ls='None', mfc='None', mec='k', marker='o', label='BOLOS')
-
-ax.set_xscale('log')
-ax.set_yscale('log')
-
-ax.set_xlim(1e-2, 1e2)
-ax.set_ylim(1e-10, 1e4)
-
+ax.loglog(grid, eedf, c='k', label='Cantera')
+ax.loglog(cgrid, cf0, ls='None', mfc='None', mec='k', marker='o', label='BOLOS')
+ax.set(xlim=(1e-2, 1e2), ylim=(1e-10, 1e4))
 ax.legend()
-
 plt.show()

@@ -211,8 +211,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         size_t nElectronEnergyLevels()
         double electronPressure()
         string electronSpeciesName()
-        double EN()
-        void updateElectronEnergyDistribution()
+        double reducedElectricField()
+        void updateElectronEnergyDistribution() except +translate_exception
         double elasticPowerLoss() except +translate_exception
 
 
