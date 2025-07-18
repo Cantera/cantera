@@ -1408,10 +1408,6 @@ public:
         return m_root.lock();
     }
 
-    bool ready() const {
-        return m_ready;
-    }
-
     //! Register a function to be called if reaction is added.
     //! @param id  A unique ID corresponding to the object affected by the callback.
     //!   Typically, this is a pointer to an object that also holds a reference to the
@@ -1477,9 +1473,6 @@ protected:
     //! Net stoichiometry (products - reactants)
     Eigen::SparseMatrix<double> m_stoichMatrix;
     //! @}
-
-    //! Boolean indicating whether Kinetics object is fully configured
-    bool m_ready = false;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

@@ -46,8 +46,6 @@ void Kinetics::resizeReactions()
     m_stoichMatrix = m_productStoich.stoichCoeffs();
     // reactants are destroyed for positive net rate of progress
     m_stoichMatrix -= m_reactantStoich.stoichCoeffs();
-
-    m_ready = true;
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
@@ -700,8 +698,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     if (resize) {
         resizeReactions();
-    } else {
-        m_ready = false;
     }
 
     for (const auto& [id, callback] : m_reactionAddedCallbacks) {

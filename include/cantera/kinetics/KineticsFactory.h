@@ -85,26 +85,6 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 void addReactions(Kinetics& kin, const AnyMap& phaseNode,
                   const AnyMap& rootNode=AnyMap());
 
-/**
- * Add reactions to a Kinetics object.
- *
- * @param kin        The Kinetics object to be initialized
- * @param rxnList    The list of Reaction objects
- */
-void addReactions(Kinetics& kin, vector<shared_ptr<Reaction>> rxnList);
-
-/**
- * Get the list of reactions in AnyMap.
- *
- * @param kin        The Kinetics object to be initialized
- * @param phaseNode  Phase entry for the phase where the reactions occur. This
- *     phase definition is used to determine the source of the reactions added
- *     to the Kinetics object.
- * @param rootNode   The root node of the file containing the phase definition,
- *     which will be treated as the default source for reactions
- */
-vector<AnyMap> reactionsAnyMapList(Kinetics& kin, const AnyMap& phaseNode,
-                                   const AnyMap& rootNode=AnyMap());
 //! @}
 
 }
