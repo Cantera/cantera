@@ -14,6 +14,11 @@ BulkKinetics::BulkKinetics() {
 
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
+    shared_ptr<ReactionRate> rate = r->rate();
+    if (rate) {
+        rate->setContext(*r, *this);
+    }
+
     bool added = Kinetics::addReaction(r, resize);
     if (!added) {
         // undeclared species, etc.
@@ -29,7 +34,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     m_dn.push_back(dn);
 
-    shared_ptr<ReactionRate> rate = r->rate();
     string rtype = rate->subType();
     if (rtype == "") {
         rtype = rate->type();
@@ -44,7 +48,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     // Set index of rate to number of reaction within kinetics
     rate->setRateIndex(nReactions() - 1);
-    rate->setContext(*r, *this);
 
     // Add reaction rate to evaluator
     size_t index = m_rateTypes[rtype];

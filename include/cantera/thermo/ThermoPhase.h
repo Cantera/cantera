@@ -389,7 +389,7 @@ enum class ThermoBasis
  *
  * @ingroup thermoprops
  */
-class ThermoPhase : public Phase
+class ThermoPhase : public Phase, public std::enable_shared_from_this<ThermoPhase>
 {
 public:
     //! Constructor. Note that ThermoPhase is meant to be used as a base class,

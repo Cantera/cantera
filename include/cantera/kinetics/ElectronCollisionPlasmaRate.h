@@ -31,20 +31,17 @@ struct ElectronCollisionPlasmaData : public ReactionData
         ReactionData::invalidateCache();
         energyLevels.resize(0);
         distribution.resize(0);
-        m_dist_number = -1;
-        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
     vector<double> distribution; //!< electron energy distribution
-    bool levelChanged;
+
+    //! integer that is incremented when electron energy levels change
+    int levelNumber = -2;
 
 protected:
     //! integer that is incremented when electron energy distribution changes
-    int m_dist_number = -1;
-
-    //! integer that is incremented when electron energy level changes
-    int m_level_number = -1;
+    int m_dist_number = -2;
 };
 
 
@@ -103,9 +100,16 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
-
     ElectronCollisionPlasmaRate() = default;
-
+    //! Constructor from YAML input for ElectronCollisionPlasmaRate.
+    /*!
+    * This constructor is used to initialize an electron collision plasma rate
+    * from an input YAML file. It extracts the energy levels, cross-sections,
+    * and reaction metadata used in the rate coefficient calculation.
+    *
+    * @param node         The AnyMap node containing rate fields from YAML
+    * @param rate_units   Units used for interpreting the rate fields
+    */
     ElectronCollisionPlasmaRate(const AnyMap& node,
                                 const UnitStack& rate_units={})
     {
@@ -133,6 +137,10 @@ public:
      */
     double evalFromStruct(const ElectronCollisionPlasmaData& shared_data);
 
+    //! Calculate the reverse rate coefficient for super-elastic collisions
+    //! @param shared_data Data structure with energy levels and EEDF
+    //! @param kf Forward rate coefficient (input, unused)
+    //! @param kr Reverse rate coefficient (output, modified)
     void modifyRateConstants(const ElectronCollisionPlasmaData& shared_data,
                              double& kf, double& kr);
 
@@ -141,6 +149,29 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     double ddTScaledFromStruct(const ElectronCollisionPlasmaData& shared_data) const {
         throw NotImplementedError("ElectronCollisionPlasmaRate::ddTScaledFromStruct");
+    }
+
+    //! The kind of the process
+    const string &kind() const
+    {
+        return m_kind;
+    }
+
+    //! The target of the process
+    const string &target() const
+    {
+        return m_target;
+    }
+
+    //! The product of the process
+    const string &product() const
+    {
+        return m_product;
+    }
+
+    //! Get the energy threshold of electron collision [eV]
+    double threshold() const {
+        return m_threshold;
     }
 
     //! The value of #m_energyLevels [eV]
@@ -153,17 +184,41 @@ public:
         return m_crossSections;
     }
 
-    //! The value of #m_crossSectionsInterpolated [m2]
+    //! The value of #m_crossSectionsInterpolated
     const vector<double>& crossSectionInterpolated() const {
         return m_crossSectionsInterpolated;
+    }
+
+    //! Set the value of #m_crossSectionsInterpolated
+    void setCrossSectionInterpolated(vector<double>& cs) {
+        m_crossSectionsInterpolated = cs;
     }
 
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
+    //! The name of the kind of electron collision
+    string m_kind;
+
+    //! The name of the target of electron collision
+    string m_target;
+
+    //! The product of electron collision
+    string m_product;
+
+    //! The energy threshold of electron collision
+    double m_threshold;
+
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
+
+    //! Counter used to indicate when #m_energyLevels needs to be synced with the phase
+    int m_levelNumber = -3;
+
+    //! Counter used to indicate when #m_crossSectionsOffset needs to be synced with the
+    //! phase
+    int m_levelNumberSuperelastic = -2;
 
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
