@@ -12,6 +12,7 @@ update, please report on Cantera's
 - **Halla Ali** [@hallaali](https://github.com/hallaali)
 - **Emil Atz** [@EmilAtz](https://github.com/EmilAtz)
 - **Jongyoon Bae** [@jongyoonbae](https://github.com/jongyoonbae) - Brown University
+- **Nicolas Barléon** [@NicolasBarleon](https://github.com/NicolasBarleon) - CERFACS
 - **Philip Berndt**
 - **Guus Bertens** [@guusbertens](https://github.com/guusbertens) - Eindhoven University of Technology
 - **Wolfgang Bessler** [@wbessler](https://github.com/wbessler) - Offenburg University of Applied Science
@@ -49,6 +50,7 @@ update, please report on Cantera's
 - **Kyle Linevitch, Jr.** [@KyleLinevitchJr](https://github.com/KyleLinevitchJr)
 - **Christopher Leuth**
 - **Nicholas Malaya** [@nicholasmalaya](https://github.com/nicholasmalaya) - University of Texas at Austin
+- **Quentin Malé** [@QuentinMale](https://github.com/QuentinMale) - Harvard University
 - **Thanasis Mattas** [@ThanasisMattas](https://github.com/ThanasisMattas) - Aristotle University of Thessaloniki
 - **Manik Mayur** [@manikmayur](https://github.com/manikmayur)
 - **Evan McCorkle** [@emccorkle](https://github.com/emccorkle)
@@ -61,6 +63,7 @@ update, please report on Cantera's
 - **Paul Northrop** [@pwcnorthrop](https://github.com/pwcnorthrop)
 - **Chris Pilko** [@cpilko](https://github.com/cpilko)
 - **Sebastian Pinnau** [@spinnau](https://github.com/spinnau)
+- **Matthew Quiram** [@mquiram](https://github.com/mquiram) - Massachusetts Institute of Technology
 - **Corey R. Randall** [@c-randall](https://github.com/c-randall) - Colorado School of Mines
 - **Andreas Rücker** [@cannondale1492](https://github.com/cannondale1492)
 - **Jeff Santner** [@jsantner](https://github.com/jsantner)
