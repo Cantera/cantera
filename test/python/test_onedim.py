@@ -595,16 +595,22 @@ class TestFreeFlame:
         assert sl_mole == approx(sl_mass, rel=0.1)
 
     def test_soret_with_mix(self):
-        # Test that enabling Soret diffusion without
-        # multicomponent transport results in an error
-
-        self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
-        assert not self.sim.soret_enabled
-        assert not self.sim.transport_model == 'multicomponent'
-
-        with pytest.raises(ct.CanteraError, match='requires.*multicomponent'):
-            self.sim.soret_enabled = True
-            self.sim.solve(loglevel=0, auto=False)
+        self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
+        self.sim.transport_model = 'mixture-averaged'
+        self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
+        self.sim.solve(loglevel=0, auto=True)
+        sl_without_Soret = self.sim.velocity[0]
+        self.sim.soret_enabled = True
+        self.sim.solve(loglevel=0, auto=True)
+        sl_with_Soret = self.sim.velocity[0]
+        assert sl_with_Soret < sl_without_Soret
+        assert sl_with_Soret > 0
+        self.sim.transport_model = 'multicomponent'
+        self.sim.solve(loglevel=0, auto=False)
+        sl_multi_Soret = self.sim.velocity[0]
+        # flame speeds should not be exactly equal
+        # but they should be close even on a coarse mesh
+        assert abs(sl_multi_Soret-sl_with_Soret) < 0.1
 
     @pytest.mark.slow_test
     def test_soret_with_auto(self):

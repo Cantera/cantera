@@ -63,7 +63,23 @@ public:
 
     //! Return the thermal diffusion coefficients
     /*!
-     * For this approximation, these are all zero.
+     * Model by S. Chapman and T.G. Cowling @cite chapman1970.
+     * For more information about this implementation and its validation,
+     * see T. Zirwes and A. Kronenburg @cite zirwes2025.
+     *
+     * The thermal diffusion coefficient of species @f$ k @f$ is computed from
+     * @f[
+     *      D_k^{T}= \frac{1}{2}\rho\frac{M_k}{\bar{M}}D_{mk}'\Theta_k
+     * @f]
+     * with
+     * @f[
+     *      \Theta_k=\frac{15}{2}\frac{\bar{M}^2}{\rho}\sum_i\left(\frac{1.2C_{ki}^*-1}{D_{ki}}\right)\left(\frac{Y_k\frac{\mu_i}{M_i}a_i-Y_i\frac{\mu_k}{M_k}a_k}{M_k+M_i}\right)
+     * @f]
+     * where @f$ C_{k,i}^* @f$ is a reduced collision integral and
+     * @f[
+     *      a_k=\left(1+\frac{1.065}{2\sqrt{2}X_k}\sum_{i\ne k}X_i\Phi_{k,i}\right)^{-1},
+     * @f]
+     * with @f$ \Phi_{k,i} @f$ the Wilke mixing operator.
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */

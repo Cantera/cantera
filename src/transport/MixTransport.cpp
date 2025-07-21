@@ -50,8 +50,80 @@ double MixTransport::thermalConductivity()
 
 void MixTransport::getThermalDiffCoeffs(double* const dt)
 {
-    for (size_t k = 0; k < m_nsp; k++) {
-        dt[k] = 0.0;
+    update_T();
+    update_C();
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (!m_viscwt_ok) {
+        updateViscosity_T();
+    }
+
+    double mmw = m_thermo->meanMolecularWeight();
+    const std::vector<double>& M = m_thermo->molecularWeights();
+    const double* y = m_thermo->massFractions();
+
+    std::vector<double>& a = m_spwork;
+
+    for (size_t k=0; k<m_nsp; ++k) {
+        dt[k] = 0.;
+        double xk = y[k]*mmw/M[k];
+        if (xk < Tiny)
+        {
+            a[k] = 0.;
+            continue;
+        }
+
+        double lambda_mono_k = (15./4.) * m_visc[k] / M[k];
+
+        double sum = 0.;
+        for(size_t j=0; j<m_nsp; ++j) {
+            double xj = y[j]*mmw/M[j];
+            if (j != k) {
+                sum += xj*m_phi(k,j);
+            }
+        };
+
+        a[k] = lambda_mono_k / (1. + 1.065 * sum / xk);
+    }
+
+    double kbT = Boltzmann * m_thermo->temperature();
+    double rp = 1./m_thermo->pressure();
+
+    for (size_t k=0; k<m_nsp-1; ++k) {
+        for (size_t j=k+1; j<m_nsp; ++j) {
+
+            double log_tstar = std::log(kbT/m_epsilon(k,j));
+
+            int ipoly = m_poly[k][j];
+
+            double Cstar = 0.;
+            if (m_mode == CK_Mode) {
+                Cstar = poly6(log_tstar, m_cstar_poly[ipoly].data());
+            }
+            else {
+                Cstar = poly8(log_tstar, m_cstar_poly[ipoly].data());
+            }
+
+            double dt_T = ((1.2*Cstar - 1.0)/(m_bdiff(k,j)*rp)) / (M[k] + M[j]);
+
+            dt[k] += dt_T * (y[k]*a[j] - y[j]*a[k]);
+            dt[j] += dt_T * (y[j]*a[k] - y[k]*a[j]);
+        }
+    }
+
+    std::vector<double>& Dm = m_spwork;
+    getMixDiffCoeffs(Dm.data());
+
+    double norm = 0.;
+    for (size_t k=0; k<m_nsp; ++k) {
+        dt[k] *= Dm[k] * M[k] * mmw;
+        norm += dt[k];
+    }
+
+    // ensure that the sum of all Soret diffusion coefficients is zero
+    for (size_t k=0; k<m_nsp; ++k) {
+        dt[k] -= y[k]*norm;
     }
 }
 
