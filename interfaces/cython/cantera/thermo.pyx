@@ -1914,6 +1914,16 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.elasticPowerLoss()
 
+    property inelastic_power_loss:
+        """
+        Inelastic power loss (J/s/m3)
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.inelasticPowerLoss()
+
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):

@@ -315,35 +315,37 @@ void PlasmaPhase::setCollisions()
     m_collisions.clear();
     m_collisionRates.clear();
     m_targetSpeciesIndices.clear();
+    m_electronCollisionReactionIndices.clear();
 
     if (shared_ptr<Solution> soln = m_soln.lock()) {
-        shared_ptr<Kinetics> kin = soln->kinetics();
-        if (!kin) {
+        m_kin = soln->kinetics();
+        if (!m_kin) {
             return;
         }
 
         // add collision from the initial list of reactions
-        for (size_t i = 0; i < kin->nReactions(); i++) {
-            std::shared_ptr<Reaction> R = kin->reaction(i);
+        for (size_t j = 0; j < m_kin->nReactions(); j++) {
+            std::shared_ptr<Reaction> R = m_kin->reaction(j);
             if (R->rate()->type() != "electron-collision-plasma") {
                 continue;
             }
-            addCollision(R);
+            addCollision(j);
         }
 
         // register callback when reaction is added later
         // Modifying collision reactions is not supported
-        kin->registerReactionAddedCallback(this, [this, kin]() {
-            size_t i = kin->nReactions() - 1;
-            if (kin->reaction(i)->type() == "electron-collision-plasma") {
-                addCollision(kin->reaction(i));
+        m_kin->registerReactionAddedCallback(this, [this]() {
+            size_t j = m_kin->nReactions() - 1;
+            if (m_kin->reaction(j)->type() == "electron-collision-plasma") {
+                addCollision(j);
             }
         });
     }
 }
 
-void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
+void PlasmaPhase::addCollision(size_t j)
 {
+    std::shared_ptr<Reaction> collision = m_kin->reaction(j);
     size_t i = nCollisions();
 
     // setup callback to signal updating the cross-section-related
@@ -368,8 +370,11 @@ void PlasmaPhase::addCollision(std::shared_ptr<Reaction> collision)
         std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate()));
     m_interp_cs_ready.emplace_back(false);
 
+    m_electronCollisionReactionIndices.push_back(j);
+
     // resize parameters
     m_elasticElectronEnergyLossCoefficients.resize(nCollisions());
+    m_netROPCollisions.resize(nCollisions());
 }
 
 bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)
@@ -462,6 +467,33 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
         numericalQuadrature(
             m_quadratureMethod, 1.0 / 3.0 * f0_plus.cwiseProduct(cs_array),
             m_electronEnergyLevels.pow(3.0));
+}
+
+void PlasmaPhase::updateCollisionRatesOfProgress()
+{
+    static const int cacheId = m_cache.getId();
+    CachedScalar last = m_cache.getScalar(cacheId);
+
+    // combine the distribution and energy level number
+    int stateNum = m_distNum + m_levelNum;
+
+    // update only if the reaction rates coefficients have changed
+    // which depends on the energy distribution, and energy levels
+    if (!last.validate(stateNum)) {
+        m_netROPCollisions =
+            m_kin->netRatesOfProgressByIndices(m_electronCollisionReactionIndices);
+    }
+}
+
+double PlasmaPhase::inelasticPowerLoss()
+{
+    updateCollisionRatesOfProgress();
+    double powerLoss = 0.0;
+    for (size_t i = 0; i < nCollisions(); i++) {
+        powerLoss += m_netROPCollisions[i] * m_collisionRates[i]->energyLevels()[0];
+    }
+    powerLoss *= Avogadro * ElectronCharge;
+    return powerLoss;
 }
 
 double PlasmaPhase::elasticPowerLoss()
