@@ -151,8 +151,8 @@ void Flow1D::setTransport(shared_ptr<Transport> trans)
     m_diff.resize(m_nsp * m_points);
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp * m_nsp*m_points);
-        m_dthermal.resize(m_nsp, m_points, 0.0);
     }
+    m_dthermal.resize(m_nsp, m_points, 0.0);
     m_solution->setTransport(trans);
 }
 
@@ -168,8 +168,8 @@ void Flow1D::resize(size_t ncomponents, size_t points)
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
-        m_dthermal.resize(m_nsp, m_points, 0.0);
     }
+    m_dthermal.resize(m_nsp, m_points, 0.0);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
     m_hk.resize(m_nsp, m_points, 0.0);
@@ -262,10 +262,15 @@ void Flow1D::setGasAtMidpoint(const double* x, size_t j)
 
 void Flow1D::_finalize(const double* x)
 {
-    if (!m_do_multicomponent && m_do_soret) {
+    if (!(m_do_multicomponent ||
+          m_trans->transportModel() == "mixture-averaged" ||
+          m_trans->transportModel() == "mixture-averaged-CK")
+        && m_do_soret) {
+
         throw CanteraError("Flow1D::_finalize",
-            "Thermal diffusion (the Soret effect) is enabled, and requires "
-            "using a multicomponent transport model.");
+            "Thermal diffusion (the Soret effect) is enabled, but it "
+            "only ompatible with the mixture-averaged and multicomponent "
+            "transport models.");
     }
 
     size_t nz = m_zfix.size();
@@ -414,6 +419,9 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
                 }
             }
             m_tcon[j] = m_trans->thermalConductivity();
+            if (m_do_soret) {
+                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+            }
         }
     }
 }

@@ -60,6 +60,13 @@ public:
         }
     }
 
+    //! Note: thermo diffusion is not enabled in the unity Lewis number model
+    void getThermalDiffCoeffs(double* const dt) override {
+        for (size_t k = 0; k < m_nsp; k++) {
+            dt[k] = 0.0;
+        }
+    }
+
     //! Not implemented for unity Lewis number approximation
     void getMixDiffCoeffsMole(double* const d) override {
         throw NotImplementedError("UnityLewisTransport::getMixDiffCoeffsMole");
