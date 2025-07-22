@@ -201,7 +201,8 @@ TEST_F(GasTransportTest, thermalDiffCoeffs)
     vector<double> thermalDiff(nsp, -1);
     s_mix->getThermalDiffCoeffs(thermalDiff.data());
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(thermalDiff[k], thermalDiffMixRef[k], 1e-5) << k;
+        double tol = std::max(1e-16, 1e-5 * fabs(thermalDiffMixRef[k]));
+        EXPECT_NEAR(thermalDiff[k], thermalDiffMixRef[k], tol) << k;
     }
 
     s_multi->getThermalDiffCoeffs(thermalDiff.data());

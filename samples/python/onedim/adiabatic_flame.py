@@ -5,7 +5,7 @@ Laminar flame speed calculation
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, premixed flame, multicomponent transport,
           saving output
@@ -36,7 +36,21 @@ f.show()
 
 # Solve with mixture-averaged transport model
 f.transport_model = 'mixture-averaged'
+# Compute diffusive fluxes using a mass fraction-based gradient ("mass")
+# or mole fracion-based gradient ("mole", default)
+f.flux_gradient_basis = "mass" # only relevant for mixture-averaged model
 f.solve(loglevel=loglevel, auto=True)
+
+f.show()
+print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
+
+# Solve with mixture-averaged transport model and Soret diffusion
+f.soret_enabled = True
+f.solve(loglevel=loglevel) # don't use 'auto' on subsequent solves
+
+f.show()
+print("mixture-averaged flamespeed with Soret diffusion"
+      f" = {f.velocity[0]:7f} m/s")
 
 if "native" in ct.hdf_support():
     output = Path() / "adiabatic_flame.h5"
@@ -44,18 +58,27 @@ else:
     output = Path() / "adiabatic_flame.yaml"
 output.unlink(missing_ok=True)
 
-# Solve with the energy equation enabled
-f.save(output, name="mix", description="solution with mixture-averaged transport")
-
-f.show()
-print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
+f.save(output, name="mix", description="solution with mixture-averaged "
+                                       "transport and Soret diffusion")
 
 # Solve with multi-component transport properties
+# but without Soret diffusion
 f.transport_model = 'multicomponent'
-f.solve(loglevel)  # don't use 'auto' on subsequent solves
+f.soret_enabled = False
+f.solve(loglevel)
 f.show()
-print(f"multicomponent flamespeed = {f.velocity[0]:7f} m/s")
-f.save(output, name="multi", description="solution with multicomponent transport")
+print("multicomponent flamespeed without Soret diffusion"
+      f" = {f.velocity[0]:7f} m/s")
+
+# Solve with multi-component transport properties and Soret diffusion
+f.soret_enabled = True
+f.solve(loglevel)
+f.show()
+print("multicomponent flamespeed with Soret diffusion"
+      f" = {f.velocity[0]:7f} m/s")
+
+f.save(output, name="multi", description="solution with multicomponent transport "
+                                         "and Soret diffusion")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.save('adiabatic_flame.csv', basis="mole", overwrite=True)

@@ -24,7 +24,7 @@ References:
     Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
     Proc. Combust. Inst. 40 (2024) 105779.
 
-Requires: cantera >= 3.1
+Requires: cantera >= 3.2
 
 .. tags:: flame speed, kinetics, combustion, premixed flame
 """
@@ -55,7 +55,7 @@ for m, name in models.items():
         f = ct.FreeFlame(gas, width=0.03)
         f.set_refine_criteria(ratio=3, slope=0.06, curve=0.10)
         # f.transport_model = 'multicomponent' # optionally enable
-        # f.soret_enabled = True  # optionally enable
+        f.soret_enabled = True  # optionally enable
         f.solve(loglevel=1, auto=True)
         vel_list.append(f.velocity[0] * 100) # cm/s
     results[m] = vel_list

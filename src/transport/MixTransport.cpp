@@ -18,7 +18,6 @@ void MixTransport::init(ThermoPhase* thermo, int mode)
 {
     GasTransport::init(thermo, mode);
     m_cond.resize(m_nsp);
-    m_spwork2.resize(m_nsp);
 }
 
 void MixTransport::getMobilities(double* const mobil)
@@ -60,65 +59,61 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
         updateViscosity_T();
     }
 
-    const std::vector<double>& M = m_thermo->molecularWeights();
     const double* y = m_thermo->massFractions();
 
-    std::vector<double>& a = m_spwork;
-    std::vector<double>& x = m_spwork2;
-    m_thermo->getMoleFractions(x.data());
+    vector<double>& a = m_spwork;
 
     for (size_t k=0; k<m_nsp; ++k) {
         dt[k] = 0.;
-        if (x[k] < Tiny)
-        {
+
+        if (y[k] < Tiny) {
             a[k] = 0.;
             continue;
         }
 
-        double lambda_mono_k = (15./4.) * m_visc[k] / M[k];
+        double lambda_mono_k = (15./4.) * m_visc[k] / m_mw[k];
 
         double sum = 0.;
-        for(size_t j=0; j<m_nsp; ++j) {
+        for (size_t j=0; j<m_nsp; ++j) {
             if (j != k) {
-                sum += x[j]*m_phi(k,j);
+                sum += m_molefracs[j]*m_phi(k,j);
             }
         };
 
-        a[k] = lambda_mono_k / (1. + 1.065 * sum / x[k]);
+        a[k] = lambda_mono_k / (1. + 1.065 * sum / m_molefracs[k]);
     }
 
-    double kbT = Boltzmann * m_thermo->temperature();
     double rp = 1./m_thermo->pressure();
 
     for (size_t k=0; k<m_nsp-1; ++k) {
         for (size_t j=k+1; j<m_nsp; ++j) {
 
-            double log_tstar = std::log(kbT/m_epsilon(k,j));
+            double log_tstar = std::log(m_kbt/m_epsilon(k,j));
 
             int ipoly = m_poly[k][j];
 
             double Cstar = 0.;
             if (m_mode == CK_Mode) {
                 Cstar = poly6(log_tstar, m_cstar_poly[ipoly].data());
-            }
-            else {
+            } else {
                 Cstar = poly8(log_tstar, m_cstar_poly[ipoly].data());
             }
 
-            double dt_T = ((1.2*Cstar - 1.0)/(m_bdiff(k,j)*rp)) / (M[k] + M[j]);
+            double dt_T = ((1.2*Cstar - 1.0)/(m_bdiff(k,j)*rp))
+                          / (m_mw[k] + m_mw[j]);
 
             dt[k] += dt_T * (y[k]*a[j] - y[j]*a[k]);
             dt[j] += dt_T * (y[j]*a[k] - y[k]*a[j]);
         }
     }
 
-    std::vector<double>& Dm = m_spwork;
+    vector<double>& Dm = m_spwork;
     getMixDiffCoeffs(Dm.data());
 
     double mmw = m_thermo->meanMolecularWeight();
     double norm = 0.;
     for (size_t k=0; k<m_nsp; ++k) {
-        dt[k] *= Dm[k] * M[k] * mmw;
+        dt[k] *= Dm[k] * m_mw[k] * mmw;
         norm += dt[k];
     }
 
