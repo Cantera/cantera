@@ -79,7 +79,13 @@ public:
      * @f[
      *      a_k=\left(1+\frac{1.065}{2\sqrt{2}X_k}\sum_{i\ne k}X_i\Phi_{k,i}\right)^{-1},
      * @f]
-     * with @f$ \Phi_{k,i} @f$ the Wilke mixing operator.
+     * with @f$ \Phi_{k,i} @f$ the Wilke mixing operator. The thermodiffusion
+     * coefficients are then normalized with
+     * @f[
+     *      \hat{D}^T_k=D^T_k-Y_k\sum_i D^T_i.
+     * @f]
+     * This ensures that the sum of all thermodiffusion coefficients
+     * and thus the sum of all thermodiffusion fluxes are zero.
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
@@ -192,6 +198,9 @@ protected:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok = false;
+
+private:
+    vector<double> m_spwork2;
 };
 }
 #endif
