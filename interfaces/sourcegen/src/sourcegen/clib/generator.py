@@ -428,7 +428,7 @@ class CLibSourceGenerator(SourceGenerator):
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(output + "\n")
+        out.write_text(output + "\n", encoding="utf-8")
 
     def _write_implementation(self, headers: HeaderFile) -> None:
         """Parse header specification and generate implementation file."""
@@ -471,7 +471,7 @@ class CLibSourceGenerator(SourceGenerator):
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(output + "\n")
+        out.write_text(output + "\n", encoding="utf-8")
 
     def generate_source(self, headers_files: list[HeaderFile]) -> None:
         """Generate output."""
