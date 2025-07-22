@@ -87,7 +87,7 @@ public:
      * This ensures that the sum of all thermodiffusion coefficients
      * and thus the sum of all thermodiffusion fluxes are zero.
      *
-     * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
+     * @param[out] dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
     void getThermalDiffCoeffs(double* const dt) override;
 
@@ -198,9 +198,6 @@ protected:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok = false;
-
-private:
-    vector<double> m_spwork2;
 };
 }
 #endif
