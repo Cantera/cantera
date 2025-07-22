@@ -131,7 +131,7 @@ if not error:
     print("To use this brandnew Cantera installation, you must update some of your environment variables.")
     print("To do so, you can add the following lines to your .bashrc (or equivalent):")
     text="""\
-#cantera-avbp-3.0
+#cantera-avbp-3.1
 export PYTHONPATH={0}/lib/python{1}.{2}/site-packages:$PYTHONPATH 
 export PKG_CONFIG_PATH={0}/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH={0}/lib:$LD_LIBRARY_PATH

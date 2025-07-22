@@ -47,28 +47,23 @@ Follow the steps below for a **local** installation:
     python3 -m venv env_cantera
     source ~/env_cantera/bin/activate
 
-2. Install specific python packages::
-
-    pip install numpy==1.26.4
-    pip install scipy==1.13
-
-3. (optional) Create an alias to load ``env_cantera``::
+2. (optional) Create an alias to load ``env_cantera``::
 
     echo "alias load_cantera_env='source ~/env_cantera/bin/activate'" >> ~/.zshrc
     source ~/.zshrc
 
-4. Navigate to the Cantera directory::
+3. Navigate to the Cantera directory::
 
     cd /Users/$USER/Documents/cantera-avbp
     
-5. Switch to the right branch and run the installation script::
+4. Switch to the right branch and run the installation script::
 
     git checkout dev_cantera-avbp
     python3 install_cantera.py
     
 
-6. When prompted about NFS, answer ``no``.
-7. Wait for the compilation and installation process to complete successfully.
+5. When prompted about NFS, answer ``no``.
+6. Wait for the compilation and installation process to complete successfully.
 
 If everything goes well, you should see the following message::
 
@@ -76,7 +71,7 @@ If everything goes well, you should see the following message::
   To use this newly installed Cantera version, update your environment variables 
   by adding the following lines to your.bashrc (or equivalent):
 
-  #cantera-avbp-3.0
+  #cantera-avbp-3.1
   export PYTHONPATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH 
   export PKG_CONFIG_PATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
   export LD_LIBRARY_PATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
