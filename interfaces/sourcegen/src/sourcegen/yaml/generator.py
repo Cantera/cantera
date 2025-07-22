@@ -62,7 +62,7 @@ class YamlSourceGenerator(SourceGenerator):
         msg = f"  writing {filename.name!r}"
         _LOGGER.info(msg)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(output + "\n")
+        out.write_text(output + "\n", encoding="utf-8")
 
     def generate_source(self, headers_files: list[HeaderFile]) -> None:
         """Generate output."""
