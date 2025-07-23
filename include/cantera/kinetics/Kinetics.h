@@ -1474,9 +1474,6 @@ protected:
     Eigen::SparseMatrix<double> m_stoichMatrix;
     //! @}
 
-    //! Boolean indicating whether Kinetics object is fully configured
-    bool m_ready = false;
-
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.
     size_t m_kk = 0;
