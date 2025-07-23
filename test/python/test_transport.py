@@ -38,6 +38,8 @@ class TestTransport:
         Dkm1b = phase.mix_diff_coeffs_mole
         Dkm1c = phase.mix_diff_coeffs_mass
         Dbin1 = phase.binary_diff_coeffs
+        assert all(phase.thermal_diff_coeffs.flat != 0.0)
+        assert np.sum(phase.thermal_diff_coeffs) == approx(0.0)
 
         phase.transport_model = 'multicomponent'
         Dkm2 = phase.mix_diff_coeffs
@@ -149,8 +151,6 @@ class TestTransport:
     def test_multiComponent(self, phase):
         with pytest.raises(NotImplementedError):
             phase.multi_diff_coeffs
-
-        assert phase.thermal_diff_coeffs == approx(np.zeros(phase.n_species))
 
         phase.transport_model = 'multicomponent'
         assert all(phase.multi_diff_coeffs.flat >= 0.0)

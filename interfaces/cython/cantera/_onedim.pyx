@@ -497,8 +497,8 @@ cdef class FlowBase(Domain1D):
     property soret_enabled:
         """
         Determines whether or not to include diffusive mass fluxes due to the
-        Soret effect. Enabling this option works only when using the
-        multicomponent transport model.
+        Soret effect. Enabling this option only works for multicomponent and
+        mixture-averaged diffusion models.
         """
         def __get__(self):
             return self.flow.withSoret()
