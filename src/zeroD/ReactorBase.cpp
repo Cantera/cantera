@@ -20,14 +20,34 @@ ReactorBase::ReactorBase(const string& name) : m_name(name)
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {
+    warn_deprecated("ReactorBase::ReactorBase", "`clone` argument not specified; "
+        "Default behavior will change from `clone=False` to `clone=True` after "
+        "Cantera 3.2.");
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::ReactorBase",
                            "Missing or incomplete Solution object.");
     }
-    m_solution = sol;
+    m_solution = sol->clone({}, true, false);
     m_solution->thermo()->addSpeciesLock();
-    setThermo(*sol->thermo());
+    setThermo(*m_solution->thermo());
 }
+
+ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& name)
+    : ReactorBase(name)
+{
+    if (!sol || !(sol->thermo())) {
+        throw CanteraError("ReactorBase::ReactorBase",
+                           "Missing or incomplete Solution object.");
+    }
+    if (clone) {
+        m_solution = sol->clone({}, true, false);
+    } else {
+        m_solution = sol;
+    }
+    m_solution->thermo()->addSpeciesLock();
+    setThermo(*m_solution->thermo());
+}
+
 
 ReactorBase::~ReactorBase()
 {
@@ -63,9 +83,9 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
     }
     m_solution = sol;
     m_solution->thermo()->addSpeciesLock();
-    setThermo(*sol->thermo());
+    setThermo(*m_solution->thermo());
     try {
-        setKinetics(*sol->kinetics());
+        setKinetics(*m_solution->kinetics());
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }

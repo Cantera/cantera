@@ -22,6 +22,47 @@
 namespace Cantera
 {
 
+shared_ptr<Solution> Solution::clone(const vector<shared_ptr<Solution>>& adjacent,
+    bool withKinetics, bool withTransport) const
+{
+    shared_ptr<Solution> out = create();
+    out->setThermo(m_thermo->clone());
+    if (withKinetics) {
+        vector<shared_ptr<ThermoPhase>> kinPhases;
+        map<string, shared_ptr<Solution>> adjacentByName;
+        for (const auto& soln : adjacent) {
+            adjacentByName[soln->name()] = soln;
+            if (m_kinetics->phaseIndex(soln->name()) == -1) {
+                throw CanteraError("Solution::clone", "Provided adjacent phase '{}'"
+                    " not found in Kinetics object.", soln->name());
+            }
+        }
+
+        kinPhases.push_back(out->thermo());
+        for (size_t i = 1; i < m_kinetics->nPhases(); i++) {
+            string name = m_kinetics->phase(i)->name();
+            if (adjacentByName.count(name) != 0) {
+                kinPhases.push_back(adjacentByName[name]->thermo());
+                out->addAdjacent(adjacentByName[name]);
+                adjacentByName.erase(name);
+            } else {
+                auto soln = m_kinetics->phase(i)->root()->clone({}, false, false);
+                kinPhases.push_back(soln->thermo());
+                out->addAdjacent(soln);
+            }
+        }
+        out->setKinetics(m_kinetics->clone(kinPhases));
+    } else {
+        out->setKinetics(newKinetics("none"));
+    }
+    if (withTransport) {
+        out->setTransport(m_transport->clone(out->thermo()));
+    } else {
+        out->setTransport(newTransport(m_thermo, "none"));
+    }
+    return out;
+}
+
 string Solution::name() const {
     if (m_thermo) {
         return m_thermo->name();
