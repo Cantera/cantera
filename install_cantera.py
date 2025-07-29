@@ -15,6 +15,7 @@ else:
 
 if string_argument in ['yes', 'y']:
     argument = 'NFS'
+    cluster = input('On which cluster are you installing Cantera ? (KRAKEN/CALYPSO) ')
 elif string_argument in ['no', 'n']:
     argument = 'local'
 else:
@@ -50,7 +51,12 @@ verbose_tests = True
         # use the output of ls /opt/homebrew/Cellar/boost/ to get the version number
         f.write(text.format(subprocess.check_output('ls /opt/homebrew/Cellar/boost/', shell=True).decode('utf-8').split('\n')[0]))
     else :
-        text = """\
+        if cluster == 'CALYPSO':
+            text = """\
+boost_inc_dir = '/softs/local/boost/1.86.0/include'
+"""
+        elif cluster == 'KRAKEN':
+            text = """\
 boost_inc_dir = '/softs/local/boost/1.78.0_gcc112/include'
 """
         f.write(text)
@@ -92,9 +98,10 @@ if argument == 'local':
         subprocess.call('brew install gcc', shell=True)
         #subprocess.call('pip3 install numpy --no-use-pep517', shell=True)
         subprocess.call('pip3 install numpy', shell=True)
-	subprocess.call('pip3 install cython==3.1.1', shell=True)
-	subprocess.call('pip3 install packaging', shell=True)
-        subprocess.call('pip3 install scons==3.1.2', shell=True)
+        subprocess.call('pip3 install cython==3.1.1', shell=True)
+        subprocess.call('pip3 install packaging', shell=True)
+        # subprocess.call('pip3 install scons==3.1.2', shell=True)
+        subprocess.call('pip3 install scons', shell=True)
         subprocess.call('pip3 install wheel', shell=True)
         subprocess.call('pip3 install ruamel.yaml', shell=True)
     elif update_argument in ['no', 'n']:
@@ -105,8 +112,26 @@ if argument == 'local':
     fill_cantera_conf(file_path, install_dir_path)
     error = subprocess.call('scons build && scons install', shell=True)
 else:
+    print("""To run cantera, the installation of: \n
+    - numpy, cython, scons, wheel and ruamel.yaml with pip command. \n
+    are required.""")
+    update_argument = input('Do you want to install/update those libraries ? (yes/no) ')
+
+    if update_argument in ['yes', 'y']:
+        subprocess.call('pip3 install numpy', shell=True)
+        subprocess.call('pip3 install cython==3.1.1', shell=True)
+        subprocess.call('pip3 install packaging', shell=True)
+        subprocess.call('pip3 install scons', shell=True)
+        subprocess.call('pip3 install wheel', shell=True)
+        subprocess.call('pip3 install ruamel.yaml', shell=True)
+    elif update_argument in ['no', 'n']:
+        pass
+    else:
+        quit('Invalid answer ! \n Really ?! How could you fail a yes or no question ?')
+
+
     fill_cantera_conf(file_path, install_dir_path)
-    error = execute_with_live_display("./run_compil")
+    error = execute_with_live_display("./run_compil_" + cluster)
 
 
 #only print the following if the installation was successful

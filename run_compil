@@ -1,5 +1,0 @@
-module purge
-module load python/3.9.5
-module load compiler/gcc/11.2.0
-module list
-scons build && scons install

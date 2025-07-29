@@ -1,0 +1,6 @@
+#!/bin/bash
+module purge
+#module load python/3.9.5 # Not needed if install is done in an python environment (already loaded to create the environment)
+module load gcc/12.3.0
+# module list
+scons build -j4 && scons install
