@@ -29,6 +29,8 @@ EquilibriumSolver: TypeAlias = Literal["element_potential", "gibbs", "vcs", "aut
 LogLevel: TypeAlias = Literal[0, 1, 2, 3, 4, 5]
 LogLevel7: TypeAlias = Literal[0, 1, 2, 3, 4, 5, 6, 7]
 CompressionLevel: TypeAlias = Literal[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# ThermoPhase state definitions
 StateVariable: TypeAlias = Literal["T", "D", "P", "U", "H", "S", "V"]
 PropertyPair: TypeAlias = Literal["TP", "TV", "HP", "SP", "SV", "UV"]
 CompositionVariable: TypeAlias = Literal["X", "Y"]
@@ -50,6 +52,21 @@ FullState: TypeAlias = Literal[
 ]
 CompositionLike: TypeAlias = str | dict[str, float] | ArrayLike
 StateSetter: TypeAlias = tuple[float, float, CompositionLike]
+ArrayCompositionLike: TypeAlias = str | dict[str, Array | float] | ArrayLike
+ArrayStateSetter: TypeAlias = tuple[Array | float, Array | float, ArrayCompositionLike]
+
+# PureFluid state definitions
+PureFluidStateVariable: TypeAlias = Literal[StateVariable, "Q"]
+PureFluidPropertyPair: TypeAlias = Literal[
+    PropertyPair, "TQ", "PQ", "ST", "TV", "PV", "UP", "VH", "TH", "SH"
+]
+PureFluidFullState: TypeAlias = Literal[
+    FullState, "TDQ", "TPQ", "UVQ", "DPQ", "HPQ", "SPQ", "SVQ"
+]
+PureFluidStateSetter: TypeAlias = tuple[float, float, float]
+ArrayPureFluidStateSetter: TypeAlias = tuple[
+    Array | float, Array | float, Array | float
+]
 
 RefineCriteria = TypedDict(
     "RefineCriteria",
