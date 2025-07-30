@@ -1,11 +1,11 @@
-from typing import Any, ClassVar, TypedDict
+from typing import Any, ClassVar, Required, TypedDict
 
 from cantera._types import Array, ArrayLike
 
 SpeciesThermoInput = TypedDict(
     "SpeciesThermoInput",
     {
-        "model": str,
+        "model": Required[str],
         "temperature-ranges": list[float],
         "data": list[list[float]],
         "note": str,
