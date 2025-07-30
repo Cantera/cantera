@@ -26,6 +26,7 @@ if localenv["example_data"]:
 for stub_location in ["cantera", "cantera/with_units"]:
     for pyifile in multi_glob(localenv, f"#interfaces/cython/{stub_location}", "pyi"):
         dataFiles.append(build(localenv.Command(f"{stub_location}/{pyifile.name}", pyifile.abspath, Copy("$TARGET", "$SOURCE"))))
+dataFiles.append(build(localenv.Command("cantera/py.typed", "#interfaces/cython/cantera/py.typed", Copy("$TARGET", "$SOURCE"))))
 
 # Install Python samples
 install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
