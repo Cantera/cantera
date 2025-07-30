@@ -1,4 +1,4 @@
-from typing import Any, Literal, Sequence, TypeAlias, TypedDict, overload
+from typing import Any, Literal, Required, Sequence, TypeAlias, TypedDict, overload
 
 from cantera._types import (
     Array,
@@ -46,11 +46,19 @@ ThermoType: TypeAlias = Literal[
     "pure-fluid",
 ]
 
-class SpeciesInput(TypedDict, total=False):
-    name: str
-    composition: dict[str, float]
-    thermo: SpeciesThermoInput
-    transport: GasTransportInput
+SpeciesInput = TypedDict(
+    "SpeciesInput",
+    {
+        "name": Required[str],
+        "composition": Required[dict[str, float]],
+        "thermo": SpeciesThermoInput,
+        "transport": GasTransportInput,
+        "equation-of-state": dict[str, Any],
+        "critical-parameters": dict[str, float],
+        "Debye-Huckel": dict[str, float],
+    },
+    total=False,
+)
 
 class ThermoModelMethodError(Exception):
     def __init__(self, thermo_model: str) -> None: ...
