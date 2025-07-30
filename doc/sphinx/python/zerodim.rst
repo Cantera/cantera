@@ -42,71 +42,71 @@ Reservoir
 
 Reactor
 ^^^^^^^
-.. autoclass:: Reactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: Reactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 MoleReactor
 ^^^^^^^^^^^
-.. autoclass:: MoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: MoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 IdealGasReactor
 ^^^^^^^^^^^^^^^
-.. autoclass:: IdealGasReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: IdealGasReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 IdealGasMoleReactor
 ^^^^^^^^^^^^^^^^^^^
-.. autoclass:: IdealGasMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: IdealGasMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ConstPressureReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ConstPressureReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ConstPressureMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ConstPressureMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ConstPressureMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 IdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: IdealGasConstPressureReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: IdealGasConstPressureReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 IdealGasConstPressureMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: IdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: IdealGasConstPressureMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 FlowReactor
 ^^^^^^^^^^^
-.. autoclass:: FlowReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: FlowReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleReactor
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleIdealGasReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleIdealGasReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleIdealGasReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleConstPressureReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleConstPressureReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleIdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleIdealGasConstPressureReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleIdealGasConstPressureReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleIdealGasMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleIdealGasMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleIdealGasMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleConstPressureMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleConstPressureMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleConstPressureMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 ExtensibleIdealGasConstPressureMoleReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleIdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on', node_attr=None, group_name="")
+.. autoclass:: ExtensibleIdealGasConstPressureMoleReactor(contents=None, *, clone=None, name=None, energy='on', node_attr=None, group_name="")
 
 Walls
 -----
@@ -121,7 +121,7 @@ Surfaces
 
 ReactorSurface
 ^^^^^^^^^^^^^^
-.. autoclass:: ReactorSurface(kin=None, r=None, *, A=None)
+.. autoclass:: ReactorSurface(contents, r=None, clone=None, name="(none)", *, A=None)
 
 Flow Controllers
 ----------------

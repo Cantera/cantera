@@ -44,7 +44,7 @@ gas.TP = T0, P0
 
 # %%
 # Run a simulation with the full mechanism
-r = ct.IdealGasConstPressureMoleReactor(gas)
+r = ct.IdealGasConstPressureMoleReactor(gas, clone=True)
 sim = ct.ReactorNet([r])
 sim.preconditioner = ct.AdaptivePreconditioner()
 
@@ -56,7 +56,7 @@ while sim.time < 0.04:
     sim.step()
     tt.append(1000 * sim.time)
     TT.append(r.T)
-    rnet = abs(gas.net_rates_of_progress)
+    rnet = abs(r.thermo.net_rates_of_progress)
     rnet /= max(rnet)
     Rmax = np.maximum(Rmax, rnet)
 
@@ -93,7 +93,7 @@ for i, N in enumerate([100, 200, 300, 400, 600, 800]):
 
     # Re-run the ignition problem with the reduced mechanism
     gas2.TPX = T0, P0, X0
-    r = ct.IdealGasConstPressureMoleReactor(gas2)
+    r = ct.IdealGasConstPressureMoleReactor(gas2, clone=True)
     sim = ct.ReactorNet([r])
     sim.preconditioner = ct.AdaptivePreconditioner()
 
