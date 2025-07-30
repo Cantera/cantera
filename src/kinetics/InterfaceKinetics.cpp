@@ -388,6 +388,11 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     }
 
     size_t i = nReactions();
+    shared_ptr<ReactionRate> rate = r_base->rate();
+    if (rate) {
+        rate->setContext(*r_base, *this);
+    }
+
     bool added = Kinetics::addReaction(r_base, resize);
     if (!added) {
         return false;
@@ -408,9 +413,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     }
 
     // Set index of rate to number of reaction within kinetics
-    shared_ptr<ReactionRate> rate = r_base->rate();
     rate->setRateIndex(nReactions() - 1);
-    rate->setContext(*r_base, *this);
 
     string rtype = rate->subType();
     if (rtype == "") {

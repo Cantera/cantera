@@ -65,3 +65,25 @@ jobs:
           git config --global core.whitespace \
             -cr-at-eol,tab-in-indent,blank-at-eol,blank-at-eof
           git diff --check ${{ github.event.pull_request.base.sha }}
+  example-data:
+    name: Check for unmerged example-data pull request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout the repository
+        with:
+          fetch-depth: 100
+          persist-credentials: true
+
+      - name: Find matching PR in example_data
+        env:
+          BASE_PR: ${{ github.event.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd data/example_data
+          DATA_PR=$(gh pr list --repo Cantera/cantera-example-data --jq '.[] | select(.title | test("Cantera/cantera#'${BASE_PR}'")) | .number'  --json title,number)
+          if [ -n "$DATA_PR" ]; then
+            echo ":exclamation: Merge https://github.com/Cantera/cantera-example-data/pull/${DATA_PR} and update the submodule commit before merging this PR" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

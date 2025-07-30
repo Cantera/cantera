@@ -25,7 +25,7 @@ void checkFinite(const double tmp)
     }
 }
 
-void checkFinite(const string& name, double* values, size_t N)
+void checkFinite(const string& name, const double* values, size_t N)
 {
     for (size_t i = 0; i < N; i++) {
         if (!std::isfinite(values[i])) {
