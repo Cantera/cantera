@@ -23,6 +23,7 @@ update, please report on Cantera's
 - **Parker Clayton** [@parkerclayton](https://github.com/parkerclayton)
 - **Ryan Crisanti** [@rcrisanti](https://github.com/rcrisanti)
 - **Nicholas Curtis** [@arghdos](https://github.com/arghdos)
+- **Tim Dawson** [@TimothyEDawson](https://github.com/TimothyEDawson) - CFD Research Corporation
 - **Steven DeCaluwe** [@decaluwe](https://github.com/decaluwe) - Colorado School of Mines
 - **Vishesh Devgan** [@vdevgan](https://github.com/vdevgan)
 - **Matthias Diener** [@matthiasdiener](https://github.com/matthiasdiener) - University of Illinois at Urbana-Champaign
