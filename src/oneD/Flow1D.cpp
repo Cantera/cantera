@@ -10,6 +10,8 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
+#include "cantera/thermo/Species.h"
+
 
 using namespace std;
 
@@ -81,10 +83,31 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     }
     setupGrid(m_points, gr.data());
 
-    // Find indices for radiating species
-    m_kRadiating.resize(2, npos);
-    m_kRadiating[0] = m_thermo->speciesIndex("CO2");
-    m_kRadiating[1] = m_thermo->speciesIndex("H2O");
+    // Initialize the radiation object (hardcoded for now)
+    std::string propertyModel = "TabularPlanckMean";
+    std::string solverModel = "OpticallyThin";
+
+    // Define lambdas for T(x, j) and X(x, k, j)
+    auto Tfunc = [this](const double* x, size_t j) {
+        return this->T(x, j);
+    };
+    auto Xfunc = [this](const double* x, size_t k, size_t j) {
+        return this->X(x, k, j);
+    };
+
+    double emissivityLeft = 0.0;
+    double emissivityRight = 0.0;
+    m_radiation = createRadiation1D(
+        propertyModel,
+        solverModel,
+        m_thermo,
+        m_thermo->pressure(),
+        m_points,
+        Tfunc,
+        Xfunc,
+        emissivityLeft,
+        emissivityRight
+    );
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
@@ -474,49 +497,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 
 void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 {
-    // Variable definitions for the Planck absorption coefficient and the
-    // radiation calculation:
-    double k_P_ref = 1.0*OneAtm;
-
-    // Polynomial coefficients:
-    const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
-                                    0.51382, -1.86840e-5};
-    const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
-                                    56.310, -5.8169};
-
-    // Calculation of the two boundary values
-    double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
-    double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
-
-    for (size_t j = jmin; j < jmax; j++) {
-        // calculation of the mean Planck absorption coefficient
-        double k_P = 0;
-        // Absorption coefficient for H2O
-        if (m_kRadiating[1] != npos) {
-            double k_P_H2O = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
-            }
-            k_P_H2O /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
-        }
-        // Absorption coefficient for CO2
-        if (m_kRadiating[0] != npos) {
-            double k_P_CO2 = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
-            }
-            k_P_CO2 /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
-        }
-
-        // Calculation of the radiative heat loss term
-        double radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
-                                     - boundary_Rad_left - boundary_Rad_right);
-
-        // set the radiative heat loss vector
-        m_qdotRadiation[j] = radiative_heat_loss;
-    }
+    m_radiation->computeRadiation(x, jmin, jmax, m_qdotRadiation);
 }
 
 void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
@@ -1108,16 +1089,7 @@ bool Flow1D::doElectricField(size_t j) const
 
 void Flow1D::setBoundaryEmissivities(double e_left, double e_right)
 {
-    if (e_left < 0 || e_left > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The left boundary emissivity must be between 0.0 and 1.0!");
-    } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The right boundary emissivity must be between 0.0 and 1.0!");
-    } else {
-        m_epsilon_left = e_left;
-        m_epsilon_right = e_right;
-    }
+    m_radiation->setBoundaryEmissivities(e_left, e_right);
 }
 
 void Flow1D::fixTemperature(size_t j)
