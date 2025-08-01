@@ -922,7 +922,7 @@ if "gcc" in env.subst("$CC") or "gnu-cc" in env.subst("$CC"):
 elif env["CC"] == "cl": # Visual Studio
     config.select("cl")
 
-elif "icc" in env.subst("$CC"):
+elif "icc" in env.subst("$CC") and "mpicc" not in env.subst("$CC"):
     logger.error("The deprecated Intel compiler suite (icc/icpc) is no longer supported")
 
 elif "icx" in env.subst("$CC"):
