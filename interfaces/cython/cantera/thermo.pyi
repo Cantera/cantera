@@ -1,4 +1,5 @@
-from typing import Any, Literal, Required, Sequence, TypeAlias, TypedDict, overload
+from collections.abc import Sequence
+from typing import Any, Literal, Required, TypeAlias, TypedDict, overload
 
 from cantera._types import (
     Array,
@@ -45,6 +46,19 @@ ThermoType: TypeAlias = Literal[
     "plasma",
     "pure-fluid",
 ]
+
+PhaseOfMatter: TypeAlias = Literal[
+    "gas",
+    "liquid",
+    "solid",
+    "supercritical",
+    "unstable-liquid",
+    "unstable-gas",
+    "liquid-gas-mix",
+    "unspecified",
+]
+
+QuadratureMethod: TypeAlias = Literal["simpson", "trapezoidal"]
 
 SpeciesInput = TypedDict(
     "SpeciesInput",
@@ -107,7 +121,7 @@ class ThermoPhase(_SolutionBase):
     @property
     def thermo_model(self) -> ThermoType: ...
     @property
-    def phase_of_matter(self) -> str: ...
+    def phase_of_matter(self) -> PhaseOfMatter: ...
     def report(self, show_thermo: bool = True, threshold: float = 1e-14) -> str: ...
     def __call__(self, *args: Any, **kwargs: Any) -> None: ...
     @property
@@ -478,9 +492,9 @@ class ThermoPhase(_SolutionBase):
     @mean_electron_energy.setter
     def mean_electron_energy(self, energy: float) -> None: ...
     @property
-    def quadrature_method(self) -> str: ...
+    def quadrature_method(self) -> QuadratureMethod: ...
     @quadrature_method.setter
-    def quadrature_method(self, method: str) -> None: ...
+    def quadrature_method(self, method: QuadratureMethod) -> None: ...
     @property
     def normalize_electron_energy_distribution_enabled(self) -> bool: ...
     @normalize_electron_energy_distribution_enabled.setter

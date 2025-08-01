@@ -1,10 +1,9 @@
-from cantera._types import ArrayCompositionLike
+from collections.abc import Sequence
 from typing import (
     Any,
     Generic,
     Literal,
     Never,
-    Sequence,
     TypeVar,
     Unpack,
     overload,
@@ -15,6 +14,7 @@ from pandas import DataFrame
 
 from cantera._types import (
     Array,
+    ArrayCompositionLike,
     ArrayLike,
     ArrayPureFluidStateSetter,
     ArrayStateSetter,
@@ -31,7 +31,15 @@ from cantera._types import (
 from cantera.kinetics import DerivativeSettings, InterfaceKinetics, Kinetics
 from cantera.reaction import Reaction
 from cantera.solutionbase import SolutionArrayBase, _SolutionBase
-from cantera.thermo import InterfacePhase, PureFluid, Species, ThermoPhase, ThermoType
+from cantera.thermo import (
+    InterfacePhase,
+    PhaseOfMatter,
+    PureFluid,
+    QuadratureMethod,
+    Species,
+    ThermoPhase,
+    ThermoType,
+)
 from cantera.transport import (
     DustyGasTransport,
     Transport,
@@ -319,7 +327,7 @@ class Quantity:
     @property
     def thermo_model(self) -> ThermoType: ...
     @property
-    def phase_of_matter(self) -> str: ...
+    def phase_of_matter(self) -> PhaseOfMatter: ...
     def report(self, show_thermo: bool = True, threshold: float = 1e-14) -> str: ...
     @property
     def is_pure(self) -> bool: ...
@@ -637,9 +645,9 @@ class Quantity:
     @mean_electron_energy.setter
     def mean_electron_energy(self, energy: float) -> None: ...
     @property
-    def quadrature_method(self) -> str: ...
+    def quadrature_method(self) -> QuadratureMethod: ...
     @quadrature_method.setter
-    def quadrature_method(self, method: str) -> None: ...
+    def quadrature_method(self, method: QuadratureMethod) -> None: ...
     @property
     def normalize_electron_energy_distribution_enabled(self) -> bool: ...
     @normalize_electron_energy_distribution_enabled.setter
@@ -994,7 +1002,7 @@ class SolutionArray(SolutionArrayBase, Generic[P]):
     def thermal_conductivity(self) -> Array: ...
     # strings
     @property
-    def phase_of_matter(self) -> str: ...
+    def phase_of_matter(self) -> PhaseOfMatter: ...
 
     # n_species
     # from ThermoPhase

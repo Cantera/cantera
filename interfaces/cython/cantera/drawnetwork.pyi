@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 from functools import _Wrapped
-from typing import Callable, Iterable, Literal
+from typing import Callable, Literal
 
 from graphviz import Digraph
 

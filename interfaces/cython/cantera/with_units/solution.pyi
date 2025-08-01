@@ -1,4 +1,5 @@
-from typing import Any, Callable, Literal, TypeAlias, TypeVar
+from pathlib import Path
+from typing import Any, Callable, Literal, TypeAlias
 
 from pint import Quantity
 from pint.registry import ApplicationRegistry
@@ -27,16 +28,15 @@ _PropertyPairSetter: TypeAlias = tuple[Quantity | None, Quantity | None]
 _StateSetter: TypeAlias = tuple[
     Quantity | None, Quantity | None, Quantity | Array | None
 ]
-F = TypeVar("F", bound=Callable)
 
 units: ApplicationRegistry
 Q_: Quantity
 
-def copy_doc(method: F) -> F: ...
+def copy_doc[T, **P](method: Callable[P, T]) -> Callable[P, T]: ...
 
 class Solution:
     def __init__(
-        self, infile: str = "", name: str = "", *, yaml: str | None = None
+        self, infile: Path | str = "", name: str = "", *, yaml: str | None = None
     ) -> None: ...
     @copy_doc
     def report(self, *args: Any, **kwargs: Any) -> str: ...
@@ -308,10 +308,15 @@ class Solution:
 
 class PureFluid:
     def __init__(
-        self, infile, name: str = "", *, yaml: str | None = None, **kwargs: Any
+        self,
+        infile: Path | str,
+        name: str = "",
+        *,
+        yaml: str | None = None,
+        **kwargs: Any,
     ) -> None: ...
     @copy_doc
-    def report(self, *args: Any, **kwargs: Any): ...
+    def report(self, *args: Any, **kwargs: Any) -> str: ...
     def __call__(self, *args: Any, **kwargs: Any) -> None: ...
     @property
     def basis_units(self) -> Literal["kg", "kmol"]: ...

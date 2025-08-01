@@ -1,4 +1,5 @@
-from typing import Literal, Sequence, TypeAlias, TypedDict
+from collections.abc import Sequence
+from typing import Literal, TypeAlias, TypedDict
 
 from cantera._types import Array
 from cantera.reaction import CustomRate, Reaction
@@ -178,7 +179,7 @@ class InterfaceKinetics(Kinetics):
     def get_destruction_rates(self, phase: ThermoPhase | str | int) -> Array: ...
     def get_net_production_rates(self, phase: ThermoPhase | str | int) -> Array: ...
     def interface_current(self, phase: ThermoPhase | str | int) -> float: ...
-    def write_yaml(
+    def write_yaml(  # type: ignore[override]
         self,
         filename: str,
         phases: Sequence[ThermoPhase] | None = None,

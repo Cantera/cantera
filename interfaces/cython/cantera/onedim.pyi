@@ -1,10 +1,12 @@
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 from pandas import DataFrame
 
 from cantera._onedim import (
     AxisymmetricFlow,
+    Domain1D,
     FreeFlow,
     Inlet1D,
     Outlet1D,
@@ -14,7 +16,14 @@ from cantera._onedim import (
     SymmetryPlane1D,
     UnstrainedFlow,
 )
-from cantera._types import Array, ArrayLike, Basis, LogLevel, RefineCriteria
+from cantera._types import (
+    Array,
+    ArrayLike,
+    Basis,
+    CompositionLike,
+    LogLevel,
+    RefineCriteria,
+)
 from cantera._utils import __git_commit__ as __git_commit__
 from cantera._utils import __version__ as __version__
 from cantera._utils import hdf_support as hdf_support
@@ -24,24 +33,24 @@ from cantera.kinetics import Kinetics
 class FlameBase(Sim1D):
     gas: Solution
     def __init__(
-        self, domains, gas: Solution, grid: ArrayLike | None = None
+        self, domains: Iterable[Domain1D], gas: Solution, grid: ArrayLike | None = None
     ) -> None: ...
-    def set_refine_criteria(
+    def set_refine_criteria(  # type: ignore[override]
         self,
         ratio: float = 10.0,
         slope: float = 0.8,
         curve: float = 0.8,
         prune: float = 0.0,
     ) -> None: ...
-    def get_refine_criteria(self) -> RefineCriteria: ...
+    def get_refine_criteria(self) -> RefineCriteria: ...  # type: ignore[override]
     def set_initial_guess(
         self,
         *args: Any,
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
         **kwargs: Any,
     ) -> None: ...
-    def set_profile(
+    def set_profile(  # type: ignore[override]
         self, component: str | int, positions: Sequence[float], values: Sequence[float]
     ) -> None: ...
     @property
@@ -105,8 +114,12 @@ class FlameBase(Sim1D):
     def elemental_mass_fraction(self, m: str) -> Array: ...
     def elemental_mole_fraction(self, m: str) -> Array: ...
     def set_gas_state(self, point: int) -> None: ...
-    def to_array(self, domain: Any | None = None, normalize: bool = False) -> Array: ...
-    def from_array(self, arr: ArrayLike, domain: Any | None = None) -> None: ...
+    def to_array(
+        self, domain: Domain1D | str | int | None = None, normalize: bool = False
+    ) -> SolutionArray[Solution]: ...
+    def from_array(
+        self, arr: SolutionArray[Solution], domain: Domain1D | str | int | None = None
+    ) -> None: ...
     def to_pandas(
         self, species: Literal["X", "Y"] = "X", normalize: bool = True
     ) -> Array: ...
@@ -312,11 +325,10 @@ class FreeFlame(FlameBase):
     def __init__(
         self, gas: Solution, grid: ArrayLike | None = None, width: float | None = None
     ) -> None: ...
-    fixed_temperature: float
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
         locs: ArrayLike = [0.0, 0.3, 0.5, 1.0],
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
     def solve(
@@ -326,7 +338,7 @@ class FreeFlame(FlameBase):
         auto: bool = False,
         stage: Literal[1, 2] = 1,
     ) -> None: ...
-    def get_flame_speed_reaction_sensitivities(self): ...
+    def get_flame_speed_reaction_sensitivities(self) -> Array: ...
 
 class BurnerFlame(FlameBase):
     burner: Inlet1D
@@ -335,9 +347,9 @@ class BurnerFlame(FlameBase):
     def __init__(
         self, gas: Solution, grid: ArrayLike | None = None, width: float | None = None
     ) -> None: ...
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
     def solve(
@@ -355,9 +367,9 @@ class CounterflowDiffusionFlame(FlameBase):
     def __init__(
         self, gas: Solution, grid: ArrayLike | None = None, width: float | None = None
     ) -> None: ...
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
     def extinct(self) -> bool: ...
@@ -370,10 +382,16 @@ class CounterflowDiffusionFlame(FlameBase):
     ) -> None: ...
     def strain_rate(
         self,
-        definition,
-        fuel: Any | None = None,
-        oxidizer: str = "O2",
-        stoich: Any | None = None,
+        definition: Literal[
+            "mean",
+            "max",
+            "stoichiometric",
+            "potential_flow_fuel",
+            "potential_flow_oxidizer",
+        ],
+        fuel: CompositionLike | None = None,
+        oxidizer: CompositionLike = "O2",
+        stoich: float | None = None,
     ) -> float: ...
     def mixture_fraction(self, m: str | int) -> Array: ...
     @property
@@ -390,10 +408,10 @@ class ImpingingJet(FlameBase):
         width: float | None = None,
         surface: Kinetics | None = None,
     ) -> None: ...
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
         products: Literal["inlet", "equil"] = "inlet",
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
 
@@ -404,10 +422,10 @@ class CounterflowPremixedFlame(FlameBase):
     def __init__(
         self, gas: Solution, grid: ArrayLike | None = None, width: float | None = None
     ) -> None: ...
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
         equilibrate: bool = True,
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
 
@@ -418,8 +436,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
     def __init__(
         self, gas: Solution, grid: ArrayLike | None = None, width: float | None = None
     ) -> None: ...
-    def set_initial_guess(
+    def set_initial_guess(  # type: ignore[override]
         self,
-        data: SolutionArray | DataFrame | str | Path | None = None,
+        data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
     ) -> None: ...
