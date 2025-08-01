@@ -39,9 +39,13 @@ public:
     //! Neglects derivatives with respect to mole fractions that would generate a
     //! fully-dense Jacobian. Currently also neglects terms related to interactions
     //! between reactors, for example via inlets and outlets.
-    Eigen::SparseMatrix<double> jacobian() override;
+    void buildJacobian(vector<Eigen::Triplet<double>>& jacVector) override;
 
     bool preconditionerSupported() const override { return true; };
+
+    double temperature_ddni(size_t index) override;
+
+    size_t speciesOffset() const override { return m_sidx; };
 
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
