@@ -1,0 +1,10 @@
+#!/bin/bash
+module purge
+# module load python/3.9.5
+module load compiler/gcc/11.2.0
+#require the installation of ruamel.yaml
+# scons build python2_package=n prefix=/softs/local/cantera-avbp/3.0 blas_lapack_libs=lapack,atlas debug_linker_flags='-L/usr/lib64/atlas'
+# mv /softs/local/cantera-avbp/3.0 /softs/local/cantera-avbp/3.0-`date +%d%b%Y`
+# scons install
+scons build -j4 && scons install
+

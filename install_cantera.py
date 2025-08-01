@@ -185,6 +185,8 @@ function load_cantera
     source_venv = subprocess.check_output('echo $VIRTUAL_ENV', shell=True).decode('utf-8').split('\n')[0] + "/bin/activate"
     if argument == 'NFS' and cluster == 'CALYPSO':
         module_gcc = "module load gcc/12.3.0"
+    elif argument == 'NFS' and cluster == 'KRAKEN':
+        module_gcc = "module load compiler/gcc/11.2.0"
     else:
         module_gcc = ""
     if argument == 'local':
