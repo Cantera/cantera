@@ -84,4 +84,4 @@ update, please report on Cantera's
 - **Richard West** [@rwest](https://github.com/rwest) - Northeastern University
 - **Shumeng Xie** [@yeanment](https://github.com/yeanment) - National University of Singapore
 - **Chao Xu** [@12Chao](https://github.com/12Chao) - Northeastern University
-- **Thorsten Zirwes** [@g3bk47](https://github.com/g3bk47) - Karlsruhe Institute of Technology
+- **Thorsten Zirwes** [@g3bk47](https://github.com/g3bk47) - University of Stuttgart
