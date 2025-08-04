@@ -98,11 +98,9 @@ if argument == 'local':
             subprocess.call('/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"', shell=True)
         subprocess.call('brew install boost', shell=True)
         subprocess.call('brew install gcc', shell=True)
-        #subprocess.call('pip3 install numpy --no-use-pep517', shell=True)
         subprocess.call('pip3 install numpy', shell=True)
         subprocess.call('pip3 install cython==3.1.1', shell=True)
         subprocess.call('pip3 install packaging', shell=True)
-        # subprocess.call('pip3 install scons==3.1.2', shell=True)
         subprocess.call('pip3 install scons', shell=True)
         subprocess.call('pip3 install wheel', shell=True)
         subprocess.call('pip3 install ruamel.yaml', shell=True)
@@ -136,22 +134,6 @@ else:
     error = execute_with_live_display("./run_compil_" + cluster)
 
 
-##only print the following if the installation was successful
-#if argument == 'NFS' and not error:
-    ##add an alias to load necessary modules
-    #print("We suggest to add the alias 'load_cantera_mod' to purge and load necessary modules in ~/.bashrc")
-    ##ask user if he wants to add the alias to ~/.bashrc
-    #add_alias = input('Do you want to add the alias to ~/.bashrc ? (yes/no) ')
-    # if add_alias in ['yes', 'y']:
-    #     err = subprocess.call("echo 'alias load_cantera_mod=\"module purge && module load compiler/gcc/11.2.0\"' >> ~/.bashrc", shell=True)
-    #     if not err :
-    #         print("Alias load_cantera_mod added to ~/.bashrc")
-    #     else :
-    #         print("FAILED to add alias load_cantera_mod to ~/.bashrc, you can do it manually :\
-    #               alias load_cantera_mod='module purge && module load compiler/gcc/11.2.0'")
-    # else :
-    #     print("Alias load_cantera_mod NOT added to ~/.bashrc")
-
 if not error:
     print("*" * 80)
     print()
@@ -169,7 +151,6 @@ function load_cantera
     export PKG_CONFIG_PATH={0}/lib/pkgconfig:$PKG_CONFIG_PATH
     export LD_LIBRARY_PATH={0}/lib:$LD_LIBRARY_PATH
     export PATH={0}/bin:$PATH
-    export PYTHON_CMD={3}
 
     #Only if you dont already have a custom lib folder:
     export CUSTOM_LIB={0}/mech_lib

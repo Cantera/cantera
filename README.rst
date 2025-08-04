@@ -30,7 +30,7 @@ using the following MyBinder link:
 .. image:: https://mybinder.org/badge.svg
     :target: https://mybinder.org/repo/cantera/cantera-jupyter
 
-Installation
+Local Installation (MAC)
 ============
 
 To ensure a smooth installation, we highly recommend setting up Cantera within a virtual environment.
@@ -47,98 +47,212 @@ Follow the steps below for a **local** installation:
     python3 -m venv env_cantera
     source ~/env_cantera/bin/activate
 
-2. (optional) Create an alias to load ``env_cantera``::
-
-    echo "alias load_cantera_env='source ~/env_cantera/bin/activate'" >> ~/.zshrc
-    source ~/.zshrc
-
-3. Navigate to the Cantera directory::
+2. Navigate to the Cantera directory::
 
     cd /Users/$USER/Documents/cantera-avbp
     
-4. Switch to the right branch and run the installation script::
+3. Run the installation script::
 
-    git checkout dev_cantera-avbp
-    python3 install_cantera.py
+    python install_cantera.py
     
+4. When prompted about NFS, answer ``no``.
 
-5. When prompted about NFS, answer ``no``.
+5. When prompted about package and libraries installations (boost, numpy, scons,...), answer ``yes``.
+
 6. Wait for the compilation and installation process to complete successfully.
 
 If everything goes well, you should see the following message::
 
-  ********************************************************************************
-  To use this newly installed Cantera version, update your environment variables 
-  by adding the following lines to your.bashrc (or equivalent):
+********************************************************************************
 
-  #cantera-avbp-3.1
-  export PYTHONPATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH 
-  export PKG_CONFIG_PATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-  export LD_LIBRARY_PATH=/Users/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
-  export PATH=/Users/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
-  export PYTHON_CMD=/Users/$USER/canavbp3/bin/python3
+To use this brandnew Cantera installation, you must update some of your environment variables.
+To do so, you can add the following lines to your .bashrc (or equivalent):
 
-  #Only if you dont already have a custom lib folder:
-  export CUSTOM_LIB=/Users/$USER/cantera-avbp/INSTALL_DIR/mech_lib
-  export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
+#cantera-avbp-3.1
+function load_cantera
+{
+    source /Users/$USER/Documents/VENV/test/bin/activate
 
-  #Required for MacOS:
-  export DYLD_LIBRARY_PATH=$CUSTOM_LIB
 
-  DONT FORGET TO SOURCE YOUR .bashrc!
 
-  ********************************************************************************
+    export PYTHONPATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+    export PKG_CONFIG_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+    export LD_LIBRARY_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
+    export PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/bin:$PATH
 
+    #Only if you dont already have a custom lib folder:
+    export CUSTOM_LIB=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/mech_lib
+    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
+
+    #Required for MacOS:
+    export DYLD_LIBRARY_PATH=$CUSTOM_LIB
+
+}
+
+
+DONT FORGET TO SOURCE YOUR .bashrc !
+
+********************************************************************************
 
 Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
 
+7. To activate Cantera environment::
+    
+    load_cantera 
+
+8. Test if everything works using a sample script, for example::
+
+    python samples/python/AVBP/ARC.py
+
+
+KRAKEN Installation
+============
+
 For **KRAKEN** users, use the following commands to install Cantera:
 
-1. Load the necessary modules::
+0. Load the necessary modules::
 
     module purge && module load python/3.9.5
-    
-2. Install ``ruamel.yaml`` package (not installed by default on KRAKEN)::
-  
-    pip3 install --user ruamel.yaml
 
-3. Create a virtual environment in your home folder and activate it::
+1. Create a virtual environment in your home folder and activate it::
 
     cd $HOME
-    python3 -m venv --system-site-packages env_cantera
+    python3 -m venv env_cantera
     source ~/env_cantera/bin/activate
 
-4. (optional) Create an alias to load ``env_cantera``::
+2. Clone the Cantera repository::
 
-    echo "alias load_cantera_env='source ~/env_cantera/bin/activate'" >> ~/.bashrc
-    source ~/.bashrc
+    cd /scratch/cfd/$USER
+    git clone git@github.com:cerfacs/cantera-avbp.git
 
-5. Clone cantera-avbp repository (e.g. in your ``/scratch``), navigate to it and run the installation script::
+3. Run the installation script::
 
-    git clone https://nitrox.cerfacs.fr/cantera/cantera-avbp.git /scratch/cfd/$USER
-    cd /scratch/cfd/$USER/cantera-avbp
-    git checkout 3.0
-    python3 install_cantera.py
+    cd cantera-avbp
+    python install_cantera.py
 
-When prompted about NFS, answer 'yes' and wait for the compilation and installation to finish.
+4. When prompted about NFS, answer ``yes``.
 
-If everything goes well, you will see a similar message as above, but with an additional question::
+5. When prompted about cluster, answer ``KRAKEN``.
+
+6. When prompted about package installations (numpy, scons,...), answer ``yes``.
+
+7. Wait for the compilation and installation process to complete successfully.
+
+If everything goes well, you should see the following message::
+
+********************************************************************************
+
+To use this brandnew Cantera installation, you must update some of your environment variables.
+To do so, you can add the following lines to your .bashrc (or equivalent):
+
+#cantera-avbp-3.1
+function load_cantera
+{
+    source /home/cfd/$USER/env_cantera/bin/activate
+
+    module load compiler/gcc/11.2.0
+
+    export PYTHONPATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+    export PKG_CONFIG_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+    export LD_LIBRARY_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
+    export PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
+
+    #Only if you dont already have a custom lib folder:
+    export CUSTOM_LIB=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
+    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
 
 
-  We suggest adding the alias 'load_cantera' to purge and load necessary modules in ~/.bashrc
-  Do you want to add the alias to ~/.bashrc? (yes/no)
+}
 
 
-Answer ``yes`` to this question, then copy and paste the environment variables you need into your ``.bashrc`` file and **source it**.
+DONT FORGET TO SOURCE YOUR .bashrc !
 
-Finally, load Cantera with the following command::
+********************************************************************************
 
-  load_cantera
+Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
+
+8. To activate Cantera environment::
+    
+    load_cantera 
+
+9. Test if everything works using a sample script, for example::
+
+    python samples/python/AVBP/ARC.py
 
 
-Test if everything works using a sample script, for example::
+CALYPSO Installation
+============
 
-  python3 samples/python/AVBP/ARC.py
+For **CALYPSO** users, use the following commands to install Cantera:
+
+0. Load the necessary modules::
+
+    module purge && module load python/3.9.19
+
+1. Create a virtual environment in your home folder and activate it::
+
+    cd $HOME
+    python3 -m venv env_cantera
+    source ~/env_cantera/bin/activate
+
+2. Clone the Cantera repository::
+
+    cd /scratch/cfd/$USER
+    git clone git@github.com:cerfacs/cantera-avbp.git
+
+3. Run the installation script::
+
+    cd cantera-avbp
+    python install_cantera.py
+
+4. When prompted about NFS, answer ``yes``.
+
+5. When prompted about cluster, answer ``CALYPSO``.
+
+6. When prompted about package installations (numpy, scons,...), answer ``yes``.
+
+7. Wait for the compilation and installation process to complete successfully.
+
+If everything goes well, you should see the following message::
+
+********************************************************************************
+
+To use this brandnew Cantera installation, you must update some of your environment variables.
+To do so, you can add the following lines to your .bashrc (or equivalent):
+
+#cantera-avbp-3.1
+function load_cantera
+{
+    source /gpfs-calypso/home/cfd/$USER/env_cantera/bin/activate
+
+    module load gcc/12.3.0
+
+    export PYTHONPATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+    export PKG_CONFIG_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+    export LD_LIBRARY_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
+    export PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
+
+    #Only if you dont already have a custom lib folder:
+    export CUSTOM_LIB=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
+    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
+
+
+}
+
+
+DONT FORGET TO SOURCE YOUR .bashrc !
+
+********************************************************************************
+
+Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
+
+8. To activate Cantera environment::
+    
+    load_cantera 
+
+9. Test if everything works using a sample script, for example::
+
+    python samples/python/AVBP/ARC.py
 
 
 Documentation
