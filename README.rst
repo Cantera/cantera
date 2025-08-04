@@ -63,36 +63,36 @@ Follow the steps below for a **local** installation:
 
 If everything goes well, you should see the following message::
 
-********************************************************************************
+    ********************************************************************************
 
-To use this brandnew Cantera installation, you must update some of your environment variables.
-To do so, you can add the following lines to your .bashrc (or equivalent):
+    To use this brandnew Cantera installation, you must update some of your environment variables.
+    To do so, you can add the following lines to your .bashrc (or equivalent):
 
-#cantera-avbp-3.1
-function load_cantera
-{
-    source /Users/$USER/Documents/VENV/test/bin/activate
-
-
-
-    export PYTHONPATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
-    export PKG_CONFIG_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-    export LD_LIBRARY_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
-    export PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/bin:$PATH
-
-    #Only if you dont already have a custom lib folder:
-    export CUSTOM_LIB=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/mech_lib
-    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
-
-    #Required for MacOS:
-    export DYLD_LIBRARY_PATH=$CUSTOM_LIB
-
-}
+    #cantera-avbp-3.1
+    function load_cantera
+    {
+        source /Users/$USER/Documents/VENV/test/bin/activate
 
 
-DONT FORGET TO SOURCE YOUR .bashrc !
 
-********************************************************************************
+        export PYTHONPATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+        export PKG_CONFIG_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
+        export PATH=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/bin:$PATH
+
+        #Only if you dont already have a custom lib folder:
+        export CUSTOM_LIB=/Users/$USER/Documents/cantera-avbp/INSTALL_DIR/mech_lib
+        export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
+
+        #Required for MacOS:
+        export DYLD_LIBRARY_PATH=$CUSTOM_LIB
+
+    }
+
+
+    DONT FORGET TO SOURCE YOUR .bashrc !
+
+    ********************************************************************************
 
 Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
 
@@ -140,34 +140,34 @@ For **KRAKEN** users, use the following commands to install Cantera:
 
 If everything goes well, you should see the following message::
 
-********************************************************************************
+    ********************************************************************************
 
-To use this brandnew Cantera installation, you must update some of your environment variables.
-To do so, you can add the following lines to your .bashrc (or equivalent):
+    To use this brandnew Cantera installation, you must update some of your environment variables.
+    To do so, you can add the following lines to your .bashrc (or equivalent):
 
-#cantera-avbp-3.1
-function load_cantera
-{
-    source /home/cfd/$USER/env_cantera/bin/activate
+    #cantera-avbp-3.1
+    function load_cantera
+    {
+        source /home/cfd/$USER/env_cantera/bin/activate
 
-    module load compiler/gcc/11.2.0
+        module load compiler/gcc/11.2.0
 
-    export PYTHONPATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
-    export PKG_CONFIG_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-    export LD_LIBRARY_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
-    export PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
+        export PYTHONPATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+        export PKG_CONFIG_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRAR
+        export PATH=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
 
-    #Only if you dont already have a custom lib folder:
-    export CUSTOM_LIB=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
-    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
-
-
-}
+        #Only if you dont already have a custom lib folder:
+        export CUSTOM_LIB=/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
+        export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
 
 
-DONT FORGET TO SOURCE YOUR .bashrc !
+    }
 
-********************************************************************************
+
+    DONT FORGET TO SOURCE YOUR .bashrc !
+
+    ********************************************************************************
 
 Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
 
@@ -215,34 +215,34 @@ For **CALYPSO** users, use the following commands to install Cantera:
 
 If everything goes well, you should see the following message::
 
-********************************************************************************
+    ********************************************************************************
 
-To use this brandnew Cantera installation, you must update some of your environment variables.
-To do so, you can add the following lines to your .bashrc (or equivalent):
+    To use this brandnew Cantera installation, you must update some of your environment variables.
+    To do so, you can add the following lines to your .bashrc (or equivalent):
 
-#cantera-avbp-3.1
-function load_cantera
-{
-    source /gpfs-calypso/home/cfd/$USER/env_cantera/bin/activate
+    #cantera-avbp-3.1
+    function load_cantera
+    {
+        source /gpfs-calypso/home/cfd/$USER/env_cantera/bin/activate
 
-    module load gcc/12.3.0
+        module load gcc/12.3.0
 
-    export PYTHONPATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
-    export PKG_CONFIG_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-    export LD_LIBRARY_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
-    export PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
+        export PYTHONPATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/python3.9/site-packages:$PYTHONPATH
+        export PKG_CONFIG_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/lib:$LD_LIBRARY_PATH
+        export PATH=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/bin:$PATH
 
-    #Only if you dont already have a custom lib folder:
-    export CUSTOM_LIB=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
-    export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
-
-
-}
+        #Only if you dont already have a custom lib folder:
+        export CUSTOM_LIB=/gpfs-calypso/scratch/cfd/$USER/cantera-avbp/INSTALL_DIR/mech_lib
+        export LD_LIBRARY_PATH=$CUSTOM_LIB:$LD_LIBRARY_PATH
 
 
-DONT FORGET TO SOURCE YOUR .bashrc !
+    }
 
-********************************************************************************
+
+    DONT FORGET TO SOURCE YOUR .bashrc !
+
+    ********************************************************************************
 
 Copy and paste the provided lines into your ``.zshrc`` or ``.bashrc`` file and **source it**.
 
