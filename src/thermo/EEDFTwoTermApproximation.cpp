@@ -19,10 +19,10 @@ namespace Cantera
 
 typedef Eigen::SparseMatrix<double> SparseMat;
 
-EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase& s)
+EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase* s)
 {
     // store a pointer to s.
-    m_phase = &s;
+    m_phase = s;
     m_first_call = true;
     m_has_EEDF = false;
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
@@ -46,13 +46,12 @@ void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
 int EEDFTwoTermApproximation::calculateDistributionFunction()
 {
     if (m_first_call) {
-        initSpeciesIndexCS();
+        initSpeciesIndexCrossSections();
         m_first_call = false;
     }
 
-    update_mole_fractions();
-    checkSpeciesNoCrossSection();
-    updateCS();
+    updateMoleFractions();
+    updateCrossSections();
 
     if (!m_has_EEDF) {
         writelog("No existing EEDF. Using first guess method: {}\n", options.m_firstguess);
@@ -136,17 +135,6 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
         SparseMat Q_k = matrix_Q(g, k);
         SparseMat P_k = matrix_P(g, k);
         PQ += (matrix_Q(g, k) - matrix_P(g, k)) * m_X_targets[m_klocTargets[k]];
-    }
-
-    vector<std::tuple<int, int, double>> pq_values;
-    int count = 0;
-    for (int j = 0; j < PQ.outerSize(); ++j) {
-        for (SparseMat::InnerIterator it(PQ, j); it; ++it) {
-            if (count < 5) {
-                pq_values.push_back({it.row(), it.col(), it.value()});
-            }
-            count++;
-        }
     }
 
     SparseMat A = matrix_A(f0);
@@ -282,7 +270,7 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     vector<double> a1(options.m_points + 1);
     size_t N = options.m_points - 1;
     // Scharfetter-Gummel scheme
-    double nu = netProductionFreq(f0);
+    double nu = netProductionFrequency(f0);
     a0[0] = NAN;
     a1[0] = NAN;
     a0[N+1] = NAN;
@@ -291,9 +279,6 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     // Electron-electron collisions declarations
     double a;
     vector<double> A1, A2, A3;
-    if (m_eeCol) {
-        eeColIntegrals(A1, A2, A3, a, options.m_points);
-    }
 
     double nDensity = m_phase->molarDensity() * Avogadro;
     double alpha;
@@ -320,10 +305,6 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         double DA = m_gamma / 3.0 * pow(E / nDensity, 2.0) * m_gridEdge[j];
         double DB = m_gamma * m_phase->temperature() * Boltzmann / ElectronCharge * m_gridEdge[j] * m_gridEdge[j] * m_sigmaElastic[j];
         double D = DA / sigma_tilde * F + DB;
-        if (m_eeCol) {
-            W -= 3 * a * m_phase->ionDegree() * A1[j];
-            D += 2 * a * m_phase->ionDegree() * (A2[j] + pow(m_gridEdge[j], 1.5) * A3[j]);
-        }
         if (options.m_growth == "spatial") {
             W -= m_gamma / 3.0 * 2 * alpha * E / nDensity * m_gridEdge[j] / sigma_tilde;
         }
@@ -382,7 +363,7 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     return A + G;
 }
 
-double EEDFTwoTermApproximation::netProductionFreq(const Eigen::VectorXd& f0)
+double EEDFTwoTermApproximation::netProductionFrequency(const Eigen::VectorXd& f0)
 {
     double nu = 0.0;
     vector<double> g = vector_g(f0);
@@ -393,7 +374,7 @@ double EEDFTwoTermApproximation::netProductionFreq(const Eigen::VectorXd& f0)
             SparseMat PQ = (matrix_Q(g, k) - matrix_P(g, k)) *
                               m_X_targets[m_klocTargets[k]];
             Eigen::VectorXd s = PQ * f0;
-            checkFinite("EEDFTwoTermApproximation::netProductionFreq: s",
+            checkFinite("EEDFTwoTermApproximation::netProductionFrequency: s",
                         s.data(), s.size());
             nu += s.sum();
         }
@@ -404,7 +385,7 @@ double EEDFTwoTermApproximation::netProductionFreq(const Eigen::VectorXd& f0)
 double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
 {
     vector<double> y(options.m_points, 0.0);
-    double nu = netProductionFreq(f0);
+    double nu = netProductionFrequency(f0);
     for (size_t i = 0; i < options.m_points; i++) {
         if (m_gridCenter[i] != 0.0) {
             y[i] = m_gridCenter[i] * f0(i) /
@@ -419,7 +400,7 @@ double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
 
 double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
 {
-    double nu = netProductionFreq(f0);
+    double nu = netProductionFrequency(f0);
     vector<double> y(options.m_points + 1, 0.0);
     for (size_t i = 1; i < options.m_points; i++) {
         // calculate df0 at i-1/2
@@ -435,7 +416,7 @@ double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
     return -1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
-void EEDFTwoTermApproximation::initSpeciesIndexCS()
+void EEDFTwoTermApproximation::initSpeciesIndexCrossSections()
 {
     // set up target index
     m_kTargets.resize(m_phase->nCollisions());
@@ -481,18 +462,7 @@ void EEDFTwoTermApproximation::initSpeciesIndexCS()
     }
 }
 
-void EEDFTwoTermApproximation::checkSpeciesNoCrossSection()
-{
-    // warn that a specific species needs cross-section data.
-    for (size_t k : m_kOthers) {
-        if (m_phase->moleFraction(k) > options.m_moleFractionThreshold) {
-            writelog("EEDFTwoTermApproximation:checkSpeciesNoCrossSection\n");
-            writelog("Warning:The mole fraction of species {} is more than 0.01 (X = {:.3g}) but it has no cross-section data\n", m_phase->speciesName(k), m_phase->moleFraction(k));
-        }
-    }
-}
-
-void EEDFTwoTermApproximation::updateCS()
+void EEDFTwoTermApproximation::updateCrossSections()
 {
     // Compute sigma_m and sigma_\epsilon
     calculateTotalCrossSection();
@@ -500,7 +470,7 @@ void EEDFTwoTermApproximation::updateCS()
 }
 
 // Update the species mole fractions used for EEDF computation
-void EEDFTwoTermApproximation::update_mole_fractions()
+void EEDFTwoTermApproximation::updateMoleFractions()
 {
     double tmp_sum = 0.0;
     for (size_t k = 0; k < m_X_targets.size(); k++) {
@@ -554,8 +524,6 @@ void EEDFTwoTermApproximation::setGridCache()
 {
     m_sigma.clear();
     m_sigma.resize(m_phase->nCollisions());
-    m_sigma_offset.clear();
-    m_sigma_offset.resize(m_phase->nCollisions());
     m_eps.clear();
     m_eps.resize(m_phase->nCollisions());
     m_j.clear();
@@ -620,9 +588,6 @@ void EEDFTwoTermApproximation::setGridCache()
         for (auto& element : x_offset) {
             element -= collision->threshold();
         }
-        for (size_t i = 0; i < options.m_points; i++) {
-            m_sigma_offset[k].push_back(linearInterp(m_gridCenter[i], x_offset, y));
-        }
     }
 }
 
@@ -634,66 +599,6 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
         p[i] = f(i) * pow(grid[i], 0.5);
     }
     return numericalQuadrature(m_quadratureMethod, p, grid);
-}
-
-
-void EEDFTwoTermApproximation::eeColIntegrals(vector<double>& A1, vector<double>& A2, vector<double>& A3,
-                                              double& a, size_t nPoints)
-{
-    // Ensure vectors are initialized
-    A1.assign(nPoints, 0.0);
-    A2.assign(nPoints, 0.0);
-    A3.assign(nPoints, 0.0);
-
-    // Compute net production frequency
-    double nu = netProductionFreq(m_f0);
-    // simulations with repeated calls to update EEDF will produce numerical instability here
-    double nu_floor = 1e-40; // adjust as needed for stability
-    if (nu < nu_floor) {
-        writelog("eeColIntegrals: nu = {:.3e} too small, applying floor\n", nu);
-        nu = nu_floor;
-    }
-
-    // Compute effective cross-section term
-    double sigma_tilde;
-    for (size_t j = 1; j < nPoints; j++) {
-        sigma_tilde = m_totalCrossSectionCenter[j] + nu / pow(m_gridEdge[j], 0.5) / m_gamma;
-    }
-
-    // Compute Coulomb logarithm
-    double lnLambda;
-    if (nu > 0.0) {
-        lnLambda = log(sigma_tilde / nu);
-    } else {
-        lnLambda = log(4.0 * Pi * pow(m_gridEdge.back(), 3) / 3.0);
-    }
-
-    // Compute e-e collision prefactor
-    a = 4.0 * Pi * ElectronCharge * ElectronCharge * lnLambda / (m_gamma * pow(nu, 2));
-
-    // Compute integral terms A1, A2, A3
-    for (size_t j = 1; j < nPoints; j++) {
-        double eps_j = m_gridCenter[j]; // Electron energy level
-        double integral_A1 = 0.0;
-        double integral_A2 = 0.0;
-        double integral_A3 = 0.0;
-
-        for (size_t i = 1; i < nPoints; i++) {
-            double eps_i = m_gridCenter[i];
-            double f0_i = m_f0[i];
-
-            double weight = f0_i * pow(eps_i, 0.5) * exp(-abs(eps_i - eps_j) / eps_i);
-
-            integral_A1 += weight * pow(eps_i, 1.5);
-            integral_A2 += weight * pow(eps_i, 0.5);
-            integral_A3 += weight;
-        }
-
-        // Store computed values
-        A1[j] = integral_A1;
-        A2[j] = integral_A2;
-        A3[j] = integral_A3;
-    }
 }
 
 }

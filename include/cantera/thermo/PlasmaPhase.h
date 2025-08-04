@@ -342,9 +342,17 @@ public:
         return m_electricField;
     }
 
-    double ionDegree() const {
-        return m_ionDegree;
+    //! Set the absolute electric field strength [V/m]
+    void setElectricField(double E) {
+        m_electricField = E;
     }
+
+    //! Calculate the degree of ionization
+    //double ionDegree() const {
+    //    double ne = concentration(m_electronSpeciesIndex); // [kmol/m³]
+    //    double n_total = molarDensity();                   // [kmol/m³]
+    //    return ne / n_total;
+    //}
 
     //! Get the reduced electric field strength [V·m²]
     double reducedElectricField() const {
@@ -467,7 +475,7 @@ protected:
     vector<vector<double>> m_energyLevels;
 
     //! ionization degree for the electron-electron collisions (tmp is the previous one)
-    double m_ionDegree = 0.0;
+    //double m_ionDegree = 0.0;
 
     //! Electron energy distribution Difference dF/dε (V^-5/2)
     Eigen::ArrayXd m_electronEnergyDistDiff;

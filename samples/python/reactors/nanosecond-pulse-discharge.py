@@ -4,6 +4,22 @@ Nanosecond Pulse Plasma Simulation
 
 This example simulates a nanosecond-scale pulse discharge in a reactor.
 A Gaussian-shaped electric field pulse is applied over a short timescale.
+The plasma reaction mechanism used is based on Colin Pavan's mechanism
+for methane-air plasmas which is described in his Ph.D. dissertation and the
+corresponding AIAA SciTech conference papers:
+
+C. A. Pavan, "Nanosecond Pulsed Plasmas in Dynamic Combustion Environments,"
+Ph.D. Thesis, Massachusetts Institute of Technology, 2023. Chapter 5.
+
+C. A. Pavan and C. Guerra-Garcia, "Modelling the Impact of a Repetitively
+Pulsed Nanosecond DBD Plasma on a Mesoscale Flame," in AIAA SCITECH 2022
+Forum, Reston, Virginia: American Institute of Aeronautics and
+Astronautics, Jan. 2022, pp. 1-15. DOI: 10.2514/6.2022-0975.
+
+C. A. Pavan and C. Guerra-Garcia, "Modeling Flame Speed Modification by
+Nanosecond Pulsed Discharges to Inform Experimental Design," in AIAA
+SCITECH 2023 Forum, Reston, Virginia: American Institute of Aeronautics
+and Astronautics, Jan. 2023, pp. 1-15. DOI: 10.2514/6.2023-2056.
 
 Requires: cantera >= 3.2, matplotlib >= 2.0
 
@@ -26,7 +42,7 @@ def gaussian_EN(t):
 gas = ct.Solution('example_data/methane-plasma-pavan-2023.yaml')
 gas.TPX = 300., 101325., 'CH4:0.095, O2:0.19, N2:0.715, e:1E-11'
 gas.reduced_electric_field = gaussian_EN(0)
-gas.update_EEDF()
+gas.update_electron_energy_distribution()
 
 r = ct.ConstPressureReactor(gas, energy="off")
 
@@ -55,7 +71,7 @@ while t < t_total:
 
     EN_t = gaussian_EN(t)
     gas.reduced_electric_field = EN_t
-    gas.update_EEDF()
+    gas.update_electron_energy_distribution()
 
     # reinitialize integrator with new source terms
     sim.reinitialize()

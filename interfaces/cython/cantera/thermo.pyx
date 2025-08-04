@@ -1799,6 +1799,25 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setReducedElectricField(value)
 
+    property electric_field:
+        """
+        Get/Set the electric field (E) [V/m].
+
+        This is the absolute electric field strength. It is related to the reduced
+        electric field (E/N) through the number density of neutrals.
+
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electricField()
+
+        def __set__(self, value):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setElectricField(value)
+
     def set_discretized_electron_energy_distribution(self, levels, distribution):
         """
         Set electron energy distribution. When this method is used, electron
@@ -1825,7 +1844,7 @@ cdef class ThermoPhase(_SolutionBase):
                                                      &data_dist[0],
                                                      len(levels))
 
-    def update_EEDF(self):
+    def update_electron_energy_distribution(self):
         """
         Update the electron energy distribution function to account for changes in
         composition, temperature, pressure, or electric field strength.

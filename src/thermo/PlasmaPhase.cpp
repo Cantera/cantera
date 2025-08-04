@@ -29,7 +29,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     m_electronTemp = temperature();
 
     // Initialize the Boltzmann Solver
-    m_eedfSolver = make_unique<EEDFTwoTermApproximation>(*this);
+    m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
 
     // Set Energy Grid (Hardcoded Defaults for Now)
     double kTe_max = 60;

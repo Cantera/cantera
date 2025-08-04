@@ -124,18 +124,24 @@ t2 = np.zeros_like(z2)
 states2 = ct.SolutionArray(r2.thermo)
 # iterate through the PFR cells
 for n in range(n_steps):
-    # Set the state of the reservoir to match that of the previous reactor
-    gas2.TDY = r2.thermo.TDY
-    upstream.syncState()
-    # integrate the reactor forward in time until steady state is reached
-    sim2.reinitialize()
+    # create new reactor from updated gas
+    r2 = ct.IdealGasReactor(gas2)
+    r2.volume = r_vol
+    upstream = ct.Reservoir(gas2)
+    downstream = ct.Reservoir(gas2)
+    m = ct.MassFlowController(upstream, r2, mdot=mass_flow_rate2)
+    v = ct.PressureController(r2, downstream, primary=m, K=1e-5)
+    sim2 = ct.ReactorNet([r2])
+
     sim2.advance_to_steady_state()
-    # compute velocity and transform into time
+
     u2[n] = mass_flow_rate2 / area / r2.thermo.density
-    t_r2[n] = r2.mass / mass_flow_rate2  # residence time in this reactor
+    t_r2[n] = r2.mass / mass_flow_rate2
     t2[n] = np.sum(t_r2)
-    # write output data
     states2.append(r2.thermo.state)
+
+    # update gas2 for next segment
+    gas2.TDY = r2.thermo.TDY
 
 #####################################################################
 

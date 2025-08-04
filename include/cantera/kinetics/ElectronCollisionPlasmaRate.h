@@ -152,25 +152,42 @@ public:
         throw NotImplementedError("ElectronCollisionPlasmaRate::ddTScaledFromStruct");
     }
 
-    //! The kind of the process
+    //! The kind of the process which will be one of the following:
+    //! - `"effective"`: A generic effective collision
+    //! - `"excitation"`: Electronic or vibrational excitation
+    //! - `"ionization"`: Electron-impact ionization
+    //! - `"attachment"`: Electron attachment
     //! @since New in Cantera 3.2.
     const string& kind() const {
         return m_kind;
     }
 
-    //! The target of the process
+    //! Get the target species of the electron collision process.
+    //! This is the name of the neutral or ionic species that the electron interacts with
     //! @since New in Cantera 3.2.
     const string& target() const {
         return m_target;
     }
 
-    //! The product of the process
+    //! Get the product of the electron collision process.
+    //! This is the name of the species or excited state of
+    //! some species resulting from the process.
+    //! @note this may not necessarily be represented by
+    //! a distinct species in the mixture.
     //! @since New in Cantera 3.2.
     const string& product() const {
         return m_product;
     }
 
     //! Get the energy threshold of electron collision [eV]
+    //!
+    //! By default, the threshold is set to the first non-zero energy value
+    //! listed in the tabulated cross section data.
+    //!
+    //! @note This behavior may be subject to change. A more robust approach
+    //! may use the energy corresponding to the first non-zero cross section
+    //! value, rather than the first non-zero energy point in the data table.
+    //!
     //! @since New in Cantera 3.2.
     double threshold() const {
         return m_threshold;

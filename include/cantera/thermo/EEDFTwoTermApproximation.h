@@ -38,10 +38,33 @@ public:
 
 //! Boltzmann equation solver for the electron energy distribution function based on
 //! the two-term approximation.
-//!
-//! @since New in %Cantera 3.2.
-//! @warning This class is an experimental part of %Cantera and may be changed without
-//!     notice.
+/*!
+ * This class implements a solver for the electron energy distribution function
+ * based on a steady-state solution to the Boltzmann equation using the classical
+ * two-term expansion, applicable to weakly ionized plasmas. The numerical approach
+ * and theory are primarily derived from the work of Hagelaar and Pitchford
+ * @cite hagelaar2005.
+ *
+ * The two-term approximation assumes that the EEDF can be represented as:
+ *   @f[
+ *       f(\epsilon, \mu) = f_0(\epsilon) + \mu f_1(\epsilon),
+ *   @f]
+ * where @f$ \epsilon @f$ is the electron energy and @f$ \mu @f$ is the cosine
+ * of the angle between the electron velocity vector and the electric field.
+ * The Boltzmann equation is projected onto the zeroth moment over mu to obtain
+ * an equation for @f$ f_0(\epsilon) @f$ , the isotropic part of the distribution.
+ * The first-order anisotropic term @f$ f_1(\epsilon) @f$ is not solved directly,
+ * but is approximated and substituted into the drift and collision terms. This
+ * results in a second-order differential equation for @f$ f_0(\epsilon) @f$ alone.
+ *
+ * The governing equation for @f$ f_0(\epsilon) @f$ is discretized on an energy
+ * grid using a finite difference method and solved using a tridiagonal matrix
+ * algorithm.
+ *
+ * @since New in %Cantera 3.2.
+ * @warning This class is an experimental part of %Cantera and may be changed without
+ *     notice.
+ */
 class EEDFTwoTermApproximation
 {
 public:
@@ -54,7 +77,7 @@ public:
      *
      * @param s PlasmaPhase object that will be used in the solver calls.
      */
-    EEDFTwoTermApproximation(PlasmaPhase& s);
+    EEDFTwoTermApproximation(PlasmaPhase* s);
 
     virtual ~EEDFTwoTermApproximation() = default;
 
@@ -90,9 +113,10 @@ public:
 protected:
     //! Pointer to the PlasmaPhase object used to initialize this object.
     /*!
-     * This PlasmaPhase object must be compatible with the PlasmaPhase objects
-     * input from the compute function. Currently, this means that the 2
-     * PlasmaPhases have to have consist of the same species and elements.
+     * This PlasmaPhase object provides species, element, and cross-section
+     * data used by the EEDF solver. It is set during construction and is not
+     * modified afterwards. All subsequent calls to compute functions must
+     * use the same PlasmaPhase context.
      */
     PlasmaPhase* m_phase;
 
@@ -158,7 +182,7 @@ protected:
     //! Reduced net production frequency. Equation (10) of ref. [1]
     //! divided by N.
     //! @param f0 EEDF
-    double netProductionFreq(const Eigen::VectorXd& f0);
+    double netProductionFrequency(const Eigen::VectorXd& f0);
 
     //! Diffusivity
     double electronDiffusivity(const Eigen::VectorXd& f0);
@@ -166,20 +190,28 @@ protected:
     //! Mobility
     double electronMobility(const Eigen::VectorXd& f0);
 
-    void initSpeciesIndexCS();
+    //! Initialize species indices associated with cross-section data
+    void initSpeciesIndexCrossSections();
 
-    void checkSpeciesNoCrossSection();
+    //! Update the total cross sections based on the current state
+    void updateCrossSections();
 
-    void updateCS();
+    //! Update the vector of species mole fractions
+    void updateMoleFractions();
 
-    void update_mole_fractions();
-
+    //! Compute the total elastic collision cross section
     void calculateTotalElasticCrossSection();
 
+    //! Compute the total (elastic + inelastic) cross section
     void calculateTotalCrossSection();
 
+    //! Compute the L1 norm of a function f defined over a given energy grid.
+    //!
+    //! @param f     Vector representing the function values (EEDF)
+    //! @param grid  Vector representing the energy grid corresponding to f
     double norm(const Eigen::VectorXd& f, const Eigen::VectorXd& grid);
 
+    //! Electron mobility [m²/V·s]
     double m_electronMobility;
 
     //! Grid of electron energy (cell center) [eV]
@@ -199,9 +231,6 @@ protected:
 
     //! The energy boundaries of the overlap of cell i and j
     vector<vector<vector<double>>> m_eps;
-
-    //! The cross section at the center of a cell
-    vector<vector<double>> m_sigma_offset;
 
     //! normalized electron energy distribution function
     Eigen::VectorXd m_f0;
@@ -242,13 +271,6 @@ protected:
     vector<int> m_inFactor;
 
     double m_gamma;
-
-    //! boolean for the electron-electron collisions
-    bool m_eeCol = false;
-
-    //! Compute electron-electron collision integrals
-    void eeColIntegrals(vector<double>& A1, vector<double>& A2, vector<double>& A3,
-                        double& a, size_t nPoints);
 
     //! flag of having an EEDF
     bool m_has_EEDF;

@@ -16,7 +16,7 @@ import cantera as ct
 gas = ct.Solution('example_data/air-plasma-Phelps.yaml')
 gas.TPX = 300., 101325., 'N2:0.79, O2:0.21, N2+:1E-10, Electron:1E-10'
 gas.reduced_electric_field = 200.0 * 1e-21 # Reduced electric field [V.m^2]
-gas.update_EEDF()
+gas.update_electron_energy_distribution()
 
 grid = gas.electron_energy_levels
 eedf = gas.electron_energy_distribution
