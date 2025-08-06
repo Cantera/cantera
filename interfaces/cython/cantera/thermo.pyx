@@ -1783,6 +1783,41 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.electronPressure()
 
+    property reduced_electric_field:
+        """
+        Get/Set the reduced electric field (E/N) [V·m²].
+
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.reducedElectricField()
+
+        def __set__(self, value):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setReducedElectricField(value)
+
+    property electric_field:
+        """
+        Get/Set the electric field (E) [V/m].
+
+        This is the absolute electric field strength. It is related to the reduced
+        electric field (E/N) through the number density of neutrals.
+
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electricField()
+
+        def __set__(self, value):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setElectricField(value)
+
     def set_discretized_electron_energy_distribution(self, levels, distribution):
         """
         Set electron energy distribution. When this method is used, electron
@@ -1808,6 +1843,18 @@ cdef class ThermoPhase(_SolutionBase):
         self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
                                                      &data_dist[0],
                                                      len(levels))
+
+    def update_electron_energy_distribution(self):
+        """
+        Update the electron energy distribution function to account for changes in
+        composition, temperature, pressure, or electric field strength.
+
+        .. versionadded:: 3.2
+        """
+        if not self._enable_plasma:
+            raise TypeError('This method is invalid for '
+                            f'thermo model: {self.thermo_model}.')
+        self.plasma.updateElectronEnergyDistribution()
 
     property n_electron_energy_levels:
         """ Number of electron energy levels """

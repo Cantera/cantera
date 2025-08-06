@@ -133,7 +133,11 @@ void Reactor::syncState()
     m_thermo->saveState(m_state);
     if (m_energy) {
         m_enthalpy = m_thermo->enthalpy_mass();
-        m_intEnergy = m_thermo->intEnergy_mass();
+        try {
+            m_intEnergy = m_thermo->intEnergy_mass();
+        } catch (NotImplementedError&) {
+            m_intEnergy = NAN;
+        }
     }
     m_pressure = m_thermo->pressure();
     m_mass = m_thermo->density() * m_vol;
@@ -205,7 +209,11 @@ void Reactor::updateConnected(bool updatePressure) {
     if (updatePressure) {
         m_pressure = m_thermo->pressure();
     }
-    m_intEnergy = m_thermo->intEnergy_mass();
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        m_intEnergy = NAN;
+    }
     m_thermo->saveState(m_state);
 
     // Update the mass flow rate of connected flow devices

@@ -7,10 +7,10 @@
 #ifndef CT_ELECTRONCOLLISIONPLASMARATE_H
 #define CT_ELECTRONCOLLISIONPLASMARATE_H
 
-#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/kinetics/ReactionData.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -32,19 +32,17 @@ struct ElectronCollisionPlasmaData : public ReactionData
         energyLevels.resize(0);
         distribution.resize(0);
         m_dist_number = -1;
-        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
     vector<double> distribution; //!< electron energy distribution
-    bool levelChanged;
+
+    //! integer that is incremented when electron energy levels change
+    int levelNumber = -1;
 
 protected:
     //! integer that is incremented when electron energy distribution changes
     int m_dist_number = -1;
-
-    //! integer that is incremented when electron energy level changes
-    int m_level_number = -1;
 };
 
 
@@ -103,9 +101,16 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
-
     ElectronCollisionPlasmaRate() = default;
-
+    //! Constructor from YAML input for ElectronCollisionPlasmaRate.
+    /*!
+    * This constructor is used to initialize an electron collision plasma rate
+    * from an input YAML file. It extracts the energy levels, cross-sections,
+    * and reaction metadata used in the rate coefficient calculation.
+    *
+    * @param node         The AnyMap node containing rate fields from YAML
+    * @param rate_units   Units used for interpreting the rate fields
+    */
     ElectronCollisionPlasmaRate(const AnyMap& node,
                                 const UnitStack& rate_units={})
     {
@@ -133,6 +138,10 @@ public:
      */
     double evalFromStruct(const ElectronCollisionPlasmaData& shared_data);
 
+    //! Calculate the reverse rate coefficient for super-elastic collisions
+    //! @param shared_data Data structure with energy levels and EEDF
+    //! @param kf Forward rate coefficient (input, unused)
+    //! @param kr Reverse rate coefficient (output, modified)
     void modifyRateConstants(const ElectronCollisionPlasmaData& shared_data,
                              double& kf, double& kr);
 
@@ -141,6 +150,47 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     double ddTScaledFromStruct(const ElectronCollisionPlasmaData& shared_data) const {
         throw NotImplementedError("ElectronCollisionPlasmaRate::ddTScaledFromStruct");
+    }
+
+    //! The kind of the process which will be one of the following:
+    //! - `"effective"`: A generic effective collision
+    //! - `"excitation"`: Electronic or vibrational excitation
+    //! - `"ionization"`: Electron-impact ionization
+    //! - `"attachment"`: Electron attachment
+    //! @since New in Cantera 3.2.
+    const string& kind() const {
+        return m_kind;
+    }
+
+    //! Get the target species of the electron collision process.
+    //! This is the name of the neutral or ionic species that the electron interacts with
+    //! @since New in Cantera 3.2.
+    const string& target() const {
+        return m_target;
+    }
+
+    //! Get the product of the electron collision process.
+    //! This is the name of the species or excited state of
+    //! some species resulting from the process.
+    //! @note this may not necessarily be represented by
+    //! a distinct species in the mixture.
+    //! @since New in Cantera 3.2.
+    const string& product() const {
+        return m_product;
+    }
+
+    //! Get the energy threshold of electron collision [eV]
+    //!
+    //! By default, the threshold is set to the first non-zero energy value
+    //! listed in the tabulated cross section data.
+    //!
+    //! @note This behavior may be subject to change. A more robust approach
+    //! may use the energy corresponding to the first non-zero cross section
+    //! value, rather than the first non-zero energy point in the data table.
+    //!
+    //! @since New in Cantera 3.2.
+    double threshold() const {
+        return m_threshold;
     }
 
     //! The value of #m_energyLevels [eV]
@@ -162,8 +212,27 @@ public:
     void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
+    //! The name of the kind of electron collision
+    string m_kind;
+
+    //! The name of the target of electron collision
+    string m_target;
+
+    //! The product of electron collision
+    string m_product;
+
+    //! The energy threshold of electron collision
+    double m_threshold;
+
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
+
+    //! Counter used to indicate when #m_energyLevels needs to be synced with the phase
+    int m_levelNumber = -3;
+
+    //! Counter used to indicate when #m_crossSectionsOffset needs to be synced with the
+    //! phase
+    int m_levelNumberSuperelastic = -2;
 
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;

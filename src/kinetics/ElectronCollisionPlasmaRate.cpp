@@ -6,6 +6,7 @@
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/numerics/funcs.h"
 
 namespace Cantera
@@ -36,13 +37,11 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     pp.getElectronEnergyDistribution(distribution.data());
 
     // Update energy levels
-    levelChanged = pp.levelNumber() != m_level_number;
-    if (levelChanged) {
-        m_level_number = pp.levelNumber();
+    if (pp.levelNumber() != levelNumber || energyLevels.empty()) {
+        levelNumber = pp.levelNumber();
         energyLevels.resize(pp.nElectronEnergyLevels());
         pp.getElectronEnergyLevels(energyLevels.data());
     }
-
     return true;
 }
 
@@ -52,22 +51,29 @@ void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitSt
     if (!node.hasKey("energy-levels") && !node.hasKey("cross-sections")) {
         return;
     }
-    if (node.hasKey("energy-levels")) {
-        m_energyLevels = node["energy-levels"].asVector<double>();
+
+    if (node.hasKey("kind")) {
+        m_kind = node["kind"].asString();
     }
-    if (node.hasKey("cross-sections")) {
-        m_crossSections = node["cross-sections"].asVector<double>();
+    if (node.hasKey("target")) {
+        m_target = node["target"].asString();
     }
-    if (m_energyLevels.size() != m_crossSections.size()) {
-        throw CanteraError("ElectronCollisionPlasmaRate::setParameters",
-            "Energy levels and cross section must have the same length.");
+    if (node.hasKey("product")) {
+        m_product = node["product"].asString();
     }
+
+    m_energyLevels = node["energy-levels"].asVector<double>();
+    m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
+    m_threshold = node.getDouble("threshold", 0.0);
 }
 
 void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["type"] = type();
     node["energy-levels"] = m_energyLevels;
     node["cross-sections"] = m_crossSections;
+    if (!m_kind.empty()) {
+        node["kind"] = m_kind;
+    }
 }
 
 void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
@@ -84,10 +90,19 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
-    // the electron energy distribution function
-    if (shared_data.levelChanged) {
-        updateInterpolatedCrossSection(shared_data.energyLevels);
+    // the electron energy distribution function when the EEDF from the phase changes
+    if (m_levelNumber != shared_data.levelNumber) {
+        m_crossSectionsInterpolated.clear();
+        for (double level : shared_data.energyLevels) {
+            m_crossSectionsInterpolated.push_back(linearInterp(level,
+                                                  m_energyLevels, m_crossSections));
+        }
+        m_levelNumber = shared_data.levelNumber;
     }
+
+    AssertThrowMsg(m_crossSectionsInterpolated.size() == shared_data.distribution.size(),
+        "ECPR:evalFromStruct", "Size mismatch: len(interp) = {}, len(distrib) = {}",
+        m_crossSectionsInterpolated.size(), shared_data.distribution.size());
 
     // Map cross sections to Eigen::ArrayXd
     auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
@@ -120,7 +135,7 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
 
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
-    if (shared_data.levelChanged) {
+    if (m_levelNumberSuperelastic != shared_data.levelNumber) {
         // super elastic collision energy levels and cross-sections
         vector<double> superElasticEnergyLevels{0.0};
         m_crossSectionsOffset.resize(shared_data.energyLevels.size());
@@ -135,6 +150,7 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
                                                         superElasticEnergyLevels,
                                                         m_crossSections);
         }
+        m_levelNumberSuperelastic = shared_data.levelNumber;
     }
 
     // Map energyLevels in Eigen::ArrayXd
@@ -155,10 +171,11 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
 
 void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
+    const ThermoPhase& thermo = kin.thermo();
     // get electron species name
     string electronName;
-    if (kin.thermo().type() == "plasma") {
-        electronName = dynamic_cast<const PlasmaPhase&>(kin.thermo()).electronSpeciesName();
+    if (thermo.type() == "plasma") {
+        electronName = dynamic_cast<const PlasmaPhase&>(thermo).electronSpeciesName();
     } else {
         throw CanteraError("ElectronCollisionPlasmaRate::setContext",
                            "ElectronCollisionPlasmaRate requires plasma phase");
@@ -175,6 +192,37 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
     if (rxn.reactants.at(electronName) != 1) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires one and only one electron");
+    }
+
+    // Determine the "kind" of collision if not specified explicitly
+    if (m_kind.empty()) {
+        m_kind = "excitation"; // default
+        if (rxn.reactants == rxn.products) {
+            m_kind = "effective";
+        } else {
+            for (const auto& [p, stoich] : rxn.products) {
+                if (p == electronName) {
+                    continue;
+                }
+                double q = thermo.charge(thermo.speciesIndex(p));
+                if (q > 0) {
+                    m_kind = "ionization";
+                } else if (q < 0) {
+                    m_kind = "attachment";
+                }
+            }
+        }
+    }
+
+    if (m_threshold == 0.0 &&
+        (m_kind == "excitation" || m_kind == "ionization" || m_kind == "attachment"))
+    {
+        for (size_t i = 0; i < m_energyLevels.size(); i++) {
+            if (m_energyLevels[i] > 0.0) {  // Look for first non-zero cross-section
+                m_threshold = m_energyLevels[i];
+                break;
+            }
+        }
     }
 
     if (!rxn.reversible) {

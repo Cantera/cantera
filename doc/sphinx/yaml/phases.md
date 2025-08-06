@@ -862,6 +862,7 @@ Additional fields:
 
     - `isotropic`
     - `discretized`
+    - `Boltzmann-two-term`
 
   `shape-factor`
   : A constant in the isotropic distribution, which is shown as x in the detailed
@@ -908,6 +909,9 @@ Examples:
     distribution: [0.0, 0.2, 0.7, 0.01]
     normalize: False
 ```
+
+See also the [electron collision data format](reactions.html#sec-yaml-electron-collisions),
+which is used to specify electron-impact cross sections relevant to plasma simulations.
 
 :::{versionadded} 2.6
 :::

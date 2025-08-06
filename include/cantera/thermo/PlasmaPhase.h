@@ -10,6 +10,7 @@
 #define CT_PLASMAPHASE_H
 
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/EEDFTwoTermApproximation.h"
 #include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
@@ -108,9 +109,7 @@ public:
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  length The length of the @c levels.
-    //! @param  updateEnergyDist update electron energy distribution
-    void setElectronEnergyLevels(const double* levels, size_t length,
-                                 bool updateEnergyDist=true);
+    void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
@@ -220,9 +219,22 @@ public:
         return m_nPoints;
     }
 
-    //! Number of collisions
+    //! Number of electron collision cross sections
     size_t nCollisions() const {
         return m_collisions.size();
+    }
+
+    //! Get the Reaction object associated with electron collision *i*.
+    //! @since New in %Cantera 3.2.
+    const shared_ptr<Reaction> collision(size_t i) const {
+        return m_collisions[i];
+    }
+
+    //! Get the ElectronCollisionPlasmaRate object associated with electron collision
+    //! *i*.
+    //! @since New in %Cantera 3.2.
+    const shared_ptr<ElectronCollisionPlasmaRate> collisionRate(size_t i) const {
+        return m_collisionRates[i];
     }
 
     //! Electron Species Index
@@ -283,6 +295,9 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
 
+    //! Update the electron energy distribution.
+    void updateElectronEnergyDistribution();
+
     //! Electron species name
     string electronSpeciesName() const {
         return speciesName(m_electronSpeciesIndex);
@@ -296,6 +311,57 @@ public:
     //! Return the electron energy level Number #m_levelNum
     int levelNumber() const {
         return m_levelNum;
+    }
+
+    //! Get the indicies for inelastic electron collisions
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kInelastic() const {
+        return m_kInelastic;
+    }
+
+    //! Get the indices for elastic electron collisions
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kElastic() const {
+        return m_kElastic;
+    }
+
+    //! target of a specific process
+    //! @since New in %Cantera 3.2.
+    size_t targetIndex(size_t i) const {
+        return m_targetSpeciesIndices[i];
+    }
+
+    //! Get the frequency of the applied electric field [Hz]
+    //! @since New in %Cantera 3.2.
+    double electricFieldFrequency() const {
+        return m_electricFieldFrequency;
+    }
+
+    //! Get the applied electric field strength [V/m]
+    double electricField() const {
+        return m_electricField;
+    }
+
+    //! Set the absolute electric field strength [V/m]
+    void setElectricField(double E) {
+        m_electricField = E;
+    }
+
+    //! Calculate the degree of ionization
+    //double ionDegree() const {
+    //    double ne = concentration(m_electronSpeciesIndex); // [kmol/m³]
+    //    double n_total = molarDensity();                   // [kmol/m³]
+    //    return ne / n_total;
+    //}
+
+    //! Get the reduced electric field strength [V·m²]
+    double reducedElectricField() const {
+        return m_electricField / (molarDensity() * Avogadro);
+    }
+
+    //! Set reduced electric field given in [V·m²]
+    void setReducedElectricField(double EN) {
+        m_electricField = EN * molarDensity() * Avogadro; // [V/m]
     }
 
     virtual void setSolution(std::weak_ptr<Solution> soln) override;
@@ -344,9 +410,6 @@ protected:
      */
     void checkElectronEnergyDistribution() const;
 
-    //! Update electron energy distribution.
-    void updateElectronEnergyDistribution();
-
     //! Set isotropic electron energy distribution
     void setIsotropicElectronEnergyDistribution();
 
@@ -391,8 +454,28 @@ protected:
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
 
-    //! Data for initiate reaction
-    AnyMap m_root;
+    //! Indices of inelastic collisions in m_crossSections
+    vector<size_t> m_kInelastic;
+
+    //! Indices of elastic collisions in m_crossSections
+    vector<size_t> m_kElastic;
+
+    //! electric field [V/m]
+    double m_electricField = 0.0;
+
+    //! electric field freq [Hz]
+    double m_electricFieldFrequency = 0.0;
+
+    //! Cross section data. m_crossSections[i][j], where i is the specific process,
+    //! j is the index of vector. Unit: [m^2]
+    vector<vector<double>> m_crossSections;
+
+    //! Electron energy levels corresponding to the cross section data. m_energyLevels[i][j],
+    //! where i is the specific process, j is the index of vector. Unit: [eV]
+    vector<vector<double>> m_energyLevels;
+
+    //! ionization degree for the electron-electron collisions (tmp is the previous one)
+    //double m_ionDegree = 0.0;
 
     //! Electron energy distribution Difference dF/dε (V^-5/2)
     Eigen::ArrayXd m_electronEnergyDistDiff;
@@ -425,6 +508,10 @@ protected:
     void updateElasticElectronEnergyLossCoefficients();
 
 private:
+
+    //! Solver used to calculate the EEDF based on electron collision rates
+    unique_ptr<EEDFTwoTermApproximation> m_eedfSolver = nullptr;
+
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
     int m_distNum = -1;
@@ -442,10 +529,6 @@ private:
     //! The collision-target species indices of #m_collisions
     vector<size_t> m_targetSpeciesIndices;
 
-    //! Interpolated cross sections. This is used for storing
-    //! interpolated cross sections temporarily.
-    vector<double> m_interp_cs;
-
     //! The list of whether the interpolated cross sections is ready
     vector<bool> m_interp_cs_ready;
 
@@ -454,8 +537,7 @@ private:
     void setCollisions();
 
     //! Add a collision and record the target species
-    void addCollision(std::shared_ptr<Reaction> collision);
-
+    void addCollision(shared_ptr<Reaction> collision);
 };
 
 }
