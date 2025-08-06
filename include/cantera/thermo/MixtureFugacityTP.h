@@ -88,7 +88,7 @@ public:
      *       -1 means gas. The value -2 means unrestricted. Values of zero or
      *       greater refer to species dominated condensed phases.
      */
-    void setForcedSolutionBranch(int solnBranch);
+    void setForcedSolutionBranch(int solnBranch) override;
 
     //! Report the solution branch which the solution is restricted to
     /*!
