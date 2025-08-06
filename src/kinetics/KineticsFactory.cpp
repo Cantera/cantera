@@ -90,6 +90,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
     for (auto& phase : phases) {
         kin->addThermo(phase);
     }
+    kin->setParameters(phaseNode);
     kin->init();
     addReactions(*kin, phaseNode, rootNode);
     return kin;
@@ -106,11 +107,6 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 
 void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
-    kin.skipUndeclaredThirdBodies(
-        phaseNode.getBool("skip-undeclared-third-bodies", false));
-    kin.setExplicitThirdBodyDuplicateHandling(
-        phaseNode.getString("explicit-third-body-duplicates", "warn"));
-
     loadExtensions(rootNode);
 
     // Find sections containing reactions to add
@@ -213,7 +209,9 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     if (add_rxn_err.size()) {
         throw CanteraError("addReactions", to_string(add_rxn_err));
     }
-    kin.checkDuplicates();
+    // Hidden flag possibly set by Kinetics::clone
+    bool fixDuplicates = phaseNode.getBool("__fix-duplicate-reactions__", false);
+    kin.checkDuplicates(!fixDuplicates, fixDuplicates);
     kin.resizeReactions();
 }
 

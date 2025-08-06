@@ -13,6 +13,11 @@
 namespace Cantera
 {
 
+shared_ptr<Transport> Transport::clone(shared_ptr<ThermoPhase> thermo) const
+{
+    return newTransport(thermo, transportModel());
+}
+
 void Transport::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_nsp) {

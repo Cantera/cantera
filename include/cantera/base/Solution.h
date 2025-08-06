@@ -55,6 +55,19 @@ public:
         return shared_ptr<Solution>( new Solution );
     }
 
+    //! Create a new Solution object with cloned ThermoPhase and Kinetics objects that
+    //! use the same species definitions, thermodynamic parameters, and reactions as
+    //! this one.
+    //! @param adjacent  For surface phases, an optional list of new adjacent phases
+    //!     to link to the InterfaceKinetics object. Any adjacent phases not provided
+    //!     will have their ThermoPhase model automatically cloned.
+    //! @param withKinetics  Flag indicating whether to clone the Kinetics object
+    //!    associated with this phase
+    //! @param withTransport  Flag indicating whether to clone the Transport object
+    //!    associated with this phase
+    shared_ptr<Solution> clone(const vector<shared_ptr<Solution>>& adjacent={},
+                               bool withKinetics=true, bool withTransport=true) const;
+
     //! Return the name of this Solution object
     string name() const;
 

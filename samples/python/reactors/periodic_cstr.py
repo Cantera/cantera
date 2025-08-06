@@ -44,21 +44,21 @@ gas.TPX = t, p, 'H2:2, O2:1'
 # Create an upstream reservoir that will supply the reactor. The temperature,
 # pressure, and composition of the upstream reservoir are set to those of the
 # ``gas`` object at the time the reservoir is created.
-upstream = ct.Reservoir(gas)
+upstream = ct.Reservoir(gas, clone=True)
 
 # %%
 # Now create the reactor object with the same initial state.
 #
 # Set its volume to 10 cm³. In this problem, the reactor volume is fixed, so
 # the initial volume is the volume at all later times.
-cstr = ct.IdealGasReactor(gas)
+cstr = ct.IdealGasReactor(gas, clone=True)
 cstr.volume = 10.0*1.0e-6
 
 # %%
 # We need to have heat loss to see the oscillations. Create a reservoir to
 # represent the environment, and initialize its temperature to the reactor
 # temperature.
-env = ct.Reservoir(gas)
+env = ct.Reservoir(gas, clone=True)
 
 # %%
 # Create a heat-conducting wall between the reactor and the environment. Set its
@@ -79,7 +79,7 @@ mfc = ct.MassFlowController(upstream, cstr, mdot=mdot)
 # Now create a downstream reservoir to exhaust into and connect the reactor to this
 # reservoir with a valve. Set the coefficient sufficiently large to keep the reactor
 # pressure close to the downstream pressure of 60 Torr.
-downstream = ct.Reservoir(gas)
+downstream = ct.Reservoir(gas, clone=True)
 v = ct.Valve(cstr, downstream, K=1.0e-9)
 
 # %%

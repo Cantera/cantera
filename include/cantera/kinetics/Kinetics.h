@@ -137,6 +137,13 @@ public:
     Kinetics(const Kinetics&) = delete;
     Kinetics& operator=(const Kinetics&)= delete;
 
+    //! Create a new Kinetics object with the same kinetics model and reactions as
+    //! this one.
+    //! @param phases Phases used to specify the state for the newly cloned Kinetics
+    //!     object. These can be created from the phases used by this object using the
+    //!     ThermoPhase::clone() method.
+    shared_ptr<Kinetics> clone(const vector<shared_ptr<ThermoPhase>>& phases) const;
+
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
@@ -1277,10 +1284,14 @@ public:
      */
     virtual void init() {}
 
+    //! Set kinetics-related parameters from an AnyMap phase description.
+    //! @since New in %Cantera 3.2.
+    virtual void setParameters(const AnyMap& phaseNode);
+
     //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newKinetics function. This
     //! excludes the reaction definitions, which are handled separately.
-    AnyMap parameters();
+    AnyMap parameters() const;
 
     /**
      * Resize arrays with sizes that depend on the total number of species.
@@ -1484,6 +1495,10 @@ protected:
     //! Vector of perturbation factors for each reaction's rate of
     //! progress vector. It is initialized to one.
     vector<double> m_perturb;
+
+    //! Default values for perturbations defined in the phase definition's
+    //! `rate-multipliers` field. Key -1 contains the default multiplier.
+    map<size_t, double> m_defaultPerturb = {{-1, 1.0}};
 
     //! Vector of Reaction objects represented by this Kinetics manager
     vector<shared_ptr<Reaction>> m_reactions;

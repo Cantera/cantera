@@ -25,6 +25,21 @@ using namespace std;
 namespace Cantera
 {
 
+shared_ptr<ThermoPhase> ThermoPhase::clone() const
+{
+    AnyMap phase = parameters();
+    AnyMap root;
+    vector<AnyMap> speciesDefs;
+    speciesDefs.reserve(nSpecies());
+    for (const auto& name : speciesNames()) {
+        speciesDefs.emplace_back(species(name)->parameters(this));
+    }
+    root["species"] = std::move(speciesDefs);
+    phase.applyUnits();
+    root.applyUnits();
+    return newThermo(phase, root);
+}
+
 void ThermoPhase::resetHf298(size_t k) {
     if (k != npos) {
         m_spthermo.resetHf298(k);
