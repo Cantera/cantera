@@ -82,18 +82,19 @@ classdef ctTestTransport < ctTestCase
 
         function testMultiComponent(self)
             try
-                a = self.phase.multiDiffCoeffs
+                Dmulti = self.phase.multiDiffCoeffs;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'NotImplementedError');
             end
 
-            self.verifyEqual(self.phase.thermalDiffCoeffs, ...
-                             zeros(1, self.phase.nSpecies), 'AbsTol', self.atol);
-
             self.phase.transportModel = 'multicomponent';
-            self.verifyTrue(all(self.phase.multiDiffCoeffs(:) >= 0.0));
             self.verifyTrue(all(self.phase.thermalDiffCoeffs(:) ~= 0.0));
+
+            Dmulti = self.phase.multiDiffCoeffs;
+            self.verifyTrue(all(Dmulti(:) >= 0.0));
+            self.verifyTrue(all(size(Dmulti) == self.phase.nSpecies));
+            self.verifyTrue(all(diag(Dmulti) == 0.0));
         end
 
     end
