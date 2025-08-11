@@ -37,58 +37,51 @@ compiler is required only if you plan to build the Fortran module.
 
 ## Other Required Software
 
-- SCons:
+- [SCons](https://scons.org/tag/releases.html):
 
-  - <http://scons.org/tag/releases.html>
   - Works with versions >= 4.0.0
   - On Windows, more recent SCons versions are required to support each new version of
     the MSVC compiler.
 
-- Python:
+- [Python](https://python.org/downloads/):
 
-  - <https://python.org/downloads/>
   - Works with versions >= 3.10.
 
-- Boost
+- [Boost](https://www.boost.org/releases/latest/)
 
-  - <https://www.boost.org/users/download/>
   - Known to work with versions 1.71, 1.74, and 1.82; Expected to work with versions >=
     1.70
   - Only the "header-only" portions of Boost are required. Cantera does not currently
     depend on any of the compiled Boost libraries.
 
-- SUNDIALS
+- [SUNDIALS](https://computing.llnl.gov/projects/sundials)
 
   - If SUNDIALS is not installed and you have checked out the Cantera source code using
     Git, SUNDIALS will be automatically downloaded and the necessary portions will be
     compiled and installed with Cantera.
-  - <https://computing.llnl.gov/projects/sundials>
   - Known to work with versions >= 5.0 and \<= 7.2.
   - To use SUNDIALS with Cantera on a Linux/Unix system, it must be compiled
     with the `-fPIC` flag. You can specify this flag when configuring SUNDIALS as
     `cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>`
 
-- Eigen
+- [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 
   - If Eigen is not installed and you have checked out the Cantera source code using
     Git, Eigen will be automatically downloaded and installed with Cantera.
-  - <https://eigen.tuxfamily.org/index.php?title=Main_Page>
   - Known to work with version 3.4.0.
 
-- fmt
+- [fmt](https://fmt.dev/latest/index.html)
 
   - If fmt (previously known as cppformat) is not installed and you have checked out the
     Cantera source code using Git, fmt will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
-  - <https://fmt.dev/latest/index.html>
   - Known to work with versions 8.0 through 11.0.
 
-- yaml-cpp
+- [yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
   - If yaml-cpp is not installed and you have checked out the Cantera source code using
     Git, it will be automatically downloaded and the necessary portions will be compiled
     and installed with Cantera.
-  - <https://github.com/jbeder/yaml-cpp>
   - Known to work with version 0.7.0. Version 0.6.0 or newer is required.
 
 - [Doxygen](http://doxygen.nl/)
@@ -97,7 +90,7 @@ compiler is required only if you plan to build the Fortran module.
   - Required to generate the C and .NET interfaces.
   - Version 1.8 or newer is recommended.
 
-- [Jinja2][https://jinja.palletsprojects.com/en/stable/]
+- [Jinja2](https://jinja.palletsprojects.com/en/stable/)
 
   - Required for generated CLib and .NET.
   - Expected to work with versions >= 2.6.
@@ -105,7 +98,7 @@ compiler is required only if you plan to build the Fortran module.
 
 ## Optional Dependencies
 
-- [Numpy](https://www.numpy.org/)
+- [NumPy](https://www.numpy.org/)
 
   - Required to build the Cantera Python module, and to run significant portions
     of the test suite.
@@ -115,7 +108,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required version >=0.29.31 to build the Python module.
 
-- [Pip](https://pip.pypa.io/en/stable/installing/) (Python)
+- [pip](https://pip.pypa.io/en/stable/installing/) (Python)
 
   - Required to build the Cantera Python module.
   - Provides the `pip` command which can be used to install most of
@@ -129,7 +122,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the Cantera Python module.
 
-- [Ruamel.yaml](https://pypi.org/project/ruamel.yaml/) (Python)
+- [ruamel.yaml](https://pypi.org/project/ruamel.yaml/) (Python)
 
   - Required to convert input files from Chemkin, {term}`CTI`, and XML to the YAML
     format
@@ -210,11 +203,6 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the dependency graph images in the C++ API Documentation
   - Known to work with version 2.40.1, expected to work with versions >=2.40.1
-
-- [Jinja](https://jinja.palletsprojects.com/en/stable/)
-
-  - Required for experimental code generation (example: .NET interface)
-  - Known to work for Jinja 3.1.4
 
 - [.NET](https://dotnet.microsoft.com/)
 
