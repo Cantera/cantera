@@ -583,7 +583,7 @@ class WaterProps;
  *
  * An example phase definition specifying a number of the above species interaction
  * parameters is given in the
- * <a href="../../sphinx/html/yaml/phases.html#hmw-electrolyte">YAML API Reference</a>.
+ * [YAML API Reference](../yaml/phases.html#hmw-electrolyte).
  *
  * ### Specification of the Debye-Huckel Constant
  *

@@ -242,7 +242,7 @@ namespace Cantera
  * ## YAML Example
  *
  * An example ideal gas phase definition is given in the
- * <a href="../../sphinx/html/yaml/phases.html#ideal-gas">YAML API Reference</a>.
+ * [YAML API Reference](../yaml/phases.html#ideal-gas).
  *
  * @ingroup thermoprops
  */

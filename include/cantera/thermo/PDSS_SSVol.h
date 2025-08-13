@@ -103,8 +103,7 @@ namespace Cantera
  *
  * An example of the specification of a standard state using a temperature dependent
  * standard state volume is given in the
- * <a href="../../sphinx/html/yaml/species.html#density-temperature-polynomial">
- * YAML API Reference</a>.
+ * [YAML API Reference](../yaml/species.html#density-temperature-polynomial).
  *
  * @ingroup pdssthermo
  */

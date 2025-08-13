@@ -365,7 +365,7 @@ class PDSS_Water;
  * at, in the future.
  *
  * Example phase and species definitions are given in the
- * <a href="../../sphinx/html/yaml/phases.html#debye-huckel">YAML API Reference</a>.
+ * [YAML API Reference](../yaml/phases.html#debye-huckel).
  *
  * ## Application within Kinetics Managers
  *
