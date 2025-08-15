@@ -193,7 +193,9 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err, bool fix)
                             "should be handled and suppress this warning.\n"
                             "Reaction {}: {}\nReaction {}: {}\n",
                             m+1, R.equation(), i+1, other.equation());
-                        warn_user("Kinetics::checkDuplicates", msg.what());
+                        if (!fix) {
+                            warn_user("Kinetics::checkDuplicates", msg.what());
+                        }
                         continue;
                     } // else m_explicit_third_body_duplicates == "error"
                 }
