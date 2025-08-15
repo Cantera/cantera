@@ -135,7 +135,7 @@ protected:
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (that is, the activation temperature) [K]
     double effectiveActivationEnergy_R(double deltaH_R) const {
-        if (deltaH_R < -4 * m_Ea_R) {
+        if (deltaH_R <= -4 * m_Ea_R) {
             return 0.;
         }
         if (deltaH_R > 4 * m_Ea_R) {

@@ -493,8 +493,7 @@ class TestKineticsRepeatability:
             assert msg in err_msg_list
 
     def test_sticking_coeff_err(self):
-        err_msg = (r"Sticking coefficient is greater than 1 for reaction 'O2 \+ 2 PT\(S\) => 2 O\(S\)'",
-                   "at T = 200.0",
+        err_msg = ("at T = 200.0",
                    "at T = 500.0",
                    "at T = 1000.0",
                    "at T = 2000.0",
@@ -503,9 +502,13 @@ class TestKineticsRepeatability:
                    "Sticking coefficient is greater than 1 for reaction",
                    "StickingRate::validate:")
 
-        for err in err_msg:
-            with pytest.warns(UserWarning, match=err):
-                ct.Interface("sticking_coeff_check.yaml", "Pt_surf")
+        with pytest.warns(UserWarning) as record:
+            ct.Interface("sticking_coeff_check.yaml", "Pt_surf")
+        assert len(record) == 2
+        for msg in err_msg:
+            assert msg in str(record[0].message)
+        assert "reaction 'O2 + 2 PT(S) => 2 O(S)'" in str(record[0].message)
+        assert "reaction 'OH + PT(S) => OH(S)'" in str(record[1].message)
 
 
 def check_raises(yaml, err_msg, line):
