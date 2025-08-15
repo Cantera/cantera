@@ -69,8 +69,8 @@ gas = ct.Solution("example_data/n-hexane-NUIG-2015.yaml")
 
 reactor_temperature = 925  # Kelvin
 reactor_pressure = 1.046138 * ct.one_atm  # in atm. This equals 1.06 bars
-inlet_concentrations = {"NC7H16": 0.005, "O2": 0.0275, "HE": 0.9675}
-gas.TPX = reactor_temperature, reactor_pressure, inlet_concentrations
+inlet_X = {"NC7H16": 0.005, "O2": 0.0275, "HE": 0.9675}
+gas.TPX = reactor_temperature, reactor_pressure, inlet_X
 
 residence_time = 2  # s
 reactor_volume = 30.5 * (1e-2) ** 3  # m3
@@ -111,7 +111,7 @@ stirred_reactor = ct.IdealGasMoleReactor(gas, energy="off", volume=reactor_volum
 mass_flow_controller = ct.MassFlowController(
     upstream=fuel_air_mixture_tank,
     downstream=stirred_reactor,
-    mdot=stirred_reactor.mass / residence_time,
+    mdot=lambda t: stirred_reactor.mass / residence_time,
 )
 
 pressure_regulator = ct.PressureController(
@@ -217,18 +217,19 @@ temp_dependence = ct.SolutionArray(gas)
 # %%
 # Now we simply run the reactor code we used above for each temperature
 
-concentrations = inlet_concentrations
+reactor_X = inlet_X
 
 for reactor_temperature in T:
-    # Use concentrations from the previous iteration to speed up convergence
-    gas.TPX = reactor_temperature, reactor_pressure, concentrations
-
-    stirred_reactor = ct.IdealGasReactor(gas, energy="off", volume=reactor_volume)
+    gas.TPX = reactor_temperature, reactor_pressure, inlet_X
     fuel_air_mixture_tank = ct.Reservoir(gas)
+
+    # Use composition from the previous iteration to speed up convergence
+    gas.TPX = reactor_temperature, reactor_pressure, reactor_X
+    stirred_reactor = ct.IdealGasReactor(gas, energy="off", volume=reactor_volume)
     mass_flow_controller = ct.MassFlowController(
         upstream=fuel_air_mixture_tank,
         downstream=stirred_reactor,
-        mdot=stirred_reactor.mass / residence_time,
+        mdot=lambda t: stirred_reactor.mass / residence_time,
     )
     pressure_regulator = ct.PressureController(
         upstream=stirred_reactor, downstream=exhaust, primary=mass_flow_controller,
@@ -246,7 +247,7 @@ for reactor_temperature in T:
     print(f"Simulation at T={reactor_temperature} K took {toc-tic:3.2f} s to compute "
           f"with {counter} steps")
 
-    concentrations = stirred_reactor.thermo.X
+    reactor_X = stirred_reactor.thermo.X
     temp_dependence.append(stirred_reactor.thermo.state)
 
 # %%
@@ -265,6 +266,7 @@ plt.plot(
     experimental_data["NC7H16"],
     color="C0",
     marker="o",
+    linestyle="none",
     label="$nC_{7}H_{16}$ (exp)",
 )
 plt.plot(
