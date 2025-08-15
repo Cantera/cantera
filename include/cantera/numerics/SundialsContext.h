@@ -24,7 +24,7 @@ public:
     SundialsContext() {
         #if SUNDIALS_VERSION_MAJOR >= 7
             SUNContext_Create(SUN_COMM_NULL, &m_context);
-
+            SUNContext_ClearErrHandlers(m_context);
         #else
             SUNContext_Create(nullptr, &m_context);
         #endif
