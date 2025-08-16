@@ -13,8 +13,47 @@
 namespace Cantera
 {
 
+ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
+                               const vector<shared_ptr<ReactorBase>>& reactors,
+                               bool clone,
+                               const string& name)
+    : ReactorBase(name)
+{
+    vector<shared_ptr<Solution>> adjacent;
+    for (auto R : reactors) {
+        adjacent.push_back(R->solution());
+        m_reactors.push_back(R.get());
+        R->addSurface(this);
+    }
+    if (clone) {
+        m_solution = soln->clone(adjacent, true, false);
+    } else {
+        m_solution = soln;
+    }
+    m_solution->thermo()->addSpeciesLock();
+    setThermo(*m_solution->thermo());
+    if (!std::dynamic_pointer_cast<SurfPhase>(soln->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
+    }
+
+    if (!soln->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(soln->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
+    }
+    // todo: move all member variables to use shared pointers after Cantera 3.2
+    m_kinetics = m_solution->kinetics().get();
+    m_thermo = m_solution->thermo().get();
+    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
+}
+
 ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(sol, name)
+    : ReactorBase(sol, false, name)
 {
     if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
         throw CanteraError("ReactorSurface::ReactorSurface",
@@ -73,7 +112,14 @@ void ReactorSurface::setKinetics(Kinetics& kin)
 
 void ReactorSurface::setReactor(ReactorBase* reactor)
 {
-    m_reactor = reactor;
+    if (std::find(m_reactors.begin(), m_reactors.end(), reactor) != m_reactors.end()) {
+        // Ignore case where reactor has already been added in the opposite direction
+        return;
+    }
+    warn_deprecated("ReactorSurface::setReactor", "To be removed after Cantera 3.2. "
+        "Superseded by constructor taking a list of adjacent reactors.");
+    m_reactors.resize(1);
+    m_reactors[0] = reactor;
 }
 
 void ReactorSurface::setCoverages(const double* cov)
@@ -100,7 +146,7 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::syncState()
 {
-    m_surf->setTemperature(m_reactor->temperature());
+    m_surf->setTemperature(m_reactors[0]->temperature());
     m_surf->setCoveragesNoNorm(m_cov.data());
 }
 
@@ -110,7 +156,7 @@ void ReactorSurface::addSensitivityReaction(size_t rxn)
         throw CanteraError("ReactorSurface::addSensitivityReaction",
                            "Reaction number out of range ({})", rxn);
     }
-    size_t p = m_reactor->network().registerSensitivityParameter(
+    size_t p = m_reactors[0]->network().registerSensitivityParameter(
         m_kinetics->reaction(rxn)->equation(), 1.0, 1.0);
     m_sensParams.emplace_back(
         SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});

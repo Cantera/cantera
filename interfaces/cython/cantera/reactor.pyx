@@ -16,19 +16,27 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents, *args, name="(none)", **kwargs):
-        self._rbase = newReactorBase(stringify(self.reactor_type),
-                                     contents._base, stringify(name))
-        self.rbase = self._rbase.get()
+    def __cinit__(self, _SolutionBase contents, *args, name="(none)", clone=None,
+                  **kwargs):
+        if clone is None:
+            clone = False  # TODO: change as indicated after Cantera 3.2
+            warnings.warn("ReactorBase.__init__: After Cantera 3.2, the default value "
+                "of the `clone` argument will be `True`, resulting in an independent "
+                "copy of the `contents` being created for use by this reactor. Add the "
+                "`clone=False` argument to retain the old behavior of sharing "
+                "`Solution` objects.", DeprecationWarning)
+        if self.reactor_type != "ReactorSurface":
+            self._rbase = newReactorBase(stringify(self.reactor_type),
+                                        contents._base, clone, stringify(name))
+            self.rbase = self._rbase.get()
 
     def __init__(self, _SolutionBase contents=None, *args,
-                 name="(none)", volume=None, node_attr=None):
+                 clone=None, name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
         self._surfaces = []
-        if isinstance(contents, _SolutionBase):
-            self._contents = contents
+        self._contents = _wrap_Solution(self.rbase.solution())
 
         if volume is not None:
             self.volume = volume
@@ -210,10 +218,14 @@ cdef class Reactor(ReactorBase):
         self.reactor = <CxxReactor*>(self.rbase)
 
     def __init__(self, contents, *,
-                 name="(none)", energy='on', group_name="", **kwargs):
+                 clone=None, name="(none)", energy='on', group_name="", **kwargs):
         """
         :param contents:
             A `Solution` object representing the Reactor contents
+        :param clone:
+            Determines whether to clone the ``contents`` object used by this reactor so
+            that the internal state is independent of the original `Solution` (and any
+            `Solution` objects used by other reactors in the network).
         :param name:
             Name string. If not specified, the name initially defaults to ``'(none)'``
             and changes to ``'<reactor_type>_n'`` when `Reactor` objects are installed
@@ -233,6 +245,12 @@ cdef class Reactor(ReactorBase):
         .. versionadded:: 3.1
            Added the ``node_attr`` and ``group_name`` parameters.
 
+        .. versionchanged:: 3.2
+           Added the ``clone`` parameter with the default value ``None`` indicating that
+           contents will not be cloned. After Cantera 3.2, this default will change to
+           be ``True``. Specify ``False`` to retain the old behavior and suppress a
+           deprecation warning.
+
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
 
@@ -246,7 +264,7 @@ cdef class Reactor(ReactorBase):
         >>> r3 = Reactor(name='adiabatic_reactor', contents=gas)
 
         """
-        super().__init__(contents, name=name, **kwargs)
+        super().__init__(contents, clone=clone, name=name, **kwargs)
 
         if energy == 'off':
             self.energy_enabled = False
@@ -779,18 +797,21 @@ cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
 
 cdef class ReactorSurface(ReactorBase):
     """
-    Represents a surface in contact with the contents of a reactor.
+    Represents a reacting surface in contact with the contents of one or more reactors.
 
+    :param contents:
+        The `Interface` object representing reactions on this surface.
+    :param r:
+        A `Reactor` or list of `Reactor` objects that this surface is adjacent to.
+    :param clone:
+        Determines whether to clone the ``contents`` object used by this reactor so
+        that the internal state is independent of the original `Solution` (and any
+        `Solution` objects used by other reactors in the network).
     :param name:
         Name string. If not specified, the name initially defaults to ``'(none)'`` and
         changes to ``'ReactorSurface_n'`` when when associated `Reactor` objects are
         installed within a `ReactorNet`. For the latter, *n* is an integer assigned in
         the order reactor surfaces are detected.
-    :param kin:
-        The `Kinetics` or `Interface` object representing reactions on this
-        surface.
-    :param r:
-        The `Reactor` into which this surface should be installed.
     :param A:
         The area of the reacting surface [m^2]
     :param node_attr:
@@ -799,18 +820,50 @@ cdef class ReactorSurface(ReactorBase):
 
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
+
+    .. versionchanged:: 3.2
+       Handle surfaces that are adjacent to multiple reactors.
+
+       Added the ``clone`` parameter with the default value ``None`` indicating that
+       contents will not be cloned. After Cantera 3.2, this default will change to
+       be ``True``. Specify ``False`` to retain the old behavior and suppress a
+       deprecation warning.
+
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, _SolutionBase contents, r=None, clone=None, name="(none)", **kwargs):
+        if clone is None:
+            clone = False # TODO: change default to True after Cantera 3.2
+        cdef ReactorBase adj
+        cdef vector[shared_ptr[CxxReactorBase]] cxx_adj
+        if isinstance(r, ReactorBase):
+            adj = <ReactorBase>r
+            adj._surfaces.append(self)
+            cxx_adj.push_back(adj._rbase)
+            self._reactors = [r]
+        elif hasattr(r, "__len__"):
+            self._reactors = r
+            for ri in r:
+                adj = <Reactor>ri
+                adj._surfaces.append(self)
+                cxx_adj.push_back(adj._rbase)
+        elif r is None:
+            warnings.warn("ReactorSurface.__init__: After Cantera 3.2, the list of "
+                "adjacent reactors `r` will be a required constructor argument and the "
+                "install method will be removed.",
+                DeprecationWarning)
+
+            self._reactors = []
+
+        self._rbase = CxxNewReactorSurface(contents._base, cxx_adj, clone, stringify(name))
+        self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, contents=None, Reactor r=None, *,
+    def __init__(self, contents=None, r=None, clone=None, *,
                  name="(none)", A=None, node_attr=None):
         super().__init__(contents, name=name)
 
-        if r is not None:
-            self.install(r)
         if A is not None:
             self.area = A
         self.node_attr = node_attr or {'shape': 'underline'}
@@ -818,10 +871,14 @@ cdef class ReactorSurface(ReactorBase):
     def install(self, Reactor r):
         """
         Add this `ReactorSurface` to the specified `Reactor`
+
+        .. deprecated:: 3.2
+           Replaced by specifying list of adjacent reactors in the `ReactorSurface`
+           constructor.
         """
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
-        self._reactor = r
+        self._reactors.append(r)
 
     property area:
         """ Area on which reactions can occur [m^2] """
@@ -869,7 +926,22 @@ cdef class ReactorSurface(ReactorBase):
 
         .. versionadded:: 3.1
         """
-        return self._reactor
+        if len(self._reactors) > 1:
+            warnings.warn("ReactorSurface.reactor: Call is ambiguous because surface is"
+                " linked to multiple reactors. Use 'ReactorSurface.reactors' instead.",
+                UserWarning)
+
+        return self._reactors[0]
+
+    @property
+    def reactors(self):
+        """
+        A list of of `Reactor` objects containing phases that participate in reactions
+        on this surface.
+
+        .. versionadded:: 3.2
+        """
+        return self._reactors
 
     def draw(self, graph=None, *, graph_attr=None, node_attr=None,
              surface_edge_attr=None,  print_state=False, species=None,
