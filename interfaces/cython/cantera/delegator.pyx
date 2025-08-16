@@ -4,6 +4,7 @@
 import inspect
 import sys
 import importlib
+from typing import Callable
 
 from libc.stdlib cimport malloc
 from libc.string cimport strcpy
@@ -481,7 +482,7 @@ extensibleRate_t.tp_clear = clear_ExtensibleRate
 
 CxxPythonExtensionManager.registerSelf()
 
-def extension(*, name, data=None):
+def extension(*, name: str, data: ExtensibleRateData | None = None) -> Callable[[ExtensibleRate], ExtensibleRate]:
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
@@ -527,7 +528,7 @@ def extension(*, name, data=None):
 
     .. versionadded:: 3.0
     """
-    def decorator(cls):
+    def decorator(cls: ExtensibleRate) -> ExtensibleRate:
         cdef shared_ptr[CxxExtensionManager] mgr = (
             CxxExtensionManagerFactory.build(stringify("python")))
 
