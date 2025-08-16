@@ -22,13 +22,18 @@ function calling from Cantera CLib.
 5. In the Matlab command window, run
    `addpath(genpath([pwd, '/interfaces/matlab_experimental']))` to add search path for
    the experimental toolbox.
-6. In the Matlab command window, run
-   `cd([pwd, '/interfaces/matlab_experimental/Utility'])` to navigate to the Utility
-   folder.
-7. Open the file named 'ctRoot.m', in the second line, edit `output=` to
-   `output='/path/to/conda/environment'`, then save the file. This sets the search path
-   for the `ctLoad` command to find the shared library file for Cantera.
-8. In the Matlab command window, run `savepath` to save all search paths.
+6. The built-in Utility function `ctPaths` to set the following paths for the toolbox:
+   - `toolboxPath`: If you compiled Cantera from source, this is the location of your
+   Cantera source code. If you installed the MATLAB Toolbox from FileExchange, this is
+   the location of your installed Toolbox.
+   - `libpath`: This is the location of the Cantera shared library. If you compiled
+   Cantera from source, this is usually `fullfile(toolboxPath, 'build', 'lib')`.
+   If you installed from FileExchange, this is `fullfile(toolboxPath, 'dependencies')`.
+   - `includePath`: This is the location of the header files used by Cantera.
+   If you compiled Cantera from source, this is `fullfile(toolboxPath, 'include')`.
+   If you installed from FileExchange, this is `fullfile(toolboxPath, 'dependencies')`.
+   - run `ctpaths(libPath, includePath, toolboxPath)` to set the aforementioned paths.
+7. In the Matlab command window, run `savepath` to save all search paths.
 
 ## Usage guide:
 
@@ -39,4 +44,5 @@ function calling from Cantera CLib.
    then run the script `runMatlabInterfaceTests.m`.
 4. To stop using the new Cantera interface, run the following commands:
    `ctCleanUp`
-   `ctUnload`
+   `ctUnload`.
+5. To remove the Cantera paths from MATLAB preferences, run `ctPaths('clear')`.
