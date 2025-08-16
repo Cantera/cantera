@@ -1,11 +1,10 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     Any,
     Callable,
     ClassVar,
-    Iterable,
     Literal,
     Never,
-    Sequence,
     TypeAlias,
     overload,
     override,
@@ -13,13 +12,13 @@ from typing import (
 
 from graphviz import Digraph
 
-from cantera._types import Array, ArrayLike, LogLevel7
-from cantera.composite import Solution
-from cantera.func1 import Func1
-from cantera.jacobians import SystemJacobian
-from cantera.kinetics import DerivativeSettings, Kinetics
-from cantera.solutionbase import _SolutionBase
-from cantera.thermo import ThermoPhase
+from ._types import Array, ArrayLike, LogLevel7
+from .composite import Solution
+from .func1 import Func1
+from .jacobians import SystemJacobian
+from .kinetics import DerivativeSettings, Kinetics
+from .solutionbase import _SolutionBase
+from .thermo import ThermoPhase
 
 _Func1Like: TypeAlias = Func1 | Callable[[float], float] | float
 

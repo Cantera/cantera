@@ -1,18 +1,17 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     Callable,
     Generic,
-    Iterable,
     NotRequired,
-    Sequence,
     TypeAlias,
     TypedDict,
     TypeVar,
 )
 
-from cantera._types import Array, ArrayLike
-from cantera.composite import Solution
-from cantera.kinetics import Kinetics
-from cantera.units import Units
+from ._types import Array, ArrayLike
+from .composite import Solution
+from .kinetics import Kinetics
+from .units import Units
 
 class ArrheniusParameters(TypedDict):
     A: float

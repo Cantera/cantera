@@ -1,28 +1,28 @@
+from collections.abc import Sequence
 from pathlib import Path
 from typing import (
     Any,
     Literal,
     Never,
     Self,
-    Sequence,
     TypeAlias,
     overload,
     override,
 )
 
-from cantera._types import Array, ArrayLike, Basis, CompressionLevel
-from cantera.kinetics import Kinetics, KineticsType
-from cantera.reaction import Reaction
-from cantera.thermo import Species, ThermoPhase, ThermoType
-from cantera.transport import TransportModel
-from cantera.units import UnitDict, UnitDictBytes, UnitSystem
+from ._types import Array, ArrayLike, Basis, CompressionLevel
+from .kinetics import Kinetics, KineticsType
+from .reaction import Reaction
+from .thermo import Species, ThermoPhase, ThermoType
+from .transport import TransportModel
+from .units import UnitDict, UnitDictBytes, UnitSystem
 
 _SORTING_TYPE: TypeAlias = Literal["alphabetical", "molar-mass"] | None
 
 class _SolutionBase:
     def __init__(
         self,
-        infile: str = "",
+        infile: Path | str = "",
         name: str = "",
         adjacent: Sequence[ThermoPhase] = (),
         *,

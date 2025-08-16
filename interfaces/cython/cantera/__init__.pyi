@@ -1,4 +1,4 @@
-from cantera import (
+from . import (
     _cantera,
     _onedim,
     _utils,
@@ -23,8 +23,8 @@ from cantera import (
     utils,
     yamlwriter,
 )
-from cantera._cantera import CythonPackageMetaPathFinder
-from cantera._onedim import (
+from ._cantera import CythonPackageMetaPathFinder
+from ._onedim import (
     AxisymmetricFlow,
     Boundary1D,
     Domain1D,
@@ -39,7 +39,7 @@ from cantera._onedim import (
     SymmetryPlane1D,
     UnstrainedFlow,
 )
-from cantera._utils import (
+from ._utils import (
     AnyMap,
     CanteraError,
     __git_commit__,
@@ -57,8 +57,8 @@ from cantera._utils import (
     use_legacy_rate_constants,
     use_sparse,
 )
-from cantera.composite import DustyGas, Interface, Quantity, Solution, SolutionArray
-from cantera.constants import (
+from .composite import DustyGas, Interface, Quantity, Solution, SolutionArray
+from .constants import (
     avogadro,
     boltzmann,
     electron_charge,
@@ -72,26 +72,26 @@ from cantera.constants import (
     planck,
     stefan_boltzmann,
 )
-from cantera.data import list_data_files
-from cantera.delegator import extension
-from cantera.drawnetwork import (
+from .data import list_data_files
+from .delegator import extension
+from .drawnetwork import (
     draw_flow_controllers,
     draw_reactor,
     draw_reactor_net,
     draw_surface,
     draw_walls,
 )
-from cantera.func1 import Func1, Tabulated1
-from cantera.interrupts import no_op
-from cantera.jacobians import (
+from .func1 import Func1, Tabulated1
+from .interrupts import no_op
+from .jacobians import (
     AdaptivePreconditioner,
     # BandedJacobian,
     # EigenSparseDirectJacobian,
     # EigenSparseJacobian,
     SystemJacobian,
 )
-from cantera.kinetics import InterfaceKinetics, Kinetics
-from cantera.liquidvapor import (
+from .kinetics import InterfaceKinetics, Kinetics
+from .liquidvapor import (
     CarbonDioxide,
     Heptane,
     Hfc134a,
@@ -101,8 +101,8 @@ from cantera.liquidvapor import (
     Oxygen,
     Water,
 )
-from cantera.mixture import Mixture
-from cantera.onedim import (
+from .mixture import Mixture
+from .onedim import (
     BurnerFlame,
     CounterflowDiffusionFlame,
     CounterflowPremixedFlame,
@@ -111,7 +111,7 @@ from cantera.onedim import (
     FreeFlame,
     ImpingingJet,
 )
-from cantera.reaction import (
+from .reaction import (
     Arrhenius,
     ArrheniusRate,
     ArrheniusRateBase,
@@ -139,8 +139,8 @@ from cantera.reaction import (
     TsangRate,
     TwoTempPlasmaRate,
 )
-from cantera.reactionpath import ReactionPathDiagram
-from cantera.reactor import (
+from .reactionpath import ReactionPathDiagram
+from .reactor import (
     ConnectorNode,
     ConstPressureMoleReactor,
     ConstPressureReactor,
@@ -170,8 +170,8 @@ from cantera.reactor import (
     Wall,
     WallBase,
 )
-from cantera.solutionbase import SolutionArrayBase
-from cantera.speciesthermo import (
+from .solutionbase import SolutionArrayBase
+from .speciesthermo import (
     ConstantCp,
     Mu0Poly,
     Nasa9PolyMultiTempRegion,
@@ -179,7 +179,7 @@ from cantera.speciesthermo import (
     ShomatePoly2,
     SpeciesThermo,
 )
-from cantera.thermo import (
+from .thermo import (
     Element,
     InterfacePhase,
     PureFluid,
@@ -187,10 +187,10 @@ from cantera.thermo import (
     ThermoModelMethodError,
     ThermoPhase,
 )
-from cantera.transport import DustyGasTransport, GasTransportData, Transport
-from cantera.units import Units, UnitStack, UnitSystem
-from cantera.utils import add_module_directory, import_phases
-from cantera.yamlwriter import YamlWriter
+from .transport import DustyGasTransport, GasTransportData, Transport
+from .units import Units, UnitStack, UnitSystem
+from .utils import add_module_directory, import_phases
+from .yamlwriter import YamlWriter
 
 __all__: list[str] = [
     "AdaptivePreconditioner",

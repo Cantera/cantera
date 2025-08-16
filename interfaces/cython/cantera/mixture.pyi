@@ -1,7 +1,8 @@
-from typing import Literal, Sequence
+from collections.abc import Sequence
+from typing import Literal
 
-from cantera._types import Array, ArrayLike, EquilibriumSolver, PropertyPair
-from cantera.thermo import ThermoPhase
+from ._types import Array, ArrayLike, EquilibriumSolver, PropertyPair
+from .thermo import ThermoPhase
 
 class Mixture:
     def __init__(self, phases: Sequence[tuple[ThermoPhase, float]]) -> None: ...

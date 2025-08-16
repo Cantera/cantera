@@ -1,7 +1,7 @@
 from typing import Any
 
-from cantera._types import Array
-from cantera.units import UnitDictBytes, Units, UnitStack, UnitSystem
+from ._types import Array
+from .units import UnitDictBytes, Units, UnitStack, UnitSystem
 
 def add_directory(directory: str) -> None: ...
 def get_data_directories() -> list[str]: ...

@@ -4,7 +4,7 @@ from typing import Any, Literal
 
 from pandas import DataFrame
 
-from cantera._onedim import (
+from ._onedim import (
     AxisymmetricFlow,
     Domain1D,
     FreeFlow,
@@ -16,7 +16,7 @@ from cantera._onedim import (
     SymmetryPlane1D,
     UnstrainedFlow,
 )
-from cantera._types import (
+from ._types import (
     Array,
     ArrayLike,
     Basis,
@@ -24,11 +24,11 @@ from cantera._types import (
     LogLevel,
     RefineCriteria,
 )
-from cantera._utils import __git_commit__ as __git_commit__
-from cantera._utils import __version__ as __version__
-from cantera._utils import hdf_support as hdf_support
-from cantera.composite import Solution, SolutionArray
-from cantera.kinetics import Kinetics
+from ._utils import __git_commit__ as __git_commit__
+from ._utils import __version__ as __version__
+from ._utils import hdf_support as hdf_support
+from .composite import Solution, SolutionArray
+from .kinetics import Kinetics
 
 class FlameBase(Sim1D):
     gas: Solution

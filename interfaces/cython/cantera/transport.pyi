@@ -1,7 +1,7 @@
 from typing import Literal, TypeAlias, TypedDict
 
-from cantera._types import Array, ArrayLike
-from cantera.solutionbase import _SolutionBase
+from ._types import Array, ArrayLike
+from .solutionbase import _SolutionBase
 
 TransportModel: TypeAlias = Literal[
     "none",

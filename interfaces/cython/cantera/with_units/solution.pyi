@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Any, Callable, Literal, TypeAlias
+from typing import Any, Callable, Literal, ParamSpec, TypeAlias, TypeVar
 
 from pint import Quantity
 from pint.registry import ApplicationRegistry
 
-from cantera._types import Array
-from cantera._utils import CanteraError as CanteraError
+from .._types import Array
+from .._utils import CanteraError as CanteraError
 
 __all__: list[str] = [
     "Q_",
@@ -32,7 +32,9 @@ _StateSetter: TypeAlias = tuple[
 units: ApplicationRegistry
 Q_: Quantity
 
-def copy_doc[T, **P](method: Callable[P, T]) -> Callable[P, T]: ...
+P = ParamSpec("P")
+T = TypeVar("T")
+def copy_doc(method: Callable[P, T]) -> Callable[P, T]: ...
 
 class Solution:
     def __init__(

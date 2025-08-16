@@ -1,6 +1,6 @@
 from typing import TypedDict, overload
 
-from cantera._types import Array
+from ._types import Array
 
 UnitDict = TypedDict(
     "UnitDict",

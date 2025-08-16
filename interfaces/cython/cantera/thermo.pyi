@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any, Literal, Required, TypeAlias, TypedDict, overload
 
-from cantera._types import (
+from ._types import (
     Array,
     ArrayLike,
     Basis,
@@ -14,10 +14,10 @@ from cantera._types import (
     StateSetter,
     StateVariable,
 )
-from cantera.solutionbase import _SolutionBase
-from cantera.speciesthermo import SpeciesThermo, SpeciesThermoInput
-from cantera.transport import GasTransportData, GasTransportInput
-from cantera.units import Units
+from .solutionbase import _SolutionBase
+from .speciesthermo import SpeciesThermo, SpeciesThermoInput
+from .transport import GasTransportData, GasTransportInput
+from .units import Units
 
 ThermoType: TypeAlias = Literal[
     "Debye-Huckel",
