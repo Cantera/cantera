@@ -1245,6 +1245,12 @@ public:
         throw NotImplementedError("Kinetics::getRevRateConstants");
     }
 
+    //! Net rates of progress by reaction indices
+    //! @param indices The indices of the reactions for which to return the net rates
+    //!        of progress.
+    //! @return A vector of the net rates of progress for the specified reactions.
+    virtual vector<double> netRatesOfProgressByIndices(const vector<size_t>& indices);
+
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{
