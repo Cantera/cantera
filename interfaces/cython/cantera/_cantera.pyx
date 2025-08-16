@@ -1,13 +1,15 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-#cython: language_level=3
-#distutils: language=c++
+# cython: language_level=3
+# distutils: language=c++
 
 import sys as _sys
-import importlib as _importlib
 import importlib.util as _importlib_util
+import importlib.machinery as _importlib_machinery
 from importlib.abc import MetaPathFinder as _MetaPathFinder
+from collections.abc import Sequence
+from types import ModuleType
 
 
 # Chooses the right init function
@@ -17,11 +19,17 @@ class CythonPackageMetaPathFinder(_MetaPathFinder):
         super().__init__()
         self.name_filter = name_filter
 
-    def find_spec(self, fullname, path, target=None):
+    def find_spec(
+        self,
+        fullname: str,
+        _path: Sequence[str] | None,
+        _target: ModuleType | None = None,
+    ) -> _importlib_machinery.ModuleSpec | None:
         if fullname.startswith(self.name_filter):
             # use this extension-file but PyInit-function of another module:
-            loader = _importlib.machinery.ExtensionFileLoader(fullname, __file__)
+            loader = _importlib_machinery.ExtensionFileLoader(fullname, __file__)
             return _importlib_util.spec_from_loader(fullname, loader)
+        return None
 
 
 # Inject custom finder/loaders into sys.meta_path:
