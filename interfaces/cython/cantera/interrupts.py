@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 
-def no_op(t):
+def no_op(t: float) -> float:
     """
     This function does nothing. It is used as an interrupt in the 1D solver
     C++ loop where a pure Python function is needed in order for
