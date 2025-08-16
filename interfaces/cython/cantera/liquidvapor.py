@@ -1,7 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from . import PureFluid, _cantera
+from .thermo import PureFluid
+from .transport import Transport
 
 
 def Water(backend='Reynolds'):
@@ -41,7 +42,7 @@ def Water(backend='Reynolds'):
     :ct:`WaterSSTP` and :ct:`WaterTransport` in the Cantera C++ source
     code documentation.
     """
-    class WaterWithTransport(_cantera.Transport, PureFluid):
+    class WaterWithTransport(Transport, PureFluid):
         __slots__ = ()
 
     if backend == 'Reynolds':
@@ -51,7 +52,7 @@ def Water(backend='Reynolds'):
         return WaterWithTransport('liquidvapor.yaml', 'liquid-water-IAPWS95',
                                   transport_model='water')
 
-    raise KeyError("Unknown backend '{}'".format(backend))
+    raise KeyError(f"Unknown backend {backend!r}")
 
 
 def Nitrogen():
