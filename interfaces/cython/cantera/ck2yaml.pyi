@@ -6,10 +6,10 @@ from typing import Any, Callable, ClassVar, Concatenate, Never
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from ruamel.yaml.nodes import MappingNode, ScalarNode
-from ruamel.yaml.representer import BaseRepresenter
+from ruamel.yaml.representer import SafeRepresenter
 from typing_extensions import Literal
 
-from cantera._types import Array
+from ._types import Array
 
 yaml_version: str
 yaml_min_version: tuple[int, int, int]
@@ -22,7 +22,7 @@ logger: logging.Logger
 
 def FlowMap(*args: Any, **kwargs: Any) -> CommentedMap: ...
 def FlowList(*args: Any, **kwargs: Any) -> CommentedSeq: ...
-def represent_float(self: BaseRepresenter, data: float) -> ScalarNode: ...
+def represent_float(self: SafeRepresenter, data: float) -> ScalarNode: ...
 
 QUANTITY_UNITS: dict[str, str]
 ENERGY_UNITS: dict[str, str]
@@ -52,7 +52,7 @@ class Species:
     def __str__(self) -> str: ...
     @classmethod
     def to_yaml(
-        cls, representer: BaseRepresenter, node: Species
+        cls, representer: SafeRepresenter, node: Species
     ) -> dict[str, str]: ...
 
 class Nasa7:
@@ -73,7 +73,7 @@ class Nasa7:
         note: str = "",
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: BaseRepresenter, node: Nasa7) -> MappingNode: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: Nasa7) -> MappingNode: ...
 
 class Nasa9:
     note: str
@@ -87,7 +87,7 @@ class Nasa9:
         note: str = "",
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: BaseRepresenter, node: Nasa9) -> MappingNode: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: Nasa9) -> MappingNode: ...
 
 class Reaction:
     index: int
@@ -114,7 +114,7 @@ class Reaction:
     def __str__(self) -> str: ...
     @classmethod
     def to_yaml(
-        cls, representer: BaseRepresenter, node: Reaction
+        cls, representer: SafeRepresenter, node: Reaction
     ) -> MappingNode: ...
 
 class KineticsModel:
@@ -297,7 +297,7 @@ class TransportData:
     ) -> None: ...
     @classmethod
     def to_yaml(
-        cls, representer: BaseRepresenter, node: TransportData
+        cls, representer: SafeRepresenter, node: TransportData
     ) -> MappingNode: ...
 
 def fortFloat(s: str) -> float: ...

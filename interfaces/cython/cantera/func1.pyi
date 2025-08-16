@@ -1,6 +1,7 @@
-from typing import Any, Callable, Iterable, Literal, Never, override
+from collections.abc import Iterable
+from typing import Any, Callable, Literal, Never, override
 
-from cantera._types import ArrayLike
+from ._types import ArrayLike
 
 class Func1:
     callable: Callable[[float], float]

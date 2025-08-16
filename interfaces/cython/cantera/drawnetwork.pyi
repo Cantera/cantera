@@ -4,7 +4,7 @@ from typing import Callable, Literal
 
 from graphviz import Digraph
 
-from cantera.reactor import FlowDevice, ReactorBase, ReactorNet, ReactorSurface, Wall
+from .reactor import FlowDevice, ReactorBase, ReactorNet, ReactorSurface, Wall
 
 def _needs_graphviz(
     func: Callable[..., Digraph],

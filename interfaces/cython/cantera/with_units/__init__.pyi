@@ -1,7 +1,7 @@
 from pint import UnitRegistry
 from pint import set_application_registry as set_application_registry
 
-from cantera.with_units.solution import (
+from .solution import (
     Q_,
     CarbonDioxide,
     Heptane,

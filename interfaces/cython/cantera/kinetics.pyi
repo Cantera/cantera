@@ -1,11 +1,11 @@
 from collections.abc import Sequence
 from typing import Literal, TypeAlias, TypedDict
 
-from cantera._types import Array
-from cantera.reaction import CustomRate, Reaction
-from cantera.solutionbase import _SolutionBase
-from cantera.thermo import ThermoPhase
-from cantera.units import UnitDict, UnitDictBytes, UnitSystem
+from ._types import Array
+from .reaction import CustomRate, Reaction
+from .solutionbase import _SolutionBase
+from .thermo import ThermoPhase
+from .units import UnitDict, UnitDictBytes, UnitSystem
 
 KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
 

@@ -1,6 +1,6 @@
 from typing import Any, ClassVar, Required, TypedDict
 
-from cantera._types import Array, ArrayLike
+from ._types import Array, ArrayLike
 
 SpeciesThermoInput = TypedDict(
     "SpeciesThermoInput",

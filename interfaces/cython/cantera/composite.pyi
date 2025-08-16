@@ -12,7 +12,7 @@ from typing import (
 
 from pandas import DataFrame
 
-from cantera._types import (
+from ._types import (
     Array,
     ArrayCompositionLike,
     ArrayLike,
@@ -28,10 +28,10 @@ from cantera._types import (
     StateDefinition,
     StateSetter,
 )
-from cantera.kinetics import DerivativeSettings, InterfaceKinetics, Kinetics
-from cantera.reaction import Reaction
-from cantera.solutionbase import SolutionArrayBase, _SolutionBase
-from cantera.thermo import (
+from .kinetics import DerivativeSettings, InterfaceKinetics, Kinetics
+from .reaction import Reaction
+from .solutionbase import SolutionArrayBase, _SolutionBase
+from .thermo import (
     InterfacePhase,
     PhaseOfMatter,
     PureFluid,
@@ -40,13 +40,13 @@ from cantera.thermo import (
     ThermoPhase,
     ThermoType,
 )
-from cantera.transport import (
+from .transport import (
     DustyGasTransport,
     Transport,
     TransportFittingErrors,
     TransportModel,
 )
-from cantera.units import Units
+from .units import Units
 
 # Generic representing a valid "phase" input
 P = TypeVar("P", bound=_SolutionBase)

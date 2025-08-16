@@ -9,7 +9,7 @@ from typing import (
     override,
 )
 
-from cantera._types import (
+from ._types import (
     Array,
     ArrayLike,
     Basis,
@@ -18,9 +18,9 @@ from cantera._types import (
     LogLevel,
     RefineCriteria,
 )
-from cantera.jacobians import SystemJacobian
-from cantera.solutionbase import SolutionArrayBase, _SolutionBase
-from cantera.transport import TransportModel
+from .jacobians import SystemJacobian
+from .solutionbase import SolutionArrayBase, _SolutionBase
+from .transport import TransportModel
 
 ToleranceSettings = TypedDict(
     "ToleranceSettings",

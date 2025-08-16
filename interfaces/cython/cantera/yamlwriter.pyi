@@ -1,7 +1,7 @@
 from typing import Never
 
-from cantera.solutionbase import _SolutionBase
-from cantera.units import UnitSystem
+from .solutionbase import _SolutionBase
+from .units import UnitSystem
 
 class YamlWriter:
     def set_header(self, soln: _SolutionBase) -> None: ...

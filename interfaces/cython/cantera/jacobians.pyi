@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from cantera._types import Array
+from ._types import Array
 
 class SystemJacobian:
     _type: str
