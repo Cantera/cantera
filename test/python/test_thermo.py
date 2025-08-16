@@ -1190,6 +1190,11 @@ class TestPlasmaPhase:
         phase.isotropic_shape_factor = 1.0
         return phase
 
+    @pytest.fixture(scope='function')
+    def gas(self):
+        gas = ct.Solution('oxygen-electron.yaml')
+        return gas
+
     @property
     def collision_data(self):
         return {
@@ -1296,6 +1301,41 @@ class TestPlasmaPhase:
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.isotropic_shape_factor = 1.1
         assert phase.elastic_power_loss == approx(7408711810)
+
+    def test_enthalpy_mole(self, phase, gas):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1"
+        gas.TPX = 1000, ct.one_atm, "O2:1"
+        assert (2.0 * phase.enthalpy_mole) == approx(gas.enthalpy_mole)
+
+    def test_electron_enthalpy_mole(self, phase, gas):
+        phase.TPX = 1000, ct.one_atm, "E:1"
+        phase.Te = 1000
+        gas.TPX = 1000, ct.one_atm, "E:1"
+        assert (phase.electron_enthalpy_mole) == approx(gas.enthalpy_mole)
+
+    def test_pressure(self, phase, gas):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1"
+        gas.TPX = 1000, ct.one_atm, "O2:1"
+        assert (2.0 * phase.P) == approx(gas.P)
+
+    def test_electron_pressure(self, phase, gas):
+        phase.TPX = 1000, ct.one_atm, "E:1"
+        phase.Te = 2000
+        gas.TPX = 1000, 2.0 * ct.one_atm, "E:1"
+        assert phase.Pe == approx(gas.P)
+
+    def test_internal_energy_mole(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1"
+        phase.Te = 1000
+        u_mole = phase.enthalpy_mole - phase.P / phase.gas_molar_density
+        assert phase.int_energy_mole == approx(u_mole)
+
+    def test_electron_internal_energy_mole(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1"
+        phase.Te = 1000
+        u_mole = (phase.electron_enthalpy_mole - phase.P /
+                  phase.concentrations[phase.species_index('E')])
+        assert phase.electron_int_energy_mole == approx(u_mole)
 
 class TestImport:
     """
