@@ -31,6 +31,8 @@ state](sec-yaml-species-eos), [transport property](sec-yaml-species-transport), 
 YAML reaction definitions include specification of common elements such as the reaction
 equation and [efficiencies](sec-yaml-efficiencies), as well as parameters specific to
 the type of [rate parameterization](sec-yaml-rate-types).
+See also the [electron collision data format](reactions.html#sec-yaml-electron-collisions)
+used in plasma-phase simulations.
 
 ## Mechanism Conversion
 

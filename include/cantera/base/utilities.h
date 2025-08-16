@@ -179,7 +179,7 @@ void checkFinite(const double tmp);
  * @param values  Array of *N* values to be checked
  * @param N       Number of elements in *values*
  */
-void checkFinite(const string& name, double* values, size_t N);
+void checkFinite(const string& name, const double* values, size_t N);
 
 //! Const accessor for a value in a map.
 /*

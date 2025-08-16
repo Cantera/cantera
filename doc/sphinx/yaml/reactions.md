@@ -18,6 +18,7 @@ The fields common to all `reaction` entries are:
   - [`Blowers-Masel`](sec-yaml-Blowers-Masel)
   - [`two-temperature-plasma`](sec-yaml-two-temperature-plasma)
   - [`electron-collision-plasma`](sec-yaml-electron-collision-plasma)
+  - [`electron-collisions`](sec-yaml-electron-collisions)
   - [`falloff`](sec-yaml-falloff)
   - [`chemically-activated`](sec-yaml-chemically-activated)
   - [`pressure-dependent-Arrhenius`](sec-yaml-pressure-dependent-Arrhenius)
@@ -306,6 +307,48 @@ Example:
 ```
 
 :::{versionadded} 3.1
+:::
+
+(sec-yaml-electron-collisions)=
+### `electron-collisions`
+
+The `electron-collisions` field defines a list of cross-section datasets for
+electron-impact processes that are used in plasma-phase simulations. These entries
+are not formal reactions (they are not added to `Kinetics` objects), but serve
+as data inputs for computing the electron energy distribution function.
+
+Each entry includes:
+
+`target`
+: The name of the species that is the target of the collision
+
+`energy-levels`
+: A list of electron energy values [eV] at which the cross-section is provided
+
+`cross-sections`
+: Corresponding cross-section values [m²] for each energy level
+
+`kind`
+: A string indicating the process type. Options include:
+  - `"effective"` – lumped or total effect of several channels
+  - `"excitation"` – electronic excitation
+  - `"ionization"` – electron-impact ionization
+  - `"attachment"` – electron attachment processes
+
+Example:
+
+```yaml
+electron-collisions:
+- target: N2
+  energy-levels: [0.0, 0.015, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.7, 1.2, 1.5, 1.9,
+    2.2, 2.8, 3.3, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 75.0, 150.0]
+  cross-sections: [1.1e-20, 2.55e-20, 3.4e-20, 4.33e-20, 5.95e-20, 7.1e-20, 7.9e-20,
+    9e-20, 9.7e-20, 1e-19, 1.04e-19, 1.2e-19, 1.96e-19, 2.85e-19, 2.8e-19, 1.72e-19,
+    1.26e-19, 1.09e-19, 1.01e-19, 1.04e-19, 1.1e-19, 1.02e-19, 9e-20, 6.6e-20, 4.9e-20]
+  kind: effective
+```
+
+:::{versionadded} 3.2
 :::
 
 (sec-yaml-falloff)=
