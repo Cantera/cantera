@@ -7,8 +7,8 @@ import warnings
 import numpy as np
 
 from ._cantera import *
+from ._utils import __version__, __git_commit__
 from .composite import Solution, SolutionArray
-from . import __version__, __git_commit__, hdf_support
 
 
 class FlameBase(Sim1D):

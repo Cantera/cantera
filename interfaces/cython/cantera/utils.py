@@ -4,7 +4,8 @@
 import os
 import inspect as _inspect
 
-from . import Solution, add_directory
+from ._utils import add_directory
+from .composite import Solution
 
 
 def import_phases(filename, phase_names):
