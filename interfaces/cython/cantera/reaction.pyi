@@ -2,11 +2,12 @@ from collections.abc import Iterable, Sequence
 from typing import (
     Callable,
     Generic,
-    NotRequired,
     TypeAlias,
     TypedDict,
     TypeVar,
 )
+
+from typing_extensions import NotRequired
 
 from ._types import Array, ArrayLike
 from .composite import Solution

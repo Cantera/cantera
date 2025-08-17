@@ -1,5 +1,7 @@
 from collections.abc import Iterable
-from typing import Any, Callable, Literal, Never, override
+from typing import Any, Callable, Literal
+
+from typing_extensions import Never, override
 
 from ._types import ArrayLike
 

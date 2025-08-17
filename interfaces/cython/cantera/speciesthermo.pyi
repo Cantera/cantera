@@ -1,4 +1,6 @@
-from typing import Any, ClassVar, Required, TypedDict
+from typing import Any, ClassVar, TypedDict
+
+from typing_extensions import Required
 
 from ._types import Array, ArrayLike
 

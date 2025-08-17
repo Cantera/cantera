@@ -3,11 +3,11 @@ from typing import (
     Any,
     Callable,
     Literal,
-    Never,
     TypedDict,
     overload,
-    override,
 )
+
+from typing_extensions import Never, override
 
 from ._types import (
     Array,
