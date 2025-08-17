@@ -482,7 +482,7 @@ extensibleRate_t.tp_clear = clear_ExtensibleRate
 
 CxxPythonExtensionManager.registerSelf()
 
-def extension(*, name: str, data: ExtensibleRateData | None = None) -> Callable[[ExtensibleRate], ExtensibleRate]:
+def extension(*, name: str, data: type[ExtensibleRateData] | None = None) -> Callable[[type[ExtensibleRate]], type[ExtensibleRate]]:
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
@@ -528,7 +528,7 @@ def extension(*, name: str, data: ExtensibleRateData | None = None) -> Callable[
 
     .. versionadded:: 3.0
     """
-    def decorator(cls: ExtensibleRate) -> ExtensibleRate:
+    def decorator(cls: type[ExtensibleRate]) -> type[ExtensibleRate]:
         cdef shared_ptr[CxxExtensionManager] mgr = (
             CxxExtensionManagerFactory.build(stringify("python")))
 
