@@ -4,13 +4,12 @@ from typing import (
     Callable,
     ClassVar,
     Literal,
-    Never,
     TypeAlias,
     overload,
-    override,
 )
 
 from graphviz import Digraph
+from typing_extensions import Never, override
 
 from ._types import Array, ArrayLike, LogLevel7
 from .composite import Solution

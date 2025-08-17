@@ -2,12 +2,12 @@ import logging
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Concatenate, Never
+from typing import Any, Callable, ClassVar, Concatenate
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from ruamel.yaml.nodes import MappingNode, ScalarNode
 from ruamel.yaml.representer import SafeRepresenter
-from typing_extensions import Literal
+from typing_extensions import Literal, Never
 
 from ._types import Array
 

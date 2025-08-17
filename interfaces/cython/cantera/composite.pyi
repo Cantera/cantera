@@ -3,14 +3,12 @@ from typing import (
     Any,
     Generic,
     Literal,
-    Never,
     TypeVar,
-    Unpack,
     overload,
-    override,
 )
 
 from pandas import DataFrame
+from typing_extensions import Never, Unpack, override
 
 from ._types import (
     Array,

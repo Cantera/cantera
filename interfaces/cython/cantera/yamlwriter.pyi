@@ -1,4 +1,4 @@
-from typing import Never
+from typing_extensions import Never
 
 from .solutionbase import _SolutionBase
 from .units import UnitSystem

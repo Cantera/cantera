@@ -3,12 +3,11 @@ from pathlib import Path
 from typing import (
     Any,
     Literal,
-    Never,
-    Self,
     TypeAlias,
     overload,
-    override,
 )
+
+from typing_extensions import Never, Self
 
 from ._types import Array, ArrayLike, Basis, CompressionLevel
 from .kinetics import Kinetics, KineticsType
@@ -102,7 +101,6 @@ class _SolutionBase:
     def selected_species(
         self, species: str | int | Sequence[str] | Sequence[int]
     ) -> None: ...
-    @override
     def __getstate__(self) -> str: ...
     def __setstate__(self, pkl: str) -> None: ...
     def __copy__(self) -> Never: ...

@@ -1,5 +1,7 @@
 from collections.abc import Sequence
-from typing import Any, Literal, Required, TypeAlias, TypedDict, overload
+from typing import Any, Literal, TypeAlias, TypedDict, overload
+
+from typing_extensions import Required
 
 from ._types import (
     Array,
