@@ -4,8 +4,8 @@
 cimport numpy as np
 import numpy as np
 
-from ._utils cimport *
-from .constants import *
+from ._utils cimport anymap_to_py, py_to_anymap
+from .constants import gas_constant
 
 # These match the definitions in speciesThermoTyeps.h
 cdef int SPECIES_THERMO_CONSTANT_CP = 1

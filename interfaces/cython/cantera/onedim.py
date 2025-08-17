@@ -6,8 +6,11 @@ from pathlib import Path
 import warnings
 import numpy as np
 
-from ._cantera import *
-from ._utils import __version__, __git_commit__
+from ._onedim import (
+    AxisymmetricFlow, FreeFlow, Inlet1D, Outlet1D, ReactingSurface1D, Sim1D,
+    Surface1D, SymmetryPlane1D, UnstrainedFlow,
+)
+from ._utils import CanteraError, __git_commit__, __version__, hdf_support
 from .composite import Solution, SolutionArray
 
 

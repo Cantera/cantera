@@ -3,13 +3,15 @@
 
 import warnings
 import numbers as _numbers
+import numpy as np
 from cython.operator cimport dereference as deref
 
-from .thermo cimport *
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
-from ._utils import *
+from ._utils import CanteraError
 from .delegator cimport *
-from .drawnetwork import *
+from .drawnetwork import (
+    draw_flow_controllers, draw_reactor, draw_reactor_net, draw_surface, draw_walls,
+)
 
 cdef class ReactorBase:
     """
