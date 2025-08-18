@@ -910,7 +910,7 @@ Examples:
     normalize: False
 ```
 
-See also the [electron collision data format](reactions.html#sec-yaml-electron-collisions),
+See also {ref}`sec-yaml-electron-collisions`,
 which is used to specify electron-impact cross sections relevant to plasma simulations.
 
 :::{versionadded} 2.6

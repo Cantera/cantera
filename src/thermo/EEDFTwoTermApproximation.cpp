@@ -30,16 +30,16 @@ EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase* s)
 
 void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
 {
-    options.m_points = ncell;
-    m_gridCenter.resize(options.m_points);
-    m_gridEdge.resize(options.m_points + 1);
-    m_f0.resize(options.m_points);
-    m_f0_edge.resize(options.m_points + 1);
-    for (size_t j = 0; j < options.m_points; j++) {
-        m_gridCenter[j] = kTe_max * ( j + 0.5 ) / options.m_points;
-        m_gridEdge[j] = kTe_max * j / options.m_points;
+    m_points = ncell;
+    m_gridCenter.resize(m_points);
+    m_gridEdge.resize(m_points + 1);
+    m_f0.resize(m_points);
+    m_f0_edge.resize(m_points + 1);
+    for (size_t j = 0; j < m_points; j++) {
+        m_gridCenter[j] = kTe_max * ( j + 0.5 ) / m_points;
+        m_gridEdge[j] = kTe_max * j / m_points;
     }
-    m_gridEdge[options.m_points] = kTe_max;
+    m_gridEdge[m_points] = kTe_max;
     setGridCache();
 }
 
@@ -54,12 +54,12 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     updateCrossSections();
 
     if (!m_has_EEDF) {
-        writelog("No existing EEDF. Using first guess method: {}\n", options.m_firstguess);
-        if (options.m_firstguess == "maxwell") {
+        writelog("No existing EEDF. Using first guess method: {}\n", m_firstguess);
+        if (m_firstguess == "maxwell") {
             writelog("First guess EEDF maxwell\n");
-            for (size_t j = 0; j < options.m_points; j++) {
-                m_f0(j) = 2.0 * pow(1.0 / Pi, 0.5) * pow(options.m_init_kTe, -3. / 2.) *
-                          exp(-m_gridCenter[j] / options.m_init_kTe);
+            for (size_t j = 0; j < m_points; j++) {
+                m_f0(j) = 2.0 * pow(1.0 / Pi, 0.5) * pow(m_init_kTe, -3. / 2.) *
+                          exp(-m_gridCenter[j] / m_init_kTe);
             }
         } else {
             throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
@@ -72,7 +72,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     // write the EEDF at grid edges
     vector<double> f(m_f0.data(), m_f0.data() + m_f0.rows() * m_f0.cols());
     vector<double> x(m_gridCenter.data(), m_gridCenter.data() + m_gridCenter.rows() * m_gridCenter.cols());
-    for (size_t i = 0; i < options.m_points + 1; i++) {
+    for (size_t i = 0; i < m_points + 1; i++) {
         m_f0_edge[i] = linearInterp(m_gridEdge[i], x, f);
     }
 
@@ -87,24 +87,24 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
 {
     double err0 = 0.0;
     double err1 = 0.0;
-    double delta = options.m_delta0;
+    double delta = m_delta0;
 
-    if (options.m_maxn == 0) {
+    if (m_maxn == 0) {
         throw CanteraError("EEDFTwoTermApproximation::converge",
-                           "options.m_maxn is zero; no iterations will occur.");
+                           "m_maxn is zero; no iterations will occur.");
     }
-    if (options.m_points == 0) {
+    if (m_points == 0) {
         throw CanteraError("EEDFTwoTermApproximation::converge",
-                           "options.m_points is zero; the EEDF grid is empty.");
+                           "m_points is zero; the EEDF grid is empty.");
     }
     if (isnan(delta) || delta == 0.0) {
         throw CanteraError("EEDFTwoTermApproximation::converge",
-                           "options.m_delta0 is NaN or zero; solver cannot update.");
+                           "m_delta0 is NaN or zero; solver cannot update.");
     }
 
-    for (size_t n = 0; n < options.m_maxn; n++) {
+    for (size_t n = 0; n < m_maxn; n++) {
         if (0.0 < err1 && err1 < err0) {
-            delta *= log(options.m_factorM) / (log(err0) - log(err1));
+            delta *= log(m_factorM) / (log(err0) - log(err1));
         }
 
         Eigen::VectorXd f0_old = f0;
@@ -114,9 +114,9 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
         err0 = err1;
         Eigen::VectorXd Df0 = (f0_old - f0).cwiseAbs();
         err1 = norm(Df0, m_gridCenter);
-        if (err1 < options.m_rtol) {
+        if (err1 < m_rtol) {
             break;
-        } else if (n == options.m_maxn - 1) {
+        } else if (n == m_maxn - 1) {
             throw CanteraError("WeaklyIonizedGas::converge", "Convergence failed");
         }
     }
@@ -128,7 +128,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     // probably extremely ineficient
     // must be refactored!!
 
-    SparseMat PQ(options.m_points, options.m_points);
+    SparseMat PQ(m_points, m_points);
     vector<double> g = vector_g(f0);
 
     for (size_t k : m_phase->kInelastic()) {
@@ -138,8 +138,8 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     }
 
     SparseMat A = matrix_A(f0);
-    SparseMat I(options.m_points, options.m_points);
-    for (size_t i = 0; i < options.m_points; i++) {
+    SparseMat I(m_points, m_points);
+    for (size_t i = 0; i < m_points; i++) {
         I.insert(i,i) = 1.0;
     }
     A -= PQ;
@@ -202,7 +202,7 @@ double EEDFTwoTermApproximation::integralPQ(double a, double b, double u0, doubl
 
 vector<double> EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
 {
-    vector<double> g(options.m_points, 0.0);
+    vector<double> g(m_points, 0.0);
     const double f_min = 1e-300;  // Smallest safe floating-point value
 
     // Handle first point (i = 0)
@@ -211,7 +211,7 @@ vector<double> EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
     g[0] = log(f1 / f0_) / (m_gridCenter[1] - m_gridCenter[0]);
 
     // Handle last point (i = N)
-    size_t N = options.m_points - 1;
+    size_t N = m_points - 1;
     double fN = std::max(f0(N), f_min);
     double fNm1 = std::max(f0(N - 1), f_min);
     g[N] = log(fN / fNm1) / (m_gridCenter[N] - m_gridCenter[N - 1]);
@@ -239,7 +239,7 @@ SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
 
         tripletList.emplace_back(j, j, p);
     }
-    SparseMat P(options.m_points, options.m_points);
+    SparseMat P(m_points, m_points);
     P.setFromTriplets(tripletList.begin(), tripletList.end());
     return P;
 }
@@ -259,16 +259,16 @@ SparseMat EEDFTwoTermApproximation::matrix_Q(const vector<double>& g, size_t k)
 
         tripletList.emplace_back(i, j, q);
     }
-    SparseMat Q(options.m_points, options.m_points);
+    SparseMat Q(m_points, m_points);
     Q.setFromTriplets(tripletList.begin(), tripletList.end());
     return Q;
 }
 
 SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
 {
-    vector<double> a0(options.m_points + 1);
-    vector<double> a1(options.m_points + 1);
-    size_t N = options.m_points - 1;
+    vector<double> a0(m_points + 1);
+    vector<double> a1(m_points + 1);
+    size_t N = m_points - 1;
     // Scharfetter-Gummel scheme
     double nu = netProductionFrequency(f0);
     a0[0] = NAN;
@@ -276,14 +276,10 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     a0[N+1] = NAN;
     a1[N+1] = NAN;
 
-    // Electron-electron collisions declarations
-    double a;
-    vector<double> A1, A2, A3;
-
     double nDensity = m_phase->molarDensity() * Avogadro;
     double alpha;
     double E = m_phase->electricField();
-    if (options.m_growth == "spatial") {
+    if (m_growth == "spatial") {
         double mu = electronMobility(f0);
         double D = electronDiffusivity(f0);
         alpha = (mu * E - sqrt(pow(mu * E, 2) - 4 * D * nu * nDensity)) / 2.0 / D / nDensity;
@@ -293,8 +289,8 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
 
     double sigma_tilde;
     double omega = 2 * Pi * m_phase->electricFieldFrequency();
-    for (size_t j = 1; j < options.m_points; j++) {
-        if (options.m_growth == "temporal") {
+    for (size_t j = 1; j < m_points; j++) {
+        if (m_growth == "temporal") {
             sigma_tilde = m_totalCrossSectionEdge[j] + nu / pow(m_gridEdge[j], 0.5) / m_gamma;
         } else {
             sigma_tilde = m_totalCrossSectionEdge[j];
@@ -305,7 +301,7 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
         double DA = m_gamma / 3.0 * pow(E / nDensity, 2.0) * m_gridEdge[j];
         double DB = m_gamma * m_phase->temperature() * Boltzmann / ElectronCharge * m_gridEdge[j] * m_gridEdge[j] * m_sigmaElastic[j];
         double D = DA / sigma_tilde * F + DB;
-        if (options.m_growth == "spatial") {
+        if (m_growth == "spatial") {
             W -= m_gamma / 3.0 * 2 * alpha * E / nDensity * m_gridEdge[j] / sigma_tilde;
         }
 
@@ -326,35 +322,35 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     // zero flux b.c. at energy = 0
     tripletList.emplace_back(0, 0, a0[1]);
 
-    for (size_t j = 1; j < options.m_points - 1; j++) {
+    for (size_t j = 1; j < m_points - 1; j++) {
         tripletList.emplace_back(j, j, a0[j+1] - a1[j]);
     }
 
     // upper diagonal
-    for (size_t j = 0; j < options.m_points - 1; j++) {
+    for (size_t j = 0; j < m_points - 1; j++) {
         tripletList.emplace_back(j, j+1, a1[j+1]);
     }
 
     // lower diagonal
-    for (size_t j = 1; j < options.m_points; j++) {
+    for (size_t j = 1; j < m_points; j++) {
         tripletList.emplace_back(j, j-1, -a0[j]);
     }
 
     // zero flux b.c.
     tripletList.emplace_back(N, N, -a1[N]);
 
-    SparseMat A(options.m_points, options.m_points);
+    SparseMat A(m_points, m_points);
     A.setFromTriplets(tripletList.begin(), tripletList.end());
 
     //plus G
-    SparseMat G(options.m_points, options.m_points);
-    if (options.m_growth == "temporal") {
-        for (size_t i = 0; i < options.m_points; i++) {
+    SparseMat G(m_points, m_points);
+    if (m_growth == "temporal") {
+        for (size_t i = 0; i < m_points; i++) {
             G.insert(i, i) = 2.0 / 3.0 * (pow(m_gridEdge[i+1], 1.5) - pow(m_gridEdge[i], 1.5)) * nu;
         }
-    } else if (options.m_growth == "spatial") {
+    } else if (m_growth == "spatial") {
         double nDensity = m_phase->molarDensity() * Avogadro;
-        for (size_t i = 0; i < options.m_points; i++) {
+        for (size_t i = 0; i < m_points; i++) {
             double sigma_c = 0.5 * (m_totalCrossSectionEdge[i] + m_totalCrossSectionEdge[i + 1]);
             G.insert(i, i) = - alpha * m_gamma / 3 * (alpha * (pow(m_gridEdge[i + 1], 2) - pow(m_gridEdge[i], 2)) / sigma_c / 2
                  - E / nDensity * (m_gridEdge[i + 1] / m_totalCrossSectionEdge[i + 1] - m_gridEdge[i] / m_totalCrossSectionEdge[i]));
@@ -384,9 +380,9 @@ double EEDFTwoTermApproximation::netProductionFrequency(const Eigen::VectorXd& f
 
 double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
 {
-    vector<double> y(options.m_points, 0.0);
+    vector<double> y(m_points, 0.0);
     double nu = netProductionFrequency(f0);
-    for (size_t i = 0; i < options.m_points; i++) {
+    for (size_t i = 0; i < m_points; i++) {
         if (m_gridCenter[i] != 0.0) {
             y[i] = m_gridCenter[i] * f0(i) /
                    (m_totalCrossSectionCenter[i] + nu / m_gamma / pow(m_gridCenter[i], 0.5));
@@ -401,8 +397,8 @@ double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
 double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
 {
     double nu = netProductionFrequency(f0);
-    vector<double> y(options.m_points + 1, 0.0);
-    for (size_t i = 1; i < options.m_points; i++) {
+    vector<double> y(m_points + 1, 0.0);
+    for (size_t i = 1; i < m_points; i++) {
         // calculate df0 at i-1/2
         double df0 = (f0(i) - f0(i-1)) / (m_gridCenter[i] - m_gridCenter[i-1]);
         if (m_gridEdge[i] != 0.0) {
@@ -486,17 +482,17 @@ void EEDFTwoTermApproximation::updateMoleFractions()
 
 void EEDFTwoTermApproximation::calculateTotalCrossSection()
 {
-    m_totalCrossSectionCenter.assign(options.m_points, 0.0);
-    m_totalCrossSectionEdge.assign(options.m_points + 1, 0.0);
+    m_totalCrossSectionCenter.assign(m_points, 0.0);
+    m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
         auto& x = m_phase->collisionRate(k)->energyLevels();
         auto& y = m_phase->collisionRate(k)->crossSections();
 
-        for (size_t i = 0; i < options.m_points; i++) {
+        for (size_t i = 0; i < m_points; i++) {
             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
                                             linearInterp(m_gridCenter[i], x, y);
         }
-        for (size_t i = 0; i < options.m_points + 1; i++) {
+        for (size_t i = 0; i < m_points + 1; i++) {
             m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
                                           linearInterp(m_gridEdge[i], x, y);
         }
@@ -506,14 +502,14 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
 void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
 {
     m_sigmaElastic.clear();
-    m_sigmaElastic.resize(options.m_points, 0.0);
+    m_sigmaElastic.resize(m_points, 0.0);
     for (size_t k : m_phase->kElastic()) {
         auto& x = m_phase->collisionRate(k)->energyLevels();
         auto& y = m_phase->collisionRate(k)->crossSections();
         // Note:
         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
-        for (size_t i = 0; i < options.m_points; i++) {
+        for (size_t i = 0; i < m_points; i++) {
             m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
                                  linearInterp(m_gridEdge[i], x, y);
         }
@@ -534,21 +530,21 @@ void EEDFTwoTermApproximation::setGridCache()
         auto& collision = m_phase->collisionRate(k);
         auto& x = collision->energyLevels();
         auto& y = collision->crossSections();
-        vector<double> eps1(options.m_points + 1);
+        vector<double> eps1(m_points + 1);
         int shiftFactor = (collision->kind() == "ionization") ? 2 : 1;
 
-        for (size_t i = 0; i < options.m_points + 1; i++) {
+        for (size_t i = 0; i < m_points + 1; i++) {
             eps1[i] = clip(shiftFactor * m_gridEdge[i] + collision->threshold(),
-                           m_gridEdge[0] + 1e-9, m_gridEdge[options.m_points] - 1e-9);
+                           m_gridEdge[0] + 1e-9, m_gridEdge[m_points] - 1e-9);
         }
         vector<double> nodes = eps1;
-        for (size_t i = 0; i < options.m_points + 1; i++) {
-            if (m_gridEdge[i] >= eps1[0] && m_gridEdge[i] <= eps1[options.m_points]) {
+        for (size_t i = 0; i < m_points + 1; i++) {
+            if (m_gridEdge[i] >= eps1[0] && m_gridEdge[i] <= eps1[m_points]) {
                 nodes.push_back(m_gridEdge[i]);
             }
         }
         for (size_t i = 0; i < x.size(); i++) {
-            if (x[i] >= eps1[0] && x[i] <= eps1[options.m_points]) {
+            if (x[i] >= eps1[0] && x[i] <= eps1[m_points]) {
                 nodes.push_back(x[i]);
             }
         }

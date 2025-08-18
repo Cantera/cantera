@@ -16,26 +16,6 @@ namespace Cantera
 
 class PlasmaPhase;
 
-/**
- *  EEDF solver options. Used internally by class EEDFTwoTermApproximation.
- */
-class TwoTermOpt
-{
-public:
-    TwoTermOpt() = default;
-
-    double m_delta0 = 1e14; //!< Initial value of the iteration parameter
-    size_t m_maxn = 200; //!< Maximum number of iterations
-    double m_factorM = 4.0; //!< Reduction factor of error
-    size_t m_points = 150; //!< Number of points for energy grid
-    double m_rtol = 1e-5; //!< Relative tolerance of EEDF for solving Boltzmann equation
-    string m_growth = "temporal"; //!< String for the growth model (none, temporal or spatial)
-    double m_moleFractionThreshold = 0.01; //!< Threshold for species not considered in the Boltzmann solver but present in the mixture
-    string m_firstguess = "maxwell"; //!< String for EEDF first guess
-    double m_init_kTe = 2.0; //!< Initial electron mean energy
-
-}; // end of class TwoTermOpt
-
 //! Boltzmann equation solver for the electron energy distribution function based on
 //! the two-term approximation.
 /*!
@@ -92,12 +72,6 @@ public:
 
     void setGridCache();
 
-    /**
-     * Options controlling how the calculation is carried out.
-     * @see TwoTermOpt
-     */
-    TwoTermOpt options;
-
     vector<double> getGridEdge() const {
         return m_gridEdge;
     }
@@ -111,6 +85,36 @@ public:
     }
 
 protected:
+
+    //! Formerly options for the EEDF solver
+
+    //! The first step size
+    double m_delta0 = 1e14;
+
+    //! Maximum number of iterations
+    size_t m_maxn = 200;
+
+    //! The factor for step size change
+    double m_factorM = 4.0;
+
+    //! The number of points in the EEDF grid
+    size_t m_points = 150;
+
+    //! Error tolerance for convergence
+    double m_rtol = 1e-5;
+
+    //! The growth model of EEDF
+    std::string m_growth = "temporal";
+
+    //! The threshold for species mole fractions
+    double m_moleFractionThreshold = 0.01;
+
+    //! The first guess for the EEDF
+    std::string m_firstguess = "maxwell";
+
+    //! The initial electron temperature [eV]
+    double m_init_kTe = 2.0;
+
     //! Pointer to the PlasmaPhase object used to initialize this object.
     /*!
      * This PlasmaPhase object provides species, element, and cross-section

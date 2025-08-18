@@ -4,6 +4,13 @@ EEDF calculation
 Compute EEDF with two term approximation solver at constant E/N.
 Compare with results from BOLOS.
 
+Air-plasma-Phelps.yaml mechanism file is derived from Phelps cross section data
+A compilation of atomic and molecular cross-section data assembled by A. V. Phelps
+in the 1970s–1980s for gases such as O₂, N₂, He, Ar, etc. The compilation itself
+is unpublished; data used from it are cited as: A. V. Phelps, private communication
+(compilation of electron cross-sections), retrieved [8/1/25], from Phelps collection.
+(see http://www.lxcat.net/contributors/#d19).
+
 Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, plasma
