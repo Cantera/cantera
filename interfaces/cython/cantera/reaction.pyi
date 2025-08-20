@@ -1,6 +1,5 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import (
-    Callable,
     Generic,
     TypeAlias,
     TypedDict,
