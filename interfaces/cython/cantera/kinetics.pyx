@@ -1,7 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from ctypes import c_int
+from ctypes import c_int as _c_int
 import warnings
 cimport numpy as np
 import numpy as np
@@ -37,8 +37,8 @@ cdef np.ndarray get_dense(CxxSparseMatrix& smat):
         return np.zeros((smat.rows(), 0))
 
     # index/value triplets
-    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=c_int)
-    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(length, dtype=c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=_c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(length, dtype=_c_int)
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(length)
 
     size = CxxSparseTriplets(smat, &rows[0], &cols[0], &data[0], length)
@@ -51,11 +51,11 @@ cdef get_sparse(CxxSparseMatrix& smat):
     # pointers to values and inner indices of CSC storage
     cdef size_t length = smat.nonZeros()
     cdef np.ndarray[np.double_t, ndim=1] value = np.empty(length)
-    cdef np.ndarray[int, ndim=1, mode="c"] inner = np.empty(length, dtype=c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] inner = np.empty(length, dtype=_c_int)
 
     # pointers outer indices of CSC storage
     cdef size_t ncols = smat.outerSize()
-    cdef np.ndarray[int, ndim=1, mode="c"] outer = np.empty(ncols + 1, dtype=c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] outer = np.empty(ncols + 1, dtype=_c_int)
 
     CxxSparseCscData(smat, &value[0], &inner[0], &outer[0])
     return value, inner, outer

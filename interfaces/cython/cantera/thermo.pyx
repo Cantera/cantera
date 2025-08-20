@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
-import weakref
+import weakref as _weakref
 import numbers as _numbers
 import numpy as np
 cimport numpy as np
@@ -273,7 +273,7 @@ cdef class ThermoPhase(_SolutionBase):
         # object is used to track whether the ThermoPhase is being used by other
         # objects that require the number of species to remain constant and do not
         # have C++ implementations (e.g. Quantity objects).
-        self._references = weakref.WeakKeyDictionary()
+        self._references = _weakref.WeakKeyDictionary()
         # validate plasma phase
         self._enable_plasma = False
         if dynamic_cast[CxxPlasmaPhasePtr](self.thermo):

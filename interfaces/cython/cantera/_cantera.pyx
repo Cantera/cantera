@@ -4,14 +4,15 @@
 #cython: language_level=3
 #distutils: language=c++
 
-import sys
-import importlib
-import importlib.abc
-import importlib.util
+import sys as _sys
+import importlib as _importlib
+import importlib.util as _importlib_util
+from importlib.abc import MetaPathFinder as _MetaPathFinder
+
 
 # Chooses the right init function
 # See https://stackoverflow.com/a/52714500
-class CythonPackageMetaPathFinder(importlib.abc.MetaPathFinder):
+class CythonPackageMetaPathFinder(_MetaPathFinder):
     def __init__(self, name_filter):
         super().__init__()
         self.name_filter = name_filter
@@ -19,12 +20,12 @@ class CythonPackageMetaPathFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         if fullname.startswith(self.name_filter):
             # use this extension-file but PyInit-function of another module:
-            loader = importlib.machinery.ExtensionFileLoader(fullname, __file__)
-            return importlib.util.spec_from_loader(fullname, loader)
+            loader = _importlib.machinery.ExtensionFileLoader(fullname, __file__)
+            return _importlib_util.spec_from_loader(fullname, loader)
 
 
 # Inject custom finder/loaders into sys.meta_path:
-sys.meta_path.append(CythonPackageMetaPathFinder("cantera."))
+_sys.meta_path.append(CythonPackageMetaPathFinder("cantera."))
 
 # Import the contents of the individual .pyx files
 from ._utils import *
@@ -46,4 +47,4 @@ from .constants import *
 from .jacobians import *
 
 # Custom finder/loader no longer needed, so remove it
-sys.meta_path.pop()
+_sys.meta_path.pop()

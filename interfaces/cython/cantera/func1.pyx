@@ -1,7 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-import sys
+import sys as _sys
 cimport numpy as np
 import numpy as np
 import warnings
@@ -19,7 +19,7 @@ cdef double func_callback(double t, void* obj, void** err) except? 0.0:
     try:
         return (<Func1>obj).callable(t)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
 
         # Stash the exception info to prevent it from being garbage collected
         (<Func1>obj).exception = exc_type, exc_value

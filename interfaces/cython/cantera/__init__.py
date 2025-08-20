@@ -16,3 +16,5 @@ import warnings
 warnings.filterwarnings('default', module='cantera')
 add_directory(Path(__file__).parent / "data")
 add_directory('.')  # Move current working directory to the front of the path
+
+del warnings, Path, np, os
