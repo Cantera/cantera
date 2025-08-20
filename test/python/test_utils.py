@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 import pytest
 from pytest import approx
+from types import ModuleType
 
 import cantera as ct
 from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
@@ -330,3 +331,14 @@ class TestListDataFiles:
         data_files = ct.list_data_files()
         assert "gri30.yaml" in data_files
         assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
+
+
+def test_namespace_cleanliness():
+    for name in dir(ct):
+        if name.startswith('_'):
+            continue
+        var = getattr(ct, name)
+        if hasattr(var, "__module__") and not var.__module__.startswith("cantera"):
+            pytest.fail(f"cantera module is exporting external class/function '{name}'")
+        elif isinstance(var, ModuleType) and not var.__name__.startswith("cantera"):
+            pytest.fail(f"cantera module is exporting external module '{name}'")
