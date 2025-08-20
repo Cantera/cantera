@@ -16,7 +16,7 @@ def list_data_files(ext: str = ".yaml") -> list[str]:
     :return:
         List of input data files.
     """
-    data_files = set()
+    data_files: set[str] = set()
     for folder in get_data_directories():
         here = Path(folder)
         if folder == ".":
