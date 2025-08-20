@@ -1,8 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from math import erf
-from pathlib import Path
+from math import erf as _erf
+from pathlib import Path as _Path
 import warnings
 import numpy as np
 
@@ -95,7 +95,7 @@ class FlameBase(Sim1D):
             # already a solution array
             arr = data
 
-        elif isinstance(data, (str, Path)):
+        elif isinstance(data, (str, _Path)):
             data = str(data)
             arr = SolutionArray(self.gas)
             if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
@@ -1007,7 +1007,7 @@ class CounterflowDiffusionFlame(FlameBase):
         for j in range(nz):
             x = zz[j] - zz[0]
             zeta = f * (x - x0)
-            zmix = 0.5 * (1.0 - erf(zeta))
+            zmix = 0.5 * (1.0 - _erf(zeta))
             if zmix > zst:
                 Y[j] = Yeq + (Yin_f - Yeq) * (zmix - zst) / (1.0 - zst)
                 T[j] = Teq + (T0f - Teq) * (zmix - zst) / (1.0 - zst)

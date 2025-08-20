@@ -1,7 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from pathlib import Path
+from pathlib import Path as _Path
 from ._utils import get_data_directories, add_directory
 
 
@@ -17,7 +17,7 @@ def list_data_files(ext=".yaml"):
     """
     data_files = set()
     for folder in get_data_directories():
-        here = Path(folder)
+        here = _Path(folder)
         if folder == ".":
             data_files.update(f.name for f in here.glob(f"*{ext}"))
         elif here.is_dir():

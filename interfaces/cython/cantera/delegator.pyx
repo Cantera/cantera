@@ -1,9 +1,9 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-import inspect
-import sys
-import importlib
+import inspect as _inspect
+import sys as _sys
+import importlib as _importlib
 
 from libc.stdlib cimport malloc
 from libc.string cimport strcpy
@@ -91,7 +91,7 @@ cdef void callback_v(PyFuncInfo& funcInfo) noexcept:
     try:
         (<object>funcInfo.func())()
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -100,7 +100,7 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg) noexcept:
     try:
         (<object>funcInfo.func())(arg)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -109,7 +109,7 @@ cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
     try:
         (<object>funcInfo.func())(arg)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -122,7 +122,7 @@ cdef void callback_v_AMr(PyFuncInfo& funcInfo, CxxAnyMap& arg) noexcept:
         # unwillingness to assign to a reference
         (&arg)[0] = py_to_anymap(pyArg)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -135,7 +135,7 @@ cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
     try:
         (<object>funcInfo.func())(pyArg1, pyArg2)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -145,7 +145,7 @@ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
     try:
         (<object>funcInfo.func())(pystr(arg1), <object>obj)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -156,7 +156,7 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) no
     try:
         (<object>funcInfo.func())(view)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -168,7 +168,7 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
     try:
         (<object>funcInfo.func())(arg1, view)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -182,7 +182,7 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
     try:
         (<object>funcInfo.func())(view1, view2, view3)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -196,7 +196,7 @@ cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept:
             (&out)[0] = ret
             return 1
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
@@ -211,7 +211,7 @@ cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept:
             (&out)[0] = stringify(ret)
             return 1
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
@@ -226,7 +226,7 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) n
             (&out)[0] = ret
             return 1
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
@@ -240,7 +240,7 @@ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg
     try:
         (<object>funcInfo.func())(arg1, view1, view2)
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
@@ -316,7 +316,7 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         else:
             callback_args = callback.count(",") + 1
 
-        signature = inspect.signature(method)
+        signature = _inspect.signature(method)
         params = signature.parameters.values()
         min_args = len([p for p in params if p.default is p.empty])
         max_args = len([p for p in params if p.kind is not p.KEYWORD_ONLY])
@@ -399,7 +399,7 @@ cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegato
                                               const string& module_name,
                                               const string& class_name):
 
-    mod = importlib.import_module(module_name.decode())
+    mod = _importlib.import_module(module_name.decode())
     cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
     rate.set_cxx_object(delegator)
     return rate
@@ -409,7 +409,7 @@ cdef public object ct_newPythonExtensibleRateData(CxxReactionDataDelegator* dele
                                                   const string& module_name,
                                                   const string& class_name):
 
-    mod = importlib.import_module(module_name.decode())
+    mod = _importlib.import_module(module_name.decode())
     cdef ExtensibleRateData data = getattr(mod, class_name.decode())()
     data.set_cxx_object(delegator)
     return data

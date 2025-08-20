@@ -1,11 +1,11 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
-from __future__ import annotations
+from __future__ import annotations as _annotations
 
 from ._cantera import *
 import numpy as np
 import csv as _csv
-import importlib.metadata
+import importlib as _importlib
 import warnings
 
 
@@ -16,8 +16,8 @@ def _import_pandas():
     if _pandas is not None:
         return
     try:
-        importlib.metadata.version('pandas')
-    except importlib.metadata.PackageNotFoundError:
+        _importlib.metadata.version('pandas')
+    except _importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working pandas installation.')
     else:
         import pandas as _pandas

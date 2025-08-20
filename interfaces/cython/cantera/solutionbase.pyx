@@ -3,8 +3,8 @@
 
 cimport numpy as np
 import numpy as np
-from pathlib import PurePath
-from os import get_terminal_size
+from pathlib import PurePath as _PurePath
+from os import get_terminal_size as _get_terminal_size
 import warnings
 
 from .thermo cimport *
@@ -64,7 +64,7 @@ cdef class _SolutionBase:
             self._adjacent = other._adjacent
             return
 
-        if isinstance(infile, PurePath):
+        if isinstance(infile, _PurePath):
             infile = str(infile)
 
         # Transport model: "" is a sentinel value to use the default model
@@ -556,7 +556,7 @@ cdef class SolutionArrayBase:
                     cxx_keys.push_back(stringify(key))
         if width is None:
             try:
-                width = get_terminal_size().columns
+                width = _get_terminal_size().columns
             except:
                 width = 100
 

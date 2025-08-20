@@ -1,9 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from typing import Dict
-from collections.abc import Sequence
-import numbers
+from collections.abc import Sequence as _Sequence
+import numbers as _numbers
 import numpy as np
 
 from ._utils cimport *
@@ -44,7 +43,7 @@ cdef class Units:
         return self.units.dimension(stringify(primary))
 
     @property
-    def dimensions(self) -> Dict[str, float]:
+    def dimensions(self) -> dict[str, float]:
         """A dictionary of the primary unit components to their dimensions.
 
         .. versionadded:: 3.0
@@ -173,7 +172,7 @@ cdef class UnitSystem:
                 return self.unitsystem.convert(val_units, (<Units>dest).units)
             else:
                 raise TypeError("'dest' must be a string or 'Units' object")
-        elif isinstance(quantity, numbers.Real):
+        elif isinstance(quantity, _numbers.Real):
             value = quantity
             if isinstance(dest, str):
                 return self.unitsystem.convertTo(value, stringify(dest))
@@ -183,7 +182,7 @@ cdef class UnitSystem:
                 raise TypeError("'dest' must be a string or 'Units' object")
         elif isinstance(quantity, np.ndarray):
             return np.vectorize(lambda item: self.convert_to(item, dest))(quantity)
-        elif isinstance(quantity, Sequence):
+        elif isinstance(quantity, _Sequence):
             return [self.convert_to(item, dest) for item in quantity]
         else:
             raise TypeError("'quantity' must be either a string or a number")
@@ -210,13 +209,13 @@ cdef class UnitSystem:
         if isinstance(quantity, str):
             val_units = python_to_anyvalue(quantity)
             return self.unitsystem.convertActivationEnergy(val_units, stringify(dest))
-        elif isinstance(quantity, numbers.Real):
+        elif isinstance(quantity, _numbers.Real):
             value = quantity
             return self.unitsystem.convertActivationEnergyTo(value, stringify(dest))
         elif isinstance(quantity, np.ndarray):
             return np.vectorize(
                 lambda item: self.convert_activation_energy_to(item, dest))(quantity)
-        elif isinstance(quantity, Sequence):
+        elif isinstance(quantity, _Sequence):
             return [self.convert_activation_energy_to(item, dest) for item in quantity]
         else:
             raise TypeError("'quantity' must be either a string or a number")
@@ -240,13 +239,13 @@ cdef class UnitSystem:
             raise TypeError("'dest' must be a string, Units, or UnitStack object")
 
         cdef CxxAnyValue val_units
-        if isinstance(quantity, (str, numbers.Real)):
+        if isinstance(quantity, (str, _numbers.Real)):
             val_units = python_to_anyvalue(quantity)
             return self.unitsystem.convertRateCoeff(val_units, dest_units.units)
         elif isinstance(quantity, np.ndarray):
             return np.vectorize(
                 lambda q: self.convert_rate_coeff_to(q, dest_units))(quantity)
-        elif isinstance(quantity, Sequence):
+        elif isinstance(quantity, _Sequence):
             return [self.convert_rate_coeff_to(q, dest_units) for q in quantity]
         else:
             raise TypeError("'quantity' must be either a string or a number")

@@ -1,14 +1,13 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-import sys
 import os
 import warnings
 from cpython.ref cimport PyObject
 from libcpp.utility cimport move
-import numbers
-import importlib.metadata
-from collections import namedtuple
+import numbers as _numbers
+import importlib as _importlib
+from collections import namedtuple as _namedtuple
 import numpy as np
 from .units cimport Units
 
@@ -21,8 +20,8 @@ def _import_scipy_sparse():
         return
 
     try:
-        importlib.metadata.version('scipy')
-    except importlib.metadata.PackageNotFoundError:
+        _importlib.metadata.version('scipy')
+    except _importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working scipy installation.')
     else:
         from scipy import sparse as _scipy_sparse
@@ -162,9 +161,9 @@ class CanteraError(RuntimeError):
         """
         CxxCanteraError.setStackTraceDepth(depth)
 
-_DimensionalValue = namedtuple('_DimensionalValue',
-                              ('value', 'units', 'activation_energy'),
-                              defaults=[False])
+_DimensionalValue = _namedtuple('_DimensionalValue',
+                                ('value', 'units', 'activation_energy'),
+                                defaults=[False])
 
 cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 
@@ -334,10 +333,10 @@ cdef get_types(item):
         return None, 1
 
     elif isinstance(item, np.ndarray):
-        if isinstance(item.flat[0], numbers.Integral):
-            itype = numbers.Integral
-        elif isinstance(item.flat[0], numbers.Real):
-            itype = numbers.Real
+        if isinstance(item.flat[0], _numbers.Integral):
+            itype = _numbers.Integral
+        elif isinstance(item.flat[0], _numbers.Real):
+            itype = _numbers.Real
         elif isinstance(item.flat[0], np.str_):
             itype = str
         else:
@@ -357,15 +356,15 @@ cdef get_types(item):
                 itype.add(list)
             elif type(i) == bool:
                 itype.add(bool)  # otherwise bools will get counted as integers
-            elif isinstance(i, numbers.Integral):
-                itype.add(numbers.Integral)
-            elif isinstance(i, numbers.Real):
-                itype.add(numbers.Real)
+            elif isinstance(i, _numbers.Integral):
+                itype.add(_numbers.Integral)
+            elif isinstance(i, _numbers.Real):
+                itype.add(_numbers.Real)
             else:
                 itype.add(type(i))
 
-        if itype == {numbers.Real, numbers.Integral}:
-            itype = {numbers.Real}
+        if itype == {_numbers.Real, _numbers.Integral}:
+            itype = {_numbers.Real}
 
         if itype == {list}:
             inner_types = set()
@@ -397,9 +396,9 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
                 v = list_string_to_anyvalue(item)
             elif itype == bool:
                 v = list_bool_to_anyvalue(item)
-            elif itype == numbers.Integral:
+            elif itype == _numbers.Integral:
                 v = list_int_to_anyvalue(item)
-            elif itype == numbers.Real:
+            elif itype == _numbers.Real:
                 v = list_double_to_anyvalue(item)
             elif itype == dict:
                 v = list_dict_to_anyvalue(item)
@@ -410,9 +409,9 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
                 v = list2_string_to_anyvalue(item)
             elif itype == bool:
                 v = list2_bool_to_anyvalue(item)
-            elif itype == numbers.Integral:
+            elif itype == _numbers.Integral:
                 v = list2_int_to_anyvalue(item)
-            elif itype == numbers.Real:
+            elif itype == _numbers.Real:
                 v = list2_double_to_anyvalue(item)
             else:
                 v = list_to_anyvalue(item)
