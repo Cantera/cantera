@@ -224,21 +224,18 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
 
         # find "duplicate" flow controllers that connect the same two objects to
         # eventually draw them as a single connection
-        duplicates, inv_duplicates = set(), set()
+        duplicates = set()
         for fc_ in flow_controllers:
             if fc_.upstream is r_in and fc_.downstream is r_out:
                 duplicates.add(fc_)
-            elif fc_.downstream is r_in and fc_.upstream is r_out:
-                inv_duplicates.add(fc_)
 
         # remove duplicates from the set of the flow elements still to be drawn
-        flow_controllers -= duplicates | inv_duplicates
+        flow_controllers -= duplicates
 
         assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
 
         # sum up mass flow rate while considering the direction
-        rate = (fc.mass_flow_rate + sum(dupe.mass_flow_rate for dupe in duplicates)
-                - sum(idupe.mass_flow_rate for idupe in inv_duplicates))
+        rate = (fc.mass_flow_rate + sum(dupe.mass_flow_rate for dupe in duplicates))
 
         inflow_name, outflow_name = r_in.name, r_out.name
         if rate < 0:
