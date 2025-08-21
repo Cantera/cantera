@@ -4,10 +4,9 @@
 import warnings
 import numbers as _numbers
 from cython.operator cimport dereference as deref
+import numpy as np
 
-from .thermo cimport *
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
-from ._utils import *
 from .delegator cimport *
 from .drawnetwork import *
 
