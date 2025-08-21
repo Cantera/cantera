@@ -2,12 +2,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 from __future__ import annotations as _annotations
 
-from ._cantera import *
 import numpy as np
-import csv as _csv
 import importlib as _importlib
-import warnings
-
+from ._cantera import (
+    DustyGasTransport, InterfaceKinetics, InterfacePhase, Kinetics, PureFluid,
+    SolutionArrayBase, ThermoPhase, Transport,
+)
 
 _pandas = None
 def _import_pandas():
