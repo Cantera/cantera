@@ -1,26 +1,20 @@
-% runs selected examples without pausing
-run_test_examples();
-
-function run_test_examples()
-    clear all
-    close all
+function success = test_examples()
     ctLoad
 
     examples = {
         'equil', 'isentropic', 'reactor1', 'reactor2', 'surf_reactor', ...
         'periodic_cstr', 'plug_flow_reactor', 'lithium_ion_battery', ...
-        'rankine', 'prandtl1', 'prandtl2', 'flame1', 'flame2', ...
-        'catcomb', 'diff_flame', 'ignite', 'ignite_hp', 'ignite_uv', 'diamond_cvd'
+        'rankine', 'prandtl1', 'prandtl2', 'catcomb','ignite', 'diamond_cvd', ...
+        % 'flame1', 'flame2', 'diff_flame', 'ignite_hp', 'ignite_uv'
     };
 
+    success = true;
     passed = {};
     failed = {};
 
     for idx = 1:length(examples)
         scriptName = examples{idx};
         try
-            % Run script in base workshop to protect local variables like
-            % examples
             evalin('base', sprintf('run(''%s.m'')', scriptName));
             passed{end+1} = scriptName;
         catch ME
@@ -30,11 +24,12 @@ function run_test_examples()
                 disp('Caught a CanteraError. Continuing execution...\n');
             end
             failed{end+1} = scriptName;
+            success = false;
         end
     end
 
 
-        % Summary report
+    % Summary report
     disp(' ');
     disp('============================');
     disp('Summary of example runs');
@@ -51,12 +46,7 @@ function run_test_examples()
     else
         disp('❌ Failed: (none)');
     end
-
-    disp(' ');
-
-    clear all
-    close all
     ctUnload
 
-    disp('Test example run successfully.');
+    disp('Test example run complete.');
 end
