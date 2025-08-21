@@ -5,35 +5,25 @@ function calling from Cantera CLib.
 
 ## Installation guide:
 
-1. Install Matlab (any release newer than R2008a).
+1. Install Matlab (any release newer than R2008a), then choose one of the following
+   methods to obtain the Cantera CLib and header files for the toolbox:
 2. Compile Cantera from Source and install in your Conda environment, as directed in
-   this link. https://cantera.org/stable/develop/index.html. The
-   experimental Matlab Toolbox does not require a SCons option to install at this moment
-   since it's stand-alone.
-3. For first time users, launch Matlab, then navigate to `/path/to/cantera/source/code`
-   (the folder containing `interfaces` and `samples`) using "Browse for Folder".
-4. For Linux users: Matlab currently uses Intel MKL which uses 64-bit integer types
+   this link: https://cantera.org/stable/develop/index.html. OR
+3. Install the Cantera development interface, as instructed in this link:
+   https://cantera.org/stable/install/conda.html#development-c-fortran-90-interface.
+4. For first time users, launch Matlab, then navigate to
+   `/path/to/cantera/matlab/toolbox` using "Browse for Folder".
+5. For Linux users: Matlab currently uses Intel MKL which uses 64-bit integer types
    that are incompatible with the standard 32-bit integers used by the default version
    of OpenBLAS that comes with Cantera. As such, the correct environment variables
    need to be set to launch Matlab with the correct BLAS/LAPACK libraries loaded:
    `export LD_PRELOAD=/path/to/openblas/library:/path/to/lapack/library`
    then, launch Matlab in the terminal with:
    `matlab -softwareopengl`.
-5. In the Matlab command window, run
-   `addpath(genpath([pwd, '/interfaces/matlab_experimental']))` to add search path for
-   the experimental toolbox.
-6. The built-in Utility function `ctPaths` to set the following paths for the toolbox:
-   - `toolboxPath`: If you compiled Cantera from source, this is the location of your
-   Cantera source code. If you installed the MATLAB Toolbox from FileExchange, this is
-   the location of your installed Toolbox.
-   - `libpath`: This is the location of the Cantera shared library. If you compiled
-   Cantera from source, this is usually `fullfile(toolboxPath, 'build', 'lib')`.
-   If you installed from FileExchange, this is `fullfile(toolboxPath, 'dependencies')`.
-   - `includePath`: This is the location of the header files used by Cantera.
-   If you compiled Cantera from source, this is `fullfile(toolboxPath, 'include')`.
-   If you installed from FileExchange, this is `fullfile(toolboxPath, 'dependencies')`.
-   - run `ctpaths(libPath, includePath, toolboxPath)` to set the aforementioned paths.
-7. In the Matlab command window, run `savepath` to save all search paths.
+6. Run the built-in Utility function `ctPaths('Set', envPath)` to set search paths
+   for the Toolbox:
+   - `envPath`: this is the location of the Conda environment where the CLib and header
+   files are located.
 
 ## Usage guide:
 
@@ -45,4 +35,4 @@ function calling from Cantera CLib.
 4. To stop using the new Cantera interface, run the following commands:
    `ctCleanUp`
    `ctUnload`.
-5. To remove the Cantera paths from MATLAB preferences, run `ctPaths('clear')`.
+5. To remove the Cantera paths from MATLAB preferences, run `ctPaths('Unset')`.
