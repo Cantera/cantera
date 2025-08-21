@@ -131,11 +131,12 @@ should install Cantera in a new Conda environment.
 
 (sec-conda-development-interface)=
 
-## Development (C++ & Fortran 90) Interface
+## Development (C++, Fortran 90, & MATLAB) Interface
 
 The Cantera development interface provides header files and libraries needed to compile
-your own C++, C, or Fortran applications that link to Cantera. It also provides several
-sample programs and build scripts that you can adapt for your own applications.
+your own C++, C, Fortran, and MATLAB applications that link to Cantera. It also
+provides several sample programs and build scripts that you can adapt for
+your own applications.
 
 From the command line (or the Conda Prompt on Windows), create a new Conda
 environment named `ct-dev` using:
