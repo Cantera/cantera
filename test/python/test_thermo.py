@@ -1200,6 +1200,17 @@ class TestPlasmaPhase:
                                5.49e-20, 5.64e-20, 5.77e-20, 5.87e-20, 5.97e-20]
         }
 
+    @property
+    def inelastic_collision_data(self):
+        return {
+            "equation": "O2 + E => E + O2(a1dg)",
+            "type": "electron-collision-plasma",
+            "note": "This is a electron collision process of plasma",
+            "energy-levels": [0.977, 1.5, 2.0, 3.0, 3.5, 4.0, 5.0],
+            "cross-sections": [0.0, 5.8000e-23, 1.5300e-22, 3.8000e-22, 4.9000e-22,
+                               5.7000e-22, 7.4000e-22]
+        }
+
     def test_converting_electron_energy_to_temperature(self, phase):
         phase.mean_electron_energy = 1.0
         Te = 2.0 / 3.0 * ct.electron_charge / ct.boltzmann
@@ -1296,6 +1307,16 @@ class TestPlasmaPhase:
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.isotropic_shape_factor = 1.1
         assert phase.elastic_power_loss == approx(7408711810)
+
+    def test_inelastic_power_loss(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.add_reaction(ct.Reaction.from_dict(self.inelastic_collision_data, phase))
+        value = phase.inelastic_power_loss
+        assert value == approx(285091336)
+        # change of gas temperature does not change inelastic power loss
+        # when the concentrations hold constant
+        phase.TDX = 2000, phase.density, "O2:1, E:1e-5"
+        assert phase.inelastic_power_loss == approx(value)
 
 class TestImport:
     """

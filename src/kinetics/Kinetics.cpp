@@ -419,6 +419,18 @@ void Kinetics::getNetProductionRates(double* net)
     m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
 }
 
+vector<double> Kinetics::netRatesOfProgressByIndices(const vector<size_t>& indices)
+{
+    updateROP();
+
+    vector<double> rates(indices.size());
+    for (size_t i = 0; i < indices.size(); i++) {
+        rates[i] = m_ropnet[indices[i]];
+    }
+
+    return rates;
+}
+
 void Kinetics::getCreationRates_ddT(double* dwdot)
 {
     Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);

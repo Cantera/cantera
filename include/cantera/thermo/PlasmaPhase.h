@@ -16,6 +16,7 @@ namespace Cantera
 {
 
 class Reaction;
+class Kinetics;
 class ElectronCollisionPlasmaRate;
 
 //! Base class for handling plasma properties, specifically focusing on the
@@ -311,6 +312,16 @@ public:
      */
     double elasticPowerLoss();
 
+    /**
+     * The inelastic power loss (J/s/m³)
+     *   @f[
+     *     P_i = N_A e \sum_i U_i ROP_i,
+     *   @f]
+     * where @f$ U_i @f$ is the threshold energy (eV) and @f$ ROP_i @f$ is the
+     * net rate of progress of the collision (kmol/s/m³).
+     */
+    double inelasticPowerLoss();
+
 protected:
     void updateThermo() const override;
 
@@ -424,6 +435,9 @@ protected:
     */
     void updateElasticElectronEnergyLossCoefficients();
 
+    //! Update collision rates of progress from #m_kin
+    void updateCollisionRatesOfProgress();
+
 private:
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
@@ -432,6 +446,12 @@ private:
     //! Electron energy level change variable. Whenever
     //! #m_electronEnergyLevels changes, this int is incremented.
     int m_levelNum = -1;
+
+    //! Net rates of progress of collisions
+    vector<double> m_netROPCollisions;
+
+    //! Kinetic object
+    shared_ptr<Kinetics> m_kin;
 
     //! The list of shared pointers of plasma collision reactions
     vector<shared_ptr<Reaction>> m_collisions;
@@ -449,12 +469,17 @@ private:
     //! The list of whether the interpolated cross sections is ready
     vector<bool> m_interp_cs_ready;
 
+    //! Indices of electron collision plasma reactions
+    //! This is used for getting the rates of progress.
+    vector<size_t> m_electronCollisionReactionIndices;
+
     //! Set collisions. This function sets the list of collisions and
     //! the list of target species using #addCollision.
     void setCollisions();
 
     //! Add a collision and record the target species
-    void addCollision(std::shared_ptr<Reaction> collision);
+    //! @param j index of the corresponding reaction for the collision
+    void addCollision(size_t j);
 
 };
 
