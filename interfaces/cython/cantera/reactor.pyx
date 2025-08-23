@@ -852,8 +852,10 @@ cdef class ReactorSurface(ReactorBase):
                 "adjacent reactors `r` will be a required constructor argument and the "
                 "install method will be removed.",
                 DeprecationWarning)
-
             self._reactors = []
+        else:
+            raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
+                            "of ReactorBase objects.")
 
         self._rbase = CxxNewReactorSurface(contents._base, cxx_adj, clone, stringify(name))
         self.rbase = self._rbase.get()
@@ -875,6 +877,9 @@ cdef class ReactorSurface(ReactorBase):
            Replaced by specifying list of adjacent reactors in the `ReactorSurface`
            constructor.
         """
+        warnings.warn("ReactorSurface.install: To be removed after Cantera 3.2. "
+            "Adjacent reactors should be specified in the ReactorSurface constructor.",
+            DeprecationWarning)
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
         self._reactors.append(r)

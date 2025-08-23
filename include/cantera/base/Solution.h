@@ -117,9 +117,7 @@ public:
     }
 
     //! Get the Solution object for an adjacent phase by name
-    shared_ptr<Solution> adjacent(const string& name) {
-        return m_adjacentByName.at(name);
-    }
+    shared_ptr<Solution> adjacent(const string& name);
 
     //! Get the number of adjacent phases
     size_t nAdjacent() const {

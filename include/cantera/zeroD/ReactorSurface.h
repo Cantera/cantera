@@ -37,6 +37,8 @@ public:
                    bool clone,
                    const string& name="(none)");
 
+    //! @deprecated To be removed after Cantera 3.2. Replaced by constructor where
+    //!    contents and adjacent reactors are specified
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorBase::ReactorBase; // inherit constructors
 

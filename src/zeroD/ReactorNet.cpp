@@ -9,6 +9,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/Solution.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
@@ -117,6 +118,7 @@ void ReactorNet::initialize()
     m_start.assign(1, 0);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
+        shared_ptr<Solution> bulk = r.solution();
         r.initialize(m_time);
         size_t nv = r.neq();
         m_nv += nv;
@@ -130,8 +132,14 @@ void ReactorNet::initialize()
             throw CanteraError("ReactorNet::initialize",
                                "FlowReactors must be used alone.");
         }
-        solutions[r.solution().get()].push_back(r.name());
+        solutions[bulk.get()].push_back(r.name());
         for (size_t i = 0; i < r.nSurfs(); i++) {
+            if (r.surface(i)->solution()->adjacent(bulk->name()) != bulk) {
+                throw CanteraError("ReactorNet::initialize",
+                    "Bulk phase '{}' used by interface '{}' must be the same object\n"
+                    "as the contents of the adjacent reactor '{}'.",
+                    bulk->name(), r.surface(i)->name(), r.name());
+            }
             surfaces.insert(r.surface(i));
         }
     }
