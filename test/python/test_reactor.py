@@ -2474,15 +2474,15 @@ class TestCombustor:
         fuel_mdot = factor * fuel_mw
 
         # The igniter will use a time-dependent igniter mass flow rate.
-        def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
-            return amplitude * math.exp(-(t - t0) ** 2 * 4 * math.log(2) / fwhm ** 2)
+        def igniter_mdot(amplitude=0.1, t0=0.1, fwhm=0.05):
+            return ct.Func1("Gaussian", [amplitude, t0, fwhm])
 
         # create and install the mass flow controllers. Controllers m1 and m2 provide
-        # constant mass flow rates, and m3 provides a short Gaussian pulse only to ignite
-        # the mixture
+        # constant mass flow rates, and m3 provides a short Gaussian pulse only to
+        # ignite the mixture
         m1 = ct.MassFlowController(fuel_in, combustor, mdot=fuel_mdot)
         m2 = ct.MassFlowController(oxidizer_in, combustor, mdot=oxidizer_mdot)
-        m3 = ct.MassFlowController(igniter, combustor, mdot=igniter_mdot)
+        m3 = ct.MassFlowController(igniter, combustor, mdot=igniter_mdot())
 
         # put a valve on the exhaust line to regulate the pressure
         valve = ct.Valve(combustor, exhaust, K=1.0)

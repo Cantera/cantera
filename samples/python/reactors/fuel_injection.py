@@ -9,7 +9,7 @@ Demonstrates the use of a user-supplied function for the mass flow rate through
 a `MassFlowController`, and the use of the `SolutionArray` class to store results
 during reactor network integration and use these results to generate plots.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.1, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, kinetics, pollutant formation, plotting
 """
@@ -33,17 +33,15 @@ gas.equilibrate('TP')
 r = ct.IdealGasReactor(gas)
 r.volume = 0.001  # 1 liter
 
+def fuel_mdot(total_mass=3.0e-3, std_dev=0.5, center_time=2.0):
+    """Create a Gaussian pulse function."""
+    # units are kg for mass and seconds for times
+    amplitude = total_mass / (std_dev * np.sqrt(2 * np.pi))
+    fwhm = std_dev * 2 * np.sqrt(2 * np.log(2))
+    return ct.Func1("Gaussian", [amplitude, center_time, fwhm])
 
-def fuel_mdot(t):
-    """Create an inlet for the fuel, supplied as a Gaussian pulse"""
-    total = 3.0e-3  # mass of fuel [kg]
-    width = 0.5  # width of the pulse [s]
-    t0 = 2.0  # time of fuel pulse peak [s]
-    amplitude = total / (width * np.sqrt(2*np.pi))
-    return amplitude * np.exp(-(t-t0)**2 / (2*width**2))
-
-
-mfc = ct.MassFlowController(inlet, r, mdot=fuel_mdot)
+# Create an inlet for the fuel, supplied as a Gaussian pulse
+mfc = ct.MassFlowController(inlet, r, mdot=fuel_mdot())
 
 # Create the reactor network
 sim = ct.ReactorNet([r])
