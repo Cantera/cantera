@@ -34,9 +34,8 @@ import matplotlib.pyplot as plt
 EN_peak = 190 * 1e-21  # 190 Td
 pulse_center = 24e-9  # 24 ns
 pulse_width = 3e-9  # standard deviation (3 ns)
-
-def gaussian_EN(t):
-    return EN_peak * np.exp(-((t - pulse_center)**2) / (2 * pulse_width**2))
+pulse_fwhm = pulse_width * 2 * (2 * np.log(2))**.5
+gaussian_EN = ct.Func1("Gaussian", [EN_peak, pulse_center, pulse_fwhm])
 
 # setup
 gas = ct.Solution('example_data/methane-plasma-pavan-2023.yaml')
@@ -55,7 +54,7 @@ dt_max = 1e-10
 dt_chunk = 1e-9  # 1 ns chunk
 states = ct.SolutionArray(gas, extra=['t'])
 
-print('{:>10} {:>10} {:>10} {:>14}'.format('t [s]', 'T [K]', 'P [Pa]', 'h [J/kg]'))
+print(f"{'t [s]':>10} {'T [K]':>10} {'P [Pa]':>10} {'h [J/kg]':>14}")
 
 # simulate in 1 ns chunks
 t = 0.0
@@ -66,8 +65,7 @@ while t < t_total:
     while sim.time < t_end:
         sim.advance(sim.time + dt_max) #use sim.step
         states.append(r.thermo.state, t=sim.time)
-        print('{:10.3e} {:10.3f} {:10.3f} {:14.6f}'.format(
-            sim.time, r.T, r.thermo.P, r.thermo.h))
+        print(f"{sim.time:10.3e} {r.T:10.3f} {r.thermo.P:10.3f} {r.thermo.h:14.6f}")
 
     EN_t = gaussian_EN(t)
     gas.reduced_electric_field = EN_t
