@@ -152,14 +152,14 @@ SiC3PPI = SolidProperties(porosity=0.84,
                           pore_diameter=0.0085,
                           heat_conductivity=effectiveConductivitySiC,
                           specific_area=246.075,
-                          solid_phase=ct.Solution("example_data/silicon_carbide.yaml"),
+                          solid_phase=ct.Solution("example_data/silicon-carbide.yaml"),
                           emissivity=0.85)
 
 SiC10PPI = SolidProperties(porosity=0.84,
                            pore_diameter=0.00134,
                            heat_conductivity=effectiveConductivitySiC,
                            specific_area=978.,
-                           solid_phase=ct.Solution("example_data/silicon_carbide.yaml"),
+                           solid_phase=ct.Solution("example_data/silicon-carbide.yaml"),
                            emissivity=0.85)
 
 
