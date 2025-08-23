@@ -19,6 +19,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
                                const string& name)
     : ReactorBase(name)
 {
+    // TODO: After Cantera 3.2, raise an exception of 'reactors' is empty
     vector<shared_ptr<Solution>> adjacent;
     for (auto R : reactors) {
         adjacent.push_back(R->solution());
@@ -146,6 +147,13 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::syncState()
 {
+    if (m_reactors.empty()) {
+        // TODO: Remove this check after Cantera 3.2, since it will no longer be
+        // possible to create the ReactorSurface without specifying the adjacent
+        // reactors in the constructor.
+        throw CanteraError("ReactorSurface::syncState",
+                           "Surface is not installed on any Reactor");
+    }
     m_surf->setTemperature(m_reactors[0]->temperature());
     m_surf->setCoveragesNoNorm(m_cov.data());
 }

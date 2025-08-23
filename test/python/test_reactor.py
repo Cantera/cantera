@@ -1314,8 +1314,9 @@ class TestConstPressureReactor:
         self.gas1.TPX = T0, P0, X0
         self.gas2.TPX = T0, P0, X0
 
-        self.r1 = ct.IdealGasReactor(self.gas1, clone=True)
-        self.r2 = self.reactorClass(self.gas2, clone=True)
+        clone_surf = not use_surf_install
+        self.r1 = ct.IdealGasReactor(self.gas1, clone=clone_surf)
+        self.r2 = self.reactorClass(self.gas2, clone=clone_surf)
 
         self.r1.volume = 0.2
         self.r2.volume = 0.2
@@ -1342,13 +1343,13 @@ class TestConstPressureReactor:
             C[0] = 0.3
             C[4] = 0.7
             if use_surf_install:
-                with pytest.deprecated_call():
-                    self.surf1 = ct.ReactorSurface(self.interface1, A=0.2, clone=True)
-                    self.surf2 = ct.ReactorSurface(self.interface2, A=0.2, clone=True)
+                self.surf1 = ct.ReactorSurface(self.interface1, A=0.2, clone=clone_surf)
+                self.surf2 = ct.ReactorSurface(self.interface2, A=0.2, clone=clone_surf)
                 self.surf1.coverages = C
                 self.surf2.coverages = C
-                self.surf1.install(self.r1)
-                self.surf2.install(self.r2)
+                with pytest.deprecated_call():
+                    self.surf1.install(self.r1)
+                    self.surf2.install(self.r2)
             else:
                 self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2,
                                                clone=True)
@@ -2146,6 +2147,33 @@ class TestSurfaceKinetics:
                     ('\tReactor -> "Reactor surface" '
                      '[arrowhead=none color=red style=dotted]\n')]
         assert graph.body == expected
+
+    def test_adjacent_wrong_type(self):
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = ct.Solution("h2o2.yaml")
+        r = ct.Reactor(gas, clone=False)
+        # "adjacent" objects should be Reactors, not Solutions
+        with pytest.raises(TypeError, match="ReactorBase object"):
+            rsurf = ct.ReactorSurface(surf, gas, clone=False)
+
+    def test_incompatible_bulk(self):
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = ct.Solution("h2o2.yaml")
+        r = ct.Reactor(gas, clone=False)
+        rsurf = ct.ReactorSurface(surf, r, clone=False)
+        net = ct.ReactorNet([r])
+        with pytest.raises(ct.CanteraError,
+                           match="does not have an adjacent phase named 'ohmech'"):
+            net.initialize()
+
+    def test_mismatched_bulk(self):
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        r = ct.Reactor(gas, clone=False)
+        rsurf = ct.ReactorSurface(surf, [r], clone=False)
+        net = ct.ReactorNet([r])
+        with pytest.raises(ct.CanteraError, match="must be the same object"):
+            net.initialize()
 
 
 class TestReactorSensitivities:
