@@ -151,6 +151,16 @@ void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
     m_adjacentByName[adjacent->name()] = adjacent;
 }
 
+shared_ptr<Solution> Solution::adjacent(const string& name)
+{
+    try {
+        return m_adjacentByName.at(name);
+    } catch (std::exception&) {
+        throw CanteraError("Solution::adjacent", "Solution '{}' does not have an "
+            "adjacent phase named '{}'", this->name(), name);
+    }
+}
+
 AnyMap Solution::parameters(bool withInput) const
 {
     AnyMap out = m_thermo->parameters(false);
