@@ -156,7 +156,7 @@ methods listed in the documentation for the {py:class}`ExtensibleReactor` class.
   methods. The result is a reactor network with a wall between two reactors that has
   inertia and takes time to respond to changes in the reactor's pressure.
 
-[Reactor cascade model for reactive flows in inert porous media](/examples/python/reactors/PorousMediaBurner)
+[Reactor cascade model for reactive flows in inert porous media](/examples/python/reactors/porous_media_burner)
 : This example showcases the use of {py:class}`ExtensibleReactor` to add a temperature
   equation for a solid phase and custom heat transfer/radiation models. Each reactor in
   the network represents a different spatial locations along the length of a porous
