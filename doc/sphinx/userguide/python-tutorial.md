@@ -449,6 +449,6 @@ interest:
 * [](/examples/python/thermo/equations_of_state)
 * [](/examples/python/kinetics/lithium_ion_battery)
 * [](/examples/python/reactors/continuous_reactor)
-* [](/examples/python/reactors/NonIdealShockTube)
+* [](/examples/python/reactors/non_ideal_shock_tube)
 * [](/examples/python/onedim/flamespeed_sensitivity)
 * [](/examples/python/onedim/premixed_counterflow_twin_flame)
