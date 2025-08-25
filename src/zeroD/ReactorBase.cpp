@@ -140,6 +140,22 @@ void ReactorBase::restoreState() {
     m_thermo->restoreState(m_state);
 }
 
+void ReactorBase::syncState()
+{
+    m_thermo->saveState(m_state);
+    m_enthalpy = m_thermo->enthalpy_mass();
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        m_intEnergy = NAN;
+    }
+    m_pressure = m_thermo->pressure();
+    m_mass = m_thermo->density() * m_vol;
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
+}
+
 ReactorNet& ReactorBase::network()
 {
     if (m_net) {

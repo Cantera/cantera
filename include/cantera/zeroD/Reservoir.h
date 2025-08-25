@@ -25,8 +25,6 @@ public:
     }
 
     void initialize(double t0=0.0) override {}
-
-    void syncState() override {}
 };
 
 }

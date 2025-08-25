@@ -865,6 +865,19 @@ class TestReactor:
         assert T1a == approx(T1b)
         assert T2a == approx(T2b)
 
+    def test_reservoir_sync(self):
+        self.make_reactors(T1=800, n_reactors=1)
+        self.gas2.TP = 900, ct.one_atm
+        reservoir = ct.Reservoir(self.gas2)
+        wall = ct.Wall(self.r1, reservoir, U=500)
+        self.net.advance(1.0)
+        assert self.r1.T == approx(872.099, rel=1e-3)
+        self.gas2.TP = 700, ct.one_atm
+        reservoir.syncState()
+        self.net.reinitialize()
+        self.net.advance(2.0)
+        assert self.r1.T == approx(747.27, rel=1e-3)
+
     def test_unpicklable(self):
         self.make_reactors()
         import pickle

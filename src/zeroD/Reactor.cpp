@@ -128,24 +128,6 @@ size_t Reactor::nSensParams() const
     return ns;
 }
 
-void Reactor::syncState()
-{
-    m_thermo->saveState(m_state);
-    if (m_energy) {
-        m_enthalpy = m_thermo->enthalpy_mass();
-        try {
-            m_intEnergy = m_thermo->intEnergy_mass();
-        } catch (NotImplementedError&) {
-            m_intEnergy = NAN;
-        }
-    }
-    m_pressure = m_thermo->pressure();
-    m_mass = m_thermo->density() * m_vol;
-    if (m_net) {
-        m_net->setNeedsReinit();
-    }
-}
-
 void Reactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
