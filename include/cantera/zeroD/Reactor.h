@@ -152,8 +152,6 @@ public:
     //! @since New in %Cantera 3.2.
     virtual vector<size_t> steadyConstraints() const;
 
-    void syncState() override;
-
     //! Set the state of the reactor to correspond to the state vector *y*.
     virtual void updateState(double* y);
 
