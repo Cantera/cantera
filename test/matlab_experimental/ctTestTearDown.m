@@ -1,10 +1,15 @@
-clear all
-% Unload Cantera
-if ispc
-    lib = 'cantera_shared';
-else
-    lib = 'libcantera_shared';
-end
+function ctTestTearDown()
+    % ctTestTearDown
+    % Unload the Cantera C library and remove test paths from MATLAB.
 
-unloadlibrary(lib);
-disp('Cantera has been unloaded');
+    ctUnload();
+
+    thisFile = mfilename('fullpath');
+    canteraRoot = fileparts(fileparts(fileparts(thisFile)));
+
+    toolboxPath = fullfile(canteraRoot, 'interfaces', 'matlab_experimental');
+    testPath    = fullfile(canteraRoot, 'test');
+
+    rmpath(genpath(toolboxPath));
+    rmpath(genpath(testPath));
+end
