@@ -396,6 +396,10 @@ public:
     //! so this constructor should not be called explicitly.
     ThermoPhase() = default;
 
+    //! Create a new ThermoPhase object using the same species definitions,
+    //! thermodynamic parameters, and state as this one.
+    shared_ptr<ThermoPhase> clone() const;
+
     //! @name  Information Methods
     //! @{
 
@@ -2029,6 +2033,13 @@ public:
     //! @param soln Weak pointer to the parent Solution object
     virtual void setSolution(std::weak_ptr<Solution> soln) {
         m_soln = soln;
+    }
+
+    //! Get the Solution object containing this ThermoPhase object and linked
+    //! Kinetics and Transport objects.
+    //! @since New in %Cantera 3.2.
+    shared_ptr<Solution> root() const {
+        return m_soln.lock();
     }
 
 protected:

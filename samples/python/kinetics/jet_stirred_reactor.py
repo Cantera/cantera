@@ -66,10 +66,10 @@ inputs = {
 def getStirredReactor(gas,inputs):
     reactorRadius = (inputs['V']*3/4/np.pi)**(1/3) # [m3]
     reactorSurfaceArea =4*np.pi*reactorRadius**2 # [m3]
-    fuelAirMixtureTank = ct.Reservoir(gas)
-    exhaust = ct.Reservoir(gas)
-    env = ct.Reservoir(gas)
-    reactor = ct.IdealGasReactor(gas, energy='on', volume=inputs['V'])
+    fuelAirMixtureTank = ct.Reservoir(gas, clone=True)
+    exhaust = ct.Reservoir(gas, clone=True)
+    env = ct.Reservoir(gas, clone=True)
+    reactor = ct.IdealGasReactor(gas, energy='on', clone=True, volume=inputs['V'])
     ct.MassFlowController(upstream=fuelAirMixtureTank,
                           downstream=reactor,
                           mdot=reactor.mass/inputs['tau'])
