@@ -54,7 +54,7 @@ classdef Sim1D < handle
 
         %% Sim1D Utility Methods
 
-        function display(s)
+        function show(s)
             % Show all domains.
             ctFunc('sim1D_show', s.stID);
         end
