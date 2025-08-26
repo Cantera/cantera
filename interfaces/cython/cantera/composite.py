@@ -1228,10 +1228,7 @@ class SolutionArray(SolutionArrayBase):
         """
         data_dict = {}
         for label in list(df.columns):
-            data_dict[label] = df[label].values
-            if data_dict[label].dtype.type == np.object_:
-                # convert object columns to string
-                data_dict[label] = data_dict[label].astype('U')
+            data_dict[label] = df[label].to_numpy()
         self.restore_data(data_dict, normalize)
 
     def save(self, fname, name=None, sub=None, description=None, *,

@@ -337,7 +337,7 @@ cdef get_types(item):
             itype = _numbers.Integral
         elif isinstance(item.flat[0], _numbers.Real):
             itype = _numbers.Real
-        elif isinstance(item.flat[0], np.str_):
+        elif isinstance(item.flat[0], (str, np.str_)):
             itype = str
         else:
             itype = item.dtype.type
