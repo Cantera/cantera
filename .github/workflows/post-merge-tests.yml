@@ -6,16 +6,16 @@ on:
         description: "The ref to be built. Can be a tag, commit hash, or branch name"
         required: true
         default: "main"
-  push:
-    # Run when the main branch is pushed to
-    branches:
-      - main
-  # Run on pull requests when this file is modified
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/post-merge-tests.yml
+  # push:
+  #   # Run when the main branch is pushed to
+  #   branches:
+  #     - main
+  # # Run on pull requests when this file is modified
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - .github/workflows/post-merge-tests.yml
 
 env:
   PIP_EXTRA_INDEX_URL: https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
