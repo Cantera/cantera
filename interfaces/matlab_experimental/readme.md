@@ -11,8 +11,10 @@ function calling from Cantera CLib.
    this link: https://cantera.org/stable/develop/index.html. OR
 3. Install the Cantera development interface, as instructed in this link:
    https://cantera.org/stable/install/conda.html#development-c-fortran-90-interface.
-4. For first time users, launch Matlab, then navigate to
-   `/path/to/cantera/matlab/toolbox` using "Browse for Folder".
+4. For first time users, launch Matlab, then navigate to the path to the MATLAB toolbox
+   using "Browse for Folder" and add it (along with subfolders) to MATLAB's search path.
+   - If you pulled Cantera source code from Github, this path should be
+   `/path/to/cantera/interfaces/matlab_experimental`;
 5. For Linux users: Matlab currently uses Intel MKL which uses 64-bit integer types
    that are incompatible with the standard 32-bit integers used by the default version
    of OpenBLAS that comes with Cantera. As such, the correct environment variables

@@ -42,40 +42,24 @@ function paths = ctPaths(varargin)
                 includePath = fullfile(envRoot, 'include');
             end
 
-            samplePath = fullfile(envRoot, 'share', 'cantera', 'samples');
-            dataPath   = fullfile(envRoot, 'share', 'cantera', 'data');
-
             thisFile    = mfilename('fullpath');
             toolboxPath = fileparts(fileparts(thisFile));
 
             paths = struct( ...
                 'libPath',     libPath, ...
                 'includePath', includePath, ...
-                'samplePath',  samplePath, ...
-                'dataPath',    dataPath, ...
                 'toolboxPath', toolboxPath );
 
             setpref(prefGroup, prefName, paths);
 
             addpath(genpath(toolboxPath), genpath(samplePath));
-            savepath;
 
         case 'Unset'
             if ispref(prefGroup, prefName)
-                savedPaths = getpref(prefGroup, prefName);
                 rmpref(prefGroup, prefName);
             else
                 paths = struct();
             end
 
-            if isfield(savedPaths, 'toolboxPath') && isfolder(savedPaths.toolboxPath)
-                rmpath(genpath(savedPaths.toolboxPath));
-            end
-
-            if isfield(savedPaths, 'samplePath') && isfolder(savedPaths.samplePath)
-                rmpath(genpath(savedPaths.samplePath));
-            end
-
-            savepath;
     end
 end
