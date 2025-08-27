@@ -25,9 +25,9 @@ class MMCollisionInt;
 class GasTransport : public Transport
 {
 public:
-    //! Viscosity of the mixture  (kg /m /s)
+    //! Get the viscosity [Pa·s] of the mixture
     /*!
-     * The viscosity is computed using the Wilke mixture rule (kg /m /s)
+     * The viscosity is computed using the Wilke mixture rule:
      *
      * @f[
      *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
@@ -41,13 +41,11 @@ public:
      *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
      * @f]
      *
-     * @returns the viscosity of the mixture (units =  Pa s = kg /m /s)
-     *
      * @see updateViscosity_T()
      */
     double viscosity() override;
 
-    //! Get the pure-species viscosities
+    //! Get the pure-species viscosities [Pa·s]
     void getSpeciesViscosities(double* const visc) override {
         update_T();
         updateViscosity_T();
@@ -56,7 +54,7 @@ public:
 
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
-    //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
+    //! Returns the Mixture-averaged diffusion coefficients [m²/s].
     /*!
      * Returns the mixture averaged diffusion coefficients for a gas,
      * appropriate for calculating the mass averaged diffusive flux with respect
@@ -72,11 +70,11 @@ public:
      * @f]
      *
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
-     *     for each species (m^2/s). length m_nsp
+     *     for each species; length is the number of species.
      */
     void getMixDiffCoeffs(double* const d) override;
 
-    //! Returns the mixture-averaged diffusion coefficients [m^2/s].
+    //! Returns the mixture-averaged diffusion coefficients [m²/s].
     //! These are the coefficients for calculating the molar diffusive fluxes
     //! from the species mole fraction gradients, computed according to
     //! Eq. 12.176 in "Chemically Reacting Flow":
@@ -87,7 +85,7 @@ public:
     //!     each species, length m_nsp.
     void getMixDiffCoeffsMole(double* const d) override;
 
-    //! Returns the mixture-averaged diffusion coefficients [m^2/s].
+    //! Returns the mixture-averaged diffusion coefficients [m²/s].
     /*!
      * These are the coefficients for calculating the diffusive mass fluxes
      * from the species mass fraction gradients, computed according to
@@ -291,7 +289,7 @@ protected:
     //! fractions are >= *Tiny*. Length = m_kk.
     vector<double> m_molefracs;
 
-    //! Internal storage for the viscosity of the mixture  (kg /m /s)
+    //! Internal storage for the viscosity of the mixture [Pa·s]
     double m_viscmix = 0.0;
 
     //! Update boolean for mixture rule for the mixture viscosity
@@ -316,7 +314,7 @@ protected:
     //! work space length = m_kk
     vector<double> m_spwork;
 
-    //! vector of species viscosities (kg /m /s). These are used in Wilke's
+    //! vector of species viscosities [Pa·s]. These are used in Wilke's
     //! rule to calculate the viscosity of the solution. length = m_kk.
     vector<double> m_visc;
 
@@ -343,19 +341,18 @@ protected:
      */
     DenseMatrix m_wratkj1;
 
-    //! vector of square root of species viscosities sqrt(kg /m /s). These are
-    //! used in Wilke's rule to calculate the viscosity of the solution.
-    //! length = m_kk.
+    //! vector of square root of species viscosities. These are used in Wilke's rule to
+    //! calculate the viscosity of the solution. length = m_kk.
     vector<double> m_sqvisc;
 
     //! Powers of the ln temperature, up to fourth order
     vector<double> m_polytempvec;
 
-    //! Current value of the temperature at which the properties in this object
-    //! are calculated (Kelvin).
+    //! Current value of the temperature [K] at which the properties in this object
+    //! are calculated.
     double m_temp = -1.0;
 
-    //! Current value of Boltzmann constant times the temperature (Joules)
+    //! Current value of Boltzmann constant times the temperature [J]
     double m_kbt = 0.0;
 
     //! current value of temperature to 1/2 power
@@ -456,54 +453,44 @@ protected:
      */
     vector<bool> m_polar;
 
-    //! Polarizability of each species in the phase
-    /*!
-     * Length = nsp. Units = m^3
-     */
+    //! Polarizability [m³] of each species in the phase
     vector<double> m_alpha;
 
-    //! Lennard-Jones well-depth of the species in the current phase
+    //! Lennard-Jones well-depth [J] of the species in the current phase
     /*!
-     * length is the number of species in the phase. Units are Joules (Note this
-     * is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
+     * length is the number of species in the phase. Note this is not J/kmol; this is a
+     * per molecule amount.
      */
     vector<double> m_eps;
 
-    //! Lennard-Jones diameter of the species in the current phase
-    /*!
-     * length is the number of species in the phase. units are in meters.
-     */
+    //! Lennard-Jones diameter [m] of the species in the current phase
     vector<double> m_sigma;
 
-    //! This is the reduced mass of the interaction between species i and j
+    //! This is the reduced mass [kg] of the interaction between species i and j
     /*!
      *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-     *
-     *  Units are kg (note, no kmol -> this is a per molecule amount)
      *
      *  Length nsp * nsp. This is a symmetric matrix
      */
     DenseMatrix m_reducedMass;
 
-    //! hard-sphere diameter for (i,j) collision
+    //! hard-sphere diameter [m] for (i,j) collision
     /*!
      *  diam(i,j) = 0.5*(sigma[i] + sigma[j]);
-     *  Units are m (note, no kmol -> this is a per molecule amount)
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_diam;
 
-    //! The effective well depth for (i,j) collisions
+    //! The effective well depth [J] for (i,j) collisions
     /*!
      *     epsilon(i,j) = sqrt(eps[i]*eps[j]);
-     *     Units are Joules (note, no kmol -> this is a per molecule amount)
      *
      * Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_epsilon;
 
-    //! The effective dipole moment for (i,j) collisions
+    //! The effective dipole moment [Coulomb·m] for (i,j) collisions
     /*!
      *  Given `dipoleMoment` in Debye (a Debye is 3.335e-30 C-m):
      *
@@ -524,13 +511,13 @@ protected:
      */
     DenseMatrix m_delta;
 
-    //! Pitzer acentric factor
+    //! Pitzer acentric factor [dimensionless]
     /*!
-     * Length is the number of species in the phase. Dimensionless.
+     * Length is the number of species in the phase.
      */
     vector<double> m_w_ac;
 
-    //! Dispersion coefficient
+    //! Dispersion coefficient normalized by the square of the elementary charge [m^5].
     vector<double> m_disp;
 
     //! Quadrupole polarizability
