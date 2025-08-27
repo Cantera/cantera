@@ -54,21 +54,6 @@ public:
         std::copy(m_visc.begin(), m_visc.end(), visc);
     }
 
-    /**
-     * Computes the matrix of binary diffusion coefficients. Units are m^2/s.
-     *
-     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
-     * species. The matrix is stored in row-major order, so that d[ld*j + i]
-     * contains the binary diffusion coefficient of species i with respect to
-     * species j.
-     *
-     * d[ld*j + i] = m_bdiff(i,j) / p
-     *
-     * @param ld   Inner stride for writing the two dimension diffusion
-     *             coefficients into a one dimensional vector
-     * @param d    Diffusion coefficient matrix (must be at least m_nsp * m_nsp
-     *             in length.
-     */
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
@@ -238,7 +223,7 @@ protected:
     //! Generate polynomial fits to the viscosity @f$ \eta @f$ and conductivity
     //! @f$ \lambda @f$.
     /*!
-     * If CK_mode, then the fits are of the form
+     * If CKMode(), then the fits are of the form
      * @f[
      *      \ln \eta(i) = \sum_{n=0}^3 a_n(i) \, (\ln T)^n
      * @f]
@@ -261,13 +246,13 @@ protected:
 
     //! Generate polynomial fits to the binary diffusion coefficients
     /*!
-     * If CK_mode, then the fits are of the form
+     * If CKMode(), then the fits are of the form
      * @f[
-     *      \ln D(i,j) = \sum_{n=0}^3 c_n(i,j) \, (\ln T)^n
+     *      \ln \mathcal{D}(i,j) = \frac{1}{p} \sum_{n=0}^3 c_n(i,j) \, (\ln T)^n
      * @f]
      * Otherwise the fits are of the form
      * @f[
-     *      D(i,j) = T^{3/2} \sum_{n=0}^4 c_n(i,j) \, (\ln T)^n
+     *      \mathcal{D}(i,j) = \frac{T^{3/2}}{p} \sum_{n=0}^4 c_n(i,j) \, (\ln T)^n
      * @f]
      *
      * @param integrals interpolator for the collision integrals
