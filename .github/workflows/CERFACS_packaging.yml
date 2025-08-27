@@ -1,0 +1,381 @@
+name: Build Python Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      incoming_ref:
+        description: >
+          The ref from cerfacs/cantera-avbp to be built. Can be a tag, commit hash,
+          or branch name.
+        required: true
+        default: "dev_cantera-avbp"
+      upload:
+        description: Attempt to upload to PyPI
+        required: true
+        default: "false"
+      build_linux:
+        description: "Build wheels on Linux"
+        required: true
+        default: "false"
+      build_windows:
+        description: "Build wheels on Windows"
+        required: true
+        default: "false"
+      build_macos:
+        description: "Build wheels on MacOS"
+        required: true
+        default: "false"
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.event.inputs.incoming_ref}}
+  cancel-in-progress: true
+
+env:
+  CIBW_BUILD_FRONTEND: build
+  CIBW_TEST_EXTRAS: pandas,units
+  CIBW_TEST_REQUIRES: pytest
+  ACTION_URL: "https://github.com/cerfacs/cantera-avbp/actions/runs/${{ github.run_id }}"
+  REPO_API_URL: "https://api.github.com/repos/cerfacs/cantera-avbp/tarball/${{ github.event.inputs.incoming_ref }}"
+
+
+jobs:
+  dump:
+    name: Dump the input parameters for the workflow
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Dump Event Payload
+        run: jq . "$GITHUB_EVENT_PATH"
+      - name: Echo the input variables
+        run: |
+          echo "${{ github.event.inputs.incoming_ref }}"
+          echo "${{ github.event.inputs.upload }}"
+  post-pending-status:
+    name: Post a pending workflow status to cerfacs/cantera-avbp
+    runs-on: ubuntu-22.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      incoming-sha: ${{ steps.get-incoming-sha.outputs.incoming-sha }}
+      tag-ref: ${{ steps.munge-incoming-ref.outputs.tag-ref }}
+    steps:
+      - uses: actions/setup-python@v5
+        # if: ${{ !env.ACT }}    # Si act est utilisé (workflow local) on ne fait pas l'install de python  
+        with:
+          python-version: '3.10'
+      - name: Munge the incoming ref
+        id: munge-incoming-ref
+        run: |
+          import os
+          import re
+          from pathlib import Path
+          INCOMING_REF = "${{ github.event.inputs.incoming_ref }}"
+          INCOMING_SHA = ""
+          if INCOMING_REF.startswith("refs/"):
+              INCOMING_REF = INCOMING_REF.replace("refs/", "")
+          elif re.match(r"^v\d\.\d\.\d.*$", INCOMING_REF) is not None:
+              INCOMING_REF = f"tags/{INCOMING_REF}"
+          elif re.match(r"^[a-f0-9]{6,40}", INCOMING_REF) is not None:
+              INCOMING_SHA = INCOMING_REF
+          else:
+              INCOMING_REF = f"heads/{INCOMING_REF}"
+          TAG_REF = "false"
+          if INCOMING_REF.startswith("tags"):
+              TAG_REF = "true"
+          Path(os.environ["GITHUB_ENV"]).write_text(
+              f"INCOMING_REF={INCOMING_REF}\n"
+              f"TAG_REF={TAG_REF}\n"
+              f"INCOMING_SHA={INCOMING_SHA}"
+          )
+          Path(os.environ["GITHUB_OUTPUT"]).write_text(
+              f"tag-ref={TAG_REF}"
+          )
+        shell: python
+      - name: Get the SHA associated with the incoming ref
+        id: get-incoming-sha
+        run: |
+          if [[ "${INCOMING_SHA}" == "" ]]; then
+            INCOMING_SHA=$(gh api repos/cerfacs/cantera-avbp/git/matching-refs/${INCOMING_REF} \
+              -H "Accept: application/vnd.github.v3+json" --jq ".[0].object.sha")
+            echo "INCOMING_SHA=${INCOMING_SHA}" >> $GITHUB_ENV
+          fi
+          # This needs to be in this step to be output to other jobs.
+          echo "incoming-sha=${INCOMING_SHA}" >> $GITHUB_OUTPUT
+      - name: Post the status to the upstream commit
+        id: set-the-status
+        if: env.TAG_REF == 'false'
+        run: |
+          gh api repos/cerfacs/cantera-avbp/statuses/${INCOMING_SHA} \
+            -H "Accept: application/vnd.github.v3+json" \
+            --field state='pending' \
+            --field target_url=$ACTION_URL \
+            --field context='PyPI Package Build' \
+            --field description="Pending build" \
+            --silent
+  sdist:
+    name: Build the sdist
+    runs-on: ubuntu-22.04
+    needs:
+      - "post-pending-status"
+    outputs:
+      job-status: ${{ job.status }}
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libboost-dev
+      - uses: actions/checkout@v4
+        name: Checkout the repository
+        with:
+          repository: "cerfacs/cantera-avbp"
+          submodules: recursive
+          ref: ${{ github.event.inputs.incoming_ref }}
+      - name: Set Up Python 3.12
+        uses: actions/setup-python@v5
+        if: ${{ !env.ACT }}    # Si act est utilisé (workflow local) on ne fait pas l'install de python 
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python3 -m pip install -U pip scons build
+      - name: Build the sdist
+        run: |
+          python3 `which scons` sdist f90_interface=n python_package='none' \
+          system_blas_lapack=n system_sundials=n system_eigen=n system_fmt=n \
+          system_yamlcpp=n googletest=none env_vars='CYTHON_FORCE_REGEN'
+        env:
+          CYTHON_FORCE_REGEN: "1"
+      - name: Archive the built sdist
+        uses: actions/upload-artifact@v4
+        if: ${{ !env.ACT }} 
+        with:
+          path: ./build/python_sdist/dist/*.tar.gz
+          name: cibw-sdist
+          if-no-files-found: error
+      # Copied from https://github.com/hynek/build-and-inspect-python-package/
+      - name: Show SDist contents hierarchically, including metadata.
+        shell: bash
+        run: |
+          mkdir -p /tmp/out/sdist
+          cp build/python_sdist/dist/*.tar.gz /tmp/
+          cd /tmp
+          tar xf *.tar.gz -C out/sdist
+          echo -e '\n<details><summary>SDist contents</summary>\n' >> $GITHUB_STEP_SUMMARY
+          (cd /tmp/out/sdist && tree -Da --timefmt="%Y-%m-%dT%H:%M:%SZ" * | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY)
+          echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
+          echo ----- Metadata Follows -----
+          echo -e '\n<details><summary>Metadata</summary>\n' >> $GITHUB_STEP_SUMMARY
+          cat out/sdist/*/PKG-INFO | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY
+          echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
+          echo ----- End of Metadata  -----
+            
+  linux-wheel: 
+    if: ${{ github.event.inputs.build_linux == 'true' }}
+    # run only if "build_linux" is true:
+    name: Build ${{ matrix.libc }}linux_${{ matrix.arch }} for py${{ matrix.py }}
+    runs-on: ubuntu-20.04
+    needs: ["sdist", "post-pending-status"]
+    outputs:
+      job-status: ${{ job.status }}
+    strategy:
+      matrix:
+        py: ["38", "39", "310", "311"]
+        arch: ["x86_64","i686"]
+        libc: ["many", "musl"]
+        include:
+         - py: "311"
+           arch: "aarch64"
+           libc: "many"
+         - py: "311"
+           arch: "ppc64le"
+           libc: "many"
+         - py: "311"
+           arch: "s390x"
+           libc: "many"
+         - py: "310"
+           arch: "aarch64"
+           libc: "many"
+         - py: "310"
+           arch: "ppc64le"
+           libc: "many"
+         - py: "310"
+           arch: "s390x"
+           libc: "many"
+         - py: "39"
+           arch: "aarch64"
+           libc: "many"
+         - py: "38"
+           arch: "aarch64"
+           libc: "many"
+      fail-fast: true
+    env:
+      BOOST_INCLUDE: include
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TARBALL_DL: ${{ secrets.GH_TARBALL_DL }}
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libboost-dev tree -y
+      - name: Download pre-built sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-sdist
+      - name: Extract the sdist tarball
+        run: tar -xvf *.tar.gz --strip-components=1
+      - name: Restore Boost cache
+        uses: actions/cache@v3
+        id: cache-boost
+        with:
+          path: ${{ env.BOOST_INCLUDE }}/boost
+          key: boost-${{env.BOOST_URL}}
+      - name: Install Boost Headers
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $BOOST_INCLUDE
+          curl --progress-bar --location --output $BOOST_INCLUDE/download.7z $BOOST_URL
+          7z -o$BOOST_INCLUDE x $BOOST_INCLUDE/download.7z -y -bd boost_1_78_0/boost
+          mv $BOOST_INCLUDE/boost_1_78_0/boost $BOOST_INCLUDE/boost
+          rm $BOOST_INCLUDE/download.7z
+          rm -r $BOOST_INCLUDE/boost_1_78_0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+        
+        env:
+          CIBW_ENVIRONMENT: BOOST_INCLUDE=${{ env.BOOST_INCLUDE }} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
+          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.libc }}linux*
+          CIBW_ARCHS: ${{ matrix.arch }}
+          # CIBW_ENVIRONMENT_PASS_LINUX: CFLAGS
+          # CIBW_MANYLINUX_I686_IMAGE: 
+          # CIBW_BEFORE_ALL_LINUX: yum groupinstall 'Development Tools' -y && which gcc && gcc --version
+            # yum-config-manager --enable rhel-server-rhscl-7-rpms \
+            # && yum-config-manager --add-repo=https://copr.fedoraproject.org/coprs/rhscl/centos-release-scl/repo/epel-6/rhscl-centos-release-scl-epel-6.repo \
+            # && yum-config-manager --add-repo=https://copr.fedoraproject.org/coprs/rhscl/centos-release-scl/repo/epel-7/rhscl-centos-release-scl-epel-7.repo \
+            # && yum install centos-release-scl          
+          # cibuildwheel on Linux uses a Docker container to run the build, so
+          # runner.temp is not available. cibuildwheel also uses the /tmp folder, so
+          # we should be pretty safe to also use that.
+          CIBW_TEST_COMMAND: pytest -vv --durations=100 /tmp/test/python
+          CIBW_BEFORE_TEST: |
+            curl -sL -H "Authorization: token $GH_TARBALL_DL" -o /tmp/cantera.tar.gz $REPO_API_URL \
+            && tar -xzf /tmp/cantera.tar.gz --strip-components=1 -C /tmp "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
+          # curl -sL "https://github.com/joebarteam11/cantera-avbp-3.0.0/archive/${{ needs.post-pending-status.outputs.incoming-sha }}.tar.gz" -o /tmp/cantera-avbp.tar.gz \
+          # && tar -xzf /tmp/cantera-avbp.tar.gz --strip-components=1 -C /tmp "cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
+          # curl - 
+          # NumPy is generally not available for these platforms so testing takes a
+          # while. This just skips the tests on these
+          # combinations, the wheels are still built and uploaded.
+          CIBW_TEST_SKIP: "*-manylinux_{i686,ppc64le,s390x} *musl*"
+
+      - name: Archive the built wheels
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+          name: wheels
+
+  windows-wheel:
+    if: ${{ github.event.inputs.build_windows == 'true' }}
+    name: Build Windows Wheels for py${{ matrix.py }}
+    runs-on: windows-2019
+    needs: ["sdist", "post-pending-status"]
+    outputs:
+      job-status: ${{ job.status }}
+    strategy:
+      matrix:
+        py: ["311"] #"38", "39", "310", 
+        arch: ["AMD64"] # , "x86"]
+      fail-fast: true
+    env:
+      BOOST_ROOT: ${{ github.workspace }}/3rdparty/boost
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+    steps:
+      - name: Download pre-built sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-sdist
+      - name: Extract the sdist tarball
+        run: tar -xvf *.tar.gz --strip-components=1
+        shell: bash
+      - name: Restore Boost cache
+        uses: actions/cache@v3
+        id: cache-boost
+        with:
+          path: ${{env.BOOST_ROOT}}
+          key: boost-${{env.BOOST_URL}}
+      - name: Install Boost Headers
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+          mkdir -p $BOOST_ROOT
+          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
+          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
+          rm $BOOST_ROOT/download.7z
+        shell: bash
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.19.1
+        env:
+          CIBW_ENVIRONMENT: BOOST_INCLUDE=${BOOST_ROOT} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_BUILD: cp${{ matrix.py }}-*
+          CIBW_TEST_COMMAND: pytest -vv --durations=100 ${{ runner.temp }}/test/python
+          CIBW_BEFORE_TEST: |
+            curl -sL -H "Authorization: token $GH_TARBALL_DL" -o ${{ runner.temp }}/cantera.tar.gz $REPO_API_URL \
+            && tar -xzf ${{ runner.temp }}/cantera.tar.gz --strip-components=1 -C ${{ runner.temp }} "joebarteam11-cantera-avbp-3.0.0-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
+      - name: Archive the built wheels
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+          name: cibw-wheels-windows-${{ strategy.job-index }}
+
+  macos-wheel:
+    if: ${{ github.event.inputs.build_macos == 'true' }}
+    name: Build ${{ matrix.arch }} macOS Wheels for py${{ matrix.py }}
+    runs-on: macos-11
+    needs: ["sdist", "post-pending-status"]
+    outputs:
+      job-status: ${{ job.status }}
+    strategy:
+      matrix:
+        py: ["39"]
+        arch: ["arm64"]
+        deployment_target: ["11.0"]
+        # include:
+        #   - py: "38"
+        #     deployment_target: "10.15"
+        #     arch: "x86_64"
+        #   - py: "38"
+        #     deployment_target: "10.15"
+        #     arch: "arm64"
+      fail-fast: true
+    env:
+      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
+    steps:
+      - name: Download pre-built sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-sdist
+      - name: Extract the sdist tarball
+        run: tar -xvf *.tar.gz --strip-components=1
+      - name: Install Brew dependencies
+        run: brew install boost
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+        env:
+          CIBW_ENVIRONMENT: BOOST_INCLUDE="$(brew --prefix)/include" RUNNER_TEMP=${{ runner.temp }} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
+          CIBW_BUILD: cp${{ matrix.py }}-*
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
+          # Testing won't be available for macOS ARM until native ARM runners are available.
+          CIBW_TEST_SKIP: "*-macosx_arm64"
+          CIBW_TEST_COMMAND: pytest -vv --durations=100 ${RUNNER_TEMP}/test/python
+          CIBW_BEFORE_TEST: |
+            curl -sL -H "Authorization: token $GH_TARBALL_DL" -o ${{ runner.temp }}/cantera.tar.gz $REPO_API_URL \
+            && tar -xzf ${{ runner.temp }}/cantera.tar.gz --strip-components=1 -C ${{ runner.temp }} "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
+      - name: Archive the built wheels
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+          name: wheels
