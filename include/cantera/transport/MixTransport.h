@@ -154,16 +154,18 @@ public:
      *     \vec{j}_k = -n M_k D_k \nabla X_k.
      * @f]
      *
-     * @param ndim      Number of dimensions in the flux expressions
-     * @param grad_T    Gradient of the temperature (length = ndim)
-     * @param ldx       Leading dimension of the grad_X array
-     *                  (usually equal to m_nsp but not always)
-     * @param grad_X    Gradients of the mole fraction. Flat vector with the
-     *                  m_nsp in the inner loop. length = ldx * ndim
-     * @param ldf       Leading dimension of the fluxes array
-     *                  (usually equal to m_nsp but not always)
-     * @param fluxes    Output of the diffusive mass fluxes. Flat vector with
-     *                  the m_nsp in the inner loop. length = ldx * ndim
+     * @param ndim  Number of dimensions in the flux expressions
+     * @param[in] grad_T  Gradient of the temperature (length `ndim`)
+     * @param ldx  Leading dimension of the `grad_X` array (usually equal to the number
+     *     of species)
+     * @param[in] grad_X  Gradients of the mole fractions; flattened matrix such that
+     *     @f$ dX_k/dx_n = \tt{ grad\_X[n*ldx+k]} @f$ is the gradient of species *k*
+     *     in dimension *n*. Length is `ldx` * `ndim`.
+     * @param ldf  Leading dimension of the `fluxes` array (usually equal to the number
+     *     of species)
+     * @param[out] fluxes  The diffusive mass fluxes; flattened matrix such that
+     *     @f$ j_{kn} = \tt{ fluxes[n*ldf+k]} @f$ is the flux of species *k*
+     *     in dimension *n*. Length is `ldf` * `ndim`.
      */
     void getSpeciesFluxes(size_t ndim, const double* const grad_T,
                           size_t ldx, const double* const grad_X,
