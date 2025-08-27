@@ -53,7 +53,7 @@ jobs:
     name: Post a pending workflow status to cerfacs/cantera-avbp
     runs-on: ubuntu-22.04
     env:
-      GH_TOKEN: ${{ secrets.GHT }}
+      GH_TOKEN: ${{ secrets.PAT }}
     outputs:
       incoming-sha: ${{ steps.get-incoming-sha.outputs.incoming-sha }}
       tag-ref: ${{ steps.munge-incoming-ref.outputs.tag-ref }}
@@ -209,7 +209,7 @@ jobs:
     env:
       BOOST_INCLUDE: include
       BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
-      GH_TOKEN: ${{ secrets.GHT }}
+      GH_TOKEN: ${{ secrets.PAT }}
       GH_TARBALL_DL: ${{ secrets.GH_TARBALL_DL }}
     steps:
       - name: Install dependencies
