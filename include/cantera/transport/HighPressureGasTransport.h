@@ -34,17 +34,15 @@ public:
      * Computes the matrix of binary diffusion coefficients using the Takahashi
      * correction factor. Units are m^2/s.
      *
-     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
-     * species. The matrix is stored in row-major order, so that d[ld*j + i]
-     * contains the binary diffusion coefficient of species i with respect to
-     * species j.
-     *
      * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
      *
-     * @param ld  Inner stride for writing the two dimension diffusion
-     *            coefficients into a one dimensional vector
-     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
-     *            in length.
+     * @param[in] ld  Leading dimension of the flattened array `d` used to store the
+     *                diffusion coefficient matrix; usually equal to the number of
+     *                species.
+     * @param[out] d  Diffusion coefficient matrix stored in column-major (Fortran)
+     *                order, such that @f$ \mathcal{D}_{ij} = \tt{d[ld*j + i]} @f$; must
+     *                be at least `ld` times the number of species in length.
+     * @see GasTransport::fitDiffCoeffs()
      */
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 

@@ -275,11 +275,12 @@ public:
 
     //! Returns the matrix of binary diffusion coefficients [m²/s].
     /*!
-     * @param[in] ld   Inner stride for writing the two dimension diffusion
-     *                 coefficients into a one dimensional vector
-     * @param[out] d  Diffusion coefficient matrix stored in row-major order, such that
-     *                @f$ \mathcal{D}_{ij} = \tt{d[ld*j + i]} @f$; must be at least
-     *                `ld` times the number of species in length.
+     * @param[in] ld  Leading dimension of the flattened array `d` used to store the
+     *                diffusion coefficient matrix; usually equal to the number of
+     *                species.
+     * @param[out] d  Diffusion coefficient matrix stored in column-major (Fortran)
+     *                order, such that @f$ \mathcal{D}_{ij} = \tt{d[ld*j + i]} @f$; must
+     *                be at least `ld` times the number of species in length.
      * @see GasTransport::fitDiffCoeffs()
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, double* const d) {
@@ -293,11 +294,14 @@ public:
      * model, then this method returns the array of multicomponent
      * diffusion coefficients. Otherwise it throws an exception.
      *
-     * @param[in] ld  The dimension of the inner loop of d (usually equal to m_nsp)
-     * @param[out] d  flat vector of diffusion coefficients, fortran ordering.
-     *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
-     *            coefficient for species i due to concentration gradients in
-     *            species j). Units: m^2/s
+     * @param[in] ld  Leading dimension of the flattened array `d` used to store the
+     *                diffusion coefficient matrix; usually equal to the number of
+     *                species.
+     * @param[out] d  Diffusion coefficient matrix stored in column-major (Fortran)
+     *                order, such that @f$ D_{ij} = \tt{d[ld*j + i]} @f$ is the
+     *                diffusion coefficient for species *i* due to concentration
+     *                gradients in species *j*; must be at least `ld` times the number
+     *                of species in length.
      */
     virtual void getMultiDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getMultiDiffCoeffs",
