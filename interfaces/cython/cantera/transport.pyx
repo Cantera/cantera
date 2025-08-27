@@ -298,8 +298,8 @@ cdef class Transport(_SolutionBase):
 
     def get_binary_diff_coeffs_polynomial(self, i, j):
         """
-        Get the coefficients of the polynomial fit of the binary diffusion coefficient
-        for species ``i`` and ``j`` as a function of temperature. See
+        Get the coefficients of the temperature-dependent polynomial used as part of the
+        fit for the binary diffusion coefficient for species ``i`` and ``j``. See
         :ct:`GasTransport::fitDiffCoeffs` for the functional form.
         """
         n_values = 4 if self.transport.CKMode() else 5

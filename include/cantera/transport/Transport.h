@@ -273,12 +273,14 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns the matrix of binary diffusion coefficients [m^2/s].
+    //! Returns the matrix of binary diffusion coefficients [m²/s].
     /*!
      * @param[in] ld   Inner stride for writing the two dimension diffusion
      *                 coefficients into a one dimensional vector
-     * @param[out] d   Diffusion coefficient matrix (must be at least m_k * m_k
-     *                 in length.
+     * @param[out] d  Diffusion coefficient matrix stored in row-major order, such that
+     *                @f$ \mathcal{D}_{ij} = \tt{d[ld*j + i]} @f$; must be at least
+     *                `ld` times the number of species in length.
+     * @see GasTransport::fitDiffCoeffs()
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getBinaryDiffCoeffs",
