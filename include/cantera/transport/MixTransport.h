@@ -46,9 +46,9 @@ namespace Cantera
  *     j_T =  - \lambda  \nabla T
  * @f]
  *
- * The flux of energy has units of energy (kg m2 /s2) per second per area.
+ * The flux of energy has units of energy per second per area [W/m²].
  *
- * The units of lambda are W / m K which is equivalent to kg m / s^3 K.
+ * The units of @f$ \lambda @f$ are W/m/K which is equivalent to kg·m/s³/K.
  * @ingroup tranprops
  */
 class MixTransport : public GasTransport
@@ -61,7 +61,7 @@ public:
         return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "mixture-averaged";
     }
 
-    //! Return the thermal diffusion coefficients
+    //! Return the thermal diffusion coefficients [kg/m/s]
     /*!
      * Model by S. Chapman and T.G. Cowling @cite chapman1970.
      * For more information about this implementation and its validation,
@@ -87,11 +87,11 @@ public:
      * This ensures that the sum of all thermodiffusion coefficients
      * and thus the sum of all thermodiffusion fluxes are zero.
      *
-     * @param[out] dt  Vector of thermal diffusion coefficients. Units = kg/m/s
+     * @param[out] dt  Vector of thermal diffusion coefficients
      */
     void getThermalDiffCoeffs(double* const dt) override;
 
-    //! Returns the mixture thermal conductivity (W/m /K)
+    //! Returns the mixture thermal conductivity [W/m/K]
     /*!
      * The thermal conductivity is computed from the following mixture rule:
      * @f[
@@ -103,16 +103,10 @@ public:
      * @f[
      *     j_T =  - \lambda  \nabla T
      * @f]
-     *
-     * The flux of energy has units of energy (kg m2 /s2) per second per area.
-     *
-     * The units of lambda are W / m K which is equivalent to kg m / s^3 K.
-     *
-     * @returns the mixture thermal conductivity, with units of W/m/K
      */
     double thermalConductivity() override;
 
-    //! Get the Electrical mobilities (m^2/V/s).
+    //! Get the electrical mobilities [m²/V/s]
     /*!
      * This function returns the mobilities. In some formulations this is equal
      * to the normal mobility multiplied by Faraday's constant.
@@ -144,11 +138,9 @@ public:
      */
     void update_C() override;
 
-    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction and temperature
+    //! Get the species diffusive mass fluxes [kg/m²/s] with respect to the mass
+    //! averaged velocity, given the gradients in mole fraction and temperature.
     /*!
-     * Units for the returned fluxes are kg m-2 s-1.
-     *
      * The diffusive mass flux of species @e k is computed from
      * @f[
      *     \vec{j}_k = -n M_k D_k \nabla X_k.
@@ -182,17 +174,14 @@ protected:
      */
     void updateCond_T();
 
-    //! vector of species thermal conductivities (W/m /K)
+    //! vector of species thermal conductivities [W/m/K]
     /*!
      * These are used in Wilke's rule to calculate the viscosity of the
-     * solution. units = W /m /K = kg m /s^3 /K. length = m_kk.
+     * solution. length = m_kk.
      */
     vector<double> m_cond;
 
-    //! Internal storage for the calculated mixture thermal conductivity
-    /*!
-     *  Units = W /m /K
-     */
+    //! Internal storage for the calculated mixture thermal conductivity [W/m/K]
     double m_lambda = 0.0;
 
     //! Update boolean for the species thermal conductivities

@@ -32,7 +32,7 @@ public:
     }
 
     //! Returns the unity Lewis number approximation based diffusion
-    //! coefficients [m^2/s].
+    //! coefficients [m²/s].
     /*!
      * Returns the unity Lewis number approximation based diffusion coefficients
      * for a gas, appropriate for calculating the mass averaged diffusive flux
@@ -50,8 +50,7 @@ public:
      *     V_c = \sum \frac{W_k}{\overline{W}} D^\prime_{km} \nabla X_k
      * @f]
      *
-     * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
-     * length m_nsp.
+     * @param[out] d  Vector of diffusion coefficients for each species. length m_nsp.
      */
     void getMixDiffCoeffs(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
@@ -62,7 +61,7 @@ public:
 
     //! Thermal diffusion is not enabled in the unity Lewis number model.
     /*!
-     * @param[out] dt  Thermal diffusion coefficients all set to zero (kg/m/s).
+     * @param[out] dt  Thermal diffusion coefficients all set to zero.
      */
     void getThermalDiffCoeffs(double* const dt) override {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -76,7 +75,7 @@ public:
     }
 
     //! Returns the unity Lewis number approximation based diffusion
-    //! coefficients [m^2/s].
+    //! coefficients [m²/s].
     /*!
      * These are the coefficients for calculating the diffusive mass fluxes
      * from the species mass fraction gradients, computed as
@@ -85,8 +84,7 @@ public:
      *     D_{km} = \frac{\lambda}{\rho c_p}
      * @f]
      *
-     * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
-     * length m_nsp.
+     * @param[out] d  Vector of diffusion coefficients for each species; length m_nsp.
      */
     void getMixDiffCoeffsMass(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());

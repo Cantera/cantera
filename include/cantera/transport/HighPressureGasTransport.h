@@ -31,8 +31,8 @@ protected:
 
 public:
     /**
-     * Computes the matrix of binary diffusion coefficients using the Takahashi
-     * correction factor. Units are m^2/s.
+     * Computes the matrix of binary diffusion coefficients [m²/s] using the Takahashi
+     * correction factor.
      *
      * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
      *
@@ -47,19 +47,19 @@ public:
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
     /**
-     * Returns the mixture-averaged diffusion coefficients [m^2/s].
+     * Returns the mixture-averaged diffusion coefficients [m²/s].
      *
      * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
      * that the binary diffusion coefficients are multiplied by the Takahashi correction
      * factor, which is described in takahashiCorrectionFactor() .
      *
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
-     *                for each species (m^2/s). length m_nsp
+     *                for each species. length m_nsp
      */
     void getMixDiffCoeffs(double* const d) override;
 
     /**
-     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *  Returns the mixture-averaged diffusion coefficients [m²/s].
      *
      * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
      * that the binary diffusion coefficients are multiplied by the Takahashi correction
@@ -71,7 +71,7 @@ public:
     void getMixDiffCoeffsMole(double* const d) override;
 
     /**
-     * Returns the mixture-averaged diffusion coefficients [m^2/s].
+     * Returns the mixture-averaged diffusion coefficients [m²/s].
      *
      * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
      * that the binary diffusion coefficients are multiplied by the Takahashi correction
@@ -130,7 +130,7 @@ protected:
 
     vector<double> m_Tcrit; //!< Critical temperature [K] of each species
     vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
-    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
+    vector<double> m_Vcrit; //!< Critical volume [m³/kmol] of each species
     vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
 
     //! Matrix of Takahashi binary diffusion coefficient corrections. Size is nsp x nsp.
@@ -163,7 +163,7 @@ public:
     void init(ThermoPhase* thermo, int mode=0) override;
 
     /**
-     * Returns the mixture high-pressure thermal conductivity in W/m/K
+     * Returns the mixture high-pressure thermal conductivity [W/m/K]
      * using a method of corresponding states by Ely and Hanley.
      *
      * This method for computing the thermal conductivity is described in
@@ -359,7 +359,7 @@ public:
     double thermalConductivity() override;
 
      /**
-     * Returns the mixture high-pressure viscosity in Pa*s using the Lucas method.
+     * Returns the mixture high-pressure viscosity [Pa·s] using the Lucas method.
      *
      * This uses the approach described in chapter 9-7. In this method, the mixture
      * viscosity at high pressure is computed using the pure-fluid high pressure
@@ -379,8 +379,7 @@ public:
 protected:
 
     /**
-     * Returns the viscosity of a pure species using the method of Ely and Hanley.
-     * Units are Pa*s
+     * Get the viscosity [Pa·s] of a pure species using the method of Ely and Hanley.
      *
      * Uses the method outlined in @cite ely-hanley1981 to compute the viscosity of a
      * pure species.
@@ -531,8 +530,7 @@ protected:
     double phiShapeFactor(double Tr, double Vr, double Zc, double acentric_factor);
 
     /**
-     * Returns the viscosity of for the reference fluid of methane for low pressures.
-     * Units are Pa*s
+     * Returns the viscosity [Pa·s] for the reference fluid (methane) for low pressures.
      *
      * Computes the temperature dependent (referred to as the dilute viscosity in the
      * reference) component only (eta_0) from the expression in Table III in
@@ -544,8 +542,7 @@ protected:
     double elyHanleyDiluteReferenceViscosity(double T0);
 
     /**
-     * Returns the thermal conductivity of for the reference fluid of methane
-     * in units of W/m/K.
+     * Returns the thermal conductivity [W/m/K] of the reference fluid of methane
      *
      * Computes the temperature and density dependent reference fluid thermal
      * conductivity from the expression in Table I in @cite ely-hanley1983 .
@@ -841,7 +838,7 @@ public:
     void init(ThermoPhase* thermo, int mode=0) override;
 
     /**
-     * Returns the high-pressure mixture viscosity in Pa*s using the Chung method.
+     * Returns the high-pressure mixture viscosity [Pa·s] using the Chung method.
      *
      * Based on the high-pressure gas mixture viscosity model of Chung described in
      * chapter 9-7 of Poling. This method uses the pure species high-pressure viscosity
@@ -1056,7 +1053,7 @@ protected:
     void computeMixtureParameters();
 
     /**
-     * Returns the low-pressure mixture viscosity in Pa*s using the Chung method.
+     * Returns the low-pressure mixture viscosity [Pa·s] using the Chung method.
      *
      * @f[
      *   \eta = 26.69 F_c \frac{(MW*T)^(1/2)}{\sigma^2 \Omega}
@@ -1085,7 +1082,7 @@ protected:
                                 double sigma, double kappa);
 
     /**
-     * Returns the high-pressure mixture viscosity in micropoise using the Chung
+     * Returns the high-pressure mixture viscosity [micropoise] using the Chung
      * method.
      *
      * @f[
@@ -1138,8 +1135,8 @@ protected:
      *
      * @param T_star  Reduced temperature [unitless]
      * @param MW  Molecular weight [kg/kmol]
-     * @param rho  Density [mol/cm^3]
-     * @param Vc  Critical volume [cm^3/mol]
+     * @param rho  Density [mol/cm³]
+     * @param Vc  Critical volume [cm³/mol]
      * @param Tc  Critical temperature [K]
      * @param acentric_factor  Acentric factor [unitless]
      * @param mu_r  Dipole moment [Debye]
@@ -1149,8 +1146,7 @@ protected:
         double Tc, double acentric_factor, double mu_r, double kappa);
 
     /**
-     * Computes the high-pressure thermal conductivity using the Chung method in units
-     * of W/m/K
+     * Computes the high-pressure thermal conductivity [W/m/K] using the Chung method.
      *
      * The Chung method for computing high-pressure thermal conductivity is described
      * on page 10.23 of @cite poling2001 .
@@ -1251,9 +1247,9 @@ protected:
      * @param T  Temperature [K]
      * @param T_star  Reduced temperature [unitless]
      * @param MW  Molecular weight [kg/kmol]
-     * @param rho  Density [mol/cm^3]
+     * @param rho  Density [mol/cm³]
      * @param Cv  Specific heat [J/kg/K]
-     * @param Vc  Critical volume [cm^3/mol]
+     * @param Vc  Critical volume [cm³/mol]
      * @param Tc  Critical temperature [K]
      * @param sigma  Lennard-Jones collision diameter [Angstroms]
      * @param acentric_factor  Acentric factor [unitless]
@@ -1287,7 +1283,7 @@ private:
      * conductivity using the Chung method.
      * @{
      */
-    double m_Vc_mix = 0; //!< Mixture critical volume [m^3/kmol]
+    double m_Vc_mix = 0; //!< Mixture critical volume [m³/kmol]
     double m_Tc_mix = 0; //!< Mixture critical temperature [K]
 
     double m_sigma_mix = 0; //!< Effective mixture molecular diameter [Angstroms]

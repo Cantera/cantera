@@ -116,26 +116,22 @@ public:
     //! @name Transport Properties
     //! @{
 
-    /**
-     * The viscosity in Pa-s.
-     */
+    //! Get the dynamic viscosity [Pa·s]
     virtual double viscosity() {
         throw NotImplementedError("Transport::viscosity",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns the pure species viscosities
+    //! Get the pure species viscosities [Pa·s].
     /*!
-     * The units are Pa-s and the length is the number of species
-     *
-     * @param visc   Vector of viscosities
+     * @param visc   Vector of viscosities; length is the number of species
      */
     virtual void getSpeciesViscosities(double* const visc) {
         throw NotImplementedError("Transport::getSpeciesViscosities",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! The bulk viscosity in Pa-s.
+    //! The bulk viscosity [Pa·s].
     /*!
      * The bulk viscosity is only non-zero in rare cases. Most transport
      * managers either overload this method to return zero, or do not implement
@@ -146,24 +142,19 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns the mixture thermal conductivity in W/m/K.
-    /*!
-     * Units are in W / m K  or equivalently kg m / s3 K
-     *
-     * @returns thermal conductivity in W/m/K.
-     */
+    //! Get the mixture thermal conductivity [W/m/K].
     virtual double thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! The electrical conductivity (Siemens/m).
+    //! Get the electrical conductivity [siemens/m].
     virtual double electricalConductivity() {
         throw NotImplementedError("Transport::electricalConductivity",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Get the Electrical mobilities (m^2/V/s).
+    //! Get the electrical mobilities [m²/V/s].
     /*!
      * This function returns the mobilities. In some formulations this is equal
      * to the normal mobility multiplied by Faraday's constant.
@@ -186,11 +177,9 @@ public:
 
     //! @}
 
-    //! Get the species diffusive mass fluxes wrt to the specified solution
-    //! averaged velocity, given the gradients in mole fraction and temperature
+    //! Get the species diffusive mass fluxes [kg/m²/s] with respect to the specified
+    //! solution averaged velocity, given the mole fraction and temperature gradients.
     /*!
-     * Units for the returned fluxes are kg m-2 s-1.
-     *
      * Usually the specified solution average velocity is the mass averaged velocity.
      * This is changed in some subclasses, however.
      *
@@ -214,14 +203,14 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two
+    //! Get the molar fluxes [kmol/m²/s], given the thermodynamic state at two
     //! nearby points.
     /*!
      * @param[in] state1 Array of temperature, density, and mass fractions for
      *               state 1.
      * @param[in] state2 Array of temperature, density, and mass fractions for
      *               state 2.
-     * @param[in] delta  Distance from state 1 to state 2 (m).
+     * @param[in] delta  Distance [m] from state 1 to state 2.
      * @param[out] cfluxes  Array containing the diffusive molar fluxes of species from
      *     `state1` to `state2`; Length is number of species.
      */
@@ -232,14 +221,14 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Get the mass fluxes [kg/m^2/s], given the thermodynamic state at two
+    //! Get the mass fluxes [kg/m²/s], given the thermodynamic state at two
     //! nearby points.
     /*!
      * @param[in] state1 Array of temperature, density, and mass
      *               fractions for state 1.
      * @param[in] state2 Array of temperature, density, and mass fractions for
      *               state 2.
-     * @param[in] delta Distance from state 1 to state 2 (m).
+     * @param[in] delta Distance [m] from state 1 to state 2.
      * @param[out] mfluxes  Array containing the diffusive mass fluxes of species from
      *     `state1` to `state2`; length is number of species.
      */
@@ -250,7 +239,7 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
+    //! Return a vector of thermal diffusion coefficients [kg/m/s].
     /*!
      * The thermal diffusion coefficient @f$ D^T_k @f$ is defined so that the
      * diffusive mass flux of species *k* induced by the local temperature
@@ -262,9 +251,8 @@ public:
      *
      * The thermal diffusion coefficient can be either positive or negative.
      *
-     * @param dt On return, dt will contain the species thermal diffusion
-     *           coefficients.  Dimension dt at least as large as the number of
-     *           species. Units are kg/m/s.
+     * @param dt On return, dt will contain the species thermal diffusion coefficients.
+     *           Dimension dt at least as large as the number of species.
      */
     virtual void getThermalDiffCoeffs(double* const dt) {
         throw NotImplementedError("Transport::getThermalDiffCoeffs",
@@ -286,7 +274,7 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Return the Multicomponent diffusion coefficients. Units: [m^2/s].
+    //! Return the multicomponent diffusion coefficients [m²/s].
     /*!
      * If the transport manager implements a multicomponent diffusion
      * model, then this method returns the array of multicomponent
@@ -306,28 +294,28 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns a vector of mixture averaged diffusion coefficients
+    //! Return a vector of mixture averaged diffusion coefficients [m²/s].
     /**
      * Mixture-averaged diffusion coefficients [m^2/s].  If the transport
      * manager implements a mixture-averaged diffusion model, then this method
      * returns the array of mixture-averaged diffusion coefficients. Otherwise
      * it throws an exception.
      *
-     * @param d  Return vector of mixture averaged diffusion coefficients
-     *           Units = m2/s. Length = n_sp
+     * @param d  Return vector of mixture averaged diffusion coefficients; length is
+     *     the number of species.
      */
     virtual void getMixDiffCoeffs(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffs",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns a vector of mixture averaged diffusion coefficients
+    //! Returns a vector of mixture averaged diffusion coefficients [m²/s].
     virtual void getMixDiffCoeffsMole(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMole",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Returns a vector of mixture averaged diffusion coefficients
+    //! Returns a vector of mixture averaged diffusion coefficients [m²/s].
     virtual void getMixDiffCoeffsMass(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMass",
             "Not implemented for transport model '{}'.", transportModel());

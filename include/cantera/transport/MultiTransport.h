@@ -32,7 +32,7 @@ public:
         return (m_mode == CK_Mode) ? "multicomponent-CK" : "multicomponent";
     }
 
-    //! Return the thermal diffusion coefficients (kg/m/s)
+    //! Return the thermal diffusion coefficients [kg/m/s]
     /*!
      * Eqn. (12.126) of Kee et al. @cite kee2003 displays how they are calculated. The
      * reference work is from Dixon-Lewis @cite dixon-lewis1968.
@@ -40,7 +40,7 @@ public:
      * Eqns. (12.168) of Kee et al. @cite kee2003 shows how they are used in an
      * expression for the species flux.
      *
-     * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
+     * @param dt  Vector of thermal diffusion coefficients.
      */
     void getThermalDiffCoeffs(double* const dt) override;
 
@@ -48,11 +48,9 @@ public:
 
     void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
-    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction and temperature
+    //! Get the species diffusive mass fluxes [kg/m²/s] with respect to the mass
+    //! averaged velocity, given the gradients in mole fraction and temperature
     /*!
-     * Units for the returned fluxes are kg m-2 s-1.
-     *
      * @param ndim  Number of dimensions in the flux expressions
      * @param[in] grad_T  Gradient of the temperature (length `ndim`)
      * @param ldx  Leading dimension of the `grad_X` array (usually equal to the number
@@ -70,7 +68,7 @@ public:
                           size_t ldx, const double* const grad_X,
                           size_t ldf, double* const fluxes) override;
 
-    //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the
+    //! Get the molar diffusional fluxes [kmol/m²/s] of the species, given the
     //! thermodynamic state at two nearby points.
     /*!
      * The molar diffusional fluxes are calculated with reference to the mass
@@ -80,14 +78,14 @@ public:
      *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.
-     * @param delta  Distance from state 1 to state 2 (m).
+     * @param delta  Distance from state 1 to state 2 [m].
      * @param fluxes Array containing the diffusive molar fluxes of species from
      *     `state1` to `state2`; Length is number of species.
      */
     void getMolarFluxes(const double* const state1, const double* const state2,
                         const double delta, double* const fluxes) override;
 
-    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
+    //! Get the mass diffusional fluxes [kg/m²/s] of the species, given the
     //! thermodynamic state at two nearby points.
     /*!
      * The specific diffusional fluxes are calculated with reference to the
@@ -97,7 +95,7 @@ public:
      *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.
-     * @param delta  Distance from state 1 to state 2 (m).
+     * @param delta  Distance from state 1 to state 2 [m].
      * @param fluxes Array containing the diffusive mass fluxes of species from
      *     `state1` to `state2`; length is number of species.
      */

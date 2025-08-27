@@ -42,12 +42,12 @@ public:
 
     void init(ThermoPhase* thermo, int mode) override;
 
-    //! Viscosity of the mixture  (kg/m/s).
-    //! Only Neutral species contribute to Viscosity.
+    //! Viscosity [Pa·s] of the mixture.
+    //! Only neutral species contribute to viscosity.
     double viscosity() override;
 
-    //! Returns the mixture thermal conductivity (W/m/K).
-    //! Only Neutral species contribute to thermal conductivity.
+    //! Returns the mixture thermal conductivity [W/m/K].
+    //! Only neutral species contribute to thermal conductivity.
     double thermalConductivity() override;
 
     //! The mobilities for ions in gas.
@@ -59,7 +59,7 @@ public:
     void getMixDiffCoeffs(double* const d) override;
 
     /**
-     * The electrical conductivity (Siemens/m).
+     * The electrical conductivity [siemens/m].
      * @f[
      *     \sigma = \sum_k{\left|C_k\right| \mu_k \frac{X_k P}{k_b T}}
      * @f]

@@ -84,7 +84,7 @@ public:
     //! The permanent dipole moment of the molecule [Coulomb-m]. Default 0.0.
     double dipole = 0.0;
 
-    //! The polarizability of the molecule [m^3]. Default 0.0.
+    //! The polarizability of the molecule [m³]. Default 0.0.
     double polarizability = 0.0;
 
     //! The rotational relaxation number (the number of collisions it takes to
@@ -95,7 +95,7 @@ public:
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor = 0.0;
 
-    //! dispersion normalized by e^2. [m^5] Default 0.0.
+    //! dispersion normalized by the square of the elementary charge. [m⁵] Default 0.0.
     double dispersion_coefficient = 0.0;
 
     //! quadrupole. Default 0.0.
