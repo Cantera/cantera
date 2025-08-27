@@ -73,7 +73,8 @@ public:
      * @param  state2  Array of temperature, density, and mass fractions for state 2.
      * @param  delta   Distance from state 1 to state 2 (m).
      *
-     * @param fluxes   Vector of species molar fluxes due to diffusional driving force
+     * @param fluxes   Vector of species molar fluxes due to diffusional driving force;
+     *     length is the number of species.
      */
     void getMolarFluxes(const double* const state1, const double* const state2,
                         const double delta, double* const fluxes) override;

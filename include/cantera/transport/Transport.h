@@ -191,19 +191,21 @@ public:
     /*!
      * Units for the returned fluxes are kg m-2 s-1.
      *
-     * Usually the specified solution average velocity is the mass averaged
-     * velocity. This is changed in some subclasses, however.
+     * Usually the specified solution average velocity is the mass averaged velocity.
+     * This is changed in some subclasses, however.
      *
-     * @param ndim       Number of dimensions in the flux expressions
-     * @param grad_T     Gradient of the temperature (length = ndim)
-     * @param ldx        Leading dimension of the grad_X array (usually equal to
-     *                   m_nsp but not always)
-     * @param grad_X     Gradients of the mole fraction Flat vector with the
-     *                   m_nsp in the inner loop. length = ldx * ndim
-     * @param ldf        Leading dimension of the fluxes array (usually equal to
-     *                   m_nsp but not always)
-     * @param fluxes     Output of the diffusive mass fluxes. Flat vector with
-     *                   the m_nsp in the inner loop. length = ldx * ndim
+     * @param ndim  Number of dimensions in the flux expressions
+     * @param[in] grad_T  Gradient of the temperature (length `ndim`)
+     * @param ldx  Leading dimension of the `grad_X` array (usually equal to the number
+     *     of species)
+     * @param[in] grad_X  Gradients of the mole fractions; flattened matrix such that
+     *     @f$ dX_k/dx_n = \tt{ grad\_X[n*ldx+k]} @f$ is the gradient of species *k*
+     *     in dimension *n*. Length is `ldx` * `ndim`.
+     * @param ldf  Leading dimension of the `fluxes` array (usually equal to the number
+     *     of species)
+     * @param[out] fluxes  The diffusive mass fluxes; flattened matrix such that
+     *     @f$ j_{kn} = \tt{ fluxes[n*ldf+k]} @f$ is the flux of species *k*
+     *     in dimension *n*. Length is `ldf` * `ndim`.
      */
     virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
                                   size_t ldx, const double* const grad_X,
@@ -220,10 +222,8 @@ public:
      * @param[in] state2 Array of temperature, density, and mass fractions for
      *               state 2.
      * @param[in] delta  Distance from state 1 to state 2 (m).
-     * @param[out] cfluxes Output array containing the diffusive molar fluxes of
-     *               species from state1 to state2. This is a flat vector with
-     *               m_nsp in the inner loop. length = ldx * ndim. Units are
-     *               [kmol/m^2/s].
+     * @param[out] cfluxes  Array containing the diffusive molar fluxes of species from
+     *     `state1` to `state2`; Length is number of species.
      */
     virtual void getMolarFluxes(const double* const state1,
                                 const double* const state2, const double delta,
@@ -240,10 +240,8 @@ public:
      * @param[in] state2 Array of temperature, density, and mass fractions for
      *               state 2.
      * @param[in] delta Distance from state 1 to state 2 (m).
-     * @param[out] mfluxes Output array containing the diffusive mass fluxes of
-     *               species from state1 to state2. This is a flat vector with
-     *               m_nsp in the inner loop. length = ldx * ndim. Units are
-     *               [kg/m^2/s].
+     * @param[out] mfluxes  Array containing the diffusive mass fluxes of species from
+     *     `state1` to `state2`; length is number of species.
      */
     virtual void getMassFluxes(const double* state1,
                                const double* state2, double delta,
