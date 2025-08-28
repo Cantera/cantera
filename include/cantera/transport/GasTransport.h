@@ -27,20 +27,19 @@ class GasTransport : public Transport
 public:
     //! Get the viscosity [Pa·s] of the mixture
     /*!
-     * The viscosity is computed using the Wilke mixture rule:
-     *
+     * The viscosity is computed using the Wilke mixture rule, as given in Poling et al.
+     * @cite poling2001, Eqs. (9-5.13 and 9-5.14):
      * @f[
-     *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+     *     \eta = \sum_k \frac{\eta_k X_k}{\sum_j \Phi_{k,j} X_j}.
      * @f]
      *
-     * Here @f$ \mu_k @f$ is the viscosity of pure species @e k, and
-     *
+     * Here, @f$ \eta_k @f$ is the viscosity of pure species *k* and the weighting
+     * function @f$ \Phi_{k,j} @f$ is:
      * @f[
-     *     \Phi_{k,j} = \frac{\left[1
-     *                  + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-     *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
+     *     \Phi_{k,j} = \frac{ \left[ 1 + \left( \eta_k / \eta_j \right)^{1/2}
+     *                               \left( M_j / M_k \right)^{1/4} \right]^2 }
+     *                      {\left[ 8 \left( 1 + M_k / M_j \right) \right]^{1/2}}
      * @f]
-     *
      * @see updateViscosity_T()
      */
     double viscosity() override;
@@ -66,7 +65,8 @@ public:
      * This is Eqn. 12.180 from "Chemically Reacting Flow"
      *
      * @f[
-     *     D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
+     *     D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }
+     *               {\left( \sum_{j \ne k} \frac{X_j}{\mathcal{D}_{kj}} \right) }^{-1}
      * @f]
      *
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
@@ -157,13 +157,7 @@ protected:
     /**
      * Updates the array of pure species viscosities, and the weighting
      * functions in the viscosity mixture rule. The flag m_visc_ok is set to true.
-     *
-     * The formula for the weighting function is from Poling et al. @cite poling2001,
-     * Eq. (9-5.14):
-     *  @f[
-     *      \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
-     *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
-     *  @f]
+     * @see viscosity()
      */
     virtual void updateViscosity_T();
 
@@ -286,7 +280,7 @@ protected:
     //! @}
 
     //! Vector of species mole fractions. These are processed so that all mole
-    //! fractions are >= *Tiny*. Length = m_kk.
+    //! fractions are >= Tiny. Length = #m_nsp.
     vector<double> m_molefracs;
 
     //! Internal storage for the viscosity of the mixture [Pa·s]
@@ -311,11 +305,11 @@ protected:
     //! m_phi is a Viscosity Weighting Function. size = m_nsp * n_nsp
     DenseMatrix m_phi;
 
-    //! work space length = m_kk
+    //! work space length = #m_nsp
     vector<double> m_spwork;
 
     //! vector of species viscosities [Pa·s]. These are used in Wilke's
-    //! rule to calculate the viscosity of the solution. length = m_kk.
+    //! rule to calculate the viscosity of the solution. length = #m_nsp.
     vector<double> m_visc;
 
     //! Polynomial fits to the viscosity of each species. m_visccoeffs[k] is
@@ -342,7 +336,7 @@ protected:
     DenseMatrix m_wratkj1;
 
     //! vector of square root of species viscosities. These are used in Wilke's rule to
-    //! calculate the viscosity of the solution. length = m_kk.
+    //! calculate the viscosity of the solution. length = #m_nsp.
     vector<double> m_sqvisc;
 
     //! Powers of the ln temperature, up to fourth order
@@ -468,46 +462,51 @@ protected:
 
     //! This is the reduced mass [kg] of the interaction between species i and j
     /*!
-     *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-     *
+     * @f[
+     *     m_{ij} = \frac{M_i M_j}{N_A (M_i + M_j)}
+     * @f]
      *  Length nsp * nsp. This is a symmetric matrix
      */
     DenseMatrix m_reducedMass;
 
     //! hard-sphere diameter [m] for (i,j) collision
     /*!
-     *  diam(i,j) = 0.5*(sigma[i] + sigma[j]);
-     *
+     * @f[
+     *     \sigma_{ij} = \frac{\sigma_i + \sigma_j}{2}
+     * @f]
      *  Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_diam;
 
     //! The effective well depth [J] for (i,j) collisions
     /*!
-     *     epsilon(i,j) = sqrt(eps[i]*eps[j]);
-     *
+     * @f[
+     *     \epsilon_{ij} = \sqrt{\epsilon_i \epsilon_j}
+     * @f]
      * Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_epsilon;
 
     //! The effective dipole moment [Coulomb·m] for (i,j) collisions
     /*!
-     *  Given `dipoleMoment` in Debye (a Debye is 3.335e-30 C-m):
+     * @f[
+     *    \mu_{ij} = \sqrt{\mu_i \mu_j}
+     * @f]
      *
-     *    dipole(i,i) = 1.e-21 / lightSpeed * dipoleMoment;
-     *    dipole(i,j) = sqrt(dipole(i,i) * dipole(j,j));
-     *  (note, no kmol -> this is a per molecule amount)
+     * Dipole moments are conventionally given in Debye. The conversion factor to
+     * Coulomb·m is @f$ 10^{-21} / c \approx 3.335 \times 10^{-30} @f$.
      *
-     *  Length nsp * nsp. This is a symmetric matrix.
+     * Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_dipole;
 
     //! Reduced dipole moment of the interaction between two species
     /*!
-     *  This is the reduced dipole moment of the interaction between two species
-     *       0.5 * dipole(i,j)^2 / (4 * Pi * epsilon_0 * epsilon(i,j) * d^3);
-     *
-     *  Length nsp * nsp .This is a symmetric matrix
+     * @f[
+     *     \tilde{\delta}^*_{ij} =
+     *         \frac{ \mu_{ij}^2 }{ 8 \pi \varepsilon_0 \epsilon_{ij} \sigma_{ij}^3 }
+     * @f]
+     *  Length nsp * nsp. This is a symmetric matrix
      */
     DenseMatrix m_delta;
 
@@ -517,7 +516,7 @@ protected:
      */
     vector<double> m_w_ac;
 
-    //! Dispersion coefficient normalized by the square of the elementary charge [m^5].
+    //! Dispersion coefficient normalized by the square of the elementary charge [m⁵].
     vector<double> m_disp;
 
     //! Quadrupole polarizability

@@ -21,34 +21,15 @@ namespace Cantera
 /*!
  * The model is based on that described in Kee, et al. @cite kee2003.
  *
- * The viscosity is computed using the Wilke mixture rule (kg /m /s)
+ * Specific mixture-averaged formulas are implemented by:
+ * - viscosity()
+ * - thermalConductivity()
+ * - getMixDiffCoeffs()
+ * - getMixDiffCoeffsMole()
+ * - getMixDiffCoeffsMass()
+ * - getThermalDiffCoeffs()
+ * - getMobilities()
  *
- * @f[
- *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
- * @f]
- *
- * Here @f$ \mu_k @f$ is the viscosity of pure species @e k, and
- *
- * @f[
- *     \Phi_{k,j} = \frac{\left[1
- *                  + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
- *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
- * @f]
- *
- * The thermal conductivity is computed from the following mixture rule:
- * @f[
- *     \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
- * @f]
- *
- * It's used to compute the flux of energy due to a thermal gradient
- *
- * @f[
- *     j_T =  - \lambda  \nabla T
- * @f]
- *
- * The flux of energy has units of energy per second per area [W/m²].
- *
- * The units of @f$ \lambda @f$ are W/m/K which is equivalent to kg·m/s³/K.
  * @ingroup tranprops
  */
 class MixTransport : public GasTransport
@@ -73,7 +54,7 @@ public:
      * @f]
      * with
      * @f[
-     *      \Theta_k=\frac{15}{2}\frac{\bar{M}^2}{\rho}\sum_i\left(\frac{1.2C_{ki}^*-1}{D_{ki}}\right)\left(\frac{Y_k\frac{\mu_i}{M_i}a_i-Y_i\frac{\mu_k}{M_k}a_k}{M_k+M_i}\right)
+     *      \Theta_k=\frac{15}{2}\frac{\bar{M}^2}{\rho}\sum_i\left(\frac{1.2C_{ki}^*-1}{D_{ki}}\right)\left(\frac{Y_k\frac{\eta_i}{M_i}a_i-Y_i\frac{\eta_k}{M_k}a_k}{M_k+M_i}\right)
      * @f]
      * where @f$ C_{k,i}^* @f$ is a reduced collision integral and
      * @f[
@@ -101,21 +82,18 @@ public:
      * It's used to compute the flux of energy due to a thermal gradient
      *
      * @f[
-     *     j_T =  - \lambda  \nabla T
+     *     \mathbf{q} =  - \lambda \nabla T
      * @f]
      */
     double thermalConductivity() override;
 
     //! Get the electrical mobilities [m²/V/s]
     /*!
-     * This function returns the mobilities. In some formulations this is equal
-     * to the normal mobility multiplied by Faraday's constant.
-     *
-     * Here, the mobility is calculated from the diffusion coefficient using the
-     * Einstein relation
+     * This function returns the mobilities. Here, the mobility is calculated from the
+     * diffusion coefficient using the Einstein relation:
      *
      * @f[
-     *     \mu^e_k = \frac{F D_k}{R T}
+     *     \mu^e_k = \frac{F D_{km}'}{R T}
      * @f]
      *
      * @param mobil  Returns the mobilities of the species in array @c mobil.
@@ -143,7 +121,7 @@ public:
     /*!
      * The diffusive mass flux of species @e k is computed from
      * @f[
-     *     \vec{j}_k = -n M_k D_k \nabla X_k.
+     *     \mathbf{j}_k = -\rho \frac{M_k}{\overline{M}} D_{km}' \nabla X_k.
      * @f]
      *
      * @param ndim  Number of dimensions in the flux expressions
