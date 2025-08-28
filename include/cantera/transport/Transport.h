@@ -243,10 +243,10 @@ public:
     /*!
      * The thermal diffusion coefficient @f$ D^T_k @f$ is defined so that the
      * diffusive mass flux of species *k* induced by the local temperature
-     * gradient is given by the following formula:
+     * gradient is given by:
      *
      * @f[
-     *     M_k J_k = -D^T_k \nabla \ln T.
+     *     \mathbf{j}_k = -D^T_k \frac{\nabla T}{T}.
      * @f]
      *
      * The thermal diffusion coefficient can be either positive or negative.

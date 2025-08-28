@@ -34,8 +34,6 @@ public:
      * Computes the matrix of binary diffusion coefficients [m²/s] using the Takahashi
      * correction factor.
      *
-     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
-     *
      * @param[in] ld  Leading dimension of the flattened array `d` used to store the
      *                diffusion coefficient matrix; usually equal to the number of
      *                species.
