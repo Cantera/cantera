@@ -21,6 +21,21 @@ using Doxygen. The content used to generate these pages comes from several sourc
 
 This page provides some notes on useful syntax for writing in these various formats.
 
+## Describing Units
+- Docstrings should generally specify the units of input and output quantities.
+- Units should be noted parenthetically, delimited by square brackets, for example
+  "The viscosity [Pa·s] of each species in the mixture".
+- In Doxygen (C++) documentation, describe the units of simple getters/setters in the
+  "brief" documentation that comprises the first line/sentence of the docstring.
+- To produce nicely-formatted HTML documentation while avoiding cumbersome notation for
+  math (especially in Doxygen and reST), prefer direct use of Unicode characters to
+  indicate multiplication (·), exponents (s², m³), and prefixes (μ). Examples:
+  [Pa·s], [m²/s], [kmol/m³], [kg/m²/s].
+- Use SI abbreviations for common units (m, kg, Pa, V, K, and similar) and full names
+  for more specialized units (siemens, poise, coulomb, and similar).
+- Much existing Cantera documentation does not follow this style; do not feel obligated
+  to update the style of existing docs unless you are making significant changes.
+
 ## Useful MyST syntax
 - Linking to a Python class: `[](#ThermoPhase)`
   - This only works if there isn't a Matlab class with the same name!
