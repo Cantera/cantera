@@ -385,7 +385,6 @@ jobs:
             CT_SKIP_SLOW=1 
             REPO_API_URL=${{ env.REPO_API_URL }} 
             GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
-            # HDF5_DIR="$(brew --prefix hdf5)"
             HDF5_ROOT="$(brew --prefix hdf5)"
             HDF5_USE_STATIC_LIBS=ON
           # CIBW_ENVIRONMENT: >
