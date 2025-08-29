@@ -370,11 +370,21 @@ jobs:
       #     cache: pip
       #     cache-dependency-path: requirements.txt
       - name: Install Brew dependencies
-        run: brew install --display-times boost libomp hdf5 doxygen 
+        # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
+        run: |
+          brew install --display-times boost libomp doxygen 
+          brew install hdf5 --build-from-source --force-bottle  
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17.0
         env:
-          CIBW_ENVIRONMENT: BOOST_INCLUDE="$(brew --prefix)/include" RUNNER_TEMP=${{ runner.temp }} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
+          CIBW_ENVIRONMENT: |
+            BOOST_INCLUDE="$(brew --prefix)/include" 
+            RUNNER_TEMP=${{ runner.temp }} 
+            CT_SKIP_SLOW=1 
+            REPO_API_URL=${{ env.REPO_API_URL }} 
+            GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
+            HDF5_ROOT="$(brew --prefix hdf5)"
+            HDF5_STATIC=1
           CIBW_BUILD: cp${{ matrix.python-version }}-*
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           # Testing won't be available for macOS ARM until native ARM runners are available.
