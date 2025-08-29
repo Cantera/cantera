@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict
+import sys
 
 import pytest
-try:
-    pint = pytest.importorskip("pint", "0.17.0")
-except TypeError as e:
-    # The extra exception handling is here because pint is incompatible with
-    # Python 3.13. Once https://github.com/hgrecco/pint/issues/1969 is resolved the
-    # try/except here can be restored to just the importorskip.
-    pytest.skip(f"pint import failed due to {e}", allow_module_level=True)
+
+pint_min_version = "0.24.4" if sys.version_info >= (3, 13) else "0.17.0"
+pint = pytest.importorskip("pint", pint_min_version)
+
 import cantera.with_units as ctu
 import cantera as ct
 try:
