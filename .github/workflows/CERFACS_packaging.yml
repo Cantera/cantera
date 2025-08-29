@@ -334,7 +334,7 @@ jobs:
   macos-wheel:
     if: ${{ github.event.inputs.build_macos == 'true' }}
     name: Build ${{ matrix.arch }} macOS Wheels for py${{ matrix.py }}
-    runs-on: macos-11
+    runs-on: macos-13
     needs: ["sdist", "post-pending-status"]
     outputs:
       job-status: ${{ job.status }}
@@ -342,7 +342,7 @@ jobs:
       matrix:
         py: ["39"]
         arch: ["arm64"]
-        deployment_target: ["11.0"]
+        deployment_target: ["13.0"]
         # include:
         #   - py: "38"
         #     deployment_target: "10.15"
