@@ -82,7 +82,7 @@ public:
     //! @f[  D_{km}^* = \frac{1-X_k}{\sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} @f]
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
-    //!     each species, length m_nsp.
+    //!     each species, length #m_nsp.
     void getMixDiffCoeffsMole(double* const d) override;
 
     //! Returns the mixture-averaged diffusion coefficients [m²/s].
@@ -97,7 +97,7 @@ public:
      * @f]
      *
      * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *     each species, length m_nsp.
+     *     each species, length #m_nsp.
      */
     void getMixDiffCoeffsMass(double* const d) override;
 
@@ -302,7 +302,7 @@ protected:
     //! Any other value means to use %Cantera's preferred fitting functions.
     int m_mode = 0;
 
-    //! m_phi is a Viscosity Weighting Function. size = m_nsp * n_nsp
+    //! m_phi is a Viscosity Weighting Function. size = #m_nsp * #m_nsp
     DenseMatrix m_phi;
 
     //! work space length = #m_nsp
@@ -374,12 +374,12 @@ protected:
     vector<vector<double>> m_diffcoeffs;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
-    //! the current temperature Size is nsp x nsp.
+    //! the current temperature Size is #m_nsp x #m_nsp.
     DenseMatrix m_bdiff;
 
     //! temperature fits of the heat conduction
     /*!
-     *  Dimensions are number of species (nsp) polynomial order of the collision
+     *  Dimensions are number of species (#m_nsp) and polynomial order of the collision
      *  integral fit (degree+1).
      */
     vector<vector<double>> m_condcoeffs;
@@ -443,7 +443,7 @@ protected:
 
     //! Vector of booleans indicating whether a species is a polar molecule
     /*!
-     * Length is nsp
+     * Length is #m_nsp.
      */
     vector<bool> m_polar;
 
@@ -465,7 +465,7 @@ protected:
      * @f[
      *     m_{ij} = \frac{M_i M_j}{N_A (M_i + M_j)}
      * @f]
-     *  Length nsp * nsp. This is a symmetric matrix
+     *  Length #m_nsp * #m_nsp. This is a symmetric matrix
      */
     DenseMatrix m_reducedMass;
 
@@ -474,7 +474,7 @@ protected:
      * @f[
      *     \sigma_{ij} = \frac{\sigma_i + \sigma_j}{2}
      * @f]
-     *  Length nsp * nsp. This is a symmetric matrix.
+     *  Length #m_nsp * #m_nsp. This is a symmetric matrix.
      */
     DenseMatrix m_diam;
 
@@ -483,7 +483,7 @@ protected:
      * @f[
      *     \epsilon_{ij} = \sqrt{\epsilon_i \epsilon_j}
      * @f]
-     * Length nsp * nsp. This is a symmetric matrix.
+     * Length #m_nsp * #m_nsp. This is a symmetric matrix.
      */
     DenseMatrix m_epsilon;
 
@@ -496,7 +496,7 @@ protected:
      * Dipole moments are conventionally given in Debye. The conversion factor to
      * Coulomb·m is @f$ 10^{-21} / c \approx 3.335 \times 10^{-30} @f$.
      *
-     * Length nsp * nsp. This is a symmetric matrix.
+     * Length #m_nsp * #m_nsp. This is a symmetric matrix.
      */
     DenseMatrix m_dipole;
 
@@ -506,7 +506,7 @@ protected:
      *     \tilde{\delta}^*_{ij} =
      *         \frac{ \mu_{ij}^2 }{ 8 \pi \varepsilon_0 \epsilon_{ij} \sigma_{ij}^3 }
      * @f]
-     *  Length nsp * nsp. This is a symmetric matrix
+     *  Length #m_nsp * #m_nsp. This is a symmetric matrix
      */
     DenseMatrix m_delta;
 

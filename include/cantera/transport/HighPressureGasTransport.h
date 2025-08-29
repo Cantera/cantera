@@ -52,7 +52,7 @@ public:
      * factor, which is described in takahashiCorrectionFactor() .
      *
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
-     *                for each species. length m_nsp
+     *                for each species. length #m_nsp.
      */
     void getMixDiffCoeffs(double* const d) override;
 
@@ -64,7 +64,7 @@ public:
      * factor, which is described in takahashiCorrectionFactor() .
      *
      * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
+     *               each species, length #m_nsp.
      */
     void getMixDiffCoeffsMole(double* const d) override;
 
@@ -76,7 +76,7 @@ public:
      * factor, which is described in takahashiCorrectionFactor() .
      *
      * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
+     *               each species, length #m_nsp.
      */
     void getMixDiffCoeffsMass(double* const d) override;
 
@@ -131,7 +131,8 @@ protected:
     vector<double> m_Vcrit; //!< Critical volume [m³/kmol] of each species
     vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
 
-    //! Matrix of Takahashi binary diffusion coefficient corrections. Size is nsp x nsp.
+    //! Matrix of Takahashi binary diffusion coefficient corrections. Size is
+    //! #m_nsp x #m_nsp.
     DenseMatrix m_P_corr_ij;
 
     friend class TransportFactory;

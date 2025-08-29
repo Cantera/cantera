@@ -50,7 +50,7 @@ public:
      *     V_c = \sum \frac{W_k}{\overline{W}} D^\prime_{km} \nabla X_k
      * @f]
      *
-     * @param[out] d  Vector of diffusion coefficients for each species. length m_nsp.
+     * @param[out] d  Vector of diffusion coefficients for each species. length #m_nsp.
      */
     void getMixDiffCoeffs(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
@@ -84,7 +84,7 @@ public:
      *     D_{km} = \frac{\lambda}{\rho c_p}
      * @f]
      *
-     * @param[out] d  Vector of diffusion coefficients for each species; length m_nsp.
+     * @param[out] d  Vector of diffusion coefficients for each species; length #m_nsp.
      */
     void getMixDiffCoeffsMass(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());

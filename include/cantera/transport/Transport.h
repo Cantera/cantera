@@ -105,11 +105,11 @@ public:
     }
 
     //! Check that the specified species index is in range. Throws an exception
-    //! if k is greater than nSpecies()
+    //! if k is greater than #m_nsp.
     void checkSpeciesIndex(size_t k) const;
 
-    //! Check that an array size is at least nSpecies(). Throws an exception if
-    //! kk is less than nSpecies(). Used before calls which take an array
+    //! Check that an array size is at least #m_nsp. Throws an exception if
+    //! kk is less than #m_nsp. Used before calls which take an array
     //! pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
@@ -425,7 +425,7 @@ protected:
     //! pointer to the object representing the phase
     ThermoPhase* m_thermo;
 
-    //! Number of species
+    //! Number of species in the phase
     size_t m_nsp = 0;
 
     //! Maximum errors associated with fitting pure species transport properties.
