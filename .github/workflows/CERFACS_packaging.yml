@@ -333,14 +333,14 @@ jobs:
 
   macos-wheel:
     if: ${{ github.event.inputs.build_macos == 'true' }}
-    name: Build ${{ matrix.arch }} macOS Wheels for py${{ matrix.py }}
+    name: Build ${{ matrix.arch }} macOS Wheels for Python ${{ matrix.python-version }}
     runs-on: macos-13
     needs: ["sdist", "post-pending-status"]
     outputs:
       job-status: ${{ job.status }}
     strategy:
       matrix:
-        py: ["39"]
+        python-version: ["39"]
         arch: ["arm64"]
         deployment_target: ["13.0"]
         # include:
@@ -360,13 +360,22 @@ jobs:
           name: cibw-sdist
       - name: Extract the sdist tarball
         run: tar -xvf *.tar.gz --strip-components=1
+      # - name: Write dependencies to a file for caching # added from cantera
+      #   run: |
+      #     echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+      # - name: Set up Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
+      #     cache: pip
+      #     cache-dependency-path: requirements.txt
       - name: Install Brew dependencies
-        run: brew install boost
+        run: brew install --display-times boost libomp hdf5 doxygen 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_ENVIRONMENT: BOOST_INCLUDE="$(brew --prefix)/include" RUNNER_TEMP=${{ runner.temp }} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
-          CIBW_BUILD: cp${{ matrix.py }}-*
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           # Testing won't be available for macOS ARM until native ARM runners are available.
           CIBW_TEST_SKIP: "*-macosx_arm64"
