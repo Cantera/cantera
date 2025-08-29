@@ -23,6 +23,13 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
+LatticeSolidPhase::LatticeSolidPhase()
+{
+    warn_deprecated("class LatticeSolidPhase", "To be removed after Cantera 3.2. No "
+        "known usage exists, and the model does not satisfy several basic thermodynamic"
+        "identities. See https://github.com/Cantera/cantera/issues/1310.");
+}
+
 double LatticeSolidPhase::minTemp(size_t k) const
 {
     if (k != npos) {

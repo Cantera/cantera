@@ -107,7 +107,7 @@ phases:
     X: {electron: 1.0}
   density: 9.0 kg/m^3
 - name: oxide_bulk
-  thermo: lattice
+  thermo: ideal-condensed
   elements: [O, E]
   species: [Ox, VO**]
   state:
@@ -161,6 +161,9 @@ species:
     model: constant-cp
     h0: 0.0 kJ/mol
   note: A bulk lattice vacancy
+  equation-of-state:
+    model: constant-volume
+    molar-density: 0.0176 mol/cm^3
 - name: Ox
   composition: {O: 1, E: 2}
   thermo:
@@ -168,6 +171,9 @@ species:
     h0: -170.0 kJ/mol
     s0: 50.0 J/K/mol
   note: A bulk lattice oxygen
+  equation-of-state:
+    model: constant-volume
+    molar-density: 0.0176 mol/cm^3
 - name: (m)
   composition: {}
   thermo:

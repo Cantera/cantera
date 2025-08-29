@@ -370,7 +370,9 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
 
 TEST(ThermoFromYaml, Lattice)
 {
+    suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "Li7Si3_and_interstitials");
+    make_deprecation_warnings_fatal();
 
     // Regression test based on modified version of Li7Si3_ls.xml
     EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
@@ -395,9 +397,11 @@ TEST(ThermoFromYaml, Lattice_fromString)
     std::stringstream buffer;
     buffer << infile.rdbuf();
     AnyMap input = AnyMap::fromYamlString(buffer.str());
+    suppress_deprecation_warnings();
     auto thermo = newThermo(
         input["phases"].getMapWhere("name", "Li7Si3_and_interstitials"),
         input);
+    make_deprecation_warnings_fatal();
 
     // Regression test based on modified version of Li7Si3_ls.xml
     EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
