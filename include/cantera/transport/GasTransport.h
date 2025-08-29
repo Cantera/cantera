@@ -101,11 +101,11 @@ public:
      */
     void getMixDiffCoeffsMass(double* const d) override;
 
-    //! Return the polynomial fits to the viscosity of species i
+    //! Return the polynomial fits to the viscosity of species `i`.
     //! @see fitProperties()
     void getViscosityPolynomial(size_t i, double* coeffs) const override;
 
-    //! Return the temperature fits of the heat conductivity of species i
+    //! Return the temperature fits of the heat conductivity of species `i`.
     //! @see fitProperties()
     void getConductivityPolynomial(size_t i, double* coeffs) const override;
 
@@ -120,11 +120,11 @@ public:
                                         double* bstar_coeffs,
                                         double* cstar_coeffs) const override;
 
-    //! Modify the polynomial fits to the viscosity of species i
+    //! Modify the polynomial fits to the viscosity of species `i`
     //! @see fitProperties()
     void setViscosityPolynomial(size_t i, double* coeffs) override;
 
-    //! Modify the temperature fits of the heat conductivity of species i
+    //! Modify the temperature fits of the heat conductivity of species `i`
     //! @see fitProperties()
     void setConductivityPolynomial(size_t i, double* coeffs) override;
 
@@ -156,7 +156,7 @@ protected:
     //! Update the temperature-dependent viscosity terms.
     /**
      * Updates the array of pure species viscosities, and the weighting
-     * functions in the viscosity mixture rule. The flag m_visc_ok is set to true.
+     * functions in the viscosity mixture rule. The flag #m_visc_ok is set to true.
      * @see viscosity()
      */
     virtual void updateViscosity_T();
@@ -280,7 +280,7 @@ protected:
     //! @}
 
     //! Vector of species mole fractions. These are processed so that all mole
-    //! fractions are >= Tiny. Length = #m_nsp.
+    //! fractions are >= #Tiny. Length = #m_nsp.
     vector<double> m_molefracs;
 
     //! Internal storage for the viscosity of the mixture [Pa·s]
@@ -302,7 +302,7 @@ protected:
     //! Any other value means to use %Cantera's preferred fitting functions.
     int m_mode = 0;
 
-    //! m_phi is a Viscosity Weighting Function. size = #m_nsp * #m_nsp
+    //! Viscosity weighting function. size = #m_nsp * #m_nsp
     DenseMatrix m_phi;
 
     //! work space length = #m_nsp
@@ -312,8 +312,8 @@ protected:
     //! rule to calculate the viscosity of the solution. length = #m_nsp.
     vector<double> m_visc;
 
-    //! Polynomial fits to the viscosity of each species. m_visccoeffs[k] is
-    //! the vector of polynomial coefficients for species k that fits the
+    //! Polynomial fits to the viscosity of each species. `m_visccoeffs[k]` is
+    //! the vector of polynomial coefficients for species `k` that fits the
     //! viscosity as a function of temperature.
     vector<vector<double>> m_visccoeffs;
 
@@ -360,16 +360,17 @@ protected:
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
-     * m_diffcoeff[ic] is vector of polynomial coefficients for species i
-     * species j that fits the binary diffusion coefficient. The relationship
-     * between i j and ic is determined from the following algorithm:
-     *
-     *      int ic = 0;
-     *      for (i = 0; i < m_nsp; i++) {
-     *         for (j = i; j < m_nsp; j++) {
-     *           ic++;
-     *         }
-     *      }
+     * `m_diffcoeff[ic]` is the vector of polynomial coefficients that fits the binary
+     * diffusion coefficient for species `i` and `j`. The relationship between `i`, `j`,
+     * and `ic` is determined from the following algorithm:
+     * @code
+     * int ic = 0;
+     * for (i = 0; i < m_nsp; i++) {
+     *    for (j = i; j < m_nsp; j++) {
+     *      ic++;
+     *    }
+     * }
+     * @endcode
      */
     vector<vector<double>> m_diffcoeffs;
 
@@ -386,16 +387,15 @@ protected:
 
     //! Indices for the (i,j) interaction in collision integral fits
     /*!
-     *  m_poly[i][j] contains the index for (i,j) interactions in
+     *  `m_poly[i][j]` contains the index for (i,j) interactions in
      *  #m_omega22_poly, #m_astar_poly, #m_bstar_poly, and #m_cstar_poly.
      */
     vector<vector<int>> m_poly;
 
     //! Fit for omega22 collision integral
     /*!
-     * m_omega22_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     * (length degree+1) for the collision integral fit for the species pair
-     * (i,j).
+     * `m_omega22_poly[m_poly[i][j]]` is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair (i,j).
      */
     vector<vector<double>> m_omega22_poly;
 
@@ -405,25 +405,22 @@ protected:
 
     //! Fit for astar collision integral
     /*!
-     * m_astar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     * (length degree+1) for the collision integral fit for the species pair
-     * (i,j).
+     * `m_astar_poly[m_poly[i][j]]` is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair (i,j).
      */
     vector<vector<double>> m_astar_poly;
 
     //! Fit for bstar collision integral
     /*!
-     * m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     * (length degree+1) for the collision integral fit for the species pair
-     * (i,j).
+     * `m_bstar_poly[m_poly[i][j]]` is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair (i,j).
      */
     vector<vector<double>> m_bstar_poly;
 
     //! Fit for cstar collision integral
     /*!
-     * m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     * (length degree+1) for the collision integral fit for the species pair
-     * (i,j).
+     * `m_bstar_poly[m_poly[i][j]]` is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair (i,j).
      */
     vector<vector<double>> m_cstar_poly;
 
@@ -436,7 +433,7 @@ protected:
     //! Dimensionless rotational heat capacity of each species
     /*!
      * These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear
-     * species respectively length is the number of species in the phase.
+     * species respectively. length is the number of species in the phase.
      * Dimensionless  (Cr / R)
      */
     vector<double> m_crot;
