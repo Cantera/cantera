@@ -321,13 +321,13 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Return the polynomial fits to the viscosity of species i
+    //! Return the polynomial fits to the viscosity of species `i`.
     virtual void getViscosityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getViscosityPolynomial",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Return the temperature fits of the heat conductivity of species i
+    //! Return the temperature fits of the heat conductivity of species `i`.
     virtual void getConductivityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getConductivityPolynomial",
             "Not implemented for transport model '{}'.", transportModel());
@@ -348,13 +348,13 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Modify the polynomial fits to the viscosity of species i
+    //! Modify the polynomial fits to the viscosity of species `i`
     virtual void setViscosityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setViscosityPolynomial",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Modify the temperature fits of the heat conductivity of species i
+    //! Modify the temperature fits of the heat conductivity of species `i`
     virtual void setConductivityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setConductivityPolynomial",
             "Not implemented for transport model '{}'.", transportModel());
@@ -376,7 +376,7 @@ public:
     }
 
     //! Return the parameters for a phase definition which are needed to
-    //! reconstruct an identical object using the newTransport function. This
+    //! reconstruct an identical object using the newTransport() function. This
     //! excludes the individual species transport properties, which are handled
     //! separately.
     AnyMap parameters() const;

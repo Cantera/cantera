@@ -100,8 +100,8 @@ public:
     /*!
      * If not set, the value for close-packed spheres will be used by default.
      *
-     * The value for close-packed spheres is given below, where p is the
-     * porosity, t is the tortuosity, and d is the diameter of the sphere
+     * The value for close-packed spheres is given below, where *p* is the
+     * porosity, *t* is the tortuosity, and *d* is the diameter of the sphere:
      *
      * @f[
      *     \kappa = \frac{p^3 d^2}{72 t (1 - p)^2}
