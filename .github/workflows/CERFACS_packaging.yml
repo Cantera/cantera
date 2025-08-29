@@ -375,7 +375,7 @@ jobs:
             curl -sL -H "Authorization: token $GH_TARBALL_DL" -o ${{ runner.temp }}/cantera.tar.gz $REPO_API_URL \
             && tar -xzf ${{ runner.temp }}/cantera.tar.gz --strip-components=1 -C ${{ runner.temp }} "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
       - name: Archive the built wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
           name: wheels
