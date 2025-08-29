@@ -155,7 +155,7 @@ protected:
     //! vector of species thermal conductivities [W/m/K]
     /*!
      * These are used in Wilke's rule to calculate the viscosity of the
-     * solution. length = m_kk.
+     * solution. length = #m_nsp.
      */
     vector<double> m_cond;
 

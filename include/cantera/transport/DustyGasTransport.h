@@ -197,10 +197,9 @@ private:
      */
     void eval_H_matrix();
 
-    //! Local copy of the species molecular weights
+    //! Local copy of the species molecular weights [kg/kmol]
     /*!
-     *  units kg /kmol
-     *  length = m_nsp;
+     *  length = #m_nsp;
      */
     vector<double> m_mw;
 
@@ -219,10 +218,10 @@ private:
     //! Multicomponent diffusion coefficients. @see eval_H_matrix()
     DenseMatrix m_multidiff;
 
-    //! work space of size m_nsp;
+    //! work space of size #m_nsp;
     vector<double> m_spwork;
 
-    //! work space of size m_nsp;
+    //! work space of size #m_nsp;
     vector<double> m_spwork2;
 
     //! Pressure Gradient
