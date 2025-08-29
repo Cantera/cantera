@@ -373,7 +373,7 @@ jobs:
         # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
         run: |
           brew install --display-times boost libomp doxygen 
-          brew install hdf5 --build-from-source --force-bottle  
+          brew install hdf5 --build-from-source 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17.0
         env:
