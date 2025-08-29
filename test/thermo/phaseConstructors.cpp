@@ -342,6 +342,7 @@ TEST(MargulesVPSSTP, fromScratch)
 
 TEST(LatticeSolidPhase, fromScratch)
 {
+    suppress_deprecation_warnings();
     auto base = make_shared<StoichSubstance>();
     base->setName("Li7Si3(S)");
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
@@ -382,6 +383,7 @@ TEST(LatticeSolidPhase, fromScratch)
         EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
         EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
     }
+    make_deprecation_warnings_fatal();
 }
 
 TEST(IdealSolidSolnPhase, fromScratch)

@@ -1211,6 +1211,7 @@ class Testcti2yaml:
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctiSurf, yamlSurf, [900], [101325])
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_sofc(self):
         self.convert("sofc")
         cti_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
@@ -1437,6 +1438,7 @@ class Testctml2yaml:
         self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_sofc(self):
         self.convert("sofc")
         ctml_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
@@ -1620,6 +1622,7 @@ class Testctml2yaml:
         ctmlPhase, yamlPhase = self.checkConversion("pdss_hkft")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_lattice_solid(self):
         self.convert("Li7Si3_ls")
         ctmlPhase, yamlPhase = self.checkConversion("Li7Si3_ls",
