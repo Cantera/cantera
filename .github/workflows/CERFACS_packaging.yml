@@ -372,30 +372,31 @@ jobs:
       - name: Install Brew dependencies
         # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
         run: |
-          brew install --display-times boost libomp doxygen
-          # brew install --display-times boost libomp doxygen hdf5
+          # brew install --display-times boost libomp doxygen
+          brew install --display-times boost libomp doxygen hdf5
           # brew install cmake@3.31.6
-          brew install hdf5 --build-from-source 
+          # brew install hdf5 --build-from-source 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17.0
         env:
-          # CIBW_ENVIRONMENT: >
-          #   BOOST_INCLUDE="$(brew --prefix)/include" 
-          #   RUNNER_TEMP=${{ runner.temp }} 
-          #   CT_SKIP_SLOW=1 
-          #   REPO_API_URL=${{ env.REPO_API_URL }} 
-          #   GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
-          #   HDF5_DIR="$(brew --prefix hdf5)"
-          #   HDF5_ROOT="$(brew --prefix hdf5)"
           CIBW_ENVIRONMENT: >
             BOOST_INCLUDE="$(brew --prefix)/include" 
             RUNNER_TEMP=${{ runner.temp }} 
             CT_SKIP_SLOW=1 
             REPO_API_URL=${{ env.REPO_API_URL }} 
             GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
+            # HDF5_DIR="$(brew --prefix hdf5)"
             HDF5_ROOT="$(brew --prefix hdf5)"
-            HDF5_STATIC=1
-            CANTERA_USE_SYSTEM_HDF5=y
+            HDF5_USE_STATIC_LIBS=ON
+          # CIBW_ENVIRONMENT: >
+          #   BOOST_INCLUDE="$(brew --prefix)/include" 
+          #   RUNNER_TEMP=${{ runner.temp }} 
+          #   CT_SKIP_SLOW=1 
+          #   REPO_API_URL=${{ env.REPO_API_URL }} 
+          #   GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
+          #   HDF5_ROOT="$(brew --prefix hdf5)"
+          #   HDF5_STATIC=1
+          #   CANTERA_USE_SYSTEM_HDF5=y
           CIBW_BUILD: cp${{ matrix.python-version }}-*
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           # Testing won't be available for macOS ARM until native ARM runners are available.
