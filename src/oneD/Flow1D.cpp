@@ -980,8 +980,8 @@ AnyMap Flow1D::getMeta() const
 
     state["radiation-enabled"] = m_do_radiation;
     if (m_do_radiation) {
-        state["emissivity-left"] = m_epsilon_left;
-        state["emissivity-right"] = m_epsilon_right;
+        state["emissivity-left"] = (m_radiation ? m_radiation->leftEmissivity() : m_epsilon_left);
+        state["emissivity-right"] = (m_radiation ? m_radiation->rightEmissivity() : m_epsilon_right);
     }
 
     set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
@@ -1266,6 +1266,7 @@ void Flow1D::setMeta(const AnyMap& state)
         if (m_do_radiation) {
             m_epsilon_left = state["emissivity-left"].asDouble();
             m_epsilon_right = state["emissivity-right"].asDouble();
+            if (m_radiation) { m_radiation->setBoundaryEmissivities(m_epsilon_left, m_epsilon_right);}
         }
     }
 
