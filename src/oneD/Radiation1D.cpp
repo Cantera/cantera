@@ -23,10 +23,10 @@ void TabularPlanckMean::parseRadiationData()
     AnyMap radiationPropertiesDB;
 
     try {
-        radiationPropertiesDB = AnyMap::fromYamlFile("radiation-properties.yaml");
+        radiationPropertiesDB = AnyMap::fromYamlFile("radiation-parameters.yaml");
     } catch (CanteraError& err) {
         warn_user("TabularPlanckMean::parseRadiationData",
-            "Failed to load 'radiation-properties.yaml':\n{}"
+            "Failed to load 'radiation-parameters.yaml':\n{}"
             "\nFalling back to default polynomial data for CO2, H2O.", err.what());
     }
 
@@ -89,6 +89,10 @@ void TabularPlanckMean::parseRadiationData()
         m_PMAC["CO2"]["fit-type"] = "polynomial";
         m_PMAC["CO2"]["coefficients"] = c_CO2;
     }
+    if (m_absorptionSpecies.find("CO2") == m_absorptionSpecies.end()) {
+         size_t k = m_thermo->speciesIndex("CO2");
+         if (k != npos) m_absorptionSpecies.emplace("CO2", k);
+     }
 
     // Check if "H2O" is already in the map, if not, add the polynomial fit data
     if (!m_PMAC.hasKey("H2O")) {
@@ -97,6 +101,10 @@ void TabularPlanckMean::parseRadiationData()
         m_PMAC["H2O"]["fit-type"] = "polynomial";
         m_PMAC["H2O"]["coefficients"] = c_H2O;
     }
+    if (m_absorptionSpecies.find("H2O") == m_absorptionSpecies.end()) {
+         size_t k = m_thermo->speciesIndex("H2O");
+         if (k != npos) m_absorptionSpecies.emplace("H2O", k);
+     }
 }
 
 double TabularPlanckMean::calculatePolynomial(const std::vector<double>& coefficients,
@@ -213,8 +221,6 @@ void Radiation1D::setBoundaryEmissivities(double e_left, double e_right)
 
 void Radiation1D::computeRadiation(double* x, size_t jmin, size_t jmax,
                                    std::vector<double>& qdotRadiation) {
-    const double StefanBoltz = 5.67e-8;
-
     double boundary_Rad_left = m_epsilon_left * StefanBoltz * std::pow(m_T(x, 0), 4);
     double boundary_Rad_right = m_epsilon_right * StefanBoltz * std::pow(m_T(x, m_points - 1), 4);
 
@@ -222,7 +228,13 @@ void Radiation1D::computeRadiation(double* x, size_t jmin, size_t jmax,
         RadComposition comp;
         comp.T = m_T(x, j);
         comp.P = m_press;
-        comp.X = m_thermo->getMoleFractionsByName();
+        // Build local mole-fraction map at j
+        comp.X.clear();
+        const auto& names = m_thermo->speciesNames();
+        for (const auto& nm : names) {
+            size_t k = m_thermo->speciesIndex(nm);
+            comp.X[nm] = m_X(x, k, j);
+        }
 
         // Get the band absorption coefficients and weighting factors
         std::vector<double> kabs, awts;
