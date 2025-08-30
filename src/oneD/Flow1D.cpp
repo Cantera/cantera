@@ -610,6 +610,24 @@ void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
     m_radiation->computeRadiation(x, jmin, jmax, m_qdotRadiation);
 }
 
+void Flow1D::setRadiationModels(const std::string& propertyModel,
+                                const std::string& solverModel)
+{
+    // Rebuild the Radiation1D object with the requested models
+    double emissivityLeft = 0.0;
+    double emissivityRight = 0.0;
+    m_radiation = createRadiation1D(propertyModel, solverModel,
+        m_thermo,
+        m_press,
+        m_points,
+        // point accessors you already use:
+        [this](const double* x, size_t j){ return this->T(x, j); },
+        [this](const double* x, size_t k, size_t j){ return this->X(x, k, j); },
+        emissivityLeft,
+        emissivityRight
+    );
+}
+
 void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax)
 {

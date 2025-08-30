@@ -381,9 +381,15 @@ inline std::unique_ptr<Radiation1D> createRadiation1D(
     if (propertyModel == "TabularPlanckMean") {
         props = std::make_unique<TabularPlanckMean>(thermo);
     }
-    else if (propertyModel == "RadLibPlanckMean") {
-        //props = std::make_unique<RadLibPlanckMean>();
+#ifdef CANTERA_ENABLE_RADLIB
+    else if (propertyModel == "RadLib.PlanckMean" || propertyModel == "radlib-pm") {
+       props = makeRadLibProps("RadLib.PlanckMean", thermo, 0.0);
+    } else if( propertyModel == "RadLib.WSGG" || propertyModel == "radlib-wsgg") {
+        props = makeRadLibProps("RadLib.WSGG", thermo, 0.0);
+    } else if( propertyModel == "RadLib.RCSLW" || propertyModel == "radlib-rcslw") {
+        props = makeRadLibProps(propertyModel, thermo, 0.0, \*nGray*\ 25, \*Tref*\ 1500.0, pressure);
     }
+#endif
     else {
         throw CanteraError("createRadiation1D",
             "Unknown property model: " + propertyModel);
