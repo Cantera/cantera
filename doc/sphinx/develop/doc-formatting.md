@@ -15,7 +15,7 @@ using Doxygen. The content used to generate these pages comes from several sourc
 - Docstrings extracted from the C++ source code, which are parsed by
   [Doxygen](https://www.doxygen.nl/manual/docblocks.html). These docstrings are
   formatted using Doxygen's syntax, which includes support for its own flavor of
-  Markdown.
+  Markdown. See also our [style guide for Doxygen comments](sec-style-doxygen).
 - Markdown files, organized under the `doc/doxygen` subdirectory of the
   Cantera Git repository, processed using Doxygen's Markdown parser.
 
