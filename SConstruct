@@ -708,6 +708,18 @@ config_options = [
         "verbose_tests",
         "If enabled, verbose test output will be shown.",
         False),
+    EnumOption(
+        "system_radlib",
+        """Select whether to use RadLib from a system installation ('y'), from a Git
+       submodule ('n'), or decide automatically ('default'). Specifying
+       'radlib_include' or 'radlib_libdir' changes the default to 'y'.""",
+    "default", ("default", "y", "n")),
+    PathOption(
+        "radlib_include",
+        """Directory containing RadLib headers (e.g., 'rad_planck_mean.h').""", "", PathVariable.PathAccept),
+    PathOption(
+        "radlib_libdir",
+        """Directory containing RadLib library (e.g., 'libradlib.so' / 'radlib.lib').""", "", PathVariable.PathAccept),
 ]
 
 config = Configuration()
@@ -1340,6 +1352,76 @@ _, eigen_lib_version = run_preprocessor(
 )
 env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip().replace(" ", ".")
 logger.info(f"Found Eigen version {env['EIGEN_LIB_VERSION']}")
+
+# --- RadLib detection ------------------------------------------------------
+if env["radlib_include"] and env["system_radlib"] in ("y", "default"):
+    env["radlib_include"] = make_relative_path_absolute(env["radlib_include"])
+    add_system_include(env, env["radlib_include"])
+    env["system_radlib"] = "y"
+
+if env["radlib_libdir"] and env["system_radlib"] in ("y", "default"):
+    env["radlib_libdir"] = make_relative_path_absolute(env["radlib_libdir"])
+    env.Append(LIBPATH=[env["radlib_libdir"]])
+    if env["use_rpath_linkage"]:
+        env.Append(RPATH=[env["radlib_libdir"]])
+    env["system_radlib"] = "y"
+
+have_system_radlib = False
+if env["system_radlib"] in ("y", "default"):
+    # Try to link against system RadLib
+    if conf.CheckLibWithHeader("radlib", "rad_planck_mean.h", "C++"):
+        have_system_radlib = True
+        env["system_radlib"] = True
+        logger.info("Using system installation of RadLib.")
+    elif env["system_radlib"] == "y":
+        config_error("Expected system installation of RadLib, but it was not found.")
+    else:
+        env["system_radlib"] = "default"
+
+if env["system_radlib"] in ("n", "default") and not have_system_radlib:
+    env["system_radlib"] = False
+    # Ensure submodule is present
+    if not os.path.exists("ext/radlib"):
+        checkout_submodule("RadLib", "ext/radlib")
+    # Build RadLib from the submodule in build/ext/SConscript
+    logger.info("Using private (submodule) RadLib.")
+
+if env["system_radlib"] is True or env["system_radlib"] is False:
+    # True => system, False => submodule, both mean: enable code path
+    env.AppendUnique(CPPDEFINES=["CANTERA_ENABLE_RADLIB"])
+if env["system_radlib"] is True:
+    env["external_libs"].append("radlib")
+
+Import('env', 'build', 'libraryTargets', 'install')
+# Only build RadLib if we are not using a system install
+if env.get("system_radlib", None) is False:
+    radlib_src   = Dir("#/ext/radlib")
+    radlib_bld   = Dir("#/build/ext/radlib-build")
+    radlib_inst  = Dir("#/build/ext/radlib-install")
+    radlib_stamp = File("#/build/ext/radlib-install/.built")
+
+    cmake_cfg = (
+        f'cmake -S {radlib_src.abspath} -B {radlib_bld.abspath} '
+        f'-DCMAKE_BUILD_TYPE={env["build"] if "build" in env else "Release"} '
+        f'-DCMAKE_INSTALL_PREFIX={radlib_inst.abspath}'
+    )
+    cmake_bld = f'cmake --build {radlib_bld.abspath} --target install -j {GetOption("num_jobs") if "GetOption" in globals() else 1}'
+
+    env.Command(radlib_stamp, radlib_src, [cmake_cfg, cmake_bld])
+
+    # Ensure Cantera’s libs are not linked until RadLib is available
+    for t in libraryTargets.values():
+        env.Requires(t, radlib_stamp)
+
+    # Add include/lib paths and link flag for the just-built RadLib
+    env.AppendUnique(CPPPATH=[str(radlib_inst.Dir("include"))])
+    env.AppendUnique(LIBPATH=[str(radlib_inst.Dir("lib"))])
+    if env["use_rpath_linkage"]:
+        env.AppendUnique(RPATH=[str(radlib_inst.Dir("lib"))])
+    env.AppendUnique(LIBS=["radlib"])
+
+# ----- End Radlib ----
+
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera

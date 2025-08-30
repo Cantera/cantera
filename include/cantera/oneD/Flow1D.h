@@ -541,6 +541,9 @@ protected:
     //! Compute the radiative heat loss at each grid point
     void computeRadiation(double*, size_t, size_t);
 
+    void setRadiationModels(const std::string& propertyModel,
+                            const std::string& solverModel);
+
     //! @}
 
     //! @name Governing Equations
