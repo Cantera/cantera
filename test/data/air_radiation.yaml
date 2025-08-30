@@ -13,7 +13,7 @@ phases:
 - name: air
   thermo: ideal-gas
   elements: [O, N, Ar]
-  species: [O, O2, N, NO, NO2, N2O, N2, AR, H2O CO2]
+  species: [O, O2, N, NO, NO2, N2O, N2, AR, H2O, CO2]
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.78, AR: 0.01}}
