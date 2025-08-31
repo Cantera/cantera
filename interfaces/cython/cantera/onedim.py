@@ -458,7 +458,13 @@ class FlameBase(Sim1D):
 
     @property
     def electric_field_enabled(self):
-        """ Get/Set whether or not to solve the Poisson's equation."""
+        """
+        Get/Set whether or not to solve the Poisson's equation.
+
+        Used in conjunction with the ``ion-transport`` transport model to model
+        diffusion of ionized species. See classes :ct:`IonFlow` and
+        :ct:`IonGasTransport`.
+        """
         return self.flame.electric_field_enabled
 
     @electric_field_enabled.setter
@@ -678,7 +684,7 @@ class FreeFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
         """
         Solve the problem.
 
@@ -696,9 +702,18 @@ class FreeFlame(FlameBase):
             transport is enabled, an additional solution using these options
             will be calculated.
         :param stage: solution stage; only used when transport model is ``ionized-gas``.
+
+        .. deprecated:: 3.2
+
+            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
+            setting the `electric_field_enabled` property.
         """
-        if self.flame.transport_model == 'ionized-gas':
-            self.flame.solving_stage = stage
+        if stage is not None:
+            warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
+                          "Replaced by setting the `electric_field_enabled` property.",
+                          DeprecationWarning)
+            if self.flame.transport_model == 'ionized-gas':
+                self.flame.electric_field_enabled = (stage == 2)
 
         if not auto:
             return super().solve(loglevel, refine_grid, auto)
@@ -851,7 +866,7 @@ class BurnerFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
         """
         Solve the problem.
 
@@ -869,9 +884,18 @@ class BurnerFlame(FlameBase):
             transport is enabled, an additional solution using these options
             will be calculated.
         :param stage: solution stage; only used when transport model is ``ionized-gas``.
+
+        .. deprecated:: 3.2
+
+            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
+            setting the `electric_field_enabled` property.
         """
-        if self.flame.transport_model == 'ionized-gas':
-            self.flame.solving_stage = stage
+        if stage is not None:
+            warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
+                          "Replaced by setting the `electric_field_enabled` property.",
+                          DeprecationWarning)
+            if self.flame.transport_model == 'ionized-gas':
+                self.flame.electric_field_enabled = (stage == 2)
 
         # Use a callback function to check that the flame has not been blown off
         # the burner surface. If the user provided a callback, store this so it
@@ -1032,7 +1056,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def extinct(self):
         return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
         """
         Solve the problem.
 
@@ -1050,12 +1074,21 @@ class CounterflowDiffusionFlame(FlameBase):
             transport is enabled, an additional solution using these options
             will be calculated.
         :param stage: solution stage; only used when transport model is ``ionized-gas``.
+
+        .. deprecated:: 3.2
+
+            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
+            setting the `electric_field_enabled` property.
         """
         if self.flame.transport_model == 'ionized-gas':
             warnings.warn(
                 "The 'ionized-gas' transport model is untested for "
                 "'CounterflowDiffusionFlame' objects.", UserWarning)
-            self.flame.solving_stage = stage
+            if stage is not None:
+                warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
+                            "Replaced by setting the `electric_field_enabled` property.",
+                            DeprecationWarning)
+                self.flame.electric_field_enabled = (stage == 2)
 
         super().solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set

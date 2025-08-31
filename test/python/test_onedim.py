@@ -1982,8 +1982,6 @@ class TestTwinFlame:
             sim.solve(loglevel=0)
 
 class TestIonFreeFlame:
-
-    @pytest.mark.slow_test
     def test_ion_profile(self):
         reactants = 'CH4:0.216, O2:2'
         p = ct.one_atm
@@ -2000,10 +1998,13 @@ class TestIonFreeFlame:
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
 
         # stage one
+        assert self.sim.electric_field_enabled is False
         self.sim.solve(loglevel=0, auto=True)
+        assert max(np.abs(self.sim.E)) == approx(0.0, abs=1e-3)
 
         #stage two
-        self.sim.solve(loglevel=0, stage=2)
+        self.sim.electric_field_enabled = True
+        self.sim.solve(loglevel=0)
 
         # Regression test
         assert max(self.sim.E) == approx(149.63179056676853, rel=1e-3)
@@ -2024,7 +2025,8 @@ class TestIonBurnerFlame:
         self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)
         self.sim.burner.mdot = self.gas.density * 0.15
 
-        self.sim.solve(loglevel=0, stage=2, auto=True)
+        self.sim.electric_field_enabled = True
+        self.sim.solve(loglevel=0, auto=True)
 
         # Regression test
         assert max(self.sim.E) == approx(591.76, rel=1e-2)

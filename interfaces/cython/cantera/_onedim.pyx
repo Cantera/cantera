@@ -627,6 +627,11 @@ cdef class FlowBase(Domain1D):
         - ``stage == 1``: the fluxes of charged species are set to zero
         - ``stage == 2``: the electric field equation is solved, and the drift flux for
           ionized species is evaluated
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Use the `electric_field_enabled` property
+            instead.
         """
         return self.flow.getSolvingStage()
 
@@ -640,7 +645,7 @@ cdef class FlowBase(Domain1D):
         Determines whether or not to solve the electric field equation (only relevant
         if transport model is ``ionized-gas``).
         """
-        return self.flow.doElectricField(0)
+        return self.flow.doElectricField()
 
     @electric_field_enabled.setter
     def electric_field_enabled(self, enable):
