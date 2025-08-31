@@ -80,7 +80,7 @@ cdef extern from "cantera/oneD/Flow1D.h":
         void setSolvingStage(size_t) except +translate_exception
         void solveElectricField() except +translate_exception
         void fixElectricField() except +translate_exception
-        cbool doElectricField(size_t) except +translate_exception
+        cbool doElectricField() except +translate_exception
         void setBoundaryEmissivities(double, double)
         double leftEmissivity()
         double rightEmissivity()

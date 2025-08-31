@@ -14,7 +14,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cantera as ct
 
-
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
@@ -32,11 +31,12 @@ f = ct.FreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.05, curve=0.1)
 f.show()
 
-# stage one
+# stage one (no diffusion of ions)
 f.solve(loglevel=loglevel, auto=True)
 
 # stage two
-f.solve(loglevel=loglevel, stage=2)
+f.electric_field_enabled = True
+f.solve(loglevel=loglevel)
 
 if "native" in ct.hdf_support():
     output = Path() / "ion_free_flame.h5"

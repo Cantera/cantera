@@ -28,8 +28,10 @@ f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
 f.show()
 
+f.electric_field_enabled = False
 f.solve(loglevel, auto=True)
-f.solve(loglevel=loglevel, stage=2)
+f.electric_field_enabled = True
+f.solve(loglevel=loglevel)
 
 if "native" in ct.hdf_support():
     output = Path() / "ion_burner_flame.h5"
