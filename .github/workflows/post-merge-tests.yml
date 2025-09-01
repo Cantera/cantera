@@ -25,10 +25,14 @@ env:
   REQUIREMENTS_TXT_FILE: "platform/ci_support/post_merge_reqs.txt"
 
 jobs:
-  prerelease-cython:
-    name: Pre-release Cython
-    runs-on: ubuntu-22.04
+  prerelease-dependencies:
+    name: Pre-release ${{ matrix.name }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
+    strategy:
+      matrix:
+        name: [cython, eigen, libfmt, SUNDIALS, yaml-cpp, HighFive, SCons]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v5
       name: Checkout the repository
@@ -53,13 +57,80 @@ jobs:
     - name: Install Python dependencies
       run: |
         uv venv --python 3.13 --seed
-        sed -i 's/cython.*//g' "${REQUIREMENTS_TXT_FILE}"
         uv pip install -r "${REQUIREMENTS_TXT_FILE}"
+    - name: Install pre-release Cython
+      if: matrix.name == 'cython'
+      run: |
+        uv pip uninstall cython
         uv pip install --prerelease=allow --only-binary=":all:" cython
+    - name: Install pre-release Eigen
+      if: matrix.name == 'eigen'
+      run: |
+        git fetch origin
+        git reset --hard origin/HEAD
+      working-directory: ext/eigen
+    - name: Build prerelease libfmt
+      if: matrix.name == 'libfmt'
+      run: |
+        echo "system_fmt = 'y'" >> cantera.conf
+        echo "extra_inc_dirs = 'fmt/install/include'" >> cantera.conf
+        echo "extra_lib_dirs = 'fmt/install/lib'" >> cantera.conf
+        git clone https://github.com/fmtlib/fmt
+        mkdir fmt/build
+        cd fmt/build
+        cmake -DCMAKE_INSTALL_PREFIX=../install -DBUILD_SHARED_LIBS=Y ..
+        make -j4
+        make install
+    - name: Build prerelease SUNDIALS
+      if: matrix.name == 'SUNDIALS'
+      run: |
+        echo "system_sundials = 'y'" >> cantera.conf
+        echo "extra_inc_dirs = 'sundials/install/include'" >> cantera.conf
+        echo "extra_lib_dirs = 'sundials/install/lib'" >> cantera.conf
+        git clone https://github.com/LLNL/sundials
+        cd sundials
+        git switch develop
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX=../install -DBUILD_SHARED_LIBS=Y ..
+        make -j4
+        make install
+    - name: Build prerelease yaml-cpp
+      if: matrix.name == 'yaml-cpp'
+      run: |
+        echo "system_yamlcpp = 'y'" >> cantera.conf
+        echo "extra_inc_dirs = 'yaml-cpp/install/include'" >> cantera.conf
+        echo "extra_lib_dirs = 'yaml-cpp/install/lib'" >> cantera.conf
+        git clone https://github.com/jbeder/yaml-cpp
+        cd yaml-cpp
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX=../install -DBUILD_SHARED_LIBS=Y ..
+        make -j4
+        make install
+    - name: Build prerelease HighFive
+      if: matrix.name == 'HighFive'
+      run: |
+        echo "system_highfive = 'y'" >> cantera.conf
+        echo "extra_inc_dirs = 'highfive/install/include'" >> cantera.conf
+        git clone --recursive https://github.com/highfive-devs/highfive
+        cd highfive
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX=../install -DHIGHFIVE_EXAMPLES=N \
+            -DHIGHFIVE_UNIT_TESTS=N -DHIGHFIVE_BUILD_DOCS=N ..
+        make
+        make install
+    - name: Install prerelease SCons
+      if: matrix.name == 'SCons'
+      run: |
+        uv pip uninstall scons
+        git clone https://github.com/SCons/scons
+        cd scons
+        uv pip install -e .
     - name: Build Cantera
-      run: uv run scons build env_vars=all
-        CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j4 debug=n --debug=time logging=debug python_package=y
+      run: uv run scons build env_vars=all f90_interface=n -j4 debug=n
+        --debug=time logging=debug python_package=y
     - name: Build Tests
       run: uv run scons -j4 build-tests
     - name: Run compiled tests
