@@ -433,55 +433,61 @@ not shown for clarity:
 
 ```yaml
 phases:
-- name: graphite
-  thermo: lattice
+- name: gas
+  thermo: ideal-gas
   species:
-  - graphite-species: all
-  state: {T: 300, P: 101325, X: {C6: 1.0, LiC6: 1e-5}}
-  density: 2.26 g/cm^3
-
-- name: electrolyte
-  thermo: lattice
-  species: [{electrolyte-species: all}]
-  density: 1208.2 kg/m^3
+  - gri30.yaml/species: [H, H2, CH3, CH4]
   state:
-    T: 300
-    P: 101325
-    X: {Li+(e): 0.08, PF6-(e): 0.08, EC(e): 0.28, EMC(e): 0.56}
-
-- name: anode-surface
+    T: 1200.0
+    P: 2666.4473684210525
+    X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04, CH4: 0.01}
+- name: diamond
+  thermo: fixed-stoichiometry
+  species: [{bulk-species: [C(d)]}]
+- name: diamond_100
   thermo: ideal-surface
-  adjacent: [graphite, electrolyte]
+  adjacent-phases: [gas, diamond]
+  species: [{surf-species: all}]
   kinetics: surface
-  reactions: [graphite-anode-reactions]
-  species: [{anode-species: all}]
-  site-density: 1.0 mol/cm^2
-  state: {T: 300, P: 101325}
+  reactions: all
+  state:
+    T: 1200.0
+    coverages: {c6H*: 0.1, c6HH: 0.9}
+  site-density: 3.0e-09 mol/cm^2
 
-graphite-species:
-- name: C6
+bulk-species:
+- name: C(d)
+  composition: {C: 1}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+
+surf-species:
+- name: c6H*
   ...
-- name: LiC6
+- name: c6*H
+  ...
+- name: c6HH
+  ...
+- name: c6HM
+  ...
+- name: c6HM*
+  ...
+- name: c6*M
+  ...
+- name: c6**
+  ...
+- name: c6B
   ...
 
-electrolyte-species:
-- name: Li+(e)
-  ...
-- name: PF6-(e)
-  ...
-- name: EC(e)
-  ...
-- name: EMC(e)
-  ...
-
-anode-species:
-- name: (int)
-  ...
-
-graphite-anode-reactions:
-- equation: LiC6 <=> Li+(e) + C6
-  rate-constant: [5.74, 0.0, 0.0]
-  beta: 0.4
+reactions:
+- equation: c6HH + H   <=> c6H* + H2  # Reaction 1
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6H* + H   <=> c6HH  # Reaction 2
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+...
 ```
 
 (sec-yaml-guide-species)=

@@ -10,6 +10,7 @@ using namespace Cantera;
 
 void testProblem(int printLvl)
 {
+    suppress_deprecation_warnings();
     double T = 273.15 + 352.0;
     VCS_SOLVE::disableTiming();
 

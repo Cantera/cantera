@@ -262,6 +262,11 @@ Includes the fields of [](sec-yaml-ideal-condensed), plus:
 A phase that is comprised of a fixed additive combination of other lattice phases, as
 {ct}`described here <LatticeSolidPhase>`.
 
+:::{deprecated} 3.2
+To be removed after Cantera 3.2. No known usage exists, and the model does not satisfy
+several basic thermodynamic identities. See[Issue #1310](https://github.com/Cantera/cantera/issues/1310).
+:::
+
 Additional fields:
 
 `composition`
@@ -749,6 +754,12 @@ Example:
 
 A simple thermodynamic model for a bulk phase, assuming an incompressible lattice of
 solid atoms, as {ct}`described here <LatticePhase>`.
+
+:::{deprecated} 3.2
+Can be replaced by the [`ideal-condensed`](sec-yaml-ideal-condensed) phase
+model with the `site-density` field used to set the molar density of each constituent
+species in that species' [`equation-of-state`](sec-yaml-eos-constant-volume) field.
+:::
 
 Additional fields:
 

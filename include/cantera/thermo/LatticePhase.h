@@ -19,6 +19,10 @@ namespace Cantera
 //! A simple thermodynamic model for a bulk phase, assuming a lattice of solid
 //! atoms
 /*!
+ * @deprecated To be removed after Cantera 3.2. Can be replaced by use of
+ *     IdealSolidSolnPhase with the site density used to set the molar density of each
+ *     constituent species.
+ *
  * The bulk consists of a matrix of equivalent sites whose molar density does
  * not vary with temperature or pressure. The thermodynamics obeys the ideal
  * solution laws. The phase and the pure species phases which comprise the

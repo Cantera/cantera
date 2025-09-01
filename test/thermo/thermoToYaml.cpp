@@ -91,7 +91,9 @@ TEST_F(ThermoToYaml, StoichSubstance2)
 
 TEST_F(ThermoToYaml, Lattice)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "Li7Si3-interstitial");
+    make_deprecation_warnings_fatal();
     EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 1.046344e+01);
     EXPECT_DOUBLE_EQ(eosData[0]["molar-volume"].asDouble(), 0.2);
     EXPECT_EQ(eosData[1].size(), (size_t) 0);
@@ -99,7 +101,9 @@ TEST_F(ThermoToYaml, Lattice)
 
 TEST_F(ThermoToYaml, LatticeSolid)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "Li7Si3_and_interstitials");
+    make_deprecation_warnings_fatal();
     EXPECT_DOUBLE_EQ(data["composition"]["Li7Si3(s)"].asDouble(), 1.0);
     EXPECT_DOUBLE_EQ(data["composition"]["Li7Si3-interstitial"].asDouble(), 1.0);
 }
@@ -490,8 +494,10 @@ TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
 
 TEST_F(ThermoYamlRoundTrip, LatticeSolid)
 {
+    suppress_deprecation_warnings();
     roundtrip("thermo-models.yaml", "Li7Si3_and_interstitials",
               {"Li7Si3(s)", "Li7Si3-interstitial"});
+    make_deprecation_warnings_fatal();
     compareThermo(710, 10e5);
 }
 

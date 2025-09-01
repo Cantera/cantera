@@ -32,13 +32,12 @@ phases:
   state: {T: 1073.15 K, P: 1 atm, coverages: {(tpb): 1.0}}
 
 - name: graphite
-  thermo: lattice
+  thermo: ideal-condensed
   species: [{graphite-anode-species: [C6, LiC6]}]
   state: {T: 300, P: 101325, X: {C6: 1.0, LiC6: 1e-5}}
-  density: 2.26 g/cm^3
 
 - name: electrolyte
-  thermo: lattice
+  thermo: ideal-condensed
   species: [{graphite-anode-species: [Li+(e), PF6-(e), EC(e), EMC(e)]}]
   density: 1208.2 kg/m^3
   state:
@@ -157,29 +156,50 @@ graphite-anode-species:
 - name: EC(e)
   composition: {C: 3, H: 4, O: 3}
   thermo: {model: constant-cp}
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: EMC(e)
   composition: {C: 4, H: 8, O: 3}
   thermo: {model: constant-cp}
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: O2(e)
   composition: {O: 2}
   thermo:
     model: constant-cp
     h0: 0.00177285 kJ/mol
     s0: 143.5777069 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: Li+(e)
   composition: {Li: 1, E: -1}
   thermo: {model: constant-cp}
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: PF6-(e)
   composition: {P: 1, F: 6, E: 1}
   thermo: {model: constant-cp}
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: C6
   composition: {C: 6}
   thermo: {model: constant-cp}
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 - name: LiC6
   composition: {C: 6, Li: 1, E: -1}
   thermo:
     model: constant-cp
     h0: -11.65 kJ/mol
+  equation-of-state:
+    model: constant-volume
+    density: 2.26 g/cm^3
 # dummy species for anode/electrolyte interface
 - name: (int)
   composition: {}

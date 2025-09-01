@@ -19,6 +19,10 @@ namespace Cantera
 //! A phase that is comprised of a fixed additive combination of other lattice
 //! phases
 /*!
+ * @deprecated To be removed after Cantera 3.2. No known usage exists, and the model
+ *     does not satisfy several basic thermodynamic identities.
+ *     See https://github.com/Cantera/cantera/issues/1310.
+ *
  * This is the main way %Cantera describes semiconductors and other solid
  * phases. This ThermoPhase object calculates its properties as a sum over other
  * LatticePhase objects. Each of the LatticePhase objects is a ThermoPhase
@@ -105,7 +109,7 @@ class LatticeSolidPhase : public ThermoPhase
 {
 public:
     //! Base empty constructor
-    LatticeSolidPhase() = default;
+    LatticeSolidPhase();
 
     string type() const override {
         return "compound-lattice";

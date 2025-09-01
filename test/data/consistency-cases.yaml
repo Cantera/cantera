@@ -276,6 +276,7 @@ lattice:
   setup:
     file: thermo-models.yaml
     phase: Li7Si3-interstitial
+    ignore-deprecations: true
     known-failures:
       _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
       gk_eq_hk_minus_T_sk: "Implementation is wrong. See GitHub Issue #1309"
@@ -290,6 +291,7 @@ compound-lattice:
   setup:
     file: thermo-models.yaml
     phase: Li7Si3_and_interstitials
+    ignore-deprecations: true
     known-failures:
       _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
       h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"

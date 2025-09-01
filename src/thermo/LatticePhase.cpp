@@ -20,6 +20,9 @@ namespace Cantera
 
 LatticePhase::LatticePhase(const string& inputFile, const string& id_)
 {
+    warn_deprecated("class LatticePhase", "To be removed after Cantera 3.2. Can be "
+        "replaced by use of IdealSolidSolnPhase with the site density used to set the "
+        "molar density of each constituent species.");
     initThermoFile(inputFile, id_);
 }
 
