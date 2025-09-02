@@ -790,6 +790,20 @@ cdef class FlowBase(Domain1D):
             y.push_back(t)
         self.flow.setFixedTempProfile(x, y)
 
+    def set_radiation_models(self, property_model, solver_model="OpticallyThin"):
+        """
+        Set radiation property and solver models for this flow domain.
+
+        Parameters
+        ----------
+        property_model : str
+            Name of the property calculator model. Examples include
+            "TabularPlanckMean", "RadLib.PlanckMean", "RadLib.WSGG", "RadLib.RCSLW".
+        solver_model : str, optional
+            Name of the radiation solver model. Defaults to "OpticallyThin".
+        """
+        self.flow.setRadiationModels(stringify(property_model), stringify(solver_model))
+
     def get_settings3(self):
         """
         Temporary method returning new behavior of settings getter.
