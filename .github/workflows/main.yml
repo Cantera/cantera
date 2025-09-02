@@ -167,7 +167,7 @@ jobs:
     - name: Create archive for Doxygen output
       run: tar -czf doxygen.tar.gz Cantera.tag  doxygen/xml
       working-directory: build/doc
-      if: matrix.python-version == '3.11'
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
     - name: Upload Doxygen output
       # Only need one copy from CI run
       uses: actions/upload-artifact@v4
@@ -176,7 +176,7 @@ jobs:
         name: doxygen-tree
         overwrite: true
         retention-days: 2
-      if: matrix.python-version == '3.11'
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
     - name: Save the wheel file to install Cantera
       uses: actions/upload-artifact@v4
       with:
