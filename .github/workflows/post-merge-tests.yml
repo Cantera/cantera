@@ -141,24 +141,33 @@ jobs:
         LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
         PYTHONPATH: build/python
 
-  ubuntu-docker:
-    name: Docker 'ubuntu:${{ matrix.image }}' image with Sundials MPI ${{ matrix.mpi }}
+  debuntu-docker:
+    name: Docker '${{ matrix.image }}' image with Sundials MPI ${{ matrix.mpi }}
     strategy:
       matrix:
         include:
-        - image: "devel"
+        - image: "ubuntu:devel"
           options: ""
           mpi: override  # fall back to bundled Sundials (system_sundials=default)
-        - image: "rolling"
+        - image: "ubuntu:rolling"
+          options: "system_sundials=y CC=mpicc CXX=mpicxx FORTRAN=mpifort"
+          mpi: enabled  # use MPI compiler wrappers
+        - image: "debian:stable"
+          options: "system_sundials=y CC=mpicc CXX=mpicxx FORTRAN=mpifort"
+          mpi: enabled  # use MPI compiler wrappers
+        - image: "debian:testing"
+          options: "system_sundials=y CC=mpicc CXX=mpicxx FORTRAN=mpifort"
+          mpi: enabled  # use MPI compiler wrappers
+        - image: "debian:unstable"
           options: "system_sundials=y CC=mpicc CXX=mpicxx FORTRAN=mpifort"
           mpi: enabled  # use MPI compiler wrappers
       fail-fast: false
     runs-on: ubuntu-latest
     timeout-minutes: 60
     container:
-      image: ubuntu:${{ matrix.image }}
+      image: ${{ matrix.image }} # zizmor: ignore[unpinned-images]
     steps:
-    - name: Install git on ubuntu:${{ matrix.image }}
+    - name: Install git on ${{ matrix.image }}
       run: |
         apt update -y
         apt install -y --no-install-recommends git ca-certificates
