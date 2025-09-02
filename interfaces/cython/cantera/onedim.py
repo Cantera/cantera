@@ -258,6 +258,17 @@ class FlameBase(Sim1D):
             raise ValueError("Boundary emissivities must both be set at the same time.")
         self.flame.boundary_emissivities = epsilon[0], epsilon[1]
 
+    def set_radiation_models(self, property_model, solver_model="OpticallyThin"):
+        """
+        Set the radiation property and solver models.
+
+        Examples
+        --------
+        >>> f.set_radiation_models("TabularPlanckMean", "OpticallyThin")
+        >>> f.set_radiation_models("RadLib.WSGG")  # solver defaults to OpticallyThin
+        """
+        self.flame.set_radiation_models(property_model, solver_model)
+
     @property
     def grid(self):
         """ Array of grid point positions along the flame. """
