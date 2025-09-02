@@ -21,62 +21,51 @@ TabularPlanckMean::TabularPlanckMean(ThermoPhase* thermo)
 void TabularPlanckMean::parseRadiationData()
 {
     AnyMap radiationPropertiesDB;
-
     try {
         radiationPropertiesDB = AnyMap::fromYamlFile("radiation-parameters.yaml");
     } catch (CanteraError& err) {
         warn_user("TabularPlanckMean::parseRadiationData",
-            "Failed to load 'radiation-parameters.yaml':\n{}"
-            "\nFalling back to default polynomial data for CO2, H2O.", err.what());
+            "Failed to load 'radiation-parameters.yaml': {}\n"
+            "Falling back to default polynomial data for CO2, H2O.", err.what());
     }
 
-    if(!radiationPropertiesDB.empty() && radiationPropertiesDB.hasKey("PMAC")) {
-        auto& data = radiationPropertiesDB["PMAC"].as<AnyMap>();
+    if (!radiationPropertiesDB.empty() && radiationPropertiesDB.hasKey("PMAC")) {
+        auto& db = radiationPropertiesDB["PMAC"].as<AnyMap>();
+        // Loop only the species defined in the PMAC section
+        for (const auto& item : db) {
+            const std::string& name = item.first;
+            const auto& sp = item.second.as<AnyMap>();
 
-        // Needs to loop over only the species that are in the input yaml data
-        for (const auto& name : m_thermo->speciesNames()) {
-            if (data.hasKey("radiation")) {
-                std::cout << "Radiation data found for species " << name << std::endl;
-                m_absorptionSpecies.insert({name, m_thermo->speciesIndex(name)});
-                if (data["radiation"].hasKey("fit-type")) {
-                    m_PMAC[name]["fit-type"] = data["radiation"]["fit-type"].asString();
-                } else {
-                    throw InputFileError("Flow1D::Flow1D", data,
+            size_t k = m_thermo->speciesIndex(name);
+            if (k == npos) {
+                // Skip species not present in this mechanism
+                continue;
+            }
+            m_absorptionSpecies.emplace(name, k);
+
+            if (!sp.hasKey("fit-type")) {
+                throw InputFileError("TabularPlanckMean::parseRadiationData", db,
                     "No 'fit-type' entry found for species '{}'", name);
-                }
+            }
+            const std::string fit = sp["fit-type"].asString();
+            m_PMAC[name]["fit-type"] = fit;
 
-                // This is the direct tabulation of the optical path length
-                if (data["radiation"]["fit-type"] == "table") {
-                    if (data["radiation"].hasKey("temperatures")) {
-                        std::cout << "Storing temperatures for species " << name << std::endl;
-                        // Each species may have a specific set of temperatures that are used
-                        m_PMAC[name]["temperatures"] = data["radiation"]["temperatures"].asVector<double>();
-                    } else {
-                        throw InputFileError("Flow1D::Flow1D", data,
-                        "No 'temperatures' entry found for species '{}'", name);
-                    }
-
-                    if (data["radiation"].hasKey("data")) {
-                        std::cout << "Storing data for species " << name << std::endl;
-                        // This data is the Plank mean absorption coefficient
-                        m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
-                    } else {
-                        throw InputFileError("Flow1D::Flow1D", data,
-                        "No 'data' entry found for species '{}'", name);
-                    }
-                } else if (data["radiation"]["fit-type"] == "polynomial") {
-                    std::cout << "Polynomial fit found for species " << name << std::endl;
-                    if (data["radiation"].hasKey("data")) {
-                        std::cout << "Storing data for species " << name << std::endl;
-                        m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
-                    } else {
-                        throw InputFileError("Flow1D::Flow1D", data,
-                        "No 'data' entry found for species '{}'", name);
-                    }
-                } else {
-                    throw InputFileError("Flow1D::Flow1D", data,
-                    "Invalid 'fit-type' entry found for species '{}'", name);
+            if (fit == "table") {
+                if (!sp.hasKey("temperatures") || !sp.hasKey("data")) {
+                    throw InputFileError("TabularPlanckMean::parseRadiationData", db,
+                        "Missing 'temperatures' or 'data' for species '{}'", name);
                 }
+                m_PMAC[name]["temperatures"] = sp["temperatures"].asVector<double>();
+                m_PMAC[name]["coefficients"] = sp["data"].asVector<double>();
+            } else if (fit == "polynomial") {
+                if (!sp.hasKey("data")) {
+                    throw InputFileError("TabularPlanckMean::parseRadiationData", db,
+                        "No 'data' entry found for species '{}'", name);
+                }
+                m_PMAC[name]["coefficients"] = sp["data"].asVector<double>();
+            } else {
+                throw InputFileError("TabularPlanckMean::parseRadiationData", db,
+                    "Invalid 'fit-type' '{}' for species '{}'", fit, name);
             }
         }
     }
@@ -192,6 +181,16 @@ void TabularPlanckMean::getBandProperties(std::vector<double>& kabs,
     awts[0] = 1.0; // single “band” weighting
 }
 
+std::vector<std::string> TabularPlanckMean::requiredSpecies() const
+{
+    std::vector<std::string> names;
+    names.reserve(m_absorptionSpecies.size());
+    for (const auto& kv : m_absorptionSpecies) {
+        names.push_back(kv.first);
+    }
+    return names;
+}
+
 
 Radiation1D::Radiation1D(ThermoPhase* thermo, double pressure, size_t points,
                          std::function<double(const double*, size_t)> temperatureFunction,
@@ -224,23 +223,34 @@ void Radiation1D::computeRadiation(double* x, size_t jmin, size_t jmax,
     double boundary_Rad_left = m_epsilon_left * StefanBoltz * std::pow(m_T(x, 0), 4);
     double boundary_Rad_right = m_epsilon_right * StefanBoltz * std::pow(m_T(x, m_points - 1), 4);
 
+    // Pre-size reusable buffers
+    std::vector<double> kabs;
+    std::vector<double> awts;
+    const auto& allNames = m_thermo->speciesNames();
+    auto req = m_props->requiredSpecies();
+
     for (size_t j = jmin; j < jmax; j++) {
         RadComposition comp;
         comp.T = m_T(x, j);
         comp.P = m_press;
-        // Build local mole-fraction map at j
         comp.X.clear();
-        const auto& names = m_thermo->speciesNames();
-        for (const auto& nm : names) {
-            size_t k = m_thermo->speciesIndex(nm);
-            comp.X[nm] = m_X(x, k, j);
+
+        if (req.empty()) {
+            // Provide all species; avoid speciesIndex(name) lookups
+            for (size_t k = 0; k < allNames.size(); ++k) {
+                comp.X[allNames[k]] = m_X(x, k, j);
+            }
+        } else {
+            // Provide only required species
+            for (const auto& nm : req) {
+                size_t k = m_thermo->speciesIndex(nm);
+                if (k != npos) {
+                    comp.X[nm] = m_X(x, k, j);
+                }
+            }
         }
 
-        // Get the band absorption coefficients and weighting factors
-        std::vector<double> kabs, awts;
         m_props->getBandProperties(kabs, awts, comp);
-
-        // Solve for radiative heat loss
         qdotRadiation[j] = m_solver->computeHeatLoss(kabs, awts, comp.T,
                                                      boundary_Rad_left,
                                                      boundary_Rad_right);
