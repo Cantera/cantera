@@ -1,8 +1,8 @@
 //
 // Optional RadLib-backed radiation property calculators for Cantera 1-D domains.
-// Enable with CMake option CANTERA_ENABLE_RADLIB.
+// Enabled when CT_ENABLE_RADLIB is defined in Cantera's config.h.
 //
-// This file is intended to be compiled/installed only when RadLib is available.
+// This file is intended to be compiled only when RadLib is available.
 // RadLib: https://github.com/BYUignite/radlib  (MIT license)
 //
 // The adapter classes here implement Cantera's RadiationPropertyCalculator
@@ -23,9 +23,8 @@
 
 #include "Radiation1D.h"
 
-#ifdef CANTERA_ENABLE_RADLIB
+#ifdef CT_ENABLE_RADLIB
 
-// RadLib headers (installed by `make install` under <prefix>/include)
 #include <rad.h>              // base class
 #include <rad_planck_mean.h>  // rad_planck_mean
 #include <rad_wsgg.h>         // rad_wsgg
@@ -80,6 +79,10 @@ public:
                        xH2O, xCO2, xCO, xCH4);
     }
 
+    std::vector<std::string> requiredSpecies() const override {
+        return {"H2O", "CO2", "CO", "CH4"};
+    }
+
 private:
     std::unique_ptr<rad_planck_mean> m_rad;
 };
@@ -107,6 +110,10 @@ public:
         kabs.clear(); awts.clear();
         m_rad->get_k_a(kabs, awts, comp.T, comp.P, m_fvsoot,
                        xH2O, xCO2, xCO, xCH4);
+    }
+
+    std::vector<std::string> requiredSpecies() const override {
+        return {"H2O", "CO2", "CO", "CH4"};
     }
 
 private:
@@ -148,6 +155,10 @@ public:
                        xH2O, xCO2, xCO, xCH4);
     }
 
+    std::vector<std::string> requiredSpecies() const override {
+        return {"H2O", "CO2", "CO", "CH4"};
+    }
+
 private:
     std::unique_ptr<rad_rcslw> m_rad;
 };
@@ -180,17 +191,19 @@ makeRadLibProps(const std::string& model,
 
 } // namespace Cantera
 
-#else  // CANTERA_ENABLE_RADLIB not defined
+#else  // CT_ENABLE_RADLIB not defined
 
 // If a build without RadLib tries to select a RadLib model, throw a clear error.
 namespace Cantera {
 inline std::unique_ptr<RadiationPropertyCalculator>
-makeRadLibProps(const std::string&, ThermoPhase*, double, int, double, double)
+makeRadLibProps(const std::string&, ThermoPhase*, double fvsoot = 0.0,
+                int nGray = 25, double Tref = 1500.0, double Pref = OneAtm)
 {
     throw CanteraError("makeRadLibProps",
         "RadLib support is not enabled in this Cantera build. "
-        "Reconfigure with -DCANTERA_ENABLE_RADLIB=ON and provide a RadLib installation.");
+        "Rebuild Cantera with RadLib enabled (set 'system_radlib=y' for a system install, "
+        "or 'system_radlib=n' to use the bundled RadLib submodule).");
 }
 } // namespace Cantera
 
-#endif // CANTERA_ENABLE_RADLIB
+#endif // CT_ENABLE_RADLIB

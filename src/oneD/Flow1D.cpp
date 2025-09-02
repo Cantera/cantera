@@ -11,6 +11,7 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/base/AnyMap.h"
 
 
 using namespace std;
@@ -181,17 +182,89 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
 
     double emissivityLeft = 0.0;
     double emissivityRight = 0.0;
-    m_radiation = createRadiation1D(
-        propertyModel,
-        solverModel,
-        m_thermo,
-        m_thermo->pressure(),
-        m_points,
-        Tfunc,
-        Xfunc,
-        emissivityLeft,
-        emissivityRight
-    );
+
+    // Optionally override from 'radiation-parameters.yaml'
+    try {
+        AnyMap radcfg = AnyMap::fromYamlFile("radiation-parameters.yaml");
+        if (radcfg.hasKey("Radiation")) {
+            auto& rad = radcfg["Radiation"].as<AnyMap>();
+            if (rad.hasKey("property")) {
+                propertyModel = rad["property"].asString();
+            }
+            if (rad.hasKey("solver")) {
+                solverModel = rad["solver"].asString();
+            }
+            if (rad.hasKey("emissivity")) {
+                auto& e = rad["emissivity"].as<AnyMap>();
+                if (e.hasKey("left")) {
+                    emissivityLeft = e["left"].asDouble();
+                }
+                if (e.hasKey("right")) {
+                    emissivityRight = e["right"].asDouble();
+                }
+            }
+        }
+    } catch (CanteraError&) {
+        // Optional file; fall back to defaults silently
+    }
+    bool usedCustomRadlib = false;
+    // If a RadLib property is selected, allow optional RadLib-specific parameters
+    // to be passed from the 'Radiation.radlib' block in radiation-parameters.yaml
+    if (propertyModel.rfind("RadLib.", 0) == 0 || propertyModel.rfind("radlib-", 0) == 0) {
+        try {
+            AnyMap radcfg = AnyMap::fromYamlFile("radiation-parameters.yaml");
+            if (radcfg.hasKey("Radiation")) {
+                auto& rad = radcfg["Radiation"].as<AnyMap>();
+                if (rad.hasKey("radlib")) {
+                    auto& ropt = rad["radlib"].as<AnyMap>();
+                    double fvsoot = ropt.hasKey("fvsoot") ? ropt["fvsoot"].asDouble() : 0.0;
+                    int nGray = ropt.hasKey("nGray") ? static_cast<int>(ropt["nGray"].asInt()) : 25;
+                    double Tref = ropt.hasKey("Tref") ? ropt["Tref"].asDouble() : 1500.0;
+                    double Pref = ropt.hasKey("Pref") ? ropt["Pref"].asDouble() : m_thermo->pressure();
+
+                    std::unique_ptr<RadiationPropertyCalculator> props;
+                    if (propertyModel == "RadLib.PlanckMean" || propertyModel == "radlib-pm") {
+                        props = makeRadLibProps("RadLib.PlanckMean", m_thermo, fvsoot);
+                    } else if (propertyModel == "RadLib.WSGG" || propertyModel == "radlib-wsgg") {
+                        props = makeRadLibProps("RadLib.WSGG", m_thermo, fvsoot);
+                    } else if (propertyModel == "RadLib.RCSLW" || propertyModel == "radlib-rcslw") {
+                        props = makeRadLibProps("RadLib.RCSLW", m_thermo, fvsoot, nGray, Tref, Pref);
+                    }
+
+                    if (props) {
+                        std::unique_ptr<RadiationSolver> solver;
+                        if (solverModel == "OpticallyThin") {
+                            solver = std::make_unique<OpticallyThinSolver>();
+                        } else {
+                            throw CanteraError("Flow1D::Flow1D",
+                                "Unknown radiation solver model: {}", solverModel);
+                        }
+                        m_radiation = std::make_unique<Radiation1D>(
+                            m_thermo, m_thermo->pressure(), m_points,
+                            Tfunc, Xfunc, std::move(props), std::move(solver));
+                        m_radiation->setBoundaryEmissivities(emissivityLeft, emissivityRight);
+                        usedCustomRadlib = true;
+                    }
+                }
+            }
+        } catch (CanteraError&) {
+            // optional config; ignore and fall back to defaults handled below
+        }
+    }
+
+    if (!usedCustomRadlib) {
+        m_radiation = createRadiation1D(
+            propertyModel,
+            solverModel,
+            m_thermo,
+            m_thermo->pressure(),
+            m_points,
+            Tfunc,
+            Xfunc,
+            emissivityLeft,
+            emissivityRight
+        );
+    }
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
@@ -613,9 +686,14 @@ void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 void Flow1D::setRadiationModels(const std::string& propertyModel,
                                 const std::string& solverModel)
 {
-    // Rebuild the Radiation1D object with the requested models
+    // Rebuild the Radiation1D object with the requested models, preserving
+    // current boundary emissivities
     double emissivityLeft = 0.0;
     double emissivityRight = 0.0;
+    if (m_radiation) {
+        emissivityLeft = m_radiation->leftEmissivity();
+        emissivityRight = m_radiation->rightEmissivity();
+    }
     m_radiation = createRadiation1D(propertyModel, solverModel,
         m_thermo,
         m_press,

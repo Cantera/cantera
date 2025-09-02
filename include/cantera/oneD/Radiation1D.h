@@ -58,6 +58,12 @@ public:
     virtual void getBandProperties(std::vector<double>& kabs,
                                    std::vector<double>& awts,
                                    const RadComposition& comp) = 0;
+
+    // Optional: list of species names required by this calculator.
+    // If empty, the caller may provide all species; otherwise, the caller can
+    // optimize by providing only these species in RadComposition::X.
+    // @since New in Cantera (radiation plugin)
+    virtual std::vector<std::string> requiredSpecies() const { return {}; }
 };
 
 
@@ -133,6 +139,8 @@ public:
      */
     void getBandProperties(std::vector<double>& kabs, std::vector<double>& awts,
                            const RadComposition& comp) override;
+
+    std::vector<std::string> requiredSpecies() const override;
 
 private:
     /** Parse optional YAML data from "radiation-properties.yaml".
@@ -255,7 +263,7 @@ public:
     {
         // Sum over each band.
         double sum = 0.0;
-        double sigma = 5.67e-8; // Stefan-Boltzmann constant
+        double sigma = StefanBoltz;
         for (size_t i=0; i<kabs.size(); ++i) {
             sum += awts[i] * 2.0 * kabs[i] *
                    (2.0 * sigma * std::pow(T,4) - boundaryRadLeft - boundaryRadRight);
@@ -348,7 +356,15 @@ private:
     std::function<double(const double*, size_t, size_t)> m_X;
 };
 
+} // namespace Cantera
 
+// Bring in RadLib-backed property adapters and factory helper. This header is
+// safe to include unconditionally: if CT_ENABLE_RADLIB is not defined,
+// it provides a stub that throws a clear error when RadLib models are selected.
+#include "Radiation1D_RadLib.h"
+
+namespace Cantera
+{
 /**
  * Create a Radiation1D instance based on the selected property model and solver.
  *
@@ -381,15 +397,14 @@ inline std::unique_ptr<Radiation1D> createRadiation1D(
     if (propertyModel == "TabularPlanckMean") {
         props = std::make_unique<TabularPlanckMean>(thermo);
     }
-#ifdef CANTERA_ENABLE_RADLIB
     else if (propertyModel == "RadLib.PlanckMean" || propertyModel == "radlib-pm") {
        props = makeRadLibProps("RadLib.PlanckMean", thermo, 0.0);
     } else if( propertyModel == "RadLib.WSGG" || propertyModel == "radlib-wsgg") {
         props = makeRadLibProps("RadLib.WSGG", thermo, 0.0);
     } else if( propertyModel == "RadLib.RCSLW" || propertyModel == "radlib-rcslw") {
-        props = makeRadLibProps(propertyModel, thermo, 0.0, \*nGray*\ 25, \*Tref*\ 1500.0, pressure);
+        // Default to 25 gray gases and Tref=1500 K for RCSLW if not specified elsewhere
+        props = makeRadLibProps("RadLib.RCSLW", thermo, 0.0, 25, 1500.0, pressure);
     }
-#endif
     else {
         throw CanteraError("createRadiation1D",
             "Unknown property model: " + propertyModel);
