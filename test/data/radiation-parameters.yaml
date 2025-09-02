@@ -1,5 +1,17 @@
 # radiation-parameters.yaml
 
+Radiation:
+  property: RadLib.RCSLW # or TabularPlanckMean, RadLib.PlanckMean, RadLib.WSGG
+  solver: OpticallyThin
+  emissivity:
+    left: 0.0
+    right: 0.0
+  radlib:
+    fvsoot: 0.0
+    nGray: 25
+    Tref: 1500.0
+    Pref: 101325.0
+
 PMAC:
   NO:
     fit-type: table
