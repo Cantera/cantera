@@ -148,6 +148,40 @@ if env['googletest'] == 'submodule':
     gmock = build(localenv.Library('../lib/gmock',
                                    source=['googletest/googlemock/src/gmock-all.cc']))
 
+# RadLib library (build from submodule when system_radlib is False or 'n')
+if env.get("system_radlib", None) in (False, 'n'):
+    radlib_src  = Dir("#/ext/radlib")
+    # Build out-of-tree with CMake but install into a canonical build/ext/radlib
+    # folder (similar to other dependencies).
+    radlib_bld  = Dir("#/build/ext/radlib-build")
+    radlib_inst = Dir("#/build/ext/radlib")
+    stamp       = File("#/build/ext/radlib/.built")
+
+    cfg = (
+        f'cmake -S {radlib_src.abspath} -B {radlib_bld.abspath} '
+        f'-DCMAKE_BUILD_TYPE={env.get("build","Release")} '
+        f'-DCMAKE_INSTALL_PREFIX={radlib_inst.abspath}'
+    )
+    bld = f'cmake --build {radlib_bld.abspath} --target install'
+
+    # Build and install RadLib, then create a stamp file so SCons can track it
+    env.Command(stamp, radlib_src, [cfg, bld, 'echo built > $TARGET'])
+
+    for t in libraryTargets:
+        env.Requires(t, stamp)
+
+    # Use absolute include/lib paths to avoid variant-dir path confusion
+    incpath = radlib_inst.Dir("include").abspath
+    libpath = radlib_inst.Dir("lib").abspath
+    env.AppendUnique(CPPPATH=[incpath])
+    env.AppendUnique(LIBPATH=[libpath])
+    if env["use_rpath_linkage"]:
+        env.AppendUnique(RPATH=[libpath])
+    env.AppendUnique(LIBS=["radlib"])
+    # Expose stamp for other SConscript files to depend on
+    env["radlib_built_stamp"] = stamp
+
+
 env["ext_include_copies_target"] = build(ext_copies)
 
 
