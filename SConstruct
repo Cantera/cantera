@@ -458,6 +458,23 @@ config_options = [
            directories to 'extra_inc_dirs' and 'extra_lib_dirs'.""",
         "default", ("default", "y", "n")),
     EnumOption(
+        "system_radlib",
+        """Select whether to use the RadLib radiation library from a system installation
+           ('y'), from a Git submodule ('n'), or to decide automatically ('default').
+           If using a system installation that is not on default include/lib paths, set
+           'radlib_include' and/or 'radlib_libdir'.""",
+        "default", ("default", "y", "n")),
+    PathOption(
+        "radlib_include",
+        """The directory where the RadLib header files are installed. Not needed if the
+           headers are installed in a standard location, for example, '/usr/include'.""",
+        "", PathVariable.PathAccept),
+    PathOption(
+        "radlib_libdir",
+        """The directory where the RadLib libraries are installed. Not needed if the
+           libraries are installed in a standard location, for example, '/usr/lib'.""",
+        "", PathVariable.PathAccept),
+    EnumOption(
         "system_sundials",
         """Select whether to use SUNDIALS from a system installation ('y'), from
            a Git submodule ('n'), or to decide automatically ('default').
@@ -1301,6 +1318,7 @@ if env['system_yamlcpp'] in ('n', 'default'):
     if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
         checkout_submodule("yaml-cpp", "ext/yaml-cpp")
 
+
 # Check for googletest and checkout submodule if needed
 if env['googletest'] in ('system', 'default'):
     has_gtest = conf.CheckCXXHeader('gtest/gtest.h', '""')
@@ -1387,38 +1405,10 @@ if env["system_radlib"] in ("n", "default") and not have_system_radlib:
     logger.info("Using private (submodule) RadLib.")
 
 if env["system_radlib"] is True or env["system_radlib"] is False:
-    # True => system, False => submodule, both mean: enable code path
-    env.AppendUnique(CPPDEFINES=["CANTERA_ENABLE_RADLIB"])
+    # Enable RadLib feature flag in config.h (set later via cdefine)
+    env['ct_enable_radlib'] = True
 if env["system_radlib"] is True:
     env["external_libs"].append("radlib")
-
-Import('env', 'build', 'libraryTargets', 'install')
-# Only build RadLib if we are not using a system install
-if env.get("system_radlib", None) is False:
-    radlib_src   = Dir("#/ext/radlib")
-    radlib_bld   = Dir("#/build/ext/radlib-build")
-    radlib_inst  = Dir("#/build/ext/radlib-install")
-    radlib_stamp = File("#/build/ext/radlib-install/.built")
-
-    cmake_cfg = (
-        f'cmake -S {radlib_src.abspath} -B {radlib_bld.abspath} '
-        f'-DCMAKE_BUILD_TYPE={env["build"] if "build" in env else "Release"} '
-        f'-DCMAKE_INSTALL_PREFIX={radlib_inst.abspath}'
-    )
-    cmake_bld = f'cmake --build {radlib_bld.abspath} --target install -j {GetOption("num_jobs") if "GetOption" in globals() else 1}'
-
-    env.Command(radlib_stamp, radlib_src, [cmake_cfg, cmake_bld])
-
-    # Ensure Cantera’s libs are not linked until RadLib is available
-    for t in libraryTargets.values():
-        env.Requires(t, radlib_stamp)
-
-    # Add include/lib paths and link flag for the just-built RadLib
-    env.AppendUnique(CPPPATH=[str(radlib_inst.Dir("include"))])
-    env.AppendUnique(LIBPATH=[str(radlib_inst.Dir("lib"))])
-    if env["use_rpath_linkage"]:
-        env.AppendUnique(RPATH=[str(radlib_inst.Dir("lib"))])
-    env.AppendUnique(LIBS=["radlib"])
 
 # ----- End Radlib ----
 
@@ -1925,6 +1915,8 @@ cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
+cdefine('CT_USE_SYSTEM_RADLIB', 'system_radlib')
+cdefine('CT_ENABLE_RADLIB', 'ct_enable_radlib')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',

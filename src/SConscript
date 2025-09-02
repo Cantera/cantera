@@ -74,6 +74,9 @@ for subdir, extensions, setup in libs:
     source = setup(env2, subdir, extensions)
     objects = env2.SharedObject(source)
     env2.Depends(objects, env2['config_h_target'])
+    # Ensure RadLib submodule (if used) is built before compiling Cantera sources
+    if env2.get('radlib_built_stamp'):
+        env2.Requires(objects, env2['radlib_built_stamp'])
     if pch:
         env2.Requires(objects, pch)
     libraryTargets.extend(objects)
@@ -101,6 +104,8 @@ if not localenv["clib_legacy"]:
             source_file)
 
         env2.Depends(obj, env2["config_h_target"])
+        if env2.get('radlib_built_stamp'):
+            env2.Requires(obj, env2['radlib_built_stamp'])
         if pch:
             env2.Requires(obj, pch)
 
