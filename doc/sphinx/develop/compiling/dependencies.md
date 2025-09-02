@@ -133,7 +133,7 @@ compiler is required only if you plan to build the Fortran module.
   - Required to read and write data files in the HDF5 format
   - Known to work with versions 1.12 and 1.14.
 
-- [HighFive](https://github.com/BlueBrain/HighFive)
+- [HighFive](https://highfive-devs.github.io/highfive/)
 
   - Required to read and write data files in the HDF5 format
   - If HighFive is not installed and you have checked out the Cantera source code
