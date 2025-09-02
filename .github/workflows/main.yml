@@ -33,7 +33,7 @@ jobs:
       CANTERA_ROOT: /home/runner/work/cantera/cantera
       CANTERA_DATA: /home/runner/work/cantera/cantera/data
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           submodules: recursive
@@ -65,9 +65,9 @@ jobs:
           LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
           echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@718d4320188c73c86eb94ce76b553cbf89778487 # v2.5.0
+        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
       - name: Run tests
-        uses: matlab-actions/run-tests@f9fc3d8ca29fadef6227fa52884b144b9011fa2f # v2.1.1
+        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
         with:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
@@ -100,7 +100,7 @@ jobs:
           cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -190,7 +190,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -251,7 +251,7 @@ jobs:
             python-version: '3.11'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -309,7 +309,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -355,9 +355,9 @@ jobs:
         LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@718d4320188c73c86eb94ce76b553cbf89778487 # v2.5.0
+      uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@67f012f1ee4bc1627a7a95a0ccdeec745c9f6f36 # v2.2.1
+      uses: matlab-actions/run-command@5178a73478a5fbdb23be171e94df0a7652fc225a # v2.2.2
       env:
         CANTERA_ROOT: /home/runner/work/cantera/cantera
         CANTERA_DATA: /home/runner/work/cantera/cantera/data
@@ -412,7 +412,7 @@ jobs:
         path: test/matlab_experimental/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab_experimental/matlabCoverage.xml
@@ -426,7 +426,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           submodules: recursive
@@ -600,7 +600,7 @@ jobs:
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
       # folder, so no need to do a recursive checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           persist-credentials: false
@@ -614,12 +614,12 @@ jobs:
           sudo apt update
           sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev libopenblas0-openmp
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: libcantera_shared-${{ matrix.os }}.so
           path: build/lib
@@ -683,7 +683,7 @@ jobs:
           extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           submodules: recursive
@@ -750,7 +750,7 @@ jobs:
           extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -832,7 +832,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           submodules: recursive
@@ -897,7 +897,7 @@ jobs:
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev \
         doxygen
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -937,7 +937,7 @@ jobs:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         submodules: recursive
@@ -1009,7 +1009,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -1049,22 +1049,22 @@ jobs:
       with:
         dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
     - name: Download the Cantera shared library (.dylib)
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: libcantera_shared.dylib
         path: build/lib
     - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: cantera_shared.dll
         path: build/lib
     - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: doxygen-tree
         path: build/doc
