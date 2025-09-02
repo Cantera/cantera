@@ -1494,7 +1494,7 @@ else:
 
 if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
     if conf.CheckLibWithHeader(
-            "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
+            env["hdf5_lib"], "highfive/H5File.hpp", language="C++", autoadd=False):
 
         highfive_include = "<highfive/H5Version.hpp>"
         retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
