@@ -1191,7 +1191,7 @@ def get_expression_value(includes, expression):
 # Need to ensure that RPATH is working before we can continue with library checks
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
 
-if env['OS'] == 'Solaris' or env['HAS_CLANG']:
+if env['OS'] == 'Solaris' or env['HAS_CLANG'] or env["OS"] == "Darwin":
     env["RPATHPREFIX"] = "-Wl,-rpath,"
 
 # Add initial libraries to RPATH
