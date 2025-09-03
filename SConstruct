@@ -1441,6 +1441,8 @@ if env['system_sundials'] in ("y", "default"):
         env["system_sundials"] = sundials_info["system_sundials"]
         env["sundials_version"] = sundials_info["sundials_version"]
         env["has_sundials_lapack"] = sundials_info["has_sundials_lapack"]
+    elif env["system_sundials"] == "y":
+        config_error("System SUNDIALS was specified but libraries were not found.")
 
 if env["system_sundials"] in ("n", "default"):
     if not os.path.exists('ext/sundials/include/cvodes/cvodes.h'):
