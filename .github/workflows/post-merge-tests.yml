@@ -313,7 +313,7 @@ jobs:
         PYTHONPATH: build/python
 
   macos-homebrew:
-    name: Install Latest Python with Homebrew on ${{ matrix.os }}
+    name: Homebrew Python/GCC on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     strategy:
@@ -332,12 +332,14 @@ jobs:
         enable-cache: true
         cache-dependency-glob: |
           ${{ env.REQUIREMENTS_TXT_FILE }}
-    # NumPy is installed here for the Python custom rate tests
+    # - NumPy is installed here for the Python custom rate tests.
+    # - Do not install brew SUNDIALS because it requires open-mpi and the brew open-mpi
+    #   package uses the system Clang to provide mpicc/mpicxx.
+    # - Do not install brew dependencies for C++ because these are built with libc++
+    #   while GCC will use libstdc++, and combining these will lead to linker errors
     - name: Install Brew dependencies
-      run: |
-        brew install --display-times boost libomp hdf5 python numpy doxygen
-    - name: Set Include folder
-      run: echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+      run:
+        brew install --display-times boost libomp hdf5 python numpy doxygen gcc eigen
     # This is necessary because of PEP 668 https://peps.python.org/pep-0668/
     # PEP 668 prohibits installation to system Python packages via pip
     - name: Create a virtualenv for dependencies
@@ -350,8 +352,15 @@ jobs:
         uv pip install -r "${REQUIREMENTS_TXT_FILE}"
     - name: Build Cantera
       run: |
+        BREW_PREFIX=`brew --prefix`
+        GCC_VER=`brew info gcc --json | jq -r '.[0]["installed"][0]["version"] | split(".")[0]'`
+        echo "CC = '$BREW_PREFIX/bin/gcc-$GCC_VER'" >> cantera.conf
+        echo "CXX = '$BREW_PREFIX/bin/g++-$GCC_VER'" >> cantera.conf
+        echo "AR = '$BREW_PREFIX/bin/gcc-ar-$GCC_VER'" >> cantera.conf
+        echo "extra_inc_dirs = '${BREW_PREFIX}/include'" >> cantera.conf
+        echo "extra_lib_dirs = '${BREW_PREFIX}/lib'" >> cantera.conf
         uv run scons build env_vars=all -j3 debug=n --debug=time logging=debug \
-        boost_inc_dir=${BOOST_INC_DIR} python_package=y
+            python_package=y system_eigen=y
     - name: Build Tests
       run: uv run scons -j3 build-tests
     - name: Run compiled tests
