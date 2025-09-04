@@ -160,8 +160,7 @@ surf.coverageEnabled = false;
 surf_phase.setMultiplier(0.0);
 gas.setMultiplier(0.0);
 
-%%
-% Solve the problem, refining the grid if needed
+%% Solve the problem, refining the grid if needed
 stack.solve(1, refine_grid);
 
 %%
@@ -182,12 +181,10 @@ end
 % problem. Now switch the inlet to the methane/air composition.
 inlt.setMoleFractions(comp2);
 
-%%
-% Set more stringent grid refinement criteria
+%% Set more stringent grid refinement criteria
 stack.setRefineCriteria(2, 100.0, 0.15, 0.2);
 
-%%
-% Solve the problem for the final time
+%% Solve the problem for the final time
 stack.solve(loglevel, refine_grid);
 
 %% Show statistics

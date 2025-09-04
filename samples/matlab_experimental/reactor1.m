@@ -43,12 +43,10 @@ function reactor1(g)
     % at the environment pressure.
     w = Wall(r, env);
 
-    %%
-    % set expansion parameter. dV/dt = KA(P_1 - P_2)
+    %% Set expansion parameter. dV/dt = KA(P_1 - P_2)
     w.expansionRateCoeff = 1.0e6;
 
-    %%
-    % set wall area
+    %% Set wall area
     w.area = 1.0;
 
     %% create a reactor network and insert the reactor:

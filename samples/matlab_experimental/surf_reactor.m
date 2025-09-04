@@ -29,15 +29,16 @@ surf.TP = {t, surf.P};
 nsp = gas.nSpecies;
 nSurfSp = surf.nSpecies;
 
-% create a reactor, and insert the gas
+%% create a reactor, and insert the gas
 r = IdealGasReactor(gas);
 r.V = 1.0e-6;
 
-% create a reservoir to represent the environment
+%% create a reservoir to represent the environment
 a = Solution('air.yaml', 'air', 'none');
 a.TP = {t, OneAtm};
 env = Reservoir(a);
 
+%%
 % Define a wall between the reactor and the environment and
 % make it flexible, so that the pressure in the reactor is held
 % at the environment pressure.
@@ -45,19 +46,18 @@ w = Wall(r, env);
 
 A = 1e-4; % Wall area
 
-% Add a reacting surface, with an area matching that of the wall
+%% Add a reacting surface, with an area matching that of the wall
 rsurf = ReactorSurface(surf, r);
 rsurf.area = A;
 
-% set the wall area and heat transfer coefficient.
+%% set the wall area and heat transfer coefficient.
 w.area = A;
 w.heatTransferCoeff = 1.0e1; % W/m2/K
 
-% set expansion rate parameter. dV/dt = KA(P_1 - P_2)
+%% set expansion rate parameter. dV/dt = KA(P_1 - P_2)
 w.expansionRateCoeff = 1.0;
 
 network = ReactorNet({r});
-% setTolerances(network, 1.0e-8, 1.0e-12);
 
 nSteps = 100;
 p0 = r.P;

@@ -16,30 +16,24 @@ eta_turbine = 0.8;
 p_max = 8.0 * OneAtm;
 t1 = 300.0;
 
-%% create an object representing water
+%% create a saturated liquid water object at t1
 w = Water;
-
-%%
-% start with saturated liquid water at t1
 basis = 'mass';
 w.TQ = {t1, 0};
 h1 = w.H;
 p1 = w.P;
 
-%%
-% pump it to p2
+%% pump it to p2
 pump_work = pump(w, p_max, eta_pump);
 h2 = w.H;
 
-%%
-% heat to saturated vapor
+%% heat to saturated vapor
 w.PQ = {p_max, 1.0};
 h3 = w.H;
 
 heat_added = h3 - h2;
 
-%%
-% expand adiabatically back to the initial pressure
+%% expand adiabatically back to the initial pressure
 turbine_work = expand(w, p1, eta_turbine);
 
 %% compute the efficiency
