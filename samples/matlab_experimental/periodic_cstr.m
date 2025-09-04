@@ -85,11 +85,9 @@ function periodic_cstr
     % close to the downstream pressure of 60 Torr.
     v = Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
-    %%
-    % create the network
+    %% create the network
     network = ReactorNet({cstr});
-    %%
-    % now integrate in time
+    %% now integrate in time
     tme = 0.0;
     dt = 0.1;
 
