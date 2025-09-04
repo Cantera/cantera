@@ -1,5 +1,5 @@
 function isentropic(g)
-    %% Isentropic, adiabatic flow
+    %% Isentropic nozzle flow
     %
     % In this example, the area ratio vs. Mach number curve is computed for a
     % hydrogen/nitrogen gas mixture.

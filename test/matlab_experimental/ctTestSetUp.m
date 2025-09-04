@@ -1,24 +1,17 @@
-clear all
+function ctTestSetUp()
+    % ctTestSetUp
+    % Configure paths for running the Cantera MATLAB unit tests and
+    % load the Cantera C library.
 
-% Copy library to test folder
-ctTestPath;
+    thisFile = mfilename('fullpath');
+    canteraRoot = fileparts(fileparts(fileparts(thisFile)));
 
-if ispc
-    ctName = '/build/lib/cantera_shared.dll';
-elseif ismac
-    ctName = '/build/lib/libcantera_shared.dylib';
-elseif isunix
-    ctName = '/build/lib/libcantera_shared.so';
+    testPaths.libPath     = fullfile(canteraRoot, 'build', 'lib');
+    testPaths.includePath = fullfile(canteraRoot, 'include');
+    testPaths.toolboxPath = fullfile(canteraRoot, 'interfaces', 'matlab_experimental');
+
+    addpath(genpath(testPaths.toolboxPath));
+    addpath(genpath(fullfile(canteraRoot, 'test')));
+
+    ctLoad(testPaths);
 end
-% Load Cantera
-if ~libisloaded('libcantera_shared')
-    [~, warnings] = loadlibrary([cantera_root, ctName], ...
-                                [cantera_root, '/include/cantera/clib/ctmatlab.h'], ...
-                                'includepath', [cantera_root, '/include'], ...
-                                'addheader', 'ct', 'addheader', 'ctfunc', ...
-                                'addheader', 'ctmultiphase', 'addheader', ...
-                                'ctonedim', 'addheader', 'ctreactor', ...
-                                'addheader', 'ctrpath', 'addheader', 'ctsurf');
-end
-
-disp('Cantera is loaded for test');
