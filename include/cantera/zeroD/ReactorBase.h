@@ -54,6 +54,16 @@ public:
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
     ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
+    //! Instantiate a ReactorBase object with Solution contents.
+    //! @param sol  Solution object representing the contents of this reactor
+    //! @param clone  Determines whether to clone `sol` so that the internal state of
+    //!     this reactor is independent of the original Solution object and any Solution
+    //!     objects used by other reactors in the network.
+    //! @param name  Name of the reactor.
+    //! @since Added the `clone` argument in %Cantera 3.2. If not specified, the default
+    //!     behavior in %Cantera 3.2 is not to clone the Solution object. This will
+    //!     change after %Cantera 3.2 to default to `true`.
+    ReactorBase(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
     virtual ~ReactorBase();
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
@@ -83,6 +93,9 @@ public:
     //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
     //!              ReactorBase with Solution object.
     void setSolution(shared_ptr<Solution> sol);
+
+    //! Access the Solution object used to represent the contents of this reactor.
+    shared_ptr<Solution> solution() { return m_solution; }
 
     //! @name Methods to set up a simulation
     //! @{
@@ -142,9 +155,15 @@ public:
     WallBase& wall(size_t n);
 
     //! Add a ReactorSurface object to a Reactor object.
+    //! @attention This method should generally not be called directly by users.
+    //!     Reactor and ReactorSurface objects should be connected by providing adjacent
+    //!     reactors to the newReactorSurface factory function.
     virtual void addSurface(ReactorSurface* surf);
 
     //! Add a ReactorSurface object to a Reactor object.
+    //! @attention This method should generally not be called directly by users.
+    //!     Reactor and ReactorSurface objects should be connected by providing adjacent
+    //!     reactors to the newReactorSurface factory function.
     void addSurface(shared_ptr<ReactorBase> surf);
 
     //! Return a reference to the *n*-th ReactorSurface connected to this reactor.

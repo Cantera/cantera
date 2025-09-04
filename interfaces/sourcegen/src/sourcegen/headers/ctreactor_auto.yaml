@@ -13,9 +13,11 @@ derived:  # Specialization/prefix dictionary
 recipes:
 - name: new
   wraps: newReactorBase
+  uses: [solution]
 - name: type
 - name: name
 - name: setName
+- name: solution
 - name: setInitialVolume
 - name: setChemistry
 - name: setEnergy
@@ -38,5 +40,6 @@ recipes:
 - name: setArea
 # service functions
 - name: del
+  uses: [solution]
 - name: cabinetSize
 - name: parentHandle

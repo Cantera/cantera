@@ -86,6 +86,8 @@ public:
     Transport(const Transport&) = delete;
     Transport& operator=(const Transport&) = delete;
 
+    shared_ptr<Transport> clone(shared_ptr<ThermoPhase> thermo) const;
+
     //! Identifies the model represented by this Transport object. Each derived class
     //! should override this method to return a meaningful identifier.
     //! @since New in %Cantera 3.0. The name returned by this method corresponds
@@ -404,8 +406,23 @@ public:
      * @param thermo  Pointer to the ThermoPhase object
      * @param mode    Chemkin compatible mode or not. This alters the
      *                 specification of the collision integrals. defaults to no.
+     * @deprecated To be removed after %Cantera 3.2. Use version that takes
+     *     `shared_ptr<ThermoPhase>`.
      */
     virtual void init(ThermoPhase* thermo, int mode=0) {}
+
+    //! Initialize a transport manager
+    /*!
+     * This routine sets up a transport manager. It calculates the collision
+     * integrals and populates species-dependent data structures.
+     *
+     * @param thermo  ThermoPhase object determining conditions for which to compute
+     *     transport properties.
+     * @param mode  Chemkin compatible mode or not. This alters the
+     *     specification of the collision integrals. defaults to no.
+     * @since  Changed to use `shared_ptr<ThermoPhase>` in %Cantera 3.2.
+     */
+    virtual void init(shared_ptr<ThermoPhase> thermo, int mode=0) {}
 
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.

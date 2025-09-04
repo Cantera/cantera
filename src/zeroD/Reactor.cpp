@@ -25,7 +25,19 @@ namespace Cantera
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {
-    m_kin = sol->kinetics().get();
+    m_kin = m_solution->kinetics().get();
+    if (m_kin->nReactions() == 0) {
+        setChemistry(false);
+    } else {
+        setChemistry(true);
+    }
+    m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
+}
+
+Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
+    : ReactorBase(sol, clone, name)
+{
+    m_kin = m_solution->kinetics().get();
     if (m_kin->nReactions() == 0) {
         setChemistry(false);
     } else {
