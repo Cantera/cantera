@@ -340,26 +340,80 @@ jobs:
       job-status: ${{ job.status }}
     strategy:
       matrix:
-        python-version: ["39"]
-        arch: ["arm64"]
-        deployment_target: ["13.0"]
-        # include:
-        #   - py: "38"
-        #     deployment_target: "10.15"
-        #     arch: "x86_64"
-        #   - py: "38"
-        #     deployment_target: "10.15"
-        #     arch: "arm64"
-      fail-fast: true
-    env:
-      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
+        # python-version: ["39"]
+        # arch: ["arm64"]
+        # deployment_target: ["13.0"]
+        include:
+          - py: "38"
+            # deployment_target: "10.15"
+            boost-arch: aarch64
+            boost-toolset: clang
+            boost-platform-version: "13"
+            boost-version: "1.86.0"
+            arch: "arm64"
+      fail-fast: true # Si plusieurs configs dans la matrice et fail-fast = False permet de continuer le workflow pour les autre config.
+    # env:
+      # MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
     steps:
+      # - uses: actions/checkout@v5 ## Pas sur que cette étape soit nécéssaire car on a déja récupéré la bonne branche lors de la création de la sdist. 
+      #   name: Checkout the repository
+      #   with:
+      #     repository: "cerfacs/cantera-avbp"
+      #     submodules: recursive
+      #     ref: ${{ github.event.inputs.incoming_ref }}
       - name: Download pre-built sdist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: cibw-sdist
       - name: Extract the sdist tarball
         run: tar -xvf *.tar.gz --strip-components=1
+        shell: bash
+      - name: Set test file download destination 
+        id: download-test-files
+        run: |
+          mkdir -p "${RUNNER_TEMP}/ct-test-dir"
+          echo "test-root=${RUNNER_TEMP}/ct-test-dir" >> $GITHUB_OUTPUT
+        shell: bash
+      # - name: Download and unpack the tarball ## Pas sur que ce step fonctionne car le lien est invalide, et la sdist à déja été récupéré avant donc je voit pas à quoi ça pourrait servir 
+      #   run: |
+      #     curl -fsSL "https://github.com/cantera/cantera/archive/${INCOMING_SHA}.tar.gz" -o cantera.tar.gz
+      #     tar -xzf cantera.tar.gz --strip-components=1 "cantera-${INCOMING_SHA}/test"
+      #     rm cantera.tar.gz
+      #   shell: bash
+      #   working-directory: "${{ steps.download-test-files.outputs.test-root }}"
+      #   env:
+      #     INCOMING_SHA: ${{ needs.post-pending-status.outputs.incoming-sha }}
+      - name: Install boost
+        uses: MarkusJx/install-boost@b1f0ee8b87cf60236b72440c72d0085d002770c5 # v2.5.0
+        id: install-boost
+        with:
+          # REQUIRED: Specify the required boost version
+          # A list of supported versions can be found here:
+          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          boost_version: ${{ matrix.boost-version }}
+          # OPTIONAL: Specify a custon install location
+          boost_install_dir: ${{ runner.temp }}
+          toolset: ${{ matrix.boost-toolset }}
+          platform_version: ${{ matrix.boost-platform-version }}
+          arch: ${{ matrix.boost-arch }}
+      # - name: Restore the cached built libraries ## This step is usesfull if several architechures are build. This enable to load lib instead of re-install them each time. This first time there are no cache directory thus this step is ignored (return cache-hit = 'false')  
+      #   id: restore-built-libraries
+      #   # Our custom manylinux images already have all our dependencies installed
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     key: ${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('dependencies.sh') }}-1
+      #     path: ${{ github.workspace }}/cache
+      - name: Build required libraries
+        run: bash ./cibw_before_all_macos.sh "${{ github.workspace }}"
+        # if: runner.os == 'macOS'
+
+      - name: Set up CIBW environment
+        run: |
+          echo "Boost_ROOT=$BOOST_ROOT" >> $GITHUB_ENV
+        # if: runner.os == 'macOS'
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+  
       # - name: Write dependencies to a file for caching # added from cantera
       #   run: |
       #     echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
@@ -369,41 +423,58 @@ jobs:
       #     python-version: ${{ matrix.python-version }}
       #     cache: pip
       #     cache-dependency-path: requirements.txt
-      - name: Install Brew dependencies
-        # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
-        run: |
-          # brew install --display-times boost libomp doxygen
-          brew install --display-times boost libomp doxygen hdf5
-          # brew install cmake@3.31.6
-          # brew install hdf5 --build-from-source 
+      # - name: Save the cache # This step is usefull when multiple architectures are build. It enable to save in caches the installed libs that will be loaded in the following build by "Restore the cached built libraries" step.  
+      #   uses: actions/cache/save@v4
+      #   if: always() && runner.os != 'Linux' && steps.restore-built-libraries.outputs.cache-hit != 'true'
+      #   with:
+      #     path: ${{ github.workspace }}/cache
+      #     key: ${{ steps.restore-built-libraries.outputs.cache-primary-key }}
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6 # 3.1.4
         env:
-          CIBW_ENVIRONMENT: >
-            BOOST_INCLUDE="$(brew --prefix)/include" 
-            RUNNER_TEMP=${{ runner.temp }} 
-            CT_SKIP_SLOW=1 
-            REPO_API_URL=${{ env.REPO_API_URL }} 
-            GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
-            HDF5_ROOT="$(brew --prefix hdf5)"
-            HDF5_USE_STATIC_LIBS=ON
-          # CIBW_ENVIRONMENT: >
-          #   BOOST_INCLUDE="$(brew --prefix)/include" 
-          #   RUNNER_TEMP=${{ runner.temp }} 
-          #   CT_SKIP_SLOW=1 
-          #   REPO_API_URL=${{ env.REPO_API_URL }} 
-          #   GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
-          #   HDF5_ROOT="$(brew --prefix hdf5)"
-          #   HDF5_STATIC=1
-          #   CANTERA_USE_SYSTEM_HDF5=y
-          CIBW_BUILD: cp${{ matrix.python-version }}-*
-          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
-          # Testing won't be available for macOS ARM until native ARM runners are available.
-          CIBW_TEST_SKIP: "*-macosx_arm64"
-          CIBW_TEST_COMMAND: pytest -vv --durations=100 ${RUNNER_TEMP}/test/python
-          CIBW_BEFORE_TEST: |
-            curl -sL -H "Authorization: token $GH_TARBALL_DL" -o ${{ runner.temp }}/cantera.tar.gz $REPO_API_URL \
-            && tar -xzf ${{ runner.temp }}/cantera.tar.gz --strip-components=1 -C ${{ runner.temp }} "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
+          CANTERA_TEST_DIR: ${{ steps.download-test-files.outputs.test-root }}
+          # CIBW_ENVIRONMENT_LINUX: CT_SKIP_SLOW=1 CANTERA_TEST_DIR=/host${{ steps.download-test-files.outputs.test-root }}
+          # CIBW_ENVIRONMENT_WINDOWS: CT_SKIP_SLOW=1 CMAKE_BUILD_PARALLEL_LEVEL=4
+          # CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR% -w {dest_dir} {wheel}
+          CIBW_ENVIRONMNET_MACOS: CT_SKIP_SLOW=1
+          CIBW_BUILD: "cp*-*"
+          CIBW_ARCHS: ${{ matrix.arch }}    
+
+      # - name: Install Brew dependencies
+      #   # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
+      #   run: |
+      #     # brew install --display-times boost libomp doxygen
+      #     brew install --display-times boost libomp doxygen hdf5
+      #     # brew install cmake@3.31.6
+      #     # brew install hdf5 --build-from-source 
+      # - name: Build wheels
+      #   uses: pypa/cibuildwheel@v2.17.0
+      #   env:
+      #     CIBW_ENVIRONMENT: >
+      #       BOOST_INCLUDE="$(brew --prefix)/include" 
+      #       RUNNER_TEMP=${{ runner.temp }} 
+      #       CT_SKIP_SLOW=1 
+      #       REPO_API_URL=${{ env.REPO_API_URL }} 
+      #       GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
+      #       HDF5_ROOT="$(brew --prefix hdf5)"
+      #       HDF5_USE_STATIC_LIBS=ON
+      #     # CIBW_ENVIRONMENT: >
+      #     #   BOOST_INCLUDE="$(brew --prefix)/include" 
+      #     #   RUNNER_TEMP=${{ runner.temp }} 
+      #     #   CT_SKIP_SLOW=1 
+      #     #   REPO_API_URL=${{ env.REPO_API_URL }} 
+      #     #   GH_TARBALL_DL=${{ env.GH_TARBALL_DL }} 
+      #     #   HDF5_ROOT="$(brew --prefix hdf5)"
+      #     #   HDF5_STATIC=1
+      #     #   CANTERA_USE_SYSTEM_HDF5=y
+      #     CIBW_BUILD: cp${{ matrix.python-version }}-*
+      #     CIBW_ARCHS_MACOS: ${{ matrix.arch }}
+      #     # Testing won't be available for macOS ARM until native ARM runners are available.
+      #     CIBW_TEST_SKIP: "*-macosx_arm64"
+      #     CIBW_TEST_COMMAND: pytest -vv --durations=100 ${RUNNER_TEMP}/test/python
+      #     CIBW_BEFORE_TEST: |
+      #       curl -sL -H "Authorization: token $GH_TARBALL_DL" -o ${{ runner.temp }}/cantera.tar.gz $REPO_API_URL \
+      #       && tar -xzf ${{ runner.temp }}/cantera.tar.gz --strip-components=1 -C ${{ runner.temp }} "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
       # - name: print info
       #   run: |
       #     ls
@@ -414,4 +485,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
-          name: wheels
+          name: cibw-wheels-${{ runner.os }}-${{ strategy.job-index }}
