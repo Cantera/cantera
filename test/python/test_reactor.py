@@ -3572,7 +3572,7 @@ class TestExtensibleReactor:
         net.preconditioner = ct.AdaptivePreconditioner()
         net.advance_to_steady_state()
         # reactors should have the same solution because the default is used
-        self.assertArrayNear(r.get_state(), rstd.get_state())
+        assert r.get_state() == approx(rstd.get_state())
 
 
 class TestSteadySolver:
