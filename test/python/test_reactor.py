@@ -3246,9 +3246,9 @@ class TestExtensibleReactor:
                            vdot=r2.expansion_rate)
 
         # Regression test values
-        self.assertNear(r1.thermo.P, 151561.15, rtol=1e-6)
-        self.assertNear(r1.thermo["H2"].Y[0], 0.13765976, rtol=1e-6)
-        self.assertNear(r2.thermo["O2"].Y[0], 0.94617029, rtol=1e-6)
+        assert r1.thermo.P == approx(151561.15, rel=1e-6)
+        assert r1.thermo["H2"].Y[0] == approx(0.13765976, rel=1e-6)
+        assert r2.thermo["O2"].Y[0] == approx(0.94617029, rel=1e-6)
 
     def test_after_jacobian(self):
         class AfterJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
@@ -3351,7 +3351,7 @@ class TestExtensibleReactor:
         net.preconditioner = ct.AdaptivePreconditioner()
         net.advance_to_steady_state()
         # reactors should have the same solution because the default is used
-        self.assertArrayNear(r.get_state(), rstd.get_state())
+        assert r.get_state() == approx(rstd.get_state())
 
 
 class TestSteadySolver:
