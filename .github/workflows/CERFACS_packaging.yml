@@ -334,7 +334,7 @@ jobs:
   macos-wheel:
     if: ${{ github.event.inputs.build_macos == 'true' }}
     name: Build ${{ matrix.arch }} macOS Wheels for Python ${{ matrix.python-version }}
-    runs-on: macos-13
+    runs-on: macos-14
     needs: ["sdist", "post-pending-status"]
     outputs:
       job-status: ${{ job.status }}
@@ -344,11 +344,11 @@ jobs:
         # arch: ["arm64"]
         # deployment_target: ["13.0"]
         include:
-          - py: "38"
+          - # py: "38"
             # deployment_target: "10.15"
             boost-arch: aarch64
             boost-toolset: clang
-            boost-platform-version: "13"
+            boost-platform-version: "14"
             boost-version: "1.86.0"
             arch: "arm64"
       fail-fast: true # Si plusieurs configs dans la matrice et fail-fast = False permet de continuer le workflow pour les autre config.
