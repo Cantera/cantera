@@ -46,20 +46,16 @@ cdef extern from "cantera/numerics/SystemJacobianFactory.h" namespace "Cantera":
 cdef class SystemJacobian:
     @staticmethod
     cdef wrap(shared_ptr[CxxSystemJacobian])
-    cdef set_cxx_object(self)
     cdef shared_ptr[CxxSystemJacobian] _base
 
 cdef class EigenSparseJacobian(SystemJacobian):
-    cdef set_cxx_object(self)
     cdef CxxEigenSparseJacobian* sparse_jac
 
 cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
     pass
 
 cdef class AdaptivePreconditioner(EigenSparseJacobian):
-    cdef set_cxx_object(self)
     cdef CxxAdaptivePreconditioner* adaptive
 
 cdef class BandedJacobian(SystemJacobian):
-    cdef set_cxx_object(self)
     cdef CxxMultiJac* band_jac
