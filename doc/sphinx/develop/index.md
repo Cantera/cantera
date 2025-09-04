@@ -1,6 +1,7 @@
 # Develop
 
 (sec-compiling)=
+
 ## Compiling Cantera from Source
 
 If you're interested in contributing new features to Cantera, or you want to try the
@@ -12,9 +13,9 @@ Cantera](compiling/configure-build) on your computer.
 
 The following additional references may also be useful:
 
-- [](compiling/dependencies.md)
-- [](compiling/config-options)
-- [](compiling/special-cases)
+-   [](compiling/dependencies.md)
+-   [](compiling/config-options)
+-   [](compiling/special-cases)
 
 ```{toctree}
 :caption: Compiling Cantera from Source
@@ -35,7 +36,7 @@ compiling/special-cases
 This section is a work in progress.
 ```
 
-- [](reactor-integration)
+-   [](reactor-integration)
 
 ```{toctree}
 :caption: How Cantera Works
