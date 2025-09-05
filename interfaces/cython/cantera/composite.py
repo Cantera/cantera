@@ -1334,6 +1334,7 @@ class SolutionArray(SolutionArrayBase):
         from pathlib import Path
         import os
         import tempfile
+        
         # Recreate phase
         phase = state.get('phase')
         
@@ -1347,13 +1348,13 @@ class SolutionArray(SolutionArrayBase):
             # Remove the file if it already exists
             if (tf.exists()):
                 os.unlink(tf)
+
             with tf.open('w') as f:
                 f.write(state['yaml_data'])
                 f.flush()
                 
             # Restore the SolutionArray from the yaml
             arr.restore(tf, 'solarr')
-
         return arr
     
     def __reduce__(self):
