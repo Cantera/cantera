@@ -1303,11 +1303,61 @@ class SolutionArray(SolutionArrayBase):
         self.shape = self._api_shape()
         return meta
 
+    def _to_picklable(self):
+        import os
+        from pathlib import Path
+        import tempfile
+
+        # Save to a temporary YAML file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tf = Path(tmpdir, "cantera_solarr_save_tempfile.yaml")
+
+            # Remove the file if it already exists
+            if (tf.exists()):
+                os.unlink(tf)
+            self.save(tf, name="solarr", overwrite=True)
+
+            # Read the YAML file into a string and delete the file
+            with open(tf, 'r') as f:
+                yaml_data = f.read()
+
+        return {
+            'yaml_data': yaml_data,
+            'phase': self._phase, # Solution object, which is already picklable
+        }
+
+    @classmethod
+    def _from_pickle(cls, state):
+        from pathlib import Path
+        import os
+        import tempfile
+        # Recreate phase
+        phase = state.get('phase')
+        
+        # Create empty SolutionArray
+        arr = cls(phase)
+
+        # Write the YAML string to a temporary file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tf = Path(tmpdir, "cantera_solarr_load_tempfile.yaml")
+
+            # Remove the file if it already exists
+            if (tf.exists()):
+                os.unlink(tf)
+            with tf.open('w') as f:
+                f.write(state['yaml_data'])
+                f.flush()
+                
+            # Restore the SolutionArray from the yaml
+            arr.restore(tf, 'solarr')
+
+        return arr
+    
     def __reduce__(self):
-        raise NotImplementedError('SolutionArray object is not picklable')
+        return (self.__class__._from_pickle, (self._to_picklable(),))
 
     def __copy__(self):
-        raise NotImplementedError('SolutionArray object is not copyable')
+        return self.__class__._from_pickle(self._to_picklable())
 
 
 def _state2_prop(name, doc_source):
