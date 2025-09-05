@@ -308,6 +308,34 @@ class TestSolutionArray:
         arr = ct.SolutionArray(gas, shape=1)
         assert arr.net_production_rates.size == gas.n_species
 
+    def test_pickle_solutionarray(self):
+        sol = ct.Solution("gri30.yaml")
+        solarr = ct.SolutionArray(sol, 10)
+        # Fill with some data
+        T = np.linspace(300, 2000, 10)
+        P = np.linspace(1e5, 5e5, 10)
+        X = np.zeros((10, sol.n_species))
+        X[:, sol.species_index("H2")] = 0.7
+        X[:, sol.species_index("O2")] = 0.3
+        solarr.TPX = T, P, X
+
+        outfile = self.test_work_path / "solarr.pkl"
+        with open(outfile, "wb") as f:
+            pickle.dump(solarr, f)
+
+        with open(outfile, "rb") as f:
+            solarr_loaded = pickle.load(f)
+
+        # Compare all fields
+        assert solarr.shape == solarr_loaded.shape
+        assert solarr.T == approx(solarr_loaded.T)
+        assert solarr.P == approx(solarr_loaded.P)
+        assert solarr.X == approx(solarr_loaded.X)
+        # Check all state vectors
+        for orig, loaded in zip(solarr, solarr_loaded):
+            assert orig.T == approx(loaded.T)
+            assert orig.P == approx(loaded.P)
+            assert orig.X == approx(loaded.X)
 
 @pytest.fixture(scope='class')
 def setup_solution_array_info_tests(request):
