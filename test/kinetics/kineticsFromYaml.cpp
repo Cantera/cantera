@@ -372,6 +372,36 @@ TEST(Reaction, FalloffFromYaml3)
     EXPECT_EQ(R->input["source"].asString(), "ARL-TR-5088");
 }
 
+TEST(Reaction, FalloffFromYaml4)
+{
+    auto sol = newSolution("soot.yaml", "", "none");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: C6H5 + BIN5 (+H2) => 0.984615 BIN5 + 0.0153846 BIN6 + 3.1538 H (+H2),"
+        " type: falloff,"
+        " low-P-rate-constant: {A: 5.62e+09, b: 1.5, Ea: 0.0},"
+        " high-P-rate-constant: {A: 5.62e+09, b: 0.5, Ea: 0.0}}"
+    );
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->type(), "falloff-Lindemann");
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("H2"), 1.0);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("BIN5"), 0.0);
+}
+
+TEST(Reaction, FalloffFromYaml5)
+{
+    auto sol = newSolution("soot.yaml", "", "none");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: C6H5 + BIN5 (+M) => 0.984615 BIN5 + 0.0153846 BIN6 + 3.1538 H (+M),"
+        " type: falloff,"
+        " low-P-rate-constant: {A: 5.62e+09, b: 1.5, Ea: 0.0},"
+        " high-P-rate-constant: {A: 5.62e+09, b: 0.5, Ea: 0.0}}"
+    );
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->type(), "falloff-Lindemann");
+}
+
 TEST(Reaction, ChemicallyActivatedFromYaml)
 {
     auto sol = newSolution("gri30.yaml", "", "none");
