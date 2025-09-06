@@ -408,10 +408,13 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
     string third_body;
     size_t count = 0;
     size_t countM = 0;
+    size_t countF = 0; // falloff third body, (+M) or (+name)
     for (const auto& [name, stoich] : reactants) {
         // detect explicitly specified collision partner
         if (products.count(name)) {
-            third_body = name;
+            if (countF == 0) {
+                third_body = name; // Explicit falloff-style takes precedence
+            }
             size_t generic = third_body == "M"
                 || third_body == "(+M)"  || third_body == "(+ M)";
             count++;
@@ -419,6 +422,9 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
             if (stoich > 1 && products[third_body] > 1) {
                 count++;
                 countM += generic;
+            }
+            if (ba::starts_with(name, "(+") && ba::ends_with(name, ")")) {
+                countF++;
             }
         }
     }
@@ -431,12 +437,14 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
         }
         return;
 
+    } else if (countF == 1) {
+        // Falloff-style third body takes precedence and resolves ambiguity in case of
+        // multiple apparent third-body colliders
     } else if (countM > 1) {
         throw InputFileError("Reaction::setEquation", input,
             "Multiple generic third body colliders 'M' are not supported", equation);
-
     } else if (count > 1) {
-        // equations with more than one explicit third-body collider are handled as a
+        // equations with more than one specific third-body collider are handled as a
         // regular elementary reaction unless the equation contains a generic third body
         if (countM) {
             // generic collider 'M' is selected as third body
@@ -523,6 +531,10 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
 
     // adjust reactant coefficients
     auto reac = reactants.find(third_body);
+    if (reac == reactants.end()) {
+        throw InputFileError("Reaction::setEquation", input,
+            "Logic error interpreting apparent third-body reaction");
+    }
     if (trunc(reac->second) != 1) {
         reac->second -= 1.;
     } else {
@@ -531,6 +543,10 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
 
     // adjust product coefficients
     auto prod = products.find(third_body);
+    if (prod == products.end()) {
+        throw InputFileError("Reaction::setEquation", input,
+            "Logic error interpreting apparent third-body reaction");
+    }
     if (trunc(prod->second) != 1) {
         prod->second -= 1.;
     } else {
