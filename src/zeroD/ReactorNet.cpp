@@ -9,6 +9,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/Solution.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
@@ -110,9 +111,14 @@ void ReactorNet::initialize()
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
     }
+    // Names of Reactors and ReactorSurfaces using each Solution; should be only one
+    map<Solution*, vector<string>> solutions;
+    // Unique ReactorSurface objects. Can be attached to multiple Reactor objects
+    set<ReactorBase*> surfaces;
     m_start.assign(1, 0);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
+        shared_ptr<Solution> bulk = r.solution();
         r.initialize(m_time);
         size_t nv = r.neq();
         m_nv += nv;
@@ -125,6 +131,33 @@ void ReactorNet::initialize()
         if (r.type() == "FlowReactor" && m_reactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
                                "FlowReactors must be used alone.");
+        }
+        solutions[bulk.get()].push_back(r.name());
+        for (size_t i = 0; i < r.nSurfs(); i++) {
+            if (r.surface(i)->solution()->adjacent(bulk->name()) != bulk) {
+                throw CanteraError("ReactorNet::initialize",
+                    "Bulk phase '{}' used by interface '{}' must be the same object\n"
+                    "as the contents of the adjacent reactor '{}'.",
+                    bulk->name(), r.surface(i)->name(), r.name());
+            }
+            surfaces.insert(r.surface(i));
+        }
+    }
+    for (auto surf : surfaces) {
+        solutions[surf->solution().get()].push_back(surf->name());
+    }
+    for (auto& [soln, reactors] : solutions) {
+        if (reactors.size() > 1) {
+            string shared;
+            for (size_t i = 0; i < reactors.size() - 1; i++) {
+                shared += fmt::format("'{}', ", reactors[i]);
+            }
+            shared += fmt::format("'{}'", reactors.back());
+            warn_user("ReactorNet::initialize", "The following reactors / reactor"
+                " surfaces are using the same Solution object: {}. Use independent"
+                " Solution objects or set the 'clone' argument to 'true' when creating"
+                " the Reactor or ReactorSurface objects. Shared Solution objects within"
+                " a single ReactorNet will be an error after Cantera 3.2.", shared);
         }
     }
 

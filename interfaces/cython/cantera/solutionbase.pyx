@@ -457,6 +457,12 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
     Wrap an existing Solution object with a Python object of the correct
     derived type.
     """
+    # If the Solution already has a Python wrapper, extract that from the stored handle
+    cdef CxxPythonHandle* handle = dynamic_pointer_cast[CxxPythonHandle, CxxExternalHandle](
+        cxx_soln.get().getExternalHandle(stringify("python"))).get()
+    if handle != NULL and handle.get() != NULL:
+        return <_SolutionBase>(<PyObject*>handle.get())
+
     # Need to explicitly import these classes from the non-compiled Python module to
     # make them available inside Cython
     from cantera import Solution, Interface
