@@ -17,15 +17,6 @@
 namespace Cantera
 {
 
-void IdealGasConstPressureMoleReactor::setThermo(ThermoPhase& thermo)
-{
-    if (thermo.type() != "ideal-gas") {
-        throw CanteraError("IdealGasConstPressureMoleReactor::setThermo",
-                           "Incompatible phase type provided");
-    }
-    ConstPressureMoleReactor::setThermo(thermo);
-}
-
 void IdealGasConstPressureMoleReactor::getState(double* y)
 {
     if (m_thermo == 0) {
@@ -45,6 +36,10 @@ void IdealGasConstPressureMoleReactor::getState(double* y)
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
 {
+    if (m_thermo->type() != "ideal-gas") {
+        throw CanteraError("IdealGasConstPressureMoleReactor::initialize",
+                           "Incompatible phase type '{}' provided", m_thermo->type());
+    }
     ConstPressureMoleReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }

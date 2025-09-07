@@ -287,6 +287,8 @@ protected:
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
     //! @since New in %Cantera 3.1.
+    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
+    //!              ReactorBase with Solution object.
     virtual void setThermo(ThermoPhase& thermo);
 
     //! Specify the kinetics manager for the reactor. Called by setSolution().
