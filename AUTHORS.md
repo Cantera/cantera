@@ -86,6 +86,7 @@ update, please report on Cantera's
 - **Bryan Weber** [@bryanwweber](https://github.com/bryanwweber)
 - **Armin Wehrfritz** [@awehrfritz](https://github.com/awehrfritz)
 - **Richard West** [@rwest](https://github.com/rwest) - Northeastern University
+- **Colin Willits** [@cwillits123](https://github.com/cwillits123) - University of Massachusetts, Amherst
 - **Shumeng Xie** [@yeanment](https://github.com/yeanment) - National University of Singapore
 - **Chao Xu** [@12Chao](https://github.com/12Chao) - Northeastern University
 - **Thorsten Zirwes** [@g3bk47](https://github.com/g3bk47) - University of Stuttgart
