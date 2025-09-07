@@ -1141,7 +1141,7 @@ cdef class Sim1D:
 
         # 'data' entry is used for restart
         data = self._initial_guess_kwargs.get('data')
-        if data:
+        if data is not None:
            nPoints = [len(flow_domains[0].grid)]
         else:
            nPoints = [len(flow_domains[0].grid), 12, 24, 48]
@@ -1154,7 +1154,7 @@ cdef class Sim1D:
                 if N != len(D.grid):
                     D.grid = np.linspace(zmin[i], zmax[i], N)
 
-            if not data:
+            if data is None:
                 self.set_initial_guess(*self._initial_guess_args,
                                        **self._initial_guess_kwargs)
 

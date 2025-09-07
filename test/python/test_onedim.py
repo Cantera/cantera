@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from pytest import approx
 import re
+pd = pytest.importorskip("pandas")
 
 import cantera as ct
 
@@ -203,11 +204,12 @@ class TestFreeFlame:
 
         assert not self.sim.energy_enabled
 
-    def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True):
+    def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True,
+                  auto=False):
         # Solve with the energy equation enabled
         self.sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
         self.sim.energy_enabled = True
-        self.sim.solve(loglevel=0, refine_grid=refine)
+        self.sim.solve(loglevel=0, refine_grid=refine, auto=auto)
 
         assert self.sim.energy_enabled
         assert self.sim.transport_model == 'mixture-averaged'
@@ -368,12 +370,19 @@ class TestFreeFlame:
         # restart from HDF format
         self.run_restart("h5")
 
-    def run_restart(self, mode):
+    @pytest.mark.skipif(not pd, reason="Pandas not installed")
+    def test_restart_pandas(self):
+        # restart from Pandas DataFrame
+        self.run_restart("pandas", auto=True)
+
+    def run_restart(self, mode, auto=False):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
         group = "restart"
         if mode == "array":
             data = self.sim.to_array()
+        elif mode == "pandas":
+            data = self.sim.to_pandas()
         else:
             data = self.test_work_path / f"freeflame_restart.{mode}"
             data.unlink(missing_ok=True)
@@ -385,7 +394,7 @@ class TestFreeFlame:
         reactants = {'H2': 0.9, 'O2': 0.5, 'AR': 2}
         self.create_sim(1.1 * ct.one_atm, 500, reactants, 2.0)
         self.sim.set_initial_guess(data=data, group=group)
-        self.solve_mix(refine=False)
+        self.solve_mix(refine=False, auto=auto)
 
         # Check continuity
         rhou = self.sim.inlet.mdot
