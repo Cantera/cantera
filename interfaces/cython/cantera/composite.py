@@ -8,6 +8,8 @@ from ._cantera import (
     DustyGasTransport, InterfaceKinetics, InterfacePhase, Kinetics, PureFluid,
     SolutionArrayBase, ThermoPhase, Transport,
 )
+import os as _os
+import tempfile as _tempfile
 
 _pandas = None
 def _import_pandas():
@@ -1307,22 +1309,11 @@ class SolutionArray(SolutionArrayBase):
         return meta
 
     def _to_picklable(self):
-        import os
-        from pathlib import Path
-        import tempfile
-
-        # Save to a temporary YAML file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tf = Path(tmpdir, "cantera_solarr_save_tempfile.yaml")
-
-            # Remove the file if it already exists
-            if (tf.exists()):
-                os.unlink(tf)
-            self.save(tf, name="solarr", overwrite=True)
-
-            # Read the YAML file into a string and delete the file
-            with open(tf, 'r') as f:
-                yaml_data = f.read()
+        with _tempfile.NamedTemporaryFile(suffix='.yaml') as temp_file:
+            _os.unlink(temp_file.name)
+            self.save(temp_file.name, name='solarr', overwrite=True)
+            with open(temp_file.name, 'r') as fid:
+                yaml_data = fid.read()
 
         return {
             'yaml_data': yaml_data,
@@ -1331,30 +1322,18 @@ class SolutionArray(SolutionArrayBase):
 
     @classmethod
     def _from_pickle(cls, state):
-        from pathlib import Path
-        import os
-        import tempfile
-
         # Recreate phase
         phase = state.get('phase')
 
         # Create empty SolutionArray
         arr = cls(phase)
 
-        # Write the YAML string to a temporary file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tf = Path(tmpdir, "cantera_solarr_load_tempfile.yaml")
+        with _tempfile.NamedTemporaryFile(suffix='.yaml', mode='w') as temp_file:
+            temp_file.write(state['yaml_data'])
+            temp_file.flush()
 
-            # Remove the file if it already exists
-            if (tf.exists()):
-                os.unlink(tf)
+            arr.restore(temp_file.name, 'solarr')
 
-            with tf.open('w') as f:
-                f.write(state['yaml_data'])
-                f.flush()
-
-            # Restore the SolutionArray from the yaml
-            arr.restore(tf, 'solarr')
         return arr
 
     def __reduce__(self):

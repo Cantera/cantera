@@ -66,6 +66,7 @@ update, please report on Cantera's
 - **Matthew Quiram** [@mquiram](https://github.com/mquiram) - Massachusetts Institute of Technology
 - **Corey R. Randall** [@c-randall](https://github.com/c-randall) - Colorado School of Mines
 - **Andreas Rücker** [@cannondale1492](https://github.com/cannondale1492)
+- **Martijn Ruijzendaal** [@mruijzendaal](https://github.com/mruijzendaal) - Maastricht University
 - **Jeff Santner** [@jsantner](https://github.com/jsantner)
 - **Satyam Saxena** [@CyberDrudge](https://github.com/CyberDrudge)
 - **Ingmar Schoegl** [@ischoegl](https://github.com/ischoegl) - Louisiana State University
