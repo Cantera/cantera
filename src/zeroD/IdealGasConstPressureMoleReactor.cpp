@@ -125,7 +125,10 @@ void IdealGasConstPressureMoleReactor::buildJacobian(
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
     // species size that accounts for surface species
-    size_t ssize = m_nv - m_sidx;
+    size_t ssize = m_nsp;
+    for (auto surf : m_surfaces) {
+        ssize += surf->thermo()->nSpecies();
+    }
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
