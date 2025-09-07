@@ -2,14 +2,14 @@
 # at https://cantera.org/license.txt for license and copyright information.
 from __future__ import annotations as _annotations
 
-import numpy as np
 import importlib as _importlib
+from tempfile import NamedTemporaryFile as _NamedTemporaryFile
+from os import unlink as _unlink
+import numpy as np
 from ._cantera import (
     DustyGasTransport, InterfaceKinetics, InterfacePhase, Kinetics, PureFluid,
     SolutionArrayBase, ThermoPhase, Transport,
 )
-import os as _os
-import tempfile as _tempfile
 
 _pandas = None
 def _import_pandas():
@@ -1306,30 +1306,35 @@ class SolutionArray(SolutionArrayBase):
         return meta
 
     def _to_picklable(self):
-        with _tempfile.NamedTemporaryFile(suffix='.yaml') as temp_file:
-            _os.unlink(temp_file.name)
-            self.save(temp_file.name, name='solarr', overwrite=True)
-            with open(temp_file.name, 'r') as fid:
-                yaml_data = fid.read()
+        temp_file = _NamedTemporaryFile(suffix=".yaml", delete=False).name
+
+        try:
+            self.save(temp_file, name="solution_array", overwrite=True)
+            with open(temp_file, "r", encoding="utf-8") as t_file:
+                yaml_data = t_file.read()
+        finally:
+            _unlink(temp_file)
 
         return {
-            'yaml_data': yaml_data,
-            'phase': self._phase, # Solution object, which is already picklable
+            "yaml_data": yaml_data,
+            "phase": self._phase,  # Solution object, which is already picklable
         }
 
     @classmethod
     def _from_pickle(cls, state):
-        # Recreate phase
-        phase = state.get('phase')
+        phase = state.get("phase")  # Recreate Solution object from pickled state
 
-        # Create empty SolutionArray
+        # Restore SolutionArray
+        with _NamedTemporaryFile(suffix=".yaml", mode="w", encoding="utf-8",
+                                 delete=False) as t_file:
+            t_file.write(state["yaml_data"])
+            temp_file = t_file.name
+
         arr = cls(phase)
-
-        with _tempfile.NamedTemporaryFile(suffix='.yaml', mode='w') as temp_file:
-            temp_file.write(state['yaml_data'])
-            temp_file.flush()
-
-            arr.restore(temp_file.name, 'solarr')
+        try:
+            arr.restore(temp_file, "solution_array")
+        finally:
+            _unlink(temp_file)
 
         return arr
 
