@@ -1341,7 +1341,8 @@ void SolutionArray::save(const string& fname, const string& name, const string& 
     if (extension == "yaml" || extension == "yml") {
         // Check for an existing file and load it if present
         AnyMap data;
-        if (std::ifstream(fname).good()) {
+        std::ifstream file(fname);
+        if (file.good() && file.peek() != std::ifstream::traits_type::eof()) {
             data = AnyMap::fromYamlFile(fname);
         }
         writeHeader(data, name, desc, overwrite);
