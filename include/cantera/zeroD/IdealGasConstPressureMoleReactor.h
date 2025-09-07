@@ -49,8 +49,6 @@ public:
     double lowerBound(size_t k) const override;
 
 protected:
-    void setThermo(ThermoPhase& thermo) override;
-
     vector<double> m_hk; //!< Species molar enthalpies
 };
 

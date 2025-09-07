@@ -26,7 +26,16 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     }
     m_solution = sol;
     m_solution->thermo()->addSpeciesLock();
-    setThermo(*sol->thermo());
+    m_thermo = m_solution->thermo().get();
+    m_nsp = m_thermo->nSpecies();
+    m_thermo->saveState(m_state);
+    m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
+    m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        // some ThermoPhase objects do not implement intEnergy_mass()
+    }
 }
 
 ReactorBase::~ReactorBase()
@@ -73,6 +82,9 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
 
 void ReactorBase::setThermo(ThermoPhase& thermo)
 {
+    warn_deprecated("ReactorBase::setThermo",
+        "After Cantera 3.2, a change of reactor contents after instantiation "
+        "will be disabled.");
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
     m_thermo->saveState(m_state);
