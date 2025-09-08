@@ -285,7 +285,7 @@ cdef class ConnectorNode:
     cdef public dict edge_attr
     """
     A dictionary containing draw attributes for the representation of the `WallBase` as
-    a graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable
+    a graphviz edge. See https://graphviz.org/docs/edges/ for a list of all usable
     attributes.
 
     .. versionadded:: 3.1

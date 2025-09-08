@@ -391,9 +391,8 @@ class FlameBase(Sim1D):
 
     def set_gas_state(self, point):
         """
-        Set the state of the the `Solution` object used for calculations
-        to the temperature and composition at the point with index
-        ``point``.
+        Set the state of the `Solution` object used for calculations to the temperature
+        and composition at the point with index ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.value(self.flame, k, point)

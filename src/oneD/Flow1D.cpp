@@ -847,7 +847,7 @@ size_t Flow1D::componentIndex(const string& name) const
                 return n;
             }
         }
-        throw CanteraError("Flow1D1D::componentIndex",
+        throw CanteraError("Flow1D::componentIndex",
                            "no component named " + name);
     }
 }

@@ -246,7 +246,7 @@ protected:
     vector<string> m_cov; //!< Vector holding names of coverage species
     vector<double> m_ac; //!< Vector holding coverage-specific exponential dependence
     //! Vector holding coverage-specific activation energy dependence as a
-    //! 5-membered array of polynomial coeffcients starting from 0th-order to
+    //! 5-membered array of polynomial coefficients starting from 0th-order to
     //! 4th-order coefficients
     vector<vector<double>> m_ec;
     vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
