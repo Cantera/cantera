@@ -323,7 +323,7 @@ cdef class Boundary1D(Domain1D):
             self.boundary.setTemperature(T)
 
     property mdot:
-        """ The mass flow rate per unit area [kg/s/m^2] """
+        """The mass flow rate per unit area [kg/s/m²]"""
         def __get__(self):
             return self.boundary.mdot()
         def __set__(self, mdot):

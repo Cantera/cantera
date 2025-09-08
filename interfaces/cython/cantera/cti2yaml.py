@@ -512,7 +512,7 @@ class gas_transport:
         :param dipole:
             The permanent dipole moment in Debye. Default: 0.0
         :param polar:
-            The polarizability in A^3. Default: 0.0
+            The polarizability in Å³. Default: 0.0
         :param rot_relax:
             The rotational relaxation collision number at 298 K. Dimensionless.
             Default: 0.0
@@ -520,10 +520,10 @@ class gas_transport:
             Pitzer's acentric factor.  Dimensionless.
             Default: 0.0
         :param disp_coeff:
-            The dispersion coefficient in A^5
+            The dispersion coefficient in Å⁵.
             Default: 0.0
         :param quad_polar:
-            The quadrupole polarizability
+            The quadrupole polarizability.
             Default: 0.0
         """
         self.geometry = geom

@@ -302,24 +302,24 @@ cdef class Kinetics(_SolutionBase):
 
     property forward_rates_of_progress:
         """
-        Forward rates of progress for the reactions. [kmol/m^3/s] for bulk
-        phases or [kmol/m^2/s] for surface phases.
+        Forward rates of progress for the reactions. [kmol/m³/s] for bulk
+        phases or [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRatesOfProgress)
 
     property reverse_rates_of_progress:
         """
-        Reverse rates of progress for the reactions. [kmol/m^3/s] for bulk
-        phases or [kmol/m^2/s] for surface phases.
+        Reverse rates of progress for the reactions. [kmol/m³/s] for bulk
+        phases or [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRatesOfProgress)
 
     property net_rates_of_progress:
         """
-        Net rates of progress for the reactions. [kmol/m^3/s] for bulk phases
-        or [kmol/m^2/s] for surface phases.
+        Net rates of progress for the reactions. [kmol/m³/s] for bulk phases
+        or [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getNetRatesOfProgress)
@@ -355,24 +355,24 @@ cdef class Kinetics(_SolutionBase):
 
     property creation_rates:
         """
-        Creation rates for each species. [kmol/m^3/s] for bulk phases or
-        [kmol/m^2/s] for surface phases.
+        Creation rates for each species. [kmol/m³/s] for bulk phases or
+        [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_species_array(self, kin_getCreationRates)
 
     property destruction_rates:
         """
-        Destruction rates for each species. [kmol/m^3/s] for bulk phases or
-        [kmol/m^2/s] for surface phases.
+        Destruction rates for each species. [kmol/m³/s] for bulk phases or
+        [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates)
 
     property net_production_rates:
         """
-        Net production rates for each species. [kmol/m^3/s] for bulk phases or
-        [kmol/m^2/s] for surface phases.
+        Net production rates for each species. [kmol/m³/s] for bulk phases or
+        [kmol/m²/s] for surface phases.
         """
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates)
@@ -893,7 +893,7 @@ cdef class Kinetics(_SolutionBase):
 
     property heat_release_rate:
         """
-        Get the total volumetric heat release rate [W/m^3].
+        Get the total volumetric heat release rate [W/m³].
         """
         def __get__(self):
             return - np.sum(self.partial_molar_enthalpies *
@@ -901,7 +901,7 @@ cdef class Kinetics(_SolutionBase):
 
     property heat_production_rates:
         """
-        Get the volumetric heat production rates [W/m^3] on a per-reaction
+        Get the volumetric heat production rates [W/m³] on a per-reaction
         basis. The sum over all reactions results in the total volumetric heat
         release rate.
         Example: C. K. Law: Combustion Physics (2006), Fig. 7.8.6
@@ -995,7 +995,7 @@ cdef class InterfaceKinetics(Kinetics):
         """
         The interface current is useful when charge transfer reactions occur at
         an interface. It is defined here as the net positive charge entering the
-        phase ``phase`` (Units: A/m^2 for a surface, A/m for an edge reaction).
+        phase ``phase`` (Units: A/m² for a surface, A/m for an edge reaction).
         """
         i_phase = self.phase_index(phase)
         return (<CxxInterfaceKinetics*>self.kinetics).interfaceCurrent(i_phase)

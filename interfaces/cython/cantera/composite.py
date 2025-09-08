@@ -258,7 +258,7 @@ class Quantity:
 
     @property
     def volume(self):
-        """ Get the total volume [m^3] represented by the `Quantity`. """
+        """Get the total volume [m³] represented by the `Quantity`."""
         return self.mass * self.phase.volume_mass
 
     @property
