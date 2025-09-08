@@ -76,7 +76,7 @@ cdef class ReactorBase:
             return self._contents
 
     property volume:
-        """The volume [m^3] of the reactor."""
+        """The volume [m³] of the reactor."""
         def __get__(self):
             return self.rbase.volume()
 
@@ -89,7 +89,7 @@ cdef class ReactorBase:
             return self.thermo.T
 
     property density:
-        """The density [kg/m^3 or kmol/m^3] of the reactor's contents."""
+        """The density [kg/m³ or kmol/m³] of the reactor's contents."""
         def __get__(self):
             return self.thermo.density
 
@@ -482,7 +482,7 @@ cdef class FlowReactor(Reactor):
     @property
     def area(self):
         """
-        Get/set the area of the reactor [m^2].
+        Get/set the area of the reactor [m²].
 
         When the area is changed, the flow speed is scaled to keep the total mass flow
         rate constant.
@@ -543,7 +543,7 @@ cdef class FlowReactor(Reactor):
 
     @property
     def surface_area_to_volume_ratio(self):
-        """ Get/Set the surface area to volume ratio of the reactor [m^-1] """
+        """Get/Set the surface area to volume ratio of the reactor [1/m]"""
         return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
 
     @surface_area_to_volume_ratio.setter
@@ -674,7 +674,7 @@ cdef class ExtensibleReactor(Reactor):
     @property
     def expansion_rate(self):
         """
-        Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
+        Get/Set the net rate of volume change (for example, from moving walls) [m³/s]
 
         .. versionadded:: 3.0
         """
@@ -791,7 +791,7 @@ cdef class ReactorSurface(ReactorBase):
     :param r:
         The `Reactor` into which this surface should be installed.
     :param A:
-        The area of the reacting surface [m^2]
+        The area of the reacting surface [m²].
     :param node_attr:
         Attributes to be passed to the ``node`` method invoked to draw this surface.
         See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
@@ -823,7 +823,7 @@ cdef class ReactorSurface(ReactorBase):
         self._reactor = r
 
     property area:
-        """ Area on which reactions can occur [m^2] """
+        """Area on which reactions can occur [m²]."""
         def __get__(self):
             return self.surface.area()
         def __set__(self, A):
@@ -974,14 +974,14 @@ cdef class WallBase(ConnectorNode):
             the type of the wall and *n* is an integer assigned in the order walls are
             detected.
         :param A:
-            Wall area [m^2]. Defaults to 1.0 m^2.
+            Wall area [m²]. Defaults to 1.0 m².
         :param K:
             Wall expansion rate parameter [m/s/Pa]. Defaults to 0.0.
         :param U:
-            Overall heat transfer coefficient [W/m^2/K]. Defaults to 0.0
+            Overall heat transfer coefficient [W/m²/K]. Defaults to 0.0
             (adiabatic wall).
         :param Q:
-            Heat flux function :math:`q_0(t)` [W/m^2]. Optional. Default:
+            Heat flux function :math:`q_0(t)` [W/m²]. Optional. Default:
             :math:`q_0(t) = 0.0`.
         :param velocity:
             Wall velocity function :math:`v_0(t)` [m/s].
@@ -1016,7 +1016,7 @@ cdef class WallBase(ConnectorNode):
         self._right_reactor = right
 
     property area:
-        """ The wall area [m^2]. """
+        """The wall area [m²]."""
         def __get__(self):
             return self.wall.area()
         def __set__(self, double value):
@@ -1043,7 +1043,7 @@ cdef class WallBase(ConnectorNode):
     @property
     def expansion_rate(self):
         """
-        Get the rate of volumetric change [m^3/s] associated with the wall at the
+        Get the rate of volumetric change [m³/s] associated with the wall at the
         current reactor network time. A positive value corresponds to the left-hand
         reactor volume increasing, and the right-hand reactor volume decreasing.
 
@@ -1143,7 +1143,7 @@ cdef class Wall(WallBase):
             (<CxxWall*>(self.wall)).setExpansionRateCoeff(val)
 
     property heat_transfer_coeff:
-        """the overall heat transfer coefficient [W/m^2/K]"""
+        """The overall heat transfer coefficient [W/m²/K]."""
         def __get__(self):
             return (<CxxWall*>(self.wall)).getHeatTransferCoeff()
         def __set__(self, double value):
@@ -1180,7 +1180,7 @@ cdef class Wall(WallBase):
     @property
     def heat_flux(self):
         """
-        Heat flux [W/m^2] across the wall. May be either set to a constant or
+        Heat flux [W/m²] across the wall. May be either set to a constant or
         an arbitrary function of time. See `Func1`.
 
         .. versionadded:: 3.0

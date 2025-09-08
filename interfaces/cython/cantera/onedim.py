@@ -291,7 +291,7 @@ class FlameBase(Sim1D):
     @property
     def L(self):
         """
-        Array containing the radial pressure gradient (1/r)(dP/dr) [N/m^4] at
+        Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named 'lambda' in the C++ code.
         """
         return self.profile(self.flame, 'lambda')
@@ -566,7 +566,7 @@ for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
 # Remove misleading examples and references to setters that don't exist
 FlameBase.X.__doc__ = "Array of mole fractions of size `n_species` x `n_points`"
 FlameBase.Y.__doc__ = "Array of mass fractions of size `n_species` x `n_points`"
-FlameBase.concentrations.__doc__ = ("Array of species concentrations [kmol/m^3]"
+FlameBase.concentrations.__doc__ = ("Array of species concentrations [kmol/m³]"
                                     " of size `n_species` x `n_points`")
 
 # Add properties with values for each reaction

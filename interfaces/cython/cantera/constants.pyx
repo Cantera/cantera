@@ -6,10 +6,10 @@
 
 from .constants cimport *
 
-#: Avogadro's Number, /kmol
+#: Avogadro's constant, 1/kmol
 avogadro = CxxAvogadro
 
-#: The ideal gas constant in J/kmol-K
+#: The ideal gas constant in J/kmol/K
 gas_constant = CxxGasConstant
 
 #: One atmosphere in Pascals
@@ -21,7 +21,7 @@ boltzmann = CxxBoltzmann
 #: Planck constant (J/s)
 planck = CxxPlanck
 
-#: The Stefan-Boltzmann constant, W/m^2K^4
+#: The Stefan-Boltzmann constant, W/m²/K⁴
 stefan_boltzmann = CxxStefanBoltz
 
 #: The charge on an electron (C)
@@ -36,8 +36,8 @@ faraday = CxxFaraday
 #: Speed of Light (m/s).
 light_speed = CxxLightSpeed
 
-#: Permeability of free space :math:`\mu_0` in N/A^2.
+#: Permeability of free space :math:`\mu_0` in N/A².
 permeability_0 = CxxPermeability_0
 
-#: Permittivity of free space (Farads/m = C^2/N/m^2)
+#: Permittivity of free space (Farads/m = C²/N/m²)
 epsilon_0 = CxxEpsilon_0

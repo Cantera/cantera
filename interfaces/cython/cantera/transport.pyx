@@ -68,7 +68,7 @@ cdef class GasTransportData:
                             quadrupole_polarizability=0.0):
         """
         Set the parameters using "customary" units: diameter in Angstroms, well
-        depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
+        depth in Kelvin, dipole in Debye, and polarizability in Angstroms³.
         These are the units used in in CK-style input files.
         """
         self.data.setCustomaryUnits(stringify(geometry), diameter, well_depth,
@@ -131,7 +131,7 @@ cdef class GasTransportData:
             self.data.dipole = dipole
 
     property polarizability:
-        """ Get/Set the polarizability of the molecule [m^3]. """
+        """Get/Set the polarizability of the molecule [m³]."""
         def __get__(self):
             return self.data.polarizability
         def __set__(self, polarizability):
@@ -149,21 +149,21 @@ cdef class GasTransportData:
             self.data.rotational_relaxation = rotational_relaxation
 
     property acentric_factor:
-        """ Get/Set Pitzer's acentric factor. [dimensionless] """
+        """Get/Set Pitzer's acentric factor [dimensionless]."""
         def __get__(self):
             return self.data.acentric_factor
         def __set__(self, acentric_factor):
             self.data.acentric_factor = acentric_factor
 
     property dispersion_coefficient:
-        """ Get/Set dispersion coefficient. [m^5] """
+        """Get/Set dispersion coefficient [m⁵]."""
         def __get__(self):
             return self.data.dispersion_coefficient
         def __set__(self, dispersion_coefficient):
             self.data.dispersion_coefficient = dispersion_coefficient
 
     property quadrupole_polarizability:
-        """ Get/Set quadrupole polarizability. [m^5] """
+        """Get/Set quadrupole polarizability [m⁵]."""
         def __get__(self):
             return self.data.quadrupole_polarizability
         def __set__(self, quadrupole_polarizability):
@@ -227,7 +227,7 @@ cdef class Transport(_SolutionBase):
 
     property mix_diff_coeffs:
         """
-        Mixture-averaged diffusion coefficients [m^2/s] relating the
+        Mixture-averaged diffusion coefficients [m²/s] relating the
         mass-averaged diffusive fluxes (with respect to the mass averaged
         velocity) to gradients in the species mole fractions.
         """
@@ -236,7 +236,7 @@ cdef class Transport(_SolutionBase):
 
     property mix_diff_coeffs_mass:
         """
-        Mixture-averaged diffusion coefficients [m^2/s] relating the
+        Mixture-averaged diffusion coefficients [m²/s] relating the
         diffusive mass fluxes to gradients in the species mass fractions.
         """
         def __get__(self):
@@ -244,7 +244,7 @@ cdef class Transport(_SolutionBase):
 
     property mix_diff_coeffs_mole:
         """
-        Mixture-averaged diffusion coefficients [m^2/s] relating the
+        Mixture-averaged diffusion coefficients [m²/s] relating the
         molar diffusive fluxes to gradients in the species mole fractions.
         """
         def __get__(self):
@@ -266,13 +266,13 @@ cdef class Transport(_SolutionBase):
             return get_transport_2d(self, tran_getMultiDiffCoeffs)
 
     property binary_diff_coeffs:
-        """Binary diffusion coefficients [m^2/s]."""
+        """Binary diffusion coefficients [m²/s]."""
         def __get__(self):
             return get_transport_2d(self, tran_getBinaryDiffCoeffs)
 
     property mobilities:
         """
-        Electrical mobilities of charged species [m^2/s-V]
+        Electrical mobilities of charged species [m²/s/V].
         """
         def __get__(self):
             return get_transport_1d(self, tran_getMobilities)
@@ -447,7 +447,7 @@ cdef class DustyGasTransport(Transport):
             (<CxxDustyGasTransport*>self.transport).setMeanParticleDiameter(value)
 
     property permeability:
-        """Permeability of the porous medium [m^2]."""
+        """Permeability of the porous medium [m²]."""
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
 
@@ -463,7 +463,7 @@ cdef class DustyGasTransport(Transport):
 
     def molar_fluxes(self, T1, T2, rho1, rho2, Y1, Y2, delta):
         """
-        Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at
+        Get the molar fluxes [kmol/m²/s], given the thermodynamic state at
         two nearby points.
 
         :param T1:
@@ -471,9 +471,9 @@ cdef class DustyGasTransport(Transport):
         :param T2:
             Temperature [K] at the second point
         :param rho1:
-            Density [kg/m^3] at the first point
+            Density [kg/m³] at the first point
         :param rho2:
-            Density [kg/m^3] at the second point
+            Density [kg/m³] at the second point
         :param Y1:
             Array of mass fractions at the first point. Length `n_species`.
         :param Y2:

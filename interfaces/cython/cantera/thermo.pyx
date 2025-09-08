@@ -708,7 +708,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property concentrations:
         """
-        Get/Set the species concentrations. Units are kmol/m^3 for bulk phases, kmol/m^2
+        Get/Set the species concentrations. Units are kmol/m³ for bulk phases, kmol/m²
         for surface phases, and kmol/m for edge phases.
         """
         def __get__(self):
@@ -1183,32 +1183,32 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.temperature()
 
     property density:
-        """Density [kg/m^3 or kmol/m^3] depending on `basis`."""
+        """Density [kg/m³ or kmol/m³] depending on `basis`."""
         def __get__(self):
             return self.thermo.density() / self._mass_factor()
 
     property density_mass:
-        """(Mass) density [kg/m^3]."""
+        """(Mass) density [kg/m³]."""
         def __get__(self):
             return self.thermo.density()
 
     property density_mole:
-        """Molar density [kmol/m^3]."""
+        """Molar density [kmol/m³]."""
         def __get__(self):
             return self.thermo.molarDensity()
 
     property v:
-        """Specific volume [m^3/kg or m^3/kmol] depending on `basis`."""
+        """Specific volume [m³/kg or m³/kmol] depending on `basis`."""
         def __get__(self):
             return self._mass_factor() / self.thermo.density()
 
     property volume_mass:
-        """Specific volume [m^3/kg]."""
+        """Specific volume [m³/kg]."""
         def __get__(self):
             return 1.0 / self.thermo.density()
 
     property volume_mole:
-        """Molar volume [m^3/kmol]."""
+        """Molar volume [m³/kmol]."""
         def __get__(self):
             return self.thermo.molarVolume()
 
@@ -1319,7 +1319,7 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.critPressure()
 
     property critical_density:
-        """Critical density [kg/m^3 or kmol/m^3] depending on `basis`."""
+        """Critical density [kg/m³ or kmol/m³] depending on `basis`."""
         def __get__(self):
             return self.thermo.critDensity() / self._mass_factor()
 
@@ -1368,7 +1368,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.restoreState(len(state), &cstate[0])
 
     property TD:
-        """Get/Set temperature [K] and density [kg/m^3 or kmol/m^3]."""
+        """Get/Set temperature [K] and density [kg/m³ or kmol/m³]."""
         def __get__(self):
             return self.T, self.density
         def __set__(self, values):
@@ -1379,8 +1379,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property TDX:
         """
-        Get/Set temperature [K], density [kg/m^3 or kmol/m^3], and mole
-        fractions.
+        Get/Set temperature [K], density [kg/m³ or kmol/m³], and mole fractions.
         """
         def __get__(self):
             return self.T, self.density, self.X
@@ -1393,8 +1392,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property TDY:
         """
-        Get/Set temperature [K] and density [kg/m^3 or kmol/m^3], and mass
-        fractions.
+        Get/Set temperature [K] and density [kg/m³ or kmol/m³], and mass fractions.
         """
         def __get__(self):
             return self.T, self.density, self.Y
@@ -1439,8 +1437,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property UV:
         """
-        Get/Set internal energy [J/kg or J/kmol] and specific volume
-        [m^3/kg or m^3/kmol].
+        Get/Set internal energy [J/kg or J/kmol] and specific volume [m³/kg or m³/kmol].
         """
         def __get__(self):
             return self.u, self.v
@@ -1453,8 +1450,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     property UVX:
         """
-        Get/Set internal energy [J/kg or J/kmol], specific volume
-        [m^3/kg or m^3/kmol], and mole fractions.
+        Get/Set internal energy [J/kg or J/kmol], specific volume [m³/kg or m³/kmol],
+        and mole fractions.
         """
         def __get__(self):
             return self.u, self.v, self.X
@@ -1468,8 +1465,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     property UVY:
         """
-        Get/Set internal energy [J/kg or J/kmol], specific volume
-        [m^3/kg or m^3/kmol], and mass fractions.
+        Get/Set internal energy [J/kg or J/kmol], specific volume [m³/kg or m³/kmol],
+        and mass fractions.
         """
         def __get__(self):
             return self.u, self.v, self.Y
@@ -1482,7 +1479,7 @@ cdef class ThermoPhase(_SolutionBase):
                                     V / self._mass_factor())
 
     property DP:
-        """Get/Set density [kg/m^3] and pressure [Pa]."""
+        """Get/Set density [kg/m³] and pressure [Pa]."""
         def __get__(self):
             return self.density, self.P
         def __set__(self, values):
@@ -1492,7 +1489,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPX:
-        """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
+        """Get/Set density [kg/m³], pressure [Pa], and mole fractions."""
         def __get__(self):
             return self.density, self.P, self.X
         def __set__(self, values):
@@ -1503,7 +1500,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPY:
-        """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
+        """Get/Set density [kg/m³], pressure [Pa], and mass fractions."""
         def __get__(self):
             return self.density, self.P, self.Y
         def __set__(self, values):
@@ -1579,8 +1576,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property SV:
         """
-        Get/Set entropy [J/kg/K or J/kmol/K] and specific volume [m^3/kg or
-        m^3/kmol].
+        Get/Set entropy [J/kg/K or J/kmol/K] and specific volume [m³/kg or m³/kmol].
         """
         def __get__(self):
             return self.s, self.v
@@ -1593,8 +1589,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     property SVX:
         """
-        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
-        m^3/kmol], and mole fractions.
+        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol], and
+        mole fractions.
         """
         def __get__(self):
             return self.s, self.v, self.X
@@ -1608,8 +1604,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     property SVY:
         """
-        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
-        m^3/kmol], and mass fractions.
+        Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol], and
+        mass fractions.
         """
         def __get__(self):
             return self.s, self.v, self.Y
@@ -1656,7 +1652,7 @@ cdef class ThermoPhase(_SolutionBase):
             return self._getArray1(thermo_getPartialMolarCp)
 
     property partial_molar_volumes:
-        """Array of species partial molar volumes [m^3/kmol]."""
+        """Array of species partial molar volumes [m³/kmol]."""
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarVolumes)
 
@@ -1980,7 +1976,7 @@ cdef class InterfacePhase(ThermoPhase):
 
     property site_density:
         """
-        Get/Set the site density. [kmol/m^2] for surface phases; [kmol/m] for
+        Get/Set the site density. [kmol/m²] for surface phases; [kmol/m] for
         edge phases.
         """
         def __get__(self):
@@ -2074,8 +2070,7 @@ cdef class PureFluid(ThermoPhase):
 
     property TV:
         """
-        Get/Set the temperature [K] and specific volume [m^3/kg] of
-        a PureFluid.
+        Get/Set the temperature [K] and specific volume [m³/kg] of a PureFluid.
         """
         def __get__(self):
             return self.T, self.v
@@ -2086,8 +2081,7 @@ cdef class PureFluid(ThermoPhase):
 
     property PV:
         """
-        Get/Set the pressure [Pa] and specific volume [m^3/kg] of
-        a PureFluid.
+        Get/Set the pressure [Pa] and specific volume [m³/kg] of a PureFluid.
         """
         def __get__(self):
             return self.P, self.v
@@ -2110,7 +2104,7 @@ cdef class PureFluid(ThermoPhase):
 
     property VH:
         """
-        Get/Set the specific volume [m^3/kg] and the specific
+        Get/Set the specific volume [m³/kg] and the specific
         enthalpy [J/kg] of a PureFluid.
         """
         def __get__(self):
@@ -2146,8 +2140,7 @@ cdef class PureFluid(ThermoPhase):
 
     property TDQ:
         """
-        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
-        fraction.
+        Get the temperature [K], density [kg/m³ or kmol/m³], and vapor fraction.
         """
         def __get__(self):
             return self.T, self.density, self.Q
@@ -2170,13 +2163,13 @@ cdef class PureFluid(ThermoPhase):
     property UVQ:
         """
         Get the internal energy [J/kg or J/kmol], specific volume
-        [m^3/kg or m^3/kmol], and vapor fraction.
+        [m³/kg or m³/kmol], and vapor fraction.
         """
         def __get__(self):
             return self.u, self.v, self.Q
 
     property DPQ:
-        """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
+        """Get the density [kg/m³], pressure [Pa], and vapor fraction."""
         def __get__(self):
             return self.density, self.P, self.Q
 
@@ -2196,8 +2189,8 @@ cdef class PureFluid(ThermoPhase):
 
     property SVQ:
         """
-        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
-        m^3/kmol], and vapor fraction.
+        Get the entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or
+        m³/kmol], and vapor fraction.
         """
         def __get__(self):
             return self.s, self.v, self.Q

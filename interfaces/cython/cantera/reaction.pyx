@@ -1009,7 +1009,7 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
 
     property site_density:
         """
-        Site density [kmol/m^2]
+        Site density [kmol/m²].
 
         The site density is not an independent property, as it is set by an associated
         `InterfaceKinetics` object. Accordingly, the setter should be only used for
