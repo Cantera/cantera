@@ -26,6 +26,10 @@ class TestModels:
     def yml(self, yml_file):
         return load_yaml(yml_file)
 
+    def test_invalid(self):
+        with pytest.raises(TypeError):
+            ct.Solution(None)
+
     def test_load_thermo_models(self, yml, yml_file):
         for ph in yml['phases']:
             ph_name = ph['name']
@@ -246,6 +250,12 @@ class TestSolutionArray:
         assert (arr_trunc[:2].T == arr.T[ix:ix+2]).all()
         with pytest.raises(IndexError):
             arr_trunc[10]
+
+    def test_invalid(self):
+        with pytest.raises(TypeError):
+            ct.SolutionArray(None)
+        with pytest.raises(TypeError):
+            ct.SolutionArray("gri30.yaml")
 
     def test_from_state_numpy(self, gas):
         states = np.array([[list(gas.state)] * 5] * 3)

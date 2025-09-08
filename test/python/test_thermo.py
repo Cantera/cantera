@@ -1914,8 +1914,9 @@ class TestQuantity:
 
 class TestMisc:
     def test_stringify_bad(self):
+        gas = ct.Solution("h2o2.yaml")
         with pytest.raises(AttributeError):
-            ct.Solution(3)
+            gas.add_species_alias("H2", 3)
 
     def test_case_sensitive_names(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
