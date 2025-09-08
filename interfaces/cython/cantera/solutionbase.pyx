@@ -496,6 +496,10 @@ cdef class SolutionArrayBase:
 
     def __cinit__(self, _SolutionBase phase, shape=(0,),
                   states=None, extra=None, meta=None, init=True):
+        if not isinstance(phase, _SolutionBase):
+            raise TypeError("Invalid object type: expected a '_SolutionBase' object, "
+                            f"but received {type(phase).__name__!r}.")
+
         size = np.prod(shape)
         cdef CxxAnyMap cxx_meta
         if meta is not None:

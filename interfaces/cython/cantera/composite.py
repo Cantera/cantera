@@ -591,7 +591,8 @@ class SolutionArray(SolutionArrayBase):
 
     _purefluid_scalar = ['Q']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}, init=True):
+    def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None,
+                 init=True):
         self._phase = phase
         if not init:
             return
@@ -1306,7 +1307,9 @@ class SolutionArray(SolutionArrayBase):
         return meta
 
     def _to_picklable(self):
-        temp_file = _NamedTemporaryFile(suffix=".yaml", delete=False).name
+        with _NamedTemporaryFile(suffix=".yaml", delete=False) as t_file:
+            # Context manager ensures that temporary file is properly created
+            temp_file = t_file.name
 
         try:
             self.save(temp_file, name="solution_array", overwrite=True)
@@ -1325,12 +1328,12 @@ class SolutionArray(SolutionArrayBase):
         phase = state.get("phase")  # Recreate Solution object from pickled state
 
         # Restore SolutionArray
+        arr = cls(phase)
         with _NamedTemporaryFile(suffix=".yaml", mode="w", encoding="utf-8",
                                  delete=False) as t_file:
             t_file.write(state["yaml_data"])
             temp_file = t_file.name
 
-        arr = cls(phase)
         try:
             arr.restore(temp_file, "solution_array")
         finally:
