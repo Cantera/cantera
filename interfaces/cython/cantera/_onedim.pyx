@@ -734,7 +734,7 @@ cdef class AxisymmetricFlow(FlowBase):
     It may be shown that if the boundary conditions on these variables are independent
     of radius, then a similarity solution to the exact governing equations exists in
     which these variables are all independent of radius. This solution holds only in
-    the low-Mach-number limit, in which case :math:`(dP/dz) = 0`, and :math:`lambda` is
+    the low-Mach-number limit, in which case :math:`(dP/dz) = 0`, and :math:`\Lambda` is
     a constant. (Lambda is treated as a spatially-varying solution variable for
     numerical reasons, but in the final solution it is always independent of :math:`z`.)
     As implemented here, the governing equations assume an ideal gas mixture. Arbitrary

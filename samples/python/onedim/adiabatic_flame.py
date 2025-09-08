@@ -37,7 +37,7 @@ f.show()
 # Solve with mixture-averaged transport model
 f.transport_model = 'mixture-averaged'
 # Compute diffusive fluxes using a mass fraction-based gradient ("mass")
-# or mole fracion-based gradient ("mole", default)
+# or mole fraction-based gradient ("mole", default)
 f.flux_gradient_basis = "mass" # only relevant for mixture-averaged model
 f.solve(loglevel=loglevel, auto=True)
 

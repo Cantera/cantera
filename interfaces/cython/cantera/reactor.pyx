@@ -1673,7 +1673,7 @@ cdef class ReactorNet:
     @property
     def distance(self):
         """
-        The current distance[ m] along the length of the reactor network, for reactors
+        The current distance [m] along the length of the reactor network, for reactors
         that are solved as a function of space.
         """
         return self.net.distance()
