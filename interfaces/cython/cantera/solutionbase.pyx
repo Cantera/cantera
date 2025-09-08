@@ -29,6 +29,10 @@ cdef class _SolutionBase:
     def __cinit__(self, infile='', name='', adjacent=(), *, origin=None,
                   yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), init=True, **kwargs):
+        if not isinstance(infile, (str, _PurePath)):
+            raise TypeError("Invalid object type: expected a 'str' or path object for "
+                            "parameter 'infile', but received "
+                            f"{type(infile).__name__!r}.")
 
         self._references = None
         # run instantiation only if valid sources are specified
