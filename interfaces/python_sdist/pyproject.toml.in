@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "cython!=3.1.2", "numpy>=2.0; python_version >= '3.9'", "oldest-supported-numpy; python_version == '3.8'"]
+requires = ["scikit-build-core", "cython==3.1.1", "numpy>=2.0; python_version >= '3.9'", "oldest-supported-numpy; python_version == '3.8'"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -35,7 +35,7 @@ requires-python = "@py_requires_ver_str@"
 dependencies = [
     "numpy >= 1.12.0,<3",
     "ruamel.yaml >= 0.15.34",
-    "cython !=3.1.2",
+    "cython ==3.1.1",
 ]
 
 [project.readme]
