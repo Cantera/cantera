@@ -1660,7 +1660,7 @@ elif env['python_package'] == 'none':
 env["python_min_version"] = python_min_version
 env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str
-env["cython_version_spec"] = SpecifierSet(">=0.29.31", prereleases=True)
+env["cython_version_spec"] = SpecifierSet(">=0.29.31,!=3.1.2", prereleases=True)
 env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3", prereleases=True)
 env["cython_version_spec_str"] = str(env["cython_version_spec"])
 env["numpy_version_spec_str"] = str(env["numpy_version_spec"])
