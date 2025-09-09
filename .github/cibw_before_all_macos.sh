@@ -88,6 +88,8 @@ else
     echo "building dependencies"
 fi
 
+brew uninstall cmake
+
 brew install ninja cmake --formula
 
 source "${SCRIPT_DIR}/build_dependencies.sh" # Build here hdf5, highFive, sundials, yaml_cpp
