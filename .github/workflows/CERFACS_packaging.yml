@@ -403,6 +403,14 @@ jobs:
       #   with:
       #     key: ${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('dependencies.sh') }}-1
       #     path: ${{ github.workspace }}/cache
+      - name: Debug repo content
+        run: |
+          echo "=== Liste du contenu à la racine ==="
+          ls -alh
+          echo "=== Liste du contenu de .github ==="
+          ls -alh .github || echo ".github n'existe pas"
+          echo "=== Liste récursive de .github ==="
+          ls -R .github || echo ".github n'existe pas"
       - name: Build required libraries
         run: bash .github/cibw_before_all_macos.sh "${{ github.workspace }}"
         # if: runner.os == 'macOS'
