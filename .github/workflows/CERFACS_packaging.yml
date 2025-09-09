@@ -404,7 +404,7 @@ jobs:
       #     key: ${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('dependencies.sh') }}-1
       #     path: ${{ github.workspace }}/cache
       - name: Build required libraries
-        run: bash ./cibw_before_all_macos.sh "${{ github.workspace }}"
+        run: bash .github/cibw_before_all_macos.sh "${{ github.workspace }}"
         # if: runner.os == 'macOS'
 
       - name: Set up CIBW environment
