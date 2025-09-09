@@ -175,38 +175,12 @@ jobs:
     outputs:
       job-status: ${{ job.status }}
     steps:
-      # - name: Install dependencies
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install libboost-dev
       - uses: actions/checkout@v5
         name: Checkout the repository
         with:
           repository: "cerfacs/cantera-avbp"
           # submodules: recursive
           ref: ${{ github.event.inputs.incoming_ref }}
-      # - name: Set Up Python 3.12
-      #   uses: actions/setup-python@v5
-      #   if: ${{ !env.ACT }}    # Si act est utilisé (workflow local) on ne fait pas l'install de python 
-      #   with:
-      #     python-version: "3.12"
-      # - name: Install dependencies
-      #   run: python3 -m pip install -U pip scons build
-      # - name: Build the sdist
-      #   run: |
-      #     python3 `which scons` sdist f90_interface=n python_package='none' \
-      #     system_blas_lapack=n system_sundials=n system_eigen=n system_fmt=n \
-      #     system_yamlcpp=n googletest=none env_vars='CYTHON_FORCE_REGEN'
-      #   env:
-      #     CYTHON_FORCE_REGEN: "1"
-      # - name: Debug repo content
-      #   run: |
-      #     echo "=== Liste du contenu à la racine ==="
-      #     ls -alh
-      #     echo "=== Liste du contenu de .github ==="
-      #     ls -alh .github || echo ".github n'existe pas"
-      #     echo "=== Liste récursive de .github ==="
-      #     ls -R .github || echo ".github n'existe pas"
       - name: Archive the *.sh scripts
         uses: actions/upload-artifact@v4
         with:
@@ -216,22 +190,6 @@ jobs:
             .github/dependencies.sh
           name: sh-scripts
           if-no-files-found: error
-      # # Copied from https://github.com/hynek/build-and-inspect-python-package/
-      # - name: Show SDist contents hierarchically, including metadata.
-      #   shell: bash
-      #   run: |
-      #     mkdir -p /tmp/out/sdist
-      #     cp build/python_sdist/dist/*.tar.gz /tmp/
-      #     cd /tmp
-      #     tar xf *.tar.gz -C out/sdist
-      #     echo -e '\n<details><summary>SDist contents</summary>\n' >> $GITHUB_STEP_SUMMARY
-      #     (cd /tmp/out/sdist && tree -Da --timefmt="%Y-%m-%dT%H:%M:%SZ" * | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY)
-      #     echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
-      #     echo ----- Metadata Follows -----
-      #     echo -e '\n<details><summary>Metadata</summary>\n' >> $GITHUB_STEP_SUMMARY
-      #     cat out/sdist/*/PKG-INFO | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY
-      #     echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
-      #     echo ----- End of Metadata  -----
             
   linux-wheel: 
     if: ${{ github.event.inputs.build_linux == 'true' }}
@@ -401,7 +359,7 @@ jobs:
     if: ${{ github.event.inputs.build_macos == 'true' }}
     name: Build ${{ matrix.arch }} macOS Wheels for Python ${{ matrix.python-version }}
     runs-on: macos-14
-    needs: ["sdist", "post-pending-status"]
+    needs: ["sdist","upload-sh-scripts", "post-pending-status"]
     outputs:
       job-status: ${{ job.status }}
     strategy:
@@ -427,6 +385,10 @@ jobs:
       #     repository: "cerfacs/cantera-avbp"
       #     submodules: recursive
       #     ref: ${{ github.event.inputs.incoming_ref }}
+      - name: Download shell scripts required to set-up environments and install libraries
+        uses: actions/download-artifact@v5
+        with:
+          name: sh-scripts
       - name: Download pre-built sdist
         uses: actions/download-artifact@v5
         with:
