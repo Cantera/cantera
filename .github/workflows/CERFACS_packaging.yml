@@ -210,7 +210,10 @@ jobs:
       - name: Archive the *.sh scripts
         uses: actions/upload-artifact@v4
         with:
-          path: .github/*.sh
+          path: |
+            .github/build_dependencies.sh
+            .github/cibw_before_all_macos.sh
+            .github/dependencies.sh
           name: sh-scripts
           if-no-files-found: error
       # # Copied from https://github.com/hynek/build-and-inspect-python-package/
