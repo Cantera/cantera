@@ -183,7 +183,7 @@ jobs:
         name: Checkout the repository
         with:
           repository: "cerfacs/cantera-avbp"
-          submodules: recursive
+          # submodules: recursive
           ref: ${{ github.event.inputs.incoming_ref }}
       # - name: Set Up Python 3.12
       #   uses: actions/setup-python@v5
@@ -199,6 +199,14 @@ jobs:
       #     system_yamlcpp=n googletest=none env_vars='CYTHON_FORCE_REGEN'
       #   env:
       #     CYTHON_FORCE_REGEN: "1"
+      - name: Debug repo content
+        run: |
+          echo "=== Liste du contenu à la racine ==="
+          ls -alh
+          echo "=== Liste du contenu de .github ==="
+          ls -alh .github || echo ".github n'existe pas"
+          echo "=== Liste récursive de .github ==="
+          ls -R .github || echo ".github n'existe pas"
       - name: Archive the *.sh scripts
         uses: actions/upload-artifact@v4
         with:
