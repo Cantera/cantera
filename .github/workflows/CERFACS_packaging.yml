@@ -166,6 +166,61 @@ jobs:
           cat out/sdist/*/PKG-INFO | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY
           echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
           echo ----- End of Metadata  -----
+
+  upload-sh-scripts:
+    name: Upload the *.sh scripts required for installation
+    runs-on: ubuntu-latest
+    needs:
+      - "post-pending-status"
+    outputs:
+      job-status: ${{ job.status }}
+    steps:
+      # - name: Install dependencies
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install libboost-dev
+      - uses: actions/checkout@v5
+        name: Checkout the repository
+        with:
+          repository: "cerfacs/cantera-avbp"
+          submodules: recursive
+          ref: ${{ github.event.inputs.incoming_ref }}
+      # - name: Set Up Python 3.12
+      #   uses: actions/setup-python@v5
+      #   if: ${{ !env.ACT }}    # Si act est utilisé (workflow local) on ne fait pas l'install de python 
+      #   with:
+      #     python-version: "3.12"
+      # - name: Install dependencies
+      #   run: python3 -m pip install -U pip scons build
+      # - name: Build the sdist
+      #   run: |
+      #     python3 `which scons` sdist f90_interface=n python_package='none' \
+      #     system_blas_lapack=n system_sundials=n system_eigen=n system_fmt=n \
+      #     system_yamlcpp=n googletest=none env_vars='CYTHON_FORCE_REGEN'
+      #   env:
+      #     CYTHON_FORCE_REGEN: "1"
+      - name: Archive the *.sh scripts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./github/*.sh
+          name: sh-scripts
+          if-no-files-found: error
+      # # Copied from https://github.com/hynek/build-and-inspect-python-package/
+      # - name: Show SDist contents hierarchically, including metadata.
+      #   shell: bash
+      #   run: |
+      #     mkdir -p /tmp/out/sdist
+      #     cp build/python_sdist/dist/*.tar.gz /tmp/
+      #     cd /tmp
+      #     tar xf *.tar.gz -C out/sdist
+      #     echo -e '\n<details><summary>SDist contents</summary>\n' >> $GITHUB_STEP_SUMMARY
+      #     (cd /tmp/out/sdist && tree -Da --timefmt="%Y-%m-%dT%H:%M:%SZ" * | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY)
+      #     echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
+      #     echo ----- Metadata Follows -----
+      #     echo -e '\n<details><summary>Metadata</summary>\n' >> $GITHUB_STEP_SUMMARY
+      #     cat out/sdist/*/PKG-INFO | sed 's/^/    /' | tee -a $GITHUB_STEP_SUMMARY
+      #     echo -e '\n</details>\n' >> $GITHUB_STEP_SUMMARY
+      #     echo ----- End of Metadata  -----
             
   linux-wheel: 
     if: ${{ github.event.inputs.build_linux == 'true' }}
