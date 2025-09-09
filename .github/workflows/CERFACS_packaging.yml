@@ -474,7 +474,8 @@ jobs:
           # CIBW_ENVIRONMENT_WINDOWS: CT_SKIP_SLOW=1 CMAKE_BUILD_PARALLEL_LEVEL=4
           # CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR% -w {dest_dir} {wheel}
           CIBW_ENVIRONMNET_MACOS: CT_SKIP_SLOW=1
-          # CIBW_ENVIRONMENT: "CIBW_BEFORE_BUILD='python -m pip install cython==3.1.1'" # Force cython version 
+          CIBW_BEFORE_BUILD: python -m pip install Cython==3.1.1 numpy>=2.0
+          CIBW_ENVIRONMENT: "CIBW_BEFORE_BUILD='python -m pip install Cython==3.1.1 numpy>=2.0" # Force cython version 
           CIBW_BUILD: "cp*-*"
           CIBW_ARCHS: ${{ matrix.arch }}    
 
