@@ -471,6 +471,7 @@ jobs:
         env:
           CC: clang
           CXX: clang++
+          SDKROOT: /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
           CANTERA_TEST_DIR: ${{ steps.download-test-files.outputs.test-root }}
           # CIBW_ENVIRONMENT_LINUX: CT_SKIP_SLOW=1 CANTERA_TEST_DIR=/host${{ steps.download-test-files.outputs.test-root }}
           # CIBW_ENVIRONMENT_WINDOWS: CT_SKIP_SLOW=1 CMAKE_BUILD_PARALLEL_LEVEL=4
