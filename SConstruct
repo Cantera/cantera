@@ -99,7 +99,7 @@ from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuratio
                         config_error, run_preprocessor, make_relative_path_absolute)
 
 # ensure that Python and SCons versions are sufficient for the build process
-EnsurePythonVersion(3, 7)
+EnsurePythonVersion(3, 9)
 EnsureSConsVersion(3, 0, 0)
 
 if not COMMAND_LINE_TARGETS:
@@ -180,7 +180,7 @@ else:
 
 
 # Python Package Settings
-python_min_version = parse_version("3.8")
+python_min_version = parse_version("3.9")
 # Newest Python version not supported/tested by Cantera
 python_max_version = parse_version("3.14")
 # The string is used to set python_requires in setup.cfg.in

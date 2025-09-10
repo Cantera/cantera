@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "cython==3.1.1", "numpy>=2.0; python_version >= '3.9'", "oldest-supported-numpy; python_version == '3.8'"]
+requires = ["scikit-build-core", "cython==3.1.1", "numpy>=2.0; python_version >= '3.9'", "oldest-supported-numpy; python_version == '3.9'"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -22,7 +22,6 @@ classifiers = [
     "Programming Language :: Cython",
     "Programming Language :: Fortran",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
