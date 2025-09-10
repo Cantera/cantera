@@ -469,11 +469,13 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6 # 3.1.4
         env:
+          CC: clang
+          CXX: clang++
           CANTERA_TEST_DIR: ${{ steps.download-test-files.outputs.test-root }}
           # CIBW_ENVIRONMENT_LINUX: CT_SKIP_SLOW=1 CANTERA_TEST_DIR=/host${{ steps.download-test-files.outputs.test-root }}
           # CIBW_ENVIRONMENT_WINDOWS: CT_SKIP_SLOW=1 CMAKE_BUILD_PARALLEL_LEVEL=4
           # CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR% -w {dest_dir} {wheel}
-          CIBW_ENVIRONMNET_MACOS: CT_SKIP_SLOW=1
+          CIBW_ENVIRONMENT_MACOS: CT_SKIP_SLOW=1
           # CIBW_BEFORE_BUILD: python -m pip install Cython==3.1.1 numpy>=2.0
           CIBW_BEFORE_BUILD: |
             python -m pip install --upgrade pip
