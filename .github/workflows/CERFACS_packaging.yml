@@ -403,7 +403,7 @@ jobs:
           mkdir -p "${RUNNER_TEMP}/ct-test-dir"
           echo "test-root=${RUNNER_TEMP}/ct-test-dir" >> $GITHUB_OUTPUT
         shell: bash
-      # - name: Download and unpack the tarball ## Pas sur que ce step fonctionne car le lien est invalide, et la sdist à déja été récupéré avant donc je voit pas à quoi ça pourrait servir 
+      # - name: Download and unpack the tarball ## Ce step sert a télécharger les sources pour que les pytest tests puissent être exec après la génération de la wheel.  
       #   run: |
       #     curl -fsSL "https://github.com/cantera/cantera/archive/${INCOMING_SHA}.tar.gz" -o cantera.tar.gz
       #     tar -xzf cantera.tar.gz --strip-components=1 "cantera-${INCOMING_SHA}/test"
@@ -482,8 +482,9 @@ jobs:
             python -m pip install --upgrade pip
             python -m pip install Cython==3.1.1 numpy>=2.0
           # CIBW_ENVIRONMENT: "CIBW_BEFORE_BUILD='python -m pip install Cython==3.1.1 numpy>=2.0" # Force cython version 
-          CIBW_BUILD: "cp*-*"
+          CIBW_BUILD: "cp39-macosx_arm64" #"cp*-*"
           CIBW_ARCHS: ${{ matrix.arch }}    
+          CIBW_TEST_SKIP: "*" # Enable to deactivate the automatic pytest after building the wheel
 
       # - name: Install Brew dependencies
       #   # Force installation of hdf5 on static lib (--build-from-source) so that wheel use this library instead of available ones on target machine  
