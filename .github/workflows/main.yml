@@ -26,59 +26,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  matlab-test-ubuntu:
-    name: MATLAB on ubuntu-latest with Python 3.10
-    runs-on: ubuntu-latest
-    env:
-      CANTERA_ROOT: ${{ github.workspace }}
-      CANTERA_DATA: ${{ github.workspace }}/data
-    steps:
-      - uses: actions/checkout@v5
-        name: Checkout the repository
-        with:
-          submodules: recursive
-          persist-credentials: false
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-          architecture: x64
-      - name: Install Apt dependencies
-        run: |
-          sudo apt update
-          sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
-            libhdf5-dev doxygen
-          gcc --version
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel build
-          python3 -m pip install scons ruamel.yaml Jinja2 typing-extensions
-      - name: Build Cantera with generated CLib
-        run: |
-          python3 `which scons` build -j4 debug=n --debug=time \
-          python_package=n env_vars=all
-      - name: Set LD_PRELOAD environment variable for MATLAB
-        run: |
-          LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-          echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
-      - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
-      - name: Build MATLAB C++ Interface
-        uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
-        with:
-          command: |
-            ctDir = getenv('CANTERA_ROOT');
-            ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab_experimental');
-            ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
-            ctLibDir = fullfile(ctDir, 'build', 'lib');
-            addpath(genpath(ctToolboxDir));
-            ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
-      - name: Run tests
-        uses: matlab-actions/run-tests@720bb7ae1d98878f668e76490134b57b36d81e12 # v2.2.0
-        with:
-          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
-
-
   ubuntu-multiple-pythons:
     name: >
       ${{ matrix.os }} with Python ${{ matrix.python-version }},
@@ -173,8 +120,6 @@ jobs:
     - name: Run install command
       run: python3 `which scons` install prefix=tmp_install
     - name: Upload shared library
-      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
-      # See https://github.com/actions/upload-artifact/issues/589
       uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.11'
       with:
@@ -942,13 +887,11 @@ jobs:
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library
-      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
-      # See https://github.com/actions/upload-artifact/issues/589
       uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/cantera_shared.dll
-        name: cantera_shared.dll
+        name: cantera_shared-windows_2022.dll
         retention-days: 2
 
   windows:
@@ -977,7 +920,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures typing_extensions
+          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures typing_extensions Jinja2
       - name: Restore Boost cache
         uses: actions/cache@v4
         id: cache-boost
@@ -994,9 +937,15 @@ jobs:
           mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
           rm $BOOST_ROOT/download.7z
         shell: bash
+      - name: Install Doxygen
+        run: |
+          choco install doxygen.install -y --no-progress
+          refreshenv
+          doxygen --version
+        shell: pwsh
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
-          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
+          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS
           f90_interface=n toolchain=msvc --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
@@ -1004,6 +953,13 @@ jobs:
         run: scons test-gtest test-legacy --debug=time
       - name: Run Python tests
         run: python -m pytest -raP -v -n auto --durations=50 test/python
+      - name: Upload shared library
+        uses: actions/upload-artifact@v5
+        if: matrix.python-version == '3.11'
+        with:
+          path: build/lib/cantera_shared.dll
+          name: cantera_shared-windows_2025.dll
+          retention-days: 2
 
   # Adapted from https://www.scivision.dev/intel-oneapi-github-actions/
   linux-intel-oneapi:
@@ -1081,7 +1037,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip setuptools wheel
-        python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
     - name: Restore Boost cache
       uses: actions/cache@v4
       id: cache-boost
@@ -1104,10 +1060,16 @@ jobs:
         mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
         rm $BOOST_ROOT/download.7z
       shell: bash
+    - name: Install Doxygen
+      run: |
+        choco install doxygen.install -y --no-progress
+        refreshenv
+        doxygen --version
+      shell: pwsh
     - name: Build Cantera
       run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
-        toolchain=mingw f90_interface=n --debug=time clib_legacy=y
+        toolchain=mingw f90_interface=n --debug=time
     - name: Upload Wheel
       uses: actions/upload-artifact@v5
       with:
@@ -1134,10 +1096,10 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-14]
+        os: [ubuntu-22.04, windows-2022, windows-2025, macos-14]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
+    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v5
@@ -1149,12 +1111,12 @@ jobs:
       with:
         python-version: "3.10"
         architecture: x64
-      if: matrix.os == 'windows-2022'
+      if: runner.os == 'Windows'
     - name: Set Python version (macOS)
       uses: actions/setup-python@v6
       with:
         python-version: "3.12"
-      if: matrix.os == 'macos-14'
+      if: runner.os == 'macOS'
       # Ubuntu uses default system Python 3
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
@@ -1171,13 +1133,13 @@ jobs:
       run: |
         echo "Running on `sysctl -n machdep.cpu.brand_string`"
         brew install --display-times hdf5
-      if: matrix.os == 'macos-14'
+      if: runner.os == 'macOS'
     - name: Install Apt dependencies (Ubuntu)
       run: |
         echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
         sudo apt update
         sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
-      if: matrix.os == 'ubuntu-22.04'
+      if: runner.os == 'Linux'
     - name: Install Python dependencies
       # Install Python dependencies, which are used by 'dotnet build'
       run: |
@@ -1192,16 +1154,25 @@ jobs:
       with:
         name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
+      if: runner.os == 'Linux'
     - name: Download the Cantera shared library (.dylib)
       uses: actions/download-artifact@v6
       with:
         name: libcantera_shared.dylib
         path: build/lib
+      if: runner.os == 'macOS'
     - name: Download the Cantera shared library (.dll)
       uses: actions/download-artifact@v6
       with:
-        name: cantera_shared.dll
+        name: cantera_shared-windows_2022.dll
         path: build/lib
+      if: matrix.os == 'windows-2022'
+    - name: Download the Cantera shared library (.dll)
+      uses: actions/download-artifact@v5
+      with:
+        name: cantera_shared-windows_2025.dll
+        path: build/lib
+      if: matrix.os == 'windows-2025'
     - name: Download the Doxygen artifacts
       uses: actions/download-artifact@v6
       with:
@@ -1236,3 +1207,114 @@ jobs:
       run: python -m pip install -e interfaces/sourcegen
     - name: Test YAML output generation
       run: sourcegen --api=yaml --output=build/yaml -v
+
+  matlab:
+    name: MATLAB on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, windows-2025, macos-14]
+      fail-fast: false
+    env:
+      CANTERA_ROOT: ${{ github.workspace }}
+      CANTERA_DATA: ${{ github.workspace }}/data
+    runs-on: ${{ matrix.os }}
+    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows]
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v5
+      name: Checkout the repository
+      with:
+        persist-credentials: false
+    - name: Set Python version (Windows)
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.10"
+        architecture: x64
+      if: runner.os == 'Windows'
+    - name: Set Python version (macOS)
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+      if: runner.os == 'macOS'
+      # Ubuntu uses default system Python 3
+    - name: Install Brew dependencies (macOS)
+      run: |
+        echo "Running on `sysctl -n machdep.cpu.brand_string`"
+        brew install --display-times libomp hdf5
+      if: runner.os == 'macOS'
+    - name: Install Apt dependencies (Ubuntu)
+      run: |
+        echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
+        sudo apt update
+        sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
+      if: runner.os == 'Linux'
+    - name: Install Python dependencies
+      # Install Python dependencies, which are used by 'dotnet build'
+      run: |
+        python3 -m pip install --upgrade pip setuptools wheel build
+        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
+    - name: Download the Cantera shared library (Linux)
+      uses: actions/download-artifact@v5
+      with:
+        name: libcantera_shared-${{ matrix.os }}.so
+        path: build/lib
+      if: runner.os == 'Linux'
+    - name: Create library symlinks (Linux)
+      working-directory: build/lib
+      run: |
+        ln -s libcantera_shared.so libcantera_shared.so.3.2.0
+        ln -s libcantera_shared.so.3.2.0 libcantera_shared.so.3
+      if: runner.os == 'Linux'
+    - name: Download the Cantera shared library (macOS)
+      uses: actions/download-artifact@v5
+      with:
+        name: libcantera_shared.dylib
+        path: build/lib
+      if: runner.os == 'macOS'
+    - name: Create library symlinks (macOS)
+      working-directory: build/lib
+      run: |
+        ln -s libcantera_shared.dylib libcantera_shared.3.2.0.dylib
+        ln -s libcantera_shared.3.2.0.dylib libcantera_shared.3.dylib
+      if: runner.os == 'macOS'
+    - name: Download the Cantera shared library (Windows)
+      uses: actions/download-artifact@v5
+      with:
+        name: cantera_shared-windows_2025.dll
+        path: build/lib
+      if: runner.os == 'Windows'
+    - name: Download the Doxygen artifacts
+      uses: actions/download-artifact@v5
+      with:
+        name: doxygen-tree
+        path: build/doc
+    - name: Extract Doxygen artifacts
+      run: tar -xzf doxygen.tar.gz
+      working-directory: build/doc
+    - name: Install sourcegen
+      run: python -m pip install -e interfaces/sourcegen
+    - name: Generage CLib headers
+      run: sourcegen --api=clib --output=interfaces/clib
+    - name: Set LD_PRELOAD environment variable for MATLAB (Linux)
+      run: |
+        LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
+        LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
+        LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
+        echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
+      if: runner.os == 'Linux'
+    - name: Set up MATLAB
+      uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+    - name: Build MATLAB C++ Interface
+      uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
+      with:
+        command: |
+          ctDir = getenv('CANTERA_ROOT');
+          ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab_experimental');
+          ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
+          ctLibDir = fullfile(ctDir, 'build', 'lib');
+          addpath(genpath(ctToolboxDir));
+          ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
+    - name: Run tests
+      uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
+      with:
+        select-by-folder: test/matlab_experimental
