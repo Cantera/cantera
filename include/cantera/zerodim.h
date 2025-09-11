@@ -37,5 +37,6 @@
 
 // func1
 #include "cantera/numerics/Func1.h"
+#include "cantera/numerics/Func1Factory.h"
 
 #endif
