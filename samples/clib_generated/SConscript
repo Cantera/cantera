@@ -53,11 +53,11 @@ for programName, sources in samples:
     localenv['tmpl_sourcename'] = programName + '.c'
 
     sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
-    install("$inst_sampledir/clib_generated", sconstruct)
+    install("$inst_sampledir/clib", sconstruct)
 
     # Generate CMakeLists.txt to be installed
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
     localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_shared_libs'])
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     cmakelists = localenv.SubstFile('CMakeLists.txt', 'CMakeLists.txt.in')
-    install("$inst_sampledir/clib_generated", cmakelists)
+    install("$inst_sampledir/clib", cmakelists)
