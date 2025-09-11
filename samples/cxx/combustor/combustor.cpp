@@ -75,10 +75,10 @@ void runexample()
     double A = 0.1;
     double FWHM = 0.2;
     double t0 = 0.5;
-    Gaussian1 igniter_mdot(A, t0, FWHM);
+    shared_ptr<Func1> igniter_mdot = newFunc1("Gaussian", {A, t0, FWHM});
 
     MassFlowController m3(igniter, combustor);
-    m3.setTimeFunction(&igniter_mdot);
+    m3.setTimeFunction(igniter_mdot);
 
     // put a valve on the exhaust line to regulate the pressure
     Valve v(combustor, exhaust);
