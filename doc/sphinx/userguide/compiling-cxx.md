@@ -26,7 +26,7 @@ files). The configuration file for a CMake project is called `CMakeLists.txt`. A
 `CMakeLists.txt` file for compiling a program that uses Cantera might look like this:
 
 ```cmake
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.18...3.31)
 project (sample)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
