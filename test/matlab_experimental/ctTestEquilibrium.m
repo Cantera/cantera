@@ -111,7 +111,6 @@ classdef ctTestEquilibrium < ctTestCase
             names = {'CH4', 'O2', 'H2O', 'CO2'};
             moles = [0, 0, 2, 1];
 
-            % self.assumeFail('Skipping multi-phase equilibrium test');
             self.checkval(names, moles);
         end
 
@@ -123,7 +122,6 @@ classdef ctTestEquilibrium < ctTestCase
             names = {'CH4', 'O2', 'H2O', 'CO2'};
             moles = [0, 1, 2, 1];
 
-            % self.assumeFail('Skipping multi-phase equilibrium test');
             self.checkval(names, moles);
         end
 
