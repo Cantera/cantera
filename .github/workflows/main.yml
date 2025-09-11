@@ -27,11 +27,15 @@ concurrency:
 
 jobs:
   matlab-test-ubuntu:
-    name: MATLAB on ubuntu-latest with Python 3.10
-    runs-on: ubuntu-latest
+    name: MATLAB on ${{ matrix.os }} with Python 3.10
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+          os: ['ubuntu-22.04', 'ubuntu-24.04']
+        fail-fast: false
     env:
-      CANTERA_ROOT: /home/runner/work/cantera/cantera
-      CANTERA_DATA: /home/runner/work/cantera/cantera/data
+      CANTERA_ROOT: ${{ github.workspace }}
+      CANTERA_DATA: ${{ github.workspace }}/data
     steps:
       - uses: actions/checkout@v5
         name: Checkout the repository
@@ -69,8 +73,112 @@ jobs:
       - name: Run tests
         uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
         with:
-          select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
+          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
+  matlab-test-macos:
+    name: MATLAB on ${{ matrix.macos-version }} with Python 3.10
+    runs-on: ${{ matrix.macos-version }}
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        macos-version: ['macos-13', 'macos-14', 'macos-15']
+    env:
+      CANTERA_ROOT: ${{ github.workspace }}
+      CANTERA_DATA: ${{ github.workspace }}/data
+    steps:
+      - uses: actions/checkout@v5
+        name: Checkout the repository
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Write dependencies to a file for caching
+        run: |
+          echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install Brew dependencies
+        run: brew install --display-times boost libomp hdf5 doxygen
+      - name: Set Include folder
+        run:
+          echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+      - name: Upgrade pip
+        run: python -m pip install -U pip setuptools wheel
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build Cantera with legacy CLib
+        run: scons build env_vars=all -j3 debug=n --debug=time
+          boost_inc_dir=${BOOST_INC_DIR} clib_legacy=y
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      - name: Run tests
+        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
+        with:
+          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
+
+  matlab-test-windows-msvc:
+    name: MATLAB on ${{ matrix.windows-version }} with Python 3.10
+    runs-on: ${{ matrix.windows-version }}
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        windows-version: ['windows-2022', 'windows-2025']
+      fail-fast: false
+    env:
+      CANTERA_ROOT: ${{ github.workspace }}
+      CANTERA_DATA: ${{ github.workspace }}/data
+      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
+      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
+    steps:
+      - uses: actions/checkout@v5
+        name: Checkout the repository
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Write dependencies to a file for caching
+        run: |
+          echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          architecture: x64
+          check-latest: true
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
+      - name: Restore Boost cache
+        uses: actions/cache@v4
+        id: cache-boost
+        with:
+          path: ${{env.BOOST_ROOT}}
+          key: boost-187-win
+      - name: Install Boost Headers
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+          mkdir -p $BOOST_ROOT
+          curl --progress-bar --location --output $BOOST_ROOT/download.7z -L $BOOST_URL
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost-1.87.0/boost
+          mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
+          rm $BOOST_ROOT/download.7z
+        shell: bash
+      - name: Build Cantera
+        run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
+          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
+          f90_interface=n toolchain=msvc --debug=time optimize=n
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      - name: Run tests
+        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
+        with:
+          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
   ubuntu-multiple-pythons:
     name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }}
