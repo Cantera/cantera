@@ -1651,6 +1651,9 @@ cdef class Reaction:
         def __set__(self, rate):
             if isinstance(rate, ReactionRate):
                 self._rate = rate
+            elif isinstance(rate, Arrhenius):
+                self._rate = ArrheniusRate(rate.pre_exponential_factor,
+                    rate.temperature_exponent, rate.activation_energy)
             elif callable(rate):
                 self._rate = CustomRate(rate)
             else:

@@ -1333,6 +1333,13 @@ class TestElementaryReaction:
         gas.modify_reaction(2, R)
         assert A2*T**b2*np.exp(-Ta2/T) == approx(gas.forward_rate_constants[2])
 
+        A3 = 1.9 * A1
+        b3 = b1 + 0.3
+        Ta3 = Ta1 * 2.2
+        R.rate = ct.Arrhenius(A3, b3, Ta3 * ct.gas_constant)
+        gas.modify_reaction(2, R)
+        assert A3*T**b3*np.exp(-Ta3/T) == approx(gas.forward_rate_constants[2])
+
 class TestFalloffReaction:
 
     def test_negative_A_falloff(self):
