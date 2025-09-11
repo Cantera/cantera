@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/CVodesIntegrator.h"
+#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>
@@ -89,6 +90,20 @@ extern "C" {
     {
         FuncEval* f = (FuncEval*) f_data;
         return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
+    }
+
+    // Root function to enforce ReactorNet advance limits via CVODE event detection
+    static int advance_limit_root(realtype t, N_Vector y, realtype *gout, void *user_data)
+    {
+        // user_data points to the FuncEval (e.g., ReactorNet)
+        auto* f = static_cast<Cantera::FuncEval*>(user_data);
+        // Only ReactorNet implements the limit-check root function
+        if (auto* net = dynamic_cast<Cantera::ReactorNet*>(f)) {
+            return net->advanceLimitRootFunc(t, NV_DATA_S(y), gout);
+        }
+        // Default: no root
+        gout[0] = 1.0;
+        return 0;
     }
 }
 
@@ -323,6 +338,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     flag = CVodeSetUserData(m_cvode_mem, &func);
     checkError(flag, "initialize", "CVodeSetUserData");
 
+    // Initialize single root function hook; the underlying evaluator decides
+    // whether a root is active. This is safe for non-ReactorNet use cases.
+    flag = CVodeRootInit(m_cvode_mem, 1, advance_limit_root);
+    checkError(flag, "initialize", "CVodeRootInit");
+
     if (func.nparams() > 0) {
         sensInit(t0, func);
         flag = CVodeSetSensParams(m_cvode_mem, func.m_sens_params.data(),
@@ -490,6 +510,7 @@ void CVodesIntegrator::integrate(double tout)
                            tout, m_time);
     }
     int nsteps = 0;
+    bool root_triggered = false;
     while (m_tInteg < tout) {
         if (nsteps >= m_maxsteps) {
             string f_errs = m_func->getErrors();
@@ -502,7 +523,7 @@ void CVodesIntegrator::integrate(double tout)
                 nsteps, tout, m_tInteg, f_errs);
         }
         int flag = CVode(m_cvode_mem, tout, m_y, &m_tInteg, CV_ONE_STEP);
-        if (flag != CV_SUCCESS) {
+        if (flag != CV_SUCCESS && flag != CV_ROOT_RETURN) {
             string f_errs = m_func->getErrors();
             if (!f_errs.empty()) {
                 f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
@@ -513,18 +534,27 @@ void CVodesIntegrator::integrate(double tout)
                 "Components with largest weighted error estimates:\n{}",
                 flag, m_error_message, f_errs, getErrorInfo(10));
         }
+        if (flag == CV_ROOT_RETURN) {
+            // Stop early at root (e.g., advance limit reached)
+            root_triggered = true;
+            break;
+        }
         nsteps++;
     }
-    int flag = CVodeGetDky(m_cvode_mem, tout, 0, m_y);
+    // Align solution time to the requested tout when no root event occurred; this
+    // avoids small positive overshoots from CV_ONE_STEP, which can otherwise cause
+    // callers to see non-monotonic target times.
+    double t_eval = root_triggered ? m_tInteg : tout;
+    int flag = CVodeGetDky(m_cvode_mem, t_eval, 0, m_y);
     checkError(flag, "integrate", "CVodeGetDky");
-    m_time = tout;
+    m_time = t_eval;
     m_sens_ok = false;
 }
 
 double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_tInteg, CV_ONE_STEP);
-    if (flag != CV_SUCCESS) {
+    if (flag != CV_SUCCESS && flag != CV_ROOT_RETURN) {
         string f_errs = m_func->getErrors();
         if (!f_errs.empty()) {
             f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
