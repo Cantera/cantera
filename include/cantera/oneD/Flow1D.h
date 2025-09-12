@@ -7,10 +7,12 @@
 #define CT_FLOW1D_H
 
 #include "Domain1D.h"
+#include "Radiation1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+
 
 namespace Cantera
 {
@@ -267,12 +269,12 @@ public:
 
     //! Return emissivity at left boundary
     double leftEmissivity() const {
-        return m_epsilon_left;
+        return m_radiation->leftEmissivity();
     }
 
     //! Return emissivity at right boundary
     double rightEmissivity() const {
-        return m_epsilon_right;
+        return m_radiation->rightEmissivity();
     }
 
     //! Specify that the the temperature should be held fixed at point `j`.
@@ -469,22 +471,11 @@ protected:
     //! to be updated are defined.
     virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
 
-    /**
-     * Computes the radiative heat loss vector over points jmin to jmax and stores
-     * the data in the qdotRadiation variable.
-     *
-     * The simple radiation model used was established by Liu and Rogg
-     * @cite liu1991. This model considers the radiation of CO2 and H2O.
-     *
-     * This model uses the optically thin limit and the gray-gas approximation to
-     * simply calculate a volume specified heat flux out of the Planck absorption
-     * coefficients, the boundary emissivities and the temperature. Polynomial lines
-     * calculate the species Planck coefficients for H2O and CO2. The data for the
-     * lines are taken from the RADCAL program @cite RADCAL.
-     * The coefficients for the polynomials are taken from
-     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
-     */
-    void computeRadiation(double* x, size_t jmin, size_t jmax);
+    //! Compute the radiative heat loss at each grid point
+    void computeRadiation(double*, size_t, size_t);
+
+    void setRadiationModels(const std::string& propertyModel,
+                            const std::string& solverModel);
 
     //! @}
 
@@ -910,6 +901,9 @@ protected:
     //! radiative heat loss.
     double m_epsilon_right = 0.0;
 
+    //! Radiation object used for calculating radiative heat loss
+    std::unique_ptr<Radiation1D> m_radiation;
+
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
     vector<size_t> m_kRadiating;
@@ -1014,5 +1008,4 @@ private:
 };
 
 }
-
 #endif
