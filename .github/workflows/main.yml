@@ -26,141 +26,80 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  matlab-test-ubuntu:
-    name: MATLAB on ${{ matrix.os }} with Python 3.10
-    runs-on: ${{ matrix.os }}
-    strategy:
-        matrix:
-          os: ['ubuntu-22.04', 'ubuntu-24.04']
-        fail-fast: false
-    env:
-      CANTERA_ROOT: ${{ github.workspace }}
-      CANTERA_DATA: ${{ github.workspace }}/data
-    steps:
-      - uses: actions/checkout@v5
-        name: Checkout the repository
-        with:
-          submodules: recursive
-          persist-credentials: false
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          architecture: x64
-      - name: Install Apt dependencies
-        run: |
-          sudo apt update
-          sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
-            libhdf5-dev
-          gcc --version
-      - name: Upgrade pip
-        run: python3 -m pip install -U pip setuptools wheel
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install ruamel.yaml scons==4.0.1 packaging
-      - name: Build Cantera with legacy CLib
-        run: |
-          python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-          cc_flags=-D_GLIBCXX_ASSERTIONS clib_legacy=y
-      - name: Set LD_PRELOAD environment variable for MATLAB
-        run: |
-          LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-          LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
-          LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
-          echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
-      - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
-      - name: Run tests
-        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
-        with:
-          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
-  matlab-test-macos:
-    name: MATLAB on ${{ matrix.macos-version }} with Python 3.10
-    runs-on: ${{ matrix.macos-version }}
+  MATLAB-tests:
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     strategy:
+      fail-fast: false
       matrix:
-        macos-version: ['macos-13', 'macos-14', 'macos-15']
+        include:
+          - os: ubuntu-22.04
+            python-version: '3.10'
+          - os: ubuntu-24.04
+            python-version: '3.10'
+          - os: macos-13
+            python-version: '3.10'
+          - os: macos-14
+            python-version: '3.10'
+          - os: macos-15
+            python-version: '3.10'
+          - os: windows-2022
+            python-version: '3.10'
+          - os: windows-2025
+            python-version: '3.10'
+
     env:
       CANTERA_ROOT: ${{ github.workspace }}
       CANTERA_DATA: ${{ github.workspace }}/data
+      BOOST_ROOT: ${{ github.workspace }}/3rdparty/boost
+      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
+
     steps:
       - uses: actions/checkout@v5
-        name: Checkout the repository
+        name: Checkout repository
         with:
           submodules: recursive
           persist-credentials: false
-      - name: Write dependencies to a file for caching
-        run: |
-          echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: pip
-          cache-dependency-path: requirements.txt
-      - name: Install Brew dependencies
-        run: brew install --display-times boost libomp hdf5 doxygen
-      - name: Set Include folder
-        run:
-          echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+          python-version: ${{ matrix.python-version }}
+          check-latest: true
+
       - name: Upgrade pip
         run: python -m pip install -U pip setuptools wheel
-      - name: Install Python dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Build Cantera with legacy CLib
-        run: scons build env_vars=all -j3 debug=n --debug=time
-          boost_inc_dir=${BOOST_INC_DIR} clib_legacy=y
-      - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
-      - name: Run tests
-        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
-        with:
-          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
-  matlab-test-windows-msvc:
-    name: MATLAB on ${{ matrix.windows-version }} with Python 3.10
-    runs-on: ${{ matrix.windows-version }}
-    timeout-minutes: 90
-    strategy:
-      matrix:
-        windows-version: ['windows-2022', 'windows-2025']
-      fail-fast: false
-    env:
-      CANTERA_ROOT: ${{ github.workspace }}
-      CANTERA_DATA: ${{ github.workspace }}/data
-      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
-    steps:
-      - uses: actions/checkout@v5
-        name: Checkout the repository
-        with:
-          submodules: recursive
-          persist-credentials: false
-      - name: Write dependencies to a file for caching
-        run: |
-          echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          architecture: x64
-          check-latest: true
-          cache: 'pip'
-          cache-dependency-path: requirements.txt
       - name: Install Python dependencies
+        run: python -m pip install scons==4.0.1 packaging
+
+      - name: Install Apt dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
-          python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
-      - name: Restore Boost cache
+          sudo apt update
+          sudo apt install libboost-dev libopenmpi-dev libopenblas-openmp-dev libhdf5-dev
+          gcc --version
+
+      - name: Install Brew dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install --display-times boost libomp hdf5 doxygen
+
+      - name: Set Include folder (macOS)
+        if: runner.os == 'macOS'
+        run: echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+
+      - name: Restore Boost cache (Windows)
+        if: runner.os == 'Windows'
         uses: actions/cache@v4
         id: cache-boost
         with:
-          path: ${{env.BOOST_ROOT}}
+          path: ${{ env.BOOST_ROOT }}
           key: boost-187-win
-      - name: Install Boost Headers
-        if: steps.cache-boost.outputs.cache-hit != 'true'
+
+      - name: Install Boost Headers (Windows)
+        if: runner.os == 'Windows' && steps.cache-boost.outputs.cache-hit != 'true'
         run: |
           BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
           mkdir -p $BOOST_ROOT
@@ -169,13 +108,38 @@ jobs:
           mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
           rm $BOOST_ROOT/download.7z
         shell: bash
-      - name: Build Cantera
-        run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
-          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
+
+      - name: Build Cantera with legacy clib (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
+          cc_flags=-D_GLIBCXX_ASSERTIONS python_package=n f90_interface=n clib_legacy=y
+
+      - name: Build Cantera with legacy clib (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          scons build env_vars=all -j4 boost_inc_dir=${BOOST_INC_DIR} \
+          debug=n --debug=time python_package=n f90_interface=n clib_legacy=y
+
+      - name: Build Cantera with legacy clib (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug \
+          python_package=n env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y \
           f90_interface=n toolchain=msvc --debug=time optimize=n
+
+      - name: Set LD_PRELOAD environment variable for MATLAB (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
+          LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
+          LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
+          echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
+
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
-      - name: Run tests
+
+      - name: Run MATLAB tests
         uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
         with:
           select-by-folder: ${{ github.workspace }}/test/matlab_experimental
