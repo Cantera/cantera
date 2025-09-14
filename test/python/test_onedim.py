@@ -550,9 +550,6 @@ class TestFreeFlame:
                         zip(reaction_equations, adjoint_sensitivities)]
         adjoint_sens_sorted = sorted(adjoint_sens, key=lambda x: abs(x[1]), reverse=True)
 
-        # get index in the grid at distance
-        ix = np.argmin(np.abs(self.flame.grid - distance))
-
         Su0 = self.flame.X[self.gas.species_index(species), ix]
         fwd_sensitivities = []
         for m in range(self.flame.gas.n_reactions):
