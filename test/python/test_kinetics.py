@@ -1316,6 +1316,7 @@ class TestElementaryReaction:
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
+    @pytest.mark.usefixtures("allow_deprecated")  # for class Arrhenius
     def test_modify_elementary(self, gas):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = gas.TPX
@@ -1342,7 +1343,9 @@ class TestElementaryReaction:
 
 class TestFalloffReaction:
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_negative_A_falloff(self):
+        # TODO: After Cantera 3.2, replace Arrhenius with ArrheniusRate
         species = ct.Species.list_from_file("gri30.yaml")
         low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
         high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
@@ -1358,15 +1361,15 @@ class TestFalloffReaction:
         with pytest.raises(ct.CanteraError, match='pre-exponential'):
             rate.low_rate = low_rate
 
-        rate.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+        rate.low_rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
         rxn = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate)
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[rxn])
         assert gas.forward_rate_constants < 0
 
     def test_falloff(self, gas, species):
-        high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
-        low_rate = ct.Arrhenius(2.3e12, -0.9, -1700 * 1000 * 4.184)
+        high_rate = ct.ArrheniusRate(7.4e10, -0.37, 0.0)
+        low_rate = ct.ArrheniusRate(2.3e12, -0.9, -1700 * 1000 * 4.184)
         tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
         r = ct.Reaction("OH:2", "H2O2:1",
                         ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182]),
@@ -1435,10 +1438,10 @@ class TestPlogReaction:
         species = ct.Species.list_from_file("pdep-test.yaml")
 
         rate = ct.PlogRate([
-            (0.01*ct.one_atm, ct.Arrhenius(1.2124e13, -0.5779, 10872.7*4184)),
-            (1.0*ct.one_atm, ct.Arrhenius(4.9108e28, -4.8507, 24772.8*4184)),
-            (10.0*ct.one_atm, ct.Arrhenius(1.2866e44, -9.0246, 39796.5*4184)),
-            (100.0*ct.one_atm, ct.Arrhenius(5.9632e53, -11.529, 52599.6*4184))
+            (0.01*ct.one_atm, ct.ArrheniusRate(1.2124e13, -0.5779, 10872.7*4184)),
+            (1.0*ct.one_atm, ct.ArrheniusRate(4.9108e28, -4.8507, 24772.8*4184)),
+            (10.0*ct.one_atm, ct.ArrheniusRate(1.2866e44, -9.0246, 39796.5*4184)),
+            (100.0*ct.one_atm, ct.ArrheniusRate(5.9632e53, -11.529, 52599.6*4184))
         ])
         r = ct.Reaction({"R1A":1, "R1B":1}, {"P1":1, "H":1}, rate)
 

@@ -457,9 +457,9 @@ class FalloffRateTests(ReactionRateTests):
     @pytest.fixture(scope='class', autouse=True)
     def setup_falloff_data(self):
         param = self._input["low-P-rate-constant"]
-        self._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        self._parts["low"] = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
         param = self._input["high-P-rate-constant"]
-        self._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        self._parts["high"] = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
 
     def eval(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
@@ -625,7 +625,7 @@ class TestPlogRate(ReactionRateTests):
     @pytest.fixture(scope='function', autouse=True)
     def setup_plog_data(self):
         self._parts = {
-            "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
+            "rates": [(rc["P"], ct.ArrheniusRate(rc["A"], rc["b"], rc["Ea"]))
                       for rc in self._input["rate-constants"]],
             }
 
@@ -648,6 +648,8 @@ class TestPlogRate(ReactionRateTests):
             assert rate.temperature_exponent == approx(other[index]["b"])
             assert rate.activation_energy == approx(other[index]["Ea"])
 
+    # TODO: After Cantera 3.2, replace Arrhenius with ArrheniusRate
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_set_rates(self):
         # test setter for property rates
         other = [
@@ -1432,9 +1434,9 @@ class TestThreeBodyBlowersMasel(TestBlowersMasel):
 @pytest.fixture(scope='class')
 def setup_troe_tests(request, setup_reaction_tests):
     param = request.cls._rate["low_P_rate_constant"]
-    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    low = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     param = request.cls._rate["high_P_rate_constant"]
-    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    high = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     param = request.cls._rate["Troe"]
     data = [param["A"], param["T3"], param["T1"], param["T2"]]
     request.cls._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
@@ -1472,9 +1474,9 @@ class TestTroe(ReactionTests):
 @pytest.fixture(scope='class')
 def setup_lindemann_tests(request, setup_reaction_tests):
     param = request.cls._rate["low_P_rate_constant"]
-    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    low = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     param = request.cls._rate["high_P_rate_constant"]
-    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    high = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     request.cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
 
 @pytest.mark.usefixtures("setup_lindemann_tests")
@@ -1509,9 +1511,9 @@ class TestLindemann(ReactionTests):
 @pytest.fixture(scope='class')
 def setup_chemically_activated_tests(request, setup_reaction_tests):
     param = request.cls._rate["low_P_rate_constant"]
-    low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    low = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     param = request.cls._rate["high_P_rate_constant"]
-    high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+    high = ct.ArrheniusRate(param["A"], param["b"], param["Ea"])
     request.cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
     request.cls._rate_obj.chemically_activated = True
 

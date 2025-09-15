@@ -476,18 +476,42 @@ cdef class FalloffRate(ReactionRate):
         self.falloff = <CxxFalloffRate*>self.rate
 
     property low_rate:
-        """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
+        """ Get/Set the `ArrheniusRate` rate constant in the low-pressure limit """
         def __get__(self):
-            return Arrhenius.wrap(&(self.falloff.lowRate()))
-        def __set__(self, Arrhenius rate):
-            self.falloff.setLowRate(deref(rate.base))
+            # Copy the C++ ArrheniusRate object that is returned by reference
+            cdef CxxArrheniusRate* low = &self.falloff.lowRate()
+            cdef shared_ptr[CxxReactionRate] rate_ptr
+            rate_ptr.reset(new CxxArrheniusRate(deref(low)))
+            return ArrheniusRate.wrap(rate_ptr)
+
+        def __set__(self, rate):
+            if isinstance(rate, Arrhenius):
+                self.falloff.setLowRate(deref((<Arrhenius>rate).base))
+            elif isinstance(rate, ArrheniusRate):
+                self.falloff.setLowRate(
+                    deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
+            else:
+                raise TypeError("FalloffRate.low_rate setter: Expected 'ArrheniusRate'"
+                    f"but got '{type(rate).__name__}'")
 
     property high_rate:
-        """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
+        """ Get/Set the `ArrheniusRate` rate constant in the high-pressure limit """
         def __get__(self):
-            return Arrhenius.wrap(&(self.falloff.highRate()))
-        def __set__(self, Arrhenius rate):
-            self.falloff.setHighRate(deref(rate.base))
+            # Copy the C++ ArrheniusRate object that is returned by reference
+            cdef CxxArrheniusRate* high = &self.falloff.highRate()
+            cdef shared_ptr[CxxReactionRate] rate_ptr
+            rate_ptr.reset(new CxxArrheniusRate(deref(high)))
+            return ArrheniusRate.wrap(rate_ptr)
+
+        def __set__(self, rate):
+            if isinstance(rate, Arrhenius):
+                self.falloff.setHighRate(deref((<Arrhenius>rate).base))
+            elif isinstance(rate, ArrheniusRate):
+                self.falloff.setHighRate(
+                    deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
+            else:
+                raise TypeError("FalloffRate.high_rate setter: Expected 'ArrheniusRate'"
+                    f"but got '{type(rate).__name__}'")
 
     property falloff_coeffs:
         """ The array of coefficients used to define this falloff function. """
@@ -637,24 +661,28 @@ cdef class PlogRate(ReactionRate):
     property rates:
         """
         Get/Set the rate coefficients for this reaction, which are given as a
-        list of (pressure, `Arrhenius`) tuples.
+        list of (pressure, `ArrheniusRate`) tuples.
         """
         def __get__(self):
             rates = []
             cdef multimap[double, CxxArrheniusRate] cxxrates
             cdef pair[double, CxxArrheniusRate] p_rate
+            cdef shared_ptr[CxxReactionRate] rate_ptr
             cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
-                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
+                rate_ptr.reset(new CxxArrheniusRate(p_rate.second))
+                rates.append((p_rate.first, ArrheniusRate.wrap(rate_ptr)))
             return rates
 
         def __set__(self, rates):
             cdef multimap[double, CxxArrheniusRate] ratemap
-            cdef Arrhenius rate
             cdef pair[double, CxxArrheniusRate] item
             for p, rate in rates:
                 item.first = p
-                item.second = deref(rate.base)
+                if isinstance(rate, Arrhenius):
+                    item.second = deref((<Arrhenius>rate).base)
+                elif isinstance(rate, ArrheniusRate):
+                    item.second = deref(<CxxArrheniusRate*>(<ArrheniusRate>rate).rate)
                 ratemap.insert(item)
 
             self._rate.reset(new CxxPlogRate(ratemap))
@@ -1772,25 +1800,18 @@ cdef class Arrhenius:
 
     where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
     and ``E`` is the `activation_energy`.
+
+    .. deprecated:: 3.2
+
+        To be removed after Cantera 3.2. Use class `ArrheniusRate` instead.
     """
-    def __cinit__(self, A=0, b=0, E=0, init=True):
-        if init:
-            self.base = new CxxArrheniusRate(A, b, E)
-            self.own_rate = True
-            self.reaction = None
-        else:
-            self.own_rate = False
+    def __cinit__(self, A=0, b=0, E=0):
+        warnings.warn("class Arrhenius: To be removed after Cantera 3.2. Replace with "
+            "'ArrheniusRate'", DeprecationWarning)
+        self.base = new CxxArrheniusRate(A, b, E)
 
     def __dealloc__(self):
-        if self.own_rate:
-            del self.base
-
-    @staticmethod
-    cdef wrap(CxxArrheniusRate* rate):
-        r = Arrhenius(init=False)
-        r.base = rate
-        r.reaction = None
-        return r
+        del self.base
 
     property pre_exponential_factor:
         """
@@ -1821,9 +1842,3 @@ cdef class Arrhenius:
 
     def __call__(self, float T):
         return self.base.evalRate(np.log(T), 1/T)
-
-
-cdef copyArrhenius(CxxArrheniusRate* rate):
-    r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
-                  rate.activationEnergy())
-    return r

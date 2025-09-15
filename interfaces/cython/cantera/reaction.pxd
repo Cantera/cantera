@@ -53,6 +53,7 @@ cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
     cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxArrheniusBase):
         CxxArrheniusRate(double, double, double)
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxArrheniusRate(CxxArrheniusRate&) except +translate_exception
         double evalRate(double, double)
 
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel" (CxxArrheniusBase):
@@ -301,7 +302,3 @@ cdef class Reaction:
 
 cdef class Arrhenius:
     cdef CxxArrheniusRate* base
-    cdef cbool own_rate
-    cdef Reaction reaction # parent reaction, to prevent garbage collection
-    @staticmethod
-    cdef wrap(CxxArrheniusRate*)
