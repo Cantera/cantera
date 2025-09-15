@@ -1915,7 +1915,17 @@ if (env["example_data"]
 
 if addInstallActions:
     # Put headers in place
-    install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
+    # TODO: After Cantera 3.2 and removal of legacy clib, this can be simplified to:
+    #     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
+    for item in Path("include/cantera").iterdir():
+        if item.is_dir():
+            if item.name != "clib":
+                install(env.RecursiveInstall, f"$inst_incdir/{item.name}", item)
+        else:
+            install("$inst_incdir", item)
+
+    if env["clib_legacy"]:
+        install(env.RecursiveInstall, f"$inst_incdir/clib", "include/cantera/clib")
 
     # Data files
     for yaml in multi_glob(env, "data", "yaml"):

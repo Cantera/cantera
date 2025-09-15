@@ -2,7 +2,7 @@
 from pathlib import Path
 from buildutils import multi_glob, logger
 
-Import("env", "build")
+Import("env", "build", "install")
 
 vars = {
     "@INCLUDE@": "",
@@ -37,6 +37,11 @@ for yaml_file in yaml_files:
         f"#interfaces/clib/include/cantera_clib/{base_name}.h",
         f"#interfaces/clib/src/{base_name}.cpp",
     ])
+    install("$inst_incdir/../cantera_clib",
+            f"#interfaces/clib/include/cantera_clib/{base_name}.h")
+
+install(env.RecursiveInstall, "$inst_incdir/../cantera_clib",
+        "#interfaces/clib/include/cantera_clib")
 
 # Run sourcegen without installation
 logger.info("Running sourcegen to generate CLib files.")
