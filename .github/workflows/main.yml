@@ -715,9 +715,11 @@ jobs:
           scons install
           test -f ${CONDA_PREFIX}/lib/libcantera_shared.so
           test -f ${CONDA_PREFIX}/include/cantera/base/Solution.h
+          test -f ${CONDA_PREFIX}/include/cantera_clib/ctreactor.h
           test -f ${CONDA_PREFIX}/bin/ck2yaml
           test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
           test -d ${CONDA_PREFIX}/share/cantera/samples
+          test -d ${CONDA_PREFIX}/share/cantera/samples/clib
           test -d ${CONDA_PREFIX}/share/cantera/samples/python
           test -d ${CONDA_PREFIX}/lib/python${{ env.PYTHON_VERSION }}/site-packages/cantera
       - name: Test Essentials
