@@ -408,7 +408,7 @@ jobs:
       run: python -m pip install -r requirements.txt
     - name: Build Cantera with legacy CLib
       run: scons build env_vars=all -j3 debug=n --debug=time
-        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }} clib_legacy=y
+        boost_inc_dir=${BOOST_INC_DIR} clib_legacy=y
     - name: Build Tests
       run: scons -j3 build-tests --debug=time
     - name: Run compiled tests
