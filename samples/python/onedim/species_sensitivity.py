@@ -1,5 +1,5 @@
 r"""
-Species sensitivity analysis
+Sensitivity analysis
 ========================================
 In this example we simulate an impinging jet flame, premixed ammonia/hydrogen-air flame,
 calculate the sensitivity of N2O to the A-factor reaction rate constants.
@@ -18,9 +18,7 @@ Simulation is undertaken to recreate the N2O sensitivity analysis by Hayakawa et
 import cantera as ct
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
-
 
 # Define the gas mixture
 gas = ct.Solution("nakamura.yaml")  # Use the Nakamura mechanism for ammonia combustion blends
