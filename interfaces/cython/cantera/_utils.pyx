@@ -387,6 +387,8 @@ cdef get_types(item):
 
 cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
     cdef CxxAnyValue v
+    if name is not None:
+        v.setKey(stringify(name))
     if isinstance(item, dict):
         v = py_to_anymap(item)
     elif isinstance(item, (list, tuple, set, np.ndarray)):
