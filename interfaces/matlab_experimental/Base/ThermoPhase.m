@@ -835,18 +835,12 @@ classdef ThermoPhase < handle
 
         function amu = get.atomicMasses(tp)
             nel = tp.nElements;
-            aa = zeros(1, nel);
-            pt = libpointer('doublePtr', aa);
-            ctFunc('thermo_getAtomicWeights', tp.tpID, nel, pt);
-            amu = pt.Value;
+            amu = ctArray('thermo_getAtomicWeights', nel, tp.tpID);
         end
 
         function e = get.charges(tp)
             nsp = tp.nSpecies;
-            yy = zeros(1, nsp);
-            pt = libpointer('doublePtr', yy);
-            ctFunc('thermo_getCharges', tp.tpID, nsp, pt);
-            e = pt.Value;
+            e = ctArray('thermo_getCharges', nsp, tp.tpID);
         end
 
         function c = get.cv(tp)
@@ -915,10 +909,7 @@ classdef ThermoPhase < handle
 
         function mw = get.molecularWeights(tp)
             nsp = tp.nSpecies;
-            yy = zeros(1, nsp);
-            pt = libpointer('doublePtr', yy);
-            ctFunc('thermo_getMolecularWeights', tp.tpID, nsp, pt);
-            mw = pt.Value;
+            mw = ctArray('thermo_getMolecularWeights', nsp, tp.tpID);
         end
 
         function nel = get.nElements(tp)
@@ -1007,18 +998,12 @@ classdef ThermoPhase < handle
 
         function moleFractions = get.X(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getMoleFractions', tp.tpID, nsp, pt);
-            moleFractions = pt.Value;
+            molefractions = ctArray('thermo_getMoleFractions', nsp, tp.tpID);
         end
 
         function massFractions = get.Y(tp)
             nsp = tp.nSpecies;
-            yy = zeros(1, nsp);
-            pt = libpointer('doublePtr', yy);
-            ctFunc('thermo_getMassFractions', tp.tpID, nsp, pt);
-            massFractions = pt.Value;
+            massFractions = ctArray('thermo_getMassFractions', nsp, tp.tpID);
         end
 
         function enthalpy = get.H(tp)
@@ -1031,58 +1016,37 @@ classdef ThermoPhase < handle
 
         function mu = get.chemicalPotentials(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_chemPotentials', tp.tpID, nsp, pt);
-            mu = pt.Value;
+            mu = ctArray('thermo_chemPotentials', nsp, tp.tpID);
         end
 
         function emu = get.electrochemicalPotentials(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_electrochemPotentials', tp.tpID, nsp, pt);
-            emu = pt.Value;
+            emu = ctArray('thermo_electrochemPotentials', nsp, tp.tpID);
         end
 
         function enthalpies = get.partialMolarEnthalpies(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getPartialMolarEnthalpies', tp.tpID, nsp, pt);
-            enthalpies = pt.Value;
+            enthalpies = ctArray('thermo_getPartialMolarEnthalpies', nsp, tp.tpID);
         end
 
         function entropies = get.partialMolarEntropies(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getPartialMolarEntropies', tp.tpID, nsp, pt);
-            entropies = pt.Value;
+            entropies = ctArray('thermo_getPartialMolarEntropies', nsp, tp.tpID);
         end
 
         function intEnergies = get.partialMolarIntEnergies(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getPartialMolarIntEnergies', tp.tpID, nsp, pt);
-            intEnergies = pt.Value;
+            intEnergies = ctArray('thermo_getPartialMolarIntEnergies', nsp, tp.tpID);
         end
 
         function cps = get.partialMolarCp(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getPartialMolarCp', tp.tpID, nsp, pt);
-            cps = pt.Value;
+            cps = ctArray('thermo_getPartialMolarCp', nsp, tp.tpID);
         end
 
         function volumes = get.partialMolarVolumes(tp)
             nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getPartialMolarVolumes', tp.tpID, nsp, pt);
-            volumes = pt.Value;
+            volumes = ctFunc('thermo_getPartialMolarVolumes', nsp, tp.tpID);
         end
 
         function entropy = get.S(tp)
