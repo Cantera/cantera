@@ -2,18 +2,10 @@ r"""
 Sensitivity analysis
 ========================================
 In this example we simulate an impinging jet flame, premixed ammonia/hydrogen-air flame,
-calculate the sensitivity of N2O to the A-factor reaction rate constants.
-The input has been set for a given inlet velocity and flame wall temperature.
+calculating the sensitivity of N2O to the A-factor reaction rate constants.
 Requires: cantera >= 3.0.0, pandas
 .. tags:: Python, combustion, 1D flow, species reaction, premixed flame,
           sensitivity analysis, plotting
-Analysis on ammonia flame is undertaken using the Nakamura mechanism:
-[1] H. Nakamura, S. Hasegawa, T. Tezuka, Kinetic modeling of ammonia/air weak flames in a micro flow reactor with a
-controlled temperature profile, Combust. Flame 185 (2017) 16-27.
-[2] H. Nakamura, S. Hasegawa, T. Tezuka, available from “http://www.ifs.tohoku.ac.jp/enerdyn/en/result/mechanism.html”
-Simulation is undertaken to recreate the N2O sensitivity analysis by Hayakawa et al.:
-[3] A. Hayakawa, M. Hayashi, M. Kovaleva, G.J. Gotama, E.C. Okafor, S. Colson, S. Mashruk, A. Valera-Medina, T. Kudo,
- H. Kobayashi, Experimental and numerical study of product gas and N2O emission characteristics of ammonia/hydrogen/air premixed laminar flames stabilized in a stagnation flow, Proc. Combust. Inst. 39 (2023) 1625–1633. https://doi.org/https://doi.org/10.1016/j.proci.2022.08.124.
 """
 import cantera as ct
 import numpy as np
