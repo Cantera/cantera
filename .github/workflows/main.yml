@@ -824,7 +824,7 @@ jobs:
         retention-days: 2
 
   windows:
-    name: "Windows 2025, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
+    name: "Windows 2025, Python ${{ matrix.python-version }}, MSVC"
     runs-on: windows-2025
     timeout-minutes: 60
     env:
