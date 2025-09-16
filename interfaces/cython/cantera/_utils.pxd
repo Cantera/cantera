@@ -56,6 +56,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         void setQuantity(vector[double]&, string&) except +translate_exception
         void setQuantity(double, CxxUnits&) except +translate_exception
         T& asType "as" [T]() except +translate_exception
+        void setKey(string)
         vector[T]& asVector[T]() except +translate_exception
         string type_str()
         cbool empty()

@@ -415,6 +415,21 @@ def test_bad_transport_input(key, value, message):
     with pytest.raises(ct.CanteraError, match=message):
         ct.Species.list_from_yaml(species_data)
 
+
+def test_bad_transport_from_dict():
+    H2 = ct.Species.list_from_file("h2o2.yaml")[0]
+    spec = H2.input_data
+
+    spec["transport"]["well-depth"] = "three"
+    with pytest.raises(ct.CanteraError, match="Key 'well-depth' contains a 'string'"):
+        ct.Species.from_dict(spec)
+
+    spec["transport"]["well-depth"] = None
+    with pytest.raises(ct.CanteraError,
+                       match="Key 'well-depth' not found or contains no value"):
+        ct.Species.from_dict(spec)
+
+
 @pytest.mark.parametrize(
     "model",
     [
