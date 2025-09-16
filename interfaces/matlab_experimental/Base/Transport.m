@@ -67,34 +67,22 @@ classdef Transport < handle
 
         function v = get.mixDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('trans_getMixDiffCoeffs', tr.trID, nsp, pt);
-            v = pt.Value;
+            v = ctArray('trans_getMixDiffCoeffs', nsp, tr.trID);
         end
 
         function v = get.thermalDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('trans_getThermalDiffCoeffs', tr.trID, nsp, pt);
-            v = pt.Value;
+            v = ctArray('trans_getThermalDiffCoeffs', nsp, tr.trID);
         end
 
         function v = get.binDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            xx = zeros(nsp, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('trans_getBinDiffCoeffs', tr.trID, nsp, pt);
-            v = pt.Value;
+            v = ctArray('trans_getBinDiffCoeffs', nsp, tr.trID);
         end
 
         function v = get.multiDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            xx = zeros(nsp, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('trans_getMultiDiffCoeffs', tr.trID, nsp, pt);
-            v = pt.Value;
+            v = ctArray('trans_getMultiDiffCoeffs', nsp, tr.trID);
         end
 
     end

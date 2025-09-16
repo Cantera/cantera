@@ -2,17 +2,17 @@ function output = ctString(funcName, varargin)
     % Calls Cantera library functions with string outputs and returns
     % errors if necessary.
 
-    err1 = -1;
+    errorcode = [-1, -999.999, double(intmax('uint64'))];
 
-    [buflen, ~] = clib.ctMatlab.(funcName)(varargin{:}, 0);
+    buf = clib.array.ctMatlab.Char(0);
+    buflen = clib.ctMatlab.(funcName)(varargin{:}, buf);
 
     if buflen > 0
-        % Convert all buflen to double for better data type compatibility
-        buflen = double(buflen);
+        buf = clib.array.ctMatlab.Char(buflen);
 
         nchar = sum(cellfun(@ischar, varargin));
         if nchar == 0 || nchar == 1
-            [iok, str] = clib.ctMatlab.(funcName)(varargin{:}, buflen);
+            iok = clib.ctMatlab.(funcName)(varargin{:}, buf);
         else
             error('not implemented - argument list contains more than one char array.')
         end
@@ -21,10 +21,10 @@ function output = ctString(funcName, varargin)
     end
 
     iok = double(iok);
-    if iok == err1
+    if ismember(iok, errorcode)
         error('Cantera:ctError', ctGetErr);
     end
 
-    output = str;
+    output = char(buf.double);
 
 end
