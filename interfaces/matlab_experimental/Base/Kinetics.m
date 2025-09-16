@@ -352,18 +352,12 @@ classdef Kinetics < handle
 
         function cdot = get.creationRates(kin)
             nsp = kin.nTotalSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getCreationRates', kin.kinID, nsp, pt);
-            cdot = pt.Value;
+            cdot = ctArray('kin_getCreationRates', nsp, kin.kinID);
         end
 
         function ddot = get.destructionRates(kin)
             nsp = kin.nTotalSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDestructionRates', kin.kinID, nsp, pt);
-            ddot = pt.Value;
+            ddot = ctArray('kin_getDestructionRates', nsp, kin.kinID);
         end
 
         function n = isReversible(kin, i)
@@ -381,34 +375,22 @@ classdef Kinetics < handle
 
         function wdot = get.netProdRates(kin)
             nsp = kin.nTotalSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getNetProductionRates', kin.kinID, nsp, pt);
-            wdot = pt.Value;
+            wdot = ctArray('kin_getNetProductionRates', nsp, kin.kinID);
         end
 
         function q = get.forwardRatesOfProgress(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getFwdRatesOfProgress', kin.kinID, nr, pt);
-            q = pt.Value;
+            q = ctArray('kin_getFwdRatesOfProgress', nr, kin.kinID);
         end
 
         function q = get.reverseRatesOfProgress(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getRevRatesOfProgress', kin.kinID, nr, pt);
-            q = pt.Value;
+            q = ctArray('kin_getRevRatesOfProgress', nr, kin.kinID);
         end
 
         function q = get.netRatesOfProgress(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getNetRatesOfProgress', kin.kinID, nr, pt);
-            q = pt.Value;
+            q = ctArray('kin_getNetRatesOfProgress', nr, kin.kinID);
         end
 
         function rxn = get.reactionEquations(kin)
@@ -423,82 +405,52 @@ classdef Kinetics < handle
 
         function enthalpy = get.deltaEnthalpy(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 0, nr, pt);
-            enthalpy = pt.Value;
+            enthalpy = ctArray('kin_getDelta', nr, kin.kinID, 0);
         end
 
         function enthalpy = get.deltaStandardEnthalpy(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 3, nr, pt);
-            enthalpy = pt.Value;
+            enthalpy = ctArray('kin_getDelta', nr, kin.kinID, 3);
         end
 
         function entropy = get.deltaEntropy(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 2, nr, pt);
-            entropy = pt.Value;
+            entropy = ctArray('kin_getDelta', nr, kin.kinID, 2);
         end
 
         function entropy = get.deltaStandardEntropy(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 5, nr, pt);
-            entropy = pt.Value;
+            entropy = ctArray('kin_getDelta', nr, kin.kinID, 5);
         end
 
         function gibbs = get.deltaGibbs(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 1, nr, pt);
-            gibbs = pt.Value;
+            gibbs = ctArray('kin_getDelta', nr, kin.kinID, 1);
         end
 
         function gibbs = get.deltaStandardGibbs(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getDelta', kin.kinID, 4, nr, pt);
-            gibbs = pt.Value;
+            gibbs = ctArray('kin_getDelta', nr, kin.kinID, 4);
         end
 
         function k = get.equilibriumConstants(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getEquilibriumConstants', kin.kinID, nr, pt);
-            k = pt.Value;
+            k = ctArray('kin_getEquilibriumConstants', nr, kin.kinID);
         end
 
         function k = get.forwardRateConstants(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getFwdRateConstants', kin.kinID, nr, pt);
-            k = pt.Value;
+            k = ctArray('kin_getFwdRateConstants', nr, kin.kinID);
         end
 
         function k = get.reverseRateConstants(kin)
             nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getRevRateConstants', kin.kinID, 0, nr, pt);
-            k = pt.Value;
+            k = ctArray('kin_getRevRateConstants', nr, kin.kinID, 0);
         end
 
         function ydot = get.massProdRate(kin)
             nsp = kin.nTotalSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getSourceTerms', kin.kinID, nsp, pt);
-            ydot = pt.Value;
+            ydot = ctArray('kin_getSourceTerms', nsp, kin.kinID);
         end
 
         %% Kinetics Set Methods

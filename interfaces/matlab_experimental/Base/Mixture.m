@@ -331,10 +331,7 @@ classdef Mixture < handle
 
         function mu = get.chemPotentials(m)
             nsp = m.nSpecies;
-            xx = zeros(1, nsp);
-            ptr = libpointer('doublePtr', xx);
-            ctFunc('mix_getChemPotentials', m.mixID, nsp, ptr);
-            mu = ptr.Value;
+            mu = ctArray('mix_getChemPotentials', nsp, m.mixID);
         end
 
         %% Mixture Set methods
