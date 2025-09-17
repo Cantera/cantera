@@ -298,6 +298,30 @@ public:
     //! (such as "TD", "TP", "SV").
     virtual vector<string> partialStates() const;
 
+    //! Get the size of the partial state vector of the phase.
+    //! The partial state vector excludes composition. Vectors of this size are used by
+    //! savePartialState() and restorePartialState().
+    //! @since New in %Cantera 3.2
+    virtual size_t partialStateSize() const { return 2; }
+
+    //! Save the current thermodynamic state of the phase, excluding composition.
+    //! The default implementation corresponds to the default implementation of
+    //! nativeState().
+    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
+    //! @param[out] state  Array of state variables, in the order defined by
+    //!     nativeState().
+    //! @since New in %Cantera 3.2
+    virtual void savePartialState(size_t lenstate, double* state) const;
+
+    //! Set the internal thermodynamic state of the phase, excluding composition.
+    //! The default implementation corresponds to the default implementation of
+    //! nativeState().
+    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
+    //! @param[in] state  Array of state variables, in the order defined by
+    //!     nativeState().
+    //! @since New in %Cantera 3.2
+    virtual void restorePartialState(size_t lenstate, const double* state);
+
     //! Return size of vector defining internal state of the phase.
     //! Used by saveState() and restoreState().
     virtual size_t stateSize() const;

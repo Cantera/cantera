@@ -225,11 +225,41 @@ vector<string> Phase::partialStates() const
     }
 }
 
+void Phase::savePartialState(size_t lenstate, double* state) const
+{
+    if (lenstate < partialStateSize()) {
+        throw ArraySizeError("Phase::savePartialState", lenstate, partialStateSize());
+    }
+
+    auto native = nativeState();
+    state[native.at("T")] = temperature();
+    if (isCompressible()) {
+        state[native.at("D")] = density();
+    } else {
+        state[native.at("P")] = pressure();
+    }
+}
+
+void Phase::restorePartialState(size_t lenstate, const double* state)
+{
+    if (lenstate < partialStateSize()) {
+        throw ArraySizeError("Phase::restorePartialState", lenstate, partialStateSize());
+    }
+
+    auto native = nativeState();
+    setTemperature(state[native.at("T")]);
+    if (isCompressible()) {
+        setDensity(state[native.at("D")]);
+    } else {
+        setPressure(state[native.at("P")]);
+    }
+}
+
 size_t Phase::stateSize() const {
     if (isPure()) {
-        return 2;
+        return partialStateSize();
     } else {
-        return nSpecies() + 2;
+        return partialStateSize() + nSpecies();
     }
 }
 
@@ -241,15 +271,11 @@ void Phase::saveState(vector<double>& state) const
 
 void Phase::saveState(size_t lenstate, double* state) const
 {
-    auto native = nativeState();
-
-    // function assumes default definition of nativeState
-    state[native.at("T")] = temperature();
-    if (isCompressible()) {
-        state[native.at("D")] = density();
-    } else {
-        state[native.at("P")] = pressure();
+    if (lenstate < stateSize()) {
+        throw ArraySizeError("Phase::saveState", lenstate, stateSize());
     }
+    savePartialState(lenstate, state);
+    auto native = nativeState();
     if (native.count("X")) {
         getMoleFractions(state + native["X"]);
     } else if (native.count("Y")) {
@@ -269,14 +295,9 @@ void Phase::restoreState(size_t lenstate, const double* state)
         throw ArraySizeError("Phase::restoreState",
                              lenstate, ls);
     }
+    restorePartialState(lenstate, state);
 
     auto native = nativeState();
-    setTemperature(state[native.at("T")]);
-    if (isCompressible()) {
-        setDensity(state[native.at("D")]);
-    } else {
-        setPressure(state[native.at("P")]);
-    }
 
     if (native.count("X")) {
         setMoleFractions_NoNorm(state + native["X"]);
