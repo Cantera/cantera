@@ -206,6 +206,10 @@ void VPStandardStateTP::calcDensity()
 
 void VPStandardStateTP::setState_TP(double t, double pres)
 {
+    if (pres < 0) {
+        throw CanteraError("VPStandardStateTP::setState_TP",
+            "Pressure must be positive. Specified state was T = {}, P = {}.", t, pres);
+    }
     // A pretty tricky algorithm is needed here, due to problems involving
     // standard states of real fluids. For those cases you need to combine the T
     // and P specification for the standard state, or else you may venture into
