@@ -397,8 +397,15 @@ void Phase::setMassFractionsByName(const string& y)
 
 void Phase::setState_TD(double t, double rho)
 {
-    setTemperature(t);
-    setDensity(rho);
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setTemperature(t);
+        setDensity(rho);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
 }
 
 double Phase::molecularWeight(size_t k) const
