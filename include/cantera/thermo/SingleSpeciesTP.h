@@ -220,10 +220,6 @@ public:
     //! Mole fractions are fixed, with x[0] = 1.0.
     void setMoleFractions(const double* const x) override {};
 
-    void setState_HP(double h, double p, double tol=1e-9) override;
-    void setState_UV(double u, double v, double tol=1e-9) override;
-    void setState_SP(double s, double p, double tol=1e-9) override;
-    void setState_SV(double s, double v, double tol=1e-9) override;
     //! @}
 
     bool addSpecies(shared_ptr<Species> spec) override;
