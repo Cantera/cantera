@@ -120,26 +120,40 @@ void ThermoPhase::setState_TPY(double t, double p, const string& y)
 
 void ThermoPhase::setState_TP(double t, double p)
 {
-    double tsave = temperature();
-    double dsave = density();
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
     try {
         setTemperature(t);
         setPressure(p);
-    } catch (CanteraError&) {
-        setState_TD(tsave, dsave);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
         throw;
     }
 }
 
 void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 {
-    setState_HPorUV(Htarget, p, rtol, false);
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setState_HPorUV(Htarget, p, rtol, false);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
 }
 
 void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
     assertCompressible("setState_UV");
-    setState_HPorUV(u, v, rtol, true);
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setState_HPorUV(u, v, rtol, true);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
 }
 
 void ThermoPhase::setState(const AnyMap& input_state)
@@ -452,13 +466,27 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
 
 void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 {
-    setState_SPorSV(Starget, p, rtol, false);
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setState_SPorSV(Starget, p, rtol, false);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
 }
 
 void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
     assertCompressible("setState_SV");
-    setState_SPorSV(Starget, v, rtol, true);
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setState_SPorSV(Starget, v, rtol, true);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
 }
 
 void ThermoPhase::setState_SPorSV(double Starget, double p,

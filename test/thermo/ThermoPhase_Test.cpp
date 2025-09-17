@@ -302,4 +302,61 @@ TEST_F(EquilRatio_MixFrac_Test, EquilRatio_MixFrac_StoichMix_Mass)
     test_stoich_mixture(ThermoBasis::mass, 0.050011556441079318, 18.995378491732041);
 }
 
+struct SetStateRecovery : public testing::Test
+{
+    SetStateRecovery() {
+        auto soln = newSolution("debye-huckel-all.yaml", "debye-huckel-B-dot-ak-IAPWS");
+        thermo = soln->thermo();
+        T1 = thermo->temperature();
+        P1 = thermo->pressure();
+        h1 = thermo->enthalpy_mass();
+        cp1 = thermo->cp_mass();
+        s1 = thermo->entropy_mass();
+    }
+
+    shared_ptr<ThermoPhase> thermo;
+    double T1, P1, h1, cp1, s1;
+};
+
+TEST_F(SetStateRecovery, HP)
+{
+    double h2 = h1 + cp1 * (600 - T1); // Water state is invalid at 600 K
+    EXPECT_THROW(thermo->setState_HP(h2, P1), CanteraError);
+    EXPECT_DOUBLE_EQ(thermo->temperature(), T1);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), P1);
+    double h3 = h1 + cp1 * (350 - T1);
+    thermo->setState_HP(h3, P1);
+    EXPECT_NEAR(thermo->temperature(), 350, 1.0);
+}
+
+TEST_F(SetStateRecovery, SP)
+{
+    double T3 = T1 + 0.5 * (600 - T1);
+    thermo->setState_TP(T3, P1);
+    double s3 = thermo->entropy_mass();
+    double s2 = s1 + 2.0 * (s3 - s1);
+    thermo->setState_TP(T1, P1);
+    EXPECT_THROW(thermo->setState_SP(s2, P1), CanteraError);
+    EXPECT_DOUBLE_EQ(thermo->temperature(), T1);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), P1);
+    thermo->setState_SP(s3, P1);
+    EXPECT_NEAR(thermo->temperature(), T3, 1e-2);
+}
+
+TEST_F(SetStateRecovery, TD)
+{
+    EXPECT_THROW(thermo->setState_TD(400, -1), CanteraError);
+    EXPECT_DOUBLE_EQ(thermo->temperature(), T1);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), P1);
+    thermo->setState_TP(500, 2 * P1);
+}
+
+TEST_F(SetStateRecovery, TP)
+{
+    EXPECT_THROW(thermo->setState_TP(400, -1), CanteraError);
+    EXPECT_DOUBLE_EQ(thermo->temperature(), T1);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), P1);
+    thermo->setState_TP(500, 2 * P1);
+}
+
 }
