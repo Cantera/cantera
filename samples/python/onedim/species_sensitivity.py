@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define the gas mixture
-gas = ct.Solution("nakamura.yaml")  # Use the Nakamura mechanism for ammonia combustion blends
+gas = ct.Solution("example_data/nakamura-2019.yaml")  # Use the Nakamura mechanism for ammonia combustion blends
 gas.TP = 295, ct.one_atm
 air = "O2:0.21,N2:0.79"
 gas.set_equivalence_ratio(phi=0.6, fuel="NH3:0.7, H2:0.3", oxidizer=air)
