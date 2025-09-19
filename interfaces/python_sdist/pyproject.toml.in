@@ -82,7 +82,7 @@ exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
 exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]
 
 [tool.cibuildwheel]
-build-frontend = { name="build", args=["-vv"] }
+build-frontend = { name="build[uv]", args=["-vv"] }
 skip = "*musllinux*"
 test-extras = ["pandas", "units", "graphviz"]
 test-requires = ["pytest"]
