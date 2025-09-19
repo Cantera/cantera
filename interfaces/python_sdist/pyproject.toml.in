@@ -84,6 +84,7 @@ exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]
 [tool.cibuildwheel]
 build-frontend = { name="build[uv]", args=["-vv"] }
 skip = "*musllinux*"
+archs = "auto64"
 test-extras = ["pandas", "units", "graphviz"]
 test-requires = ["pytest"]
 manylinux-x86_64-image = "ghcr.io/cantera/cantera-base-manylinux_2_28-x86_64"
