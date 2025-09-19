@@ -13,5 +13,5 @@ function ctTestSetUp()
     addpath(genpath(testPaths.toolboxPath));
     addpath(genpath(fullfile(canteraRoot, 'test')));
 
-    ctLoad(testPaths);
+    ctLoad();
 end

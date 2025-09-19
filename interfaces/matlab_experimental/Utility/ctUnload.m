@@ -1,10 +1,13 @@
 function ctUnload()
     % Unload the Cantera C Library from the Memory
 
-    if libisloaded(ctLib)
+    global ct
+    if ~isempty(ct)
         ctCleanUp;
-        unloadlibrary(ctLib);
+        ct.unload
     end
+
+    clear global ct
 
     disp('Cantera has been unloaded');
 end

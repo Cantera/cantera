@@ -78,26 +78,17 @@ classdef Interface < Solution
         end
 
         function c = get.coverages(s)
-            surfID = s.tpID;
             nsp = s.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('surf_getCoverages', surfID, pt);
-            c = pt.Value;
+            c = ctArray('surf_getCoverages', nsp, s.tpID);
         end
 
         function d = get.siteDensity(s)
-            surfID = s.tpID;
-            d = ctFunc('surf_siteDensity', surfID);
+            d = ctFunc('surf_siteDensity', s.tpID);
         end
 
         function c = get.concentrations(s)
-            surfID = s.tpID;
             nsp = s.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('surf_getConcentrations', surfID, xx);
-            c = pt.Value;
+            c = ctArray('surf_getConcentrations', nsp, s.tpID);
         end
 
         function set.coverages(s, cov)
@@ -110,16 +101,15 @@ classdef Interface < Solution
             % :param cov:
             %      Vector or string coverage of the species.
 
-            surfID = s.tpID;
             nsp = s.nSpecies;
             if isa(cov, 'double')
                 if length(cov) ~= nsp
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', surfID, cov, 1);
+                ctFunc('surf_setCoverages', s.tpID, cov, 1);
             elseif isa(cov, 'char')
-                ctFunc('surf_setCoveragesByName', surfID, cov);
+                ctFunc('surf_setCoveragesByName', s.tpID, cov);
             end
 
         end
@@ -134,9 +124,7 @@ classdef Interface < Solution
             % :param d
             %    Double site density. Unit: kmol/m^2 for surface phases,
             %    kmol/m for edge phases.
-
-            surfID = s.tpID;
-            ctFunc('surf_setSiteDensity', surfID, d);
+            ctFunc('surf_setSiteDensity', s.tpID, d);
         end
 
         function setUnnormalizedCoverages(s, cov)
@@ -151,14 +139,13 @@ classdef Interface < Solution
             % :param cov:
             %      Vector coverage of the species.
 
-            surfID = s.tpID;
             nsp = s.nSpecies;
             if isa(cov, 'double')
                 if length(cov) ~= nsp
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', surfID, cov, 0);
+                ctFunc('surf_setCoverages', s.tpID, cov, 0);
             else
                 error('Coverage must be a numeric array');
             end
