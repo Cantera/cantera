@@ -67,8 +67,7 @@ build.verbose = true
 version = ">=3.27"
 
 [tool.scikit-build.ninja]
-# As of 01-DEC-2024, Ninja 1.12 is not available on PyPI
-version = ">=1.11"
+version = ">=1.13"
 make-fallback = false
 
 [tool.scikit-build.cmake.define]
