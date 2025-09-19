@@ -530,6 +530,53 @@ class TestFreeFlame:
             fwd = (Suplus-Suminus)/(2*Su0*dk)
             assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
 
+    def test_adjoint_sensitivities2(self):
+        self.gas = ct.Solution('gri30.yaml')
+        self.gas.TP = 300, 101325
+        self.gas.set_equivalence_ratio(1.0, 'CH4', {"O2": 1.0, "N2": 3.76})
+
+        self.flame = ct.FreeFlame(self.gas, width=0.014)
+        self.flame.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
+        self.flame.solve(loglevel=0, refine_grid=False)
+
+        # Adjoint sensitivities
+        ix = -1
+        species = "NO"
+        dk = 1e-4
+
+        adjoint_sensitivities = self.flame.get_species_reaction_sensitivities(species, ix)
+        reaction_equations = self.gas.reaction_equations()
+        adjoint_sens = [(reaction, sensitivity) for reaction, sensitivity in
+                        zip(reaction_equations, adjoint_sensitivities)]
+        adjoint_sens_sorted = sorted(adjoint_sens, key=lambda x: abs(x[1]), reverse=True)
+
+        Su0 = self.flame.X[self.gas.species_index(species), ix]
+        fwd_sensitivities = []
+        for m in range(self.flame.gas.n_reactions):
+            self.flame.gas.set_multiplier(1.0)  # reset all multipliers
+            self.flame.gas.set_multiplier(1 + dk, m)  # perturb reaction m
+            self.flame.solve(loglevel=0, refine_grid=False)
+            Suplus = self.flame.X[self.gas.species_index(species), ix]
+            self.flame.gas.set_multiplier(1 - dk, m)  # perturb reaction m
+            self.flame.solve(loglevel=0, refine_grid=False)
+            Suminus = self.flame.X[self.gas.species_index(species), ix]
+            fwd_sensitivities.append((Suplus - Suminus) / (2 * Su0 * dk))
+        fwd_sens = [(reaction, sensitivity) for reaction, sensitivity in zip(reaction_equations, fwd_sensitivities)]
+        fwd_sens_sorted = sorted(fwd_sens, key=lambda x: abs(x[1]), reverse=True)
+
+        # Extract top 10 reactions from both lists
+        top_reactions_adjoint = [reaction for reaction, _ in adjoint_sens_sorted[:10]]
+        top_reactions_fwd = [reaction for reaction, _ in fwd_sens_sorted[:10]]
+
+        # Count common reactions
+        common_reactions = list(set(top_reactions_fwd) & set(top_reactions_adjoint))
+
+        # Assert that at least 8 reactions match
+        assert len(
+            common_reactions) >= 8, f"Only {len(common_reactions)} Fwd and adjoint based species sensitivities do not match"
+
+
+
     def test_jacobian_options(self):
         reactants = {'H2': 0.65, 'O2': 0.5, 'AR': 2}
         self.create_sim(p=ct.one_atm, Tin=300, reactants=reactants, width=0.03)
