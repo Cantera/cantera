@@ -2,9 +2,9 @@
  *  @file runDiamond.cpp
  */
 
-#include "cantera/thermo.h"
-#include "cantera/kinetics.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/core.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include <iostream>
 
 using namespace std;

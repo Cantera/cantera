@@ -1,10 +1,10 @@
-#include "cantera/thermo.h"
+#include "cantera/thermo/Species.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
-#include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 
-#include <stdio.h>
+#include <iostream>
 
 using namespace Cantera;
 

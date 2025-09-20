@@ -9,12 +9,10 @@
 #define MSSIZE 200
 
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/kinetics.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/solveSP.h"
-#include "cantera/base/fmt.h"
-#include <cstdio>
+
+#include <iostream>
 #include <fstream>
 
 using namespace std;
