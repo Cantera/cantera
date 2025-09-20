@@ -1,13 +1,24 @@
 # Example Input Files
 
-The following example input files, demonstrate how some of the features of Cantera's
-YAML format can be used to define phases, species, and reactions. These files are a
-subset of the input files included with Cantera.
+:::{admonition} Disclaimer
+Input files distributed with Cantera are provided for **illustration purposes only**.
+Users should consult the primary literature to identify suitable mechanisms before
+making a selection for research or applications.
+:::
+
+The following example input files demonstrate how features of Cantera's YAML format can
+be used to define phases, species, and reactions. The files listed below represent a
+subset of the input files distributed with Cantera.
+
+[`gri30.yaml`](gri30.md)
+: GRI-Mech 3.0, released in 1999, is a detailed chemical kinetic mechanism for natural
+  gas combustion and NOx formation. While it remains suitable for teaching and
+  illustration purposes, it should otherwise be used with caution.
 
 [`h2o2.yaml`](h2o2.md)
-: A basic gas phase reaction mechanism. Demonstrates multiple phase definitions using
-  the same set of species, specification of transport properties, and parameters for
-  the Redlich-Kwong equation of state.
+: A basic gas-phase reaction mechanism based on GRI-Mech 3.0. Demonstrates multiple
+  phase definitions using the same set of species, specification of transport
+  properties, and parameters for the Redlich-Kwong equation of state.
 
 [`diamond.yaml`](diamond.md)
 : A heterogenous reaction mechanism. Demonstrates defining surfaces and adjacent bulk
@@ -40,6 +51,7 @@ subset of the input files included with Cantera.
 :maxdepth: 2
 :hidden:
 
+gri30
 h2o2
 diamond
 lithium_ion_battery
