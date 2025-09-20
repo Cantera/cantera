@@ -1,5 +1,13 @@
 # Examples
 
+:::{admonition} Disclaimer
+Examples and [input files](input/index.md) distributed with Cantera are provided for
+**illustration purposes only**. They are intended to demonstrate features of the
+software and typical workflows, with individual examples often using simplifying
+assumptions. Users are responsible for verifying suitability before adapting them for
+research or applications.
+:::
+
 Cantera includes examples for a number of applications. To see all examples written in a
 particular programming language, select the corresponding category below. Or, to browse
 all examples covering a particular topic, regardless of programming language, select
