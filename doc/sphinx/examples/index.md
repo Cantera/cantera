@@ -8,19 +8,17 @@ assumptions. Users are responsible for verifying suitability before adapting the
 research or applications.
 :::
 
-Cantera includes examples for a number of applications. To see all examples written in a
-particular programming language, select the corresponding category below. Or, to browse
-all examples covering a particular topic, regardless of programming language, select
-from the {ref}`list of example tags <tagoverview>`.
+- To see all examples written in a particular programming language, select the
+  corresponding category below.
+- To browse all examples covering a particular topic, regardless of programming
+  language, select from the {ref}`list of example tags <tagoverview>`.
+
+## Python Examples
 
 ```{seealso}
 If you're just getting started with Cantera, see our [](/userguide/python-tutorial) for
-an introduction to the Cantera Python interface, or the
-[C++ Tutorial](/userguide/cxx-tutorial) for some guidance on using Cantera's C++
-interface.
+an introduction to the Cantera Python interface.
 ```
-
-## Python Examples
 
 ````{grid} 2 2 2 3
 :gutter: 3
