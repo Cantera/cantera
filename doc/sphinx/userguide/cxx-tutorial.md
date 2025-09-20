@@ -65,15 +65,27 @@ calculations. The headers and their functions are:
 
 `thermo.h`
 : Base thermodynamic classes and functions for creating {ct}`ThermoPhase` objects from
-  input files *(Superseded by `core.h` in Cantera 3.0)*.
+  input files.
+  :::{deprecated} 3.2
+  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
+  Cantera 3.3.
+  :::
 
 `kinetics.h`
 : Base kinetics classes and functions for creating {ct}`Kinetics` objects from input
-  files *(Superseded by `core.h` in Cantera 3.0)*.
+  files.
+  :::{deprecated} 3.2
+  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
+  Cantera 3.3.
+  :::
 
 `transport.h`
 : Base transport property classes and functions for creating {ct}`Transport` objects
-  from input files *(Superseded by `core.h` in Cantera 3.0)*.
+  from input files.
+  :::{deprecated} 3.2
+  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
+  Cantera 3.3.
+  :::
 
 ### Creating a `Solution` object from an input file
 
