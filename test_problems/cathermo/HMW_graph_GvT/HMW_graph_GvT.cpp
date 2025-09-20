@@ -3,8 +3,7 @@
  *  @file HMW_graph_1.cpp
  */
 
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/thermo.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/HMWSoln.h"
 
 #include "TemperatureTable.h"
@@ -30,7 +29,7 @@ int main(int argc, char** argv)
          */
         string nacl_s = "NaCl_Solid.yaml";
         string id = "NaCl(S)";
-        auto solid = Cantera::newThermo(nacl_s, id);
+        auto solid = newThermo(nacl_s, id);
 
         size_t nsp = HMW->nSpecies();
         double acMol[100];

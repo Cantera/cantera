@@ -4,8 +4,7 @@
 // This test checks the algorithm used in setState_HP() to make sure that it is
 // tolerant of (small) jumps in the value of H or Cp at temperature boundaries.
 
-#include "cantera/thermo.h"
-#include "cantera/base/Solution.h"
+#include "cantera/core.h"
 
 #include <iostream>
 

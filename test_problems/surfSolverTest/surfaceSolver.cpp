@@ -6,14 +6,9 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/Interface.h"
-#include "cantera/thermo/SurfPhase.h"
-#include "cantera/kinetics.h"
-#include "cantera/kinetics/ImplicitSurfChem.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/solveSP.h"
-#include "cantera/base/fmt.h"
-#include <cstdio>
+#include "cantera/core.h"
+
+#include <iostream>
 #include <fstream>
 
 using namespace std;
