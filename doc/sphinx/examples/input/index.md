@@ -21,7 +21,7 @@ subset of the input files included with Cantera.
   electrochemical reactions. This input file is used in the example
   [`lithium_ion_battery.py`](/examples/python/kinetics/lithium_ion_battery).
 
-[`covdepsurf.yaml`](covdepsurf.md)
+[`example_data/covdepsurf.yaml`](covdepsurf.md)
 : An input file for a surface phase where the non-ideal interactions between species are
   accounted for in the calculation of the enthalpy and entropy. Demonstrates the
   [`coverage-dependent-surface`](sec-yaml-coverage-dependent-surface) model and the
@@ -29,7 +29,7 @@ subset of the input files included with Cantera.
   `species` entry. This input file is used in the example
   [`coverage_dependent_surf.py`](/examples/python/thermo/coverage_dependent_surf).
 
-[`oxygen-plasma-itikawa.yaml`](oxygen-plasma-itikawa.md)
+[`example_data/oxygen-plasma-itikawa.yaml`](oxygen-plasma-itikawa.md)
 : An input file representing some plasma interactions. Demonstrates the setup of a
   `plasma` phase, reactions parameterized using the
   [`two-temperature-plasma`](sec-yaml-two-temperature-plasma) and
