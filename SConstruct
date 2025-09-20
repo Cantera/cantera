@@ -1928,7 +1928,7 @@ if addInstallActions:
         install(env.RecursiveInstall, f"$inst_incdir/clib", "include/cantera/clib")
 
     # Data files
-    for yaml in multi_glob(env, "data", "yaml"):
+    for yaml in multi_glob(env, "data", "yaml") + multi_glob(env, "data", "md"):
         install("$inst_datadir", yaml)
 
     if env["example_data"]:
