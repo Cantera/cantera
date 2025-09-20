@@ -1,8 +1,5 @@
 #include "gtest/gtest.h"
-#include "cantera/thermo.h"
-#include "cantera/kinetics.h"
 #include "cantera/zerodim.h"
-#include "cantera/base/Interface.h"
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
