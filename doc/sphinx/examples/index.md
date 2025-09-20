@@ -1,18 +1,24 @@
 # Examples
 
-Cantera includes examples for a number of applications. To see all examples written in a
-particular programming language, select the corresponding category below. Or, to browse
-all examples covering a particular topic, regardless of programming language, select
-from the {ref}`list of example tags <tagoverview>`.
+:::{admonition} Disclaimer
+Examples and [input files](input/index.md) distributed with Cantera are provided for
+**illustration purposes only**. They are intended to demonstrate features of the
+software and typical workflows, with individual examples often using simplifying
+assumptions. Users are responsible for verifying suitability before adapting them for
+research or applications.
+:::
+
+- To see all examples written in a particular programming language, select the
+  corresponding category below.
+- To browse all examples covering a particular topic, regardless of programming
+  language, select from the {ref}`list of example tags <tagoverview>`.
+
+## Python Examples
 
 ```{seealso}
 If you're just getting started with Cantera, see our [](/userguide/python-tutorial) for
-an introduction to the Cantera Python interface, or the
-[C++ Tutorial](/userguide/cxx-tutorial) for some guidance on using Cantera's C++
-interface.
+an introduction to the Cantera Python interface.
 ```
-
-## Python Examples
 
 ````{grid} 2 2 2 3
 :gutter: 3
