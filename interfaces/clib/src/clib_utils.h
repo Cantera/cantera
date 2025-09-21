@@ -12,7 +12,7 @@
 #include "cantera_clib/clib_defs.h"
 
 #include "application.h"
-#include "../clib/Cabinet.h"  // File needs to be moved
+#include "Cabinet.h"
 #include <iostream>
 
 
