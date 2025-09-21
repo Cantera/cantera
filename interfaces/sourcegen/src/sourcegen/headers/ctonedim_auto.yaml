@@ -34,4 +34,3 @@ recipes:
 - name: setFixedTemperature
 - name: del
 - name: cabinetSize
-- name: parentHandle

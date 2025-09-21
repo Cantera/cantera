@@ -58,5 +58,4 @@ recipes:
     return 0;
 - name: writeLog
   wraps: writelog_direct  # inconsistent API (preexisting)
-- name: clearStorage
 - name: resetStorage
