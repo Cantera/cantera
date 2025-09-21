@@ -3,16 +3,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-clib-reserved-parentHandle: |-
-  brief: Return handle to parent of {{ base }} object.
-  what: reserved CLib function
-  declaration: int32_t {{ prefix }}_parentHandle(int32_t handle)
-  parameters:
-    handle: Handle to queried {{ base }} object.
-  returns: Parent handle or -1 for exception handling.
-  code: |-
-    return {{ base }}Cabinet::parent(handle);
-
 clib-reserved-cabinetSize: |-
   brief: Return size of {{ base }} storage.
   what: reserved CLib function
@@ -30,19 +20,6 @@ clib-reserved-resetStorage: |-
     {% raw %}
     {% for base in cabinets %}
     {{ base }}Cabinet::reset();
-    {% endfor %}
-    return 0;
-    {% endraw %}
-
-clib-reserved-clearStorage: |-
-  brief: Delete all objects with mapping preserved.
-  what: reserved CLib function
-  declaration: int32_t {{ prefix }}_clearStorage()
-  returns: Zero if successful or -1 for exception handling.
-  code: |-
-    {% raw %}
-    {% for base in cabinets %}
-    {{ base }}Cabinet::clear();
     {% endfor %}
     return 0;
     {% endraw %}

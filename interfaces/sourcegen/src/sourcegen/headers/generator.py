@@ -92,7 +92,7 @@ class HeaderGenerator:
             return obj_handle + cxx_member.arglist.params, cxx_member
 
         func_name = f"{recipe.prefix}_{recipe.name}"
-        reserved = ["cabinetSize", "parentHandle", "clearStorage", "resetStorage"]
+        reserved = ["cabinetSize", "resetStorage"]
         if recipe.name in reserved:
             loader = Environment(loader=BaseLoader)
             msg = f"   generating {func_name!r} -> {recipe.what}"

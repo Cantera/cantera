@@ -143,4 +143,3 @@ recipes:
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.
 - name: cabinetSize
-- name: parentHandle

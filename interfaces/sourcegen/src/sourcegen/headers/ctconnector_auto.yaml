@@ -41,4 +41,3 @@ recipes:
 # service functions
 - name: del
 - name: cabinetSize
-- name: parentHandle

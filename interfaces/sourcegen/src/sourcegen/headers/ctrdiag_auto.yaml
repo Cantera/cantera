@@ -81,4 +81,3 @@ recipes:
   wraps: findMajorPaths
 - name: del
 - name: cabinetSize
-- name: parentHandle
