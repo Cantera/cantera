@@ -44,6 +44,7 @@ update, please report on Cantera's
 - **Cory Kinney** [@corykinney](https://github.com/corykinney)
 - **Gandhali Kogekar** [@gkogekar](https://github.com/gkogekar)
 - **Daniel Korff** [@korffdm](https://github.com/korffdm) - Colorado School of Mines
+- **Marina Kovaleva** [@marina8888](https://github.com/marina8888) - Tohoku University
 - **Ashwin Kumar** [@mgashwinkumar](https://github.com/mgashwinkumar) - Virginia Tech
 - **Jon Kristofer**
 - **Samesh Lakothia** [@sameshl](https://github.com/sameshl)
