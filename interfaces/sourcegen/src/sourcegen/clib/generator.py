@@ -95,7 +95,7 @@ class CLibSourceGenerator(SourceGenerator):
         _LOGGER.critical(msg)
         exit(1)
 
-    def _ret_crosswalk(self, c_func: Func, cxx_func: Func, base: str
+    def _ret_crosswalk(self, c_func: Func, cxx_func: Func
                        ) -> tuple[str, list, str | None]:
         """Crosswalk for C++ return type."""
         c_args = c_func.arglist
@@ -158,10 +158,6 @@ class CLibSourceGenerator(SourceGenerator):
             ]
         elif "shared_ptr" in cxx_type:
             cxx_rbase = self._shared_object(cxx_type)
-            if cxx_rbase == base:
-                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj)"]
-            else:
-                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj, {handle})"]
         elif "vector" in cxx_type:
             buffer = [
                 f"{cxx_type} out",
@@ -295,18 +291,16 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_wraps = cxx_member.short_declaration()
             cxx_func = cxx_member
 
-        handle, buffer, rbase = self._ret_crosswalk(c_func, cxx_func, base)
+        handle, buffer, rbase = self._ret_crosswalk(c_func, cxx_func)
         args, lines, bases = self._par_crosswalk(c_func, cxx_func, base)
         if rbase:
             bases.add(rbase)
 
         # Obtain class and getter for managed objects
-        shared = []
         checks = []
         for uu in c_func.uses:
             obj = self._shared_object(uu.ret_type)
             if obj:
-                shared.append((obj, uu.name))
                 bases.add(obj)
             else:
                 checks.append(uu.name)
@@ -323,7 +317,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         ret = {
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
-            "shared": shared, "checks": checks, "error": error, "cxx_rbase": rbase,
+            "checks": checks, "error": error, "cxx_rbase": rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
             "cxx_wraps": cxx_wraps,
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
@@ -346,9 +340,6 @@ class CLibSourceGenerator(SourceGenerator):
                 lines = c_func.wraps
             template = loader.from_string(self._templates["clib-custom-code"])
             args["lines"] = lines.split("\n")
-
-        elif recipe.what == "noop":
-            template = loader.from_string(self._templates["clib-noop"])
 
         elif recipe.what == "function":
             template = loader.from_string(self._templates["clib-function"])

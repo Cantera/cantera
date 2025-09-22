@@ -139,22 +139,7 @@ clib-constructor: |-
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
-      {% if shared %}
-      ## instantiated object manages associated objects (see: sol3_newSolution)
-      ## storage of associated objects requires id (handle) of new object
-      auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
-      int id = {{ base }}Cabinet::add(obj);
-      {% for typ, getter in shared %}
-      ## add associated objects (see: sol3_newSolution, sol3_adjacent)
-      if (obj->{{ getter }}()) {
-          {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
-      }
-      {% endfor %}
-      return id;
-      {% else %}{# not shared #}
-      ## instantiated object has no associated objects; no id is needed
       return {{ base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% endif %}{# shared #}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
@@ -173,43 +158,7 @@ clib-accessor: |-
           throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}());
       }
       {% endif %}{# checks #}
-      {% if shared %}
-      ## accessed object manages associated objects (see: sol3_newSolution)
-      ## storage of associated objects requires id (handle) of new object
-      {% if cxx_rbase %}
-      ## returned and accessed C++ objects may have a different bases
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      int id = {{ cxx_rbase }}Cabinet::add(obj);
-      ## return handle of newly created / accessed object
-      {% for typ, getter in shared %}
-      ## add associated objects (see: sol3_newSolution, sol3_adjacent)
-      if (obj->{{ getter }}()) {
-          {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
-      }
-      {% endfor %}
-      return id;
-      {% else %}{# not cxx_rbase #}
-      ## method modifies associated objects (see: sol3_setTransportModel)
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
-      {% for typ, getter in shared %}
-      ## remove associated objects
-      if (obj->{{ getter }}()) {
-          {{ typ }}Cabinet::del(
-              {{ typ }}Cabinet::index(*(obj->{{ getter }}()), handle));
-      }
-      {% endfor %}
-      obj->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      ## return handle to modified associated object (see: sol3_setTransportModel)
-      {% for typ, getter in shared %}
-      ## shared should have single entry
-      return {{ typ }}Cabinet::add(obj->{{ getter }}(), handle);
-      {% endfor %}
-      {% endif %}{# cxx_rbase #}
-      {% else %}{# not shared #}
-      ## instantiated object has no associated objects; no id is needed
-      ## returned and accessed C++ objects may have a different bases
       return {{ cxx_rbase }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% endif %}{# shared #}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
@@ -218,18 +167,6 @@ clib-destructor: |-
   ## CLib destructor template
   // destructor
   try {
-      {% if shared %}
-      auto obj = {{ base }}Cabinet::at({{ handle }});
-      // remove all associated objects in reversed order
-      {% for typ, getter in shared[-1::-1] %}
-      if (obj->{{ getter }}()) {
-          int index = {{ typ }}Cabinet::index(*(obj->{{ getter }}()), {{ handle }});
-          if (index >= 0) {
-              {{ typ }}Cabinet::del(index);
-          }
-      }
-      {% endfor %}
-      {% endif %}
       {{ base }}Cabinet::del({{ handle }});
       return 0;
   } catch (...) {
@@ -327,10 +264,6 @@ clib-array-setter: |-
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
-
-clib-noop: |-
-  // no-op
-  return 0;
 
 clib-custom-code: |-
   // {{ what }}: custom code
