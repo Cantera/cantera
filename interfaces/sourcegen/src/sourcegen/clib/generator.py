@@ -408,7 +408,7 @@ class CLibSourceGenerator(SourceGenerator):
         preamble = self._config.preambles.get(headers.base)
 
         guard = filename.name.upper().replace(".", "_")
-        t_file = Path(__file__).parent / "template_header.h.in"
+        t_file = Path(__file__).parent / "template_header.h.j2"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         docstring = [escape_token(dd, "Cantera") for dd in headers.docstring]
         output = template.render(
@@ -451,7 +451,7 @@ class CLibSourceGenerator(SourceGenerator):
         for obj in [headers.base] + list(other):
             includes += self._config.includes[obj]
 
-        t_file = Path(__file__).parent / "template_source.cpp.in"
+        t_file = Path(__file__).parent / "template_source.cpp.j2"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, implementations=implementations,

@@ -303,7 +303,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = f"Interop.LibCantera.{header_file}.g.cs"
         self._write_file(
-            file_name, "template_interop.g.cs.in",
+            file_name, "template_interop.g.cs.j2",
             header_file=header_file, cs_functions=function_list)
 
     def _scaffold_handles(self, header_file: str, handles: dict[str, str]) -> None:
@@ -314,7 +314,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = f"Interop.Handles.{header_file}.g.cs"
         self._write_file(
-            file_name, "template_handles.g.cs.in", cs_handles=handle_list)
+            file_name, "template_handles.g.cs.j2", cs_handles=handle_list)
 
     def _scaffold_derived_handles(self) -> None:
         template = _LOADER.from_string(self._templates["csharp-derived-handle"])
@@ -324,7 +324,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         file_name = "Interop.Handles.g.cs"
         self._write_file(
-            file_name, "template_handles.g.cs.in", cs_handles=handle_list)
+            file_name, "template_handles.g.cs.j2", cs_handles=handle_list)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
                                 known_funcs: dict[str, CsFunc]) -> None:
@@ -336,7 +336,7 @@ class CSharpSourceGenerator(SourceGenerator):
         handle_class_name = self._get_handle_class_name(clib_area)
         file_name = wrapper_class_name + ".g.cs"
         self._write_file(
-            file_name, "template_wrapper.g.cs.in",
+            file_name, "template_wrapper.g.cs.j2",
             wrapper_class_name=wrapper_class_name, handle_class_name=handle_class_name,
             cs_properties=property_list)
 
