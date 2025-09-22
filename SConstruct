@@ -2012,9 +2012,9 @@ if env["clib_legacy"]:
     install(env.RecursiveInstall, '$inst_sampledir/clib_legacy',
             'samples/clib_legacy', exclude=sampledir_excludes)
 else:
-    SConscript("build/samples/clib_generated/SConscript")
+    SConscript("build/samples/clib/SConscript")
     install(env.RecursiveInstall, "$inst_sampledir/clib",
-            "samples/clib_generated", exclude=sampledir_excludes)
+            "samples/clib", exclude=sampledir_excludes)
 
 if env['f90_interface'] == 'y':
     SConscript('build/samples/f77/SConscript')
