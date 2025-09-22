@@ -9,7 +9,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CLIB_DEFS_H
-#define CLIB_DEFS_H  // use same guards as clib_generated
+#define CLIB_DEFS_H  // use same guards as generated CLib
 
 #include "cantera/base/config.h"
 #include <stdlib.h>

@@ -214,7 +214,7 @@ def addPythonTest(testname, subset):
 if localenv["clib_legacy"]:
     addTestProgram("clib_legacy", "clib")
 else:
-    addTestProgram("clib_generated", "clib")
+    addTestProgram("clib", "clib")
 addTestProgram('equil', 'equil')
 addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')

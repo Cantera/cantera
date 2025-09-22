@@ -17,7 +17,7 @@ namespace Cantera {
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M> class
  * maintains a list of pointers to objects of class M (or of subclasses of M). These
- * classes are used by the 'clib' interface library functions that provide access to
+ * classes are used by the 'CLib' interface library functions that provide access to
  * %Cantera C++ objects from outside C++. To refer to an existing object, the library
  * functions take an integer argument that specifies the location in the pointer list
  * maintained by the appropriate Cabinet<M> instance. The pointer is retrieved
