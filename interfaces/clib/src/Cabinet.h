@@ -11,7 +11,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/utilities.h"
 #include <unordered_map>
-#include <boost/range/adaptor/reversed.hpp>
 
 namespace Cantera {
 
@@ -62,11 +61,9 @@ public:
     /**
      * Add a new object. The index of the object is returned.
      */
-    static int add(shared_ptr<M> obj, int parent=-1) {
+    static int add(shared_ptr<M> obj) {
         dataRef data = getData();
         data.push_back(obj);
-        auto& parents = getParents();
-        parents.push_back(parent);
         int idx = static_cast<int>(data.size()) - 1;
         lookupRef lookup = getLookup();
         if (lookup.count(obj.get())) {
@@ -89,7 +86,6 @@ public:
      */
     static int reset() {
         getData().clear();
-        getParents().clear();
         getLookup().clear();
         return 0;
     }
@@ -120,17 +116,6 @@ public:
     }
 
     /**
-     * Return handle of parent to object n.
-     */
-    static int parent(int n) {
-        auto& parents = getParents();
-        if (n < 0 || n >= len(parents)) {
-            throw CanteraError("Cabinet::parent", "Index {} out of range.", n);
-        }
-        return parents[n];
-    }
-
-    /**
      * Return a shared pointer to object n.
      */
     static shared_ptr<M>& at(int n) {
@@ -157,26 +142,6 @@ public:
         throw CanteraError("Cabinet::as", "Item is not of the correct type.");
     }
 
-    /**
-     * Return the index in the Cabinet to the specified object, or -1 if the
-     * object is not in the Cabinet. If multiple indices reference the same
-     * object, the index of the last one added is returned.
-     */
-    static int index(const M& obj, int parent=-1) {
-        lookupRef lookup = getLookup();
-        if (!lookup.count(&obj)) {
-            return -1;
-        }
-        set<int>& entry = lookup.at(&obj);
-        auto& parents = getParents();
-        for (const auto e : boost::adaptors::reverse(entry)) {
-            if (parents[e] == parent) {
-                return e;
-            }
-        }
-        return -2;  // not found
-    }
-
 private:
     /**
      * Static function that returns a pointer to the data member of
@@ -188,18 +153,6 @@ private:
             s_storage = new Cabinet<M>();
         }
         return s_storage->m_table;
-    }
-
-    /**
-     * Static function that returns a pointer to the list of parent object handles of
-     * the singleton Cabinet<M> instance. All member functions should
-     * access the data through this function.
-     */
-    static vector<int>& getParents() {
-        if (s_storage == nullptr) {
-            s_storage = new Cabinet<M>();
-        }
-        return s_storage->m_parents;
     }
 
     /**
@@ -223,11 +176,6 @@ private:
      * Reverse lookup table for the single instance of this class.
      */
     std::unordered_map<const M*, set<int>> m_lookup;
-
-    /**
-     * List to hold handles of parent objects.
-     */
-    vector<int> m_parents;
 
     /**
      * List to hold pointers to objects.
