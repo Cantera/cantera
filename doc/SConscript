@@ -103,8 +103,8 @@ if localenv['sphinx_docs']:
                                      clib_file, Copy("$TARGET", "$SOURCE")))
 
     # Gather clib_generated sample files
-    clib_files = Glob("#samples/clib_generated/*.c")
-    clib_files.append(File("#samples/clib_generated/README.rst"))
+    clib_files = Glob("#samples/clib/*.c")
+    clib_files.append(File("#samples/clib/README.rst"))
     for clib3_file in clib_files:
         env.Depends(sphinxdocs,
                     localenv.Command(
