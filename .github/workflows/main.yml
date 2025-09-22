@@ -153,7 +153,7 @@ jobs:
       run: |
         python3 `which scons` build  clib_legacy=n -j4
       if: matrix.python-version == '3.11'
-    - name: Run googletests for clib_generated
+    - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
     - name: Upload shared library

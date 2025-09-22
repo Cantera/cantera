@@ -154,7 +154,7 @@ classes; derived classes are handled by the same configuration as the base class
   1. Add include files specifying base class and specializations to the `includes`
      mapping in `config.yaml`.
   1. Regenerate the CLib interface and recompile/reinstall Cantera.
-  1. Add new unit tests in `test/clib_generated` to ensure that the new feature is
+  1. Add new unit tests in `test/clib` to ensure that the new feature is
      working properly.
 
 ## Troubleshooting
