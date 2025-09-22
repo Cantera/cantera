@@ -8,7 +8,7 @@ base: Sim1D
 parents: [OneDim, SteadyStateSystem]  # List of parent classes
 recipes:
 - name: newSim1D
-  uses: [domain]
+  uses: domain
 - name: setValue
 - name: setProfile
 - name: setFlatProfile
@@ -32,5 +32,6 @@ recipes:
 - name: setMaxJacAge
   wraps: setJacAge
 - name: setFixedTemperature
+# service functions
 - name: del
 - name: cabinetSize

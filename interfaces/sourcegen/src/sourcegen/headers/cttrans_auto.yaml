@@ -18,7 +18,6 @@ recipes:
 - name: getMultiDiffCoeffs
 - name: getMolarFluxes
 - name: getMassFluxes
+# service functions
 - name: del
-  what: noop
-  brief: Destructor; required by some APIs although object is managed by Solution.
 - name: cabinetSize
