@@ -10,27 +10,26 @@ derived: {Interface: sol}  # Specialization/prefix dictionary
 recipes:
 - name: newSolution
   wraps: newSolution(const string&, const string&, const string&)
-  uses: [thermo, kinetics, transport]
 - name: newInterface
   wraps:
     newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
-  uses: [thermo, kinetics]
-- name: del
-  uses: [thermo, kinetics, transport]
 - name: name
 - name: setName
 - name: thermo
+  what: accessor
 - name: kinetics
+  what: accessor
 - name: transport
+  what: accessor
 - name: transportModel
 - name: setTransportModel
-  uses: [transport]
-  what: accessor
 - name: nAdjacent
 - name: adjacent
   wraps: adjacent(size_t)
-  uses: [nAdjacent, thermo, kinetics, transport]
+  uses: nAdjacent
   what: accessor
 - name: adjacentName
 - name: source
+# service functions
+- name: del
 - name: cabinetSize

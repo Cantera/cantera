@@ -22,5 +22,6 @@ recipes:
 - name: setAllowNonreactantOrders
   wraps: allow_nonreactant_orders
   what: variable-setter
+# service functions
 - name: del
 - name: cabinetSize
