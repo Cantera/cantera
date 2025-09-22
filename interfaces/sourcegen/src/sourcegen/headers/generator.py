@@ -197,14 +197,6 @@ class HeaderGenerator:
                 _LOGGER.critical(msg)
                 exit(1)
 
-        elif recipe.what == "noop":
-            # No operation
-            msg = f"   generating {func_name!r} -> no-operation"
-            _LOGGER.debug(msg)
-            args = [Param("int32_t", "handle", f"Handle to {recipe.base} object.")]
-            brief = "No operation."
-            ret_param = Param("int32_t", "", "Always zero.")
-
         elif recipe.name == "new":
             # Default constructor
             recipe.what = "constructor"
