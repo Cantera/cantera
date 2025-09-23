@@ -192,11 +192,11 @@ you installed Cantera and the options you specified.
 If for some reason Cantera has difficulty finding where these files are on your system,
 set environment variable `CANTERA_DATA` to the directory or directories (separated using
 `;` on Windows or `:` on other operating systems) where they are located. Alternatively,
-you can call function {py:func}`add_directory` to add a directory to the
+you can call function {py:func}`add_data_directory` to add a directory to the
 Cantera search path:
 
 ```{code-cell} python
-ct.add_directory('~/cantera/my_data_files')
+ct.add_data_directory('~/cantera/my_data_files')
 ```
 
 Cantera input files are plain text files, and can be created with any text editor. See

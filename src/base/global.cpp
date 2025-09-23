@@ -167,6 +167,13 @@ string gitCommit()
 
 void addDirectory(const string& dir)
 {
+    warn_deprecated("addDirectory",
+                    "To be removed after Cantera 3.2. Renamed to addDataDirectory.");
+    app()->addDataDirectory(dir);
+}
+
+void addDataDirectory(const string& dir)
+{
     app()->addDataDirectory(dir);
 }
 

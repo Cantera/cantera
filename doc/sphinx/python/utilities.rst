@@ -60,6 +60,7 @@ Global Functions
 ----------------
 
 .. autofunction:: add_directory
+.. autofunction:: add_data_directory
 .. autofunction:: get_data_directories
 .. autofunction:: import_phases
 .. autofunction:: appdelete

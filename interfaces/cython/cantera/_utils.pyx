@@ -44,8 +44,18 @@ cdef pystr(string x):
     return x.decode()
 
 def add_directory(directory):
-    """ Add a directory to search for Cantera data files. """
-    CxxAddDirectory(stringify(str(directory)))
+    """
+    Add a directory to search for Cantera data files.
+
+    .. deprecated:: 3.2
+
+        To be removed after Cantera 3.2. Renamed to `add_data_directory`.
+    """
+    CxxAddDataDirectory(stringify(str(directory)))
+
+def add_data_directory(directory):
+    """Add a directory to search for Cantera data files."""
+    CxxAddDataDirectory(stringify(str(directory)))
 
 def get_data_directories():
     """ Get a list of the directories Cantera searches for data files. """

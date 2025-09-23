@@ -1093,7 +1093,7 @@ extern "C" {
     status_t ctaddcanteradirectory_(integer* buflen, char* buf)
     {
         try {
-            addDirectory(string(buf));
+            addDataDirectory(string(buf));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
