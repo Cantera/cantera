@@ -316,6 +316,11 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
     return header;
 }
 
+void Sim1D::_restore(const string& fname, const string& name)
+{
+    restore(fname, name);
+}
+
 void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 {
     size_t np = domain(dom).nPoints();

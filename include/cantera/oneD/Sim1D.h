@@ -167,6 +167,19 @@ public:
     AnyMap restore(const string& fname, const string& name);
 
     /**
+     * Retrieve data from a previously saved simulation.
+     *
+     * This method is almost identical to restore() but avoids the return of an AnyMap,
+     * which is not implemented in CLib.
+     *
+     * @param fname  Name of container file (YAML or HDF)
+     * @param name  Identifier of location within the container file; this node/group
+     *      contains header information and subgroups with domain-specific SolutionArray
+     *      data
+     */
+    void _restore(const string& fname, const string& name);
+
+    /**
      * Deletes a `debug_sim1d.yaml` file if it exists. Used to clear the file for
      * successive calls to the solve() method.
      */
