@@ -5,6 +5,8 @@
 #include <sstream>
 #include <iomanip>
 #include <string.h>
+#include <cstring>
+#include <algorithm>
 
 void Param::print() {
   cout << m_name;
