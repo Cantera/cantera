@@ -413,7 +413,7 @@ protected:
      * Finally, the location where the data files were installed when
      * %Cantera was built is added to the search path.
      *
-     * Additional directories may be added by calling function addDirectory.
+     * Additional directories may be added by calling function addDataDirectory.
      * @ingroup inputGroup
      */
     void setDefaultDirectories();

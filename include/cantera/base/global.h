@@ -49,8 +49,8 @@ class AnyMap;
  *      will be added to the search path.
  *    - Finally, the location where the data files were installed when %Cantera was
  *      built is added to the search path.
- *    - Additional directories may be added dynamically by calling the addDirectory()
- *      function.
+ *    - Additional directories may be added dynamically by calling the
+ *      addDataDirectory() function.
  *
  * %Cantera input files are written using YAML syntax. For more information on using
  * YAML files in %Cantera, see the [YAML Users' Guide](../userguide/input-tutorial.html)
@@ -68,7 +68,12 @@ class AnyMap;
 string findInputFile(const string& name);
 
 //! @copydoc Application::addDataDirectory
+//! @deprecated Deprecated in %Cantera 3.2 and to be removed thereafter. Renamed to
+//!     addDataDirectory().
 void addDirectory(const string& dir);
+
+//! @copydoc Application::addDataDirectory
+void addDataDirectory(const string& dir);
 
 //! @copydoc Application::getDataDirectories
 string getDataDirectories(const string& sep);
