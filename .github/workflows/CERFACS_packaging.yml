@@ -466,7 +466,7 @@ jobs:
   linux-wheel:
     if: ${{ github.event.inputs.build_linux == 'true' }}
     name: Build ${{ matrix.arch }} linux Wheels #for Python ${{ matrix.python-version }}
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
     needs: ["sdist", "post-pending-status"]
     outputs:
       job-status: ${{ job.status }}
