@@ -5,15 +5,7 @@ function ctGenerateLibraryDefinitions(includeDir, headerDir, ctLibDir, outputDir
     headerPaths = fullfile({headerFiles.folder}, headerPaths);
 
     % Get path for the shared library file
-    if ispc
-        libraries = ctLibDir + "/cantera_shared.dll";
-    elseif islinux
-        libraries = ctLibDir + "/libcantera_shared.so";
-    elseif ismac
-        libraries = ctLibDir + "/libcantera_shared.dylib";
-    else
-        error('Operating System Not Supported');
-    end
+    libraries = ctLib(ctLibDir);
 
     overwriteExistingDefinitionFiles = true;
 

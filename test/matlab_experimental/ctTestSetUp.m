@@ -10,5 +10,5 @@ function ctTestSetUp()
     addpath(genpath(fullfile(canteraRoot, 'test', 'data')));
     addpath(genpath(fullfile(canteraRoot, 'test', 'matlab_experimental')));
 
-    ctLoad('inprocess');
+    ctLoad();
 end

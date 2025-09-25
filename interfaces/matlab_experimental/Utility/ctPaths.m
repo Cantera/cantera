@@ -52,7 +52,7 @@ function paths = ctPaths(varargin)
 
             setpref(prefGroup, prefName, paths);
 
-            addpath(genpath(toolboxPath), genpath(samplePath));
+            addpath(genpath(toolboxPath));
 
         case 'Unset'
             if ispref(prefGroup, prefName)
