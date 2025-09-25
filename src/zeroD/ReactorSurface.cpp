@@ -76,6 +76,16 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
     m_surf->getCoverages(m_cov.data());
 }
 
+ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, bool clone, const string& name)
+    : ReactorSurface(sol, name)
+{
+    // TODO: Remove after Cantera 3.2 when removing ReactorSurface from ReactorFactory
+    if (clone) {
+        throw CanteraError("ReactorSurface::ReactorSurface", "Bad constructor arguments."
+            " When clone=true, list of adjacent reactors must be provided");
+    }
+}
+
 double ReactorSurface::area() const
 {
     return m_area;

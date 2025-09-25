@@ -78,6 +78,7 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, bool clone, const string& name)
         { return new MoleReactor(sol, clone, name); });
+    // TODO: Remove after Cantera 3.2
     reg("ReactorSurface",
         [](shared_ptr<Solution> sol, bool clone, const string& name)
         { return new ReactorSurface(sol, clone, name); });
