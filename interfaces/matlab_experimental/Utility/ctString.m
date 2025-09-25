@@ -25,6 +25,11 @@ function output = ctString(funcName, varargin)
         error('Cantera:ctError', ctGetErr);
     end
 
-    output = char(buf.double);
+    % Discard the last character
+    s = buf.double;
+    if s(end) == 0
+        s = s(1:end-1);
+    end
+    output = char(s);
 
 end
