@@ -13,6 +13,8 @@ derived:  # Specialization/prefix dictionary
 recipes:
 - name: new
   wraps: newReactorBase
+- name: newSurface
+  wraps: newReactorSurface
 - name: type
 - name: name
 - name: setName
