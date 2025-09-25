@@ -30,8 +30,8 @@ jobs:
     name: MATLAB on ubuntu-latest with Python 3.10
     runs-on: ubuntu-latest
     env:
-      CANTERA_ROOT: /home/runner/work/cantera/cantera
-      CANTERA_DATA: /home/runner/work/cantera/cantera/data
+      CANTERA_ROOT: ${{ github.workspace }}
+      CANTERA_DATA: ${{ github.workspace }}/data
     steps:
       - uses: actions/checkout@v5
         name: Checkout the repository
@@ -61,15 +61,22 @@ jobs:
       - name: Set LD_PRELOAD environment variable for MATLAB
         run: |
           LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-          LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
-          LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
-          echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
+          echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      - name: Build MATLAB C++ Interface
+        uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
+        with:
+          command: |
+            ctDir = getenv('CANTERA_ROOT');
+            includeDir = fullfile(ctDir, 'include');
+            ctLibDir = fullfile(ctDir, 'build', 'lib');
+            addpath(genpath(fullfile(ctDir, 'interfaces', 'matlab_experimental')));
+            ctBuildInterface(ctDir, includeDir, ctLibDir);
       - name: Run tests
         uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
         with:
-          select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
+          select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
 
   ubuntu-multiple-pythons:
@@ -352,19 +359,30 @@ jobs:
       # MATLAB requires the legacy CLib
       run: |
         LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-        LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
-        LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
-        echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
+        echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+    - name: Build MATLAB C++ Interface
+      uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
+      env:
+        CANTERA_ROOT: ${{ github.workspace }}
+        CANTERA_DATA: ${{ github.workspace }}/data
+      with:
+        command: |
+          ctDir = getenv('CANTERA_ROOT');
+          includeDir = fullfile(ctDir, 'include');
+          ctLibDir = fullfile(ctDir, 'build', 'lib');
+          addpath(genpath(fullfile(ctDir, 'interfaces', 'matlab_experimental')));
+          ctBuildInterface(ctDir, includeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
       uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
       env:
-        CANTERA_ROOT: /home/runner/work/cantera/cantera
-        CANTERA_DATA: /home/runner/work/cantera/cantera/data
+        CANTERA_ROOT: ${{ github.workspace }}
+        CANTERA_DATA: ${{ github.workspace }}/data
       with:
         command: |
-          addpath('/home/runner/work/cantera/cantera/test/matlab_experimental');
+          ctDir = getenv('CANTERA_ROOT');
+          addpath(fullfile(ctDir, 'test', 'matlab_experimental'));
           matlabCoverage;
     - name: Rebuild Cantera with generated CLib
       run: scons build clib_legacy=n -j4
