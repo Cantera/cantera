@@ -998,7 +998,7 @@ classdef ThermoPhase < handle
 
         function moleFractions = get.X(tp)
             nsp = tp.nSpecies;
-            molefractions = ctArray('thermo_getMoleFractions', nsp, tp.tpID);
+            moleFractions = ctArray('thermo_getMoleFractions', nsp, tp.tpID);
         end
 
         function massFractions = get.Y(tp)
@@ -1325,7 +1325,7 @@ classdef ThermoPhase < handle
                     norm = 1;
                 end
 
-                ctFunc('thermo_setMoleFractions', tp.tpID, nsp, xx, norm);
+                ctFunc('thermo_setMoleFractions', tp.tpID, xx, norm);
             elseif isa(xx, 'char')
                 ctFunc('thermo_setMoleFractionsByName', tp.tpID, xx);
             else
@@ -1354,7 +1354,7 @@ classdef ThermoPhase < handle
                     norm = 1;
                 end
 
-                ctFunc('thermo_setMassFractions', tp.tpID, nsp, yy, norm);
+                ctFunc('thermo_setMassFractions', tp.tpID, yy, norm);
             elseif isa(yy, 'char')
                 ctFunc('thermo_setMassFractionsByName', tp.tpID, yy);
             else
