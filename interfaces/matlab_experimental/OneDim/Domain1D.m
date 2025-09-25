@@ -370,7 +370,7 @@ classdef Domain1D < handle
             %     Instance of class :mat:class:`Domain1D`.
             % :param grid:
             %     The grid for this domain.
-            ctFunc('domain_setupGrid', d.domainID, numel(grid), grid);
+            ctFunc('domain_setupGrid', d.domainID, grid);
         end
 
     end

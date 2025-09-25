@@ -45,7 +45,7 @@ classdef Interface < Solution
                 adj(i) = varargin{i}.solnID;
             end
 
-            ID = ctFunc('soln_newInterface', src, name, na, adj);
+            ID = ctFunc('soln_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
             s@Solution(ID);

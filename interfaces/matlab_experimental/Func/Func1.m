@@ -126,7 +126,7 @@ classdef Func1 < handle
                         error('Invalid arguments for tabulating functor')
                     end
                     coeffs = [varargin{1}, varargin{2}];
-                    x.id = ctFunc('func_new_advanced', typ, length(coeffs), coeffs);
+                    x.id = ctFunc('func_new_advanced', typ, coeffs);
                 end
             else
                 error('Invalid number of arguments');
