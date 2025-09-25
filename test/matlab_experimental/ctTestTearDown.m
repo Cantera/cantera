@@ -7,9 +7,7 @@ function ctTestTearDown()
     thisFile = mfilename('fullpath');
     canteraRoot = fileparts(fileparts(fileparts(thisFile)));
 
-    toolboxPath = fullfile(canteraRoot, 'interfaces', 'matlab_experimental');
-    testPath    = fullfile(canteraRoot, 'test');
-
-    rmpath(genpath(toolboxPath));
-    rmpath(genpath(testPath));
+    rmpath(genpath(fullfile(canteraRoot, 'interfaces', 'matlab_experimental')));
+    rmpath(genpath(fullfile(canteraRoot, 'test', 'data')));
+    rmpath(genpath(fullfile(canteraRoot, 'test', 'matlab_experimental')));
 end
