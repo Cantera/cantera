@@ -4,6 +4,17 @@
     <groups>
       <group id="CO2">
         <processes>
+          <process collisionType="elastic">
+            <reactants>
+              <electron/>
+              <molecule>CO2</molecule>
+            </reactants>
+            <parameters>
+              <parameter name="mM">1.240000e-5</parameter>
+            </parameters>
+            <data_x type="energy" units="eV">0.0 1.0</data_x>
+            <data_y type="cross_section" units="m2">0.0 1.0e-22</data_y>
+          </process>
           <!-- The electron energy starts from a value larger than the threshold-->
           <process collisionType="inelastic" inelasticType="ionization">
             <reactants>

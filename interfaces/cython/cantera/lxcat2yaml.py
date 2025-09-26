@@ -203,34 +203,44 @@ def registerProcess(process: etree.Element,
     # Parse the equation
     product_array=[]
 
-    for product_node in get_children(process, "products")[0]:
-        if product_node.tag.find("electron") != -1:
-            product_array.append(electron_name)
+    products = get_children(process, "products")
+    if products:
+        for product_node in products[0]:
+            if product_node.tag.find("electron") != -1:
+                product_array.append(electron_name)
 
-        if product_node.tag.find("molecule") != -1:
-            product_name = product_node.text
-            if "state" in product_node.attrib:
-                state = product_node.attrib["state"].replace(" ","-")
-                # State is appended in a parenthesis
-                product_name += f"({state})"
-            if "charge" in product_node.attrib:
-                charge = int(product_node.attrib["charge"])
-                if charge > 0:
-                    product_name += charge*"+"
-                else:
-                    product_name += -charge*"-"
+            if product_node.tag.find("molecule") != -1:
+                product_name = product_node.text
+                if "state" in product_node.attrib:
+                    state = product_node.attrib["state"].replace(" ","-")
+                    # State is appended in a parenthesis
+                    product_name += f"({state})"
+                if "charge" in product_node.attrib:
+                    charge = int(product_node.attrib["charge"])
+                    if charge > 0:
+                        product_name += charge*"+"
+                    else:
+                        product_name += -charge*"-"
 
-            # Filter the collision based on the existed species in the mechanism file
-            if gas is None or product_name in gas.species_names:
+                # Filter the collision based on the existed species in the mechanism file
+                if gas is not None and not product_name in gas.species_names:
+                    return
+
                 product_array.append(product_name)
-            else:
-                return
 
     for reactant_node in get_children(process, "reactants")[0]:
         if reactant_node.tag.find("molecule") != -1:
             reactant = reactant_node.text
+            # Filter the collision based on the existed species in the mechanism file
+            if gas is not None and not reactant in gas.species_names:
+                return
 
-    products = " + ".join(product_array)
+    if product_array: # not empty
+        products = " + ".join(product_array)
+    else:
+        # No product is identified. Use the reactant as the product.
+        products = f"{reactant} + {electron_name}"
+
     equation = f"{reactant} + {electron_name} => {products}"
 
     # Parse the cross-section data
