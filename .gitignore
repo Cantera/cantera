@@ -15,7 +15,9 @@ include/cantera/base/config.h
 include/cantera/base/config.h.build
 include/cantera/base/system.h.gch
 include/cantera/ext/
-interfaces/matlab_experimental/Utility/ctRoot.m
+interfaces/matlab_experimental/cantera/ctMatlab/
+interfaces/matlab_experimental/cantera/definectMatlab.m
+interfaces/matlab_experimental/cantera/ctMatlabData.xml
 src/extensions/delegator.h
 stage/
 .sconsign.dblite
