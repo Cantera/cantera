@@ -22,6 +22,8 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
+// TODO: After Cantera 3.2, this method can be replaced by delegating to
+// Reactor::Reactor(sol, true, name)
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {

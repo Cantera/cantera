@@ -48,6 +48,8 @@ class Reactor : public ReactorBase
 public:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
     Reactor(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
+    //! TODO: Remove after %Cantera 3.2 -- all derived classes should use Solution-based
+    //! constructors.
     using ReactorBase::ReactorBase; // inherit constructors
 
     string type() const override {

@@ -142,6 +142,7 @@ public:
     //! @param phases Phases used to specify the state for the newly cloned Kinetics
     //!     object. These can be created from the phases used by this object using the
     //!     ThermoPhase::clone() method.
+    //! @since New in %Cantera 3.2.
     shared_ptr<Kinetics> clone(const vector<shared_ptr<ThermoPhase>>& phases) const;
 
     //! Identifies the Kinetics manager type.
