@@ -113,6 +113,12 @@ are:
   - `surface` ({ct}`details <InterfaceKinetics>`)
   - `edge` ({ct}`details <EdgeKinetics>`)
 
+(sec-yaml-rate-multipliers)=
+`rate-multipliers`
+: A mapping of reaction indices and multipliers applied to the forward rate
+  constants. The key `default` is used to specify the default rate multiplier, which is
+  used for reactions not specified in the mapping.
+
 (sec-yaml-phase-reactions)=
 `reactions`
 : Source of reactions to include in the phase, if a kinetics model has been specified.

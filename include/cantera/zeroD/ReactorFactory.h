@@ -61,21 +61,42 @@ shared_ptr<ReactorBase> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name="(none)");
 
 //! Create a Reactor object of the specified type and contents
+//! @param  model  Reactor type to be created. See [this list of reactor
+//!     types](../reference/reactors/index.html) for available options.
+//! @param  contents  Solution object to model the thermodynamic properties and
+//!     reactions occurring in the reactor
+//! @param clone  Determines whether to clone `sol` so that the internal state of this
+//!     reactor is independent of the original Solution object and any Solution objects
+//!     used by other reactors in the network.
+//! @param name  Name of the reactor.
 //! @since  New in %Cantera 3.2. Transitional method returning a `Reactor` object.
 shared_ptr<Reactor> newReactor4(
     const string& model, shared_ptr<Solution> contents, bool clone=true,
     const string& name="(none)");
 
 //! Create a Reservoir object with the specified contents
+//! @param  contents  Solution object to model the contents of this reservoir
+//! @param clone  Determines whether to clone `sol` so that the internal state of this
+//!     reservoir is independent of the original Solution object and any Solution
+//!     objects used by other reactors in the network.
+//! @param name  Name of the reservoir.
 //! @since New in %Cantera 3.2.
 shared_ptr<Reservoir> newReservoir(
     shared_ptr<Solution> contents, bool clone=true, const string& name="(none)");
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
 //! participating in surface reactions.
+//! @param  contents  Solution (Interface) object to model the thermodynamic properties
+//!     and reactions occurring in the reactor
+//! @param  reactors  List of Reactors adjacent to this surface, whose contents
+//!     participate in reactions occurring on this surface.
+//! @param clone  Determines whether to clone `sol` so that the internal state of this
+//!     surface is independent of the original Interface object and any Solution objects
+//!     used by other reactors in the network except those in the `reactors` list.
+//! @param name  Name of the reactor surface.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorSurface> newReactorSurface(
-    shared_ptr<Solution> soln, const vector<shared_ptr<ReactorBase>>& reactors,
+    shared_ptr<Solution> contents, const vector<shared_ptr<ReactorBase>>& reactors,
     bool clone=true, const string& name="(none)");
 
 //! @}

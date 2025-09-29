@@ -55,16 +55,19 @@ public:
         return shared_ptr<Solution>( new Solution );
     }
 
-    //! Create a new Solution object with cloned ThermoPhase and Kinetics objects that
-    //! use the same species definitions, thermodynamic parameters, and reactions as
-    //! this one.
+    //! Create a new Solution object with cloned ThermoPhase, Kinetics, and Transport
+    //! objects that use the same species definitions, thermodynamic parameters, and
+    //! reactions as this one.
     //! @param adjacent  For surface phases, an optional list of new adjacent phases
     //!     to link to the InterfaceKinetics object. Any adjacent phases not provided
     //!     will have their ThermoPhase model automatically cloned.
     //! @param withKinetics  Flag indicating whether to clone the Kinetics object
-    //!    associated with this phase
+    //!    associated with this phase. If `false`, the cloned Solution will not include
+    //!    a kinetics manager.
     //! @param withTransport  Flag indicating whether to clone the Transport object
-    //!    associated with this phase
+    //!    associated with this phase. If `false`, the cloned Solution will not include
+    //!    a transport property manager.
+    //! @since New in %Cantera 3.2.
     shared_ptr<Solution> clone(const vector<shared_ptr<Solution>>& adjacent={},
                                bool withKinetics=true, bool withTransport=true) const;
 

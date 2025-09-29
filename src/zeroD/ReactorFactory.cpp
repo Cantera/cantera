@@ -110,6 +110,10 @@ shared_ptr<ReactorBase> newReactor(
 {
     warn_deprecated("newReactor", "Behavior changes after Cantera 3.2, when a "
         "'shared_ptr<Reactor>' is returned.\nFor new behavior, use 'newReactor4'.");
+    warn_deprecated("newReactor", "`clone` argument not specified; Default behavior "
+        "will change from `clone=False` to `clone=True` after Cantera 3.2.\n"
+        "Use the transitional newReactor4() function to provide a value for the clone "
+        "argument");
     return newReactorBase(model, contents, false, name);
 }
 
@@ -137,10 +141,10 @@ shared_ptr<Reservoir> newReservoir(
     return reservoir;
 }
 
-shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> soln,
+shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> contents,
     const vector<shared_ptr<ReactorBase>>& reactors, bool clone, const string& name)
 {
-    return make_shared<ReactorSurface>(soln, reactors, clone, name);
+    return make_shared<ReactorSurface>(contents, reactors, clone, name);
 }
 
 }

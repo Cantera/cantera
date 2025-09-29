@@ -398,6 +398,7 @@ public:
 
     //! Create a new ThermoPhase object using the same species definitions,
     //! thermodynamic parameters, and state as this one.
+    //! @since New in %Cantera 3.2.
     shared_ptr<ThermoPhase> clone() const;
 
     //! @name  Information Methods

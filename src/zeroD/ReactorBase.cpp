@@ -17,6 +17,8 @@ ReactorBase::ReactorBase(const string& name) : m_name(name)
 {
 }
 
+// TODO: After Cantera 3.2, this method can be replaced by delegating to
+// ReactorBase::ReactorBase(sol, true, name)
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {

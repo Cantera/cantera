@@ -48,6 +48,7 @@ struct SensitivityParameter
 class ReactorBase
 {
 public:
+    //! @deprecated After %Cantera 3.2, this constructor will become protected
     explicit ReactorBase(const string& name="(none)");
 
     //! Instantiate a ReactorBase object with Solution contents.
