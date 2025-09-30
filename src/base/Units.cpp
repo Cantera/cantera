@@ -66,6 +66,7 @@ const map<string, Units> knownUnits{
 
     // Volume [L^3]
     {"m^3", Units(1.0, 0, 3, 0)},
+    {"m³", Units(1.0, 0, 3, 0)},
     {"liter", Units(0.001, 0, 3, 0)},
     {"L", Units(0.001, 0, 3, 0)},
     {"l", Units(0.001, 0, 3, 0)},
