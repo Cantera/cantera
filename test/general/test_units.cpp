@@ -60,6 +60,7 @@ TEST(Units, basic_conversions) {
     EXPECT_DOUBLE_EQ(U.convert(2, "kmol", "mol"), 2000);
     EXPECT_DOUBLE_EQ(U.convert(1000, "cal", "J"), 4184);
     EXPECT_DOUBLE_EQ(U.convert(2, "m^3", "l"), 2000);
+    EXPECT_DOUBLE_EQ(U.convert(2, "m³", "l"), 2000);
     EXPECT_DOUBLE_EQ(U.convert(1, "atm", "Pa"), 101325);
 }
 
