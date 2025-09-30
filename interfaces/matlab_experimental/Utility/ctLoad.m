@@ -10,9 +10,18 @@ function ctLoad(mode)
         mode (1,1) string {mustBeMember(mode,["inprocess","outofprocess"])} = "outofprocess"
     end
 
+    pathVar = dictionary();
+    if ismac
+        arch = computer("arch");
+        matlabLibPath = matlabroot + "/bin/" + arch + pathsep + ...
+                        matlabroot + "/sys/os/" + arch;
+        pathVar = dictionary("DYLD_LIBRARY_PATH", matlabLibPath);
+    end
+
     global ct
     if isempty(ct)
-        ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
+        ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
+                               OutOfProcessEnvironmentVariables=pathVar);
     end
 
     fprintf('Cantera %s is ready for use (%s mode).\n', ctVersion, mode);
