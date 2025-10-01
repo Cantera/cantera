@@ -284,6 +284,7 @@ extern "C" {
     int reactornet_addreactor(int i, int n)
     {
         try {
+            suppress_deprecation_warnings(); // No other option for legacy CLib
             NetworkCabinet::at(i)->addReactor(
                 dynamic_cast<Reactor&>(*ReactorCabinet::at(n)));
             return 0;
@@ -579,6 +580,7 @@ extern "C" {
     int reactorsurface_install(int i, int n)
     {
         try {
+            suppress_deprecation_warnings(); // No other option for legacy CLib
             ReactorCabinet::at(n)->addSurface(ReactorCabinet::as<ReactorSurface>(i).get());
             return 0;
         } catch (...) {
