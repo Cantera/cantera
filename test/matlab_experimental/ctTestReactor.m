@@ -19,7 +19,6 @@ classdef ctTestReactor < ctTestCase
         function makeReactors(self, arg)
             arguments
                 self
-                arg.independent (1,1) logical = true
                 arg.nr (1,1) double {mustBeInteger} = 2
                 arg.T1 (1,1) double {mustBeNumeric} = 300
                 arg.P1 (1,1) double {mustBeNumeric} = 101325
@@ -33,15 +32,10 @@ classdef ctTestReactor < ctTestCase
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
             self.r1 = Reactor(self.gas1);
 
-            if arg.independent
-                self.gas2 = Solution('h2o2.yaml', '', 'none');
-            else
-                self.gas2 = self.gas1;
-            end
-
             if arg.nr == 1
                 self.net = ReactorNet(self.r1);
             elseif arg.nr >= 2
+                self.gas2 = Solution('h2o2.yaml', '', 'none');
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = Reactor(self.gas2);
                 self.r2.energy = 'on';
@@ -83,11 +77,11 @@ classdef ctTestReactor < ctTestCase
         end
 
         function testIndependentVariable(self)
-            self.makeReactors('independent', false, 'nr', 1);
+            self.makeReactors('nr', 1);
             self.verifyEqual(self.net.time, 0.0, 'AbsTol', self.atol);
         end
 
-        function testDisjoint1(self)
+        function testDisjoint(self)
             self.makeReactors('T1', 300, 'P1', 101325, 'T2', 500, 'P2', 300000);
             self.net.advance(1.0);
 
@@ -95,17 +89,6 @@ classdef ctTestReactor < ctTestCase
             self.verifyEqual(self.gas2.T, 500, 'AbsTol', self.atol);
             self.verifyEqual(self.gas1.P, 101325, 'AbsTol', self.atol);
             self.verifyEqual(self.gas2.P, 300000, 'AbsTol', self.atol);
-        end
-
-        function testDisjoint2(self)
-            self.makeReactors('independent', false, ...
-                              'T1', 300, 'P1', 101325, 'T2', 500, 'P2', 300000);
-            self.net.advance(1.0);
-
-            self.verifyEqual(self.r1.T, 300, 'AbsTol', self.atol);
-            self.verifyEqual(self.r2.T, 500, 'AbsTol', self.atol);
-            self.verifyEqual(self.r1.P, 101325, 'AbsTol', self.atol);
-            self.verifyEqual(self.r2.P, 300000, 'AbsTol', self.atol);
         end
 
         function testTimeStepping(self)
