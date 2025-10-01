@@ -39,7 +39,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
           architecture: x64
@@ -119,7 +119,7 @@ jobs:
           gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
         fi
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -197,7 +197,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
         architecture: x64
@@ -261,7 +261,7 @@ jobs:
       run: |
         echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
@@ -316,7 +316,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
         architecture: x64
@@ -334,7 +334,7 @@ jobs:
         pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
         Jinja2
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '8.x'
     - name: Build Cantera with legacy CLib
@@ -358,7 +358,7 @@ jobs:
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@5178a73478a5fbdb23be171e94df0a7652fc225a # v2.2.2
+      uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
       env:
         CANTERA_ROOT: /home/runner/work/cantera/cantera
         CANTERA_DATA: /home/runner/work/cantera/cantera/data
@@ -413,7 +413,7 @@ jobs:
         path: test/matlab_experimental/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
+      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab_experimental/matlabCoverage.xml
@@ -444,7 +444,7 @@ jobs:
             gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
           fi
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+        uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
         with:
           environment-name: test-env
           create-args: >-
@@ -606,7 +606,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -690,7 +690,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+        uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -759,7 +759,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+      uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -841,7 +841,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set Up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -906,7 +906,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.12'
         architecture: x64
@@ -946,7 +946,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set Up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.10"
         architecture: x64
@@ -1018,7 +1018,7 @@ jobs:
         persist-credentials: false
     - name: Override default Python (Windows)
       # Other operating systems use default system Python 3
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.10"
         architecture: x64
@@ -1029,7 +1029,7 @@ jobs:
         python3 -m pip install --upgrade pip setuptools wheel build
         python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+      uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
@@ -1048,7 +1048,7 @@ jobs:
         sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
       if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
