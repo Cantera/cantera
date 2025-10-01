@@ -1,4 +1,4 @@
-classdef ctTestSamples < ctTestCase
+classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
 
     methods (TestMethodSetup)
 

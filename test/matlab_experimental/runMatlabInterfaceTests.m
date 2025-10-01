@@ -1,6 +1,7 @@
 import matlab.unittest.TestRunner
 
-testFolder = fullfile(pwd, 'test', 'matlab_experimental');
+thisFile = mfilename('fullpath');
+testFolder = fileparts(thisFile);
 addpath(genpath(testFolder));
 suite = testsuite(testFolder);
 isSlow = cellfun(@(tags) any(strcmp(tags, 'Slow')), {suite.Tags});
