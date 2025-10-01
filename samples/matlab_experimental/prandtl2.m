@@ -6,9 +6,6 @@ function prandtl2(g)
     %
     % .. tags:: Matlab, transport, equilibrium, multicomponent transport, plotting
 
-    clear all
-    close all
-
     tic
     help prandtl2
 

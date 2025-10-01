@@ -5,9 +5,6 @@
 %
 % .. tags:: Matlab, thermodynamics, thermodynamic cycle, non-ideal fluid
 
-clear all
-close all
-
 help rankine
 
 %% Initialize parameters

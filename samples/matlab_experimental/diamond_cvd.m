@@ -16,9 +16,6 @@
 
 %% Initialization
 
-clear all
-close all
-
 help diamond_cvd
 t0 = cputime; % record the starting time
 

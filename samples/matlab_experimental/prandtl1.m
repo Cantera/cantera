@@ -7,9 +7,6 @@ function prandtl1(g)
     %
     % .. tags:: Matlab, equilibrium, transport, plotting
 
-    clear all
-    close all
-
     tic
     help prandtl1
 

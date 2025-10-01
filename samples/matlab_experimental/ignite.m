@@ -8,9 +8,6 @@ function plotdata = ignite(g)
     %
     % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
-    clear all
-    close all
-
     tic
     help ignite
 

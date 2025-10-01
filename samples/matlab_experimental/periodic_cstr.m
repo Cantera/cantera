@@ -24,9 +24,6 @@ function periodic_cstr
     %
     % .. tags:: Matlab, combustion, reactor network, well-stirred reactor, plotting
 
-    clear all
-    close all
-
     tic
     help periodic_cstr
 

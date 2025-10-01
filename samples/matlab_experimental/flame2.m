@@ -6,9 +6,6 @@
 
 %% Initialization
 
-clear all
-close all
-
 tic
 help flame2
 
