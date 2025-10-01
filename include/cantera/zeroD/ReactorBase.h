@@ -168,6 +168,7 @@ public:
     //! @attention This method should generally not be called directly by users.
     //!     Reactor and ReactorSurface objects should be connected by providing adjacent
     //!     reactors to the newReactorSurface factory function.
+    //! @deprecated  Unused. To be removed after %Cantera 3.2.
     void addSurface(shared_ptr<ReactorBase> surf);
 
     //! Return a reference to the *n*-th ReactorSurface connected to this reactor.
