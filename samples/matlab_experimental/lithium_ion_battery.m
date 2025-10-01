@@ -25,9 +25,6 @@
 
 %% Initialization
 
-clear all
-close all
-
 tic
 help lithium_ion_battery
 

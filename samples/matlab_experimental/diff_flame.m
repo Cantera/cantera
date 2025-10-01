@@ -9,9 +9,6 @@
 
 %% Initialization
 
-clear all
-close all
-
 tic % total running time of the script
 help diff_flame
 

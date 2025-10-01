@@ -7,9 +7,6 @@ function reactor1(g)
     %
     % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
-    clear all
-    close all
-
     tic
     help reactor1
 

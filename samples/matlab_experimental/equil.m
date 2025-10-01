@@ -6,9 +6,6 @@ function equil(g)
     %
     % .. tags:: Matlab, combustion, equilibrium, plotting
 
-    clear all
-    close all
-
     tic
     help equil
 

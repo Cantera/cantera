@@ -16,9 +16,6 @@
 
 help catcomb;
 
-clear all
-close all
-
 t0 = cputime; % record the starting time
 
 %% Set parameter values

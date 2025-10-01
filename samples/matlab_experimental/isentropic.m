@@ -6,9 +6,6 @@ function isentropic(g)
     %
     % .. tags:: Matlab, thermodynamics, compressible flow, plotting
 
-    clear all
-    close all
-
     tic
     help isentropic
 

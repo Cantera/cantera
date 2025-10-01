@@ -7,9 +7,6 @@
 
 %% Initialization
 
-clear all
-close all
-
 tic
 help surf_reactor
 
@@ -105,6 +102,5 @@ plot(tim, x);
 xlabel('Time (s)');
 ylabel('Mole Fractions');
 legend(names);
-clear all
 
 toc

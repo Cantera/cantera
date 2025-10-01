@@ -6,9 +6,6 @@ function ignite_uv(gas)
     %
     % .. tags:: Matlab, combustion, user-defined model, ignition delay, plotting
 
-    clear all
-    close all
-
     tic
     help ignite_uv
 
