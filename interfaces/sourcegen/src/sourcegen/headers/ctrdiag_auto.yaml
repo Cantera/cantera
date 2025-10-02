@@ -79,6 +79,6 @@ recipes:
 - name: getLog  # New in Cantera 3.2
 - name: findMajor
   wraps: findMajorPaths
+# service functions
 - name: del
 - name: cabinetSize
-- name: parentHandle

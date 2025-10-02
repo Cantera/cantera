@@ -9,6 +9,9 @@
 #ifndef CT_THERMO_INCL
 #define CT_THERMO_INCL
 
+#pragma message("warning: thermo.h is deprecated and will be removed after " \
+                "Cantera 3.2. Use core.h and/or thermo/ThermoFactory.h instead.")
+
 #include "thermo/ThermoPhase.h"
 #include "thermo/Species.h"
 #include "thermo/ThermoFactory.h"

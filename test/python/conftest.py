@@ -58,8 +58,8 @@ def cantera_setup():
     Fixture to set up Cantera environment for the entire test session.
     """
     # Add data directories
-    cantera.add_directory(TEST_DATA_PATH)
-    cantera.add_directory(CANTERA_DATA_PATH)
+    cantera.add_data_directory(TEST_DATA_PATH)
+    cantera.add_data_directory(CANTERA_DATA_PATH)
     cantera.print_stack_trace_on_segfault()
     cantera.CanteraError.set_stack_trace_depth(20)
     cantera.make_deprecation_warnings_fatal()
@@ -98,7 +98,7 @@ def test_work_path(request, cantera_setup):
         work_path = Path(tempfile.mkdtemp())
         using_tempfile = True
 
-    cantera.add_directory(work_path)
+    cantera.add_data_directory(work_path)
 
     # Assign to the test class
     request.cls.test_work_path = work_path

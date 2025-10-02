@@ -2,9 +2,10 @@
  *  @file HMW_graph_VvT
  */
 
-#include "cantera/thermo.h"
-#include "TemperatureTable.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/HMWSoln.h"
+
+#include "TemperatureTable.h"
 
 #include <cstdio>
 

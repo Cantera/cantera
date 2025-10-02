@@ -49,9 +49,8 @@ based on a recipe, which is subsequently used to scaffold API functions using de
     defined in the `Cantera` namespace. Functionality is inferred automatically.
 - `variable-setter`: Implements a getter for a C++ class member variable or a variable
     defined in the `Cantera` namespace. Field disambiguates from a `variable-getter`.
-- `noop`: No operation.
 - `reserved`: Reserved (hard-coded) CLib functions which include service functions for
-    CLib storage (examples: `cabinetSize`, `parentHandle`) or functions that do not have
+    CLib storage (example: `cabinetSize`) or functions that do not have
     a C++ equivalent (example: `getCanteraError`).
 
 (sec-sourcegen-recipes)=

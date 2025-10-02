@@ -92,7 +92,7 @@ class HeaderGenerator:
             return obj_handle + cxx_member.arglist.params, cxx_member
 
         func_name = f"{recipe.prefix}_{recipe.name}"
-        reserved = ["cabinetSize", "parentHandle", "clearStorage", "resetStorage"]
+        reserved = ["cabinetSize", "resetStorage"]
         if recipe.name in reserved:
             loader = Environment(loader=BaseLoader)
             msg = f"   generating {func_name!r} -> {recipe.what}"
@@ -196,14 +196,6 @@ class HeaderGenerator:
                 msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."
                 _LOGGER.critical(msg)
                 exit(1)
-
-        elif recipe.what == "noop":
-            # No operation
-            msg = f"   generating {func_name!r} -> no-operation"
-            _LOGGER.debug(msg)
-            args = [Param("int32_t", "handle", f"Handle to {recipe.base} object.")]
-            brief = "No operation."
-            ret_param = Param("int32_t", "", "Always zero.")
 
         elif recipe.name == "new":
             # Default constructor

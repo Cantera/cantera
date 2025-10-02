@@ -8,7 +8,7 @@ base: Sim1D
 parents: [OneDim, SteadyStateSystem]  # List of parent classes
 recipes:
 - name: newSim1D
-  uses: [domain]
+  uses: domain
 - name: setValue
 - name: setProfile
 - name: setFlatProfile
@@ -22,7 +22,8 @@ recipes:
 - name: setGridMin
 - name: save
   wraps: save(const string&, const string&, const string&)
-# - name: restore  # TODO: requires AnyMap
+- name: restore
+  wraps: _restore  # skips AnyMap return (not implemented in CLib)
 - name: writeStats
 - name: domainIndex
 - name: value
@@ -32,6 +33,6 @@ recipes:
 - name: setMaxJacAge
   wraps: setJacAge
 - name: setFixedTemperature
+# service functions
 - name: del
 - name: cabinetSize
-- name: parentHandle

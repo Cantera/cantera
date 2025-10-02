@@ -19,6 +19,7 @@ recipes:
   uses: nPhases
   what: accessor
 - name: reactionPhase  # New in Cantera 3.2
+  what: accessor
 - name: phaseIndex
 - name: nTotalSpecies  # Renamed in Cantera 3.2 (previously nSpecies)
 - name: reactantStoichCoeff
@@ -47,8 +48,6 @@ recipes:
 - name: getDeltaSSEntropy  # Changed in Cantera 3.2 (previously part of getDelta)
 # - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
 # - name: start  # <--- unused except for FORTRAN API
+# service functions
 - name: del
-  what: noop
-  brief: Destructor; required by some APIs although object is managed by Solution.
 - name: cabinetSize
-- name: parentHandle

@@ -2,10 +2,10 @@
  *  @file HMW_graph_1.cpp
  */
 
-#include "TemperatureTable.h"
-
-#include "cantera/thermo.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/HMWSoln.h"
+
+#include "TemperatureTable.h"
 
 #include <cstdio>
 

@@ -1,7 +1,6 @@
-#include "cantera/thermo.h"
-#include "cantera/transport.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/transport/TransportFactory.h"
 #include "cantera/transport/DustyGasTransport.h"
-#include "cantera/base/utilities.h"
 #include <cstdio>
 
 using namespace std;

@@ -9,7 +9,6 @@ recipes:
 - name: version  # Renamed in Cantera 3.2 (previously getCanteraVersion)
 - name: gitCommit  # Renamed in Cantera 3.2 (previously getGitCommit)
 - name: addDataDirectory
-  wraps: addDirectory  # TODO: Make API consistent (deprecate C++ version)
 - name: getDataDirectories
 - name: findInputFile
 - name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
@@ -58,5 +57,4 @@ recipes:
     return 0;
 - name: writeLog
   wraps: writelog_direct  # inconsistent API (preexisting)
-- name: clearStorage
 - name: resetStorage

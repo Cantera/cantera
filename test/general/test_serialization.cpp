@@ -2,11 +2,11 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "gtest/gtest.h"
+#include "cantera/core.h"
 #include "cantera/base/YamlWriter.h"
-#include "cantera/thermo.h"
-#include "cantera/thermo/SurfPhase.h"
-#include "cantera/base/Solution.h"
-#include "cantera/kinetics.h"
+#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportData.h"
 #include "cantera/base/Storage.h"
 #include <fstream>

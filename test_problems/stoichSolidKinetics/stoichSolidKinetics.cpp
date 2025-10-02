@@ -1,7 +1,4 @@
-#include "cantera/thermo.h"
-#include "cantera/kinetics.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/base/Interface.h"
+#include "cantera/core.h"
 
 #include <iomanip>
 #include <sstream>

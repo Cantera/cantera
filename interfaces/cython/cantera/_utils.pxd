@@ -72,7 +72,7 @@ cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
 
 
 cdef extern from "cantera/base/global.h" namespace "Cantera":
-    cdef void CxxAddDirectory "Cantera::addDirectory" (string)
+    cdef void CxxAddDataDirectory "Cantera::addDataDirectory" (string)
     cdef string CxxGetDataDirectories "Cantera::getDataDirectories" (string)
     cdef void CxxAppdelete "Cantera::appdelete" ()
     cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()

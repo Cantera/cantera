@@ -5,14 +5,14 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef __CLIB_UTILS_H__
-#define __CLIB_UTILS_H__
+#ifndef CLIB_UTILS_H
+#define CLIB_UTILS_H
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera_clib/clib_defs.h"
 
 #include "application.h"
-#include "../clib/Cabinet.h"  // File needs to be moved
+#include "Cabinet.h"
 #include <iostream>
 
 

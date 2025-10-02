@@ -45,6 +45,6 @@ recipes:
 - name: volume
 - name: speciesPhaseIndex
 - name: moleFraction
+# service functions
 - name: del
 - name: cabinetSize
-- name: parentHandle

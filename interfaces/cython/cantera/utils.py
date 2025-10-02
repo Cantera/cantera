@@ -4,7 +4,7 @@
 import os
 import inspect as _inspect
 
-from ._utils import add_directory
+from ._utils import add_data_directory
 from .composite import Solution
 
 def import_phases(filename, phase_names):
@@ -20,4 +20,4 @@ def add_module_directory():
     Add the directory containing the module from which this function is called
     to the Cantera input file search path.
     """
-    add_directory(os.path.dirname(os.path.abspath(_inspect.stack()[1][1])))
+    add_data_directory(os.path.dirname(os.path.abspath(_inspect.stack()[1][1])))

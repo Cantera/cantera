@@ -12,7 +12,9 @@
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/Transport.h"
 
 #endif

@@ -24,6 +24,6 @@ recipes:
 - name: derivative
   what: accessor
 - name: write
+# service functions
 - name: del
-  what: destructor
 - name: cabinetSize

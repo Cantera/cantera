@@ -47,6 +47,6 @@ recipes:
 - name: setFixedTempProfile
 - name: solveEnergyEqn
 - name: enableCoverageEquations  # Renamed in Cantera 3.2 (previously enableCoverageEqs)
+# service functions
 - name: del
 - name: cabinetSize
-- name: parentHandle

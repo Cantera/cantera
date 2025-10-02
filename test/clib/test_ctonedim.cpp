@@ -200,4 +200,7 @@ TEST(ctonedim, freeflame)
         ASSERT_GE(T + 1e-3, Tprev);
         Tprev = T;
     }
+
+    ret = sim1D_restore(flame, "gtest-freeflame.yaml", "clib");
+    ASSERT_EQ(ret, 0);
 }

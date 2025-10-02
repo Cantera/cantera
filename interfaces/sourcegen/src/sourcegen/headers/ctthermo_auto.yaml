@@ -139,8 +139,6 @@ recipes:
     bool show = (showThermo != 0);
     writelog(ThermoPhaseCabinet::at(handle)->report(show, threshold));
     return 0;
+# service functions
 - name: del
-  what: noop
-  brief: Destructor; required by some APIs although object is managed by Solution.
 - name: cabinetSize
-- name: parentHandle
