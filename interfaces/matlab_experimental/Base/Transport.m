@@ -47,8 +47,8 @@ classdef Transport < handle
                 error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            tr.trID = ctFunc('soln_transport', id);
-            tr.th = ctFunc('soln_thermo', id);
+            tr.trID = ctFunc('sol_transport', id);
+            tr.th = ctFunc('sol_thermo', id);
         end
 
         %% Transport Get Methods
@@ -77,7 +77,7 @@ classdef Transport < handle
 
         function v = get.binDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            v = ctArray('trans_getBinDiffCoeffs', [nsp, nsp], tr.trID);
+            v = ctArray('trans_getBinaryDiffCoeffs', [nsp, nsp], tr.trID);
         end
 
         function v = get.multiDiffCoeffs(tr)
