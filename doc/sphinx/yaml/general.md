@@ -63,7 +63,7 @@ Supported compound units are:
   `cal/mol`, etc.), or any unit of energy (such as `eV`)
 - Force: `N`, `dyn`
 - Pressure: `Pa`, `atm`, `bar`, `dyn/cm^2`
-- Volume: `m^3`, `liter`, `L`, `l`, `cc`
+- Volume: `m^3`, `m³`, `liter`, `L`, `l`, `cc`
 - Other electrical units: `ohm`, `V`, `coulomb`
 
 Units can be specified on individual input values by placing them after the value,

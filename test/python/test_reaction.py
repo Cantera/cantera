@@ -1911,6 +1911,18 @@ class TestExtensible3:
         assert rxn.rate.length == 2
         assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
+    def test_explicit_unicode_units(self):
+        rxn = """
+        equation: H2 + OH = H2O + H
+        type: user-rate-2
+        A: 1000 cm³/kmol/s
+        L: 200 cm
+        Ea: 1000
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
+        assert rxn.rate.length == 2
+        assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
+
     def test_implicit_units(self):
         rxn = """
         equation: H2 + OH = H2O + H

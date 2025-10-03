@@ -12,9 +12,12 @@ TEST(Units, from_string) {
     EXPECT_EQ(Units("kg").str(), "kg");
     EXPECT_EQ(Units("1.0 kg^0.5").str(), "kg^0.5");
     EXPECT_EQ(Units("kg / m^3").str(), "kg / m^3");
+    EXPECT_EQ(Units("kg / m³").str(), "kg / m^3");
     EXPECT_EQ(Units("1 / s").str(), "1 / s");
     EXPECT_EQ(Units("0.001 m^3").factor(), 0.001);
+    EXPECT_EQ(Units("0.001 m³").factor(), 0.001);
     EXPECT_EQ(Units("0.001 m^3").str(), "0.001 m^3");
+    EXPECT_EQ(Units("0.001 m³").str(), "0.001 m^3");
 }
 
 TEST(Units, from_string_long) {
@@ -24,6 +27,7 @@ TEST(Units, from_string_long) {
     EXPECT_EQ(Units("kg").str(false), "1.0 kg");
     EXPECT_EQ(Units("1.0 kg^0.5").str(false), "1.0 kg^0.5");
     EXPECT_EQ(Units("kg / m^3").str(false), "1.0 kg / m^3");
+    EXPECT_EQ(Units("kg / m³").str(false), "1.0 kg / m^3");
 }
 
 TEST(Units, from_string_fail) {
@@ -33,6 +37,7 @@ TEST(Units, from_string_fail) {
     EXPECT_THROW(Units("1 bar", true), CanteraError);
     EXPECT_THROW(Units("1 kJ", true), CanteraError);
     EXPECT_THROW(Units("0.001 m^3", true), CanteraError);
+    EXPECT_THROW(Units("0.001 m³", true), CanteraError);
 }
 
 TEST(Units, convert_to_base_units) {
@@ -76,6 +81,7 @@ TEST(Units, with_defaults1) {
     UnitSystem U({"cm", "g", "mol", "atm", "kcal"});
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "m"), 0.01);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m^3"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m³"), 1000);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kg/kmol"), 1.0);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "cm^2"), 1.0);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 101325);
@@ -102,6 +108,7 @@ TEST(Units, with_defaults_map) {
     U.setDefaults(defaults);
     EXPECT_DOUBLE_EQ(U.convertFrom(0.01, "m"), 1.0);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m^3"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m³"), 1000);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kg/kmol"), 1.0);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "cm^2"), 1.0);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 101325);
@@ -189,8 +196,10 @@ TEST(Units, from_anymap) {
     EXPECT_DOUBLE_EQ(m.convert("v", "cm/min"), 1.0);
     EXPECT_DOUBLE_EQ(m.convert("A", "mm^2"), 100);
     EXPECT_DOUBLE_EQ(m.convert("V", "m^3"), 1e-9);
+    EXPECT_DOUBLE_EQ(m.convert("V", "m³"), 1e-9);
     auto k1 = m["k1"].asVector<AnyValue>();
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
+    EXPECT_DOUBLE_EQ(U.convert(k1[0], "m³/kmol"), 1e-9*5e2);
     EXPECT_DOUBLE_EQ(U.convertActivationEnergy(k1[2], "J/kmol"), 29000);
 
     // calling applyUnits again should not affect results
@@ -198,6 +207,7 @@ TEST(Units, from_anymap) {
     m.applyUnits();
     EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
+    EXPECT_DOUBLE_EQ(U.convert(k1[0], "m³/kmol"), 1e-9*5e2);
 }
 
 TEST(Units, from_anymap_default) {
@@ -235,6 +245,7 @@ TEST(Units, to_anymap) {
     AnyMap m;
     m["h0"].setQuantity(90, "kJ/kg");
     m["density"].setQuantity({10, 20}, "kg/m^3");
+    m["density"].setQuantity({10, 20}, "kg/m³");
     m.setUnits(U);
     m.applyUnits();
     EXPECT_DOUBLE_EQ(m["h0"].asDouble(), 90e3 / 4184);
@@ -245,6 +256,7 @@ TEST(Units, anymap_quantities) {
     AnyMap m;
     vector<AnyValue> values(2);
     values[0].setQuantity(8, "kg/m^3");
+    values[0].setQuantity(8, "kg/m³");
     values[1].setQuantity(12, "mg/cl");
     m["a"] = values;
     values.emplace_back("hello");

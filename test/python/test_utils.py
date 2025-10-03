@@ -78,7 +78,9 @@ class TestUnitSystem:
     def test_convert_rate_coeff(self):
         system = ct.UnitSystem({"length": "cm"})
         assert system.convert_rate_coeff_to(11, ct.Units("m^3/kmol/s")) == approx(11e-6)
+        assert system.convert_rate_coeff_to(11, ct.Units("m³/kmol/s")) == approx(11e-6)
         assert system.convert_rate_coeff_to("22 m^3/mol/s", "m^3/kmol/s") == approx(22e3)
+        assert system.convert_rate_coeff_to("22 m³/mol/s", "m³/kmol/s") == approx(22e3)
 
     def test_convert_to_custom(self):
         system = ct.UnitSystem({"length": "cm", "mass": "g"})
@@ -120,6 +122,7 @@ class TestUnitSystem:
         system = ct.UnitSystem({"length": "cm"})
         x = [("3000 mm^3/kmol/s", 4), (0.5, 2.0), 1.0]
         x_m = system.convert_rate_coeff_to(x, ct.Units("m^3/kmol/s"))
+        x_m = system.convert_rate_coeff_to(x, ct.Units("m³/kmol/s"))
         assert x_m[0][0] == approx(3000 / 1e9)
         assert x_m[1][1] == approx(2 / 1e6)
         assert x_m[2] == approx(1e-6)
@@ -141,6 +144,9 @@ class TestUnitSystem:
         with pytest.raises(ct.CanteraError):
             system.convert_activation_energy_to(4, "m^3/s")
 
+        with pytest.raises(ct.CanteraError):
+            system.convert_activation_energy_to(4, "m³/s")
+
         with pytest.raises(TypeError):
             system.convert_activation_energy_to(5, True)
 
@@ -152,6 +158,9 @@ class TestUnitSystem:
 
         with pytest.raises(TypeError):
             system.convert_rate_coeff_to(11, ["m^3"])
+
+        with pytest.raises(TypeError):
+            system.convert_rate_coeff_to(11, ["m³"])
 
         with pytest.raises(TypeError):
             system.convert_rate_coeff_to({"spam": 13}, "m^6/kmol^2/s")
@@ -301,6 +310,7 @@ class TestAnyMap:
         params = ct.AnyMap()
         params.set_quantity('spam', [2, 3, 4], 'Gg')
         params.set_quantity('eggs', 10, ct.Units('kg/m^3'))
+        params.set_quantity('eggs', 10, ct.Units('kg/m³'))
         params.set_activation_energy('beans', 5, 'K')
 
         converted = _py_to_anymap_to_py(params)
