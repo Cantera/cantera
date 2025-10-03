@@ -29,30 +29,13 @@ function ctEditLibraryDefinitions(fileDir)
         if any(contains(blockLines, '<SHAPE>'))
             for j = 3:numel(blockLines)
                 if contains(blockLines(j), '<SHAPE>')
-                    k = j - 1;
-                    shape = '';
-
-                    if (~contains(blockLines(k-1), 'defineArgument') && ...
-                        ~contains(blockLines(j), '.Char') && ...
-                        contains(blockLines(k), 'int32')) || ...
-                        contains(blockLines(k), 'clib.array') || ...
-                        contains(blockLines(k), 'double')
-                        % Resolve edge cases
-                        shape = '2';
-                    elseif any(contains(blockLines, 'trans_getMultiDiffCoeffsDefinition')) || ...
-                           any(contains(blockLines, 'trans_getBinDiffCoeffsDefinition')) && ...
-                           contains(blockLines(j), '"d"')
-                            shape = '["ld","ld"]';
+                    % Use name of preceding scalar variable
+                    tokens = regexp(blockLines(j-1), '"(\w+)"', 'tokens', 'once');
+                    if ~isempty(tokens)
+                        shape = ['"' tokens{1} '"'];
                     else
-                        % Use name of preceding scalar variable
-                        tokens = regexp(blockLines(k), '"(\w+)"', 'tokens', 'once');
-                        if ~isempty(tokens)
-                            shape = ['"' tokens{1} '"'];
-                        else
-                            shape = '1';
-                        end
+                        shape = '1';
                     end
-
                     % Replace <SHAPE> with determined value
                     blockLines(j) = replace(blockLines(j), '<SHAPE>', shape);
                 end
