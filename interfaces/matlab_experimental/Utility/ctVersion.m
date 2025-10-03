@@ -6,5 +6,5 @@ function v = ctVersion()
     % :return:
     %     A string containing the Cantera version.
 
-    v = ctString('ct_getCanteraVersion');
+    v = ctString('ct_version');
 end
