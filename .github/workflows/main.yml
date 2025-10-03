@@ -246,17 +246,13 @@ jobs:
         macos-version: ['macos-14', 'macos-15']
         python-version: ['3.12', '3.13']
         include:
-          - macos-version: 'macos-13'
-            python-version: '3.11'
-          - macos-version: 'macos-13'
-            python-version: '3.12'
-          # - macos-version: 'macos-13'
-          #   python-version: '3.13.4'
           - macos-version: 'macos-14'
             python-version: '3.10'
             extra-build-args: cxx_flags='-std=c++20'
           - macos-version: 'macos-15'
             python-version: '3.11'
+          # - macos-version: 'macos-15-intel'
+          #   python-version: '3.1x'  # sporadic failures: tracked in post-merge-tests
       fail-fast: false
     steps:
     - uses: actions/checkout@v5
@@ -296,13 +292,13 @@ jobs:
     - name: Rebuild Cantera with generated CLib
       run: |
         scons build clib_legacy=n -j3
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
     - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
     - name: Upload shared library
       uses: actions/upload-artifact@v4
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
       with:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
@@ -1024,7 +1020,7 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-13]
+        os: [ubuntu-22.04, windows-2022, macos-14]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
@@ -1034,18 +1030,18 @@ jobs:
       name: Checkout the repository
       with:
         persist-credentials: false
-    - name: Override default Python (Windows)
-      # Other operating systems use default system Python 3
+    - name: Set Python version (Windows)
       uses: actions/setup-python@v6
       with:
         python-version: "3.10"
         architecture: x64
       if: matrix.os == 'windows-2022'
-    - name: Install Python dependencies
-      # Install Python dependencies, which are used by 'dotnet build'
-      run: |
-        python3 -m pip install --upgrade pip setuptools wheel build
-        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
+    - name: Set Python version (macOS)
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+      if: matrix.os == 'macos-14'
+      # Ubuntu uses default system Python 3
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
       with:
@@ -1059,12 +1055,17 @@ jobs:
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
       run: brew install --display-times hdf5
-      if: matrix.os == 'macos-13'
+      if: matrix.os == 'macos-14'
     - name: Install Apt dependencies (Ubuntu)
       run: |
         sudo apt update
         sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
       if: matrix.os == 'ubuntu-22.04'
+    - name: Install Python dependencies
+      # Install Python dependencies, which are used by 'dotnet build'
+      run: |
+        python3 -m pip install --upgrade pip setuptools wheel build
+        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v5
       with:
