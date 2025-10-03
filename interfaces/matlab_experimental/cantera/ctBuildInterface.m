@@ -1,4 +1,4 @@
-function ctBuildInterface(ctDir, includeDir, ctLibDir)
+function ctBuildInterface(ctDir, ctIncludeDir, ctGeneratedClibDir, ctLibDir)
     % Build the Cantera MATLAB C++ interface.
     % ctBuildInterface(ctDir, includeDir, ctLibDir) generates and compiles
     % the MATLAB interface for Cantera from the provided header files and a
@@ -16,22 +16,24 @@ function ctBuildInterface(ctDir, includeDir, ctLibDir)
     %   5. Copies runtime dependencies and saves the updated path.
     %
     % Input arguments:
-    %   ctDir      - Root directory of the Cantera source tree.
-    %   includeDir - Path to the Cantera include directory containing the
-    %                cantera clib header files.
-    %   ctLibDir   - Path to the compiled Cantera library directory.
+    %   ctDir              - Root directory of the Cantera source tree.
+    %   ctIncludeDir       - Path to the Cantera include directory.
+    %   ctGeneratedClibDir - Path to the generated Cantera clib header files.
+    %   ctLibDir           - Path to the compiled Cantera library.
 
     ctDir = string(ctDir);
-    includeDir = string(includeDir);
+    ctIncludeDir = string(ctIncludeDir);
+    ctGeneratedClibDir = string(ctGeneratedClibDir);
     ctLibDir = string(ctLibDir);
-    headerDir = includeDir + "/cantera/clib";
+    headerDir = ctGeneratedClibDir;
+    includeDir = [ctGeneratedClibDir, ctIncludeDir];
     outputDir = ctDir + "/interfaces/matlab_experimental/cantera";
 
     % Display the paths (Optional step, for debugging)
     disp("Paths used in the build process:");
     disp("Cantera Root: " + ctDir);
-    disp("Include Directory: " + includeDir);
-    disp("Header Directory: "+ headerDir);
+    disp("Header Directory: " + headerDir);
+    disp("Include Directory: " + strjoin(includeDir, ", "));
     disp("Cantera Library: " + ctLibDir);
     disp("Output Folder: " + outputDir);
 
