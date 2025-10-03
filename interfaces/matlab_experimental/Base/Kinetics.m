@@ -102,7 +102,7 @@ classdef Kinetics < handle
                 error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            kin.kinID = ctFunc('soln_kinetics', id);
+            kin.kinID = ctFunc('sol_kinetics', id);
         end
 
         %% Get scalar attributes
@@ -142,7 +142,7 @@ classdef Kinetics < handle
         end
 
         function n = get.nTotalSpecies(kin)
-            n = ctFunc('kin_nSpecies', kin.kinID);
+            n = ctFunc('kin_nTotalSpecies', kin.kinID);
         end
 
         function n = phaseIndex(kin, phase)
@@ -161,14 +161,14 @@ classdef Kinetics < handle
         function rxn = reactionEquation(kin, irxn)
             % Reaction equation of a reaction. ::
             %
-            %   >> rxn = kin.reactionEqn(irxn)
+            %   >> rxn = kin.reactionEquation(irxn)
             %
             % :param irxn:
             %    Integer index of the reaction.
             % :return:
             %    String reaction equation.
-
-            rxn = ctString('kin_getReactionString', kin.kinID, irxn - 1);
+            r = ctFunc('kin_reaction', kin.kinID, irxn - 1);
+            rxn = ctString('rxn_equation', r);
         end
 
         %% Get reaction array attributes
@@ -405,32 +405,32 @@ classdef Kinetics < handle
 
         function enthalpy = get.deltaEnthalpy(kin)
             nr = kin.nReactions;
-            enthalpy = ctArray('kin_getDelta', nr, kin.kinID, 0);
+            enthalpy = ctArray('kin_getDeltaEnthalpy', nr, kin.kinID);
         end
 
         function enthalpy = get.deltaStandardEnthalpy(kin)
             nr = kin.nReactions;
-            enthalpy = ctArray('kin_getDelta', nr, kin.kinID, 3);
+            enthalpy = ctArray('kin_getDeltaSSEnthalpy', nr, kin.kinID);
         end
 
         function entropy = get.deltaEntropy(kin)
             nr = kin.nReactions;
-            entropy = ctArray('kin_getDelta', nr, kin.kinID, 2);
+            entropy = ctArray('kin_getDeltaEntropy', nr, kin.kinID);
         end
 
         function entropy = get.deltaStandardEntropy(kin)
             nr = kin.nReactions;
-            entropy = ctArray('kin_getDelta', nr, kin.kinID, 5);
+            entropy = ctArray('kin_getDeltaSSEntropy', nr, kin.kinID);
         end
 
         function gibbs = get.deltaGibbs(kin)
             nr = kin.nReactions;
-            gibbs = ctArray('kin_getDelta', nr, kin.kinID, 1);
+            gibbs = ctArray('kin_getDeltaGibbs', nr, kin.kinID);
         end
 
         function gibbs = get.deltaStandardGibbs(kin)
             nr = kin.nReactions;
-            gibbs = ctArray('kin_getDelta', nr, kin.kinID, 4);
+            gibbs = ctArray('kin_getDeltaSSGibbs', nr, kin.kinID);
         end
 
         function k = get.equilibriumConstants(kin)
@@ -445,7 +445,12 @@ classdef Kinetics < handle
 
         function k = get.reverseRateConstants(kin)
             nr = kin.nReactions;
-            k = ctArray('kin_getRevRateConstants', nr, kin.kinID, 0);
+            buf = clib.array.ctMatlab.Double(nr);
+            iok = ctFunc('kin_getRevRateConstants', kin.kinID, buf, 0);
+            if iok ~= 0
+                error('Cantera:ctError', ctGetErr);
+            end
+            k = buf.double;
         end
 
         function ydot = get.massProdRate(kin)

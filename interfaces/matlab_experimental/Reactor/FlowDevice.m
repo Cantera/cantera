@@ -72,7 +72,7 @@ classdef FlowDevice < Connector
         %% FlowDevice Get Methods
 
         function mdot = get.massFlowRate(f)
-            mdot = ctFunc('flowdev_massFlowRate2', f.id);
+            mdot = ctFunc('flowdev_massFlowRate', f.id);
         end
 
         %% FlowDevice Set Methods
@@ -81,12 +81,13 @@ classdef FlowDevice < Connector
 
             if strcmp(f.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    k = ctFunc('flowdev_setMassFlowCoeff', f.id, mdot);
+                    func = Func1('constant', mdot);
                 elseif isa(mdot, 'Func1')
-                    k = ctFunc('flowdev_setTimeFunction', f.id, mdot.id);
+                    func = mdot;
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
+                k = ctFunc('flowdev_setTimeFunction', f.id, func.id);
             else
                 error('Mass flow rate can only be set for mass flow controllers.');
             end
