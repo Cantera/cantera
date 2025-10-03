@@ -45,5 +45,7 @@ function ctBuildInterface(ctDir, ctIncludeDir, ctGeneratedClibDir, ctLibDir)
     build(libDef);
     addpath(fullfile(libDef.OutputFolder,libDef.InterfaceName));
     libDef.copyRuntimeDependencies(Verbose=true);
+    delete(fullfile(outputDir, 'definectMatlab.m'));
+    delete(fullfile(outputDir, 'ctMatlabData.xml'));
     savepath;
 end
