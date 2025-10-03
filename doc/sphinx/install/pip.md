@@ -120,7 +120,7 @@ You should get the following output:
 
       temperature   300 K
          pressure   1.0133e+05 Pa
-          density   0.081894 kg/m^3
+          density   0.081894 kg/m³
  mean mol. weight   2.016 kg/kmol
   phase of matter   gas
 

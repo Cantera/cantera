@@ -381,7 +381,7 @@ phases:
 - name: my-other-phase
   ...
   state:
-    density: 100 kg/m^3
+    density: 100 kg/m³
     T: 298
     Y:
       CH4: 0.2

@@ -178,7 +178,7 @@ that is required is to write the units after the value, separated by a space:
 pressure: 1.0e5  # default is Pascals
 pressure: 1.0 bar  # this is equivalent
 density: 4.0 g/cm^3
-density: 4000.0  # kg/m^3
+density: 4000.0  # kg/m³
 ```
 
 Compound unit strings may be used, as long as a few rules are followed:
@@ -213,7 +213,7 @@ mappings:
 units: {length: cm, mass: kg}
 section1:
   units: {length: m}
-  density: 4000  # interpreted as 4000 kg/m^3
+  density: 4000  # interpreted as 4000 kg/m³
 section2:
   density: 0.1  # interpreted as 0.1 kg/cm^3
 section3:
