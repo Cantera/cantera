@@ -130,7 +130,7 @@ public:
      *  Check whether SolutionArray contains a component.
      *  A component is a property defining state or auxiliary variable.
      */
-    bool hasComponent(const string& name) const;
+    bool hasComponent(const string& name, bool checkAlias=true) const;
 
     /**
      *  Retrieve a component of the SolutionArray by name.

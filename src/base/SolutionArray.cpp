@@ -664,7 +664,7 @@ vector<string> SolutionArray::listExtra(bool all) const
     return names;
 }
 
-bool SolutionArray::hasComponent(const string& name) const
+bool SolutionArray::hasComponent(const string& name, bool checkAlias) const
 {
     if (m_extra->count(name)) {
         // auxiliary data
@@ -678,7 +678,7 @@ bool SolutionArray::hasComponent(const string& name) const
         // reserved names
         return false;
     }
-    if (reverseAliasMap.count(name)) {
+    if (checkAlias && reverseAliasMap.count(name)) {
         // registered alias
         return true;
     }
@@ -1821,13 +1821,17 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         const auto& components = m_meta["components"].asVector<string>();
         bool back = false;
         for (const auto& name : components) {
-            if (hasComponent(name) || name == "X" || name == "Y") {
+            if (hasComponent(name, false) || name == "X" || name == "Y") {
                 back = true;
             } else {
-                addExtra(name, back);
+                auto _name = name;
+                if (reverseAliasMap.count(name)) {
+                    _name = reverseAliasMap.at(name);
+                }
+                addExtra(_name, back);
                 AnyValue data;
                 data = file.readData(path, name, m_dataSize);
-                setComponent(name, data);
+                setComponent(_name, data);
             }
         }
         m_meta.erase("components");
@@ -1835,11 +1839,15 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         // data format used by Python h5py export (Cantera 2.5)
         warn_user("SolutionArray::readEntry", "Detected legacy HDF format.");
         for (const auto& name : names) {
-            if (!hasComponent(name) && name != "X" && name != "Y") {
-                addExtra(name);
+            if (!hasComponent(name, false) && name != "X" && name != "Y") {
+                auto _name = name;
+                if (reverseAliasMap.count(name)) {
+                    _name = reverseAliasMap.at(name);
+                }
+                addExtra(_name);
                 AnyValue data;
                 data = file.readData(path, name, m_dataSize);
-                setComponent(name, data);
+                setComponent(_name, data);
             }
         }
     }
@@ -1930,12 +1938,16 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
             const auto& components = path["components"].asVector<string>();
             bool back = false;
             for (const auto& name : components) {
-                if (hasComponent(name)) {
+                auto _name = name;
+                if (hasComponent(name, false)) {
                     back = true;
                 } else {
-                    addExtra(name, back);
+                    if (reverseAliasMap.count(name)) {
+                        _name = reverseAliasMap.at(name);
+                    }
+                    addExtra(_name, back);
                 }
-                setComponent(name, path[name]);
+                setComponent(_name, path[name]);
                 exclude.insert(name);
             }
         } else {
@@ -1944,10 +1956,14 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
                 if (value.isVector<double>()) {
                     const vector<double>& data = value.asVector<double>();
                     if (data.size() == m_dataSize) {
-                        if (!hasComponent(name)) {
-                            addExtra(name);
+                        auto _name = name;
+                        if (!hasComponent(name, false)) {
+                            if (reverseAliasMap.count(name)) {
+                                _name = reverseAliasMap.at(name);
+                            }
+                            addExtra(_name);
                         }
-                        setComponent(name, value);
+                        setComponent(_name, value);
                         exclude.insert(name);
                     }
                 }
