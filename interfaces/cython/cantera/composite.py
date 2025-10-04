@@ -677,6 +677,9 @@ class SolutionArray(SolutionArrayBase):
         return out
 
     def __getattr__(self, name):
+        if (not self._has_component(name) and
+            self._has_component(name.replace("_", "-"))):
+            name = name.replace("_", "-")
         if self._has_component(name):
             out = self._get_component(name)
             out.setflags(write=False)
@@ -688,6 +691,9 @@ class SolutionArray(SolutionArrayBase):
                 f"{self.__class__.__name__!r} object has no attribute '{name}'")
 
     def __setattr__(self, name, value):
+        if (not self._has_component(name) and
+            self._has_component(name.replace("_", "-"))):
+            name = name.replace("_", "-")
         if self._has_extra(name):
             if not self.shape:
                 # scalar
