@@ -1036,6 +1036,14 @@ class TestDiffusionFlame:
         assert self.sim.energy_enabled
         assert self.sim.transport_model == 'mixture-averaged'
 
+        arr = self.sim.to_array()
+        radial_lambda = np.unique(arr.Lambda)
+        assert len(radial_lambda) == 1
+        assert getattr(arr, "lambda")[0] == radial_lambda[0]
+        assert arr.L[0] == radial_lambda[0]
+        assert arr.radial_pressure_gradient[0] == radial_lambda[0]
+        assert getattr(arr, "radial-pressure-gradient")[0] == radial_lambda[0]
+
     @pytest.mark.slow_test
     def test_mixture_averaged(self, request, test_data_path):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
@@ -1263,6 +1271,31 @@ class TestDiffusionFlame:
         sim.fuel_inlet.X = "H2: 1.0"
         sim.set_initial_guess()
 
+    def run_restore_lambda(self, fname):
+        gas = ct.Solution("h2o2.yaml")
+        sim = ct.CounterflowDiffusionFlame(gas)
+        sim.restore(fname)
+        assert np.isclose(np.unique(sim.L)[0], -90257.82873678)
+
+        arr = ct.SolutionArray(gas)
+        arr.restore(fname, "solution/flame")
+
+        radial_lambda = np.unique(arr.Lambda)
+        assert len(radial_lambda) == 1
+        assert radial_lambda[0] == pytest.approx(-90257.82873678)
+        assert getattr(arr, "lambda")[0] == radial_lambda[0]
+        assert arr.L[0] == radial_lambda[0]
+        assert arr.radial_pressure_gradient[0] == radial_lambda[0]
+        assert getattr(arr, "radial-pressure-gradient")[0] == radial_lambda[0]
+
+    def test_restore_lambda_yaml(self):
+        self.run_restore_lambda("flame_lambda.yaml")
+
+    @pytest.mark.skipif("native" not in ct.hdf_support(),
+                        reason="Cantera compiled without HDF support")
+    def test_restore_lambda_hdf(self):
+        self.run_restore_lambda("flame_lambda.h5")
+
     def test_two_point_control(self):
         """
         Computes a solution using a standard counterflow diffusion flame as a
@@ -1331,7 +1364,7 @@ class TestDiffusionFlame:
         sim.right_control_point_temperature += temperature_decrement
         sim.left_control_point_temperature += temperature_decrement
         sim.solve(loglevel=0, refine_grid=False)
-        assert sim.Uo == approx(sim.velocity[-1])
+        assert sim.oxidizer_velocity == approx(sim.velocity[-1])
         temperature_4 = sim.T
 
         # Check the difference between the un-perturbed two-point solution and the
@@ -1493,7 +1526,7 @@ class TestCounterflowPremixedFlame:
             sim.solve(loglevel=0, auto=True)
             assert all(sim.T >= T - 1e-3)
             assert all(sim.spread_rate >= -1e-9)
-            assert np.allclose(sim.L, sim.L[0])
+            assert np.allclose(sim.radial_pressure_gradient, sim.L[0])
             return sim
         return _run_case
 
@@ -2009,7 +2042,7 @@ class TestIonFreeFlame:
         # stage one
         assert self.sim.electric_field_enabled is False
         self.sim.solve(loglevel=0, auto=True)
-        assert max(np.abs(self.sim.E)) == approx(0.0, abs=1e-3)
+        assert max(np.abs(self.sim.electric_field)) == approx(0.0, abs=1e-3)
 
         #stage two
         self.sim.electric_field_enabled = True
