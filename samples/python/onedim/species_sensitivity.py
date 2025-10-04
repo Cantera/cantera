@@ -22,7 +22,6 @@ flame.inlet.mdot = 0.255 * gas.density
 flame.surface.T = 493.5
 flame.set_initial_guess("equil")
 
-
 # Refine grid to improve accuracy
 flame.set_refine_criteria(ratio=3, slope=0.025, curve=0.05)
 
@@ -46,25 +45,22 @@ sens = pd.DataFrame(index=gas.reaction_equations(), columns=["sensitivity"])
 # Use the adjoint method to calculate species sensitivities at a set distance in the flame domain
 distance = 0.02
 species = "N2O"
-sens.sensitivity = flame.get_species_reaction_sensitivities(species, distance)
+ix = np.argmin(np.abs(flame.grid - distance))
+sens.sensitivity = flame.get_species_reaction_sensitivities(species, ix)
 
 sens = sens.iloc[(-sens['sensitivity'].abs()).argsort()]
 fig, ax = plt.subplots()
 
 sens.head(15).plot.barh(ax=ax, legend=None)
 ax.invert_yaxis()  # put the largest sensitivity on top
-ax.set_title(f"Sensitivities for {species} Using the Nakamura mechanism")
+ax.set_title(f"Sensitivities for {species} Using the Adjoint-Based Method")
 ax.set_xlabel(r"Sensitivity: $\frac{\partial\:\ln X_{N2O}}{\partial\:\ln k}$")
 ax.grid(axis='x')
 plt.tight_layout()
 plt.show()
 
-
 # Forward sensitivities
 dk = 3e-4
-
-# get index in the grid at distance
-ix = np.argmin(np.abs(flame.grid - distance))
 
 Su0 = flame.X[gas.species_index(species), ix]
 fwd = []
@@ -83,7 +79,7 @@ fig, ax = plt.subplots()
 
 sens.head(15).plot.barh(ax=ax, legend=None)
 ax.invert_yaxis()  # put the largest sensitivity on top
-ax.set_title(f"Sensitivities for {species} Using Nakamura Mech")
+ax.set_title(f"Sensitivities for {species} Using Brute Force Method")
 ax.set_xlabel(r"Sensitivity: $\frac{\partial\:\ln X_{i}}{\partial\:\ln k}$")
 ax.grid(axis='x')
 plt.tight_layout()

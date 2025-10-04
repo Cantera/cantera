@@ -189,10 +189,10 @@ class FlameBase(Sim1D):
 
         n_vars = sum(dd.n_components * dd.n_points for dd in self.domains)
 
-        i_X = self.flame.component_index(species) + self.domains[1].n_components * ix
+        ix_domain = self.flame.component_index(species) + self.domains[1].n_components * ix
 
         dgdx = np.zeros(n_vars)
-        dgdx[i_X] = 1
+        dgdx[ix_domain] = 1
         X0 = g(self)
 
         def perturb(sim, i, dp):
