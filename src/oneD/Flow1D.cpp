@@ -984,6 +984,12 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }
+        } else if (name == "Lambda" && arr.hasComponent("lambda")) {
+            // edge case: 'lambda' is renamed to 'Lambda' in Cantera 3.2
+            const vector<double> data = arr.getComponent("lambda").as<vector<double>>();
+            for (size_t j = 0; j < nPoints(); j++) {
+                soln[index(i,j)] = data[j];
+            }
         } else {
             warn_user("Flow1D::fromArray", "Saved state does not contain values for "
                 "component '{}' in domain '{}'.", name, id());
