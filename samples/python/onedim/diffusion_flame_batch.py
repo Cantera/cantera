@@ -141,7 +141,7 @@ for p in p_range:
     f.set_profile('spread_rate', normalized_grid,
                   f.spread_rate * rel_pressure_increase ** exp_V_p)
     # Update pressure curvature
-    f.set_profile('lambda', normalized_grid,
+    f.set_profile("Lambda", normalized_grid,
                   f.L * rel_pressure_increase ** exp_lam_p)
 
     try:
@@ -196,7 +196,7 @@ while np.max(f.T) > temperature_limit_extinction:
     f.set_profile('spread_rate', normalized_grid,
                   f.spread_rate * strain_factor ** exp_V_a)
     # Update pressure curvature
-    f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
+    f.set_profile("Lambda", normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
         # Try solving the flame
         f.solve(loglevel=0)

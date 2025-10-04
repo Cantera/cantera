@@ -60,7 +60,7 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     setBounds(c_offset_U, -1e20, 1e20); // no bounds on u
     setBounds(c_offset_V, -1e20, 1e20); // no bounds on V
     setBounds(c_offset_T, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
-    setBounds(c_offset_L, -1e20, 1e20); // lambda should be negative
+    setBounds(c_offset_L, -1e20, 1e20); // Lambda should be negative
     setBounds(c_offset_E, -1e20, 1e20); // no bounds on electric field
     setBounds(c_offset_Uo, -1e20, 1e20); // no bounds on Uo
     // mass fraction bounds
@@ -118,6 +118,12 @@ Flow1D::~Flow1D()
     if (m_solution) {
         m_solution->removeChangedCallback(this);
     }
+}
+
+double Flow1D::lambda(const double* x, size_t j) const {
+    warn_deprecated("Flow1D::lambda",
+        "To be removed after Cantera 3.2. Component 'lambda' is renamed to 'Lambda'.");
+    return x[index(c_offset_L, j)];
 }
 
 string Flow1D::domainType() const {
@@ -546,7 +552,7 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
         for (size_t j = j0; j <= j1; j++) { // interior points
             // For "axisymmetric-flow", the continuity equation  propagates the
             // mass flow rate information to the left (j+1 -> j) from the value
-            // specified at the right boundary. The lambda information propagates
+            // specified at the right boundary. The Lambda information propagates
             // in the opposite direction.
             rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j]
                                         -(density(j+1)*V(x, j+1) + density(j)*V(x, j));
@@ -600,7 +606,7 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
-        rsd[index(c_offset_V, j)] = (shear(x, j) - lambda(x, j)
+        rsd[index(c_offset_V, j)] = (shear(x, j) - Lambda(x, j)
                                      - rho_u(x, j) * dVdz(x, j)
                                      - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j];
         if (!m_twoPointControl) {
@@ -617,7 +623,7 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
 {
     if (!m_usesLambda) { // disable this equation
         for (size_t j = jmin; j <= jmax; j++) {
-            rsd[index(c_offset_L, j)] = lambda(x, j);
+            rsd[index(c_offset_L, j)] = Lambda(x, j);
             diag[index(c_offset_L, j)] = 0;
         }
         return;
@@ -625,14 +631,14 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
 
     if (jmin == 0) { // left boundary
         if (m_twoPointControl) {
-            rsd[index(c_offset_L, jmin)] = lambda(x, jmin+1) - lambda(x, jmin);
+            rsd[index(c_offset_L, jmin)] = Lambda(x, jmin+1) - Lambda(x, jmin);
         } else {
             rsd[index(c_offset_L, jmin)] = -rho_u(x, jmin);
         }
     }
 
     if (jmax == m_points - 1) { // right boundary
-        rsd[index(c_offset_L, jmax)] = lambda(x, jmax) - lambda(x, jmax-1);
+        rsd[index(c_offset_L, jmax)] = Lambda(x, jmax) - Lambda(x, jmax-1);
         diag[index(c_offset_L, jmax)] = 0;
     }
 
@@ -644,12 +650,12 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
             if (z(j) == m_zLeft) {
                 rsd[index(c_offset_L, j)] = T(x,j) - m_tLeft;
             } else if (z(j) > m_zLeft) {
-                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
+                rsd[index(c_offset_L, j)] = Lambda(x, j) - Lambda(x, j-1);
             } else if (z(j) < m_zLeft) {
-                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j+1);
+                rsd[index(c_offset_L, j)] = Lambda(x, j) - Lambda(x, j+1);
             }
         } else {
-            rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
+            rsd[index(c_offset_L, j)] = Lambda(x, j) - Lambda(x, j-1);
         }
         diag[index(c_offset_L, j)] = 0;
     }
@@ -813,7 +819,7 @@ string Flow1D::componentName(size_t n) const
     case c_offset_T:
         return "T";
     case c_offset_L:
-        return "lambda";
+        return "Lambda";
     case c_offset_E:
         return "eField";
     case c_offset_Uo:
@@ -835,12 +841,16 @@ size_t Flow1D::componentIndex(const string& name) const
         return c_offset_V;
     } else if (name=="T") {
         return c_offset_T;
-    } else if (name=="lambda") {
+    } else if (name=="Lambda") {
         return c_offset_L;
     } else if (name == "eField") {
         return c_offset_E;
     } else if (name == "Uo") {
         return c_offset_Uo;
+    } else if (name=="lambda") {
+        warn_deprecated("Flow1D::componentIndex",
+            "Component 'lambda' is renamed to 'Lambda'.");
+        return c_offset_L;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
@@ -857,7 +867,7 @@ bool Flow1D::componentActive(size_t n) const
     switch (n) {
     case c_offset_V: // spread_rate
         return m_usesLambda;
-    case c_offset_L: // lambda
+    case c_offset_L: // Lambda
         return m_usesLambda;
     case c_offset_E: // eField
         return false;

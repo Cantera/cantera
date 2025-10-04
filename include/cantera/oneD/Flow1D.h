@@ -548,15 +548,15 @@ protected:
                               double rdt, size_t jmin, size_t jmax);
 
     /**
-     * Evaluate the lambda equation residual.
+     * Evaluate the radial pressure gradient equation residual.
      *
      * @f[
      *    \frac{d\Lambda}{dz} = 0
      * @f]
      *
-     * The lambda equation serves as an eigenvalue that allows the momentum
+     * The Lambda equation serves as an eigenvalue that allows the momentum
      * equation and continuity equations to be simultaneously satisfied in
-     * axisymmetric flows. The lambda equation propagates information from
+     * axisymmetric flows. The Lambda equation propagates information from
      * left-to-right. The default boundary condition is @f$ \Lambda = 0 @f$
      * at the left boundary. The equation is first order and so only one
      * boundary condition is needed.
@@ -571,7 +571,7 @@ protected:
      *
      * @f[
      *   \rho c_p u \frac{dT}{dz} =
-     *   \frac{d}{dz}\left( \lambda \frac{dT}{dz} \right)
+     *   \frac{d}{dz}\left( \Lambda \frac{dT}{dz} \right)
      *   - \sum_k h_kW_k\dot{\omega}_k
      *   - \sum_k  j_k \frac{dh_k}{dz}
      * @f]
@@ -674,7 +674,12 @@ protected:
 
     //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
     //! `x`
-    double lambda(const double* x, size_t j) const {
+    //! @deprecated To be removed after %Cantera 3.2. Renamed to Lambda().
+    double lambda(const double* x, size_t j) const;
+
+    //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
+    //! `x`
+    double Lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 

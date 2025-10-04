@@ -165,7 +165,7 @@ void Inlet1D::init()
         throw CanteraError("Inlet1D::init", "Inlet1D is not properly connected.");
     }
 
-    // components = u, V, T, lambda, + mass fractions
+    // components = u, V, T, Lambda, + mass fractions
     m_nsp = m_flow->phase().nSpecies();
     m_yin.resize(m_nsp, 0.0);
     if (m_xstr != "") {

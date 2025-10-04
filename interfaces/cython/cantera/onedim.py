@@ -292,9 +292,9 @@ class FlameBase(Sim1D):
     def L(self):
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
-        each point. Note: This value is named 'lambda' in the C++ code.
+        each point. Note: This value is named `Lambda` in the C++ code.
         """
-        return self.profile(self.flame, 'lambda')
+        return self.profile(self.flame, "Lambda")
 
     @property
     def E(self):
@@ -1047,7 +1047,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
         self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
-        self.set_profile("lambda", [0.0, 1.0], [L, L])
+        self.set_profile("Lambda", [0.0, 1.0], [L, L])
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
@@ -1455,7 +1455,7 @@ class CounterflowPremixedFlame(FlameBase):
 
         self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
-        self.set_profile("lambda", [0.0, 1.0], [L, L])
+        self.set_profile("Lambda", [0.0, 1.0], [L, L])
 
 
 class CounterflowTwinPremixedFlame(FlameBase):
@@ -1539,4 +1539,4 @@ class CounterflowTwinPremixedFlame(FlameBase):
 
         self.set_profile('velocity', [0.0, 1.0], [uu, 0])
         self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
-        self.set_profile("lambda", [0.0, 1.0], [L, L])
+        self.set_profile("Lambda", [0.0, 1.0], [L, L])
