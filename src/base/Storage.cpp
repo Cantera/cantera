@@ -7,6 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/global.h"
 #include "cantera/base/Storage.h"
 
 #if CT_USE_HDF5
@@ -59,7 +60,8 @@ Storage::Storage(string fname, bool write) : m_write(write)
     if (m_write) {
         m_file = make_unique<h5::File>(fname, h5::File::OpenOrCreate);
     } else {
-        m_file = make_unique<h5::File>(fname, h5::File::ReadOnly);
+        auto fullName = findInputFile(fname);
+        m_file = make_unique<h5::File>(fullName, h5::File::ReadOnly);
     }
 }
 
