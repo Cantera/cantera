@@ -1,10 +1,32 @@
 function ctUnload()
-    % Unload the Cantera C Library from the Memory
+    %UNLOAD Cantera C++ interface and clean up MATLAB side
 
-    if libisloaded(ctLib)
+    try
         ctCleanUp;
-        unloadlibrary(ctLib);
+    catch ME
+        warning("ctUnload:CleanupFailed", ...
+                "ctCleanUp failed (%s).", ME.message);
     end
 
-    disp('Cantera has been unloaded');
+    hasGlobalCt = evalin('base','exist("ct","var") && isa(ct,"clibConfiguration")');
+    if hasGlobalCt
+        global ct
+        try
+            ct.unload;
+            disp("Cantera has been unloaded");
+        catch ME
+            warning("ctUnload:UnloadFailed", ...
+                    "ct.unload failed (%s). Attempting fallback.", ME.message);
+        end
+        clear global ct
+    else
+        cfg = clibConfiguration("ctMatlab");
+        try
+            unload(cfg);
+            disp("Cantera has been unloaded");
+        catch ME
+            warning("ctUnload:UnloadFailed", ...
+                "unload(clibConfiguration) failed (%s).", ME.message);
+        end
+    end
 end

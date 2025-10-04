@@ -3,9 +3,8 @@ function ctCleanUp()
 
     ctIsLoaded;
 
-    classList = {'Domain1D', 'Sim1D', 'Func1', 'Kinetics', ...
-    'Interface', 'Mixture', 'Solution', 'FlowDevice', 'Reactor', ...
-    'Wall', 'ReactorNet', 'ReactorSurface', 'ThermoPhase', 'Transport'};
+    classList = {'Interface', 'Kinetics', 'Mixture', 'ThermoPhase', 'Transport', ...
+                 'Solution', 'Func1', 'Domain1D', 'Connector', 'Reactor', 'ReactorNet'};
 
     varList = evalin('base', 'whos');
 

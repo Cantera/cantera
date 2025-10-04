@@ -1,40 +1,113 @@
 # Experimental MATLAB Toolbox for Cantera
-This experimental Matlab Toolbox for Cantera changes the Matlab interface to the modern
-Matlab structure and syntaxes for OOP. It replaces the MEX interface with direct
-function calling from Cantera CLib.
 
-## Installation guide:
+The MATLAB Cantera interface has been fully modernized to improve usability,
+performance, and maintainability. The legacy toolbox has been replaced with
+a fully object-oriented structure, providing MATLAB classes that directly map to
+Cantera objects and functions.
 
-1. Install Matlab (any release newer than R2008a), then choose one of the following
-   methods to obtain the Cantera CLib and header files for the toolbox:
-2. Compile Cantera from Source and install in your Conda environment, as directed in
-   this link: https://cantera.org/stable/develop/index.html. OR
-3. Install the Cantera development interface, as instructed in this link:
-   https://cantera.org/stable/install/conda.html#development-c-fortran-90-interface.
-4. For first time users, launch Matlab, then navigate to the path to the MATLAB toolbox
-   using "Browse for Folder" and add it (along with subfolders) to MATLAB's search path.
-   - If you pulled Cantera source code from Github, this path should be
-   `/path/to/cantera/interfaces/matlab_experimental`;
-5. For Linux users: Matlab currently uses Intel MKL which uses 64-bit integer types
-   that are incompatible with the standard 32-bit integers used by the default version
-   of OpenBLAS that comes with Cantera. As such, the correct environment variables
-   need to be set to launch Matlab with the correct BLAS/LAPACK libraries loaded:
-   `export LD_PRELOAD=/path/to/openblas/library:/path/to/lapack/library`
-   then, launch Matlab in the terminal with:
-   `matlab -softwareopengl`.
-6. Run the built-in Utility function `ctPaths('Set', envPath)` to set search paths
-   for the Toolbox:
-   - `envPath`: this is the location of the Conda environment where the CLib and header
-   files are located.
+---
 
-## Usage guide:
+## Installation Guide
 
-1. To start using the experimental toolbox, run `ctLoad` command.
-2. Refer to examples in `/samples/matlab_experimental` in your
-   Cantera source code directory.
-3. To run the unit test suite, navigate to `/test/matlab_experimental`,
-   then run the script `runMatlabInterfaceTests.m`.
-4. To stop using the new Cantera interface, run the following commands:
-   `ctCleanUp`
-   `ctUnload`.
-5. To remove the Cantera paths from MATLAB preferences, run `ctPaths('Unset')`.
+### Prerequisites
+
+1. **MATLAB** (R2022a or later)
+2. **MATLAB-compatible C++ compiler**. Refer to the [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html) list.
+3. **Conda package manager**
+
+---
+
+### Installation Steps
+
+1. **Download the MATLAB Cantera toolbox**
+
+   * Pull Cantera source code from [GitHub](https://github.com/Cantera/cantera)
+
+2. **Obtain Cantera library and header files**
+
+   * **Compile from source** and install in your Conda environment by following
+   instructions: [Cantera Source Install](https://cantera.org/stable/develop/index.html)
+   Note that the [`clib_legacy` configuration flag](https://cantera.org/3.1/develop/compiling/config-options.html) must be set to `true` for the current
+   release.
+
+
+3. **Add toolbox to MATLAB path**
+
+   * **Windows/MacOS:** Launch MATLAB, navigate to the toolbox folder using *Browse for Folder*, and add it (including subfolders) to the MATLAB search path.
+     Example:
+
+     ```
+     /path/to/cantera/interfaces/matlab_experimental
+     ```
+   * **Linux:** Configure MATLAB to use the system C++ library instead of MATLAB’s built-in version:
+
+     ```bash
+     export LD_PRELOAD=/path/to/system/C++/library
+     ```
+
+     Then launch MATLAB and add the toolbox path as above.
+
+4. **Build the MATLAB Cantera interface**
+   Run the following commands in MATLAB:
+
+   ```matlab
+   ctDir = '/path/to/cantera/source';
+   ctIncludeDir = '/path/to/cantera/include';
+   ctLibDir = '/path/to/cantera/library';
+   ctBuildInterface(ctDir, ctIncludeDir, ctLibDir);
+   ```
+
+   * If you compiled Cantera from source, ctDir should be `path/to/cantera/include`;
+   and ctLibDir should be `path/to/cantera/build/lib`.
+
+5. **Verify build**
+   After building, the compiled interface should appear under:
+
+   ```
+   /path/to/cantera/interfaces/matlab_experimental/cantera/ctMatlab
+   ```
+
+---
+
+## Usage Guide
+
+1. **Load the toolbox**
+
+   ```matlab
+   ctLoad
+   ```
+
+   The interface supports two modes:
+
+   * `'outofprocess'` (default) — higher stability and compatibility; **required on Linux**.
+   * `'inprocess'` — runs inside MATLAB with lower overhead.
+
+2. **Run examples**
+   Navigate to the samples folder:
+
+   ```
+   /samples/matlab_experimental
+   ```
+
+3. **Run the unit test suite**
+   Navigate to the test folder:
+
+   ```
+   /test/matlab_experimental
+   ```
+
+   Execute:
+
+   ```matlab
+   runMatlabInterfaceTests.m
+   ```
+
+4. **Unload the toolbox**
+   To stop using the interface, run:
+
+   ```matlab
+   ctCleanUp
+   ctUnload
+   ```
+
+---

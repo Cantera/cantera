@@ -141,6 +141,7 @@ classdef ctTestConstPressureReactor < ctTestCase
     methods (Test)
 
         function testReactorSurfaceType(self)
+            self.assumeFail('Skipped until Clib is ported to the generated version');
             self.makeReactors('addSurf', true);
             self.verifyTrue(isa(self.surf1, 'ReactorSurface'));
             self.verifyTrue(startsWith(self.surf1.name, 'ReactorSurface_'));
@@ -164,6 +165,7 @@ classdef ctTestConstPressureReactor < ctTestCase
         end
 
         function testWithSurfaceReactions(self)
+            self.assumeFail('Skipped until Clib is ported to the generated version');
             self.makeReactors('addSurf', true);
             self.net1.atol = 1e-18;
             self.net2.atol = 1e-18;

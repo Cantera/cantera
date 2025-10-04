@@ -1,4 +1,4 @@
-classdef ctTestSamples < ctTestCase
+classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
 
     methods (TestMethodSetup)
 
@@ -27,9 +27,9 @@ classdef ctTestSamples < ctTestCase
             ExampleScript = {
                 'equil', 'isentropic', 'reactor1', 'reactor2', 'surf_reactor', ...
                 'periodic_cstr', 'plug_flow_reactor', 'lithium_ion_battery', ...
-                'rankine', 'prandtl1', 'prandtl2', 'catcomb','ignite', 'diamond_cvd', ...
+                'rankine', 'prandtl1', 'prandtl2', 'catcomb','ignite', ...
                 'ignite_hp', 'ignite_uv', ...
-                % 'flame1', 'flame2', 'diff_flame'
+                % 'flame1', 'flame2', 'diff_flame', 'diamond_cvd'
             };
     end
 

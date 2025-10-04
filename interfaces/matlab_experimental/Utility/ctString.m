@@ -2,32 +2,34 @@ function output = ctString(funcName, varargin)
     % Calls Cantera library functions with string outputs and returns
     % errors if necessary.
 
-    err1 = -1;
+    errorcode = [-1, -999.999, double(intmax('uint64'))];
 
-    % Temporary: new Clib will return the correct string length.
-    buflen = calllib(ctLib, funcName, varargin{:}, 0, '') + 1;
+    buf = clib.array.ctMatlab.Char(0);
+    buflen = clib.ctMatlab.(funcName)(varargin{:}, buf);
 
     if buflen > 0
-        aa = char(ones(1, buflen));
-        ptr = libpointer('cstring', aa);
+        buf = clib.array.ctMatlab.Char(buflen);
+
         nchar = sum(cellfun(@ischar, varargin));
-        if nchar == 0
-            % varargin does not contain char array
-            [iok, bb] = calllib(ctLib, funcName, varargin{:}, buflen, ptr);
-        elseif nchar == 1
-            % varargin contains one char array, which MATLAB returns in second place
-            [iok, ~, bb] = calllib(ctLib, funcName, varargin{:}, buflen, ptr);
+        if nchar == 0 || nchar == 1
+            iok = clib.ctMatlab.(funcName)(varargin{:}, buf);
         else
             error('not implemented - argument list contains more than one char array.')
         end
-        output = bb;
-        clear aa bb ptr;
     else
         error('Cantera:ctError', ctGetErr);
     end
 
-    if iok == err1
+    iok = double(iok);
+    if ismember(iok, errorcode)
         error('Cantera:ctError', ctGetErr);
     end
+
+    % Discard the last character
+    s = buf.double;
+    if s(end) == 0
+        s = s(1:end-1);
+    end
+    output = char(s);
 
 end

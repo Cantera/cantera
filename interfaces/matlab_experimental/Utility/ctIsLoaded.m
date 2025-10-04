@@ -1,8 +1,16 @@
 function i = ctIsLoaded()
-    if ~libisloaded(ctLib)
-        error('Cantera is not loaded');
+    i = false;
+
+    hasGlobalCt = evalin('base','exist("ct","var") && isa(ct,"clibConfiguration")');
+    if hasGlobalCt
+        global ct
+        i = ct.Loaded;
+    else
+        cfg = clibConfiguration("ctMatlab");
+        i = cfg.Loaded;
     end
 
-    i = true;
-
+    if ~i
+        error('Cantera is not loaded.');
+    end
 end
