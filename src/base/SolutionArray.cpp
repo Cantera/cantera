@@ -35,6 +35,21 @@ const std::map<std::string, std::string> aliasMap = {
     {"Q", "vapor-fraction"},
 };
 
+const std::map<std::string, std::string> reverseAliasMap = {
+    // reserved names used by states
+    {"temperature", "T"},
+    {"pressure", "P"},
+    {"density", "D"},
+    // reserved names used for 1-D objects
+    {"spread-rate", "spread_rate"},
+    {"L", "Lambda"},
+    {"radial-pressure-gradient", "Lambda"},
+    {"lambda", "Lambda"}, // lower-case version used prior to Cantera 3.2
+    {"E", "eField"},
+    {"electric-field", "eField"},
+    {"oxidizer-velocity", "Uo"},
+};
+
 namespace Cantera
 {
 
@@ -663,21 +678,28 @@ bool SolutionArray::hasComponent(const string& name) const
         // reserved names
         return false;
     }
+    if (reverseAliasMap.count(name)) {
+        // registered alias
+        return true;
+    }
     // native state
     return (m_sol->thermo()->nativeState().count(name));
 }
 
 AnyValue SolutionArray::getComponent(const string& name) const
 {
-    if (!hasComponent(name)) {
+    string _name = name;
+    if (reverseAliasMap.count(name)) {
+        _name = reverseAliasMap.at(name);
+    } else if (!hasComponent(name)) {
         throw CanteraError("SolutionArray::getComponent",
             "Unknown component '{}'.", name);
     }
 
     AnyValue out;
-    if (m_extra->count(name)) {
+    if (m_extra->count(_name)) {
         // extra component
-        const auto& extra = m_extra->at(name);
+        const auto& extra = m_extra->at(_name);
         if (extra.is<void>()) {
             return AnyValue();
         }
@@ -709,10 +731,10 @@ AnyValue SolutionArray::getComponent(const string& name) const
 
     // component is part of state information
     vector<double> data(m_size);
-    size_t ix = m_sol->thermo()->speciesIndex(name);
+    size_t ix = m_sol->thermo()->speciesIndex(_name);
     if (ix == npos) {
         // state other than species
-        ix = m_sol->thermo()->nativeState()[name];
+        ix = m_sol->thermo()->nativeState()[_name];
     } else {
         // species information
         ix += m_stride - m_sol->thermo()->nSpecies();
