@@ -360,7 +360,7 @@ public:
     }
 
     /**
-     * Retrieve component values from the solution vector.
+     * Retrieve component values.
      * @param component  name of component
      * @param[out] values  vector of values
      *
@@ -369,13 +369,40 @@ public:
     void getValues(const string& component, vector<double>& values) const;
 
     /**
-     * Specify component values in the solution vector.
+     * Specify component values.
      * @param component  name of component
      * @param[in] values  vector of values
      *
      * @since New in %Cantera 3.2.
      */
     void setValues(const string& component, const vector<double>& values);
+
+    /**
+     * Specify a profile for a component.
+     * @param component  name of component
+     * @param[in] pos  A vector of relative positions, beginning with 0.0 at the
+     *     left of the domain, and ending with 1.0 at the right of the domain.
+     * @param[in] values  A vector of values corresponding to the relative position
+     *     locations.
+     *
+     * Note that the vector pos and values can have lengths different than the
+     * number of grid points, but their lengths must be equal. The values at
+     * the grid points will be linearly interpolated based on the (pos,
+     * values) specification.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void setProfile(const string& component,
+                    const vector<double>& pos, const vector<double>& values);
+
+    /**
+     * Specify a flat profile for a component.
+     * @param component  name of component
+     * @param value  constant value
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void setFlatProfile(const string& component, double v);
 
     /**
      * Retrieve component values from the solution vector.
@@ -393,6 +420,24 @@ public:
     virtual void _setValues(double* soln, const string& component,
                             const vector<double>& values) {
         throw NotImplementedError("Domain1D::setValues", "Needs to be overloaded.");
+    }
+
+    /**
+     * Specify a profile for a component in the solution vector.
+     * @since New in %Cantera 3.2.
+     */
+    virtual void _setProfile(double* soln, const string& component,
+                             const vector<double>& pos, const vector<double>& values) {
+        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+    }
+
+    /**
+     * Specify a flat profile for a component in the solution vector.
+     * @since New in %Cantera 3.2.
+     */
+    virtual void _setFlatProfile(double* soln, const string& component, double v) {
+        throw NotImplementedError(
+            "Domain1D::setFlatProfile", "Needs to be overloaded.");
     }
 
     //! Save the state of this domain as a SolutionArray.
@@ -546,6 +591,8 @@ public:
     //! @param name  Name of the component
     //! @param values  Array of length nPoints() containing the initial values
     //! @param soln  Pointer to the local portion of the system state vector
+    //! @deprecated To be removed after %Cantera 3.2.
+    //!     Replaceable by version using vectors arguments.
     void setProfile(const string& name, double* values, double* soln);
 
     //! Access the array of grid coordinates [m]

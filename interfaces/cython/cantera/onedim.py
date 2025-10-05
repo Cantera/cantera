@@ -169,6 +169,10 @@ class FlameBase(Sim1D):
             sequence of values at the relative positions specified in ``positions``
 
         >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by Domain1D.set_profile.
         """
         super().set_profile(self.flame, component, positions, values)
 
@@ -690,8 +694,8 @@ class FreeFlame(FlameBase):
         Yeq = self.gas.Y
         u1 = self.inlet.mdot / self.gas.density
 
-        self.set_profile('velocity', locs, [u0, u0, u1, u1])
-        self.set_profile('T', locs, [T0, T0, Teq, Teq])
+        self.flame.set_profile('velocity', locs, [u0, u0, u1, u1])
+        self.flame.set_profile('T', locs, [T0, T0, Teq, Teq])
 
         # Pick the location of the fixed temperature point, using an existing
         # point if a reasonable choice exists
@@ -706,7 +710,7 @@ class FreeFlame(FlameBase):
             self.fixed_temperature = Tmid
 
         for n in range(self.gas.n_species):
-            self.set_profile(self.gas.species_name(n),
+            self.flame.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
@@ -885,10 +889,10 @@ class BurnerFlame(FlameBase):
         u1 = self.burner.mdot / self.gas.density
 
         locs = [0.0, 0.2, 1.0]
-        self.set_profile('velocity', locs, [u0, u1, u1])
-        self.set_profile('T', locs, [T0, Teq, Teq])
+        self.flame.set_profile('velocity', locs, [u0, u1, u1])
+        self.flame.set_profile('T', locs, [T0, Teq, Teq])
         for n in range(self.gas.n_species):
-            self.set_profile(self.gas.species_name(n),
+            self.flame.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
@@ -950,9 +954,9 @@ class BurnerFlame(FlameBase):
         except FlameBlowoff:
             # The eventual solution for a blown off flame is the non-reacting
             # solution, so just set the state to this now
-            self.set_flat_profile(self.flame, 'T', self.T[0])
+            self.flame.set_flat_profile("T", self.T[0])
             for k,spec in enumerate(self.gas.species_names):
-                self.set_flat_profile(self.flame, spec, self.burner.Y[k])
+                self.flame.set_flat_profile(spec, self.burner.Y[k])
 
             self.set_steady_callback(original_callback)
             super().solve(loglevel, False, False)
@@ -1071,12 +1075,12 @@ class CounterflowDiffusionFlame(FlameBase):
         T[-1] = T0o
         zrel = (zz - zz[0])/dz
 
-        self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
-        self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
-        self.set_profile("Lambda", [0.0, 1.0], [L, L])
-        self.set_profile('T', zrel, T)
+        self.flame.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
+        self.flame.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
+        self.flame.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
-            self.set_profile(spec, zrel, Y[:,k])
+            self.flame.set_profile(spec, zrel, Y[:,k])
 
     def extinct(self):
         return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
@@ -1364,20 +1368,19 @@ class ImpingingJet(FlameBase):
             Teq = self.gas.T
             Yeq = self.gas.Y
             locs = np.array([0.0, 0.3, 0.7, 1.0])
-            self.set_profile('T', locs, [T0, Teq, Teq, self.surface.T])
+            self.flame.set_profile('T', locs, [T0, Teq, Teq, self.surface.T])
             for k in range(self.gas.n_species):
-                self.set_profile(self.gas.species_name(k), locs,
-                                 [Y0[k], Yeq[k], Yeq[k], Yeq[k]])
+                self.flame.set_profile(self.gas.species_name(k), locs,
+                                       [Y0[k], Yeq[k], Yeq[k], Yeq[k]])
         else:
             locs = np.array([0.0, 1.0])
-            self.set_profile('T', locs, [T0, self.surface.T])
+            self.flame.set_profile('T', locs, [T0, self.surface.T])
             for k in range(self.gas.n_species):
-                self.set_profile(self.gas.species_name(k), locs,
-                                 [Y0[k], Y0[k]])
+                self.flame.set_profile(self.gas.species_name(k), locs, [Y0[k], Y0[k]])
 
         locs = np.array([0.0, 1.0])
-        self.set_profile('velocity', locs, [u0, 0.0])
-        self.set_profile('spread_rate', locs, [0.0, 0.0])
+        self.flame.set_profile('velocity', locs, [u0, 0.0])
+        self.flame.set_profile('spread_rate', locs, [0.0, 0.0])
 
 
 class CounterflowPremixedFlame(FlameBase):
@@ -1465,10 +1468,10 @@ class CounterflowPremixedFlame(FlameBase):
                                "must be positive")
 
         locs = np.array([0.0, 0.4, 0.6, 1.0])
-        self.set_profile('T', locs, [Tu, Tu, Teq, Tb])
+        self.flame.set_profile('T', locs, [Tu, Tu, Teq, Tb])
         for k in range(self.gas.n_species):
-            self.set_profile(self.gas.species_name(k), locs,
-                             [Yu[k], Yu[k], Yeq[k], Yb[k]])
+            self.flame.set_profile(self.gas.species_name(k), locs,
+                                   [Yu[k], Yu[k], Yeq[k], Yb[k]])
 
         # estimate strain rate
         self.gas.TPY = Teq, self.flame.P, Yeq
@@ -1479,9 +1482,9 @@ class CounterflowPremixedFlame(FlameBase):
         # estimate stagnation point
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
-        self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
-        self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
-        self.set_profile("Lambda", [0.0, 1.0], [L, L])
+        self.flame.set_profile('velocity', [0.0, 1.0], [uu, -ub])
+        self.flame.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
 
 
 class CounterflowTwinPremixedFlame(FlameBase):
@@ -1552,10 +1555,10 @@ class CounterflowTwinPremixedFlame(FlameBase):
         Yb = self.gas.Y
 
         locs = np.array([0.0, 0.4, 0.6, 1.0])
-        self.set_profile('T', locs, [Tu, Tu, Tb, Tb])
+        self.flame.set_profile('T', locs, [Tu, Tu, Tb, Tb])
         for k in range(self.gas.n_species):
-            self.set_profile(self.gas.species_name(k), locs,
-                             [Yu[k], Yu[k], Yb[k], Yb[k]])
+            self.flame.set_profile(self.gas.species_name(k), locs,
+                                   [Yu[k], Yu[k], Yb[k], Yb[k]])
 
         # estimate strain rate
         zz = self.flame.grid
@@ -1563,6 +1566,6 @@ class CounterflowTwinPremixedFlame(FlameBase):
         a = 2 * uu / dz
         L = - rhou * a**2
 
-        self.set_profile('velocity', [0.0, 1.0], [uu, 0])
-        self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
-        self.set_profile("Lambda", [0.0, 1.0], [L, L])
+        self.flame.set_profile('velocity', [0.0, 1.0], [uu, 0])
+        self.flame.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
+        self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])

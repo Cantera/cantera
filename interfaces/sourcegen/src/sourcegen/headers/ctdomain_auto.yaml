@@ -22,6 +22,10 @@ recipes:
   wraps: componentIndex(const char*)
 - name: getValues
 - name: setValues
+- name: setProfile
+  # alternative is deprecated in Cantera 3.2
+  wraps: setProfile(const string&, const vector<double>&, const vector<double>&)
+- name: setFlatProfile
 - name: setBounds
 - name: lowerBound
 - name: upperBound

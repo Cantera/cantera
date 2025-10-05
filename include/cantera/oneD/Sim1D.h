@@ -49,6 +49,9 @@ public:
      *     left of the domain, and ending with 1.0 at the right of the domain.
      * @param vals  A vector of values corresponding to the relative position
      *     locations.
+     *
+     * @deprecated To be removed after %Cantera 3.2.
+     *      Replaceable by Domain1D::setProfile.
      */
     void setInitialGuess(const string& component, vector<double>& locs,
                          vector<double>& vals);
@@ -80,28 +83,6 @@ public:
     double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
-     * Retrieve component values from the solution vector.
-     * @param dom  name of domain
-     * @param component  name of component
-     * @param[out] values  vector of values
-     *
-     * @since New in %Cantera 3.2.
-     */
-    void getValues(const string& dom, const string& component,
-                   vector<double>& values) const override;
-
-    /**
-     * Specify component values in the solution vector.
-     * @param dom  name of domain
-     * @param component  name of component
-     * @param[in] values  vector of values
-     *
-     * @since New in %Cantera 3.2.
-     */
-    void setValues(const string& dom, const string& component,
-                   const vector<double>& values) override;
-
-    /**
      * Specify a profile for one component of one domain.
      * @param dom  domain number, beginning with 0 for the leftmost domain.
      * @param comp  component number
@@ -114,11 +95,16 @@ public:
      * number of grid points, but their lengths must be equal. The values at
      * the grid points will be linearly interpolated based on the (pos,
      * values) specification.
+     *
+     * @deprecated To be removed after %Cantera 3.2.
+     *      Replaceable by Domain1D::setProfile.
      */
     void setProfile(size_t dom, size_t comp, const vector<double>& pos,
                     const vector<double>& values);
 
     //! Set component 'comp' of domain 'dom' to value 'v' at all points.
+    //! @deprecated To be removed after %Cantera 3.2.
+    //!     Replaceable by Domain1D::setProfile.
     void setFlatProfile(size_t dom, size_t comp, double v);
 
     //! @}

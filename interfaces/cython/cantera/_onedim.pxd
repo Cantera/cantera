@@ -29,6 +29,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         void setupGrid(vector[double]&) except +translate_exception
         void getValues(string&, vector[double]&) except +translate_exception
         void setValues(string&, vector[double]&) except +translate_exception
+        void setProfile(string&, vector[double]&, vector[double]&) except +translate_exception
+        void setFlatProfile(string&, double) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
         double lowerBound(size_t)
