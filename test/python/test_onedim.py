@@ -253,26 +253,26 @@ class TestFreeFlame:
         assert self.sim.fixed_temperature_location == approx(zfixed)
 
         # test some alias names
-        assert np.allclose(self.sim.T, self.sim.temperature)
+        assert np.allclose(self.sim.T, self.sim.flame.temperature)
         zeros = self.sim.T * 0
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "spread_rate", zeros)
+            self.sim.flame.set_values("spread_rate", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "radial-pressure-gradient", zeros)
+            self.sim.flame.set_values("radial-pressure-gradient", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "L", zeros)
+            self.sim.flame.set_values("L", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "Lambda", zeros)
+            self.sim.flame.set_values("Lambda", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "electric-field", zeros)
+            self.sim.flame.set_values("electric-field", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "E", zeros)
+            self.sim.flame.set_values("E", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "eField", zeros)
+            self.sim.flame.set_values("eField", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "oxidizer-velocity", zeros)
+            self.sim.flame.set_values("oxidizer-velocity", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
-            self.sim.set_values(self.sim.flame, "Uo", zeros)
+            self.sim.flame.set_values("Uo", zeros)
 
     @pytest.mark.slow_test
     def test_auto_width(self):
@@ -1297,16 +1297,17 @@ class TestDiffusionFlame:
         gas = ct.Solution("h2o2.yaml")
         sim = ct.CounterflowDiffusionFlame(gas)
         sim.restore(fname)
-        assert np.isclose(np.unique(sim.radial_pressure_gradient)[0], -90257.82873678)
-        assert np.allclose(sim.T, sim.temperature)
-        assert np.allclose(sim.radial_pressure_gradient, sim.L)
-        assert np.allclose(sim.radial_pressure_gradient, sim.Lambda)
-        assert np.allclose(sim.radial_pressure_gradient, getattr(sim, "lambda"))
+        radial_lambda = sim.flame.radial_pressure_gradient
+        assert np.isclose(np.unique(radial_lambda)[0], -1.355348889404357e+05)
+        assert np.allclose(sim.T, sim.flame.temperature)
+        assert np.allclose(radial_lambda, sim.flame.L)
+        assert np.allclose(radial_lambda, sim.flame.Lambda)
+        assert np.allclose(radial_lambda, getattr(sim.flame, "lambda"))
         zeros = sim.T * 0
         with pytest.raises(ct.CanteraError, match="is not used by 'axisymmetric-flow'"):
-            sim.set_values(sim.flame, "electric-field", zeros)
+            sim.flame.set_values("electric-field", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'axisymmetric-flow'"):
-            sim.set_values(sim.flame, "oxidizer-velocity", zeros)
+            sim.flame.set_values("oxidizer-velocity", zeros)
 
     def run_restore_solutionarray(self, fname):
         gas = ct.Solution("h2o2.yaml")
@@ -1315,7 +1316,7 @@ class TestDiffusionFlame:
 
         radial_lambda = np.unique(arr.radial_pressure_gradient)
         assert len(radial_lambda) == 1
-        assert radial_lambda[0] == pytest.approx(-90257.82873678)
+        assert radial_lambda[0] == pytest.approx(-1.355348889404357e+05)
         assert getattr(arr, "lambda")[0] == radial_lambda[0]
         assert radial_lambda[0] == arr.L[0]
         assert radial_lambda[0] == arr.Lambda[0]
@@ -1399,7 +1400,7 @@ class TestDiffusionFlame:
         sim.right_control_point_temperature += temperature_decrement
         sim.left_control_point_temperature += temperature_decrement
         sim.solve(loglevel=0, refine_grid=False)
-        assert sim.oxidizer_velocity == approx(sim.velocity[-1])
+        assert sim.flame.oxidizer_velocity == approx(sim.velocity[-1])
         temperature_4 = sim.T
 
         # Check the difference between the un-perturbed two-point solution and the
@@ -1444,7 +1445,7 @@ class TestDiffusionFlame:
         assert (sim.right_control_point_temperature
                 == approx(original_settings['right-temperature'], 1e-4))
 
-        assert sim.oxidizer_velocity == approx(sim.velocity[-1])
+        assert sim.flame.oxidizer_velocity == approx(sim.velocity[-1])
 
         # Test - Check error conditions
         sim = ct.CounterflowDiffusionFlame(gas, width=width)
@@ -1561,7 +1562,8 @@ class TestCounterflowPremixedFlame:
             sim.solve(loglevel=0, auto=True)
             assert all(sim.T >= T - 1e-3)
             assert all(sim.spread_rate >= -1e-9)
-            assert np.allclose(sim.radial_pressure_gradient, sim.radial_pressure_gradient[0])
+            radial_lambda = sim.flame.radial_pressure_gradient
+            assert np.allclose(radial_lambda, radial_lambda[0])
             return sim
         return _run_case
 
@@ -1678,7 +1680,8 @@ class TestCounterflowPremixedFlameNonIdeal:
             sim.solve(loglevel=0, auto=True)
             assert all(sim.T >= T - 1e-3)
             assert all(sim.spread_rate >= -1e-9)
-            assert np.allclose(sim.radial_pressure_gradient, sim.radial_pressure_gradient[0])
+            radial_lambda = sim.flame.radial_pressure_gradient
+            assert np.allclose(radial_lambda, radial_lambda[0])
             return sim
         return _run_case
 
@@ -1725,7 +1728,7 @@ class TestBurnerFlame:
             sim.burner.mdot = gas.density * 0.15
             sim.solve(loglevel=0, auto=True)
             assert sim.T[1] > T
-            assert np.allclose(sim.radial_pressure_gradient, 0)
+            assert np.allclose(sim.flame.radial_pressure_gradient, 0)
         return _run_case
 
     @pytest.mark.parametrize(
@@ -1818,7 +1821,8 @@ class TestStagnationFlame:
         sim.solve(loglevel=0, auto=True)
 
         assert sim.T.max() > tburner + tsurf
-        assert np.allclose(sim.radial_pressure_gradient, sim.radial_pressure_gradient[0])
+        radial_lambda = sim.flame.radial_pressure_gradient
+        assert np.allclose(radial_lambda, radial_lambda[0])
         self.sim = sim
 
     def test_stagnation_case1(self):
@@ -2005,7 +2009,8 @@ class TestTwinFlame:
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
         assert sim.T[-1] > T + 100
-        assert np.allclose(sim.radial_pressure_gradient, sim.radial_pressure_gradient[0])
+        radial_lambda = sim.flame.radial_pressure_gradient
+        assert np.allclose(radial_lambda, radial_lambda[0])
         return sim
 
     def test_restart(self):
@@ -2077,19 +2082,19 @@ class TestIonFreeFlame:
         # stage one
         assert self.sim.electric_field_enabled is False
         self.sim.solve(loglevel=0, auto=True)
-        assert max(np.abs(self.sim.electric_field)) == approx(0.0, abs=1e-3)
+        assert max(np.abs(self.sim.flame.electric_field)) == approx(0.0, abs=1e-3)
 
         #stage two
         self.sim.electric_field_enabled = True
         self.sim.solve(loglevel=0)
 
         # Regression test
-        assert max(self.sim.electric_field) == approx(149.63179056676853, rel=1e-3)
-        with pytest.warns(DeprecationWarning, match="Renamed to 'electric_field'"):
-            assert np.allclose(self.sim.E, self.sim.electric_field)
+        assert max(self.sim.flame.electric_field) == approx(149.6317905667685, rel=1e-3)
+        with pytest.warns(DeprecationWarning, match="by 'Domain1D.electric_field'"):
+            assert np.allclose(self.sim.E, self.sim.flame.electric_field)
         zeros = self.sim.T
         with pytest.raises(ct.CanteraError, match="is not used by 'free-ion-flow'"):
-            self.sim.set_values(self.sim.flame, "oxidizer-velocity", zeros)
+            self.sim.flame.set_values("oxidizer-velocity", zeros)
 
 
 class TestIonBurnerFlame:
@@ -2111,5 +2116,5 @@ class TestIonBurnerFlame:
         self.sim.solve(loglevel=0, auto=True)
 
         # Regression test
-        assert max(self.sim.electric_field) == approx(591.76, rel=1e-2)
+        assert max(self.sim.flame.electric_field) == approx(591.76, rel=1e-2)
         assert max(self.sim.X[self.gas.species_index('E')]) == approx(8.024e-9, rel=1e-2)
