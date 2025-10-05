@@ -72,7 +72,7 @@ class CLibSourceGenerator(SourceGenerator):
             wraps = "undefined"
         uses = [ uu.short_declaration() for uu in c_func.uses]
         block = template.render(
-            brief=escape_token(c_func.brief, "Cantera"),
+            brief=c_func.brief,
             params=[param(par) for par in c_func.arglist],
             returns=c_func.returns, what=what, wraps=wraps, uses=uses,
             deprecated=c_func.deprecated)
