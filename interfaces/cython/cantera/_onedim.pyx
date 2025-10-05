@@ -929,6 +929,44 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         return self.sim.workValue(dom, comp, point)
 
+    def get_values(self, Domain1D domain, str component):
+        """
+        Retrieve spatial profile of one component in one domain.
+
+        :param domain:
+            Domain1D object
+        :param component:
+            component name
+
+        >>> T = s.get_values(flow, 'T')
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] values
+        values.resize(domain.n_points)
+        self.sim.getValues(stringify(domain.name), stringify(component), values)
+        return np.asarray(values)
+
+    def set_values(self, Domain1D domain, str component, values):
+        """
+        Specify spatial profile of one component in one domain.
+
+        :param domain:
+            Domain1D object
+        :param component:
+            component name
+        :param values:
+            array containing values
+
+        >>> s.set_values(flow, 'T', T)
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] values_vec
+        for v in values:
+            values_vec.push_back(v)
+        self.sim.setValues(stringify(domain.name), stringify(component), values)
+
     def profile(self, domain, component):
         """
         Spatial profile of one component in one domain.

@@ -26,7 +26,7 @@ OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
     resize();
 }
 
-size_t OneDim::domainIndex(const string& name)
+size_t OneDim::domainIndex(const string& name) const
 {
     for (size_t n = 0; n < m_dom.size(); n++) {
         if (domain(n).id() == name) {

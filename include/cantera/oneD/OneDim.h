@@ -80,7 +80,7 @@ public:
     }
 
     //! Get the index of the domain named `name`.
-    size_t domainIndex(const string& name);
+    size_t domainIndex(const string& name) const;
 
     //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1

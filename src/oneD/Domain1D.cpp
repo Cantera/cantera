@@ -160,7 +160,7 @@ AnyMap Domain1D::getMeta() const
 shared_ptr<SolutionArray> Domain1D::toArray(bool normalize) const {
     if (!m_state) {
         throw CanteraError("Domain1D::toArray",
-            "Domain needs to be installed in a container before calling asArray.");
+            "Domain needs to be installed in a container before calling toArray.");
     }
     auto ret = asArray(m_state->data() + m_iloc);
     if (normalize) {
