@@ -39,6 +39,7 @@ par_type_crosswalk:
 preambles:
   "": |-
     #include "cantera_clib/clib_defs.h"
+  default: |-
     #include <stdint.h>  // for 32-bit int32_t / 64-bit int64_t
 
 # Cabinets with associated includes (implementation files)
