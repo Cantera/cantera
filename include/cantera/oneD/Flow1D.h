@@ -188,6 +188,9 @@ public:
                     vector<double>& values) const override;
     void _setValues(double* soln, const string& component,
                     const vector<double>& values) override;
+    void _setProfile(double* soln, const string& component,
+                     const vector<double>& pos, const vector<double>& values) override;
+    void _setFlatProfile(double* soln, const string& component, double v) override;
 
     shared_ptr<SolutionArray> asArray(const double* soln) const override;
     void fromArray(SolutionArray& arr, double* soln) override;

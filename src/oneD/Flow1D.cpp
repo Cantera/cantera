@@ -963,7 +963,7 @@ void Flow1D::_getValues(const double* soln, const string& component,
 }
 
 void Flow1D::_setValues(double* soln, const string& component,
-                       const vector<double>& values)
+                        const vector<double>& values)
 {
     if (values.size() != nPoints()) {
         throw ArraySizeError("Flow1D::_setValues", values.size(), nPoints());
@@ -976,6 +976,47 @@ void Flow1D::_setValues(double* soln, const string& component,
     }
     for (size_t j = 0; j < nPoints(); j++) {
         soln[index(i,j)] = values[j];
+    }
+}
+
+void Flow1D::_setProfile(double* soln, const string& component,
+                         const vector<double>& pos, const vector<double>& values)
+{
+    if (pos.size() != values.size()) {
+        throw CanteraError(
+            "Flow1D::_setProfile", "Vectors for positions and values must have same "
+            "size.\nSizes are {} and {}, respectively.", pos.size(), values.size());
+    }
+    if (pos.front() != 0.0 || pos.back() != 1.0) {
+        throw CanteraError("Flow1D::_setProfile",
+            "'pos' vector must span the range [0, 1]. Got a vector spanning "
+            "[{}, {}] instead.", pos.front(), pos.back());
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        throw CanteraError(
+            "Flow1D::_setProfile", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    double z0 = zmin();
+    double zDelta = zmax() - z0;
+    for (size_t j = 0; j < nPoints(); j++) {
+        double frac = (z(j) - z0)/zDelta;
+        double v = linearInterp(frac, pos, values);
+        soln[index(i,j)] = v;
+    }
+}
+
+void Flow1D::_setFlatProfile(double* soln, const string& component, double v)
+{
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        throw CanteraError(
+            "Flow1D::_setFlatProfile", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    for (size_t j = 0; j < nPoints(); j++) {
+        soln[index(i,j)] = v;
     }
 }
 

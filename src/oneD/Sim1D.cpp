@@ -37,6 +37,8 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
 void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
                             vector<double>& vals)
 {
+    warn_deprecated("Sim1D::setInitialGuess", "To be removed after Cantera 3.2. "
+                    "Replaceable by Domain1D::setProfile.");
     for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
         size_t ncomp = d.nComponents();
@@ -72,23 +74,11 @@ double Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
     return m_xnew[iloc];
 }
 
-void Sim1D::getValues(const string& dom, const string& component,
-                      vector<double>& values) const
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._getValues(m_state->data() + domain(dIdx).loc(), component, values);
-}
-
-void Sim1D::setValues(const string& dom, const string& component,
-                      const vector<double>& values)
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._setValues(m_state->data() + domain(dIdx).loc(), component, values);
-}
-
 void Sim1D::setProfile(size_t dom, size_t comp,
                        const vector<double>& pos, const vector<double>& values)
 {
+    warn_deprecated("Sim1D::setProfile", "To be removed after Cantera 3.2. "
+                    "Replaceable by Domain1D::setProfile.");
     if (pos.front() != 0.0 || pos.back() != 1.0) {
         throw CanteraError("Sim1D::setProfile",
             "`pos` vector must span the range [0, 1]. Got a vector spanning "
@@ -337,6 +327,8 @@ void Sim1D::_restore(const string& fname, const string& name)
 
 void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 {
+    warn_deprecated("Sim1D::setFlatProfile", "To be removed after Cantera 3.2. "
+                    "Replaceable by Domain1D::setProfile.");
     size_t np = domain(dom).nPoints();
     for (size_t n = 0; n < np; n++) {
         setValue(dom, comp, n, v);

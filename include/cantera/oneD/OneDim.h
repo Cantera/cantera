@@ -149,10 +149,8 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void getValues(const string& dom, const string& component,
-                           vector<double>& values) const {
-        throw NotImplementedError("OneDim::getValues", "Needs to be overloaded.");
-    }
+    void getValues(const string& dom, const string& component,
+                   vector<double>& values) const;
 
     /**
      * Specify component values in the solution vector.
@@ -162,10 +160,37 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void setValues(const string& dom, const string& component,
-                           const vector<double>& values) {
-        throw NotImplementedError("OneDim::setValues", "Needs to be overloaded.");
-    }
+    void setValues(const string& dom, const string& component,
+                   const vector<double>& values);
+
+    /**
+     * Specify a profile for one component of one domain.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param[in] pos  A vector of relative positions, beginning with 0.0 at the
+     *     left of the domain, and ending with 1.0 at the right of the domain.
+     * @param[in] values  A vector of values corresponding to the relative position
+     *     locations.
+     *
+     * Note that the vector pos and values can have lengths different than the
+     * number of grid points, but their lengths must be equal. The values at
+     * the grid points will be linearly interpolated based on the (pos,
+     * values) specification.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void setProfile(const string& dom, const string& component,
+                    const vector<double>& pos, const vector<double>& values);
+
+    /**
+     * Specify a flat profile for one component of one domain.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param value  constant value
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void setFlatProfile(const string& dom, const string& component, double v);
 
     /**
      * Initialize all domains. On the first call, this methods calls the init

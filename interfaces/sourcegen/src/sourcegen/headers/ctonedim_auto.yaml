@@ -10,11 +10,9 @@ recipes:
 - name: newSim1D
   uses: domain
 - name: setValue
-- name: getValues
-- name: setValues
 - name: setProfile
 - name: setFlatProfile
-- name: setInitialGuess  # New in Cantera 3.2
+- name: setInitialGuess
 - name: show
 - name: setTimeStep
 - name: getInitialSoln

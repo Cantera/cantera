@@ -111,6 +111,23 @@ void Domain1D::setValues(const string& component, const vector<double>& values)
     m_container->setValues(id(), component, values);
 }
 
+void Domain1D::setProfile(const string& component,
+                          const vector<double>& pos, const vector<double>& values)
+{
+    if (!m_container) {
+        throw CanteraError("Domain1D::setProfile", "Domain is not connected.");
+    }
+    m_container->setProfile(id(), component, pos, values);
+}
+
+void Domain1D::setFlatProfile(const string& component, double v)
+{
+    if (!m_container) {
+        throw CanteraError("Domain1D::setFlatProfile", "Domain is not connected.");
+    }
+    m_container->setFlatProfile(id(), component, v);
+}
+
 void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
@@ -312,6 +329,9 @@ void Domain1D::show(const double* x)
 
 void Domain1D::setProfile(const string& name, double* values, double* soln)
 {
+    warn_deprecated(
+        "Domain1D::setProfile", "To be removed after Cantera 3.2. Replaceable by "
+        "version using vector arguments.");
     for (size_t n = 0; n < m_nv; n++) {
         if (name == componentName(n)) {
             for (size_t j = 0; j < m_points; j++) {

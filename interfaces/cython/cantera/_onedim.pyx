@@ -137,6 +137,44 @@ cdef class Domain1D:
             values_vec.push_back(v)
         self.domain.setValues(stringify(component), values)
 
+    def set_profile(self, component, positions, values):
+        """
+        Set an initial estimate for a profile of one component in one domain.
+
+        :param component:
+            component name
+        :param positions:
+            sequence of relative positions, from 0 on the left to 1 on the right
+        :param values:
+            sequence of values at the relative positions specified in ``positions``
+
+        >>> d.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] pos_vec, val_vec
+        for p in positions:
+            pos_vec.push_back(p)
+        for v in values:
+            val_vec.push_back(v)
+
+        self.domain.setProfile(stringify(component), pos_vec, val_vec)
+
+    def set_flat_profile(self, component, value):
+        """
+        Set a flat profile for a component.
+
+        :param component:
+            component name
+        :param v:
+            value
+
+        >>> d.set_flat_profile('u', -3.0)
+
+        .. versionadded:: 3.2
+        """
+        self.domain.setFlatProfile(stringify(component), value)
+
     def set_bounds(self, *, default=None, Y=None, **kwargs):
         """
         Set the lower and upper bounds on the solution.
@@ -1078,6 +1116,10 @@ cdef class Sim1D:
             sequence of values at the relative positions specified in ``positions``
 
         >>> s.set_profile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by Domain1D.set_profile.
         """
         dom, comp = self._get_indices(domain, component)
 
@@ -1100,6 +1142,10 @@ cdef class Sim1D:
             value
 
         >>> s.set_flat_profile(d, 'u', -3.0)
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by Domain1D.set_flat_profile.
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
