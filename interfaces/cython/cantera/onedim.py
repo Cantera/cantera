@@ -271,14 +271,14 @@ class FlameBase(Sim1D):
     @property
     def T(self):
         """ Array containing the temperature [K] at each grid point. """
-        return self.get_values(self.flame, "T")
+        return self.flame.get_values("T")
 
     @property
     def velocity(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
-        return self.get_values(self.flame, "velocity")
+        return self.flame.get_values("velocity")
 
     @property
     def spread_rate(self):
@@ -286,34 +286,24 @@ class FlameBase(Sim1D):
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
-        return self.get_values(self.flame, "spread_rate")
+        return self.flame.get_values("spread_rate")
 
     @property
-    def radial_pressure_gradient(self):
+    def L(self):
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named ``Lambda`` in the C++ code.
 
-        .. versionchanged:: 3.2
+        .. deprecated:: 3.2
 
-            Renamed from ``L``, which remains accessible as an attribute; note: may be
-            shadowed by a species name ``L``.
+            To be removed after Cantera 3.2. Replaceable by
+            `Domain1D.radial_pressure_gradient`.
+            Note: replacement may be shadowed by a species name ``L``.
         """
-        return self.get_values(self.flame, "Lambda")
-
-    @property
-    def electric_field(self):
-        """
-        Array containing the electric field strength at each point.
-        Note: This value is named ``eField`` in the C++ code and is only defined if
-        the transport model is ``ionized_gas``.
-
-        .. versionadded:: 3.2
-
-            Renamed from ``E``, which remains accessible as an attribute; note: may be
-            shadowed by a species name ``E``.
-        """
-        return self.get_values(self.flame, "eField")
+        warnings.warn("To be removed after Cantera 3.2. "
+                      "Replaceable by 'Domain1D.radial_pressure_gradient'.",
+                      DeprecationWarning)
+        return self.flame.get_values("Lambda")
 
     @property
     def E(self):
@@ -324,44 +314,31 @@ class FlameBase(Sim1D):
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Renamed to `electric_field`.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.electric_field`.
+            Note: replacement may be shadowed by a species name ``E``.
         """
-        warnings.warn("To be removed after Cantera 3.2. Renamed to 'electric_field'.",
-                      DeprecationWarning)
-        return self.get_values(self.flame, "eField")
+        warnings.warn("To be removed after Cantera 3.2. "
+                      "Replaceable by 'Domain1D.electric_field'.", DeprecationWarning)
+        return self.flame.get_values("eField")
 
     @property
-    def oxidizer_velocity(self):
+    def Uo(self):
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
         each point.
         Note: This value is named ``Uo`` in the C++ code and is only defined when using
         two-point control.
 
-        .. versionchanged:: 3.2
+        .. deprecated:: 3.2
 
-            Renamed from ``Uo``, which remains accessible as an attribute; note: may be
-            shadowed by a species name ``Uo``.
+            To be removed after Cantera 3.2. Replaceable by
+            `Domain1D.oxidizer_velocity`.
+            Note: replacement may be shadowed by a species name ``Uo``.
         """
-        return self.get_values(self.flame, "Uo")
-
-    def __getattr__(self, name):
-        try:
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            pass
-
-        # Fallback to flame component lookup
-        flame = object.__getattribute__(self, "flame")
-
-        if (not flame._has_component(name) and
-            flame._has_component(name.replace("_", "-"))):
-            name = name.replace("_", "-")
-        if flame._has_component(name):
-            return self.get_values(flame, name)
-
-        raise AttributeError(
-            f"{flame.__class__.__name__!r} object has no attribute {name!r}")
+        warnings.warn("To be removed after Cantera 3.2. "
+                      "Replaceable by 'Domain1D.oxidizer_velocity'.",
+                      DeprecationWarning)
+        return self.flame.get_values("Uo")
 
     @property
     def left_control_point_temperature(self):
@@ -1248,10 +1225,10 @@ class CounterflowDiffusionFlame(FlameBase):
             return np.abs(np.interp(z_stoich, self.grid, d_u_d_z))
 
         elif definition == 'potential_flow_fuel':
-            return np.sqrt(- self.L[0] / self.density[0])
+            return np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[0])
 
         elif definition == 'potential_flow_oxidizer':
-            return np.sqrt(- self.L[0] / self.density[-1])
+            return np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[-1])
 
         else:
             raise ValueError('Definition "' + definition + '" is not available')

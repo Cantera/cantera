@@ -20,6 +20,8 @@ recipes:
 - name: componentName
 - name: componentIndex
   wraps: componentIndex(const char*)
+- name: getValues
+- name: setValues
 - name: setBounds
 - name: lowerBound
 - name: upperBound

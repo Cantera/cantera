@@ -90,6 +90,40 @@ cdef class Domain1D:
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
 
+    def get_values(self, str component):
+        """
+        Retrieve spatial profile of a component.
+
+        :param component:
+            component name
+
+        >>> T = d.get_values('T')
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] values
+        values.resize(self.n_points)
+        self.domain.getValues(stringify(component), values)
+        return np.asarray(values)
+
+    def set_values(self, str component, values):
+        """
+        Specify spatial profile of a component.
+
+        :param component:
+            component name
+        :param values:
+            array containing values
+
+        >>> d.set_values('T', T)
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] values_vec
+        for v in values:
+            values_vec.push_back(v)
+        self.domain.setValues(stringify(component), values)
+
     def set_bounds(self, *, default=None, Y=None, **kwargs):
         """
         Set the lower and upper bounds on the solution.
@@ -460,12 +494,89 @@ cdef class FlowBase(Domain1D):
         self.P = self.gas.P
         self.flow.solveEnergyEqn()
 
-    property P:
-        """ Pressure [Pa] """
-        def __get__(self):
-            return self.flow.pressure()
-        def __set__(self, P):
-            self.flow.setPressure(P)
+    def __getattr__(self, name):
+        component_name = name
+        if (not self._has_component(name) and
+            self._has_component(name.replace("_", "-"))):
+            component_name = name.replace("_", "-")
+
+        if self._has_component(component_name):
+            return self.get_values(component_name)
+
+        raise AttributeError(
+            f"{self.__class__.__name__!r} object has no attribute {name!r}")
+
+    @property
+    def P(self):
+        """Pressure [Pa]"""
+        return self.flow.pressure()
+
+    @P.setter
+    def P(self, P):
+        self.flow.setPressure(P)
+
+    @property
+    def T(self):
+        """
+        Array containing the temperature [K] at each grid point.
+
+        .. versionadded:: 3.2
+        """
+        return self.get_values("T")
+
+    @property
+    def velocity(self):
+        """
+        Array containing the velocity [m/s] normal to the flame at each point.
+
+        .. versionadded:: 3.2
+        """
+        return self.get_values("velocity")
+
+    @property
+    def spread_rate(self):
+        """
+        Array containing the tangential velocity gradient [1/s] (that is, radial
+        velocity divided by radius) at each point. Note: This value is only
+        defined for axisymmetric flows.
+
+        .. versionadded:: 3.2
+        """
+        return self.get_values("spread_rate")
+
+    @property
+    def radial_pressure_gradient(self):
+        """
+        Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
+        each point. Note: This value is named ``Lambda`` in the C++ code and is only
+        defined for axisymmetric flows.
+
+        .. versionadded:: 3.2
+        """
+        return self.get_values("Lambda")
+
+    @property
+    def electric_field(self):
+        """
+        Array containing the electric field strength at each point.
+        Note: This value is named ``eField`` in the C++ code and is only defined if
+        the transport model is ``ionized_gas``.
+
+        .. versionadded:: 3.2
+        """
+        return self.get_values("eField")
+
+    @property
+    def oxidizer_velocity(self):
+        """
+        Array containing the oxidizer velocity (right boundary velocity) [m/s] at
+        each point.
+        Note: This value is named ``Uo`` in the C++ code and is only defined when using
+        two-point control.
+
+        .. versionchanged:: 3.2
+        """
+        return self.get_values("Uo")
 
     property transport_model:
         """
@@ -929,44 +1040,6 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         return self.sim.workValue(dom, comp, point)
 
-    def get_values(self, Domain1D domain, str component):
-        """
-        Retrieve spatial profile of one component in one domain.
-
-        :param domain:
-            Domain1D object
-        :param component:
-            component name
-
-        >>> T = s.get_values(flow, 'T')
-
-        .. versionadded:: 3.2
-        """
-        cdef vector[double] values
-        values.resize(domain.n_points)
-        self.sim.getValues(stringify(domain.name), stringify(component), values)
-        return np.asarray(values)
-
-    def set_values(self, Domain1D domain, str component, values):
-        """
-        Specify spatial profile of one component in one domain.
-
-        :param domain:
-            Domain1D object
-        :param component:
-            component name
-        :param values:
-            array containing values
-
-        >>> s.set_values(flow, 'T', T)
-
-        .. versionadded:: 3.2
-        """
-        cdef vector[double] values_vec
-        for v in values:
-            values_vec.push_back(v)
-        self.sim.setValues(stringify(domain.name), stringify(component), values)
-
     def profile(self, domain, component):
         """
         Spatial profile of one component in one domain.
@@ -980,7 +1053,7 @@ cdef class Sim1D:
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Replaceable by `get_values`.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.get_values`.
         """
         warnings.warn("To be removed after Cantera 3.2. Replaceable by 'get_values'.",
                       DeprecationWarning)
