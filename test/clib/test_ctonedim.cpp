@@ -156,9 +156,9 @@ TEST(ctonedim, freeflame)
     // set up initial guess
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
     vector<double> value{uin, uin, uout, uout};
-    sim1D_setInitialGuess(flame, "velocity", 4, locs.data(), 4, value.data());
+    domain_setProfile(flow, "velocity", 4, locs.data(), 4, value.data());
     value = {T, T, Tad, Tad};
-    sim1D_setInitialGuess(flame, "T", 4, locs.data(), 4, value.data());
+    domain_setProfile(flow, "T", 4, locs.data(), 4, value.data());
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
         int32_t buflen = thermo_speciesName(ph, i, 0, 0);
@@ -166,7 +166,7 @@ TEST(ctonedim, freeflame)
         thermo_speciesName(ph, i, buflen, buf.data());
         string name(buf.data());
         ASSERT_EQ(name, gas->speciesName(i));
-        sim1D_setInitialGuess(flame, buf.data(), 4, locs.data(), 4, value.data());
+        domain_setProfile(flow, buf.data(), 4, locs.data(), 4, value.data());
     }
 
     // simulation settings

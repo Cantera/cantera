@@ -297,16 +297,7 @@ class FlameBase(Sim1D):
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named ``Lambda`` in the C++ code.
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by
-            `Domain1D.radial_pressure_gradient`.
-            Note: replacement may be shadowed by a species name ``L``.
         """
-        warnings.warn("To be removed after Cantera 3.2. "
-                      "Replaceable by 'Domain1D.radial_pressure_gradient'.",
-                      DeprecationWarning)
         return self.flame.get_values("Lambda")
 
     @property
@@ -315,14 +306,7 @@ class FlameBase(Sim1D):
         Array containing the electric field strength at each point.
         Note: This value is named ``eField`` in the C++ code and is only defined if
         the transport model is ``ionized_gas``.
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.electric_field`.
-            Note: replacement may be shadowed by a species name ``E``.
         """
-        warnings.warn("To be removed after Cantera 3.2. "
-                      "Replaceable by 'Domain1D.electric_field'.", DeprecationWarning)
         return self.flame.get_values("eField")
 
     @property
@@ -332,16 +316,7 @@ class FlameBase(Sim1D):
         each point.
         Note: This value is named ``Uo`` in the C++ code and is only defined when using
         two-point control.
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by
-            `Domain1D.oxidizer_velocity`.
-            Note: replacement may be shadowed by a species name ``Uo``.
         """
-        warnings.warn("To be removed after Cantera 3.2. "
-                      "Replaceable by 'Domain1D.oxidizer_velocity'.",
-                      DeprecationWarning)
         return self.flame.get_values("Uo")
 
     @property

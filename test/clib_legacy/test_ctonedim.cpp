@@ -99,6 +99,7 @@ TEST(ctonedim, catcomb)
 TEST(ctonedim, freeflame)
 {
     ct_resetStorage();
+    suppress_deprecation_warnings();
     auto gas = newThermo("h2o2.yaml", "ohmech");
 
     int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
@@ -203,4 +204,5 @@ TEST(ctonedim, freeflame)
         ASSERT_GE(T, Tprev);
         Tprev = T;
     }
+    make_deprecation_warnings_fatal();
 }

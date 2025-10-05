@@ -8,7 +8,7 @@
  *
  *     flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  *
- * Requires: cantera >= 3.1
+ * Requires: cantera >= 3.2
  *
  * .. tags:: C++, combustion, 1D flow, premixed flame, flame speed, saving output
  */
@@ -96,13 +96,13 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         double uout = inlet->mdot()/rho_out;
         value = {uin, uin, uout, uout};
-        flame.setInitialGuess("velocity",locs,value);
+        flow->setProfile("velocity", locs, value);
         value = {temp, temp, Tad, Tad};
-        flame.setInitialGuess("T",locs,value);
+        flow->setProfile("T", locs, value);
 
         for (size_t i=0; i<nsp; i++) {
             value = {yin[i], yin[i], yout[i], yout[i]};
-            flame.setInitialGuess(gas->speciesName(i),locs,value);
+            flow->setProfile(gas->speciesName(i), locs, value);
         }
 
         inlet->setMoleFractions(x.data());
