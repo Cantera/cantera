@@ -977,7 +977,13 @@ cdef class Sim1D:
             component name or index
 
         >>> T = s.profile(flow, 'T')
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by `get_values`.
         """
+        warnings.warn("To be removed after Cantera 3.2. Replaceable by 'get_values'.",
+                      DeprecationWarning)
         idom, kcomp = self._get_indices(domain, component)
         dom = self.domains[idom]
         cdef int j

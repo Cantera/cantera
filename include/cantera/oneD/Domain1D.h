@@ -196,11 +196,17 @@ public:
         m_name[n] = name;
     }
 
-    //! index of component with name `name`.
+    /**
+     * Index of component with name `name`.
+     * @param name  name of component
+     * @param checkAlias  if `True` (default), check alias mapping
+     */
     virtual size_t componentIndex(const string& name, bool checkAlias=true) const;
 
     /**
      *  Check whether the Domain contains a component.
+     * @param name  name of component
+     * @param checkAlias  if `True` (default), check alias mapping
      */
     virtual bool hasComponent(const string& name, bool checkAlias=true) const;
 

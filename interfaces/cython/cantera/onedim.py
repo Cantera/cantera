@@ -296,7 +296,8 @@ class FlameBase(Sim1D):
 
         .. versionchanged:: 3.2
 
-            Renamed from ``L``, which remains accessible as an attribute.
+            Renamed from ``L``, which remains accessible as an attribute; note: may be
+            shadowed by a species name ``L``.
         """
         return self.get_values(self.flame, "Lambda")
 
@@ -307,10 +308,26 @@ class FlameBase(Sim1D):
         Note: This value is named ``eField`` in the C++ code and is only defined if
         the transport model is ``ionized_gas``.
 
-        .. versionchanged:: 3.2
+        .. versionadded:: 3.2
 
-            Renamed from ``E``, which remains accessible as an attribute.
+            Renamed from ``E``, which remains accessible as an attribute; note: may be
+            shadowed by a species name ``E``.
         """
+        return self.get_values(self.flame, "eField")
+
+    @property
+    def E(self):
+        """
+        Array containing the electric field strength at each point.
+        Note: This value is named ``eField`` in the C++ code and is only defined if
+        the transport model is ``ionized_gas``.
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Renamed to `electric_field`.
+        """
+        warnings.warn("To be removed after Cantera 3.2. Renamed to 'electric_field'.",
+                      DeprecationWarning)
         return self.get_values(self.flame, "eField")
 
     @property
@@ -323,7 +340,8 @@ class FlameBase(Sim1D):
 
         .. versionchanged:: 3.2
 
-            Renamed from ``Uo``, which remains accessible as an attribute.
+            Renamed from ``Uo``, which remains accessible as an attribute; note: may be
+            shadowed by a species name ``Uo``.
         """
         return self.get_values(self.flame, "Uo")
 

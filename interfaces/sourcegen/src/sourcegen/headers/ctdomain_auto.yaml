@@ -19,6 +19,7 @@ recipes:
 - name: nPoints
 - name: componentName
 - name: componentIndex
+  wraps: componentIndex(const char*)
 - name: setBounds
 - name: lowerBound
 - name: upperBound

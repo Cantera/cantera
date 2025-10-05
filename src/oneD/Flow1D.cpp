@@ -846,11 +846,10 @@ size_t Flow1D::componentIndex(const string& name, bool checkAlias) const
 {
     if (componentMap.count(name)) {
         return componentMap.at(name);
-    } else {
-        for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
-            if (componentName(n)==name) {
-                return n;
-            }
+    }
+    for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
+        if (componentName(n)==name) {
+            return n;
         }
     }
     if (checkAlias) {
@@ -860,7 +859,7 @@ size_t Flow1D::componentIndex(const string& name, bool checkAlias) const
         }
     }
     throw CanteraError("Flow1D::componentIndex",
-                       "no component named " + name);
+                       "No component named '{}'", name);
 }
 
 bool Flow1D::hasComponent(const string& name, bool checkAlias) const

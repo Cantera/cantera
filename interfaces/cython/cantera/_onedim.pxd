@@ -23,8 +23,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         size_t nComponents()
         size_t nPoints()
         string componentName(size_t) except +translate_exception
-        size_t componentIndex(string) except +translate_exception
-        cbool hasComponent(string) except +translate_exception
+        size_t componentIndex(string&) except +translate_exception
+        cbool hasComponent(string&) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
         double lowerBound(size_t)
