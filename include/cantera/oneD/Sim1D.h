@@ -88,7 +88,7 @@ public:
      * @since New in %Cantera 3.2.
      */
     void getValues(const string& dom, const string& component,
-                   vector<double>& values) const;
+                   vector<double>& values) const override;
 
     /**
      * Specify component values in the solution vector.
@@ -99,7 +99,7 @@ public:
      * @since New in %Cantera 3.2.
      */
     void setValues(const string& dom, const string& component,
-                   const vector<double>& values);
+                   const vector<double>& values) override;
 
     /**
      * Specify a profile for one component of one domain.

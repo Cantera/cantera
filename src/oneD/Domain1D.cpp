@@ -95,6 +95,22 @@ bool Domain1D::hasComponent(const string& name, bool checkAlias) const
                        "no component named '{}'", name);
 }
 
+void Domain1D::getValues(const string& component, vector<double>& values) const
+{
+    if (!m_container) {
+        throw CanteraError("Domain1D::getValues", "Domain is not connected.");
+    }
+    m_container->getValues(id(), component, values);
+}
+
+void Domain1D::setValues(const string& component, const vector<double>& values)
+{
+    if (!m_container) {
+        throw CanteraError("Domain1D::setValues", "Domain is not connected.");
+    }
+    m_container->setValues(id(), component, values);
+}
+
 void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
