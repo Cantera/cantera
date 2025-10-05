@@ -12,7 +12,7 @@ The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 (doi:10.1155/2014/484372). Please refer to this publication for a detailed
 explanation. Also, please don't forget to cite it if you make use of it.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, diffusion flame, strained flame, extinction,
           saving output, plotting
@@ -124,18 +124,15 @@ while True:
     # Update grid
     # Note that grid scaling changes the diffusion flame width
     f.flame.grid *= strain_factor ** exp_d_a
-    normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
     f.fuel_inlet.mdot *= strain_factor ** exp_mdot_a
     f.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
     # Update velocities
-    f.set_profile('velocity', normalized_grid,
-                  f.velocity * strain_factor ** exp_u_a)
-    f.set_profile('spread_rate', normalized_grid,
-                  f.spread_rate * strain_factor ** exp_V_a)
+    f.flame.set_values("velocity", f.flame.velocity * strain_factor ** exp_u_a)
+    f.flame.set_values('spread_rate', f.flame.spread_rate * strain_factor ** exp_V_a)
     # Update pressure curvature
-    f.set_profile("Lambda", normalized_grid,
-                  f.radial_pressure_gradient * strain_factor ** exp_lam_a)
+    f.flame.set_values(
+        "Lambda", f.flame.radial_pressure_gradient * strain_factor ** exp_lam_a)
     try:
         f.solve(loglevel=0)
     except ct.CanteraError as e:
