@@ -16,7 +16,7 @@ explanation. Also, please don't forget to cite it if you make use of it.
 This example can, for example, be used to iterate to a counterflow diffusion flame to an
 awkward pressure and strain rate, or to create the basis for a flamelet table.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, extinction, diffusion flame, strained flame,
           saving output, plotting
@@ -131,18 +131,16 @@ for p in p_range:
     rel_pressure_increase = p / p_previous
     # Update grid
     f.flame.grid *= rel_pressure_increase ** exp_d_p
-    normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
     f.fuel_inlet.mdot *= rel_pressure_increase ** exp_mdot_p
     f.oxidizer_inlet.mdot *= rel_pressure_increase ** exp_mdot_p
     # Update velocities
-    f.set_profile('velocity', normalized_grid,
-                  f.velocity * rel_pressure_increase ** exp_u_p)
-    f.set_profile('spread_rate', normalized_grid,
-                  f.spread_rate * rel_pressure_increase ** exp_V_p)
+    f.flame.set_values("velocity", f.flame.velocity * rel_pressure_increase ** exp_u_p)
+    f.flame.set_values(
+        "spread_rate", f.flame.spread_rate * rel_pressure_increase ** exp_V_p)
     # Update pressure curvature
-    f.set_profile("Lambda", normalized_grid,
-                  f.radial_pressure_gradient * rel_pressure_increase ** exp_lam_p)
+    f.flame.set_values(
+        "Lambda", f.flame.radial_pressure_gradient * rel_pressure_increase ** exp_lam_p)
 
     try:
         # Try solving the flame
@@ -186,18 +184,15 @@ while np.max(f.T) > temperature_limit_extinction:
     # Create an initial guess based on the previous solution
     # Update grid
     f.flame.grid *= strain_factor ** exp_d_a
-    normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
     f.fuel_inlet.mdot *= strain_factor ** exp_mdot_a
     f.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
     # Update velocities
-    f.set_profile('velocity', normalized_grid,
-                  f.velocity * strain_factor ** exp_u_a)
-    f.set_profile('spread_rate', normalized_grid,
-                  f.spread_rate * strain_factor ** exp_V_a)
+    f.flame.set_values("velocity", f.flame.velocity * strain_factor ** exp_u_a)
+    f.flame.set_values("spread_rate", f.flame.spread_rate * strain_factor ** exp_V_a)
     # Update pressure curvature
-    f.set_profile("Lambda", normalized_grid,
-                  f.radial_pressure_gradient * strain_factor ** exp_lam_a)
+    f.flame.set_values(
+        "Lambda", f.flame.radial_pressure_gradient * strain_factor ** exp_lam_a)
     try:
         # Try solving the flame
         f.solve(loglevel=0)
