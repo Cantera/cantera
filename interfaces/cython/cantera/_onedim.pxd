@@ -24,9 +24,11 @@ cdef extern from "cantera/oneD/Domain1D.h":
         size_t nPoints()
         string componentName(size_t) except +translate_exception
         size_t componentIndex(string&) except +translate_exception
+        cbool hasComponent(string&) except +translate_exception
+        vector[double] grid() except +translate_exception
+        void setupGrid(vector[double]&) except +translate_exception
         void getValues(string&, vector[double]&) except +translate_exception
         void setValues(string&, vector[double]&) except +translate_exception
-        cbool hasComponent(string&) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
         double lowerBound(size_t)
@@ -40,8 +42,6 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double steady_atol(size_t)
         double transient_rtol(size_t)
         double transient_atol(size_t)
-        double z(size_t)
-        void setupGrid(size_t, double*) except +translate_exception
         void setID(string)
         string& id()
         string domainType "type"()

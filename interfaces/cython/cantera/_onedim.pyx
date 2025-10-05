@@ -90,6 +90,19 @@ cdef class Domain1D:
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
 
+    @property
+    def grid(self):
+        """The grid for this domain."""
+        cdef vector[double] grid_vec = self.domain.grid()
+        return np.asarray(grid_vec)
+
+    @grid.setter
+    def grid(self, grid):
+        cdef vector[double] grid_vec
+        for g in grid:
+            grid_vec.push_back(g)
+        self.domain.setupGrid(grid_vec)
+
     def get_values(self, str component):
         """
         Retrieve spatial profile of a component.
@@ -289,20 +302,6 @@ cdef class Domain1D:
                              for n in range(self.n_components)])
         else:
             return self.domain.transient_atol(self.component_index(component))
-
-    property grid:
-        """ The grid for this domain """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.n_points)
-            cdef int i
-            for i in range(self.n_points):
-                grid[i] = self.domain.z(i)
-            return grid
-
-        def __set__(self, grid):
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(grid, dtype=np.double)
-            self.domain.setupGrid(len(data), &data[0])
 
     property name:
         """ The name / id of this domain """
