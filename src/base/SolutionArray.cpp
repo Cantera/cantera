@@ -694,7 +694,7 @@ bool SolutionArray::hasComponent(const string& name, bool checkAlias) const
 AnyValue SolutionArray::getComponent(const string& name) const
 {
     string _name = name;
-    if (reverseAliasMap.count(name)) {
+    if (!hasComponent(name, false) && reverseAliasMap.count(name)) {
         _name = reverseAliasMap.at(name);
     } else if (!hasComponent(name)) {
         throw CanteraError("SolutionArray::getComponent",
