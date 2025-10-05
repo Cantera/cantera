@@ -197,7 +197,12 @@ public:
     }
 
     //! index of component with name `name`.
-    virtual size_t componentIndex(const string& name) const;
+    virtual size_t componentIndex(const string& name, bool checkAlias=true) const;
+
+    /**
+     *  Check whether the Domain contains a component.
+     */
+    virtual bool hasComponent(const string& name, bool checkAlias=true) const;
 
     /**
      * Set the upper and lower bounds for a solution component, n.

@@ -404,6 +404,9 @@ protected:
     vector<int> m_active; //!< Vector of locations referencing active entries
 };
 
+//! Return mapping of component alias names to standardized component names.
+const std::map<std::string, std::string>& _componentAliasMap();
+
 }
 
 #endif

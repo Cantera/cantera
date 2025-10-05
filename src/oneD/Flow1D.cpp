@@ -16,6 +16,15 @@ using namespace std;
 namespace Cantera
 {
 
+const std::map<std::string, size_t> componentMap = {
+    {"velocity", c_offset_U}, // axial velocity [m/s]
+    {"spread_rate", c_offset_V}, // strain rate
+    {"T", c_offset_T}, // temperature [kelvin]
+    {"Lambda", c_offset_L}, // (1/r)dP/dr
+    {"eField", c_offset_E}, // electric field
+    {"Uo", c_offset_Uo}, // oxidizer axial velocity [m/s]
+};
+
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
@@ -833,33 +842,41 @@ string Flow1D::componentName(size_t n) const
     }
 }
 
-size_t Flow1D::componentIndex(const string& name) const
+size_t Flow1D::componentIndex(const string& name, bool checkAlias) const
 {
-    if (name=="velocity") {
-        return c_offset_U;
-    } else if (name=="spread_rate") {
-        return c_offset_V;
-    } else if (name=="T") {
-        return c_offset_T;
-    } else if (name=="Lambda") {
-        return c_offset_L;
-    } else if (name == "eField") {
-        return c_offset_E;
-    } else if (name == "Uo") {
-        return c_offset_Uo;
-    } else if (name=="lambda") {
-        warn_deprecated("Flow1D::componentIndex",
-            "Component 'lambda' is renamed to 'Lambda'.");
-        return c_offset_L;
+    if (componentMap.count(name)) {
+        return componentMap.at(name);
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
                 return n;
             }
         }
-        throw CanteraError("Flow1D::componentIndex",
-                           "no component named " + name);
     }
+    if (checkAlias) {
+        auto aliasMap = _componentAliasMap();
+        if (aliasMap.count(name)) {
+            return componentIndex(aliasMap.at(name), false);
+        }
+    }
+    throw CanteraError("Flow1D::componentIndex",
+                       "no component named " + name);
+}
+
+bool Flow1D::hasComponent(const string& name, bool checkAlias) const
+{
+    if (componentMap.count(name)) {
+        return true;
+    }
+    for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
+        if (componentName(n)==name) {
+            return true;
+        }
+    }
+    if (checkAlias && _componentAliasMap().count(name)) {
+        return true;
+    }
+    return false;
 }
 
 bool Flow1D::componentActive(size_t n) const
