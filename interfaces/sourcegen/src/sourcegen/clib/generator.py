@@ -425,7 +425,10 @@ class CLibSourceGenerator(SourceGenerator):
                     annotations=self._scaffold_annotation(c_func, recipe.what)))
         declarations = "\n\n".join(declarations)
 
-        preamble = self._config.preambles.get(headers.base)
+        preamble = self._config.preambles.get("default")
+        preamble_add = self._config.preambles.get(headers.base)
+        if preamble_add:
+            preamble += "\n" + preamble_add
 
         guard = filename.name.upper().replace(".", "_")
         t_file = Path(__file__).parent / "template_header.h.j2"
