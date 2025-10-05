@@ -61,12 +61,12 @@ TEST(onedim, freeflame)
     // set up initial guess
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
     vector<double> value{uin, uin, uout, uout};
-    flame->setInitialGuess("velocity", locs, value);
+    flow->setProfile("velocity", locs, value);
     value = {T, T, Tad, Tad};
-    flame->setInitialGuess("T", locs, value);
+    flow->setProfile("T", locs, value);
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
-        flame->setInitialGuess(gas->speciesName(i), locs, value);
+        flow->setProfile(gas->speciesName(i), locs, value);
     }
 
     // simulation settings

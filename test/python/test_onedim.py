@@ -723,7 +723,6 @@ class TestFreeFlame:
 
         Y1 = self.sim.Y
         u1 = self.sim.velocity
-        V1 = self.sim.spread_rate
         P1 = self.sim.P
         T1 = self.sim.T
         self.sim.save(filename, "test")
@@ -751,24 +750,20 @@ class TestFreeFlame:
 
         Y2 = self.sim.Y
         u2 = self.sim.velocity
-        V2 = self.sim.spread_rate
         T2 = self.sim.T
 
         assert Y1 == approx(Y2)
         assert u1 == approx(u2)
-        assert V1 == approx(V2)
         assert T1 == approx(T2)
 
         self.solve_fixed_T()
         Y3 = self.sim.Y
         u3 = self.sim.velocity
-        V3 = self.sim.spread_rate
 
         # TODO: These tolerances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
         assert Y1 == approx(Y3, rel=3e-3)
         assert u1 == approx(u3, rel=1e-3)
-        assert V1 == approx(V3, rel=1e-3)
 
         assert not self.sim.radiation_enabled
         assert not self.sim.soret_enabled
@@ -1728,7 +1723,6 @@ class TestBurnerFlame:
             sim.burner.mdot = gas.density * 0.15
             sim.solve(loglevel=0, auto=True)
             assert sim.T[1] > T
-            assert np.allclose(sim.flame.radial_pressure_gradient, 0)
         return _run_case
 
     @pytest.mark.parametrize(
@@ -2090,8 +2084,7 @@ class TestIonFreeFlame:
 
         # Regression test
         assert max(self.sim.flame.electric_field) == approx(149.6317905667685, rel=1e-3)
-        with pytest.warns(DeprecationWarning, match="by 'Domain1D.electric_field'"):
-            assert np.allclose(self.sim.E, self.sim.flame.electric_field)
+        assert np.allclose(self.sim.E, self.sim.flame.electric_field)
         zeros = self.sim.T
         with pytest.raises(ct.CanteraError, match="is not used by 'free-ion-flow'"):
             self.sim.flame.set_values("oxidizer-velocity", zeros)

@@ -10,9 +10,9 @@ recipes:
 - name: newSim1D
   uses: domain
 - name: setValue
-- name: setProfile
-- name: setFlatProfile
-- name: setInitialGuess
+- name: setProfile  # deprecated
+- name: setFlatProfile  # deprecated
+- name: setInitialGuess  # deprecated
 - name: show
 - name: setTimeStep
 - name: getInitialSoln
