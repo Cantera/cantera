@@ -142,6 +142,32 @@ public:
     double lowerBound(size_t i) const override;
 
     /**
+     * Retrieve component values from the solution vector.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param[out] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void getValues(const string& dom, const string& component,
+                           vector<double>& values) const {
+        throw NotImplementedError("OneDim::getValues", "Needs to be overloaded.");
+    }
+
+    /**
+     * Specify component values in the solution vector.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param[in] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void setValues(const string& dom, const string& component,
+                           const vector<double>& values) {
+        throw NotImplementedError("OneDim::setValues", "Needs to be overloaded.");
+    }
+
+    /**
      * Initialize all domains. On the first call, this methods calls the init
      * method of each domain, proceeding from left to right. Subsequent calls
      * do nothing.

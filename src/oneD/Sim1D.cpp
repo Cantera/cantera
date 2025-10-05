@@ -76,14 +76,14 @@ void Sim1D::getValues(const string& dom, const string& component,
                       vector<double>& values) const
 {
     size_t dIdx = domainIndex(dom);
-    domain(dIdx).getValues(m_state->data() + domain(dIdx).loc(), component, values);
+    domain(dIdx)._getValues(m_state->data() + domain(dIdx).loc(), component, values);
 }
 
 void Sim1D::setValues(const string& dom, const string& component,
                       const vector<double>& values)
 {
     size_t dIdx = domainIndex(dom);
-    domain(dIdx).setValues(m_state->data() + domain(dIdx).loc(), component, values);
+    domain(dIdx)._setValues(m_state->data() + domain(dIdx).loc(), component, values);
 }
 
 void Sim1D::setProfile(size_t dom, size_t comp,
