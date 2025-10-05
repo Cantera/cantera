@@ -353,6 +353,32 @@ public:
         return x[index(n,j)];
     }
 
+    /**
+     * Retrieve component values from the solution vector.
+     * @param soln  local solution vector for this domain
+     * @param component  name of component
+     * @param[out] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void getValues(const double* soln, const string& component,
+                           vector<double>& values) const {
+        throw NotImplementedError("Domain1D::getValues", "Needs to be overloaded.");
+    }
+
+    /**
+     * Specify component values in the solution vector.
+     * @param soln  local solution vector for this domain
+     * @param component  name of component
+     * @param[in] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void setValues(double* soln, const string& component,
+                           const vector<double>& values) {
+        throw NotImplementedError("Domain1D::setValues", "Needs to be overloaded.");
+    }
+
     //! Save the state of this domain as a SolutionArray.
     /*!
      * @param soln  local solution vector for this domain

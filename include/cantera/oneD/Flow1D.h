@@ -184,6 +184,11 @@ public:
 
     void show(const double* x) override;
 
+    void getValues(const double* soln, const string& component,
+                   vector<double>& values) const override;
+    void setValues(double* soln, const string& component,
+                   const vector<double>& values) override;
+
     shared_ptr<SolutionArray> asArray(const double* soln) const override;
     void fromArray(SolutionArray& arr, double* soln) override;
 

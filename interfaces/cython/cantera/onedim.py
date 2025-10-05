@@ -271,14 +271,14 @@ class FlameBase(Sim1D):
     @property
     def T(self):
         """ Array containing the temperature [K] at each grid point. """
-        return self.profile(self.flame, 'T')
+        return self.get_values(self.flame, "T")
 
     @property
     def velocity(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
-        return self.profile(self.flame, 'velocity')
+        return self.get_values(self.flame, "velocity")
 
     @property
     def spread_rate(self):
@@ -286,33 +286,46 @@ class FlameBase(Sim1D):
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
-        return self.profile(self.flame, 'spread_rate')
+        return self.get_values(self.flame, "spread_rate")
 
     @property
     def radial_pressure_gradient(self):
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
-        each point. Note: This value is named `Lambda` in the C++ code.
+        each point. Note: This value is named ``Lambda`` in the C++ code.
+
+        .. versionchanged:: 3.2
+
+            Renamed from ``L``, which remains accessible as an attribute.
         """
-        return self.profile(self.flame, "Lambda")
+        return self.get_values(self.flame, "Lambda")
 
     @property
     def electric_field(self):
         """
         Array containing the electric field strength at each point.
+        Note: This value is named ``eField`` in the C++ code and is only defined if
+        the transport model is ``ionized_gas``.
+
+        .. versionchanged:: 3.2
+
+            Renamed from ``E``, which remains accessible as an attribute.
         """
-        if self.flame.transport_model != "ionized-gas":
-            raise AttributeError(
-                "Electric field is only defined for transport model 'ionized_gas'.")
-        return self.profile(self.flame, 'eField')
+        return self.get_values(self.flame, "eField")
 
     @property
     def oxidizer_velocity(self):
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
-        each point. Note: This value is only defined when using two-point control.
+        each point.
+        Note: This value is named ``Uo`` in the C++ code and is only defined when using
+        two-point control.
+
+        .. versionchanged:: 3.2
+
+            Renamed from ``Uo``, which remains accessible as an attribute.
         """
-        return self.profile(self.flame, 'Uo')
+        return self.get_values(self.flame, "Uo")
 
     def __getattr__(self, name):
         try:
@@ -321,13 +334,13 @@ class FlameBase(Sim1D):
             pass
 
         # Fallback to flame component lookup
-        flame = object.__getattribute__(self, 'flame')
+        flame = object.__getattribute__(self, "flame")
 
         if (not flame._has_component(name) and
             flame._has_component(name.replace("_", "-"))):
             name = name.replace("_", "-")
         if flame._has_component(name):
-            return self.profile(flame, name)
+            return self.get_values(flame, name)
 
         raise AttributeError(
             f"{flame.__class__.__name__!r} object has no attribute {name!r}")

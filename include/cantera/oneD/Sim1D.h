@@ -80,6 +80,28 @@ public:
     double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
+     * Retrieve component values from the solution vector.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param[out] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void getValues(const string& dom, const string& component,
+                   vector<double>& values) const;
+
+    /**
+     * Specify component values in the solution vector.
+     * @param dom  name of domain
+     * @param component  name of component
+     * @param[in] values  vector of values
+     *
+     * @since New in %Cantera 3.2.
+     */
+    void setValues(const string& dom, const string& component,
+                   const vector<double>& values);
+
+    /**
      * Specify a profile for one component of one domain.
      * @param dom  domain number, beginning with 0 for the leftmost domain.
      * @param comp  component number

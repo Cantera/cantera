@@ -946,6 +946,40 @@ AnyMap Flow1D::getMeta() const
     return state;
 }
 
+void Flow1D::getValues(const double* soln, const string& component,
+                       vector<double>& values) const
+{
+    if (values.size() != nPoints()) {
+        throw ArraySizeError("Flow1D::getValues", values.size(), nPoints());
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        warn_user(
+            "Flow1D::getValues", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    for (size_t j = 0; j < nPoints(); j++) {
+        values[j] = soln[index(i,j)];
+    }
+}
+
+void Flow1D::setValues(double* soln, const string& component,
+                       const vector<double>& values)
+{
+    if (values.size() != nPoints()) {
+        throw ArraySizeError("Flow1D::setValues", values.size(), nPoints());
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        throw CanteraError(
+            "Flow1D::setValues", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    for (size_t j = 0; j < nPoints(); j++) {
+        soln[index(i,j)] = values[j];
+    }
+}
+
 shared_ptr<SolutionArray> Flow1D::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(
