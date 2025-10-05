@@ -24,6 +24,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         size_t nPoints()
         string componentName(size_t) except +translate_exception
         size_t componentIndex(string&) except +translate_exception
+        void getValues(string&, vector[double]&) except +translate_exception
+        void setValues(string&, vector[double]&) except +translate_exception
         cbool hasComponent(string&) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
@@ -111,8 +113,6 @@ cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setValue(size_t, size_t, size_t, double) except +translate_exception
-        void getValues(string&, string&, vector[double]&) except +translate_exception
-        void setValues(string&, string&, vector[double]&) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
         void setFlatProfile(size_t, size_t, double) except +translate_exception
         void show() except +translate_exception
