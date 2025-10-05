@@ -53,6 +53,11 @@ const std::map<std::string, std::string> reverseAliasMap = {
 namespace Cantera
 {
 
+const std::map<std::string, std::string>& _componentAliasMap()
+{
+    return reverseAliasMap;
+}
+
 SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
                              int size, const AnyMap& meta)
     : m_sol(sol)

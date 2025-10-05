@@ -73,7 +73,7 @@ string Domain1D::componentName(size_t n) const
     }
 }
 
-size_t Domain1D::componentIndex(const string& name) const
+size_t Domain1D::componentIndex(const string& name, bool checkAlias) const
 {
     for (size_t n = 0; n < nComponents(); n++) {
         if (name == componentName(n)) {
@@ -81,7 +81,18 @@ size_t Domain1D::componentIndex(const string& name) const
         }
     }
     throw CanteraError("Domain1D::componentIndex",
-                       "no component named "+name);
+                       "no component named '{}'", name);
+}
+
+bool Domain1D::hasComponent(const string& name, bool checkAlias) const
+{
+    for (size_t n = 0; n < nComponents(); n++) {
+        if (name == componentName(n)) {
+            return true;
+        }
+    }
+    throw CanteraError("Domain1D::hasComponent",
+                       "no component named '{}'", name);
 }
 
 void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)

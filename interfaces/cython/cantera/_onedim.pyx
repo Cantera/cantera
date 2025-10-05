@@ -86,6 +86,10 @@ cdef class Domain1D:
         """Index of the component with name 'name'"""
         return self.domain.componentIndex(stringify(name))
 
+    def _has_component(self, str name):
+        """Check whether `Domain1D` has component"""
+        return self.domain.hasComponent(stringify(name))
+
     def set_bounds(self, *, default=None, Y=None, **kwargs):
         """
         Set the lower and upper bounds on the solution.

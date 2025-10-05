@@ -175,7 +175,9 @@ public:
 
     string componentName(size_t n) const override;
 
-    size_t componentIndex(const string& name) const override;
+    size_t componentIndex(const string& name, bool checkAlias=true) const override;
+
+    bool hasComponent(const string& name, bool checkAlias=true) const override;
 
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;

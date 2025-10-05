@@ -289,7 +289,7 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, 'spread_rate')
 
     @property
-    def L(self):
+    def radial_pressure_gradient(self):
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named `Lambda` in the C++ code.
@@ -297,7 +297,7 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, "Lambda")
 
     @property
-    def E(self):
+    def electric_field(self):
         """
         Array containing the electric field strength at each point.
         """
@@ -307,12 +307,30 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, 'eField')
 
     @property
-    def Uo(self):
+    def oxidizer_velocity(self):
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
         each point. Note: This value is only defined when using two-point control.
         """
         return self.profile(self.flame, 'Uo')
+
+    def __getattr__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            pass
+
+        # Fallback to flame component lookup
+        flame = object.__getattribute__(self, 'flame')
+
+        if (not flame._has_component(name) and
+            flame._has_component(name.replace("_", "-"))):
+            name = name.replace("_", "-")
+        if flame._has_component(name):
+            return self.profile(flame, name)
+
+        raise AttributeError(
+            f"{flame.__class__.__name__!r} object has no attribute {name!r}")
 
     @property
     def left_control_point_temperature(self):
