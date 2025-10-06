@@ -945,59 +945,72 @@ AnyMap Flow1D::getMeta() const
     return state;
 }
 
-void Flow1D::_getValues(const double* soln, const string& component,
-                        vector<double>& values) const
+void Flow1D::getValues(const string& component, vector<double>& values) const
 {
+    if (!m_state) {
+        throw CanteraError("Flow1D::getValues",
+            "Domain needs to be installed in a container.");
+    }
     if (values.size() != nPoints()) {
-        throw ArraySizeError("Flow1D::_getValues", values.size(), nPoints());
+        throw ArraySizeError("Flow1D::getValues", values.size(), nPoints());
     }
     auto i = componentIndex(component);
     if (!componentActive(i)) {
         warn_user(
-            "Flow1D::_getValues", "Component '{}' is not used by '{}'.",
+            "Flow1D::getValues", "Component '{}' is not used by '{}'.",
             component, domainType());
     }
+    const double* soln = m_state->data() + m_iloc;
     for (size_t j = 0; j < nPoints(); j++) {
         values[j] = soln[index(i,j)];
     }
 }
 
-void Flow1D::_setValues(double* soln, const string& component,
-                        const vector<double>& values)
+void Flow1D::setValues(const string& component, const vector<double>& values)
 {
+    if (!m_state) {
+        throw CanteraError("Flow1D::setValues",
+            "Domain needs to be installed in a container.");
+    }
     if (values.size() != nPoints()) {
-        throw ArraySizeError("Flow1D::_setValues", values.size(), nPoints());
+        throw ArraySizeError("Flow1D::_etValues", values.size(), nPoints());
     }
     auto i = componentIndex(component);
     if (!componentActive(i)) {
         throw CanteraError(
-            "Flow1D::_setValues", "Component '{}' is not used by '{}'.",
+            "Flow1D::setValues", "Component '{}' is not used by '{}'.",
             component, domainType());
     }
+    double* soln = m_state->data() + m_iloc;
     for (size_t j = 0; j < nPoints(); j++) {
         soln[index(i,j)] = values[j];
     }
 }
 
-void Flow1D::_setProfile(double* soln, const string& component,
-                         const vector<double>& pos, const vector<double>& values)
+void Flow1D::setProfile(const string& component,
+                        const vector<double>& pos, const vector<double>& values)
 {
+    if (!m_state) {
+        throw CanteraError("Flow1D::setProfile",
+            "Domain needs to be installed in a container.");
+    }
     if (pos.size() != values.size()) {
         throw CanteraError(
-            "Flow1D::_setProfile", "Vectors for positions and values must have same "
+            "Flow1D::setProfile", "Vectors for positions and values must have same "
             "size.\nSizes are {} and {}, respectively.", pos.size(), values.size());
     }
     if (pos.front() != 0.0 || pos.back() != 1.0) {
-        throw CanteraError("Flow1D::_setProfile",
+        throw CanteraError("Flow1D::setProfile",
             "'pos' vector must span the range [0, 1]. Got a vector spanning "
             "[{}, {}] instead.", pos.front(), pos.back());
     }
     auto i = componentIndex(component);
     if (!componentActive(i)) {
         throw CanteraError(
-            "Flow1D::_setProfile", "Component '{}' is not used by '{}'.",
+            "Flow1D::setProfile", "Component '{}' is not used by '{}'.",
             component, domainType());
     }
+    double* soln = m_state->data() + m_iloc;
     double z0 = zmin();
     double zDelta = zmax() - z0;
     for (size_t j = 0; j < nPoints(); j++) {
@@ -1007,14 +1020,19 @@ void Flow1D::_setProfile(double* soln, const string& component,
     }
 }
 
-void Flow1D::_setFlatProfile(double* soln, const string& component, double v)
+void Flow1D::setFlatProfile(const string& component, double v)
 {
+    if (!m_state) {
+        throw CanteraError("Flow1D::setFlatProfile",
+            "Domain needs to be installed in a container.");
+    }
     auto i = componentIndex(component);
     if (!componentActive(i)) {
         throw CanteraError(
-            "Flow1D::_setFlatProfile", "Component '{}' is not used by '{}'.",
+            "Flow1D::setFlatProfile", "Component '{}' is not used by '{}'.",
             component, domainType());
     }
+    double* soln = m_state->data() + m_iloc;
     for (size_t j = 0; j < nPoints(); j++) {
         soln[index(i,j)] = v;
     }

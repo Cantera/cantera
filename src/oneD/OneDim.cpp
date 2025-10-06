@@ -72,34 +72,6 @@ double OneDim::lowerBound(size_t i) const
     return dom.lowerBound(k);
 }
 
-void OneDim::getValues(const string& dom, const string& component,
-                       vector<double>& values) const
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._getValues(m_state->data() + domain(dIdx).loc(), component, values);
-}
-
-void OneDim::setValues(const string& dom, const string& component,
-                       const vector<double>& values)
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._setValues(m_state->data() + domain(dIdx).loc(), component, values);
-}
-
-void OneDim::setProfile(const string& dom, const string& component,
-                        const vector<double>& pos, const vector<double>& values)
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._setProfile(m_state->data() + domain(dIdx).loc(), component,
-                             pos, values);
-}
-
-void OneDim::setFlatProfile(const string& dom, const string& component, double v)
-{
-    size_t dIdx = domainIndex(dom);
-    domain(dIdx)._setFlatProfile(m_state->data() + domain(dIdx).loc(), component, v);
-}
-
 void OneDim::addDomain(shared_ptr<Domain1D> d)
 {
     // if 'd' is not the first domain, link it to the last domain
