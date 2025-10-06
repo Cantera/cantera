@@ -7,6 +7,7 @@
 #define CT_FLOW1D_H
 
 #include "Domain1D.h"
+#include "OneDim.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -190,8 +191,8 @@ public:
                     const vector<double>& pos, const vector<double>& values) override;
     void setFlatProfile(const string& component, double v) override;
 
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
-    void fromArray(SolutionArray& arr, double* soln) override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
     //! Set flow configuration for freely-propagating flames, using an internal point
     //! with a fixed temperature as the condition to determine the inlet mass flux.

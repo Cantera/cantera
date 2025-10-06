@@ -157,30 +157,6 @@ AnyMap Domain1D::getMeta() const
     return state;
 }
 
-shared_ptr<SolutionArray> Domain1D::toArray(bool normalize) const {
-    if (!m_state) {
-        throw CanteraError("Domain1D::toArray",
-            "Domain needs to be installed in a container before calling toArray.");
-    }
-    auto ret = asArray(m_state->data() + m_iloc);
-    if (normalize) {
-        ret->normalize();
-    }
-    return ret;
-}
-
-void Domain1D::fromArray(const shared_ptr<SolutionArray>& arr)
-{
-    if (!m_state) {
-        throw CanteraError("Domain1D::fromArray",
-            "Domain needs to be installed in a container before calling fromArray.");
-    }
-    resize(nComponents(), arr->size());
-    m_container->resize();
-    fromArray(*arr, m_state->data() + m_iloc);
-    _finalize(m_state->data() + m_iloc);
-}
-
 void Domain1D::setMeta(const AnyMap& meta)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector<double>& out)

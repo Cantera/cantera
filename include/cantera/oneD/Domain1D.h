@@ -420,9 +420,12 @@ public:
      *      directly in future revisions, where a non-const version will be implemented.
      *
      * @since New in %Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.2. Replaceable by toArray().
      */
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
-        throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
+    shared_ptr<SolutionArray> asArray(const double* soln) const {
+        warn_deprecated("Domain1D::asArray",
+            "To be removed after Cantera 3.2. Replaceable by 'toArray'.");
+        return toArray();
     }
 
     //! Save the state of this domain to a SolutionArray.
@@ -433,7 +436,9 @@ public:
      *
      * @since New in %Cantera 3.0.
      */
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const;
+    virtual shared_ptr<SolutionArray> toArray(bool normalize=false) const {
+        throw NotImplementedError("Domain1D::toArray", "Needs to be overloaded.");
+    }
 
     //! Restore the solution for this domain from a SolutionArray
     /*!
@@ -441,9 +446,15 @@ public:
      * @param[out] soln  Value of the solution vector, local to this domain
      *
      * @since New in %Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.2.
+     *      Replaceable by version that does not require solution vector.
      */
-    virtual void fromArray(SolutionArray& arr, double* soln) {
-        throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
+    void fromArray(SolutionArray& arr, double* soln) {
+        warn_deprecated("Domain1D::fromArray",
+            "To be removed after Cantera 3.2. Replaceable by version that does not "
+            "require solution vector.");
+        shared_ptr<SolutionArray> arr_ptr(&arr, [](SolutionArray*){});
+        fromArray(arr_ptr);
     }
 
     //! Restore the solution for this domain from a SolutionArray.
@@ -452,7 +463,9 @@ public:
      * @param arr  SolutionArray defining the state of this domain
      * @since New in %Cantera 3.0.
      */
-    void fromArray(const shared_ptr<SolutionArray>& arr);
+    virtual void fromArray(const shared_ptr<SolutionArray>& arr) {
+        throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
+    }
 
     //! Return thermo/kinetics/transport manager used in the domain
     //! @since New in %Cantera 3.0.
