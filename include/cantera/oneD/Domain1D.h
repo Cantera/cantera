@@ -366,7 +366,9 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    void getValues(const string& component, vector<double>& values) const;
+    virtual void getValues(const string& component, vector<double>& values) const {
+        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+    }
 
     /**
      * Specify component values.
@@ -375,7 +377,9 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    void setValues(const string& component, const vector<double>& values);
+    virtual void setValues(const string& component, const vector<double>& values) {
+        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+    }
 
     /**
      * Specify a profile for a component.
@@ -392,8 +396,10 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    void setProfile(const string& component,
-                    const vector<double>& pos, const vector<double>& values);
+    virtual void setProfile(const string& component,
+                            const vector<double>& pos, const vector<double>& values) {
+        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+    }
 
     /**
      * Specify a flat profile for a component.
@@ -402,40 +408,7 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    void setFlatProfile(const string& component, double v);
-
-    /**
-     * Retrieve component values from the solution vector.
-     * @since New in %Cantera 3.2.
-     */
-    virtual void _getValues(const double* soln, const string& component,
-                            vector<double>& values) const {
-        throw NotImplementedError("Domain1D::getValues", "Needs to be overloaded.");
-    }
-
-    /**
-     * Specify component values in the solution vector.
-     * @since New in %Cantera 3.2.
-     */
-    virtual void _setValues(double* soln, const string& component,
-                            const vector<double>& values) {
-        throw NotImplementedError("Domain1D::setValues", "Needs to be overloaded.");
-    }
-
-    /**
-     * Specify a profile for a component in the solution vector.
-     * @since New in %Cantera 3.2.
-     */
-    virtual void _setProfile(double* soln, const string& component,
-                             const vector<double>& pos, const vector<double>& values) {
-        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
-    }
-
-    /**
-     * Specify a flat profile for a component in the solution vector.
-     * @since New in %Cantera 3.2.
-     */
-    virtual void _setFlatProfile(double* soln, const string& component, double v) {
+    virtual void setFlatProfile(const string& component, double v) {
         throw NotImplementedError(
             "Domain1D::setFlatProfile", "Needs to be overloaded.");
     }
