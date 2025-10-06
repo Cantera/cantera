@@ -102,7 +102,7 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
     if (extension == "csv") {
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_state->data() + dom->loc());
+            auto arr = dom->toArray();
             if (dom->size() > 1) {
                 arr->writeEntry(fname, overwrite, basis);
                 break;
@@ -117,7 +117,7 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         SolutionArray::writeHeader(fname, name, desc, overwrite);
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_state->data() + dom->loc());
+            auto arr = dom->toArray();
             arr->writeEntry(fname, name, dom->id(), overwrite, compression);
         }
         return;
@@ -131,7 +131,7 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
         SolutionArray::writeHeader(data, name, desc, overwrite);
 
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_state->data() + dom->loc());
+            auto arr = dom->toArray();
             arr->writeEntry(data, name, dom->id(), overwrite);
         }
 
@@ -275,7 +275,7 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
             try {
-                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+                dom->fromArray(arrs[dom->id()]);
             } catch (CanteraError& err) {
                 throw CanteraError("Sim1D::restore",
                     "Encountered exception when restoring domain '{}' from HDF:\n{}",
@@ -304,7 +304,7 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
             try {
-                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+                dom->fromArray(arrs[dom->id()]);
             } catch (CanteraError& err) {
                 throw CanteraError("Sim1D::restore",
                     "Encountered exception when restoring domain '{}' from YAML:\n{}",

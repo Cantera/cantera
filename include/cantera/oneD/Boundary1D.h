@@ -109,7 +109,7 @@ public:
 
     void setupGrid(size_t n, const double* z) override {}
 
-    void fromArray(SolutionArray& arr, double* soln) override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
 protected:
     //! Initialize member variables based on the adjacent domains.
@@ -173,8 +173,8 @@ public:
     }
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
-    void fromArray(SolutionArray& arr, double* soln) override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
 protected:
     //! A marker that indicates whether this is a left inlet or a right inlet.
@@ -216,7 +216,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
 };
 
 /**
@@ -245,7 +245,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
 };
 
 
@@ -275,7 +275,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
 };
 
 
@@ -312,8 +312,8 @@ public:
 
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
-    void fromArray(SolutionArray& arr, double* soln) override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
 protected:
     size_t m_nsp = 0; //!< Number of species in the adjacent flow domain
@@ -347,8 +347,8 @@ public:
 
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
-    void fromArray(SolutionArray& arr, double* soln) override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
     void show(const double* x) override;
 };
 
@@ -390,8 +390,8 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> asArray(const double* soln) const override;
-    void fromArray(SolutionArray& arr, double* soln) override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
     void _getInitialSoln(double* x) override {
         m_sphase->getCoverages(x);

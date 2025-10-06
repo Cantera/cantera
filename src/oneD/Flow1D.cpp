@@ -1038,8 +1038,13 @@ void Flow1D::setFlatProfile(const string& component, double v)
     }
 }
 
-shared_ptr<SolutionArray> Flow1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Flow1D::toArray(bool normalize) const
 {
+    if (!m_state) {
+        throw CanteraError("Flow1D::toArray",
+            "Domain needs to be installed in a container before calling toArray.");
+    }
+    double* soln = m_state->data() + m_iloc;
     auto arr = SolutionArray::create(
         m_solution, static_cast<int>(nPoints()), getMeta());
     arr->addExtra("grid", false); // leading entry
@@ -1069,33 +1074,44 @@ shared_ptr<SolutionArray> Flow1D::asArray(const double* soln) const
         arr->setComponent("radiative-heat-loss", value);
     }
 
+    if (normalize) {
+        arr->normalize();
+    }
     return arr;
 }
 
-void Flow1D::fromArray(SolutionArray& arr, double* soln)
+void Flow1D::fromArray(const shared_ptr<SolutionArray>& arr)
 {
-    Domain1D::setMeta(arr.meta());
-    arr.setLoc(0);
-    auto phase = arr.thermo();
+    if (!m_state) {
+        throw CanteraError("Domain1D::fromArray",
+            "Domain needs to be installed in a container before calling fromArray.");
+    }
+    resize(nComponents(), arr->size());
+    m_container->resize();
+    double* soln = m_state->data() + m_iloc;
+
+    Domain1D::setMeta(arr->meta());
+    arr->setLoc(0);
+    auto phase = arr->thermo();
     m_press = phase->pressure();
 
-    const auto grid = arr.getComponent("grid").as<vector<double>>();
+    const auto grid = arr->getComponent("grid").as<vector<double>>();
     setupGrid(nPoints(), &grid[0]);
-    setMeta(arr.meta()); // can affect which components are active
+    setMeta(arr->meta()); // can affect which components are active
 
     for (size_t i = 0; i < nComponents(); i++) {
         if (!componentActive(i)) {
             continue;
         }
         string name = componentName(i);
-        if (arr.hasComponent(name)) {
-            const vector<double> data = arr.getComponent(name).as<vector<double>>();
+        if (arr->hasComponent(name)) {
+            const vector<double> data = arr->getComponent(name).as<vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }
-        } else if (name == "Lambda" && arr.hasComponent("lambda")) {
+        } else if (name == "Lambda" && arr->hasComponent("lambda")) {
             // edge case: 'lambda' is renamed to 'Lambda' in Cantera 3.2
-            const vector<double> data = arr.getComponent("lambda").as<vector<double>>();
+            const auto data = arr->getComponent("lambda").as<vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }
@@ -1105,7 +1121,8 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
         }
     }
 
-    updateProperties(npos, soln + loc(), 0, m_points - 1);
+    updateProperties(npos, soln, 0, m_points - 1);
+    _finalize(soln);
 }
 
 void Flow1D::setMeta(const AnyMap& state)
