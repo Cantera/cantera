@@ -146,7 +146,6 @@ classdef ctTestReactor < ctTestCase
         end
 
         function testHeatTransfer1(self)
-            self.assumeFail('Skipped since the two sides of the wall could not equilibrate in 10 s');
             self.makeReactors('T1', 300, 'T2', 1000);
             self.addWall('U', 500, 'A', 1.0);
 
@@ -164,14 +163,6 @@ classdef ctTestReactor < ctTestCase
             self.net.advance(1.0);
             T1a = self.r1.T;
             T2a = self.r2.T;
-
-            % Delete old objects to prevent illegal memory access
-            delete(self.gas1);
-            delete(self.gas2);
-            delete(self.r1);
-            delete(self.r2);
-            delete(self.net);
-            delete(self.w);
 
             self.makeReactors('T1', 300, 'T2', 1000);
             self.r1.V = 0.25;
@@ -327,7 +318,7 @@ classdef ctTestReactor < ctTestCase
         end
 
         function testHeatFluxFunc(self)
-            self.assumeFail('Skipped until anonymous functions can be set as Func1');
+            self.assumeFail('Skipped until Func1.heatFlux getter is implemented');
             self.makeReactors('T1', 500, 'T2', 300);
             self.r1.V = 0.5;
 
@@ -336,7 +327,7 @@ classdef ctTestReactor < ctTestCase
             V1a = self.r1.V;
             V2a = self.r2.V;
 
-            self.add_wall('A', 0.3);
+            self.addWall('A', 0.3);
             f = Func1('polynomial3', [-90000, 0, 90000]);
             self.w.heatFlux = f;
             Q = 0.3 * 60000;
