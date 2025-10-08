@@ -2,7 +2,7 @@
 Constant-pressure, adiabatic kinetics simulation with sensitivity analysis
 ==========================================================================
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, sensitivity analysis, plotting
 """
@@ -37,10 +37,10 @@ for t in np.arange(0, 2e-3, 5e-6):
     sim.advance(t)
     s2 = sim.sensitivity('OH', 2)  # sensitivity of OH to reaction 2
     s3 = sim.sensitivity('OH', 3)  # sensitivity of OH to reaction 3
-    states.append(r.thermo.state, t=1000*t, s2=s2, s3=s3)
+    states.append(r.contents.state, t=1000*t, s2=s2, s3=s3)
 
     print('{:10.3e} {:10.3f} {:10.3f} {:14.6e} {:10.3f} {:10.3f}'.format(
-        sim.time, r.T, r.thermo.P, r.thermo.u, s2, s3))
+        sim.time, r.T, r.contents.P, r.contents.u, s2, s3))
 
 # plot the results if matplotlib is installed.
 # see http://matplotlib.org/ to get it

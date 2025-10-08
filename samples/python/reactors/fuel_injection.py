@@ -9,7 +9,7 @@ Demonstrates the use of a user-supplied function for the mass flow rate through
 a `MassFlowController`, and the use of the `SolutionArray` class to store results
 during reactor network integration and use these results to generate plots.
 
-Requires: cantera >= 3.1, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, kinetics, pollutant formation, plotting
 """
@@ -61,7 +61,7 @@ while tnow < tfinal:
     if tnow-tprev > 1e-2 or i == 10:
         i = 0
         tprev = tnow
-        states.append(r.thermo.state, t=tnow)
+        states.append(r.contents.state, t=tnow)
 
 # nice names for species, including PAH species that can be considered
 # as precursors to soot formation

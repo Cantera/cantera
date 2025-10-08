@@ -2,7 +2,7 @@
 Constant-pressure, adiabatic kinetics simulation
 ================================================
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, plotting
 """
@@ -30,9 +30,9 @@ print('{:10s} {:10s} {:10s} {:14s}'.format(
     't [s]', 'T [K]', 'P [Pa]', 'u [J/kg]'))
 while sim.time < t_end:
     sim.advance(sim.time + dt_max)
-    states.append(r.thermo.state, t=sim.time*1e3)
+    states.append(r.contents.state, t=sim.time*1e3)
     print('{:10.3e} {:10.3f} {:10.3f} {:14.6f}'.format(
-            sim.time, r.T, r.thermo.P, r.thermo.u))
+            sim.time, r.T, r.contents.P, r.contents.u))
 
 # Plot the results if matplotlib is installed.
 # See http://matplotlib.org/ to get it.

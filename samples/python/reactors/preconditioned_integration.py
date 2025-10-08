@@ -5,7 +5,7 @@ Acceleration of reactor integration using a sparse preconditioned solver
 Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned
 and non-preconditioned integration of n-hexane.
 
-Requires: cantera >= 3.0.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, preconditioner
 """
@@ -40,10 +40,10 @@ def integrate_reactor(preconditioner=True):
     # Advance to steady state
     integ_time = default_timer()
     # solution array for state data
-    states = ct.SolutionArray(reactor.thermo, extra=['time'])
+    states = ct.SolutionArray(reactor.contents, extra=['time'])
     # advance to steady state manually
     while (sim.time < 0.1):
-        states.append(reactor.thermo.state, time=sim.time)
+        states.append(reactor.contents.state, time=sim.time)
         sim.step()
     integ_time = default_timer() - integ_time
     # Return time to integrate

@@ -28,7 +28,7 @@ References:
     Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
     Proc. Combust. Inst. 40 (2024) 105779.
 
-Requires: cantera >= 3.1, pandas, matplotlib
+Requires: cantera >= 3.2, pandas, matplotlib
 
 .. tags:: jet-stirred reactor, kinetics, combustion
 """
@@ -94,11 +94,11 @@ def getTemperatureDependence(gas, inputs):
         t = 0
         while t < inputs['t_max']:
             t = reactorNetwork.step()
-        state = np.hstack([stirredReactor.thermo.P,
+        state = np.hstack([stirredReactor.contents.P,
                         stirredReactor.mass,
                         stirredReactor.volume,
                         stirredReactor.T,
-                        stirredReactor.thermo.X])
+                        stirredReactor.contents.X])
         tempDependence.loc[T] = state
     return tempDependence
 

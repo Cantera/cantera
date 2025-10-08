@@ -27,7 +27,7 @@ References:
     Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
     Proc. Combust. Inst. 40 (2024) 105779.
 
-Requires: cantera >= 3.1, matplotlib
+Requires: cantera >= 3.2, matplotlib
 
 .. tags:: Python, shock tube, kinetics, combustion
 """
@@ -61,7 +61,7 @@ for k, m in enumerate(models):
     while t < estIgnitDelay:
         t = reactorNetwork.step()
         if counter % 10 == 0:
-            timeHistory.append(r.thermo.state, t=t)
+            timeHistory.append(r.contents.state, t=t)
         counter += 1
 
     results[m] = timeHistory

@@ -137,7 +137,7 @@ for mass_rock in [0.0, 1.0, 3.0]:
     # Integrate for 10 seconds
     net.advance(10)
 
-    print(f'mass_rock = {mass_rock} kg; ΔT = {r1.thermo.T - T0:.2f} K')
+    print(f'mass_rock = {mass_rock} kg; ΔT = {r1.contents.T - T0:.2f} K')
 ```
 
 As expected, we see that the temperature rise decreases as the thermal mass of the

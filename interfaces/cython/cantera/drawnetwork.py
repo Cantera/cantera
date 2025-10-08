@@ -48,19 +48,19 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
     # include full reactor state in representation if desired
     if print_state:
         T_label = f"T (K)\\n{r.T:.2f}"
-        P_label = f"P (bar)\\n{r.thermo.P*1e-5:.3f}"
+        P_label = f"P (bar)\\n{r.contents.P*1e-5:.3f}"
 
         if species == True or species == "X":
-            s_dict = r.thermo.mole_fraction_dict(1e-4)
+            s_dict = r.contents.mole_fraction_dict(1e-4)
             species_list = s_dict.keys()
             s_label = "X"
         elif species == "Y":
-            s_dict = r.thermo.mass_fraction_dict(1e-4)
+            s_dict = r.contents.mass_fraction_dict(1e-4)
             species_list = s_dict.keys()
             s_label = "Y"
         # If individual species are provided as iterable of strings
         elif species:
-            s_dict = r.thermo.mole_fraction_dict(threshold=-1)
+            s_dict = r.contents.mole_fraction_dict(threshold=-1)
             species_list = species
             s_label = "X"
         else:

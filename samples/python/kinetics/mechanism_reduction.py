@@ -15,7 +15,7 @@ and the associated species, and run the simulations again with these mechanisms
 to see whether the reduced mechanisms with a certain number of species are able
 to adequately simulate the ignition delay problem.
 
-Requires: cantera >= 3.1.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, kinetics, combustion, reactor network, editing mechanisms,
           ignition delay, plotting
@@ -56,7 +56,7 @@ while sim.time < 0.04:
     sim.step()
     tt.append(1000 * sim.time)
     TT.append(r.T)
-    rnet = abs(r.thermo.net_rates_of_progress)
+    rnet = abs(r.contents.net_rates_of_progress)
     rnet /= max(rnet)
     Rmax = np.maximum(Rmax, rnet)
 

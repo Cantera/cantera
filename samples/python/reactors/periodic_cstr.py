@@ -22,7 +22,7 @@ example.
 *Acknowledgments*: The idea for this example and an estimate of the conditions
 needed to see the oscillations came from Bob Kee, Colorado School of Mines
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, well-stirred reactor, plotting
 """
@@ -92,7 +92,7 @@ states = ct.SolutionArray(gas, extra=['t'])
 while t < 300.0:
     t += dt
     network.advance(t)
-    states.append(cstr.thermo.state, t=t)
+    states.append(cstr.contents.state, t=t)
 
 aliases = {'H2': 'H$_2$', 'O2': 'O$_2$', 'H2O': 'H$_2$O'}
 for name, alias in aliases.items():

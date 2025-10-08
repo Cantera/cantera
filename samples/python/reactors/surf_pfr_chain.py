@@ -8,7 +8,7 @@ platinum catalyst in a packed bed reactor. To avoid needing to solve a DAE syste
 PFR is approximated as a chain of successive WSRs. See :doc:`surf_pfr.py <surf_pfr>` for
 a more advanced implementation that solves the DAE system directly.
 
-Requires: cantera >= 3.0
+Requires: cantera >= 3.2
 
 .. tags:: Python, catalysis, reactor network, surface chemistry, plug flow reactor,
           packed bed reactor
@@ -105,7 +105,7 @@ output_data = []
 
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
-    gas.TDY = r.thermo.TDY
+    gas.TDY = r.contents.TDY
     upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
@@ -113,12 +113,12 @@ for n in range(NReactors):
 
     if n % 10 == 0:
         print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(
-            dist, *r.thermo['CH4', 'H2', 'CO'].X))
+            dist, *r.contents['CH4', 'H2', 'CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(
-        [dist, r.T - 273.15, r.thermo.P / ct.one_atm]
-        + list(r.thermo.X)  # use r.thermo.X not gas.X
+        [dist, r.T - 273.15, r.contents.P / ct.one_atm]
+        + list(r.contents.X)  # use r.contents.X not gas.X
         + list(rsurf.kinetics.coverages)  # use rsurf.kinetics.coverages not surf.coverages
     )
 

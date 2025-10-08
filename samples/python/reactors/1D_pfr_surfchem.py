@@ -17,7 +17,7 @@ original example from:
 The results are somewhat different from those in the Larson report in part due to the
 fact that this example does not include the frictional pressure drop.
 
-Requires: cantera >= 3.0, matplotlib >= 2.0
+Requires: cantera >= 3.2, matplotlib >= 2.0
 
 .. tags:: Python, catalysis, plug flow reactor, reactor network, surface chemistry
 """
@@ -57,7 +57,7 @@ while net.distance < 0.6:
     print(net.distance, rsurf.coverages)
     net.step()
     wdot = rsurf.kinetics.net_production_rates
-    soln.append(TDY=reactor.thermo.TDY,
+    soln.append(TDY=reactor.contents.TDY,
                 x=net.distance,
                 speed=reactor.speed,
                 surf_coverages=rsurf.coverages,

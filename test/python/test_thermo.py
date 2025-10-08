@@ -941,7 +941,7 @@ class TestThermoPhase:
         self.phase.transport_model = "unity-Lewis-number"
         reactor = ct.IdealGasReactor(self.phase, clone=False)
         with pytest.raises(ct.CanteraError, match='Cannot add species'):
-            reactor.thermo.add_species(ref.species('CH4'))
+            reactor.contents.add_species(ref.species('CH4'))
         del reactor
         gc.collect()
         self.phase.add_species(ref.species('CH4'))

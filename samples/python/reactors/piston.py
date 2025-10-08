@@ -24,7 +24,7 @@ proportional to the pressure difference between the two chambers.
 
 Note that each side uses a *different* reaction mechanism
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, plotting
 """
@@ -55,7 +55,7 @@ def v(t):
     if t < 0.1:
         return 0.0
     else:
-        return (r1.thermo.P - r2.thermo.P) * 1e-4
+        return (r1.contents.P - r2.contents.P) * 1e-4
 
 w = ct.Wall(r1, r2, velocity=v)
 
@@ -63,8 +63,8 @@ net = ct.ReactorNet([r1, r2])
 
 # %%
 # Run the simulation and collect the states of each reactor
-states1 = ct.SolutionArray(r1.thermo, extra=['t', 'volume'])
-states2 = ct.SolutionArray(r2.thermo, extra=['t', 'volume'])
+states1 = ct.SolutionArray(r1.contents, extra=['t', 'volume'])
+states2 = ct.SolutionArray(r2.contents, extra=['t', 'volume'])
 
 fmt = '{:10.3f}  {:10.1f}  {:10.4f}  {:10.4g}  {:10.4g}  {:10.4g}  {:10.4g}'
 print('{:>10}  {:>10}  {:>10}  {:>10}  {:>10}  {:>10}  {:>10}'.format(
@@ -74,10 +74,10 @@ for n in range(200):
     net.advance(time)
     if n % 4 == 3:
         print(fmt.format(time, r1.T, r2.T, r1.volume, r2.volume,
-                         r1.volume + r2.volume, r2.thermo['CO'].X[0]))
+                         r1.volume + r2.volume, r2.contents['CO'].X[0]))
 
-    states1.append(r1.thermo.state, t=1000*time, volume=r1.volume)
-    states2.append(r2.thermo.state, t=1000*time, volume=r2.volume)
+    states1.append(r1.contents.state, t=1000*time, volume=r1.volume)
+    states2.append(r2.contents.state, t=1000*time, volume=r2.volume)
 
 # %%
 # Plot the results

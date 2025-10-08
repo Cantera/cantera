@@ -18,7 +18,7 @@ through the outer cylinder walls to the environment.
 Note that this simulation, being zero-dimensional, takes no account of shock
 wave propagation. It is somewhat artificial, but nevertheless instructive.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0, pandas
+Requires: cantera >= 3.2.0, matplotlib >= 2.0, pandas
 
 .. tags:: combustion, reactor network, plotting
 """
@@ -82,8 +82,8 @@ states2 = ct.SolutionArray(gas, extra=['t', 'V'])
 for n in range(n_steps):
     time += 4.e-4
     sim.advance(time)
-    states1.append(r1.thermo.state, t=time, V=r1.volume)
-    states2.append(r2.thermo.state, t=time, V=r2.volume)
+    states1.append(r1.contents.state, t=time, V=r1.volume)
+    states2.append(r2.contents.state, t=time, V=r2.volume)
 
 # %%
 # Combine the results and save for later processing or plotting
