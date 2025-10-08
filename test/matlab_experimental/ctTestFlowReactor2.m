@@ -73,9 +73,6 @@ classdef ctTestFlowReactor2 < ctTestCase
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message,  'Cannot mix Reactor types');
             end
-
-            delete(r1);
-            delete(r2);
         end
 
         function testMaxSteps(self)

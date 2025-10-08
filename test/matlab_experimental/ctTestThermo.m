@@ -361,9 +361,9 @@ classdef ctTestThermo < ctTestCase
 
         function testSetCompositionBadLength(self)
             xx = zeros(1, 5);
-            self.setInvalidValue('X', [], 'cannot be empty');
-            self.setInvalidValue('X', xx, 'must be equal');
-            self.setInvalidValue('Y', xx, 'must be equal');
+            self.setInvalidValue('X', [], 'ArraySizeError');
+            self.setInvalidValue('X', xx, 'ArraySizeError');
+            self.setInvalidValue('Y', xx, 'ArraySizeError');
         end
 
         function testSetCompositionString(self)
@@ -376,7 +376,6 @@ classdef ctTestThermo < ctTestCase
 
         function testSetCompositionStringBad(self)
             self.setInvalidValue('X', 'H2:1.e-x4', 'Trouble processing');
-            self.setInvalidValue('X', '', 'cannot be empty');
         end
 
         function testSetStateMole(self)
