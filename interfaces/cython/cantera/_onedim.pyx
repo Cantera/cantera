@@ -577,8 +577,8 @@ cdef class FlowBase(Domain1D):
     def spread_rate(self):
         """
         Array containing the tangential velocity gradient [1/s] (that is, radial
-        velocity divided by radius) at each point. Note: This value is only
-        defined for axisymmetric flows.
+        velocity divided by radius) at each point. Note: This value is named
+        ``spreadRate`` in the C++ code and is only defined for axisymmetric flows.
 
         .. versionadded:: 3.2
         """
