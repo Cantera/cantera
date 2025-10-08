@@ -119,7 +119,7 @@ for n in range(NReactors):
     output_data.append(
         [dist, r.T - 273.15, r.contents.P / ct.one_atm]
         + list(r.contents.X)  # use r.contents.X not gas.X
-        + list(rsurf.kinetics.coverages)  # use rsurf.kinetics.coverages not surf.coverages
+        + list(rsurf.contents.coverages)  # use rsurf.contents.coverages not surf.coverages
     )
 
 with open(output_filename, 'w', newline="") as outfile:

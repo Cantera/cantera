@@ -2000,7 +2000,7 @@ class TestFlowReactor2:
         r.mass_flow_rate = 0.01
         sim.advance(0.6)
         Ygas1 = r.contents.Y
-        cov1 = rsurf.kinetics.coverages
+        cov1 = rsurf.contents.coverages
 
         # Reset the reactor to the same initial state
         r.contents.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
@@ -2011,7 +2011,7 @@ class TestFlowReactor2:
         sim.initial_time = 0.
         sim.advance(0.6)
         Ygas2 = r.contents.Y
-        cov2 = rsurf.kinetics.coverages
+        cov2 = rsurf.contents.coverages
 
         assert Ygas1 == approx(Ygas2)
         assert cov1 == approx(cov2)
@@ -3069,7 +3069,7 @@ class TestExtensibleReactor:
         kO2 = gas.species_index("O2")
         class SurfReactor(ct.ExtensibleIdealGasReactor):
             def replace_eval_surfaces(self, LHS, RHS, sdot):
-                site_density = self.surfaces[0].kinetics.site_density
+                site_density = self.surfaces[0].contents.site_density
                 sdot[:] = 0.0
                 LHS[:] = 1.0
                 RHS[:] = 0.0
@@ -3100,7 +3100,7 @@ class TestExtensibleReactor:
         total_sites = rsurf.area * surf.site_density
         def masses():
             mass_H = (r1.contents.elemental_mass_fraction("H") * r1.mass +
-                      total_sites * r1.surfaces[0].kinetics["H(s)"].X * Hweight)
+                      total_sites * r1.surfaces[0].contents["H(s)"].X * Hweight)
             mass_O = r1.contents.elemental_mass_fraction("O") * r1.mass
             return mass_H, mass_O
 
@@ -3117,8 +3117,8 @@ class TestExtensibleReactor:
         assert r1.contents.P == approx(647.56016304)
         assert r1.contents.X[kH2] == approx(0.4784268406)
         assert r1.contents.X[kO2] == approx(0.5215731594)
-        assert r1.surfaces[0].kinetics.X[kHs] == approx(0.3665198138)
-        assert r1.surfaces[0].kinetics.X[kPts] == approx(0.6334801862)
+        assert r1.surfaces[0].contents.X[kHs] == approx(0.3665198138)
+        assert r1.surfaces[0].contents.X[kPts] == approx(0.6334801862)
 
     def test_interactions(self):
         # Reactors connected by a movable, H2-permeable surface

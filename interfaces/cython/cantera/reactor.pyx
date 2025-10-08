@@ -293,8 +293,13 @@ cdef class Reactor(ReactorBase):
         """
         The `Kinetics` object used for calculating kinetic rates in
         this reactor.
+
+        .. deprecated:: 3.2
+            Replaced by ``contents`` property.
         """
         def __get__(self):
+            warnings.warn("Reactor.kinetics: To be removed after Cantera 3.2. "
+                "Renamed to `contents`.", DeprecationWarning)
             self.rbase.restoreState()
             return self._contents
 
@@ -912,8 +917,13 @@ cdef class ReactorSurface(ReactorBase):
         """
         The `InterfaceKinetics` object used for calculating reaction rates on
         this surface.
+
+        .. deprecated:: 3.2
+            Replaced by ``contents`` property.
         """
         def __get__(self):
+            warnings.warn("ReactorSurface.kinetics: To be removed after Cantera 3.2. "
+                "Renamed to `contents`.", DeprecationWarning)
             self.syncState()
             return self._contents
 
