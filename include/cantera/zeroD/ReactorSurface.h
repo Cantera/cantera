@@ -111,6 +111,14 @@ public:
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.
+    //! @since  Prior to %Cantera 3.2, this operation was performed by syncState()
+    void restoreState() override;
+
+    //! Set the coverages for this ReactorSurface based on the attached SurfPhase.
+    //! @since  Behavior changed in %Cantera 3.2 for consistency with
+    //!     ReactorBase::syncState(). Previously, this method performed the inverse
+    //!     operation of setting the ReactorSurface state based on the SurfPhase and
+    //!     attached Reactor.
     void syncState() override;
 
     void addSensitivityReaction(size_t rxn) override;

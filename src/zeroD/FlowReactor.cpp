@@ -50,7 +50,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     // need to advance the reactor surface to steady state to get the initial
     // coverages
     for (auto m_surf : m_surfaces) {
-        m_surf->syncState();
+        m_surf->restoreState();
         auto kin = static_cast<InterfaceKinetics*>(m_surf->kinetics());
         kin->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
                               m_max_ss_error_fails);
@@ -238,7 +238,7 @@ void FlowReactor::updateSurfaceState(double* y)
         // the system.
         // note: the ReactorSurface class doesn't normalize when calling setCoverages
         S->setCoverages(y+loc);
-        S->syncState();
+        S->restoreState();
         loc += S->thermo()->nSpecies();
     }
 }

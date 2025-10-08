@@ -155,7 +155,7 @@ void ReactorSurface::getCoverages(double* cov) const
     copy(m_cov.begin(), m_cov.end(), cov);
 }
 
-void ReactorSurface::syncState()
+void ReactorSurface::restoreState()
 {
     if (m_reactors.empty()) {
         // TODO: Remove this check after Cantera 3.2, since it will no longer be
@@ -166,6 +166,14 @@ void ReactorSurface::syncState()
     }
     m_surf->setTemperature(m_reactors[0]->temperature());
     m_surf->setCoveragesNoNorm(m_cov.data());
+}
+
+void ReactorSurface::syncState()
+{
+    warn_user("ReactorSurface::syncState", "Behavior changed in Cantera 3.2 for "
+        "consistency with ReactorBase. To set SurfPhase state from ReactorSurface "
+        "object, use restoreState().");
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::addSensitivityReaction(size_t rxn)
