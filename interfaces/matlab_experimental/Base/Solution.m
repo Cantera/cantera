@@ -104,8 +104,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function set.transportModel(soln, str)
             n = ctFunc('sol_setTransportModel', soln.solnID, str);
-            % update the transport ID after setting to a new transport model
-            soln.trID = n;
+            soln.trID = ctFunc('sol_transport', soln.solnID);
         end
 
     end

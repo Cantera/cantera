@@ -96,7 +96,7 @@ classdef Func1 < handle
                     x.id = ctFunc('func1_newBasic', typ, coeffs);
                 elseif isa(coeffs, 'double')
                     % advanced functor with array parameter
-                    x.id = ctFunc('func1_newAdvanced', typ, length(coeffs), coeffs);
+                    x.id = ctFunc('func1_newAdvanced', typ, coeffs);
                 else
                     error('Invalid arguments for functor')
                 end

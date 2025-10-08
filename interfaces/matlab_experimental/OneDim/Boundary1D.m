@@ -40,7 +40,7 @@ classdef Boundary1D < Domain1D
 
         function b = Boundary1D(type, phase, id)
 
-            b@Domain1D(type, phase, id);
+            b@Domain1D('Boundary1D', type, phase, id);
 
         end
 
@@ -79,7 +79,7 @@ classdef Boundary1D < Domain1D
             %     Mass fraction of species.
 
             if d.domainIndex == 0
-                error('No flow domain attached!')
+                error('No flow domain attached')
             end
 
             if strcmp(d.domainType, 'inlet')
