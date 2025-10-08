@@ -194,9 +194,9 @@ TEST(ctonedim, freeflame)
     ASSERT_EQ(domain_nComponents(flow), 16);
     int32_t comp = domain_componentIndex(flow, "T");
     ASSERT_EQ(comp, 2);
-    double Tprev = sim1D_value(flame, dom, comp, 0);
+    double Tprev = domain_value(dom, "T", 0);
     for (int32_t n = 0; n < domain_nPoints(flow); n++) {
-        T = sim1D_value(flame, dom, comp, n);
+        T = domain_value(dom, "T", n);
         ASSERT_GE(T + 1e-3, Tprev);
         Tprev = T;
     }

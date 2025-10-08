@@ -949,6 +949,38 @@ AnyMap Flow1D::getMeta() const
     return state;
 }
 
+double Flow1D::value(const string& component, size_t localPoint) const
+{
+    if (!m_state) {
+        throw CanteraError("Flow1D::value",
+            "Domain needs to be installed in a container.");
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        warn_user(
+            "Flow1D::values", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    const double* soln = m_state->data() + m_iloc;
+    return soln[index(i, localPoint)];
+}
+
+void Flow1D::setValue(const string& component, double value, size_t localPoint)
+{
+    if (!m_state) {
+        throw CanteraError("Flow1D::setValue",
+            "Domain needs to be installed in a container.");
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        throw CanteraError(
+            "Flow1D::setValue", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    double* soln = m_state->data() + m_iloc;
+    soln[index(i, localPoint)] = value;
+}
+
 void Flow1D::getValues(const string& component, vector<double>& values) const
 {
     if (!m_state) {
@@ -988,6 +1020,27 @@ void Flow1D::setValues(const string& component, const vector<double>& values)
     double* soln = m_state->data() + m_iloc;
     for (size_t j = 0; j < nPoints(); j++) {
         soln[index(i,j)] = values[j];
+    }
+}
+
+void Flow1D::getResiduals(const string& component, vector<double>& values) const
+{
+    if (!m_state) {
+        throw CanteraError("Flow1D::getResiduals",
+            "Domain needs to be installed in a container.");
+    }
+    if (values.size() != nPoints()) {
+        throw ArraySizeError("Flow1D::getResiduals", values.size(), nPoints());
+    }
+    auto i = componentIndex(component);
+    if (!componentActive(i)) {
+        warn_user(
+            "Flow1D::getResiduals", "Component '{}' is not used by '{}'.",
+            component, domainType());
+    }
+    const double* soln = m_container->_workVector().data() + m_iloc;
+    for (size_t j = 0; j < nPoints(); j++) {
+        values[j] = soln[index(i,j)];
     }
 }
 

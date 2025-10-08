@@ -63,8 +63,13 @@ public:
      * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      * @param value  the value.
+     * @deprecated To be removed after %Cantera 3.2. Replaceable by Domain1D::setValue()
      */
-    void setValue(size_t dom, size_t comp, size_t localPoint, double value);
+    void setValue(size_t dom, size_t comp, size_t localPoint, double value) {
+        warn_deprecated("Sim1D::setValue",
+            "To be removed after Cantera 3.2. Access from Domain1D object instead.");
+        _setValue(dom, comp, localPoint, value);
+    }
 
     /**
      * Get one entry in the solution vector.
@@ -72,16 +77,60 @@ public:
      * @param comp  component number
      * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
+     * @deprecated To be removed after %Cantera 3.2. Replaceable by Domain1D::value()
      */
-    double value(size_t dom, size_t comp, size_t localPoint) const;
+    double value(size_t dom, size_t comp, size_t localPoint) const {
+        warn_deprecated("Sim1D::setValue",
+            "To be removed after Cantera 3.2. Access from Domain1D object instead.");
+        return _value(dom, comp, localPoint);
+    }
 
     //! Get an entry in the work vector, which may contain either a new system state
     //! or the current residual of the system.
     //! @param dom  domain index
     //! @param comp  component index
     //! @param localPoint  grid point within the domain
-    double workValue(size_t dom, size_t comp, size_t localPoint) const;
+    //! @deprecated To be removed after %Cantera 3.2. Replaceable by
+    //!     Domain1D::getResiduals()
+    double workValue(size_t dom, size_t comp, size_t localPoint) const {
+        warn_deprecated("Sim1D::setValue",
+            "To be removed after Cantera 3.2. Access residuals via Domain1D instead.");
+        return _workValue(dom, comp, localPoint);
+    }
 
+protected:
+    /**
+     * Set a single value in the solution vector.
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
+     *     the leftmost grid point in the domain.
+     * @param value  the value.
+     * @since New in %Cantera 3.2. Previously part of public interface.
+     */
+    void _setValue(size_t dom, size_t comp, size_t localPoint, double value);
+
+    /**
+     * Get one entry in the solution vector.
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
+     *     the leftmost grid point in the domain.
+     * @since New in %Cantera 3.2. Previously part of public interface.
+     */
+    double _value(size_t dom, size_t comp, size_t localPoint) const;
+
+    /**
+     * Get an entry in the work vector, which may contain either a new system state
+     * or the current residual of the system.
+     * @param dom  domain index
+     * @param comp  component index
+     * @param localPoint  grid point within the domain
+     * @since New in %Cantera 3.2. Previously part of public interface.
+     */
+    double _workValue(size_t dom, size_t comp, size_t localPoint) const;
+
+public:
     /**
      * Specify a profile for one component of one domain.
      * @param dom  domain number, beginning with 0 for the leftmost domain.

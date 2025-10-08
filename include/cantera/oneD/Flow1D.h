@@ -185,8 +185,11 @@ public:
 
     void show(const double* x) override;
 
+    double value(const string& component, size_t localPoint=0) const override;
+    void setValue(const string& component, double value, size_t localPoint=0) override;
     void getValues(const string& component, vector<double>& values) const override;
     void setValues(const string& component, const vector<double>& values) override;
+    void getResiduals(const string& component, vector<double>& values) const override;
     void setProfile(const string& component,
                     const vector<double>& pos, const vector<double>& values) override;
     void setFlatProfile(const string& component, double v) override;

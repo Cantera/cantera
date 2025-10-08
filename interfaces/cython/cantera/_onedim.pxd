@@ -27,8 +27,11 @@ cdef extern from "cantera/oneD/Domain1D.h":
         cbool hasComponent(string&) except +translate_exception
         vector[double] grid() except +translate_exception
         void setupGrid(vector[double]&) except +translate_exception
+        double value(string&, size_t) except +translate_exception
+        void setValue(string&, double, size_t) except +translate_exception
         void getValues(string&, vector[double]&) except +translate_exception
         void setValues(string&, vector[double]&) except +translate_exception
+        void getResiduals(string&, vector[double]&) except +translate_exception
         void setProfile(string&, vector[double]&, vector[double]&) except +translate_exception
         void setFlatProfile(string&, double) except +translate_exception
         void setBounds(size_t, double, double)

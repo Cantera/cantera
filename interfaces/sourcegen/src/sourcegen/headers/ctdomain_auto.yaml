@@ -20,8 +20,13 @@ recipes:
 - name: componentName
 - name: componentIndex
   wraps: componentIndex(const string&)
+- name: value
+  # alternative is deprecated in Cantera 3.2
+  wraps: value(const string&, size_t)
+- name: setValue
 - name: getValues
 - name: setValues
+- name: getResiduals
 - name: setProfile
   # alternative is deprecated in Cantera 3.2
   wraps: setProfile(const string&, const vector<double>&, const vector<double>&)

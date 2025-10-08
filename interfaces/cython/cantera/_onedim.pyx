@@ -103,6 +103,38 @@ cdef class Domain1D:
             grid_vec.push_back(g)
         self.domain.setupGrid(grid_vec)
 
+    def value(self, str component, point=0):
+        """
+        Component value at one point.
+
+        :param component:
+            component name
+        :param point:
+            grid point number within ``domain`` starting with 0 on the left
+
+        >>> t = d.value("T", 6)
+
+        .. versionadded:: 3.2
+        """
+        return self.domain.value(stringify(component), point)
+
+    def set_value(self, str component, value, point=0):
+        """
+        Set the value of one component at one point to 'value'.
+
+        :param component:
+            component name
+        :param value:
+            numerical value
+        :param point:
+            grid point number within ``domain`` starting with 0 on the left
+
+        >>> d.set("T", 500., 5)
+
+        .. versionadded:: 3.2
+        """
+        return self.domain.setValue(stringify(component), value, point)
+
     def get_values(self, str component):
         """
         Retrieve spatial profile of a component.
@@ -110,7 +142,7 @@ cdef class Domain1D:
         :param component:
             component name
 
-        >>> T = d.get_values('T')
+        >>> T = d.get_values("T")
 
         .. versionadded:: 3.2
         """
@@ -128,7 +160,7 @@ cdef class Domain1D:
         :param values:
             array containing values
 
-        >>> d.set_values('T', T)
+        >>> d.set_values("T", T)
 
         .. versionadded:: 3.2
         """
@@ -136,6 +168,23 @@ cdef class Domain1D:
         for v in values:
             values_vec.push_back(v)
         self.domain.setValues(stringify(component), values)
+
+    def get_residuals(self, str component):
+        """
+        Retrieve internal work array value at one point. After calling `Sim1D.eval`,
+        this array contains the values of the residual function.
+
+        :param component:
+            component name
+
+        >>> T = d.get_residuals("T")
+
+        .. versionadded:: 3.2
+        """
+        cdef vector[double] values
+        values.resize(self.n_points)
+        self.domain.getResiduals(stringify(component), values)
+        return np.asarray(values)
 
     def set_profile(self, component, positions, values):
         """
@@ -1028,6 +1077,11 @@ cdef class Sim1D:
             grid point number within ``domain`` starting with 0 on the left
 
         >>> t = s.value('flow', 'T', 6)
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.value` or
+            `Domain1D.getValues`.
         """
         dom, comp = self._get_indices(domain, component)
         return self.sim.value(dom, comp, point)
@@ -1048,6 +1102,11 @@ cdef class Sim1D:
         >>> s.set(d, 3, 5, 6.7)
         >>> s.set(1, 0, 5, 6.7)
         >>> s.set('flow', 'T', 5, 500)
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.setValue` or
+            `Domain1D.setValues`.
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setValue(dom, comp, point, value)
@@ -1056,7 +1115,7 @@ cdef class Sim1D:
         """
         Evaluate the governing equations using the current solution estimate,
         storing the residual in the array which is accessible with the
-        `work_value` function.
+        `Domain1D.get_residuals` function.
 
         :param rdt:
            Reciprocal of the time-step
@@ -1076,6 +1135,10 @@ cdef class Sim1D:
             grid point number in the domain, starting with zero at the left
 
         >>> t = s.value(flow, 'T', 6)
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.get_residuals`.
         """
         dom, comp = self._get_indices(domain, component)
         return self.sim.workValue(dom, comp, point)
@@ -1122,7 +1185,7 @@ cdef class Sim1D:
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Replaceable by Domain1D.set_profile.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.set_profile`.
         """
         dom, comp = self._get_indices(domain, component)
 
@@ -1148,7 +1211,7 @@ cdef class Sim1D:
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Replaceable by Domain1D.set_flat_profile.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.set_flat_profile`.
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
