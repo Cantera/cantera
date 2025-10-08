@@ -78,10 +78,27 @@ cdef class ReactorBase:
     property thermo:
         """
         The `ThermoPhase` object representing the reactor's contents.
+
+        .. deprecated:: 3.2
+           Renamed to ``contents``
         """
         def __get__(self):
+            warnings.warn("ReactorBase.thermo: To be removed after Cantera 3.2. "
+                "Renamed to `contents`.",
+                DeprecationWarning)
             self.rbase.restoreState()
             return self._contents
+
+    @property
+    def contents(self):
+        """
+        The `Solution` object representing the reactor's contents.
+
+        .. versionchanged:: 3.2
+           Renamed from ``thermo``.
+        """
+        self.rbase.restoreState()
+        return self._contents
 
     property volume:
         """The volume [m³] of the reactor."""
@@ -94,22 +111,22 @@ cdef class ReactorBase:
     property T:
         """The temperature [K] of the reactor's contents."""
         def __get__(self):
-            return self.thermo.T
+            return self.contents.T
 
     property density:
         """The density [kg/m³ or kmol/m³] of the reactor's contents."""
         def __get__(self):
-            return self.thermo.density
+            return self.contents.density
 
     property mass:
         """The mass of the reactor's contents."""
         def __get__(self):
-            return self.thermo.density_mass * self.volume
+            return self.contents.density_mass * self.volume
 
     property Y:
         """The mass fractions of the reactor's contents."""
         def __get__(self):
-            return self.thermo.Y
+            return self.contents.Y
 
     def add_sensitivity_reaction(self, int m):
         """
@@ -310,7 +327,7 @@ cdef class Reactor(ReactorBase):
         species ``k`` should be computed. The reactor must be part of a network
         first.
         """
-        self.reactor.addSensitivitySpeciesEnthalpy(self.thermo.species_index(k))
+        self.reactor.addSensitivitySpeciesEnthalpy(self.contents.species_index(k))
 
     def component_index(self, name):
         """

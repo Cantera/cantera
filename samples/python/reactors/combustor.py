@@ -81,7 +81,7 @@ while combustor.T > 500:
     sim.initial_time = 0.0  # reset the integrator
     sim.solve_steady()
     print('tres = {:.2e}; T = {:.1f}'.format(residence_time, combustor.T))
-    states.append(combustor.thermo.state, tres=residence_time)
+    states.append(combustor.contents.state, tres=residence_time)
     residence_time *= 0.9  # decrease the residence time for the next iteration
 
 # %%

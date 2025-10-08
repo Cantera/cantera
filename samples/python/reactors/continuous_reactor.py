@@ -9,7 +9,7 @@ stirred reactor (WSR), a jet stirred reactor (JSR), or a
 `Longwell reactor <https://nap.nationalacademies.org/read/13160/chapter/48>`__ (and
 there may well be more "aliases").
 
-Requires: cantera >= 3.0, matplotlib >= 2.0, pandas
+Requires: cantera >= 3.2, matplotlib >= 2.0, pandas
 
 .. tags:: Python, combustion, reactor network, well-stirred reactor
 
@@ -143,7 +143,7 @@ while t < max_simulation_time:
     # will be 1200+ columns for us to work with
     if counter % 10 == 0:
         # Extract the state of the reactor
-        time_history.append(stirred_reactor.thermo.state, t=t)
+        time_history.append(stirred_reactor.contents.state, t=t)
 
     counter += 1
 
@@ -252,8 +252,8 @@ for reactor_temperature in T:
     print(f"Simulation at T={reactor_temperature} K took {toc-tic:3.2f} s to compute "
           f"with {counter} steps")
 
-    reactor_X = stirred_reactor.thermo.X
-    temp_dependence.append(stirred_reactor.thermo.state)
+    reactor_X = stirred_reactor.contents.X
+    temp_dependence.append(stirred_reactor.contents.state)
 
 # %%
 # Compare the model results with experimental data

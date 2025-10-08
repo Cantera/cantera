@@ -11,7 +11,7 @@ The example is written in a general way, that is, no particular equation of stat
 is presumed and ideal and real gas EoS can be used equally easily. The example here
 demonstrates the calculations carried out by G. Kogekar et al. [1]_.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, reactor network, non-ideal fluid, ignition delay, plotting
 """
@@ -133,7 +133,7 @@ while t < estimated_ignition_delay_time:
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
         # Note that the species concentrations are mass fractions
-        time_history_RG.append(r.thermo.state, t=t)
+        time_history_RG.append(r.contents.state, t=t)
     counter += 1
 
 # We will use the 'oh' species to compute the ignition delay
@@ -166,7 +166,7 @@ while t < estimated_ignition_delay_time:
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
         # Note that the species concentrations are mass fractions
-        time_history_IG.append(r.thermo.state, t=t)
+        time_history_IG.append(r.contents.state, t=t)
     counter += 1
 
 # We will use the 'oh' species to compute the ignition delay
@@ -243,7 +243,7 @@ for i, temperature in enumerate(T):
     while t < estimated_ignition_delay_times[i]:
         t = reactor_network.step()
         if counter % 20 == 0:
-            time_history.append(r.thermo.state, t=t)
+            time_history.append(r.contents.state, t=t)
         counter += 1
 
     tau = ignition_delay(time_history, 'oh')
@@ -276,7 +276,7 @@ for i, temperature in enumerate(T):
     while t < estimated_ignition_delay_times[i]:
         t = reactor_network.step()
         if counter % 20 == 0:
-            time_history.append(r.thermo.state, t=t)
+            time_history.append(r.contents.state, t=t)
         counter += 1
 
     tau = ignition_delay(time_history, 'oh')

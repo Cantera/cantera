@@ -6,7 +6,7 @@ The simulation uses n-dodecane as fuel, which is injected close to top dead
 center. Note that this example uses numerous simplifying assumptions and
 thus serves for illustration purposes only.
 
-Requires: cantera >= 3.0, scipy >= 0.19, matplotlib >= 2.0
+Requires: cantera >= 3.2, scipy >= 0.19, matplotlib >= 2.0
 
 .. tags:: Python, combustion, thermodynamics, internal combustion engine,
           thermodynamic cycle, reactor network, plotting, pollutant formation
@@ -158,7 +158,7 @@ cyl.set_advance_limit('temperature', delta_T_max)
 
 # set up output data arrays
 states = ct.SolutionArray(
-    cyl.thermo,
+    cyl.contents,
     extra=('t', 'ca', 'V', 'm', 'mdot_in', 'mdot_out', 'dWv_dt'),
 )
 
@@ -171,11 +171,11 @@ while sim.time < t_stop:
     sim.advance(sim.time + dt)
 
     # calculate results to be stored
-    dWv_dt = - (cyl.thermo.P - ambient_air.thermo.P) * A_piston * \
+    dWv_dt = - (cyl.contents.P - ambient_air.contents.P) * A_piston * \
         piston_speed(sim.time)
 
     # append output data
-    states.append(cyl.thermo.state,
+    states.append(cyl.contents.state,
                   t=sim.time, ca=crank_angle(sim.time),
                   V=cyl.volume, m=cyl.mass,
                   mdot_in=inlet_valve.mass_flow_rate,

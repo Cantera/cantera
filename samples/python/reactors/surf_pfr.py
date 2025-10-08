@@ -7,7 +7,7 @@ packed bed reactor. This example solves the DAE system directly, using the `Flow
 class and the SUNDIALS IDA solver, in contrast to the approximation as a chain of
 steady-state WSRs used in :doc:`surf_pfr_chain.py <surf_pfr_chain>`.
 
-Requires: cantera >= 3.0.0
+Requires: cantera >= 3.2.0
 
 .. tags:: Python, catalysis, reactor network, surface chemistry, plug flow reactor,
           packed bed reactor
@@ -65,7 +65,7 @@ output_data = []
 n = 0
 print('    distance       X_CH4        X_H2        X_CO')
 print('  {:10f}  {:10f}  {:10f}  {:10f}'.format(
-      0, *r.thermo['CH4', 'H2', 'CO'].X))
+      0, *r.contents['CH4', 'H2', 'CO'].X))
 
 while sim.distance < length:
     dist = sim.distance * 1e3  # convert to mm
@@ -73,13 +73,13 @@ while sim.distance < length:
 
     if n % 100 == 0 or (dist > 1 and n % 10 == 0):
         print('  {:10f}  {:10f}  {:10f}  {:10f}'.format(
-              dist, *r.thermo['CH4', 'H2', 'CO'].X))
+              dist, *r.contents['CH4', 'H2', 'CO'].X))
     n += 1
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(
-        [dist, r.T - 273.15, r.thermo.P / ct.one_atm]
-        + list(r.thermo.X)  # use r.thermo.X not gas.X
+        [dist, r.T - 273.15, r.contents.P / ct.one_atm]
+        + list(r.contents.X)  # use r.contents.X not gas.X
         + list(rsurf.kinetics.coverages)  # use rsurf.kinetics.coverages not surf.coverages
     )
 

@@ -5,7 +5,7 @@ Interactive Reaction Path Diagrams
 This example uses ``ipywidgets`` to create interactive displays of reaction path
 diagrams from Cantera simulations.
 
-Requires: cantera >= 3.0.0, matplotlib >= 2.0, ipywidgets, graphviz, scipy
+Requires: cantera >= 3.2.0, matplotlib >= 2.0, ipywidgets, graphviz, scipy
 
 .. tags:: Python, combustion, reactor network, plotting, reaction path analysis
 
@@ -84,9 +84,9 @@ time = 0
 steps = 0
 while time < residence_time:
     profiles["time"].append(time)
-    profiles["pressure"].append(reactor.thermo.P)
-    profiles["temperature"].append(reactor.thermo.T)
-    profiles["mole_fractions"].append(reactor.thermo.X)
+    profiles["pressure"].append(reactor.contents.P)
+    profiles["temperature"].append(reactor.contents.T)
+    profiles["mole_fractions"].append(reactor.contents.X)
     time = reactor_network.step()
     steps += 1
 
