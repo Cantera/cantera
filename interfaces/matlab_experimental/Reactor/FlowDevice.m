@@ -81,13 +81,12 @@ classdef FlowDevice < Connector
 
             if strcmp(f.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    func = Func1('constant', mdot);
+                    k = ctFunc('flowdev_setDeviceCoefficient', f.id, mdot);
                 elseif isa(mdot, 'Func1')
-                    func = mdot;
+                    k = ctFunc('flowdev_setTimeFunction', f.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
-                k = ctFunc('flowdev_setTimeFunction', f.id, func.id);
             else
                 error('Mass flow rate can only be set for mass flow controllers.');
             end
@@ -119,7 +118,7 @@ classdef FlowDevice < Connector
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ok = ctFunc('flowdev_setValveCoeff', f.id, k);
+            ok = ctFunc('flowdev_setDeviceCoefficient', f.id, k);
         end
 
     end

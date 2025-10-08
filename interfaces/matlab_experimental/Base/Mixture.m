@@ -388,26 +388,10 @@ classdef Mixture < handle
 
         end
 
-        function r = equilibrate(m, XY, err, maxsteps, maxiter, loglevel)
+        function r = equilibrate(m, XY, solver, rtol, maxsteps, maxiter, estimate_equil)
             % Set the mixture to a state of chemical equilibrium. ::
             %
-            %     >> m.equilibrate(XY, err, maxsteps, maxiter, loglevel)
-            %
-            % This method uses a version of the VCS algorithm to find the
-            % composition that minimizes the total Gibbs free energy of the
-            % mixture, subject to element conservation constraints. For a
-            % description of the theory, see Smith and Missen, "Chemical
-            % Reaction Equilibrium."  The VCS algorithm is implemented in
-            % Cantera kernel class `MultiPhaseEquil`.
-            %
-            % The VCS algorithm solves for the equilibrium composition for
-            % specified temperature and pressure. If any other property pair
-            % other than "TP" is specified, then an outer iteration loop is
-            % used to adjust T and/or P so that the specified property
-            % values are obtained. ::
-            %
-            %     >> mix.equilibrate('TP')
-            %     >> mix.equilibrate('TP', 1.0e-6, 500)
+            %     >> m.equilibrate(XY, solver, rtol, maxsteps, maxiter, estimate_equil)
             %
             % :param m:
             %     Instance of class :mat:class:`Mixture`.
@@ -415,6 +399,15 @@ classdef Mixture < handle
             %     Two-letter string specifying the two properties to hold
             %     fixed.  Currently, ``'TP'``, ``'HP'``, ``'TV'``, and ``'SP'`` are
             %     implemented. Default: ``'TP'``.
+            % :param solver:
+            %     Name of the solver to be used to equilibrate the phase.
+            %     If solver = 'element_potential', the ChemEquil element potential
+            %     solver will be used.
+            %     If solver = 'vcs', the VCS solver will be used.
+            %     If solver = 'gibbs', the MultiPhaseEquil solver will be used.
+            %     If solver = 'auto', the solvers will be tried in order if the initial
+            %     solver(s) fail.
+            %     Default: ``'auto'``.
             % :param err:
             %     Error tolerance. Iteration will continue until :math:`\Delta\mu)/RT`
             %     is less than this value for each reaction. Default:
@@ -428,34 +421,31 @@ classdef Mixture < handle
             %     Maximum number of temperature and/or pressure
             %     iterations.  This is only relevant if a property pair other
             %     than (T,P) is specified. Default: 200.
-            % :param loglevel:
-            %     Set to a value > 0 to write diagnostic output.
-            %     Larger values generate more detailed information.
+            % :param estimate_equil:
+            %     For MultiPhaseEquil solver, an integer indicating whether the solver
+            %     should estimate its own initial condition.
+            %     If 0, the initial mole fraction vector in the ThermoPhase object
+            %     is used as the initial condition.
+            %     If 1, the initial mole fraction vector is used if the
+            %     element abundances are satisfied.
+            %     If -1, the initial mole fraction vector is thrown out,
+            %     and an estimate is formulated.
+            %     Default: 0.
             % :return:
             %     The error in the solution.
 
-            if nargin < 6
-                loglevel = 0;
+            arguments
+                m
+                XY (1,1) string {mustBeMember(XY, ["TP", "HP", "TV", "SP"])} = "TP"
+                solver (1,1) string {mustBeMember(solver, ["auto", "vcs", "gibbs", "element_potential"])} = "auto"
+                rtol (1,1) double {mustBePositive} = 1.0e-9
+                maxsteps (1,1) double {mustBeInteger, mustBePositive} = 1000
+                maxiter (1,1) double {mustBeInteger, mustBePositive} = 200
+                estimate_equil (1,1) double {mustBeInteger} = 0
             end
 
-            if nargin < 5
-                maxiter = 200;
-            end
-
-            if nargin < 4
-                maxsteps = 1000;
-            end
-
-            if nargin < 3
-                err = 1.0e-9;
-            end
-
-            if nargin < 2
-                XY = 'TP'
-            end
-
-            r = ctFunc('mix_equilibrate', m.mixID, XY, err, ...
-                        maxsteps, maxiter, loglevel);
+            r = ctFunc('mix_equilibrate', m.mixID, XY, solver, rtol, ...
+                    maxsteps, maxiter, estimate_equil);
         end
 
     end
