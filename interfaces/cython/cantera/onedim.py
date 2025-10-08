@@ -290,7 +290,7 @@ class FlameBase(Sim1D):
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
-        return self.flame.get_values("spread_rate")
+        return self.flame.get_values("spreadRate")
 
     @property
     def L(self):
@@ -1051,7 +1051,7 @@ class CounterflowDiffusionFlame(FlameBase):
         zrel = (zz - zz[0])/dz
 
         self.flame.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
-        self.flame.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.flame.set_profile('spreadRate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
         self.flame.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
@@ -1354,8 +1354,8 @@ class ImpingingJet(FlameBase):
                 self.flame.set_profile(self.gas.species_name(k), locs, [Y0[k], Y0[k]])
 
         locs = np.array([0.0, 1.0])
-        self.flame.set_profile('velocity', locs, [u0, 0.0])
-        self.flame.set_profile('spread_rate', locs, [0.0, 0.0])
+        self.flame.set_profile("velocity", locs, [u0, 0.0])
+        self.flame.set_profile("spreadRate", locs, [0.0, 0.0])
 
 
 class CounterflowPremixedFlame(FlameBase):
@@ -1457,8 +1457,8 @@ class CounterflowPremixedFlame(FlameBase):
         # estimate stagnation point
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
-        self.flame.set_profile('velocity', [0.0, 1.0], [uu, -ub])
-        self.flame.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.flame.set_profile("velocity", [0.0, 1.0], [uu, -ub])
+        self.flame.set_profile("spreadRate", [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
 
 
@@ -1541,6 +1541,6 @@ class CounterflowTwinPremixedFlame(FlameBase):
         a = 2 * uu / dz
         L = - rhou * a**2
 
-        self.flame.set_profile('velocity', [0.0, 1.0], [uu, 0])
-        self.flame.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
+        self.flame.set_profile("velocity", [0.0, 1.0], [uu, 0])
+        self.flame.set_profile("spreadRate", [0.0, 1.0], [0.0, a])
         self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])

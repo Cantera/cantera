@@ -20,7 +20,7 @@ namespace { // restrict scope of auxiliary variables to local translation unit
 
 const map<string, size_t> componentMap = {
     {"velocity", c_offset_U}, // axial velocity [m/s]
-    {"spread_rate", c_offset_V}, // strain rate
+    {"spreadRate", c_offset_V}, // strain rate
     {"T", c_offset_T}, // temperature [kelvin]
     {"Lambda", c_offset_L}, // (1/r)dP/dr
     {"eField", c_offset_E}, // electric field
@@ -828,7 +828,7 @@ string Flow1D::componentName(size_t n) const
     case c_offset_U:
         return "velocity";
     case c_offset_V:
-        return "spread_rate";
+        return "spreadRate";
     case c_offset_T:
         return "T";
     case c_offset_L:
@@ -885,7 +885,7 @@ bool Flow1D::hasComponent(const string& name, bool checkAlias) const
 bool Flow1D::componentActive(size_t n) const
 {
     switch (n) {
-    case c_offset_V: // spread_rate
+    case c_offset_V: // spreadRate
         return m_usesLambda;
     case c_offset_L: // Lambda
         return m_usesLambda;

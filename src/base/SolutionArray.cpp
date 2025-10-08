@@ -46,7 +46,8 @@ const map<string, string> reverseAliasMap = {
     {"pressure", "P"},
     {"density", "D"},
     // reserved names used for 1-D objects
-    {"spread-rate", "spread_rate"},
+    {"spread-rate", "spreadRate"},
+    {"spread_rate", "spreadRate"}, // snake_case version used prior to Cantera 3.2
     {"L", "Lambda"},
     {"radial-pressure-gradient", "Lambda"},
     {"lambda", "Lambda"}, // lower-case version used prior to Cantera 3.2

@@ -258,6 +258,8 @@ class TestFreeFlame:
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
             self.sim.flame.set_values("spread_rate", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
+            self.sim.flame.set_values("spreadRate", zeros)
+        with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
             self.sim.flame.set_values("radial-pressure-gradient", zeros)
         with pytest.raises(ct.CanteraError, match="is not used by 'free-flow'"):
             self.sim.flame.set_values("L", zeros)

@@ -129,7 +129,7 @@ while True:
     f.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
     # Update velocities
     f.flame.set_values("velocity", f.flame.velocity * strain_factor ** exp_u_a)
-    f.flame.set_values('spread_rate', f.flame.spread_rate * strain_factor ** exp_V_a)
+    f.flame.set_values("spreadRate", f.flame.spread_rate * strain_factor ** exp_V_a)
     # Update pressure curvature
     f.flame.set_values(
         "Lambda", f.flame.radial_pressure_gradient * strain_factor ** exp_lam_a)
