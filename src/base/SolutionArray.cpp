@@ -21,7 +21,12 @@
 
 namespace ba = boost::algorithm;
 
-const std::map<std::string, std::string> aliasMap = {
+namespace Cantera
+{
+
+namespace { // restrict scope of auxiliary variables to local translation unit
+
+const map<string, string> aliasMap = {
     {"T", "temperature"},
     {"P", "pressure"},
     {"D", "density"},
@@ -35,7 +40,7 @@ const std::map<std::string, std::string> aliasMap = {
     {"Q", "vapor-fraction"},
 };
 
-const std::map<std::string, std::string> reverseAliasMap = {
+const map<string, string> reverseAliasMap = {
     // reserved names used by states
     {"temperature", "T"},
     {"pressure", "P"},
@@ -50,10 +55,9 @@ const std::map<std::string, std::string> reverseAliasMap = {
     {"oxidizer-velocity", "Uo"},
 };
 
-namespace Cantera
-{
+} // end unnamed namespace
 
-const std::map<std::string, std::string>& _componentAliasMap()
+const map<string, string>& _componentAliasMap()
 {
     return reverseAliasMap;
 }
