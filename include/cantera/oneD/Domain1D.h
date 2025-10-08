@@ -151,7 +151,10 @@ public:
 
     //! Check that the specified component index is in range.
     //! Throws an exception if n is greater than nComponents()-1
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkComponentIndex(size_t n) const {
+        warn_deprecated("Domain1D::checkComponentIndex",
+            "To be removed after Cantera 3.2. Only used by legacy CLib.");
         if (n >= m_nv) {
             throw IndexError("Domain1D::checkComponentIndex", "points", n, m_nv);
         }
@@ -160,7 +163,10 @@ public:
     //! Check that an array size is at least nComponents().
     //! Throws an exception if nn is less than nComponents(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Unused.
     void checkComponentArraySize(size_t nn) const {
+        warn_deprecated("Domain1D::checkComponentArraySize",
+            "To be removed after Cantera 3.2. Unused.");
         if (m_nv > nn) {
             throw ArraySizeError("Domain1D::checkComponentArraySize", nn, m_nv);
         }
@@ -173,7 +179,10 @@ public:
 
     //! Check that the specified point index is in range.
     //! Throws an exception if n is greater than nPoints()-1
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkPointIndex(size_t n) const {
+        warn_deprecated("Domain1D::checkPointIndex",
+            "To be removed after Cantera 3.2. Only used by legacy CLib.");
         if (n >= m_points) {
             throw IndexError("Domain1D::checkPointIndex", "points", n, m_points);
         }
@@ -182,7 +191,10 @@ public:
     //! Check that an array size is at least nPoints().
     //! Throws an exception if nn is less than nPoints(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Unused.
     void checkPointArraySize(size_t nn) const {
+        warn_deprecated("Domain1D::checkPointArraySize",
+            "To be removed after Cantera 3.2. Unused.");
         if (m_points > nn) {
             throw ArraySizeError("Domain1D::checkPointArraySize", nn, m_points);
         }
