@@ -2,8 +2,6 @@ function output = ctString(funcName, varargin)
     % Calls Cantera library functions with string outputs and returns
     % errors if necessary.
 
-    errorcode = [-1, -999.999, double(intmax('uint64'))];
-
     buf = clib.array.ctMatlab.Char(0);
     buflen = clib.ctMatlab.(funcName)(varargin{:}, buf);
 
@@ -21,7 +19,7 @@ function output = ctString(funcName, varargin)
     end
 
     iok = double(iok);
-    if ismember(iok, errorcode)
+    if ismember(iok, ctErrorCode)
         error('Cantera:ctError', ctGetErr);
     end
 
