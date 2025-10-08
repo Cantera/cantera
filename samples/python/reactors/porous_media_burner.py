@@ -282,7 +282,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         #                             species mass fractions                          #
         # ============================================================================#
 
-        wdot = self.kinetics.net_production_rates # chemical source terms
+        wdot = self.contents.net_production_rates # chemical source terms
         if not self.chemistry:
             wdot *= 0.0
 
