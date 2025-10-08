@@ -26,8 +26,8 @@ FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
     m_out->addInlet(*this);
 
     // construct adapters between inlet and outlet species
-    const ThermoPhase& mixin = m_in->contents();
-    const ThermoPhase& mixout = m_out->contents();
+    const ThermoPhase& mixin = *m_in->contents4()->thermo();
+    const ThermoPhase& mixout = *m_out->contents4()->thermo();
 
     m_nspin = mixin.nSpecies();
     m_nspout = mixout.nSpecies();

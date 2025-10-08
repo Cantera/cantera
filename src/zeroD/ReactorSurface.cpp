@@ -22,7 +22,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     // TODO: After Cantera 3.2, raise an exception of 'reactors' is empty
     vector<shared_ptr<Solution>> adjacent;
     for (auto R : reactors) {
-        adjacent.push_back(R->solution());
+        adjacent.push_back(R->contents4());
         m_reactors.push_back(R.get());
         R->addSurface(this);
     }

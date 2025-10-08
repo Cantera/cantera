@@ -45,7 +45,7 @@ int kinetics1(int np, void* p)
     // create a 2D array to hold the output variables,
     // and store the values for the initial state
     Array2D states(nsp+4, 1);
-    saveSoln(0, 0.0, *r->solution()->thermo(), states);
+    saveSoln(0, 0.0, *r->contents4()->thermo(), states);
 
     // create a container object for reactor to run the simulation
     ReactorNet sim(r);
@@ -56,13 +56,13 @@ int kinetics1(int np, void* p)
         double tm = i*dt;
         sim.advance(tm);
         cout << "time = " << tm << " s" << endl;
-        saveSoln(tm, *r->solution()->thermo(), states);
+        saveSoln(tm, *r->contents4()->thermo(), states);
     }
     clock_t t1 = clock(); // save end time
 
 
     // make a CSV output file
-    writeCsv("kin1.csv", *r->solution()->thermo(), states);
+    writeCsv("kin1.csv", *r->contents4()->thermo(), states);
 
     // print final temperature and timing data
     double tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
