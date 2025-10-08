@@ -41,7 +41,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = ctFunc('sim1D_new', ids);
+            s.stID = ctFunc('sim1D_newSim1D', ids);
 
         end
 
