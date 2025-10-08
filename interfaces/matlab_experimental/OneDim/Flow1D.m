@@ -24,18 +24,18 @@ classdef Flow1D < Domain1D
 
         function f = Flow1D(type, phase, id)
 
-            f@Domain1D(type, phase, id);
+            f@Domain1D('Flow1D', type, phase, id);
 
         end
 
         %% Flow1D Class Methods
 
         function pressure = get.P(d)
-            pressure = ctFunc('flow1D_pressure', d.domainID);
+            pressure = ctFunc('flow_pressure', d.domainID);
         end
 
         function set.P(d, p)
-            ctFunc('flow1D_setPressure', d.domainID, p);
+            ctFunc('flow_setPressure', d.domainID, p);
         end
 
         function setFixedTempProfile(d, profile)
@@ -57,11 +57,11 @@ classdef Flow1D < Domain1D
 
             if sz(1) == 2
                 l = length(profile(1, :));
-                ctFunc('flow1D_setFixedTempProfile', d.domainID, ...
+                ctFunc('flow_setFixedTempProfile', d.domainID, ...
                         l, profile(1, :), l, profile(2, :));
             elseif sz(2) == 2
                 l = length(profile(:, 1));
-                ctFunc('flow1D_setFixedTempProfile', d.domainID, ...
+                ctFunc('flow_setFixedTempProfile', d.domainID, ...
                         l, profile(:, 1), l, profile(:, 2));
             else
                 error('Wrong temperature profile array shape.');

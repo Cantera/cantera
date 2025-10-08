@@ -1,8 +1,12 @@
 classdef Domain1D < handle
     % Domain1D Class ::
     %
-    %     >> d = Domain1D(type, phase, id)
+    %     >> d = Domain1D(family, type, phase, id)
     %
+    % :param family:
+    %    String family of domain. Possible values are:
+    %      - `Boundary1D`
+    %      - `Flow1D`
     % :param type:
     %    String type of domain. Possible values are:
     %      - `axisymmetric-flow`
@@ -87,12 +91,18 @@ classdef Domain1D < handle
     methods
         %% Domain1D Class Constructor.
 
-        function d = Domain1D(type, phase, id)
+        function d = Domain1D(family, type, phase, id)
             % Create a :mat:class:`Domain1D` object.
 
             ctIsLoaded;
 
-            d.domainID = ctFunc('domain_new', type, phase.solnID, id);
+            if strcmp(family, 'Boundary1D')
+                d.domainID = ctFunc('domain_newBoundary1D', type, phase.solnID, id);
+            elseif strcmp(family, 'Flow1D')
+                d.domainID = ctFunc('domain_newFlow1D', type, phase.solnID, id);
+            else
+                error('Domain family must be either Boundary1D or Flow1D');
+            end
 
         end
 
@@ -107,12 +117,12 @@ classdef Domain1D < handle
 
         function set.energyEnabled(d, flag)
             d.energyEnabled = flag;
-            ctFunc('flow1D_solveEnergyEqn', d.domainID, int8(flag));
+            ctFunc('flow_solveEnergyEqn', d.domainID, int8(flag));
         end
 
         function set.soretEnabled(d, flag)
             d.soretEnabled = flag;
-            ctFunc('flow1D_enableSoret', d.domainID, int8(flag));
+            ctFunc('flow_enableSoret', d.domainID, int8(flag));
         end
 
         %% Domain Get Methods
@@ -188,47 +198,24 @@ classdef Domain1D < handle
 
         function i = get.domainIndex(d)
             i = ctFunc('domain_index', d.domainID) + 1;
-
-            if i <= 0
-                error('Domain not found');
-            end
-
         end
 
         function str = get.domainType(d)
             str = ctString('domain_type', d.domainID);
         end
 
-        function zz = gridPoints(d, n)
+        function zz = gridPoints(d)
             % Grid points from a domain. ::
             %
             %     >> zz = d.gridPoints(n)
             %
             % :param d:
             %    Instance of class 'Domain1D'.
-            % :param n:
-            %    Optional, vector of grid points to be retrieved.
             % :return:
             %    Vector of grid points.
 
-            if nargin == 1
-                np = d.nPoints;
-                zz = zeros(1, np);
-
-                for i = 1:np
-                    zz(i) = ctFunc('domain_grid', d.domainID, i - 1);
-                end
-
-            else
-                m = length(n);
-                zz = zeros(1, m);
-
-                for i = 1:m
-                    zz(i) = ctFunc('domain_grid', d.domainID, n(i) - 1);
-                end
-
-            end
-
+            np = d.nPoints;
+            zz = ctArray('domain_grid', np, d.domainID);
         end
 
         function n = get.nComponents(d)

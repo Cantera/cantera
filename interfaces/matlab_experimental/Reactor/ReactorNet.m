@@ -53,8 +53,7 @@ classdef ReactorNet < handle
                 % reactor.
                 reactors = {reactors};
             end
-            reactors = [reactors{:}];
-            reactorIDs = [reactors.id];
+            reactorIDs = cellfun(@(r) r.id, reactors);
 
             n.id = ctFunc('reactornet_new', reactorIDs);
             n.time = 0;
