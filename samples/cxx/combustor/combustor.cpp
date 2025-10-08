@@ -112,9 +112,9 @@ void runexample()
         f << tnow << ", "
           << combustor->temperature() << ", "
           << tres << ", ";
-        ThermoPhase& c = combustor->contents();
+        const auto& c = combustor->contents4()->thermo();
         for (size_t i = 0; i < k_out.size(); i++) {
-            f << c.moleFraction(k_out[i]) << ", ";
+            f << c->moleFraction(k_out[i]) << ", ";
         }
         f << std::endl;
     }

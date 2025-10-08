@@ -99,7 +99,16 @@ public:
     void setSolution(shared_ptr<Solution> sol);
 
     //! Access the Solution object used to represent the contents of this reactor.
-    shared_ptr<Solution> solution() { return m_solution; }
+    //! @since New in %Cantera 3.2
+    //! @todo Transition to `contents()` method for returning `shared_ptr<Solution>`
+    //!     after %Cantera 3.2.
+    shared_ptr<Solution> contents4() { return m_solution; }
+
+    //! Access the Solution object used to represent the contents of this reactor.
+    //! @since New in %Cantera 3.2
+    //! @todo Transition to `contents()` method for returning `shared_ptr<Solution>`
+    //!     after %Cantera 3.2.
+    shared_ptr<const Solution> contents4() const { return m_solution; }
 
     //! @name Methods to set up a simulation
     //! @{
@@ -198,7 +207,11 @@ public:
     virtual void syncState();
 
     //! return a reference to the contents.
+    //! @deprecated  To be changed after Cantera 3.2 to return a `shared_ptr<Solution>`.
+    //!     For transitional access to the Solution object, use contents4().
     ThermoPhase& contents() {
+        warn_deprecated("ReactorBase::contents", "Return value will change to "
+            "shared_ptr<Solution> after Cantera 3.2. Use contents4() for transition.");
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
@@ -206,7 +219,14 @@ public:
         return *m_thermo;
     }
 
+    //! return a reference to the contents.
+    //! @deprecated  To be changed after Cantera 3.2 to return a
+    //!     `shared_ptr<const Solution>`. For transitional access to the Solution
+    //!     object, use contents4().
     const ThermoPhase& contents() const {
+        warn_deprecated("ReactorBase::contents", "Return value will change to "
+            "shared_ptr<const Solution> after Cantera 3.2. Use contents4() for "
+            "transition.");
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
