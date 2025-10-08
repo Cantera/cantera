@@ -305,7 +305,7 @@ class FlameBase(Sim1D):
         """
         Array containing the electric field strength at each point.
         Note: This value is named ``eField`` in the C++ code and is only defined if
-        the transport model is ``ionized_gas``.
+        the transport model is ``ionized-gas``.
         """
         return self.flame.get_values("eField")
 

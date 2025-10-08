@@ -199,14 +199,16 @@ public:
     /**
      * Index of component with name `name`.
      * @param name  name of component
-     * @param checkAlias  if `True` (default), check alias mapping
+     * @param checkAlias  if `true` (default), check alias mapping
      */
     virtual size_t componentIndex(const string& name, bool checkAlias=true) const;
 
     /**
-     *  Check whether the Domain contains a component.
+     * Check whether the Domain contains a component.
      * @param name  name of component
-     * @param checkAlias  if `True` (default), check alias mapping
+     * @param checkAlias  if `true` (default), check alias mapping
+     *
+     * @since New in %Cantera 3.2.
      */
     virtual bool hasComponent(const string& name, bool checkAlias=true) const;
 
@@ -361,29 +363,29 @@ public:
 
     /**
      * Retrieve component values.
-     * @param component  name of component
-     * @param[out] values  vector of values
+     * @param component  Name of the component.
+     * @param[out] values  Vector of length nPoints() containing values at grid points.
      *
      * @since New in %Cantera 3.2.
      */
     virtual void getValues(const string& component, vector<double>& values) const {
-        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::getValues", "Needs to be overloaded.");
     }
 
     /**
      * Specify component values.
-     * @param component  name of component
-     * @param[in] values  vector of values
+     * @param component  Name of the component.
+     * @param[in] values  Vector of length nPoints() containing values at grid points.
      *
      * @since New in %Cantera 3.2.
      */
     virtual void setValues(const string& component, const vector<double>& values) {
-        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::setValues", "Needs to be overloaded.");
     }
 
     /**
      * Specify a profile for a component.
-     * @param component  name of component
+     * @param component  Name of the component.
      * @param[in] pos  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
      * @param[in] values  A vector of values corresponding to the relative position
@@ -403,8 +405,8 @@ public:
 
     /**
      * Specify a flat profile for a component.
-     * @param component  name of component
-     * @param value  constant value
+     * @param component  Name of the component.
+     * @param value  Constant value.
      *
      * @since New in %Cantera 3.2.
      */
@@ -453,6 +455,7 @@ public:
         warn_deprecated("Domain1D::fromArray",
             "To be removed after Cantera 3.2. Replaceable by version that does not "
             "require solution vector.");
+        // create a shared_ptr that skips deletion of the held pointer
         shared_ptr<SolutionArray> arr_ptr(&arr, [](SolutionArray*){});
         fromArray(arr_ptr);
     }

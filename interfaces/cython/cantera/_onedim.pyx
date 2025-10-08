@@ -532,6 +532,9 @@ cdef class FlowBase(Domain1D):
         self.flow.solveEnergyEqn()
 
     def __getattr__(self, name):
+        # used to access fields by alias rather than canonical names;
+        # also provides access to species that are valid Python identifiers
+        # (replicates SolutionArray behavior)
         component_name = name
         if (not self._has_component(name) and
             self._has_component(name.replace("_", "-"))):
@@ -597,7 +600,7 @@ cdef class FlowBase(Domain1D):
         """
         Array containing the electric field strength at each point.
         Note: This value is named ``eField`` in the C++ code and is only defined if
-        the transport model is ``ionized_gas``.
+        the transport model is ``ionized-gas``.
 
         .. versionadded:: 3.2
         """
@@ -1092,8 +1095,8 @@ cdef class Sim1D:
 
             To be removed after Cantera 3.2. Replaceable by `Domain1D.get_values`.
         """
-        warnings.warn("To be removed after Cantera 3.2. Replaceable by 'get_values'.",
-                      DeprecationWarning)
+        warnings.warn("To be removed after Cantera 3.2. Replaceable by "
+                      "'Domain1D.get_values'.", DeprecationWarning)
         idom, kcomp = self._get_indices(domain, component)
         dom = self.domains[idom]
         cdef int j

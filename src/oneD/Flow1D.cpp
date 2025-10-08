@@ -16,7 +16,9 @@ using namespace std;
 namespace Cantera
 {
 
-const std::map<std::string, size_t> componentMap = {
+namespace { // restrict scope of auxiliary variables to local translation unit
+
+const map<string, size_t> componentMap = {
     {"velocity", c_offset_U}, // axial velocity [m/s]
     {"spread_rate", c_offset_V}, // strain rate
     {"T", c_offset_T}, // temperature [kelvin]
@@ -24,6 +26,8 @@ const std::map<std::string, size_t> componentMap = {
     {"eField", c_offset_E}, // electric field
     {"Uo", c_offset_Uo}, // oxidizer axial velocity [m/s]
 };
+
+} // end unnamed namespace
 
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
@@ -847,13 +851,13 @@ size_t Flow1D::componentIndex(const string& name, bool checkAlias) const
     if (componentMap.count(name)) {
         return componentMap.at(name);
     }
-    for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
-        if (componentName(n)==name) {
+    for (size_t n = c_offset_Y; n < m_nsp + c_offset_Y; n++) {
+        if (componentName(n) == name) {
             return n;
         }
     }
     if (checkAlias) {
-        auto aliasMap = _componentAliasMap();
+        const auto& aliasMap = _componentAliasMap();
         if (aliasMap.count(name)) {
             return componentIndex(aliasMap.at(name), false);
         }
@@ -867,8 +871,8 @@ bool Flow1D::hasComponent(const string& name, bool checkAlias) const
     if (componentMap.count(name)) {
         return true;
     }
-    for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
-        if (componentName(n)==name) {
+    for (size_t n = c_offset_Y; n < m_nsp + c_offset_Y; n++) {
+        if (componentName(n) == name) {
             return true;
         }
     }

@@ -19,7 +19,7 @@ recipes:
 - name: nPoints
 - name: componentName
 - name: componentIndex
-  wraps: componentIndex(const char*)
+  wraps: componentIndex(const string&)
 - name: getValues
 - name: setValues
 - name: setProfile

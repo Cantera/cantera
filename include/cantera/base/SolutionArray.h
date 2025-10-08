@@ -129,6 +129,8 @@ public:
     /**
      *  Check whether SolutionArray contains a component.
      *  A component is a property defining state or auxiliary variable.
+     *  @param name  name of component
+     *  @param checkAlias  if `true` (default), check alias mapping
      */
     bool hasComponent(const string& name, bool checkAlias=true) const;
 
@@ -405,7 +407,7 @@ protected:
 };
 
 //! Return mapping of component alias names to standardized component names.
-const std::map<std::string, std::string>& _componentAliasMap();
+const map<string, string>& _componentAliasMap();
 
 }
 

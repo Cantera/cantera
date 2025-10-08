@@ -563,9 +563,9 @@ protected:
      *    \frac{d\Lambda}{dz} = 0
      * @f]
      *
-     * The Lambda equation serves as an eigenvalue that allows the momentum
-     * equation and continuity equations to be simultaneously satisfied in
-     * axisymmetric flows. The Lambda equation propagates information from
+     * The radial pressure gradient @f$ \Lambda @f$ serves as an eigenvalue that allows
+     * the momentum and continuity equations to be simultaneously satisfied in
+     * axisymmetric flows. This equation propagates information from
      * left-to-right. The default boundary condition is @f$ \Lambda = 0 @f$
      * at the left boundary. The equation is first order and so only one
      * boundary condition is needed.
