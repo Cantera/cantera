@@ -731,7 +731,7 @@ classdef ThermoPhase < handle
 
                 for j = 1:n
                     ksp = k(i, j) - 1;
-                    output = ctString('thermo_getSpeciesName', tp.tpID, ksp);
+                    output = ctString('thermo_speciesName', tp.tpID, ksp);
                     nm{i, j} = output;
                 end
 
@@ -835,7 +835,7 @@ classdef ThermoPhase < handle
 
         function amu = get.atomicMasses(tp)
             nel = tp.nElements;
-            amu = ctArray('thermo_getAtomicWeights', nel, tp.tpID);
+            amu = ctArray('thermo_atomicWeights', nel, tp.tpID);
         end
 
         function e = get.charges(tp)
@@ -876,7 +876,7 @@ classdef ThermoPhase < handle
         end
 
         function e = get.eosType(tp)
-            e = ctString('thermo_getEosType', tp.tpID);
+            e = ctString('thermo_type', tp.tpID);
         end
 
         function v = get.isIdealGas(tp)
@@ -954,7 +954,7 @@ classdef ThermoPhase < handle
         end
 
         function s = get.name(tp)
-            s = ctString('thermo_getName', tp.tpID);
+            s = ctString('thermo_name', tp.tpID);
         end
 
         function str = get.report(tp, threshold)
@@ -1369,7 +1369,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 v = v/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_PV', tp.tpID, [p, v]);
+            ctFunc('thermo_setState_PV', tp.tpID, p, v);
         end
 
         function set.PVX(tp, input)

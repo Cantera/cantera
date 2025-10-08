@@ -77,12 +77,14 @@ classdef Transport < handle
 
         function v = get.binDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            v = ctArray('trans_getBinaryDiffCoeffs', [nsp, nsp], tr.trID);
+            val = ctArray('trans_getBinaryDiffCoeffs', nsp*nsp, tr.trID, nsp);
+            v = reshape(val, [nsp, nsp]);
         end
 
         function v = get.multiDiffCoeffs(tr)
             nsp = ctFunc('thermo_nSpecies', tr.th);
-            v = ctArray('trans_getMultiDiffCoeffs', [nsp, nsp], tr.trID);
+            val = ctArray('trans_getMultiDiffCoeffs', nsp*nsp, tr.trID, nsp);
+            v = reshape(val, [nsp, nsp]);
         end
 
     end
