@@ -318,7 +318,7 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         double rs0 = 1.0/surf->siteDensity();
         size_t nk = surf->nSpecies();
         double sum = 0.0;
-        S->syncState();
+        S->restoreState();
         kin->getNetProductionRates(&m_work[0]);
         for (size_t k = 1; k < nk; k++) {
             RHS[loc + k] = m_work[k] * rs0 * surf->size(k);
@@ -416,7 +416,7 @@ void Reactor::evalSurfaces(double* RHS, double* sdot)
         double rs0 = 1.0/surf->siteDensity();
         size_t nk = surf->nSpecies();
         double sum = 0.0;
-        S->syncState();
+        S->restoreState();
         kin->getNetProductionRates(&m_work[0]);
         for (size_t k = 1; k < nk; k++) {
             RHS[loc + k] = m_work[k] * rs0 * surf->size(k);

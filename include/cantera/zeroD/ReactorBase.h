@@ -199,7 +199,7 @@ public:
 
     //! Set the state of the Phase object associated with this reactor to the
     //! reactor's current state.
-    void restoreState();
+    virtual void restoreState();
 
     //! Set the state of the reactor to the associated ThermoPhase object.
     //! This method is the inverse of restoreState() and will trigger integrator

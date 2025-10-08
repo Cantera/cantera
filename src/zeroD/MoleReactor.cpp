@@ -67,7 +67,7 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         SurfPhase* surf = S->thermo();
         double wallarea = S->area();
         size_t nk = surf->nSpecies();
-        S->syncState();
+        S->restoreState();
         kin->getNetProductionRates(&m_work[0]);
         for (size_t k = 0; k < nk; k++) {
             RHS[loc + k] = m_work[k] * wallarea / surf->size(k);
@@ -86,7 +86,7 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
 {
     size_t offset = m_nsp;
     for (auto& S : m_surfaces) {
-        S->syncState();
+        S->restoreState();
         double A = S->area();
         auto kin = S->kinetics();
         size_t nk = S->thermo()->nSpecies();

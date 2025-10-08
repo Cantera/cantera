@@ -934,7 +934,7 @@ cdef class ReactorSurface(ReactorBase):
         def __get__(self):
             if self._contents is None:
                 raise CanteraError('No kinetics manager present')
-            self.syncState()
+            self.rbase.restoreState()
             return self._contents.coverages
         def __set__(self, coverages):
             if self._contents is None:
