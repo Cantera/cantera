@@ -249,6 +249,11 @@ public:
         return m_timeSteps;
     }
 
+    //! Access internal work array.
+    const vector<double>& _workVector() const {
+        return m_xnew;
+    }
+
 protected:
     //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;

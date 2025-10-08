@@ -50,7 +50,7 @@ void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
     }
 }
 
-void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, double value)
+void Sim1D::_setValue(size_t dom, size_t comp, size_t localPoint, double value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::setValue",
@@ -58,7 +58,7 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, double value)
     (*m_state)[iloc] = value;
 }
 
-double Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::_value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::value",
@@ -66,7 +66,7 @@ double Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
     return (*m_state)[iloc];
 }
 
-double Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::_workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::workValue",
@@ -91,7 +91,7 @@ void Sim1D::setProfile(size_t dom, size_t comp,
         double zpt = d.z(n);
         double frac = (zpt - z0)/(z1 - z0);
         double v = linearInterp(frac, pos, values);
-        setValue(dom, comp, n, v);
+        _setValue(dom, comp, n, v);
     }
 }
 
@@ -331,7 +331,7 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
                     "Replaceable by Domain1D::setProfile.");
     size_t np = domain(dom).nPoints();
     for (size_t n = 0; n < np; n++) {
-        setValue(dom, comp, n, v);
+        _setValue(dom, comp, n, v);
     }
 }
 
@@ -467,7 +467,7 @@ int Sim1D::refine(int loglevel)
 
                 // do the same for the solution at this point
                 for (size_t i = 0; i < comp; i++) {
-                    xnew.push_back(value(n, i, m));
+                    xnew.push_back(_value(n, i, m));
                 }
 
                 // now check whether a new point is needed in the interval to
@@ -482,7 +482,7 @@ int Sim1D::refine(int loglevel)
                     // for each component, linearly interpolate the solution to this
                     // point
                     for (size_t i = 0; i < comp; i++) {
-                        double xmid = 0.5*(value(n, i, m) + value(n, i, m+1));
+                        double xmid = 0.5*(_value(n, i, m) + _value(n, i, m+1));
                         xnew.push_back(xmid);
                     }
                 }
@@ -556,8 +556,8 @@ int Sim1D::setFixedTemperature(double t)
         if (d_free && d_free->isFree()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
-                double t1 = value(n, c_offset_T, m);
-                double t2 = value(n, c_offset_T, m + 1);
+                double t1 = _value(n, c_offset_T, m);
+                double t2 = _value(n, c_offset_T, m + 1);
                 // threshold to avoid adding new point too close to existing point
                 double thresh = min(1., 1.e-1 * (t2 - t1));
                 z1 = d.z(m);
@@ -589,7 +589,7 @@ int Sim1D::setFixedTemperature(double t)
 
             // do the same for the solution at this point
             for (size_t i = 0; i < comp; i++) {
-                xnew.push_back(value(n, i, m));
+                xnew.push_back(_value(n, i, m));
             }
             if (m == mfixed) {
                 // add new point at zfixed (mfixed is not npos)
@@ -599,7 +599,8 @@ int Sim1D::setFixedTemperature(double t)
                 // for each component, linearly interpolate
                 // the solution to this point
                 for (size_t i = 0; i < comp; i++) {
-                    double xmid = interp_factor*(value(n, i, m) - value(n, i, m+1)) + value(n,i,m+1);
+                    double xmid = interp_factor*(
+                        _value(n, i, m) - _value(n, i, m+1)) + _value(n,i,m+1);
                     xnew.push_back(xmid);
                 }
             }
@@ -674,8 +675,8 @@ void Sim1D::setLeftControlPoint(double temperature)
 
         double current_val, next_val;
         for (size_t m = 0; m < np-1; m++) {
-            current_val = value(n,c_offset_T,m);
-            next_val = value(n,c_offset_T,m+1);
+            current_val = _value(n,c_offset_T,m);
+            next_val = _value(n,c_offset_T,m+1);
             if ((current_val - temperature) * (next_val - temperature) < 0.0) {
                 // Pick the coordinate of the point with the temperature closest
                 // to the desired temperature
@@ -687,7 +688,7 @@ void Sim1D::setLeftControlPoint(double temperature)
                     index = m+1;
                 }
                 d_axis.setLeftControlPointCoordinate(d_axis.z(index));
-                d_axis.setLeftControlPointTemperature(value(n,c_offset_T,index));
+                d_axis.setLeftControlPointTemperature(_value(n,c_offset_T,index));
                 return;
             }
         }
@@ -725,8 +726,8 @@ void Sim1D::setRightControlPoint(double temperature)
 
         double current_val, next_val;
         for (size_t m = np-1; m > 0; m--) {
-            current_val = value(n,c_offset_T,m);
-            next_val = value(n,c_offset_T,m-1);
+            current_val = _value(n,c_offset_T,m);
+            next_val = _value(n,c_offset_T,m-1);
             if ((current_val - temperature) * (next_val - temperature) < 0.0) {
                 // Pick the coordinate of the point with the temperature closest
                 // to the desired temperature
@@ -738,7 +739,7 @@ void Sim1D::setRightControlPoint(double temperature)
                     index = m-1;
                 }
                 d_axis.setRightControlPointCoordinate(d_axis.z(index));
-                d_axis.setRightControlPointTemperature(value(n,c_offset_T,index));
+                d_axis.setRightControlPointTemperature(_value(n,c_offset_T,index));
                 return;
             }
         }

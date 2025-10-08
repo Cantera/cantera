@@ -647,6 +647,11 @@ string ReactingSurf1D::componentName(size_t n) const
     }
 }
 
+size_t ReactingSurf1D::componentIndex(const string& name, bool checkAlias) const
+{
+    return m_sphase->speciesIndex(name);
+}
+
 void ReactingSurf1D::init()
 {
     m_nv = m_nsp;
@@ -748,6 +753,20 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
             }
         }
     }
+}
+
+double ReactingSurf1D::value(const string& component, size_t localPoint) const
+{
+    if (!m_state) {
+        throw CanteraError("ReactingSurf1D::value",
+            "Domain needs to be installed in a container.");
+    }
+    if (localPoint) {
+        throw IndexError("ReactingSurf1D::value", "", localPoint, 1);
+    }
+    auto i = componentIndex(component);
+    const double* soln = m_state->data() + m_iloc;
+    return soln[index(i, 0)];
 }
 
 shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize) const

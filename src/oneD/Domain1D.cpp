@@ -247,8 +247,7 @@ void Domain1D::show(const double* x)
         for (size_t j = 0; j < m_points; j++) {
             writelog("\n {:10.4g} ", m_z[j]);
             for (size_t n = 0; n < 5; n++) {
-                double v = value(x, i*5+n, j);
-                writelog(" {:10.4g} ", v);
+                writelog(" {:10.4g} ", x[index(i*5 + n, j)]);
             }
         }
         writelog("\n");
@@ -263,8 +262,7 @@ void Domain1D::show(const double* x)
     for (size_t j = 0; j < m_points; j++) {
         writelog("\n {:10.4g} ", m_z[j]);
         for (size_t n = 0; n < nrem; n++) {
-            double v = value(x, nn*5+n, j);
-            writelog(" {:10.4g} ", v);
+            writelog(" {:10.4g} ", x[index(nn*5 + n, j)]);
         }
     }
     writelog("\n");

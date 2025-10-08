@@ -368,9 +368,43 @@ public:
      * @param x  solution vector
      * @param n  component index
      * @param j  grid point index
+     *
+     * @deprecated To be removed after %Cantera 3.2. Replaceable with version accessing
+     *      component by name.
      */
     double value(const double* x, size_t n, size_t j) const {
-        return x[index(n,j)];
+        warn_deprecated("Domain1D::value",
+            "Replaceable with version accessing component by name");
+        return x[index(n,j)];  // caution: this assumes m_iloc = 0
+    }
+
+    /**
+     * Set a single component value in a flow domain or at a boundary.
+     * Use getValues() for efficient access across an entire Flow1D domain.
+     * @param component  Name of the component.
+     * @param localPoint  Grid point within a Flow1D domain, beginning with 0 for
+     *     the leftmost grid point. Unused for Boundary1D domains; defaults to zero.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual double value(const string& component, size_t localPoint=0) const {
+        throw NotImplementedError("Domain1D::value",
+            "Not implemented for domain type '{}'.", domainType());
+    }
+
+    /**
+     * Set a single component value in a flow domain or at a boundary.
+     * Use setValues() for efficient access across an entire Flow1D domain.
+     * @param component  Name of the component.
+     * @param value  Value of the component.
+     * @param localPoint  Grid point within a Flow1D domain, beginning with 0 for
+     *     the leftmost grid point. Unused for Boundary1D domains; defaults to zero.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void setValue(const string& component, double value, size_t localPoint=0) {
+        throw NotImplementedError("Domain1D::setValue",
+            "Not implemented for domain type '{}'.", domainType());
     }
 
     /**
@@ -381,7 +415,8 @@ public:
      * @since New in %Cantera 3.2.
      */
     virtual void getValues(const string& component, vector<double>& values) const {
-        throw NotImplementedError("Domain1D::getValues", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::getValues",
+            "Not implemented for domain type '{}'.", domainType());
     }
 
     /**
@@ -392,7 +427,23 @@ public:
      * @since New in %Cantera 3.2.
      */
     virtual void setValues(const string& component, const vector<double>& values) {
-        throw NotImplementedError("Domain1D::setValues", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::setValues",
+            "Not implemented for domain type '{}'.", domainType());
+    }
+
+    /**
+     * Retrieve internal work array values for a component.
+     * After calling Sim1D::eval(), this array contains the values of the residual
+     * function.
+     * @param component  Name of the component.
+     * @param[out] values  Vector of length nPoints() containing residuals at grid
+     *      points.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    virtual void getResiduals(const string& component, vector<double>& values) const {
+        throw NotImplementedError("Domain1D::getResiduals",
+            "Not applicable or not implemented for domain type '{}'.", domainType());
     }
 
     /**
@@ -412,7 +463,8 @@ public:
      */
     virtual void setProfile(const string& component,
                             const vector<double>& pos, const vector<double>& values) {
-        throw NotImplementedError("Domain1D::setProfile", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::setProfile",
+            "Not implemented for domain type '{}'.", domainType());
     }
 
     /**
@@ -423,8 +475,8 @@ public:
      * @since New in %Cantera 3.2.
      */
     virtual void setFlatProfile(const string& component, double v) {
-        throw NotImplementedError(
-            "Domain1D::setFlatProfile", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::setFlatProfile",
+            "Not implemented for domain type '{}'.", domainType());
     }
 
     //! Save the state of this domain as a SolutionArray.

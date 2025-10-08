@@ -399,11 +399,9 @@ class FlameBase(Sim1D):
         Set the state of the `Solution` object used for calculations to the temperature
         and composition at the point with index ``point``.
         """
-        k0 = self.flame.component_index(self.gas.species_name(0))
-        Y = [self.value(self.flame, k, point)
-             for k in range(k0, k0 + self.gas.n_species)]
+        Y = [self.flame.value(k, point) for k in self.gas.species_names]
         self.gas.set_unnormalized_mass_fractions(Y)
-        self.gas.TP = self.value(self.flame, 'T', point), self.P
+        self.gas.TP = self.flame.value("T", point), self.P
 
     def to_array(self, domain=None, normalize=False):
         """
@@ -1246,8 +1244,8 @@ class CounterflowDiffusionFlame(FlameBase):
         >>> f.mixture_fraction('Bilger')
         """
 
-        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
-        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+        Yf = [self.flame.value(k, 0) for k in self.gas.species_names]
+        Yo = [self.flame.value(k, self.flame.n_points - 1)
               for k in self.gas.species_names]
 
         vals = np.empty(self.flame.n_points)
@@ -1258,8 +1256,8 @@ class CounterflowDiffusionFlame(FlameBase):
 
     @property
     def equivalence_ratio(self):
-        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
-        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+        Yf = [self.flame.value(k, 0) for k in self.gas.species_names]
+        Yo = [self.flame.value(k, self.flame.n_points - 1)
               for k in self.gas.species_names]
 
         vals = np.empty(self.flame.n_points)

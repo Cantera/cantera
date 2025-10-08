@@ -1987,9 +1987,9 @@ class TestImpingingJet:
                 assert settings[k] == v
 
         assert list(jet.surface.surface.X) == approx(list(self.sim.surface.surface.X))
-        for i in range(self.sim.surface.n_components):
-            assert self.sim.value("surface", i, 0) == \
-                approx(jet.value("surface", i, 0), tol_X)
+        for k in self.sim.surface.phase.species_names:
+            assert self.sim.surface.value(k) == \
+                approx(jet.surface.value(k), tol_X)
 
         jet.solve(loglevel=0)
 
