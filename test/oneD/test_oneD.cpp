@@ -87,9 +87,10 @@ TEST(onedim, freeflame)
     }
 
     ASSERT_EQ(flow->nPoints(), static_cast<size_t>(nz + 1));
-    double Tprev = flow->value("T", 0);
+    auto Tvec = flow->values("T");
+    double Tprev = Tvec[0];
     for (size_t n = 0; n < flow->nPoints(); n++) {
-        T = flow->value("T", n);
+        T = Tvec[n];
         ASSERT_GE(T, Tprev);
         Tprev = T;
     }

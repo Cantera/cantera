@@ -367,7 +367,7 @@ class FlameBase(Sim1D):
         """
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
-            self.set_gas_state(i)
+            self.flame.update_state(i)
             vals[i] = self.gas.elemental_mass_fraction(m)
         return vals
 
@@ -390,7 +390,7 @@ class FlameBase(Sim1D):
         """
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
-            self.set_gas_state(i)
+            self.flame.update_state(i)
             vals[i] = self.gas.elemental_mole_fraction(m)
         return vals
 
@@ -398,10 +398,14 @@ class FlameBase(Sim1D):
         """
         Set the state of the `Solution` object used for calculations to the temperature
         and composition at the point with index ``point``.
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Replaceable with `Domain1D.updateState`.
         """
-        Y = [self.flame.value(k, point) for k in self.gas.species_names]
-        self.gas.set_unnormalized_mass_fractions(Y)
-        self.gas.TP = self.flame.value("T", point), self.P
+        warnings.warn("To be removed after Cantera 3.2. Replaceable with "
+                      "'Domain1D.updateState'.", DeprecationWarning)
+        self.flame.update_state(point)
 
     def to_array(self, domain=None, normalize=False):
         """
@@ -521,7 +525,7 @@ def _array_property(attr, size=None):
             vals = np.empty((getattr(self.gas, size), self.flame.n_points))
 
         for i in range(self.flame.n_points):
-            self.set_gas_state(i)
+            self.flame.update_state(i)
             vals[...,i] = getattr(self.gas, attr)
 
         return vals
@@ -1244,25 +1248,27 @@ class CounterflowDiffusionFlame(FlameBase):
         >>> f.mixture_fraction('Bilger')
         """
 
-        Yf = [self.flame.value(k, 0) for k in self.gas.species_names]
-        Yo = [self.flame.value(k, self.flame.n_points - 1)
-              for k in self.gas.species_names]
+        self.flame.update_state(0)
+        Yf = self.gas.Y
+        self.flame.update_state(self.flame.n_points - 1)
+        Yo = self.gas.Y
 
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
-            self.set_gas_state(i)
+            self.flame.update_state(i)
             vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
         return vals
 
     @property
     def equivalence_ratio(self):
-        Yf = [self.flame.value(k, 0) for k in self.gas.species_names]
-        Yo = [self.flame.value(k, self.flame.n_points - 1)
-              for k in self.gas.species_names]
+        self.flame.update_state(0)
+        Yf = self.gas.Y
+        self.flame.update_state(self.flame.n_points - 1)
+        Yo = self.gas.Y
 
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
-            self.set_gas_state(i)
+            self.flame.update_state(i)
             vals[i] = self.gas.equivalence_ratio(Yf, Yo, "mass")
         return vals
 

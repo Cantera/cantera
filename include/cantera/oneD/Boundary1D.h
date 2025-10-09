@@ -391,7 +391,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    double value(const string& component, size_t localPoint=0) const override;
+    double value(const string& component) const override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 

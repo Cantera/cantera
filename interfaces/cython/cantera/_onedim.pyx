@@ -90,6 +90,13 @@ cdef class Domain1D:
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
 
+    def update_state(self, int loc):
+        """
+        Set the state of the `Solution` object used for calculations to the temperature
+        and composition at the point with index ``point``.
+        """
+        self.domain.updateState(loc);
+
     @property
     def grid(self):
         """The grid for this domain."""
@@ -103,37 +110,33 @@ cdef class Domain1D:
             grid_vec.push_back(g)
         self.domain.setupGrid(grid_vec)
 
-    def value(self, str component, point=0):
+    def value(self, str component):
         """
-        Component value at one point.
+        Component value at a boundary.
 
         :param component:
             component name
-        :param point:
-            grid point number within ``domain`` starting with 0 on the left
 
-        >>> t = d.value("T", 6)
+        >>> t = b.value("T")
 
         .. versionadded:: 3.2
         """
-        return self.domain.value(stringify(component), point)
+        return self.domain.value(stringify(component))
 
-    def set_value(self, str component, value, point=0):
+    def set_value(self, str component, value):
         """
-        Set the value of one component at one point to 'value'.
+        Set the value of one component at a boundary.
 
         :param component:
             component name
         :param value:
             numerical value
-        :param point:
-            grid point number within ``domain`` starting with 0 on the left
 
-        >>> d.set("T", 500., 5)
+        >>> b.set("T", 500.)
 
         .. versionadded:: 3.2
         """
-        return self.domain.setValue(stringify(component), value, point)
+        return self.domain.setValue(stringify(component), value)
 
     def values(self, str component):
         """

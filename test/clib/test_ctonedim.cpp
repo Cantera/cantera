@@ -182,11 +182,11 @@ TEST(ctonedim, freeflame)
     int32_t loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);
     ret = sim1D_save(flame, "gtest-freeflame.yaml", "clib",
-                      "Solution from CLib interface");
+                     "Solution from CLib interface");
     ASSERT_GE(ret, 0);
     if (usesHDF5()) {
         ret = sim1D_save(flame, "gtest-freeflame.h5", "clib",
-                          "Solution from CLib interface");
+                         "Solution from CLib interface");
         ASSERT_GE(ret, 0);
     }
 
@@ -194,9 +194,12 @@ TEST(ctonedim, freeflame)
     ASSERT_EQ(domain_nComponents(flow), 16);
     int32_t comp = domain_componentIndex(flow, "T");
     ASSERT_EQ(comp, 2);
-    double Tprev = domain_value(dom, "T", 0);
+    nz = domain_nPoints(flow);
+    vector<double> Tvec(nz);
+    domain_values(dom, "T", nz, Tvec.data());
+    double Tprev = Tvec[0];
     for (int32_t n = 0; n < domain_nPoints(flow); n++) {
-        T = domain_value(dom, "T", n);
+        T = Tvec[n];
         ASSERT_GE(T + 1e-3, Tprev);
         Tprev = T;
     }

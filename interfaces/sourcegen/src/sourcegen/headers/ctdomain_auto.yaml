@@ -22,7 +22,7 @@ recipes:
   wraps: componentIndex(const string&)
 - name: value
   # alternative is deprecated in Cantera 3.2
-  wraps: value(const string&, size_t)
+  wraps: value(const string&)
 - name: setValue
 - name: values
 - name: setValues

@@ -755,14 +755,11 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-double ReactingSurf1D::value(const string& component, size_t localPoint) const
+double ReactingSurf1D::value(const string& component) const
 {
     if (!m_state) {
         throw CanteraError("ReactingSurf1D::value",
             "Domain needs to be installed in a container.");
-    }
-    if (localPoint) {
-        throw IndexError("ReactingSurf1D::value", "", localPoint, 1);
     }
     auto i = componentIndex(component);
     const double* soln = m_state->data() + m_iloc;

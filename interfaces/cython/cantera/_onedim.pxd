@@ -25,10 +25,11 @@ cdef extern from "cantera/oneD/Domain1D.h":
         string componentName(size_t) except +translate_exception
         size_t componentIndex(string&) except +translate_exception
         cbool hasComponent(string&) except +translate_exception
+        void updateState(size_t) except +translate_exception
         vector[double] grid() except +translate_exception
         void setupGrid(vector[double]&) except +translate_exception
-        double value(string&, size_t) except +translate_exception
-        void setValue(string&, double, size_t) except +translate_exception
+        double value(string&) except +translate_exception
+        void setValue(string&, double) except +translate_exception
         vector[double] values(string&) except +translate_exception
         void getValues(string&, vector[double]&) except +translate_exception
         void setValues(string&, vector[double]&) except +translate_exception

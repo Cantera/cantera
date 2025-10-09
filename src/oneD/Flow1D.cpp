@@ -897,7 +897,6 @@ bool Flow1D::componentActive(size_t n) const
         return true;
     }
 }
-
 AnyMap Flow1D::getMeta() const
 {
     AnyMap state = Domain1D::getMeta();
@@ -949,36 +948,19 @@ AnyMap Flow1D::getMeta() const
     return state;
 }
 
-double Flow1D::value(const string& component, size_t localPoint) const
+void Flow1D::updateState(size_t loc)
 {
     if (!m_state) {
-        throw CanteraError("Flow1D::value",
+        throw CanteraError("Flow1D::updateState",
             "Domain needs to be installed in a container.");
     }
-    auto i = componentIndex(component);
-    if (!componentActive(i)) {
-        warn_user(
-            "Flow1D::values", "Component '{}' is not used by '{}'.",
-            component, domainType());
+    if (!m_solution) {
+        throw CanteraError("Flow1D::updateState",
+            "Domain does not have associated Solution object.");
     }
-    const double* soln = m_state->data() + m_iloc;
-    return soln[index(i, localPoint)];
-}
-
-void Flow1D::setValue(const string& component, double value, size_t localPoint)
-{
-    if (!m_state) {
-        throw CanteraError("Flow1D::setValue",
-            "Domain needs to be installed in a container.");
-    }
-    auto i = componentIndex(component);
-    if (!componentActive(i)) {
-        throw CanteraError(
-            "Flow1D::setValue", "Component '{}' is not used by '{}'.",
-            component, domainType());
-    }
-    double* soln = m_state->data() + m_iloc;
-    soln[index(i, localPoint)] = value;
+    const double* soln = m_state->data() + m_iloc + m_nv * loc;
+    m_solution->thermo()->setMassFractions_NoNorm(soln + c_offset_Y);
+    m_solution->thermo()->setState_TP(*(soln + c_offset_T), m_press);
 }
 
 void Flow1D::getValues(const string& component, vector<double>& values) const
