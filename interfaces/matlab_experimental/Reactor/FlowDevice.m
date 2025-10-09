@@ -18,6 +18,10 @@ classdef FlowDevice < Connector
     %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
     %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
     %     :mat:class:`PressureController`, and ``typ='Valve'`` for :mat:class:`Valve`.
+    % :param upstream:
+    %     Upstream reactor or reservoir.
+    % :param downstream:
+    %     Downstream Reactor or reservoir.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
     % :return:
@@ -55,18 +59,14 @@ classdef FlowDevice < Connector
     methods
         %% FlowDevice Class Constructor
 
-        function x = FlowDevice(typ, upstream, downstream, name)
+        function x = FlowDevice(varargin)
             % Create a :mat:class:`FlowDevice` object.
 
             ctIsLoaded;
 
-            if nargin < 4
-                name = '(none)';
-            end
-
-            x@Connector(typ, upstream, downstream, name)
-            x.upstream = upstream;
-            x.downstream = downstream;
+            x@Connector(varargin{:});
+            x.upstream = varargin{2};
+            x.downstream = varargin{3};
         end
 
         %% FlowDevice Get Methods
