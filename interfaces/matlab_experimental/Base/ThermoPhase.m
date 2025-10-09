@@ -171,14 +171,6 @@ classdef ThermoPhase < handle
 
         refPressure % Reference pressure for standard-state. Units: Pa.
 
-        % Generate a report describing the thermodynamic state of this phase.
-        % To print the report to the terminal, simply call the phase object.
-        % The following two statements are equivalent ::
-        %
-        %     >> phase
-        %     >> disp(phase.report)
-        report
-
         % Saturation pressure at current temperature ::
         %
         %     >> p = tp.satPressure.
@@ -831,6 +823,13 @@ classdef ThermoPhase < handle
 
         end
 
+        function str = report(tp, threshold)
+            if nargin < 2
+                threshold = 1e-14;
+            end
+            str = ctString('thermo_report', tp.tpID, 1, threshold);
+        end
+
         %% Single-property getter methods
 
         function amu = get.atomicMasses(tp)
@@ -955,13 +954,6 @@ classdef ThermoPhase < handle
 
         function s = get.name(tp)
             s = ctString('thermo_name', tp.tpID);
-        end
-
-        function str = get.report(tp, threshold)
-            if nargin < 2
-                threshold = 1e-14;
-            end
-            str = ctString('thermo_report', tp.tpID, 1, threshold);
         end
 
         function n = get.speciesNames(tp)
