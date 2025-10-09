@@ -20,8 +20,12 @@ function ctLoad(mode)
 
     global ct
     if isempty(ct)
-        ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
-                               OutOfProcessEnvironmentVariables=pathVar);
+        if isMATLABReleaseOlderThan("R2025a")
+            ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
+        else
+            ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
+                                   OutOfProcessEnvironmentVariables=pathVar);
+        end
     end
 
     fprintf('Cantera %s is ready for use (%s mode).\n', ctVersion, mode);
