@@ -146,14 +146,14 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // now switch to multicomponent transport
         flow->setTransportModel("multicomponent");
         flame.solve(loglevel, refine_grid);
-        double flameSpeed_multi = flow->value("velocity", 0);
+        double flameSpeed_multi = flow->values("velocity")[0];
         print("Flame speed with multicomponent transport: {} m/s\n", flameSpeed_multi);
         flame.save(fileName, "multi", "Solution with multicomponent transport", true);
 
         // now enable Soret diffusion
         flow->enableSoret(true);
         flame.solve(loglevel, refine_grid);
-        double flameSpeed_full = flow->value("velocity");
+        double flameSpeed_full = flow->values("velocity")[0];
         print("Flame speed with multicomponent transport + Soret: {} m/s\n",
               flameSpeed_full);
         flame.save(fileName, "soret",

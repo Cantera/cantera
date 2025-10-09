@@ -183,10 +183,9 @@ public:
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;
 
+    void updateState(size_t loc) override;
     void show(const double* x) override;
 
-    double value(const string& component, size_t localPoint=0) const override;
-    void setValue(const string& component, double value, size_t localPoint=0) override;
     void getValues(const string& component, vector<double>& values) const override;
     void setValues(const string& component, const vector<double>& values) override;
     void getResiduals(const string& component, vector<double>& values) const override;

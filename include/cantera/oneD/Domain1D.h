@@ -225,6 +225,14 @@ public:
     virtual bool hasComponent(const string& name, bool checkAlias=true) const;
 
     /**
+     * Update state at given location to state of associated Solution object.
+     */
+    virtual void updateState(size_t loc) {
+        throw NotImplementedError("Domain1D::updateState",
+            "Not implemented for domain type '{}'.", domainType());
+    }
+
+    /**
      * Set the upper and lower bounds for a solution component, n.
      *
      * @param n  solution component index
@@ -379,30 +387,24 @@ public:
     }
 
     /**
-     * Set a single component value in a flow domain or at a boundary.
-     * Use getValues() for efficient access across an entire Flow1D domain.
+     * Set a single component value at a boundary.
      * @param component  Name of the component.
-     * @param localPoint  Grid point within a Flow1D domain, beginning with 0 for
-     *     the leftmost grid point. Unused for Boundary1D domains; defaults to zero.
      *
      * @since New in %Cantera 3.2.
      */
-    virtual double value(const string& component, size_t localPoint=0) const {
+    virtual double value(const string& component) const {
         throw NotImplementedError("Domain1D::value",
             "Not implemented for domain type '{}'.", domainType());
     }
 
     /**
      * Set a single component value in a flow domain or at a boundary.
-     * Use setValues() for efficient access across an entire Flow1D domain.
      * @param component  Name of the component.
      * @param value  Value of the component.
-     * @param localPoint  Grid point within a Flow1D domain, beginning with 0 for
-     *     the leftmost grid point. Unused for Boundary1D domains; defaults to zero.
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void setValue(const string& component, double value, size_t localPoint=0) {
+    virtual void setValue(const string& component, double value) {
         throw NotImplementedError("Domain1D::setValue",
             "Not implemented for domain type '{}'.", domainType());
     }
