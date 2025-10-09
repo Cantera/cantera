@@ -89,10 +89,10 @@ classdef Reactor < handle
     methods
         %% Reactor Class Constructor
 
-        function r = Reactor(phase, typ, name)
+        function r = Reactor(content, typ, name, clone)
             % Reactor Class ::
             %
-            %     >> r = Reactor(phase, typ, name)
+            %     >> r = Reactor(content, typ, name, clone)
             %
             % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
             % It has a time-dependent state, and may be coupled to other
@@ -112,11 +112,23 @@ classdef Reactor < handle
             %      - `IdealGasConstPressureReactor`
             % :param name:
             %    Reactor name (optional; default is ``(none)``).
+            % :param clone:
+            %    Determines whether to clone `content` so that the internal state of
+            %    this reactor is independent of the original Solution object and
+            %    any Solution objects used by other reactors in the network.
             % :return:
             %    Instance of :mat:class:`Reactor`.
 
+            arguments
+                content {mustBeA(content, 'Solution')}
+                typ (1,1) string = "Reactor"
+                name (1,1) string = "(none)"
+                clone (1,1) logical = false
+            end
+
             ctIsLoaded;
 
+<<<<<<< HEAD
             if nargin == 0
                 error('Reactor contents must be specified')
             elseif nargin == 1
@@ -134,6 +146,10 @@ classdef Reactor < handle
 
             r.id = ctFunc('reactor_new', typ, phase.solnID, name);
             r.phase = phase;
+=======
+            r.id = ctFunc('reactor_new', typ, content.solnID, clone, name);
+            r.contents = content;
+>>>>>>> 3f0710e17 ([MATLAB] Added clone argument to Reactor constructor)
         end
 
         %% Reactor Class Destructor
