@@ -1736,10 +1736,10 @@ class Testlxcat2yaml:
                      database="test", insert=False,
                      output=outfile)
 
-        # get Solution from the mechanism file
+        # get Solution from the input file
         phase = "isotropic-electron-energy-plasma"
-        mechFile = "lxcat-test-convert.yaml"
-        gas = ct.Solution(self.test_data_path / mechFile,
+        inputFile = "lxcat-test-convert-species.yaml"
+        gas = ct.Solution(self.test_data_path / inputFile,
                            phase=phase, transport_model=None)
 
         # add collisions to the reaction list
@@ -1747,13 +1747,18 @@ class Testlxcat2yaml:
                                               gas, section="collisions")
 
         # verify the data
-        assert len(rxn_list) == 2
-        assert rxn_list[0].equation == "O2 + e => O2(Total-Ionization)+ + 2 e"
+        assert len(rxn_list) == 3
+        assert rxn_list[0].equation == "CO2 + e => CO2 + e"
         assert rxn_list[0].reaction_type == "electron-collision-plasma"
-        assert rxn_list[0].rate.energy_levels == approx([15., 20.])
-        assert rxn_list[0].rate.cross_sections == approx([0.0, 5.5e-22])
+        assert rxn_list[0].rate.energy_levels == approx([0.0, 1.0])
+        assert rxn_list[0].rate.cross_sections == approx([0.0, 1.0e-22])
 
-        assert rxn_list[1].equation == "O2 + e => O2-"
+        assert rxn_list[1].equation == "O2 + e => O2(Total-Ionization)+ + 2 e"
         assert rxn_list[1].reaction_type == "electron-collision-plasma"
-        assert rxn_list[1].rate.energy_levels == approx([0.0, 1.0])
-        assert rxn_list[1].rate.cross_sections == approx([0.0, 1.0e-22])
+        assert rxn_list[1].rate.energy_levels == approx([15., 20.])
+        assert rxn_list[1].rate.cross_sections == approx([0.0, 5.5e-22])
+
+        assert rxn_list[2].equation == "O2 + e => O2-"
+        assert rxn_list[2].reaction_type == "electron-collision-plasma"
+        assert rxn_list[2].rate.energy_levels == approx([0.0, 1.0])
+        assert rxn_list[2].rate.cross_sections == approx([0.0, 1.0e-22])
