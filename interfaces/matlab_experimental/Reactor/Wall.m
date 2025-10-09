@@ -82,18 +82,13 @@ classdef Wall < Connector
     methods
         %% Wall Class Constructor
 
-        function w = Wall(l, r, name)
+        function w = Wall(varargin)
             % Create a :mat:class:`Wall` object.
 
-            % At the moment, only one wall type is implemented
-            if nargin < 3
-                name = '(none)';
-            end
-
             % Install the wall between left and right reactors
-            w@Connector('Wall', l, r, name)
-            w.left = l;
-            w.right = r;
+            w@Connector('Wall', varargin{:})
+            w.left = varargin{1};
+            w.right = varargin{2};
 
             % Set default values.
             w.area = 1.0;
