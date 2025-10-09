@@ -24,9 +24,9 @@ recipes:
   # alternative is deprecated in Cantera 3.2
   wraps: value(const string&, size_t)
 - name: setValue
-- name: getValues
+- name: values
 - name: setValues
-- name: getResiduals
+- name: residuals
 - name: setProfile
   # alternative is deprecated in Cantera 3.2
   wraps: setProfile(const string&, const vector<double>&, const vector<double>&)
