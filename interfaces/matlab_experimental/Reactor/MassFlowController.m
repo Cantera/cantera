@@ -20,14 +20,10 @@ classdef MassFlowController < FlowDevice
 
     methods
 
-        function m = MassFlowController(upstream, downstream, name)
+        function m = MassFlowController(varargin)
             % Constructor
 
-            if nargin < 3
-                name = '(none)';
-            end
-
-            m@FlowDevice('MassFlowController', upstream, downstream, name);
+            m@FlowDevice('MassFlowController', varargin{:});
         end
 
     end
