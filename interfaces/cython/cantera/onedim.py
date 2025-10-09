@@ -275,14 +275,14 @@ class FlameBase(Sim1D):
     @property
     def T(self):
         """ Array containing the temperature [K] at each grid point. """
-        return self.flame.get_values("T")
+        return self.flame.values("T")
 
     @property
     def velocity(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
-        return self.flame.get_values("velocity")
+        return self.flame.values("velocity")
 
     @property
     def spread_rate(self):
@@ -290,7 +290,7 @@ class FlameBase(Sim1D):
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
-        return self.flame.get_values("spreadRate")
+        return self.flame.values("spreadRate")
 
     @property
     def L(self):
@@ -298,7 +298,7 @@ class FlameBase(Sim1D):
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named ``Lambda`` in the C++ code.
         """
-        return self.flame.get_values("Lambda")
+        return self.flame.values("Lambda")
 
     @property
     def E(self):
@@ -307,7 +307,7 @@ class FlameBase(Sim1D):
         Note: This value is named ``eField`` in the C++ code and is only defined if
         the transport model is ``ionized-gas``.
         """
-        return self.flame.get_values("eField")
+        return self.flame.values("eField")
 
     @property
     def Uo(self):
@@ -317,7 +317,7 @@ class FlameBase(Sim1D):
         Note: This value is named ``Uo`` in the C++ code and is only defined when using
         two-point control.
         """
-        return self.flame.get_values("Uo")
+        return self.flame.values("Uo")
 
     @property
     def left_control_point_temperature(self):

@@ -1077,7 +1077,7 @@ void Flow1D::setProfile(const string& component,
     }
 }
 
-void Flow1D::setFlatProfile(const string& component, double v)
+void Flow1D::setFlatProfile(const string& component, double value)
 {
     if (!m_state) {
         throw CanteraError("Flow1D::setFlatProfile",
@@ -1091,7 +1091,7 @@ void Flow1D::setFlatProfile(const string& component, double v)
     }
     double* soln = m_state->data() + m_iloc;
     for (size_t j = 0; j < nPoints(); j++) {
-        soln[index(i,j)] = v;
+        soln[index(i,j)] = value;
     }
 }
 

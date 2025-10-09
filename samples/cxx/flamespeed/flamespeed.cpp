@@ -139,7 +139,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         flow->solveEnergyEqn();
 
         flame.solve(loglevel,refine_grid);
-        double flameSpeed_mix = flow->value("velocity", 0);
+        double flameSpeed_mix = flow->values("velocity")[0];
         print("Flame speed with mixture-averaged transport: {} m/s\n", flameSpeed_mix);
         flame.save(fileName, "mix", "Solution with mixture-averaged transport", true);
 
@@ -159,18 +159,17 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         flame.save(fileName, "soret",
                    "Solution with mixture-averaged transport and Soret", true);
 
-        vector<double> zvec,Tvec,COvec,CO2vec,Uvec;
+        auto zvec = flow->grid();
+        auto Tvec = flow->values("T");
+        auto COvec = flow->values("CO");
+        auto CO2vec = flow->values("CO2");
+        auto Uvec = flow->values("velocity");
 
         print("\n{:9s}\t{:8s}\t{:5s}\t{:7s}\n",
               "z (m)", "T (K)", "U (m/s)", "Y(CO)");
         for (size_t n = 0; n < flow->nPoints(); n++) {
-            Tvec.push_back(flow->value("T", n));
-            COvec.push_back(flow->value("CO", n));
-            CO2vec.push_back(flow->value("CO2", n));
-            Uvec.push_back(flow->value("velocity", n));
-            zvec.push_back(flow->z(n));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
-                  flow->z(n), Tvec[n], Uvec[n], COvec[n]);
+                  zvec[n], Tvec[n], Uvec[n], COvec[n]);
         }
 
         print("\nAdiabatic flame temperature from equilibrium is: {}\n", Tad);
@@ -180,7 +179,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         outfile << "  Grid,   Temperature,   Uvec,   CO,    CO2\n";
         for (size_t n = 0; n < flow->nPoints(); n++) {
             print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
-                  flow->z(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
+                  zvec[n], Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
         }
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

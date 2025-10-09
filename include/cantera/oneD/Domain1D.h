@@ -410,6 +410,19 @@ public:
     /**
      * Retrieve component values.
      * @param component  Name of the component.
+     * @returns  Vector of length nPoints() containing values at grid points.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    vector<double> values(const string& component) const {
+        vector<double> data(nPoints());
+        getValues(component, data);
+        return data;
+    }
+
+    /**
+     * Retrieve component values.
+     * @param component  Name of the component.
      * @param[out] values  Vector of length nPoints() containing values at grid points.
      *
      * @since New in %Cantera 3.2.
@@ -429,6 +442,21 @@ public:
     virtual void setValues(const string& component, const vector<double>& values) {
         throw NotImplementedError("Domain1D::setValues",
             "Not implemented for domain type '{}'.", domainType());
+    }
+
+    /**
+     * Retrieve internal work array values for a component.
+     * After calling Sim1D::eval(), this array contains the values of the residual
+     * function.
+     * @param component  Name of the component.
+     * @returns  Vector of length nPoints() containing residuals at grid  points.
+     *
+     * @since New in %Cantera 3.2.
+     */
+    vector<double> residuals(const string& component) const {
+        vector<double> data(nPoints());
+        getResiduals(component, data);
+        return data;
     }
 
     /**
@@ -474,7 +502,7 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void setFlatProfile(const string& component, double v) {
+    virtual void setFlatProfile(const string& component, double value) {
         throw NotImplementedError("Domain1D::setFlatProfile",
             "Not implemented for domain type '{}'.", domainType());
     }

@@ -135,20 +135,18 @@ cdef class Domain1D:
         """
         return self.domain.setValue(stringify(component), value, point)
 
-    def get_values(self, str component):
+    def values(self, str component):
         """
         Retrieve spatial profile of a component.
 
         :param component:
             component name
 
-        >>> T = d.get_values("T")
+        >>> T = d.values("T")
 
         .. versionadded:: 3.2
         """
-        cdef vector[double] values
-        values.resize(self.n_points)
-        self.domain.getValues(stringify(component), values)
+        cdef vector[double] values = self.domain.values(stringify(component))
         return np.asarray(values)
 
     def set_values(self, str component, values):
@@ -169,7 +167,7 @@ cdef class Domain1D:
             values_vec.push_back(v)
         self.domain.setValues(stringify(component), values)
 
-    def get_residuals(self, str component):
+    def residuals(self, str component):
         """
         Retrieve internal work array value at one point. After calling `Sim1D.eval`,
         this array contains the values of the residual function.
@@ -177,13 +175,11 @@ cdef class Domain1D:
         :param component:
             component name
 
-        >>> T = d.get_residuals("T")
+        >>> T = d.residuals("T")
 
         .. versionadded:: 3.2
         """
-        cdef vector[double] values
-        values.resize(self.n_points)
-        self.domain.getResiduals(stringify(component), values)
+        cdef vector[double] values = self.domain.residuals(stringify(component))
         return np.asarray(values)
 
     def set_profile(self, component, positions, values):
@@ -590,7 +586,7 @@ cdef class FlowBase(Domain1D):
             component_name = name.replace("_", "-")
 
         if self._has_component(component_name):
-            return self.get_values(component_name)
+            return self.values(component_name)
 
         raise AttributeError(
             f"{self.__class__.__name__!r} object has no attribute {name!r}")
@@ -611,7 +607,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionadded:: 3.2
         """
-        return self.get_values("T")
+        return self.values("T")
 
     @property
     def velocity(self):
@@ -620,7 +616,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionadded:: 3.2
         """
-        return self.get_values("velocity")
+        return self.values("velocity")
 
     @property
     def spread_rate(self):
@@ -631,7 +627,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionadded:: 3.2
         """
-        return self.get_values("spread_rate")
+        return self.values("spread_rate")
 
     @property
     def radial_pressure_gradient(self):
@@ -642,7 +638,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionadded:: 3.2
         """
-        return self.get_values("Lambda")
+        return self.values("Lambda")
 
     @property
     def electric_field(self):
@@ -653,7 +649,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionadded:: 3.2
         """
-        return self.get_values("eField")
+        return self.values("eField")
 
     @property
     def oxidizer_velocity(self):
@@ -665,7 +661,7 @@ cdef class FlowBase(Domain1D):
 
         .. versionchanged:: 3.2
         """
-        return self.get_values("Uo")
+        return self.values("Uo")
 
     property transport_model:
         """
@@ -1115,7 +1111,7 @@ cdef class Sim1D:
         """
         Evaluate the governing equations using the current solution estimate,
         storing the residual in the array which is accessible with the
-        `Domain1D.get_residuals` function.
+        `Domain1D.residuals` function.
 
         :param rdt:
            Reciprocal of the time-step
@@ -1138,7 +1134,7 @@ cdef class Sim1D:
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.get_residuals`.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.residuals`.
         """
         dom, comp = self._get_indices(domain, component)
         return self.sim.workValue(dom, comp, point)
@@ -1156,10 +1152,10 @@ cdef class Sim1D:
 
         .. deprecated:: 3.2
 
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.get_values`.
+            To be removed after Cantera 3.2. Replaceable by `Domain1D.values`.
         """
         warnings.warn("To be removed after Cantera 3.2. Replaceable by "
-                      "'Domain1D.get_values'.", DeprecationWarning)
+                      "'Domain1D.values'.", DeprecationWarning)
         idom, kcomp = self._get_indices(domain, component)
         dom = self.domains[idom]
         cdef int j
