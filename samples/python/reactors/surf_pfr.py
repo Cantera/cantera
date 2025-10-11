@@ -65,7 +65,7 @@ output_data = []
 n = 0
 print('    distance       X_CH4        X_H2        X_CO')
 print('  {:10f}  {:10f}  {:10f}  {:10f}'.format(
-      0, *r.contents['CH4', 'H2', 'CO'].X))
+      0, *r.phase['CH4', 'H2', 'CO'].X))
 
 while sim.distance < length:
     dist = sim.distance * 1e3  # convert to mm
@@ -73,14 +73,14 @@ while sim.distance < length:
 
     if n % 100 == 0 or (dist > 1 and n % 10 == 0):
         print('  {:10f}  {:10f}  {:10f}  {:10f}'.format(
-              dist, *r.contents['CH4', 'H2', 'CO'].X))
+              dist, *r.phase['CH4', 'H2', 'CO'].X))
     n += 1
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(
-        [dist, r.T - 273.15, r.contents.P / ct.one_atm]
-        + list(r.contents.X)  # use r.contents.X not gas.X
-        + list(rsurf.contents.coverages)  # use rsurf.contents.coverages not surf.coverages
+        [dist, r.T - 273.15, r.phase.P / ct.one_atm]
+        + list(r.phase.X)  # use r.phase.X not gas.X
+        + list(rsurf.phase.coverages)  # use rsurf.phase.coverages not surf.coverages
     )
 
 with open(output_filename, 'w', newline="") as outfile:

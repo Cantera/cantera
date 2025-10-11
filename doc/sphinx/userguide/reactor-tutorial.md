@@ -38,7 +38,7 @@ reac = ct.IdealGasReactor(gas)
 sim = ct.ReactorNet([reac])
 
 # View the initial state of the mixture
-reac.contents()
+reac.phase()
 ```
 
 Now, let's advance the simulation in time to an absolute time of 1 second, and examine
@@ -52,7 +52,7 @@ ignited for a wide range of initial conditions.
 sim.advance(1)
 
 # view the updated state of the mixture, reflecting properties at t = 1 sec
-reac.contents()
+reac.phase()
 ```
 
 ## Methods for Time Integration
@@ -161,7 +161,7 @@ sim.preconditioner = precon  # Add it to the network
 The results of the time integration are the same as before:
 ```{code-cell} python
 sim.advance(1)
-reac.contents()
+reac.phase()
 ```
 
 The approximate Jacobian matrices used to construct the preconditioners do not currently

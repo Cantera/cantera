@@ -79,7 +79,7 @@ sim = ct.ReactorNet([mixer])
 sim.solve_steady()
 
 # view the state of the gas in the mixer
-print(mixer.contents.report())
+print(mixer.phase.report())
 
 # %%
 # Show the network structure

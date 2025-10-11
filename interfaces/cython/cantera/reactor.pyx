@@ -15,27 +15,27 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents, *args, name="(none)", clone=None,
+    def __cinit__(self, _SolutionBase phase, *args, name="(none)", clone=None,
                   **kwargs):
         if clone is None:
             clone = False  # TODO: change as indicated after Cantera 3.2
             warnings.warn("ReactorBase.__init__: After Cantera 3.2, the default value "
                 "of the `clone` argument will be `True`, resulting in an independent "
-                "copy of the `contents` being created for use by this reactor. Add the "
+                "copy of the `phase` being created for use by this reactor. Add the "
                 "`clone=False` argument to retain the old behavior of sharing "
                 "`Solution` objects.", DeprecationWarning)
         if self.reactor_type != "ReactorSurface":
             self._rbase = newReactorBase(stringify(self.reactor_type),
-                                        contents._base, clone, stringify(name))
+                                        phase._base, clone, stringify(name))
             self.rbase = self._rbase.get()
 
-    def __init__(self, _SolutionBase contents=None, *args,
+    def __init__(self, _SolutionBase phase=None, *args,
                  clone=None, name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
         self._surfaces = []
-        self._contents = _wrap_Solution(self.rbase.phase())
+        self._phase = _wrap_Solution(self.rbase.phase())
 
         if volume is not None:
             self.volume = volume
@@ -53,7 +53,7 @@ cdef class ReactorBase:
             will be disabled and this method will be removed.
         """
         self.rbase.setSolution(solution._base)  # raises warning in C++ core
-        self._contents = solution
+        self._phase = solution
 
     property type:
         """The type of the reactor."""
@@ -80,17 +80,17 @@ cdef class ReactorBase:
         The `ThermoPhase` object representing the reactor's contents.
 
         .. deprecated:: 3.2
-           Renamed to ``contents``
+           Renamed to ``phase``
         """
         def __get__(self):
             warnings.warn("ReactorBase.thermo: To be removed after Cantera 3.2. "
-                "Renamed to `contents`.",
+                "Renamed to `phase`.",
                 DeprecationWarning)
             self.rbase.restoreState()
-            return self._contents
+            return self._phase
 
     @property
-    def contents(self):
+    def phase(self):
         """
         The `Solution` object representing the reactor's contents.
 
@@ -98,7 +98,7 @@ cdef class ReactorBase:
            Renamed from ``thermo``.
         """
         self.rbase.restoreState()
-        return self._contents
+        return self._phase
 
     property volume:
         """The volume [m³] of the reactor."""
@@ -111,22 +111,22 @@ cdef class ReactorBase:
     property T:
         """The temperature [K] of the reactor's contents."""
         def __get__(self):
-            return self.contents.T
+            return self.phase.T
 
     property density:
         """The density [kg/m³ or kmol/m³] of the reactor's contents."""
         def __get__(self):
-            return self.contents.density
+            return self.phase.density
 
     property mass:
         """The mass of the reactor's contents."""
         def __get__(self):
-            return self.contents.density_mass * self.volume
+            return self.phase.density_mass * self.volume
 
     property Y:
         """The mass fractions of the reactor's contents."""
         def __get__(self):
-            return self.contents.Y
+            return self.phase.Y
 
     def add_sensitivity_reaction(self, int m):
         """
@@ -233,13 +233,13 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents, *,
+    def __init__(self, phase, *,
                  clone=None, name="(none)", energy='on', group_name="", **kwargs):
         """
-        :param contents:
+        :param phase:
             A `Solution` object representing the Reactor contents
         :param clone:
-            Determines whether to clone the ``contents`` object used by this reactor so
+            Determines whether to clone the ``phase`` object used by this reactor so
             that the internal state is independent of the original `Solution` (and any
             `Solution` objects used by other reactors in the network).
         :param name:
@@ -275,12 +275,12 @@ cdef class Reactor(ReactorBase):
 
         Arguments may be specified using keywords in any order:
 
-        >>> r2 = Reactor(contents=gas, energy='off',
+        >>> r2 = Reactor(phase=gas, energy='off',
         ...              name='isothermal_reactor')
-        >>> r3 = Reactor(name='adiabatic_reactor', contents=gas)
+        >>> r3 = Reactor(name='adiabatic_reactor', phase=gas)
 
         """
-        super().__init__(contents, clone=clone, name=name, **kwargs)
+        super().__init__(phase, clone=clone, name=name, **kwargs)
 
         if energy == 'off':
             self.energy_enabled = False
@@ -295,13 +295,13 @@ cdef class Reactor(ReactorBase):
         this reactor.
 
         .. deprecated:: 3.2
-            Replaced by ``contents`` property.
+            Replaced by ``phase`` property.
         """
         def __get__(self):
             warnings.warn("Reactor.kinetics: To be removed after Cantera 3.2. "
-                "Renamed to `contents`.", DeprecationWarning)
+                "Renamed to `phase`.", DeprecationWarning)
             self.rbase.restoreState()
-            return self._contents
+            return self._phase
 
     property chemistry_enabled:
         """
@@ -332,7 +332,7 @@ cdef class Reactor(ReactorBase):
         species ``k`` should be computed. The reactor must be part of a network
         first.
         """
-        self.reactor.addSensitivitySpeciesEnthalpy(self.contents.species_index(k))
+        self.reactor.addSensitivitySpeciesEnthalpy(self.phase.species_index(k))
 
     def component_index(self, name):
         """
@@ -820,12 +820,12 @@ cdef class ReactorSurface(ReactorBase):
     """
     Represents a reacting surface in contact with the contents of one or more reactors.
 
-    :param contents:
+    :param phase:
         The `Interface` object representing reactions on this surface.
     :param r:
         A `Reactor` or list of `Reactor` objects that this surface is adjacent to.
     :param clone:
-        Determines whether to clone the ``contents`` object used by this reactor so
+        Determines whether to clone the ``phase`` object used by this reactor so
         that the internal state is independent of the original `Solution` (and any
         `Solution` objects used by other reactors in the network).
     :param name:
@@ -853,7 +853,7 @@ cdef class ReactorSurface(ReactorBase):
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, _SolutionBase contents, r=None, clone=None, name="(none)", **kwargs):
+    def __cinit__(self, _SolutionBase phase, r=None, clone=None, name="(none)", **kwargs):
         if clone is None:
             clone = False # TODO: change default to True after Cantera 3.2
         cdef ReactorBase adj
@@ -879,13 +879,13 @@ cdef class ReactorSurface(ReactorBase):
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
 
-        self._rbase = CxxNewReactorSurface(contents._base, cxx_adj, clone, stringify(name))
+        self._rbase = CxxNewReactorSurface(phase._base, cxx_adj, clone, stringify(name))
         self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, contents=None, r=None, clone=None, *,
+    def __init__(self, phase=None, r=None, clone=None, *,
                  name="(none)", A=None, node_attr=None):
-        super().__init__(contents, name=name)
+        super().__init__(phase, name=name)
 
         if A is not None:
             self.area = A
@@ -919,32 +919,32 @@ cdef class ReactorSurface(ReactorBase):
         this surface.
 
         .. deprecated:: 3.2
-            Replaced by ``contents`` property.
+            Replaced by ``phase`` property.
         """
         def __get__(self):
             warnings.warn("ReactorSurface.kinetics: To be removed after Cantera 3.2. "
-                "Renamed to `contents`.", DeprecationWarning)
+                "Renamed to `phase`.", DeprecationWarning)
             self.syncState()
-            return self._contents
+            return self._phase
 
     property coverages:
         """
         The fraction of sites covered by each surface species.
         """
         def __get__(self):
-            if self._contents is None:
+            if self._phase is None:
                 raise CanteraError('No kinetics manager present')
             self.rbase.restoreState()
-            return self._contents.coverages
+            return self._phase.coverages
         def __set__(self, coverages):
-            if self._contents is None:
+            if self._phase is None:
                 raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
                 return
 
-            if len(coverages) != self._contents.n_species:
+            if len(coverages) != self._phase.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)

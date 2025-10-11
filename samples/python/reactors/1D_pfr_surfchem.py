@@ -56,8 +56,8 @@ kSi = gas_si_n_interface.kinetics_species_index('Si(D)')
 while net.distance < 0.6:
     print(net.distance, rsurf.coverages)
     net.step()
-    wdot = rsurf.contents.net_production_rates
-    soln.append(TDY=reactor.contents.TDY,
+    wdot = rsurf.phase.net_production_rates
+    soln.append(TDY=reactor.phase.TDY,
                 x=net.distance,
                 speed=reactor.speed,
                 surf_coverages=rsurf.coverages,

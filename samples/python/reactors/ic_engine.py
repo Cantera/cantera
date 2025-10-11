@@ -158,7 +158,7 @@ cyl.set_advance_limit('temperature', delta_T_max)
 
 # set up output data arrays
 states = ct.SolutionArray(
-    cyl.contents,
+    cyl.phase,
     extra=('t', 'ca', 'V', 'm', 'mdot_in', 'mdot_out', 'dWv_dt'),
 )
 
@@ -171,11 +171,11 @@ while sim.time < t_stop:
     sim.advance(sim.time + dt)
 
     # calculate results to be stored
-    dWv_dt = - (cyl.contents.P - ambient_air.contents.P) * A_piston * \
+    dWv_dt = - (cyl.phase.P - ambient_air.phase.P) * A_piston * \
         piston_speed(sim.time)
 
     # append output data
-    states.append(cyl.contents.state,
+    states.append(cyl.phase.state,
                   t=sim.time, ca=crank_angle(sim.time),
                   V=cyl.volume, m=cyl.mass,
                   mdot_in=inlet_valve.mass_flow_rate,

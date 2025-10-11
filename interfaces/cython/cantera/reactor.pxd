@@ -228,7 +228,7 @@ ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 cdef class ReactorBase:
     cdef shared_ptr[CxxReactorBase] _rbase
     cdef CxxReactorBase* rbase
-    cdef object _contents
+    cdef object _phase
     cdef list _inlets
     cdef list _outlets
     cdef list _walls

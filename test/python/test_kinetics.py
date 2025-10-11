@@ -739,7 +739,7 @@ class TestReactionPath:
         while T < 1900:
             net.step()
             T = r.T
-        return r.contents
+        return r.phase
 
     def check_dot(self, gas, diagram, element):
         diagram.label_threshold = 0
