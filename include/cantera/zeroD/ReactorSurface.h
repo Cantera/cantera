@@ -50,11 +50,11 @@ public:
         return "ReactorSurface";
     }
 
-    //! Returns the surface area [m^2]
-    double area() const;
+    //! Returns the surface area [m²]
+    double area() const override;
 
-    //! Set the surface area [m^2]
-    void setArea(double a);
+    //! Set the surface area [m²]
+    void setArea(double a) override;
 
     //! Accessor for the SurfPhase object
     SurfPhase* thermo() {

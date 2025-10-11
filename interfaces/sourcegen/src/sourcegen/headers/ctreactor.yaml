@@ -21,6 +21,8 @@ recipes:
 - name: phase
   what: accessor
 - name: setInitialVolume
+- name: area
+- name: setArea
 - name: setChemistry
 - name: setEnergy
 - name: mass
@@ -37,9 +39,6 @@ recipes:
   wraps: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: setMassFlowRate
-# ReactorSurface
-- name: area
-- name: setArea
 # service functions
 - name: del
 - name: cabinetSize

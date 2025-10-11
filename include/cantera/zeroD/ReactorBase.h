@@ -115,6 +115,20 @@ public:
             "Volume is undefined for reactors of type '{}'.", type());
     }
 
+    //! Returns an area associated with a reactor [m²].
+    //! Examples: surface area of ReactorSurface or cross section area of FlowReactor.
+    virtual double area() const {
+        throw NotImplementedError("ReactorBase::area",
+            "Area is undefined for reactors of type '{}'.", type());
+    }
+
+    //! Set an area associated with a reactor [m²].
+    //! Examples: surface area of ReactorSurface or cross section area of FlowReactor.
+    virtual void setArea(double a) {
+        throw NotImplementedError("ReactorBase::setArea",
+            "Area is undefined for reactors of type '{}'.", type());
+    }
+
     //! Enable or disable changes in reactor composition due to chemical reactions.
     virtual void setChemistry(bool cflag = true) {
         throw NotImplementedError("ReactorBase::setChemistry");
