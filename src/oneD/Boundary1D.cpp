@@ -84,10 +84,11 @@ Inlet1D::Inlet1D()
 {
 }
 
-Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
+Inlet1D::Inlet1D(shared_ptr<Solution> phase, const string& id)
     : Inlet1D()
 {
-    setSolution(solution);
+    m_solution = phase;
+    m_solution->thermo()->addSpeciesLock();
     m_id = id;
 }
 
@@ -272,10 +273,10 @@ shared_ptr<SolutionArray> Inlet1D::toArray(bool normalize) const
 
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
-    auto phase = m_solution->thermo();
-    phase->setState_TPY(m_temp, pressure, m_yin.data());
-    vector<double> data(phase->stateSize());
-    phase->saveState(data);
+    auto thermo = m_solution->thermo();
+    thermo->setState_TPY(m_temp, pressure, m_yin.data());
+    vector<double> data(thermo->stateSize());
+    thermo->saveState(data);
 
     arr->setState(0, data);
     if (normalize) {
@@ -288,17 +289,17 @@ void Inlet1D::fromArray(const shared_ptr<SolutionArray>& arr)
 {
     Boundary1D::setMeta(arr->meta());
     arr->setLoc(0);
-    auto phase = arr->thermo();
+    auto thermo = arr->thermo();
     auto meta = arr->meta();
-    m_temp = phase->temperature();
+    m_temp = thermo->temperature();
     if (meta.hasKey("mass-flux")) {
         m_mdot = meta.at("mass-flux").asDouble();
     } else {
         // convert data format used by Python h5py export (Cantera < 3.0)
         auto aux = arr->getAuxiliary(0);
-        m_mdot = phase->density() * aux.at("velocity").as<double>();
+        m_mdot = thermo->density() * aux.at("velocity").as<double>();
     }
-    phase->getMassFractions(m_yin.data());
+    thermo->getMassFractions(m_yin.data());
 }
 
 // ------------- Empty1D -------------
@@ -377,10 +378,11 @@ OutletRes1D::OutletRes1D()
 {
 }
 
-OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)
+OutletRes1D::OutletRes1D(shared_ptr<Solution> phase, const string& id)
     : OutletRes1D()
 {
-    setSolution(solution);
+    m_solution = phase;
+    m_solution->thermo()->addSpeciesLock();
     m_id = id;
 }
 
@@ -522,10 +524,10 @@ shared_ptr<SolutionArray> OutletRes1D::toArray(bool normalize) const
 
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
-    auto phase = m_solution->thermo();
-    phase->setState_TPY(m_temp, pressure, &m_yres[0]);
-    vector<double> data(phase->stateSize());
-    phase->saveState(data);
+    auto thermo = m_solution->thermo();
+    thermo->setState_TPY(m_temp, pressure, &m_yres[0]);
+    vector<double> data(thermo->stateSize());
+    thermo->saveState(data);
 
     arr->setState(0, data);
     if (normalize) {
@@ -538,9 +540,9 @@ void OutletRes1D::fromArray(const shared_ptr<SolutionArray>& arr)
 {
     Boundary1D::setMeta(arr->meta());
     arr->setLoc(0);
-    auto phase = arr->thermo();
-    m_temp = phase->temperature();
-    auto Y = phase->massFractions();
+    auto thermo = arr->thermo();
+    m_temp = thermo->temperature();
+    auto Y = thermo->massFractions();
     std::copy(Y, Y + m_nsp, &m_yres[0]);
 }
 
@@ -604,34 +606,39 @@ ReactingSurf1D::ReactingSurf1D()
 {
 }
 
-ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> phase, const string& id)
 {
-    auto phase = std::dynamic_pointer_cast<SurfPhase>(solution->thermo());
-    if (!phase) {
+    auto thermo = std::dynamic_pointer_cast<SurfPhase>(phase->thermo());
+    if (!thermo) {
         throw CanteraError("ReactingSurf1D::ReactingSurf1D",
-            "Detected incompatible ThermoPhase type '{}'", solution->thermo()->type());
+            "Detected incompatible ThermoPhase type '{}'", phase->thermo()->type());
     }
-    auto kin = std::dynamic_pointer_cast<InterfaceKinetics>(solution->kinetics());
+    auto kin = std::dynamic_pointer_cast<InterfaceKinetics>(phase->kinetics());
     if (!kin) {
         throw CanteraError("ReactingSurf1D::ReactingSurf1D",
             "Detected incompatible kinetics type '{}'",
-            solution->kinetics()->kineticsType());
+            phase->kinetics()->kineticsType());
     }
-    setSolution(solution);
+    m_solution = phase;
+    m_solution->thermo()->addSpeciesLock();
     m_id = id;
     m_kin = kin.get();
-    m_sphase = phase.get();
+    m_sphase = thermo.get();
     m_nsp = m_sphase->nSpecies();
     m_enabled = true;
 }
 
 void ReactingSurf1D::setKinetics(shared_ptr<Kinetics> kin)
 {
+    warn_deprecated("ReactingSurf1D::setKinetics",
+        "After Cantera 3.2, a change of domain contents after instantiation "
+        "will be disabled.");
     auto sol = Solution::create();
     sol->setThermo(kin->reactionPhase());
     sol->setKinetics(kin);
     sol->setTransportModel("none");
-    setSolution(sol);
+    m_solution = sol;
+    m_solution->thermo()->addSpeciesLock();
     m_kin = dynamic_pointer_cast<InterfaceKinetics>(kin).get();
     m_sphase = dynamic_pointer_cast<SurfPhase>(kin->reactionPhase()).get();
     m_nsp = m_sphase->nSpecies();
