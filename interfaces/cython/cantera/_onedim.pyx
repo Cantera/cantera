@@ -975,7 +975,16 @@ cdef class Sim1D:
 
         :param domain: Index of domain within `Sim1D.domains` list; the default
             is to return the phase of the parent `Sim1D` object.
+
+        .. deprecated:: 3.2
+
+            To be removed after Cantera 3.2. Contents should be accessed via
+            `Domain1D.phase` properties of domain objects instead.
         """
+        warnings.warn(
+            "To be removed after Cantera 3.2. Contents should be accessed via "
+            "property 'phase' of domain objects instead.",
+            DeprecationWarning)
         if domain is None:
             return self.gas
 
