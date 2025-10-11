@@ -49,7 +49,7 @@ private:
 //! Create a ReactorBase object of the specified type and contents.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorBase> newReactorBase(
-    const string& model, shared_ptr<Solution> contents, bool clone=true,
+    const string& model, shared_ptr<Solution> phase, bool clone=true,
     const string& name="(none)");
 
 //! Create a Reactor object of the specified type and contents
@@ -58,7 +58,7 @@ shared_ptr<ReactorBase> newReactorBase(
 //! @deprecated  Behavior changes after %Cantera 3.2, when a `shared_ptr<Reactor>` will
 //!     be returned. For new behavior, see `newReactor4`.
 shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> contents, const string& name="(none)");
+    const string& model, shared_ptr<Solution> phase, const string& name="(none)");
 
 //! Create a Reactor object of the specified type and contents
 //! @param  model  Reactor type to be created. See [this list of reactor
@@ -71,7 +71,7 @@ shared_ptr<ReactorBase> newReactor(
 //! @param name  Name of the reactor.
 //! @since  New in %Cantera 3.2. Transitional method returning a `Reactor` object.
 shared_ptr<Reactor> newReactor4(
-    const string& model, shared_ptr<Solution> contents, bool clone=true,
+    const string& model, shared_ptr<Solution> phase, bool clone=true,
     const string& name="(none)");
 
 //! Create a Reservoir object with the specified contents
@@ -82,7 +82,7 @@ shared_ptr<Reactor> newReactor4(
 //! @param name  Name of the reservoir.
 //! @since New in %Cantera 3.2.
 shared_ptr<Reservoir> newReservoir(
-    shared_ptr<Solution> contents, bool clone=true, const string& name="(none)");
+    shared_ptr<Solution> phase, bool clone=true, const string& name="(none)");
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
 //! participating in surface reactions.
@@ -96,7 +96,7 @@ shared_ptr<Reservoir> newReservoir(
 //! @param name  Name of the reactor surface.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorSurface> newReactorSurface(
-    shared_ptr<Solution> contents, const vector<shared_ptr<ReactorBase>>& reactors,
+    shared_ptr<Solution> phase, const vector<shared_ptr<ReactorBase>>& reactors,
     bool clone=true, const string& name="(none)");
 
 //! @}

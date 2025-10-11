@@ -35,7 +35,7 @@ cdef class ReactorBase:
         self._outlets = []
         self._walls = []
         self._surfaces = []
-        self._contents = _wrap_Solution(self.rbase.contents4())
+        self._contents = _wrap_Solution(self.rbase.phase())
 
         if volume is not None:
             self.volume = volume
