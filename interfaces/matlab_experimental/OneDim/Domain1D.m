@@ -1,12 +1,8 @@
 classdef Domain1D < handle
     % Domain1D Class ::
     %
-    %     >> d = Domain1D(family, type, phase, id)
+    %     >> d = Domain1D(type, phase, id)
     %
-    % :param family:
-    %    String family of domain. Possible values are:
-    %      - `Boundary1D`
-    %      - `Flow1D`
     % :param type:
     %    String type of domain. Possible values are:
     %      - `axisymmetric-flow`
@@ -91,19 +87,9 @@ classdef Domain1D < handle
     methods
         %% Domain1D Class Constructor.
 
-        function d = Domain1D(family, type, phase, id)
+        function d = Domain1D(domainID)
             % Create a :mat:class:`Domain1D` object.
-
-            ctIsLoaded;
-
-            if strcmp(family, 'Boundary1D')
-                d.domainID = ctFunc('domain_newBoundary1D', type, phase.solnID, id);
-            elseif strcmp(family, 'Flow1D')
-                d.domainID = ctFunc('domain_newFlow1D', type, phase.solnID, id);
-            else
-                error('Domain family must be either Boundary1D or Flow1D');
-            end
-
+            d.domainID = domainID;
         end
 
         %% Domain1D Class Destructor

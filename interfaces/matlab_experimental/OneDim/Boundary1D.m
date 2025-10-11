@@ -40,7 +40,9 @@ classdef Boundary1D < Domain1D
 
         function b = Boundary1D(type, phase, id)
 
-            b@Domain1D('Boundary1D', type, phase, id);
+            ctIsLoaded;
+            domainID = ctFunc('domain_newBoundary1D', type, phase.solnID, id);
+            b@Domain1D(domainID);
 
         end
 
