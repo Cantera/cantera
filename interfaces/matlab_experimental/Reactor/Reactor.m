@@ -12,7 +12,7 @@ classdef Reactor < handle
 
         name  % Name of reactor.
 
-        contents
+        phase
 
         % Density of the reactor contents at the end of the last call to
         % "advance" or "step". Unit: kg/m^3.
@@ -89,17 +89,17 @@ classdef Reactor < handle
     methods
         %% Reactor Class Constructor
 
-        function r = Reactor(content, typ, name)
+        function r = Reactor(phase, typ, name)
             % Reactor Class ::
             %
-            %     >> r = Reactor(content, typ, name)
+            %     >> r = Reactor(phase, typ, name)
             %
             % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
             % It has a time-dependent state, and may be coupled to other
             % reactors through flow lines or through walls that may expand
             % or contract and/or conduct heat.
             %
-            % :param content:
+            % :param phase:
             %    Instance of :mat:class:`Solution` representing the contents of
             %    the reactor.
             % :param typ:
@@ -128,12 +128,12 @@ classdef Reactor < handle
                 error('too many arguments');
             end
 
-            if ~isa(content, 'Solution')
+            if ~isa(phase, 'Solution')
                 error('Reactor contents must be an object of type "Solution"');
             end
 
-            r.id = ctFunc('reactor_new', typ, content.solnID, name);
-            r.contents = content;
+            r.id = ctFunc('reactor_new', typ, phase.solnID, name);
+            r.phase = phase;
         end
 
         %% Reactor Class Destructor
@@ -203,7 +203,7 @@ classdef Reactor < handle
             %    String or one-based integer id of the species.
 
             if ischar(species)
-                k = r.contents.speciesIndex(species) - 1;
+                k = r.phase.speciesIndex(species) - 1;
             else k = species - 1;
             end
 
@@ -212,7 +212,7 @@ classdef Reactor < handle
 
         function massFractions = get.Y(r)
 
-            nsp = r.contents.nSpecies;
+            nsp = r.phase.nSpecies;
             massFractions = zeros(1, nsp);
 
             for i = 1:nsp

@@ -1,7 +1,7 @@
 classdef FlowReactor < Reactor
     % Create a flow reactor object. ::
     %
-    %     >> r = FlowReactor(contents, name)
+    %     >> r = FlowReactor(phase, name)
     %
     % A reactor representing adiabatic plug flow in a constant-area
     % duct. Examples:
@@ -12,7 +12,7 @@ classdef FlowReactor < Reactor
     %
     % See also: :mat:class:`Reactor`
     %
-    % :param contents:
+    % :param phase:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
@@ -21,14 +21,14 @@ classdef FlowReactor < Reactor
 
     methods
 
-        function r = FlowReactor(contents, name)
+        function r = FlowReactor(phase, name)
             % Constructor
 
             if nargin < 2
                 name = '(none)';
             end
 
-            r@Reactor(contents, 'FlowReactor', name);
+            r@Reactor(phase, 'FlowReactor', name);
         end
 
     end

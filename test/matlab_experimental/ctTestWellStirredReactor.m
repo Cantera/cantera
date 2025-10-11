@@ -74,8 +74,8 @@ classdef ctTestWellStirredReactor < ctTestCase
                 self.verifyEqual(T(i), 900, 'RelTol', 1e-5);
             end
 
-            val1 = self.combustor.contents.Y...
-                   (self.combustor.contents.speciesIndex('CH4'));
+            val1 = self.combustor.phase.Y...
+                   (self.combustor.phase.speciesIndex('CH4'));
             val2 = (1.0 / 6.0);
             self.verifyEqual(val1, val2, 'RelTol', 1e-5);
         end
