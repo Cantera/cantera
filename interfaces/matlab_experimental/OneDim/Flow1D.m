@@ -24,7 +24,7 @@ classdef Flow1D < Domain1D
 
         function f = Flow1D(type, phase, id)
 
-            f@Domain1D('Flow1D', type, phase, id);
+            f@Domain1D(type, phase, id);
 
         end
 
