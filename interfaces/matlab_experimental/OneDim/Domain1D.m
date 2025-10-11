@@ -248,8 +248,6 @@ classdef Domain1D < handle
             ctFunc('domain_setBounds', d.domainID, n - 1, lower, upper);
         end
 
-
-
         function setSteadyTolerances(d, component, rtol, atol)
             % Set the steady-state tolerances. ::
             %
