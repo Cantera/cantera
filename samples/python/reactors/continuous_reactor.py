@@ -143,7 +143,7 @@ while t < max_simulation_time:
     # will be 1200+ columns for us to work with
     if counter % 10 == 0:
         # Extract the state of the reactor
-        time_history.append(stirred_reactor.contents.state, t=t)
+        time_history.append(stirred_reactor.phase.state, t=t)
 
     counter += 1
 
@@ -252,8 +252,8 @@ for reactor_temperature in T:
     print(f"Simulation at T={reactor_temperature} K took {toc-tic:3.2f} s to compute "
           f"with {counter} steps")
 
-    reactor_X = stirred_reactor.contents.X
-    temp_dependence.append(stirred_reactor.contents.state)
+    reactor_X = stirred_reactor.phase.X
+    temp_dependence.append(stirred_reactor.phase.state)
 
 # %%
 # Compare the model results with experimental data

@@ -1,7 +1,7 @@
 classdef IdealGasConstPressureReactor < Reactor
     % Create a constant pressure reactor with an ideal gas. ::
     %
-    %     >> r = IdealGasConstPressureReactor(contents, name)
+    %     >> r = IdealGasConstPressureReactor(phase, name)
     %
     % An :mat:class:`IdealGasConstPressureReactor` is an instance of
     % :mat:class:`Reactor` where the pressure is held constant.
@@ -17,7 +17,7 @@ classdef IdealGasConstPressureReactor < Reactor
     %
     % See also: :mat:class:`Reactor`
     %
-    % :param contents:
+    % :param phase:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
@@ -26,14 +26,14 @@ classdef IdealGasConstPressureReactor < Reactor
 
     methods
 
-        function r = IdealGasConstPressureReactor(contents, name)
+        function r = IdealGasConstPressureReactor(phase, name)
             % Constructor
 
             if nargin < 2
                 name = '(none)';
             end
 
-            r@Reactor(contents, 'IdealGasConstPressureReactor', name);
+            r@Reactor(phase, 'IdealGasConstPressureReactor', name);
         end
 
     end

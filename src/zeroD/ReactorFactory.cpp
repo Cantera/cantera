@@ -99,14 +99,14 @@ void ReactorFactory::deleteFactory() {
 }
 
 shared_ptr<ReactorBase> newReactorBase(
-    const string& model, shared_ptr<Solution> contents, bool clone, const string& name)
+    const string& model, shared_ptr<Solution> phase, bool clone, const string& name)
 {
     return shared_ptr<ReactorBase>(
-        ReactorFactory::factory()->create(model, contents, clone, name));
+        ReactorFactory::factory()->create(model, phase, clone, name));
 }
 
 shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> contents, const string& name)
+    const string& model, shared_ptr<Solution> phase, const string& name)
 {
     warn_deprecated("newReactor", "Behavior changes after Cantera 3.2, when a "
         "'shared_ptr<Reactor>' is returned.\nFor new behavior, use 'newReactor4'.");
@@ -114,14 +114,14 @@ shared_ptr<ReactorBase> newReactor(
         "will change from `clone=False` to `clone=True` after Cantera 3.2.\n"
         "Use the transitional newReactor4() function to provide a value for the clone "
         "argument");
-    return newReactorBase(model, contents, false, name);
+    return newReactorBase(model, phase, false, name);
 }
 
 shared_ptr<Reactor> newReactor4(
-    const string& model, shared_ptr<Solution> contents, bool clone, const string& name)
+    const string& model, shared_ptr<Solution> phase, bool clone, const string& name)
 {
     auto reactor = std::dynamic_pointer_cast<Reactor>(
-        newReactorBase(model, contents, clone, name));
+        newReactorBase(model, phase, clone, name));
     if (!reactor) {
         throw CanteraError("newReactor4",
             "Model type '{}' does not specify a bulk reactor.", model);
@@ -130,10 +130,10 @@ shared_ptr<Reactor> newReactor4(
 }
 
 shared_ptr<Reservoir> newReservoir(
-    shared_ptr<Solution> contents, bool clone, const string& name)
+    shared_ptr<Solution> phase, bool clone, const string& name)
 {
     auto reservoir = std::dynamic_pointer_cast<Reservoir>(
-        newReactorBase("Reservoir", contents, clone, name));
+        newReactorBase("Reservoir", phase, clone, name));
     if (!reservoir) {
         throw CanteraError("newReservoir",
             "Caught unexpected inconsistency in factory method.");
@@ -141,10 +141,10 @@ shared_ptr<Reservoir> newReservoir(
     return reservoir;
 }
 
-shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> contents,
+shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
     const vector<shared_ptr<ReactorBase>>& reactors, bool clone, const string& name)
 {
-    return make_shared<ReactorSurface>(contents, reactors, clone, name);
+    return make_shared<ReactorSurface>(phase, reactors, clone, name);
 }
 
 }

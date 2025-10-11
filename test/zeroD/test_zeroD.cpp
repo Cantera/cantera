@@ -200,7 +200,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     reactor.initialize();
     vector<double> state(reactor.neq());
     // test get state
-    const ThermoPhase& thermo = *reactor.contents4()->thermo();
+    const ThermoPhase& thermo = *reactor.phase()->thermo();
     const vector<double>& imw = thermo.inverseMolecularWeights();
     // prescribed state
     double mass = reactor.volume() * thermo.density();

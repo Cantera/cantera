@@ -183,7 +183,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
     def __init__(self, *args, props, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.contents.transport_model = "mixture-averaged"
+        self.phase.transport_model = "mixture-averaged"
         self.Ts = props.TsInit                     # initial temperature of the solid
         self.neighbor_left = None                  # reference to reactor on the left
         self.neighbor_right = None                 # reference to reactor on the right
@@ -199,12 +199,12 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
     def after_initialize(self, t0):
         self.n_vars += 1                # additional equation for the solid temperature
         self.index_Ts = self.n_vars - 1
-        self.species_offset = self.component_index(self.contents.species_name(0))
-        self.molecular_weights = self.contents.molecular_weights
+        self.species_offset = self.component_index(self.phase.species_name(0))
+        self.molecular_weights = self.phase.molecular_weights
 
     def after_get_state(self, y):
         y[self.index_Ts] = self.Ts
-        y[self.component_index("mass")] = self.contents.density_mass * self.V
+        y[self.component_index("mass")] = self.phase.density_mass * self.V
 
     # compute the effective conductivity for heat conduction within the solid
     def solidHeatConductivity(self):
@@ -222,13 +222,13 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
     # heat transfer coefficient (htc) based on a Nusselt (Nu) correlation
     def htc(self):
         d_h = 4.0 * self.solid.porosity / self.solid.specific_area # hydraulic diameter
-        density = self.contents.density_mass
-        u = mdot / (density * self.solid.porosity)                   # gas velocity
-        Re = density * u * d_h / self.contents.viscosity               # Reynolds number
-        lambda_gas = self.contents.thermal_conductivity
-        Pr = self.contents.cp_mass * self.contents.viscosity /lambda_gas # Prandtl number
+        density = self.phase.density_mass
+        u = mdot / (density * self.solid.porosity)                  # gas velocity
+        Re = density * u * d_h / self.phase.viscosity               # Reynolds number
+        lambda_gas = self.phase.thermal_conductivity
+        Pr = self.phase.cp_mass * self.phase.viscosity /lambda_gas  # Prandtl number
         Nu = 3.7 * (Re**0.38) * (Pr**0.25)
-        return Nu * self.solid.specific_area * self.contents.thermal_conductivity / d_h
+        return Nu * self.solid.specific_area * self.phase.thermal_conductivity / d_h
 
     # implement the new governing equations
     def replace_eval(self, t, LHS, RHS):
@@ -241,9 +241,9 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         self.solid.solid_phase.TP = self.Ts, constantP
 
         # create some variables for convenience
-        Y = self.contents.Y
-        density = self.contents.density_mass
-        cp = self.contents.cp_mass
+        Y = self.phase.Y
+        density = self.phase.density_mass
+        cp = self.phase.cp_mass
         porosity = self.solid.porosity
         solid_density = self.solid.solid_phase.density
         solid_cp = self.solid.solid_phase.cp
@@ -254,8 +254,8 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
             Y_in = Y_in_inlet
             h_in = h_in_inlet
         else:  # otherwise, take the mass fraction and enthalpy from the left neighbor
-            Y_in = self.neighbor_left.contents.Y
-            h_in = self.neighbor_left.contents.enthalpy_mass
+            Y_in = self.neighbor_left.phase.Y
+            h_in = self.neighbor_left.phase.enthalpy_mass
 
         # ============================================================================#
         #                          Temperature of the solid                           #
@@ -264,7 +264,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         LHS[self.index_Ts] = (1.0 - porosity) * solid_cp * solid_density * self.V
 
         # heat transfer between gas and solid
-        RHS[self.index_Ts] += self.htc() * (self.contents.T - self.Ts) * self.V
+        RHS[self.index_Ts] += self.htc() * (self.phase.T - self.Ts) * self.V
 
         # compute the axial heat loss due to radiation to the ambience
         # if this is the first or last reactor in the cascade
@@ -282,12 +282,12 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         #                             species mass fractions                          #
         # ============================================================================#
 
-        wdot = self.contents.net_production_rates # chemical source terms
+        wdot = self.phase.net_production_rates # chemical source terms
         if not self.chemistry:
             wdot *= 0.0
 
         # right hand side of the mass fraction equations
-        for k in range(self.contents.n_species):
+        for k in range(self.phase.n_species):
             index = k + self.species_offset
             # chemical source term
             RHS[index] += wdot[k] * self.molecular_weights[k] / density
@@ -300,15 +300,15 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         # ============================================================================#
 
         # right hand side of the gas phase temperature equation
-        enthalpy_loss = np.dot(self.contents.partial_molar_enthalpies
+        enthalpy_loss = np.dot(self.phase.partial_molar_enthalpies
                                / self.molecular_weights, Y_in)
 
-        hrr = -np.dot(self.contents.partial_molar_enthalpies, wdot)  # (W/m^3)
+        hrr = -np.dot(self.phase.partial_molar_enthalpies, wdot)  # (W/m^3)
 
         Tindex = self.component_index("temperature")
         LHS[Tindex] = porosity * density * cp * self.V
         # heat transfer between solid and gas-phase
-        RHS[Tindex] -= self.htc() * (self.contents.T - self.Ts) * self.V
+        RHS[Tindex] -= self.htc() * (self.phase.T - self.Ts) * self.V
         # convective transport
         RHS[Tindex] += self.A * mdot * (h_in - enthalpy_loss)
         # chemical contribution
@@ -401,7 +401,7 @@ net.rtol_sensitivity = 0.05
 net.advance_to_steady_state()
 
 x = [r.midpoint for r in reactors]
-T = [r.contents.T for r in reactors]
+T = [r.phase.T for r in reactors]
 Ts = [r.Ts for r in reactors]
 
 plt.plot(x, T, "-o", label="T gas")

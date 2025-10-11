@@ -55,7 +55,7 @@ class InertialWallReactor(ct.ExtensibleIdealGasReactor):
 
     def after_eval(self, t, LHS, RHS):
         # Calculate the time derivative for the additional equation
-        a = self.k_wall * (self.contents.P - self.neighbor.contents.P)
+        a = self.k_wall * (self.phase.P - self.neighbor.phase.P)
         RHS[self.i_wall] = a
 
     def before_component_index(self, name):
@@ -85,7 +85,7 @@ net = ct.ReactorNet([r])
 states = ct.SolutionArray(gas, 1, extra={'t': [0.0], 'V': [r.volume]})
 while net.time < 0.5:
     net.advance(net.time + 0.005)
-    states.append(TPY=r.contents.TPY, V=r.volume, t=net.time)
+    states.append(TPY=r.phase.TPY, V=r.volume, t=net.time)
 
 # Plot the results
 try:

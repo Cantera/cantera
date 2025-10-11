@@ -110,7 +110,7 @@ classdef ctTestConstPressureReactor < ctTestCase
                 surf (1,1) logical = false
             end
 
-            self.verifyEqual(self.r1.contents.Y, self.r2.contents.Y, ...
+            self.verifyEqual(self.r1.phase.Y, self.r2.phase.Y, ...
                             'RelTol', 5e-4, 'AbsTol', 1e-6);
             self.verifyEqual(self.r1.T, self.r2.T, 'RelTol', 5e-5);
             self.verifyEqual(self.r1.P, self.r2.P, 'RelTol', 1e-6);

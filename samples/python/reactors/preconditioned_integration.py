@@ -40,10 +40,10 @@ def integrate_reactor(preconditioner=True):
     # Advance to steady state
     integ_time = default_timer()
     # solution array for state data
-    states = ct.SolutionArray(reactor.contents, extra=['time'])
+    states = ct.SolutionArray(reactor.phase, extra=['time'])
     # advance to steady state manually
     while (sim.time < 0.1):
-        states.append(reactor.contents.state, time=sim.time)
+        states.append(reactor.phase.state, time=sim.time)
         sim.step()
     integ_time = default_timer() - integ_time
     # Return time to integrate

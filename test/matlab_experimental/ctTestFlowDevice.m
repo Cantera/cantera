@@ -94,15 +94,15 @@ classdef ctTestFlowDevice < ctTestCase
 
             m1a = self.r1.D * self.r1.V;
             m2a = self.r2.D * self.r2.V;
-            Y1a = self.r1.contents.Y;
-            Y2a = self.r2.contents.Y;
+            Y1a = self.r1.phase.Y;
+            Y2a = self.r2.phase.Y;
 
             self.net.advance(0.1);
 
             m1b = self.r1.D * self.r1.V;
             m2b = self.r2.D * self.r2.V;
-            Y1b = self.r1.contents.Y;
-            Y2b = self.r2.contents.Y;
+            Y1b = self.r1.phase.Y;
+            Y2b = self.r2.phase.Y;
 
             % self.verifyEqual((self.r1.P - self.r2.P) * k, valve.massFlowRate, ...
             %                  'RelTol', self.rtol);

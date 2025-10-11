@@ -30,9 +30,9 @@ print('{:10s} {:10s} {:10s} {:14s}'.format(
     't [s]', 'T [K]', 'P [Pa]', 'u [J/kg]'))
 while sim.time < t_end:
     sim.advance(sim.time + dt_max)
-    states.append(r.contents.state, t=sim.time*1e3)
+    states.append(r.phase.state, t=sim.time*1e3)
     print('{:10.3e} {:10.3f} {:10.3f} {:14.6f}'.format(
-            sim.time, r.T, r.contents.P, r.contents.u))
+          sim.time, r.T, r.phase.P, r.phase.u))
 
 # Plot the results if matplotlib is installed.
 # See http://matplotlib.org/ to get it.

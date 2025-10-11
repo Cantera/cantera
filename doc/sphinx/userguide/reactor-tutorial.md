@@ -32,13 +32,13 @@ gas = ct.Solution("gri30.yaml")
 gas.TPX = 1000.0, ct.one_atm, "H2:2,O2:1,N2:4"
 
 # create a reactor containing the gas
-reac = ct.IdealGasReactor(gas)
+reac = ct.IdealGasReactor(gas, clone=True)
 
 # Add the reactor to a new ReactorNet simulator
 sim = ct.ReactorNet([reac])
 
 # View the initial state of the mixture
-reac.contents()
+reac.phase()
 ```
 
 Now, let's advance the simulation in time to an absolute time of 1 second, and examine
@@ -52,7 +52,7 @@ ignited for a wide range of initial conditions.
 sim.advance(1)
 
 # view the updated state of the mixture, reflecting properties at t = 1 sec
-reac.contents()
+reac.phase()
 ```
 
 ## Methods for Time Integration
@@ -152,7 +152,7 @@ follows:
 import cantera as ct
 gas = ct.Solution("gri30.yaml")
 gas.TPX = 1000.0, ct.one_atm, "H2:2,O2:1,N2:4"
-reac = ct.IdealGasMoleReactor(gas)  # Use reactor type that supports preconditioning
+reac = ct.IdealGasMoleReactor(gas, clone=True)  # Supports preconditioning
 sim = ct.ReactorNet([reac])
 precon = ct.AdaptivePreconditioner()  # Create the preconditioner
 sim.preconditioner = precon  # Add it to the network
@@ -161,7 +161,7 @@ sim.preconditioner = precon  # Add it to the network
 The results of the time integration are the same as before:
 ```{code-cell} python
 sim.advance(1)
-reac.contents()
+reac.phase()
 ```
 
 The approximate Jacobian matrices used to construct the preconditioners do not currently

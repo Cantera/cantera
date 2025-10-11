@@ -61,14 +61,14 @@ dt = t_total / n_steps
 t1 = (np.arange(n_steps) + 1) * dt
 z1 = np.zeros_like(t1)
 u1 = np.zeros_like(t1)
-states1 = ct.SolutionArray(r1.contents)
+states1 = ct.SolutionArray(r1.phase)
 for n1, t_i in enumerate(t1):
     # perform time integration
     sim1.advance(t_i)
     # compute velocity and transform into space
-    u1[n1] = mass_flow_rate1 / area / r1.contents.density
+    u1[n1] = mass_flow_rate1 / area / r1.phase.density
     z1[n1] = z1[n1 - 1] + u1[n1] * dt
-    states1.append(r1.contents.state)
+    states1.append(r1.phase.state)
 #####################################################################
 
 
@@ -126,17 +126,17 @@ states2 = ct.SolutionArray(gas2)
 # iterate through the PFR cells
 for n in range(n_steps):
     # Set the state of the reservoir to match that of the previous reactor
-    upstream.contents.TDY = r2.contents.TDY
+    upstream.phase.TDY = r2.phase.TDY
     upstream.syncState()
     # integrate the reactor forward in time until steady state is reached
     sim2.reinitialize()
     sim2.advance_to_steady_state()
     # compute velocity and transform into time
-    u2[n] = mass_flow_rate2 / area / r2.contents.density
+    u2[n] = mass_flow_rate2 / area / r2.phase.density
     t_r2[n] = r2.mass / mass_flow_rate2  # residence time in this reactor
     t2[n] = np.sum(t_r2)
     # write output data
-    states2.append(r2.contents.state)
+    states2.append(r2.phase.state)
 #####################################################################
 
 

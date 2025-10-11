@@ -7,14 +7,14 @@ from ._utils cimport *
 
 
 cdef class ReactionPathDiagram:
-    def __cinit__(self, _SolutionBase contents, str element, *args, **kwargs):
+    def __cinit__(self, _SolutionBase phase, str element, *args, **kwargs):
         """
         Create a reaction path diagram for the fluxes of the element ``element``
         according the the net reaction rates determined by the `Kinetics` object
         ``kin``.
         """
-        self.kinetics = contents
-        cdef shared_ptr[CxxKinetics] cxx_kin = contents.base.kinetics()
+        self.kinetics = phase
+        cdef shared_ptr[CxxKinetics] cxx_kin = phase.base.kinetics()
         self._diagram = CxxNewReactionPathDiagram(cxx_kin, stringify(element))
         self.diagram = self._diagram.get()
 

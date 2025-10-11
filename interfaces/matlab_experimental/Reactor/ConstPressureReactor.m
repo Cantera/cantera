@@ -1,7 +1,7 @@
 classdef ConstPressureReactor < Reactor
     % Create a constant pressure reactor object. ::
     %
-    %     >> r = ConstPressureReactor(contents, name)
+    %     >> r = ConstPressureReactor(phase, name)
     %
     % A :mat:class:`ConstPressureReactor` is an instance of class
     % :mat:class:`Reactor` where the pressure is held constant. The volume
@@ -10,11 +10,11 @@ classdef ConstPressureReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r2 = ConstPressureReactor(contents)    % a reactor containing contents
+    %     r2 = ConstPressureReactor(phase)    % a reactor containing contents
     %
     % See also: :mat:class:`Reactor`
     %
-    % :param contents:
+    % :param phase:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
@@ -23,14 +23,14 @@ classdef ConstPressureReactor < Reactor
 
     methods
 
-        function r = ConstPressureReactor(contents, name)
+        function r = ConstPressureReactor(phase, name)
             % Constructor
 
             if nargin < 2
                 name = '(none)';
             end
 
-            r@Reactor(contents, 'ConstPressureReactor', name);
+            r@Reactor(phase, 'ConstPressureReactor', name);
         end
 
     end

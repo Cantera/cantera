@@ -108,10 +108,10 @@ class TestReactor:
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
-        assert T1 == approx(self.r1.contents.T)
-        assert T2 == approx(self.r2.contents.T)
-        assert P1 == approx(self.r1.contents.P)
-        assert P2 == approx(self.r2.contents.P)
+        assert T1 == approx(self.r1.phase.T)
+        assert T2 == approx(self.r2.phase.T)
+        assert P1 == approx(self.r1.phase.P)
+        assert P2 == approx(self.r2.phase.P)
 
     def test_disjoint2(self):
         T1, P1 = 300, 101325
@@ -123,8 +123,8 @@ class TestReactor:
         # Nothing should change from the initial condition
         assert T1 == approx(self.r1.T)
         assert T2 == approx(self.r2.T)
-        assert P1 == approx(self.r1.contents.P)
-        assert P2 == approx(self.r2.contents.P)
+        assert P1 == approx(self.r1.phase.P)
+        assert P2 == approx(self.r2.phase.P)
 
     def test_derivative(self):
         T1, P1 = 300, 101325
@@ -145,7 +145,7 @@ class TestReactor:
     def test_finite_difference_jacobian(self):
         self.make_reactors(n_reactors=1, T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
         kH2 = self.gas1.species_index("H2")
-        while self.r1.contents.X[kH2] > 0.3:
+        while self.r1.phase.X[kH2] > 0.3:
             self.net.step()
 
         J = self.r1.finite_difference_jacobian
@@ -257,7 +257,7 @@ class TestReactor:
         self.net.advance(1.0)
 
         assert self.net.time == approx(1.0)
-        assert self.r1.contents.P == approx(self.r2.contents.P)
+        assert self.r1.phase.P == approx(self.r2.phase.P)
         assert self.r1.T != approx(self.r2.T)
 
     def test_tolerances(self, rtol_lim=1e-10, atol_lim=1e-20):
@@ -354,7 +354,7 @@ class TestReactor:
         self.net.advance(10.0)
         assert self.net.time == approx(10.0)
         assert self.r1.T == approx(self.r2.T, rel=5e-7)
-        assert self.r1.contents.P != approx(self.r2.contents.P)
+        assert self.r1.phase.P != approx(self.r2.phase.P)
 
     def test_advance_limits_invalid(self):
         self.make_reactors(n_reactors=1)
@@ -409,9 +409,9 @@ class TestReactor:
         gas.equilibrate('UV')
 
         assert self.r1.T == approx(gas.T)
-        assert self.r1.contents.density == approx(gas.density)
-        assert self.r1.contents.P == approx(gas.P)
-        assert self.r1.contents.X == approx(gas.X)
+        assert self.r1.phase.density == approx(gas.density)
+        assert self.r1.phase.P == approx(gas.P)
+        assert self.r1.phase.X == approx(gas.X)
 
     def test_equilibrium_HP(self):
         # Adiabatic, constant pressure combustion should proceed to equilibrium
@@ -433,9 +433,9 @@ class TestReactor:
         gas2.equilibrate('HP')
 
         assert r1.T == approx(gas2.T)
-        assert r1.contents.P == approx(P0)
-        assert r1.contents.density == approx(gas2.density)
-        assert r1.contents.X == approx(gas2.X)
+        assert r1.phase.P == approx(P0)
+        assert r1.phase.density == approx(gas2.density)
+        assert r1.phase.X == approx(gas2.X)
 
     def test_wall_velocity(self):
         self.make_reactors()
@@ -476,15 +476,15 @@ class TestReactor:
         self.net.advance(11.0)
 
         assert self.r1.T == approx(1000)
-        assert self.r1.contents.X[self.r1.contents.species_index('H2')] == approx(2.0/3.0)
-        assert self.r1.contents.X[self.r1.contents.species_index('O2')] == approx(1.0/3.0)
+        assert self.r1.phase.X[self.r1.phase.species_index('H2')] == approx(2.0/3.0)
+        assert self.r1.phase.X[self.r1.phase.species_index('O2')] == approx(1.0/3.0)
 
     def test_heat_flux_func(self):
         self.make_reactors(T1=500, T2=300)
         self.r1.volume = 0.5
 
-        U1a = self.r1.volume * self.r1.density * self.r1.contents.u
-        U2a = self.r2.volume * self.r2.density * self.r2.contents.u
+        U1a = self.r1.volume * self.r1.density * self.r1.phase.u
+        U2a = self.r2.volume * self.r2.density * self.r2.phase.u
 
         V1a = self.r1.volume
         V2a = self.r2.volume
@@ -496,8 +496,8 @@ class TestReactor:
 
         self.net.advance(1.1)
         assert self.w.heat_flux == hfunc(1.1)
-        U1b = self.r1.volume * self.r1.density * self.r1.contents.u
-        U2b = self.r2.volume * self.r2.density * self.r2.contents.u
+        U1b = self.r1.volume * self.r1.density * self.r1.phase.u
+        U2b = self.r2.volume * self.r2.density * self.r2.phase.u
 
         assert V1a == approx(self.r1.volume)
         assert V2a == approx(self.r2.volume)
@@ -591,24 +591,24 @@ class TestReactor:
         assert self.r1.energy_enabled
         assert self.r2.energy_enabled
         self.net.initialize()
-        assert (self.r1.contents.P - self.r2.contents.P) * k == approx(
+        assert (self.r1.phase.P - self.r2.phase.P) * k == approx(
                 valve.mass_flow_rate)
 
-        m1a = self.r1.contents.density * self.r1.volume
-        m2a = self.r2.contents.density * self.r2.volume
-        Y1a = self.r1.contents.Y
-        Y2a = self.r2.contents.Y
+        m1a = self.r1.phase.density * self.r1.volume
+        m2a = self.r2.phase.density * self.r2.volume
+        Y1a = self.r1.phase.Y
+        Y2a = self.r2.phase.Y
 
         self.net.advance(0.1)
 
-        m1b = self.r1.contents.density * self.r1.volume
-        m2b = self.r2.contents.density * self.r2.volume
+        m1b = self.r1.phase.density * self.r1.volume
+        m2b = self.r2.phase.density * self.r2.volume
 
-        assert (self.r1.contents.P - self.r2.contents.P) * k == approx(
+        assert (self.r1.phase.P - self.r2.phase.P) * k == approx(
                 valve.mass_flow_rate)
         assert m1a + m2a == approx(m1b + m2b)
-        Y1b = self.r1.contents.Y
-        Y2b = self.r2.contents.Y
+        Y1b = self.r1.phase.Y
+        Y2b = self.r2.phase.Y
         assert m1a*Y1a + m2a*Y2a == approx(m1b*Y1b + m2b*Y2b, abs=1e-10)
         assert Y1a == approx(Y1b)
 
@@ -628,10 +628,10 @@ class TestReactor:
         assert not self.r1.energy_enabled
         assert not self.r2.energy_enabled
 
-        m1a = self.r1.contents.density * self.r1.volume
-        m2a = self.r2.contents.density * self.r2.volume
-        P1a = self.r1.contents.P
-        P2a = self.r2.contents.P
+        m1a = self.r1.phase.density * self.r1.volume
+        m2a = self.r2.phase.density * self.r2.volume
+        P1a = self.r1.phase.P
+        P2a = self.r2.phase.P
         Y1 = self.r1.Y
 
         A = k * P1a * (1 + m2a/m1a)
@@ -639,8 +639,8 @@ class TestReactor:
 
         for t in np.linspace(1e-5, 0.5):
             self.net.advance(t)
-            m1 = self.r1.contents.density * self.r1.volume
-            m2 = self.r2.contents.density * self.r2.volume
+            m1 = self.r1.phase.density * self.r1.volume
+            m2 = self.r2.phase.density * self.r2.volume
             assert m2 == approx((m2a - A/B) * np.exp(-B * t) + A/B)
             assert m1a + m2a == approx(m1 + m2)
             assert self.r1.Y == approx(Y1)
@@ -669,8 +669,8 @@ class TestReactor:
         t = 0
         while t < 1.0:
             t = self.net.step()
-            p1 = self.r1.contents.P
-            p2 = self.r2.contents.P
+            p1 = self.r1.phase.P
+            p2 = self.r2.phase.P
             assert mdot(p1-p2) == approx(valve.mass_flow_rate)
             assert Y1 == approx(self.r1.Y)
             assert speciesMass(kAr) == approx(mAr)
@@ -685,8 +685,8 @@ class TestReactor:
         valve.valve_coeff = k
         valve.time_function = lambda t: t > .01
 
-        delta_p = lambda: self.r1.contents.P - self.r2.contents.P
-        mdot = lambda: valve.valve_coeff * (self.r1.contents.P - self.r2.contents.P)
+        delta_p = lambda: self.r1.phase.P - self.r2.phase.P
+        mdot = lambda: valve.valve_coeff * (self.r1.phase.P - self.r2.phase.P)
         self.net.initialize()
         assert valve.time_function == 0.0
         assert valve.pressure_function == approx(delta_p())
@@ -749,7 +749,7 @@ class TestReactor:
         while t < 1.0:
             t = self.net.step()
             assert mdot(t) == approx(mfc.mass_flow_rate)
-            dP = self.r1.contents.P - outlet_reservoir.contents.P
+            dP = self.r1.phase.P - outlet_reservoir.phase.P
             assert mdot(t) + 1e-5 * dP == approx(pc.mass_flow_rate)
 
     def test_pressure_controller2(self):
@@ -775,7 +775,7 @@ class TestReactor:
         while t < 1.0:
             t = self.net.step()
             assert mdot(t) == approx(mfc.mass_flow_rate)
-            dP = self.r1.contents.P - outlet_reservoir.contents.P
+            dP = self.r1.phase.P - outlet_reservoir.phase.P
             assert mdot(t) + pfunc(dP) == approx(pc.mass_flow_rate)
 
     def test_pressure_controller_type(self):
@@ -819,8 +819,8 @@ class TestReactor:
         tf = t0 + 0.5
         self.net.advance(tf)
         assert self.net.time == approx(tf)
-        p1a = self.r1.contents.P
-        p2a = self.r2.contents.P
+        p1a = self.r1.phase.P
+        p2a = self.r2.phase.P
         assert valve.pressure_function == approx(pfunc_a(p1a - p2a))
 
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
@@ -834,8 +834,8 @@ class TestReactor:
         tf = t0 + 0.5
         self.net.advance(tf)
         assert self.net.time == approx(tf)
-        p1b = self.r1.contents.P
-        p2b = self.r2.contents.P
+        p1b = self.r1.phase.P
+        p2b = self.r2.phase.P
         assert valve.pressure_function == approx(pfunc_b(p1b - p2b))
 
         assert p1a == approx(p1b)
@@ -848,10 +848,10 @@ class TestReactor:
         T1a = self.r1.T
         T2a = self.r2.T
 
-        self.r1.contents.TD = 300, None
+        self.r1.phase.TD = 300, None
         self.r1.syncState()
 
-        self.r2.contents.TD = 1000, None
+        self.r2.phase.TD = 1000, None
         self.r2.syncState()
 
         assert self.r1.T == approx(300)
@@ -870,7 +870,7 @@ class TestReactor:
         wall = ct.Wall(self.r1, reservoir, U=500)
         self.net.advance(1.0)
         assert self.r1.T == approx(872.099, rel=1e-3)
-        reservoir.contents.TP = 700, ct.one_atm
+        reservoir.phase.TP = 700, ct.one_atm
         reservoir.syncState()
         self.net.reinitialize()
         self.net.advance(2.0)
@@ -1137,9 +1137,9 @@ class TestMoleReactor(TestReactor):
         for i in np.linspace(0, 0.0025, 50)[1:]:
             net1.advance(i)
             net2.advance(i)
-            assert r1.contents.Y == approx(r2.contents.Y, rel=5e-4, abs=1e-6)
+            assert r1.phase.Y == approx(r2.phase.Y, rel=5e-4, abs=1e-6)
             assert r1.T == approx(r2.T, rel=5e-5)
-            assert r1.contents.P == approx(r2.contents.P, rel=1e-6)
+            assert r1.phase.P == approx(r2.phase.P, rel=1e-6)
             assert rsurf1.coverages == approx(rsurf2.coverages, rel=1e-4, abs=1e-8)
 
     def test_tolerances(self, rtol_lim=1e-8, atol_lim=1e-18):
@@ -1214,13 +1214,13 @@ class TestWellStirredReactorIgnition:
         mdot_o = 5.0
         T0 = 900.0
         self.setup_reactor(T0, 10*ct.one_atm, mdot_f, mdot_o)
-        self.combustor.contents.set_multiplier(0.0)
+        self.combustor.phase.set_multiplier(0.0)
         t,T = self.integrate(100.0)
 
         for i in range(len(t)):
             assert T[i] == approx(T0, rel=1e-5)
 
-        assert self.combustor.contents['CH4'].Y == approx(mdot_f / (mdot_o + mdot_f))
+        assert self.combustor.phase['CH4'].Y == approx(mdot_f / (mdot_o + mdot_f))
 
     def test_ignition1(self):
         self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 5.0)
@@ -1263,8 +1263,8 @@ class TestWellStirredReactorIgnition:
         assert residuals[-1] < 10. * self.net.rtol
         # regression test; no external basis for these results
         assert self.combustor.T == approx(2498.94, rel=1e-5)
-        assert self.combustor.contents['H2O'].Y[0] == approx(0.103658, rel=1e-5)
-        assert self.combustor.contents['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
+        assert self.combustor.phase['H2O'].Y[0] == approx(0.103658, rel=1e-5)
+        assert self.combustor.phase['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
     @pytest.mark.parametrize("reactor_class",
         [ct.Reactor, ct.IdealGasReactor, ct.MoleReactor, ct.IdealGasMoleReactor])
@@ -1273,8 +1273,8 @@ class TestWellStirredReactorIgnition:
         self.net.solve_steady()
         # regression test; based on test_advance_to_steady_state
         assert self.combustor.T == approx(2498.94, rel=1e-5)
-        assert self.combustor.contents['H2O'].Y[0] == approx(0.103658, rel=1e-5)
-        assert self.combustor.contents['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
+        assert self.combustor.phase['H2O'].Y[0] == approx(0.103658, rel=1e-5)
+        assert self.combustor.phase['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
 class TestConstPressureReactor:
     """
@@ -1395,9 +1395,9 @@ class TestConstPressureReactor:
         for t in np.arange(0.5, 50, 1.0):
             self.net1.advance(t)
             self.net2.advance(t)
-            assert self.r1.contents.Y == approx(self.r2.contents.Y, rel=5e-4, abs=1e-6)
+            assert self.r1.phase.Y == approx(self.r2.phase.Y, rel=5e-4, abs=1e-6)
             assert self.r1.T == approx(self.r2.T, rel=5e-5)
-            assert self.r1.contents.P == approx(self.r2.contents.P, rel=1e-6)
+            assert self.r1.phase.P == approx(self.r2.phase.P, rel=1e-6)
             if surf:
                 assert self.surf1.coverages == approx(self.surf2.coverages,
                                                       rel=1e-4, abs=1e-8)
@@ -1495,9 +1495,9 @@ class TestIdealGasMoleReactor(TestMoleReactor):
         for t in np.arange(0.5, 5, 0.5):
             net1.advance(t)
             net2.advance(t)
-            assert r1.contents.Y == approx(r2.contents.Y, rel=5e-4, abs=1e-6)
+            assert r1.phase.Y == approx(r2.phase.Y, rel=5e-4, abs=1e-6)
             assert r1.T == approx(r2.T, rel=1e-5)
-            assert r1.contents.P == approx(r2.contents.P, rel=1e-5)
+            assert r1.phase.P == approx(r2.phase.P, rel=1e-5)
 
 
 class TestReactorJacobians:
@@ -1756,19 +1756,19 @@ class TestFlowReactor:
         kCO = gas.species_index('CO')
 
         sim.advance(1e-7)
-        X = r.contents['CH4', 'H2', 'CO'].X
+        X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.10578801, 0.001654415, 0.012103974])
-        assert r.contents.density * r.area * r.speed == approx(mdot)
+        assert r.phase.density * r.area * r.speed == approx(mdot)
 
         sim.advance(1e-5)
-        X = r.contents['CH4', 'H2', 'CO'].X
+        X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.07748481, 0.048165072, 0.01446654])
-        assert r.contents.density * r.area * r.speed == approx(mdot)
+        assert r.phase.density * r.area * r.speed == approx(mdot)
 
         sim.advance(1e-3)
-        X = r.contents['CH4', 'H2', 'CO'].X
+        X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.01815402, 0.21603645, 0.045640395])
-        assert r.contents.density * r.area * r.speed == approx(mdot)
+        assert r.phase.density * r.area * r.speed == approx(mdot)
 
     def test_component_names(self):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
@@ -1844,7 +1844,7 @@ class TestFlowReactor2:
 
         with pytest.raises(ct.CanteraError,
                            match="repeated recoverable residual errors"):
-            while r.contents.T > 1300:
+            while r.phase.T > 1300:
                 sim.step()
 
     def test_integrator_errors_advance(self):
@@ -1861,7 +1861,7 @@ class TestFlowReactor2:
 
         with pytest.raises(ct.CanteraError,
                            match="repeated recoverable residual errors"):
-            while r.contents.T > 1300:
+            while r.phase.T > 1300:
                 sim.advance(sim.distance + 0.01)
 
     def test_recoverable_integrator_errors(self):
@@ -1876,11 +1876,11 @@ class TestFlowReactor2:
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
-        while r.contents.T > 1300:
+        while r.phase.T > 1300:
             sim.step()
 
         # At least some "recoverable" errors occurred
-        assert r.contents.reaction(gas.n_reactions - 1).rate.count > 0
+        assert r.phase.reaction(gas.n_reactions - 1).rate.count > 0
 
     def test_max_steps(self):
         surf, gas = self.import_phases()
@@ -1999,19 +1999,19 @@ class TestFlowReactor2:
         r, rsurf, sim = self.make_reactors(gas, surf)
         r.mass_flow_rate = 0.01
         sim.advance(0.6)
-        Ygas1 = r.contents.Y
-        cov1 = rsurf.contents.coverages
+        Ygas1 = r.phase.Y
+        cov1 = rsurf.phase.coverages
 
         # Reset the reactor to the same initial state
-        r.contents.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        r.phase.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
         surf.TP = 1700, 4000
         r.mass_flow_rate = 0.01
         r.syncState()
 
         sim.initial_time = 0.
         sim.advance(0.6)
-        Ygas2 = r.contents.Y
-        cov2 = rsurf.contents.coverages
+        Ygas2 = r.phase.Y
+        cov2 = rsurf.phase.coverages
 
         assert Ygas1 == approx(Ygas2)
         assert cov1 == approx(cov2)
@@ -2100,8 +2100,8 @@ class TestSurfaceKinetics:
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
-            data.append([t, self.r1.T, self.r1.contents.P, self.r1.mass] +
-                        list(self.r1.contents.X) + list(surf1.coverages))
+            data.append([t, self.r1.T, self.r1.phase.P, self.r1.mass] +
+                        list(self.r1.phase.X) + list(surf1.coverages))
         np.savetxt(test_file, data, delimiter=',')
 
         bad = compareProfiles(reference_file, test_file,
@@ -2125,8 +2125,8 @@ class TestSurfaceKinetics:
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
-            data.append([t, self.r1.T, self.r1.contents.P, self.r1.mass] +
-                        list(self.r1.contents.X) + list(surf.coverages))
+            data.append([t, self.r1.T, self.r1.phase.P, self.r1.mass] +
+                        list(self.r1.phase.X) + list(surf.coverages))
         np.savetxt(test_file, data, delimiter=',')
 
         bad = compareProfiles(reference_file, test_file,
@@ -2435,7 +2435,7 @@ class TestReactorSensitivities:
         T = []
         while net.time < 0.6:
             t.append(net.time)
-            T.append(r.contents.T)
+            T.append(r.phase.T)
             net.step()
         T = np.array(T)
         t = np.array(t)
@@ -2456,7 +2456,7 @@ class TestReactorSensitivities:
         while net.time < 0.6:
             net.step()
             t.append(net.time)
-            T.append(r.contents.T)
+            T.append(r.phase.T)
             S.append(net.sensitivities()[iTemp])
 
         T = np.array(T)
@@ -2572,7 +2572,7 @@ class TestCombustor:
         data = []
         while tnow < tfinal:
             tnow = sim.step()
-            data.append([tnow, combustor.T] + list(combustor.contents.X))
+            data.append([tnow, combustor.T] + list(combustor.phase.X))
 
         assert tnow >= tfinal
         bad = compareProfiles(test_data_path / self.referenceFile, data,
@@ -2586,7 +2586,7 @@ class TestCombustor:
         data = []
         for t in np.linspace(0, 0.25, 101)[1:]:
             sim.advance(t)
-            data.append([t, combustor.T] + list(combustor.contents.X))
+            data.append([t, combustor.T] + list(combustor.phase.X))
 
         saveReference = request.config.getoption("--save-reference")
         if saveReference == 'combustor':
@@ -2613,7 +2613,7 @@ class TestCombustor:
         data = []
         for t in np.linspace(0, 0.25, 101)[1:]:
             sim.advance(t)
-            data.append([t, combustor.T] + list(combustor.contents.X))
+            data.append([t, combustor.T] + list(combustor.phase.X))
 
         bad = compareProfiles(test_data_path / self.referenceFile, data,
                               rtol=1e-6, atol=1e-12)
@@ -2673,8 +2673,8 @@ class TestWall:
         data = []
         while tnow < tfinal:
             tnow = sim.step()
-            data.append([tnow, r1.T, r2.T, r1.contents.P,
-                        r2.contents.P, r1.volume, r2.volume])
+            data.append([tnow, r1.T, r2.T, r1.phase.P,
+                        r2.phase.P, r1.volume, r2.volume])
 
         assert tnow >= tfinal
         bad = compareProfiles(test_data_path / self.referenceFile, data,
@@ -2686,8 +2686,8 @@ class TestWall:
         data = []
         for t in np.linspace(0, 0.01, 200)[1:]:
             sim.advance(t)
-            data.append([t, r1.T, r2.T, r1.contents.P,
-                        r2.contents.P, r1.volume, r2.volume])
+            data.append([t, r1.T, r2.T, r1.phase.P,
+                        r2.phase.P, r1.volume, r2.volume])
 
         saveReference = request.config.getoption("--save-reference")
         if saveReference == 'wall':
@@ -2724,7 +2724,7 @@ class TestPureFluidReactor:
         states = ct.SolutionArray(phase, extra='t')
         for t in np.arange(0.0, 60.0, 1):
             net.advance(t)
-            states.append(TD=r1.contents.TD, t=net.time)
+            states.append(TD=r1.phase.TD, t=net.time)
 
         assert states.Q[0] == 0
         assert states.Q[-1] == 1
@@ -2749,7 +2749,7 @@ class TestPureFluidReactor:
         states = ct.SolutionArray(phase, extra='t')
         for t in np.arange(0.0, 60.0, 1):
             net.advance(t)
-            states.append(TD=r1.contents.TD, t=net.time)
+            states.append(TD=r1.phase.TD, t=net.time)
 
         assert states.Q[0] == 0
         assert states.Q[-1] == 1
@@ -2773,7 +2773,7 @@ class TestPureFluidReactor:
         states = ct.SolutionArray(phase, extra='t')
         for t in np.arange(0.0, 100.0, 10):
             net.advance(t)
-            states.append(TD=r1.contents.TD, t=t)
+            states.append(TD=r1.phase.TD, t=t)
 
         assert states.Q[1] == 0
         assert states.Q[-2] == 1
@@ -2848,7 +2848,7 @@ class TestExtensibleReactor:
 
             def after_eval(self, t, LHS, RHS):
                 # Extra equation is d(v_wall)/dt = k * delta P
-                a = self.k_wall * (self.contents.P - self.neighbor.contents.P)
+                a = self.k_wall * (self.phase.P - self.neighbor.phase.P)
                 RHS[self.i_wall] = a
 
             def before_component_index(self, name):
@@ -2998,7 +2998,7 @@ class TestExtensibleReactor:
             # modify energy equation to include solid mass in reactor
             def after_eval(self,t,LHS,RHS):
                 self.m_mass = mass_gas
-                LHS[1] = mass_lump * cp_lump + self.m_mass * self.contents.cp_mass
+                LHS[1] = mass_lump * cp_lump + self.m_mass * self.phase.cp_mass
                 RHS[1] = Q
 
         r1 = DummyReactor(self.gas, clone=True)
@@ -3010,8 +3010,8 @@ class TestExtensibleReactor:
 
         # compare heat added (add_heat) to the equivalent energy contained by the solid
         # and gaseous mass in the reactor
-        r1_heat = (mass_lump * cp_lump * (r1.contents.T - 500) +
-                   mass_gas * (r1.contents.enthalpy_mass - gas_initial_enthalpy))
+        r1_heat = (mass_lump * cp_lump * (r1.phase.T - 500) +
+                   mass_gas * (r1.phase.enthalpy_mass - gas_initial_enthalpy))
         add_heat = Q * time
         assert add_heat == approx(r1_heat, abs=1e-5)
 
@@ -3029,10 +3029,10 @@ class TestExtensibleReactor:
         res = ct.Reservoir(self.gas, clone=True)
         wall = ct.Wall(res, r1, Q=Qwall, A=1)
         net = ct.ReactorNet([r1])
-        U0 = r1.contents.int_energy_mass * r1.mass
+        U0 = r1.phase.int_energy_mass * r1.mass
         for t in np.linspace(0.1, 5, 10):
             net.advance(t)
-            U = r1.contents.int_energy_mass * r1.mass
+            U = r1.phase.int_energy_mass * r1.mass
             assert U - U0 == approx((Qext + Qwall) * t)
             assert r1.heat_rate == approx(Qext + Qwall)
 
@@ -3069,11 +3069,11 @@ class TestExtensibleReactor:
         kO2 = gas.species_index("O2")
         class SurfReactor(ct.ExtensibleIdealGasReactor):
             def replace_eval_surfaces(self, LHS, RHS, sdot):
-                site_density = self.surfaces[0].contents.site_density
+                site_density = self.surfaces[0].phase.site_density
                 sdot[:] = 0.0
                 LHS[:] = 1.0
                 RHS[:] = 0.0
-                C = self.contents.concentrations
+                C = self.phase.concentrations
                 theta = self.surfaces[0].coverages
 
                 # Replace actual reactions with simple absorption of H2 -> H(S)
@@ -3099,9 +3099,9 @@ class TestExtensibleReactor:
         Hweight = ct.Element("H").weight
         total_sites = rsurf.area * surf.site_density
         def masses():
-            mass_H = (r1.contents.elemental_mass_fraction("H") * r1.mass +
-                      total_sites * r1.surfaces[0].contents["H(s)"].X * Hweight)
-            mass_O = r1.contents.elemental_mass_fraction("O") * r1.mass
+            mass_H = (r1.phase.elemental_mass_fraction("H") * r1.mass +
+                      total_sites * r1.surfaces[0].phase["H(s)"].X * Hweight)
+            mass_O = r1.phase.elemental_mass_fraction("O") * r1.mass
             return mass_H, mass_O
 
         net.step()
@@ -3114,11 +3114,11 @@ class TestExtensibleReactor:
             assert mO == approx(mO0)
 
         # Regression test values
-        assert r1.contents.P == approx(647.56016304)
-        assert r1.contents.X[kH2] == approx(0.4784268406)
-        assert r1.contents.X[kO2] == approx(0.5215731594)
-        assert r1.surfaces[0].contents.X[kHs] == approx(0.3665198138)
-        assert r1.surfaces[0].contents.X[kPts] == approx(0.6334801862)
+        assert r1.phase.P == approx(647.56016304)
+        assert r1.phase.X[kH2] == approx(0.4784268406)
+        assert r1.phase.X[kO2] == approx(0.5215731594)
+        assert r1.surfaces[0].phase.X[kHs] == approx(0.3665198138)
+        assert r1.surfaces[0].phase.X[kPts] == approx(0.6334801862)
 
     def test_interactions(self):
         # Reactors connected by a movable, H2-permeable surface
@@ -3131,8 +3131,8 @@ class TestExtensibleReactor:
                 self.p_coeff = 5 # expansion coeff
 
             def after_update_connected(self, do_pressure):
-                self.conc_H2 = self.contents.concentrations[kH2]
-                self.P = self.contents.P
+                self.conc_H2 = self.phase.concentrations[kH2]
+                self.P = self.phase.P
 
             def replace_eval_walls(self, t):
                 if self.neighbor:
@@ -3143,7 +3143,7 @@ class TestExtensibleReactor:
                 if self.neighbor:
                     mdot_H2 = self.h2coeff * (self.neighbor.conc_H2 - self.conc_H2)
                     RHS[kH2+3] += mdot_H2
-                    RHS[3:] -= self.contents.Y * mdot_H2
+                    RHS[3:] -= self.phase.Y * mdot_H2
                     RHS[0] += mdot_H2
                     # enthalpy flux is neglected, so energy isn't properly conserved
 
@@ -3157,10 +3157,10 @@ class TestExtensibleReactor:
         states1 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
         states2 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
         net.step()
-        M0 = r1.mass * r1.contents.Y + r2.mass * r2.contents.Y
+        M0 = r1.mass * r1.phase.Y + r2.mass * r2.phase.Y
 
         def deltaC():
-            return r1.contents["H2"].concentrations[0] - r2.contents["H2"].concentrations[0]
+            return r1.phase["H2"].concentrations[0] - r2.phase["H2"].concentrations[0]
         deltaCprev = deltaC()
 
         V0 = r1.volume + r2.volume
@@ -3171,16 +3171,16 @@ class TestExtensibleReactor:
             deltaCnow = deltaC()
             assert deltaCnow < deltaCprev # difference is always decreasing
             deltaCprev = deltaCnow
-            assert M0 == approx(r1.mass * r1.contents.Y + r2.mass * r2.contents.Y,rel=2e-8)
-            states1.append(r1.contents.state, t=net.time, mass=r1.mass,
+            assert M0 == approx(r1.mass * r1.phase.Y + r2.mass * r2.phase.Y,rel=2e-8)
+            states1.append(r1.phase.state, t=net.time, mass=r1.mass,
                            vdot=r1.expansion_rate)
-            states2.append(r2.contents.state, t=net.time, mass=r2.mass,
+            states2.append(r2.phase.state, t=net.time, mass=r2.mass,
                            vdot=r2.expansion_rate)
 
         # Regression test values
-        assert r1.contents.P == approx(151561.15, rel=1e-6)
-        assert r1.contents["H2"].Y[0] == approx(0.13765976, rel=1e-6)
-        assert r2.contents["O2"].Y[0] == approx(0.94617029, rel=1e-6)
+        assert r1.phase.P == approx(151561.15, rel=1e-6)
+        assert r1.phase["H2"].Y[0] == approx(0.13765976, rel=1e-6)
+        assert r2.phase["O2"].Y[0] == approx(0.94617029, rel=1e-6)
 
 
 class TestSteadySolver:
@@ -3202,7 +3202,7 @@ class TestSteadySolver:
         net = ct.ReactorNet([r])
         net.solve_steady()
         assert r.volume == approx(V0)
-        assert r.contents.T == approx(2429.2709)
+        assert r.phase.T == approx(2429.2709)
         assert r.mass == approx(0.002288176)
 
     @pytest.mark.parametrize("reactor_class",
@@ -3226,7 +3226,7 @@ class TestSteadySolver:
             net.solve_steady()
 
             assert r.mass == approx(m0)
-            assert r.contents.T == approx(2407.35011)
+            assert r.phase.T == approx(2407.35011)
         else:
             # Expected to raise until https://github.com/Cantera/enhancements/issues/234
             # is implemented
@@ -3251,8 +3251,8 @@ class TestSteadySolver:
         ct.PressureController(r, downstream, primary=inlet)
         net = ct.ReactorNet([r])
         net.solve_steady()
-        assert r.contents.T == approx(T0)
-        assert r.contents["H2O"].Y[0] == approx(0.2161327927)
+        assert r.phase.T == approx(T0)
+        assert r.phase["H2O"].Y[0] == approx(0.2161327927)
 
     def test_multiple_reactors(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
@@ -3272,8 +3272,8 @@ class TestSteadySolver:
         net.solve_steady()
 
         # reference values obtained from net.advance(1.0)
-        assert r1.contents.T == approx(2429.27092)
-        assert r2.contents.T == approx(2538.63069)
+        assert r1.phase.T == approx(2429.27092)
+        assert r2.phase.T == approx(2538.63069)
 
     @pytest.mark.parametrize("reactor_class",
         [ct.ConstPressureReactor, ct.IdealGasConstPressureReactor,
@@ -3300,9 +3300,9 @@ class TestSteadySolver:
             net.solve_steady()
 
         # Regression values based on net.advance_to_steady_state():
-        # assert r.contents.T == approx(983.7363377)
-        # assert r.contents.coverages[0] == approx(0.387425501)
-        # assert sum(r.contents.coverages) == approx(1.0)
+        # assert r.phase.T == approx(983.7363377)
+        # assert r.phase.coverages[0] == approx(0.387425501)
+        # assert sum(r.phase.coverages) == approx(1.0)
 
     def test_jacobian(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
@@ -3315,7 +3315,7 @@ class TestSteadySolver:
         V0 = 1e-3
         mdot = 120
         r = ct.MoleReactor(gas, volume=V0, clone=True)
-        r.contents.set_multiplier(0.0)
+        r.phase.set_multiplier(0.0)
         inlet = ct.MassFlowController(upstream, r, mdot=mdot)
         ct.MassFlowController(r, downstream, mdot=mdot)
         net = ct.ReactorNet([r])
@@ -3325,7 +3325,7 @@ class TestSteadySolver:
         # Compare analytical derivatives of species equations which include only terms
         # related to outlet mass flow since reactions are disabled.
         W = gas.molecular_weights
-        Y = r.contents.Y
+        Y = r.phase.Y
         mass = r.mass
         names = gas.species_names
         for i, k in np.ndindex(gas.n_species, gas.n_species):

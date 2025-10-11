@@ -60,7 +60,7 @@ void run()
     for (int i = 0; i < nPoints; i++) {
         // Get the Cantera objects that were initialized for this thread
         size_t j = omp_get_thread_num();
-        auto gas = reactors[j]->contents4()->thermo();
+        auto gas = reactors[j]->phase()->thermo();
         Reactor& reactor = *reactors[j];
         ReactorNet& net = *nets[j];
 

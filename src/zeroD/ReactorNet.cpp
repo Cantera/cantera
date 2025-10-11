@@ -118,7 +118,7 @@ void ReactorNet::initialize()
     m_start.assign(1, 0);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
-        shared_ptr<Solution> bulk = r.contents4();
+        shared_ptr<Solution> bulk = r.phase();
         r.initialize(m_time);
         size_t nv = r.neq();
         m_nv += nv;
@@ -134,7 +134,7 @@ void ReactorNet::initialize()
         }
         solutions[bulk.get()].push_back(r.name());
         for (size_t i = 0; i < r.nSurfs(); i++) {
-            if (r.surface(i)->contents4()->adjacent(bulk->name()) != bulk) {
+            if (r.surface(i)->phase()->adjacent(bulk->name()) != bulk) {
                 throw CanteraError("ReactorNet::initialize",
                     "Bulk phase '{}' used by interface '{}' must be the same object\n"
                     "as the contents of the adjacent reactor '{}'.",
@@ -144,7 +144,7 @@ void ReactorNet::initialize()
         }
     }
     for (auto surf : surfaces) {
-        solutions[surf->contents4().get()].push_back(surf->name());
+        solutions[surf->phase().get()].push_back(surf->name());
     }
     for (auto& [soln, reactors] : solutions) {
         if (reactors.size() > 1) {

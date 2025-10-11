@@ -112,7 +112,7 @@ void runexample()
         f << tnow << ", "
           << combustor->temperature() << ", "
           << tres << ", ";
-        const auto& c = combustor->contents4()->thermo();
+        const auto& c = combustor->phase()->thermo();
         for (size_t i = 0; i < k_out.size(); i++) {
             f << c->moleFraction(k_out[i]) << ", ";
         }

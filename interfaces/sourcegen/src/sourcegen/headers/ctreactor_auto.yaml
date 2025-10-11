@@ -18,9 +18,7 @@ recipes:
 - name: type
 - name: name
 - name: setName
-- name: contents
-  # Temporary name due to conflict with deprecated method returning ThermoPhase&
-  wraps: contents4
+- name: phase
   what: accessor
 - name: setInitialVolume
 - name: setChemistry

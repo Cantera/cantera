@@ -92,7 +92,7 @@ states = ct.SolutionArray(gas, extra=['t'])
 while t < 300.0:
     t += dt
     network.advance(t)
-    states.append(cstr.contents.state, t=t)
+    states.append(cstr.phase.state, t=t)
 
 aliases = {'H2': 'H$_2$', 'O2': 'O$_2$', 'H2O': 'H$_2$O'}
 for name, alias in aliases.items():

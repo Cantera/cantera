@@ -251,7 +251,7 @@ classdef ctTestReactor < ctTestCase
             self.verifyEqual(self.r1.T, gas.T, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.D, gas.D, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.P, gas.P, 'RelTol', self.rtol);
-            self.verifyEqual(self.r1.contents.X, gas.X, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.phase.X, gas.X, 'RelTol', self.rtol);
         end
 
         function testEquilibriumHP(self)
@@ -275,7 +275,7 @@ classdef ctTestReactor < ctTestCase
             self.verifyEqual(self.r1.T, self.gas2.T, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.D, self.gas2.D, 'RelTol', self.rtol);
             self.verifyEqual(self.r1.P, P0, 'RelTol', self.rtol);
-            self.verifyEqual(self.r1.contents.X, self.gas2.X, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.phase.X, self.gas2.X, 'RelTol', self.rtol);
         end
 
         function testWallVelocity(self)
@@ -318,8 +318,8 @@ classdef ctTestReactor < ctTestCase
             self.makeReactors('T1', 1000, 'nr', 1, 'X1', 'H2:2.0,O2:1.0');
             self.r1.chemistry = 'off';
             self.net.advance(11.0);
-            x1 = self.r1.contents.X(self.r1.contents.speciesIndex('H2'));
-            x2 = self.r1.contents.X(self.r1.contents.speciesIndex('O2'));
+            x1 = self.r1.phase.X(self.r1.phase.speciesIndex('H2'));
+            x2 = self.r1.phase.X(self.r1.phase.speciesIndex('O2'));
 
             self.verifyEqual(self.r1.T, 1000, 'RelTol', self.rtol);
             self.verifyEqual(x1, 2.0 / 3.0, 'RelTol', self.rtol);
@@ -331,8 +331,8 @@ classdef ctTestReactor < ctTestCase
             self.makeReactors('T1', 500, 'T2', 300);
             self.r1.V = 0.5;
 
-            U1a = self.r1.V * self.r1.D * self.r1.contents.U;
-            U2a = self.r2.V * self.r2.D * self.r2.contents.U;
+            U1a = self.r1.V * self.r1.D * self.r1.phase.U;
+            U2a = self.r2.V * self.r2.D * self.r2.phase.U;
             V1a = self.r1.V;
             V2a = self.r2.V;
 
@@ -343,8 +343,8 @@ classdef ctTestReactor < ctTestCase
 
             self.net.advance(1.1);
             self.verifyEqual(self.w.heatFlux, f(1.1), 'RelTol', self.rtol);
-            U1b = self.r1.V * self.r1.D * self.r1.contents.U;
-            U2b = self.r2.V * self.r2.D * self.r2.contents.U;
+            U1b = self.r1.V * self.r1.D * self.r1.phase.U;
+            U2b = self.r2.V * self.r2.D * self.r2.phase.U;
 
             self.verifyEqual(V1a, self.r1.V, 'RelTol', self.rtol);
             self.verifyEqual(V2a, self.r2.V, 'RelTol', self.rtol);

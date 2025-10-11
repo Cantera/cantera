@@ -61,7 +61,7 @@ while tnow < tfinal:
     if tnow-tprev > 1e-2 or i == 10:
         i = 0
         tprev = tnow
-        states.append(r.contents.state, t=tnow)
+        states.append(r.phase.state, t=tnow)
 
 # nice names for species, including PAH species that can be considered
 # as precursors to soot formation

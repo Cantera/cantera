@@ -105,7 +105,7 @@ output_data = []
 
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
-    gas.TDY = r.contents.TDY
+    gas.TDY = r.phase.TDY
     upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
@@ -113,13 +113,13 @@ for n in range(NReactors):
 
     if n % 10 == 0:
         print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(
-            dist, *r.contents['CH4', 'H2', 'CO'].X))
+            dist, *r.phase['CH4', 'H2', 'CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(
-        [dist, r.T - 273.15, r.contents.P / ct.one_atm]
-        + list(r.contents.X)  # use r.contents.X not gas.X
-        + list(rsurf.contents.coverages)  # use rsurf.contents.coverages not surf.coverages
+        [dist, r.T - 273.15, r.phase.P / ct.one_atm]
+        + list(r.phase.X)  # use r.phase.X not gas.X
+        + list(rsurf.phase.coverages)  # use rsurf.phase.coverages not surf.coverages
     )
 
 with open(output_filename, 'w', newline="") as outfile:
