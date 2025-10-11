@@ -40,7 +40,7 @@ classdef Boundary1D < Domain1D
 
         function b = Boundary1D(type, phase, id)
 
-            b@Domain1D('Boundary1D', type, phase, id);
+            b@Domain1D(type, phase, id);
 
         end
 
