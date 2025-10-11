@@ -94,11 +94,11 @@ def getTemperatureDependence(gas, inputs):
         t = 0
         while t < inputs['t_max']:
             t = reactorNetwork.step()
-        state = np.hstack([stirredReactor.contents.P,
+        state = np.hstack([stirredReactor.phase.P,
                         stirredReactor.mass,
                         stirredReactor.volume,
                         stirredReactor.T,
-                        stirredReactor.contents.X])
+                        stirredReactor.phase.X])
         tempDependence.loc[T] = state
     return tempDependence
 

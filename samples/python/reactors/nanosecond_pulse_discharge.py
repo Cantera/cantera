@@ -64,8 +64,8 @@ while t < t_total:
     t_end = min(t + dt_chunk, t_total)
     while sim.time < t_end:
         sim.advance(sim.time + dt_max) #use sim.step
-        states.append(r.contents.state, t=sim.time)
-        print(f"{sim.time:10.3e} {r.T:10.3f} {r.contents.P:10.3f} {r.contents.h:14.6f}")
+        states.append(r.phase.state, t=sim.time)
+        print(f"{sim.time:10.3e} {r.T:10.3f} {r.phase.P:10.3f} {r.phase.h:14.6f}")
 
     EN_t = gaussian_EN(t)
     gas.reduced_electric_field = EN_t

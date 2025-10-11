@@ -117,7 +117,7 @@ real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
 
 # Create a reactor object and add it to a reactor network
 # In this example, this will be the only reactor in the network
-r = ct.Reactor(contents=real_gas, clone=False)
+r = ct.Reactor(phase=real_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
 time_history_RG = ct.SolutionArray(real_gas, extra=['t'])
 
@@ -133,7 +133,7 @@ while t < estimated_ignition_delay_time:
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
         # Note that the species concentrations are mass fractions
-        time_history_RG.append(r.contents.state, t=t)
+        time_history_RG.append(r.phase.state, t=t)
     counter += 1
 
 # We will use the 'oh' species to compute the ignition delay
@@ -154,7 +154,7 @@ ideal_gas.TP = reactor_temperature, reactor_pressure
 ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                 oxidizer={'o2': 1.0, 'n2': 3.76})
 
-r = ct.Reactor(contents=ideal_gas, clone=False)
+r = ct.Reactor(phase=ideal_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
 time_history_IG = ct.SolutionArray(ideal_gas, extra=['t'])
 
@@ -166,7 +166,7 @@ while t < estimated_ignition_delay_time:
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
         # Note that the species concentrations are mass fractions
-        time_history_IG.append(r.contents.state, t=t)
+        time_history_IG.append(r.phase.state, t=t)
     counter += 1
 
 # We will use the 'oh' species to compute the ignition delay
@@ -231,7 +231,7 @@ for i, temperature in enumerate(T):
     real_gas.TP = reactor_temperature, reactor_pressure
     real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                    oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(contents=real_gas, clone=False)
+    r = ct.Reactor(phase=real_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
 
     # create an array of solution states
@@ -243,7 +243,7 @@ for i, temperature in enumerate(T):
     while t < estimated_ignition_delay_times[i]:
         t = reactor_network.step()
         if counter % 20 == 0:
-            time_history.append(r.contents.state, t=t)
+            time_history.append(r.phase.state, t=t)
         counter += 1
 
     tau = ignition_delay(time_history, 'oh')
@@ -263,7 +263,7 @@ for i, temperature in enumerate(T):
     ideal_gas.TP = reactor_temperature, reactor_pressure
     ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                     oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(contents=ideal_gas, clone=False)
+    r = ct.Reactor(phase=ideal_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
 
     # create an array of solution states
@@ -276,7 +276,7 @@ for i, temperature in enumerate(T):
     while t < estimated_ignition_delay_times[i]:
         t = reactor_network.step()
         if counter % 20 == 0:
-            time_history.append(r.contents.state, t=t)
+            time_history.append(r.phase.state, t=t)
         counter += 1
 
     tau = ignition_delay(time_history, 'oh')
