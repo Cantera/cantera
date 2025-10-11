@@ -61,13 +61,13 @@ public:
         return m_u;
     }
 
-    //! The cross-sectional area of the reactor [m^2]
-    double area() const {
+    //! The cross-sectional area of the reactor [m²]
+    double area() const override {
         return m_area;
     }
 
-    //! Sets the area of the reactor [m^2]
-    void setArea(double area);
+    //! Sets the area of the reactor [m²]
+    void setArea(double area) override;
 
     //! The ratio of the reactor's surface area to volume ratio [m^-1]
     //! @note If the surface area to volume ratio is unspecified by the user,
