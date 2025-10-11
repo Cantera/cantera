@@ -144,9 +144,9 @@ public:
     Inlet1D();
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    Inlet1D(shared_ptr<Solution> solution, const string& id="");
+    Inlet1D(shared_ptr<Solution> phase, const string& id="");
 
     string domainType() const override {
         return "inlet";
@@ -199,10 +199,11 @@ public:
     Empty1D() = default;
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents
+    //! @param phase  Solution representing contents
     //! @param id  Name used to identify this domain
-    Empty1D(shared_ptr<Solution> solution, const string& id="") : Empty1D() {
-        setSolution(solution);
+    Empty1D(shared_ptr<Solution> phase, const string& id="") : Empty1D() {
+        m_solution = phase;
+        m_solution->thermo()->addSpeciesLock();
         m_id = id;
     }
 
@@ -230,10 +231,11 @@ public:
     Symm1D() = default;
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    Symm1D(shared_ptr<Solution> solution, const string& id="") : Symm1D() {
-        setSolution(solution);
+    Symm1D(shared_ptr<Solution> phase, const string& id="") : Symm1D() {
+        m_solution = phase;
+        m_solution->thermo()->addSpeciesLock();
         m_id = id;
     }
 
@@ -260,10 +262,11 @@ public:
     Outlet1D() = default;
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    Outlet1D(shared_ptr<Solution> solution, const string& id="") : Outlet1D() {
-        setSolution(solution);
+    Outlet1D(shared_ptr<Solution> phase, const string& id="") : Outlet1D() {
+        m_solution = phase;
+        m_solution->thermo()->addSpeciesLock();
         m_id = id;
     }
 
@@ -290,9 +293,9 @@ public:
     OutletRes1D();
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    OutletRes1D(shared_ptr<Solution> solution, const string& id="");
+    OutletRes1D(shared_ptr<Solution> phase, const string& id="");
 
     string domainType() const override {
         return "outlet-reservoir";
@@ -334,10 +337,11 @@ public:
     Surf1D() = default;
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    Surf1D(shared_ptr<Solution> solution, const string& id="") : Surf1D() {
-        setSolution(solution);
+    Surf1D(shared_ptr<Solution> phase, const string& id="") : Surf1D() {
+        m_solution = phase;
+        m_solution->thermo()->addSpeciesLock();
         m_id = id;
     }
 
@@ -362,9 +366,9 @@ public:
     ReactingSurf1D();
 
     //! Constructor with contents
-    //! @param solution  Solution representing contents of adjacent flow domain
+    //! @param phase  Solution representing contents of adjacent flow domain
     //! @param id  Name used to identify this domain
-    ReactingSurf1D(shared_ptr<Solution> solution, const string& id="");
+    ReactingSurf1D(shared_ptr<Solution> phase, const string& id="");
 
     string domainType() const override {
         return "reacting-surface";
