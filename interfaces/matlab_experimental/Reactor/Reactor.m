@@ -128,28 +128,8 @@ classdef Reactor < handle
 
             ctIsLoaded;
 
-<<<<<<< HEAD
-            if nargin == 0
-                error('Reactor contents must be specified')
-            elseif nargin == 1
-                typ = 'Reactor';
-                name = '(none)';
-            elseif nargin == 2
-                name = '(none)';
-            elseif nargin > 3
-                error('too many arguments');
-            end
-
-            if ~isa(phase, 'Solution')
-                error('Reactor contents must be an object of type "Solution"');
-            end
-
-            r.id = ctFunc('reactor_new', typ, phase.solnID, name);
-            r.phase = phase;
-=======
             r.id = ctFunc('reactor_new', typ, content.solnID, clone, name);
-            r.contents = content;
->>>>>>> 3f0710e17 ([MATLAB] Added clone argument to Reactor constructor)
+            r.phase= content;
         end
 
         %% Reactor Class Destructor
