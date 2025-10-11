@@ -257,7 +257,7 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
         header = SolutionArray::readHeader(fname, name);
 
         for (auto dom : m_dom) {
-            auto arr = SolutionArray::create(dom->solution());
+            auto arr = SolutionArray::create(dom->phase());
             try {
                 arr->readEntry(fname, name, dom->id());
             } catch (CanteraError& err) {
@@ -289,7 +289,7 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
         header = SolutionArray::readHeader(root, name);
 
         for (auto dom : m_dom) {
-            auto arr = SolutionArray::create(dom->solution());
+            auto arr = SolutionArray::create(dom->phase());
             try {
                 arr->readEntry(root, name, dom->id());
             } catch (CanteraError& err) {

@@ -33,15 +33,23 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp  Number of species.
     //! @param points  Initial number of grid points
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
+    //!     instead.
     IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     //! Create a new IonFlow domain.
-    //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
+    //! @param phase  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    IonFlow(shared_ptr<Solution> sol, const string& id="", size_t points = 1);
+    IonFlow(shared_ptr<Solution> phase, const string& id="", size_t points = 1);
 
+private:
+    //! Initialize arrays.
+    //! @todo Consolidate after removal of legacy constructors.
+    void _init(ThermoPhase* ph, size_t nsp, size_t points);
+
+public:
     string domainType() const override;
 
     size_t getSolvingStage() const override {
