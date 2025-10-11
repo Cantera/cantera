@@ -72,7 +72,7 @@ class CLibSourceGenerator(SourceGenerator):
             wraps = "undefined"
         uses = [ uu.short_declaration() for uu in c_func.uses]
         block = template.render(
-            brief=escape_token(c_func.brief, "Cantera"),
+            brief=c_func.brief,
             params=[param(par) for par in c_func.arglist],
             returns=c_func.returns, what=what, wraps=wraps, uses=uses)
         return self._javadoc_comment(block)
@@ -405,7 +405,10 @@ class CLibSourceGenerator(SourceGenerator):
                     annotations=self._scaffold_annotation(c_func, recipe.what)))
         declarations = "\n\n".join(declarations)
 
-        preamble = self._config.preambles.get(headers.base)
+        preamble = self._config.preambles.get("default")
+        preamble_add = self._config.preambles.get(headers.base)
+        if preamble_add:
+            preamble += "\n" + preamble_add
 
         guard = filename.name.upper().replace(".", "_")
         t_file = Path(__file__).parent / "template_header.h.j2"

@@ -33,14 +33,10 @@ classdef Valve < FlowDevice
 
     methods
 
-        function v = Valve(upstream, downstream, name)
+        function v = Valve(varargin)
             % Constructor
 
-            if nargin < 3
-                name = '(none)';
-            end
-
-            v@FlowDevice('Valve', upstream, downstream, name);
+            v@FlowDevice('Valve', varargin{:});
         end
 
     end

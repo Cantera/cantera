@@ -79,7 +79,7 @@ classdef Boundary1D < Domain1D
             %     Mass fraction of species.
 
             if d.domainIndex == 0
-                error('No flow domain attached!')
+                error('No flow domain attached')
             end
 
             if strcmp(d.domainType, 'inlet')

@@ -41,19 +41,19 @@ classdef ReactorSurface < Reactor
             end
 
             s@Reactor(surf, 'ReactorSurface', name);
-            ctFunc('reactorsurface_install', s.id, reactor.id);
+            ctFunc('reactor_addSurface', reactor.id, s.id);
         end
 
         %% ReactorSurface Get Methods
 
         function a = get.area(s)
-            a = ctFunc('reactorsurface_area', s.id);
+            a = ctFunc('reactor_area', s.id);
         end
 
         %% ReactorSurface Set Methods
 
         function set.area(s, a)
-            ctFunc('reactorsurface_setArea', s.id, a);
+            ctFunc('reactor_setArea', s.id, a);
         end
 
     end

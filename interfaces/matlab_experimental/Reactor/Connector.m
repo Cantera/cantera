@@ -38,19 +38,14 @@ classdef Connector < handle
         function c = Connector(typ, r1, r2, name)
             % Create a :mat:class:`Connector` object.
 
+            arguments
+                typ (1,1) string
+                r1 {mustBeA(r1, 'Reactor')}
+                r2 {mustBeA(r2, 'Reactor')}
+                name (1,1) string = "(none)"
+            end
+
             ctIsLoaded;
-
-            if nargin < 3
-                error('please specify type and reactors');
-            end
-            if nargin < 4
-                name = '(none)';
-            end
-
-            if ~isa(r1, 'Reactor') || ~isa(r2, 'Reactor')
-                error(['Connectors can only be installed between', ...
-                       'reactors or reservoirs']);
-            end
 
             c.id = ctFunc('connector_new', typ, r1.id, r2.id, name);
         end

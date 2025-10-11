@@ -91,8 +91,7 @@ classdef Domain1D < handle
             % Create a :mat:class:`Domain1D` object.
 
             ctIsLoaded;
-
-            d.domainID = ctFunc('domain_new', type, phase.solnID, id);
+            d.domainID = ctFunc('domain_newDomain', type, phase.solnID, id);
 
         end
 
@@ -107,12 +106,12 @@ classdef Domain1D < handle
 
         function set.energyEnabled(d, flag)
             d.energyEnabled = flag;
-            ctFunc('flow1D_solveEnergyEqn', d.domainID, int8(flag));
+            ctFunc('flow_solveEnergyEqn', d.domainID, int8(flag));
         end
 
         function set.soretEnabled(d, flag)
             d.soretEnabled = flag;
-            ctFunc('flow1D_enableSoret', d.domainID, int8(flag));
+            ctFunc('flow_enableSoret', d.domainID, int8(flag));
         end
 
         %% Domain Get Methods
@@ -188,47 +187,24 @@ classdef Domain1D < handle
 
         function i = get.domainIndex(d)
             i = ctFunc('domain_index', d.domainID) + 1;
-
-            if i <= 0
-                error('Domain not found');
-            end
-
         end
 
         function str = get.domainType(d)
             str = ctString('domain_type', d.domainID);
         end
 
-        function zz = gridPoints(d, n)
+        function zz = gridPoints(d)
             % Grid points from a domain. ::
             %
             %     >> zz = d.gridPoints(n)
             %
             % :param d:
             %    Instance of class 'Domain1D'.
-            % :param n:
-            %    Optional, vector of grid points to be retrieved.
             % :return:
             %    Vector of grid points.
 
-            if nargin == 1
-                np = d.nPoints;
-                zz = zeros(1, np);
-
-                for i = 1:np
-                    zz(i) = ctFunc('domain_grid', d.domainID, i - 1);
-                end
-
-            else
-                m = length(n);
-                zz = zeros(1, m);
-
-                for i = 1:m
-                    zz(i) = ctFunc('domain_grid', d.domainID, n(i) - 1);
-                end
-
-            end
-
+            np = d.nPoints;
+            zz = ctArray('domain_grid', np, d.domainID);
         end
 
         function n = get.nComponents(d)
