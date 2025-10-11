@@ -92,6 +92,12 @@ void DomainFactory::deleteFactory()
     s_factory = 0;
 }
 
+shared_ptr<Domain1D> newDomain1D(
+    const string& domainType, shared_ptr<Solution> solution, const string& id)
+{
+    return newDomain<Domain1D>(domainType, solution, id);
+}
+
 shared_ptr<Boundary1D> newBoundary1D(
     const string& domainType, shared_ptr<Solution> solution, const string& id)
 {
