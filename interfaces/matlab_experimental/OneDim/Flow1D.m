@@ -24,7 +24,11 @@ classdef Flow1D < Domain1D
 
         function f = Flow1D(type, phase, id)
 
-            f@Domain1D('Flow1D', type, phase, id);
+            ctIsLoaded;
+            domainID = ctFunc('domain_newFlow1D', type, phase.solnID, id);
+            f@Domain1D(domainID);
+            f.energyEnabled = false;
+            f.soretEnabled = false;
 
         end
 
