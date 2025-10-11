@@ -59,10 +59,10 @@ TEST(ctreactor, reactor_simple)
         count++;
     }
     // Reactor contents should be the same Solution & ThermoPhase objects
-    int32_t contents = reactor_contents(reactor);
-    int32_t contents_thermo = sol_thermo(contents);
-    EXPECT_DOUBLE_EQ(thermo_temperature(contents_thermo), thermo_temperature(thermo));
-    thermo_setTemperature(contents_thermo, 345.0);
+    int32_t phase = reactor_phase(reactor);
+    int32_t phase_thermo = sol_thermo(phase);
+    EXPECT_DOUBLE_EQ(thermo_temperature(phase_thermo), thermo_temperature(thermo));
+    thermo_setTemperature(phase_thermo, 345.0);
     EXPECT_DOUBLE_EQ(thermo_temperature(thermo), 345.0);
 }
 
@@ -95,12 +95,12 @@ TEST(ctreactor, reactor_clone)
     }
     // Reactor contents should be independent objects with a distinct state, and the
     // original thermo object should be unmodified
-    int32_t contents = reactor_contents(reactor);
-    ASSERT_GE(contents, 0);
-    int32_t contents_thermo = sol_thermo(contents);
-    ASSERT_GE(contents_thermo, 0);
+    int32_t phase = reactor_phase(reactor);
+    ASSERT_GE(phase, 0);
+    int32_t phase_thermo = sol_thermo(phase);
+    ASSERT_GE(phase_thermo, 0);
     EXPECT_DOUBLE_EQ(thermo_temperature(thermo), T);
-    EXPECT_GT(thermo_temperature(contents_thermo), T);
+    EXPECT_GT(thermo_temperature(phase_thermo), T);
 }
 
 TEST(ctreactor, surface)
