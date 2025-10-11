@@ -11,6 +11,7 @@ derived:  # Specialization/prefix dictionary
   ReactingSurf1D: reactingsurf
   Flow1D: flow
 recipes:
+- name: newDomain1D
 - name: newFlow1D
 - name: newBoundary1D
 - name: type
