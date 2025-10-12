@@ -79,5 +79,5 @@ function f = flame(gas, left, flow, right)
     end
 
     % set minimal grid refinement criteria
-    f.setRefineCriteria(2, 10.0, 0.8, 0.8);
+    flow.setRefineCriteria(10.0, 0.8, 0.8);
 end

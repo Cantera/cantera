@@ -72,7 +72,7 @@ classdef Flow1D < Domain1D
         end
 
         function set.transportModel(d, model)
-            ctFunc('flow_setTransportModel', d.domainID, model);
+            ctFunc('domain_setTransportModel', d.domainID, model);
         end
 
         function zz = get.grid(d)

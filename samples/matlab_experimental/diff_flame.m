@@ -101,7 +101,7 @@ fl.solve(loglevel, 0);
 % ``help setRefineCriteria``.
 
 f.energyEnabled = true;
-fl.setRefineCriteria(2, 4, 0.2, 0.3, 0.04);
+f.setRefineCriteria(4, 0.2, 0.3, 0.04);
 fl.solve(loglevel, refine_grid);
 
 %% Show statistics of solution and elapsed time
