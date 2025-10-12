@@ -111,12 +111,11 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         flame.show();
 
-        int flowdomain = 1;
         double ratio = 10.0;
         double slope = 0.08;
         double curve = 0.1;
 
-        flame.setRefineCriteria(flowdomain,ratio,slope,curve);
+        flow->setRefineCriteria(ratio,slope,curve);
 
         // Save initial guess to container file
 
@@ -136,7 +135,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // exist. The temperature at this location will then be fixed for
         // remainder of calculation.
         flame.setFixedTemperature(0.5 * (temp + Tad));
-        flow->solveEnergyEqn();
+        flow->setEnergyEnabled(true);
 
         flame.solve(loglevel,refine_grid);
         double flameSpeed_mix = flow->values("velocity")[0];
