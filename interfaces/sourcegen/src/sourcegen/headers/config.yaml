@@ -30,6 +30,7 @@ par_type_crosswalk:
   size_t: int32_t
   shared_ptr<T>: int32_t
   int*: int32_t*
+  vector<int>: int32_t*
   vector<shared_ptr<T>>: int32_t*
   double: double
   double*: double*

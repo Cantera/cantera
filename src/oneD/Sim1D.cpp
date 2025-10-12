@@ -760,12 +760,10 @@ void Sim1D::setRefineCriteria(int dom, double ratio,
                               double slope, double curve, double prune)
 {
     if (dom >= 0) {
-        Refiner& r = domain(dom).refiner();
-        r.setCriteria(ratio, slope, curve, prune);
+        domain(dom).setRefineCriteria(ratio, slope, curve, prune);
     } else {
         for (size_t n = 0; n < nDomains(); n++) {
-            Refiner& r = domain(n).refiner();
-            r.setCriteria(ratio, slope, curve, prune);
+            domain(n).setRefineCriteria(ratio, slope, curve, prune);
         }
     }
 }
@@ -773,8 +771,7 @@ void Sim1D::setRefineCriteria(int dom, double ratio,
 vector<double> Sim1D::getRefineCriteria(int dom)
 {
    if (dom >= 0) {
-       Refiner& r = domain(dom).refiner();
-       return r.getCriteria();
+       return domain(dom).getRefineCriteria();
    } else {
        throw CanteraError("Sim1D::getRefineCriteria",
            "Must specify domain to get criteria from");

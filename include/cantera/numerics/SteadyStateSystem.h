@@ -190,6 +190,16 @@ public:
     //!     after further unsuccessful solution attempts.
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
+    //! Set the number of time steps to try when the steady Newton solver is
+    //! unsuccessful.
+    //! @param stepSize  Initial time step size [s]
+    //! @param tSteps  A sequence of time step counts to take after subsequent failures
+    //!     of the steady-state solver. The last value in `tsteps` will be used again
+    //!     after further unsuccessful solution attempts.
+    void setTimeStep(double stepSize, const vector<int>& tSteps) {
+        setTimeStep(stepSize, tSteps.size(), tSteps.data());
+    }
+
     //! Set the minimum time step allowed during time stepping
     void setMinTimeStep(double tmin) {
         m_tmin = tmin;
