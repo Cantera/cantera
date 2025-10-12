@@ -131,11 +131,9 @@ surf.T = tsurf;
 stack = Sim1D({inlt, flow, surf});
 
 % set the initial profiles.
-stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, ...
-                [0.0, 1.0 % z/zmax
-                 0.06, 0.0 % u
-                 0.0, 0.0 % V
-                 tinlet, tsurf]); % T
+flow.setProfile('velocity', [0.0, 1.0], [0.06, 0.0]);
+flow.setProfile('spread_rate', [0.0, 1.0], [0.0, 0.0]);
+flow.setProfile('T', [0.0, 1.0], [tinlet, tsurf]);
 names = gas.speciesNames;
 
 for k = 1:gas.nSpecies
