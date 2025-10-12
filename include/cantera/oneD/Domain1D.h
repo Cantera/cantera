@@ -75,13 +75,6 @@ public:
         throw NotImplementedError("Domain1D::setTransport");
     }
 
-    //! Set transport model by name.
-    //! @param model  String specifying model name.
-    //! @since New in %Cantera 3.2.
-    virtual void setTransportModel(const string& model) {
-        throw NotImplementedError("Domain1D::setTransportModel");
-    }
-
     //! The container holding this domain.
     const OneDim& container() const {
         return *m_container;
@@ -303,6 +296,18 @@ public:
     double lowerBound(size_t n) const {
         return m_min[n];
     }
+
+    /**
+     * Set grid refinement criteria. @see Refiner::setCriteria.
+     */
+    void setRefineCriteria(double ratio = 10.0,
+                           double slope = 0.8, double curve = 0.8,
+                           double prune = -0.1);
+
+    /**
+     * Get the grid refinement criteria. @see Refiner::getCriteria
+     */
+    vector<double> getRefineCriteria();
 
     /**
      * Performs the setup required before starting a time-stepping solution.
@@ -562,6 +567,27 @@ public:
      */
     virtual void fromArray(const shared_ptr<SolutionArray>& arr) {
         throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
+    }
+
+    /**
+     * Print a concise summary of a Domain.
+     * @see SolutionArray.info()
+     * @param keys  List of components to be displayed; if empty, all components are
+     *      considered.
+     * @param rows  Maximum number of rendered rows.
+     * @param width  Maximum width of rendered output.
+     */
+    string info(const vector<string>& keys, int rows=10, int width=80);
+
+    /**
+     * Print a concise summary of a Domain.
+     * Skips keys input while `vector<string>` is not implemented in sourcegen.
+     * @see SolutionArray.info()
+     * @param rows  Maximum number of rendered rows.
+     * @param width  Maximum width of rendered output.
+     */
+    string _info(int rows=10, int width=80) {
+        return info({}, rows, width);
     }
 
     //! Return thermo/kinetics/transport manager used in the domain

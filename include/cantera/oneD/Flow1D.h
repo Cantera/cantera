@@ -96,9 +96,10 @@ public:
     //! Set the transport manager used for transport property calculations
     void setTransport(shared_ptr<Transport> trans) override;
 
-    //! Set the transport model
+    //! Set transport model by name.
+    //! @param model  String specifying model name.
     //! @since New in %Cantera 3.0.
-    void setTransportModel(const string& model) override;
+    void setTransportModel(const string& model);
 
     //! Retrieve transport model
     //! @since New in %Cantera 3.0.
@@ -224,6 +225,27 @@ public:
     //! The converse of this method is fixTemperature().
     //! @param j  Point at which to enable the energy equation. `npos` means all points.
     void solveEnergyEqn(size_t j=npos);
+
+    //! Check if energy is enabled for entire domain.
+    bool allOfEnergyEnabled() {
+        return std::all_of(m_do_energy.begin(), m_do_energy.end(),
+                           [](bool v) { return v; });
+    }
+
+    //! Check if energy is disabled for entire domain.
+    bool noneOfEnergyEnabled() {
+        return std::none_of(m_do_energy.begin(), m_do_energy.end(),
+                            [](bool v) { return v; });
+    }
+
+    //! Set energy enabled flag for entire domain.
+    void setEnergyEnabled(bool flag) {
+        if (flag) {
+            solveEnergyEqn();
+        } else {
+            fixTemperature();
+        }
+    }
 
     //! Get the solving stage (used by IonFlow specialization)
     //! @since New in %Cantera 3.0
