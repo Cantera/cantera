@@ -91,7 +91,7 @@ classdef Domain1D < handle
             % Create a :mat:class:`Domain1D` object.
 
             ctIsLoaded;
-            d.domainID = ctFunc('domain_newDomain', type, phase.solnID, id);
+            d.domainID = ctFunc('domain_newDomain1D', type, phase.solnID, id);
 
         end
 

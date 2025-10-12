@@ -39,16 +39,16 @@ classdef Flow1D < Domain1D
         end
 
         function v = values(d, component)
-            % Get a solution component in one domain. ::
+            % Get the value of a component in a domain. ::
             %
-            %     >> d.getSolution(component)
+            %     >> d.values(component)
             %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
+            % :param d:
+            %    Instance of class :mat:class:`Flow1D`.
             % :param component:
             %    String component for which the solution is desired.
             % :return:
-            %    A :math:`nPoints \times 1` vector.
+            %    Value of the component in domain d.
 
             v = ctArray('domain_values', d.domainID, component);
 
@@ -83,7 +83,7 @@ classdef Flow1D < Domain1D
             %    Array containing component values at positions.
 
             ctFunc('domain_setProfile', d.domainID, ...
-                   component, length(zProfile), zProfile, length(vProfile), vProfile);
+                   component, zProfile, vProfile);
 
         end
 
@@ -119,7 +119,7 @@ classdef Flow1D < Domain1D
             %     Array containing temperatures
 
             ctFunc('flow_setFixedTempProfile', d.domainID, ...
-                   length(zFixed), zFixed, length(tFixed), tFixed);
+                   zFixed, tFixed);
 
         end
 
