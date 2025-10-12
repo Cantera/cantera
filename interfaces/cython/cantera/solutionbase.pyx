@@ -529,7 +529,7 @@ cdef class SolutionArrayBase:
         return dest
 
     def __repr__(self):
-        return self.info()
+        return self.info(display=False)
 
     @property
     def size(self):
@@ -548,7 +548,7 @@ cdef class SolutionArrayBase:
             cxx_shape.push_back(dim)
         self.base.setApiShape(cxx_shape)
 
-    def info(self, keys=None, rows=10, width=None):
+    def info(self, keys=None, rows=10, width=None, display=True):
         """
         Print a concise summary of a `SolutionArray`.
 
@@ -556,6 +556,7 @@ cdef class SolutionArrayBase:
             considered.
         :param rows: Maximum number of rendered rows.
         :param width: Maximum width of rendered output.
+        :param display: If `True`, display result (default), otherwise, return a string.
         """
         cdef vector[string] cxx_keys
         if keys is not None:
@@ -576,7 +577,10 @@ cdef class SolutionArrayBase:
             except:
                 width = 100
 
-        return pystr(self.base.info(cxx_keys, rows, width))
+        ret = pystr(self.base.info(cxx_keys, rows, width))
+        if not display:
+            return ret
+        print(ret)
 
     @property
     def meta(self):
