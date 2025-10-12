@@ -21,8 +21,7 @@ mdot = 0.06; % kg/m^2/s
 rxnmech = 'h2o2.yaml'; % reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'; % premixed gas composition
 
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.4, ...
-                0.49, 0.5]; % m
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.4, 0.49, 0.5]; % m
 
 tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state problem
 tol_ts = {1.0e-4, 1.0e-9}; % {rtol atol} for time stepping
@@ -92,7 +91,7 @@ fl.solve(loglevel, refine_grid);
 %  criteria to get an accurate final solution.
 
 f.energyEnabled = true;
-fl.setRefineCriteria(2, 200.0, 0.05, 0.1);
+f.setRefineCriteria(200.0, 0.05, 0.1);
 fl.solve(1, 1);
 
 %% Show statistics
@@ -106,16 +105,16 @@ disp(e);
 
 clf;
 subplot(2, 2, 1);
-plotSolution(fl, 'flow', 'T');
+plotSolution(f, 'T');
 title('Temperature [K]');
 subplot(2, 2, 2);
-plotSolution(fl, 'flow', 'velocity');
+plotSolution(f, 'velocity');
 title('Axial Velocity [m/s]');
 subplot(2, 2, 3);
-plotSolution(fl, 'flow', 'H2O');
+plotSolution(f, 'H2O');
 title('H2O Mass Fraction');
 subplot(2, 2, 4);
-plotSolution(fl, 'flow', 'O2');
+plotSolution(f, 'O2');
 title('O2 Mass Fraction');
 
 toc

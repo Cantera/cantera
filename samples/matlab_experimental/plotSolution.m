@@ -1,4 +1,4 @@
-function plotSolution(s, domain, component)
+function plotSolution(domain, component)
     %% Utility for plotting a specific solution component
     %
     %     >> plotSolution(s, domain, component)
@@ -10,10 +10,8 @@ function plotSolution(s, domain, component)
     % :component:
     %    Name of the component to be plotted
 
-    n = s.stackIndex(domain);
-    d = s.domains{n};
-    z = d.gridPoints;
-    x = s.getSolution(domain, component);
+    z = domain.grid;
+    x = domain.values(component);
     plot(z, x);
     xlabel('z (m)');
     ylabel(component);
