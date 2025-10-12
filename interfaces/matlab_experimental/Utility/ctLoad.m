@@ -20,7 +20,7 @@ function ctLoad(mode)
 
     global ct
     if isempty(ct)
-        if isMATLABReleaseOlderThan("R2025a")
+        if isMATLABReleaseOlderThan("R2025a") || strcmp(mode, "inprocess")
             ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
         else
             ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
