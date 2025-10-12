@@ -78,7 +78,7 @@ classdef Sim1D < handle
             ctFunc('sim1D_restore', s.stID, fname, id)
         end
 
-        function save(s, fname, id, desc)
+        function save(s, fname, id, desc, overwrite)
             % Save a solution to a file. ::
             %
             %     >> s.save(fname, id, desc)
@@ -93,14 +93,20 @@ classdef Sim1D < handle
             %     ID to be assigned to the file element when it is written.
             % :param desc:
             %     Description to be written to the output file.
+            % :param overwrite:
+            %     Force overwrite if file/name exists; optional (default=false)
 
             if nargin < 3
                 error('Not enough input arguments');
-            elseif nargin == 3
+            end
+            if nargin < 4
                 desc = '';
             end
+            if nargin < 5
+                overwrite = false;
+            end
 
-            ctFunc('sim1D_save', s.stID, fname, id, desc);
+            ctFunc('sim1D_save', s.stID, fname, id, desc, overwrite);
         end
 
         function solve(s, loglevel, refineGrid)
@@ -214,45 +220,6 @@ classdef Sim1D < handle
             end
 
             ctFunc('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
-        end
-
-        function setRefineCriteria(s, n, ratio, slope, curve, prune)
-            % Set the criteria used to refine the grid. ::
-            %
-            %     >> s.setRefineCriteria(n, ratio, slope, curve, prune)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param ratio:
-            %    Maximum size ratio between adjacent cells.
-            % :param slope:
-            %    Maximum relative difference in value between adjacent points.
-            % :param curve:
-            %    Maximum relative difference in slope between adjacent cells.
-            % :param prune:
-            %    Minimum value for slope or curve for which points will be
-            %    retained or curve value is below prune for all components,
-            %    it will be deleted, unless either neighboring point is
-            %    already marked for deletion.
-
-            if nargin < 3
-                ratio = 10.0;
-            end
-
-            if nargin < 4
-                slope = 0.8;
-            end
-
-            if nargin < 5
-                curve = 0.8;
-            end
-
-            if nargin < 6
-                prune = -0.1;
-            end
-
-            ctFunc('sim1D_setRefineCriteria', s.stID, ...
-                    n - 1, ratio, slope, curve, prune);
         end
 
         function setTimeStep(s, stepsize, steps)
