@@ -80,30 +80,24 @@ classdef Boundary1D < Domain1D
             % :return:
             %     Mass fraction of species.
 
-            if d.domainIndex == 0
-                error('No flow domain attached')
-            end
-
-            if strcmp(d.domainType, 'inlet')
-                y = ctFunc('bdry_massFraction', d.domainID, k - 1);
-            else
-                error('Input domain must be an inlet');
-            end
+            y = ctFunc('bdry_massFraction', d.domainID, k - 1);
 
         end
 
-        function setMoleFractions(d, x)
-            % Set the mole fractions. ::
+        function v = value(d, component)
+            % Get the value of a component at a boundary. ::
             %
-            %     >> d.setMoleFractions(x)
+            %     >> d.value(component)
             %
             % :param d:
-            %     Instance of class :mat:class:`Boundary`.
-            % :param x:
-            %     String specifying the species and mole fractions in
-            %     the format ``'SPEC:X,SPEC2:X2'``.
+            %    Instance of class :mat:class:`Flow1D`.
+            % :param component:
+            %    String component for which the solution is desired.
+            % :return:
+            %    Value of the component in domain d.
 
-            ctFunc('bdry_setMoleFractions', d.domainID, x);
+            v = ctFunc('domain_value', d.domainID, component);
+
         end
 
     end

@@ -14,8 +14,20 @@ classdef Flow1D < Domain1D
     % :return:
     %     Instance of class :mat:class:`Flow1D`.
 
-    properties
-        P % Flow Pressure. Units: Pa.
+    properties (SetAccess = public)
+        P  % Flow Pressure. Units: Pa.
+
+        % Boolean flag indicating whether the energy equation is enabled.
+        energyEnabled logical
+
+        % Boolean flag indicating whether the diffusive mass fluxes due to the Soret
+        % effect is enabled.
+        soretEnabled logical
+
+        % ID of the solution object used for calculating transport properties.
+        transportModel
+
+        grid  % Grid points from a domain.
     end
 
     methods
@@ -32,7 +44,7 @@ classdef Flow1D < Domain1D
 
         end
 
-        %% Flow1D Class Methods
+        %% Domain Properties
 
         function pressure = get.P(d)
             pressure = ctFunc('flow_pressure', d.domainID);
@@ -40,6 +52,54 @@ classdef Flow1D < Domain1D
 
         function set.P(d, p)
             ctFunc('flow_setPressure', d.domainID, p);
+        end
+
+        function flag = get.energyEnabled(d)
+            flag = ctFunc('flow_allOfEnergyEnabled', d.domainID);
+        end
+
+        function set.energyEnabled(d, flag)
+            ctFunc('flow_setEnergyEnabled', d.domainID, flag);
+        end
+
+        function set.soretEnabled(d, flag)
+            d.soretEnabled = flag;
+            ctFunc('flow_enableSoret', d.domainID, flag);
+        end
+
+        function model = get.transportModel(d)
+            model = ctString('flow_transportModel', d.domainID);
+        end
+
+        function set.transportModel(d, model)
+            ctFunc('flow_setTransportModel', d.domainID, model);
+        end
+
+        function zz = get.grid(d)
+            np = d.nPoints;
+            zz = ctArray('domain_grid', np, d.domainID);
+        end
+
+        function set.grid(d, grid)
+            ctFunc('domain_setupGrid', d.domainID, grid);
+        end
+
+        %% Flow1D Class Methods
+
+        function setupUniformGrid(d, points, length, start)
+            % Set up the solution grid. ::
+            %
+            %     >> d.setupUniformGrid(points, length, start)
+            %
+            % :param d:
+            %     Instance of class :mat:class:`Domain1D`.
+            % :param points:
+            %     Number of grid points
+            % :param length:
+            %     Length of domain
+            % :param start:
+            %     Start position of domain
+            ctFunc('domain_setupUniformGrid', d.domainID, points, length, start);
         end
 
         function v = values(d, component)
@@ -54,7 +114,7 @@ classdef Flow1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctArray('domain_values', d.domainID, component);
+            v = ctArray('domain_values', d.nPoints, d.domainID, component);
 
         end
 
@@ -125,6 +185,44 @@ classdef Flow1D < Domain1D
             ctFunc('flow_setFixedTempProfile', d.domainID, ...
                    zFixed, tFixed);
 
+        end
+
+        function setRefineCriteria(d, ratio, slope, curve, prune)
+            % Set the criteria used to refine the grid. ::
+            %
+            %     >> d.setRefineCriteria(ratio, slope, curve, prune)
+            %
+            % :param d:
+            %    Instance of class :mat:class:`Domain1D`.
+            % :param ratio:
+            %    Maximum size ratio between adjacent cells.
+            % :param slope:
+            %    Maximum relative difference in value between adjacent points.
+            % :param curve:
+            %    Maximum relative difference in slope between adjacent cells.
+            % :param prune:
+            %    Minimum value for slope or curve for which points will be
+            %    retained or curve value is below prune for all components,
+            %    it will be deleted, unless either neighboring point is
+            %    already marked for deletion.
+
+            if nargin < 3
+                ratio = 10.0;
+            end
+
+            if nargin < 4
+                slope = 0.8;
+            end
+
+            if nargin < 5
+                curve = 0.8;
+            end
+
+            if nargin < 6
+                prune = -0.1;
+            end
+
+            ctFunc('domain_setRefineCriteria', d.domainID, ratio, slope, curve, prune);
         end
 
     end
