@@ -388,79 +388,79 @@ class TestSolutionArrayInfo:
 
     def test_short(self):
         arr = ct.SolutionArray(self.gas, 5)
-        self.check(arr, arr.info(rows=10, width=self.width), 5)
+        self.check(arr, arr.info(rows=10, width=self.width, display=False), 5)
 
     def test_long(self):
         arr = ct.SolutionArray(self.gas, 20, extra={"spam": "eggs"})
-        self.check(arr, arr.info(rows=10, width=self.width), 11)
+        self.check(arr, arr.info(rows=10, width=self.width, display=False), 11)
 
     def test_scientific(self):
         arr = ct.SolutionArray(self.gas, 20)
         arr.set_equivalence_ratio(np.linspace(.5, 1.5, 20), "H2", "O2:1,N2:10")
         arr.equilibrate("HP")
-        self.check(arr, arr.info(rows=7, width=self.width), 8)
+        self.check(arr, arr.info(rows=7, width=self.width, display=False), 8)
 
     def test_plus_minus_i(self):
         arr = ct.SolutionArray(self.gas, 20,
                                extra={"foo": 10 * np.arange(-10, 10, dtype=int)})
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_plus_minus_f(self):
         arr = ct.SolutionArray(self.gas, 20, extra={"foo": "bar", "spam": "eggs"})
-        self.check(arr, arr.info(rows=9), 10)
+        self.check(arr, arr.info(rows=9, display=False), 10)
         arr.foo = np.linspace(-1, 1.5, 20)
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_plus_minus_e(self):
         arr = ct.SolutionArray(self.gas, 20, extra={"foo": "bar", "spam": "eggs"})
-        self.check(arr, arr.info(rows=9, width=100), 10)
+        self.check(arr, arr.info(rows=9, width=100, display=False), 10)
         arr.foo = np.linspace(-1e6, 1.5e6, 20)
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_strings(self):
         arr = ct.SolutionArray(self.gas, 26, extra={"foo": "bar", "spam": "eggs"})
         arr.spam = ["abcdefghijklmnopqrstuvwxyz"[:ix+1] for ix in range(26)]
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_double_vector(self):
         arr = ct.SolutionArray(self.gas, 15, extra={"spam": "eggs"})
         arr.spam = [[1.1, 2.2, 3.3] for _ in range(15)]
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_integer_vector(self):
         arr = ct.SolutionArray(self.gas, 15, extra={"spam": "eggs"})
         arr.spam = [np.array([1, 2, 3], dtype=int) for _ in range(15)]
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_string_vector(self):
         arr = ct.SolutionArray(self.gas, 15, extra={"spam": "eggs"})
         arr.spam = [["foo", "bar"] for _ in range(15)]
-        self.check(arr, arr.info(rows=12, width=self.width), 13)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 13)
 
     def test_select_species(self):
         arr = ct.SolutionArray(self.gas, 5)
         arr2 = arr("H2")
-        lines = arr2.info(width=self.width).split("\n")
+        lines = arr2.info(width=self.width, display=False).split("\n")
         assert lines[0].split() == ["T", "D", "H2"]
 
     def test_select_rows(self):
         arr = ct.SolutionArray(self.gas, 25)
         ix = [2, 5, 6, 9, 15, 3]
         arr2 = arr[ix]
-        self.check(arr2, arr2.info(width=self.width), 6)
-        lines = arr2.info(width=self.width).split("\n")[1:-2]
+        self.check(arr2, arr2.info(width=self.width, display=False), 6)
+        lines = arr2.info(width=self.width, display=False).split("\n")[1:-2]
         loc = [int(line.split()[0]) for line in lines]
         assert loc == ix
 
     def test_water_simple(self):
         w = ct.Water()
         arr = ct.SolutionArray(w, 10)
-        self.check(arr, arr.info(rows=12, width=self.width), 10)
+        self.check(arr, arr.info(rows=12, width=self.width, display=False), 10)
 
     def test_water_extra(self):
         w = ct.Water()
         arr = ct.SolutionArray(w, 15, extra={"spam": np.arange(15, dtype=int)})
-        self.check(arr, arr.info(rows=7, width=self.width), 8)
+        self.check(arr, arr.info(rows=7, width=self.width, display=False), 8)
 
 @pytest.fixture(scope='class')
 def setup_solution_array_io_tests(request):
