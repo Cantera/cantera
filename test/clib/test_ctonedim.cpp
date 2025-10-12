@@ -139,7 +139,7 @@ TEST(ctonedim, freeflame)
 
     // inlet
     int32_t reac = domain_newBoundary1D("inlet", sol, "inlet");
-    bdry_setMoleFractions(reac, X.c_str());
+    bdry_setMoleFractionsByName(reac, X.c_str());
     bdry_setMdot(reac, uin * rho_in);
     bdry_setTemperature(reac, T);
 
@@ -182,11 +182,11 @@ TEST(ctonedim, freeflame)
     int32_t loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);
     ret = sim1D_save(flame, "gtest-freeflame.yaml", "clib",
-                     "Solution from CLib interface");
+                     "Solution from CLib interface", true);
     ASSERT_GE(ret, 0);
     if (usesHDF5()) {
         ret = sim1D_save(flame, "gtest-freeflame.h5", "clib",
-                         "Solution from CLib interface");
+                         "Solution from CLib interface", true);
         ASSERT_GE(ret, 0);
     }
 
