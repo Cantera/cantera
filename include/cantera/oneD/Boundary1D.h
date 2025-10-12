@@ -173,7 +173,7 @@ public:
     }
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
 protected:
@@ -217,7 +217,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
 
 /**
@@ -247,7 +247,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
 
 
@@ -278,7 +278,7 @@ public:
 
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
 
 
@@ -315,7 +315,7 @@ public:
 
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
 protected:
@@ -351,7 +351,7 @@ public:
 
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
     void show(const double* x) override;
 };
@@ -396,7 +396,7 @@ public:
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
     double value(const string& component) const override;
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
     void _getInitialSoln(double* x) override {
