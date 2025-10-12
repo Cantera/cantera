@@ -1596,6 +1596,10 @@ classdef ThermoPhase < handle
             tp.VH = input(1:2);
         end
 
+        function setEquivalenceRatio(tp, phi, fuelComp, oxComp)
+            % Set the mixture composition according to the equivalence ratio.
+            ctFunc('thermo_setEquivalenceRatio', tp.tpID, phi, fuelComp, oxComp);
+        end
     end
 
 end
