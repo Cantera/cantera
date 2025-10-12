@@ -295,6 +295,16 @@ void Domain1D::setProfile(const string& name, double* values, double* soln)
     throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
+void Domain1D::setRefineCriteria(double ratio, double slope, double curve, double prune)
+{
+    m_refiner->setCriteria(ratio, slope, curve, prune);
+}
+
+vector<double> Domain1D::getRefineCriteria()
+{
+    return m_refiner->getCriteria();
+}
+
 void Domain1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {

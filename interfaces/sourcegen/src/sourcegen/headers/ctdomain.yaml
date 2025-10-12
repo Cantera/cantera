@@ -14,6 +14,7 @@ recipes:
 - name: newFlow1D
 - name: newBoundary1D
 - name: type
+- name: domainIndex
 - name: index
 - name: nComponents
 - name: nPoints
@@ -47,19 +48,30 @@ recipes:
 - name: setMdot
 - name: setTemperature
 - name: setSpreadRate
-- name: setMoleFractions
+- name: setMoleFractionsByName
   wraps: setMoleFractions(const string&)
+- name: setMoleFractions
+  wraps: setMoleFractions(const double*)
 - name: mdot
 - name: temperature
 - name: spreadRate
 - name: massFraction
-- name: setTransport
+- name: setTransport  # Deprecated in Cantera 3.2
+- name: transportModel
+- name: setTransportModel
 - name: enableSoret
 - name: setPressure
 - name: pressure
 - name: setFixedTempProfile
 - name: solveEnergyEqn
+- name: allOfEnergyEnabled
+- name: noneOfEnergyEnabled
+- name: setEnergyEnabled
 - name: enableCoverageEquations  # Renamed in Cantera 3.2 (previously enableCoverageEqs)
+- name: getRefineCriteria
+- name: setRefineCriteria
+- name: info
+  wraps: _info  # skips vector<string> parameter (not implemented in CLib)
 # service functions
 - name: del
 - name: cabinetSize

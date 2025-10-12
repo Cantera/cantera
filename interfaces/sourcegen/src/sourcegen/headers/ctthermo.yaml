@@ -147,6 +147,8 @@ recipes:
 - name: setSiteDensity
 - name: setCoveragesByName
   wraps: setCoveragesByName(const string&)
+- name: setEquivalenceRatio
+  wraps: setEquivalenceRatio(double, const string&, const string&)
 - name: report
 - name: print
   brief: Print a summary of the state of the phase to the logger.

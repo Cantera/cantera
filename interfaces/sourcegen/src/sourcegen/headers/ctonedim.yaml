@@ -15,13 +15,14 @@ recipes:
 - name: setInitialGuess  # deprecated
 - name: show
 - name: setTimeStep
+  wraps: setTimeStep(double, const vector<int>&)
 - name: getInitialSoln
 - name: solve
 - name: refine
 - name: setRefineCriteria
 - name: setGridMin
 - name: save
-  wraps: save(const string&, const string&, const string&)
+  wraps: save(const string&, const string&, const string&, bool)
 - name: restore
   wraps: _restore  # skips AnyMap return (not implemented in CLib)
 - name: writeStats
