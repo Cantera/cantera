@@ -26,19 +26,6 @@ classdef Domain1D < handle
 
     end
 
-    properties (SetAccess = public)
-
-        % Boolean flag indicating whether the energy equation is enabled.
-        energyEnabled
-
-        % Boolean flag indicating whether the diffusive mass fluxes due to the Soret
-        % effect is enabled.
-        soretEnabled
-
-        % ID of the solution object used for calculating transport properties.
-        transport
-    end
-
     properties (SetAccess = protected)
 
         % Domain index. ::
@@ -101,14 +88,23 @@ classdef Domain1D < handle
 
         %% Domain1D Utility Methods
 
-        function set.energyEnabled(d, flag)
-            d.energyEnabled = flag;
-            ctFunc('flow_solveEnergyEqn', d.domainID, int8(flag));
-        end
-
-        function set.soretEnabled(d, flag)
-            d.soretEnabled = flag;
-            ctFunc('flow_enableSoret', d.domainID, int8(flag));
+        function info(d, rows, width)
+            % Print a concise summary of a Domain.
+            %
+            %     >> d.info()
+            %
+            % :param rows:
+            %       Maximum number of rendered rows.
+            % :param width:
+            %       Maximum width of rendered output.
+            if nargin < 2
+                rows = 10;
+            end
+            if nargin < 3
+                width = 100;
+            end
+            disp(ctString('domain_info', d.domainID, rows, width));
+            fprintf("\n")
         end
 
         %% Domain Get Methods
@@ -183,25 +179,11 @@ classdef Domain1D < handle
         end
 
         function i = get.domainIndex(d)
-            i = ctFunc('domain_index', d.domainID) + 1;
+            i = ctFunc('domain_domainIndex', d.domainID) + 1;
         end
 
         function str = get.domainType(d)
             str = ctString('domain_type', d.domainID);
-        end
-
-        function zz = gridPoints(d)
-            % Grid points from a domain. ::
-            %
-            %     >> zz = d.gridPoints(n)
-            %
-            % :param d:
-            %    Instance of class 'Domain1D'.
-            % :return:
-            %    Vector of grid points.
-
-            np = d.nPoints;
-            zz = ctArray('domain_grid', np, d.domainID);
         end
 
         function n = get.nComponents(d)
@@ -248,49 +230,40 @@ classdef Domain1D < handle
             ctFunc('domain_setBounds', d.domainID, n - 1, lower, upper);
         end
 
-        function setSteadyTolerances(d, component, rtol, atol)
+        function setSteadyTolerances(d, rtol, atol, component)
             % Set the steady-state tolerances. ::
             %
-            %     >>d.setSteadyTolerances(component, rtol, atol)
+            %     >>d.setSteadyTolerances(rtol, atol, component)
             %
             % :param d:
             %     Instance of class :mat:class:`Domain1D`.
-            % :param component:
-            %     String or cell array of strings of component values
-            %     whose tolerances should be set. If ``'default'`` is
-            %     specified, the tolerance of all components will be set.
             % :param rtol:
             %     Relative tolerance.
             % :param atol:
             %     Absolute tolerance.
+            % :param component:
+            %     String or cell array of strings of component values
+            %     whose tolerances should be set. If ``'default'`` is
+            %     specified, the tolerance of all components will be set.
 
-            if strcmp(component, 'default')
-                nc = d.nComponents;
-
-                for ii = 1:nc
-                    ctFunc('domain_setSteadyTolerances', ...
-                            d.domainID, ii - 1, rtol, atol);
-                end
-
+            if nargin < 4 | strcmp(component, 'default')
+                ctFunc('domain_setSteadyTolerances', d.domainID, rtol, atol, -1);
             elseif iscell(component)
-                nc = length(component);
-
-                for ii = 1:nc
+                for ii = 1:length(component)
                     n = d.componentIndex(component{ii});
-                    ctFunc('domain_setSteadyTolerances', d.domainID, n, rtol, atol);
+                    ctFunc('domain_setSteadyTolerances', d.domainID, rtol, atol, n);
                 end
-
             else
                 n = d.componentIndex(component);
-                ctFunc('domain_setSteadyTolerances', d.domainID, n, rtol, atol);
+                ctFunc('domain_setSteadyTolerances', d.domainID, rtol, atol, n);
             end
 
         end
 
-        function setTransientTolerances(d, component, rtol, atol)
+        function setTransientTolerances(d, rtol, atol, component)
             % Set the transient tolerances. ::
             %
-            %     >> d.setTransientTolerances(component, rtol, atol)
+            %     >> d.setTransientTolerances(rtol, atol, component)
             %
             % :param d:
             %     Instance of class :mat:class:`Domain1D`.
@@ -303,45 +276,18 @@ classdef Domain1D < handle
             % :param atol:
             %     Absolute tolerance.
 
-            if strcmp(component, 'default')
-                nc = d.nComponents;
-
-                for ii = 1:nc
-                    ctFunc('domain_setTransientTolerances', ...
-                            d.domainID, ii - 1, rtol, atol);
-                end
-
+            if nargin < 4 | strcmp(component, 'default')
+                ctFunc('domain_setTransientTolerances', d.domainID, rtol, atol, -1);
             elseif iscell(component)
-                nc = length(component);
-
-                for ii = 1:nc
+                for ii = 1:length(component)
                     n = d.componentIndex(component{ii});
-                    ctFunc('domain_setTransientTolerances', ...
-                            d.domainID, n, rtol, atol);
+                    ctFunc('domain_setTransientTolerances', d.domainID, rtol, atol, n);
                 end
-
             else
                 n = d.componentIndex(component);
-                ctFunc('domain_setTransientTolerances', ...
-                        d.domainID, n, rtol, atol);
+                ctFunc('domain_setTransientTolerances', d.domainID, rtol, atol, n);
             end
 
-        end
-
-        function set.transport(d, itr)
-            ctFunc('flow1D_setTransport', d.domainID, itr);
-        end
-
-        function setupGrid(d, grid)
-            % Set up the solution grid. ::
-            %
-            %     >> d.setupGrid(grid)
-            %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
-            % :param grid:
-            %     The grid for this domain.
-            ctFunc('domain_setupGrid', d.domainID, grid);
         end
 
     end

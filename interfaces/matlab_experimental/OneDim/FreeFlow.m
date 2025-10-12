@@ -1,5 +1,5 @@
 classdef FreeFlow < Flow1D
-    % Create an free flow domain. ::
+    % Create a free flow domain. ::
     %
     %     >> m = FreeFlow(phase, id)
     %
