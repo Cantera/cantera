@@ -331,6 +331,18 @@ public:
     }
 
     /**
+     * Set grid refinement criteria. @see Refiner::setCriteria.
+     */
+    void setRefineCriteria(double ratio = 10.0,
+                           double slope = 0.8, double curve = 0.8,
+                           double prune = -0.1);
+
+    /**
+     * Get the grid refinement criteria. @see Refiner::getCriteria
+     */
+    vector<double> getRefineCriteria();
+
+    /**
      * Performs the setup required before starting a time-stepping solution.
      * Stores the solution provided in `x0` to the internal storage, and sets
      * the reciprocal of the time step to `1/dt`.
@@ -590,25 +602,22 @@ public:
         throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
     }
 
-
     /**
-     * Return a concise summary of a Domain.
+     * Print a concise summary of a Domain.
      * @see SolutionArray.info()
      * @param keys  List of components to be displayed; if empty, all components are
      *      considered.
      * @param rows  Maximum number of rendered rows.
      * @param width  Maximum width of rendered output.
-     * @since New in %Cantera 3.2.
      */
     string info(const vector<string>& keys, int rows=10, int width=80);
 
     /**
-     * Return a concise summary of a Domain.
+     * Print a concise summary of a Domain.
      * Skips keys input while `vector<string>` is not implemented in sourcegen.
      * @see SolutionArray.info()
      * @param rows  Maximum number of rendered rows.
      * @param width  Maximum width of rendered output.
-     * @since New in %Cantera 3.2.
      */
     string _info(int rows=10, int width=80) {
         return info({}, rows, width);
