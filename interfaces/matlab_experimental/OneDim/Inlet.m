@@ -13,6 +13,10 @@ classdef Inlet < Boundary1D
     % :return:
     %     Instance of class :mat:class:`Inlet`.
 
+    properties
+        X  % Mole fractions.
+    end
+
     methods
 
         function m = Inlet(phase, id)
@@ -23,6 +27,18 @@ classdef Inlet < Boundary1D
 
             m@Boundary1D('inlet', phase, id);
 
+        end
+
+        function get.X(d)
+            error('not implemented.')
+        end
+
+        function set.X(d, X)
+            if isa(X, 'float')
+                ctFunc('bdry_setMoleFractions', d.domainID, X);
+            else
+                ctFunc('bdry_setMoleFractionsByName', d.domainID, X);
+            end
         end
 
     end
