@@ -88,7 +88,7 @@ public:
 
     //! Create a new Transport object using the same transport model and species
     //! transport properties as this one.
-    //! @param phase ThermoPhase used to specify the state for the newly cloned
+    //! @param thermo ThermoPhase used to specify the state for the newly cloned
     //!     Transport object. Can be created from the phase used by the current
     //!     Transport object using the ThermoPhase::clone() method.
     //! @since New in %Cantera 3.2.
