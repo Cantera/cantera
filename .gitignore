@@ -9,6 +9,8 @@ __pycache__
 *.egg-info
 *.obj
 *.exe.manifest
+*.h5
+*.hdf5
 build/
 test/work/
 include/cantera/base/config.h
