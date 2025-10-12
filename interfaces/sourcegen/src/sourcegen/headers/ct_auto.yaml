@@ -8,6 +8,7 @@ base: ""
 recipes:
 - name: version  # Renamed in Cantera 3.2 (previously getCanteraVersion)
 - name: gitCommit  # Renamed in Cantera 3.2 (previously getGitCommit)
+- name: usesHDF5
 - name: addDataDirectory
 - name: getDataDirectories
 - name: findInputFile
