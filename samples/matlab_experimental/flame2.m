@@ -88,7 +88,7 @@ fl.solve(loglevel, refine_grid);
 % tighten the grid refinement criteria to get an accurate final solution.
 
 f.energyEnabled = true;
-fl.setRefineCriteria(2, 200.0, 0.1, 0.1);
+f.setRefineCriteria(200.0, 0.1, 0.1);
 fl.solve(loglevel, refine_grid);
 
 %% Show statistics
@@ -102,22 +102,22 @@ disp(e);
 
 figure(1);
 subplot(2, 3, 1);
-plotSolution(fl, 'flow', 'T');
+plotSolution(f, 'T');
 title('Temperature [K]');
 subplot(2, 3, 2);
-plotSolution(fl, 'flow', 'C2H6');
+plotSolution(f, 'C2H6');
 title('C2H6 Mass Fraction');
 subplot(2, 3, 3);
-plotSolution(fl, 'flow', 'O2');
+plotSolution(f, 'O2');
 title('O2 Mass Fraction');
 subplot(2, 3, 4);
-plotSolution(fl, 'flow', 'CH');
+plotSolution(f, 'CH');
 title('CH Mass Fraction');
 subplot(2, 3, 5);
-plotSolution(fl, 'flow', 'spread_rate');
+plotSolution(f, 'spread_rate');
 title('Radial Velocity / Radius [s^-1]');
 subplot(2, 3, 6);
-plotSolution(fl, 'flow', 'velocity');
+plotSolution(f, 'velocity');
 title('Axial Velocity [m/s]');
 
 toc
