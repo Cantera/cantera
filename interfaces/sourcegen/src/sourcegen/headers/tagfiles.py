@@ -286,13 +286,22 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
         _LOGGER.warning(msg)
         matches = matches[:1]
 
-    def no_refs(entry: str) -> str:
-        # Remove stray XML markup that causes problems with xml.etree
-        if "<ref" in entry:
-            regex = re.compile(r"<ref [\s\S]*?>")
-            for ref in re.findall(regex, entry):
-                entry = entry.replace(ref, "<ref>")
-            entry = entry.replace("<ref>", "").replace("</ref>", "")
+    def replace_xml_tags(entry: str) -> str:
+        # Replace stray XML markup that causes problems for doxygen parsing.
+
+        # Remove ref tags but keep content between them
+        entry = re.sub(r"<ref\b[^>]*>(.*?)</ref>", r"\1", entry, flags=re.DOTALL)
+
+        # Replace XML tags with markdown equivalents
+        replacements = {
+            "computeroutput": "`",
+            "emphasis": "*",
+            "bold": "**",
+        }
+
+        for tag, markdown in replacements.items():
+            entry = re.sub(rf"</?{tag}\b[^>]*>", markdown, entry, flags=re.DOTALL)
+
         return entry
 
     def xml_parameterlist(xml_tree: ET) -> list[Param]:
@@ -306,7 +315,7 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
         return [Param("", n, description, d) for n, d in zip(names, directions)]
 
     xml = matches[0]
-    xml_tree = ET.fromstring(no_refs(xml))
+    xml_tree = ET.fromstring(replace_xml_tags(xml))
 
     par_list = []
     xml_details = xml_tree.find("detaileddescription")
