@@ -264,7 +264,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-shared_ptr<SolutionArray> Inlet1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Inlet1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["mass-flux"] = m_mdot;
@@ -313,7 +313,7 @@ void Empty1D::eval(size_t jg, double* xg, double* rg,
 {
 }
 
-shared_ptr<SolutionArray> Empty1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Empty1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     return SolutionArray::create(m_solution, 0, meta);
@@ -365,7 +365,7 @@ void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     }
 }
 
-shared_ptr<SolutionArray> Symm1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Symm1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     return SolutionArray::create(m_solution, 0, meta);
@@ -432,7 +432,7 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     }
 }
 
-shared_ptr<SolutionArray> Outlet1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Outlet1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     return SolutionArray::create(m_solution, 0, meta);
@@ -514,7 +514,7 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-shared_ptr<SolutionArray> OutletRes1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> OutletRes1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["temperature"] = m_temp;
@@ -576,7 +576,7 @@ void Surf1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-shared_ptr<SolutionArray> Surf1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Surf1D::toArray(bool normalize)
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["temperature"] = m_temp;
@@ -766,7 +766,7 @@ double ReactingSurf1D::value(const string& component) const
     return soln[index(i, 0)];
 }
 
-shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize)
 {
     if (!m_state) {
         throw CanteraError("ReactingSurf1D::toArray",

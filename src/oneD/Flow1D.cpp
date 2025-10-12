@@ -1077,7 +1077,7 @@ void Flow1D::setFlatProfile(const string& component, double value)
     }
 }
 
-shared_ptr<SolutionArray> Flow1D::toArray(bool normalize) const
+shared_ptr<SolutionArray> Flow1D::toArray(bool normalize)
 {
     if (!m_state) {
         throw CanteraError("Flow1D::toArray",
@@ -1104,6 +1104,7 @@ shared_ptr<SolutionArray> Flow1D::toArray(bool normalize) const
             arr->setComponent(name, value);
         }
     }
+    updateThermo(soln, 0, m_points-1);
     value = m_rho;
     arr->setComponent("D", value); // use density rather than pressure
 
