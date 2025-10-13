@@ -90,11 +90,12 @@ shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
     return m_thermo[0];
 }
 
-void Kinetics::checkSpeciesIndex(size_t k) const
+size_t Kinetics::checkSpeciesIndex(size_t k) const
 {
-    if (k >= m_kk) {
-        throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk);
+    if (k < m_kk) {
+        return k;
     }
+    throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk);
 }
 
 void Kinetics::checkSpeciesArraySize(size_t kk) const
