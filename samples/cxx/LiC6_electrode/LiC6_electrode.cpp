@@ -27,7 +27,7 @@ void calc_potentials()
     auto sol = newSolution(filename, phasename);
     auto electrodebulk = sol->thermo();
     string intercalatingSpeciesName("Li(C6)");
-    size_t intercalatingSpeciesIdx = electrodebulk->speciesIndex(intercalatingSpeciesName);
+    size_t intercalatingSpeciesIdx = electrodebulk->speciesIndex(intercalatingSpeciesName, true);
     size_t nsp_tot = electrodebulk->nSpecies();
 
     std::ofstream fout("LiC6_electrode_output.csv", std::ofstream::out);

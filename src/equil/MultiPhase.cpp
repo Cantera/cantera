@@ -227,10 +227,7 @@ size_t MultiPhase::speciesIndex(const string& speciesName, const string& phaseNa
     if (p == npos) {
         throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
     }
-    size_t k = m_phase[p]->speciesIndex(speciesName);
-    if (k == npos) {
-        throw CanteraError("MultiPhase::speciesIndex", "species not found: " + speciesName);
-    }
+    size_t k = m_phase[p]->speciesIndex(speciesName, true);
     return m_spstart[p] + k;
 }
 

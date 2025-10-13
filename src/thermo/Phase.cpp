@@ -137,16 +137,28 @@ size_t Phase::findSpeciesLower(const string& name) const
     return loc;
 }
 
-size_t Phase::speciesIndex(const string& nameStr) const
+size_t Phase::speciesIndex(const string& name) const
+{
+    warn_deprecated("Phase::speciesIndex", "'raise' argument not specified; "
+        "Default behavior will change from returning npos to throwing an exception "
+        "after Cantera 3.2.");
+    return speciesIndex(name, false);
+}
+
+size_t Phase::speciesIndex(const string& name, bool raise) const
 {
     size_t loc = npos;
-
-    auto it = m_speciesIndices.find(nameStr);
+    auto it = m_speciesIndices.find(name);
     if (it != m_speciesIndices.end()) {
+        checkSpeciesIndex(it->second);
         return it->second;
     } else if (!m_caseSensitiveSpecies) {
-        loc = findSpeciesLower(nameStr);
+        loc = findSpeciesLower(name);
     }
+    if (loc==npos && raise) {
+        throw CanteraError("Phase::speciesIndex", "Species {} not found.", name);
+    }
+
     return loc;
 }
 
@@ -483,7 +495,7 @@ double Phase::moleFraction(size_t k) const
 
 double Phase::moleFraction(const string& nameSpec) const
 {
-    size_t iloc = speciesIndex(nameSpec);
+    size_t iloc = speciesIndex(nameSpec, false);
     if (iloc != npos) {
         return moleFraction(iloc);
     } else {
@@ -499,7 +511,7 @@ double Phase::massFraction(size_t k) const
 
 double Phase::massFraction(const string& nameSpec) const
 {
-    size_t iloc = speciesIndex(nameSpec);
+    size_t iloc = speciesIndex(nameSpec, false);
     if (iloc != npos) {
         return massFractions()[iloc];
     } else {
@@ -867,11 +879,11 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
 
 void Phase::addSpeciesAlias(const string& name, const string& alias)
 {
-    if (speciesIndex(alias) != npos) {
+    if (speciesIndex(alias, false) != npos) {
         throw CanteraError("Phase::addSpeciesAlias",
             "Invalid alias '{}': species already exists", alias);
     }
-    size_t k = speciesIndex(name);
+    size_t k = speciesIndex(name, false);
     if (k != npos) {
         m_speciesIndices[alias] = k;
     } else {
@@ -910,13 +922,8 @@ vector<string> Phase::findIsomers(const string& comp) const
 
 shared_ptr<Species> Phase::species(const string& name) const
 {
-    size_t k = speciesIndex(name);
-    if (k != npos) {
-        return m_species.at(speciesName(k));
-    } else {
-        throw CanteraError("Phase::species",
-                           "Unknown species '{}'", name);
-    }
+    size_t k = speciesIndex(name, true);
+    return m_species.at(speciesName(k));
 }
 
 shared_ptr<Species> Phase::species(size_t k) const
@@ -965,11 +972,7 @@ vector<double> Phase::getCompositionFromMap(const Composition& comp) const
 {
     vector<double> X(m_kk);
     for (const auto& [name, value] : comp) {
-        size_t loc = speciesIndex(name);
-        if (loc == npos) {
-            throw CanteraError("Phase::getCompositionFromMap",
-                               "Unknown species '{}'", name);
-        }
+        size_t loc = speciesIndex(name, true);
         X[loc] = value;
     }
     return X;

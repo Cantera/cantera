@@ -419,7 +419,7 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     for (const auto& [name, _] : collision->reactants) {
         // Reactants are expected to be electrons and the target species
         if (name != electronSpeciesName()) {
-            m_targetSpeciesIndices.emplace_back(speciesIndex(name));
+            m_targetSpeciesIndices.emplace_back(speciesIndex(name, true));
             target = name;
             break;
         }

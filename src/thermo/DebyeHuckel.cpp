@@ -313,14 +313,8 @@ void DebyeHuckel::setDefaultIonicRadius(double value)
 
 void DebyeHuckel::setBeta(const string& sp1, const string& sp2, double value)
 {
-    size_t k1 = speciesIndex(sp1);
-    if (k1 == npos) {
-        throw CanteraError("DebyeHuckel::setBeta", "Species '{}' not found", sp1);
-    }
-    size_t k2 = speciesIndex(sp2);
-    if (k2 == npos) {
-        throw CanteraError("DebyeHuckel::setBeta", "Species '{}' not found", sp2);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
     m_Beta_ij(k1, k2) = value;
     m_Beta_ij(k2, k1) = value;
 }
@@ -451,7 +445,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
 void DebyeHuckel::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     MolalityVPSSTP::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
+    size_t k = speciesIndex(name, true);
     checkSpeciesIndex(k);
     AnyMap dhNode;
     if (m_Aionic[k] != m_Aionic_default) {

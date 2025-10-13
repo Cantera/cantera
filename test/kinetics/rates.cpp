@@ -15,11 +15,11 @@ public:
         kin = newKinetics({therm}, "frac.yaml");
         therm->setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
-        kH2O = therm->speciesIndex("H2O");
-        kH = therm->speciesIndex("H");
-        kOH = therm->speciesIndex("OH");
-        kO2 = therm->speciesIndex("O2");
-        kH2 = therm->speciesIndex("H2");
+        kH2O = therm->speciesIndex("H2O", true);
+        kH = therm->speciesIndex("H", true);
+        kOH = therm->speciesIndex("OH", true);
+        kO2 = therm->speciesIndex("O2", true);
+        kH2 = therm->speciesIndex("H2", true);
     }
     shared_ptr<ThermoPhase> therm;
     shared_ptr<Kinetics> kin;
@@ -91,8 +91,8 @@ TEST_F(FracCoeffTest, CreationDestructionRates)
     EXPECT_DOUBLE_EQ(0.2*ropf[1]+0.5*ropf[2], ddot[kO2]);
     EXPECT_DOUBLE_EQ(ropf[1]+ropf[2], cdot[kH2O]);
 
-    EXPECT_DOUBLE_EQ(0.0, cdot[therm->speciesIndex("O")]);
-    EXPECT_DOUBLE_EQ(0.0, ddot[therm->speciesIndex("O")]);
+    EXPECT_DOUBLE_EQ(0.0, cdot[therm->speciesIndex("O", true)]);
+    EXPECT_DOUBLE_EQ(0.0, ddot[therm->speciesIndex("O", true)]);
 }
 
 TEST_F(FracCoeffTest, EquilibriumConstants)

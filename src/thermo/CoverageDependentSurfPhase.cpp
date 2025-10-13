@@ -172,8 +172,8 @@ void CoverageDependentSurfPhase::initThermo()
         if (item.second->input.hasKey("coverage-dependencies")) {
             auto& cov_map = item.second->input["coverage-dependencies"];
             for (const auto& item2 : cov_map) {
-                size_t k = speciesIndex(item.first);
-                size_t j = speciesIndex(item2.first);
+                size_t k = speciesIndex(item.first, false);
+                size_t j = speciesIndex(item2.first, false);
                 if (k == npos) {
                    throw InputFileError("CoverageDependentSurfPhase::initThermo",
                         item.second->input, "Unknown species '{}'.", item.first);
@@ -239,7 +239,7 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const string& name,
                                                       AnyMap& speciesNode) const
 {
     SurfPhase::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
+    size_t k = speciesIndex(name, true);
     // Get linear and polynomial model parameters from PolynomialDependency vector
     for (auto& item : m_PolynomialDependency) {
         if (item.k == k) {

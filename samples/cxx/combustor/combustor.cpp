@@ -95,14 +95,14 @@ void runexample()
 
     std::ofstream f("combustor_cxx.csv");
     vector<size_t> k_out {
-        gas->speciesIndex("CH4"),
-        gas->speciesIndex("O2"),
-        gas->speciesIndex("CO2"),
-        gas->speciesIndex("H2O"),
-        gas->speciesIndex("CO"),
-        gas->speciesIndex("OH"),
-        gas->speciesIndex("H"),
-        gas->speciesIndex("C2H6")
+        gas->speciesIndex("CH4", true),
+        gas->speciesIndex("O2", true),
+        gas->speciesIndex("CO2", true),
+        gas->speciesIndex("H2O", true),
+        gas->speciesIndex("CO", true),
+        gas->speciesIndex("OH", true),
+        gas->speciesIndex("H", true),
+        gas->speciesIndex("C2H6", true)
     };
 
     while (tnow < tfinal) {

@@ -198,7 +198,7 @@ class TestThermoPhase:
         assert X[0] == approx(0.5)
         assert X[3] == approx(0.5)
 
-        with pytest.raises(ct.CanteraError, match='Unknown species'):
+        with pytest.raises(ct.CanteraError, match="Species CO2 not found."):
             self.phase.X = 'H2:1.0, CO2:1.5'
 
     def test_setCompositionStringBad(self):
@@ -264,7 +264,7 @@ class TestThermoPhase:
             self.phase.set_unnormalized_mass_fractions([1, 2, 3])
 
     def test_setCompositionDict_bad1(self):
-        with pytest.raises(ct.CanteraError, match='Unknown species'):
+        with pytest.raises(ct.CanteraError, match="Species HCl not found."):
             self.phase.X = {'H2': 1.0, 'HCl': 3.0}
 
     def test_setCompositionDict_bad2(self):
@@ -1931,9 +1931,9 @@ class TestMisc:
         assert gas.case_sensitive_species_names
         with pytest.raises(ValueError):
             gas.species_index('h2')
-        with pytest.raises(ct.CanteraError, match='Unknown species'):
+        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
             gas.X = 'h2:1.0, o2:1.0'
-        with pytest.raises(ct.CanteraError, match='Unknown species'):
+        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
             gas.Y = 'h2:1.0, o2:1.0'
 
         gas_yaml = """

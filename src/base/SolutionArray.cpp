@@ -680,7 +680,7 @@ bool SolutionArray::hasComponent(const string& name, bool checkAlias) const
         // auxiliary data
         return true;
     }
-    if (m_sol->thermo()->speciesIndex(name) != npos) {
+    if (m_sol->thermo()->speciesIndex(name, false) != npos) {
         // species
         return true;
     }
@@ -741,7 +741,7 @@ AnyValue SolutionArray::getComponent(const string& name) const
 
     // component is part of state information
     vector<double> data(m_size);
-    size_t ix = m_sol->thermo()->speciesIndex(_name);
+    size_t ix = m_sol->thermo()->speciesIndex(_name, false);
     if (ix == npos) {
         // state other than species
         ix = m_sol->thermo()->nativeState()[_name];
@@ -787,7 +787,7 @@ void SolutionArray::setComponent(const string& name, const AnyValue& data)
     }
 
     auto& vec = data.asVector<double>();
-    size_t ix = m_sol->thermo()->speciesIndex(name);
+    size_t ix = m_sol->thermo()->speciesIndex(name, false);
     if (ix == npos) {
         ix = m_sol->thermo()->nativeState()[name];
     } else {

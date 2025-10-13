@@ -48,6 +48,7 @@ recipes:
 - name: elementIndex
   wraps: elementIndex(const string&, bool)
 - name: speciesIndex
+  wraps: speciesIndex(const string&, bool)
 - name: nAtoms
 - name: addElement
 - name: refPressure

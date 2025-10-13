@@ -317,13 +317,8 @@ void HMWSoln::setBinarySalt(const string& sp1, const string& sp2,
     size_t nParams, double* beta0, double* beta1, double* beta2,
     double* Cphi, double alpha1, double alpha2)
 {
-    size_t k1 = speciesIndex(sp1);
-    size_t k2 = speciesIndex(sp2);
-    if (k1 == npos) {
-        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp1);
-    } else if (k2 == npos) {
-        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp2);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
     if (charge(k1) < 0 && charge(k2) > 0) {
         std::swap(k1, k2);
     } else if (charge(k1) * charge(k2) >= 0) {
@@ -351,13 +346,8 @@ void HMWSoln::setBinarySalt(const string& sp1, const string& sp2,
 void HMWSoln::setTheta(const string& sp1, const string& sp2,
         size_t nParams, double* theta)
 {
-    size_t k1 = speciesIndex(sp1);
-    size_t k2 = speciesIndex(sp2);
-    if (k1 == npos) {
-        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp1);
-    } else if (k2 == npos) {
-        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp2);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
     if (charge(k1) * charge(k2) <= 0) {
         throw CanteraError("HMWSoln::setTheta", "Species '{}' and '{}' "
             "should both have the same (non-zero) charge ({}, {})", sp1, sp2,
@@ -374,16 +364,9 @@ void HMWSoln::setTheta(const string& sp1, const string& sp2,
 void HMWSoln::setPsi(const string& sp1, const string& sp2,
         const string& sp3, size_t nParams, double* psi)
 {
-    size_t k1 = speciesIndex(sp1);
-    size_t k2 = speciesIndex(sp2);
-    size_t k3 = speciesIndex(sp3);
-    if (k1 == npos) {
-        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp1);
-    } else if (k2 == npos) {
-        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp2);
-    } else if (k3 == npos) {
-        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp3);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
+    size_t k3 = speciesIndex(sp3, true);
 
     if (!charge(k1) || !charge(k2) || !charge(k3) ||
         std::abs(sign(charge(k1) + sign(charge(k2)) + sign(charge(k3)))) != 1) {
@@ -410,13 +393,8 @@ void HMWSoln::setPsi(const string& sp1, const string& sp2,
 void HMWSoln::setLambda(const string& sp1, const string& sp2,
         size_t nParams, double* lambda)
 {
-    size_t k1 = speciesIndex(sp1);
-    size_t k2 = speciesIndex(sp2);
-    if (k1 == npos) {
-        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp1);
-    } else if (k2 == npos) {
-        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp2);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
 
     if (charge(k1) != 0 && charge(k2) != 0) {
         throw CanteraError("HMWSoln::setLambda", "Expected at least one neutral"
@@ -436,10 +414,7 @@ void HMWSoln::setLambda(const string& sp1, const string& sp2,
 
 void HMWSoln::setMunnn(const string& sp, size_t nParams, double* munnn)
 {
-    size_t k = speciesIndex(sp);
-    if (k == npos) {
-        throw CanteraError("HMWSoln::setMunnn", "Species '{}' not found", sp);
-    }
+    size_t k = speciesIndex(sp, true);
 
     if (charge(k) != 0) {
         throw CanteraError("HMWSoln::setMunnn", "Expected a neutral species,"
@@ -455,16 +430,9 @@ void HMWSoln::setMunnn(const string& sp, size_t nParams, double* munnn)
 void HMWSoln::setZeta(const string& sp1, const string& sp2,
         const string& sp3, size_t nParams, double* psi)
 {
-    size_t k1 = speciesIndex(sp1);
-    size_t k2 = speciesIndex(sp2);
-    size_t k3 = speciesIndex(sp3);
-    if (k1 == npos) {
-        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp1);
-    } else if (k2 == npos) {
-        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp2);
-    } else if (k3 == npos) {
-        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp3);
-    }
+    size_t k1 = speciesIndex(sp1, true);
+    size_t k2 = speciesIndex(sp2, true);
+    size_t k3 = speciesIndex(sp3, true);
 
     if (charge(k1)*charge(k2)*charge(k3) != 0 ||
         sign(charge(k1)) + sign(charge(k2)) + sign(charge(k3)) != 0) {
@@ -573,9 +541,9 @@ void HMWSoln::initThermo()
             for (auto& item : actData["interactions"].asVector<AnyMap>()) {
                 auto& species = item["species"].asVector<string>(1, 3);
                 size_t nsp = species.size();
-                double q0 = charge(speciesIndex(species[0]));
-                double q1 = (nsp > 1) ? charge(speciesIndex(species[1])) : 0;
-                double q2 = (nsp == 3) ? charge(speciesIndex(species[2])) : 0;
+                double q0 = charge(speciesIndex(species[0], true));
+                double q1 = (nsp > 1) ? charge(speciesIndex(species[1], true)) : 0;
+                double q2 = (nsp == 3) ? charge(speciesIndex(species[2], true)) : 0;
                 if (nsp == 2 && q0 * q1 < 0) {
                     // Two species with opposite charges - binary salt
                     vector<double> beta0 = getSizedVector(item, "beta0", nCoeffs);
@@ -658,8 +626,8 @@ void HMWSoln::initThermo()
                 kMaxC = k;
             }
         }
-        size_t kHp = speciesIndex("H+");
-        size_t kOHm = speciesIndex("OH-");
+        size_t kHp = speciesIndex("H+", false);
+        size_t kOHm = speciesIndex("OH-", false);
 
         if (fabs(sum) > 1.0E-30) {
             if (kHp != npos) {

@@ -33,9 +33,9 @@ int main(int argc, char** argv)
 
         DH->setState_TP(298.15, 1.01325E5);
 
-        size_t i1 = DH->speciesIndex("Na+");
-        size_t i2 = DH->speciesIndex("Cl-");
-        size_t i3 = DH->speciesIndex("H2O(L)");
+        size_t i1 = DH->speciesIndex("Na+", true);
+        size_t i2 = DH->speciesIndex("Cl-", true);
+        size_t i3 = DH->speciesIndex("H2O(L)", true);
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }

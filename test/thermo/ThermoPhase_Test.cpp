@@ -211,9 +211,9 @@ public:
         auto& gas = *m_sol->thermo();
         vector<double> v_ox(gas.nSpecies());
         vector<double> v_fuel(gas.nSpecies());
-        v_ox[gas.speciesIndex("O2")] = 21.0;
-        v_ox[gas.speciesIndex("N2")] = 79.0;
-        v_fuel[gas.speciesIndex("CH4")] = 10.0;
+        v_ox[gas.speciesIndex("O2", true)] = 21.0;
+        v_ox[gas.speciesIndex("N2", true)] = 79.0;
+        v_fuel[gas.speciesIndex("CH4", true)] = 10.0;
 
         if (oxidizer) {
             gas.setState_TPX(300.0, 1e5, v_ox.data());
@@ -227,13 +227,13 @@ public:
         EXPECT_NEAR(gas.mixtureFraction(v_fuel.data(), v_ox.data(), basis, "Bilger"), mf, 1e-4);
         EXPECT_NEAR(gas.mixtureFraction(v_fuel.data(), v_ox.data(), basis, "C"), mf, 1e-4);
 
-        double Ych4 = gas.massFraction(gas.speciesIndex("CH4"));
+        double Ych4 = gas.massFraction(gas.speciesIndex("CH4", true));
         gas.setState_TPX(300.0, 1e5, "N2:1");
         gas.setMixtureFraction(mf, v_fuel.data(), v_ox.data(), basis);
-        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4")), Ych4, 1e-4);
+        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4", true)), Ych4, 1e-4);
         gas.setState_TPX(300.0, 1e5, "N2:1");
         gas.setEquivalenceRatio(phi, v_fuel.data(), v_ox.data(), basis);
-        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4")), Ych4, 1e-4);
+        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4", true)), Ych4, 1e-4);
     }
 
     void test_stoich_mixture(ThermoBasis basis, double mf, double AFR_st) {
@@ -244,7 +244,7 @@ public:
         gas.setEquivalenceRatio(1.0, sfuel, sox, basis);
         gas.setMixtureFraction(gas.mixtureFraction(sfuel, sox, basis, "Bilger"), sfuel, sox, basis);
         test_mixture_results(gas.temperature(), basis, 1.0, 1.0, mf, mf, mf, AFR_st, sfuel, sox);
-        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4")), mf, 1e-4);
+        EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4", true)), mf, 1e-4);
     }
 
     shared_ptr<Solution> m_sol;

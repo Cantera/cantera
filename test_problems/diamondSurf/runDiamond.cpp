@@ -48,9 +48,9 @@ int main(int argc, char** argv)
         for (i = 0; i < 20; i++) {
             x[i] = 0.0;
         }
-        size_t i0 = diamond100->speciesIndex("c6H*");
+        size_t i0 = diamond100->speciesIndex("c6H*", true);
         x[i0] = 0.1;
-        size_t i1 = diamond100->speciesIndex("c6HH");
+        size_t i1 = diamond100->speciesIndex("c6HH", true);
         x[i1] = 0.9;
         diamond100->setMoleFractions(x);
         diamond100->setTemperature(1200.);

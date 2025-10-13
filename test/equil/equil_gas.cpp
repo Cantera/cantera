@@ -124,11 +124,11 @@ public:
 
         vector<double> mu(gas.nSpecies());
         gas.getChemPotentials(&mu[0]);
-        double mu_C = mu[gas.speciesIndex("C")];
-        double mu_H = mu[gas.speciesIndex("H")];
-        double mu_O = mu[gas.speciesIndex("O")];
-        double mu_N = mu[gas.speciesIndex("N")];
-        double mu_Ar = mu[gas.speciesIndex("AR")];
+        double mu_C = mu[gas.speciesIndex("C", true)];
+        double mu_H = mu[gas.speciesIndex("H", true)];
+        double mu_O = mu[gas.speciesIndex("O", true)];
+        double mu_N = mu[gas.speciesIndex("N", true)];
+        double mu_Ar = mu[gas.speciesIndex("AR", true)];
 
         gas.getMoleFractions(&X[0]);
         for (size_t k = 0; k < gas.nSpecies(); k++) {
