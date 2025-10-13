@@ -522,17 +522,11 @@ cdef class ThermoPhase(_SolutionBase):
         returned. If no such species is present, an exception is thrown.
         """
         if isinstance(species, (str, bytes)):
-            index = self.thermo.speciesIndex(stringify(species), False)
-        elif isinstance(species, (int, float)):
-            index = <int>species
-        else:
-            raise TypeError("'species' must be a string or a number."
-                            " Got {!r}.".format(species))
-
-        if not 0 <= index < self.n_species:
-            raise ValueError(f"No such species {species!r}.")
-
-        return index
+            return self.thermo.speciesIndex(stringify(species), True)
+        if isinstance(species, (int, float)):
+            return self.thermo.checkSpeciesIndex(<int>species)
+        raise TypeError("'species' must be a string or a number."
+                        f" Got {species!r}.")
 
     property case_sensitive_species_names:
         """Enforce case-sensitivity for look up of species names"""

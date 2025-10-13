@@ -102,7 +102,7 @@ class TestThermoPhase:
             kSpec = self.phase.species_index(species)
             assert self.phase.n_atoms(kSpec, mElem) == n
 
-        with pytest.raises(ValueError, match="No such species 'C'"):
+        with pytest.raises(ct.CanteraError, match="Species C not found."):
             self.phase.n_atoms('C', 'H2')
         with pytest.raises(ct.CanteraError, match='Element CH4 not found.'):
             self.phase.n_atoms('H', 'CH4')
@@ -1929,7 +1929,7 @@ class TestMisc:
 
         gas.case_sensitive_species_names = True
         assert gas.case_sensitive_species_names
-        with pytest.raises(ValueError):
+        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
             gas.species_index('h2')
         with pytest.raises(ct.CanteraError, match="Species h2 not found."):
             gas.X = 'h2:1.0, o2:1.0'
@@ -1949,7 +1949,7 @@ class TestMisc:
         with pytest.raises(ct.CanteraError, match='is not unique'):
             gas.species_index('cs')
         gas.case_sensitive_species_names = True
-        with pytest.raises(ValueError):
+        with pytest.raises(ct.CanteraError, match="Species cs not found."):
             gas.species_index('cs')
 
     def test_unstable_element_in_phase(self):

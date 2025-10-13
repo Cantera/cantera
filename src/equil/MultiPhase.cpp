@@ -757,11 +757,12 @@ size_t MultiPhase::elementIndex(const string& name, bool raise) const
     throw CanteraError("MultiPhase::elementIndex", "Element {} not found.", name);
 }
 
-void MultiPhase::checkSpeciesIndex(size_t k) const
+size_t MultiPhase::checkSpeciesIndex(size_t k) const
 {
-    if (k >= m_nsp) {
-        throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp);
+    if (k < m_nsp) {
+        return k;
     }
+    throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp);
 }
 
 void MultiPhase::checkSpeciesArraySize(size_t kk) const

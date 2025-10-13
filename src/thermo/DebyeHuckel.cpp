@@ -446,7 +446,6 @@ void DebyeHuckel::getSpeciesParameters(const string& name, AnyMap& speciesNode) 
 {
     MolalityVPSSTP::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name, true);
-    checkSpeciesIndex(k);
     AnyMap dhNode;
     if (m_Aionic[k] != m_Aionic_default) {
         dhNode["ionic-radius"].setQuantity(m_Aionic[k], "m");

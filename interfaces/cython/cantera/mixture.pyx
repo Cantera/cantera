@@ -136,12 +136,8 @@ cdef class Mixture:
         """
         p = self.phase_index(phase)
 
-        if isinstance(species, (str, bytes)):
+        if isinstance(species, (str, bytes, int, float)):
             k = self.phase(p).species_index(species)
-        elif isinstance(species, (int, float)):
-            k = <int?>species
-            if not 0 <= k < self.n_species:
-                raise ValueError('Species index out of range')
         else:
             raise TypeError("'species' must be a string or number")
 
