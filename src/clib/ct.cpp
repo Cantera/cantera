@@ -321,7 +321,7 @@ extern "C" {
     size_t thermo_elementIndex(int n, const char* nm)
     {
         try {
-             size_t k = ThermoCabinet::at(n)->elementIndex(nm);
+             size_t k = ThermoCabinet::at(n)->elementIndex(nm, false);
              if (k == npos) {
                 throw CanteraError("thermo_elementIndex",
                                    "No such element {}.", nm);
@@ -335,7 +335,7 @@ extern "C" {
     size_t thermo_speciesIndex(int n, const char* nm)
     {
         try {
-             size_t k = ThermoCabinet::at(n)->speciesIndex(nm);
+             size_t k = ThermoCabinet::at(n)->speciesIndex(nm, false);
              if (k == npos) {
                 throw CanteraError("thermo_speciesIndex",
                                    "No such species {}.", nm);
@@ -1179,7 +1179,7 @@ extern "C" {
     size_t kin_phaseIndex(int n, const char* ph)
     {
         try {
-            size_t k = KineticsCabinet::at(n)->phaseIndex(ph);
+            size_t k = KineticsCabinet::at(n)->phaseIndex(ph, false);
             if (k == npos) {
                 throw CanteraError("kin_phaseIndex",
                                    "No such phase {}.", ph);
