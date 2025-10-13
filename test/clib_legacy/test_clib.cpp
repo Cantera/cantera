@@ -178,6 +178,7 @@ TEST(ct, new_interface_auto)
 
 TEST(ct, thermo)
 {
+    suppress_deprecation_warnings();
     int ret;
     int sol = soln_newSolution("gri30.yaml", "gri30", "none");
     int thermo = soln_thermo(sol);
@@ -223,6 +224,7 @@ TEST(ct, thermo)
     thermo_getPartialMolarVolumes(thermo, ns, work.data());
     prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
     ASSERT_NEAR(prod, 1./thermo_molarDensity(thermo), 1e-6);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(ct, kinetics)
@@ -259,6 +261,7 @@ TEST(ct, kinetics)
 
 TEST(ct, transport)
 {
+    suppress_deprecation_warnings();
     int sol0 = soln_newSolution("gri30.yaml", "gri30", "default");
     int thermo = soln_thermo(sol0);
     int tran = soln_transport(sol0);
@@ -276,6 +279,7 @@ TEST(ct, transport)
     for (size_t n = 0; n < nsp; n++) {
         ASSERT_NEAR(cpp_dkm[n], c_dkm[n], 1e-10);
     }
+    make_deprecation_warnings_fatal();
 }
 
 
