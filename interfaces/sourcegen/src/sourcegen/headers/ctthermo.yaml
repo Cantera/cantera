@@ -46,8 +46,10 @@ recipes:
 - name: elementName  # Renamed in Cantera 3.2 (previously getElementName)
 - name: speciesName  # Renamed in Cantera 3.2 (previously getSpeciesName)
 - name: elementIndex
+  # alternate version to be removed after Cantera 3.2
   wraps: elementIndex(const string&, bool)
 - name: speciesIndex
+  # alternate version to be removed after Cantera 3.2
   wraps: speciesIndex(const string&, bool)
 - name: nAtoms
 - name: addElement

@@ -928,7 +928,7 @@ cdef class InterfaceKinetics(Kinetics):
     def _setup_phase_indices(self):
         self._phase_indices = {}
         for name, phase in list(self.adjacent.items()) + [(self.name, self)]:
-            i = self.kinetics.phaseIndex(stringify(name))
+            i = self.kinetics.phaseIndex(stringify(name), True)
             self._phase_indices[phase] = i
             self._phase_indices[name] = i
             self._phase_indices[i] = i

@@ -223,10 +223,7 @@ size_t MultiPhase::speciesIndex(const string& speciesName, const string& phaseNa
     if (!m_init) {
         init();
     }
-    size_t p = phaseIndex(phaseName);
-    if (p == npos) {
-        throw CanteraError("MultiPhase::speciesIndex", "phase not found: " + phaseName);
-    }
+    size_t p = phaseIndex(phaseName, true);
     size_t k = m_phase[p]->speciesIndex(speciesName, true);
     return m_spstart[p] + k;
 }
@@ -794,12 +791,23 @@ string MultiPhase::phaseName(const size_t iph) const
 
 int MultiPhase::phaseIndex(const string& pName) const
 {
+    warn_deprecated("MultiPhase::phaseIndex", "'raise' argument not specified; "
+        "Default behavior will change from returning -1 to throwing an exception "
+        "after Cantera 3.2.");
+    return phaseIndex(pName, false);
+}
+
+int MultiPhase::phaseIndex(const string& pName, bool raise) const
+{
     for (int iph = 0; iph < (int) nPhases(); iph++) {
         if (m_phase[iph]->name() == pName) {
             return iph;
         }
     }
-    return -1;
+    if (!raise) {
+        return -1;
+    }
+    throw CanteraError("MultiPhase::phaseIndex", "Phase {} not found.", pName);
 }
 
 double MultiPhase::phaseMoles(const size_t n) const
