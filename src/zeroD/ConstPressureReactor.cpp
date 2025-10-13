@@ -140,7 +140,7 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
         return speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("ConstPressureReactor::componentIndex",
-            "Unknown component '{}'", nm);
+            "Component '{}' not found", nm);
     }
 }
 

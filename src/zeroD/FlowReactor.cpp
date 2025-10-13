@@ -355,7 +355,7 @@ size_t FlowReactor::componentIndex(const string& nm) const
         return speciesIndex(nm) + m_offset_Y;
     } catch (const CanteraError&) {
         throw CanteraError("FlowReactor::componentIndex",
-            "Unknown component '{}'", nm);
+            "Component '{}' not found", nm);
     }
 }
 

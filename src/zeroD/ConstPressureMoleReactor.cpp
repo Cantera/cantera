@@ -116,7 +116,7 @@ size_t ConstPressureMoleReactor::componentIndex(const string& nm) const
         return speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("ConstPressureMoleReactor::componentIndex",
-            "Unknown component '{}'", nm);
+            "Component '{}' not found", nm);
     }
 }
 

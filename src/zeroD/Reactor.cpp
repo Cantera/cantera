@@ -481,7 +481,7 @@ size_t Reactor::speciesIndex(const string& nm) const
         }
     }
     throw CanteraError("Reactor::speciesIndex",
-        "Unknown species '{}'", nm);
+        "Species '{}' not found", nm);
 }
 
 size_t Reactor::componentIndex(const string& nm) const
@@ -499,7 +499,7 @@ size_t Reactor::componentIndex(const string& nm) const
         return speciesIndex(nm) + 3;
     } catch (const CanteraError&) {
         throw CanteraError("Reactor::componentIndex",
-            "Unknown component '{}'", nm);
+            "Component '{}' not found", nm);
     }
 }
 

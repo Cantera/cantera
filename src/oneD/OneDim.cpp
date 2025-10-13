@@ -33,7 +33,7 @@ size_t OneDim::domainIndex(const string& name) const
             return n;
         }
     }
-    throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
+    throw CanteraError("OneDim::domainIndex", "Domain '{}' not found", name);
 }
 
 std::tuple<string, size_t, string> OneDim::component(size_t i) const {

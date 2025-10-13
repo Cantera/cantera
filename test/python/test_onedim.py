@@ -113,7 +113,7 @@ class TestOnedim:
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
 
-        with pytest.raises(ct.CanteraError, match='No component'):
+        with pytest.raises(ct.CanteraError, match="Component 'foobar' not found"):
             flame.set_steady_tolerances(foobar=(3e-4, 3e-6))
 
         flame.set_steady_tolerances(default=(5e-3, 5e-5),
