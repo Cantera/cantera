@@ -24,12 +24,16 @@ classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
     end
 
     properties (TestParameter)
+
+            % `flame2` and `diff_flame` will solve without crashing, but
+            % produce results that differ from expected. These will be
+            % re-enabled when the `Flame` classes are re-implemeneted in MATLAB.
             ExampleScript = {
                 'equil', 'isentropic', 'reactor1', 'reactor2', 'surf_reactor', ...
                 'periodic_cstr', 'plug_flow_reactor', 'lithium_ion_battery', ...
-                'rankine', 'prandtl1', 'prandtl2', 'catcomb','ignite', ...
-                'ignite_hp', 'ignite_uv', 'diamond_cvd', ...
-                % 'flame1', 'flame2', 'diff_flame',
+                'rankine', 'prandtl1', 'prandtl2', 'catcomb', 'diamond_cvd', ...
+                'ignite', 'ignite_hp', 'ignite_uv', 'flame1', ...
+                % 'flame2', 'diff_flame',
             };
     end
 

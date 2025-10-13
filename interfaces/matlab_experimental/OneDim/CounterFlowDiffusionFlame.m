@@ -29,36 +29,22 @@ classdef CounterFlowDiffusionFlame < Sim1D
         function flame = CounterFlowDiffusionFlame(left, flow, right, ...
                                                    tp_f, tp_o, oxidizer)
 
-            % Constructor
-
-
-            %% Check input parameters
-            if nargin ~= 6
-                error('CounterFlowDiffusionFlame expects six input arguments.');
+            arguments
+                left(1, 1) Inlet
+                flow(1, 1) Flow1D
+                right(1, 1) Inlet
+                tp_f(1, 1) Solution
+                tp_o(1, 1) Solution
+                oxidizer(1, :) char
             end
 
+            % Check input parameters
             if ~tp_f.isIdealGas
                 error('Fuel gas object must represent an ideal gas mixture.');
             end
 
             if ~tp_o.isIdealGas
                 error('Oxidizer gas object must represent an ideal gas mixture.');
-            end
-
-            if ~isa(left, 'Inlet')
-                error('Left inlet object of wrong type.');
-            end
-
-            if ~isa(flow, 'Flow1D')
-                error('Flow object of wrong type.');
-            end
-
-            if ~isa(right, 'Inlet')
-                error('Right inlet object of wrong type.');
-            end
-
-            if ~ischar(oxidizer)
-                error('Oxidizer name must be of format character.');
             end
 
             %% Define elMoles function
@@ -100,8 +86,8 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % To be used in determining velocity of each stream. Also get the
             % temperature of both inlet streams.
 
-            rhof = tp_f.D;
-            rho0 = tp_o.D;
+            rhof = tp_f.massDensity;
+            rho0 = tp_o.massDensity;
             tf = left.T;
             tox = right.T;
 
@@ -169,7 +155,7 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % Based on the inlet stream velocities and determine initial 'guess'
             % for mixture fraction based on mass flux ratio.
 
-            zz = flow.gridPoints;
+            zz = flow.grid;
             dz = zz(end) - zz(1);
             mdotl = left.massFlux;
             mdotr = right.massFlux;
@@ -226,12 +212,13 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % Set the profile of the flame with the estimated axial velocities,
             % radial velocities, temperature, and mass fractions calculated above.
             flame@Sim1D({left flow right});
-            flame.setProfile(2, {'velocity', 'spread_rate'}, [zrel; u; v]);
-            flame.setProfile(2, 'T', [zrel; t]);
+            flow.setProfile('velocity', zrel, u);
+            flow.setProfile('spread_rate', zrel, v);
+            flow.setProfile('T', zrel, t);
 
             for n = 1:nsp
                 nm = tp_f.speciesName(n);
-                flame.setProfile(2, nm, [zrel; transpose(y(:, n))]);
+                flow.setProfile(nm{:}, zrel, transpose(y(:, n)));
             end
 
         end
