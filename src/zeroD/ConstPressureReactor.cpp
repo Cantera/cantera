@@ -130,15 +130,17 @@ vector<size_t> ConstPressureReactor::steadyConstraints() const {
 
 size_t ConstPressureReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + 2;
-    } else if (nm == "mass") {
+    if (nm == "mass") {
         return 0;
-    } else if (nm == "enthalpy") {
+    }
+    if (nm == "enthalpy") {
         return 1;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + 2;
+    } catch (const CanteraError&) {
+        throw CanteraError("ConstPressureReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 

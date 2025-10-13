@@ -339,19 +339,23 @@ void FlowReactor::getConstraints(double* constraints) {
 
 size_t FlowReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + m_offset_Y;
-    } else if (nm == "density") {
+    if (nm == "density") {
         return 0;
-    } else if (nm == "speed") {
+    }
+    if (nm == "speed") {
         return 1;
-    } else if (nm == "pressure") {
+    }
+    if (nm == "pressure") {
         return 2;
-    } else if (nm == "temperature") {
+    }
+    if (nm == "temperature") {
         return 3;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + m_offset_Y;
+    } catch (const CanteraError&) {
+        throw CanteraError("FlowReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 

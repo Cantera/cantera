@@ -141,15 +141,17 @@ vector<size_t> IdealGasConstPressureReactor::steadyConstraints() const
 
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + 2;
-    } else if (nm == "mass") {
+    if (nm == "mass") {
         return 0;
-    } else if (nm == "temperature") {
+    }
+    if (nm == "temperature") {
         return 1;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + 2;
+    } catch (const CanteraError&) {
+        throw CanteraError("IdealGasConstPressureReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 

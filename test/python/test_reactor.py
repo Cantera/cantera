@@ -359,7 +359,7 @@ class TestReactor:
     def test_advance_limits_invalid(self):
         self.make_reactors(n_reactors=1)
 
-        with pytest.raises(ct.CanteraError, match="No component named 'spam'"):
+        with pytest.raises(ct.CanteraError, match="Unknown component 'spam'"):
             self.r1.set_advance_limit("spam", 0.1)
 
     def test_advance_reverse(self):
@@ -1786,7 +1786,7 @@ class TestFlowReactor:
             name = r.component_name(i)
             assert r.component_index(name) == i
 
-        with pytest.raises(IndexError, match="No such component: 'spam'"):
+        with pytest.raises(ct.CanteraError, match="Unknown component 'spam'"):
             r.component_index('spam')
 
         with pytest.raises(ct.CanteraError, match='out of bounds'):

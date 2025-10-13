@@ -109,13 +109,14 @@ void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
 
 size_t ConstPressureMoleReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + m_sidx;
-    } else if (nm == "enthalpy") {
+    if (nm == "enthalpy") {
         return 0;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + m_sidx;
+    } catch (const CanteraError&) {
+        throw CanteraError("ConstPressureMoleReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 

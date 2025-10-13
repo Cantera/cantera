@@ -43,15 +43,17 @@ void IdealGasMoleReactor::getState(double* y)
 
 size_t IdealGasMoleReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + m_sidx;
-    } else if (nm == "temperature") {
+    if (nm == "temperature") {
         return 0;
-    } else if (nm == "volume") {
+    }
+    if (nm == "volume") {
         return 1;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + m_sidx;
+    } catch (const CanteraError&) {
+        throw CanteraError("IdealGasMoleReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 
