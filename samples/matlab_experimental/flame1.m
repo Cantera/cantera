@@ -47,9 +47,9 @@ gas.TPX = {tburner, p, comp};
 
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
-f.setupGrid(initial_grid);
-f.setSteadyTolerances('default', tol_ss{:});
-f.setTransientTolerances('default', tol_ts{:});
+f.grid = initial_grid;
+f.setSteadyTolerances(tol_ss{:}, 'default');
+f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the burner
 %
@@ -58,7 +58,7 @@ f.setTransientTolerances('default', tol_ts{:});
 burner = Inlet(gas, 'burner');
 burner.T = tburner;
 burner.massFlux = mdot;
-burner.setMoleFractions(comp);
+burner.X = comp;
 
 %% Create the outlet
 %

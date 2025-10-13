@@ -54,9 +54,9 @@ ox.TPX = {tin, p, oxcomp};
 
 f = AxisymmetricFlow(fuel, 'flow');
 f.P = p;
-f.setupGrid(initial_grid);
-f.setSteadyTolerances('default', tol_ss{:});
-f.setTransientTolerances('default', tol_ts{:});
+f.grid = initial_grid;
+f.setSteadyTolerances(tol_ss{:}, 'default');
+f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the fuel and oxidizer inlet steams
 %
@@ -66,13 +66,13 @@ f.setTransientTolerances('default', tol_ts{:});
 inlet_o = Inlet(ox, 'air_inlet');
 inlet_o.T = tin;
 inlet_o.massFlux = mdot_o;
-inlet_o.setMoleFractions(oxcomp);
+inlet_o.X = oxcomp;
 
 % Set the fuel inlet.
 inlet_f = Inlet(fuel, 'fuel_inlet');
 inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
-inlet_f.setMoleFractions(fuelcomp);
+inlet_f.X = fuelcomp;
 
 %% Create the flame object
 %
