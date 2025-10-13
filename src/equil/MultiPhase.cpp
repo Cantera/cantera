@@ -717,11 +717,12 @@ void MultiPhase::setTemperature(const double T)
     updatePhases();
 }
 
-void MultiPhase::checkElementIndex(size_t m) const
+size_t MultiPhase::checkElementIndex(size_t m) const
 {
-    if (m >= m_nel) {
-        throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel);
+    if (m < m_nel) {
+        return m;
     }
+    throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel);
 }
 
 void MultiPhase::checkElementArraySize(size_t mm) const
@@ -740,20 +741,20 @@ string MultiPhase::elementName(size_t m) const
 
 size_t MultiPhase::elementIndex(const string& name) const
 {
-    warn_deprecated("MultiPhase::elementIndex", "'force' argument not specified; "
+    warn_deprecated("MultiPhase::elementIndex", "'raise' argument not specified; "
         "Default behavior will change from returning npos to throwing an exception "
         "after Cantera 3.2.");
     return elementIndex(name, false);
 }
 
-size_t MultiPhase::elementIndex(const string& name, bool force) const
+size_t MultiPhase::elementIndex(const string& name, bool raise) const
 {
     for (size_t e = 0; e < m_nel; e++) {
         if (m_enames[e] == name) {
             return e;
         }
     }
-    if (!force) {
+    if (!raise) {
         return npos;
     }
     throw CanteraError("MultiPhase::elementIndex", "Element {} not found.", name);

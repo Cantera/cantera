@@ -31,7 +31,7 @@ class TestMixture:
         with pytest.raises(ct.CanteraError, match="Element W not found."):
             mix.element_index('W')
 
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             mix.element_index(41)
 
         with pytest.raises(TypeError, match='must be a string or a number'):
