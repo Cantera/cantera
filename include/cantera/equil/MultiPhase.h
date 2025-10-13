@@ -115,8 +115,11 @@ public:
     }
 
     //! Check that the specified element index is in range.
-    //! Throws an exception if m is greater than nElements()-1
-    void checkElementIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified element index.
+     * @exception Throws an exception if m is greater than nElements()-1
+     */
+    size_t checkElementIndex(size_t m) const;
 
     //! Check that an array size is at least nElements().
     //! Throws an exception if mm is less than nElements(). Used before calls
@@ -133,18 +136,21 @@ public:
     //! Returns the index of the element with name @e name.
     /*!
      * @param name   String name of the global element
+     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
      */
     size_t elementIndex(const string& name) const;
 
     //! Returns the index of the element with name @e name.
     /*!
-     * @param name   String name of the global element
-     * @since Added the `force` argument in %Cantera 3.2. If not specified, the default
-     *      behavior in %Cantera 3.2 is to return `npos` if an element is not found.
+     * @param name  String name of the global element.
+     * @param raise  If `true`, raise exception if the specified element is not found;
+     *      otherwise, return @ref npos.
+     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
+     *      behavior if an element is not found in %Cantera 3.2 is to return `npos`.
      *      After %Cantera 3.2, the default behavior will be to throw an exception.
      * @exception Throws an IndexError.
      */
-    size_t elementIndex(const string& name, bool force) const;
+    size_t elementIndex(const string& name, bool raise) const;
 
     //! Number of species, summed over all phases.
     size_t nSpecies() const {

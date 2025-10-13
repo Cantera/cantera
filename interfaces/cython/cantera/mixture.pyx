@@ -103,9 +103,7 @@ cdef class Mixture:
             return self.mix.elementIndex(stringify(element), True)
 
         if isinstance(element, (int, float)):
-            index = <int>element
-            if 0 <= index < self.n_elements:
-                return index
+            return self.mix.checkElementIndex(<int>element)
         else:
             raise TypeError("'element' must be a string or a number. "
                             f"Got {element!r}.")

@@ -465,9 +465,7 @@ cdef class ThermoPhase(_SolutionBase):
         if isinstance(element, (str, bytes)):
             return self.thermo.elementIndex(stringify(element), True)
         if isinstance(element, (int, float)):
-            index = <int>element
-            if 0 <= index < self.n_elements:
-                return index
+            return self.thermo.checkElementIndex(<int>element)
         else:
             raise TypeError("'element' must be a string or a number. "
                             f"Got {element!r}.")

@@ -121,7 +121,7 @@ class TestThermoPhase:
 
         with pytest.raises(ct.CanteraError, match="Element C not found."):
             self.phase.elemental_mass_fraction('C')
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             self.phase.elemental_mass_fraction(5)
 
     def test_elemental_mole_fraction(self):
@@ -138,7 +138,7 @@ class TestThermoPhase:
 
         with pytest.raises(ct.CanteraError, match="Element C not found."):
             self.phase.elemental_mole_fraction('C')
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             self.phase.elemental_mole_fraction(5)
 
     def test_elemental_mass_mole_fraction(self):

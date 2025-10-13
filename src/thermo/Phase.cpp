@@ -32,11 +32,12 @@ size_t Phase::nElements() const
     return m_mm;
 }
 
-void Phase::checkElementIndex(size_t m) const
+size_t Phase::checkElementIndex(size_t m) const
 {
-    if (m >= m_mm) {
-        throw IndexError("Phase::checkElementIndex", "elements", m, m_mm);
+    if (m < m_mm) {
+        return m;
     }
+    throw IndexError("Phase::checkElementIndex", "elements", m, m_mm);
 }
 
 void Phase::checkElementArraySize(size_t mm) const
@@ -50,26 +51,25 @@ void Phase::checkElementArraySize(size_t mm) const
 
 string Phase::elementName(size_t m) const
 {
-    checkElementIndex(m);
-    return m_elementNames[m];
+    return m_elementNames[checkElementIndex(m)];
 }
 
 size_t Phase::elementIndex(const string& name) const
 {
-    warn_deprecated("Phase::elementIndex", "'force' argument not specified; "
+    warn_deprecated("Phase::elementIndex", "'raise' argument not specified; "
         "Default behavior will change from returning npos to throwing an exception "
         "after Cantera 3.2.");
     return elementIndex(name, false);
 }
 
-size_t Phase::elementIndex(const string& elementName, bool force) const
+size_t Phase::elementIndex(const string& elementName, bool raise) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == elementName) {
             return i;
         }
     }
-    if (!force) {
+    if (!raise) {
         return npos;
     }
     throw CanteraError("Phase::elementIndex", "Element {} not found.", elementName);
@@ -87,8 +87,7 @@ double Phase::atomicWeight(size_t m) const
 
 double Phase::entropyElement298(size_t m) const
 {
-    checkElementIndex(m);
-    return m_entropy298[m];
+    return m_entropy298[checkElementIndex(m)];
 }
 
 const vector<double>& Phase::atomicWeights() const
@@ -115,9 +114,8 @@ int Phase::changeElementType(int m, int elem_type)
 
 double Phase::nAtoms(size_t k, size_t m) const
 {
-    checkElementIndex(m);
     checkSpeciesIndex(k);
-    return m_speciesComp[m_mm * k + m];
+    return m_speciesComp[m_mm * k + checkElementIndex(m)];
 }
 
 size_t Phase::findSpeciesLower(const string& name) const
@@ -587,7 +585,6 @@ void Phase::setMolesNoTruncate(const double* const N)
 
 double Phase::elementalMassFraction(const size_t m) const
 {
-    checkElementIndex(m);
     double Z_m = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         Z_m += nAtoms(k, m) * atomicWeight(m) / molecularWeight(k)
@@ -598,7 +595,6 @@ double Phase::elementalMassFraction(const size_t m) const
 
 double Phase::elementalMoleFraction(const size_t m) const
 {
-    checkElementIndex(m);
     double denom = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double atoms = 0;

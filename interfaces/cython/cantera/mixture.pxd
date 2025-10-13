@@ -20,6 +20,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         size_t nElements()
         size_t nPhases()
         size_t elementIndex(string, cbool) except +translate_exception
+        size_t checkElementIndex(size_t) except +translate_exception
         size_t speciesIndex(size_t, size_t) except +translate_exception
         string speciesName(size_t) except +translate_exception
         double nAtoms(size_t, size_t) except +translate_exception
