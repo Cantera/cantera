@@ -24,7 +24,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         int nTotalSpecies()
         int nReactions()
         int nPhases()
-        int phaseIndex(string&, cbool)
+        int phaseIndex(string&, cbool) except +translate_exception
         int kineticsSpeciesIndex(int, int)
         int kineticsSpeciesIndex(string)
         string kineticsSpeciesName(int)
