@@ -91,7 +91,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         size_t nSpecies()
         shared_ptr[CxxSpecies] species(string) except +translate_exception
         shared_ptr[CxxSpecies] species(size_t) except +translate_exception
-        size_t speciesIndex(string) except +translate_exception
+        size_t speciesIndex(string, cbool) except +translate_exception
         string speciesName(size_t) except +translate_exception
         double nAtoms(size_t, size_t) except +translate_exception
         void getAtoms(size_t, double*) except +translate_exception

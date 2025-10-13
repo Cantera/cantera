@@ -98,7 +98,7 @@ TEST_F(ConstructFromScratch, AddElements)
     p.addElement("O");
     ASSERT_EQ((size_t) 2, p.nElements());
     ASSERT_EQ("H", p.elementName(0));
-    ASSERT_EQ((size_t) 1, p.elementIndex("O", true));
+    ASSERT_EQ((size_t) 1, p.elementIndex("O"));
 }
 
 TEST_F(ConstructFromScratch, throwUndefindElements)
@@ -137,7 +137,8 @@ TEST_F(ConstructFromScratch, ignoreUndefinedElements)
     p.addSpecies(sCO2);
     ASSERT_EQ((size_t) 2, p.nSpecies());
     ASSERT_EQ((size_t) 2, p.nElements());
-    ASSERT_EQ(npos, p.speciesIndex("CO2"));
+    ASSERT_EQ(npos, p.speciesIndex("CO2", false));
+    ASSERT_THROW(p.speciesIndex("CO2", true), CanteraError);
 }
 
 TEST_F(ConstructFromScratch, addUndefinedElements)
@@ -156,8 +157,8 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
     p.addSpecies(sCO2);
     ASSERT_EQ((size_t) 4, p.nSpecies());
     ASSERT_EQ((size_t) 3, p.nElements());
-    ASSERT_EQ((size_t) 1, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("C", true)));
-    ASSERT_EQ((size_t) 2, p.nAtoms(p.speciesIndex("co2"), p.elementIndex("O", true)));
+    ASSERT_EQ((size_t) 1, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("C")));
+    ASSERT_EQ((size_t) 2, p.nAtoms(p.speciesIndex("co2"), p.elementIndex("O")));
     p.setMassFractionsByName("H2:0.5, CO2:0.5");
     ASSERT_DOUBLE_EQ(0.5, p.massFraction("CO2"));
 }

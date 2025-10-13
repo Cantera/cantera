@@ -424,15 +424,8 @@ void RedlichKisterVPSSTP::addBinaryInteraction(
     const double* excess_enthalpy, size_t n_enthalpy,
     const double* excess_entropy, size_t n_entropy)
 {
-    size_t kA = speciesIndex(speciesA);
-    size_t kB = speciesIndex(speciesB);
-    if (kA == npos) {
-        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
-            "Species '{}' not present in phase", speciesA);
-    } else if (kB == npos) {
-        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
-            "Species '{}' not present in phase", speciesB);
-    }
+    size_t kA = speciesIndex(speciesA, true);
+    size_t kB = speciesIndex(speciesB, true);
     if (charge(kA) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
             "Species '{}' should be neutral", speciesA);

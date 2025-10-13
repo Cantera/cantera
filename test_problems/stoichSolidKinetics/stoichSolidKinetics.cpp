@@ -59,7 +59,7 @@ void testProblem()
     fe3o4_s->setState_TP(Temp, OneAtm);
     soln->thermo()->setState_TP(Temp, OneAtm);
 
-    size_t igco2 = gasTP->speciesIndex("CO2");
+    size_t igco2 = gasTP->speciesIndex("CO2", true);
 
     vector<double> work(gasTP->nSpecies(), 0.0);
 

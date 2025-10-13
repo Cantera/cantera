@@ -28,11 +28,7 @@ PengRobinson::PengRobinson(const string& infile, const string& id_)
 
 void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b, double w)
 {
-    size_t k = speciesIndex(species);
-    if (k == npos) {
-        throw CanteraError("PengRobinson::setSpeciesCoeffs",
-            "Unknown species '{}'.", species);
-    }
+    size_t k = speciesIndex(species, true);
 
     // Calculate value of kappa (independent of temperature)
     // w is an acentric factor of species
@@ -74,16 +70,8 @@ void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b, d
 void PengRobinson::setBinaryCoeffs(const string& species_i,
         const string& species_j, double a0)
 {
-    size_t ki = speciesIndex(species_i);
-    if (ki == npos) {
-        throw CanteraError("PengRobinson::setBinaryCoeffs",
-            "Unknown species '{}'.", species_i);
-    }
-    size_t kj = speciesIndex(species_j);
-    if (kj == npos) {
-        throw CanteraError("PengRobinson::setBinaryCoeffs",
-            "Unknown species '{}'.", species_j);
-    }
+    size_t ki = speciesIndex(species_i, true);
+    size_t kj = speciesIndex(species_j, true);
 
     m_a_coeffs(ki, kj) = m_a_coeffs(kj, ki) = a0;
     m_binaryParameters[species_i][species_j] = a0;
@@ -343,7 +331,7 @@ void PengRobinson::initThermo()
 
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
-        size_t k = speciesIndex(name);
+        size_t k = speciesIndex(name, true);
         if (m_a_coeffs(k, k) != 0.0) {
             continue;
         }
@@ -423,8 +411,7 @@ void PengRobinson::initThermo()
 void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
-    checkSpeciesIndex(k);
+    size_t k = speciesIndex(name, true);
 
     // Pure species parameters
     if (m_coeffSource[k] == CoeffSource::EoS) {

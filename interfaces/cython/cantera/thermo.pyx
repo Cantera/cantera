@@ -522,7 +522,7 @@ cdef class ThermoPhase(_SolutionBase):
         returned. If no such species is present, an exception is thrown.
         """
         if isinstance(species, (str, bytes)):
-            index = self.thermo.speciesIndex(stringify(species))
+            index = self.thermo.speciesIndex(stringify(species), False)
         elif isinstance(species, (int, float)):
             index = <int>species
         else:

@@ -298,7 +298,7 @@ void LatticePhase::getParameters(AnyMap& phaseNode) const
 void LatticePhase::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     ThermoPhase::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
+    size_t k = speciesIndex(name, true);
     // Output volume information in a form consistent with the input
     const auto S = species(k);
     if (S->input.hasKey("equation-of-state")) {

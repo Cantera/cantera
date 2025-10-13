@@ -347,7 +347,7 @@ void IdealSolidSolnPhase::getSpeciesParameters(const string &name,
                                                AnyMap& speciesNode) const
 {
     ThermoPhase::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
+    size_t k = speciesIndex(name, true);
     const auto S = species(k);
     auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
         "model", "constant-volume", true);

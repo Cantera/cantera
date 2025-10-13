@@ -464,7 +464,7 @@ void Reactor::addSensitivitySpeciesEnthalpy(size_t k)
 size_t Reactor::speciesIndex(const string& nm) const
 {
     // check for a gas species name
-    size_t k = m_thermo->speciesIndex(nm);
+    size_t k = m_thermo->speciesIndex(nm, false);
     if (k != npos) {
         return k;
     }
@@ -473,7 +473,7 @@ size_t Reactor::speciesIndex(const string& nm) const
     size_t offset = m_nsp;
     for (auto& S : m_surfaces) {
         ThermoPhase* th = S->thermo();
-        k = th->speciesIndex(nm);
+        k = th->speciesIndex(nm, false);
         if (k != npos) {
             return k + offset;
         } else {
