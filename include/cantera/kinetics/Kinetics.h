@@ -172,8 +172,11 @@ public:
     void checkReactionArraySize(size_t ii) const;
 
     //! Check that the specified species index is in range
-    //! Throws an exception if k is greater than nSpecies()-1
-    void checkSpeciesIndex(size_t k) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified species index.
+     * @exception Throws an exception if k is greater than nSpecies()-1
+     */
+    size_t checkSpeciesIndex(size_t k) const;
 
     //! Check that an array size is at least nSpecies()
     //! Throws an exception if kk is less than nSpecies(). Used before calls

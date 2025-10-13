@@ -114,8 +114,9 @@ int Phase::changeElementType(int m, int elem_type)
 
 double Phase::nAtoms(size_t k, size_t m) const
 {
+    checkElementIndex(m);
     checkSpeciesIndex(k);
-    return m_speciesComp[m_mm * k + checkElementIndex(m)];
+    return m_speciesComp[m_mm * k + m];
 }
 
 size_t Phase::findSpeciesLower(const string& name) const
@@ -150,8 +151,7 @@ size_t Phase::speciesIndex(const string& name, bool raise) const
     size_t loc = npos;
     auto it = m_speciesIndices.find(name);
     if (it != m_speciesIndices.end()) {
-        checkSpeciesIndex(it->second);
-        return it->second;
+        return checkSpeciesIndex(it->second);
     } else if (!m_caseSensitiveSpecies) {
         loc = findSpeciesLower(name);
     }
@@ -173,11 +173,12 @@ const vector<string>& Phase::speciesNames() const
     return m_speciesNames;
 }
 
-void Phase::checkSpeciesIndex(size_t k) const
+size_t Phase::checkSpeciesIndex(size_t k) const
 {
-    if (k >= m_kk) {
-        throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk);
+    if (k < m_kk) {
+        return k;
     }
+    throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk);
 }
 
 void Phase::checkSpeciesArraySize(size_t kk) const
