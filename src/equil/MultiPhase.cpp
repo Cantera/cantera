@@ -139,7 +139,7 @@ void MultiPhase::init()
         for (size_t ip = 0; ip < nPhases(); ip++) {
             ThermoPhase* p = m_phase[ip];
             size_t nsp = p->nSpecies();
-            size_t mlocal = p->elementIndex(m_enames[m]);
+            size_t mlocal = p->elementIndex(m_enames[m], false);
             for (size_t kp = 0; kp < nsp; kp++) {
                 if (mlocal != npos) {
                     m_atoms(m, k) = p->nAtoms(kp, mlocal);
@@ -726,6 +726,8 @@ void MultiPhase::checkElementIndex(size_t m) const
 
 void MultiPhase::checkElementArraySize(size_t mm) const
 {
+    warn_deprecated("Phase::checkElementArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_nel > mm) {
         throw ArraySizeError("MultiPhase::checkElementArraySize", mm, m_nel);
     }
@@ -738,12 +740,23 @@ string MultiPhase::elementName(size_t m) const
 
 size_t MultiPhase::elementIndex(const string& name) const
 {
+    warn_deprecated("MultiPhase::elementIndex", "'force' argument not specified; "
+        "Default behavior will change from returning npos to throwing an exception "
+        "after Cantera 3.2.");
+    return elementIndex(name, false);
+}
+
+size_t MultiPhase::elementIndex(const string& name, bool force) const
+{
     for (size_t e = 0; e < m_nel; e++) {
         if (m_enames[e] == name) {
             return e;
         }
     }
-    return npos;
+    if (!force) {
+        return npos;
+    }
+    throw CanteraError("MultiPhase::elementIndex", "Element {} not found.", name);
 }
 
 void MultiPhase::checkSpeciesIndex(size_t k) const

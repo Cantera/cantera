@@ -28,7 +28,7 @@ class TestMixture:
         assert len(E) == mix.n_elements
 
     def test_element_index(self, mix):
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="Element W not found."):
             mix.element_index('W')
 
         with pytest.raises(ValueError, match='No such element'):

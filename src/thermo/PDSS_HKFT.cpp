@@ -560,10 +560,7 @@ double PDSS_HKFT::gstar(const double temp, const double pres, const int ifunc) c
 
 double PDSS_HKFT::LookupGe(const string& elemName)
 {
-    size_t iE = m_tp->elementIndex(elemName);
-    if (iE == npos) {
-        throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
-    }
+    size_t iE = m_tp->elementIndex(elemName, true);
     double geValue = m_tp->entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
