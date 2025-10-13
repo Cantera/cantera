@@ -46,6 +46,7 @@ jobs:
         run: |
           echo "${{ github.event.inputs.incoming_ref }}"
           echo "${{ github.event.inputs.upload }}"
+
   post-pending-status:
     name: Post a pending workflow status to cerfacs/cantera-avbp
     runs-on: ubuntu-22.04
@@ -107,6 +108,7 @@ jobs:
             --field context='PyPI Package Build' \
             --field description="Pending build" \
             --silent
+
   sdist:
     name: Build the sdist
     runs-on: ubuntu-22.04
@@ -162,6 +164,7 @@ jobs:
           echo ----- End of Metadata  -----
 
   upload-sh-scripts:
+    if: ${{ github.event.inputs.build_macos == 'true' }}
     name: Upload the *.sh scripts required for installation
     runs-on: ubuntu-latest
     needs:
@@ -184,115 +187,6 @@ jobs:
             .github/dependencies.sh
           name: sh-scripts
           if-no-files-found: error
-            
-  # linux-wheel: 
-  #   if: ${{ github.event.inputs.build_linux == 'true' }}
-  #   # run only if "build_linux" is true:
-  #   name: Build ${{ matrix.libc }}linux_${{ matrix.arch }} for py${{ matrix.py }}
-  #   runs-on: ubuntu-20.04
-  #   needs: ["sdist", "post-pending-status"]
-  #   outputs:
-  #     job-status: ${{ job.status }}
-  #   strategy:
-  #     matrix:
-  #       py: ["38", "39", "310", "311"]
-  #       arch: ["x86_64","i686"]
-  #       libc: ["many", "musl"]
-  #       include:
-  #        - py: "311"
-  #          arch: "aarch64"
-  #          libc: "many"
-  #        - py: "311"
-  #          arch: "ppc64le"
-  #          libc: "many"
-  #        - py: "311"
-  #          arch: "s390x"
-  #          libc: "many"
-  #        - py: "310"
-  #          arch: "aarch64"
-  #          libc: "many"
-  #        - py: "310"
-  #          arch: "ppc64le"
-  #          libc: "many"
-  #        - py: "310"
-  #          arch: "s390x"
-  #          libc: "many"
-  #        - py: "39"
-  #          arch: "aarch64"
-  #          libc: "many"
-  #        - py: "38"
-  #          arch: "aarch64"
-  #          libc: "many"
-  #     fail-fast: true
-  #   env:
-  #     BOOST_INCLUDE: include
-  #     BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
-  #     GH_TOKEN: ${{ secrets.PAT }}
-  #     GH_TARBALL_DL: ${{ secrets.GH_TARBALL_DL }}
-  #   steps:
-  #     - name: Install dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install libboost-dev tree -y
-  #     - name: Download pre-built sdist
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: cibw-sdist
-  #     - name: Extract the sdist tarball
-  #       run: tar -xvf *.tar.gz --strip-components=1
-  #     - name: Restore Boost cache
-  #       uses: actions/cache@v3
-  #       id: cache-boost
-  #       with:
-  #         path: ${{ env.BOOST_INCLUDE }}/boost
-  #         key: boost-${{env.BOOST_URL}}
-  #     - name: Install Boost Headers
-  #       if: steps.cache-boost.outputs.cache-hit != 'true'
-  #       run: |
-  #         mkdir -p $BOOST_INCLUDE
-  #         curl --progress-bar --location --output $BOOST_INCLUDE/download.7z $BOOST_URL
-  #         7z -o$BOOST_INCLUDE x $BOOST_INCLUDE/download.7z -y -bd boost_1_78_0/boost
-  #         mv $BOOST_INCLUDE/boost_1_78_0/boost $BOOST_INCLUDE/boost
-  #         rm $BOOST_INCLUDE/download.7z
-  #         rm -r $BOOST_INCLUDE/boost_1_78_0
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v3
-  #       with:
-  #         platforms: all
-  #     - name: Build wheels
-  #       uses: pypa/cibuildwheel@v2.17.0
-        
-  #       env:
-  #         CIBW_ENVIRONMENT: BOOST_INCLUDE=${{ env.BOOST_INCLUDE }} CT_SKIP_SLOW=1 REPO_API_URL=${{ env.REPO_API_URL }} GH_TARBALL_DL=${{ env.GH_TARBALL_DL }}
-  #         CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.libc }}linux*
-  #         CIBW_ARCHS: ${{ matrix.arch }}
-  #         # CIBW_ENVIRONMENT_PASS_LINUX: CFLAGS
-  #         # CIBW_MANYLINUX_I686_IMAGE: 
-  #         # CIBW_BEFORE_ALL_LINUX: yum groupinstall 'Development Tools' -y && which gcc && gcc --version
-  #           # yum-config-manager --enable rhel-server-rhscl-7-rpms \
-  #           # && yum-config-manager --add-repo=https://copr.fedoraproject.org/coprs/rhscl/centos-release-scl/repo/epel-6/rhscl-centos-release-scl-epel-6.repo \
-  #           # && yum-config-manager --add-repo=https://copr.fedoraproject.org/coprs/rhscl/centos-release-scl/repo/epel-7/rhscl-centos-release-scl-epel-7.repo \
-  #           # && yum install centos-release-scl          
-  #         # cibuildwheel on Linux uses a Docker container to run the build, so
-  #         # runner.temp is not available. cibuildwheel also uses the /tmp folder, so
-  #         # we should be pretty safe to also use that.
-  #         CIBW_TEST_COMMAND: pytest -vv --durations=100 /tmp/test/python
-  #         CIBW_BEFORE_TEST: |
-  #           curl -sL -H "Authorization: token $GH_TARBALL_DL" -o /tmp/cantera.tar.gz $REPO_API_URL \
-  #           && tar -xzf /tmp/cantera.tar.gz --strip-components=1 -C /tmp "cerfacs-cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
-  #         # curl -sL "https://github.com/joebarteam11/cantera-avbp-3.0.0/archive/${{ needs.post-pending-status.outputs.incoming-sha }}.tar.gz" -o /tmp/cantera-avbp.tar.gz \
-  #         # && tar -xzf /tmp/cantera-avbp.tar.gz --strip-components=1 -C /tmp "cantera-avbp-${{ needs.post-pending-status.outputs.incoming-sha }}/test"
-  #         # curl - 
-  #         # NumPy is generally not available for these platforms so testing takes a
-  #         # while. This just skips the tests on these
-  #         # combinations, the wheels are still built and uploaded.
-  #         CIBW_TEST_SKIP: "*-manylinux_{i686,ppc64le,s390x} *musl*"
-
-  #     - name: Archive the built wheels
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: ./wheelhouse/*.whl
-  #         name: wheels
 
   windows-wheel:
     if: ${{ github.event.inputs.build_windows == 'true' }}
@@ -481,11 +375,6 @@ jobs:
       fail-fast: true # Si plusieurs configs dans la matrice et fail-fast = False permet de continuer le workflow pour les autre config.
 
     steps:
-      # - name: Download shell scripts required to set-up environments and install libraries
-      #   uses: actions/download-artifact@v5
-      #   with:
-      #     name: sh-scripts
-
       - name: Download pre-built sdist
         uses: actions/download-artifact@v5
         with:
@@ -502,70 +391,15 @@ jobs:
           echo "test-root=${RUNNER_TEMP}/ct-test-dir" >> $GITHUB_OUTPUT
         shell: bash
 
-      # - name: Install boost
-      #   uses: MarkusJx/install-boost@b1f0ee8b87cf60236b72440c72d0085d002770c5 # v2.5.0
-      #   id: install-boost
-      #   with:
-      #     # REQUIRED: Specify the required boost version
-      #     # A list of supported versions can be found here:
-      #     # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-      #     boost_version: ${{ matrix.boost-version }}
-      #     # OPTIONAL: Specify a custon install location
-      #     boost_install_dir: ${{ runner.temp }}
-      #     toolset: ${{ matrix.boost-toolset }}
-      #     platform_version: ${{ matrix.boost-platform-version }}
-      #     arch: ${{ matrix.boost-arch }}
-
-      # - name: Restore the cached built libraries ## This step is usesfull if several architechures are build. This enable to load lib instead of re-install them each time. This first time there are no cache directory thus this step is ignored (return cache-hit = 'false')  
-      #   id: restore-built-libraries
-      #   # Our custom manylinux images already have all our dependencies installed
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     key: ${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('dependencies.sh') }}-1
-      #     path: ${{ github.workspace }}/cache
-
-      # - name: Build required libraries
-      #   run: bash cibw_before_all_macos.sh "${{ github.workspace }}"
-
-      # - name: Set up CIBW environment
-      #   run: |
-      #     echo "Boost_ROOT=$BOOST_ROOT" >> $GITHUB_ENV
-      #   env:
-      #     BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-  
-      # - name: Write dependencies to a file for caching # added from cantera
-      #   run: |
-      #     echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
-
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
-      #     cache: pip
-      #     cache-dependency-path: requirements.txt
-
-      # - name: Save the cache # This step is usefull when multiple architectures are build. It enable to save in caches the installed libs that will be loaded in the following build by "Restore the cached built libraries" step.  
-      #   uses: actions/cache/save@v4
-      #   if: always() && runner.os != 'Linux' && steps.restore-built-libraries.outputs.cache-hit != 'true'
-      #   with:
-      #     path: ${{ github.workspace }}/cache
-      #     key: ${{ steps.restore-built-libraries.outputs.cache-primary-key }}
-
       - name: Build wheels
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6 # 3.1.4
         env:
-          # CC: clang
-          # CXX: clang++
-          # SDKROOT: /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
-          # CANTERA_TEST_DIR: ${{ steps.download-test-files.outputs.test-root }}
           CIBW_ENVIRONMENT_LINUX: CT_SKIP_SLOW=1 CANTERA_TEST_DIR=/host${{ steps.download-test-files.outputs.test-root }}
           CIBW_BEFORE_BUILD: |
             python -m pip install --upgrade pip
             python -m pip install Cython==3.1.1 numpy>=2.0
-          CIBW_BUILD: "cp312-manylinux_x86_64" #"cp39-manylinux_aarch64" #"cp*-*" "cp39-manylinux_x86_64"
-          # CIBW_ARCHS: ${{ matrix.arch }}    
+          CIBW_BUILD: "cp312-manylinux_x86_64" #"cp39-manylinux_aarch64" #"cp*-*"
           CIBW_TEST_SKIP: "*" # Enable to deactivate the automatic pytest after building the wheel
-          # CIBW_MANYLINUX_AARCH64_IMAGE: ghcr.io/cantera/manylinux_2_28_aarch64-hdf5-boost:latest
 
       - name: Archive the built wheels
         uses: actions/upload-artifact@v4
