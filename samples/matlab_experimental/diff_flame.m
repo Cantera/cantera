@@ -26,11 +26,13 @@ transport = 'mixture-averaged'; % Transport model
 
 %% Set-up initial grid, loglevel, tolerances. Enable/Disable grid refinement
 
-initial_grid = 0.02 * [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; % Units: m
+width = 0.2;
+nz = 11;
+
 tol_ss = {1.0e-5, 1.0e-9}; % {rtol atol} for steady-state problem
 tol_ts = {1.0e-3, 1.0e-9}; % {rtol atol} for time stepping
-loglevel = 1; % Amount of diagnostic output (0 to 5)
-refine_grid = 1; % 1 to enable refinement, 0 to disable
+logLevel = 1; % Amount of diagnostic output (0 to 5)
+refineGrid = 1; % 1 to enable refinement, 0 to disable
 
 %% Create the gas objects for the fuel and oxidizer streams
 %
@@ -54,9 +56,9 @@ ox.TPX = {tin, p, oxcomp};
 
 f = AxisymmetricFlow(fuel, 'flow');
 f.P = p;
-f.setupGrid(initial_grid);
-f.setSteadyTolerances('default', tol_ss{:});
-f.setTransientTolerances('default', tol_ts{:});
+f.setupUniformGrid(nz, width, 0.0);
+f.setSteadyTolerances(tol_ss{:}, 'default');
+f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the fuel and oxidizer inlet steams
 %
@@ -66,13 +68,13 @@ f.setTransientTolerances('default', tol_ts{:});
 inlet_o = Inlet(ox, 'air_inlet');
 inlet_o.T = tin;
 inlet_o.massFlux = mdot_o;
-inlet_o.setMoleFractions(oxcomp);
+inlet_o.X = oxcomp;
 
 % Set the fuel inlet.
 inlet_f = Inlet(fuel, 'fuel_inlet');
 inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
-inlet_f.setMoleFractions(fuelcomp);
+inlet_f.X = fuelcomp;
 
 %% Create the flame object
 %
@@ -90,7 +92,7 @@ fl = CounterFlowDiffusionFlame(inlet_f, f, inlet_o, fuel, ox, 'O2');
 % Grid refinement is turned off for this process in this example.
 % To turn grid refinement on, change 0 to 1 for last input is solve function.
 
-fl.solve(loglevel, 0);
+fl.solve(logLevel, 0);
 
 %% Enable the energy equation
 %
@@ -101,8 +103,8 @@ fl.solve(loglevel, 0);
 % ``help setRefineCriteria``.
 
 f.energyEnabled = true;
-f.setRefineCriteria(4, 0.2, 0.3, 0.04);
-fl.solve(loglevel, refine_grid);
+f.setRefineCriteria(200.0, 0.1, 0.2);
+fl.solve(logLevel, refineGrid);
 
 %% Show statistics of solution and elapsed time
 
@@ -115,28 +117,24 @@ disp(e);
 % Make a single plot showing temperature and mass fraction of select
 % species along axial distance from fuel inlet to air inlet.
 
-z = fl.grid('flow'); % Get grid points of flow
-spec = fuel.speciesNames; % Get species names in gas
-T = fl.getSolution('flow', 'T'); % Get temperature solution
-
-for i = 1:length(spec)
-    % Get mass fraction of all species from solution
-    y(i, :) = fl.getSolution('flow', spec{i});
-end
-
-j = fuel.speciesIndex('O2'); % Get index of O2 in gas object
-k = fuel.speciesIndex('H2O'); % Get index of H2O in gas object
-l = fuel.speciesIndex('C2H6'); % Get index of C2H6 in gas object
-m = fuel.speciesIndex('CO2'); % Get index of CO2 in gas object
-
-clf;
-yyaxis left
-plot(z, T)
-xlabel('z (m)');
-ylabel('Temperature (K)');
-yyaxis right
-plot(z, y(j, :), 'r', z, y(k, :), 'g', z, y(l, :), 'm', z, y(m, :), 'b');
-ylabel('Mass Fraction');
-legend('T', 'O2', 'H2O', 'C2H6', 'CO2');
+figure(1);
+subplot(2, 3, 1);
+plotSolution(f, 'T');
+title('Temperature [K]');
+subplot(2, 3, 2);
+plotSolution(f, 'velocity');
+title('Axial Velocity [m/s]');
+subplot(2, 3, 3);
+plotSolution(f, 'O2');
+title('O2 Mass Fraction');
+subplot(2, 3, 4);
+plotSolution(f, 'H2O');
+title('H2O Mass Fraction');
+subplot(2, 3, 5);
+plotSolution(f, 'C2H6');
+title('C2H6 Mass Fraction');
+subplot(2, 3, 6);
+plotSolution(f, 'CO2');
+title('CO2 Mass Fraction');
 
 toc

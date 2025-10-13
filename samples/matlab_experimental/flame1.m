@@ -19,19 +19,17 @@ tburner = 373.0; % burner temperature
 mdot = 0.06; % kg/m^2/s
 
 rxnmech = 'h2o2.yaml'; % reaction mechanism file
-comp = 'H2:1.8, O2:1, AR:7'; % premixed gas composition
+comp = 'H2:1.5, O2:1, AR:7'; % premixed gas composition
 
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.4, 0.49, 0.5]; % m
+width = 0.5;
+nz = 11;
 
-tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state problem
-tol_ts = {1.0e-4, 1.0e-9}; % {rtol atol} for time stepping
+tol_ss = {1.0e-4, 1.0e-9}; % {rtol atol} for steady-state problem
+tol_ts = {1.0e-4, 1.0e-11}; % {rtol atol} for time stepping
 
-loglevel = 1; % amount of diagnostic output (0
-% to 5)
-
-refine_grid = 1; % 1 to enable refinement, 0 to
-% disable
-max_jacobian_age = [5, 10];
+logLevel = 1; % amount of diagnostic output (0 to 5)
+refineGrid = 1; % 1 to enable refinement, 0 to disable
+maxJacobianAge = [5, 10];
 
 %% Create the gas object
 %
@@ -47,18 +45,19 @@ gas.TPX = {tburner, p, comp};
 
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
-f.setupGrid(initial_grid);
-f.setSteadyTolerances('default', tol_ss{:});
-f.setTransientTolerances('default', tol_ts{:});
+f.setupUniformGrid(nz, width, 0.0);
+f.setSteadyTolerances(tol_ss{:}, 'default');
+f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the burner
 %
 %  The burner is an ``Inlet`` object. The temperature, mass flux,
 %  and composition (relative molar) may be specified.
+
 burner = Inlet(gas, 'burner');
 burner.T = tburner;
 burner.massFlux = mdot;
-burner.setMoleFractions(comp);
+burner.X = comp;
 
 %% Create the outlet
 %
@@ -74,15 +73,14 @@ s = Outlet(gas, 'out');
 % Once the component parts have been created, they can be assembled
 % to create the flame object (see :doc:`flame.m <flame>`).
 fl = flame(gas, burner, f, s);
-fl.setMaxJacAge(max_jacobian_age(1), max_jacobian_age(2));
+fl.setMaxJacAge(maxJacobianAge(1), maxJacobianAge(2));
 
 %%
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
 
 %restore(fl,'h2flame2.yaml', 'energy')
-
-fl.solve(loglevel, refine_grid);
+fl.solve(logLevel, refineGrid);
 
 %% Enable the energy equation
 %
@@ -91,8 +89,8 @@ fl.solve(loglevel, refine_grid);
 %  criteria to get an accurate final solution.
 
 f.energyEnabled = true;
-f.setRefineCriteria(200.0, 0.05, 0.1);
-fl.solve(1, 1);
+f.setRefineCriteria(3.0, 0.05, 0.1);
+fl.solve(logLevel, refineGrid);
 
 %% Show statistics
 
