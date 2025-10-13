@@ -283,15 +283,17 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
 
 size_t MoleReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + m_sidx;
-    } else if (nm == "int_energy") {
+    if (nm == "int_energy") {
         return 0;
-    } else if (nm == "volume") {
+    }
+    if (nm == "volume") {
         return 1;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + m_sidx;
+    } catch (const CanteraError&) {
+        throw CanteraError("MoleReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 
