@@ -102,9 +102,9 @@ class TestThermoPhase:
             kSpec = self.phase.species_index(species)
             assert self.phase.n_atoms(kSpec, mElem) == n
 
-        with pytest.raises(ct.CanteraError, match="Species C not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'C' not found"):
             self.phase.n_atoms('C', 'H2')
-        with pytest.raises(ct.CanteraError, match='Element CH4 not found.'):
+        with pytest.raises(ct.CanteraError, match="Element 'CH4' not found"):
             self.phase.n_atoms('H', 'CH4')
 
     def test_elemental_mass_fraction(self):
@@ -119,7 +119,7 @@ class TestThermoPhase:
         assert Zh == approx(0.5 * (2.016 / 18.015))
         assert Zar == 0.0
 
-        with pytest.raises(ct.CanteraError, match="Element C not found."):
+        with pytest.raises(ct.CanteraError, match="Element 'C' not found"):
             self.phase.elemental_mass_fraction('C')
         with pytest.raises(ct.CanteraError, match="outside valid range"):
             self.phase.elemental_mass_fraction(5)
@@ -136,7 +136,7 @@ class TestThermoPhase:
         assert Zh == approx((2 * 0.5) / (0.5 * 3 + 0.5 * 2))
         assert Zar == 0.0
 
-        with pytest.raises(ct.CanteraError, match="Element C not found."):
+        with pytest.raises(ct.CanteraError, match="Element 'C' not found"):
             self.phase.elemental_mole_fraction('C')
         with pytest.raises(ct.CanteraError, match="outside valid range"):
             self.phase.elemental_mole_fraction(5)
@@ -198,7 +198,7 @@ class TestThermoPhase:
         assert X[0] == approx(0.5)
         assert X[3] == approx(0.5)
 
-        with pytest.raises(ct.CanteraError, match="Species CO2 not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'CO2' not found"):
             self.phase.X = 'H2:1.0, CO2:1.5'
 
     def test_setCompositionStringBad(self):
@@ -264,7 +264,7 @@ class TestThermoPhase:
             self.phase.set_unnormalized_mass_fractions([1, 2, 3])
 
     def test_setCompositionDict_bad1(self):
-        with pytest.raises(ct.CanteraError, match="Species HCl not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'HCl' not found"):
             self.phase.X = {'H2': 1.0, 'HCl': 3.0}
 
     def test_setCompositionDict_bad2(self):
@@ -1929,11 +1929,11 @@ class TestMisc:
 
         gas.case_sensitive_species_names = True
         assert gas.case_sensitive_species_names
-        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'h2' not found"):
             gas.species_index('h2')
-        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'h2' not found"):
             gas.X = 'h2:1.0, o2:1.0'
-        with pytest.raises(ct.CanteraError, match="Species h2 not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'h2' not found"):
             gas.Y = 'h2:1.0, o2:1.0'
 
         gas_yaml = """
@@ -1949,7 +1949,7 @@ class TestMisc:
         with pytest.raises(ct.CanteraError, match='is not unique'):
             gas.species_index('cs')
         gas.case_sensitive_species_names = True
-        with pytest.raises(ct.CanteraError, match="Species cs not found."):
+        with pytest.raises(ct.CanteraError, match="Species 'cs' not found"):
             gas.species_index('cs')
 
     def test_unstable_element_in_phase(self):

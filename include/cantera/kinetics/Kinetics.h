@@ -247,7 +247,7 @@ public:
     size_t phaseIndex(const string& ph, bool raise) const {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             if (raise) {
-                throw CanteraError("Kinetics::phaseIndex", "Phase {} not found.", ph);
+                throw CanteraError("Kinetics::phaseIndex", "Phase '{}' not found", ph);
             }
             return npos;
         } else {

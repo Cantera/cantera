@@ -890,7 +890,7 @@ size_t Flow1D::componentIndex(const string& name, bool checkAlias) const
         }
     }
     throw CanteraError("Flow1D::componentIndex",
-                       "No component named '{}'", name);
+                       "Component '{}' not found", name);
 }
 
 bool Flow1D::hasComponent(const string& name, bool checkAlias) const
