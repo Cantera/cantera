@@ -104,8 +104,8 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
                 size_t col = it.col();
                 auto& rowPhase = kin->speciesPhase(row);
                 auto& colPhase = kin->speciesPhase(col);
-                size_t rpi = kin->phaseIndex(rowPhase.name());
-                size_t cpi = kin->phaseIndex(colPhase.name());
+                size_t rpi = kin->phaseIndex(rowPhase.name(), true);
+                size_t cpi = kin->phaseIndex(colPhase.name(), true);
                 // check if the reactor kinetics object contains both phases to avoid
                 // any solid phases which may be included then use phases to map surf
                 // kinetics indicies to reactor kinetic indices

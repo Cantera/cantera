@@ -32,7 +32,7 @@ shared_ptr<Solution> Solution::clone(const vector<shared_ptr<Solution>>& adjacen
         map<string, shared_ptr<Solution>> adjacentByName;
         for (const auto& soln : adjacent) {
             adjacentByName[soln->name()] = soln;
-            if (m_kinetics->phaseIndex(soln->name()) == -1) {
+            if (m_kinetics->phaseIndex(soln->name(),false) == npos) {
                 throw CanteraError("Solution::clone", "Provided adjacent phase '{}'"
                     " not found in Kinetics object.", soln->name());
             }

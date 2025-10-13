@@ -105,13 +105,13 @@ void testProblem()
         printRates(iKin);
 
         cout << "*** Setting CaO(S) phase to nonexistent:" << endl;
-        size_t ip_cao = iKin.phaseIndex("CaO(S)");
+        size_t ip_cao = iKin.phaseIndex("CaO(S)", true);
         iKin.setPhaseExistence(ip_cao, false);
         iKin.setPhaseStability(ip_cao, true);
         printRates(iKin);
 
         cout << "*** Setting CaCO3(S) phase to nonexistent:" << endl;
-        size_t ip_caco3 = iKin.phaseIndex("CaCO3(S)");
+        size_t ip_caco3 = iKin.phaseIndex("CaCO3(S)", true);
         iKin.setPhaseExistence(ip_caco3, false);
         iKin.setPhaseStability(ip_caco3, true);
         printRates(iKin);
@@ -121,7 +121,7 @@ void testProblem()
         printRates(iKin);
 
         cout << "*** Setting Gas phase to nonexistent, CaCO3 nonexistent:" << endl;
-        size_t ip_gas = iKin.phaseIndex("air");
+        size_t ip_gas = iKin.phaseIndex("air", true);
         iKin.setPhaseExistence(ip_gas, false);
         iKin.setPhaseStability(ip_gas, true);
         printRates(iKin);
