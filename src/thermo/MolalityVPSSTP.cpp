@@ -383,7 +383,7 @@ string MolalityVPSSTP::report(bool show_thermo, double threshold) const
         getMolalityActivityCoefficients(&acMolal[0]);
         getActivities(&actMolal[0]);
 
-        size_t iHp = speciesIndex("H+");
+        size_t iHp = speciesIndex("H+", false);
         if (iHp != npos) {
             double pH = -log(actMolal[iHp]) / log(10.0);
             fmt_append(b,

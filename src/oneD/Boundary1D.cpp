@@ -656,7 +656,7 @@ string ReactingSurf1D::componentName(size_t n) const
 
 size_t ReactingSurf1D::componentIndex(const string& name, bool checkAlias) const
 {
-    return m_sphase->speciesIndex(name);
+    return m_sphase->speciesIndex(name, true);
 }
 
 void ReactingSurf1D::init()

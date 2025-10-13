@@ -162,15 +162,15 @@ public:
         } else {
             gas.setState_TPX(300.0, 1e5, m_fuel);
         }
-        double Y_Cf = gas.elementalMassFraction(gas.elementIndex("C", true));
-        double Y_Of = gas.elementalMassFraction(gas.elementIndex("O", true));
+        double Y_Cf = gas.elementalMassFraction(gas.elementIndex("C"));
+        double Y_Of = gas.elementalMassFraction(gas.elementIndex("O"));
         if (basis == ThermoBasis::mass) {
             gas.setState_TPY(300.0, 1e5, m_ox);
         } else {
             gas.setState_TPX(300.0, 1e5, m_ox);
         }
-        double Y_Co = gas.elementalMassFraction(gas.elementIndex("C", true));
-        double Y_Oo = gas.elementalMassFraction(gas.elementIndex("O", true));
+        double Y_Co = gas.elementalMassFraction(gas.elementIndex("C"));
+        double Y_Oo = gas.elementalMassFraction(gas.elementIndex("O"));
 
         gas.setEquivalenceRatio(1.3, m_fuel, m_ox, basis);
         double T = gas.temperature();
@@ -179,8 +179,8 @@ public:
         // mixture fraction are independent of reaction progress
         gas.equilibrate("HP");
         test_mixture_results(T, basis, 1.3, 1.1726068608195617, 0.13415725911057605,
-                (gas.elementalMassFraction(gas.elementIndex("C", true))-Y_Co)/(Y_Cf-Y_Co),
-                (gas.elementalMassFraction(gas.elementIndex("O", true))-Y_Oo)/(Y_Of-Y_Oo),
+                (gas.elementalMassFraction(gas.elementIndex("C"))-Y_Co)/(Y_Cf-Y_Co),
+                (gas.elementalMassFraction(gas.elementIndex("O"))-Y_Oo)/(Y_Of-Y_Oo),
                 8.3901204498353561, m_fuel, m_ox);
 
         gas.setState_TP(300.0,1e5);
@@ -188,8 +188,8 @@ public:
         T = gas.temperature();
         gas.equilibrate("HP");
         test_mixture_results(T, basis, 1.3, 1.1726068608195617, 0.13415725911057605,
-                (gas.elementalMassFraction(gas.elementIndex("C", true))-Y_Co)/(Y_Cf-Y_Co),
-                (gas.elementalMassFraction(gas.elementIndex("O", true))-Y_Oo)/(Y_Of-Y_Oo),
+                (gas.elementalMassFraction(gas.elementIndex("C"))-Y_Co)/(Y_Cf-Y_Co),
+                (gas.elementalMassFraction(gas.elementIndex("O"))-Y_Oo)/(Y_Of-Y_Oo),
                 8.3901204498353561, m_fuel, m_ox);
     }
 

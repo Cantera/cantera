@@ -314,7 +314,7 @@ size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         // Check the ThermoPhase object for a match
-        size_t k = thermo(n).speciesIndex(nm);
+        size_t k = thermo(n).speciesIndex(nm, false);
         if (k != npos) {
             return k + m_start[n];
         }
@@ -325,7 +325,7 @@ size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
 ThermoPhase& Kinetics::speciesPhase(const string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
-        size_t k = thermo(n).speciesIndex(nm);
+        size_t k = thermo(n).speciesIndex(nm, false);
         if (k != npos) {
             return thermo(n);
         }
@@ -336,7 +336,7 @@ ThermoPhase& Kinetics::speciesPhase(const string& nm)
 const ThermoPhase& Kinetics::speciesPhase(const string& nm) const
 {
     for (const auto& thermo : m_thermo) {
-        if (thermo->speciesIndex(nm) != npos) {
+        if (thermo->speciesIndex(nm, false) != npos) {
             return *thermo;
         }
     }

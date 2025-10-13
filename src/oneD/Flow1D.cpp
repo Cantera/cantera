@@ -103,8 +103,8 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
 
     // Find indices for radiating species
     m_kRadiating.resize(2, npos);
-    m_kRadiating[0] = m_thermo->speciesIndex("CO2");
-    m_kRadiating[1] = m_thermo->speciesIndex("H2O");
+    m_kRadiating[0] = m_thermo->speciesIndex("CO2", false);
+    m_kRadiating[1] = m_thermo->speciesIndex("H2O", false);
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)

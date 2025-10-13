@@ -80,7 +80,7 @@ bool BinarySolutionTabulatedThermo::addSpecies(shared_ptr<Species> spec)
 void BinarySolutionTabulatedThermo::initThermo()
 {
     if (m_input.hasKey("tabulated-thermo")) {
-        m_kk_tab = speciesIndex(m_input["tabulated-species"].asString());
+        m_kk_tab = speciesIndex(m_input["tabulated-species"].asString(), true);
         if (nSpecies() != 2) {
             throw InputFileError("BinarySolutionTabulatedThermo::initThermo",
                 m_input["species"],
