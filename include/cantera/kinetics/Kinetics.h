@@ -163,12 +163,16 @@ public:
     }
 
     //! Check that the specified reaction index is in range
-    //! Throws an exception if i is greater than nReactions()
-    void checkReactionIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified reaction index.
+     * @exception Throws an IndexError if m is greater than nReactions()-1
+     */
+    size_t checkReactionIndex(size_t m) const;
 
     //! Check that an array size is at least nReactions()
     //! Throws an exception if ii is less than nReactions(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkReactionArraySize(size_t ii) const;
 
     //! Check that the specified species index is in range
@@ -181,6 +185,7 @@ public:
     //! Check that an array size is at least nSpecies()
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkSpeciesArraySize(size_t mm) const;
 
     //! @}
@@ -198,12 +203,16 @@ public:
     }
 
     //! Check that the specified phase index is in range
-    //! Throws an exception if m is greater than nPhases()
-    void checkPhaseIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified species index.
+     * @exception Throws an IndexError if m is greater than nPhases()-1
+     */
+    size_t checkPhaseIndex(size_t m) const;
 
     //! Check that an array size is at least nPhases()
     //! Throws an exception if mm is less than nPhases(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Unused
     void checkPhaseArraySize(size_t mm) const;
 
     /**

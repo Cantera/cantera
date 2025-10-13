@@ -167,6 +167,7 @@ public:
     //! Check that an array size is at least nSpecies().
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkSpeciesArraySize(size_t kk) const;
 
     //! Name of species with global index @e kGlob
@@ -252,12 +253,16 @@ public:
     ThermoPhase& phase(size_t n);
 
     //! Check that the specified phase index is in range
-    //! Throws an exception if m is greater than nPhases()
-    void checkPhaseIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified species index.
+     * @exception Throws an IndexError if m is greater than nPhases()-1
+     */
+    size_t checkPhaseIndex(size_t m) const;
 
     //! Check that an array size is at least nPhases()
     //! Throws an exception if mm is less than nPhases(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Unused
     void checkPhaseArraySize(size_t mm) const;
 
     //! Returns the moles of global species @c k. units = kmol

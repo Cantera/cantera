@@ -122,6 +122,7 @@ public:
     //! Check that an array size is at least #m_nsp. Throws an exception if
     //! kk is less than #m_nsp. Used before calls which take an array
     //! pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkSpeciesArraySize(size_t kk) const;
 
     //! @name Transport Properties

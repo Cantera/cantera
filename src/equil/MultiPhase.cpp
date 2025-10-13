@@ -174,15 +174,18 @@ ThermoPhase& MultiPhase::phase(size_t n)
     return *m_phase[n];
 }
 
-void MultiPhase::checkPhaseIndex(size_t m) const
+size_t MultiPhase::checkPhaseIndex(size_t m) const
 {
-    if (m >= nPhases()) {
-        throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases());
+    if (m < nPhases()) {
+        return m;
     }
+    throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases());
 }
 
 void MultiPhase::checkPhaseArraySize(size_t mm) const
 {
+    warn_deprecated("MultiPhase::checkPhaseArraySize",
+        "To be removed after Cantera 3.2. Unused.");
     if (nPhases() > mm) {
         throw ArraySizeError("MultiPhase::checkPhaseIndex", mm, nPhases());
     }
@@ -721,7 +724,7 @@ size_t MultiPhase::checkElementIndex(size_t m) const
 
 void MultiPhase::checkElementArraySize(size_t mm) const
 {
-    warn_deprecated("Phase::checkElementArraySize",
+    warn_deprecated("MultiPhase::checkElementArraySize",
         "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_nel > mm) {
         throw ArraySizeError("MultiPhase::checkElementArraySize", mm, m_nel);
@@ -764,6 +767,8 @@ size_t MultiPhase::checkSpeciesIndex(size_t k) const
 
 void MultiPhase::checkSpeciesArraySize(size_t kk) const
 {
+    warn_deprecated("MultiPhase::checkSpeciesArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_nsp > kk) {
         throw ArraySizeError("MultiPhase::checkSpeciesArraySize", kk, m_nsp);
     }
