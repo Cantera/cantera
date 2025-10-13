@@ -183,6 +183,8 @@ size_t Phase::checkSpeciesIndex(size_t k) const
 
 void Phase::checkSpeciesArraySize(size_t kk) const
 {
+    warn_deprecated("Phase::checkSpeciesArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_kk > kk) {
         throw ArraySizeError("Phase::checkSpeciesArraySize", kk, m_kk);
     }

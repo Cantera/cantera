@@ -39,11 +39,12 @@ shared_ptr<Kinetics> Kinetics::clone(
     return newKinetics(phases, phaseNode, rootNode, phases[0]->root());
 }
 
-void Kinetics::checkReactionIndex(size_t i) const
+size_t Kinetics::checkReactionIndex(size_t i) const
 {
-    if (i >= nReactions()) {
-        throw IndexError("Kinetics::checkReactionIndex", "reactions", i, nReactions());
+    if (i < nReactions()) {
+        return i;
     }
+    throw IndexError("Kinetics::checkReactionIndex", "reactions", i, nReactions());
 }
 
 void Kinetics::resizeReactions()
@@ -65,21 +66,26 @@ void Kinetics::resizeReactions()
 
 void Kinetics::checkReactionArraySize(size_t ii) const
 {
+    warn_deprecated("Kinetics::checkReactionArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (nReactions() > ii) {
         throw ArraySizeError("Kinetics::checkReactionArraySize", ii,
                              nReactions());
     }
 }
 
-void Kinetics::checkPhaseIndex(size_t m) const
+size_t Kinetics::checkPhaseIndex(size_t m) const
 {
-    if (m >= nPhases()) {
-        throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases());
+    if (m < nPhases()) {
+        return m;
     }
+    throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases());
 }
 
 void Kinetics::checkPhaseArraySize(size_t mm) const
 {
+    warn_deprecated("Kinetics::checkPhaseArraySize",
+        "To be removed after Cantera 3.2. Unused.");
     if (nPhases() > mm) {
         throw ArraySizeError("Kinetics::checkPhaseArraySize", mm, nPhases());
     }
@@ -100,6 +106,8 @@ size_t Kinetics::checkSpeciesIndex(size_t k) const
 
 void Kinetics::checkSpeciesArraySize(size_t kk) const
 {
+    warn_deprecated("Kinetics::checkSpeciesArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_kk > kk) {
         throw ArraySizeError("Kinetics::checkSpeciesArraySize", kk, m_kk);
     }
