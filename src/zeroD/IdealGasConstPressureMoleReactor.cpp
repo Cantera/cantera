@@ -151,9 +151,11 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         vector<double> prod_rates(curr_kin->nTotalSpecies());
         curr_kin->getNetProductionRates(prod_rates.data());
         for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
-            size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
-            if (row != npos) {
+            try {
+                size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
                 netProductionRates[row] += prod_rates[i];
+            } catch (...) {
+                // species do not map
             }
         }
     }
@@ -233,13 +235,14 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
 
 size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + m_sidx;
-    } else if (nm == "temperature") {
+    if (nm == "temperature") {
         return 0;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + m_sidx;
+    } catch (const CanteraError&) {
+        throw CanteraError("IdealGasConstPressureReactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 

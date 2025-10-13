@@ -480,22 +480,26 @@ size_t Reactor::speciesIndex(const string& nm) const
             offset += th->nSpecies();
         }
     }
-    return npos;
+    throw CanteraError("Reactor::speciesIndex",
+        "Unknown species '{}'", nm);
 }
 
 size_t Reactor::componentIndex(const string& nm) const
 {
-    size_t k = speciesIndex(nm);
-    if (k != npos) {
-        return k + 3;
-    } else if (nm == "mass") {
+    if (nm == "mass") {
         return 0;
-    } else if (nm == "volume") {
+    }
+    if (nm == "volume") {
         return 1;
-    } else if (nm == "int_energy") {
+    }
+    if (nm == "int_energy") {
         return 2;
-    } else {
-        return npos;
+    }
+    try {
+        return speciesIndex(nm) + 3;
+    } catch (const CanteraError&) {
+        throw CanteraError("Reactor::componentIndex",
+            "Unknown component '{}'", nm);
     }
 }
 
@@ -631,9 +635,6 @@ bool Reactor::getAdvanceLimits(double *limits) const
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
-    if (k == npos) {
-        throw CanteraError("Reactor::setAdvanceLimit", "No component named '{}'", nm);
-    }
 
     if (m_thermo == 0) {
         throw CanteraError("Reactor::setAdvanceLimit",
