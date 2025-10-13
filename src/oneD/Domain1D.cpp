@@ -89,7 +89,7 @@ size_t Domain1D::componentIndex(const string& name, bool checkAlias) const
         }
     }
     throw CanteraError("Domain1D::componentIndex",
-                       "no component named '{}'", name);
+                       "Component '{}' not found", name);
 }
 
 bool Domain1D::hasComponent(const string& name, bool checkAlias) const
@@ -100,7 +100,7 @@ bool Domain1D::hasComponent(const string& name, bool checkAlias) const
         }
     }
     throw CanteraError("Domain1D::hasComponent",
-                       "no component named '{}'", name);
+                       "Component '{}' not found", name);
 }
 
 void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)

@@ -754,7 +754,7 @@ size_t MultiPhase::elementIndex(const string& name, bool raise) const
     if (!raise) {
         return npos;
     }
-    throw CanteraError("MultiPhase::elementIndex", "Element {} not found.", name);
+    throw CanteraError("MultiPhase::elementIndex", "Element '{}' not found", name);
 }
 
 size_t MultiPhase::checkSpeciesIndex(size_t k) const
@@ -812,7 +812,7 @@ int MultiPhase::phaseIndex(const string& pName, bool raise) const
     if (!raise) {
         return -1;
     }
-    throw CanteraError("MultiPhase::phaseIndex", "Phase {} not found.", pName);
+    throw CanteraError("MultiPhase::phaseIndex", "Phase '{}' not found", pName);
 }
 
 double MultiPhase::phaseMoles(const size_t n) const

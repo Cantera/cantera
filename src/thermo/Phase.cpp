@@ -72,7 +72,7 @@ size_t Phase::elementIndex(const string& elementName, bool raise) const
     if (!raise) {
         return npos;
     }
-    throw CanteraError("Phase::elementIndex", "Element {} not found.", elementName);
+    throw CanteraError("Phase::elementIndex", "Element '{}' not found", elementName);
 }
 
 const vector<string>& Phase::elementNames() const
@@ -156,7 +156,7 @@ size_t Phase::speciesIndex(const string& name, bool raise) const
         loc = findSpeciesLower(name);
     }
     if (loc==npos && raise) {
-        throw CanteraError("Phase::speciesIndex", "Species {} not found.", name);
+        throw CanteraError("Phase::speciesIndex", "Species '{}' not found", name);
     }
 
     return loc;

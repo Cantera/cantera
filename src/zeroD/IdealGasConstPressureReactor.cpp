@@ -151,7 +151,7 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
         return speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasConstPressureReactor::componentIndex",
-            "Unknown component '{}'", nm);
+            "Component '{}' not found", nm);
     }
 }
 
