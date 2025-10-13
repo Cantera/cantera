@@ -15,6 +15,7 @@ recipes:
 - name: updatePhases
 - name: nElements
 - name: elementIndex
+  wraps: elementIndex(const string&, bool)
 - name: nSpecies
 - name: speciesIndex
   wraps: speciesIndex(size_t, size_t)

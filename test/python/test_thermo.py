@@ -102,9 +102,9 @@ class TestThermoPhase:
             kSpec = self.phase.species_index(species)
             assert self.phase.n_atoms(kSpec, mElem) == n
 
-        with pytest.raises(ValueError, match='No such species'):
+        with pytest.raises(ValueError, match="No such species 'C'"):
             self.phase.n_atoms('C', 'H2')
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match='Element CH4 not found.'):
             self.phase.n_atoms('H', 'CH4')
 
     def test_elemental_mass_fraction(self):
@@ -119,7 +119,7 @@ class TestThermoPhase:
         assert Zh == approx(0.5 * (2.016 / 18.015))
         assert Zar == 0.0
 
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="Element C not found."):
             self.phase.elemental_mass_fraction('C')
         with pytest.raises(ValueError, match='No such element'):
             self.phase.elemental_mass_fraction(5)
@@ -136,7 +136,7 @@ class TestThermoPhase:
         assert Zh == approx((2 * 0.5) / (0.5 * 3 + 0.5 * 2))
         assert Zar == 0.0
 
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="Element C not found."):
             self.phase.elemental_mole_fraction('C')
         with pytest.raises(ValueError, match='No such element'):
             self.phase.elemental_mole_fraction(5)
