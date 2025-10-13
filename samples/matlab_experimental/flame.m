@@ -31,7 +31,6 @@ function f = flame(gas, left, flow, right)
     % create the container object
     f = Sim1D({left flow right});
 
-    % set default initial profiles.
     rho0 = gas.massDensity;
 
     % find the adiabatic flame temperature and corresponding
@@ -44,29 +43,22 @@ function f = flame(gas, left, flow, right)
     mdot0 = left.massFlux;
     mdot1 = right.massFlux;
     t0 = left.T;
+    u0 = mdot0 / rho0;
 
     if flametype == 0
         t1 = teq;
-        mdot1 = -mdot0;
+        u1 = -mdot1 / gas.massDensity;
     else
         t1 = right.T;
+        u1 = -mdot1 / rho0;
     end
 
-    f.setProfile(2, {'velocity', 'spread_rate'}, [0.0 1.0
-                                                  mdot0 / rho0 -mdot1 / rho0
-                                                  0.0 0.0]);
-    f.setProfile(2, 'T', [0.0, 1.0
-                          t0, t1]);
+    flow.setProfile('velocity', [0.0, 1.0], [u0, u1]);
+    flow.setProfile('spread_rate', [0.0, 1.0], [0.0, 0.0]);
+    flow.setProfile('T', [0.0, z1, 1.0], [t0, teq, t1]);
 
     for n = 1:gas.nSpecies
         nm = gas.speciesName(n);
-
-        if strcmp(nm, 'H') || strcmp(nm, 'OH') || strcmp(nm, 'O') || ...
-            strcmp(nm, 'HO2')
-            yint = 1.0 * yeq(n);
-        else
-            yint = yeq(n);
-        end
 
         if flametype == 3
             y1 = right.massFraction(n);
@@ -74,8 +66,7 @@ function f = flame(gas, left, flow, right)
             y1 = yeq(n);
         end
 
-        f.setProfile(2, nm, [0, 1.0
-                    left.massFraction(n), y1]);
+        flow.setProfile(nm{:}, [0.0, z1, 1.0], [left.massFraction(n), yeq(n), y1]);
     end
 
     % set minimal grid refinement criteria
