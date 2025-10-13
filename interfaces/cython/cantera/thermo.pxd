@@ -82,7 +82,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # element properties
         size_t nElements()
-        size_t elementIndex(string) except +translate_exception
+        size_t elementIndex(string, cbool) except +translate_exception
         string elementName(size_t) except +translate_exception
         double atomicWeight(size_t) except +translate_exception
 

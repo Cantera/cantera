@@ -41,6 +41,8 @@ void Phase::checkElementIndex(size_t m) const
 
 void Phase::checkElementArraySize(size_t mm) const
 {
+    warn_deprecated("Phase::checkElementArraySize",
+        "To be removed after Cantera 3.2. Only used by legacy CLib.");
     if (m_mm > mm) {
         throw ArraySizeError("Phase::checkElementArraySize", mm, m_mm);
     }
@@ -52,14 +54,25 @@ string Phase::elementName(size_t m) const
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(const string& elementName) const
+size_t Phase::elementIndex(const string& name) const
+{
+    warn_deprecated("Phase::elementIndex", "'force' argument not specified; "
+        "Default behavior will change from returning npos to throwing an exception "
+        "after Cantera 3.2.");
+    return elementIndex(name, false);
+}
+
+size_t Phase::elementIndex(const string& elementName, bool force) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == elementName) {
             return i;
         }
     }
-    return npos;
+    if (!force) {
+        return npos;
+    }
+    throw CanteraError("Phase::elementIndex", "Element {} not found.", elementName);
 }
 
 const vector<string>& Phase::elementNames() const
@@ -743,7 +756,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
 
     vector<double> comp(nElements());
     for (const auto& [eName, stoich] : spec->composition) {
-        size_t m = elementIndex(eName);
+        size_t m = elementIndex(eName, false);
         if (m == npos) { // Element doesn't exist in this phase
             switch (m_undefinedElementBehavior) {
             case UndefElement::ignore:
@@ -752,7 +765,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
             case UndefElement::add:
                 addElement(eName);
                 comp.resize(nElements());
-                m = elementIndex(eName);
+                m = elementIndex(eName, true);
                 break;
 
             case UndefElement::error:
@@ -768,7 +781,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
     size_t ne = nElements();
     const vector<double>& aw = atomicWeights();
     if (spec->charge != 0.0) {
-        size_t eindex = elementIndex("E");
+        size_t eindex = elementIndex("E", false);
         if (eindex != npos) {
             double ecomp = comp[eindex];
             if (fabs(spec->charge + ecomp) > 0.001) {
@@ -785,7 +798,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
         } else {
             addElement("E", 0.000545, 0, 0.0, CT_ELEM_TYPE_ELECTRONCHARGE);
             ne = nElements();
-            eindex = elementIndex("E");
+            eindex = elementIndex("E", true);
             comp.resize(ne);
             comp[ne - 1] = - spec->charge;
         }

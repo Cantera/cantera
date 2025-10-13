@@ -34,17 +34,9 @@ void WaterSSTP::initThermo()
     // codes exhibiting mass loss issues. We need to grab the elemental atomic
     // weights used in the Element class and calculate a consistent H2O
     // molecular weight based on that.
-    size_t nH = elementIndex("H");
-    if (nH == npos) {
-        throw CanteraError("WaterSSTP::initThermo",
-                           "H not an element");
-    }
+    size_t nH = elementIndex("H", true);
     double mw_H = atomicWeight(nH);
-    size_t nO = elementIndex("O");
-    if (nO == npos) {
-        throw CanteraError("WaterSSTP::initThermo",
-                           "O not an element");
-    }
+    size_t nO = elementIndex("O", true);
     double mw_O = atomicWeight(nO);
     m_mw = 2.0 * mw_H + mw_O;
     setMolecularWeight(0,m_mw);

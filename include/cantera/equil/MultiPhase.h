@@ -121,6 +121,7 @@ public:
     //! Check that an array size is at least nElements().
     //! Throws an exception if mm is less than nElements(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkElementArraySize(size_t mm) const;
 
     //! Returns the name of the global element *m*.
@@ -134,6 +135,16 @@ public:
      * @param name   String name of the global element
      */
     size_t elementIndex(const string& name) const;
+
+    //! Returns the index of the element with name @e name.
+    /*!
+     * @param name   String name of the global element
+     * @since Added the `force` argument in %Cantera 3.2. If not specified, the default
+     *      behavior in %Cantera 3.2 is to return `npos` if an element is not found.
+     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @exception Throws an IndexError.
+     */
+    size_t elementIndex(const string& name, bool force) const;
 
     //! Number of species, summed over all phases.
     size_t nSpecies() const {

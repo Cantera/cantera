@@ -680,9 +680,9 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
 double ThermoPhase::o2Required(const double* y) const
 {
     // indices of fuel elements
-    size_t iC = elementIndex("C");
-    size_t iS = elementIndex("S");
-    size_t iH = elementIndex("H");
+    size_t iC = elementIndex("C", false);
+    size_t iS = elementIndex("S", false);
+    size_t iH = elementIndex("H", false);
 
     double o2req = 0.0;
     double sum = 0.0;
@@ -708,7 +708,7 @@ double ThermoPhase::o2Required(const double* y) const
 
 double ThermoPhase::o2Present(const double* y) const
 {
-    size_t iO = elementIndex("O");
+    size_t iO = elementIndex("O", true);
     double o2pres = 0.0;
     double sum = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
@@ -1009,7 +1009,7 @@ double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp
             return Z_m;
         };
 
-        size_t m = elementIndex(element);
+        size_t m = elementIndex(element, true);
         double Z_m_fuel = elementalFraction(m, fuelComp)/sum_yf;
         double Z_m_ox   = elementalFraction(m, oxComp)/sum_yo;
         double Z_m_mix  = elementalFraction(m, massFractions());

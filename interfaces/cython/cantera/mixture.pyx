@@ -98,19 +98,19 @@ cdef class Mixture:
         """Index of element with name 'element'.
 
             >>> mix.element_index('H')
-            2
         """
         if isinstance(element, (str, bytes)):
-            index = self.mix.elementIndex(stringify(element))
-        elif isinstance(element, (int, float)):
+            return self.mix.elementIndex(stringify(element), True)
+
+        if isinstance(element, (int, float)):
             index = <int>element
+            if 0 <= index < self.n_elements:
+                return index
         else:
-            raise TypeError("'element' must be a string or a number")
+            raise TypeError("'element' must be a string or a number. "
+                            f"Got {element!r}.")
 
-        if not 0 <= index < self.n_elements:
-            raise ValueError('No such element.')
-
-        return index
+        raise ValueError(f"No such element {element!r}.")
 
     property n_species:
         """Number of species."""
