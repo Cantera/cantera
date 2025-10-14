@@ -9,6 +9,11 @@ sourceFolder = fullfile(pwd, 'interfaces', 'matlab_experimental');
 testFolder = fullfile(pwd, 'test', 'matlab_experimental');
 
 suite = testsuite(testFolder);
+% Sample tests are tagged as 'Slow' due to the extra headroom
+% required when Cantera is loaded in 'outofprocess' mode.
+isSlow = cellfun(@(tags) any(strcmp(tags, 'Slow')), {suite.Tags});
+suite = suite(~isSlow);
+
 runner = TestRunner.withTextOutput;
 
 reportFormat = CoberturaFormat(fullfile(testFolder, 'matlabCoverage.xml'));

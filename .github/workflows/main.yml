@@ -47,17 +47,16 @@ jobs:
         run: |
           sudo apt update
           sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
-            libhdf5-dev
+            libhdf5-dev doxygen
           gcc --version
-      - name: Upgrade pip
-        run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons==4.0.1 packaging
-      - name: Build Cantera with legacy CLib
+          python3 -m pip install --upgrade pip setuptools wheel build
+          python3 -m pip install scons==4.0.1 ruamel.yaml Jinja2 typing-extensions
+      - name: Build Cantera with generated CLib
         run: |
-          python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-          cc_flags=-D_GLIBCXX_ASSERTIONS clib_legacy=y
+          python3 `which scons` build -j4 debug=n --debug=time \
+          clib_legacy=n python_package=n env_vars=all
       - name: Set LD_PRELOAD environment variable for MATLAB
         run: |
           LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
