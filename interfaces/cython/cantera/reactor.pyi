@@ -1,10 +1,9 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import (
     Any,
-    Callable,
     ClassVar,
     Literal,
     TypeAlias,
@@ -16,16 +15,15 @@ from typing_extensions import Never, override
 
 from ._types import Array, ArrayLike, LogLevel7
 from .composite import Solution
-from .func1 import Func1
+from .func1 import _Func1Like
 from .jacobians import SystemJacobian
-from .kinetics import DerivativeSettings, Kinetics
+from .kinetics import Kinetics, _DerivativeSettings
 from .solutionbase import _SolutionBase
 from .thermo import ThermoPhase
 
-_Func1Like: TypeAlias = Func1 | Callable[[float], float] | float
-
 class ReactorBase:
     reactor_type: ClassVar[str]
+    node_attr: dict[str, str] | None
     def __init__(
         self,
         contents: _SolutionBase | None = None,
@@ -44,6 +42,8 @@ class ReactorBase:
     def syncState(self) -> None: ...
     @property
     def thermo(self) -> ThermoPhase: ...
+    @property
+    def phase(self) -> ThermoPhase: ...
     @property
     def volume(self) -> float: ...
     @volume.setter
@@ -71,6 +71,7 @@ class ReactorBase:
     def draw(
         self,
         graph: Digraph | None = None,
+        *,
         graph_attr: dict[str, str] | None = None,
         node_attr: dict[str, str] | None = None,
         print_state: bool = False,
@@ -82,6 +83,7 @@ class ReactorBase:
     def __copy__(self) -> Never: ...
 
 class Reactor(ReactorBase):
+    group_name: str
     def __init__(
         self,
         contents: Solution,
@@ -205,12 +207,15 @@ class ReactorSurface:
     def coverages(self, coverages: Array) -> None: ...
     @property
     def reactor(self) -> Reactor: ...
+    @property
+    def reactors(self) -> list[Reactor]: ...
     def draw(
         self,
         graph: Digraph | None = None,
         *,
         graph_attr: dict[str, str] | None = None,
         node_attr: dict[str, str] | None = None,
+        surface_edge_attr: dict[str, str] | None = None,
         print_state: bool = False,
         species: Literal["X", "Y"] | bool | Iterable[str] | None = None,
         species_units: Literal["percent", "ppm"] = "percent",
@@ -218,6 +223,7 @@ class ReactorSurface:
 
 class ConnectorNode:
     node_type: ClassVar[str]
+    edge_attr: dict[str, str]
     def __init__(
         self,
         left: ReactorBase | None = None,
@@ -395,7 +401,7 @@ class ReactorNet:
     def add_reactor(self, r: Reactor) -> None: ...
     def advance(self, t: float, apply_limit: bool = True) -> float: ...
     def step(self) -> float: ...
-    def solve_steady(self, loglevel: LogLevel7) -> None: ...
+    def solve_steady(self, loglevel: LogLevel7 = 0) -> None: ...
     def steady_jacobian(self, rdt: float = 0.0) -> Array: ...
     def initialize(self) -> None: ...
     def reinitialize(self) -> None: ...
@@ -480,7 +486,7 @@ class ReactorNet:
         max_steps: int,
         residual_threshold: float,
         atol: float,
-        return_residual: Literal[False] = False,
+        return_residuals: Literal[False] = False,
     ) -> None: ...
     @overload
     def advance_to_steady_state(
@@ -488,7 +494,7 @@ class ReactorNet:
         max_steps: int,
         residual_threshold: float,
         atol: float,
-        return_residual: Literal[True],
+        return_residuals: Literal[True],
     ) -> Array: ...
     @overload
     def advance_to_steady_state(
@@ -496,7 +502,7 @@ class ReactorNet:
         max_steps: int = 10000,
         residual_threshold: float = 0.0,
         atol: float = 0.0,
-        return_residual: bool = False,
+        return_residuals: bool = False,
     ) -> Array | None: ...
     @override
     def __reduce__(self) -> Never: ...
@@ -516,10 +522,9 @@ class ReactorNet:
     @property
     def derivative_settings(self) -> Never: ...
     @derivative_settings.setter
-    def derivative_settings(self, value: DerivativeSettings) -> None: ...
+    def derivative_settings(self, value: _DerivativeSettings) -> None: ...
     def draw(
         self,
-        graph: Digraph | None = None,
         *,
         graph_attr: dict[str, str] | None = None,
         node_attr: dict[str, str] | None = None,

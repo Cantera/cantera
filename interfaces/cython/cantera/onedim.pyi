@@ -339,7 +339,7 @@ class FreeFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] = 1,
+        stage: Literal[1, 2] | None = None,
     ) -> None: ...
     def get_flame_speed_reaction_sensitivities(self) -> Array: ...
 
@@ -360,7 +360,7 @@ class BurnerFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] = 1,
+        stage: Literal[1, 2] | None = None,
     ) -> None: ...
 
 class CounterflowDiffusionFlame(FlameBase):
@@ -381,7 +381,7 @@ class CounterflowDiffusionFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] = 1,
+        stage: Literal[1, 2] | None = None,
     ) -> None: ...
     def strain_rate(
         self,

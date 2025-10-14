@@ -8,9 +8,9 @@ from .. import (Heptane as _Heptane, Water as _Water, Hfc134a as _Hfc134a,
                 Methane as _Methane, Nitrogen as _Nitrogen, Oxygen as _Oxygen)
 from pint import get_application_registry
 
-__all__ = ("units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
+__all__ = ["units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
            "Hfc134a", "Hydrogen", "Methane", "Nitrogen", "Oxygen", "Water",
-           "CanteraError")
+           "CanteraError"]
 
 units = get_application_registry()
 Q_ = units.Quantity

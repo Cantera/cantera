@@ -14,9 +14,9 @@ from typing_extensions import Never
 
 from ._types import Array
 
-yaml_version: str
+yaml_version: tuple[int, int, int]
 yaml_min_version: tuple[int, int, int]
-BlockMap: CommentedMap
+BlockMap: type[CommentedMap]
 
 class ErrorFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str: ...

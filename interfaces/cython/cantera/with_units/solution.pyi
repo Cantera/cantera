@@ -1,8 +1,9 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Literal, ParamSpec, TypeAlias, TypeVar
+from typing import Any, Literal, ParamSpec, TypeAlias, TypeVar
 
 from pint import Quantity
 from pint.registry import ApplicationRegistry
@@ -33,11 +34,11 @@ _StateSetter: TypeAlias = tuple[
 ]
 
 units: ApplicationRegistry
-Q_: Quantity
+Q_: type[Quantity]
 
-P = ParamSpec("P")
-T = TypeVar("T")
-def copy_doc(method: Callable[P, T]) -> Callable[P, T]: ...
+_P = ParamSpec("_P")
+_T = TypeVar("_T")
+def copy_doc(method: Callable[_P, _T]) -> Callable[_P, _T]: ...
 
 class Solution:
     def __init__(
