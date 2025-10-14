@@ -552,7 +552,7 @@ def build_transport_text(species: Iterable[ct.Species], separate_file: bool = Fa
 
 
 def convert(
-    solution: str | Path | ct.Solution,
+    solution: str | Path | ct.Solution | ct.Interface,
     phase_name: str = "",
     mechanism_path: str | Path | None = None,
     thermo_path: str | Path | None = None,

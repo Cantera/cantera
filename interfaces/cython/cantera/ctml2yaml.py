@@ -53,24 +53,24 @@ if yaml_version < yaml_min_version:
         "please install an updated version using pip or conda."
     )
 
-QuantityType: TypeAlias = float | str
+_QuantityType: TypeAlias = float | str
 
-RedlichKwongInput = TypedDict(
-    "RedlichKwongInput",
+_RedlichKwongInput = TypedDict(
+    "_RedlichKwongInput",
     {
-        "a": list[QuantityType],
-        "b": QuantityType,
-        "binary-a": dict[str, list[QuantityType]],
+        "a": list[_QuantityType],
+        "b": _QuantityType,
+        "binary-a": dict[str, list[_QuantityType]],
     },
     total=False,
 )
 
-class DebyeHuckelBetaMatrix(TypedDict, total=False):
+class _DebyeHuckelBetaMatrix(TypedDict, total=False):
     species: list[str]
-    beta: QuantityType
+    beta: _QuantityType
 
-ReactionInput = TypedDict(
-    "ReactionInput",
+_ReactionInput = TypedDict(
+    "_ReactionInput",
     {
         "type": Required[
             Literal[
@@ -88,60 +88,60 @@ ReactionInput = TypedDict(
     },
     total=False,
 )
-ArrheniusParams: TypeAlias = dict[str, QuantityType]
-EfficiencyParams: TypeAlias = dict[str, float]
-LindemannParams: TypeAlias = str | ArrheniusParams | EfficiencyParams
-TroeParams: TypeAlias = dict[str, float]
-SriParams: TypeAlias = dict[str, float]
-CoverageParams: TypeAlias = dict[str, ArrheniusParams]
+_ArrheniusParams: TypeAlias = dict[str, _QuantityType]
+_EfficiencyParams: TypeAlias = dict[str, float]
+_LindemannParams: TypeAlias = str | _ArrheniusParams | _EfficiencyParams
+_TroeParams: TypeAlias = dict[str, float]
+_SriParams: TypeAlias = dict[str, float]
+_CoverageParams: TypeAlias = dict[str, _ArrheniusParams]
 
-ArrheniusType: TypeAlias = dict[str, ArrheniusParams]
-InterfaceType: TypeAlias = dict[
-    str, ArrheniusParams | bool | str | CoverageParams | float
+_ArrheniusType: TypeAlias = dict[str, _ArrheniusParams]
+_InterfaceType: TypeAlias = dict[
+    str, _ArrheniusParams | bool | str | _CoverageParams | float
 ]
-ChebyshevType = TypedDict(
-    "ChebyshevType",
+_ChebyshevType = TypedDict(
+    "_ChebyshevType",
     {
         "type": str,
-        "temperature-range": list[QuantityType],
-        "pressure-range": list[QuantityType],
+        "temperature-range": list[_QuantityType],
+        "pressure-range": list[_QuantityType],
         "data": list[list[float]],
     },
 )
-PlogType: TypeAlias = dict[str, str | list[ArrheniusParams]]
-ChemActType: TypeAlias = dict[
-    str, str | ArrheniusParams | EfficiencyParams | TroeParams
+_PlogType: TypeAlias = dict[str, str | list[_ArrheniusParams]]
+_ChemActType: TypeAlias = dict[
+    str, str | _ArrheniusParams | _EfficiencyParams | _TroeParams
 ]
-LindemannType: TypeAlias = dict[str, LindemannParams]
-TroeType: TypeAlias = dict[str, LindemannParams | TroeParams]
-ThreebodyType: TypeAlias = dict[str, ArrheniusParams | EfficiencyParams]
-SriType: TypeAlias = dict[str, LindemannParams | SriParams]
+_LindemannType: TypeAlias = dict[str, _LindemannParams]
+_TroeType: TypeAlias = dict[str, _LindemannParams | _TroeParams]
+_ThreebodyType: TypeAlias = dict[str, _ArrheniusParams | _EfficiencyParams]
+_SriType: TypeAlias = dict[str, _LindemannParams | _SriParams]
 
-ThermoPolyType: TypeAlias = list[list[float]] | list[float]
-SpeciesThermoInput = TypedDict(
-    "SpeciesThermoInput",
+_ThermoPolyType: TypeAlias = list[list[float]] | list[float]
+_SpeciesThermoInput = TypedDict(
+    "_SpeciesThermoInput",
     {
         "model": Required[str],
         "temperature-ranges": list[float],
-        "data": ThermoPolyType,
+        "data": _ThermoPolyType,
     },
     total=False,
 )
-ConstCpThermoInput = TypedDict(
-    "ConstCpThermoInput",
+_ConstCpThermoInput = TypedDict(
+    "_ConstCpThermoInput",
     {
         "model": Required[str],
-        "T0": QuantityType,
-        "h0": QuantityType,
-        "s0": QuantityType,
-        "cp0": QuantityType,
+        "T0": _QuantityType,
+        "h0": _QuantityType,
+        "s0": _QuantityType,
+        "cp0": _QuantityType,
         "T-min": float,
         "T-max": float,
     },
     total=False,
 )
-Mu0ThermoInput = TypedDict(
-    "Mu0ThermoInput",
+_Mu0ThermoInput = TypedDict(
+    "_Mu0ThermoInput",
     {
         "model": Required[str],
         "reference-pressure": float,
@@ -154,10 +154,10 @@ Mu0ThermoInput = TypedDict(
     },
     total=False,
 )
-HkftThermoType: TypeAlias = QuantityType | list[QuantityType]
+_HkftThermoType: TypeAlias = _QuantityType | list[_QuantityType]
 # The last str | float here is not a QUANTITY
-HmwThermoType: TypeAlias = (
-    QuantityType | bool | dict[str, float | list[str | float]]
+_HmwThermoType: TypeAlias = (
+    _QuantityType | bool | dict[str, float | list[str | float]]
 )
 
 
@@ -280,7 +280,7 @@ def represent_float(self: SafeRepresenter, data: float) -> ScalarNode:
 RoundTripRepresenter.add_representer(float, represent_float)
 
 
-def get_float_or_quantity(node: etree.Element) -> QuantityType:
+def get_float_or_quantity(node: etree.Element) -> _QuantityType:
     """Process an XML node into a float value or a value with units.
 
     :param node:
@@ -719,7 +719,7 @@ class Phase:
 
     def ideal_molal_solution(
         self, activity_coeffs: etree.Element
-    ) -> dict[str, QuantityType]:
+    ) -> dict[str, _QuantityType]:
         """Process the cutoff data in an ``IdealMolalSolution`` phase-thermo type.
 
         :param activity_coeffs:
@@ -731,7 +731,7 @@ class Phase:
         dictionary will be empty when there are no cutoff nodes in the
         ``activityCoefficients`` node.
         """
-        cutoff: dict[str, QuantityType] = {}
+        cutoff: dict[str, _QuantityType] = {}
         cutoff_node = activity_coeffs.find("idealMolalSolnCutoff")
         if cutoff_node is not None:
             cutoff_model = cutoff_node.get("model")
@@ -745,7 +745,7 @@ class Phase:
 
     def margules(
         self, activity_coeffs: etree.Element
-    ) -> list[dict[str, list[QuantityType]]]:
+    ) -> list[dict[str, list[_QuantityType]]]:
         """Process activity coefficients for a ``Margules`` phase-thermo type.
 
         :param activity_coeffs:
@@ -759,7 +759,7 @@ class Phase:
         because this function would have to go through the same nodes again.
         """
         all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
-        interactions: list[dict[str, list[QuantityType]]] = []
+        interactions: list[dict[str, list[_QuantityType]]] = []
         for binary_params in all_binary_params:
             species_A = binary_params.get("speciesA")
             species_B = binary_params.get("speciesB")
@@ -769,7 +769,7 @@ class Phase:
                     "'speciesB' attributes",
                     binary_params,
                 )
-            this_node: dict[str, list[QuantityType]] = {
+            this_node: dict[str, list[_QuantityType]] = {
                 "species": FlowList([species_A, species_B])
             }
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
@@ -830,7 +830,7 @@ class Phase:
 
     def redlich_kister(
         self, activity_coeffs: etree.Element
-    ) -> list[dict[str, list[QuantityType]]]:
+    ) -> list[dict[str, list[_QuantityType]]]:
         """Process activity coefficients for a Redlich-Kister phase-thermo type.
 
         :param activity_coeffs:
@@ -847,7 +847,7 @@ class Phase:
                 "'binaryNeutralSpeciesParameters' node",
                 activity_coeffs,
             )
-        interactions: list[dict[str, list[QuantityType]]] = []
+        interactions: list[dict[str, list[_QuantityType]]] = []
         for binary_params in all_binary_params:
             species_A = binary_params.get("speciesA")
             species_B = binary_params.get("speciesB")
@@ -857,7 +857,7 @@ class Phase:
                     "'speciesB' attributes",
                     binary_params,
                 )
-            this_node: dict[str, list[QuantityType]] = {
+            this_node: dict[str, list[_QuantityType]] = {
                 "species": FlowList([species_A, species_B])
             }
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
@@ -947,10 +947,10 @@ class Phase:
         parameters from the `Phase` node into the `Species` nodes. This modifies the
         `Species` objects in-place in the ``species_data`` list.
         """
-        all_species_eos: dict[str, RedlichKwongInput] = {}
+        all_species_eos: dict[str, _RedlichKwongInput] = {}
         for pure_param in activity_coeffs.iterfind("pureFluidParameters"):
-            eq_of_state: RedlichKwongInput = cast(
-                RedlichKwongInput, BlockMap({"model": "Redlich-Kwong"})
+            eq_of_state: _RedlichKwongInput = cast(
+                _RedlichKwongInput, BlockMap({"model": "Redlich-Kwong"})
             )
             pure_species = pure_param.get("species")
             if pure_species is None:
@@ -1318,7 +1318,7 @@ class Phase:
 
         return tab_thermo
 
-    def hmw_electrolyte(self, activity_node: etree.Element) -> dict[str, HmwThermoType]:
+    def hmw_electrolyte(self, activity_node: etree.Element) -> dict[str, _HmwThermoType]:
         """Process the activity coefficients for an ``HMW`` phase-thermo type.
 
         :param activity_coeffs:
@@ -1380,7 +1380,7 @@ class Phase:
         this_phase_species: list[dict[str, Iterable[str]]],
         activity_node: etree.Element,
         species_data: dict[str, list["Species"]],
-    ) -> dict[str, QuantityType | bool]:
+    ) -> dict[str, _QuantityType | bool]:
         """Process the activity coefficients for the ``DebyeHuckel`` phase-thermo type.
 
         :param this_phase_species:
@@ -1433,7 +1433,7 @@ class Phase:
             activity_data["B-dot"] = get_float_or_quantity(B_dot_node)
 
         ionic_radius_node = activity_node.find("ionicRadius")
-        species_ionic_radii: dict[str, QuantityType] = {}
+        species_ionic_radii: dict[str, _QuantityType] = {}
         if ionic_radius_node is not None:
             default_radius = ionic_radius_node.get("default")
             radius_units = ionic_radius_node.get("units")
@@ -1464,7 +1464,7 @@ class Phase:
                 # names in this matrix do not contain colons, so we retain that
                 # behavior here.
                 species_1, species_2, beta_value = beta_text.split(":")
-                beta_dict: DebyeHuckelBetaMatrix = {
+                beta_dict: _DebyeHuckelBetaMatrix = {
                     "species": FlowList([species_1, species_2])
                 }
                 if beta_units is not None:
@@ -1567,7 +1567,7 @@ class SpeciesThermo:
         if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
-        self.attribs: SpeciesThermoInput = func(thermo)
+        self.attribs: _SpeciesThermoInput = func(thermo)
 
     def process_polynomial(
         self, thermo: etree.Element, poly_type: str
@@ -1616,53 +1616,53 @@ class SpeciesThermo:
 
         return data, FlowList(sorted(temperature_ranges))
 
-    def Shomate(self, thermo: etree.Element) -> SpeciesThermoInput:
+    def Shomate(self, thermo: etree.Element) -> _SpeciesThermoInput:
         """Process a Shomate `Species` thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``Shomate``.
         """
-        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "Shomate"}))
+        thermo_attribs = cast(_SpeciesThermoInput, BlockMap({"model": "Shomate"}))
         data, temperature_ranges = self.process_polynomial(thermo, "Shomate")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA(self, thermo: etree.Element) -> SpeciesThermoInput:
+    def NASA(self, thermo: etree.Element) -> _SpeciesThermoInput:
         """Process a NASA 7-coefficient thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``NASA``.
         """
-        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "NASA7"}))
+        thermo_attribs = cast(_SpeciesThermoInput, BlockMap({"model": "NASA7"}))
         data, temperature_ranges = self.process_polynomial(thermo, "NASA")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA9(self, thermo: etree.Element) -> SpeciesThermoInput:
+    def NASA9(self, thermo: etree.Element) -> _SpeciesThermoInput:
         """Process a NASA 9-coefficient thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one or more child nodes with
             the tag ``NASA9``.
         """
-        thermo_attribs = cast(SpeciesThermoInput, BlockMap({"model": "NASA9"}))
+        thermo_attribs = cast(_SpeciesThermoInput, BlockMap({"model": "NASA9"}))
         data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def const_cp(self, thermo: etree.Element) -> ConstCpThermoInput:
+    def const_cp(self, thermo: etree.Element) -> _ConstCpThermoInput:
         """Process a `Species` thermodynamic type with constant specific heat.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one child node with the tag
             ``const_cp``.
         """
-        thermo_attribs = cast(ConstCpThermoInput, BlockMap({"model": "constant-cp"}))
+        thermo_attribs = cast(_ConstCpThermoInput, BlockMap({"model": "constant-cp"}))
         const_cp_node = thermo.find("const_cp")
         if const_cp_node is None:
             raise MissingXMLNode(
@@ -1685,14 +1685,14 @@ class SpeciesThermo:
 
         return thermo_attribs
 
-    def Mu0(self, thermo: etree.Element) -> Mu0ThermoInput:
+    def Mu0(self, thermo: etree.Element) -> _Mu0ThermoInput:
         """Process a piecewise Gibbs Free Energy thermodynamic polynomial.
 
         :param thermo:
             A ``species/thermo`` XML node. There must be one child node with the tag
             ``Mu0``.
         """
-        thermo_attribs = cast(Mu0ThermoInput, BlockMap({"model": "piecewise-Gibbs"}))
+        thermo_attribs = cast(_Mu0ThermoInput, BlockMap({"model": "piecewise-Gibbs"}))
         Mu0_node = thermo.find("Mu0")
         if Mu0_node is None:
             raise MissingXMLNode("The 'thermo' node must contain a 'Mu0' node.", thermo)
@@ -1915,7 +1915,7 @@ class Species:
         if debye_huckel:
             self.attribs["Debye-Huckel"] = debye_huckel
 
-    def hkft(self, species_node: etree.Element) -> dict[str, HkftThermoType]:
+    def hkft(self, species_node: etree.Element) -> dict[str, _HkftThermoType]:
         """Process a species with HKFT thermo type.
 
         :param species_node:
@@ -1986,7 +1986,7 @@ class Species:
                 # species __init__ function
                 return
 
-            eqn_of_state: dict[str, QuantityType | list[QuantityType]] = {
+            eqn_of_state: dict[str, _QuantityType | list[_QuantityType]] = {
                 "model": self.standard_state_model_mapping[std_state_model]
             }
             if std_state_model == "constant_incompressible":
@@ -2214,7 +2214,7 @@ class Reaction:
         """
         return representer.represent_dict(data.attribs)
 
-    def sri(self, rate_coeff: etree.Element) -> SriType:
+    def sri(self, rate_coeff: etree.Element) -> _SriType:
         """Process an SRI reaction.
 
         :param rate_coeff:
@@ -2232,13 +2232,13 @@ class Reaction:
         reaction_attribs["SRI"] = SRI_data
         return reaction_attribs
 
-    def threebody(self, rate_coeff: etree.Element) -> ThreebodyType:
+    def threebody(self, rate_coeff: etree.Element) -> _ThreebodyType:
         """Process a three-body reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = cast(ThreebodyType, FlowMap({"type": "three-body"}))
+        reaction_attribs = cast(_ThreebodyType, FlowMap({"type": "three-body"}))
         reaction_attribs["rate-constant"] = self.process_arrhenius_parameters(
             rate_coeff.find("Arrhenius")
         )
@@ -2248,13 +2248,13 @@ class Reaction:
 
         return reaction_attribs
 
-    def lindemann(self, rate_coeff: etree.Element) -> LindemannType:
+    def lindemann(self, rate_coeff: etree.Element) -> _LindemannType:
         """Process a Lindemann falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = cast(LindemannType, FlowMap({"type": "falloff"}))
+        reaction_attribs = cast(_LindemannType, FlowMap({"type": "falloff"}))
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             if arr_coeff.get("name") == "k0":
                 reaction_attribs["low-P-rate-constant"] = (
@@ -2272,14 +2272,14 @@ class Reaction:
 
         return reaction_attribs
 
-    def troe(self, rate_coeff: etree.Element) -> TroeType:
+    def troe(self, rate_coeff: etree.Element) -> _TroeType:
         """Process a Troe falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
         # This gets the low-p and high-p rate constants and the efficiencies
-        reaction_attribs: TroeType = self.lindemann(rate_coeff)
+        reaction_attribs: _TroeType = self.lindemann(rate_coeff)
 
         troe_node = rate_coeff.find("falloff")
         if troe_node is None:
@@ -2288,7 +2288,7 @@ class Reaction:
             )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
-        reaction_attribs["Troe"] = cast(TroeParams, FlowMap())
+        reaction_attribs["Troe"] = cast(_TroeParams, FlowMap())
         assert not isinstance(reaction_attribs["Troe"], str)
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (that is, troe_params is three elements long), it
@@ -2298,13 +2298,13 @@ class Reaction:
 
         return reaction_attribs
 
-    def chemact(self, rate_coeff: etree.Element) -> ChemActType:
+    def chemact(self, rate_coeff: etree.Element) -> _ChemActType:
         """Process a chemically activated falloff reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attribs = cast(ChemActType, FlowMap({"type": "chemically-activated"}))
+        reaction_attribs = cast(_ChemActType, FlowMap({"type": "chemically-activated"}))
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             if arr_coeff.get("name") == "kHigh":
                 reaction_attribs["high-P-rate-constant"] = (
@@ -2328,7 +2328,7 @@ class Reaction:
             )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
-        reaction_attribs["Troe"] = cast(TroeParams, FlowMap())
+        reaction_attribs["Troe"] = cast(_TroeParams, FlowMap())
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (that is, troe_params is three elements long), it
         # will be omitted here as well.
@@ -2338,14 +2338,14 @@ class Reaction:
 
         return reaction_attribs
 
-    def plog(self, rate_coeff: etree.Element) -> PlogType:
+    def plog(self, rate_coeff: etree.Element) -> _PlogType:
         """Process a PLOG reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
         reaction_attributes = cast(
-            PlogType, FlowMap({"type": "pressure-dependent-Arrhenius"})
+            _PlogType, FlowMap({"type": "pressure-dependent-Arrhenius"})
         )
         rate_constants = []
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
@@ -2361,14 +2361,14 @@ class Reaction:
 
         return reaction_attributes
 
-    def chebyshev(self, rate_coeff: etree.Element) -> ChebyshevType:
+    def chebyshev(self, rate_coeff: etree.Element) -> _ChebyshevType:
         """Process a Chebyshev reaction.
 
         :param rate_coeff:
             The XML node with rate coefficient information for this reaction.
         """
-        reaction_attributes: ChebyshevType = cast(
-            ChebyshevType,
+        reaction_attributes: _ChebyshevType = cast(
+            _ChebyshevType,
             FlowMap(
                 {
                     "type": "Chebyshev",
@@ -2421,7 +2421,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def interface(self, rate_coeff: etree.Element) -> InterfaceType:
+    def interface(self, rate_coeff: etree.Element) -> _InterfaceType:
         """Process an interface reaction.
 
         :param rate_coeff:
@@ -2436,7 +2436,7 @@ class Reaction:
             )
         if arr_node.get("type", "").lower() == "stick":
             reaction_attributes = cast(
-                InterfaceType,
+                _InterfaceType,
                 FlowMap(
                     {
                         "sticking-coefficient": self.process_arrhenius_parameters(
@@ -2455,7 +2455,7 @@ class Reaction:
                 reaction_attributes["Motz-Wise"] = False
         else:
             reaction_attributes = cast(
-                InterfaceType,
+                _InterfaceType,
                 FlowMap({"rate-constant": self.process_arrhenius_parameters(arr_node)}),
             )
         cov_node = arr_node.find("coverage")
@@ -2495,7 +2495,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def arrhenius(self, rate_coeff: etree.Element) -> ArrheniusType:
+    def arrhenius(self, rate_coeff: etree.Element) -> _ArrheniusType:
         """Process a standard Arrhenius-type reaction.
 
         :param rate_coeff:
@@ -2511,7 +2511,7 @@ class Reaction:
 
     def process_arrhenius_parameters(
         self, arr_node: etree.Element | None
-    ) -> ArrheniusParams:
+    ) -> _ArrheniusParams:
         """Process the parameters from an ``Arrhenius`` child of a ``rateCoeff`` node.
 
         :param arr_node:
@@ -2537,7 +2537,7 @@ class Reaction:
             }
         )
 
-    def process_efficiencies(self, eff_node: etree.Element) -> EfficiencyParams:
+    def process_efficiencies(self, eff_node: etree.Element) -> _EfficiencyParams:
         """Process the efficiency information about a reaction.
 
         :param eff_node:

@@ -20,11 +20,11 @@ from ._types import (
     StateVariable,
 )
 from .solutionbase import _SolutionBase
-from .speciesthermo import SpeciesThermo, SpeciesThermoInput
-from .transport import GasTransportData, GasTransportInput
+from .speciesthermo import SpeciesThermo, _SpeciesThermoInput
+from .transport import GasTransportData, _GasTransportInput
 from .units import Units
 
-ThermoType: TypeAlias = Literal[
+_ThermoType: TypeAlias = Literal[
     "Debye-Huckel",
     "HMW-electrolyte",
     "Margules",
@@ -52,7 +52,7 @@ ThermoType: TypeAlias = Literal[
     "pure-fluid",
 ]
 
-PhaseOfMatter: TypeAlias = Literal[
+_PhaseOfMatter: TypeAlias = Literal[
     "gas",
     "liquid",
     "solid",
@@ -63,15 +63,15 @@ PhaseOfMatter: TypeAlias = Literal[
     "unspecified",
 ]
 
-QuadratureMethod: TypeAlias = Literal["simpson", "trapezoidal"]
+_QuadratureMethod: TypeAlias = Literal["simpson", "trapezoidal"]
 
-SpeciesInput = TypedDict(
-    "SpeciesInput",
+_SpeciesInput = TypedDict(
+    "_SpeciesInput",
     {
         "name": Required[str],
         "composition": Required[dict[str, float]],
-        "thermo": SpeciesThermoInput,
-        "transport": GasTransportInput,
+        "thermo": _SpeciesThermoInput,
+        "transport": _GasTransportInput,
         "equation-of-state": dict[str, Any],
         "critical-parameters": dict[str, float],
         "Debye-Huckel": dict[str, float],
@@ -92,7 +92,7 @@ class Species:
         init: bool = True,
     ) -> None: ...
     @staticmethod
-    def from_dict(data: SpeciesInput) -> Species: ...
+    def from_dict(data: _SpeciesInput) -> Species: ...
     @staticmethod
     def from_yaml(text: str) -> Species: ...
     @staticmethod
@@ -118,15 +118,15 @@ class Species:
     @transport.setter
     def transport(self, value: GasTransportData) -> None: ...
     @property
-    def input_data(self) -> SpeciesInput: ...
+    def input_data(self) -> _SpeciesInput: ...
     def update_user_data(self, data: dict[str, Any]) -> None: ...
     def clear_user_data(self) -> None: ...
 
 class ThermoPhase(_SolutionBase):
     @property
-    def thermo_model(self) -> ThermoType: ...
+    def thermo_model(self) -> _ThermoType: ...
     @property
-    def phase_of_matter(self) -> PhaseOfMatter: ...
+    def phase_of_matter(self) -> _PhaseOfMatter: ...
     def report(self, show_thermo: bool = True, threshold: float = 1e-14) -> str: ...
     def __call__(self, *args: Any, **kwargs: Any) -> None: ...
     @property
@@ -238,8 +238,8 @@ class ThermoPhase(_SolutionBase):
     ) -> None: ...
     def equivalence_ratio(
         self,
-        fuel: CompositionLike,
-        oxidizer: CompositionLike,
+        fuel: CompositionLike | None = None,
+        oxidizer: CompositionLike | None = None,
         basis: Basis = "mole",
         include_species: list[str | bytes | float] | None = None,
     ) -> float: ...
@@ -473,9 +473,18 @@ class ThermoPhase(_SolutionBase):
     def Te(self, value: float) -> None: ...
     @property
     def Pe(self) -> float: ...
+    @property
+    def reduced_electric_field(self) -> float: ...
+    @reduced_electric_field.setter
+    def reduced_electric_field(self, value: float) -> None: ...
+    @property
+    def electric_field(self) -> float: ...
+    @electric_field.setter
+    def electric_field(self, value: float) -> None: ...
     def set_discretized_electron_energy_distribution(
         self, levels: ArrayLike, distribution: ArrayLike
     ) -> None: ...
+    def update_electron_energy_distribution(self) -> None: ...
     @property
     def n_electron_energy_levels(self) -> int: ...
     @property
@@ -497,9 +506,9 @@ class ThermoPhase(_SolutionBase):
     @mean_electron_energy.setter
     def mean_electron_energy(self, energy: float) -> None: ...
     @property
-    def quadrature_method(self) -> QuadratureMethod: ...
+    def quadrature_method(self) -> _QuadratureMethod: ...
     @quadrature_method.setter
-    def quadrature_method(self, method: QuadratureMethod) -> None: ...
+    def quadrature_method(self, method: _QuadratureMethod) -> None: ...
     @property
     def normalize_electron_energy_distribution_enabled(self) -> bool: ...
     @normalize_electron_energy_distribution_enabled.setter

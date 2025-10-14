@@ -104,35 +104,35 @@ class StateDefinition(TypedDict, total=False):
     UVY: StateSetter
 
 # Convenience functions provided in _types.py:
-P = ParamSpec("P")
+_P = ParamSpec("_P")
 
-TSelf = TypeVar("TSelf")
-TReturn = TypeVar("TReturn")
-T0 = TypeVar("T0")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
+_TSelf = TypeVar("_TSelf")
+_TReturn = TypeVar("_TReturn")
+_T0 = TypeVar("_T0")
+_T1 = TypeVar("_T1")
+_T2 = TypeVar("_T2")
 
 @overload
 def add_args_to_signature(
-    to_signature: Callable[Concatenate[TSelf, P], TReturn], new_arg_type: type[T0]
+    to_signature: Callable[Concatenate[_TSelf, _P], _TReturn], new_arg_type: type[_T0]
 ) -> Callable[
-    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, P], TReturn]
+    [Callable[..., _TReturn]], Callable[Concatenate[_TSelf, _T0, _P], _TReturn]
 ]: ...
 @overload
 def add_args_to_signature(
-    to_signature: Callable[Concatenate[TSelf, P], TReturn],
-    new_arg_type0: type[T0],
-    new_arg_type1: type[T1],
+    to_signature: Callable[Concatenate[_TSelf, _P], _TReturn],
+    new_arg_type0: type[_T0],
+    new_arg_type1: type[_T1],
 ) -> Callable[
-    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, T1, P], TReturn]
+    [Callable[..., _TReturn]], Callable[Concatenate[_TSelf, _T0, _T1, _P], _TReturn]
 ]: ...
 @overload
 def add_args_to_signature(
-    to_signature: Callable[Concatenate[TSelf, P], TReturn],
-    new_arg_type0: type[T0],
-    new_arg_type1: type[T1],
-    new_arg_type2: type[T2],
+    to_signature: Callable[Concatenate[_TSelf, _P], _TReturn],
+    new_arg_type0: type[_T0],
+    new_arg_type1: type[_T1],
+    new_arg_type2: type[_T2],
 ) -> Callable[
-    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, T1, P], TReturn]
+    [Callable[..., _TReturn]], Callable[Concatenate[_TSelf, _T0, _T1, _P], _TReturn]
 ]: ...
-def literal_type_guard(tag: str, literal: TypeForm[T0]) -> TypeGuard[T0]: ...  # type: ignore[valid-type]
+def literal_type_guard(tag: str, literal: TypeForm[_T0]) -> TypeGuard[_T0]: ...  # type: ignore[valid-type]

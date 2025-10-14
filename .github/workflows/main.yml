@@ -436,6 +436,87 @@ jobs:
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab_experimental/matlabCoverage.xml
         fail_ci_if_error: true
 
+  type-checking:
+    name: Verify typing correctness and coverage of the public Python API
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    needs: ["ubuntu-multiple-pythons"]
+    strategy:
+      fail-fast: false
+    steps:
+      # Only need pyproject.toml for type checker settings
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+          architecture: x64
+      - name: Install Apt dependencies
+        run: |
+          sudo apt update
+          sudo apt install graphviz libhdf5-103 libfmt-dev libopenblas0-openmp
+      - name: Download the wheel artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: cantera-wheel-3.10-ubuntu-22.04
+          path: dist
+      - name: Download the Cantera shared library (.so)
+        uses: actions/download-artifact@v5
+        with:
+          name: libcantera_shared-ubuntu-22.04.so
+          path: build/lib
+      - name: Set up environment
+        run: |
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          echo "LD_LIBRARY_PATH=build/lib" >> $GITHUB_ENV
+          mkdir -p type_check
+      - name: Upgrade pip
+        run: python3 -m pip install -U pip setuptools wheel
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install numpy ruamel.yaml pandas pandas-stubs \
+            scipy pint graphviz typing_extensions mypy[reports]
+          python3 -m pip install --pre --no-index --find-links dist cantera
+      - name: Check static type correctness with mypy
+        run: |
+          mypy --config-file interfaces/cython/pyproject.toml \
+            -p cantera >> type_check/mypy_check.txt
+      - name: Generate coverage report with mypy
+        if: failure() || success()
+        run: |
+          mypy --config-file interfaces/cython/pyproject.toml \
+            --txt-report type_check/ interfaces/cython/cantera
+          cat type_check/index.txt >> $GITHUB_STEP_SUMMARY
+      - name: Generate coverage report with pyright
+        if: failure() || success()
+        uses: jakebailey/pyright-action@6cabc0f01c4994be48fd45cd9dbacdd6e1ee6e5e # v2.3.3
+        with:
+          ignore-external: true
+          verify-types: cantera
+      - name: Check type correctness against runtime with stubtest
+        if: failure() || success()
+        run: |
+          stubtest --mypy-config-file interfaces/cython/pyproject.toml \
+            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
+            --concise cantera >> type_check/stubtest_concise.txt
+          stubtest --mypy-config-file interfaces/cython/pyproject.toml \
+            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
+            cantera >> type_check/stubtest_detailed.txt
+          stubtest --mypy-config-file interfaces/cython/pyproject.toml \
+            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
+            --generate-allowlist cantera >> type_check/stubtest_allowlist.txt
+      - name: Archive Python API type checking results
+        if: failure() || success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-type-check-reports
+          path: type_check/*
+          retention-days: 5
+
   docs:
     name: Build docs
     runs-on: ubuntu-latest
@@ -885,7 +966,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
+          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures typing_extensions
       - name: Restore Boost cache
         uses: actions/cache@v4
         id: cache-boost

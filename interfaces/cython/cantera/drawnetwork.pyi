@@ -1,9 +1,9 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import _Wrapped
-from typing import Callable, Literal
+from typing import Literal
 
 from graphviz import Digraph
 

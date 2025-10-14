@@ -3,85 +3,88 @@
 
 from collections.abc import Callable, Iterable, Sequence
 from typing import (
+    ClassVar,
     Generic,
     TypeAlias,
     TypedDict,
     TypeVar,
 )
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, deprecated
 
 from ._types import Array, ArrayLike
+from ._utils import AnyMap
 from .composite import Solution
 from .kinetics import Kinetics
-from .units import Units
+from .units import Units, UnitStack
 
-class ArrheniusParameters(TypedDict):
+class _ArrheniusParameters(TypedDict):
     A: float
     b: float
     Ea: float
 
-class BlowersMaselParameters(TypedDict):
+class _BlowersMaselParameters(TypedDict):
     A: float
     b: float
     Ea0: float
     w: float
 
-class TwoTempPlasmaParameters(TypedDict):
+class _TwoTempPlasmaParameters(TypedDict):
     A: float
     b: float
     Ea_gas: float
     Ea_electron: float
 
-class ElectronCollisionPlasmaParameters(TypedDict):
+class _ElectronCollisionPlasmaParameters(TypedDict):
     energy_levels: list[float]
     cross_sections: list[float]
 
-class PlogParameters(ArrheniusParameters):
+class _PlogParameters(_ArrheniusParameters):
     P: float
 
-ReactionRateParameters: TypeAlias = (
-    ArrheniusParameters
-    | BlowersMaselParameters
-    | TwoTempPlasmaParameters
-    | ElectronCollisionPlasmaParameters
-    | PlogParameters
+_ReactionRateParameters: TypeAlias = (
+    _ArrheniusParameters
+    | _BlowersMaselParameters
+    | _TwoTempPlasmaParameters
+    | _ElectronCollisionPlasmaParameters
+    | _PlogParameters
 )
 
-class TroeParameters(TypedDict):
+class _TroeParameters(TypedDict):
     A: float
     T3: float
     T1: float
     T2: NotRequired[float]
 
-class CoverageParameters(TypedDict):
+class _CoverageParameters(TypedDict):
     a: float
     m: float
     E: float
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
-class ReactionRateInput(TypedDict, Generic[T], total=False):
+class _ReactionRateInput(TypedDict, Generic[_T], total=False):
     type: str
-    rate_constant: T
+    rate_constant: _T
     efficiencies: dict[str, float]
-    Troe: TroeParameters
-    coverage_dependencies: dict[str, CoverageParameters]
+    Troe: _TroeParameters
+    coverage_dependencies: dict[str, _CoverageParameters]
 
-class ReactionInput(ReactionRateInput[T]):
+class _ReactionInput(_ReactionRateInput[_T]):
     equation: str
 
-class FalloffRateInput(TypedDict, total=False):
+class _FalloffRateInput(TypedDict, total=False):
     type: str
-    low_P_rate_constant: ArrheniusParameters
-    high_P_rate_constant: ArrheniusParameters
-    Troe: TroeParameters
+    low_P_rate_constant: _ArrheniusParameters
+    high_P_rate_constant: _ArrheniusParameters
+    Troe: _TroeParameters
 
-class PlogRateInput(TypedDict, total=False):
+class _PlogRateInput(TypedDict, total=False):
     type: str
-    rate_constants: Sequence[PlogParameters]
+    rate_constants: Sequence[_PlogParameters]
 
 class ReactionRate:
+    _reaction_rate_type: ClassVar[str]
     def __call__(self, temperature: float) -> float: ...
     @property
     def type(self) -> str: ...
@@ -89,12 +92,12 @@ class ReactionRate:
     def sub_type(self) -> str: ...
     @classmethod
     def from_dict(
-        cls, data: ReactionRateInput[ReactionRateParameters], hyphenize: bool = True
+        cls, data: _ReactionRateInput[_ReactionRateParameters], hyphenize: bool = True
     ) -> ReactionRate: ...
     @classmethod
-    def from_yaml(cls, data: str, hyphenize: bool = True) -> ReactionRate: ...
+    def from_yaml(cls, text: str) -> ReactionRate: ...
     @property
-    def input_data(self) -> ReactionRateInput[ReactionRateParameters]: ...
+    def input_data(self) -> _ReactionRateInput[_ReactionRateParameters]: ...
     @property
     def conversion_units(self) -> Units: ...
 
@@ -116,7 +119,7 @@ class ArrheniusRate(ArrheniusRateBase):
         A: float | None = None,
         b: float | None = None,
         Ea: float | None = None,
-        input_data: ReactionRateInput[ArrheniusParameters] | None = None,
+        input_data: _ReactionRateInput[_ArrheniusParameters] | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_parameters(self, A: float, b: float, Ea: float) -> None: ...
@@ -128,7 +131,7 @@ class BlowersMaselRate(ArrheniusRateBase):
         b: float | None = None,
         Ea0: float | None = None,
         w: float | None = None,
-        input_data: ReactionRateInput[BlowersMaselParameters] | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_parameters(self, A: float, b: float, Ea0: float, w: float) -> None: ...
@@ -146,7 +149,7 @@ class TwoTempPlasmaRate(ArrheniusRateBase):
         b: float | None = None,
         Ea_gas: float = 0.0,
         Ea_electron: float = 0.0,
-        input_data: ReactionRateInput[TwoTempPlasmaParameters] | None = None,
+        input_data: _ReactionRateInput[_TwoTempPlasmaParameters] | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_parameters(
@@ -160,7 +163,8 @@ class ElectronCollisionPlasmaRate(ReactionRate):
         self,
         energy_levels: ArrayLike | None = None,
         cross_sections: ArrayLike | None = None,
-        input_data: ReactionRateInput[ElectronCollisionPlasmaParameters] | None = None,
+        input_data: _ReactionRateInput[_ElectronCollisionPlasmaParameters]
+        | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_parameters(
@@ -174,21 +178,21 @@ class ElectronCollisionPlasmaRate(ReactionRate):
 class FalloffRate(ReactionRate):
     def __init__(
         self,
-        low: ArrheniusParameters | None = None,
-        high: ArrheniusParameters | None = None,
+        low: _ArrheniusParameters | None = None,
+        high: _ArrheniusParameters | None = None,
         falloff_coeffs: Sequence[float] | None = None,
-        input_data: ReactionRateInput[FalloffRateInput] | None = None,
+        input_data: _ReactionRateInput[_FalloffRateInput] | None = None,
         init: bool = True,
     ) -> None: ...
     def __call__(self, temperature: float, concm: float) -> float: ...  # type: ignore[override]
     @property
-    def low_rate(self) -> Arrhenius: ...
+    def low_rate(self) -> ArrheniusRate: ...
     @low_rate.setter
-    def low_rate(self, rate: Arrhenius) -> None: ...
+    def low_rate(self, rate: ArrheniusRate) -> None: ...
     @property
-    def high_rate(self) -> Arrhenius: ...
+    def high_rate(self) -> ArrheniusRate: ...
     @high_rate.setter
-    def high_rate(self, rate: Arrhenius) -> None: ...
+    def high_rate(self, rate: ArrheniusRate) -> None: ...
     @property
     def falloff_coeffs(self) -> Array: ...
     @falloff_coeffs.setter
@@ -212,7 +216,7 @@ class PlogRate(ReactionRate):
     def __init__(
         self,
         rates: list[tuple[float, ArrheniusRate]] | None = None,
-        input_data: PlogRateInput | None = None,
+        input_data: _PlogRateInput | None = None,
         init: bool = True,
     ) -> None: ...
     def __call__(self, temperature: float, pressure: float) -> float: ...  # type: ignore[override]
@@ -235,18 +239,26 @@ class ChebyshevRate(ReactionRate):
     @property
     def data(self) -> Array: ...
 
-class CustomRate(ReactionRate): ...
-class ExtensibleRate(ReactionRate): ...
+class CustomRate(ReactionRate):
+    def set_rate_function(self, k: int) -> None: ...
+
+class ExtensibleRate(ReactionRate):
+    delegatable_methods: dict[str, tuple[str, str, str]]
+    def set_parameters(self, params: AnyMap, rate_coeff_units: UnitStack) -> None: ...
+    def get_parameters(self, params: AnyMap) -> None: ...
+    def eval(self, data: ExtensibleRateData) -> float: ...
+    def validate(self, equation: str, soln: Solution) -> None: ...
 
 class ExtensibleRateData:
+    delegatable_methods: dict[str, tuple[str, str, str]]
     def update(self, soln: Solution) -> bool: ...
 
 class InterfaceRateBase(ArrheniusRateBase):
     def __call__(self, temperature: float, coverages: Array) -> float: ...  # type: ignore[override]
     @property
-    def coverage_dependencies(self) -> dict[str, CoverageParameters]: ...
+    def coverage_dependencies(self) -> dict[str, _CoverageParameters]: ...
     @coverage_dependencies.setter
-    def coverage_dependencies(self, deps: dict[str, CoverageParameters]) -> None: ...
+    def coverage_dependencies(self, deps: dict[str, _CoverageParameters]) -> None: ...
     def set_species(self, species: Iterable[str]) -> None: ...
     @property
     def site_density(self) -> float: ...
@@ -263,7 +275,7 @@ class InterfaceArrheniusRate(InterfaceRateBase):
         A: float | None = None,
         b: float | None = None,
         Ea: float | None = None,
-        input_data: ReactionRateInput[ArrheniusParameters] | None = None,
+        input_data: _ReactionRateInput[_ArrheniusParameters] | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_parameters(self, A: float, b: float, Ea: float) -> None: ...
@@ -275,11 +287,11 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         b: float | None = None,
         Ea0: float | None = None,
         w: float | None = None,
-        input_data: ReactionRateInput[BlowersMaselParameters] | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None: ...
     def _from_dict(
-        self, input_data: ReactionRateInput[BlowersMaselParameters]
+        self, input_data: _ReactionRateInput[_BlowersMaselParameters]
     ) -> None: ...
     def _from_parameters(self, A: float, b: float, Ea0: float, w: float) -> None: ...
     @property
@@ -289,7 +301,24 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
     @delta_enthalpy.setter
     def delta_enthalpy(self, delta_H: float) -> None: ...
 
-class StickRateBase(InterfaceRateBase): ...
+class StickRateBase(InterfaceRateBase):
+    @property
+    def motz_wise_correction(self) -> bool: ...
+    @motz_wise_correction.setter
+    def motz_wise_correction(self, motz_wise: bool) -> None: ...
+    @property
+    def sticking_species(self) -> str: ...
+    @sticking_species.setter
+    def sticking_species(self, species: str) -> None: ...
+    @property
+    def sticking_order(self) -> float: ...
+    @sticking_order.setter
+    def sticking_order(self, order: float) -> None: ...
+    @property
+    def sticking_weight(self) -> float: ...
+    @sticking_weight.setter
+    def sticking_weight(self, weight: float) -> None: ...
+
 class StickingArrheniusRate(StickRateBase): ...
 
 class StickingBlowersMaselRate(StickRateBase):
@@ -299,9 +328,19 @@ class StickingBlowersMaselRate(StickRateBase):
         b: float | None = None,
         Ea0: float | None = None,
         w: float | None = None,
-        input_data: ReactionRateInput[BlowersMaselParameters] | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None: ...
+    def _from_dict(
+        self, input_data: _ReactionRateInput[_BlowersMaselParameters]
+    ) -> None: ...
+    def _from_parameters(self, A: float, b: float, Ea0: float, w: float) -> None: ...
+    @property
+    def bond_energy(self) -> float: ...
+    @property
+    def delta_enthalpy(self) -> float: ...
+    @delta_enthalpy.setter
+    def delta_enthalpy(self, delta_H: float) -> None: ...
 
 class ThirdBody:
     def __init__(
@@ -332,8 +371,8 @@ class Reaction:
         reactants: dict[str, float] | None = None,
         products: dict[str, float] | None = None,
         rate: ReactionRate
-        | ReactionRateInput[ReactionRateParameters]
-        | ArrheniusParameters
+        | _ReactionRateInput[_ReactionRateParameters]
+        | _ArrheniusParameters
         | Callable[[float], float]
         | None = None,
         *,
@@ -344,12 +383,12 @@ class Reaction:
     @classmethod
     def from_dict(
         cls,
-        data: ReactionRateInput[ReactionRateParameters],
+        data: _ReactionRateInput[_ReactionRateParameters],
         kinetics: Kinetics,
         hyphenize: bool = True,
     ) -> Reaction: ...
     @classmethod
-    def from_yaml(cls, data: str, kinetics: Kinetics) -> Reaction: ...
+    def from_yaml(cls, text: str, kinetics: Kinetics) -> Reaction: ...
     @staticmethod
     def list_from_file(
         filename: str, kinetics: Kinetics, section: str = "reactions"
@@ -398,18 +437,21 @@ class Reaction:
     @allow_negative_orders.setter
     def allow_negative_orders(self, allow: bool) -> None: ...
     @property
-    def input_data(self) -> ReactionRateInput[ReactionRateParameters]: ...
+    def input_data(self) -> _ReactionRateInput[_ReactionRateParameters]: ...
     def update_user_data(self, data: dict[str, str | float]) -> None: ...
     def clear_user_data(self) -> None: ...
+    @property
+    def rate_coeff_units(self) -> Units: ...
     @property
     def third_body(self) -> ThirdBody | None: ...
     @property
     def third_body_name(self) -> str | None: ...
 
+@deprecated(
+    "class Arrhenius: To be removed after Cantera 3.2. Replace with 'ArrheniusRate'"
+)
 class Arrhenius:
-    def __init__(
-        self, A: float = 0, b: float = 0, E: float = 0, init: bool = True
-    ) -> None: ...
+    def __init__(self, A: float = 0, b: float = 0, E: float = 0) -> None: ...
     @property
     def pre_exponential_factor(self) -> float: ...
     @property

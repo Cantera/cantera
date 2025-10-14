@@ -6,7 +6,7 @@ from typing import Literal, TypeAlias, TypedDict
 from ._types import Array, ArrayLike
 from .solutionbase import _SolutionBase
 
-TransportModel: TypeAlias = Literal[
+_TransportModel: TypeAlias = Literal[
     "none",
     "unity-Lewis-number",
     "mixture-averaged",
@@ -19,11 +19,11 @@ TransportModel: TypeAlias = Literal[
     "high-pressure=Chung",
 ]
 
-GeometryOptions: TypeAlias = Literal["atom", "linear", "nonlinear"]
+_GeometryOptions: TypeAlias = Literal["atom", "linear", "nonlinear"]
 
-class GasTransportInput(TypedDict, total=False):
+class _GasTransportInput(TypedDict, total=False):
     model: Literal["gas"]
-    geometry: GeometryOptions
+    geometry: _GeometryOptions
     diameter: float
     well_depth: float
     dipole: float
@@ -34,8 +34,8 @@ class GasTransportInput(TypedDict, total=False):
     quadrupole_polarizability: float
     note: str
 
-TransportFittingErrors = TypedDict(
-    "TransportFittingErrors",
+_TransportFittingErrors = TypedDict(
+    "_TransportFittingErrors",
     {
         "viscosity-max-abs-error": float,
         "viscosity-max-rel-error": float,
@@ -49,7 +49,7 @@ TransportFittingErrors = TypedDict(
 class GasTransportData:
     def __init__(
         self,
-        geometry: GeometryOptions | Literal[""] = "",
+        geometry: _GeometryOptions | Literal[""] = "",
         diameter: float = -1,
         well_depth: float = -1,
         dipole: float = 0.0,
@@ -74,13 +74,13 @@ class GasTransportData:
         quadrupole_polarizability: float = 0.0,
     ) -> None: ...
     @property
-    def input_data(self) -> GasTransportInput: ...
+    def input_data(self) -> _GasTransportInput: ...
     def update_user_data(self, data: GasTransportData) -> None: ...
     def clear_user_data(self) -> None: ...
     @property
-    def geometry(self) -> GeometryOptions: ...
+    def geometry(self) -> _GeometryOptions: ...
     @geometry.setter
-    def geometry(self, geometry: GeometryOptions) -> None: ...
+    def geometry(self, geometry: _GeometryOptions) -> None: ...
     @property
     def diameter(self) -> float: ...
     @diameter.setter
@@ -116,9 +116,9 @@ class GasTransportData:
 
 class Transport(_SolutionBase):
     @property
-    def transport_model(self) -> TransportModel: ...
+    def transport_model(self) -> _TransportModel: ...
     @transport_model.setter
-    def transport_model(self, model: TransportModel) -> None: ...
+    def transport_model(self, model: _TransportModel) -> None: ...
     @property
     def CK_mode(self) -> bool: ...
     @property
@@ -166,7 +166,7 @@ class Transport(_SolutionBase):
         actualT: bool = False,
     ) -> None: ...
     @property
-    def transport_fitting_errors(self) -> TransportFittingErrors: ...
+    def transport_fitting_errors(self) -> _TransportFittingErrors: ...
 
 class DustyGasTransport(Transport):
     @property

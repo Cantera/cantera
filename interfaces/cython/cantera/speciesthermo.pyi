@@ -6,9 +6,10 @@ from typing import Any, ClassVar, TypedDict
 from typing_extensions import Required
 
 from ._types import Array, ArrayLike
+from .constants import gas_constant as gas_constant
 
-SpeciesThermoInput = TypedDict(
-    "SpeciesThermoInput",
+_SpeciesThermoInput = TypedDict(
+    "_SpeciesThermoInput",
     {
         "model": Required[str],
         "temperature-ranges": list[float],
@@ -42,7 +43,7 @@ class SpeciesThermo:
     @property
     def coeffs(self) -> Array: ...
     @property
-    def input_data(self) -> SpeciesThermoInput: ...
+    def input_data(self) -> _SpeciesThermoInput: ...
     def update_user_data(self, data: dict[str, Any]) -> None: ...
     def clear_user_data(self) -> None: ...
     def cp(self, T: float) -> float: ...

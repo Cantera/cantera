@@ -14,16 +14,16 @@ from typing import (
 from typing_extensions import Never, Self
 
 from ._types import Array, ArrayLike, Basis, CompressionLevel
-from .kinetics import Kinetics, KineticsType
+from .kinetics import Kinetics, _KineticsType
 from .reaction import Reaction
-from .thermo import Species, ThermoPhase, ThermoType
-from .transport import TransportModel
-from .units import UnitDict, UnitDictBytes, UnitSystem
+from .thermo import Species, ThermoPhase, _ThermoType
+from .transport import _TransportModel
+from .units import UnitSystem, _UnitDict, _UnitDictBytes
 
-_SORTING_TYPE: TypeAlias = Literal["alphabetical", "molar-mass"] | None
+_SortingType: TypeAlias = Literal["alphabetical", "molar-mass"] | None
 
-YamlHeader = TypedDict(
-    "YamlHeader",
+_YamlHeader = TypedDict(
+    "_YamlHeader",
     {
         "description": str,
         "generator": str,
@@ -60,13 +60,13 @@ class _SolutionBase:
     @property
     def composite(
         self,
-    ) -> tuple[ThermoType | None, KineticsType | None, TransportModel | None]: ...
+    ) -> tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]: ...
     @property
     def input_data(
         self,
     ) -> dict[str, str | list[str] | dict[str, float | dict[str, float]]]: ...
     @property
-    def input_header(self) -> YamlHeader: ...
+    def input_header(self) -> _YamlHeader: ...
     def update_user_data(self, data: dict[str, Any]) -> None: ...
     def clear_user_data(self) -> None: ...
     def update_user_header(self, data: dict[str, str | list[str]]) -> None: ...
@@ -76,7 +76,7 @@ class _SolutionBase:
         self,
         filename: None,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | UnitDict | UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -86,7 +86,7 @@ class _SolutionBase:
         self,
         filename: str | Path,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | UnitDict | UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -94,9 +94,9 @@ class _SolutionBase:
     @overload
     def write_yaml(
         self,
-        filename: str | Path | None,
+        filename: str | Path | None = None,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | UnitDict | UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -106,8 +106,8 @@ class _SolutionBase:
         mechanism_path: str | Path | None = None,
         thermo_path: str | Path | None = None,
         transport_path: str | Path | None = None,
-        sort_species: _SORTING_TYPE = None,
-        sort_elements: _SORTING_TYPE = None,
+        sort_species: _SortingType = None,
+        sort_elements: _SortingType = None,
         overwrite: bool = False,
         quiet: bool = False,
     ) -> None: ...
@@ -136,12 +136,22 @@ class SolutionArrayBase:
     def size(self) -> int: ...
     def _api_shape(self) -> tuple[int, ...]: ...
     def _set_api_shape(self, shape: Sequence[int]) -> None: ...
+    @overload
     def info(
         self,
         keys: Sequence[str] | None = None,
         rows: int = 10,
         width: int | None = None,
+        display: Literal[False] = False,
     ) -> str: ...
+    @overload
+    def info(
+        self,
+        keys: Sequence[str] | None = None,
+        rows: int = 10,
+        width: int | None = None,
+        display: bool = True,
+    ) -> None: ...
     @property
     def meta(self) -> dict[str, Any]: ...
     @meta.setter

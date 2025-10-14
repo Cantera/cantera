@@ -1,0 +1,59 @@
+cantera._types.*
+
+# Exclude ArgumentParser, Path, and various types
+((_|\w)+\.)+_?(ArgumentParser|Path|Any|Iterable|Sequence|TypedDict|TypeVar).*
+
+# Exclude all dunder methods
+# cantera\.((_|\w)+\.)+__[a-zA-Z0-9_]*__
+
+# Exclude all dunder methods except for __init__
+# cantera\.((_|\w)+\.)+__(?!init__$)[a-zA-Z0-9_]*__
+
+# Exclude specific dunder methods
+cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys)__
+
+# Current output of stubtest --generate-allowlist
+cantera.Arrhenius.__init__
+cantera.ArrheniusRate.__init__
+cantera.BlowersMaselRate.__init__
+cantera.ConnectorNode.__init__
+cantera.ElectronCollisionPlasmaRate.__init__
+cantera.ExtensibleRate.__init__
+cantera.FalloffRate.__init__
+cantera.GasTransportData.__init__
+cantera.InterfaceArrheniusRate.__init__
+cantera.InterfaceBlowersMaselRate.__init__
+cantera.Mixture.__init__
+cantera.PlogRate.__init__
+cantera.Reaction.__init__
+cantera.ReactionPathDiagram.__init__
+cantera.SolutionArray.__init__
+cantera.SolutionArrayBase.__init__
+cantera.SpeciesThermo.__init__
+cantera.StickingBlowersMaselRate.__init__
+cantera.SystemJacobian.__init__
+cantera.ThirdBody.__init__
+cantera.TwoTempPlasmaRate.__init__
+cantera.ck2yaml.ChemicallyActivated.__init__
+cantera.ck2yaml.Falloff.__init__
+cantera.composite.SolutionArray.__init__
+cantera.jacobians.SystemJacobian.__init__
+cantera.mixture.Mixture.__init__
+cantera.reaction.Arrhenius.__init__
+cantera.reaction.ArrheniusRate.__init__
+cantera.reaction.BlowersMaselRate.__init__
+cantera.reaction.ElectronCollisionPlasmaRate.__init__
+cantera.reaction.ExtensibleRate.__init__
+cantera.reaction.FalloffRate.__init__
+cantera.reaction.InterfaceArrheniusRate.__init__
+cantera.reaction.InterfaceBlowersMaselRate.__init__
+cantera.reaction.PlogRate.__init__
+cantera.reaction.Reaction.__init__
+cantera.reaction.StickingBlowersMaselRate.__init__
+cantera.reaction.ThirdBody.__init__
+cantera.reaction.TwoTempPlasmaRate.__init__
+cantera.reactionpath.ReactionPathDiagram.__init__
+cantera.reactor.ConnectorNode.__init__
+cantera.solutionbase.SolutionArrayBase.__init__
+cantera.speciesthermo.SpeciesThermo.__init__
+cantera.transport.GasTransportData.__init__

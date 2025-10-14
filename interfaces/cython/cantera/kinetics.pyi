@@ -8,11 +8,11 @@ from ._types import Array
 from .reaction import CustomRate, Reaction
 from .solutionbase import _SolutionBase
 from .thermo import ThermoPhase
-from .units import UnitDict, UnitDictBytes, UnitSystem
+from .units import UnitSystem, _UnitDict, _UnitDictBytes
 
-KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
+_KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
 
-class DerivativeSettings(TypedDict, total=False):
+class _DerivativeSettings(TypedDict, total=False):
     skip_third_bodies: bool
     skip_falloff: bool
     rtol_delta: float
@@ -71,9 +71,9 @@ class Kinetics(_SolutionBase):
     @property
     def net_production_rates(self) -> Array: ...
     @property
-    def derivative_settings(self) -> DerivativeSettings: ...
+    def derivative_settings(self) -> _DerivativeSettings: ...
     @derivative_settings.setter
-    def derivative_settings(self, settings: DerivativeSettings) -> None: ...
+    def derivative_settings(self, settings: _DerivativeSettings) -> None: ...
     @property
     def forward_rate_constants_ddT(self) -> Array: ...
     @property
@@ -171,7 +171,7 @@ class InterfaceKinetics(Kinetics):
         dt: float,
         rtol: float = 1e-7,
         atol: float = 1e-14,
-        max_step_size: float = 0,
+        max_step_size: float = 0.0,
         max_steps: int = 20000,
         max_error_test_failures: int = 7,
     ) -> None: ...
@@ -186,7 +186,7 @@ class InterfaceKinetics(Kinetics):
         self,
         filename: str,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | UnitDict | UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
     ) -> None: ...

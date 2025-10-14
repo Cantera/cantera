@@ -42,13 +42,13 @@ def Water(backend: _Literal["Reynolds", "IAPWS95"] = "Reynolds") -> PureFluid:
     :ct:`WaterSSTP` and :ct:`WaterTransport` in the Cantera C++ source
     code documentation.
     """
-    class WaterWithTransport(Transport, PureFluid):
+    class _WaterWithTransport(Transport, PureFluid):
         __slots__ = ()
 
     if backend == "Reynolds":
-        return WaterWithTransport("liquidvapor.yaml", "water", transport_model="water")
+        return _WaterWithTransport("liquidvapor.yaml", "water", transport_model="water")
     if backend == "IAPWS95":
-        return WaterWithTransport(
+        return _WaterWithTransport(
             "liquidvapor.yaml", "liquid-water-IAPWS95", transport_model="water"
         )
 

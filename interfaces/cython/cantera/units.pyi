@@ -5,8 +5,8 @@ from typing import TypedDict, overload
 
 from ._types import Array
 
-UnitDict = TypedDict(
-    "UnitDict",
+_UnitDict = TypedDict(
+    "_UnitDict",
     {
         "activation-energy": str,
         "current": str,
@@ -20,8 +20,8 @@ UnitDict = TypedDict(
     },
     total=False,
 )
-UnitDictBytes = TypedDict(
-    "UnitDictBytes",
+_UnitDictBytes = TypedDict(
+    "_UnitDictBytes",
     {
         "activation-energy": bytes,
         "current": bytes,
@@ -48,11 +48,11 @@ class UnitStack:
     def join(self, exponent: float) -> None: ...
 
 class UnitSystem:
-    def defaults(self) -> UnitDictBytes: ...
+    def defaults(self) -> _UnitDictBytes: ...
     @property
-    def units(self) -> UnitDict: ...
+    def units(self) -> _UnitDict: ...
     @units.setter
-    def units(self, units: UnitDict | UnitDictBytes) -> None: ...
+    def units(self, units: _UnitDict | _UnitDictBytes) -> None: ...
     @overload
     def convert_to(self, quantity: str | float, dest: str | Units) -> float: ...
     @overload
