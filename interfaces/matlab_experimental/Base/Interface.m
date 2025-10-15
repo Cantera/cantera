@@ -45,14 +45,14 @@ classdef Interface < Solution
                 adj(i) = varargin{i}.solnID;
             end
 
-            ID = ctFunc('soln_newInterface', src, name, adj);
+            ID = ctFunc('sol_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
             s@Solution(ID);
-            s.nAdjacent = ctFunc('soln_nAdjacent', ID);
+            s.nAdjacent = ctFunc('sol_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
-                s.adjacentNames{i} = ctString('soln_adjacentName', ID, i-1);
+                s.adjacentNames{i} = ctString('sol_adjacentName', ID, i-1);
             end
         end
 
@@ -73,7 +73,7 @@ classdef Interface < Solution
                 error(['No adjacent phase with name ''' name ''' found.'])
             end
             location = find(exact_match);
-            id = ctFunc('soln_adjacent', s.solnID, location-1);
+            id = ctFunc('sol_adjacent', s.solnID, location-1);
             adj = Solution(id);
         end
 

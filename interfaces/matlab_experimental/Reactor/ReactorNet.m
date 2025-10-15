@@ -48,24 +48,14 @@ classdef ReactorNet < handle
 
             ctIsLoaded;
 
-            if nargin == 0
-                reactors = {};
-            end
-
             if isa(reactors, 'Reactor')
                 % Allow simpler syntax for creating a network with one
                 % reactor.
                 reactors = {reactors};
             end
+            reactorIDs = cellfun(@(r) r.id, reactors);
 
-            n.id = ctFunc('reactornet_new');
-
-            % add reactors
-            nr = length(reactors);
-            for i = 1:nr
-                ctFunc('reactornet_addreactor', n.id, reactors{i}.id);
-            end
-
+            n.id = ctFunc('reactornet_new', reactorIDs);
             n.time = 0;
 
         end

@@ -169,7 +169,7 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % Based on the inlet stream velocities and determine initial 'guess'
             % for mixture fraction based on mass flux ratio.
 
-            zz = flow.gridPoints;
+            zz = flow.grid;
             dz = zz(end) - zz(1);
             mdotl = left.massFlux;
             mdotr = right.massFlux;
@@ -226,12 +226,13 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % Set the profile of the flame with the estimated axial velocities,
             % radial velocities, temperature, and mass fractions calculated above.
             flame@Sim1D({left flow right});
-            flame.setProfile(2, {'velocity', 'spread_rate'}, [zrel; u; v]);
-            flame.setProfile(2, 'T', [zrel; t]);
+            flow.setProfile('velocity', zrel, u);
+            flow.setProfile('spread_rate', zrel, v);
+            flow.setProfile('T', zrel, t);
 
             for n = 1:nsp
                 nm = tp_f.speciesName(n);
-                flame.setProfile(2, nm, [zrel; transpose(y(:, n))]);
+                flow.setProfile(nm{:}, zrel, transpose(y(:, n)));
             end
 
         end

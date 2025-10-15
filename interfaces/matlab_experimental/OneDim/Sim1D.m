@@ -41,7 +41,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = ctFunc('sim1D_new', ids);
+            s.stID = ctFunc('sim1D_newSim1D', ids);
 
         end
 
@@ -78,7 +78,7 @@ classdef Sim1D < handle
             ctFunc('sim1D_restore', s.stID, fname, id)
         end
 
-        function save(s, fname, id, desc)
+        function save(s, fname, id, desc, overwrite)
             % Save a solution to a file. ::
             %
             %     >> s.save(fname, id, desc)
@@ -93,59 +93,20 @@ classdef Sim1D < handle
             %     ID to be assigned to the file element when it is written.
             % :param desc:
             %     Description to be written to the output file.
+            % :param overwrite:
+            %     Force overwrite if file/name exists; optional (default=false)
 
             if nargin < 3
                 error('Not enough input arguments');
-            elseif nargin == 3
+            end
+            if nargin < 4
                 desc = '';
             end
-
-            ctFunc('sim1D_save', s.stID, fname, id, desc);
-        end
-
-        function x = getSolution(s, domain, component)
-            % Get a solution component in one domain. ::
-            %
-            %     >> s.getSolution(domain, component)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param domain:
-            %    String name of the domain from which the solution is desired.
-            % :param component:
-            %    String component for which the solution is desired. If omitted,
-            %    solution for all of the components will be returned in
-            %    an :math:`nPoints \times nComponents` array.
-            % :return:
-            %    Either an :math:`nPoints \times 1` vector, or
-            %    :math:`nPoints \times nComponents` array.
-
-            idom = s.stackIndex(domain);
-            d = s.domains{idom};
-            np = d.nPoints;
-
-            if nargin == 3
-                icomp = d.componentIndex(component);
-                x = zeros(1, np);
-
-                for n = 1:np
-                    x(n) = ctFunc('sim1D_value', s.stID, idom - 1, icomp - 1, n - 1);
-                end
-
-            else
-                nc = d.nComponents;
-                x = zeros(nc, np);
-
-                for m = 1:nc
-
-                    for n = 1:np
-                        x(m, n) = ctFunc('sim1D_value', s.stID, idom - 1, m - 1, n - 1);
-                    end
-
-                end
-
+            if nargin < 5
+                overwrite = false;
             end
 
+            ctFunc('sim1D_save', s.stID, fname, id, desc, overwrite);
         end
 
         function solve(s, loglevel, refineGrid)
@@ -186,10 +147,10 @@ classdef Sim1D < handle
             ctFunc('sim1D_getInitialSoln', s.stID);
         end
 
-        function n = stackIndex(s, name)
+        function n = domainIndex(s, name)
             % The index of a domain in a Sim1D given its name. ::
             %
-            %     >> n = s.stackIndex(name)
+            %     >> n = s.domainIndex(name)
             %
             % :param s:
             %    Instance of class :mat:class:`Sim1D`.
@@ -199,74 +160,12 @@ classdef Sim1D < handle
             % :return:
             %    Index of domain.
 
-            if isa(name, 'double')
-                n = name;
+            n = ctFunc('sim1D_domainIndex', s.stID, name);
+
+            if n >= 0
+                n = n + 1;
             else
-                n = ctFunc('sim1D_domainIndex', s.stID, name);
-
-                if n >= 0
-                    n = n + 1;
-                else
-                    error('Domain not found');
-                end
-
-            end
-
-        end
-
-        function z = grid(s, name)
-            % Get the grid in one domain. ::
-            %
-            %     >> z = s.grid(name)
-            %
-            % :param s:
-            %     Instance of class :mat:class:`Sim1D`.
-            % :param name:
-            %     Name of the domain for which the grid should be retrieved.
-            % :return:
-            %     The grid in domain name.
-
-            n = s.stackIndex(name);
-            d = s.domains{n};
-            z = d.gridPoints;
-        end
-
-        function r = residual(s, domain, rdt, count)
-            % Evaluate the multi-domain residual function. ::
-            %
-            %     >> r = s.residual(domain, rdt, count)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param domain:
-            %    Name of the domain.
-            % :param rdt:
-            %    Reciprocal of the time step. If omitted, the default value is used.
-            % :param count:
-            %    Set to zero to omit this call from the statistics.
-            % :return:
-            %    The multi-domain residual function.
-
-            if nargin == 2
-                rdt = 0.0;
-                count = 0;
-            end
-
-            idom = s.stackIndex(domain);
-            d = s.domains{idom};
-
-            nc = d.nComponents;
-            np = d.nPoints;
-
-            r = zeros(nc, np);
-            ctFunc('sim1D_eval', s.stID, rdt, count);
-
-            for m = 1:nc
-
-                for n = 1:np
-                    r(m, n) = ctFunc('sim1D_workValue', s.stID, idom - 1, m - 1, n - 1);
-                end
-
+                error('Domain not found');
             end
 
         end
@@ -287,23 +186,6 @@ classdef Sim1D < handle
             end
 
             ctFunc('sim1D_setFixedTemperature', s.stID, T);
-        end
-
-        function setFlatProfile(s, domain, comp, v)
-            % Set a component to a value across the entire domain. ::
-            %
-            %     >> s.setFlatProfile(domain, comp, v)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param domain:
-            %    Integer ID of the domain.
-            % :param comp:
-            %    Component to be set.
-            % :param v:
-            %    Double value to be set.
-
-            ctFunc('sim1D_setFlatProfile', s.stID, domain - 1, comp - 1, v);
         end
 
         function setGridMin(s, domain, gridmin)
@@ -340,114 +222,6 @@ classdef Sim1D < handle
             ctFunc('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
-        function setProfile(s, name, comp, p)
-            % Specify a profile for one component. ::
-            %
-            %     >> s.setProfile(name, comp, p)
-            %
-            % The solution vector values for this component will be
-            % linearly interpolated from the discrete function defined by
-            % p(:, 1) vs p(:, 2).
-            % Note that "p(1, 1) = 0.0" corresponds to the leftmost grid
-            % point in the specified domain, and "p(1, n) = 1.0"
-            % corresponds to the rightmost grid point. This method can be
-            % called at any time, but is usually used to set the initial
-            % guess for the solution.
-            %
-            % Example (assuming 's' is an instance of class :mat:class:`Sim1D`):
-            %    >> zr = [0.0, 0.1, 0.2, 0.4, 0.8, 1.0];
-            %
-            %    >> v = [500, 650, 700, 730, 800, 900];
-            %
-            %    >> s.setProfile(1, 2, [zr, v]);
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param name:
-            %    Domain name.
-            % :param comp:
-            %    Component number.
-            % :param p:
-            %    n x 2 array, whose columns are the relative (normalized)
-            %    positions and the component values at those points. The
-            %    number of positions 'n' is arbitrary.
-
-            if isa(name, 'double')
-                n = name;
-            else
-                n = s.domainIndex(name);
-            end
-
-            d = s.domains{n};
-
-            if isa(comp, 'double') || isa(comp, 'cell')
-                c = comp;
-            elseif isa(comp, 'char')
-                c = {comp};
-            else
-                error('Wrong type.');
-            end
-
-            np = length(c);
-            sz = size(p);
-
-            if sz(1) == np + 1;
-
-                for j = 1:np
-                    ic = d.componentIndex(c{j});
-                    ctFunc('sim1D_setProfile', s.stID, ...
-                            n - 1, ic - 1, p(1, :), p(j + 1, :));
-                end
-
-            elseif sz(2) == np + 1;
-                ic = d.componentIndex(c{j});
-                ctFunc('sim1D_setProfile', s.stID, ...
-                        n - 1, ic - 1, p(:, 1), p(:, j + 1));
-            else
-                error('Wrong profile shape.');
-            end
-
-        end
-
-        function setRefineCriteria(s, n, ratio, slope, curve, prune)
-            % Set the criteria used to refine the grid. ::
-            %
-            %     >> s.setRefineCriteria(n, ratio, slope, curve, prune)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param ratio:
-            %    Maximum size ratio between adjacent cells.
-            % :param slope:
-            %    Maximum relative difference in value between adjacent points.
-            % :param curve:
-            %    Maximum relative difference in slope between adjacent cells.
-            % :param prune:
-            %    Minimum value for slope or curve for which points will be
-            %    retained or curve value is below prune for all components,
-            %    it will be deleted, unless either neighboring point is
-            %    already marked for deletion.
-
-            if nargin < 3
-                ratio = 10.0;
-            end
-
-            if nargin < 4
-                slope = 0.8;
-            end
-
-            if nargin < 5
-                curve = 0.8;
-            end
-
-            if nargin < 6
-                prune = -0.1;
-            end
-
-            ctFunc('sim1D_setRefineCriteria', s.stID, ...
-                    n - 1, ratio, slope, curve, prune);
-        end
-
         function setTimeStep(s, stepsize, steps)
             % Specify a sequence of time steps. ::
             %
@@ -463,35 +237,6 @@ classdef Sim1D < handle
             %    If this failed, two time steps would be taken.
 
             ctFunc('sim1D_setTimeStep', s.stID, stepsize, steps);
-        end
-
-        function setValue(s, n, comp, localPoints, v)
-            % Set the value of a single entry in the solution vector. ::
-            %
-            %     >> s.setValue(n, comp, localPoints, v)
-            %
-            % Example (assuming 's' is an instance of class :mat:class:`Sim1D`) ::
-            %
-            %    >> s.setValue(3, 5, 1, 5.6);
-            %
-            % This sets component 5 at the leftmost point (local point 1)
-            % in domain 3 to the value 5.6. Note that the local index
-            % always begins at 1 at the left of each domain, independent of
-            % the global index of the point, which depends on the location
-            % of this domain in the class :mat:class:`Sim1D` object.
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param n:
-            %    Domain number.
-            % :param comp:
-            %    Component number.
-            % :param localPoints:
-            %    Local index of the grid point in the domain.
-            % :param v:
-            %    Value to be set.
-
-            ctFunc('sim1D_setValue', s.stID, n - 1, comp - 1, localPoints - 1, v);
         end
 
     end
