@@ -467,7 +467,8 @@ private:
 /**
  * Create a reactor network containing one or more coupled reactors.
  * Wall and FlowDevice objects should be installed prior to calling newReactorNet().
- * @param reactors  A vector of shared pointers to the reactors to be linked together.
+ * @param[in] reactors  A vector of shared pointers to the reactors to be linked
+ *      together.
  * @since New in %Cantera 3.2.
  */
 shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors);

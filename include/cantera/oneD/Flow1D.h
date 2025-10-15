@@ -150,10 +150,16 @@ public:
 
     void _finalize(const double* x) override;
 
-    //! Sometimes it is desired to carry out the simulation using a specified
-    //! temperature profile, rather than computing it by solving the energy
-    //! equation. This method specifies this profile.
-    void setFixedTempProfile(vector<double>& zfixed, vector<double>& tfixed) {
+    /**
+     * Set fixed temperature profile.
+     * Sometimes it is desired to carry out the simulation using a specified
+     * temperature profile, rather than computing it by solving the energy
+     * equation.
+     * @param zfixed  Vector containing locations where profile is specified.
+     * @param tfixed  Vector containing specified temperatures.
+     */
+    void setFixedTempProfile(const vector<double>& zfixed,
+                             const vector<double>& tfixed) {
         m_zfix = zfixed;
         m_tfix = tfixed;
     }
