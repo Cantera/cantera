@@ -55,6 +55,7 @@ f.setTransientTolerances(tol_ts{:}, 'default');
 %
 %  The burner is an ``Inlet`` object. The temperature, mass flux,
 %  and composition (relative molar) may be specified.
+
 burner = Inlet(gas, 'burner');
 burner.T = tburner;
 burner.massFlux = mdot;
@@ -81,8 +82,6 @@ fl.setMaxJacAge(max_jacobian_age(1), max_jacobian_age(2));
 % solution, uncomment this line and edit the file name and solution id.
 
 %restore(fl,'h2flame2.yaml', 'energy')
-
-fl.solve(loglevel, refine_grid);
 
 %% Enable the energy equation
 %
