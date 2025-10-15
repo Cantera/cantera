@@ -156,7 +156,8 @@ class HeaderGenerator:
                 brief = cxx_member.description
             else:
                 # Variable getter
-                prop_params, cxx_member = merge_params(recipe.wraps, cxx_member)
+                par_list, cxx_member = merge_params(recipe.wraps, cxx_member)
+                prop_params = self._prop_crosswalk(par_list)
                 ret_param, buffer_params = self._ret_crosswalk(
                     cxx_member.p_type, recipe.derived)
                 args = prop_params + buffer_params
@@ -297,7 +298,6 @@ class HeaderGenerator:
         msg = f"Failed crosswalk for return type {what!r}."
         _LOGGER.critical(msg)
         sys.exit(1)
-
 
     def _prop_crosswalk(self, par_list: list[Param]) -> list[Param]:
         """Crosswalk for argument type."""
