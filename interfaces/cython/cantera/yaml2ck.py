@@ -61,7 +61,10 @@ from pathlib import Path
 from textwrap import fill, dedent, TextWrapper
 import cantera as ct
 from email.utils import formatdate
-from typing import Optional, Iterable, Literal
+from typing import Any, Literal
+from collections.abc import Iterable
+
+from ._types import add_args_to_signature
 
 if sys.version_info < (3, 9):
     class BooleanOptionalAction(argparse.Action):
@@ -87,7 +90,7 @@ if sys.version_info < (3, 9):
 else:
     BooleanOptionalAction = argparse.BooleanOptionalAction
 
-_SORTING_TYPE = Optional[Literal["alphabetical", "molar-mass"]]
+_SORTING_TYPE = Literal["alphabetical", "molar-mass"] | None
 
 # number of calories in 1000 Joules
 CALORIES_CONSTANT = 4184.0
@@ -105,7 +108,8 @@ class HeaderTextWrapper(TextWrapper):
     .. versionadded:: 3.0
     """
 
-    def __init__(self, input_files: Iterable[str], *args, **kwargs):
+    @add_args_to_signature(TextWrapper.__init__, Iterable[str])
+    def __init__(self, input_files: Iterable[str], /, *args: Any, **kwargs: Any) -> None:
         self.input_files = input_files
         super().__init__(*args, **kwargs)
 
@@ -141,7 +145,7 @@ class HeaderTextWrapper(TextWrapper):
         return metadata + wrapped_text
 
 
-def build_elements_text(elements: Iterable[ct.Element], max_width=80) -> str:
+def build_elements_text(elements: Iterable[ct.Element], max_width: int = 80) -> str:
     """Create element definition text.
 
     :param elements:
@@ -160,7 +164,7 @@ def build_elements_text(elements: Iterable[ct.Element], max_width=80) -> str:
     return "ELEM\n" + elements_text + "\nEND\n"
 
 
-def build_species_text(species: Iterable[ct.Species], max_width=80) -> str:
+def build_species_text(species: Iterable[ct.Species], max_width: int = 80) -> str:
     """Create species definition text.
 
     :param species:
@@ -177,7 +181,7 @@ def build_species_text(species: Iterable[ct.Species], max_width=80) -> str:
     if any(len(s) > 6 for s in species_names.values()):
         max_species_len = max(len(s) for s in species_names.keys())
         max_species_len = max(5, max_species_len)
-        species_lines = []
+        species_lines: list[str] = []
         for name, note in species_names.items():
             if note and len(note) > 6:
                 species_lines.append(f"{name:<{max_species_len}} ! {note}")
@@ -337,7 +341,7 @@ def build_thermodynamics_text(
     )
 
 
-def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.Species]):
+def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.Species]) -> str:
     """
     Create the reaction definition section of this file.
 
@@ -359,7 +363,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
     high_line = "HIGH /{A} {b} {E_a}/"
     PLOG_line = "PLOG /{pressure} {A} {b} {E_a}/"
     max_reaction_length = max(len(r.equation) for r in reactions)
-    reaction_lines = []
+    reaction_lines: list[str] = []
     for reac in reactions:
         reaction_order = sum(
             v for k, v in reac.reactants.items() if k not in reac.orders
@@ -367,7 +371,9 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
         reaction_order += sum(reac.orders.values())
         unit_conversion_factor = 1_000.0 ** (reaction_order - 1)
 
+        rate: ct.ReactionRate
         if reac.rate.type == "Chebyshev":
+            assert isinstance(reac.rate, ct.ChebyshevRate)
             reaction_lines.append(
                 arrhenius_line.format(
                     equation=reac.equation,
@@ -393,6 +399,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
                 reaction_lines.append(f"CHEB /{' '.join(map(str, row))}/")
 
         elif reac.rate.type == "Arrhenius":
+            assert isinstance(reac.rate, ct.ArrheniusRate)
             if reac.reaction_type.startswith("three-body"):
                 unit_conversion_factor *= 1_000.0
             rate = reac.rate
@@ -407,6 +414,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
             )
 
         elif reac.rate.type == "pressure-dependent-Arrhenius":
+            assert isinstance(reac.rate, ct.PlogRate)
             rate = reac.rate.rates[-1][1]
             reaction_lines.append(
                 arrhenius_line.format(
@@ -428,6 +436,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
                 )
 
         elif reac.rate.type in ["falloff", "chemically-activated"]:
+            assert isinstance(reac.rate, ct.FalloffRate)
             rate = reac.rate
             if reac.rate.type == "falloff":
                 rate1 = rate.high_rate
@@ -479,6 +488,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
 
         third = reac.third_body
         if third is not None and third.name == "M" and len(third.efficiencies):
+            assert reac.third_body is not None
             reaction_lines.append(
                 " ".join(
                     f"{spec}/{value:.3E}/"
@@ -496,7 +506,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
     return "REACTIONS CAL/MOLE MOLE\n" + "\n".join(reaction_lines) + "\nEND\n"
 
 
-def build_transport_text(species: Iterable[ct.Species], separate_file: bool = False):
+def build_transport_text(species: Iterable[ct.Species], separate_file: bool = False) -> str:
     """
     Create the transport section of this file.
 
@@ -509,7 +519,7 @@ def build_transport_text(species: Iterable[ct.Species], separate_file: bool = Fa
     .. versionadded:: 3.0
     """
     if separate_file:
-        text = []
+        text: list[str] = []
     else:
         text = ["\n\nTRANSPORT"]
 
@@ -653,7 +663,7 @@ def convert(
     all_elements = [ct.Element(e) for e in solution.element_names]
     if sort_elements == "alphabetical":
         all_elements = sorted(all_elements, key=lambda e: e.symbol)
-    elif sort_elements == "atomic-mass":
+    elif sort_elements == "molar-mass":
         all_elements = sorted(all_elements, key=lambda e: e.weight)
     elif sort_elements is not None:
         raise ValueError(
@@ -723,7 +733,7 @@ def convert(
     return output_files
 
 
-def create_argparser():
+def create_argparser() -> argparse.ArgumentParser:
     """
     Create argparse parser
     """
@@ -801,7 +811,7 @@ def create_argparser():
     return parser
 
 
-def main():
+def main() -> None:
     """
     Parse command line arguments and pass them to `convert`
 
