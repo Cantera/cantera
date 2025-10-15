@@ -2252,7 +2252,7 @@ class Parser:
 
 
 def convert(input_file, thermo_file=None, transport_file=None,
-            surface_file=None, phase_name='gas', extra_file=None,
+            surface_file=None, *, phase_name='gas', extra_file=None,
             out_name=None, single_intermediate_temperature=False, quiet=False,
             permissive=None, verbose=False):
     _, surface_names = Parser.convert_mech(

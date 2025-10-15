@@ -28,10 +28,8 @@ from typing import (
     Literal,
     TypeAlias,
     TypedDict,
-    TypeGuard,
     TypeVar,
     cast,
-    get_args,
 )
 
 import numpy as np
@@ -39,7 +37,9 @@ from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from ruamel.yaml.nodes import MappingNode, ScalarNode
 from ruamel.yaml.representer import RoundTripRepresenter, SafeRepresenter
-from typing_extensions import Required, TypeForm
+from typing_extensions import Required
+
+from ._types import literal_type_guard
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version: tuple[int, int, int] = yaml.version_info
@@ -159,13 +159,6 @@ HkftThermoType: TypeAlias = QuantityType | list[QuantityType]
 HmwThermoType: TypeAlias = (
     QuantityType | bool | dict[str, float | list[str | float]]
 )
-
-_T = TypeVar("_T")
-
-
-def literal_type_guard(tag: str, literal: TypeForm[_T]) -> TypeGuard[_T]:
-    """Utility function for narrowing strings to specified literals."""
-    return tag in get_args(literal)
 
 
 BlockMap: type[CommentedMap] = CommentedMap
