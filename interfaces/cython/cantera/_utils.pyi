@@ -1,12 +1,14 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from pathlib import Path
 from typing import Any
 
 from ._types import Array
 from .units import UnitDictBytes, Units, UnitStack, UnitSystem
 
-def add_directory(directory: str) -> None: ...
+def add_directory(directory: Path | str) -> None: ...
+def add_data_directory(directory: Path | str) -> None: ...
 def get_data_directories() -> list[str]: ...
 
 __sundials_version__: str

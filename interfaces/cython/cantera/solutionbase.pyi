@@ -7,6 +7,7 @@ from typing import (
     Any,
     Literal,
     TypeAlias,
+    TypedDict,
     overload,
 )
 
@@ -20,6 +21,19 @@ from .transport import TransportModel
 from .units import UnitDict, UnitDictBytes, UnitSystem
 
 _SORTING_TYPE: TypeAlias = Literal["alphabetical", "molar-mass"] | None
+
+YamlHeader = TypedDict(
+    "YamlHeader",
+    {
+        "description": str,
+        "generator": str,
+        "input-files": list[str],
+        "cantera-version": str,
+        "git-commit": str,
+        "date": str,
+    },
+    total=False,
+)
 
 class _SolutionBase:
     def __init__(
@@ -52,7 +66,7 @@ class _SolutionBase:
         self,
     ) -> dict[str, str | list[str] | dict[str, float | dict[str, float]]]: ...
     @property
-    def input_header(self) -> dict[str, str | list[str]]: ...
+    def input_header(self) -> YamlHeader: ...
     def update_user_data(self, data: dict[str, Any]) -> None: ...
     def clear_user_data(self) -> None: ...
     def update_user_header(self, data: dict[str, str | list[str]]) -> None: ...

@@ -32,6 +32,7 @@ class GasTransportInput(TypedDict, total=False):
     acentric_factor: float
     dispersion_coefficient: float
     quadrupole_polarizability: float
+    note: str
 
 TransportFittingErrors = TypedDict(
     "TransportFittingErrors",

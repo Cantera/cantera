@@ -1,11 +1,21 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from collections.abc import Callable
 from types import EllipsisType
-from typing import Literal, TypeAlias, TypedDict
+from typing import (
+    Concatenate,
+    Literal,
+    TypeAlias,
+    TypedDict,
+    TypeGuard,
+    TypeVar,
+    overload,
+)
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
+from typing_extensions import ParamSpec, TypeForm
 
 __all__: list[str] = [
     "Array",
@@ -22,6 +32,8 @@ __all__: list[str] = [
     "StateDefinition",
     "StateSetter",
     "StateVariable",
+    "add_args_to_signature",
+    "literal_type_guard",
 ]
 
 Array: TypeAlias = NDArray[np.float64]
@@ -108,3 +120,37 @@ class StateDefinition(TypedDict, total=False):
     TPY: StateSetter
     UVX: StateSetter
     UVY: StateSetter
+
+# Convenience functions provided in _types.py:
+P = ParamSpec("P")
+
+TSelf = TypeVar("TSelf")
+TReturn = TypeVar("TReturn")
+T0 = TypeVar("T0")
+T1 = TypeVar("T1")
+T2 = TypeVar("T2")
+
+@overload
+def add_args_to_signature(
+    to_signature: Callable[Concatenate[TSelf, P], TReturn], new_arg_type: type[T0]
+) -> Callable[
+    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, P], TReturn]
+]: ...
+@overload
+def add_args_to_signature(
+    to_signature: Callable[Concatenate[TSelf, P], TReturn],
+    new_arg_type0: type[T0],
+    new_arg_type1: type[T1],
+) -> Callable[
+    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, T1, P], TReturn]
+]: ...
+@overload
+def add_args_to_signature(
+    to_signature: Callable[Concatenate[TSelf, P], TReturn],
+    new_arg_type0: type[T0],
+    new_arg_type1: type[T1],
+    new_arg_type2: type[T2],
+) -> Callable[
+    [Callable[..., TReturn]], Callable[Concatenate[TSelf, T0, T1, P], TReturn]
+]: ...
+def literal_type_guard(tag: str, literal: TypeForm[T0]) -> TypeGuard[T0]: ...
