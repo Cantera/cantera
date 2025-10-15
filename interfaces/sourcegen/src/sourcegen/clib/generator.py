@@ -96,12 +96,13 @@ class CLibSourceGenerator(SourceGenerator):
         exit(1)
 
     def _ret_crosswalk(self, c_func: Func, cxx_func: Func
-                       ) -> tuple[str, list, str | None]:
+                       ) -> tuple[str, list, str | None, str | None]:
         """Crosswalk for C++ return type."""
         c_args = c_func.arglist
         c_type = c_func.ret_type
         handle = ""
         buffer = []
+        after = None
         cxx_rbase = None
 
         cxx_type = cxx_func.ret_type
@@ -147,31 +148,32 @@ class CLibSourceGenerator(SourceGenerator):
                                f"return crosswalk not listed for C type {c_key!r}")
 
         if cxx_type == "bool":
-            buffer = [f"{cxx_type} out", "", "int(out)"]
+            buffer = [f"{cxx_type} out", "int(out)"]
         elif cxx_type.endswith("void"):
-            buffer = ["", "", "0"]
+            buffer = ["", "0"]
         elif "string" in cxx_type:
             buffer = [
                 "string out",
-                f"copyString(out, {c_args[-1].name}, {c_args[-2].name});",
                 "int(out.size()) + 1",  # include \0
             ]
+            after = f"copyString(out, {c_args[-1].name}, {c_args[-2].name});"
         elif "shared_ptr" in cxx_type:
             cxx_rbase = self._shared_object(cxx_type)
         elif "vector" in cxx_type:
             buffer = [
                 f"{cxx_type} out",
-                f"std::copy(out.begin(), out.end(), {c_args[-1].name});",
                 "int(out.size())",
             ]
+            after = f"std::copy(out.begin(), out.end(), {c_args[-1].name});"
 
-        return handle, buffer, cxx_rbase
+        return handle, buffer, after, cxx_rbase
 
     def _par_crosswalk(self, c_func: Func, cxx_func: Func, base: str
-                       ) -> tuple[list, list, set]:
+                       ) -> tuple[list, list, list, set]:
         """Crosswalk for C++ return type."""
         args = []
-        lines = []
+        before = []
+        after = []
         bases = set()
 
         c_args = c_func.arglist
@@ -220,18 +222,28 @@ class CLibSourceGenerator(SourceGenerator):
                     cxx_type = cxx_type.removeprefix("const ").rstrip("&")
                     cxx_base = cxx_type.rstrip(">").split("<")[-1]
                     bases.add(cxx_base)
-                    lines.extend([
+                    before.extend([
                         f"{cxx_type} {c_name}_;",
                         f"for (int i = 0; i < {c_prev}; i++) {{",
                         f"    {c_name}_.push_back({cxx_base}Cabinet::at({c_name}[i]));",
                         "}",
                     ])
                     args.append(f"{c_name}_")
+                elif "vector<string" in cxx_type:
+                    # requires conversion to character arrays or YAML serialization
+                    self._critical(c_func, cxx_func,
+                                   f"crosswalk not implemented for C++ {cxx_type!r}.")
                 elif "vector" in cxx_type:
                     # Example: vector<double> par_(par, par + parLen);
                     cxx_type = cxx_type.rstrip("&")
-                    lines.append(
-                        f"{cxx_type} {c_name}_({c_name}, {c_name} + {c_prev});")
+                    if cxx_arg.direction == "out":
+                        before.append(f"{cxx_type} {c_name}_({c_prev});")
+                    else:
+                        before.append(
+                            f"{cxx_type} {c_name}_({c_name}, {c_name} + {c_prev});")
+                    if not cxx_type.startswith("const") or cxx_arg.direction == "out":
+                        after.append(
+                            f"std::copy({c_name}_.begin(), {c_name}_.end(), {c_name});")
                     args.append(f"{c_name}_")
                 elif "*" in cxx_type:
                     # Can be passed directly; example: double *const
@@ -245,13 +257,13 @@ class CLibSourceGenerator(SourceGenerator):
                 if shared_base != base:
                     bases.add(shared_base)
             elif cxx_type == "bool":
-                lines.append(f"bool {c_name}_ = ({c_name} != 0);")
+                before.append(f"bool {c_name}_ = ({c_name} != 0);")
                 args.append(f"{c_name}_")
             else:
                 # Regular parameter
                 args.append(c_name)
 
-        return args, lines, bases
+        return args, before, after, bases
 
     def _crosswalk(self, c_func: Func, base: str) -> tuple[dict[str, str], set[str]]:
         """Translate CLib arguments back to Jinja argument list."""
@@ -291,8 +303,10 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_wraps = cxx_member.short_declaration()
             cxx_func = cxx_member
 
-        handle, buffer, rbase = self._ret_crosswalk(c_func, cxx_func)
-        args, lines, bases = self._par_crosswalk(c_func, cxx_func, base)
+        handle, buffer, rafter, rbase = self._ret_crosswalk(c_func, cxx_func)
+        args, before, after, bases = self._par_crosswalk(c_func, cxx_func, base)
+        if rafter:
+            after.append(rafter)
         if rbase:
             bases.add(rbase)
 
@@ -316,7 +330,8 @@ class CLibSourceGenerator(SourceGenerator):
             error = ["-2", "ERR"]
 
         ret = {
-            "base": base, "handle": handle, "lines": lines, "buffer": buffer,
+            "base": base, "handle": handle,
+            "before": before, "buffer": buffer, "after": after,
             "checks": checks, "error": error, "cxx_rbase": rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
             "cxx_wraps": cxx_wraps,
@@ -335,11 +350,11 @@ class CLibSourceGenerator(SourceGenerator):
             # override auto-generated code
             if "reserved" in recipe.what:
                 template = loader.from_string(c_func.wraps)
-                lines = template.render(cabinets=[kk for kk in self._clib_bases if kk])
+                after = template.render(cabinets=[kk for kk in self._clib_bases if kk])
             else:
-                lines = c_func.wraps
+                after = c_func.wraps
             template = loader.from_string(self._templates["clib-custom-code"])
-            args["lines"] = lines.split("\n")
+            args["after"] = after.split("\n")
 
         elif recipe.what == "function":
             template = loader.from_string(self._templates["clib-function"])
