@@ -26,8 +26,7 @@ into a CLib header within a generated `ctthermo.h` file:
 /**
  *  Copy the vector of molecular weights into array weights.
  *
- *  Wraps C++ getter:
- *  - `void Phase::getMolecularWeights(double*)`
+ *  Wraps C++ getter: `void Phase::getMolecularWeights(double*)`
  *
  *  Uses:
  *  - `size_t Phase::nSpecies()`
@@ -129,8 +128,8 @@ modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
   API. The following files define these templates:
 
     - `templates.yaml`: Defines code blocks within the header and implementation files.
-    - `template_header.h.in`: Defines the template for header files.
-    - `template_source.cpp.in`: Defines the template for implementation files.
+    - `template_header.h.j2`: Defines the template for header files.
+    - `template_source.cpp.j2`: Defines the template for implementation files.
 
 - **Source Code:** The implementation of the CLib source generator is contained in
   `generator.py`.
