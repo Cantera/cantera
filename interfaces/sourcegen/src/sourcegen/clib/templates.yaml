@@ -36,7 +36,8 @@ clib-definition: |-
 clib-function: |-
   // function: {{ cxx_wraps }}
   try {
-      {% for line in lines %}
+      {% for line in before %}
+      ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
       {% if buffer %}
@@ -45,10 +46,11 @@ clib-function: |-
       {% else %}
       {{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}
       return {{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
@@ -65,11 +67,11 @@ clib-variable-getter: |-
       ## object can be accessed directly
       {% if buffer and buffer[0] %}
       {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
-      ## CLib/C++ variable crosswalk needed
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}{# not buffer[0] #}
       ## no crosswalk needed
       return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
@@ -78,11 +80,11 @@ clib-variable-getter: |-
       ## object needs a cast as method is defined for specialization
       {% if buffer and buffer[0] %}
       {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
-      ## CLib/C++ variable crosswalk needed
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}{# not buffer[0] #}
       ## no crosswalk needed
       return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
@@ -93,10 +95,11 @@ clib-variable-getter: |-
       {% if buffer and buffer[0] %}
       ## CLib/C++ variable crosswalk needed
       {{ buffer[0] }} = {{ cxx_name }};
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}{# not buffer[0] #}
       ## no crosswalk needed
       return {{ cxx_name }};
@@ -109,7 +112,7 @@ clib-variable-getter: |-
 clib-variable-setter: |-
   // variable (setter): {{ cxx_wraps }}
   try {
-      {% for line in lines %}
+      {% for line in before %}
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
@@ -135,7 +138,7 @@ clib-constructor: |-
   ## CLib constructor template: instantiates new object
   // constructor: {{ cxx_wraps }}
   try {
-      {% for line in lines %}
+      {% for line in before %}
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
@@ -148,12 +151,12 @@ clib-accessor: |-
   ## CLib accessor template: exposes existing C++ object to CLib
   // accessor: {{ cxx_wraps }}
   try {
-      {% for line in lines %}
+      {% for line in before %}
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
       {% if checks %}
-      ## accessor uses index checker (see: sol3_adjacent)
+      ## accessor uses index checker (see: sol_adjacent)
       if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
           throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}());
       }
@@ -178,7 +181,7 @@ clib-method: |-
   ## covers methods as well as getters and setters for scalars
   // {{ what }}: {{ cxx_wraps }}
   try {
-      {% for line in lines %}
+      {% for line in before %}
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
@@ -196,10 +199,11 @@ clib-method: |-
       {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
       {% endif %}
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}
       {% if cxx_base == base %}
       return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
@@ -231,10 +235,11 @@ clib-array-getter: |-
       {% endif %}
       {% if buffer and buffer[0] %}
       {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});
-      {% if buffer[1] %}
-      {{ buffer[1] }}
-      {% endif %}
-      return {{ buffer[2] }};
+      {% for line in after %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      return {{ buffer[1] }};
       {% else %}
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
@@ -269,7 +274,7 @@ clib-custom-code: |-
   // {{ what }}: custom code
   try {
       // *************** begin custom code ***************
-      {% for line in lines %}
+      {% for line in after %}
       {{ line }}
       {% endfor %}
       // **************** end custom code ****************
