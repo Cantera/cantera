@@ -11,6 +11,27 @@ clib-macros: |-
   {% endfor %}
   {% endmacro %}
 
+  {% macro get_obj(base, cxx_base, handle) -%}
+  ## retrieve C++ object from handle (renders inline)
+  {%- if cxx_base == base -%}
+  {{ base }}Cabinet::at({{ handle }})
+  {%- else -%}
+  {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})
+  {%- endif -%}
+  {%- endmacro %}
+
+  {% macro size_check(checks, c_func, c_args) %}
+  ## size checking
+  {% if checks %}
+  if ({{ c_args[1] }} < obj->{{ checks[0] }}()) {
+      throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
+  }
+  {% else %}
+  // no size checking specified
+  {% endif %}
+  {% endmacro %}
+
+
 clib-param: |-
   @param{{ '[' + par.direction + ']' if par.direction }} {{ par.name }}
 
@@ -67,27 +88,14 @@ clib-variable-getter: |-
   try {
       {% if handle %}
       ## access class member variable
-      {% if cxx_base == base %}
-      ## object can be accessed directly
       {% if buffer and buffer[0] %}
-      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      {{ buffer[0] }} = {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }};
       {{ render_lines(after) | indent(4) }}
       return {{ buffer[1] }};
       {% else %}{# not buffer[0] #}
       ## no crosswalk needed
-      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      return {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }};
       {% endif %}{# buffer[0] #}
-      {% else %}{# base #}
-      ## object needs a cast as method is defined for specialization
-      {% if buffer and buffer[0] %}
-      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
-      {{ render_lines(after) | indent(4) }}
-      return {{ buffer[1] }};
-      {% else %}{# not buffer[0] #}
-      ## no crosswalk needed
-      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
-      {% endif %}{# buffer[0] #}
-      {% endif %}{# base #}
       {% else %}{# not handle #}
       ## variable is defined in root namespace
       {% if buffer and buffer[0] %}
@@ -110,13 +118,7 @@ clib-variable-setter: |-
       {{ render_lines(before) | indent(4) }}
       {% if handle %}
       ## access class member variable
-      {% if cxx_base == base %}
-      ## object can be accessed directly
-      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
-      {% else %}{# not base #}
-      ## object needs a cast as method is defined for specialization
-      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
-      {% endif %}{# base #}
+      {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }} = {{ cxx_args[0] }};
       {% else %}{# not handle #}
       ## variable is defined in root namespace
       {{ cxx_name }} = {{ cxx_args[0] }};
@@ -171,33 +173,15 @@ clib-method: |-
       {% if buffer %}
       ## need to buffer a value returned by the C++ method
       {% if buffer[0] %}
-      {% if cxx_base == base %}
-      ## object can be accessed directly
-      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {{ buffer[0] }} = {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
-      ## object needs a cast as method is defined for specialization
-      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% endif %}
-      {% else %}
-      {% if cxx_base == base %}
-      ## object can be accessed directly
-      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% else %}
-      ## object needs a cast as method is defined for specialization
-      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% endif %}
+      {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
       {{ render_lines(after) | indent(4) }}
       return {{ buffer[1] }};
       {% else %}
       ## value returned by the C++ method can be used directly
-      {% if cxx_base == base %}
-      ## object can be accessed directly
-      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% else %}
-      ## object needs a cast as method is defined for specialization
-      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% endif %}
+      return {{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
@@ -207,20 +191,8 @@ clib-array-getter: |-
   ## CLib array getter template
   // getter: {{ cxx_wraps }}
   try {
-      {% if cxx_base == base %}
-      ## object can be accessed directly
-      auto& obj = {{ base }}Cabinet::at({{ handle }});
-      {% else %}
-      ## object needs a cast as method is defined for specialization
-      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
-      {% endif %}
-      {% if checks %}
-      if ({{ c_args[1] }} < obj->{{ checks[0] }}()) {
-          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
-      }
-      {% else %}
-      // no size checking specified
-      {% endif %}
+      auto{{ '&' if base == cxx_base else '' }} obj = {{ get_obj(base, cxx_base, handle )}};
+      {{ size_check(checks, c_func, c_args) | indent(4) }}
       {% if buffer and buffer[0] %}
       {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});
       {{ render_lines(after) | indent(4) }}
@@ -237,18 +209,8 @@ clib-array-setter: |-
   ## CLib array setter template
   // setter: {{ cxx_wraps }}
   try {
-      {% if cxx_base == base %}
-      auto& obj = {{ base }}Cabinet::at({{ handle }});
-      {% else %}
-      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
-      {% endif %}
-      {% if checks %}
-      if ({{ c_args[1] }} != obj->{{ checks[0] }}()) {
-          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
-      }
-      {% else %}
-      // no size checking specified
-      {% endif %}
+      auto{{ '&' if base == cxx_base else '' }} obj = {{ get_obj(base, cxx_base, handle )}};
+      {{ size_check(checks, c_func, c_args) | indent(4) }}
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
   } catch (...) {
