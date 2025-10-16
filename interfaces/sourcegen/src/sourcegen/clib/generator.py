@@ -397,7 +397,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         macro_module = loader.from_string(self._templates["clib-macros"]).module
 
-        body = template.render(render_lines=macro_module.render_lines, **args)
+        body = template.render(
+            render_lines=macro_module.render_lines, get_obj=macro_module.get_obj,
+            size_check=macro_module.size_check, **args)
         # remove blank lines left by line comments
         # see https://github.com/pallets/jinja/issues/204
         body = "\n".join(line for line in body.split("\n") if line.strip())
