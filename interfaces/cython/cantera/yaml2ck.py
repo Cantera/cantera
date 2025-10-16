@@ -108,7 +108,7 @@ class HeaderTextWrapper(TextWrapper):
     .. versionadded:: 3.0
     """
 
-    @add_args_to_signature(TextWrapper.__init__, Iterable[str])
+    @add_args_to_signature(TextWrapper.__init__, Iterable[str])  # type: ignore[type-abstract]
     def __init__(self, input_files: Iterable[str], /, *args: Any, **kwargs: Any) -> None:
         self.input_files = input_files
         super().__init__(*args, **kwargs)

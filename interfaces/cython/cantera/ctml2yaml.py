@@ -1674,7 +1674,7 @@ class SpeciesThermo:
                 tag = "T0"
 
             if literal_type_guard(tag, Literal["T0", "h0", "s0", "cp0"]):
-                thermo_attribs[tag] = get_float_or_quantity(node)
+                thermo_attribs[tag] = get_float_or_quantity(node)  # type: ignore[literal-required]
 
         tmin = const_cp_node.get("Tmin")
         if tmin is not None and tmin != "100.0":
