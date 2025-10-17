@@ -417,9 +417,9 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
         computeRadiation(x, jmin, jmax);
     }
     for (size_t j = jmin; j <= jmax; j++) {
-        if (m_nsoot > 0){
-            getDistributionOrdre0(x,j);
-        }
+        // if (m_nsoot > 0){
+        //     getDistributionOrdre0(x,j);
+        // }
         AVBPcompute_local_thick(x,j);
     }
 
@@ -427,6 +427,19 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     evalContinuity(x, rsd, diag, rdt, jmin, jmax);
     evalMomentum(x, rsd, diag, rdt, jmin, jmax);
     evalSoot(x, rsd, diag, rdt, jmin, jmax); 
+    // cout<<jmin<<jmax<<endl;
+    // cout<<"rsd"<<endl;
+    // cout<<c_offset_S<<endl;
+    // cout<<m_nv<<endl;
+    // cout<<jmin<<endl;
+    // for (size_t j = 0; j <= m_points - 1; j++){
+    //     cout<<j<<endl;
+    // for (size_t k = 0; k < m_nsoot; k++){
+    //     cout<<rsd[index(c_offset_S + k, j)]<<endl;
+    // }
+    // }
+    // exit(0);
+
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
     evalLambda(x, rsd, diag, rdt, jmin, jmax);
@@ -458,9 +471,9 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     // update the species diffusive mass fluxes whether or not a
     // Jacobian is being evaluated
     updateDiffFluxes(x, j0, j1);
-        if (m_nsoot > 0){
-            updateSootDiffFluxes(x, j0, j1);
-        }
+    if (m_nsoot > 0){
+        updateSootDiffFluxes(x, j0, j1);
+    }
 }
 
 void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
@@ -896,7 +909,10 @@ void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
 void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
+    // cout<<"print c_offset_S"<<endl;
+    // cout<<c_offset_S<<endl;
     if (m_nsoot > 0){
+        
         if (jmin == 0) { // left boundary
             for (size_t k = 0; k < m_nsoot; k++){
                 rsd[index(c_offset_S + k, jmin)] = - (m_soot_diff(k,jmin)
@@ -915,6 +931,7 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
         size_t j0 = std::max<size_t>(jmin, 1);
         size_t j1 = std::min(jmax, m_points-2);
         for (size_t j = j0; j <= j1; j++) { // interior points
+            getDistributionOrdre0(x,j);
             sootSource(x,j);
             for (size_t k = 0; k < m_nsoot; k++){
                 // Convection
@@ -929,6 +946,10 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                 double soot_source = 0;
                 soot_source += (k == 0 ? m_qdotNucleation[j] : 0.0);
                 soot_source += (m_do_condensation ? m_qdotCondensation(k,j) : 0.0);
+                // cout<<"print m_qdotNucleation"<<endl;
+                // cout<<m_qdotNucleation[j]<<endl;
+                // cout<<"print m_qdotCondensation"<<endl;
+                // cout<<m_qdotCondensation(k,j)<<endl;
                 
                 soot_source += (m_do_coagulation ? m_qdotCoagulation(k,j) : 0.0);
                 soot_source += (m_do_sg ? m_qdotSg(k,j) : 0.0);
@@ -1497,7 +1518,7 @@ void Flow1D::initSoot(){
         std::string string_k = std::to_string(k);
         m_section_name[k] = "Ys" + string_k;
         m_refiner->setActive(c_offset_S+k, false);
-        setBounds(c_offset_S + k, -1.0e-5, 1e5);
+        setBounds(c_offset_S + k, -1.0e+5, 1e5);
     }
     
 }
@@ -1902,6 +1923,11 @@ void Flow1D::sootCondensation(const double* x, size_t j){
         if ( k>0 ){
             m_qdotCondensation(k-1,j) -= term3;
         }
+        // cout<<"in sootCondensation"<<endl;
+        // cout<<q[k]<<endl;
+        // cout<<term1<<endl;
+        // cout<<term2<<endl;
+        // cout<<term3<<endl;
     }
 }
 
@@ -2336,6 +2362,11 @@ void Flow1D::getDistributionOrdre0(const double* x, size_t j){
     for (size_t k = 0; k < m_nsoot; k++){
         // Soot volume fraction density [1/m3]
         q[k] = m_rho[j] * Ys(x,k,j) / (rho_soot * (vSectMax[k] - vSectMin[k]));
+        // cout<<"in getDistributionOrdre0"<<endl;
+        // cout<<q[k]<<endl;
+        // cout<<m_rho[j]<<endl;
+        // cout<<Ys(x,k,j)<<endl;
+        // cout<<term3<<endl;
     }
 }
 //-----------------------------//
