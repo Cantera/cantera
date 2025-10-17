@@ -441,6 +441,7 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     // exit(0);
 
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
+    // exit(0);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
     evalLambda(x, rsd, diag, rdt, jmin, jmax);
     evalElectricField(x, rsd, diag, rdt, jmin, jmax);
@@ -527,6 +528,7 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
 void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
+        // cout<<"multicomponent"<<endl;
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
@@ -538,15 +540,21 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
             }
         }
     } else {
+        // cout<<"mix"<<endl;
         for (size_t j = j0; j < j1; j++) {
             double sum = 0.0;
             double dz = z(j+1) - z(j);
             if (m_fluxGradientBasis == ThermoBasis::molar) {
+                // cout<<"molar"<<endl;
                 for (size_t k = 0; k < m_nsp; k++) {
+                    // if ( j==2 && k==36){
+                    //     cout<<m_diff[k+m_nsp*j]<<endl;
+                    // }
                     m_flux(k,j) = m_diff[k+m_nsp*j] * (X(x,k,j) - X(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
                 }
             } else {
+                // cout<<"massic"<<endl;
                 for (size_t k = 0; k < m_nsp; k++) {
                     m_flux(k,j) = m_diff[k+m_nsp*j] * (Y(x,k,j) - Y(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
@@ -560,6 +568,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 
     if (m_do_soret) {
+        // cout<<"soret"<<endl;
         for (size_t m = j0; m < j1; m++) {
             double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
                               ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
@@ -884,16 +893,31 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
 
             if (m_nsoot > 0 && m_do_retroaction){
                 m_wdot(k,j) -= sootConsumption(k,j);
+                // if (j==2){
+                //     cout<<"in evalSpecies"<<endl;
+                //     // cout<<k<<endl;
+                //     cout<<j<<endl;
+                //     cout<<k<<endl;
+                //     cout<<sootConsumption(k,j)<<endl;
+                //     cout<<m_wdot(k,j)<<endl;
+                // }
             }
         }
         for (size_t k = 0; k < m_nsp; k++) {
             double convec = rho_u(x, j)*dYdz(x, k, j);
             double diffus = 2*(m_flux(k, j)*avbp_thick[j] - m_flux(k, j-1)*avbp_thick[j-1]) / (z(j+1) - z(j-1));
+            // if (k==36 && j==2){
+                    // cout<<convec<<endl;
+                    // cout<<diffus<<endl;
+                    // cout<<m_flux(k, j)<<endl;
+                    // cout<<m_flux(k, j-1)<<endl;
+                // }
             rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k, j)/avbp_thick[j]
                                               - convec - diffus) / m_rho[j]
                                             - rdt*(Y(x, k, j) - Y_prev(k, j));
             diag[index(c_offset_Y + k, j)] = 1;
         }
+        // cout<<rsd[index(c_offset_Y + 36, 2)]<<endl;
     }
 }
 
@@ -1518,7 +1542,7 @@ void Flow1D::initSoot(){
         std::string string_k = std::to_string(k);
         m_section_name[k] = "Ys" + string_k;
         m_refiner->setActive(c_offset_S+k, false);
-        setBounds(c_offset_S + k, -1.0e+5, 1e5);
+        setBounds(c_offset_S + k, -1.0e-5, 1e5);
     }
     
 }
