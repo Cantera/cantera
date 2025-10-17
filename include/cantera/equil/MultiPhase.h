@@ -222,12 +222,12 @@ public:
      * @param pName Name of the phase
      * @param raise  If `true`, raise exception if the specified phase is not found.
      * @returns the index. A value of -1 means the phase isn't in the object.
-     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
-     *      behavior if a phase is not found in %Cantera 3.2 is to return -1.
-     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @since Added the `raise` argument in %Cantera 3.2 and changed return type. If
+     *      not specified, the default behavior if a phase is not found in %Cantera 3.2
+     *      is to return @ref npos.
      * @exception Throws a CanteraError if the phase is not found.
      */
-    int phaseIndex(const string& pName, bool raise) const;
+    size_t phaseIndex(const string& pName, bool raise) const;
 
     //! Return the number of moles in phase n.
     /*!
