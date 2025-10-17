@@ -587,12 +587,12 @@ void ReactionPathBuilder::findElements(Kinetics& kin)
         // iterate over the phases
         for (size_t ip = 0; ip < kin.nPhases(); ip++) {
             ThermoPhase* p = &kin.thermo(ip);
-            size_t mlocal = p->elementIndex(m_elementSymbols[m]);
-            for (size_t kp = 0; kp < p->nSpecies(); kp++) {
-                if (mlocal != npos) {
+            size_t mlocal = p->elementIndex(m_elementSymbols[m], false);
+            if (mlocal != npos) {
+                for (size_t kp = 0; kp < p->nSpecies(); kp++) {
                     m_atoms(k, m) = p->nAtoms(kp, mlocal);
+                    k++;
                 }
-                k++;
             }
         }
     }

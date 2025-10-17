@@ -204,7 +204,7 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
                 if (p == electronName) {
                     continue;
                 }
-                double q = thermo.charge(thermo.speciesIndex(p));
+                double q = thermo.charge(thermo.speciesIndex(p, true));
                 if (q > 0) {
                     m_kind = "ionization";
                 } else if (q < 0) {

@@ -34,11 +34,16 @@ class TestOnedim:
     def test_boundaryProperties(self):
         gas1 = ct.Solution("h2o2.yaml")
         gas2 = ct.Solution("h2o2.yaml")
-        inlet = ct.Inlet1D(name='something', phase=gas1)
-        flame = ct.FreeFlow(gas1)
+        inlet = ct.Inlet1D(gas1, name="spam")
+        flame = ct.FreeFlow(gas1, name="eggs")
         sim = ct.Sim1D((inlet, flame))
 
-        assert inlet.name == 'something'
+        assert sim.domain_index("spam") == 0
+        assert sim.domain_index(inlet) == 0
+        assert sim.domain_index("eggs") == 1
+        assert inlet.name == "spam"
+        with pytest.raises(ct.CanteraError, match="Domain 'bacon' not found"):
+            sim.domain_index("bacon")
 
         gas2.TPX = 400, 101325, 'H2:0.3, O2:0.5, AR:0.2'
         Xref = gas2.X
@@ -113,7 +118,7 @@ class TestOnedim:
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
 
-        with pytest.raises(ct.CanteraError, match='No component'):
+        with pytest.raises(ct.CanteraError, match="Component 'foobar' not found"):
             flame.set_steady_tolerances(foobar=(3e-4, 3e-6))
 
         flame.set_steady_tolerances(default=(5e-3, 5e-5),

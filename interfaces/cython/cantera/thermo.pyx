@@ -463,17 +463,14 @@ cdef class ThermoPhase(_SolutionBase):
         returned. If no such element is present, an exception is thrown.
         """
         if isinstance(element, (str, bytes)):
-            index = self.thermo.elementIndex(stringify(element))
-        elif isinstance(element, (int, float)):
-            index = <int>element
+            return self.thermo.elementIndex(stringify(element), True)
+        if isinstance(element, (int, float)):
+            return self.thermo.checkElementIndex(<int>element)
         else:
-            raise TypeError("'element' must be a string or a number."
-                            " Got {!r}.".format(element))
+            raise TypeError("'element' must be a string or a number. "
+                            f"Got {element!r}.")
 
-        if not 0 <= index < self.n_elements:
-            raise ValueError('No such element {!r}.'.format(element))
-
-        return index
+        raise ValueError(f"No such element {element!r}.")
 
     def element_name(self, m):
         """Name of the element with index ``m``."""
@@ -525,17 +522,11 @@ cdef class ThermoPhase(_SolutionBase):
         returned. If no such species is present, an exception is thrown.
         """
         if isinstance(species, (str, bytes)):
-            index = self.thermo.speciesIndex(stringify(species))
-        elif isinstance(species, (int, float)):
-            index = <int>species
-        else:
-            raise TypeError("'species' must be a string or a number."
-                            " Got {!r}.".format(species))
-
-        if not 0 <= index < self.n_species:
-            raise ValueError('No such species {!r}.'.format(species))
-
-        return index
+            return self.thermo.speciesIndex(stringify(species), True)
+        if isinstance(species, (int, float)):
+            return self.thermo.checkSpeciesIndex(<int>species)
+        raise TypeError("'species' must be a string or a number."
+                        f" Got {species!r}.")
 
     property case_sensitive_species_names:
         """Enforce case-sensitivity for look up of species names"""

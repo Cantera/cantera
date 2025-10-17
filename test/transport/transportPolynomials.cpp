@@ -17,7 +17,7 @@ public:
 
     void check_viscosity_poly(const string& speciek,
                               const vector<double>& visc_coeff_expected, int cmode) {
-        size_t k = phase->speciesIndex(speciek);
+        size_t k = phase->speciesIndex(speciek, true);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getViscosityPolynomial(k, &coeffs[0]);
@@ -33,7 +33,7 @@ public:
                          const vector<double>& cond_coeff_expected, int cmode) {
         MixTransport tran;
         tran.init(phase.get(), cmode);
-        size_t k = phase->speciesIndex(speciek);
+        size_t k = phase->speciesIndex(speciek, true);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getConductivityPolynomial(k, &coeffs[0]);
@@ -47,8 +47,8 @@ public:
 
     void check_bindiff_poly(const string& speciek, const string& speciej,
                             const vector<double>& bindiff_coeff_expected, int cmode) {
-        size_t k = phase->speciesIndex(speciek);
-        size_t j = phase->speciesIndex(speciej);
+        size_t k = phase->speciesIndex(speciek, true);
+        size_t j = phase->speciesIndex(speciej, true);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getBinDiffusivityPolynomial(k, j, &coeffs[0]);

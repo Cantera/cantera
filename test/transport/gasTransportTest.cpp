@@ -258,7 +258,7 @@ TEST_F(GasTransportTest, binaryDiffCoeffs)
     };
     Array2D Bdiff(nsp, nsp, 0.0);
     s_thermo->setState_TP(T1, P0);
-    size_t kH2 = s_thermo->speciesIndex("H2");
+    size_t kH2 = s_thermo->speciesIndex("H2", true);
     s_mix->getBinaryDiffCoeffs(nsp, &Bdiff(0,0));
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(Bdiff(k, kH2), BdiffRef_H2[k], 1e-8) << k;
@@ -390,7 +390,7 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
     Array2D multiDiff(nsp, nsp);
     s_thermo->setState_TPX(T1, P0, X0.data());
     s_multi->getMultiDiffCoeffs(nsp, &multiDiff(0,0));
-    size_t kH2 = s_thermo->speciesIndex("H2");
+    size_t kH2 = s_thermo->speciesIndex("H2", true);
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(multiDiff(k, kH2), D_X_H2_ref[k], 1e-8) << k;
         EXPECT_NEAR(multiDiff(kH2, k), D_H2_X_ref[k], 1e-8) << k;

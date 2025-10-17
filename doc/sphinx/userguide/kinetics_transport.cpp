@@ -23,7 +23,7 @@ void simple_demo2()
     kin->getNetRatesOfProgress(wdot.data());
 
     writelog("Net reaction rates for reactions involving CO2\n");
-    size_t kCO2 = gas->speciesIndex("CO2");
+    size_t kCO2 = gas->speciesIndex("CO2", true);
     for (size_t i = 0; i < kin->nReactions(); i++) {
         if (kin->reactantStoichCoeff(kCO2, i) || kin->productStoichCoeff(kCO2, i)) {
             auto rxn = kin->reaction(i);

@@ -93,7 +93,7 @@ extern "C" {
     size_t mix_elementIndex(int i, const char* name)
     {
         try {
-            return mixCabinet::at(i)->elementIndex(name);
+            return mixCabinet::at(i)->elementIndex(name, false);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }

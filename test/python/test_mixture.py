@@ -28,10 +28,10 @@ class TestMixture:
         assert len(E) == mix.n_elements
 
     def test_element_index(self, mix):
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="Element 'W' not found"):
             mix.element_index('W')
 
-        with pytest.raises(ValueError, match='No such element'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             mix.element_index(41)
 
         with pytest.raises(TypeError, match='must be a string or a number'):
@@ -54,13 +54,13 @@ class TestMixture:
         with pytest.raises(IndexError, match='out of range'):
             mix.species_index(3, 'OH')
 
-        with pytest.raises(ValueError, match='No such species'):
+        with pytest.raises(ct.CanteraError, match="Species 'OH' not found"):
             mix.species_index(1, 'OH')
 
-        with pytest.raises(ValueError, match='out of range'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             mix.species_index(0, -2)
 
-        with pytest.raises(ValueError, match='No such species'):
+        with pytest.raises(ct.CanteraError, match="Species 'CO2' not found"):
             mix.species_index(1, 'CO2')
 
     def test_n_atoms(self, mix):

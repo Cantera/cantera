@@ -78,8 +78,8 @@ int main(int argc, char** argv)
         size_t i1, i2, j1;
         double RT = 8.314472E-3 * 298.15;
 
-        i1 = HMW->speciesIndex("Na+");
-        i2 = HMW->speciesIndex("Cl-");
+        i1 = HMW->speciesIndex("Na+", true);
+        i2 = HMW->speciesIndex("Cl-", true);
         deltaG = -432.6304 - mu0[i1] - mu0[i2];
         printf(" NaCl(S): Na+ + Cl- -> NaCl(S): %14.7g kJ/gmol \n",
                deltaG);
@@ -91,9 +91,9 @@ int main(int argc, char** argv)
         printf("            G0(Na+)     = %14.7g\n", mu0[i1]);
         printf("            G0(Cl-)     = %14.7g\n", mu0[i2]);
 
-        i1 = HMW->speciesIndex("H+");
-        i2 = HMW->speciesIndex("H2O(L)");
-        j1 = HMW->speciesIndex("OH-");
+        i1 = HMW->speciesIndex("H+", true);
+        i2 = HMW->speciesIndex("H2O(L)", true);
+        j1 = HMW->speciesIndex("OH-", true);
         if (i1 == npos || i2 == npos || j1 == npos) {
             printf("problems\n");
             exit(-1);

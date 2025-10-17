@@ -29,11 +29,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const string& infile, const string& id_)
 void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
                                         double a0, double a1, double b)
 {
-    size_t k = speciesIndex(species);
-    if (k == npos) {
-        throw CanteraError("RedlichKwongMFTP::setSpeciesCoeffs",
-            "Unknown species '{}'.", species);
-    }
+    size_t k = speciesIndex(species, true);
 
     if (a1 != 0.0) {
         m_formTempParam = 1; // expression is temperature-dependent
@@ -71,16 +67,8 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
 void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& species_j,
                                        double a0, double a1)
 {
-    size_t ki = speciesIndex(species_i);
-    if (ki == npos) {
-        throw CanteraError("RedlichKwongMFTP::setBinaryCoeffs",
-            "Unknown species '{}'.", species_i);
-    }
-    size_t kj = speciesIndex(species_j);
-    if (kj == npos) {
-        throw CanteraError("RedlichKwongMFTP::setBinaryCoeffs",
-            "Unknown species '{}'.", species_j);
-    }
+    size_t ki = speciesIndex(species_i, true);
+    size_t kj = speciesIndex(species_j, true);
 
     if (a1 != 0.0) {
         m_formTempParam = 1; // expression is temperature-dependent
@@ -377,7 +365,7 @@ void RedlichKwongMFTP::initThermo()
 
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
-        size_t k = speciesIndex(name);
+        size_t k = speciesIndex(name, true);
         if (!isnan(a_coeff_vec(0, k + m_kk * k))) {
             continue;
         }
@@ -472,8 +460,7 @@ void RedlichKwongMFTP::getSpeciesParameters(const string& name,
                                             AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
-    size_t k = speciesIndex(name);
-    checkSpeciesIndex(k);
+    size_t k = speciesIndex(name, true);
     if (m_coeffSource[k] == CoeffSource::EoS) {
         auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
             "model", "Redlich-Kwong", true);

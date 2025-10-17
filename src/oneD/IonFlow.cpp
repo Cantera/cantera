@@ -33,8 +33,8 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     }
 
     // Find the index of electron
-    if (m_thermo->speciesIndex("E") != npos ) {
-        m_kElectron = m_thermo->speciesIndex("E");
+    if (m_thermo->speciesIndex("E", false) != npos ) {
+        m_kElectron = m_thermo->speciesIndex("E", true);
     }
 
     // no bound for electric potential

@@ -156,7 +156,7 @@ void VPStandardStateTP::getSpeciesParameters(const string& name,
                                              AnyMap& speciesNode) const
 {
     AnyMap eos;
-    providePDSS(speciesIndex(name))->getParameters(eos);
+    providePDSS(speciesIndex(name, true))->getParameters(eos);
     speciesNode["equation-of-state"].getMapWhere(
         "model", eos.getString("model", ""), true) = std::move(eos);
 }

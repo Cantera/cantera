@@ -52,9 +52,9 @@ int main(int argc, char** argv)
             ff = fopen(fmt::format("T{:3.0f}.csv", Temp).c_str(), "w");
             HMW->setState_TP(Temp, 1.01325E5);
             printf("   Temperature = %g K\n", Temp);
-            size_t i1 = HMW->speciesIndex("Na+");
-            size_t i2 = HMW->speciesIndex("Cl-");
-            size_t i3 = HMW->speciesIndex("H2O(L)");
+            size_t i1 = HMW->speciesIndex("Na+", true);
+            size_t i2 = HMW->speciesIndex("Cl-", true);
+            size_t i3 = HMW->speciesIndex("H2O(L)", true);
             for (i = 1; i < nsp; i++) {
                 moll[i] = 0.0;
             }

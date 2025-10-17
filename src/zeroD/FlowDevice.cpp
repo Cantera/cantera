@@ -35,12 +35,12 @@ FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
         nm = mixin.speciesName(ki);
-        ko = mixout.speciesIndex(nm);
+        ko = mixout.speciesIndex(nm, false);
         m_in2out.push_back(ko);
     }
     for (ko = 0; ko < m_nspout; ko++) {
         nm = mixout.speciesName(ko);
-        ki = mixin.speciesIndex(nm);
+        ki = mixin.speciesIndex(nm, false);
         m_out2in.push_back(ki);
     }
 }
@@ -68,12 +68,12 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
         nm = mixin.speciesName(ki);
-        ko = mixout.speciesIndex(nm);
+        ko = mixout.speciesIndex(nm, false);
         m_in2out.push_back(ko);
     }
     for (ko = 0; ko < m_nspout; ko++) {
         nm = mixout.speciesName(ko);
-        ki = mixin.speciesIndex(nm);
+        ki = mixin.speciesIndex(nm, false);
         m_out2in.push_back(ki);
     }
     return true;

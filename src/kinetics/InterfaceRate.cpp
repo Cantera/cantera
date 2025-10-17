@@ -382,7 +382,7 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
     for (const auto& [name, stoich] : rxn.reactants) {
         size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
         const ThermoPhase& p = kin.thermo(iPhase);
-        size_t k = p.speciesIndex(name);
+        size_t k = p.speciesIndex(name, true);
         if (name == sticking_species) {
             multiplier *= sqrt(GasConstant / (2 * Pi * p.molecularWeight(k)));
         } else {

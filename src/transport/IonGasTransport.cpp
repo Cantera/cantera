@@ -201,10 +201,10 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 // Stockmayer-(n,6,4) model is not suitable for collision
                 // between O2/O2- due to resonant charge transfer.
                 // Therefore, the experimental collision data is used instead.
-                if ((k == m_thermo->speciesIndex("O2-") ||
-                     j == m_thermo->speciesIndex("O2-")) &&
-                    (k == m_thermo->speciesIndex("O2") ||
-                     j == m_thermo->speciesIndex("O2"))) {
+                if ((k == m_thermo->speciesIndex("O2-", false) ||
+                     j == m_thermo->speciesIndex("O2-", false)) &&
+                    (k == m_thermo->speciesIndex("O2", false) ||
+                     j == m_thermo->speciesIndex("O2", false))) {
                        om11 = poly5(t, m_om11_O2.data()) / 1e20;
                 }
                 double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))

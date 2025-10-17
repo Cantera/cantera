@@ -89,8 +89,8 @@ TEST(ThermoFromYaml, SurfPhase)
     EXPECT_DOUBLE_EQ(surf->siteDensity(), 2.7063e-8);
     vector<double> cov(surf->nSpecies());
     surf->getCoverages(cov.data());
-    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("Pt(s)")], 0.5);
-    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("H(s)")], 0.4);
+    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("Pt(s)", true)], 0.5);
+    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("H(s)", true)], 0.4);
 }
 
 TEST(ThermoFromYaml, EdgePhase)

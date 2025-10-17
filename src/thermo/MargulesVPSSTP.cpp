@@ -204,8 +204,8 @@ void MargulesVPSSTP::addBinaryInteraction(const string& speciesA,
     const string& speciesB, double h0, double h1, double s0, double s1,
     double vh0, double vh1, double vs0, double vs1)
 {
-    size_t kA = speciesIndex(speciesA);
-    size_t kB = speciesIndex(speciesB);
+    size_t kA = speciesIndex(speciesA, false);
+    size_t kB = speciesIndex(speciesB, false);
     // The interaction is silently ignored if either species is not defined in
     // the current phase.
     if (kA == npos || kB == npos) {

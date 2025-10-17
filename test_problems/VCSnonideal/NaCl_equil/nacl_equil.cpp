@@ -86,7 +86,7 @@ int main(int argc, char** argv)
         hmw->setName("NaCl_electrolyte");
         size_t kk = hmw->nSpecies();
         vector<double> Xmol(kk, 0.0);
-        size_t iH2OL = hmw->speciesIndex("H2O(L)");
+        size_t iH2OL = hmw->speciesIndex("H2O(L)", true);
         Xmol[iH2OL] = 1.0;
         hmw->setState_TPX(T, pres, Xmol.data());
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
         for (size_t i = 0; i < kk; i++) {
             Xmol[i] = 0.0;
         }
-        size_t iN2 = gas->speciesIndex("N2");
+        size_t iN2 = gas->speciesIndex("N2", true);
         Xmol[iN2] = 1.0;
         gas->setState_TPX(T, pres, Xmol.data());
 

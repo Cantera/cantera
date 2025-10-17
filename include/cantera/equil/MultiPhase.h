@@ -115,12 +115,16 @@ public:
     }
 
     //! Check that the specified element index is in range.
-    //! Throws an exception if m is greater than nElements()-1
-    void checkElementIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified element index.
+     * @exception Throws an IndexError if m is greater than nElements()-1
+     */
+    size_t checkElementIndex(size_t m) const;
 
     //! Check that an array size is at least nElements().
     //! Throws an exception if mm is less than nElements(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkElementArraySize(size_t mm) const;
 
     //! Returns the name of the global element *m*.
@@ -132,8 +136,21 @@ public:
     //! Returns the index of the element with name @e name.
     /*!
      * @param name   String name of the global element
+     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
      */
     size_t elementIndex(const string& name) const;
+
+    //! Returns the index of the element with name @e name.
+    /*!
+     * @param name  String name of the global element.
+     * @param raise  If `true`, raise exception if the specified element is not found;
+     *      otherwise, return @ref npos.
+     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
+     *      behavior if an element is not found in %Cantera 3.2 is to return `npos`.
+     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @exception Throws a CanteraError if the specified element is not found.
+     */
+    size_t elementIndex(const string& name, bool raise) const;
 
     //! Number of species, summed over all phases.
     size_t nSpecies() const {
@@ -141,12 +158,16 @@ public:
     }
 
     //! Check that the specified species index is in range.
-    //! Throws an exception if k is greater than nSpecies()-1
-    void checkSpeciesIndex(size_t k) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified species index.
+     * @exception Throws an IndexError if k is greater than nSpecies()-1
+     */
+    size_t checkSpeciesIndex(size_t k) const;
 
     //! Check that an array size is at least nSpecies().
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
     void checkSpeciesArraySize(size_t kk) const;
 
     //! Name of species with global index @e kGlob
@@ -192,8 +213,21 @@ public:
     /*!
      * @param pName Name of the phase
      * @returns the index. A value of -1 means the phase isn't in the object.
+     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
      */
     int phaseIndex(const string& pName) const;
+
+    //! Returns the index, given the phase name
+    /*!
+     * @param pName Name of the phase
+     * @param raise  If `true`, raise exception if the specified phase is not found.
+     * @returns the index. A value of -1 means the phase isn't in the object.
+     * @since Added the `raise` argument in %Cantera 3.2 and changed return type. If
+     *      not specified, the default behavior if a phase is not found in %Cantera 3.2
+     *      is to return @ref npos.
+     * @exception Throws a CanteraError if the phase is not found.
+     */
+    size_t phaseIndex(const string& pName, bool raise) const;
 
     //! Return the number of moles in phase n.
     /*!
@@ -219,12 +253,16 @@ public:
     ThermoPhase& phase(size_t n);
 
     //! Check that the specified phase index is in range
-    //! Throws an exception if m is greater than nPhases()
-    void checkPhaseIndex(size_t m) const;
+    /*!
+     * @since After %Cantera 3.2, returns verified species index.
+     * @exception Throws an IndexError if m is greater than nPhases()-1
+     */
+    size_t checkPhaseIndex(size_t m) const;
 
     //! Check that an array size is at least nPhases()
     //! Throws an exception if mm is less than nPhases(). Used before calls
     //! which take an array pointer.
+    //! @deprecated To be removed after %Cantera 3.2. Unused
     void checkPhaseArraySize(size_t mm) const;
 
     //! Returns the moles of global species @c k. units = kmol

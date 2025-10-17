@@ -50,8 +50,8 @@ int main(int argc, char** argv)
 
         HMW->setState_TP(298.15, 1.01325E5);
 
-        size_t i1 = HMW->speciesIndex("Na+");
-        size_t i2 = HMW->speciesIndex("Cl-");
+        size_t i1 = HMW->speciesIndex("Na+", true);
+        size_t i2 = HMW->speciesIndex("Cl-", true);
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }

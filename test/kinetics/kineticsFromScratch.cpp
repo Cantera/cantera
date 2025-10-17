@@ -755,7 +755,7 @@ public:
         kin.getCreationRates(w.data());
         kin_ref->getCreationRates(w_ref.data());
         for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
-            size_t iref = pp_ref->speciesIndex(p->speciesName(i));
+            size_t iref = pp_ref->speciesIndex(p->speciesName(i), true);
             EXPECT_NEAR(w_ref[iref], w[i], w_ref[iref]*1e-12) << "sp = " << p->speciesName(i) << "; N = " << N;
         }
     }

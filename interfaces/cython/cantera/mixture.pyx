@@ -98,19 +98,17 @@ cdef class Mixture:
         """Index of element with name 'element'.
 
             >>> mix.element_index('H')
-            2
         """
         if isinstance(element, (str, bytes)):
-            index = self.mix.elementIndex(stringify(element))
-        elif isinstance(element, (int, float)):
-            index = <int>element
+            return self.mix.elementIndex(stringify(element), True)
+
+        if isinstance(element, (int, float)):
+            return self.mix.checkElementIndex(<int>element)
         else:
-            raise TypeError("'element' must be a string or a number")
+            raise TypeError("'element' must be a string or a number. "
+                            f"Got {element!r}.")
 
-        if not 0 <= index < self.n_elements:
-            raise ValueError('No such element.')
-
-        return index
+        raise ValueError(f"No such element {element!r}.")
 
     property n_species:
         """Number of species."""
@@ -138,12 +136,8 @@ cdef class Mixture:
         """
         p = self.phase_index(phase)
 
-        if isinstance(species, (str, bytes)):
+        if isinstance(species, (str, bytes, int, float)):
             k = self.phase(p).species_index(species)
-        elif isinstance(species, (int, float)):
-            k = <int?>species
-            if not 0 <= k < self.n_species:
-                raise ValueError('Species index out of range')
         else:
             raise TypeError("'species' must be a string or number")
 
