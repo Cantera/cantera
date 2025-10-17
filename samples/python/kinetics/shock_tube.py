@@ -52,7 +52,7 @@ for k, m in enumerate(models):
     gas = ct.Solution(file, name=models[m])
     X = {'H2O2':X_H2O2, 'H2O':X_H2O, 'O2':X_O2, 'CO2':X_CO2, 'AR':X_Ar}
     gas.TPX = 1196, 2.127*ct.one_atm, X
-    r = ct.Reactor(phase=gas, energy="on", clone=False)
+    r = ct.Reactor(gas, energy="on", clone=False)
     reactorNetwork = ct.ReactorNet([r])
     timeHistory = ct.SolutionArray(gas, extra=['t'])
     estIgnitDelay = 1
