@@ -41,6 +41,11 @@ void Domain1D::setSolution(shared_ptr<Solution> sol)
     m_solution->thermo()->addSpeciesLock();
 }
 
+string Domain1D::info(const vector<string>& keys, int rows, int width)
+{
+    return toArray()->info(keys, rows, width);
+}
+
 void Domain1D::resize(size_t nv, size_t np)
 {
     // if the number of components is being changed, then a

@@ -193,7 +193,7 @@ public:
                     const vector<double>& pos, const vector<double>& values) override;
     void setFlatProfile(const string& component, double value) override;
 
-    shared_ptr<SolutionArray> toArray(bool normalize=false) const override;
+    shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
     //! Set flow configuration for freely-propagating flames, using an internal point

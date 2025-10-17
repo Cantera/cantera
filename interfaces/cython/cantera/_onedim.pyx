@@ -3,6 +3,7 @@
 
 from .interrupts import no_op
 import warnings
+from os import get_terminal_size as _get_terminal_size
 import numpy as np
 
 from ._utils cimport stringify, pystr, anymap_to_py
@@ -89,6 +90,31 @@ cdef class Domain1D:
     def _has_component(self, str name):
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
+
+    def info(self, keys=None, rows=10, width=None, display=True):
+        """
+        Print a concise summary of a `Domain1D`.
+
+        :param keys: List of components to be displayed; if `None`, all components are
+            considered.
+        :param rows: Maximum number of rendered rows.
+        :param width: Maximum width of rendered output.
+        :param display: If `True`, display result (default), otherwise, return a string.
+        """
+        cdef vector[string] cxx_keys
+        if keys is not None:
+            for key in keys:
+                cxx_keys.push_back(stringify(key))
+        if width is None:
+            try:
+                width = _get_terminal_size().columns
+            except:
+                width = 100
+
+        ret = pystr(self.domain.info(cxx_keys, rows, width))
+        if not display:
+            return ret
+        print(ret)
 
     def update_state(self, int loc):
         """

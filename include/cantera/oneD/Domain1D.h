@@ -518,7 +518,7 @@ public:
      * @since New in %Cantera 3.0.
      * @deprecated To be removed after %Cantera 3.2. Replaceable by toArray().
      */
-    shared_ptr<SolutionArray> asArray(const double* soln) const {
+    shared_ptr<SolutionArray> asArray(const double* soln) {
         warn_deprecated("Domain1D::asArray",
             "To be removed after Cantera 3.2. Replaceable by 'toArray'.");
         return toArray();
@@ -532,7 +532,7 @@ public:
      *
      * @since New in %Cantera 3.0.
      */
-    virtual shared_ptr<SolutionArray> toArray(bool normalize=false) const {
+    virtual shared_ptr<SolutionArray> toArray(bool normalize=false) {
         throw NotImplementedError("Domain1D::toArray", "Needs to be overloaded.");
     }
 
@@ -562,6 +562,28 @@ public:
      */
     virtual void fromArray(const shared_ptr<SolutionArray>& arr) {
         throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
+    }
+
+
+    /**
+     * Print a concise summary of a Domain.
+     * @see SolutionArray.info()
+     * @param keys  List of components to be displayed; if empty, all components are
+     *      considered.
+     * @param rows  Maximum number of rendered rows.
+     * @param width  Maximum width of rendered output.
+     */
+    string info(const vector<string>& keys, int rows=10, int width=80);
+
+    /**
+     * Print a concise summary of a Domain.
+     * Skips keys input while `vector<string>` is not implemented in sourcegen.
+     * @see SolutionArray.info()
+     * @param rows  Maximum number of rendered rows.
+     * @param width  Maximum width of rendered output.
+     */
+    string _info(int rows=10, int width=80) {
+        return info({}, rows, width);
     }
 
     //! Return thermo/kinetics/transport manager used in the domain
