@@ -273,11 +273,10 @@ cdef class Reactor(ReactorBase):
         >>> gas = Solution('gri30.yaml')
         >>> r1 = Reactor(gas)
 
-        Arguments may be specified using keywords in any order:
+        Arguments may be specified using keywords:
 
-        >>> r2 = Reactor(phase=gas, energy='off',
+        >>> r2 = Reactor(gas, energy='off',
         ...              name='isothermal_reactor')
-        >>> r3 = Reactor(name='adiabatic_reactor', phase=gas)
 
         """
         super().__init__(phase, clone=clone, name=name, **kwargs)
@@ -883,7 +882,7 @@ cdef class ReactorSurface(ReactorBase):
         self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, phase=None, r=None, clone=None, *,
+    def __init__(self, phase=None, r=None, *, clone=None,
                  name="(none)", A=None, node_attr=None):
         super().__init__(phase, name=name)
 
