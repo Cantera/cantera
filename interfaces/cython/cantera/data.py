@@ -5,7 +5,7 @@ from pathlib import Path as _Path
 from ._utils import get_data_directories, add_data_directory
 
 
-def list_data_files(ext=".yaml"):
+def list_data_files(ext: str = ".yaml") -> list[str]:
     """
     Lists input data files. Includes files in subdirectories, except for subdirectories
     of the current working directory.
@@ -15,7 +15,7 @@ def list_data_files(ext=".yaml"):
     :return:
         List of input data files.
     """
-    data_files = set()
+    data_files: set[str] = set()
     for folder in get_data_directories():
         here = _Path(folder)
         if folder == ".":

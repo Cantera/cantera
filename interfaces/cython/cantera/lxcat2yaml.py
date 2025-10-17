@@ -21,33 +21,41 @@ Example:
                --phase=isotropic-electron-energy-plasma --insert
                --output=oxygen-itikawa-plasma.yaml
 """
+from __future__ import annotations
 
-from pathlib import Path
 import argparse
+import sys
 import textwrap
 import xml.etree.ElementTree as etree
-from typing import Union, Optional, List
-import sys
+from collections.abc import Iterable, Sequence
+from pathlib import Path
+from typing import TypeAlias, TypeVar, cast
+
 from ruamel import yaml
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.nodes import MappingNode
+from ruamel.yaml.representer import SafeRepresenter
+
 try:
     import cantera as ct
-    Solution = ct.Solution
+    OptionalSolutionType: TypeAlias = ct.Solution | None
+    Solution: type[ct.Solution] | None = ct.Solution
 except ImportError:
     print("The Cantera Python module was not found"
           ", so the mechanism file cannot be used.")
     Solution = None
 
-BlockMap = yaml.comments.CommentedMap
+BlockMap: type[CommentedMap] = CommentedMap
 
 class Process:
     """A class of YAML data for collision of a target species"""
-    def __init__(self, equation, energy_levels, cross_sections):
+    def __init__(self, equation: str, energy_levels: list[float], cross_sections: list[float]) -> None:
         self.equation = equation
         self.energy_levels = energy_levels
         self.cross_sections = cross_sections
 
     @classmethod
-    def to_yaml(cls, representer, node):
+    def to_yaml(cls, representer: SafeRepresenter, node: Process) -> MappingNode:
         out = BlockMap([('equation', node.equation),
                         ('type', 'electron-collision-plasma'),
                         ('energy-levels', node.energy_levels),
@@ -56,21 +64,23 @@ class Process:
         return representer.represent_dict(out)
 
 # Define YAML emitter
-emitter = yaml.YAML()
+emitter: yaml.YAML = yaml.YAML()
 emitter.register_class(Process)
 
 # Return indices of a child name
-def get_children(parent, child_name):
+def get_children(parent: etree.Element[str], child_name: str) -> list[etree.Element[str]]:
     return [child for child in parent if child.tag.find(child_name) != -1]
 
-def FlowList(*args, **kwargs):
+_VT = TypeVar("_VT")  # Value type.
+
+def Flowlist(*args: Iterable[_VT], **kwargs: _VT) -> list[_VT]:
     """A YAML sequence that flows onto one line."""
-    lst = yaml.comments.CommentedSeq(*args, **kwargs)
+    lst: CommentedSeq = CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
-    return lst
+    return cast(list[_VT], lst)
 
 class IncorrectXMLNode(LookupError):
-    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+    def __init__(self, message: str = "", node: etree.Element | None = None) -> None:
         """Error raised when a required node is incorrect in the XML tree.
 
         :param message:
@@ -91,13 +101,13 @@ class IncorrectXMLNode(LookupError):
         super().__init__(message)
 
 def convert(
-        inpfile: Optional[Union[str, Path]] = None,
-        database: Optional[str] = None,
-        mechfile: Optional[str] = None,
-        phase: Optional[str] = None,
-        insert: Optional[bool] = True,
-        outfile: Optional[Union[str, Path]] = None,
-    ) -> None:
+    inpfile: str | Path | None = None,
+    database: str | None = None,
+    mechfile: str | None = None,
+    phase: str | None = None,
+    insert: bool | None = True,
+    outfile: str | Path | None = None,
+) -> None:
     """Convert an LXCat XML file to a YAML file.
 
     :param inpfile:
@@ -128,7 +138,7 @@ def convert(
     if insert and mechfile is None:
         raise ValueError("'mech' must be specified if 'insert' is used")
 
-    gas = None
+    gas: OptionalSolutionType = None
     if mechfile is not None:
         if Solution is None:
             print("Cantera is not used, so the mechanism file cannot be used.")
@@ -145,7 +155,7 @@ def convert(
 
     # If insert key word is used, create a process list,
     # and append all processes together
-    process_list = None
+    process_list: list[Process] | None = None
     if not insert:
         process_list = []
 
@@ -169,15 +179,17 @@ def convert(
     else:
         # Get mechanism file unit system
         units = None
+        assert mechfile is not None
         with open(mechfile, "r") as mech:
             data = yaml.YAML(typ="rt").load(mech)
             if "units" in data:
                 units = data["units"]
+        assert gas is not None
         gas.write_yaml(outfile, units=units)
 
 def registerProcess(process: etree.Element,
-                    process_list: List[Process],
-                    gas: Solution):
+                    process_list: list[Process] | None,
+                    gas: OptionalSolutionType) -> None:
     """
     Add a collision process (electron collision reaction) to process_list
     and gas object if it exists.
@@ -198,18 +210,20 @@ def registerProcess(process: etree.Element,
     if len(get_children(parameters_node, "parameter")) == 1:
         parameter = get_children(parameters_node, "parameter")[0]
         if parameter.attrib["name"] == 'E':
+            assert parameter.text is not None
             threshold = float(parameter.text)
 
     # Parse the equation
-    product_array=[]
+    product_array: list[str] = []
 
-    products = get_children(process, "products")
+    products: list[etree.Element[str]] = get_children(process, "products")
     if products:
         for product_node in products[0]:
             if product_node.tag.find("electron") != -1:
                 product_array.append(electron_name)
 
             if product_node.tag.find("molecule") != -1:
+                assert product_node.text is not None
                 product_name = product_node.text
                 if "state" in product_node.attrib:
                     state = product_node.attrib["state"].replace(" ","-")
@@ -236,12 +250,12 @@ def registerProcess(process: etree.Element,
                 return
 
     if product_array: # not empty
-        products = " + ".join(product_array)
+        products_string = " + ".join(product_array)
     else:
         # No product is identified. Use the reactant as the product.
-        products = f"{reactant} + {electron_name}"
+        products_string = f"{reactant} + {electron_name}"
 
-    equation = f"{reactant} + {electron_name} => {products}"
+    equation = f"{reactant} + {electron_name} => {products_string}"
 
     # Parse the cross-section data
     data_x_node = get_children(process, "data_x")[0]
@@ -252,8 +266,10 @@ def registerProcess(process: etree.Element,
     if data_y_node is None:
         raise IncorrectXMLNode("The 'process' node requires the 'data_y' node.", process)
 
-    energy_levels = FlowList(map(float, data_x_node.text.split()))
-    cross_sections = FlowList(map(float, data_y_node.text.split()))
+    assert data_x_node.text is not None
+    assert data_y_node.text is not None
+    energy_levels = Flowlist(map(float, data_x_node.text.split()))
+    cross_sections = Flowlist(map(float, data_y_node.text.split()))
 
     # Edit energy levels and cross section
     if len(energy_levels) != len(cross_sections):
@@ -261,9 +277,9 @@ def registerProcess(process: etree.Element,
                                 "(data_y) must have the same length.", process)
 
     if energy_levels[0] > threshold:
-        # Use FlowList again to ensure correct YAML format
-        energy_levels = FlowList([threshold, *energy_levels])
-        cross_sections = FlowList([0.0, *cross_sections])
+        # Use Flowlist again to ensure correct YAML format
+        energy_levels = Flowlist([threshold, *energy_levels])
+        cross_sections = Flowlist([0.0, *cross_sections])
     else:
         cross_sections[0] = 0.0
 
@@ -281,7 +297,7 @@ def registerProcess(process: etree.Element,
                                     energy_levels=energy_levels,
                                     cross_sections=cross_sections))
 
-def create_argparser():
+def create_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Convert the LXCat integral cross-section data in XML format (LXCATML) to "
@@ -336,7 +352,7 @@ def create_argparser():
 
     return parser
 
-def main(argv=None):
+def main(argv: Sequence[str] | None = None) -> None:
     """Parse command line arguments and pass them to `convert`."""
     parser = create_argparser()
     if argv is None and len(sys.argv) < 2:
@@ -346,7 +362,7 @@ def main(argv=None):
 
     input_file = Path(args.input)
 
-    output_file = args.output or input_file.with_suffix(".yaml")
+    output_file: Path | str = args.output or input_file.with_suffix(".yaml")
     convert(input_file, args.database, args.mech, args.phase, args.insert, output_file)
 
     if args.insert and Solution is not None:

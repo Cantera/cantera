@@ -30,6 +30,7 @@ classifiers =
     Programming Language :: Python :: Implementation :: CPython
     Topic :: Scientific/Engineering :: Chemistry
     Topic :: Scientific/Engineering :: Physics
+    Typing :: Typed
 project_urls =
     Documentation = https://cantera.org/stable/reference
     Funding = https://numfocus.org/donate-to-cantera
@@ -54,7 +55,7 @@ packages =
 # The module extension needs to be here since we don't want setuptools to compile
 # the extension, so there are no ``source`` files in the setup.py ``extension`` and
 # we have to treat the module as package data.
-cantera = *.pxd, *.dll, *@py_module_ext@
+cantera = *.pxd, *.dll, *@py_module_ext@, py.typed, *.pyi, **/*.pyi
 cantera.data = *.*
 cantera.data.example_data = *.*
 cantera.test = *.txt
