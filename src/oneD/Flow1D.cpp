@@ -33,6 +33,13 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
+    warn_deprecated("Flow1D::Flow1D",
+        "To be removed after Cantera 3.2. Use constructor using Solution instead.");
+    _init(ph, nsp, points);
+}
+
+void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
+{
     m_points = points;
 
     if (ph == 0) {
@@ -108,10 +115,14 @@ Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
     setSolution(sol);
 }
 
-Flow1D::Flow1D(shared_ptr<Solution> sol, const string& id, size_t points)
-    : Flow1D(sol->thermo().get(), sol->thermo()->nSpecies(), points)
+Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
+    : Domain1D(phase->thermo()->nSpecies()+c_offset_Y, points)
+    , m_nsp(phase->thermo()->nSpecies())
 {
-    setSolution(sol);
+    _init(phase->thermo().get(), phase->thermo()->nSpecies(), points);
+
+    m_solution = phase;
+    m_solution->thermo()->addSpeciesLock();
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
@@ -121,8 +132,8 @@ Flow1D::Flow1D(shared_ptr<Solution> sol, const string& id, size_t points)
             "Solution ('gas') object.");
     }
     m_solution->registerChangedCallback(this, [this]() {
-        setKinetics(m_solution->kinetics());
-        setTransport(m_solution->transport());
+        _setKinetics(m_solution->kinetics());
+        _setTransport(m_solution->transport());
     });
 }
 
@@ -151,18 +162,34 @@ string Flow1D::domainType() const {
 
 void Flow1D::setKinetics(shared_ptr<Kinetics> kin)
 {
+    warn_deprecated("Flow1D::setKinetics",
+        "After Cantera 3.2, a change of domain contents after instantiation "
+        "will be disabled.");
+    _setKinetics(kin);
+}
+
+void Flow1D::_setKinetics(shared_ptr<Kinetics> kin)
+{
     m_kin = kin.get();
     m_solution->setKinetics(kin);
 }
 
 void Flow1D::setTransport(shared_ptr<Transport> trans)
 {
+    warn_deprecated("Flow1D::setTransport",
+        "After Cantera 3.2, a change of domain contents after instantiation "
+        "will be disabled.");
+    _setTransport(trans);
+}
+
+void Flow1D::_setTransport(shared_ptr<Transport> trans)
+{
     if (!trans) {
-        throw CanteraError("Flow1D::setTransport", "Unable to set empty transport.");
+        throw CanteraError("Flow1D::_setTransport", "Unable to set empty transport.");
     }
     m_trans = trans.get();
     if (m_trans->transportModel() == "none") {
-        throw CanteraError("Flow1D::setTransport", "Invalid Transport model 'none'.");
+        throw CanteraError("Flow1D::_setTransport", "Invalid Transport model 'none'.");
     }
     m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
         m_trans->transportModel() == "multicomponent-CK");
@@ -233,7 +260,7 @@ void Flow1D::setTransportModel(const string& model)
             "Invalid Transport model 'none'.");
     }
     m_solution->setTransportModel(model);
-    Flow1D::setTransport(m_solution->transport());
+    Flow1D::_setTransport(m_solution->transport());
 }
 
 string Flow1D::transportModel() const {

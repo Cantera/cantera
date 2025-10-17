@@ -34,6 +34,9 @@ void Domain1D::setSolution(shared_ptr<Solution> sol)
         throw CanteraError("Domain1D::setSolution",
             "Missing or incomplete Solution object.");
     }
+    warn_deprecated("Domain1D::setSolution",
+        "After Cantera 3.2, a change of domain contents after instantiation "
+        "will be disabled.");
     if (m_solution) {
         m_solution->thermo()->removeSpeciesLock();
     }

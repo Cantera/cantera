@@ -33,8 +33,9 @@ public:
      * @param nv      Number of variables at each grid point.
      * @param points  Number of grid points.
      * @param time    (unused)
+     * @deprecated After %Cantera 3.2, this constructor will become protected
      */
-    Domain1D(size_t nv=1, size_t points=1, double time=0.0);
+    explicit Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
     virtual ~Domain1D();
     Domain1D(const Domain1D&) = delete;
@@ -61,17 +62,27 @@ public:
 
     //! Set the solution manager.
     //! @since New in %Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.2. Solution objects must be
+    //!     provided to constructors instead.
     void setSolution(shared_ptr<Solution> sol);
 
     //! Set the kinetics manager.
     //! @since New in %Cantera 3.0.
+    //! @todo Convert warning message to new exception and remove virtual.
     virtual void setKinetics(shared_ptr<Kinetics> kin) {
+        warn_deprecated("Domain1D::setKinetics",
+            "After Cantera 3.2, a change of domain contents after instantiation "
+            "will be disabled.");
         throw NotImplementedError("Domain1D::setKinetics");
     }
 
     //! Set transport model to existing instance
     //! @since New in %Cantera 3.0.
+    //! @todo Convert warning message to new exception and remove virtual.
     virtual void setTransport(shared_ptr<Transport> trans) {
+        warn_deprecated("Domain1D::setTransport",
+            "After Cantera 3.2, a change of domain contents after instantiation "
+            "will be disabled.");
         throw NotImplementedError("Domain1D::setTransport");
     }
 
@@ -82,6 +93,20 @@ public:
         throw NotImplementedError("Domain1D::setTransportModel");
     }
 
+protected:
+    //! Update transport model to existing instance
+    //! @since New in %Cantera 3.2.
+    virtual void _setKinetics(shared_ptr<Kinetics> kin) {
+        throw NotImplementedError("Domain1D::_setKinetics");
+    }
+
+    //! Update transport model to existing instance
+    //! @since New in %Cantera 3.2.
+    virtual void _setTransport(shared_ptr<Transport> trans) {
+        throw NotImplementedError("Domain1D::_setTransport");
+    }
+
+public:
     //! The container holding this domain.
     const OneDim& container() const {
         return *m_container;
@@ -566,7 +591,16 @@ public:
 
     //! Return thermo/kinetics/transport manager used in the domain
     //! @since New in %Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.2. Renamed to phase().
     shared_ptr<Solution> solution() const {
+        warn_deprecated("Domain1D::solution",
+            "To be removed after Cantera 3.2. Renamed to phase().");
+        return m_solution;
+    }
+
+    //! Return thermo/kinetics/transport manager used in the domain
+    //! @since New in %Cantera 3.2.
+    shared_ptr<Solution> phase() const {
         return m_solution;
     }
 
@@ -602,8 +636,8 @@ public:
      */
     void linkLeft(Domain1D* left) {
         m_left = left;
-        if (!m_solution && left && left->solution()) {
-            setSolution(left->solution());
+        if (!m_solution && left && left->phase()) {
+            setSolution(left->phase());
         }
         locate();
     }
@@ -611,8 +645,8 @@ public:
     //! Set the right neighbor to domain 'right.'
     void linkRight(Domain1D* right) {
         m_right = right;
-        if (!m_solution && right && right->solution()) {
-            setSolution(right->solution());
+        if (!m_solution && right && right->phase()) {
+            setSolution(right->phase());
         }
     }
 

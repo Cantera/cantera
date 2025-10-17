@@ -112,7 +112,16 @@ public:
     }
 
     //! Retrieve associated Solution object
+    //! @deprecated To be removed after %Cantera 3.2. Renamed to phase().
     shared_ptr<Solution> solution() {
+        warn_deprecated("SolutionArray::solution",
+            "To be removed after Cantera 3.2. Renamed to phase().");
+        return m_sol;
+    }
+
+    //! Retrieve associated Solution object
+    //! @since New in %Cantera 3.2
+    shared_ptr<Solution> phase() {
         return m_sol;
     }
 

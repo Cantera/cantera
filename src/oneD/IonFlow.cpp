@@ -18,6 +18,13 @@ namespace Cantera
 IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Flow1D(ph, nsp, points)
 {
+    warn_deprecated("IonFlow::IonFlow",
+        "To be removed after Cantera 3.2. Use constructor using Solution instead.");
+    _init(ph, nsp, points);
+}
+
+void IonFlow::_init(ThermoPhase* ph, size_t nsp, size_t points)
+{
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
         m_speciesCharge.push_back(m_thermo->charge(k));
@@ -52,10 +59,12 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_mobility.resize(m_nsp*m_points);
 }
 
-IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
-    : IonFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
+IonFlow::IonFlow(shared_ptr<Solution> phase, const string& id, size_t points)
+    : Flow1D(phase, id, points)
 {
-    setSolution(sol);
+    _init(phase->thermo().get(), phase->thermo()->nSpecies(), points);
+    m_solution = phase;
+    m_solution->thermo()->addSpeciesLock();
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
@@ -65,8 +74,8 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
             "Solution ('gas') object.");
     }
     m_solution->registerChangedCallback(this, [this]() {
-        setKinetics(m_solution->kinetics());
-        setTransport(m_solution->transport());
+        _setKinetics(m_solution->kinetics());
+        _setTransport(m_solution->transport());
     });
 }
 

@@ -55,20 +55,30 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp  Number of species.
     //! @param points  Initial number of grid points
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
+    //!     instead.
     Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     //! Delegating constructor
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
+    //!     instead.
     Flow1D(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
 
     //! Create a new flow domain.
-    //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
+    //! @param phase  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    Flow1D(shared_ptr<Solution> sol, const string& id="", size_t points=1);
+    Flow1D(shared_ptr<Solution> phase, const string& id="", size_t points=1);
 
     ~Flow1D();
 
+private:
+    //! Initialize arrays.
+    //! @todo Consolidate after removal of legacy constructors.
+    void _init(ThermoPhase* ph, size_t nsp, size_t points);
+
+public:
     string domainType() const override;
 
     //! @name Problem Specification
@@ -96,6 +106,11 @@ public:
     //! Set the transport manager used for transport property calculations
     void setTransport(shared_ptr<Transport> trans) override;
 
+protected:
+    void _setKinetics(shared_ptr<Kinetics> kin) override;
+    void _setTransport(shared_ptr<Transport> trans) override;
+
+public:
     //! Set the transport model
     //! @since New in %Cantera 3.0.
     void setTransportModel(const string& model) override;
