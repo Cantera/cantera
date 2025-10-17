@@ -63,7 +63,7 @@ shared_ptr<ReactorBase> newReactor(
 //! Create a Reactor object of the specified type and contents
 //! @param  model  Reactor type to be created. See [this list of reactor
 //!     types](../reference/reactors/index.html) for available options.
-//! @param  contents  Solution object to model the thermodynamic properties and
+//! @param phase  Solution object to model the thermodynamic properties and
 //!     reactions occurring in the reactor
 //! @param clone  Determines whether to clone `sol` so that the internal state of this
 //!     reactor is independent of the original Solution object and any Solution objects
@@ -75,7 +75,7 @@ shared_ptr<Reactor> newReactor4(
     const string& name="(none)");
 
 //! Create a Reservoir object with the specified contents
-//! @param  contents  Solution object to model the contents of this reservoir
+//! @param phase  Solution object to model the contents of this reservoir
 //! @param clone  Determines whether to clone `sol` so that the internal state of this
 //!     reservoir is independent of the original Solution object and any Solution
 //!     objects used by other reactors in the network.
@@ -86,7 +86,7 @@ shared_ptr<Reservoir> newReservoir(
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
 //! participating in surface reactions.
-//! @param  contents  Solution (Interface) object to model the thermodynamic properties
+//! @param phase  Solution (Interface) object to model the thermodynamic properties
 //!     and reactions occurring in the reactor
 //! @param  reactors  List of Reactors adjacent to this surface, whose contents
 //!     participate in reactions occurring on this surface.
