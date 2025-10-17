@@ -1074,24 +1074,14 @@ cdef class Sim1D:
 
     def domain_index(self, dom):
         """
-        Get the index of a domain, specified either by name or as a Domain1D
-        object.
+        Get the index of a domain, specified either by name or as a Domain1D object.
         """
         if isinstance(dom, Domain1D):
-            idom = self.domains.index(dom)
-        elif isinstance(dom, int):
-            idom = dom
-        else:
-            idom = None
-            for i,d in enumerate(self.domains):
-                if d.name == dom:
-                    idom = i
-                    dom = d
-            if idom is None:
-                raise KeyError('Domain named "{0}" not found.'.format(dom))
-
-        assert 0 <= idom < len(self.domains)
-        return idom
+            return self.domains.index(dom)
+        if isinstance(dom, (str, bytes)):
+            return self.sim.domainIndex(stringify(dom))
+        assert 0 <= dom < len(self.domains)
+        return dom
 
     def _get_indices(self, dom, comp):
         idom = self.domain_index(dom)
