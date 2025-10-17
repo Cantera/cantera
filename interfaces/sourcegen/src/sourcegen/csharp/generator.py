@@ -215,9 +215,9 @@ class CSharpSourceGenerator(SourceGenerator):
         _LOGGER.info(f"  writing {file_name!r}")
         t_file = Path(__file__).parent / template_name
         template = _LOADER.from_string(t_file.read_text(encoding="utf-8"))
-        phase = template.render(file_name=file_name, **kwargs)
+        contents = template.render(file_name=file_name, **kwargs)
 
-        self._out_dir.joinpath(file_name).write_text(phase, encoding="utf-8")
+        self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file: str, cs_funcs: list[CsFunc]) -> None:
         def region(description, functions: list[str]) -> list[str]:
