@@ -798,11 +798,11 @@ int MultiPhase::phaseIndex(const string& pName) const
 {
     warn_deprecated("MultiPhase::phaseIndex", "'raise' argument not specified; "
         "Default behavior will change from returning -1 to throwing an exception "
-        "after Cantera 3.2.");
+        "after Cantera 3.2. 'npos' will be return instead of -1 if 'raise=true'.");
     return phaseIndex(pName, false);
 }
 
-int MultiPhase::phaseIndex(const string& pName, bool raise) const
+size_t MultiPhase::phaseIndex(const string& pName, bool raise) const
 {
     for (int iph = 0; iph < (int) nPhases(); iph++) {
         if (m_phase[iph]->name() == pName) {
@@ -810,7 +810,7 @@ int MultiPhase::phaseIndex(const string& pName, bool raise) const
         }
     }
     if (!raise) {
-        return -1;
+        return npos;
     }
     throw CanteraError("MultiPhase::phaseIndex", "Phase '{}' not found", pName);
 }
