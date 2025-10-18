@@ -186,6 +186,7 @@ class Func:
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
     uses: list[Self] | None = None  #: List of auxiliary C++ methods (optional)
+    deprecated: str | None = None  #: Deprecation message (if applicable)
 
     @classmethod
     def from_str(cls: Self, func: str, brief: str = "") -> Self:

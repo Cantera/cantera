@@ -125,6 +125,7 @@ class HeaderGenerator:
         ret_param = Param("void")
         args = []
         brief = ""
+        deprecated = None
 
         if recipe.wraps:
             cxx_member = self._doxygen_tags.cxx_member(
@@ -147,6 +148,7 @@ class HeaderGenerator:
                 prop_params = self._prop_crosswalk(par_list)
                 args = prop_params + buffer_params
                 brief = cxx_member.brief
+                deprecated = cxx_member.deprecated
             elif recipe.what == "variable-setter":
                 ret_param = Param("int32_t")
                 par_list, cxx_member = merge_params(recipe.wraps, cxx_member)
@@ -203,7 +205,7 @@ class HeaderGenerator:
             recipe.what = "constructor"
             msg = f"   generating {func_name!r} -> default constructor"
             _LOGGER.debug(msg)
-            brief= f"Instantiate {recipe.base} object using default constructor."
+            brief = f"Instantiate {recipe.base} object using default constructor."
             ret_param = Param(
                 "int32_t", "", "Object handle if successful and -1 for exception handling.")
 
@@ -213,7 +215,7 @@ class HeaderGenerator:
             msg = f"   generating {func_name!r} -> default destructor"
             _LOGGER.debug(msg)
             args = [Param("int32_t", "handle", f"Handle to {recipe.base} object.")]
-            brief= f"Delete {recipe.base} object."
+            brief = f"Delete {recipe.base} object."
             ret_param = Param(
                 "int32_t", "", "Zero for success and -1 for exception handling.")
 
@@ -226,7 +228,7 @@ class HeaderGenerator:
             brief = recipe.brief
         uses = [self._doxygen_tags.cxx_member(uu) for uu in recipe.uses]
         return Func(ret_param.p_type, func_name, ArgList(args), brief, cxx_member,
-                    ret_param.description, None, uses)
+                    ret_param.description, None, uses, deprecated)
 
     def _handle_crosswalk(
             self, what: str, crosswalk: dict, derived: dict[str, str]) -> str:

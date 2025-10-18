@@ -87,6 +87,7 @@ class TagDetails(TagInfo):
     location: str = ""  #: File containing Doxygen description
     briefdescription: str = ""  #: Brief Doxygen description
     parameterlist: list[Param] | None = None  #: Annotated Doxygen parameter list
+    deprecated: str | None = None  #: Deprecation message (if applicable)
 
 
 class TagFileParser:
@@ -260,7 +261,7 @@ class TagFileParser:
 
         return Func(ret_param.p_type, details.name, ArgList(args_merged),
                     details.briefdescription, None, ret_param.description,
-                    details.base, [])
+                    details.base, [], details.deprecated)
 
 
 def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
@@ -314,6 +315,16 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
         description = xml_tree.find("parameterdescription").find("para").text.strip()
         return [Param("", n, description, d) for n, d in zip(names, directions)]
 
+    def xml_deprecated(xml_tree: ET) -> str | None:
+        # Extract deprecation message if applicable
+        for xrefsect in xml_tree.iter("xrefsect"):
+            xreftitle = xrefsect.find("xreftitle")
+            if xreftitle is not None and xreftitle.text == "Deprecated":
+                xrefdescription = xrefsect.find("xrefdescription")
+                if xrefdescription is not None:
+                    return "".join(xrefdescription.itertext()).strip()
+        return None
+
     xml = matches[0]
     xml_tree = ET.fromstring(replace_xml_tags(xml))
 
@@ -333,4 +344,6 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
         msg = f"Unable to retrieve brief description for {tag_info.qualified_name!r}."
         _LOGGER.warning(msg)
 
-    return TagDetails(*tag_info, location, brief, par_list)
+    deprecated = xml_deprecated(xml_tree)
+
+    return TagDetails(*tag_info, location, brief, par_list, deprecated)
