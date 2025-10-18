@@ -156,6 +156,61 @@ classes; derived classes are handled by the same configuration as the base class
   1. Add new unit tests in `test/clib` to ensure that the new feature is
      working properly.
 
+Any _new functionality_ should be implemented in C++ first and broken out using the
+steps outlined above. On rare occasions, this is not possible, and custom code needs
+to be implemented. The following example illustrates how a C++ `CanteraError` is
+retrieved in CLib (as defined in `ct.yaml`):
+
+```yaml
+- name: getCanteraError
+  brief: Get Cantera error.
+  what: function
+  declaration: int32_t ct_getCanteraError(int32_t bufLen, char* buf)
+  parameters:
+    bufLen: Length of reserved array.
+    buf: String containing Cantera error.
+  returns: Actual length of string or -1 for exception handling.
+  code: |-
+    string err = Application::Instance()->lastErrorMessage();
+    copyString(err, buf, bufLen);
+    return static_cast<int32_t>(err.size());
+```
+
+This results in the following generated header (in `ct.h`):
+
+```C++
+/**
+ *  Get Cantera error.
+ *
+ *  Wraps C++ function: `custom code`
+ *
+ *  @param bufLen       Length of reserved array.
+ *  @param buf          String containing Cantera error.
+ *  @returns            Actual length of string or -1 for exception handling.
+ */
+int32_t ct_getCanteraError(int32_t bufLen, char* buf);
+
+/**
+```
+
+And corresponding generated implementation (in `ct.cpp`):
+
+```C++
+int32_t ct_getCanteraError(int32_t bufLen, char* buf)
+{
+    // function: custom code
+    try {
+        // *************** begin custom code ***************
+        string err = Application::Instance()->lastErrorMessage();
+        copyString(err, buf, bufLen);
+        return static_cast<int32_t>(err.size());
+        // **************** end custom code ****************
+    } catch (...) {
+        return handleAllExceptions(-1, ERR);
+    }
+}
+```
+
 ## Troubleshooting
 
 The **sourcegen** utility uses a logging module to provide feedback. Add the verbose
