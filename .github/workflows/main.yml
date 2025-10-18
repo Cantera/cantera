@@ -651,6 +651,7 @@ jobs:
         # Increase figure limit to handle flame_speed_convergence_analysis.py.
         # Skip equations_of_state.py in cases where CoolProp is broken (temporarily, for Python 3.13)
         run: |
+          echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
           python3 -m CoolProp || rm samples/python/thermo/equations_of_state.py
@@ -1054,10 +1055,13 @@ jobs:
         post-cleanup: none
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
-      run: brew install --display-times hdf5
+      run: |
+        echo "Running on `sysctl -n machdep.cpu.brand_string`"
+        brew install --display-times hdf5
       if: matrix.os == 'macos-14'
     - name: Install Apt dependencies (Ubuntu)
       run: |
+        echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
         sudo apt update
         sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
       if: matrix.os == 'ubuntu-22.04'
@@ -1094,7 +1098,9 @@ jobs:
       run: tar -xzf doxygen.tar.gz
       working-directory: build/doc
     - name: Build the .NET interface
-      run: dotnet build
+      run: |
+        python3 -c 'import platform; print(f"Running on {platform.processor()}")'
+        dotnet build
       working-directory: interfaces/dotnet
     - name: Test the .NET interface
       run: dotnet test
