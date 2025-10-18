@@ -51,7 +51,8 @@ class YamlSourceGenerator(SourceGenerator):
             declarations.append(
                 definition.render(c_func=c_func,
                                   returns=c_func.returns, wraps=wraps,
-                                  uses=uses, what=recipe.what))
+                                  uses=uses, what=recipe.what,
+                                  deprecated=c_func.deprecated))
 
         filename = headers.output_name(suffix=".yaml")
         t_file = Path(__file__).parent / "template_output.yaml.j2"

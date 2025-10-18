@@ -57,6 +57,10 @@ clib-comment: |-
   {% endif %}
   {% if params or returns %}
   {% endif %}
+  {% if deprecated %}
+
+  @deprecated Per C++ annotation: {{ deprecated }}
+  {% endif %}
 
 clib-definition: |-
   {{ annotations }}

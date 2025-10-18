@@ -74,7 +74,8 @@ class CLibSourceGenerator(SourceGenerator):
         block = template.render(
             brief=escape_token(c_func.brief, "Cantera"),
             params=[param(par) for par in c_func.arglist],
-            returns=c_func.returns, what=what, wraps=wraps, uses=uses)
+            returns=c_func.returns, what=what, wraps=wraps, uses=uses,
+            deprecated=c_func.deprecated)
         return self._javadoc_comment(block)
 
     @staticmethod
