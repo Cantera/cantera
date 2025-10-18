@@ -19,7 +19,7 @@ copied, which separates internal C++ memory management from the application usin
   uses: nSpecies
 ```
 
-in the [Header Specification File](sec-sourcegen-specifications) `ctthermo_auto.yaml`
+in the [Header Specification File](sec-sourcegen-specifications) `ctthermo.yaml`
 into a CLib header within a generated `ctthermo.h` file:
 
 ```c

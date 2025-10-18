@@ -260,9 +260,9 @@ class HeaderFile:
         Return output path for the generated file.
 
         The name of the generated file is based on the YAML configuration file
-        name, where ``_auto`` is stripped and a different suffix is used. For example,
-        ``<myfile>_auto.yaml`` becomes ``<myfile>.cpp`` if the suffix is ``.cpp``.
+        name, where a different suffix is used. For example,
+        ``<myfile>.yaml`` becomes ``<myfile>.cpp`` if the suffix is ``.cpp``.
         """
         auto, sep, suffix = suffix.partition(".")
-        ret = self.path.parent / self.path.name.replace("_auto", auto)
+        ret = self.path.parent / (self.path.name + auto)
         return ret.with_suffix(sep + suffix)
