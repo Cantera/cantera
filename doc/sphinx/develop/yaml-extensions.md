@@ -78,7 +78,7 @@ names of YAML configuration files.
   output. The following files define these templates:
 
     - `templates.yaml`: Defines YAML code blocks within the output files.
-    - `template_output.yaml.in`: Defines the template for output files.
+    - `template_output.yaml.j2`: Defines the template for output files.
 
 - **Source Code:** The implementation of the YAML source generator is contained in
   `generator.py`.

@@ -107,7 +107,7 @@ modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
 
 - **Header Specification Files:** Definitions used for the CLib API.
 
-    - `ct*_auto.yaml`: Files specifying CLib interfaces for specific Cantera C++
+    - `ct*.yaml`: Files specifying CLib interfaces for specific Cantera C++
       classes. See [](sec-sourcegen-specifications).
 
 - **Templates for Scaffolding:** Templates, powered by

@@ -5,15 +5,15 @@
 
 # Ignore these files entirely:
 ignore_files:
-  - ctonedim_auto.yaml
-  - ctdomain_auto.yaml
-  - ctrdiag_auto.yaml
+  - ctonedim.yaml
+  - ctdomain.yaml
+  - ctrdiag.yaml
 
 # Ignore these specific functions:
 ignore_funcs:
-  ct_auto.yaml:
+  ct.yaml:
     - setLogWriter
-  ctfunc_auto.yaml:
+  ctfunc.yaml:
     - new_advanced
 
 # C type crosswalks;

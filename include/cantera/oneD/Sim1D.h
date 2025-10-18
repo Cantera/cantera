@@ -45,9 +45,9 @@ public:
     //! Set initial guess for one component for all domains
     /**
      * @param component  component name
-     * @param locs  A vector of relative positions, beginning with 0.0 at the
+     * @param[in] locs  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param vals  A vector of values corresponding to the relative position
+     * @param[in] vals  A vector of values corresponding to the relative position
      *     locations.
      *
      * @deprecated To be removed after %Cantera 3.2.
@@ -441,7 +441,7 @@ private:
 
 /**
  * Create a Sim1D object with a list of domains.
- * @param domains  A vector of shared pointers to the domains to be linked together.
+ * @param[in] domains  A vector of shared pointers to the domains to be linked together.
  *     The domain pointers must be entered in left-to-right order --- that is,
  *     the pointer to the leftmost domain is domain[0], the pointer to the
  *     domain to its right is domain[1], etc.

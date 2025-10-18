@@ -26,3 +26,6 @@ yaml-definition: |-
     - {{ uu }}
     {% endfor %}
     {% endif %}
+    {% if deprecated %}
+    deprecated: {{ deprecated }}
+    {% endif %}

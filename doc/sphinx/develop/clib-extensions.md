@@ -19,15 +19,14 @@ copied, which separates internal C++ memory management from the application usin
   uses: nSpecies
 ```
 
-in the [Header Specification File](sec-sourcegen-specifications) `ctthermo_auto.yaml`
+in the [Header Specification File](sec-sourcegen-specifications) `ctthermo.yaml`
 into a CLib header within a generated `ctthermo.h` file:
 
 ```c
 /**
  *  Copy the vector of molecular weights into array weights.
  *
- *  Wraps C++ getter:
- *  - `void Phase::getMolecularWeights(double*)`
+ *  Wraps C++ getter: `void Phase::getMolecularWeights(double*)`
  *
  *  Uses:
  *  - `size_t Phase::nSpecies()`
@@ -129,8 +128,8 @@ modules need to be implemented (see section [](sec-sourcegen-clib-extend)).
   API. The following files define these templates:
 
     - `templates.yaml`: Defines code blocks within the header and implementation files.
-    - `template_header.h.in`: Defines the template for header files.
-    - `template_source.cpp.in`: Defines the template for implementation files.
+    - `template_header.h.j2`: Defines the template for header files.
+    - `template_source.cpp.j2`: Defines the template for implementation files.
 
 - **Source Code:** The implementation of the CLib source generator is contained in
   `generator.py`.
@@ -156,6 +155,61 @@ classes; derived classes are handled by the same configuration as the base class
   1. Regenerate the CLib interface and recompile/reinstall Cantera.
   1. Add new unit tests in `test/clib` to ensure that the new feature is
      working properly.
+
+Any _new functionality_ should be implemented in C++ first and broken out using the
+steps outlined above. On rare occasions, this is not possible, and custom code needs
+to be implemented. The following example illustrates how a C++ `CanteraError` is
+retrieved in CLib (as defined in `ct.yaml`):
+
+```yaml
+- name: getCanteraError
+  brief: Get Cantera error.
+  what: function
+  declaration: int32_t ct_getCanteraError(int32_t bufLen, char* buf)
+  parameters:
+    bufLen: Length of reserved array.
+    buf: String containing Cantera error.
+  returns: Actual length of string or -1 for exception handling.
+  code: |-
+    string err = Application::Instance()->lastErrorMessage();
+    copyString(err, buf, bufLen);
+    return static_cast<int32_t>(err.size());
+```
+
+This results in the following generated header (in `ct.h`):
+
+```C++
+/**
+ *  Get Cantera error.
+ *
+ *  Wraps C++ function: `custom code`
+ *
+ *  @param bufLen       Length of reserved array.
+ *  @param buf          String containing Cantera error.
+ *  @returns            Actual length of string or -1 for exception handling.
+ */
+int32_t ct_getCanteraError(int32_t bufLen, char* buf);
+
+/**
+```
+
+And corresponding generated implementation (in `ct.cpp`):
+
+```C++
+int32_t ct_getCanteraError(int32_t bufLen, char* buf)
+{
+    // function: custom code
+    try {
+        // *************** begin custom code ***************
+        string err = Application::Instance()->lastErrorMessage();
+        copyString(err, buf, bufLen);
+        return static_cast<int32_t>(err.size());
+        // **************** end custom code ****************
+    } catch (...) {
+        return handleAllExceptions(-1, ERR);
+    }
+}
+```
 
 ## Troubleshooting
 

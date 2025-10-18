@@ -135,9 +135,10 @@ class CSharpSourceGenerator(SourceGenerator):
     def _convert_func(self, parsed: Func) -> CsFunc:
         """Convert CLib signature to C# signature."""
         # TODO: The Func object contains information on CLib header and the underlying
-        # C++ implementation. Some information (brief, wraps, returns, base, uses)
-        # is currently preserved but not used.
-        ret_type, name, params, brief, wraps, returns, base, uses = parsed
+        # C++ implementation.
+        # Some information (brief, wraps, returns, base, uses, deprecated) is currently
+        # preserved but not used.
+        ret_type, name, params, brief, wraps, returns, base, uses, deprecated = parsed
 
         clib_area, method = name.split("_", 1)
 
@@ -206,6 +207,7 @@ class CSharpSourceGenerator(SourceGenerator):
                       returns,
                       base,
                       uses,
+                      deprecated,
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 
@@ -354,7 +356,7 @@ class CSharpSourceGenerator(SourceGenerator):
             cs_funcs = list(map(self._convert_func, header_file.funcs))
             known_funcs.update((f.name, f) for f in cs_funcs)
 
-            file_name = header_file.path.name.replace("_auto.yaml", "")
+            file_name = header_file.path.name
             self._scaffold_interop(file_name, cs_funcs)
 
             handles = {func.handle_class_name: func.name

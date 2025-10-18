@@ -25,6 +25,7 @@ recipes:
   wraps: value(const string&)
 - name: setValue
 - name: values
+- name: getValues
 - name: setValues
 - name: residuals
 - name: setProfile
