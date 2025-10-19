@@ -114,7 +114,7 @@ public:
 
     //! Check that the specified species index is in range.
     /*!
-     * @since After %Cantera 3.2, returns verified species index.
+     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
      * @exception Throws an IndexError if k is greater than #m_nsp.
      */
     size_t checkSpeciesIndex(size_t k) const;

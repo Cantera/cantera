@@ -91,6 +91,18 @@ void Kinetics::checkPhaseArraySize(size_t mm) const
     }
 }
 
+size_t Kinetics::phaseIndex(const string& ph, bool raise) const
+{
+    if (m_phaseindex.find(ph) == m_phaseindex.end()) {
+        if (raise) {
+            throw CanteraError("Kinetics::phaseIndex", "Phase '{}' not found", ph);
+        }
+        return npos;
+    } else {
+        return m_phaseindex.at(ph) - 1;
+    }
+}
+
 shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
 {
     return m_thermo[0];

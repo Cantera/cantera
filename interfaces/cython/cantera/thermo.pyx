@@ -466,11 +466,9 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.elementIndex(stringify(element), True)
         if isinstance(element, (int, float)):
             return self.thermo.checkElementIndex(<int>element)
-        else:
-            raise TypeError("'element' must be a string or a number. "
-                            f"Got {element!r}.")
 
-        raise ValueError(f"No such element {element!r}.")
+        raise TypeError("'element' must be a string or a number. "
+                        f"Got {element!r}.")
 
     def element_name(self, m):
         """Name of the element with index ``m``."""
