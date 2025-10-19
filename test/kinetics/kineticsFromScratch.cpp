@@ -105,8 +105,7 @@ TEST_F(KineticsFromScratch, add_three_body_reaction1)
 
     reac = parseCompString("O:2, M:1");
     prod = parseCompString("O2:1, M:1");
-    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
-
+    ASSERT_THROW(auto R = make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, add_three_body_reaction2)
@@ -263,7 +262,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies9)
 
     reac = parseCompString("H2:1, O2:1");
     prod = parseCompString("H2:1, O2:1");
-    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
+    ASSERT_THROW(auto R = make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, add_two_temperature_plasma)
@@ -489,7 +488,7 @@ TEST_F(KineticsFromScratch, negative_A_error)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     auto rate = make_shared<ArrheniusRate>(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate), CanteraError);
+    ASSERT_THROW(auto R = make_shared<Reaction>(reac, prod, rate), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, allow_negative_A)
