@@ -51,7 +51,7 @@ void exit_with_error()
 
 int main(int argc, char** argv)
 {
-    ct_make_deprecation_warnings_fatal(); // throw errors for deprecated functions
+    ct_makeDeprecationWarningsFatal(); // throw errors for deprecated functions
 
     int32_t sol = sol_newSolution("gri30.yaml", "gri30", "default");
     // In principle, one ought to check for errors after every Cantera call. But this

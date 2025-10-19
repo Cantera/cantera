@@ -12,13 +12,20 @@ recipes:
 - name: addDataDirectory
 - name: getDataDirectories
 - name: findInputFile
-- name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
-- name: make_deprecation_warnings_fatal  # inconsistent API (snake_case; preexisting)
-- name: suppress_warnings  # inconsistent API (snake_case; preexisting)
-- name: warnings_suppressed  # inconsistent API (snake_case; preexisting)
-- name: make_warnings_fatal  # inconsistent API (snake_case; preexisting)
-- name: suppress_thermo_warnings  # inconsistent API (snake_case; preexisting)
-- name: use_legacy_rate_constants  # inconsistent API (snake_case; preexisting)
+- name: suppressDeprecationWarnings
+  wraps: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
+- name: makeDeprecationWarningsFatal
+  wraps: make_deprecation_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppressWarnings
+  wraps: suppress_warnings  # inconsistent API (snake_case; preexisting)
+- name: warningsSuppressed
+  wraps: warnings_suppressed  # inconsistent API (snake_case; preexisting)
+- name: makeWarningsFatal
+  wraps: make_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppressThermoWarnings
+  wraps: suppress_thermo_warnings  # inconsistent API (snake_case; preexisting)
+- name: useLegacyRateConstants
+  wraps: use_legacy_rate_constants  # inconsistent API (snake_case; preexisting)
 - name: appdelete
 - name: Avogadro
 - name: Boltzmann
@@ -32,8 +39,10 @@ recipes:
 - name: GasConstant
 - name: StefanBoltz
 - name: Faraday
-- name: permeability_0  # Renamed in Cantera 3.2 (previously permeability0)
-- name: epsilon_0  # Renamed in Cantera 3.2 (previously epsilon0)
+- name: permeability0
+  wraps: permeability_0  # inconsistent API (snake_case; preexisting)
+- name: epsilon0
+  wraps: epsilon_0  # inconsistent API (snake_case; preexisting)
 - name: getCanteraError
   brief: Get Cantera error.
   what: function
