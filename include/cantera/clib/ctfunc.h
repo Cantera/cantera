@@ -11,6 +11,9 @@
 #ifndef CTC_FUNC1_H
 #define CTC_FUNC1_H
 
+#pragma message("warning: The legacy CLib library ctfunc.h is deprecated and " \
+                "will be removed after Cantera 3.2. Use generated CLib instead.")
+
 #include "clib_defs.h"
 
 #ifdef __cplusplus

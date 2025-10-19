@@ -11,6 +11,9 @@
 #ifndef CTC_MULTIPHASE_H
 #define CTC_MULTIPHASE_H
 
+#pragma message("warning: The legacy CLib library ctmultiphase.h is deprecated and " \
+                "will be removed after Cantera 3.2. Use generated CLib instead.")
+
 #include "clib_defs.h"
 
 #ifdef __cplusplus
