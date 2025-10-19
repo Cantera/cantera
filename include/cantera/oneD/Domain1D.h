@@ -68,7 +68,8 @@ public:
 
     //! Set the kinetics manager.
     //! @since New in %Cantera 3.0.
-    //! @todo Convert warning message to new exception and remove virtual.
+    //! @deprecated To be removed after %Cantera 3.2. A change of domain contents after
+    //!     instantiation will be disabled.
     virtual void setKinetics(shared_ptr<Kinetics> kin) {
         warn_deprecated("Domain1D::setKinetics",
             "After Cantera 3.2, a change of domain contents after instantiation "
