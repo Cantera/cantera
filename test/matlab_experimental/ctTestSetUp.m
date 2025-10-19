@@ -11,4 +11,5 @@ function ctTestSetUp()
     addpath(genpath(fullfile(canteraRoot, 'test', 'matlab_experimental')));
 
     ctLoad();
+    ctMakeDeprecationWarningsFatal();
 end
