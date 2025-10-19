@@ -91,6 +91,17 @@ void Kinetics::checkPhaseArraySize(size_t mm) const
     }
 }
 
+size_t Kinetics::phaseIndex(const string& ph) const
+{
+    size_t ix = phaseIndex(ph, false);
+    if (ix == npos) {
+        warn_deprecated("Kinetics::phaseIndex", "'raise' argument not specified; "
+            "Default behavior will change from returning -1 to throwing an "
+            "exception after Cantera 3.2.");
+    }
+    return ix;
+}
+
 size_t Kinetics::phaseIndex(const string& ph, bool raise) const
 {
     if (m_phaseindex.find(ph) == m_phaseindex.end()) {
