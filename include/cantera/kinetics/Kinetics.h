@@ -225,12 +225,7 @@ public:
      * object.
      * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
      */
-    size_t phaseIndex(const string& ph) const {
-        warn_deprecated("Kinetics::phaseIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning -1 to throwing an exception "
-            "after Cantera 3.2.");
-        return phaseIndex(ph, false);
-    }
+    size_t phaseIndex(const string& ph) const;
 
     /**
      * Return the index of a phase among the phases participating in this kinetic

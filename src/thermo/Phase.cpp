@@ -56,10 +56,13 @@ string Phase::elementName(size_t m) const
 
 size_t Phase::elementIndex(const string& name) const
 {
-    warn_deprecated("Phase::elementIndex", "'raise' argument not specified; "
-        "Default behavior will change from returning npos to throwing an exception "
-        "after Cantera 3.2.");
-    return elementIndex(name, false);
+    size_t ix = elementIndex(name, false);
+    if (ix == npos) {
+        warn_deprecated("Phase::elementIndex", "'raise' argument not specified; "
+            "Default behavior will change from returning npos to throwing an exception "
+            "after Cantera 3.2.");
+    }
+    return ix;
 }
 
 size_t Phase::elementIndex(const string& elementName, bool raise) const
@@ -140,10 +143,13 @@ size_t Phase::findSpeciesLower(const string& name) const
 
 size_t Phase::speciesIndex(const string& name) const
 {
-    warn_deprecated("Phase::speciesIndex", "'raise' argument not specified; "
-        "Default behavior will change from returning npos to throwing an exception "
-        "after Cantera 3.2.");
-    return speciesIndex(name, false);
+    size_t ix = speciesIndex(name, false);
+    if (ix == npos) {
+        warn_deprecated("Phase::speciesIndex", "'raise' argument not specified; "
+            "Default behavior will change from returning npos to throwing an exception "
+            "after Cantera 3.2.");
+    }
+    return ix;
 }
 
 size_t Phase::speciesIndex(const string& name, bool raise) const
