@@ -11,6 +11,9 @@
 #ifndef CTC_RXNPATH_H
 #define CTC_RXNPATH_H
 
+#pragma message("warning: The legacy CLib library ctrpath.h is deprecated and " \
+                "will be removed after Cantera 3.2. Use generated CLib instead.")
+
 #include "clib_defs.h"
 
 #ifdef __cplusplus
