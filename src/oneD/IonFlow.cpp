@@ -18,7 +18,7 @@ namespace Cantera
 IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Flow1D(ph, nsp, points)
 {
-    warn_deprecated("IonFlow::IonFlow",
+    warn_deprecated("IonFlow::IonFlow(ThermoPhase*, size_t, size_t)",
         "To be removed after Cantera 3.2. Use constructor using Solution instead.");
     _init(ph, nsp, points);
 }
