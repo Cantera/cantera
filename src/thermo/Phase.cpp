@@ -151,7 +151,7 @@ size_t Phase::speciesIndex(const string& name, bool raise) const
     size_t loc = npos;
     auto it = m_speciesIndices.find(name);
     if (it != m_speciesIndices.end()) {
-        return checkSpeciesIndex(it->second);
+        return it->second;
     } else if (!m_caseSensitiveSpecies) {
         loc = findSpeciesLower(name);
     }

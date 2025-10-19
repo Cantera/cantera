@@ -341,14 +341,11 @@ size_t FlowReactor::componentIndex(const string& nm) const
 {
     if (nm == "density") {
         return 0;
-    }
-    if (nm == "speed") {
+    } else if (nm == "speed") {
         return 1;
-    }
-    if (nm == "pressure") {
+    } else if (nm == "pressure") {
         return 2;
-    }
-    if (nm == "temperature") {
+    } else if (nm == "temperature") {
         return 3;
     }
     try {

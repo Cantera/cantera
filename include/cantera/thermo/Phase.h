@@ -162,7 +162,8 @@ public:
      * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
      *      behavior if an element is not found in %Cantera 3.2 is to return `npos`.
      *      After %Cantera 3.2, the default behavior will be to throw an exception.
-     * @exception Throws a CanteraError if the specified element is not found.
+     * @exception Throws a CanteraError if the specified element is not found and
+     *      `raise` is `true`.
      */
     size_t elementIndex(const string& name, bool raise) const;
 
@@ -215,7 +216,7 @@ public:
 
     //! Check that the specified element index is in range.
     /*!
-     * @since After %Cantera 3.2, returns verified element index.
+     * @since Starting in %Cantera 3.2, returns the input element index, if valid.
      * @exception Throws an IndexError if m is greater than nElements()-1
      */
     size_t checkElementIndex(size_t m) const;
@@ -253,7 +254,8 @@ public:
      * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
      *      behavior if a species is not found in %Cantera 3.2 is to return `npos`.
      *      After %Cantera 3.2, the default behavior will be to throw an exception.
-     * @exception Throws a CanteraError if the specifieds species is not found.
+     * @exception Throws a CanteraError if the specified species is not found and
+     *      `raise` is `true`.
      */
     size_t speciesIndex(const string& name, bool raise) const;
 
@@ -271,7 +273,7 @@ public:
 
     //! Check that the specified species index is in range.
     /*!
-     * @since After %Cantera 3.2, returns verified species index.
+     * @since Starting in %Cantera 3.2, returns the input phase index, if valid.
      * @exception Throws an IndexError if k is greater than nSpecies()-1
      */
     size_t checkSpeciesIndex(size_t k) const;

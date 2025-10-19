@@ -164,7 +164,7 @@ public:
 
     //! Check that the specified reaction index is in range
     /*!
-     * @since After %Cantera 3.2, returns verified reaction index.
+     * @since Starting in %Cantera 3.2, returns the input reaction index, if valid.
      * @exception Throws an IndexError if m is greater than nReactions()-1
      */
     size_t checkReactionIndex(size_t m) const;
@@ -177,7 +177,7 @@ public:
 
     //! Check that the specified species index is in range
     /*!
-     * @since After %Cantera 3.2, returns verified species index.
+     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
      * @exception Throws an IndexError if k is greater than nSpecies()-1
      */
     size_t checkSpeciesIndex(size_t k) const;
@@ -204,7 +204,7 @@ public:
 
     //! Check that the specified phase index is in range
     /*!
-     * @since After %Cantera 3.2, returns verified species index.
+     * @since Starting in %Cantera 3.2, returns the input phase index, if valid.
      * @exception Throws an IndexError if m is greater than nPhases()-1
      */
     size_t checkPhaseIndex(size_t m) const;
@@ -233,8 +233,8 @@ public:
     }
 
     /**
-     * Return the phase index of a phase in the list of phases defined within
-     * the object.
+     * Return the index of a phase among the phases participating in this kinetic
+     * mechanism.
      *
      * @param ph string name of the phase
      * @param raise  If `true`, raise exception if the specified phase is not defined
@@ -242,18 +242,10 @@ public:
      * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
      *      behavior if a phase is not found in %Cantera 3.2 is to return `npos`.
      *      After %Cantera 3.2, the default behavior will be to throw an exception.
-     * @exception Throws a CanteraError if the specified phase is not defined.
+     * @exception Throws a CanteraError if the specified phase is not found and
+     *      `raise` is `true`.
      */
-    size_t phaseIndex(const string& ph, bool raise) const {
-        if (m_phaseindex.find(ph) == m_phaseindex.end()) {
-            if (raise) {
-                throw CanteraError("Kinetics::phaseIndex", "Phase '{}' not found", ph);
-            }
-            return npos;
-        } else {
-            return m_phaseindex.at(ph) - 1;
-        }
-    }
+    size_t phaseIndex(const string& ph, bool raise) const;
 
     /**
      * Return pointer to phase where the reactions occur.
