@@ -93,13 +93,19 @@ cdef class Domain1D:
 
     def info(self, keys=None, rows=10, width=None, display=True):
         """
-        Print a concise summary of a `Domain1D`.
+        Display or return a concise summary of a `Domain1D`.
 
         :param keys: List of components to be displayed; if `None`, all components are
             considered.
         :param rows: Maximum number of rendered rows.
         :param width: Maximum width of rendered output.
         :param display: If `True`, display result (default), otherwise, return a string.
+
+        .. versionadded:: 3.2
+
+        .. todo::
+
+            Consolidate with `Sim1D.show`
         """
         cdef vector[string] cxx_keys
         if keys is not None:
@@ -108,7 +114,7 @@ cdef class Domain1D:
         if width is None:
             try:
                 width = _get_terminal_size().columns
-            except:
+            except OSError:
                 width = 100
 
         ret = pystr(self.domain.info(cxx_keys, rows, width))
@@ -1242,7 +1248,13 @@ cdef class Sim1D:
         self.sim.setFlatProfile(dom, comp, value)
 
     def show(self):
-        """ print the current solution. """
+        """
+        Print the current solution.
+
+        .. todo::
+
+            Consolidate with `Domain1D.info`
+        """
         if not self._initialized:
             self.set_initial_guess()
         self.sim.show()

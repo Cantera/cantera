@@ -550,13 +550,17 @@ cdef class SolutionArrayBase:
 
     def info(self, keys=None, rows=10, width=None, display=True):
         """
-        Print a concise summary of a `SolutionArray`.
+        Display or return a concise summary of a `SolutionArray`.
 
         :param keys: List of components to be displayed; if `None`, all components are
             considered.
         :param rows: Maximum number of rendered rows.
         :param width: Maximum width of rendered output.
         :param display: If `True`, display result (default), otherwise, return a string.
+
+        .. versionchanged:: 3.2
+
+            Added ``display`` parameter.
         """
         cdef vector[string] cxx_keys
         if keys is not None:
@@ -574,7 +578,7 @@ cdef class SolutionArrayBase:
         if width is None:
             try:
                 width = _get_terminal_size().columns
-            except:
+            except OSError:
                 width = 100
 
         ret = pystr(self.base.info(cxx_keys, rows, width))
