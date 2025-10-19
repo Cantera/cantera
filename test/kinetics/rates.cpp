@@ -179,7 +179,7 @@ TEST(LinearBurkeRate, RateCombinations)
     auto& thermo = *sol->thermo();
     auto& kin = *sol->kinetics();
     size_t nR = kin.nReactions();
-    ASSERT_EQ(nR, 4);
+    ASSERT_EQ(nR, 4u);
     double P0 = 2.0 * OneAtm;
     double T = 800;
 

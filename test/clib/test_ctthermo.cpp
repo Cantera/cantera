@@ -70,12 +70,12 @@ TEST(ctthermo, atomicWeights)
     ASSERT_EQ(cxx_weights.size(), cxx_thermo->nElements());
 
     int32_t buflen = thermo_nElements(thermo);
-    ASSERT_EQ(buflen, cxx_thermo->nElements());  // 4
+    ASSERT_EQ(buflen, static_cast<int32_t>(cxx_thermo->nElements()));  // 4
     vector<double> buf(buflen);
     ret = thermo_atomicWeights(thermo, buflen, buf.data());
     ASSERT_EQ(ret, buflen);
 
-    for (size_t i = 0; i < buflen; i++) {
+    for (int32_t i = 0; i < buflen; i++) {
         ASSERT_NEAR(buf[i], cxx_weights[i], 1e-6);
     }
 }

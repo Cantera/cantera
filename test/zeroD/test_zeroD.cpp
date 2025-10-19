@@ -81,10 +81,10 @@ TEST(zerodim, flowdevice)
     ASSERT_EQ(valve->in().name(), "upstream");
     ASSERT_EQ(valve->out().name(), "downstream");
 
-    ASSERT_EQ(node0->nInlets(), 0);
-    ASSERT_EQ(node0->nOutlets(), 1);
-    ASSERT_EQ(node1->nInlets(), 1);
-    ASSERT_EQ(node1->nOutlets(), 0);
+    ASSERT_EQ(node0->nInlets(), 0U);
+    ASSERT_EQ(node0->nOutlets(), 1U);
+    ASSERT_EQ(node1->nInlets(), 1U);
+    ASSERT_EQ(node1->nOutlets(), 0U);
 }
 
 TEST(zerodim, wall)
@@ -99,8 +99,8 @@ TEST(zerodim, wall)
     ASSERT_EQ(wall->left().name(), "left");
     ASSERT_EQ(wall->right().name(), "right");
 
-    ASSERT_EQ(node0->nWalls(), 1);
-    ASSERT_EQ(node1->nWalls(), 1);
+    ASSERT_EQ(node0->nWalls(), 1U);
+    ASSERT_EQ(node1->nWalls(), 1U);
 }
 
 TEST(zerodim, mole_reactor)
