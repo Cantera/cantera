@@ -233,7 +233,7 @@ SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
         double eps_b = m_eps[k][n][1];
         double sigma_a = m_sigma[k][n][0];
         double sigma_b = m_sigma[k][n][1];
-        size_t j = m_j[k][n];
+        auto j = static_cast<SparseMat::StorageIndex>(m_j[k][n]);
         double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridCenter[j]);
         double p = m_gamma * r;
 
@@ -252,8 +252,8 @@ SparseMat EEDFTwoTermApproximation::matrix_Q(const vector<double>& g, size_t k)
         double eps_b = m_eps[k][n][1];
         double sigma_a = m_sigma[k][n][0];
         double sigma_b = m_sigma[k][n][1];
-        size_t i = m_i[k][n];
-        size_t j = m_j[k][n];
+        auto i = static_cast<SparseMat::StorageIndex>(m_i[k][n]);
+        auto j = static_cast<SparseMat::StorageIndex>(m_j[k][n]);
         double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridCenter[j]);
         double q = m_inFactor[k] * m_gamma * r;
 

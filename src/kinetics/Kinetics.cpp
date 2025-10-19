@@ -699,7 +699,7 @@ AnyMap Kinetics::parameters() const
         for (auto m : m_perturb) {
             multipliers[m] += 1;
         }
-        if (multipliers[1.0] != nReactions()) {
+        if (static_cast<size_t>(multipliers[1.0]) != (nReactions())) {
             int defaultCount = 0;
             double defaultMultiplier = 1.0;
             for (auto& [m, count] : multipliers) {
