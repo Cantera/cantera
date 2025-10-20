@@ -64,7 +64,7 @@ classdef ctTestReactor < ctTestCase
 
         function testV(self)
             g = Solution('h2o2.yaml', '', 'none');
-            r = Reactor(g, 'Reactor', '');
+            r = Reactor(g);
             self.verifyEqual(r.V, 1.0, 'AbsTol', self.atol);
 
             r.V = 9;
