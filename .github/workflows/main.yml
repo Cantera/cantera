@@ -438,7 +438,7 @@ jobs:
 
   type-checking:
     name: Verify typing correctness and coverage of the public Python API
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: ["ubuntu-multiple-pythons"]
     strategy:
@@ -458,16 +458,16 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install graphviz libhdf5-103 libfmt-dev libopenblas0-openmp
+          sudo apt install graphviz libhdf5-dev libfmt-dev libopenblas-openmp-dev
       - name: Download the wheel artifact
         uses: actions/download-artifact@v5
         with:
-          name: cantera-wheel-3.10-ubuntu-22.04
+          name: cantera-wheel-3.10-ubuntu-24.04
           path: dist
       - name: Download the Cantera shared library (.so)
         uses: actions/download-artifact@v5
         with:
-          name: libcantera_shared-ubuntu-22.04.so
+          name: libcantera_shared-ubuntu-24.04.so
           path: build/lib
       - name: Set up environment
         run: |
@@ -479,30 +479,36 @@ jobs:
       - name: Install Python dependencies
         run: |
           python3 -m pip install numpy ruamel.yaml pandas pandas-stubs \
-            scipy pint graphviz typing_extensions mypy[reports]
+            scipy pint graphviz typing_extensions pyright mypy[reports]
           python3 -m pip install --pre --no-index --find-links dist cantera
       - name: Check static type correctness with mypy
         run: |
           mypy --config-file interfaces/cython/pyproject.toml \
-            -p cantera >> type_check/mypy_check.txt
+            -p cantera | tee type_check/mypy_check.txt
       - name: Generate coverage report with mypy
         if: failure() || success()
         run: |
           mypy --config-file interfaces/cython/pyproject.toml \
-            --txt-report type_check/ interfaces/cython/cantera
-          cat type_check/index.txt >> $GITHUB_STEP_SUMMARY
+            --cobertura-xml-report type_check/ interfaces/cython/cantera
+      - name: Summarize the report
+        uses: danielpalme/ReportGenerator-GitHub-Action@9870ed167742d546b99962ff815fcc1098355ed8 # v5.4.17
+        with:
+          reports: './type_check/cobertura.xml'
+          targetdir: './type_check'
+          reporttypes: 'MarkdownSummaryGithub'
+      - run: cat ./type_check/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        shell: bash
       - name: Generate coverage report with pyright
         if: failure() || success()
-        uses: jakebailey/pyright-action@6cabc0f01c4994be48fd45cd9dbacdd6e1ee6e5e # v2.3.3
-        with:
-          ignore-external: true
-          verify-types: cantera
+        run: |
+          pyright --ignoreexternal --verifytypes cantera \
+            | tee type_check/pyright_verifytypes.txt
       - name: Check type correctness against runtime with stubtest
         if: failure() || success()
         run: |
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
             --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
-            --concise cantera >> type_check/stubtest_concise.txt
+            --concise cantera | tee type_check/stubtest_concise.txt
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
             --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
             cantera >> type_check/stubtest_detailed.txt

@@ -22,12 +22,6 @@ if localenv["example_data"]:
             localenv.Command(f"cantera/data/example_data/{yaml.name}", yaml.abspath,
                              Copy("$TARGET", "$SOURCE"))))
 
-# Add type stubs as dataFiles
-for stub_location in ["cantera", "cantera/with_units"]:
-    for pyifile in multi_glob(localenv, f"#interfaces/cython/{stub_location}", "pyi"):
-        dataFiles.append(build(localenv.Command(f"{stub_location}/{pyifile.name}", pyifile.abspath, Copy("$TARGET", "$SOURCE"))))
-dataFiles.append(build(localenv.Command("cantera/py.typed", "#interfaces/cython/cantera/py.typed", Copy("$TARGET", "$SOURCE"))))
-
 # Install Python samples
 install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
 
@@ -125,9 +119,10 @@ if env['OS'] == 'Windows':
 else:
     localenv.Depends(ext, localenv['cantera_shlib'])
 
-for f in (multi_glob(localenv, 'cantera', 'py') +
-          multi_glob(localenv, 'cantera/*', 'py')):
+for f in (multi_glob(localenv, 'cantera', 'py', 'pyi') +
+          multi_glob(localenv, 'cantera/*', 'py', 'pyi')):
     localenv.Depends(mod, f)
+localenv.Depends(mod, 'cantera/py.typed')
 
 units = localenv.UnitsInterfaceBuilder(
     "cantera/with_units/solution.py",
