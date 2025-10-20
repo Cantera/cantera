@@ -1,4 +1,4 @@
-classdef FlowReactor < Reactor
+classdef FlowReactor < ReactorBase
     % Create a flow reactor object. ::
     %
     %     >> r = FlowReactor(phase, name)
@@ -16,19 +16,27 @@ classdef FlowReactor < Reactor
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
+    % :param clone:
+    %    Determines whether to clone `content` so that the internal state of
+    %    this reactor is independent of the original Solution object and
+    %    any Solution objects used by other reactors in the network.
     % :return:
     %     Instance of class :mat:class:`FlowReactor`.
 
     methods
 
-        function r = FlowReactor(phase, name)
+        function r = FlowReactor(phase, name, clone)
             % Constructor
 
-            if nargin < 2
-                name = '(none)';
+            arguments
+                phase {mustBeA(phase, 'Solution')}
+                name (1,1) string = "(none)"
+                clone (1,1) logical = true
             end
 
-            r@Reactor(phase, 'FlowReactor', name);
+            ctIsLoaded;
+            id = ctFunc('reactor_new', 'FlowReactor', phase.solnID, clone, name);
+            r@ReactorBase(id, phase);
         end
 
     end

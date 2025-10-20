@@ -1,4 +1,4 @@
-classdef IdealGasReactor < Reactor
+classdef IdealGasReactor < ReactorBase
     % Create a reactor with an ideal gas. ::
     %
     %     >> r = IdealGasReactor(phase, name)
@@ -17,19 +17,27 @@ classdef IdealGasReactor < Reactor
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
+    % :param clone:
+    %    Determines whether to clone `content` so that the internal state of
+    %    this reactor is independent of the original Solution object and
+    %    any Solution objects used by other reactors in the network.
     % :return:
     %     Instance of class :mat:class:`IdealGasReactor`.
 
     methods
 
-        function r = IdealGasReactor(phase, name)
+        function r = IdealGasReactor(phase, name, clone)
             % Constructor
 
-            if nargin < 2
-                name = '(none)';
+            arguments
+                phase {mustBeA(phase, 'Solution')}
+                name (1,1) string = "(none)"
+                clone (1,1) logical = true
             end
 
-            r@Reactor(phase, 'IdealGasReactor', name);
+            ctIsLoaded;
+            id = ctFunc('reactor_new', 'IdealGasReactor', phase.solnID, clone, name);
+            r@ReactorBase(id, phase);
         end
 
     end

@@ -1,4 +1,4 @@
-classdef ReactorSurface < Reactor
+classdef ReactorSurface < ReactorBase
     % ReactorSurface Class ::
     %
     %     >> s = ReactorSurface(surf, reactor, name)
@@ -14,10 +14,14 @@ classdef ReactorSurface < Reactor
     %    Surface reaction mechanisms for the left-facing surface.
     %    This must bean instance of class :mat:class:`Kinetics`, or of a class
     %    derived from Kinetics, such as :mat:class:`Interface`.
-    % :param reactor:
-    %    Instance of class 'Reactor' to be used as the adjacent bulk phase.
+    % :param reactors:
+    %    An instance of or a cell array of instances of class :mat:class:`ReactorBase`.
     % :param name:
     %    Reactor surface name (optional; default is ``(none)``).
+    % :param clone:
+    %    Determines whether to clone `content` so that the internal state of
+    %    this reactor is independent of the original Solution object and
+    %    any Solution objects used by other reactors in the network.
     % :return:
     %    Instance of class :mat:class:`ReactorSurface`.
 
@@ -28,20 +32,24 @@ classdef ReactorSurface < Reactor
     methods
         %% ReactorSurface Class Constructor
 
-        function s = ReactorSurface(surf, reactor, name)
+        function s = ReactorSurface(surf, reactors, name, clone)
             % Create a :mat:class:`ReactorSurface` object.
 
+            arguments
+                surf {mustBeA(surf, 'Interface')}
+                reactors
+                name (1,1) string = "(none)"
+                clone (1,1) logical = true
+            end
+
+            if isa(reactors, 'ReactorBase')
+                reactors = {reactors};
+            end
+
             ctIsLoaded;
-
-            if ~isa(surf, 'Solution') || ~isa(reactor, 'Reactor')
-                error('Invalid parameters.')
-            end
-            if nargin < 3
-                name = '(none)';
-            end
-
-            s@Reactor(surf, 'ReactorSurface', name);
-            ctFunc('reactor_addSurface', reactor.id, s.id);
+            reactorIDs = cellfun(@(r) r.id, reactors);
+            id = ctFunc('reactor_newSurface', surf.solnID, reactorIDs, clone, name);
+            s@ReactorBase(id, surf);
         end
 
         %% ReactorSurface Get Methods

@@ -1,4 +1,4 @@
-classdef Connector < handle
+classdef (Abstract) Connector < handle
     % Connector Class ::
     %
     %     >> c = Connector(typ, r1, r2, name)
@@ -40,8 +40,8 @@ classdef Connector < handle
 
             arguments
                 typ (1,1) string
-                r1 {mustBeA(r1, 'Reactor')}
-                r2 {mustBeA(r2, 'Reactor')}
+                r1 {mustBeA(r1, 'ReactorBase')}
+                r2 {mustBeA(r2, 'ReactorBase')}
                 name (1,1) string = "(none)"
             end
 

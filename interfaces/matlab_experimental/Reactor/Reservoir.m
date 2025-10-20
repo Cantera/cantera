@@ -1,4 +1,4 @@
-classdef Reservoir < Reactor
+classdef Reservoir < ReactorBase
     % Create a :mat:class:`Reservoir` object. ::
     %
     %     >> r = Reservoir(phase, name)
@@ -22,19 +22,27 @@ classdef Reservoir < Reactor
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reservoir name (optional; default is ``(none)``).
+    % :param clone:
+    %    Determines whether to clone `content` so that the internal state of
+    %    this reactor is independent of the original Solution object and
+    %    any Solution objects used by other reactors in the network.
     % :return:
     %     Instance of class :mat:class:`Reactor`.
 
     methods
 
-        function r = Reservoir(phase, name)
+        function r = Reservoir(phase, name, clone)
             % Constructor
 
-            if nargin < 2
-                name = '(none)';
+            arguments
+                phase {mustBeA(phase, 'Solution')}
+                name (1,1) string = "(none)"
+                clone (1,1) logical = true
             end
 
-            r@Reactor(phase, 'Reservoir', name);
+            ctIsLoaded;
+            id = ctFunc('reactor_new', 'Reservoir', phase.solnID, clone, name);
+            r@ReactorBase(id, phase);
         end
 
     end
