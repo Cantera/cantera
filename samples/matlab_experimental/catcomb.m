@@ -75,6 +75,7 @@ surf_phase.TP = {tsurf, surf_phase.P};
 % composition fixed to generate a good starting estimate for the
 % coverages.
 
+surf_phase.coverages = 'PT(S): 0.5, O(S): 0.5'
 surf_phase.advanceCoverages(1.0);
 
 %%
