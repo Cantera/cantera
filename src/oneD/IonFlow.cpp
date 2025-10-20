@@ -51,9 +51,9 @@ void IonFlow::_init(ThermoPhase* ph, size_t nsp, size_t points)
     // instabilities. Tolerance on electrons is even tighter to account for the
     // low "molecular" weight.
     for (size_t k : m_kCharge) {
-        setBounds(c_offset_Y + k, -1e-14, 1.0);
+        setBounds(c_offset_Y + k, -1e-10, 1.0);
     }
-    setBounds(c_offset_Y + m_kElectron, -1e-18, 1.0);
+    setBounds(c_offset_Y + m_kElectron, -1e-14, 1.0);
 
     m_refiner->setActive(c_offset_E, false);
     m_mobility.resize(m_nsp*m_points);
