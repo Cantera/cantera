@@ -8,7 +8,7 @@ classdef ReactorNet < handle
     % are used to simultaneously advance the state of one or more coupled reactors.
     %
     % :param reactors:
-    %    An instance of or a cell array of instances of class :mat:class:`Reactor`.
+    %    An instance of or a cell array of instances of class :mat:class:`ReactorBase`.
     % :return:
     %    Instance of class :mat:class:`ReactorNet`.
 
@@ -48,7 +48,7 @@ classdef ReactorNet < handle
 
             ctIsLoaded;
 
-            if isa(reactors, 'Reactor')
+            if isa(reactors, 'ReactorBase')
                 % Allow simpler syntax for creating a network with one
                 % reactor.
                 reactors = {reactors};
