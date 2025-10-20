@@ -1,4 +1,4 @@
-classdef Domain1D < handle
+classdef (Abstract) Domain1D < handle
     % Domain1D Class ::
     %
     %     >> d = Domain1D(type, phase, id)

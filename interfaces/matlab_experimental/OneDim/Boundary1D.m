@@ -1,4 +1,4 @@
-classdef Boundary1D < Domain1D
+classdef (Abstract) Boundary1D < Domain1D
     % Create a Boundary domain. ::
     %
     %     >> m = Boundary(type, phase, id)

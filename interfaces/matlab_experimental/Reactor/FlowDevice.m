@@ -1,4 +1,4 @@
-classdef FlowDevice < Connector
+classdef (Abstract) FlowDevice < Connector
     % FlowDevice Class ::
     %
     %     >> x = FlowDevice(typ, name)
