@@ -141,7 +141,7 @@ classdef ctTestReactor < ctTestCase
 
             self.net.advance(1.0);
             self.verifyEqual(self.net.time, 1.0, 'AbsTol', self.atol);
-            self.verifyEqual(self.gas1.P, self.gas2.P, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.phase.P, self.r2.phase.P, 'RelTol', self.rtol);
             self.verifyNotEqual(self.r1.T, self.r2.T);
         end
 

@@ -4,6 +4,10 @@ classdef (Abstract) ReactorBase < handle
 
         id % ID of reactor.
 
+        % The Solution object used to represent the contents of this reactor.
+        % If the `clone` parameter of the reactor constructor is true,
+        % a new instance of :mat:class:`Solution` will be created for this reactor.
+        % Otherwise, the same instance as passed to the constructor will be used.
         phase
 
     end
@@ -89,22 +93,19 @@ classdef (Abstract) ReactorBase < handle
     methods
         %% ReactorBase Class Constructor
 
-        function r = ReactorBase(id, content)
+        function r = ReactorBase(id)
             % ReactorBase Class ::
             %
             % :param id:
             %    ID of reactor object instantiated by specialization.
-            % :param phase:
-            %    Instance of :mat:class:`Solution` representing the contents of
-            %    the reactor.
 
             arguments
                 id (1,1) {mustBeInteger, mustBeGreaterThan(id, -1)}
-                content {mustBeA(content, 'Solution')}
             end
 
             r.id = id;
-            r.phase= content;
+            phaseID = ctFunc('reactor_phase', id);
+            r.phase= Solution(phaseID);
         end
 
         %% ReactorBase Class Destructor

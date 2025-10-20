@@ -107,7 +107,7 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', s.tpID, cov, 1);
+                ctFunc('surf_setCoverages', s.tpID, cov);
             elseif isa(cov, 'char')
                 ctFunc('surf_setCoveragesByName', s.tpID, cov);
             end
