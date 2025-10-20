@@ -42,7 +42,7 @@ classdef Reservoir < ReactorBase
 
             ctIsLoaded;
             id = ctFunc('reactor_new', 'Reservoir', phase.solnID, clone, name);
-            r@ReactorBase(id, phase);
+            r@ReactorBase(id);
         end
 
     end

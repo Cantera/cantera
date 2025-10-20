@@ -36,7 +36,7 @@ classdef FlowReactor < ReactorBase
 
             ctIsLoaded;
             id = ctFunc('reactor_new', 'FlowReactor', phase.solnID, clone, name);
-            r@ReactorBase(id, phase);
+            r@ReactorBase(id);
         end
 
     end
