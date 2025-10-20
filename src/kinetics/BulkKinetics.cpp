@@ -66,7 +66,7 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
 {
     map<size_t, double> efficiencies;
     for (const auto& [name, efficiency] : r->thirdBody()->efficiencies) {
-        size_t k = kineticsSpeciesIndex(name);
+        size_t k = kineticsSpeciesIndex(name, false);
         if (k != npos) {
             efficiencies[k] = efficiency;
         } else if (!m_skipUndeclaredThirdBodies) {
