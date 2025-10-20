@@ -1,4 +1,4 @@
-classdef Flow1D < Domain1D
+classdef (Abstract) Flow1D < Domain1D
     % Create a Flow domain. ::
     %
     %     >> m = Flow1D(type, phase, id)
