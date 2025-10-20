@@ -417,9 +417,6 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
         computeRadiation(x, jmin, jmax);
     }
     for (size_t j = jmin; j <= jmax; j++) {
-        if (m_nsoot > 0){
-            getDistributionOrdre0(x,j);
-        }
         AVBPcompute_local_thick(x,j);
     }
 
@@ -458,9 +455,9 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     // update the species diffusive mass fluxes whether or not a
     // Jacobian is being evaluated
     updateDiffFluxes(x, j0, j1);
-        if (m_nsoot > 0){
-            updateSootDiffFluxes(x, j0, j1);
-        }
+    if (m_nsoot > 0){
+        updateSootDiffFluxes(x, j0, j1);
+    }
 }
 
 void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
@@ -865,10 +862,10 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) {
+
         getWdot(x,j);
         
         for (size_t k = 0; k < m_nsp; k++) {
-
             if (m_nsoot > 0 && m_do_retroaction){
                 m_wdot(k,j) -= sootConsumption(k,j);
             }
@@ -876,6 +873,7 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
         for (size_t k = 0; k < m_nsp; k++) {
             double convec = rho_u(x, j)*dYdz(x, k, j);
             double diffus = 2*(m_flux(k, j)*avbp_thick[j] - m_flux(k, j-1)*avbp_thick[j-1]) / (z(j+1) - z(j-1));
+
             rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k, j)/avbp_thick[j]
                                               - convec - diffus) / m_rho[j]
                                             - rdt*(Y(x, k, j) - Y_prev(k, j));
@@ -897,6 +895,7 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
     if (m_nsoot > 0){
+        
         if (jmin == 0) { // left boundary
             for (size_t k = 0; k < m_nsoot; k++){
                 rsd[index(c_offset_S + k, jmin)] = - (m_soot_diff(k,jmin)
@@ -915,7 +914,10 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
         size_t j0 = std::max<size_t>(jmin, 1);
         size_t j1 = std::min(jmax, m_points-2);
         for (size_t j = j0; j <= j1; j++) { // interior points
+
+            getDistributionOrdre0(x,j);
             sootSource(x,j);
+
             for (size_t k = 0; k < m_nsoot; k++){
                 // Convection
                 double soot_convec = rho_u(x,j)*dYsdz(x,k,j);
@@ -925,17 +927,18 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                 // Thermophoresis
                 double soot_soret = 2.0 * (m_soot_soret(k,j) - m_soot_soret(k,j-1))
                                     / (z(j+1) - z(j-1));
+
                 // Source terms [m3/kg/s]
                 double soot_source = 0;
                 soot_source += (k == 0 ? m_qdotNucleation[j] : 0.0);
                 soot_source += (m_do_condensation ? m_qdotCondensation(k,j) : 0.0);
-                
                 soot_source += (m_do_coagulation ? m_qdotCoagulation(k,j) : 0.0);
                 soot_source += (m_do_sg ? m_qdotSg(k,j) : 0.0);
                 soot_source += (m_do_oxidation ? m_qdotOxidation(k,j) : 0.0);
                 // kg/s/m^3
                 soot_source *= (rho_soot * m_rho[j]);
                 if(k == m_nsoot - 1 && m_trash_section){soot_source = 0.0;}
+
                 // Residual
                 rsd[index(c_offset_S + k, j)] =
                     (soot_source - soot_convec + soot_diffus + soot_soret) / m_rho[j] 
@@ -2138,7 +2141,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r06f = k06f * conc_O2;
         r06bisf = k06bisf * conc_O2;
         r07f = Avogadro * S_C2 * gamma_oh * conc_OH * 
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         double fk10   = r05f / (r04b+r06bisf+r05f);
         double A_QSS = (r01f + r02f + r03b + r07f + r05b * (1.0 - fk10)) / (r01b + r02b + r03f + r04f * fk10);
@@ -2176,7 +2179,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r04f = k04f * conc_C2H2;
         r05f = k05f * conc_O2; 
         r06f = Avogadro * S_C2 * gamma_oh * conc_OH * 
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         chi = (r01f + r02f + r03f) / (r01b + r02b + r03b + r04f + r05f); // * 1.7e15; 
         // Oxidation O2 [must be 1/s]
@@ -2203,7 +2206,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r03f = k03f * conc_C2H2;
         r04f = k04f  * conc_O2;
         r05f = Avogadro * S_C2 * gamma_oh * conc_OH *
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         chi = r01f / (r01b + r02f + r03f + r04f); // * 2.3e14
         // Oxidation O2 [1/s]
