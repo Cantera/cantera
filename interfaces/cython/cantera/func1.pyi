@@ -10,7 +10,6 @@ from typing_extensions import Never, override
 _Func1Like: TypeAlias = str | Callable[[float], float] | float
 
 class Func1:
-    callable: Callable[[float], float]
     def __init__(
         self,
         c: _Func1Like,

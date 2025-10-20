@@ -49,8 +49,8 @@ FullState: TypeAlias = Literal[
 ]
 CompositionLike: TypeAlias = str | dict[str, float] | ArrayLike
 StateSetter: TypeAlias = tuple[float, float, CompositionLike]
-ArrayCompositionLike: TypeAlias = str | dict[str, Array | float] | ArrayLike
-ArrayStateSetter: TypeAlias = tuple[Array | float, Array | float, ArrayCompositionLike]
+ArrayCompositionLike: TypeAlias = str | dict[str, ArrayLike] | ArrayLike
+ArrayStateSetter: TypeAlias = tuple[ArrayLike, ArrayLike, ArrayCompositionLike]
 
 # PureFluid state definitions
 PureFluidStateVariable: TypeAlias = Literal[StateVariable, "Q"]
@@ -61,9 +61,7 @@ PureFluidFullState: TypeAlias = Literal[
     FullState, "TDQ", "TPQ", "UVQ", "DPQ", "HPQ", "SPQ", "SVQ"
 ]
 PureFluidStateSetter: TypeAlias = tuple[float, float, float]
-ArrayPureFluidStateSetter: TypeAlias = tuple[
-    Array | float, Array | float, Array | float
-]
+ArrayPureFluidStateSetter: TypeAlias = tuple[ArrayLike, ArrayLike, ArrayLike]
 
 RefineCriteria = TypedDict(
     "RefineCriteria",

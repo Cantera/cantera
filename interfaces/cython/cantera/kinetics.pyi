@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Literal, TypeAlias, TypedDict
 
 from ._types import Array
@@ -162,7 +163,7 @@ class Kinetics(_SolutionBase):
 class InterfaceKinetics(Kinetics):
     def __init__(
         self,
-        infile: str = "",
+        infile: Path | str = "",
         name: str = "",
         adjacent: Sequence[ThermoPhase] = (),
     ) -> None: ...
@@ -184,7 +185,7 @@ class InterfaceKinetics(Kinetics):
     def interface_current(self, phase: ThermoPhase | str | int) -> float: ...
     def write_yaml(  # type: ignore[override]
         self,
-        filename: str,
+        filename: Path | str,
         phases: Sequence[ThermoPhase] | None = None,
         units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
