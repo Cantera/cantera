@@ -85,7 +85,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
         os: ['ubuntu-24.04']
         numpy: ['']
         cython: ['!=3.1.2'] # Specifier can be dropped after 3.1.3 or 3.2.0 is released
@@ -251,6 +251,9 @@ jobs:
             extra-build-args: cxx_flags='-std=c++20'
           - macos-version: 'macos-15'
             python-version: '3.11'
+          - macos-version: 'macos-15'
+            python-version: '3.14'
+            extra-build-args: cxx_flags='-std=c++20'
           # - macos-version: 'macos-15-intel'
           #   python-version: '3.1x'  # sporadic failures: tracked in post-merge-tests
       fail-fast: false
@@ -607,6 +610,10 @@ jobs:
           python-version: "3.12"
           numpy: ""
           libhdf5: "libhdf5-103-1t64"
+        - os: "ubuntu-24.04"
+          python-version: "3.14"
+          numpy: ""
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-22.04"
           python-version: "3.13"
           numpy: ""
@@ -642,19 +649,35 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-            python3 -m pip install numpy${{ matrix.numpy }} ruamel.yaml pandas pyarrow \
-              matplotlib scipy pint graphviz CoolProp
+            python3 -m pip install numpy${{ matrix.numpy }} ruamel.yaml \
+              matplotlib scipy pint graphviz
+            python3 -m pip install numpy${{ matrix.numpy }} pandas pyarrow || touch SKIP_PANDAS
+            python3 -m pip install numpy${{ matrix.numpy }} CoolProp || touch SKIP_COOLPROP
             python3 -m pip install --pre --no-index --find-links dist cantera
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
         # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
         # Increase figure limit to handle flame_speed_convergence_analysis.py.
-        # Skip equations_of_state.py in cases where CoolProp is broken (temporarily, for Python 3.13)
+        # Skip examples for Python releases where pandas/pyarrow or CoolProp are not available
         run: |
           echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
-          python3 -m CoolProp || rm samples/python/thermo/equations_of_state.py
+          if [ -e SKIP_PANDAS ]; then
+            rm samples/python/kinetics/diamond_cvd.py
+            rm samples/python/kinetics/jet_stirred_reactor.py
+            rm samples/python/kinetics/sofc.py
+            rm samples/python/onedim/diffusion_flame_continuation.py
+            rm samples/python/onedim/flame_initial_guess.py
+            rm samples/python/onedim/flame_speed_convergence_analysis.py
+            rm samples/python/onedim/flamespeed_sensitivity.py
+            rm samples/python/reactors/continuous_reactor.py
+            rm samples/python/reactors/reactor2.py
+            rm samples/python/thermo/vapordome.py
+          fi
+          if [ -e SKIP_COOLPROP ]; then
+            rm samples/python/thermo/equations_of_state.py
+          fi
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
@@ -847,7 +870,7 @@ jobs:
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v5
