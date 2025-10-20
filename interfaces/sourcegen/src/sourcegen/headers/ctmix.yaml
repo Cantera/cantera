@@ -15,7 +15,18 @@ recipes:
 - name: updatePhases
 - name: nElements
 - name: elementIndex
-  wraps: elementIndex(const string&, bool)
+  # temporary custom code due to changing C++ API: replaceable by
+  # wraps: elementIndex(const string&)
+  # with implicit `raise=true` default after Cantera 3.2
+  brief: Returns the index of the element with name
+  what: method
+  declaration: int32_t mix_elementIndex(int32_t handle, const char* name)
+  parameters:
+    handle: Handle to queried MultiPhase object.
+    name: String name of the global element
+  uses: elementIndex(const string&, bool)
+  code: |-
+    return MultiPhaseCabinet::at(handle)->elementIndex(name, true);
 - name: nSpecies
 - name: speciesIndex
   wraps: speciesIndex(size_t, size_t)

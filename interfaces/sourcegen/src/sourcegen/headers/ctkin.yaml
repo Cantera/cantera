@@ -21,8 +21,18 @@ recipes:
 - name: reactionPhase  # New in Cantera 3.2
   what: accessor
 - name: phaseIndex
-  # alternate version to be removed after Cantera 3.2
-  wraps: phaseIndex(const string&, bool)
+  # temporary custom code due to changing C++ API: replaceable by
+  # wraps: phaseIndex(const string&)
+  # with implicit `raise=true` default after Cantera 3.2
+  brief: Return the phase index of a phase in the list of phases defined within the object.
+  what: method
+  declaration: int32_t kin_phaseIndex(int32_t handle, const char* ph);
+  parameters:
+    handle: Handle to queried Kinetics object.
+    ph: string name of the phase
+  uses: phaseIndex(const string&, bool)
+  code: |-
+    return KineticsCabinet::at(handle)->phaseIndex(ph, true);
 - name: nTotalSpecies  # Renamed in Cantera 3.2 (previously nSpecies)
 - name: reactantStoichCoeff
 - name: productStoichCoeff
@@ -38,8 +48,19 @@ recipes:
 - name: multiplier
 - name: setMultiplier
 - name: isReversible
-- name: speciesIndex
-  wraps: kineticsSpeciesIndex(const string&)  # inconsistent API (preexisting)
+- name: kineticsSpeciesIndex  # Renamed in Cantera 3.2 (previously speciesIndex)
+  # temporary custom code due to changing C++ API: replaceable by
+  # wraps: kineticsSpeciesIndex(const string&)
+  # with implicit `raise=true` default after Cantera 3.2
+  brief: Return the index of a species within the phases participating in this kinetic mechanism.
+  what: method
+  declaration: int32_t kin_kineticsSpeciesIndex(int32_t handle, const char* nm);
+  parameters:
+    handle: Handle to queried Kinetics object.
+    nm: name of the species
+  uses: kineticsSpeciesIndex(const string&, bool)
+  code: |-
+    return KineticsCabinet::at(handle)->kineticsSpeciesIndex(nm, true);
 - name: advanceCoverages
   wraps: advanceCoverages(double)
 - name: getDeltaEnthalpy  # Changed in Cantera 3.2 (previously part of getDelta)

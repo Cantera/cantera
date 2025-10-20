@@ -46,11 +46,31 @@ recipes:
 - name: elementName  # Renamed in Cantera 3.2 (previously getElementName)
 - name: speciesName  # Renamed in Cantera 3.2 (previously getSpeciesName)
 - name: elementIndex
-  # alternate version to be removed after Cantera 3.2
-  wraps: elementIndex(const string&, bool)
+  # temporary custom code due to changing C++ API: replaceable by
+  # wraps: elementIndex(const string&)
+  # with implicit `raise=true` default after Cantera 3.2
+  brief: Return the index of element named 'name'.
+  what: method
+  declaration: int32_t thermo_elementIndex(int32_t handle, const char* name)
+  parameters:
+    handle: Handle to queried Phase object.
+    name: Name of the element
+  uses: elementIndex(const string&, bool)
+  code: |-
+    return ThermoPhaseCabinet::as<Phase>(handle)->elementIndex(name, true);
 - name: speciesIndex
-  # alternate version to be removed after Cantera 3.2
-  wraps: speciesIndex(const string&, bool)
+  # temporary custom code due to changing C++ API: replaceable by
+  # wraps: speciesIndex(const string&)
+  # with implicit `raise=true` default after Cantera 3.2
+  brief: Returns the index of a species named 'name' within the Phase object.
+  what: method
+  declaration: int32_t thermo_speciesIndex(int32_t handle, const char* name)
+  parameters:
+    handle: Handle to queried Phase object.
+    name: String name of the species. It may also be in the form phaseName:speciesName
+  uses: speciesIndex(const string&, bool)
+  code: |-
+    return ThermoPhaseCabinet::as<Phase>(handle)->speciesIndex(name, true);
 - name: nAtoms
 - name: addElement
 - name: refPressure
