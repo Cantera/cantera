@@ -417,9 +417,6 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
         computeRadiation(x, jmin, jmax);
     }
     for (size_t j = jmin; j <= jmax; j++) {
-        // if (m_nsoot > 0){
-        //     getDistributionOrdre0(x,j);
-        // }
         AVBPcompute_local_thick(x,j);
     }
 
@@ -427,21 +424,7 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     evalContinuity(x, rsd, diag, rdt, jmin, jmax);
     evalMomentum(x, rsd, diag, rdt, jmin, jmax);
     evalSoot(x, rsd, diag, rdt, jmin, jmax); 
-    // cout<<jmin<<jmax<<endl;
-    // cout<<"rsd"<<endl;
-    // cout<<c_offset_S<<endl;
-    // cout<<m_nv<<endl;
-    // cout<<jmin<<endl;
-    // for (size_t j = 0; j <= m_points - 1; j++){
-    //     cout<<j<<endl;
-    // for (size_t k = 0; k < m_nsoot; k++){
-    //     cout<<rsd[index(c_offset_S + k, j)]<<endl;
-    // }
-    // }
-    // exit(0);
-
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
-    // exit(0);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
     evalLambda(x, rsd, diag, rdt, jmin, jmax);
     evalElectricField(x, rsd, diag, rdt, jmin, jmax);
@@ -528,7 +511,6 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
 void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
-        // cout<<"multicomponent"<<endl;
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
@@ -540,21 +522,15 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
             }
         }
     } else {
-        // cout<<"mix"<<endl;
         for (size_t j = j0; j < j1; j++) {
             double sum = 0.0;
             double dz = z(j+1) - z(j);
             if (m_fluxGradientBasis == ThermoBasis::molar) {
-                // cout<<"molar"<<endl;
                 for (size_t k = 0; k < m_nsp; k++) {
-                    // if ( j==2 && k==36){
-                    //     cout<<m_diff[k+m_nsp*j]<<endl;
-                    // }
                     m_flux(k,j) = m_diff[k+m_nsp*j] * (X(x,k,j) - X(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
                 }
             } else {
-                // cout<<"massic"<<endl;
                 for (size_t k = 0; k < m_nsp; k++) {
                     m_flux(k,j) = m_diff[k+m_nsp*j] * (Y(x,k,j) - Y(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
@@ -568,7 +544,6 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 
     if (m_do_soret) {
-        // cout<<"soret"<<endl;
         for (size_t m = j0; m < j1; m++) {
             double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
                               ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
@@ -887,37 +862,23 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) {
+
         getWdot(x,j);
         
         for (size_t k = 0; k < m_nsp; k++) {
-
             if (m_nsoot > 0 && m_do_retroaction){
                 m_wdot(k,j) -= sootConsumption(k,j);
-                // if (j==2){
-                //     cout<<"in evalSpecies"<<endl;
-                //     // cout<<k<<endl;
-                //     cout<<j<<endl;
-                //     cout<<k<<endl;
-                //     cout<<sootConsumption(k,j)<<endl;
-                //     cout<<m_wdot(k,j)<<endl;
-                // }
             }
         }
         for (size_t k = 0; k < m_nsp; k++) {
             double convec = rho_u(x, j)*dYdz(x, k, j);
             double diffus = 2*(m_flux(k, j)*avbp_thick[j] - m_flux(k, j-1)*avbp_thick[j-1]) / (z(j+1) - z(j-1));
-            // if (k==36 && j==2){
-                    // cout<<convec<<endl;
-                    // cout<<diffus<<endl;
-                    // cout<<m_flux(k, j)<<endl;
-                    // cout<<m_flux(k, j-1)<<endl;
-                // }
+
             rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k, j)/avbp_thick[j]
                                               - convec - diffus) / m_rho[j]
                                             - rdt*(Y(x, k, j) - Y_prev(k, j));
             diag[index(c_offset_Y + k, j)] = 1;
         }
-        // cout<<rsd[index(c_offset_Y + 36, 2)]<<endl;
     }
 }
 
@@ -933,8 +894,6 @@ void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
 void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
-    // cout<<"print c_offset_S"<<endl;
-    // cout<<c_offset_S<<endl;
     if (m_nsoot > 0){
         
         if (jmin == 0) { // left boundary
@@ -955,8 +914,10 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
         size_t j0 = std::max<size_t>(jmin, 1);
         size_t j1 = std::min(jmax, m_points-2);
         for (size_t j = j0; j <= j1; j++) { // interior points
+
             getDistributionOrdre0(x,j);
             sootSource(x,j);
+
             for (size_t k = 0; k < m_nsoot; k++){
                 // Convection
                 double soot_convec = rho_u(x,j)*dYsdz(x,k,j);
@@ -966,21 +927,18 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
                 // Thermophoresis
                 double soot_soret = 2.0 * (m_soot_soret(k,j) - m_soot_soret(k,j-1))
                                     / (z(j+1) - z(j-1));
+
                 // Source terms [m3/kg/s]
                 double soot_source = 0;
                 soot_source += (k == 0 ? m_qdotNucleation[j] : 0.0);
                 soot_source += (m_do_condensation ? m_qdotCondensation(k,j) : 0.0);
-                // cout<<"print m_qdotNucleation"<<endl;
-                // cout<<m_qdotNucleation[j]<<endl;
-                // cout<<"print m_qdotCondensation"<<endl;
-                // cout<<m_qdotCondensation(k,j)<<endl;
-                
                 soot_source += (m_do_coagulation ? m_qdotCoagulation(k,j) : 0.0);
                 soot_source += (m_do_sg ? m_qdotSg(k,j) : 0.0);
                 soot_source += (m_do_oxidation ? m_qdotOxidation(k,j) : 0.0);
                 // kg/s/m^3
                 soot_source *= (rho_soot * m_rho[j]);
                 if(k == m_nsoot - 1 && m_trash_section){soot_source = 0.0;}
+
                 // Residual
                 rsd[index(c_offset_S + k, j)] =
                     (soot_source - soot_convec + soot_diffus + soot_soret) / m_rho[j] 
@@ -1947,11 +1905,6 @@ void Flow1D::sootCondensation(const double* x, size_t j){
         if ( k>0 ){
             m_qdotCondensation(k-1,j) -= term3;
         }
-        // cout<<"in sootCondensation"<<endl;
-        // cout<<q[k]<<endl;
-        // cout<<term1<<endl;
-        // cout<<term2<<endl;
-        // cout<<term3<<endl;
     }
 }
 
@@ -2188,7 +2141,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r06f = k06f * conc_O2;
         r06bisf = k06bisf * conc_O2;
         r07f = Avogadro * S_C2 * gamma_oh * conc_OH * 
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         double fk10   = r05f / (r04b+r06bisf+r05f);
         double A_QSS = (r01f + r02f + r03b + r07f + r05b * (1.0 - fk10)) / (r01b + r02b + r03f + r04f * fk10);
@@ -2226,7 +2179,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r04f = k04f * conc_C2H2;
         r05f = k05f * conc_O2; 
         r06f = Avogadro * S_C2 * gamma_oh * conc_OH * 
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         chi = (r01f + r02f + r03f) / (r01b + r02b + r03b + r04f + r05f); // * 1.7e15; 
         // Oxidation O2 [must be 1/s]
@@ -2253,7 +2206,7 @@ void Flow1D::sootSurfaceInitialization(const double* x, size_t j){
         r03f = k03f * conc_C2H2;
         r04f = k04f  * conc_O2;
         r05f = Avogadro * S_C2 * gamma_oh * conc_OH *
-               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5);
+               pow(GasConstant * T(x,j)/(2* Pi * m_wt[k]), 0.5); // Bizarre k correspond à OH ? 
         // From QSS [-]
         chi = r01f / (r01b + r02f + r03f + r04f); // * 2.3e14
         // Oxidation O2 [1/s]
@@ -2386,11 +2339,6 @@ void Flow1D::getDistributionOrdre0(const double* x, size_t j){
     for (size_t k = 0; k < m_nsoot; k++){
         // Soot volume fraction density [1/m3]
         q[k] = m_rho[j] * Ys(x,k,j) / (rho_soot * (vSectMax[k] - vSectMin[k]));
-        // cout<<"in getDistributionOrdre0"<<endl;
-        // cout<<q[k]<<endl;
-        // cout<<m_rho[j]<<endl;
-        // cout<<Ys(x,k,j)<<endl;
-        // cout<<term3<<endl;
     }
 }
 //-----------------------------//
