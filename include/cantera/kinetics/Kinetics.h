@@ -326,8 +326,25 @@ public:
      *   - If no match is found, the value -1 is returned.
      *
      * @param nm   Input string name of the species
+     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
      */
     size_t kineticsSpeciesIndex(const string& nm) const;
+
+    /**
+     * Return the index of a species within the phases participating in this kinetic
+     * mechanism.
+     * This routine will look up a species number based on the input string `nm`. The
+     * lookup of species will occur for all phases listed in the Kinetics object.
+     * @param nm  Name of the species.
+     * @param raise  If `true`, raise exception if the specified species is not defined
+     *      in the Kinetics object.
+     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
+     *      behavior if a phase is not found in %Cantera 3.2 is to return `npos`.
+     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @exception Throws a CanteraError if the specified species is not found and
+     *      `raise` is `true`.
+     */
+    size_t kineticsSpeciesIndex(const string& nm, bool raise) const;
 
     /**
      * This function looks up the name of a species and returns a

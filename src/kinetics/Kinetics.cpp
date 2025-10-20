@@ -95,8 +95,8 @@ size_t Kinetics::phaseIndex(const string& ph) const
 {
     size_t ix = phaseIndex(ph, false);
     if (ix == npos) {
-        warn_deprecated("Kinetics::phaseIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning -1 to throwing an "
+        warn_deprecated("Kinetics::phaseIndex", "'raise' argument not specified. "
+            "Default behavior will change from returning npos to throwing an "
             "exception after Cantera 3.2.");
     }
     return ix;
@@ -344,12 +344,27 @@ string Kinetics::kineticsSpeciesName(size_t k) const
 
 size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
 {
+    size_t ix = kineticsSpeciesIndex(nm, false);
+    if (ix == npos) {
+        warn_deprecated("Kinetics::kineticsSpeciesIndex", "'raise' argument not "
+            "specified. Default behavior will change from returning npos to throwing "
+            "an exception after Cantera 3.2.");
+    }
+    return ix;
+}
+
+size_t Kinetics::kineticsSpeciesIndex(const string& nm, bool raise) const
+{
     for (size_t n = 0; n < m_thermo.size(); n++) {
         // Check the ThermoPhase object for a match
         size_t k = thermo(n).speciesIndex(nm, false);
         if (k != npos) {
             return k + m_start[n];
         }
+    }
+    if (raise) {
+        throw CanteraError("Kinetics::kineticsSpeciesIndex",
+            "Species '{}' not found", nm);
     }
     return npos;
 }

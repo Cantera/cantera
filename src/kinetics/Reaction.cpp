@@ -295,7 +295,7 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     if (node.hasKey("orders")) {
         for (const auto& [name, order] : node["orders"].asMap<double>()) {
             orders[name] = order;
-            if (kin.kineticsSpeciesIndex(name) == npos) {
+            if (kin.kineticsSpeciesIndex(name, false) == npos) {
                 setValid(false);
             }
         }
@@ -620,7 +620,7 @@ void updateUndeclared(vector<string>& undeclared,
                       const Composition& comp, const Kinetics& kin)
 {
     for (const auto& [name, stoich]: comp) {
-        if (kin.kineticsSpeciesIndex(name) == npos) {
+        if (kin.kineticsSpeciesIndex(name, false) == npos) {
             undeclared.emplace_back(name);
         }
     }
@@ -936,7 +936,7 @@ void parseReactionEquation(Reaction& R, const string& equation,
                     equation, tokens[i],
                     (last_used == npos) ? "n/a" : tokens[last_used]);
             }
-            if (!kin || (kin->kineticsSpeciesIndex(species) == npos
+            if (!kin || (kin->kineticsSpeciesIndex(species, false) == npos
                          && mass_action && species != "M"))
             {
                 R.setValid(false);
