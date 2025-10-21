@@ -17,6 +17,10 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+# Workaround to support both Numpy 1.x and 2.4.0+
+# TODO: Replace when dropping Numpy 1.x support
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 #########################################################################
 # Input Parameters
 #########################################################################
@@ -252,13 +256,13 @@ plt.show()
 ######################################################################
 
 # heat release
-Q = np.trapz(states.heat_release_rate * states.V, t)
+Q = trapezoid(states.heat_release_rate * states.V, t)
 output_str = '{:45s}{:>4.1f} {}'
 print(output_str.format('Heat release rate per cylinder (estimate):',
                         Q / t[-1] / 1000., 'kW'))
 
 # expansion power
-W = np.trapz(states.dWv_dt, t)
+W = trapezoid(states.dWv_dt, t)
 print(output_str.format('Expansion power per cylinder (estimate):',
                         W / t[-1] / 1000., 'kW'))
 
@@ -268,6 +272,6 @@ print(output_str.format('Efficiency (estimate):', eta * 100., '%'))
 
 # CO emissions
 MW = states.mean_molecular_weight
-CO_emission = np.trapz(MW * states.mdot_out * states('CO').X[:, 0], t)
-CO_emission /= np.trapz(MW * states.mdot_out, t)
+CO_emission = trapezoid(MW * states.mdot_out * states('CO').X[:, 0], t)
+CO_emission /= trapezoid(MW * states.mdot_out, t)
 print(output_str.format('CO emission (estimate):', CO_emission * 1.e6, 'ppm'))

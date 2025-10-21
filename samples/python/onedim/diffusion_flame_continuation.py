@@ -26,6 +26,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logging.basicConfig(stream=sys.stdout)
 
+# Workaround to support both Numpy 1.x and 2.4.0+
+# TODO: Replace when dropping Numpy 1.x support
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 # %%
 # Flame Initialization
 # --------------------
@@ -162,7 +166,7 @@ for i in range(n_max):
     data.append({
         'T_max': max(f.T),
         'strain_rate': strain_rate,
-        'heat_release_rate': np.trapz(f.heat_release_rate, f.grid),
+        'heat_release_rate': trapezoid(f.heat_release_rate, f.grid),
         'n_points': len(f.grid),
         'flame_width': width,
         'Tc_increment': temperature_increment,

@@ -684,10 +684,8 @@ jobs:
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
           # The pyparsing ignore setting is due to a new warning introduced in Matplotlib==3.6.0
-          # @todo: Remove the trapz-related ignore when dropping support for NumPy 1.x
-          #     and replacing np.trapz with np.trapezoid
           # Ignore NasaPoly2 warnings from n-hexane-NUIG-2015.yaml
-          PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:`trapz`:DeprecationWarning,ignore:NasaPoly2:UserWarning:"
+          PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:NasaPoly2:UserWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
         uses: actions/upload-artifact@v4

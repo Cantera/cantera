@@ -25,6 +25,9 @@ from pathlib import Path
 import numpy as np
 import cantera as ct
 
+# Workaround to support both Numpy 1.x and 2.4.0+
+# TODO: Replace when dropping Numpy 1.x support
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
 
 # Differentiation function for data that has variable grid spacing Used here to
 # compute normal strain-rate
@@ -63,7 +66,7 @@ def compute_consumption_speed(opposed_flame):
 
     integrand = opposed_flame.heat_release_rate / opposed_flame.cp
 
-    total_heat_release = np.trapz(integrand, opposed_flame.grid)
+    total_heat_release = trapezoid(integrand, opposed_flame.grid)
     Sc = total_heat_release / (Tb - Tu) / rho_u
 
     return Sc
