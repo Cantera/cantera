@@ -52,6 +52,15 @@ TEST(zerodim, test_guards)
     EXPECT_THROW(Valve().updateMassFlowRate(0.), CanteraError);
 }
 
+TEST(zerodim, reactor)
+{
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+    auto reactor = newReactor4("Reactor", gas, true, "my-reactor");
+
+    ASSERT_THROW(reactor->componentName(200), IndexError);
+    ASSERT_THROW(reactor->componentIndex("spam"), CanteraError);
+}
+
 TEST(zerodim, reservoir)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");

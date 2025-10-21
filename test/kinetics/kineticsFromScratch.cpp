@@ -327,6 +327,9 @@ TEST_F(KineticsFromScratch, third_body_composition)
     Composition prod = R->products;
     EXPECT_EQ(prod.count("H2O"), (size_t) 0);
     EXPECT_EQ(reac.count("M"), (size_t) 0);
+
+    ASSERT_THROW(kin.kineticsSpeciesName(200), IndexError);
+    ASSERT_THROW(kin.kineticsSpeciesIndex("spam"), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, add_falloff_reaction1)

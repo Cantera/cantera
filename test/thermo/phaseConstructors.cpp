@@ -99,6 +99,11 @@ TEST_F(ConstructFromScratch, AddElements)
     ASSERT_EQ((size_t) 2, p.nElements());
     ASSERT_EQ("H", p.elementName(0));
     ASSERT_EQ((size_t) 1, p.elementIndex("O"));
+
+    ASSERT_THROW(p.elementName(200), IndexError);
+    ASSERT_THROW(p.elementIndex("spam"), CanteraError);
+    ASSERT_EQ(p.elementIndex("spam", false), npos);
+    ASSERT_THROW(p.elementIndex("spam", true), CanteraError);
 }
 
 TEST_F(ConstructFromScratch, throwUndefindElements)
@@ -120,6 +125,11 @@ TEST_F(ConstructFromScratch, throwUndefindElements)
     ASSERT_EQ(2, p.nAtoms(2, 1)); // O in O2
     ASSERT_EQ(2, p.nAtoms(0, 0)); // H in H2O
     ASSERT_THROW(p.addSpecies(sCO), CanteraError);
+
+    ASSERT_THROW(p.speciesName(200), IndexError);
+    ASSERT_THROW(p.speciesIndex("spam"), CanteraError);
+    ASSERT_EQ(p.speciesIndex("spam", false), npos);
+    ASSERT_THROW(p.speciesIndex("spam", true), CanteraError);
 }
 
 TEST_F(ConstructFromScratch, ignoreUndefinedElements)
