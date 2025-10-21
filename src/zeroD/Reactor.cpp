@@ -526,7 +526,7 @@ string Reactor::componentName(size_t k) {
             }
         }
     }
-    throw CanteraError("Reactor::componentName", "Index is out of bounds.");
+    throw IndexError("Reactor::componentName", "component", k, m_nv);
 }
 
 double Reactor::upperBound(size_t k) const {

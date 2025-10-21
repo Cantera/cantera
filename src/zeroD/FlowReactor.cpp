@@ -382,7 +382,7 @@ string FlowReactor::componentName(size_t k)
             }
         }
     }
-    throw CanteraError("FlowReactor::componentName", "Index {} is out of bounds.", k);
+    throw IndexError("FlowReactor::componentName", "component", k, m_nv);
 }
 
 }

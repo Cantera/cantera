@@ -1793,7 +1793,7 @@ class TestFlowReactor:
         with pytest.raises(ct.CanteraError, match="Component 'spam' not found"):
             r.component_index('spam')
 
-        with pytest.raises(ct.CanteraError, match='out of bounds'):
+        with pytest.raises(ct.CanteraError, match="outside valid range"):
             r.component_name(200)
 
 class TestFlowReactor2:

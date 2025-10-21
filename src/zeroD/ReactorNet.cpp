@@ -627,18 +627,22 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
 
 string ReactorNet::componentName(size_t i) const
 {
+    size_t iTot = 0;
+    size_t i0 = i;
     for (auto r : m_reactors) {
         if (i < r->neq()) {
             return r->name() + ": " + r->componentName(i);
         } else {
             i -= r->neq();
         }
+        iTot += r->neq();
     }
-    throw CanteraError("ReactorNet::componentName", "Index out of bounds");
+    throw IndexError("ReactorNet::componentName", "component", i0, iTot);
 }
 
 double ReactorNet::upperBound(size_t i) const
 {
+    size_t iTot = 0;
     size_t i0 = i;
     for (auto r : m_reactors) {
         if (i < r->neq()) {
@@ -646,12 +650,14 @@ double ReactorNet::upperBound(size_t i) const
         } else {
             i -= r->neq();
         }
+        iTot += r->neq();
     }
-    throw CanteraError("ReactorNet::upperBound", "Index {} out of bounds", i0);
+    throw IndexError("ReactorNet::upperBound", "upperBound", i0, iTot);
 }
 
 double ReactorNet::lowerBound(size_t i) const
 {
+    size_t iTot = 0;
     size_t i0 = i;
     for (auto r : m_reactors) {
         if (i < r->neq()) {
@@ -659,8 +665,9 @@ double ReactorNet::lowerBound(size_t i) const
         } else {
             i -= r->neq();
         }
+        iTot += r->neq();
     }
-    throw CanteraError("ReactorNet::lowerBound", "Index {} out of bounds", i0);
+    throw IndexError("ReactorNet::lowerBound", "lowerBound", i0, iTot);
 }
 
 void ReactorNet::resetBadValues(double* y) {
