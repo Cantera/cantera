@@ -6,6 +6,10 @@ from pytest import approx
 import cantera as ct
 
 
+# Workaround to support both Numpy 1.x and 2.4.0+
+# TODO: Replace when dropping Numpy 1.x support
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 @pytest.fixture(scope='function')
 def setup_thermo_phase_tests(request):
     request.cls.phase = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1224,8 +1228,6 @@ class TestPlasmaPhase:
                                (ct.avogadro * ct.electron_charge))
         assert mean_electron_energy == approx(phase.mean_electron_energy)
 
-    # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
-    @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_discretized_electron_energy_distribution(self, phase):
         levels = np.array([0.0, 1.0, 10.0])
         dist = np.array([0.0, 0.9, 0.01])
@@ -1234,7 +1236,7 @@ class TestPlasmaPhase:
         phase.set_discretized_electron_energy_distribution(levels, dist)
         assert levels == approx(phase.electron_energy_levels)
         assert dist == approx(phase.electron_energy_distribution)
-        mean_energy = 2.0 / 5.0 * np.trapz(dist, np.power(levels, 5./2.))
+        mean_energy = 2.0 / 5.0 * trapezoid(dist, np.power(levels, 5./2.))
         assert phase.mean_electron_energy == approx(mean_energy, rel=1e-4)
         electron_temp = 2.0 / 3.0 * (phase.mean_electron_energy *
                         ct.avogadro * ct.electron_charge / ct.gas_constant)

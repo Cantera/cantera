@@ -17,6 +17,10 @@ from .utilities import (
     compareProfiles
 )
 
+# Workaround to support both Numpy 1.x and 2.4.0+
+# TODO: Replace when dropping Numpy 1.x support
+trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 class TestReactor:
     reactorClass = ct.Reactor
 
@@ -2442,7 +2446,7 @@ class TestReactorSensitivities:
         To = T[0]
         Tf = T[-1]
 
-        return (t[-1]*T[-1] - np.trapz(T,t)) / (T[-1] - T[0])
+        return (t[-1]*T[-1] - trapezoid(T,t)) / (T[-1] - T[0])
 
     def calc_dtdh(self, species):
         gas, r, net = self.setup_ignition_delay()
@@ -2465,14 +2469,12 @@ class TestReactorSensitivities:
 
         To = T[0]
         Tf = T[-1]
-        tig = (t[-1]*Tf - np.trapz(T,t))/(Tf-To)
-        dtdp = ((t[-1] - tig)*S[-1,:]*Tf - np.trapz(S*T[:,None], t, axis=0))/(Tf-To)
+        tig = (t[-1]*Tf - trapezoid(T,t))/(Tf-To)
+        dtdp = ((t[-1] - tig)*S[-1,:]*Tf - trapezoid(S*T[:,None], t, axis=0))/(Tf-To)
         return dtdp
 
-    # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
     @pytest.mark.skip(reason="Integration of sensitivity ODEs is unreliable, "
                               "see: https://github.com/Cantera/enhancements/issues/55")
-    @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
         dtigdh_cvodes = self.calc_dtdh(species)
