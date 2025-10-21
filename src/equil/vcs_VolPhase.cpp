@@ -754,7 +754,7 @@ size_t vcs_VolPhase::nElemConstraints() const
     return m_numElemConstraints;
 }
 
-string vcs_VolPhase::elementName(const size_t e) const
+string vcs_VolPhase::elementName(size_t e) const
 {
 
     if (e < m_elementNames.size()) {

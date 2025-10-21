@@ -780,7 +780,7 @@ void MultiPhase::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-string MultiPhase::speciesName(const size_t k) const
+string MultiPhase::speciesName(size_t k) const
 {
     if (k < m_nsp) {
         return m_snames[k];
@@ -798,7 +798,7 @@ void MultiPhase::getMoleFractions(double* const x) const
     std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
 }
 
-string MultiPhase::phaseName(const size_t iph) const
+string MultiPhase::phaseName(size_t iph) const
 {
     if (iph < m_phase.size()) {
         return m_phase[iph]->name();
