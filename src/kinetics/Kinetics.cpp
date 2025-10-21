@@ -334,10 +334,24 @@ double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2
 
 string Kinetics::kineticsSpeciesName(size_t k) const
 {
+    string ret = kineticsSpeciesName(k, false);
+    if (ret == "<unknown>") {
+        warn_deprecated("Kinetics::kineticsSpeciesName", "Behavior will change from "
+            "returning '<unknown>' to throwing an exception after Cantera 3.2.");
+    }
+    return ret;
+}
+
+string Kinetics::kineticsSpeciesName(size_t k, bool raise) const
+{
     for (size_t n = m_start.size()-1; n != npos; n--) {
         if (k >= m_start[n]) {
             return thermo(n).speciesName(k - m_start[n]);
         }
+    }
+    if (raise) {
+        // always throw exception after Cantera 3.2.
+        throw IndexError("Kinetics::kineticsSpeciesName", "totalSpecies", k, m_kk);
     }
     return "<unknown>";
 }
