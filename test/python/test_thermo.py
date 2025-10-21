@@ -1185,6 +1185,30 @@ class TestInterfacePhase2:
         X_normalized = surf.X
         assert X_normalized * sum(theta) == approx(X_unnormalized)
 
+    def test_multi_site_density(self, surf):
+        surf.coverages = {"O2(s)": 1.0}  # O2(s) covers two sites
+        assert sum(surf.concentrations) == approx(0.5 * surf.site_density)
+
+        surf.coverages = {"Pt(s)": 1.0}  # Pt(s) covers one site
+        assert sum(surf.concentrations) == approx(surf.site_density)
+
+    def test_finite_difference_derivative(self, surf):
+        theta0 = np.array([0.5, 0.1, 0.1, 0.3])
+        surf.coverages = theta0
+        C0 = surf.concentrations
+        dtheta = 0.01
+
+        for k in range(surf.n_species):
+            theta = theta0.copy()
+            theta[k] += dtheta
+            surf.set_unnormalized_coverages(theta)
+            C = surf.concentrations
+            dC_dtheta = (C - C0) / dtheta
+            assert dC_dtheta[k] == approx(surf.site_density / surf.species(k).size)
+            for j in range(surf.n_species):
+                if j != k:
+                    assert abs(dC_dtheta[j]) < 1e-8 * surf.site_density
+
 
 class TestPlasmaPhase:
     @pytest.fixture(scope='function')
