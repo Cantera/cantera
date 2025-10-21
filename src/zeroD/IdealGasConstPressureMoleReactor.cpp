@@ -265,8 +265,8 @@ string IdealGasConstPressureMoleReactor::componentName(size_t k) {
             }
         }
     }
-    throw CanteraError("IdealGasConstPressureMoleReactor::componentName",
-                       "Index is out of bounds.");
+    throw IndexError("IdealGasConstPressureMoleReactor::componentName",
+        "components", k, m_nv);
 }
 
 double IdealGasConstPressureMoleReactor::upperBound(size_t k) const {

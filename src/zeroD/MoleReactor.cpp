@@ -318,7 +318,7 @@ string MoleReactor::componentName(size_t k) {
             }
         }
     }
-    throw CanteraError("MoleReactor::componentName", "Index is out of bounds.");
+    throw IndexError("MoleReactor::componentName", "component", k, m_nv);
 }
 
 double MoleReactor::upperBound(size_t k) const {

@@ -139,8 +139,7 @@ string ConstPressureMoleReactor::componentName(size_t k) {
             }
         }
     }
-    throw CanteraError("ConstPressureMoleReactor::componentName",
-                       "Index is out of bounds.");
+    throw IndexError("ConstPressureMoleReactor::componentName", "component", k, m_nv);
 }
 
 double ConstPressureMoleReactor::upperBound(size_t k) const {
