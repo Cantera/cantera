@@ -88,7 +88,7 @@ classdef Interface < Solution
 
         function c = get.concentrations(s)
             nsp = s.nSpecies;
-            c = ctArray('surf_getConcentrations', nsp, s.tpID);
+            c = ctArray('thermo_getConcentrations', nsp, s.tpID);
         end
 
         function set.coverages(s, cov)

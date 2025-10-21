@@ -67,23 +67,17 @@ classdef ctTestWellStirredReactor < ctTestCase
         function testNonReacting(self)
             self.makeReactors(900.0, 10 * OneAtm, 1.0, 5.0);
 
-            self.assumeFail('Skipped - breaks due to default clone=true reactor setting');
-            % test is disabled: Cantera 3.2 introduces cloning of Solution objects
-            % when a Reactor is created. Thus, the original gas object is not associated
-            % with the reactor. The test is easily fixed, but disabled to point out
-            % behavior that is changed when compared to the past.
+            self.combustor.phase.setMultiplier(0.0);
+            [t, T] = self.integrate(100.0);
 
-            % self.gas.setMultiplier(0.0);
-            % [t, T] = self.integrate(100.0);
+            for i = 1:length(t)
+                self.verifyEqual(T(i), 900, 'RelTol', 1e-5);
+            end
 
-            % for i = 1:length(t)
-            %     self.verifyEqual(T(i), 900, 'RelTol', 1e-5);
-            % end
-
-            % val1 = self.combustor.phase.Y...
-            %        (self.combustor.phase.speciesIndex('CH4'));
-            % val2 = (1.0 / 6.0);
-            % self.verifyEqual(val1, val2, 'RelTol', 1e-5);
+            val1 = self.combustor.phase.Y...
+                   (self.combustor.phase.speciesIndex('CH4'));
+            val2 = (1.0 / 6.0);
+            self.verifyEqual(val1, val2, 'RelTol', 1e-5);
         end
 
         function testIgnition1(self)
