@@ -868,7 +868,7 @@ string Flow1D::componentName(size_t n) const
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
         } else {
-            return "<unknown>";
+            throw IndexError("Flow1D::componentName", "component", n, m_nv);
         }
     }
 }

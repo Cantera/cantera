@@ -37,6 +37,9 @@ size_t OneDim::domainIndex(const string& name) const
 }
 
 std::tuple<string, size_t, string> OneDim::component(size_t i) const {
+    if (i >= m_size) {
+        throw IndexError("OneDim::component", "components", i, m_size);
+    }
     const auto& [n, j, k] = m_componentInfo[i];
     Domain1D& dom = domain(n);
     return make_tuple(dom.id(), j, dom.componentName(k));

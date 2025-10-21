@@ -74,16 +74,19 @@ void Domain1D::resize(size_t nv, size_t np)
 
 string Domain1D::componentName(size_t n) const
 {
-    if (m_name[n] != "") {
-        return m_name[n];
-    } else {
-        return fmt::format("component {}", n);
+    if (n < m_nv) {
+        if (m_name[n] != "") {
+            return m_name[n];
+        } else {
+            return fmt::format("component {}", n);
+        }
     }
+    throw IndexError("Domain1D::componentName", "component", n, m_nv);
 }
 
 size_t Domain1D::componentIndex(const string& name, bool checkAlias) const
 {
-    for (size_t n = 0; n < nComponents(); n++) {
+    for (size_t n = 0; n < m_nv; n++) {
         if (name == componentName(n)) {
             return n;
         }
@@ -94,7 +97,7 @@ size_t Domain1D::componentIndex(const string& name, bool checkAlias) const
 
 bool Domain1D::hasComponent(const string& name, bool checkAlias) const
 {
-    for (size_t n = 0; n < nComponents(); n++) {
+    for (size_t n = 0; n < m_nv; n++) {
         if (name == componentName(n)) {
             return true;
         }
