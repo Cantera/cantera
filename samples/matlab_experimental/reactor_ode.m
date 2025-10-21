@@ -41,7 +41,11 @@ function dydt = reactor_ode(t, y, gas, vdot, area, heatflux)
         udt = -p * vdt + a * q;
 
         % species equations
-        ydt = total_mass * gas.massProdRate;
+        k = gas.netProdRates;
+        rho_inv = 1 / gas.massDensity;
+        MW = gas.molecularWeights;
+        massProdRate = rho_inv .* k .* MW;
+        ydt = total_mass * massProdRate;
 
         % set up column vector for dydt
         dydt(:, j) = [udt

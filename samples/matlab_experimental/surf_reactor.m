@@ -59,7 +59,7 @@ network = ReactorNet({r});
 nSteps = 100;
 p0 = r.P;
 names = {'CH4', 'CO', 'CO2', 'H2O'};
-x = zeros([nSteps 4]);
+x = zeros([nSteps, 4]);
 tim = zeros(nSteps, 1);
 temp = zeros(nSteps, 1);
 pres = zeros(nSteps, 1);
@@ -75,7 +75,7 @@ for n = 1:nSteps
     temp(n) = r.T;
     pres(n) = r.P - p0;
     cov(n, :) = surf.X';
-    x(n, :) = gas.moleFraction(names);
+    x(n, :) = r.phase.moleFraction(names);
 end
 
 disp(['CPU time = ' num2str(cputime - t0)]);

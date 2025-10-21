@@ -62,20 +62,6 @@ classdef Kinetics < handle
 
         reverseRateConstants % Reverse reaction rate constants for all reactions.
 
-        % Get the mass production rates of the species. ::
-        %
-        %     >> ydot = kin.massProdRate
-        %
-        % Evaluates the source term :math:`\dot{\omega}_k M_k /\rho`
-        %
-        % :param a:
-        %     Instance of class :mat:class:`Kinetics` (or another
-        %     object deriving from Kinetics)
-        %     for which the ydots are desired.
-        % :return:
-        %     A vector of length nSpecies. Units: kg/s
-        massProdRate
-
         netProdRates % Net chemical production rates for all species. Unit: kmol/m^3-s.
 
         % Forward rates of progress for all reactions. Unit: kmol/m^3-s.
@@ -451,11 +437,6 @@ classdef Kinetics < handle
                 error('Cantera:ctError', ctGetErr);
             end
             k = buf.double;
-        end
-
-        function ydot = get.massProdRate(kin)
-            nsp = kin.nTotalSpecies;
-            ydot = ctArray('kin_getSourceTerms', nsp, kin.kinID);
         end
 
         %% Kinetics Set Methods
