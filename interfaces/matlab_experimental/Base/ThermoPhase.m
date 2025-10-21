@@ -464,24 +464,16 @@ classdef ThermoPhase < handle
             %     Set to a value > 0 to write diagnostic output. Larger values
             %     generate more detailed information.
 
-            if nargin < 3
-                solver = 'auto';
-            end
-
-            if nargin < 4
-                rtol = 1.0e-9;
-            end
-
-            if nargin < 5
-                maxsteps = 1000;
-            end
-
-            if nargin < 6
-                maxiter = 100;
-            end
-
-            if nargin < 7
-                loglevel = 0;
+            arguments
+                tp (1,1) ThermoPhase
+                xy (1,1) string {mustBeMember(xy, ["TP", "TV", "HP", "SP", ...
+                                                   "SV", "UV", "UP"])} = "TP"
+                solver (1,1) string {mustBeMember(solver, ["auto", ...
+                                     "vcs", "gibbs", "element_potential"])} = "auto"
+                rtol (1,1) double {mustBePositive} = 1.0e-9
+                maxsteps (1,1) double {mustBeInteger, mustBePositive} = 1000
+                maxiter (1,1) double {mustBeInteger, mustBePositive} = 100
+                loglevel (1,1) double {mustBeInteger, mustBeNonnegative} = 0
             end
 
             ctFunc('thermo_equilibrate', tp.tpID, xy, solver, rtol, ...
@@ -593,6 +585,8 @@ classdef ThermoPhase < handle
             M = tp.atomicMasses;
             Mel = M(eli);
             MW = tp.molecularWeights;
+            natoms = zeros(1, n);
+            yy = zeros(1, n);
             % Initialize the element mass fraction as zero.
             elMassFrac = 0.0;
             % Perform summation of elemental mass fraction over all species.
@@ -1273,14 +1267,14 @@ classdef ThermoPhase < handle
 
         %% Single-property setter methods
 
-        function tp = set.electricPotential(tp, phi)
+        function set.electricPotential(tp, phi)
             ctFunc('thermo_setElectricPotential', tp.tpID, phi);
         end
 
         function set.basis(tp, b)
 
             if strcmp(b, 'mole') || strcmp(b, 'molar') ...
-                || strcmp(b, 'Mole') || strcmp(b, 'Molar')
+               || strcmp(b, 'Mole') || strcmp(b, 'Molar')
                 tp.basis = 'molar';
             elseif strcmp(b, 'mass') || strcmp(b, 'Mass')
                 tp.basis = 'mass';
@@ -1512,7 +1506,7 @@ classdef ThermoPhase < handle
             tp.TP = input(1:2);
         end
 
-        function tp = set.TQ(tp, input)
+        function set.TQ(tp, input)
             t = input{1};
             q = input{2};
             ctFunc('thermo_setState_Tsat', tp.tpID, t, q);

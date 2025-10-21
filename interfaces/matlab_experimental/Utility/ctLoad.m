@@ -7,7 +7,8 @@ function ctLoad(mode)
     %   ctLoad('outofprocess')% load out-of-process
 
     arguments
-        mode (1,1) string {mustBeMember(mode,["inprocess","outofprocess"])} = "outofprocess"
+        mode (1,1) string {mustBeMember(mode, ...
+                           ["inprocess","outofprocess"])} = "outofprocess"
     end
 
     pathVar = dictionary();

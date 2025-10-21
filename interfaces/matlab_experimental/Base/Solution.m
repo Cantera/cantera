@@ -103,7 +103,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         %% Solution Class Setter Methods
 
         function set.transportModel(soln, str)
-            n = ctFunc('sol_setTransportModel', soln.solnID, str);
+            ctFunc('sol_setTransportModel', soln.solnID, str);
             soln.trID = ctFunc('sol_transport', soln.solnID);
         end
 

@@ -176,7 +176,8 @@ classdef (Abstract) ReactorBase < handle
 
             if ischar(species)
                 k = r.phase.speciesIndex(species) - 1;
-            else k = species - 1;
+            else
+                k = species - 1;
             end
 
             yi = ctFunc('reactor_massFraction', r.id, k);
@@ -200,16 +201,12 @@ classdef (Abstract) ReactorBase < handle
         end
 
         function set.V(r, v0)
-
             ctFunc('reactor_setInitialVolume', r.id, v0);
-
         end
 
         function set.massFlowRate(r, MFR)
-
             ctFunc('reactor_setMassFlowRate', r.id, MFR);
             r.massFlowRate = MFR;
-
         end
 
         function set.chemistry(r, flag)
@@ -218,7 +215,8 @@ classdef (Abstract) ReactorBase < handle
                 cflag = true;
             elseif strcmp(flag, 'off')
                 cflag = false;
-            else error('Input must be "on" or "off"');
+            else
+                error('Input must be "on" or "off"');
             end
 
             ctFunc('reactor_setChemistry', r.id, cflag);
@@ -230,7 +228,8 @@ classdef (Abstract) ReactorBase < handle
                 eflag = 1;
             elseif strcmp(flag, 'off')
                 eflag = 0;
-            else error('Input must be "on" or "off".');
+            else
+                error('Input must be "on" or "off".');
             end
 
             ctFunc('reactor_setEnergy', r.id, eflag);
