@@ -8,8 +8,7 @@ base: Kinetics
 parents: []  # List of parent classes
 derived: {InterfaceKinetics: kin}  # Specialization/prefix dictionary
 recipes:
-- name: getType
-  wraps: kineticsType  # inconsistent API (preexisting)
+- name: kineticsType  # Renamed in Cantera 3.2 (previously getType)
 - name: nReactions
 - name: reaction  # New in Cantera 3.2
   uses: nReactions
@@ -69,7 +68,6 @@ recipes:
 - name: getDeltaSSEnthalpy  # Changed in Cantera 3.2 (previously part of getDelta)
 - name: getDeltaSSGibbs  # Changed in Cantera 3.2 (previously part of getDelta)
 - name: getDeltaSSEntropy  # Changed in Cantera 3.2 (previously part of getDelta)
-# - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
 # - name: start  # <--- unused except for FORTRAN API
 # service functions
 - name: del

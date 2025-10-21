@@ -166,9 +166,9 @@ TEST(ct, new_interface)
     ASSERT_EQ(thermoType, "ideal-surface");
 
     int32_t kin_surf = sol_kinetics(surf);
-    buflen = kin_getType(kin_surf, 0, 0) + 1; // include \0
+    buflen = kin_kineticsType(kin_surf, 0, 0) + 1; // include \0
     buf.resize(buflen);
-    kin_getType(kin_surf, buflen, buf.data());
+    kin_kineticsType(kin_surf, buflen, buf.data());
     string kinType(buf.data());
     ASSERT_EQ(kinType, "surface");
 }
