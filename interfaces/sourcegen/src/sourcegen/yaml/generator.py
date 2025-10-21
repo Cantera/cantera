@@ -1,10 +1,4 @@
-"""
-Generator for YAML output.
-
-Used for illustration purposes: the `CLibSourceGenerator` is used to preprocess YAML
-header specifications, which yields the `HeaderFile` objects used by this source
-generator.
-"""
+"""Generator for YAML summary output."""
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
