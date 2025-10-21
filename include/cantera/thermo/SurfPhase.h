@@ -27,6 +27,22 @@ namespace Cantera
  * The density of surface sites is given by the variable @f$ n_0 @f$,
  * which has SI units of kmol m-2.
  *
+ * While the site coverage fractions @f$ \theta_k @f$ are generally used to describe the
+ * composition of surface phases, %Cantera represents the state internally in terms of
+ * mass fractions for consistency with other phase models. Mole fractions are computed
+ * from coverages as:
+ * @f[
+ *     X_k = \frac{ \theta_k / s_k }{ \sum_i \theta_i / s_i }
+ * @f]
+ * where @f$ s_k @f$ is the number of sites occupied by species @f$ k @f$. Mass
+ * fractions and the mean molecular weight are then computed in the typical manner.
+ *
+ * The mass density of a surface phase is defined to have units of kg/m². It is computed
+ * as:
+ * @f[
+ *     \rho = \frac{ n_0 \overline{W} }{ \sum X_k s_k }
+ * @f]
+ *
  * ## Specification of Species Standard State Properties
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
@@ -78,10 +94,10 @@ namespace Cantera
  * ## Application within Kinetics Managers
  *
  * The activity concentration,@f$  C^a_k @f$, used by the kinetics manager, is equal to
- * the actual concentration, @f$ C^s_k @f$, and is given by the following
- * expression.
+ * the actual concentration, @f$ C^s_k @f$, and is given as:
  * @f[
  *      C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
+ *            = \frac{\rho X_k}{\overline{W}} = \rho \frac{Y_k}{W_k}
  * @f]
  *
  * The standard concentration for species *k* is:
@@ -291,7 +307,10 @@ public:
 
     //! Return a vector of surface coverages
     /*!
-     * Get the coverages.
+     * Get the coverages. These are calculated from the mole fractions as
+     * @f[
+     *   \theta_k = \frac{ X_k s_k }{ \sum X_j s_j }
+     * @f]
      *
      * @param theta Array theta must be at least as long as the number of
      *              species.
