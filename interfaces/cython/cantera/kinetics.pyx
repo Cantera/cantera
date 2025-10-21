@@ -130,7 +130,7 @@ cdef class Kinetics(_SolutionBase):
         """
         cdef int k
         if isinstance(species, (str, bytes)):
-            return self.kinetics.kineticsSpeciesIndex(stringify(species))
+            return self.kinetics.kineticsSpeciesIndex(stringify(species), True)
         else:
             k = species
             self._check_kinetics_species_index(k)
@@ -142,7 +142,7 @@ cdef class Kinetics(_SolutionBase):
         Name of the species with index ``k`` in the arrays returned by methods
         of class `Kinetics`.
         """
-        return pystr(self.kinetics.kineticsSpeciesName(k))
+        return pystr(self.kinetics.kineticsSpeciesName(k, True))
 
     property kinetics_species_names:
         """

@@ -51,7 +51,10 @@ void Phase::checkElementArraySize(size_t mm) const
 
 string Phase::elementName(size_t m) const
 {
-    return m_elementNames[checkElementIndex(m)];
+    if (m < m_mm) {
+        return m_elementNames[m];
+    }
+    throw IndexError("Phase::elementName", "element", m, m_mm);
 }
 
 size_t Phase::elementIndex(const string& name) const
@@ -170,8 +173,10 @@ size_t Phase::speciesIndex(const string& name, bool raise) const
 
 string Phase::speciesName(size_t k) const
 {
-    checkSpeciesIndex(k);
-    return m_speciesNames[k];
+    if (k < m_kk) {
+        return m_speciesNames[k];
+    }
+    throw IndexError("Phase::speciesName", "species", k, m_kk);
 }
 
 const vector<string>& Phase::speciesNames() const

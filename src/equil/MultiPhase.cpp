@@ -733,7 +733,10 @@ void MultiPhase::checkElementArraySize(size_t mm) const
 
 string MultiPhase::elementName(size_t m) const
 {
-    return m_enames[m];
+    if (m < m_nel) {
+        return m_enames[m];
+    }
+    throw IndexError("MultiPhase::elementName", "element", m, m_nel);
 }
 
 size_t MultiPhase::elementIndex(const string& name) const
@@ -779,7 +782,10 @@ void MultiPhase::checkSpeciesArraySize(size_t kk) const
 
 string MultiPhase::speciesName(const size_t k) const
 {
-    return m_snames[k];
+    if (k < m_nsp) {
+        return m_snames[k];
+    }
+    throw IndexError("MultiPhase::speciesName", "species", k, m_nsp);
 }
 
 double MultiPhase::nAtoms(const size_t kGlob, const size_t mGlob) const
@@ -794,7 +800,10 @@ void MultiPhase::getMoleFractions(double* const x) const
 
 string MultiPhase::phaseName(const size_t iph) const
 {
-    return m_phase[iph]->name();
+    if (iph < m_phase.size()) {
+        return m_phase[iph]->name();
+    }
+    throw IndexError("MultiPhase::phaseName", "phase", iph, m_phase.size());
 }
 
 int MultiPhase::phaseIndex(const string& pName) const

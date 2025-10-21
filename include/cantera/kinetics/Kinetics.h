@@ -307,14 +307,32 @@ public:
 
     //! Return the name of the kth species in the kinetics manager.
     /*!
-     *  k is an integer from 0 to ktot - 1, where ktot is the number of
+     * k is an integer from 0 to ktot - 1, where ktot is the number of
      * species in the kinetics manager, which is the sum of the number of
      * species in all phases participating in the kinetics manager. If k is
      * out of bounds, the string "<unknown>" is returned.
      *
      * @param k species index
+     * @todo Update docstring after %Cantera 3.2 to reflect that future versions
+     *      raise exception.
      */
     string kineticsSpeciesName(size_t k) const;
+
+    /**
+     * Return the name of the kth species in the kinetics manager.
+     * k is an integer from 0 to ktot - 1, where ktot is the number of
+     * species in the kinetics manager, which is the sum of the number of
+     * species in all phases participating in the kinetics manager.
+     *
+     * @param k species index
+     * @param raise  If `true`, raise exception if the species index is out of bounds.
+     * @since New in %Cantera 3.2.
+     * @deprecated  To be removed after %Cantera 3.2. Only used for transitional
+     *      behavior.
+     * @exception Throws an IndexError if the specified species index is out of bounds
+     *      and `raise` is `true`.
+     */
+    string kineticsSpeciesName(size_t k, bool raise) const;
 
     /**
      * This routine will look up a species number based on the input
