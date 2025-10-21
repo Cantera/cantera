@@ -427,7 +427,7 @@ public:
     /*!
      * @param e Element index.
      */
-    string elementName(const size_t e) const;
+    string elementName(size_t e) const;
 
     //! Type of the element constraint with index @c e.
     /*!

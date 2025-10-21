@@ -175,7 +175,7 @@ public:
     /*!
      * @param kGlob   global species index
      */
-    string speciesName(const size_t kGlob) const;
+    string speciesName(size_t kGlob) const;
 
     //! Returns the Number of atoms of global element @e mGlob in
     //! global species @e kGlob.
@@ -208,7 +208,7 @@ public:
     /*!
      *   @param iph  phase Index
      */
-    string phaseName(const size_t iph) const;
+    string phaseName(size_t iph) const;
 
     //! Returns the index, given the phase name
     /*!
