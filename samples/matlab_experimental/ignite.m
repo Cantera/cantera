@@ -25,12 +25,12 @@ function plotdata = ignite(g)
           1.0 / gas.massDensity
           gas.Y'];
 
-    time_interval = [0 0.001];
+    time_interval = [0, 0.001];
     options = odeset('RelTol', 1.e-5, 'AbsTol', 1.e-12, 'Stats', 'on');
 
     t0 = cputime;
     out = ode15s(@reactor_ode, time_interval, y0, options, gas, ...
-                @vdot, @area, @heatflux);
+                 @vdot, @area, @heatflux);
     disp(['CPU time = ' num2str(cputime - t0)]);
 
     plotdata = output(out, gas);
