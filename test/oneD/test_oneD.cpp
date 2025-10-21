@@ -106,6 +106,9 @@ TEST(onedim, flame_types)
     ASSERT_EQ(symm->type(), "axisymmetric-flow");
     auto burner = newDomain<Flow1D>("unstrained-flow", sol, "flow");
     ASSERT_EQ(burner->type(), "unstrained-flow");
+
+    ASSERT_THROW(burner->componentName(200), IndexError);
+    ASSERT_THROW(burner->componentIndex("spam"), CanteraError);
 }
 
 TEST(onedim, ion_flame_types)

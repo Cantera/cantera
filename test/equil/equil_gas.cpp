@@ -65,6 +65,26 @@ TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
+TEST_F(OverconstrainedEquil, exceptions)
+{
+    setup();
+    MultiPhase mphase;
+    mphase.addPhase(gas.get(), 10.0);
+    mphase.init();
+
+    ASSERT_THROW(mphase.elementName(200), IndexError);
+    ASSERT_THROW(mphase.elementIndex("spam"), CanteraError);
+    ASSERT_EQ(mphase.elementIndex("spam", false), npos);
+    ASSERT_THROW(mphase.elementIndex("spam", true), CanteraError);
+
+    ASSERT_THROW(mphase.speciesName(200), IndexError);
+
+    ASSERT_THROW(mphase.phaseName(200), IndexError);
+    ASSERT_THROW(mphase.phaseIndex("spam"), CanteraError);
+    ASSERT_EQ(mphase.phaseIndex("spam", false), npos);
+    ASSERT_THROW(mphase.phaseIndex("spam", true), CanteraError);
+}
+
 TEST_F(OverconstrainedEquil, BasisOptimize)
 {
     setup();
