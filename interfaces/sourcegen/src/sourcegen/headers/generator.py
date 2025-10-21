@@ -257,7 +257,9 @@ class HeaderGenerator:
         if ret_key in self._config.ret_type_crosswalk:
             ret_type = self._config.ret_type_crosswalk[ret_key]
             if what.startswith("const "):
-                ret_type = f"const {ret_type}"
+                # retain const unless it is a primitive
+                if what[6:] not in {"bool", "size_t", "int", "double"}:
+                    ret_type = f"const {ret_type}"
             if ret_type == "void":
                 returns = Param(
                     "int32_t", "", "Zero for success or -1 for exception handling.")
