@@ -103,7 +103,7 @@ classdef Kinetics < handle
             % :return:
             %    Index of the species.
 
-            n = ctFunc('kin_speciesIndex', kin.kinID, name) + 1;
+            n = ctFunc('kin_kineticsSpeciesIndex', kin.kinID, name) + 1;
         end
 
         function n = multiplier(kin, irxn)

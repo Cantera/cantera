@@ -9,7 +9,8 @@ function ctUnload()
     end
 
     global ct
-    hasGlobalCt = evalin('base','exist("ct","var") && isa(ct,"clibConfiguration")');
+    hasGlobalCt = evalin('base', ['exist("ct","var") && ', ...
+                         'isa(ct,"matlab.cppclient.CLibraryConfiguration")']);
     if hasGlobalCt
         try
             ct.unload;

@@ -214,8 +214,8 @@ classdef ctTestThermo < ctTestCase
                 self.verifyEqual(n2, n);
             end
 
-            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'No such species');
-            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'No such element');
+            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'not found');
+            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'not found');
         end
 
         function testElementalMassFraction(self)
@@ -232,7 +232,7 @@ classdef ctTestThermo < ctTestCase
             self.verifyEqual(Zh, exp2, 'AbsTol', self.atol);
             self.verifyEqual(Zar, exp3, 'AbsTol', self.atol);
 
-            self.getInvalidValue('elementalMassFraction', {'C'}, 'No such element');
+            self.getInvalidValue('elementalMassFraction', {'C'}, 'not found');
             self.getInvalidValue('elementalMassFraction', {5}, 'Wrong type');
         end
 
