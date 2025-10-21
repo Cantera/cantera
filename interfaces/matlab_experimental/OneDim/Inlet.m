@@ -29,7 +29,7 @@ classdef Inlet < Boundary1D
 
         end
 
-        function get.X(d)
+        function xx = get.X(d)
             error('not implemented.')
         end
 
