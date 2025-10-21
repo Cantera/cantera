@@ -212,7 +212,8 @@ classdef Func1 < handle
             %     Returns the value of the function evaluated at ``s``.
 
             if length(s) > 1
-                aa = eval(['a.', s(1).subs]);
+                name = s(1).subs;
+                aa = a.(name);
                 b = subsref(aa, s(2:end));
                 return
             end
@@ -225,8 +226,10 @@ classdef Func1 < handle
                 end
 
             elseif strcmp(s.type, '.')
-                b = eval(['a.', s.subs]);
-            else error('Specify value for x as p(x)');
+                name = s.subs;
+                b = a.(name);
+            else
+                error('Specify value for x as p(x)');
             end
 
         end

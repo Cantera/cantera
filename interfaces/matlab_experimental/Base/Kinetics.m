@@ -379,12 +379,12 @@ classdef Kinetics < handle
             q = ctArray('kin_getNetRatesOfProgress', nr, kin.kinID);
         end
 
-        function rxn = get.reactionEquations(kin)
+        function rxns = get.reactionEquations(kin)
             m = kin.nReactions;
             rxns = cell(1, m);
 
             for i = 1:m
-                rxn{i} = kin.reactionEquation(i);
+                rxns{i} = kin.reactionEquation(i);
             end
 
         end
