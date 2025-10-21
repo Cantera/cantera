@@ -649,9 +649,8 @@ string ReactingSurf1D::componentName(size_t n) const
 {
     if (n < m_nsp) {
         return m_sphase->speciesName(n);
-    } else {
-        return "<unknown>";
     }
+    throw IndexError("ReactingSurf1D::componentName", "component", n, m_nsp);
 }
 
 size_t ReactingSurf1D::componentIndex(const string& name, bool checkAlias) const
