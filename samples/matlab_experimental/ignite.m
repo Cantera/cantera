@@ -96,13 +96,15 @@ function plotdata = ignite(g)
         end
 
         % plot the temperature and OH mass fractions.
-        figure(1);
+        clf;
+
+        subplot(1, 2, 1);
         plot(pv(1, :), pv(2, :));
         xlabel('time');
         ylabel('Temperature');
         title(['Final T = ' num2str(pv(2, end)) ' K']);
 
-        figure(2);
+        subplot(1, 2, 2)
         ioh = gas.speciesIndex('OH');
         plot(pv(1, :), pv(4 + ioh, :));
         xlabel('time');

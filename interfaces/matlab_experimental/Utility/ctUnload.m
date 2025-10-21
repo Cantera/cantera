@@ -8,9 +8,9 @@ function ctUnload()
                 "ctCleanUp failed (%s).", ME.message);
     end
 
+    global ct
     hasGlobalCt = evalin('base','exist("ct","var") && isa(ct,"clibConfiguration")');
     if hasGlobalCt
-        global ct
         try
             ct.unload;
             disp("Cantera has been unloaded");

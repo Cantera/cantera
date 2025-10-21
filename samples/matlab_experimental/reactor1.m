@@ -62,7 +62,7 @@ function reactor1(g)
         network.advance(t);
         tim(n) = network.time;
         temp(n) = r.T;
-        x(n, 1:3) = gas.moleFraction({'OH', 'H', 'H2'});
+        x(n, 1:3) = r.phase.moleFraction({'OH', 'H', 'H2'});
     end
 
     disp(['CPU time = ' num2str(cputime - t0)]);
