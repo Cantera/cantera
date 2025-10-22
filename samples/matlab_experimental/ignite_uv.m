@@ -2,7 +2,8 @@ function ignite_uv(gas)
     %% Constant volume ignition with user-specified equations
     %
     % Solves the same ignition problem as :doc:`reactor2.m <reactor2>`, except using
-    % function :doc:`conuv.m <conuv>` to implement the governing equations.
+    % the local function ``REACTOR_ODE`` to implement the governing equations for
+    % an adiabatic, constant-volume, zero-dimensional reactor.
     %
     % .. tags:: Matlab, combustion, user-defined model, ignition delay, plotting
 
@@ -21,7 +22,7 @@ function ignite_uv(gas)
     tel = [0, 0.001];
     options = odeset('RelTol', 1.e-5, 'AbsTol', 1.e-12, 'Stats', 'on');
     t0 = cputime;
-    out = ode15s(@conuv, tel, y0, options, gas, mw);
+    out = ode15s(@reactor_ode, tel, y0, options, gas, mw);
     disp(['CPU time = ' num2str(cputime - t0)]);
 
     if nargout == 0
@@ -41,4 +42,36 @@ function ignite_uv(gas)
     end
 
     toc
+end
+
+
+function dydt = reactor_ode(t, y, gas, mw)
+    %% ODE system for a constant-volume, adiabatic reactor
+    %
+    % Function ``REACTOR_ODE`` evaluates the system of ordinary differential
+    % equations for an adiabatic, constant-volume, zero-dimensional reactor.
+    % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
+
+    % Set the state of the gas, based on the current solution vector.
+    gas.basis = 'mass';
+    gas.Y = y(2:end);
+    gas.TD = {y(1), gas.D};
+    nsp = gas.nSpecies;
+
+    % energy equation
+    wdot = gas.netProdRates;
+    U = gas.partialMolarIntEnergies';
+    tdot =- 1 / (gas.D * gas.cv) .* wdot * U;
+
+    % set up column vector for dydt
+    dydt = [tdot
+            zeros(nsp, 1)];
+
+    % species equations
+    rrho = 1.0 / gas.D;
+
+    for i = 1:nsp
+        dydt(i + 1) = rrho * mw(i) * wdot(i);
+    end
+
 end
