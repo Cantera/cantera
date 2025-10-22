@@ -54,7 +54,7 @@ function f = flame(gas, left, flow, right)
     end
 
     flow.setProfile('velocity', [0.0, 1.0], [u0, u1]);
-    flow.setProfile('spread_rate', [0.0, 1.0], [0.0, 0.0]);
+    flow.setProfile('spreadRate', [0.0, 1.0], [0.0, 0.0]);
     flow.setProfile('T', [0.0, z1, 1.0], [t0, teq, t1]);
 
     for n = 1:gas.nSpecies

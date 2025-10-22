@@ -213,7 +213,7 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % radial velocities, temperature, and mass fractions calculated above.
             flame@Sim1D({left flow right});
             flow.setProfile('velocity', zrel, u);
-            flow.setProfile('spread_rate', zrel, v);
+            flow.setProfile('spreadRate', zrel, v);
             flow.setProfile('T', zrel, t);
 
             for n = 1:nsp

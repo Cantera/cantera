@@ -26,7 +26,7 @@ transport = 'mixture-averaged'; % Transport model
 
 %% Set-up initial grid, loglevel, tolerances. Enable/Disable grid refinement
 
-width = 0.2;
+width = 0.02;
 nz = 11;
 
 tol_ss = {1.0e-5, 1.0e-9}; % {rtol atol} for steady-state problem

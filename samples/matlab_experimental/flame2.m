@@ -74,10 +74,9 @@ inlet_f.X = comp2;
 fl = flame(gas, inlet_o, f, inlet_f);
 
 %%
-% if the starting solution is to be read from a previously-saved
-% solution, uncomment this line and edit the file name and solution id.
+% Set an initial temperature guess to ensure ignition
 
-%restore(fl,'h2flame2.yaml', 'energy')
+f.setProfile('T', [0.0, mdot_o/(mdot_o + mdot_f), 1.0], [tin, 2000, tin]);
 
 % Solve with fixed temperature profile first
 fl.solve(logLevel, refineGrid);
@@ -114,7 +113,7 @@ subplot(2, 3, 4);
 plotSolution(f, 'CH');
 title('CH Mass Fraction');
 subplot(2, 3, 5);
-plotSolution(f, 'spread_rate');
+plotSolution(f, 'spreadRate');
 title('Radial Velocity / Radius [s^-1]');
 subplot(2, 3, 6);
 plotSolution(f, 'velocity');
