@@ -186,12 +186,26 @@ flow.setRefineCriteria(100.0, 0.15, 0.2);
 %% Solve the problem for the final time
 stack.solve(loglevel, refine_grid);
 
+%%
+% Display results and show statistics
+
 %% Show statistics
 
 stack.writeStats;
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
+
+%% Display solution
+
+fprintf("\nFlow domain profile after final solution step:\n\n")
+flow.info()
+
+fprintf("Surface domain after final solution step:\n\n")
+surf.info()
+
+fprintf("Surface phase coverages after final solution step:\n\n")
+disp(surf_phase.coverages())
 
 %% Make plots
 
@@ -206,7 +220,7 @@ plotSolution(flow, 'velocity');
 title('Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-plotSolution(flow, 'spread_rate');
+plotSolution(flow, 'spreadRate');
 title('Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);
