@@ -100,6 +100,9 @@ classdef ThermoPhase < handle
         % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
         cp
 
+        % Concentrations of the species.
+        concentrations
+
         % Chemical potentials of the species. Units: J/kmol.
         chemicalPotentials
 
@@ -898,6 +901,11 @@ classdef ThermoPhase < handle
 
         function density = get.molarDensity(tp)
             density = ctFunc('thermo_molarDensity', tp.tpID);
+        end
+
+        function c = get.concentrations(s)
+            nsp = s.nSpecies;
+            c = ctArray('thermo_getConcentrations', nsp, tp.tpID);
         end
 
         function mw = get.molecularWeights(tp)

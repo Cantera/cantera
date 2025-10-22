@@ -24,7 +24,6 @@ classdef Interface < Solution
     end
 
     properties (SetAccess = protected)
-        concentrations % Concentrations of the species on an interface.
         nAdjacent % Number of adjacent phases.
         adjacentNames % Names of adjacent phases.
     end
@@ -84,11 +83,6 @@ classdef Interface < Solution
 
         function d = get.siteDensity(s)
             d = ctFunc('surf_siteDensity', s.tpID);
-        end
-
-        function c = get.concentrations(s)
-            nsp = s.nSpecies;
-            c = ctArray('thermo_getConcentrations', nsp, s.tpID);
         end
 
         function set.coverages(s, cov)
