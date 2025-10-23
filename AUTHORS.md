@@ -61,6 +61,7 @@ update, please report on Cantera's
 - **Harry Moffat** [@hkmoffat](https://github.com/hkmoffat) - Sandia National Laboratory
 - **Christopher Neal** [@wandadars](https://github.com/wandadars)
 - **Kyle Niemeyer** [@kyleniemeyer](https://github.com/kyleniemeyer) - Oregon State University
+- **Iago Nonaka** [@itnonaka](https://github.com/itnonaka) - Louisiana State University
 - **Paul Northrop** [@pwcnorthrop](https://github.com/pwcnorthrop)
 - **Chris Pilko** [@cpilko](https://github.com/cpilko)
 - **Sebastian Pinnau** [@spinnau](https://github.com/spinnau)
