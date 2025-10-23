@@ -297,10 +297,18 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
 
     //! species conservation equations
     //! Kee.'s Chemically Reacting Flow, Eq. 16.51
+    double dSumYdz = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         residual[i + m_offset_Y] = m_rho * m_u * ydot[i + m_offset_Y] +
             y[i + m_offset_Y] * hydraulic * sk_wk -
             mw[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+            dSumYdz += ydot[i + m_offset_Y];
+    }
+    // Spread d/dz(sum(Y)) = 0 constraint across all species equations. `scale` is
+    // defined to make the size of the error in sum(Y) comparable to the overall rtol.
+    double scale = 0.1 * m_rho * m_u / m_ss_rtol;
+    for (size_t i = 0; i < m_nsp; ++i) {
+        residual[i + m_offset_Y] += scale * std::max(0.0, y[i + m_offset_Y]) * dSumYdz;
     }
 
     // surface algebraic constraints
