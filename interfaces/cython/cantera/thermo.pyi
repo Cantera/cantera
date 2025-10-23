@@ -24,44 +24,47 @@ from .speciesthermo import SpeciesThermo, _SpeciesThermoInput
 from .transport import GasTransportData, _GasTransportInput
 from .units import Units
 
-_ThermoType: TypeAlias = Literal[
-    "Debye-Huckel",
-    "HMW-electrolyte",
-    "Margules",
-    "MixtureFugacity",
-    "Peng-Robinson",
-    "Phase",
-    "Redlich-Kister",
-    "Redlich-Kwong",
-    "SingleSpecies",
-    "none",
-    "binary-solution-tabulated",
-    "compound-lattice",
-    "coverage-dependent-surface",
-    "edge",
-    "electron-cloud",
-    "fixed-stoichiometry",
-    "ideal-condensed",
-    "ideal-gas",
-    "ideal-molal-solution",
-    "ideal-solution-VPSS",
-    "ideal-surface",
-    "liquid-water-IAPWS95",
-    "lattice",
-    "plasma",
-    "pure-fluid",
-]
+# Avoid fixed options unless we can find a way to support custom extensions:
+# _ThermoType: TypeAlias = Literal[
+#     "Debye-Huckel",
+#     "HMW-electrolyte",
+#     "Margules",
+#     "MixtureFugacity",
+#     "Peng-Robinson",
+#     "Phase",
+#     "Redlich-Kister",
+#     "Redlich-Kwong",
+#     "SingleSpecies",
+#     "none",
+#     "binary-solution-tabulated",
+#     "compound-lattice",
+#     "coverage-dependent-surface",
+#     "edge",
+#     "electron-cloud",
+#     "fixed-stoichiometry",
+#     "ideal-condensed",
+#     "ideal-gas",
+#     "ideal-molal-solution",
+#     "ideal-solution-VPSS",
+#     "ideal-surface",
+#     "liquid-water-IAPWS95",
+#     "lattice",
+#     "plasma",
+#     "pure-fluid",
+# ]
+_ThermoType: TypeAlias = str
 
-_PhaseOfMatter: TypeAlias = Literal[
-    "gas",
-    "liquid",
-    "solid",
-    "supercritical",
-    "unstable-liquid",
-    "unstable-gas",
-    "liquid-gas-mix",
-    "unspecified",
-]
+# _PhaseOfMatter: TypeAlias = Literal[
+#     "gas",
+#     "liquid",
+#     "solid",
+#     "supercritical",
+#     "unstable-liquid",
+#     "unstable-gas",
+#     "liquid-gas-mix",
+#     "unspecified",
+# ]
+_PhaseOfMatter: TypeAlias = str
 
 _QuadratureMethod: TypeAlias = Literal["simpson", "trapezoidal"]
 

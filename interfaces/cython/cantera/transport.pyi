@@ -6,18 +6,20 @@ from typing import Literal, TypeAlias, TypedDict
 from ._types import Array, ArrayLike
 from .solutionbase import _SolutionBase
 
-_TransportModel: TypeAlias = Literal[
-    "none",
-    "unity-Lewis-number",
-    "mixture-averaged",
-    "mixture-averaged-CK",
-    "multicomponent",
-    "multicomponent-CK",
-    "ionized-gas",
-    "water",
-    "high-pressure",
-    "high-pressure=Chung",
-]
+# Avoid fixed options unless we can find a way to support custom extensions:
+# _TransportModel: TypeAlias = Literal[
+#     "none",
+#     "unity-Lewis-number",
+#     "mixture-averaged",
+#     "mixture-averaged-CK",
+#     "multicomponent",
+#     "multicomponent-CK",
+#     "ionized-gas",
+#     "water",
+#     "high-pressure",
+#     "high-pressure=Chung",
+# ]
+_TransportModel: TypeAlias = str
 
 _GeometryOptions: TypeAlias = Literal["atom", "linear", "nonlinear"]
 
