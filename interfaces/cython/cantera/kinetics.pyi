@@ -11,7 +11,9 @@ from .solutionbase import _SolutionBase
 from .thermo import ThermoPhase
 from .units import UnitSystem, _UnitDict, _UnitDictBytes
 
-_KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
+# Avoid fixed options unless we can find a way to support custom extensions:
+# _KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
+_KineticsType: TypeAlias = str
 
 class _DerivativeSettings(TypedDict, total=False):
     skip_third_bodies: bool
