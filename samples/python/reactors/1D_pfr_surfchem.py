@@ -83,7 +83,7 @@ ax[1, 0].set(xlabel='Distance (m)', ylabel='Velocity (m/s)')
 
 # plot gas density along the flow direction
 ax_rho = ax[1,0].twinx()
-h_rho = ax_rho.plot(soln.x, soln.density * 1000, color='C1', label='density')
+h_rho = ax_rho.plot(soln.x, soln.density / 1000, color='C1', label='density')
 ax_rho.set(ylabel=r'Density ($\mathregular{g/cm^3}$)')
 ax_rho.legend(handles=h_vel+h_rho)
 
@@ -91,7 +91,7 @@ ax_rho.legend(handles=h_vel+h_rho)
 minor_idx = []
 major_idx = []
 for i, name in enumerate(gas.species_names):
-    mean = np.mean(soln(name).Y)
+    mean = np.mean(soln(name).X)
     if mean >= 0.001:
         major_idx.append(i)
     elif mean >= 1e-10:
@@ -99,17 +99,17 @@ for i, name in enumerate(gas.species_names):
 
 # plot major gas species along the flow direction
 for j in major_idx:
-    ax[0, 1].plot(soln.x, soln.Y[:,j], label=gas.species_name(j))
+    ax[0, 1].plot(soln.x, soln.X[:,j], label=gas.species_name(j))
 ax[0, 1].legend(fontsize=8, loc='best')
-ax[0, 1].set(xlabel='Distance (m)', ylabel='Mass Fraction',
+ax[0, 1].set(xlabel='Distance (m)', ylabel='Mole Fraction',
              title='Gas phase major species')
 
 # plot minor gas species along the flow direction
 for k, i in enumerate(minor_idx):
     style = '-' if k < 10 else '--'
-    ax[1, 1].plot(soln.x, soln.Y[:,i], label=gas.species_name(i), linestyle=style)
+    ax[1, 1].plot(soln.x, soln.X[:,i], label=gas.species_name(i), linestyle=style)
 ax[1, 1].legend(fontsize=7.5, loc='best')
-ax[1, 1].set(xlabel='Distance (m)', ylabel='Mass Fraction',
+ax[1, 1].set(xlabel='Distance (m)', ylabel='Mole Fraction',
              title='Gas phase minor species')
 
 # plot the site fraction of the surface species along the flow direction
