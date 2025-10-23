@@ -2,7 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from collections.abc import Sequence
-from typing import Any, Literal
+from typing import Literal
 
 from ._types import Array, ArrayLike, EquilibriumSolver, PropertyPair
 from .thermo import ThermoPhase

@@ -27,9 +27,6 @@ from ._types import (
     LogLevel,
     RefineCriteria,
 )
-from ._utils import __git_commit__ as __git_commit__
-from ._utils import __version__ as __version__
-from ._utils import hdf_support as hdf_support
 from .composite import Solution, SolutionArray
 from .kinetics import Kinetics
 
