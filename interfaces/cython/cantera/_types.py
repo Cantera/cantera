@@ -25,8 +25,7 @@ Index: TypeAlias = EllipsisType | int | slice | tuple[EllipsisType | int | slice
 
 Basis: TypeAlias = Literal["mole", "molar", "mass"]
 EquilibriumSolver: TypeAlias = Literal["element_potential", "gibbs", "vcs", "auto"]
-LogLevel: TypeAlias = Literal[0, 1, 2, 3, 4, 5]
-LogLevel7: TypeAlias = Literal[0, 1, 2, 3, 4, 5, 6, 7]
+LogLevel: TypeAlias = int  # Literal[0, 1, 2, 3, 4, 5]
 CompressionLevel: TypeAlias = Literal[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # ThermoPhase state definitions

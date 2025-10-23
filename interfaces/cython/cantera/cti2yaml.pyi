@@ -27,7 +27,9 @@ def applyUnits(value: float | tuple[float, str]) -> float | str: ...
 _OldKineticsModel: TypeAlias = Literal["GasKinetics", "Interface", "Edge"]
 _KineticsModel: TypeAlias = Literal["gas", "surface", "edge"]
 _OldTransportModel: TypeAlias = Literal["Mix", "Multi", "Ion"]
-_TransportModel: TypeAlias = Literal["mixture-averaged", "multicomponent", "ionized-gas"]
+_TransportModel: TypeAlias = Literal[
+    "mixture-averaged", "multicomponent", "ionized-gas"
+]
 _OldConcentrationBasis: TypeAlias = Literal["molar_volume", "molar_volume", "unity"]
 _ConcentrationBasis: TypeAlias = Literal[
     "species-molar-volume", "solvent-molar-volume", "unity"
