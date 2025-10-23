@@ -2,9 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from collections.abc import Sequence
-from typing import Literal
+from typing import Literal, overload
 
-from ._types import Array, ArrayLike, EquilibriumSolver, PropertyPair
+from ._types import Array, ArrayLike, EquilibriumSolver, LogLevel, PropertyPair
 from .thermo import ThermoPhase
 
 class Mixture:
@@ -44,7 +44,10 @@ class Mixture:
     @property
     def charge(self) -> float: ...
     def phase_charge(self, p: ThermoPhase | str | int) -> float: ...
-    def phase_moles(self, p: ThermoPhase | str | int | None = None) -> list[float] | float: ...
+    @overload
+    def phase_moles(self, p: ThermoPhase | str | int) -> float: ...
+    @overload
+    def phase_moles(self, p: None = None) -> list[float]: ...
     def set_phase_moles(self, p: ThermoPhase | str | int, moles: float) -> None: ...
     @property
     def species_moles(self) -> Array: ...
@@ -61,5 +64,5 @@ class Mixture:
         max_steps: int = 1000,
         max_iter: int = 100,
         estimate_equil: Literal[-1, 0, 1] = 0,
-        log_level: int = 0,
+        log_level: LogLevel = 0,
     ) -> None: ...

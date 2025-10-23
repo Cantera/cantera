@@ -8,6 +8,7 @@ from typing import (
     Generic,
     Literal,
     TypeVar,
+    TypedDict,
     overload,
 )
 
@@ -48,6 +49,13 @@ from .transport import (
     _TransportModel,
 )
 from .units import Units, UnitSystem, _UnitDict, _UnitDictBytes
+
+_T = TypeVar("_T")
+
+class _EquivRatioFraction(TypedDict, Generic[_T], total=False):
+    fuel: _T
+    oxidizer: _T
+    diluent: _T
 
 # Generic representing a valid "phase" input
 _P = TypeVar("_P", bound=_SolutionBase)
@@ -104,9 +112,7 @@ class Quantity:
         basis: Basis = "mole",
         *,
         diluent: CompositionLike | None = None,
-        fraction: str
-        | dict[Literal["fuel", "oxidizer", "diluent"], float]
-        | None = None,
+        fraction: str | _EquivRatioFraction[float] | None = None,
     ) -> None: ...
     def set_mixture_fraction(
         self,
@@ -784,9 +790,7 @@ class SolutionArray(SolutionArrayBase, Generic[_P]):
         basis: Basis = "mole",
         *,
         diluent: CompositionLike | None = None,
-        fraction: str
-        | dict[Literal["fuel", "oxidizer", "diluent"], float | Array]
-        | None = None,
+        fraction: str | _EquivRatioFraction[float | Array] | None = None,
     ) -> None: ...
     def set_mixture_fraction(
         self,

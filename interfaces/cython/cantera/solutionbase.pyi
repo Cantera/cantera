@@ -74,7 +74,7 @@ class _SolutionBase:
     @overload
     def write_yaml(
         self,
-        filename: None,
+        filename: None = None,
         phases: Sequence[ThermoPhase] | None = None,
         units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
         precision: int | None = None,
@@ -91,16 +91,6 @@ class _SolutionBase:
         skip_user_defined: bool | None = None,
         header: bool = True,
     ) -> None: ...
-    @overload
-    def write_yaml(
-        self,
-        filename: str | Path | None = None,
-        phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
-        precision: int | None = None,
-        skip_user_defined: bool | None = None,
-        header: bool = True,
-    ) -> str | None: ...
     def write_chemkin(
         self,
         mechanism_path: str | Path | None = None,
@@ -138,10 +128,10 @@ class SolutionArrayBase:
     @overload
     def info(
         self,
-        keys: Sequence[str] | None = None,
-        rows: int = 10,
-        width: int | None = None,
-        display: Literal[False] = False,
+        keys: Sequence[str] | None,
+        rows: int,
+        width: int | None,
+        display: Literal[False],
     ) -> str: ...
     @overload
     def info(
@@ -149,7 +139,7 @@ class SolutionArrayBase:
         keys: Sequence[str] | None = None,
         rows: int = 10,
         width: int | None = None,
-        display: bool = True,
+        display: Literal[True] = True,
     ) -> None: ...
     @property
     def meta(self) -> dict[str, Any]: ...
