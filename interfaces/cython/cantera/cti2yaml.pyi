@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Literal, TypeAlias, TypedDict
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.nodes import MappingNode
 from ruamel.yaml.representer import SafeRepresenter
 
 yaml_version: tuple[int, int, int]
@@ -69,15 +70,13 @@ class element:
         atomic_number: int | None = None,
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: element) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: element) -> MappingNode: ...
 
-class _RkPure(TypedDict):
-    a: tuple[float, str] | float
+class _RkPure(TypedDict, total=False):
+    a: list[float] | tuple[float, float] | float
     b: float
 
-class _RkBinary(TypedDict):
-    a: float
-    b: float
+_RkBinary: TypeAlias = dict[str, list[float] | tuple[float, float] | float]
 
 class species:
     name: str
@@ -102,11 +101,11 @@ class species:
     ) -> None: ...
     thermo: thermo  # Note: If this is moved above __init__, it overrides the class `thermo` for the static type checker
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: species) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: species) -> MappingNode: ...
 
 class thermo:
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: thermo) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: thermo) -> MappingNode: ...
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class NASA(thermo):
@@ -198,7 +197,7 @@ class gas_transport:
     @classmethod
     def to_yaml(
         cls, representer: SafeRepresenter, node: gas_transport
-    ) -> CommentedMap: ...
+    ) -> MappingNode: ...
 
 _CoverageParameters: TypeAlias = Sequence[str | float]
 
@@ -215,7 +214,7 @@ class Arrhenius:
         coverage: _CoverageParameters | list[_CoverageParameters] = (),
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: Arrhenius) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: Arrhenius) -> MappingNode: ...
 
 class stick(Arrhenius):
     motz_wise: bool | None
@@ -242,7 +241,7 @@ class reaction:
         options: _ReactionOptions | Sequence[_ReactionOptions] = (),
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: reaction) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: reaction) -> MappingNode: ...
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class three_body_reaction(reaction):
@@ -379,7 +378,7 @@ class state:
         solute_molalities: str | None = None,
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: state) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: state) -> MappingNode: ...
 
 _PhaseOptions: TypeAlias = Literal[
     "skip_undeclared_elements", "skip_undeclared_third_bodies"
@@ -390,9 +389,9 @@ class phase:
     elements: str
     species: list[tuple[str, CommentedSeq]]
     reactions: list[list[str]]
-    thermo_model: str | None = None
-    kinetics: _KineticsModel | None = None
-    transport: _TransportModel | None = None
+    thermo_model: str | None
+    kinetics: _OldKineticsModel | None
+    transport: _OldTransportModel | None
     comment: str
     options: Sequence[_PhaseOptions]
     initial_state: state | None
@@ -407,13 +406,10 @@ class phase:
         options: _PhaseOptions | Sequence[_PhaseOptions] = (),
     ) -> None: ...
     @classmethod
-    def to_yaml(cls, representer: SafeRepresenter, node: phase) -> CommentedMap: ...
+    def to_yaml(cls, representer: SafeRepresenter, node: phase) -> MappingNode: ...
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class ideal_gas(phase):
-    kinetics: _KineticsModel | None
-    transport: _TransportModel | None
-    thermo_model: Literal["ideal-gas"]
     def __init__(
         self,
         name: str = "",
@@ -428,9 +424,7 @@ class ideal_gas(phase):
     ) -> None: ...
 
 class stoichiometric_solid(phase):
-    thermo_model: Literal["fixed-stoichiometry"]
     density: float
-    transport: _TransportModel | None
     def __init__(
         self,
         name: str = "",
@@ -447,7 +441,6 @@ class stoichiometric_solid(phase):
 class stoichiometric_liquid(stoichiometric_solid): ...
 
 class metal(phase):
-    thermo_model: Literal["electron-cloud"]
     density: float
     def __init__(
         self,
@@ -464,7 +457,6 @@ class metal(phase):
 
 class liquid_vapor(phase):
     pure_fluids: dict[int, str]
-    thermo_model: Literal["pure-fluid"]
     substance_flag: int
     def __init__(
         self,
@@ -480,31 +472,28 @@ class liquid_vapor(phase):
 
 class pureFluidParameters:
     species: str
-    a_coeff: Sequence[float]
+    a_coeff: Sequence[float] | float
     b_coeff: float
     def __init__(
         self,
         species: str | None = None,
-        a_coeff: Sequence[float] = (),
+        a_coeff: Sequence[float] | float = (),
         b_coeff: float = 0,
     ) -> None: ...
 
 class crossFluidParameters:
     species1: str
     species2: str
-    a_coeff: Sequence[float]
-    b_coeff: Sequence[float]
+    a_coeff: Sequence[float] | float
+    b_coeff: Sequence[float] | float
     def __init__(
         self,
         species: str | None = None,
-        a_coeff: Sequence[float] = (),
-        b_coeff: Sequence[float] = (),
+        a_coeff: Sequence[float] | float = (),
+        b_coeff: Sequence[float] | float = (),
     ) -> None: ...
 
 class RedlichKwongMFTP(phase):
-    thermo_model: Literal["Redlich-Kwong"]
-    kinetics: _KineticsModel | None
-    transport: _TransportModel | None
     activity_coefficients: Sequence[pureFluidParameters | crossFluidParameters]
     def __init__(
         self,
@@ -527,11 +516,7 @@ class constantIncompressible:
     def __init__(self, molarVolume: float = 0.0) -> None: ...
 
 class IdealSolidSolution(phase):
-    thermo_model: Literal["ideal-condensed", "binary-solution-tabulated"] = (
-        "ideal-condensed"
-    )
-    standard_concentration: _ConcentrationBasis
-    transport: _TransportModel | None
+    standard_concentration: _OldConcentrationBasis
     def __init__(
         self,
         name: str = "",
@@ -557,7 +542,6 @@ class table:
     ) -> None: ...
 
 class BinarySolutionTabulatedThermo(IdealSolidSolution):
-    thermo_model: Literal["binary-solution-tabulated"]
     tabulated_species: str
     tabulated_thermo: table
     def __init__(
@@ -576,7 +560,6 @@ class BinarySolutionTabulatedThermo(IdealSolidSolution):
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class lattice(phase):
-    thermo_model: Literal["lattice"]
     site_density: float
     def __init__(
         self,
@@ -593,9 +576,6 @@ class lattice(phase):
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class ideal_interface(phase):
-    thermo_model: Literal["ideal-surface", "edge"] = "ideal-surface"
-    kinetics: _KineticsModel
-    transport: _TransportModel
     site_density: float
     adjacent_phases: list[str]
     def __init__(
@@ -616,7 +596,6 @@ class ideal_interface(phase):
     def get_yaml(self, out: CommentedMap) -> None: ...
 
 class edge(ideal_interface):
-    thermo_model: Literal["edge"]
     def __init__(
         self,
         name: str = "",
@@ -672,7 +651,7 @@ _Encoding: TypeAlias = Literal["utf-8", "latin-1", "ascii"]
 
 def convert(
     filename: Path | str | None = None,
-    output_name: str | None = None,
+    output_name: Path | str | None = None,
     text: str | None = None,
     encoding: _Encoding = "latin-1",
 ) -> tuple[int, int, list[ideal_interface], Path]: ...
