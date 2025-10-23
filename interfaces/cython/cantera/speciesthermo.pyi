@@ -6,7 +6,7 @@ from typing import Any, ClassVar, TypedDict
 from typing_extensions import Required
 
 from ._types import Array, ArrayLike
-from .constants import gas_constant as gas_constant
+from .constants import gas_constant
 
 _SpeciesThermoInput = TypedDict(
     "_SpeciesThermoInput",

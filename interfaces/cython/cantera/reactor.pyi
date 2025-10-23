@@ -6,7 +6,6 @@ from typing import (
     Any,
     ClassVar,
     Literal,
-    TypeAlias,
     overload,
 )
 
