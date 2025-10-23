@@ -82,7 +82,12 @@ gravitational potential energy are neglected.
 $$
 \rho u \frac{d Y_k}{dz} = - Y_k \dot{m}_s
                           + \dot{\omega}_k W_k + \sum_j \frac{A_{s,j}}{V} \dot{s}_k W_k
+                          + \xi Y_k \sum_j \frac{d Y_j}{dz}
 $$ (pfr-species)
+where the final term imposes the constraint that the sum of mass fractions should be
+constant (and equal to 1) and $\xi = 0.1 \rho u / \epsilon_r$ is a scaling factor to
+balance the magnitude of this term with respect to the other terms in the conservation
+equation.
 
 ## Surface Phase Species Equations
 

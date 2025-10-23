@@ -1722,6 +1722,7 @@ class TestFlowReactor:
             net.step()
             i += 1
             assert r.speed * r.density * r.area == approx(10)
+            assert sum(r.phase.Y) == approx(1.0)
 
         stats = net.solver_stats
         assert stats['steps'] == i
@@ -1763,16 +1764,19 @@ class TestFlowReactor:
         X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.10578801, 0.001654415, 0.012103974])
         assert r.phase.density * r.area * r.speed == approx(mdot)
+        assert sum(r.phase.Y) == approx(1.0)
 
         sim.advance(1e-5)
         X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.07748481, 0.048165072, 0.01446654])
         assert r.phase.density * r.area * r.speed == approx(mdot)
+        assert sum(r.phase.Y) == approx(1.0)
 
         sim.advance(1e-3)
         X = r.phase['CH4', 'H2', 'CO'].X
         assert X == approx([0.01815402, 0.21603645, 0.045640395])
         assert r.phase.density * r.area * r.speed == approx(mdot)
+        assert sum(r.phase.Y) == approx(1.0)
 
     def test_component_names(self):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
@@ -1816,6 +1820,7 @@ class TestFlowReactor2:
         r, rsurf, sim = self.make_reactors(gas, surf)
 
         sim.advance(0.1)
+        assert sum(r.phase.Y) == approx(1.0)
         with pytest.raises(ct.CanteraError, match="backwards in time"):
             sim.advance(0.09)
 
