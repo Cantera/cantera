@@ -3,13 +3,13 @@
 
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, TypeAlias, TypedDict
+from typing import TypeAlias, TypedDict
 
 from ._types import Array
 from .reaction import CustomRate, Reaction
 from .solutionbase import _SolutionBase
 from .thermo import ThermoPhase
-from .units import UnitSystem, _UnitDict, _UnitDictBytes
+from .units import UnitSystem, _UnitDict
 
 # Avoid fixed options unless we can find a way to support custom extensions:
 # _KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
@@ -189,7 +189,7 @@ class InterfaceKinetics(Kinetics):
         self,
         filename: Path | str,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
     ) -> None: ...

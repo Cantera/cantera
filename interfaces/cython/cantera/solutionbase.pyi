@@ -18,7 +18,7 @@ from .kinetics import Kinetics, _KineticsType
 from .reaction import Reaction
 from .thermo import Species, ThermoPhase, _ThermoType
 from .transport import _TransportModel
-from .units import UnitSystem, _UnitDict, _UnitDictBytes
+from .units import UnitSystem, _UnitDict
 
 _SortingType: TypeAlias = Literal["alphabetical", "molar-mass"] | None
 
@@ -76,7 +76,7 @@ class _SolutionBase:
         self,
         filename: None = None,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -86,7 +86,7 @@ class _SolutionBase:
         self,
         filename: str | Path,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
