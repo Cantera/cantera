@@ -3,8 +3,9 @@
 
 from .thermo import PureFluid
 from .transport import Transport
+from typing import Literal as _Literal
 
-def Water(backend='Reynolds'):
+def Water(backend: _Literal["Reynolds", "IAPWS95"] = "Reynolds") -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for water and the
     `WaterTransport` class for viscosity and thermal conductivity.
@@ -41,20 +42,20 @@ def Water(backend='Reynolds'):
     :ct:`WaterSSTP` and :ct:`WaterTransport` in the Cantera C++ source
     code documentation.
     """
-    class WaterWithTransport(Transport, PureFluid):
+    class _WaterWithTransport(Transport, PureFluid):
         __slots__ = ()
 
-    if backend == 'Reynolds':
-        return WaterWithTransport('liquidvapor.yaml', 'water',
-                                  transport_model='water')
-    if backend == 'IAPWS95':
-        return WaterWithTransport('liquidvapor.yaml', 'liquid-water-IAPWS95',
-                                  transport_model='water')
+    if backend == "Reynolds":
+        return _WaterWithTransport("liquidvapor.yaml", "water", transport_model="water")
+    if backend == "IAPWS95":
+        return _WaterWithTransport(
+            "liquidvapor.yaml", "liquid-water-IAPWS95", transport_model="water"
+        )
 
     raise KeyError("Unknown backend '{}'".format(backend))
 
 
-def Nitrogen():
+def Nitrogen() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for nitrogen.
 
@@ -70,10 +71,10 @@ def Nitrogen():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::nitrogen` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'nitrogen')
+    return PureFluid("liquidvapor.yaml", "nitrogen")
 
 
-def Methane():
+def Methane() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for methane.
 
@@ -89,10 +90,10 @@ def Methane():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::methane` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'methane')
+    return PureFluid("liquidvapor.yaml", "methane")
 
 
-def Hydrogen():
+def Hydrogen() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for hydrogen.
 
@@ -108,10 +109,10 @@ def Hydrogen():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::hydrogen` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'hydrogen')
+    return PureFluid("liquidvapor.yaml", "hydrogen")
 
 
-def Oxygen():
+def Oxygen() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for oxygen.
 
@@ -127,10 +128,10 @@ def Oxygen():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::oxygen` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'oxygen')
+    return PureFluid("liquidvapor.yaml", "oxygen")
 
 
-def Hfc134a():
+def Hfc134a() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for HFC-134a.
 
@@ -148,10 +149,10 @@ def Hfc134a():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::HFC134a` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'HFC-134a')
+    return PureFluid("liquidvapor.yaml", "HFC-134a")
 
 
-def CarbonDioxide():
+def CarbonDioxide() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for carbon dioxide.
 
@@ -167,10 +168,10 @@ def CarbonDioxide():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::CarbonDioxide` in
     the Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'carbon-dioxide')
+    return PureFluid("liquidvapor.yaml", "carbon-dioxide")
 
 
-def Heptane():
+def Heptane() -> PureFluid:
     """
     Create a `PureFluid` object using the equation of state for heptane.
 
@@ -186,4 +187,4 @@ def Heptane():
     For more details, see classes :ct:`PureFluidPhase` and :ct:`tpx::Heptane` in the
     Cantera C++ source code documentation.
     """
-    return PureFluid('liquidvapor.yaml', 'heptane')
+    return PureFluid("liquidvapor.yaml", "heptane")
