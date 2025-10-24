@@ -20,21 +20,6 @@ _UnitDict = TypedDict(
     },
     total=False,
 )
-_UnitDictBytes = TypedDict(
-    "_UnitDictBytes",
-    {
-        "activation-energy": bytes,
-        "current": bytes,
-        "energy": bytes,
-        "length": bytes,
-        "mass": bytes,
-        "pressure": bytes,
-        "quantity": bytes,
-        "temperature": bytes,
-        "time": bytes,
-    },
-    total=False,
-)
 
 class Units:
     def dimension(self, primary: str) -> float: ...
@@ -48,11 +33,11 @@ class UnitStack:
     def join(self, exponent: float) -> None: ...
 
 class UnitSystem:
-    def defaults(self) -> _UnitDictBytes: ...
+    def defaults(self) -> _UnitDict: ...
     @property
     def units(self) -> _UnitDict: ...
     @units.setter
-    def units(self, units: _UnitDict | _UnitDictBytes) -> None: ...
+    def units(self, units: _UnitDict) -> None: ...
     @overload
     def convert_to(self, quantity: str | float, dest: str | Units) -> float: ...
     @overload

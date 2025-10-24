@@ -7,8 +7,8 @@ from typing import (
     Any,
     Generic,
     Literal,
-    TypeVar,
     TypedDict,
+    TypeVar,
     overload,
 )
 
@@ -48,7 +48,7 @@ from .transport import (
     _TransportFittingErrors,
     _TransportModel,
 )
-from .units import Units, UnitSystem, _UnitDict, _UnitDictBytes
+from .units import Units, UnitSystem, _UnitDict
 
 _T = TypeVar("_T")
 
@@ -164,7 +164,7 @@ class Quantity:
         self,
         filename: None,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -174,7 +174,7 @@ class Quantity:
         self,
         filename: str | Path,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -184,7 +184,7 @@ class Quantity:
         self,
         filename: str | Path | None = None,
         phases: Sequence[ThermoPhase] | None = None,
-        units: UnitSystem | _UnitDict | _UnitDictBytes | None = None,
+        units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
