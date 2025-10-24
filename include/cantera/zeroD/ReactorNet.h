@@ -363,6 +363,13 @@ public:
     //! @param settings the settings map propagated to all reactors and kinetics objects
     virtual void setDerivativeSettings(AnyMap& settings);
 
+    //! Root function used by the integrator to detect advance limit crossings
+    //! during calls to advance(t, applylimit=True). Returns 0 on success.
+    //! The function evaluates gout[0] = 1 - max_i(|y[i]-y_base[i]|/limit[i]).
+    //! If advance limits are disabled or the limit check is inactive, gout[0]
+    //! is set to a positive value so that no root is detected.
+    int advanceLimitRootFunc(double t, const double* y, double* gout);
+
 protected:
     //! Add the reactor *r* to this reactor network.
     //! @since  Changed in %Cantera 3.2. Previous version used a reference.
@@ -385,6 +392,7 @@ protected:
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
     virtual int lastOrder() const;
+
 
     vector<Reactor*> m_reactors;
     map<string, int> m_counts;  //!< Map used for default name generation
@@ -426,6 +434,14 @@ protected:
     vector<double> m_ydot;
     vector<double> m_yest;
     vector<double> m_advancelimits;
+    //! Base state used for evaluating advance limits during a single advance
+    //! call when root-finding is enabled
+    vector<double> m_ybase;
+    //! Base time corresponding to m_ybase
+    double m_ybase_time = 0.0;
+    //! Indicates whether the advance-limit root check is active for the
+    //! current call to advance(t, applylimit=True)
+    bool m_limit_check_active = false;
     //! m_LHS is a vector representing the coefficients on the
     //! "left hand side" of each governing equation
     vector<double> m_LHS;

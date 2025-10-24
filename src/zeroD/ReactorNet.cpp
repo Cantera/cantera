@@ -242,51 +242,67 @@ double ReactorNet::advance(double time, bool applylimit)
         reinitialize();
     }
 
-    if (!applylimit) {
-        // take full step
+    if (!applylimit || !hasAdvanceLimits()) {
+        // No limit enforcement requested; integrate to requested time
         advance(time);
         return time;
     }
 
-    if (!hasAdvanceLimits()) {
-        // take full step
-        advance(time);
-        return time;
-    }
+    // Enable root-based limit detection for this advance call
+    // Set the base state to the current state
+    m_ybase.assign(m_nv, 0.0);
+    getState(m_ybase.data());
+    m_ybase_time = m_time;
+    m_limit_check_active = true;
 
-    getAdvanceLimits(m_advancelimits.data());
+    // Integrate toward the requested time; integrator will return early
+    // if a limit is reached (CV_ROOT_RETURN)
+    m_integ->integrate(time);
 
-    // ensure that gradient is available
-    while (lastOrder() < 1) {
-        step();
-    }
+    // Update reactor states to match the integrator solution at the time
+    // reached (which may be earlier than 'time' if a limit was triggered)
+    updateState(m_integ->solution());
 
-    int k = lastOrder();
-    double t = time, delta;
-    double* y = m_integ->solution();
+    // Disable limit checking after this call
+    m_limit_check_active = false;
 
-    // reduce time step if limits are exceeded
-    while (true) {
-        bool exceeded = false;
-        getEstimate(t, k, &m_yest[0]);
+    // Verbose logging analogous to prior predictive limiter: when a root event
+    // stopped integration before reaching the requested time, report the most
+    // limiting component and details about the step.
+    if (m_verbose && m_time < time) {
+        // Ensure limits are available
+        if (m_advancelimits.size() != m_nv) {
+            m_advancelimits.assign(m_nv, -1.0);
+        }
+        getAdvanceLimits(m_advancelimits.data());
+        double* ycurr = m_integ->solution();
+        size_t jmax = npos;
+        double max_ratio = -1.0;
+        double best_delta = 0.0;
+        double best_limit = 0.0;
         for (size_t j = 0; j < m_nv; j++) {
-            delta = abs(m_yest[j] - y[j]);
-            if ( (m_advancelimits[j] > 0.) && ( delta > m_advancelimits[j]) ) {
-                exceeded = true;
-                if (m_verbose) {
-                    writelog("    Limiting global state vector component {:d} (dt = {:9.4g}):"
-                             "{:11.6g} > {:9.4g}\n",
-                             j, t - m_time, delta, m_advancelimits[j]);
+            double lim = m_advancelimits[j];
+            if (lim > 0.0) {
+                double delta = abs(ycurr[j] - m_ybase[j]);
+                double ratio = delta / lim;
+                if (ratio > max_ratio) {
+                    max_ratio = ratio;
+                    jmax = j;
+                    best_delta = delta;
+                    best_limit = lim;
                 }
             }
         }
-        if (!exceeded) {
-            break;
+        if (jmax != npos) {
+            double dt = m_time - m_ybase_time;
+            writelog("    Advance limit triggered for component {:d} (dt = {:9.4g}):"
+                     " |Δ| = {:11.6g}, limit = {:9.4g}, ratio = {:9.4g}\n",
+                     jmax, dt, best_delta, best_limit, max_ratio);
         }
-        t = .5 * (m_time + t);
     }
-    advance(t);
-    return t;
+
+    // m_time is tracked via callbacks during integration
+    return m_time;
 }
 
 double ReactorNet::step()
@@ -365,6 +381,36 @@ int ReactorNet::lastOrder() const
     } else {
         return 0;
     }
+}
+
+int ReactorNet::advanceLimitRootFunc(double t, const double* y, double* gout)
+{
+    // Default: no root detected
+    double g = 1.0;
+
+    if (m_limit_check_active) {
+        // Ensure limits vector is current
+        if (m_advancelimits.size() != m_nv) {
+            m_advancelimits.assign(m_nv, -1.0);
+        }
+        getAdvanceLimits(m_advancelimits.data());
+
+        double max_ratio = 0.0;
+        for (size_t i = 0; i < m_nv; i++) {
+            double lim = m_advancelimits[i];
+            if (lim > 0.0) {
+                double delta = abs(y[i] - m_ybase[i]);
+                double ratio = delta / lim;
+                if (ratio > max_ratio) {
+                    max_ratio = ratio;
+                }
+            }
+        }
+        g = 1.0 - max_ratio; // root at g = 0 when any component reaches its limit
+    }
+
+    gout[0] = g;
+    return 0;
 }
 
 void ReactorNet::addReactor(Reactor& r)
