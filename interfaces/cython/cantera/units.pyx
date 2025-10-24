@@ -132,7 +132,6 @@ cdef class UnitSystem:
         self.unitsystem = self._unitsystem.get()
 
     def defaults(self):
-        # Convert C++ strings to Python str using pystr to avoid returning bytes
         cdef stdmap[string, string] cxxunits = self.unitsystem.defaults()
         cdef pair[string, string] item
         return {pystr(item.first): pystr(item.second) for item in cxxunits}
