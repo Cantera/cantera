@@ -184,14 +184,7 @@ classdef (Abstract) ReactorBase < handle
         end
 
         function massFractions = get.Y(r)
-
-            nsp = r.phase.nSpecies;
-            massFractions = zeros(1, nsp);
-
-            for i = 1:nsp
-                massFractions(i) = r.massFraction(i);
-            end
-
+            massFractions = ctArray('reactor_massFractions', r.phase.nSpecies, r.id);
         end
 
         %% ReactorBase set methods
