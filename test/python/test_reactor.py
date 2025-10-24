@@ -1,3 +1,4 @@
+from collections import defaultdict
 import math
 import numpy as np
 import pytest
@@ -2051,6 +2052,85 @@ class TestFlowReactor2:
         r.inlet_surface_atol = 0.001
         r.inlet_surface_rtol = 0.001
         sim.initialize()
+
+
+def test_Si3N4_deposition_regression():
+    # Regression test based on silicon nitride deposition example given in
+    # 1D_pfr_surfchem.py with values published in Sandia Report SAND-96-8211
+    # (https://doi.org/10.2172/204257).
+    ref_data = {
+        # Gas-phase species (mole fractions)
+        "H2": [0.0, 4.982e-06, 9.413e-06, 1.348e-05, 1.731e-05, 2.100e-05, 2.462e-05],
+        "H": [0.0, 2.260e-08, 2.285e-08, 2.328e-08, 2.387e-08, 2.460e-08, 2.549e-08],
+        "N2": [0.0, 1.305e-09, 1.308e-08, 4.567e-08, 1.064e-07, 2.009e-07, 3.337e-07],
+        "N": [0.0, 1.304e-13, 1.191e-12, 3.906e-12, 8.404e-12, 1.441e-11, 2.153e-11],
+        "NH": [0.0, 1.270e-09, 6.086e-09, 1.414e-08, 2.470e-08, 3.716e-08, 5.108e-08],
+        "NH2": [0.0, 9.969e-06, 1.873e-05, 2.661e-05, 3.384e-05, 4.057e-05, 4.693e-05],
+        "NNH": [0.0, 5.472e-11, 2.604e-10, 5.903e-10, 1.019e-09, 1.529e-09, 2.110e-09],
+        "N2H2": [0.0, 1.441e-09, 6.753e-09, 1.526e-08, 2.631e-08, 3.951e-08, 5.460e-08],
+        "N2H3": [0.0, 4.683e-11, 1.879e-10, 3.958e-10, 6.540e-10, 9.524e-10, 1.285e-09],
+        "N2H4": [0.0, 1.786e-12, 6.517e-12, 1.326e-11, 2.150e-11, 3.090e-11, 4.127e-11],
+        "HF": [0.0, 8.362e-02, 1.486e-01, 2.002e-01, 2.418e-01, 2.758e-01, 3.038e-01],
+        "F": [0.0, 4.476e-11, 1.576e-10, 3.163e-10, 5.058e-10, 7.160e-10, 9.395e-10],
+        "SIF4": [1.427e-01, 1.168e-01, 9.671e-02, 8.074e-02, 6.786e-02, 5.734e-02, 4.867e-02],
+        "SIF3": [0.0, 1.376e-10, 1.263e-10, 1.117e-10, 9.850e-11, 8.680e-11, 7.644e-11],
+        "SIHF3": [0.0, 7.613E-11, 1.566e-10, 2.210e-10, 2.727e-10, 3.148e-10, 3.494e-10],
+        "SIF3NH2": [0.0, 3.900e-10, 8.750e-10, 1.325e-09, 1.733e-09, 2.100e-09, 2.429e-09],
+        "NH3": [8.573e-01, 7.995e-01, 7.546e-01, 7.190e-01, 6.903e-01, 6.668e-01, 6.474e-01],
+
+        # Surface species (site fractions)
+        "HN_SIF(S)": [6.242e-02, 5.536e-02, 4.900e-02, 4.329e-02, 3.818e-02, 3.362e-02, 2.955e-02],
+        "F3SI_NH2(S)": [3.136e-04, 2.586e-04, 2.153e-04, 1.807e-04, 1.524e-04, 1.292e-04, 1.099e-04],
+        "F2SINH(S)": [2.081e-02, 1.845e-02, 1.633e-02, 1.443e-02, 1.273e-02, 1.121e-02, 9.851e-03],
+        "H2NFSINH(S)": [2.411e-04, 2.241e-04, 2.108e-04, 2.002e-04, 1.916e-04, 1.844e-04, 1.784e-04],
+        "HN(FSINH)2(S)": [4.821e-04, 4.482e-04, 4.217e-04, 4.004e-04, 3.831e-04, 3.688e-04, 3.568e-04],
+        "HN_NH2(S)": [9.157e-01, 9.253e-01, 9.338e-01, 9.415e-01, 9.484e-01, 9.545e-01, 9.600e-01],
+
+        "velocity": [1.153e+01, 1.198e+01, 1.237e+01, 1.270e+01, 1.299e+01, 1.325e+01, 1.347e+01],
+        # Cantera solution does not account for viscous pressure drop
+        "pressure": [2.0, 1.994, 1.988, 1.981, 1.974, 1.967, 1.960],
+    }
+
+    surf = ct.Interface('SiF4_NH3_mec.yaml', 'SI3N4')
+    gas = surf.adjacent['gas']
+
+    # Set the initial conditions
+    T0 = 1713  # K
+    p0 = 2 * ct.one_atm / 760.0
+    gas.TPX = T0, p0, "SiF4:0.1427, NH3:0.8573"
+    surf.TP = T0, p0
+    D = 5.08e-2
+    Ac = np.pi * D**2 / 4  # cross section of the tube [m]
+    u0 = 11.53  # m/s initial velocity of the flow
+
+    reactor = ct.FlowReactor(gas, clone=True)
+    reactor.area = Ac
+    reactor.mass_flow_rate = gas.density * u0 * Ac
+    reactor.energy_enabled = False
+
+    rsurf = ct.ReactorSurface(surf, reactor, clone=True)
+    net = ct.ReactorNet([reactor])
+    kN = surf.kinetics_species_index('N(D)')
+    kSi = surf.kinetics_species_index('Si(D)')
+
+    data = defaultdict(list)
+    # Integrate the reactor network
+    for i, d in enumerate([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]):
+        net.advance(d)
+        assert sum(reactor.phase.Y) == approx(1.0)
+        X = reactor.phase.X
+        cov = rsurf.phase.coverages
+
+        for i, s in enumerate(gas.species_names):
+            data[s].append(X[i])
+        for i, s in enumerate(surf.species_names):
+            data[s].append(cov[i])
+
+        data["velocity"].append(reactor.speed)
+        data["pressure"].append(reactor.phase.P * 760 / ct.one_atm)  # Pa -> Torr
+
+    for s in ref_data:
+        assert data[s] == approx(ref_data[s], rel=0.06, abs=5e-8), s
 
 
 class TestSurfaceKinetics:
