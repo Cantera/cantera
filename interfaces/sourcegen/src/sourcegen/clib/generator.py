@@ -133,6 +133,7 @@ class CLibSourceGenerator(SourceGenerator):
         if cxx_type == "auto" or cxx_func.wraps == "custom code":
             pass
         elif c_args and c_args[-1].name == "buf":
+            # return buffer
             if c_type != "int32_t":
                 self._critical(c_func, cxx_func,
                                "method with buffered return should return 'int32_t'")
@@ -166,6 +167,12 @@ class CLibSourceGenerator(SourceGenerator):
                 "int(out.size())",
             ]
             after = f"std::copy(out.begin(), out.end(), {c_args[-1].name});"
+        elif cxx_type.endswith("*"):
+            buffer = [
+                "auto out",
+                c_args[-2].name,
+            ]
+            after = f"std::copy(out, out + {c_args[-2].name}, {c_args[-1].name});"
 
         return handle, buffer, after, cxx_rbase
 
