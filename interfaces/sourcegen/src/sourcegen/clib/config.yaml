@@ -19,6 +19,8 @@ ret_type_crosswalk:
   size_t: int32_t
   shared_ptr<T>: int32_t
   double: double
+  double*: double*
+  const double: double*
   vector<double>: double*
   string: char*
 

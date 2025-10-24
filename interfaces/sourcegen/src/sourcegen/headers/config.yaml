@@ -21,6 +21,8 @@ ret_type_crosswalk:
   shared_ptr<T>: int32_t
   double: double
   string: char*
+  double*: double*
+  const double*: double*
   vector<double>: double*
 
 # Parameter type crosswalks
