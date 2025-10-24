@@ -63,6 +63,21 @@ class TestUnitSystem:
         with pytest.raises(ct.CanteraError, match="non-unity conversion factor"):
             ct.UnitSystem({"current": "2 A"})
 
+    def test_defaults_types(self):
+        """Ensure UnitSystem.defaults() and the units property return str keys/values."""
+        system = ct.UnitSystem()
+        d = system.defaults()
+        assert isinstance(d, dict)
+        for k, v in d.items():
+            assert isinstance(k, str), f"key {k!r} is not str"
+            assert isinstance(v, str), f"value {v!r} is not str"
+
+        # also check the property accessor
+        u = system.units
+        for k, v in u.items():
+            assert isinstance(k, str), f"units key {k!r} is not str"
+            assert isinstance(v, str), f"units value {v!r} is not str"
+
     def test_convert_to_default(self):
         system = ct.UnitSystem()
         assert system.convert_to("3 cm", "m") == 0.03
