@@ -8,7 +8,7 @@ from typing import Any, Literal, ParamSpec, TypeAlias, TypeVar
 from pint import Quantity
 from pint.registry import ApplicationRegistry
 
-from .._types import Array
+from .._types import Array, CompositionLike
 from .._utils import CanteraError as CanteraError
 
 __all__: list[str] = [
@@ -30,7 +30,7 @@ __all__: list[str] = [
 # Define some helpful type aliases
 _PropertyPairSetter: TypeAlias = tuple[Quantity | None, Quantity | None]
 _StateSetter: TypeAlias = tuple[
-    Quantity | None, Quantity | None, Quantity | Array | None
+    Quantity | None, Quantity | None, Quantity | CompositionLike
 ]
 
 units: ApplicationRegistry
@@ -53,12 +53,12 @@ class Solution:
     @copy_doc
     def X(self) -> Quantity: ...
     @X.setter
-    def X(self, value: Quantity | Array | None) -> None: ...
+    def X(self, value: Quantity | CompositionLike | None) -> None: ...
     @property
     @copy_doc
     def Y(self) -> Quantity: ...
     @Y.setter
-    def Y(self, value: Quantity | Array | None) -> None: ...
+    def Y(self, value: Quantity | CompositionLike | None) -> None: ...
     @property
     @copy_doc
     def density_mass(self) -> Quantity: ...
@@ -330,12 +330,12 @@ class PureFluid:
     @copy_doc
     def X(self) -> Quantity: ...
     @X.setter
-    def X(self, value: Quantity | Array | None) -> None: ...
+    def X(self, value: Quantity | CompositionLike | None) -> None: ...
     @property
     @copy_doc
     def Y(self) -> Quantity: ...
     @Y.setter
-    def Y(self, value: Quantity | Array | None) -> None: ...
+    def Y(self, value: Quantity | CompositionLike | None) -> None: ...
     @property
     @copy_doc
     def Q(self) -> Quantity: ...
