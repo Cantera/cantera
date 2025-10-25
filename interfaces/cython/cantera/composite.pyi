@@ -817,7 +817,7 @@ class SolutionArray(SolutionArrayBase, Generic[_P]):
     def from_pandas(self, df: DataFrame, normalize: bool = True) -> None: ...
     def save(
         self,
-        fname: str,
+        fname: str | Path,
         name: str | None = None,
         sub: str | None = None,
         description: str | None = None,
@@ -827,7 +827,7 @@ class SolutionArray(SolutionArrayBase, Generic[_P]):
         basis: Basis | None = None,
     ) -> None: ...
     def restore(
-        self, fname: str, name: str | None = None, sub: str | None = None
+        self, fname: str | Path, name: str | None = None, sub: str | None = None
     ) -> None: ...
     @override
     def __reduce__(self) -> Never: ...
