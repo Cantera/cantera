@@ -67,7 +67,7 @@ classdef ctTestWellStirredReactor < ctTestCase
         function testNonReacting(self)
             self.makeReactors(900.0, 10 * OneAtm, 1.0, 5.0);
 
-            self.gas.setMultiplier(0.0);
+            self.combustor.phase.setMultiplier(0.0);
             [t, T] = self.integrate(100.0);
 
             for i = 1:length(t)

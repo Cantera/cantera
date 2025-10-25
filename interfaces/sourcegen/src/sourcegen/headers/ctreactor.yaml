@@ -21,8 +21,12 @@ recipes:
 - name: phase
   what: accessor
 - name: setInitialVolume
-- name: setChemistry
-- name: setEnergy
+- name: area
+- name: setArea
+- name: chemistryEnabled
+- name: setChemistryEnabled
+- name: energyEnabled
+- name: setEnergyEnabled
 - name: mass
 - name: volume
 - name: density
@@ -31,15 +35,13 @@ recipes:
 - name: intEnergy_mass
 - name: pressure
 - name: massFraction
+- name: massFractions
 - name: nSensParams
 - name: addSensitivityReaction
 - name: addSurface  # Renamed in Cantera 3.2 (previously install)
   wraps: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: setMassFlowRate
-# ReactorSurface
-- name: area
-- name: setArea
 # service functions
 - name: del
 - name: cabinetSize

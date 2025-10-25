@@ -28,11 +28,7 @@ Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {
     m_kin = m_solution->kinetics().get();
-    if (m_kin->nReactions() == 0) {
-        setChemistry(false);
-    } else {
-        setChemistry(true);
-    }
+    setChemistryEnabled(m_kin->nReactions() > 0);
     m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
@@ -40,11 +36,7 @@ Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
     : ReactorBase(sol, clone, name)
 {
     m_kin = m_solution->kinetics().get();
-    if (m_kin->nReactions() == 0) {
-        setChemistry(false);
-    } else {
-        setChemistry(true);
-    }
+    setChemistryEnabled(m_kin->nReactions() > 0);
     m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
@@ -63,11 +55,7 @@ void Reactor::setKinetics(Kinetics& kin)
         "After Cantera 3.2, a change of reactor contents after instantiation "
         "will be disabled.");
     m_kin = &kin;
-    if (m_kin->nReactions() == 0) {
-        setChemistry(false);
-    } else {
-        setChemistry(true);
-    }
+    setChemistryEnabled(m_kin->nReactions() > 0);
 }
 
 void Reactor::getState(double* y)

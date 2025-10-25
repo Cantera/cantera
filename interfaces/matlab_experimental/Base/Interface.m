@@ -24,7 +24,6 @@ classdef Interface < Solution
     end
 
     properties (SetAccess = protected)
-        concentrations % Concentrations of the species on an interface.
         nAdjacent % Number of adjacent phases.
         adjacentNames % Names of adjacent phases.
     end
@@ -45,14 +44,14 @@ classdef Interface < Solution
                 adj(i) = varargin{i}.solnID;
             end
 
-            ID = ctFunc('soln_newInterface', src, name, adj);
+            ID = ctFunc('sol_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
             s@Solution(ID);
-            s.nAdjacent = ctFunc('soln_nAdjacent', ID);
+            s.nAdjacent = ctFunc('sol_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
-                s.adjacentNames{i} = ctString('soln_adjacentName', ID, i-1);
+                s.adjacentNames{i} = ctString('sol_adjacentName', ID, i-1);
             end
         end
 
@@ -73,7 +72,7 @@ classdef Interface < Solution
                 error(['No adjacent phase with name ''' name ''' found.'])
             end
             location = find(exact_match);
-            id = ctFunc('soln_adjacent', s.solnID, location-1);
+            id = ctFunc('sol_adjacent', s.solnID, location-1);
             adj = Solution(id);
         end
 
@@ -84,11 +83,6 @@ classdef Interface < Solution
 
         function d = get.siteDensity(s)
             d = ctFunc('surf_siteDensity', s.tpID);
-        end
-
-        function c = get.concentrations(s)
-            nsp = s.nSpecies;
-            c = ctArray('surf_getConcentrations', nsp, s.tpID);
         end
 
         function set.coverages(s, cov)
@@ -107,7 +101,7 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', s.tpID, cov, 1);
+                ctFunc('surf_setCoverages', s.tpID, cov);
             elseif isa(cov, 'char')
                 ctFunc('surf_setCoveragesByName', s.tpID, cov);
             end

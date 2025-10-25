@@ -85,20 +85,6 @@ surf_phase.advanceCoverages(1.0);
 % for 1-D simulations. These will be 'stacked' together to create
 % the complete simulation.
 
-%% Create the flow object
-%
-% The flow object is responsible for evaluating the 1D governing
-% equations for the flow. We will initialize it with the gas
-% object, and assign it the name ``flow``.
-
-flow = AxisymmetricFlow(gas, 'flow');
-
-% set some parameters for the flow
-flow.P = p;
-flow.setupGrid(initial_grid);
-flow.setSteadyTolerances('default', tol_ss{:});
-flow.setTransientTolerances('default', tol_ts{:});
-
 %% Create the inlet
 %
 % The temperature, mass flux, and composition (relative molar) may be
@@ -109,8 +95,22 @@ inlt = Inlet(gas, 'inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
+inlt.X = comp1;
 inlt.massFlux = mdot;
-inlt.setMoleFractions(comp1);
+
+%% Create the flow object
+%
+% The flow object is responsible for evaluating the 1D governing
+% equations for the flow. We will initialize it with the gas
+% object, and assign it the name ``flow``.
+
+flow = AxisymmetricFlow(gas, 'flow');
+
+% set some parameters for the flow
+flow.P = p;
+flow.grid = initial_grid;
+flow.setSteadyTolerances(tol_ss{:});
+flow.setTransientTolerances(tol_ts{:});
 
 %% Create the surface
 %
@@ -131,17 +131,18 @@ surf.T = tsurf;
 stack = Sim1D({inlt, flow, surf});
 
 % set the initial profiles.
-stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, ...
-                [0.0, 1.0 % z/zmax
-                 0.06, 0.0 % u
-                 0.0, 0.0 % V
-                 tinlet, tsurf]); % T
+flow.setProfile('velocity', [0.0, 1.0], [0.06, 0.0]);
+flow.setFlatProfile('spreadRate', 0.0)
+flow.setProfile('T', [0.0, 1.0], [tinlet, tsurf]);
 names = gas.speciesNames;
 
 for k = 1:gas.nSpecies
     y = inlt.massFraction(k);
-    stack.setProfile(2, names{k}, [0, 1; y, y]);
+    flow.setProfile(names{k}, [0. 1.], [y y]);
 end
+
+fprintf("Profile used for initial guess:\n\n")
+flow.info()
 
 stack.setTimeStep(1.0e-5, [1, 3, 6, 12]);
 stack.setMaxJacAge(4, 5);
@@ -177,13 +178,16 @@ end
 %%
 % At this point, we should have the solution for the hydrogen/air
 % problem. Now switch the inlet to the methane/air composition.
-inlt.setMoleFractions(comp2);
+inlt.X = comp2;
 
 %% Set more stringent grid refinement criteria
-stack.setRefineCriteria(2, 100.0, 0.15, 0.2);
+flow.setRefineCriteria(100.0, 0.15, 0.2);
 
 %% Solve the problem for the final time
 stack.solve(loglevel, refine_grid);
+
+%%
+% Display results and show statistics
 
 %% Show statistics
 
@@ -192,42 +196,53 @@ elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
+%% Display solution
+
+fprintf("\nFlow domain profile after final solution step:\n\n")
+flow.info()
+
+fprintf("Surface domain after final solution step:\n\n")
+surf.info()
+
+fprintf("Surface phase coverages after final solution step:\n\n")
+disp(surf_phase.coverages())
+
 %% Make plots
 
 clf;
 
 subplot(3, 3, 1);
-plotSolution(stack, 'flow', 'T');
+plotSolution(flow, 'T');
 title('Temperature [K]');
 
 subplot(3, 3, 2);
-plotSolution(stack, 'flow', 'velocity');
+plotSolution(flow, 'velocity');
 title('Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-plotSolution(stack, 'flow', 'spread_rate');
+plotSolution(flow, 'spreadRate');
 title('Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);
-plotSolution(stack, 'flow', 'CH4');
+plotSolution(flow, 'CH4');
 title('CH4 Mass Fraction');
 
 subplot(3, 3, 5);
-plotSolution(stack, 'flow', 'O2');
+plotSolution(flow, 'O2');
 title('O2 Mass Fraction');
 
 subplot(3, 3, 6);
-plotSolution(stack, 'flow', 'CO');
+plotSolution(flow, 'CO');
 title('CO Mass Fraction');
 
 subplot(3, 3, 7);
-plotSolution(stack, 'flow', 'CO2');
+plotSolution(flow, 'CO2');
 title('CO2 Mass Fraction');
 
 subplot(3, 3, 8);
-plotSolution(stack, 'flow', 'H2O');
+plotSolution(flow, 'H2O');
 title('H2O Mass Fraction');
 
 subplot(3, 3, 9);
-plotSolution(stack, 'flow', 'H2');
+plotSolution(flow, 'H2');
 title('H2 Mass Fraction');

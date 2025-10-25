@@ -8,9 +8,10 @@ function ctUnload()
                 "ctCleanUp failed (%s).", ME.message);
     end
 
-    hasGlobalCt = evalin('base','exist("ct","var") && isa(ct,"clibConfiguration")');
+    global ct
+    hasGlobalCt = evalin('base', ['exist("ct","var") && ', ...
+                         'isa(ct,"matlab.cppclient.CLibraryConfiguration")']);
     if hasGlobalCt
-        global ct
         try
             ct.unload;
             disp("Cantera has been unloaded");

@@ -115,14 +115,46 @@ public:
             "Volume is undefined for reactors of type '{}'.", type());
     }
 
+    //! Returns an area associated with a reactor [m²].
+    //! Examples: surface area of ReactorSurface or cross section area of FlowReactor.
+    virtual double area() const {
+        throw NotImplementedError("ReactorBase::area",
+            "Area is undefined for reactors of type '{}'.", type());
+    }
+
+    //! Set an area associated with a reactor [m²].
+    //! Examples: surface area of ReactorSurface or cross section area of FlowReactor.
+    virtual void setArea(double a) {
+        throw NotImplementedError("ReactorBase::setArea",
+            "Area is undefined for reactors of type '{}'.", type());
+    }
+
     //! Enable or disable changes in reactor composition due to chemical reactions.
-    virtual void setChemistry(bool cflag = true) {
-        throw NotImplementedError("ReactorBase::setChemistry");
+    //! @deprecated To be removed after %Cantera 3.2. Renamed to setChemistryEnabled().
+    void setChemistry(bool cflag = true) {
+        warn_deprecated("ReactorBase::setChemistry",
+            "To be removed after Cantera 3.2. Renamed to setChemistryEnabled.");
+        setChemistryEnabled(cflag);
+    }
+
+    //! Enable or disable changes in reactor composition due to chemical reactions.
+    //! @since New in %Cantera 3.2.
+    virtual void setChemistryEnabled(bool cflag = true) {
+        throw NotImplementedError("ReactorBase::setChemistryEnabled");
     }
 
     //! Set the energy equation on or off.
-    virtual void setEnergy(int eflag = 1) {
-        throw NotImplementedError("ReactorBase::setEnergy");
+    //! @deprecated To be removed after %Cantera 3.2. Renamed to setEnergyEnabled().
+    void setEnergy(int eflag = 1) {
+        warn_deprecated("ReactorBase::setEnergy",
+            "To be removed after Cantera 3.2. Renamed to setEnergyEnabled.");
+        setEnergyEnabled(eflag > 0);
+    }
+
+    //! Set the energy equation on or off.
+    //! @since New in %Cantera 3.2.
+    virtual void setEnergyEnabled(bool eflag = true) {
+        throw NotImplementedError("ReactorBase::setEnergyEnabled");
     }
 
     //! Connect an inlet FlowDevice to this reactor

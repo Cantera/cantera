@@ -22,14 +22,14 @@ rxnmech = 'gri30.yaml'; % reaction mechanism file
 comp1 = 'O2:0.21, N2:0.78, AR:0.01'; % air composition
 comp2 = 'C2H6:1'; % fuel composition
 
-initial_grid = 0.02 * [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; % m
+width = 0.02;
+nz = 11;
 
-tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state problem
-tol_ts = {1.0e-4, 1.0e-13}; % {rtol atol} for time stepping
+tol_ss = {1.0e-4, 1.0e-9}; % {rtol atol} for steady-state problem
+tol_ts = {1.0e-4, 1.0e-11}; % {rtol atol} for time stepping
 
-loglevel = 1; % amount of diagnostic output (0 to 5)
-
-refine_grid = 1; % 1 to enable refinement, 0 to disable
+logLevel = 1; % amount of diagnostic output (0 to 5)
+refineGrid = 1; % 1 to enable refinement, 0 to disable
 
 %% Create the gas object
 %
@@ -38,16 +38,16 @@ refine_grid = 1; % 1 to enable refinement, 0 to disable
 
 gas = Solution(rxnmech, 'gri30', 'mixture-averaged');
 
-% set its state to that of the  fuel (arbitrary)
+% set its state to that of the fuel (arbitrary)
 gas.TPX = {tin, p, comp2};
 
 %% Create the flow object
 %
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
-f.setupGrid(initial_grid);
-f.setSteadyTolerances('default', tol_ss{:});
-f.setTransientTolerances('default', tol_ts{:});
+f.setupUniformGrid(nz, width, 0.0);
+f.setSteadyTolerances(tol_ss{:}, 'default');
+f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the air inlet
 %
@@ -57,14 +57,14 @@ f.setTransientTolerances('default', tol_ts{:});
 inlet_o = Inlet(gas, 'air_inlet');
 inlet_o.T = tin;
 inlet_o.massFlux = mdot_o;
-inlet_o.setMoleFractions(comp1);
+inlet_o.X = comp1;
 
 %% Create the fuel inlet
 %
 inlet_f = Inlet(gas, 'fuel_inlet');
 inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
-inlet_f.setMoleFractions(comp2);
+inlet_f.X = comp2;
 
 %% Create the flame object
 %
@@ -74,13 +74,12 @@ inlet_f.setMoleFractions(comp2);
 fl = flame(gas, inlet_o, f, inlet_f);
 
 %%
-% if the starting solution is to be read from a previously-saved
-% solution, uncomment this line and edit the file name and solution id.
+% Set an initial temperature guess to ensure ignition
 
-%restore(fl,'h2flame2.yaml', 'energy')
+f.setProfile('T', [0.0, mdot_o/(mdot_o + mdot_f), 1.0], [tin, 2000, tin]);
 
 % Solve with fixed temperature profile first
-fl.solve(loglevel, refine_grid);
+fl.solve(logLevel, refineGrid);
 
 %% Enable the energy equation
 %
@@ -88,8 +87,8 @@ fl.solve(loglevel, refine_grid);
 % tighten the grid refinement criteria to get an accurate final solution.
 
 f.energyEnabled = true;
-fl.setRefineCriteria(2, 200.0, 0.1, 0.1);
-fl.solve(loglevel, refine_grid);
+f.setRefineCriteria(200.0, 0.1, 0.1);
+fl.solve(logLevel, refineGrid);
 
 %% Show statistics
 
@@ -102,22 +101,22 @@ disp(e);
 
 figure(1);
 subplot(2, 3, 1);
-plotSolution(fl, 'flow', 'T');
+plotSolution(f, 'T');
 title('Temperature [K]');
 subplot(2, 3, 2);
-plotSolution(fl, 'flow', 'C2H6');
+plotSolution(f, 'C2H6');
 title('C2H6 Mass Fraction');
 subplot(2, 3, 3);
-plotSolution(fl, 'flow', 'O2');
+plotSolution(f, 'O2');
 title('O2 Mass Fraction');
 subplot(2, 3, 4);
-plotSolution(fl, 'flow', 'CH');
+plotSolution(f, 'CH');
 title('CH Mass Fraction');
 subplot(2, 3, 5);
-plotSolution(fl, 'flow', 'spread_rate');
+plotSolution(f, 'spreadRate');
 title('Radial Velocity / Radius [s^-1]');
 subplot(2, 3, 6);
-plotSolution(fl, 'flow', 'velocity');
+plotSolution(f, 'velocity');
 title('Axial Velocity [m/s]');
 
 toc

@@ -214,8 +214,8 @@ classdef ctTestThermo < ctTestCase
                 self.verifyEqual(n2, n);
             end
 
-            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'No such species');
-            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'No such element');
+            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'not found');
+            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'not found');
         end
 
         function testElementalMassFraction(self)
@@ -232,7 +232,7 @@ classdef ctTestThermo < ctTestCase
             self.verifyEqual(Zh, exp2, 'AbsTol', self.atol);
             self.verifyEqual(Zar, exp3, 'AbsTol', self.atol);
 
-            self.getInvalidValue('elementalMassFraction', {'C'}, 'No such element');
+            self.getInvalidValue('elementalMassFraction', {'C'}, 'not found');
             self.getInvalidValue('elementalMassFraction', {5}, 'Wrong type');
         end
 
@@ -361,9 +361,9 @@ classdef ctTestThermo < ctTestCase
 
         function testSetCompositionBadLength(self)
             xx = zeros(1, 5);
-            self.setInvalidValue('X', [], 'cannot be empty');
-            self.setInvalidValue('X', xx, 'must be equal');
-            self.setInvalidValue('Y', xx, 'must be equal');
+            self.setInvalidValue('X', [], 'ArraySizeError');
+            self.setInvalidValue('X', xx, 'ArraySizeError');
+            self.setInvalidValue('Y', xx, 'ArraySizeError');
         end
 
         function testSetCompositionString(self)
@@ -376,7 +376,6 @@ classdef ctTestThermo < ctTestCase
 
         function testSetCompositionStringBad(self)
             self.setInvalidValue('X', 'H2:1.e-x4', 'Trouble processing');
-            self.setInvalidValue('X', '', 'cannot be empty');
         end
 
         function testSetStateMole(self)

@@ -45,7 +45,7 @@ classdef ReactingSurface < Boundary1D
 
         function set.coverageEnabled(d, flag)
             d.coverageEnabled = flag;
-            ctFunc('reactingsurf_enableCoverageEqs', d.domainID, int8(flag));
+            ctFunc('reactingsurf_enableCoverageEquations', d.domainID, int8(flag));
         end
 
     end

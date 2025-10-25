@@ -7,7 +7,8 @@ function ctLoad(mode)
     %   ctLoad('outofprocess')% load out-of-process
 
     arguments
-        mode (1,1) string {mustBeMember(mode,["inprocess","outofprocess"])} = "outofprocess"
+        mode (1,1) string {mustBeMember(mode, ...
+                           ["inprocess","outofprocess"])} = "outofprocess"
     end
 
     pathVar = dictionary();
@@ -20,8 +21,12 @@ function ctLoad(mode)
 
     global ct
     if isempty(ct)
-        ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
-                               OutOfProcessEnvironmentVariables=pathVar);
+        if isMATLABReleaseOlderThan("R2025a") || strcmp(mode, "inprocess")
+            ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
+        else
+            ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
+                                   OutOfProcessEnvironmentVariables=pathVar);
+        end
     end
 
     fprintf('Cantera %s is ready for use (%s mode).\n', ctVersion, mode);

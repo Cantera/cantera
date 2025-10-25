@@ -27,7 +27,7 @@ nsp = gas.nSpecies;
 nSurfSp = surf.nSpecies;
 
 %% create a reactor, and insert the gas
-r = IdealGasReactor(gas);
+r = IdealGasReactor(gas, 'reactor');
 r.V = 1.0e-6;
 
 %% create a reservoir to represent the environment
@@ -44,8 +44,9 @@ w = Wall(r, env);
 A = 1e-4; % Wall area
 
 %% Add a reacting surface, with an area matching that of the wall
-rsurf = ReactorSurface(surf, r);
+rsurf = ReactorSurface(surf, r, 'surface');
 rsurf.area = A;
+rphase = rsurf.phase  % output needs to use phase owned by reactor
 
 %% set the wall area and heat transfer coefficient.
 w.area = A;
@@ -59,7 +60,7 @@ network = ReactorNet({r});
 nSteps = 100;
 p0 = r.P;
 names = {'CH4', 'CO', 'CO2', 'H2O'};
-x = zeros([nSteps 4]);
+x = zeros([nSteps, 4]);
 tim = zeros(nSteps, 1);
 temp = zeros(nSteps, 1);
 pres = zeros(nSteps, 1);
@@ -74,8 +75,8 @@ for n = 1:nSteps
     tim(n) = t;
     temp(n) = r.T;
     pres(n) = r.P - p0;
-    cov(n, :) = surf.X';
-    x(n, :) = gas.moleFraction(names);
+    cov(n, :) = rphase.X';
+    x(n, :) = r.phase.moleFraction(names);
 end
 
 disp(['CPU time = ' num2str(cputime - t0)]);
@@ -96,7 +97,7 @@ subplot(2, 2, 3);
 semilogy(tim, cov);
 xlabel('Time (s)');
 ylabel('Coverages');
-legend(surf.speciesNames);
+legend(rphase.speciesNames);
 subplot(2, 2, 4);
 plot(tim, x);
 xlabel('Time (s)');
