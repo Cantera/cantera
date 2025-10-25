@@ -16,13 +16,15 @@ function ignite_hp(gas)
 
     mw = gas.molecularWeights;
     gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
+    gas.basis = 'mass';
+    nsp = gas.nSpecies;
 
     y0 = [gas.T
           gas.Y'];
     tel = [0, 0.001];
     options = odeset('RelTol', 1.e-5, 'AbsTol', 1.e-12, 'Stats', 'on');
     t0 = cputime;
-    out = ode15s(@reactor_ode, tel, y0, options, gas, mw);
+    out = ode15s(@reactor_ode, tel, y0, options, gas, mw, nsp);
     disp(['CPU time = ' num2str(cputime - t0)]);
 
     if nargout == 0
@@ -45,7 +47,7 @@ function ignite_hp(gas)
 end
 
 
-function dydt = reactor_ode(t, y, gas, mw)
+function dydt = reactor_ode(t, y, gas, mw, nsp)
     %% ODE system for a constant-pressure, adiabatic reactor
     %
     % Function ``REACTOR_ODE`` evaluates the system of ordinary differential equations
@@ -53,10 +55,7 @@ function dydt = reactor_ode(t, y, gas, mw)
     % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
 
     % Set the state of the gas, based on the current solution vector.
-    gas.basis = 'mass';
-    gas.Y = y(2:end);
-    gas.TP = {y(1), gas.P};
-    nsp = gas.nSpecies;
+    gas.TPY = {y(1), gas.P, y(2:end)};
 
     % energy equation
     wdot = gas.netProdRates;
