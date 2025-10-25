@@ -16,6 +16,7 @@ function ignite_uv(gas)
 
     mw = gas.molecularWeights;
     gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
+    gas.basis = 'mass';
 
     y0 = [gas.T
           gas.Y'];
@@ -53,9 +54,7 @@ function dydt = reactor_ode(t, y, gas, mw)
     % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
 
     % Set the state of the gas, based on the current solution vector.
-    gas.basis = 'mass';
-    gas.Y = y(2:end);
-    gas.TD = {y(1), gas.D};
+    gas.TDY = {y(1), gas.D, y(2:end)};
     nsp = gas.nSpecies;
 
     % energy equation

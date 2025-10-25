@@ -24,9 +24,6 @@ comp = 'H2:1.5, O2:1, AR:7'; % premixed gas composition
 width = 0.5;
 nz = 11;
 
-tol_ss = {1.0e-4, 1.0e-9}; % {rtol atol} for steady-state problem
-tol_ts = {1.0e-4, 1.0e-11}; % {rtol atol} for time stepping
-
 logLevel = 1; % amount of diagnostic output (0 to 5)
 refineGrid = 1; % 1 to enable refinement, 0 to disable
 maxJacobianAge = [5, 10];
@@ -46,8 +43,6 @@ gas.TPX = {tburner, p, comp};
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
 f.setupUniformGrid(nz, width, 0.0);
-f.setSteadyTolerances(tol_ss{:}, 'default');
-f.setTransientTolerances(tol_ts{:}, 'default');
 
 %% Create the burner
 %

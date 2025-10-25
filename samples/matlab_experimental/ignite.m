@@ -1,4 +1,4 @@
-function plotdata = ignite(g)
+function ignite(g)
     %% Adiabatic, constant pressure reactor
     %
     % This example solves the same problem as :doc:`reactor1.m <reactor1>`, but does it
@@ -30,8 +30,6 @@ function plotdata = ignite(g)
     out = ode15s(@reactor_ode, time_interval, y0, options, gas, ...
                  @vdot, @area, @heatflux);
     disp(['CPU time = ' num2str(cputime - t0)]);
-
-    plotdata = output(out, gas);
 
     toc
 end
@@ -67,8 +65,7 @@ function dydt = reactor_ode(t, y, gas, vdot, area, heatflux)
         v_mass = vol / total_mass;
 
         % set the state of the gas by specifying (u,v,{Y_k})
-        gas.Y = masses;
-        gas.UV = {u_mass v_mass};
+        gas.UVY = {u_mass, v_mass, masses};
         p = gas.P;
 
         % volume equation
@@ -145,8 +142,7 @@ function pv = output(s, gas)
         mass = sum(y);
         u_mass = ss(1) / mass;
         v_mass = ss(2) / mass;
-        gas.Y = y;
-        gas.UV = {u_mass, v_mass};
+        gas.UVY = {u_mass, v_mass, y};
 
         pv(1, j) = times(j);
         pv(2, j) = gas.T;

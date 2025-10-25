@@ -119,7 +119,7 @@ for i = 2:length(x_calc)
     %--------------------------------------------------------------------------
     % These values are passed onto the ode15s solver
     [~, y] = ode15s(@PFR_solver, limits, inlet_soln, options, ...
-                    gas_calc, mdot_calc, A_in, dAdx, k);
+                    gas_calc, mdot_calc, A_in, dAdx, k, nsp);
 
     T_calc(i) = y(end, 2);
     rho_calc(i) = y(end, 1);
@@ -174,7 +174,7 @@ title('Pressure Variation')
 toc
 
 
-function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
+function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp)
     %% Plug flow reactor governing equations
     %
     % This function defines the spatial derivatives for an ideal gas plug-flow
@@ -203,7 +203,6 @@ function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
     MW_mix = gas.meanMolecularWeight;
     Ru = GasConstant;
     R = Ru / MW_mix;
-    nsp = gas.nSpecies;
     vx = mdot / (rho * A);
     P = rho * R * T;
 
