@@ -7,6 +7,7 @@ from typing import (
     Any,
     Concatenate,
     Literal,
+    Mapping,
     TypeAlias,
     TypedDict,
     TypeGuard,
@@ -48,7 +49,7 @@ FullState: TypeAlias = Literal[
     "SVX",
     "SVY",
 ]
-CompositionLike: TypeAlias = str | dict[str, float] | ArrayLike
+CompositionLike: TypeAlias = str | Mapping[str, float | int] | ArrayLike
 StateSetter: TypeAlias = tuple[float, float, CompositionLike]
 ArrayCompositionLike: TypeAlias = str | dict[str, ArrayLike] | ArrayLike
 ArrayStateSetter: TypeAlias = tuple[ArrayLike, ArrayLike, ArrayCompositionLike]
