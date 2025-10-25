@@ -88,6 +88,8 @@ classdef (Abstract) ReactorBase < handle
 
         massFlowRate % Mass flow rate in kg/s.
 
+        area % Area of the reactor surface in m^2.
+
     end
 
     methods
@@ -168,6 +170,10 @@ classdef (Abstract) ReactorBase < handle
             intEnergy_mass = ctFunc('reactor_intEnergy_mass', r.id);
         end
 
+        function a = get.area(r)
+            a = ctFunc('reactor_area', r.id);
+        end
+
         function yi = massFraction(r, species)
             % Get the mass fraction of a species.
             %
@@ -227,6 +233,10 @@ classdef (Abstract) ReactorBase < handle
 
             ctFunc('reactor_setEnergyEnabled', r.id, eflag);
 
+        end
+
+        function set.area(s, a)
+            ctFunc('reactor_setArea', s.id, a);
         end
 
     end

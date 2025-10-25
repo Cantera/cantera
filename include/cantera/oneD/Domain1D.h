@@ -332,6 +332,7 @@ public:
 
     /**
      * Set grid refinement criteria. @see Refiner::setCriteria.
+     * @since New in %Cantera 3.2
      */
     void setRefineCriteria(double ratio = 10.0,
                            double slope = 0.8, double curve = 0.8,
@@ -339,6 +340,7 @@ public:
 
     /**
      * Get the grid refinement criteria. @see Refiner::getCriteria
+     * @since New in %Cantera 3.2
      */
     vector<double> getRefineCriteria();
 
@@ -603,21 +605,23 @@ public:
     }
 
     /**
-     * Print a concise summary of a Domain.
+     * Return a concise summary of a Domain.
      * @see SolutionArray.info()
      * @param keys  List of components to be displayed; if empty, all components are
      *      considered.
      * @param rows  Maximum number of rendered rows.
      * @param width  Maximum width of rendered output.
+     * @since New in %Cantera 3.2
      */
     string info(const vector<string>& keys, int rows=10, int width=80);
 
     /**
-     * Print a concise summary of a Domain.
+     * Return a concise summary of a Domain.
      * Skips keys input while `vector<string>` is not implemented in sourcegen.
      * @see SolutionArray.info()
      * @param rows  Maximum number of rendered rows.
      * @param width  Maximum width of rendered output.
+     * @since New in %Cantera 3.2
      */
     string _info(int rows=10, int width=80) {
         return info({}, rows, width);

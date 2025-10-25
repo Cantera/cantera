@@ -25,10 +25,6 @@ classdef ReactorSurface < ReactorBase
     % :return:
     %    Instance of class :mat:class:`ReactorSurface`.
 
-    properties (SetAccess = public)
-        area % Area of the reactor surface in m^2.
-    end
-
     methods
         %% ReactorSurface Class Constructor
 
@@ -50,18 +46,6 @@ classdef ReactorSurface < ReactorBase
             reactorIDs = cellfun(@(r) r.id, reactors);
             id = ctFunc('reactor_newSurface', surf.solnID, reactorIDs, clone, name);
             s@ReactorBase(id);
-        end
-
-        %% ReactorSurface Get Methods
-
-        function a = get.area(s)
-            a = ctFunc('reactor_area', s.id);
-        end
-
-        %% ReactorSurface Set Methods
-
-        function set.area(s, a)
-            ctFunc('reactor_setArea', s.id, a);
         end
 
     end

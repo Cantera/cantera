@@ -196,6 +196,7 @@ public:
     //! @param tSteps  A sequence of time step counts to take after subsequent failures
     //!     of the steady-state solver. The last value in `tsteps` will be used again
     //!     after further unsuccessful solution attempts.
+    //! @since New in %Cantera 3.2
     void setTimeStep(double stepSize, const vector<int>& tSteps) {
         setTimeStep(stepSize, tSteps.size(), tSteps.data());
     }
