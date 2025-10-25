@@ -269,7 +269,10 @@ public:
                             [](bool v) { return v; });
     }
 
-    //! Set energy enabled flag for entire domain.
+    /**
+     * Set energy enabled flag for entire domain.
+     * @since New in %Cantera 3.2
+     */
     void setEnergyEnabled(bool flag) {
         if (flag) {
             solveEnergyEqn();

@@ -239,7 +239,7 @@ void Domain1D::setupUniformGrid(size_t points, double length, double start)
 {
     vector<double> grid(points);
     double dz = length / (double)(points - 1);
-    for (int iz = 0; iz < points; iz++) {
+    for (size_t iz = 0; iz < points; iz++) {
         grid[iz] = start + iz * dz;
     }
     setupGrid(grid);
