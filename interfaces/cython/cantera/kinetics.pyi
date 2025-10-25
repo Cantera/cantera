@@ -15,10 +15,17 @@ from .units import UnitSystem, _UnitDict
 # _KineticsType: TypeAlias = Literal["none", "bulk", "edge", "surface"]
 _KineticsType: TypeAlias = str
 
-class _DerivativeSettings(TypedDict, total=False):
-    skip_third_bodies: bool
-    skip_falloff: bool
-    rtol_delta: float
+_DerivativeSettings = TypedDict(
+    "_DerivativeSettings",
+    {
+        "skip-third-bodies": bool,
+        "skip-falloff": bool,
+        "rtol-delta": float,
+        "skip-coverage-dependence": bool,
+        "skip-electrochemistry": bool,
+    },
+    total=False,
+)
 
 class Kinetics(_SolutionBase):
     _custom_rates: list[CustomRate]
