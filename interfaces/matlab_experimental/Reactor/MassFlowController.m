@@ -10,9 +10,9 @@ classdef MassFlowController < FlowDevice
     % see also: :mat:class:`FlowDevice`, :mat:class:`Valve`
     %
     % :param upstream:
-    %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
+    %     Upstream :mat:class:`ReactorBase`.
     % :param downstream:
-    %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
+    %     Downstream :mat:class:`ReactorBase`.
     % :param name:
     %     Flow device name (optional; default is ``(none)``).
     % :return:
@@ -20,10 +20,16 @@ classdef MassFlowController < FlowDevice
 
     methods
 
-        function m = MassFlowController(varargin)
+        function m = MassFlowController(upstream, downstream, name)
             % Constructor
 
-            m@FlowDevice('MassFlowController', varargin{:});
+            arguments
+                upstream {mustBeA(upstream, 'ReactorBase')}
+                downstream {mustBeA(downstream, 'ReactorBase')}
+                name (1,1) string = "(none)"
+            end
+
+            m@FlowDevice('MassFlowController', upstream, downstream, name);
         end
 
     end

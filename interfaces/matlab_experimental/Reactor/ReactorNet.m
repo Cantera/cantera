@@ -4,7 +4,7 @@ classdef ReactorNet < handle
     %     >> r = ReactorNet(reactors)
     %
     % A :mat:class:`ReactorNet` object is a container that holds one or more
-    % :mat:class:`Reactor` objects in a network. :mat:class:`ReactorNet` objects
+    % :mat:class:`ReactorBase` objects in a network. :mat:class:`ReactorNet` objects
     % are used to simultaneously advance the state of one or more coupled reactors.
     %
     % :param reactors:
@@ -170,7 +170,7 @@ classdef ReactorNet < handle
             % :param p:
             %    Integer sensitivity parameter.
             % :param r:
-            %    Instance of class :mat:class:`reactor`.
+            %    Instance of class :mat:class:`ReactorBase`.
 
             if isa(component, 'string')
                 s = ctFunc('reactornet_sensitivity', n.id, component, p, r.id);

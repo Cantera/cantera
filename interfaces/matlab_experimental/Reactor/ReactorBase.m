@@ -64,9 +64,8 @@ classdef (Abstract) ReactorBase < handle
         % :param r:
         %    Instance of :mat:class:`ReactorBase`.
         % :param flag:
-        %    String, either "on" or "off" to enable or disable chemical
-        %    reactions, respectively.
-        chemistry
+        %    Boolean to enable or disable chemical reactions.
+        chemistryEnabled
 
         % Enable or disable solving the energy equation. ::
         %
@@ -82,9 +81,8 @@ classdef (Abstract) ReactorBase < handle
         % :param r:
         %    Instance of :mat:class:`ReactorBase`.
         % :param flag:
-        %    String, either "on" or "off" to enable or disable chemical
-        %    reactions, respectively.
-        energy
+        %    Boolean to enable or disable energy equations.
+        energyEnabled
 
         massFlowRate % Mass flow rate in kg/s.
 
@@ -178,19 +176,22 @@ classdef (Abstract) ReactorBase < handle
             % Get the mass fraction of a species.
             %
             % :param species:
-            %    String or one-based integer id of the species.
+            %    String/Char array name of the species.
 
-            if ischar(species)
-                k = r.phase.speciesIndex(species) - 1;
-            else
-                k = species - 1;
-            end
-
+            k = r.phase.speciesIndex(species) - 1;
             yi = ctFunc('reactor_massFraction', r.id, k);
         end
 
         function massFractions = get.Y(r)
             massFractions = ctArray('reactor_massFractions', r.phase.nSpecies, r.id);
+        end
+
+        function flag = get.chemistryEnabled(r)
+            flag = ctFunc('reactor_chemistryEnabled', r.id);
+        end
+
+        function flag = get.energyEnabled(r)
+            flag = ctFunc('reactor_energyEnabled', r.id);
         end
 
         %% ReactorBase set methods
@@ -208,30 +209,22 @@ classdef (Abstract) ReactorBase < handle
             r.massFlowRate = MFR;
         end
 
-        function set.chemistry(r, flag)
-
-            if strcmp(flag, 'on')
-                cflag = true;
-            elseif strcmp(flag, 'off')
-                cflag = false;
-            else
-                error('Input must be "on" or "off"');
+        function set.chemistryEnabled(r, flag)
+            arguments
+                r {mustBeA(r, 'ReactorBase')}
+                flag (1,1) logical
             end
 
-            ctFunc('reactor_setChemistryEnabled', r.id, cflag);
+            ctFunc('reactor_setChemistryEnabled', r.id, flag);
         end
 
-        function set.energy(r, flag)
-
-            if strcmp(flag, 'on')
-                eflag = 1;
-            elseif strcmp(flag, 'off')
-                eflag = 0;
-            else
-                error('Input must be "on" or "off".');
+        function set.energyEnabled(r, flag)
+            arguments
+                r {mustBeA(r, 'ReactorBase')}
+                flag (1,1) logical
             end
 
-            ctFunc('reactor_setEnergyEnabled', r.id, eflag);
+            ctFunc('reactor_setEnergyEnabled', r.id, flag);
 
         end
 

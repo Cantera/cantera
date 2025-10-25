@@ -1,9 +1,9 @@
 classdef Reservoir < ReactorBase
     % Create a :mat:class:`Reservoir` object. ::
     %
-    %     >> r = Reservoir(phase, name)
+    %     >> r = Reservoir(phase, name, clone)
     %
-    % A :mat:class:`Reservoir` is an instance of class :mat:class:`Reactor`
+    % A :mat:class:`Reservoir` is an instance of class :mat:class:`ReactorBase`
     % configured so that its intensive state is constant in time. A reservoir
     % may be thought of as infinite in extent, perfectly mixed,
     % and non-reacting, so that fluid may be extracted or added without
@@ -16,18 +16,19 @@ classdef Reservoir < ReactorBase
     %
     %     r2 = Reservoir(gas)    % a reservoir containing a gas
     %
-    % See also: :mat:class:`Reactor`
+    % See also: :mat:class:`ReactorBase`
     %
     % :param phase:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reservoir name (optional; default is ``(none)``).
     % :param clone:
-    %    Determines whether to clone `content` so that the internal state of
+    %    Determines whether to clone `phase` so that the internal state of
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
+    %    (optional; default is true).
     % :return:
-    %     Instance of class :mat:class:`Reactor`.
+    %     Instance of class :mat:class:`Reservoir`.
 
     methods
 

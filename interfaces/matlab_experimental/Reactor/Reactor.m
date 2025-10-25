@@ -1,7 +1,7 @@
 classdef Reactor < ReactorBase
     % Reactor Class ::
     %
-    %     >> r = Reactor(content, name, clone)
+    %     >> r = Reactor(phase, name, clone)
     %
     % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
     % It has a time-dependent state, and may be coupled to other
@@ -14,9 +14,10 @@ classdef Reactor < ReactorBase
     % :param name:
     %    Reactor name (optional; default is ``(none)``).
     % :param clone:
-    %    Determines whether to clone `content` so that the internal state of
+    %    Determines whether to clone `phase` so that the internal state of
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
+    %    (optional; default is true).
     % :return:
     %    Instance of :mat:class:`Reactor`.
 

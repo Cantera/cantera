@@ -29,10 +29,10 @@ classdef (Abstract) FlowDevice < Connector
 
     properties (SetAccess = immutable)
 
-        % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
+        % Upstream object of type :mat:class:`ReactorBase`.
         upstream
 
-        % Downstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
+        % Downstream object of type :mat:class:`ReactorBase`.
         downstream
 
     end
@@ -59,14 +59,20 @@ classdef (Abstract) FlowDevice < Connector
     methods
         %% FlowDevice Class Constructor
 
-        function x = FlowDevice(varargin)
+        function x = FlowDevice(typ, upstream, downstream, name)
             % Create a :mat:class:`FlowDevice` object.
 
+            arguments
+                typ (1,1) string
+                upstream {mustBeA(upstream, 'ReactorBase')}
+                downstream {mustBeA(downstream, 'ReactorBase')}
+                name (1,1) string = "(none)"
+            end
             ctIsLoaded;
 
-            x@Connector(varargin{:});
-            x.upstream = varargin{2};
-            x.downstream = varargin{3};
+            x@Connector(typ, upstream, downstream, name);
+            x.upstream = upstream;
+            x.downstream = downstream;
         end
 
         %% FlowDevice Get Methods
