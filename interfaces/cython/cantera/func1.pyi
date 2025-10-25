@@ -39,5 +39,5 @@ class Tabulated1(Func1):
         self,
         time: Iterable[float],
         fval: Iterable[float],
-        method: Literal["linear", "previous"],
+        method: Literal["linear", "previous"] = "linear",
     ) -> None: ...
