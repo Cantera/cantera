@@ -139,7 +139,7 @@ sim.save(filename, "soln1", description="catalytic combustion example",
 # save selected solution components in a CSV file for plotting in Excel or MATLAB.
 sim.save('catalytic_combustion.csv', basis="mole", overwrite=True)
 
-sim.show_stats(0)
+sim.show_stats()
 
 # %%
 # Temperature Profile
