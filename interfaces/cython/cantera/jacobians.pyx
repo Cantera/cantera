@@ -48,7 +48,7 @@ cdef class SystemJacobian:
         jac.set_cxx_object()
         return jac
 
-    cdef set_cxx_object(self):
+    def set_cxx_object(self):
         pass
 
     property side:
@@ -63,6 +63,15 @@ cdef class SystemJacobian:
         def __set__(self, side):
             self._base.get().setPreconditionerSide(stringify(side))
 
+    property gamma:
+        """ Get/Set the value of gamma used in the expression P = (I - gamma * J).
+        """
+        def __get__(self):
+            return self._base.get().gamma()
+
+        def __set__(self, value):
+            self._base.get().setGamma(value)
+
 
 cdef class EigenSparseJacobian(SystemJacobian):
     """
@@ -72,7 +81,8 @@ cdef class EigenSparseJacobian(SystemJacobian):
 
     _type = "eigen-sparse"
 
-    cdef set_cxx_object(self):
+    def set_cxx_object(self):
+        super().set_cxx_object()
         self.sparse_jac = <CxxEigenSparseJacobian*>self._base.get()
 
     def print_contents(self):
@@ -108,7 +118,8 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
     _type = "Adaptive"
     linear_solver_type = "GMRES"
 
-    cdef set_cxx_object(self):
+    def set_cxx_object(self):
+        super().set_cxx_object()
         self.adaptive = <CxxAdaptivePreconditioner*>self._base.get()
 
     property threshold:
@@ -179,5 +190,6 @@ cdef class BandedJacobian(SystemJacobian):
     _type = "banded-direct"
     linear_solver_type = "direct"
 
-    cdef set_cxx_object(self):
+    def set_cxx_object(self):
+        super().set_cxx_object()
         self.band_jac = <CxxMultiJac*>self._base.get()
