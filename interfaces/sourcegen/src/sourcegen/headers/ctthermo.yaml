@@ -101,8 +101,12 @@ recipes:
 - name: getPartialMolarVolumes
 - name: setState_TPX  # New in Cantera 3.2
   wraps: setState_TPX(double, double, const double*)
+- name: setState_TPX_byName  # New in Cantera 3.2
+  wraps: setState_TPX(double, double, const string&)
 - name: setState_TPY  # New in Cantera 3.2
   wraps: setState_TPY(double, double, const double*)
+- name: setState_TPY_byName  # New in Cantera 3.2
+  wraps: setState_TPY(double, double, const string&)
 - name: setState_TP  # Renamed in Cantera 3.2 (previously set_TP)
 - name: setState_TD  # Renamed in Cantera 3.2 (previously set_TD)
 - name: setState_DP  # Renamed in Cantera 3.2 (previously set_DP)

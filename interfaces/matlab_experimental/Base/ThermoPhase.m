@@ -1505,13 +1505,29 @@ classdef ThermoPhase < handle
         end
 
         function set.TPX(tp, input)
-            tp.X = input{3};
-            tp.TP = input(1:2);
+            t = input{1};
+            p = input{2};
+            x = input{3};
+            if isa(x, 'char') || isa(x, 'string')
+                ctFunc('thermo_setState_TPX_byName', tp.tpID, t, p, x);
+            elseif isa(x, 'double')
+                ctFunc('thermo_setState_TPX', tp.tpID, t, p, x);
+            else
+                error('Invalid input for mole fractions.')
+            end
         end
 
         function set.TPY(tp, input)
-            tp.Y = input{3};
-            tp.TP = input(1:2);
+            t = input{1};
+            p = input{2};
+            y = input{3};
+            if isa(y, 'char') || isa(y, 'string')
+                ctFunc('thermo_setState_TPY_byName', tp.tpID, t, p, y);
+            elseif isa(y, 'double')
+                ctFunc('thermo_setState_TPY', tp.tpID, t, p, y);
+            else
+                error('Invalid input for mass fractions.')
+            end
         end
 
         function set.TQ(tp, input)
