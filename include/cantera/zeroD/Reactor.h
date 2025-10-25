@@ -73,7 +73,7 @@ public:
         m_vol = vol;
     }
 
-    void setChemistry(bool cflag=true) override {
+    void setChemistryEnabled(bool cflag=true) override {
         m_chem = cflag;
     }
 
@@ -83,12 +83,8 @@ public:
         return m_chem;
     }
 
-    void setEnergy(int eflag=1) override {
-        if (eflag > 0) {
-            m_energy = true;
-        } else {
-            m_energy = false;
-        }
+    void setEnergyEnabled(bool eflag=true) override {
+        m_energy = eflag;
     }
 
     //! Returns `true` if solution of the energy equation is enabled.

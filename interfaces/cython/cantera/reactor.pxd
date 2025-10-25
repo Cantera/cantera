@@ -50,9 +50,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor() except +translate_exception
-        void setChemistry(cbool)
+        void setChemistryEnabled(cbool)
         cbool chemistryEnabled()
-        void setEnergy(int)
+        void setEnergyEnabled(cbool)
         cbool energyEnabled()
         size_t componentIndex(string&) except +translate_exception
         string componentName(size_t) except +translate_exception
