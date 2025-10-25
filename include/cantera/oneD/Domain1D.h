@@ -613,11 +613,12 @@ public:
     string info(const vector<string>& keys, int rows=10, int width=80);
 
     /**
-     * Print a concise summary of a Domain.
+     * Return a concise summary of a Domain.
      * Skips keys input while `vector<string>` is not implemented in sourcegen.
      * @see SolutionArray.info()
      * @param rows  Maximum number of rendered rows.
      * @param width  Maximum width of rendered output.
+     * @since New in %Cantera 3.2
      */
     string _info(int rows=10, int width=80) {
         return info({}, rows, width);
