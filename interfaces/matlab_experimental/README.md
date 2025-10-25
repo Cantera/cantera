@@ -13,7 +13,6 @@ Cantera objects and functions.
 
 1. **MATLAB** (R2022a or later)
 2. **MATLAB-compatible C++ compiler**. Refer to the [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html) list.
-3. **Conda package manager**
 
 ---
 
@@ -25,10 +24,9 @@ Cantera objects and functions.
 
 2. **Obtain Cantera library and header files**
 
-   * **Compile from source** and install in your Conda environment by following
-   instructions: [Cantera Source Install](https://cantera.org/stable/develop/index.html)
-   Note that the [`clib_legacy` configuration flag](https://cantera.org/3.1/develop/compiling/config-options.html) must be set to `true` for the current
-   release.
+   * **Compile from source** by following
+      [Cantera Source Install](https://cantera.org/stable/develop/index.html)
+      instructions.
 
 
 3. **Add toolbox to MATLAB path**
@@ -51,14 +49,15 @@ Cantera objects and functions.
    Run the following commands in MATLAB:
 
    ```matlab
-   ctDir = '/path/to/cantera/source';
-   ctIncludeDir = '/path/to/cantera/include';
+   ctToolboxDir = '/path/to/cantera/source/interfaces/matlab_experimental';
+   ctCLibIncludeDir = '/path/to/cantera/include';
    ctLibDir = '/path/to/cantera/library';
-   ctBuildInterface(ctDir, ctIncludeDir, ctLibDir);
+   ctBuildInterface(ctToolboxDir, ctCLibIncludeDir, ctLibDir);
    ```
 
-   * If you compiled Cantera from source, ctDir should be `path/to/cantera/include`;
-   and ctLibDir should be `path/to/cantera/build/lib`.
+   If you compiled Cantera from source, `ctCLibIncludeDir` should be
+   `path/to/cantera/source/interfaces/clib/include` and `ctLibDir` should be
+   `path/to/cantera/source/build/lib` or the corresponding locations after installation.
 
 5. **Verify build**
    After building, the compiled interface should appear under:
@@ -79,7 +78,7 @@ Cantera objects and functions.
 
    The interface supports two modes:
 
-   * `'outofprocess'` (default) — higher stability and compatibility; **required on Linux**.
+   * `'outofprocess'` (default) — higher stability and compatibility with some performance overhead; **required on Linux**.
    * `'inprocess'` — runs inside MATLAB with lower overhead.
 
 2. **Run examples**
