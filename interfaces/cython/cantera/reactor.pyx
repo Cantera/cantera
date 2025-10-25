@@ -312,7 +312,7 @@ cdef class Reactor(ReactorBase):
             return self.reactor.chemistryEnabled()
 
         def __set__(self, pybool value):
-            self.reactor.setChemistry(value)
+            self.reactor.setChemistryEnabled(value)
 
     property energy_enabled:
         """
@@ -323,7 +323,7 @@ cdef class Reactor(ReactorBase):
             return self.reactor.energyEnabled()
 
         def __set__(self, pybool value):
-            self.reactor.setEnergy(int(value))
+            self.reactor.setEnergyEnabled(value)
 
     def add_sensitivity_species_enthalpy(self, k):
         """

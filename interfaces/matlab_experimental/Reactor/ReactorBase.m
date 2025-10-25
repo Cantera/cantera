@@ -212,7 +212,7 @@ classdef (Abstract) ReactorBase < handle
                 error('Input must be "on" or "off"');
             end
 
-            ctFunc('reactor_setChemistry', r.id, cflag);
+            ctFunc('reactor_setChemistryEnabled', r.id, cflag);
         end
 
         function set.energy(r, flag)
@@ -225,7 +225,7 @@ classdef (Abstract) ReactorBase < handle
                 error('Input must be "on" or "off".');
             end
 
-            ctFunc('reactor_setEnergy', r.id, eflag);
+            ctFunc('reactor_setEnergyEnabled', r.id, eflag);
 
         end
 

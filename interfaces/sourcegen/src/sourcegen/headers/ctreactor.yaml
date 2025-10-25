@@ -23,8 +23,10 @@ recipes:
 - name: setInitialVolume
 - name: area
 - name: setArea
-- name: setChemistry
-- name: setEnergy
+- name: chemistryEnabled
+- name: setChemistryEnabled
+- name: energyEnabled
+- name: setEnergyEnabled
 - name: mass
 - name: volume
 - name: density
