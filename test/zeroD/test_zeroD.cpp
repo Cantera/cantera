@@ -112,7 +112,7 @@ TEST(zerodim, mole_reactor)
     auto exhaust = make_shared<Reservoir>(gas, true, "exhaust");
 
     auto stirred = make_shared<IdealGasMoleReactor>(gas, true, "stirred-reactor");
-    stirred->setEnergy(0);
+    stirred->setEnergyEnabled(false);
     stirred->setInitialVolume(30.5 * 1e-6);
 
     auto mfc = make_shared<MassFlowController>(tank, stirred, "mass-flow-controller");
@@ -138,7 +138,7 @@ TEST(zerodim, mole_reactor_2)
 
     auto stirred = newReactor4(
         "IdealGasMoleReactor", gas, true, "stirred-reactor");
-    stirred->setEnergy(0);
+    stirred->setEnergyEnabled(false);
     stirred->setInitialVolume(30.5 * 1e-6);
 
     auto mfc = newFlowDevice(
@@ -205,7 +205,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
     IdealGasConstPressureMoleReactor reactor(sol, true);
     reactor.setInitialVolume(0.5);
-    reactor.setEnergy(false);
+    reactor.setEnergyEnabled(false);
     reactor.initialize();
     vector<double> state(reactor.neq());
     // test get state

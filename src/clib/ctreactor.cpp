@@ -174,7 +174,7 @@ extern "C" {
     int reactor_setChemistry(int i, int cflag)
     {
         try {
-            ReactorCabinet::as<Reactor>(i)->setChemistry(cflag != 0);
+            ReactorCabinet::as<Reactor>(i)->setChemistryEnabled(cflag != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -184,7 +184,7 @@ extern "C" {
     int reactor_setEnergy(int i, int eflag)
     {
         try {
-            ReactorCabinet::as<Reactor>(i)->setEnergy(eflag);
+            ReactorCabinet::as<Reactor>(i)->setEnergyEnabled(eflag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
