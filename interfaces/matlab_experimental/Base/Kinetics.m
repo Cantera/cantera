@@ -431,12 +431,7 @@ classdef Kinetics < handle
 
         function k = get.reverseRateConstants(kin)
             nr = kin.nReactions;
-            buf = clib.array.ctMatlab.Double(nr);
-            iok = ctFunc('kin_getRevRateConstants', kin.kinID, buf, 0);
-            if iok ~= 0
-                error('Cantera:ctError', ctGetErr);
-            end
-            k = buf.double;
+            k = ctArray('kin_getRevRateConstants', nr, kin.kinID, 'extraArgs', 0);
         end
 
         %% Kinetics Set Methods

@@ -35,10 +35,10 @@ classdef Wall < Connector
     % the Wall class.
     %
     % :param l:
-    %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
+    %    Instance of class :mat:class:`ReactorBase` to be used as the bulk phase
     %    on the left side of the wall.
     % :param r:
-    %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
+    %    Instance of class :mat:class:`ReactorBase` to be used as the bulk phase
     %    on the right side of the wall.
     % :param name:
     %     Wall name (optional; default is ``(none)``).
@@ -82,13 +82,19 @@ classdef Wall < Connector
     methods
         %% Wall Class Constructor
 
-        function w = Wall(varargin)
+        function w = Wall(l, r, name)
             % Create a :mat:class:`Wall` object.
 
+            arguments
+                l {mustBeA(l, 'ReactorBase')}
+                r {mustBeA(r, 'ReactorBase')}
+                name (1,1) string = "(none)"
+            end
+
             % Install the wall between left and right reactors
-            w@Connector('Wall', varargin{:})
-            w.left = varargin{1};
-            w.right = varargin{2};
+            w@Connector('Wall', l, r, name);
+            w.left = l;
+            w.right = r;
 
             % Set default values.
             w.area = 1.0;

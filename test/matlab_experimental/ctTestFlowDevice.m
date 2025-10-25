@@ -43,7 +43,7 @@ classdef ctTestFlowDevice < ctTestCase
             elseif arg.nr >= 2
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = Reactor(self.gas2);
-                self.r2.energy = 'on';
+                self.r2.energyEnabled = true;
                 self.net = ReactorNet({self.r1, self.r2});
             end
 
@@ -87,8 +87,8 @@ classdef ctTestFlowDevice < ctTestCase
             % Skipped until Valve.valveCoeff getter is implemented
             % self.verifyEqual(valve.ValveCoeff, k);
 
-            % self.verifyTrue(self.r1.energy);
-            % self.verifyTrue(self.r2.energy);
+            % self.verifyTrue(self.r1.energyEnabled);
+            % self.verifyTrue(self.r2.energyEnabled);
             % self.verifyEqual((self.r1.P - self.r2.P) * k, valve.massFlowRate, ...
             %                  'RelTol', self.rtol);
 
@@ -115,8 +115,8 @@ classdef ctTestFlowDevice < ctTestCase
         function testValve2(self)
             self.makeReactors('P1', OneAtm);
             self.net.rtol = 1e-11;
-            self.r1.energy = 'off';
-            self.r2.energy = 'off';
+            self.r1.energyEnabled = false;
+            self.r2.energyEnabled = false;
             valve = Valve(self.r1, self.r2);
             k = 2e-5;
             valve.valveCoeff = k;
@@ -125,8 +125,8 @@ classdef ctTestFlowDevice < ctTestCase
             % Skipped until Valve.valveCoeff getter is implemented
             % self.verifyEqual(valve.ValveCoeff, k);
 
-            % self.verifyFalse(self.r1.energy);
-            % self.verifyFalse(self.r2.energy);
+            % self.verifyFalse(self.r1.energyEnabled);
+            % self.verifyFalse(self.r2.energyEnabled);
 
             m1a = self.r1.D * self.r1.V;
             m2a = self.r2.D * self.r2.V;

@@ -38,7 +38,7 @@ classdef ctTestReactor < ctTestCase
                 self.gas2 = Solution('h2o2.yaml', '', 'none');
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = Reactor(self.gas2);
-                self.r2.energy = 'on';
+                self.r2.energyEnabled = true;
                 self.net = ReactorNet({self.r1, self.r2});
             end
             self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
@@ -297,7 +297,7 @@ classdef ctTestReactor < ctTestCase
 
         function testDisableEnergy(self)
             self.makeReactors('T1', 500);
-            self.r1.energy = 'off';
+            self.r1.energyEnabled = false;
             self.addWall('A', 1.0, 'U', 2500);
             self.net.advance(11.0);
 
@@ -307,7 +307,7 @@ classdef ctTestReactor < ctTestCase
 
         function testDisableChemistry(self)
             self.makeReactors('T1', 1000, 'nr', 1, 'X1', 'H2:2.0,O2:1.0');
-            self.r1.chemistry = 'off';
+            self.r1.chemistryEnabled = false;
             self.net.advance(11.0);
             x1 = self.r1.phase.X(self.r1.phase.speciesIndex('H2'));
             x2 = self.r1.phase.X(self.r1.phase.speciesIndex('O2'));

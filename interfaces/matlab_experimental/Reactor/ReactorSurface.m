@@ -1,7 +1,7 @@
 classdef ReactorSurface < ReactorBase
     % ReactorSurface Class ::
     %
-    %     >> s = ReactorSurface(surf, reactor, name)
+    %     >> s = ReactorSurface(surf, reactor, name, clone)
     %
     % A surface on which heterogeneous reactions take place. The
     % mechanism object (typically an instance of :mat:class:`Interface`)
@@ -19,9 +19,10 @@ classdef ReactorSurface < ReactorBase
     % :param name:
     %    Reactor surface name (optional; default is ``(none)``).
     % :param clone:
-    %    Determines whether to clone `content` so that the internal state of
+    %    Determines whether to clone `surf` so that the internal state of
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
+    %    (optional; default is true).
     % :return:
     %    Instance of class :mat:class:`ReactorSurface`.
 

@@ -23,20 +23,26 @@ classdef Valve < FlowDevice
     % see also: :mat:class:`FlowDevice`, :mat:class:`MassFlowController`
     %
     % :param upstream:
-    %     Upstream reactor or reservoir.
+    %     Upstream :mat:class:`ReactorBase`.
     % :param downstream:
-    %     Downstream Reactor or reservoir.
+    %     Downstream :mat:class:`ReactorBase`.
     % :param name:
-    %     Valve name (optional; default is ``(none)``).
+    %     Flow device name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowDevice`.
 
     methods
 
-        function v = Valve(varargin)
+        function v = Valve(upstream, downstream, name)
             % Constructor
 
-            v@FlowDevice('Valve', varargin{:});
+            arguments
+                upstream {mustBeA(upstream, 'ReactorBase')}
+                downstream {mustBeA(downstream, 'ReactorBase')}
+                name (1,1) string = "(none)"
+            end
+
+            v@FlowDevice('Valve', upstream, downstream, name);
         end
 
     end

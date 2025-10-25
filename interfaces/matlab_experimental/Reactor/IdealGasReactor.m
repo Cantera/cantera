@@ -1,9 +1,9 @@
 classdef IdealGasReactor < ReactorBase
     % Create a reactor with an ideal gas. ::
     %
-    %     >> r = IdealGasReactor(phase, name)
+    %     >> r = IdealGasReactor(phase, name, clone)
     %
-    % An :mat:class:`IdealGasReactor` is an instance of :mat:class:`Reactor` where
+    % An :mat:class:`IdealGasReactor` is an instance of :mat:class:`ReactorBase` where
     % the governing equations are specialized for the ideal gas equation of state
     % (and do not work correctly with other thermodynamic models). Examples:
     %
@@ -11,16 +11,17 @@ classdef IdealGasReactor < ReactorBase
     %
     %     r2 = IdealGasReactor(gas)    % a reactor containing a gas
     %
-    % See also: :mat:class:`Reactor`
+    % See also: :mat:class:`ReactorBase`
     %
     % :param phase:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
     % :param clone:
-    %    Determines whether to clone `content` so that the internal state of
+    %    Determines whether to clone `phase` so that the internal state of
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
+    %    (optional; default is true).
     % :return:
     %     Instance of class :mat:class:`IdealGasReactor`.
 
