@@ -27,8 +27,9 @@ class ReactorBase:
         self,
         contents: _SolutionBase | None = None,
         *args: Any,
+        clone: bool | None = None,
         name: str = "(none)",
-        volume: float | None,
+        volume: float | None = None,
         node_attr: dict[str, str] | None = None,
     ) -> None: ...
     def insert(self, solution: _SolutionBase) -> None: ...
@@ -42,7 +43,7 @@ class ReactorBase:
     @property
     def thermo(self) -> ThermoPhase: ...
     @property
-    def phase(self) -> ThermoPhase: ...
+    def phase(self) -> Solution: ...
     @property
     def volume(self) -> float: ...
     @volume.setter
@@ -189,6 +190,7 @@ class ReactorSurface:
         contents: _SolutionBase | None = None,
         r: Reactor | None = None,
         *,
+        clone: bool | None = None,
         name: str = "(none)",
         A: float | None = None,
         node_attr: dict[str, str] | None = None,
@@ -198,6 +200,8 @@ class ReactorSurface:
     def area(self) -> float: ...
     @area.setter
     def area(self, A: float) -> None: ...
+    @property
+    def phase(self) -> Solution: ...
     @property
     def kinetics(self) -> Kinetics: ...
     @property
@@ -301,7 +305,7 @@ class Wall(WallBase):
     @heat_flux.setter
     def heat_flux(self, val: _Func1Like) -> None: ...
 
-class FlowDevice:
+class FlowDevice(ConnectorNode):
     def __init__(
         self,
         upstream: ReactorBase,
