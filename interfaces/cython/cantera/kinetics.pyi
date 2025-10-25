@@ -170,12 +170,6 @@ class Kinetics(_SolutionBase):
     def heat_production_rates(self) -> Array: ...
 
 class InterfaceKinetics(Kinetics):
-    def __init__(
-        self,
-        infile: Path | str = "",
-        name: str = "",
-        adjacent: Sequence[ThermoPhase] = (),
-    ) -> None: ...
     def advance_coverages(
         self,
         dt: float,
