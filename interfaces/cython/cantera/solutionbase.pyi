@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import (
     Any,
+    Iterable,
     Literal,
     TypeAlias,
     TypedDict,
@@ -101,7 +102,9 @@ class _SolutionBase:
         overwrite: bool = False,
         quiet: bool = False,
     ) -> None: ...
-    def __getitem__(self, selection: slice) -> Self: ...
+    def __getitem__(self,
+                    selection: slice | str | int | Iterable[str | int]
+    ) -> Self: ...
     @property
     def selected_species(self) -> list[int]: ...
     @selected_species.setter
