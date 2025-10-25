@@ -22,6 +22,7 @@ from .solutionbase import _SolutionBase
 from .speciesthermo import SpeciesThermo, _SpeciesThermoInput
 from .transport import GasTransportData, _GasTransportInput
 from .units import Units
+from .composite import Solution
 
 # Avoid fixed options unless we can find a way to support custom extensions:
 # _ThermoType: TypeAlias = Literal[
@@ -522,7 +523,7 @@ class ThermoPhase(_SolutionBase):
 
 class InterfacePhase(ThermoPhase):
     @property
-    def adjacent(self) -> dict[str, ThermoPhase]: ...
+    def adjacent(self) -> dict[str, Solution]: ...
     @property
     def site_density(self) -> float: ...
     @site_density.setter

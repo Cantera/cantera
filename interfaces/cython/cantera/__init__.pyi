@@ -10,6 +10,7 @@ from .composite import *
 from .constants import *
 from .data import *
 from .delegator import *
+from .drawnetwork import *
 from .func1 import *
 from .jacobians import *
 from .kinetics import *
