@@ -1871,7 +1871,7 @@ class TestStagnationFlame:
                         assert settings[k][kk] == approx(vv)
                     else:
                         assert settings[k][kk] == vv
-            if isinstance(k, float):
+            if isinstance(v, float):
                 assert settings[k] == approx(v)
             else:
                 assert settings[k] == v
