@@ -40,6 +40,8 @@ cantera.StickingBlowersMaselRate.__init__
 cantera.SystemJacobian.__init__
 cantera.ThirdBody.__init__
 cantera.TwoTempPlasmaRate.__init__
+cantera.UnitSystem.__init__
+cantera.Units.__init__
 cantera.ck2yaml.ChemicallyActivated.__init__
 cantera.ck2yaml.Falloff.__init__
 cantera.composite.Quantity.clear_user_data
@@ -69,3 +71,5 @@ cantera.reactor.ConnectorNode.__init__
 cantera.solutionbase.SolutionArrayBase.__init__
 cantera.speciesthermo.SpeciesThermo.__init__
 cantera.transport.GasTransportData.__init__
+cantera.units.UnitSystem.__init__
+cantera.units.Units.__init__
