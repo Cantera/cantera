@@ -16,7 +16,9 @@ cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys)__
 cantera.Arrhenius.__init__
 cantera.ArrheniusRate.__init__
 cantera.BlowersMaselRate.__init__
+cantera.ChebyshevRate.__init__
 cantera.ConnectorNode.__init__
+cantera.CustomRate.__init__
 cantera.ElectronCollisionPlasmaRate.__init__
 cantera.ExtensibleRate.__init__
 cantera.FalloffRate.__init__
@@ -56,6 +58,8 @@ cantera.mixture.Mixture.__init__
 cantera.reaction.Arrhenius.__init__
 cantera.reaction.ArrheniusRate.__init__
 cantera.reaction.BlowersMaselRate.__init__
+cantera.reaction.ChebyshevRate.__init__
+cantera.reaction.CustomRate.__init__
 cantera.reaction.ElectronCollisionPlasmaRate.__init__
 cantera.reaction.ExtensibleRate.__init__
 cantera.reaction.FalloffRate.__init__
