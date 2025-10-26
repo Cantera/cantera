@@ -21,7 +21,6 @@
 #ifndef CLIB_DEFS_H
 #define CLIB_DEFS_H
 
-#include "cantera/base/config.h"
 #include <stdlib.h>
 
 // Values returned for error conditions
