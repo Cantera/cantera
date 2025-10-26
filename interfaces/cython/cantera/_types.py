@@ -50,9 +50,11 @@ FullState: TypeAlias = Literal[
     "SVY",
 ]
 CompositionLike: TypeAlias = str | Mapping[str, float | int] | ArrayLike
-StateSetter: TypeAlias = tuple[float, float, CompositionLike]
+State2Setter: TypeAlias = tuple[float | None, float | None]
+StateSetter: TypeAlias = tuple[float | None, float | None, CompositionLike]
 ArrayCompositionLike: TypeAlias = str | dict[str, ArrayLike] | ArrayLike
-ArrayStateSetter: TypeAlias = tuple[ArrayLike, ArrayLike, ArrayCompositionLike]
+ArrayState2Setter: TypeAlias = tuple[ArrayLike | None, ArrayLike | None]
+ArrayStateSetter: TypeAlias = tuple[ArrayLike | None, ArrayLike | None, ArrayCompositionLike]
 
 # PureFluid state definitions
 PureFluidStateVariable: TypeAlias = Literal[StateVariable, "Q"]
