@@ -15,6 +15,7 @@ from typing_extensions import NotRequired, deprecated
 from ._types import Array, ArrayLike
 from ._utils import AnyMap
 from .composite import Solution
+from .func1 import _Func1Like
 from .kinetics import Kinetics
 from .units import Units, UnitStack
 
@@ -82,6 +83,12 @@ class _FalloffRateInput(TypedDict, total=False):
 class _PlogRateInput(TypedDict, total=False):
     type: str
     rate_constants: Sequence[_PlogParameters]
+
+class _ChebyshevRateInput(TypedDict, total=False):
+    type: str
+    pressure_range: Sequence[float]
+    temperature_range: Sequence[float]
+    data: Array
 
 class ReactionRate:
     _reaction_rate_type: ClassVar[str]
@@ -178,8 +185,8 @@ class ElectronCollisionPlasmaRate(ReactionRate):
 class FalloffRate(ReactionRate):
     def __init__(
         self,
-        low: _ArrheniusParameters | None = None,
-        high: _ArrheniusParameters | None = None,
+        low: ArrheniusRate | None = None,
+        high: ArrheniusRate | None = None,
         falloff_coeffs: Sequence[float] | None = None,
         input_data: _ReactionRateInput[_FalloffRateInput] | None = None,
         init: bool = True,
@@ -228,6 +235,14 @@ class PlogRate(ReactionRate):
 class LinearBurkeRate(ReactionRate): ...
 
 class ChebyshevRate(ReactionRate):
+    def __init__(
+        self,
+        temperature_range: Sequence[float] | None = None,
+        pressure_range: Sequence[float] | None = None,
+        data: ArrayLike | None = None,
+        input_data: _ChebyshevRateInput | None = None,
+        init: bool = True,
+    ) -> None: ...
     @property
     def temperature_range(self) -> tuple[float, float]: ...
     @property
@@ -240,6 +255,7 @@ class ChebyshevRate(ReactionRate):
     def data(self) -> Array: ...
 
 class CustomRate(ReactionRate):
+    def __init__(self, k: _Func1Like | None = None, init: bool = True) -> None: ...
     def set_rate_function(self, k: int) -> None: ...
 
 class ExtensibleRate(ReactionRate):
@@ -368,8 +384,8 @@ class ThirdBody:
 class Reaction:
     def __init__(
         self,
-        reactants: dict[str, float] | None = None,
-        products: dict[str, float] | None = None,
+        reactants: dict[str, float] | str | None = None,
+        products: dict[str, float] | str | None = None,
         rate: ReactionRate
         | _ReactionRateInput[_ReactionRateParameters]
         | _ArrheniusParameters
