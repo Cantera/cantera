@@ -23,7 +23,7 @@ clib-macros: |-
   {% macro size_check(checks, c_func, c_args) %}
   ## size checking
   {% if checks %}
-  if ({{ c_args[1] }} < obj->{{ checks[0] }}()) {
+  if (static_cast<size_t>({{ c_args[1] }}) < obj->{{ checks[0] }}()) {
       throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
   }
   {% else %}
@@ -149,7 +149,7 @@ clib-accessor: |-
       {{ render_lines(before) | indent(4) }}
       {% if checks %}
       ## accessor uses index checker (see: sol_adjacent)
-      if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
+      if ({{ c_args[1] }} < 0 || static_cast<size_t>({{ c_args[1] }}) >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
           throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}());
       }
       {% endif %}{# checks #}
@@ -191,9 +191,20 @@ clib-method: |-
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
+clib-size-getter: |-
+  ## CLib template for methods returning sizes:
+  ## handles methods that return size_t in C++ and int32_t in CLib
+  // size getter: {{ cxx_wraps }}
+  try {
+      {{ render_lines(before) | indent(4) }}
+      return static_cast<int32_t>({{ get_obj(base, cxx_base, handle )}}->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
 clib-array-getter: |-
   ## CLib array getter template
-  // getter: {{ cxx_wraps }}
+  // array getter: {{ cxx_wraps }}
   try {
       auto{{ '&' if base == cxx_base else '' }} obj = {{ get_obj(base, cxx_base, handle )}};
       {{ size_check(checks, c_func, c_args) | indent(4) }}
@@ -211,7 +222,7 @@ clib-array-getter: |-
 
 clib-array-setter: |-
   ## CLib array setter template
-  // setter: {{ cxx_wraps }}
+  // array setter: {{ cxx_wraps }}
   try {
       auto{{ '&' if base == cxx_base else '' }} obj = {{ get_obj(base, cxx_base, handle )}};
       {{ size_check(checks, c_func, c_args) | indent(4) }}

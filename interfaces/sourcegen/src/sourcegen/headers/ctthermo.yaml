@@ -57,7 +57,7 @@ recipes:
     name: Name of the element
   uses: elementIndex(const string&, bool)
   code: |-
-    return ThermoPhaseCabinet::as<Phase>(handle)->elementIndex(name, true);
+    return static_cast<int32_t>(ThermoPhaseCabinet::as<Phase>(handle)->elementIndex(name, true));
 - name: speciesIndex
   # temporary custom code due to changing C++ API: replaceable by
   # wraps: speciesIndex(const string&)
@@ -70,7 +70,7 @@ recipes:
     name: String name of the species. It may also be in the form phaseName:speciesName
   uses: speciesIndex(const string&, bool)
   code: |-
-    return ThermoPhaseCabinet::as<Phase>(handle)->speciesIndex(name, true);
+    return static_cast<int32_t>(ThermoPhaseCabinet::as<Phase>(handle)->speciesIndex(name, true));
 - name: nAtoms
 - name: addElement
 - name: refPressure
