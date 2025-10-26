@@ -383,12 +383,18 @@ class CLibSourceGenerator(SourceGenerator):
             template = loader.from_string(self._templates["clib-destructor"])
 
         elif recipe.what == "method":
-            template = loader.from_string(self._templates["clib-method"])
+            ret_type = c_func.wraps.ret_type
+            if "size_t" in ret_type:
+                template = loader.from_string(self._templates["clib-size-getter"])
+            else:
+                template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "getter":
             ret_type = c_func.wraps.ret_type
             if "void" in ret_type or "vector" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
+            elif "size_t" in ret_type:
+                template = loader.from_string(self._templates["clib-size-getter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])
 

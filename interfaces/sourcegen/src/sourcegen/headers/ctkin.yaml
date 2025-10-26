@@ -31,7 +31,7 @@ recipes:
     ph: string name of the phase
   uses: phaseIndex(const string&, bool)
   code: |-
-    return KineticsCabinet::at(handle)->phaseIndex(ph, true);
+    return static_cast<int32_t>(KineticsCabinet::at(handle)->phaseIndex(ph, true));
 - name: nTotalSpecies  # Renamed in Cantera 3.2 (previously nSpecies)
 - name: reactantStoichCoeff
 - name: productStoichCoeff
@@ -59,7 +59,7 @@ recipes:
     nm: name of the species
   uses: kineticsSpeciesIndex(const string&, bool)
   code: |-
-    return KineticsCabinet::at(handle)->kineticsSpeciesIndex(nm, true);
+    return static_cast<int32_t>(KineticsCabinet::at(handle)->kineticsSpeciesIndex(nm, true));
 - name: advanceCoverages
   wraps: advanceCoverages(double)
 - name: getDeltaEnthalpy  # Changed in Cantera 3.2 (previously part of getDelta)
