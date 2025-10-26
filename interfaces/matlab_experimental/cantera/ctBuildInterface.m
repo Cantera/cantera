@@ -1,6 +1,6 @@
-function ctBuildInterface(ctDir, ctIncludeDir, ctGeneratedClibDir, ctLibDir)
-    % Build the Cantera MATLAB C++ interface.
-    % ctBuildInterface(ctDir, includeDir, ctLibDir) generates and compiles
+function ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir)
+    % Build the Cantera MATLAB interface.
+    % ctBuildInterface(ctToolboxDir, includeDir, ctLibDir) generates and compiles
     % the MATLAB interface for Cantera from the provided header files and a
     % compiled Cantera library.
     %
@@ -16,28 +16,34 @@ function ctBuildInterface(ctDir, ctIncludeDir, ctGeneratedClibDir, ctLibDir)
     %   5. Copies runtime dependencies and saves the updated path.
     %
     % Input arguments:
-    %   ctDir              - Root directory of the Cantera source tree.
+    %   ctToolboxDir       - Root directory of the Cantera MATLAB toolbox.
     %   ctIncludeDir       - Path to the Cantera include directory.
-    %   ctGeneratedClibDir - Path to the generated Cantera clib header files.
     %   ctLibDir           - Path to the compiled Cantera library.
+    arguments
+        ctToolboxDir (1,1) string {mustBeFolder}
+        ctIncludeDir (1,1) string {mustBeFolder}
+        ctLibDir (1,1) string {mustBeFolder}
+    end
 
-    ctDir = string(ctDir);
+    if ~isfolder(ctIncludeDir + "/cantera_clib")
+        error('ctBuildInterface:invalidInclude', ...
+            'Invalid include folder. "%s" must have "cantera_lib" subfolder ', ...
+            ctIncludeDir);
+    end
+
+    ctToolboxDir = string(ctToolboxDir);
     ctIncludeDir = string(ctIncludeDir);
-    ctGeneratedClibDir = string(ctGeneratedClibDir);
     ctLibDir = string(ctLibDir);
-    headerDir = ctGeneratedClibDir;
-    includeDir = [ctGeneratedClibDir, ctIncludeDir];
-    outputDir = ctDir + "/interfaces/matlab_experimental/cantera";
+    outputDir = ctToolboxDir + "/cantera";
 
     % Display the paths (Optional step, for debugging)
     disp("Paths used in the build process:");
-    disp("Cantera Root: " + ctDir);
-    disp("Header Directory: " + headerDir);
-    disp("Include Directory: " + strjoin(includeDir, ", "));
+    disp("Cantera Toolbox Root: " + ctToolboxDir);
+    disp("Include Directory: " + ctIncludeDir);
     disp("Cantera Library: " + ctLibDir);
     disp("Output Folder: " + outputDir);
 
-    ctGenerateLibraryDefinitions(includeDir, headerDir, ctLibDir, outputDir);
+    ctGenerateLibraryDefinitions(ctIncludeDir, ctLibDir, outputDir);
     ctEditLibraryDefinitions(outputDir);
 
     % Build C++ Interface

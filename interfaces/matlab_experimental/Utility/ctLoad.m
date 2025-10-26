@@ -8,7 +8,7 @@ function ctLoad(mode)
 
     arguments
         mode (1,1) string {mustBeMember(mode, ...
-                           ["inprocess","outofprocess"])} = "outofprocess"
+                           ["inprocess", "outofprocess"])} = "outofprocess"
     end
 
     pathVar = dictionary();

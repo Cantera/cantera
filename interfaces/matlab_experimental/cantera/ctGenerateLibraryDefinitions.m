@@ -1,6 +1,6 @@
-function ctGenerateLibraryDefinitions(includeDir, headerDir, ctLibDir, outputDir)
+function ctGenerateLibraryDefinitions(includeDir, ctLibDir, outputDir)
     % Generate the MATLAB interface definition file.
-    % ctGenerateLibraryDefinitions(includeDir, headerDir, ctLibDir, outputDir)
+    % ctGenerateLibraryDefinitions(includeDir, ctLibDir, outputDir)
     % creates the `definectMatlab.m` interface definition file for the
     % Cantera C library. This file is later compiled into the MATLAB interface.
     %
@@ -10,7 +10,7 @@ function ctGenerateLibraryDefinitions(includeDir, headerDir, ctLibDir, outputDir
     %     3. Configures the MATLAB C++ compiler (MEX).
     %     4. Calls clibgen to produce the `definectMatlab.m` file in outputDir.
 
-    headerFiles = dir(fullfile(headerDir, '**', '*.h'));
+    headerFiles = dir(fullfile(includeDir, 'cantera_clib', '*.h'));
     headerPaths = string({headerFiles.name});
     headerPaths = fullfile({headerFiles.folder}, headerPaths);
 
