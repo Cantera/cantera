@@ -54,9 +54,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     updateCrossSections();
 
     if (!m_has_EEDF) {
-        writelog("No existing EEDF. Using first guess method: {}\n", m_firstguess);
         if (m_firstguess == "maxwell") {
-            writelog("First guess EEDF maxwell\n");
             for (size_t j = 0; j < m_points; j++) {
                 m_f0(j) = 2.0 * pow(1.0 / Pi, 0.5) * pow(m_init_kTe, -3. / 2.) *
                           exp(-m_gridCenter[j] / m_init_kTe);
@@ -310,8 +308,10 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
             throw CanteraError("matrix_A", "Non-finite Peclet number encountered");
         }
         if (std::abs(z) > 500) {
-            writelog("Warning: Large Peclet number z = {:.3e} at j = {}. W = {:.3e}, D = {:.3e}, E/N = {:.3e}\n",
-                    z, j, W, D, E / nDensity);
+            warn_user("EEDFTwoTermApproximation::matrix_A",
+                "Large Peclet number z = {:.3e} at j = {}. "
+                "W = {:.3e}, D = {:.3e}, E/N = {:.3e}\n",
+                z, j, W, D, E / nDensity);
         }
         a0[j] = W / (1 - std::exp(-z));
         a1[j] = W / (1 - std::exp(z));
