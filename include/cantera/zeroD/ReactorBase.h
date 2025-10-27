@@ -129,6 +129,14 @@ public:
             "Area is undefined for reactors of type '{}'.", type());
     }
 
+    //! Returns `true` if changes in the reactor composition due to chemical reactions
+    //! are enabled.
+    //! @since New in %Cantera 3.2.
+    virtual bool chemistryEnabled() const {
+        throw NotImplementedError("ReactorBase::chemistryEnabled",
+            "Not implemented for reactor type '{}'.", type());
+    }
+
     //! Enable or disable changes in reactor composition due to chemical reactions.
     //! @deprecated To be removed after %Cantera 3.2. Renamed to setChemistryEnabled().
     void setChemistry(bool cflag = true) {
@@ -140,7 +148,15 @@ public:
     //! Enable or disable changes in reactor composition due to chemical reactions.
     //! @since New in %Cantera 3.2.
     virtual void setChemistryEnabled(bool cflag = true) {
-        throw NotImplementedError("ReactorBase::setChemistryEnabled");
+        throw NotImplementedError("ReactorBase::setChemistryEnabled",
+            "Not implemented for reactor type '{}'.", type());
+    }
+
+    //! Returns `true` if solution of the energy equation is enabled.
+    //! @since New in %Cantera 3.2.
+    virtual bool energyEnabled() const {
+        throw NotImplementedError("ReactorBase::energyEnabled",
+            "Not implemented for reactor type '{}'.", type());
     }
 
     //! Set the energy equation on or off.
@@ -154,7 +170,8 @@ public:
     //! Set the energy equation on or off.
     //! @since New in %Cantera 3.2.
     virtual void setEnergyEnabled(bool eflag = true) {
-        throw NotImplementedError("ReactorBase::setEnergyEnabled");
+        throw NotImplementedError("ReactorBase::setEnergyEnabled",
+            "Not implemented for reactor type '{}'.", type());
     }
 
     //! Connect an inlet FlowDevice to this reactor

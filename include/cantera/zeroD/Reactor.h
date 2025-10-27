@@ -77,9 +77,7 @@ public:
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions
-    //! are enabled.
-    bool chemistryEnabled() const {
+    bool chemistryEnabled() const override {
         return m_chem;
     }
 
@@ -87,8 +85,7 @@ public:
         m_energy = eflag;
     }
 
-    //! Returns `true` if solution of the energy equation is enabled.
-    bool energyEnabled() const {
+    bool energyEnabled() const override {
         return m_energy;
     }
 
