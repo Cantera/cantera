@@ -53,6 +53,11 @@ public:
             "FlowReactor is not compatible with time-dependent steady-state solver.");
     }
 
+    //! Mass flow rate through the reactor [kg/s]
+    double massFlowRate() {
+        return m_u * m_rho * m_area;
+    }
+
     //! Set the mass flow rate through the reactor [kg/s]
     void setMassFlowRate(double mdot);
 
