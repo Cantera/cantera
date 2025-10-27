@@ -80,7 +80,10 @@ jobs:
 
 
   ubuntu-multiple-pythons:
-    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }}
+    name: >
+      ${{ matrix.os }} with Python ${{ matrix.python-version }},
+      Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }},
+      SCons ${{ matrix.scons || 'latest' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -89,19 +92,23 @@ jobs:
         os: ['ubuntu-24.04']
         numpy: ['']
         cython: ['!=3.1.2'] # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+        scons: ['']
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
           os: 'ubuntu-22.04'
           numpy: "'<2.0'"
           cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+          scons: '==4.8.1'
           # Keep some test cases with older Cython versions
         - python-version: '3.10'
           os: 'ubuntu-22.04'
           cython: "==0.29.31" # minimum supported version
+          scons: '==4.0.1' # minimum supported version
         - python-version: '3.11'
           os: 'ubuntu-22.04'
           cython: "==3.0.8" # System version for Ubuntu 24.04
+          scons: '==4.5.2' # System version for Ubuntu 24.04
         - python-version: '3.13'
           os: 'ubuntu-22.04'
           numpy: "'<2.2'"
@@ -140,8 +147,8 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons==4.0.1 numpy${{ matrix.numpy }} \
-          cython${{ matrix.cython }} pandas pytest \
+        python3 -m pip install ruamel.yaml scons${{ matrix.scons }} \
+          numpy${{ matrix.numpy }}  cython${{ matrix.cython }} pandas pytest \
           pytest-github-actions-annotate-failures pytest-xdist pint graphviz Jinja2
     - name: Build Cantera with legacy CLib
       run: |
