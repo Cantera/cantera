@@ -41,6 +41,7 @@ recipes:
 - name: addSurface  # Renamed in Cantera 3.2 (previously install)
   wraps: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
+- name: massFlowRate
 - name: setMassFlowRate
 # service functions
 - name: del

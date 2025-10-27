@@ -24,6 +24,12 @@ classdef FlowReactor < ReactorBase
     % :return:
     %     Instance of class :mat:class:`FlowReactor`.
 
+    properties (SetAccess = public)
+
+        massFlowRate % Mass flow rate in kg/s.
+
+    end
+
     methods
 
         function r = FlowReactor(phase, name, clone)
@@ -38,6 +44,19 @@ classdef FlowReactor < ReactorBase
             ctIsLoaded;
             id = ctFunc('reactor_new', 'FlowReactor', phase.solnID, clone, name);
             r@ReactorBase(id);
+        end
+
+        %% FlowReactor Get Methods
+
+        function flag = get.massFlowRate(r)
+            rate = ctFunc('reactor_massFlowRate', r.id);
+        end
+
+        %% FlowReactor Set Methods
+
+        function set.massFlowRate(r, MFR)
+            ctFunc('reactor_setMassFlowRate', r.id, MFR);
+            r.massFlowRate = MFR;
         end
 
     end

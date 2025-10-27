@@ -51,15 +51,10 @@ classdef (Abstract) ReactorBase < handle
 
         % Enable or disable changing reactor composition by reactions. ::
         %
-        %     >> r.chemistry = flag
+        %     >> r.chemistryEnabled = flag
         %
-        % If the chemistry is disabled, then the reactor composition is
-        % constant. The parameter should be the string "on" to enable
-        % the species equations, or "off" to disable it.
-        %
-        % By default, :mat:class:`ReactorBase` objects are created with the species
-        % equations enabled if there are reactions present in the
-        % mechanism file, and disabled otherwise.
+        % If the chemistry is disabled, no reactions take place. Note that the
+        % composition can still change due to mass transfer at inlets and outlets.
         %
         % :param r:
         %    Instance of :mat:class:`ReactorBase`.
@@ -69,14 +64,9 @@ classdef (Abstract) ReactorBase < handle
 
         % Enable or disable solving the energy equation. ::
         %
-        %     >> r.energy = flag
+        %     >> r.energyEnabled = flag
         %
-        % If the energy equation is disabled, then the reactor
-        % temperature is constant. The parameter should be the string
-        % "on" to enable the energy equation, or "off" to disable it.
-        %
-        % By default, :mat:class:`ReactorBase` objects are created with the energy
-        % equation enabled, so usually this method.
+        % If the energy equation is disabled, then the reactor temperature is constant.
         %
         % :param r:
         %    Instance of :mat:class:`ReactorBase`.
@@ -84,9 +74,7 @@ classdef (Abstract) ReactorBase < handle
         %    Boolean to enable or disable energy equations.
         energyEnabled
 
-        massFlowRate % Mass flow rate in kg/s.
-
-        area % Area of the reactor surface in m^2.
+        area % Area of the reactor in m².
 
     end
 
@@ -187,11 +175,11 @@ classdef (Abstract) ReactorBase < handle
         end
 
         function flag = get.chemistryEnabled(r)
-            flag = ctFunc('reactor_chemistryEnabled', r.id);
+            flag = logical(ctFunc('reactor_chemistryEnabled', r.id));
         end
 
         function flag = get.energyEnabled(r)
-            flag = ctFunc('reactor_energyEnabled', r.id);
+            flag = logical(ctFunc('reactor_energyEnabled', r.id));
         end
 
         %% ReactorBase set methods
@@ -202,11 +190,6 @@ classdef (Abstract) ReactorBase < handle
 
         function set.V(r, v0)
             ctFunc('reactor_setInitialVolume', r.id, v0);
-        end
-
-        function set.massFlowRate(r, MFR)
-            ctFunc('reactor_setMassFlowRate', r.id, MFR);
-            r.massFlowRate = MFR;
         end
 
         function set.chemistryEnabled(r, flag)
@@ -225,7 +208,6 @@ classdef (Abstract) ReactorBase < handle
             end
 
             ctFunc('reactor_setEnergyEnabled', r.id, flag);
-
         end
 
         function set.area(s, a)
