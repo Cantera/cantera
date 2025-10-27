@@ -893,7 +893,7 @@ jobs:
     - name: Build Cantera with legacy CLib
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
-        --debug=time clib_legacy=y -j4 blas_lapack_libs=openblas optimize=n
+        --debug=time clib_legacy=y -j4 blas_lapack_libs=openblas
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -988,7 +988,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS clib_legacy=y
-          f90_interface=n toolchain=msvc --debug=time optimize=n
+          f90_interface=n toolchain=msvc --debug=time
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
