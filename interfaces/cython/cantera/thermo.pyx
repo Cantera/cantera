@@ -1938,7 +1938,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     property elastic_power_loss:
         """
-        Elastic power loss (J/s/m3)
+        Elastic power loss (W/m³)
+
         .. versionadded:: 3.2
         """
         def __get__(self):
