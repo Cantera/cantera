@@ -21,14 +21,14 @@ Among other things, it can be used to:
 * Create process simulations using networks of stirred reactors
 * Model non-ideal fluids
 
-Cantera can be used from Python and Matlab, or in applications written in C++
-and Fortran 90. A number of `examples of Cantera's capabilities
-<https://github.com/Cantera/cantera-jupyter>`_ are available in the form of
-Jupyter notebooks. These examples can be tried interactively, in the cloud by
-using the following MyBinder link:
+Cantera can be used from a number of different programming languages. Numerous examples
+are available on the Cantera website:
 
-.. image:: https://mybinder.org/badge.svg
-    :target: https://mybinder.org/repo/cantera/cantera-jupyter
+* `Python <https://cantera.org/stable/examples/python/index.html>`_
+* `Matlab <https://cantera.org/stable/examples/matlab_experimental/index.html>`_
+* `C++ <https://cantera.org/stable/examples/cxx/index.html>`_
+* `C <https://cantera.org/stable/examples/clib/index.html>`_
+* `Fortran 90 <https://cantera.org/stable/examples/fortran/index.html>`_
 
 Installation
 ============
