@@ -305,7 +305,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         :param show_thermo:
             A Boolean argument specifying whether to show phase thermodynamic
-            information in the ouptut.
+            information in the output.
         :param threshold:
             The threshold used to clip data in the output. Values below the threshold
             are not displayed.

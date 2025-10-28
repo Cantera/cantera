@@ -152,7 +152,7 @@ from scipy.optimize import fsolve
 import time  # Used for timing our calculations
 import matplotlib.pyplot as plt
 import cantera as ct
-print(f"Runnning Cantera version: {ct.__version__}")
+print(f"Running Cantera version: {ct.__version__}")
 
 # %%
 # Define the phases

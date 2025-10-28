@@ -1630,7 +1630,7 @@ public:
     //! @}
 
     //! Return intermediate or model-specific parameters used by particular
-    //! derived classes. Specific parameters are described in overidden
+    //! derived classes. Specific parameters are described in overridden
     //! methods of classes that derive from the base class.
     virtual AnyMap getAuxiliaryData()
     {
