@@ -7,7 +7,7 @@ packed-bed, catalytic membrane reactors. The gas-phase and surface-phase species
 conservation equations are derived and the system of differential-algebraic equations
 (DAE) is solved using the ``scikits.odes.dae`` IDA solver.
 
-Requires: cantera >= 3.0.0, matplotlib >= 2.0, scikits.odes >= 2.7.0
+Requires: cantera >= 3.1.0, matplotlib >= 2.0, scikits.odes >= 2.7.0
 
 .. tags:: Python, surface chemistry, 1D flow, catalysis, packed bed reactor,
           porous media, user-defined model
