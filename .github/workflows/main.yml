@@ -170,6 +170,8 @@ jobs:
     - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.11'
+    - name: Run install command
+      run: python3 `which scons` install prefix=tmp_install
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
