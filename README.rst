@@ -44,8 +44,7 @@ documentation site <https://cantera.org>`_.
 - Conda packages containing the Cantera Python and Matlab modules are also available
   for Windows, macOS, and Linux.
 
-- Additional installation packages are provided for Windows, macOS, Ubuntu, Fedora,
-  RHEL, Gentoo, and FreeBSD.
+- Additional installation packages are provided for Ubuntu, Gentoo, and FreeBSD.
 
 - For other platforms, or for users wishing to install a development version of
   Cantera, `compilation instructions <https://cantera.org/stable/develop/index.html>`_

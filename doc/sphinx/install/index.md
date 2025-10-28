@@ -17,9 +17,6 @@ We highly recommend that all new users install the Python interface using
   [Pip](sec-install-pip).
 - Ubuntu users can install the `cantera-python3` package from the
   [Cantera PPA](sec-install-ubuntu).
-- Fedora / Enterprise Linux users can install `python3-cantera` using
-  [dnf](sec-install-fedora-rhel).
-- OpenSUSE users can install packages using [zypper](sec-install-opensuse).
 - Gentoo users can install using [emerge](sec-install-gentoo).
 - FreeBSD users can install using [pkg](sec-install-freebsd).
 - If you want to use the current development version, or add features of your own, you
@@ -31,9 +28,6 @@ We highly recommend that all new users install the Python interface using
   [Conda](sec-conda-development-interface).
 - Ubuntu users can install the `cantera-dev` package from the
   [Cantera PPA](sec-install-ubuntu).
-- Fedora / Enterprise Linux users can install packages using
-  [yum/dnf](sec-install-fedora-rhel).
-- OpenSUSE users can install packages using [zypper](sec-install-opensuse).
 - Gentoo users can install using [emerge](sec-install-gentoo).
 - FreeBSD users can install using [pkg](sec-install-freebsd).
 - Users of other Linux distributions should
@@ -55,8 +49,6 @@ packages, or migrate their code base to the
 conda
 pip
 ubuntu
-fedora-rhel
-opensuse
 gentoo
 freebsd
 ```
@@ -66,4 +58,15 @@ freebsd
 ```{seealso}
 Check the [FAQ](sec-faq-installation) for solutions to some common installation
 problems.
+```
+
+```{attention}
+Packaged versions of Cantera for Fedora, Enterprise Linux (RHEL), and OpenSUSE are no
+longer available due to the lack of a package maintainer for these distributions. If you
+have experience with any of these packaging systems and are interested in maintaining
+Cantera packages, the Cantera developers would appreciate your help.
+See [Issue #1985](https://github.com/Cantera/cantera/issues/1985).
+
+Installation using Conda and Pip on these distributions is still supported, along with
+compilation from source.
 ```
