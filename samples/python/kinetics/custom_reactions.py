@@ -12,9 +12,7 @@ Requires: cantera >= 3.2.0
 """
 
 from timeit import default_timer
-import numpy as np
 from math import exp
-import warnings
 
 import cantera as ct
 

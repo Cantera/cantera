@@ -19,7 +19,6 @@ Requires: cantera >= 3.2, matplotlib >= 2.0
 .. tags:: Python, combustion, reactor network, well-stirred reactor, plotting
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 import cantera as ct
 

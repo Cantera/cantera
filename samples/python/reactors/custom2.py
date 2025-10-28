@@ -23,7 +23,6 @@ Requires: cantera >= 3.2, matplotlib >= 2.0
 """
 
 import cantera as ct
-import numpy as np
 
 class InertialWallReactor(ct.ExtensibleIdealGasReactor):
     def __init__(self, *args, neighbor, **kwargs):

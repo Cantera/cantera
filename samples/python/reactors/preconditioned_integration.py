@@ -10,7 +10,6 @@ Requires: cantera >= 3.2.0, matplotlib >= 2.0
 .. tags:: Python, combustion, reactor network, preconditioner
 """
 import cantera as ct
-import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams['figure.constrained_layout.use'] = True
 from timeit import default_timer
