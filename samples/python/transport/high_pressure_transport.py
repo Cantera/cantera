@@ -8,7 +8,7 @@ and other fluid-specific parameters to calculate transport properties at high pr
 These models are useful for fluids that are supercritical where ideal gas assumptions
 do not yield accurate results.
 
-Requires: cantera >= 3.1.0
+Requires: cantera >= 3.2.0
 
 .. tags:: Python, transport, non-ideal fluid
 """

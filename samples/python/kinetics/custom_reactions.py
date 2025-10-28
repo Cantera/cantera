@@ -6,7 +6,7 @@ An example demonstrating how to use custom reaction objects.
 
 For benchmark purposes, an ignition test is run to compare simulation times.
 
-Requires: cantera >= 3.1.0
+Requires: cantera >= 3.2.0
 
 .. tags:: Python, kinetics, benchmarking, user-defined model
 """
