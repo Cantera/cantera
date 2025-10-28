@@ -2,6 +2,8 @@
 %
 % MATLAB demo program to compute flame speeds using GRI-Mech.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, 1D flow, premixed flame, flame speed, saving output
 
 %% Initialization

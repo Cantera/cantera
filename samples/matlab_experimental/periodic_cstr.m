@@ -22,6 +22,8 @@ function periodic_cstr
     % conditions needed to see the oscillations came from Bob Kee,
     % Colorado School of Mines.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, combustion, reactor network, well-stirred reactor, plotting
 
     tic

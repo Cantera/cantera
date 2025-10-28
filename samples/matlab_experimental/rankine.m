@@ -3,6 +3,8 @@
 % Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
 % for water.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, thermodynamics, thermodynamic cycle, non-ideal fluid
 
 help rankine

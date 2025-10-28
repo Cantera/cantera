@@ -5,6 +5,8 @@ function prandtl1(g)
     % mixture in chemical equilibrium for P = 1 atm and a range of temperatures
     % and elemental O/(O+H) ratios.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, equilibrium, transport, plotting
 
     tic

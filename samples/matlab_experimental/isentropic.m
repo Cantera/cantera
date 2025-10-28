@@ -4,6 +4,8 @@ function isentropic(g)
     % In this example, the area ratio vs. Mach number curve is computed for a
     % hydrogen/nitrogen gas mixture.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, thermodynamics, compressible flow, plotting
 
     tic

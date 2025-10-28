@@ -5,6 +5,8 @@ function reactor1(g)
     % kinetics simulations. Here the parameters are set so that the reactor is
     % adiabatic and very close to constant pressure.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
     tic

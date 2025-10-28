@@ -21,6 +21,8 @@
 %    with After-Burner and Supersonic Nozzle using Plug Flow Reactor Network Model. AIAA
 %    Propulsion and Energy 2020 Forum. https://doi.org/10.2514/6.2020-3893
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, user-defined model, compressible flow, plotting
 
 %% Initialization

@@ -5,6 +5,8 @@
 % as the :doc:`diffusion_flame.py <../python/onedim/diffusion_flame>`
 % example without radiation.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, 1D flow, diffusion flame, plotting
 
 %% Initialization

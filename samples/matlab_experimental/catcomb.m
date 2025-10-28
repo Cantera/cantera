@@ -10,6 +10,8 @@
 % The catalytic combustion mechanism is from Deutschmann et al., 26th
 % Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, catalysis, 1D flow, surface chemistry
 
 %% Initialization
