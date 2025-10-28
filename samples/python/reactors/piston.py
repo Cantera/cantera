@@ -29,7 +29,6 @@ Requires: cantera >= 3.2.0, matplotlib >= 2.0
 .. tags:: Python, combustion, reactor network, plotting
 """
 
-import sys
 import cantera as ct
 import matplotlib.pyplot as plt
 plt.rcParams['figure.constrained_layout.use'] = True
