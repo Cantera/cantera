@@ -19,11 +19,11 @@ from ._types import (
     StateSetter,
     StateVariable,
 )
+from .composite import Solution
 from .solutionbase import _SolutionBase
 from .speciesthermo import SpeciesThermo, _SpeciesThermoInput
 from .transport import GasTransportData, _GasTransportInput
 from .units import Units
-from .composite import Solution
 
 # Avoid fixed options unless we can find a way to support custom extensions:
 # _ThermoType: TypeAlias = Literal[
@@ -172,7 +172,7 @@ class ThermoPhase(_SolutionBase):
     def element_name(self, m: int) -> str: ...
     @property
     def element_names(self) -> list[str]: ...
-    def atomic_weight(self, m: int) -> float: ...
+    def atomic_weight(self, m: str | bytes | float) -> float: ...
     @property
     def atomic_weights(self) -> Array: ...
     @property
