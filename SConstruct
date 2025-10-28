@@ -1920,9 +1920,9 @@ if addInstallActions:
     for item in Path("include/cantera").iterdir():
         if item.is_dir():
             if item.name != "clib":
-                install(env.RecursiveInstall, f"$inst_incdir/{item.name}", item)
+                install(env.RecursiveInstall, f"$inst_incdir/{item.name}", str(item))
         else:
-            install("$inst_incdir", item)
+            install("$inst_incdir", str(item))
 
     if env["clib_legacy"]:
         install(env.RecursiveInstall, f"$inst_incdir/clib", "include/cantera/clib")
