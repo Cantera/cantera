@@ -95,6 +95,7 @@ ax.plot(profile.grid * 100, profile("H2O").X, label="H$_2$O")
 ax.legend(loc="best")
 ax.set_xlabel("Distance [cm]")
 ax.set_ylabel("Mole fraction [-]")
+plt.show()
 
 # %%
 # Sensitivity Analysis
@@ -153,5 +154,6 @@ ax.invert_yaxis()  # put the largest sensitivity on top
 ax.set_title("Sensitivities for GRI 3.0")
 ax.set_xlabel(r"Sensitivity: $\frac{\partial\:\ln S_u}{\partial\:\ln k}$")
 ax.grid(axis='x')
+plt.show()
 
 #sphinx_gallery_thumbnail_number = -1

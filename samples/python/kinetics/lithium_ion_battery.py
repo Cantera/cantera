@@ -357,6 +357,7 @@ ax.plot(100 * X_Li_ca, E_cell_therm,
 ax.set(ylim=[2.5, 4.3], xlabel="Li Fraction in Cathode (%)",
        ylabel="Open Circuit Potential (V)")
 ax.legend()
+plt.show()
 
 # %%
 # As one would expect, the two approaches give identical results. While both methods are

@@ -437,6 +437,7 @@ for j in minor_idx:
 ax.legend(fontsize=12, loc="best")
 ax.set_xlabel("Distance (m)")
 ax.set_ylabel("Site Fraction")
+plt.show()
 
 #%%
 # References
