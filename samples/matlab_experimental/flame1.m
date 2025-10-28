@@ -1,6 +1,6 @@
 %% Burner-stabilized flat flame
 %
-% This script simulates a burner-stablized lean hydrogen-oxygen flame
+% This script simulates a burner-stabilized lean hydrogen-oxygen flame
 % at low pressure.
 %
 % .. tags:: Matlab, combustion, 1D flow, burner-stabilized flame, plotting

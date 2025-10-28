@@ -87,7 +87,7 @@ plt.semilogx(df.vf.values, df.P.values, label='Saturated liquid')
 plt.semilogx(df.vg.values, df.P.values, label='Saturated vapor')
 plt.semilogx(df.vg.values[-1], df.P.values[-1], 'o', label='Critical point')
 plt.xlabel(r'Specific volume - $v$ ($\mathrm{m^3/kg}$)')
-plt.ylabel(r'Presssure - $P$ (bar)')
+plt.ylabel(r'Pressure - $P$ (bar)')
 plt.legend();
 
 # %%
