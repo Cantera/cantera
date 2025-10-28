@@ -2,6 +2,8 @@
 %
 % This script simulates a stagnation-point ethane-air flame.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, 1D flow, strained flame, diffusion flame, plotting
 
 %% Initialization

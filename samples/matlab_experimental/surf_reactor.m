@@ -3,6 +3,8 @@
 % This example illustrates how to use class ``Reactor`` for zero-dimensional
 % simulations including both homogeneous and heterogeneous chemistry.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, catalysis, combustion, reactor network, plotting
 
 %% Initialization

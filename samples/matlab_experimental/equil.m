@@ -4,6 +4,8 @@ function equil(g)
     % This example computes the adiabatic flame temperature and equilibrium
     % composition for a methane/air mixture as a function of equivalence ratio.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, combustion, equilibrium, plotting
 
     tic

@@ -5,6 +5,8 @@ function ignite_uv(gas)
     % the local function ``REACTOR_ODE`` to implement the governing equations for
     % an adiabatic, constant-volume, zero-dimensional reactor.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, combustion, user-defined model, ignition delay, plotting
 
     tic

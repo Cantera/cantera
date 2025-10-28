@@ -10,7 +10,7 @@
 % growth rate and surface coverages as a function of [H] at the surface for
 % fixed temperature and [CH3].
 %
-% Requires: cantera >= 2.6.0, pandas >= 0.25.0, matplotlib >= 2.0
+% Requires: cantera >= 3.2.0
 %
 % .. tags:: Matlab, surface chemistry, kinetics
 

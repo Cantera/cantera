@@ -4,6 +4,8 @@ function prandtl2(g)
     % This example does the same thing as :doc:`prandtl1.m <prandtl1>`, but using the
     % multicomponent expression for the thermal conductivity.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, transport, equilibrium, multicomponent transport, plotting
 
     tic

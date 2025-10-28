@@ -6,6 +6,8 @@ function ignite(g)
     % class. The governing equations are implemented using the local function
     % ``REACTOR_ODE``.
     %
+    % Requires: cantera >= 3.2.0
+    %
     % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
     tic

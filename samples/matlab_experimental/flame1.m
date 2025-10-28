@@ -3,6 +3,8 @@
 % This script simulates a burner-stabilized lean hydrogen-oxygen flame
 % at low pressure.
 %
+% Requires: cantera >= 3.2.0
+%
 % .. tags:: Matlab, combustion, 1D flow, burner-stabilized flame, plotting
 
 %% Initialization
