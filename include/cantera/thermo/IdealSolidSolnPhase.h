@@ -101,8 +101,9 @@ public:
     double gibbs_mole() const override;
 
     /**
-     * Molar heat capacity at constant pressure of the solution.
-     * Units: J/kmol/K.
+     * Molar heat capacity of the solution at at constant pressure and composition
+     * [J/kmol/K].
+     *
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
      * @f[
@@ -116,7 +117,9 @@ public:
     double cp_mole() const override;
 
     /**
-     * Molar heat capacity at constant volume of the solution. Units: J/kmol/K.
+     * Molar heat capacity of the solution at constant volume and composition
+     * [J/kmol/K].
+     *
      * For an ideal, constant partial molar volume solution mixture with pure
      * species phases which exhibit zero volume expansivity:
      * @f[ \hat c_v(T,P) = \hat c_p(T,P) @f]

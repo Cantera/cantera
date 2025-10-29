@@ -92,11 +92,11 @@ classdef ThermoPhase < handle
 
         Q % Vapor fraction of the phase.
 
-        % Basis-dependent specific heat at constant volume.
+        % Basis-dependent specific heat at constant volume and composition.
         % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
         cv
 
-        % Basis-dependent specific heat at constant pressure.
+        % Basis-dependent specific heat at constant pressure and composition.
         % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
         cp
 
