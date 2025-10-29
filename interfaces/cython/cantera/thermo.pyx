@@ -1263,37 +1263,37 @@ cdef class ThermoPhase(_SolutionBase):
 
     property cv:
         """
-        Heat capacity at constant volume [J/kg/K or J/kmol/K] depending on
-        `basis`.
+        Heat capacity at constant volume and composition
+        [J/kg/K or J/kmol/K depending on `basis`].
         """
         def __get__(self):
             return self.thermo.cv_mole() * self._mole_factor()
 
     property cv_mole:
-        """Molar heat capacity at constant volume [J/kmol/K]."""
+        """Molar heat capacity at constant volume and composition [J/kmol/K]."""
         def __get__(self):
             return self.thermo.cv_mole()
 
     property cv_mass:
-        """Specific heat capacity at constant volume [J/kg/K]."""
+        """Specific heat capacity at constant volume and composition [J/kg/K]."""
         def __get__(self):
             return self.thermo.cv_mass()
 
     property cp:
         """
-        Heat capacity at constant pressure [J/kg/K or J/kmol/K] depending
-        on `basis`.
+        Heat capacity at constant pressure and composition.
+        [J/kg/K or J/kmol/K depending on `basis`]
         """
         def __get__(self):
             return self.thermo.cp_mole() * self._mole_factor()
 
     property cp_mole:
-        """Molar heat capacity at constant pressure [J/kmol/K]."""
+        """Molar heat capacity at constant pressure and composition [J/kmol/K]."""
         def __get__(self):
             return self.thermo.cp_mole()
 
     property cp_mass:
-        """Specific heat capacity at constant pressure [J/kg/K]."""
+        """Specific heat capacity at constant pressure and composition [J/kg/K]."""
         def __get__(self):
             return self.thermo.cp_mass()
 

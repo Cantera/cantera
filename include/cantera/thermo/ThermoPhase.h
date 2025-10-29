@@ -573,7 +573,7 @@ public:
         return mean_X(m_workS);
     }
 
-    //! Molar heat capacity at constant pressure. Units: J/kmol/K.
+    //! Molar heat capacity at constant pressure and composition [J/kmol/K].
     /*!
      * @f[
      * \hat{c}_p = \sum_k X_k \hat{c}_{p,k}
@@ -585,7 +585,7 @@ public:
         return mean_X(m_workS);
     }
 
-    //! Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume and composition [J/kmol/K].
     virtual double cv_mole() const {
         throw NotImplementedError("ThermoPhase::cv_mole",
                                   "Not implemented for phase type '{}'", type());
@@ -1111,12 +1111,12 @@ public:
         return gibbs_mole()/meanMolecularWeight();
     }
 
-    //! Specific heat at constant pressure. Units: J/kg/K.
+    //! Specific heat at constant pressure and composition [J/kg/K].
     double cp_mass() const {
         return cp_mole()/meanMolecularWeight();
     }
 
-    //! Specific heat at constant volume. Units: J/kg/K.
+    //! Specific heat at constant volume and composition [J/kg/K].
     double cv_mass() const {
         return cv_mole()/meanMolecularWeight();
     }
