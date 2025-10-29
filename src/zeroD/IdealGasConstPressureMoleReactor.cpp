@@ -90,7 +90,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     // add terms for outlets
     for (auto outlet : m_outlet) {
         for (size_t n = 0; n < m_nsp; n++) {
-            // flow of species into system and dilution by other species
+            // flow of species out of system
             dndt[n] -= outlet->outletSpeciesMassFlowRate(n) * imw[n];
         }
     }
