@@ -1,0 +1,72 @@
+.TH LXCAT2YAML 1 "2025" "Cantera" "User Commands"
+.SH NAME
+lxcat2yaml \- Convert LXCat integral cross-section data to YAML format
+.SH SYNOPSIS
+.B lxcat2yaml
+[\fB-h\fR]
+[\fB--input\fR \fIINPUT\fR]
+[\fB--database\fR \fIDATABASE\fR]
+[\fB--mech\fR \fIMECH\fR]
+[\fB--phase\fR \fIPHASE\fR]
+[\fB--insert\fR]
+[\fB--output\fR \fIOUTPUT\fR]
+.SH DESCRIPTION
+Convert the LXCat integral cross-section data in XML format (LXCATML) to YAML format.
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show this help message and exit.
+.TP
+.BI \-\-input " INPUT"
+LXCat electron-collision cross sections input file, containing a list of the
+electron-collision plasma reactions with the electron energy levels and
+corresponding cross sections. Must be specified.
+.TP
+.BI \-\-database " DATABASE"
+The name of the database. Optional. Use it when multiple databases exist in
+the input file.
+.TP
+.BI \-\-mech " MECH"
+Cantera yaml-format reaction mechanism file. The list of the species is used
+as the filter to determine which electron-collision reactions in the input
+file are parsed. In addition, the electron-collision reactions can be inserted
+automatically into the mechanism file with the argument \fB--insert\fR and
+become the output file.
+.TP
+.BI \-\-phase " PHASE"
+This specifies the name of the phase in the mechanism file. Optional.
+.TP
+.B \-\-insert
+Enable inserting the electron-collision reactions into the mechanism file.
+Need to use with the argument \fB--mech\fR to provide the mechanism file.
+Optional.
+.TP
+.BI \-\-output " OUTPUT"
+Specifies the OUTPUT file name. By default, the output file name is the input
+file name with the extension changed to \fB.yaml\fR.
+.SH EXAMPLES
+.PP
+Basic usage with database and mechanism insertion:
+.PP
+.nf
+.RS
+lxcat2yaml --input=mycs.xml --database=itikawa --mech=oxygen-plasma.yaml \\
+           --phase=isotropic-electron-energy-plasma --insert \\
+           --output=oxygen-itikawa-plasma.yaml
+.RE
+.fi
+.PP
+If the \fBlxcat2yaml\fR script is not on your path but the Cantera Python
+module is, \fBlxcat2yaml\fR can also be invoked by running:
+.PP
+.nf
+.RS
+python -m cantera.lxcat2yaml --input=mycs.xml
+.RE
+.fi
+.PP
+In both cases, the equal signs in the options are optional. In the second
+case, the xml file is converted to yaml without inserting the collision
+reactions into the mechanism file.
+.SH SEE ALSO
+Cantera documentation at https://cantera.org
