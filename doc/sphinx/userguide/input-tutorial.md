@@ -228,22 +228,34 @@ and `activation-energy`.
 ## Input Files Distributed with Cantera
 
 Several reaction mechanism files are included in the Cantera distribution, including
-ones that model natural gas combustion (`gri30.yaml`), high-temperature air
-(`air.yaml`), a hydrogen/oxygen reaction mechanism (`h2o2.yaml`), some pure fluids in
-the liquid-vapor region (`liquidvapor.yaml`), and a few surface reaction mechanisms
-(such as `ptcombust.yaml`, `diamond.yaml`, etc.), among others.
+ones that model natural gas combustion [`gri30.yaml`](../examples/input/gri30),
+high-temperature air (`air.yaml`), a hydrogen/oxygen reaction mechanism
+[`h2o2.yaml`](../examples/input/h2o2), some pure fluids in the liquid-vapor region
+(`liquidvapor.yaml`), and a few surface reaction mechanisms (such as `ptcombust.yaml`,
+[`diamond.yaml`](../examples/input/diamond), etc.), among others. A subset of these data
+files are shown in the [Examples](../examples/input/index) section to demonstrate the
+YAML format and some of the commonly-used models and options.
+
+Additional data used in various examples are included in the `example_data` subdirectory
+of the default Cantera data directory. These files can be imported using relative paths,
+for example (in Python):
+
+```py
+gas = ct.Solution("example_data/ammonia-CO-H2-Alzueta-2023.yaml")
+```
 
 ```{caution}
 The input files included with Cantera are provided for convenience, and may not be
 suited for research purposes.
 ```
 
-Under Windows, these files may be located in `C:\Program Files\Cantera\data` depending
-on how you installed Cantera and the options you specified. On a Unix/Linux/macOS
-machine, they are usually kept in the `data` subdirectory within the Cantera
-installation directory. You can also browse the [list of data
-files](https://github.com/Cantera/cantera/tree/main/data) in the Cantera source
-repository.
+On Windows, these files may be located in `C:\Program Files\Cantera\data` depending on
+how you installed Cantera and the options you specified. On a Unix/Linux/macOS machine,
+they are usually kept in the `data` subdirectory within the Cantera installation
+directory. You can also browse the list of data files included in the base
+[`data`](https://github.com/Cantera/cantera/tree/main/data) directory and the
+[`example_data`](https://github.com/Cantera/cantera-example-data/tree/main/)
+subdirectory in the respective source repositories.
 
 % TODO: add link to the Matlab tutorial
 Please see the tutorials for [Python](python-tutorial) and Matlab for
