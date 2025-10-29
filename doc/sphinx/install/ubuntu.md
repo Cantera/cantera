@@ -15,6 +15,9 @@ The available packages are:
 - `libcantera-dev` - Libraries and header files for compiling your own C, C++ and
   Fortran 90 programs that use Cantera.
 - `cantera-common` - Cantera data files and example programs
+  - Samples for all language interfaces are installed to `/usr/share/cantera/samples/`
+  - Data files are installed in `/usr/share/cantera/data/`. This location is
+    automatically added to the Cantera data path.
 - `libcantera3.1` - The Cantera C++ library, for use by packaged C++ applications.
 - `libcantera-fortran3.1` - The Cantera Fortran 90 library, for use by packaged
   Fortran 90 applications.
