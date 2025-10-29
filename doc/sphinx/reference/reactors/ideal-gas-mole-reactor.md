@@ -50,11 +50,27 @@ $$  U = \sum_k \hat{u}_k(T) n_k  $$
 
 and differentiate it with respect to time to obtain:
 
-$$  \frac{dU}{dt} = \frac{dT}{dt}\sum_k n_k \hat{c}_{v,k} + \sum \hat{u}_k \dot{n}_k  $$
+$$  \frac{dU}{dt} = \frac{dT}{dt}\sum_k n_k \hat{c}_{v,k}
+                    + \sum_k \hat{u}_k \frac{dn_k}{dt}
+$$
 
-Substituting this into the energy equation for the control volume mole reactor
-{eq}`molereactor-energy` yields an equation for the temperature:
+Substituting the total energy equation for the general control volume mole reactor
+{eq}`molereactor-energy` for $dU/dt$ yields an equation for the temperature:
 
 $$
-\sum_k n_k \hat{c}_{v,k} \frac{dT}{dt} = \dot{Q} - \sum \hat{u}_k \dot{n}_k
+\sum_k n_k \hat{c}_{v,k} \frac{dT}{dt} = -p \frac{dV}{dt} + \dot{Q}
+        + \sum_\t{in} \dot{n}_\t{in} \hat{h}_\t{in}
+        - \hat{h} \sum_\t{out} \dot{n}_\t{out}
+        - \sum_k \hat{u}_k \frac{dn_k}{dt}
+$$
+
+Substituting the species equation {eq}`ig-mole-reactor-species` for $dn_k/dt$ and making
+some conversions between mass and moles gives the final form of the energy equation:
+
+$$
+m c_v \frac{dT}{dt} = & -p \frac{dV}{dt} + \dot{Q}
+        - \sum_k \hat{u}_k \left(\dot{\omega}_k V + \dot{n}_{k, \t{wall}} \right) \\
+        & - \frac{pV}{m} \sum_\t{out} \dot{m}_\t{out}
+        + \sum_\t{in} \left(h_\t{in} \dot{m}_\t{in}
+                            - \sum_k \hat{u}_k \dot{n}_{k,\t{in}} \right)
 $$ (ig-mole-reactor-energy)
