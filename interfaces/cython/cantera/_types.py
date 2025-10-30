@@ -1,13 +1,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from types import EllipsisType
 from typing import (
     Any,
     Concatenate,
     Literal,
-    Mapping,
     TypeAlias,
     TypedDict,
     TypeGuard,

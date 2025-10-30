@@ -102,8 +102,8 @@ class _SolutionBase:
         overwrite: bool = False,
         quiet: bool = False,
     ) -> None: ...
-    def __getitem__(self,
-                    selection: slice | str | int | Iterable[str | int]
+    def __getitem__(
+        self, selection: slice | str | int | Iterable[str | int]
     ) -> Self: ...
     @property
     def selected_species(self) -> list[int]: ...
