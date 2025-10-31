@@ -1,7 +1,2 @@
-conuv.m
-conhp.m
-test_examples.m
-reactor_ode.m
 flame.m
-PFR_solver.m
 plotSolution.m
