@@ -26,8 +26,12 @@ dotnet run --project examples/SoundSpeed
 ```
 
 ```{note}
-For current information on the state of the .NET API, refer to GitHub issue
-[Cantera/enhancements#156](https://github.com/Cantera/enhancements/issues/156).
+For current information on the state of the .NET API, refer to
+GitHub issues and enhancement requests, specifically:
+
+- [**Open Pull Requests**](https://github.com/Cantera/cantera/pulls?q=is%3Apr+state%3Aopen+label%3A.net)
+- [**Open Issues**](https://github.com/Cantera/cantera/issues?q=is%3Aissue%20state%3Aopen%20label%3A.net)
+- [**Open Enhancements**](https://github.com/Cantera/enhancements/issues?q=is%3Aissue%20state%3Aopen%20label%3A.net)
 ```
 
 ```{toctree}
