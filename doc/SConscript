@@ -105,11 +105,20 @@ if localenv['sphinx_docs']:
     # Gather generated CLib sample files
     clib_files = Glob("#samples/clib/*.c")
     clib_files.append(File("#samples/clib/README.rst"))
-    for clib3_file in clib_files:
+    for clib_file in clib_files:
         env.Depends(sphinxdocs,
                     localenv.Command(
-                        f"#build/doc/samples/clib/{clib3_file.name}",
-                        clib3_file, Copy("$TARGET", "$SOURCE")))
+                        f"#build/doc/samples/clib/{clib_file.name}",
+                        clib_file, Copy("$TARGET", "$SOURCE")))
+
+    # Gather C# sample files
+    csharp_files = Glob("#interfaces/dotnet/examples/*/*.cs")
+    csharp_files.append(File("#interfaces/dotnet/examples/README.rst"))
+    for csharp_file in csharp_files:
+        env.Depends(sphinxdocs,
+                    localenv.Command(
+                        f"#build/doc/samples/dotnet/{csharp_file.name}",
+                        csharp_file, Copy("$TARGET", "$SOURCE")))
 
     # Generate documentation for SCons configuration options
     def save_config(target, source, env):
