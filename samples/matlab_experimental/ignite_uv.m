@@ -49,7 +49,7 @@ end
 
 
 function dydt = reactor_ode(t, y, gas, mw)
-    %% ODE system for a constant-volume, adiabatic reactor
+    % ODE system for a constant-volume, adiabatic reactor
     %
     % Function ``REACTOR_ODE`` evaluates the system of ordinary differential
     % equations for an adiabatic, constant-volume, zero-dimensional reactor.
