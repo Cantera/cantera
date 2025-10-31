@@ -1,9 +1,15 @@
 /*
-Cantera C# Examples
-Application example
+ * C# Application Example
+ * ======================
+ *
+ * Demonstrates how to retrieve and modify global properties of the Application class
+ * using Cantera's .NET API.
+ *
+ * .. tags:: .NET
+ */
 
-Demonstrates how to retrieve and modify global properties of the Application class.
-*/
+/// This file is part of Cantera. See License.txt in the top-level directory or
+/// at https://cantera.org/license.txt for license and copyright information.
 
 using Cantera;
 
