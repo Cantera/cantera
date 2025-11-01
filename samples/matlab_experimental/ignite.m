@@ -38,7 +38,7 @@ end
 
 
 function dydt = reactor_ode(t, y, gas, vdot, area, heatflux)
-    %% ODE system for a generic zero-dimensional reactor
+    % ODE system for a generic zero-dimensional reactor
     %
     % Function ``REACTOR_ODE`` evaluates the system of ordinary differential equations
     % for a zero-dimensional reactor with arbitrary heat transfer and volume change.
@@ -93,7 +93,7 @@ end
 
 
 function v = vdot(t, vol, gas)
-    %% Time-varying boundary conditions.
+    % Time-varying boundary conditions.
     %
     % The functions below may be defined arbitrarily to set the reactor
     % boundary conditions - the rate of change of volume, the heat
@@ -113,19 +113,18 @@ end
 
 
 function q = heatflux(t, gas)
-    %% heat flux (W/m^2).
+    % heat flux (W/m^2).
     q = 0.0; % adiabatic
 end
 
 
 function a = area(t, vol)
-    %% surface area (m^2). Used only to compute heat transfer.
+    % surface area (m^2). Used only to compute heat transfer.
     a = 1.0;
 end
 
 
 function pv = output(s, gas)
-    %%
     % Since the solution variables used by the ``reactor`` function are
     % not necessarily those desired for output, this function is called
     % after the integration is complete to generate the desired

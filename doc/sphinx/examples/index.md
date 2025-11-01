@@ -90,6 +90,11 @@ an introduction to the Cantera Python interface.
 :text-align: center
 ```
 
+```{grid-item-card} .NET
+:link: dotnet/index
+:link-type: doc
+:text-align: center
+```
 
 ````
 
@@ -118,6 +123,7 @@ clib/index
 clib_legacy/index
 matlab_experimental/index
 fortran/index
+dotnet/index
 input/index
 ```
 

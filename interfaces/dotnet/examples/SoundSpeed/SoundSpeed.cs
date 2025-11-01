@@ -1,9 +1,15 @@
 /*
-Cantera C# Examples
-Application example
+ * C# SoundSpeed Example
+ * =====================
+ *
+ * Computes the “equilibrium” and “frozen” sound speeds for a gas using Cantera's .NET
+ * API.
+ *
+ * .. tags:: .NET, equilibrium, thermodynamics
+ */
 
-Computes the “equilibrium” and “frozen” sound speeds for a gas.
-*/
+/// This file is part of Cantera. See License.txt in the top-level directory or
+/// at https://cantera.org/license.txt for license and copyright information.
 
 using Cantera;
 
