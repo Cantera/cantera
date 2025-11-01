@@ -1,23 +1,14 @@
 classdef CounterFlowDiffusionFlame < Sim1D
     % Create a counter flow diffusion flame stack. ::
     %
-    %     >> flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidizer)
+    %     >> flame = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
     %
     % :param left:
-    %     Object representing the left inlet, which must be
-    %     created using function :mat:class:`Inlet`.
+    %     :mat:class:`Inlet` object representing the left ('fuel') inlet boundary.
     % :param flow:
-    %     Object representing the flow, created with
-    %     function :mat:class:`AxisymmetricFlow`.
+    %     :mat:class:`AxisymmetricFlow` object representing the flow domain.
     % :param right:
-    %     Object representing the right inlet, which must be
-    %     created using function :mat:class:`Inlet`.
-    % :param tp_f:
-    %     Object representing the fuel inlet gas, instance of class
-    %     :mat:class:`Solution`, and an ideal gas.
-    % :param tp_o:
-    %     Object representing the oxidizer inlet gas, instance of class
-    %     :mat:class:`Solution`, and an ideal gas.
+    %     :mat:class:`Inlet` object representing the right ('oxidizer') inlet boundary.
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
     % :return:
@@ -26,26 +17,17 @@ classdef CounterFlowDiffusionFlame < Sim1D
 
     methods
 
-        function flame = CounterFlowDiffusionFlame(left, flow, right, ...
-                                                   tp_f, tp_o, oxidizer)
+        function flame = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
 
             arguments
                 left(1, 1) Inlet
                 flow(1, 1) Flow1D
                 right(1, 1) Inlet
-                tp_f(1, 1) Solution
-                tp_o(1, 1) Solution
-                oxidizer(1, :) char
+                oxidizer(1, :) char = 'O2'
             end
 
-            % Check input parameters
-            if ~tp_f.isIdealGas
-                error('Fuel gas object must represent an ideal gas mixture.');
-            end
-
-            if ~tp_o.isIdealGas
-                error('Oxidizer gas object must represent an ideal gas mixture.');
-            end
+            tp_f = left.phase;
+            tp_o = right.phase;
 
             %% Define elMoles function
 
