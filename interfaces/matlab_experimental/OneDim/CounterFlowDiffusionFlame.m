@@ -58,7 +58,7 @@ classdef CounterFlowDiffusionFlame < Sim1D
 
                 elMassFrac = tp.elementalMassFraction(element);
                 eli = tp.elementIndex(element);
-                M = tp.atomicMasses;
+                M = tp.atomicWeights;
                 Mel = M(eli);
                 moles = elMassFrac / Mel;
 

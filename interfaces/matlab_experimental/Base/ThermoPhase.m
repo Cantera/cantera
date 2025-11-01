@@ -48,7 +48,7 @@ classdef ThermoPhase < handle
 
     properties (SetAccess = immutable)
 
-        atomicMasses % Atomic masses of the elements. Unit: kg/kmol.
+        atomicWeights % Atomic weights of the elements. Unit: kg/kmol.
 
         charges % Species charges. Unit: elem. charge.
 
@@ -585,7 +585,7 @@ classdef ThermoPhase < handle
             n = tp.nSpecies;
             spec = tp.speciesNames;
             eli = tp.elementIndex(element);
-            M = tp.atomicMasses;
+            M = tp.atomicWeights;
             Mel = M(eli);
             MW = tp.molecularWeights;
             natoms = zeros(1, n);
@@ -829,7 +829,7 @@ classdef ThermoPhase < handle
 
         %% Single-property getter methods
 
-        function amu = get.atomicMasses(tp)
+        function amu = get.atomicWeights(tp)
             nel = tp.nElements;
             amu = ctArray('thermo_atomicWeights', nel, tp.tpID);
         end

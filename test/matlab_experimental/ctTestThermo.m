@@ -237,7 +237,7 @@ classdef ctTestThermo < ctTestCase
         end
 
         function testWeights(self)
-            aw = self.phase.atomicMasses;
+            aw = self.phase.atomicWeights;
             mw = self.phase.molecularWeights;
 
             self.verifyEqual(length(aw), self.phase.nElements);
