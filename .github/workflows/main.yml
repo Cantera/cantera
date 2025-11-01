@@ -74,7 +74,7 @@ jobs:
             addpath(genpath(ctToolboxDir));
             ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
       - name: Run tests
-        uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
+        uses: matlab-actions/run-tests@720bb7ae1d98878f668e76490134b57b36d81e12 # v2.2.0
         with:
           select-by-folder: ${{ github.workspace }}/test/matlab_experimental
 
@@ -175,7 +175,7 @@ jobs:
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
-      uses: actions/upload-artifact@v4.3.4
+      uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/libcantera_shared.so
@@ -187,7 +187,7 @@ jobs:
       if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
     - name: Upload Doxygen output
       # Only need one copy from CI run
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/doc/doxygen.tar.gz
         name: doxygen-tree
@@ -195,7 +195,7 @@ jobs:
         retention-days: 2
       if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
     - name: Save the wheel file to install Cantera
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/python/dist/cantera*.whl
         retention-days: 2
@@ -309,7 +309,7 @@ jobs:
       run: scons test-clib --debug=time
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
     - name: Upload shared library
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
       with:
         path: build/lib/libcantera_shared.dylib
@@ -411,25 +411,25 @@ jobs:
         --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
         --xml coverage.xml --html-details htmlcoverage.html --txt
     - name: Archive C++ coverage results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: cxx-coverage-report
         path: htmlcoverage*
         retention-days: 5
     - name: Archive Python coverage results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: python-coverage-report
         path: build/python-coverage*
         retention-days: 5
     - name: Archive .NET coverage results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: dotnet-coverage-report
         path: interfaces/dotnet/coveragereport*
         retention-days: 5
     - name: Archive MATLAB coverage results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: matlab-coverage-report
         path: test/matlab_experimental/matlabCoverage*
@@ -465,12 +465,12 @@ jobs:
           sudo apt update
           sudo apt install graphviz libhdf5-dev libfmt-dev libopenblas-openmp-dev
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: cantera-wheel-3.10-ubuntu-24.04
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: libcantera_shared-ubuntu-24.04.so
           path: build/lib
@@ -496,7 +496,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@9870ed167742d546b99962ff815fcc1098355ed8 # v5.4.17
+        uses: danielpalme/ReportGenerator-GitHub-Action@f3c6b3f8a29686284ef7a7cf6dccb79a01d98444 # v5.4.18
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -522,7 +522,7 @@ jobs:
             cantera >> type_check/stubtest_detailed.txt
       - name: Archive Python API type checking results
         if: failure() || success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-type-check-reports
           path: type_check/*
@@ -596,7 +596,7 @@ jobs:
           tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
       - name: Store a copy of docs output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: build/doc/docs.tar.gz
           name: docs
@@ -728,12 +728,12 @@ jobs:
           sudo apt update
           sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev libopenblas0-openmp
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: libcantera_shared-${{ matrix.os }}.so
           path: build/lib
@@ -780,7 +780,7 @@ jobs:
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:NasaPoly2:UserWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: results.txt
           retention-days: 2
@@ -944,7 +944,7 @@ jobs:
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
-      uses: actions/upload-artifact@v4.3.4
+      uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/cantera_shared.dll
@@ -1109,7 +1109,7 @@ jobs:
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time clib_legacy=y
     - name: Upload Wheel
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build\python\dist\cantera*.whl
         name: cantera-win_amd64.whl
@@ -1122,7 +1122,7 @@ jobs:
       run: python -m pytest -raP -v -n auto --durations=50 test/python
     - name: Upload Test binaries
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: |
           build/test/**/*.exe
@@ -1188,22 +1188,22 @@ jobs:
       with:
         dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
     - name: Download the Cantera shared library (.dylib)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: libcantera_shared.dylib
         path: build/lib
     - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: cantera_shared.dll
         path: build/lib
     - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: doxygen-tree
         path: build/doc
