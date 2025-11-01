@@ -117,3 +117,16 @@ plotSolution(f, 'velocity');
 title('Axial Velocity [m/s]');
 
 toc
+
+%%
+% Plotting Utility
+% ----------------
+
+function plotSolution(domain, component)
+    % Utility for plotting a specific solution component
+    z = domain.grid;
+    x = domain.values(component);
+    plot(z, x);
+    xlabel('z (m)');
+    ylabel(component);
+end
