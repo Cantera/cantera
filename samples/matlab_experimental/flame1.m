@@ -7,14 +7,16 @@
 %
 % .. tags:: Matlab, combustion, 1D flow, burner-stabilized flame, plotting
 
-%% Initialization
+%%
+% Initialization
 
 tic
 help flame1
 
 t0 = cputime; % record the starting time
 
-%% Set parameter values
+%%
+% Set parameter values
 
 p = 0.05 * OneAtm; % pressure
 tburner = 373.0; % burner temperature
@@ -30,7 +32,8 @@ logLevel = 1; % amount of diagnostic output (0 to 5)
 refineGrid = 1; % 1 to enable refinement, 0 to disable
 maxJacobianAge = [5, 10];
 
-%% Create the gas object
+%%
+% Create the gas object
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -40,13 +43,15 @@ gas = Solution(rxnmech, 'ohmech', 'mixture-averaged');
 % set its state to that of the unburned gas at the burner
 gas.TPX = {tburner, p, comp};
 
-%% Create the flow object
+%%
+% Create the flow object
 
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
 f.setupUniformGrid(nz, width, 0.0);
 
-%% Create the burner
+%%
+% Create the burner
 %
 %  The burner is an ``Inlet`` object. The temperature, mass flux,
 %  and composition (relative molar) may be specified.
@@ -56,7 +61,8 @@ burner.T = tburner;
 burner.massFlux = mdot;
 burner.X = comp;
 
-%% Create the outlet
+%%
+% Create the outlet
 %
 %  The type of flame is determined by the object that terminates
 %  the domain. An ``Outlet`` object imposes zero gradient boundary
@@ -65,7 +71,8 @@ burner.X = comp;
 
 s = Outlet(gas, 'out');
 
-%% Create the flame object
+%%
+% Create the flame object
 %
 % Once the component parts have been created, they can be assembled
 % to create the flame object (see :doc:`flame.m <flame>`).
@@ -79,7 +86,8 @@ fl.setMaxJacAge(maxJacobianAge(1), maxJacobianAge(2));
 %restore(fl,'h2flame2.yaml', 'energy')
 fl.solve(logLevel, refineGrid);
 
-%% Enable the energy equation
+%%
+% Enable the energy equation
 %
 %  The energy equation will now be solved to compute the
 %  temperature profile. We also tighten the grid refinement
@@ -89,14 +97,16 @@ f.energyEnabled = true;
 f.setRefineCriteria(3.0, 0.05, 0.1);
 fl.solve(logLevel, refineGrid);
 
-%% Show statistics
+%%
+% Show statistics
 
 fl.writeStats;
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
-%% Make plots
+%%
+% Make plots
 
 clf;
 subplot(2, 2, 1);

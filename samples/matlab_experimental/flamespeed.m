@@ -6,14 +6,16 @@
 %
 % .. tags:: Matlab, combustion, 1D flow, premixed flame, flame speed, saving output
 
-%% Initialization
+%%
+% Initialization
 
 tic
 help flamespeed
 
 t0 = cputime;  % record the starting time
 
-%% Set parameter values
+%%
+% Set parameter values
 
 phi = 1.;  % equivalence ratio
 Tin = 300.0;  % burner temperature (K)
@@ -26,7 +28,8 @@ nz = 6;  % initial number of grid points
 logLevel = 1;
 refineGrid = true;  % turn on grid refinement
 
-%% Create the gas object
+%%
+% Create the gas object
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -46,7 +49,8 @@ Yout = gas.Y;
 Tad = gas.T;
 disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
 
-%% Create domains required for a flame simulation
+%%
+% Create domains required for a flame simulation
 %
 
 % Create the flow domain
@@ -62,7 +66,8 @@ mdot = uIn * rhoIn;
 outlt = Outlet(gas);
 uOut = uIn * rhoIn / rhoOut;
 
-%% Create the stack and insert the domains
+%%
+% Create the stack and insert the domains
 %
 
 stack = Sim1D({inlt, flame, outlt});
@@ -94,7 +99,8 @@ flame.setRefineCriteria(ratio,slope,curve);
 fprintf("Profile used for initial guess:\n\n")
 flame.info
 
-%% Save the initial guess to a container file
+%%
+% Save the initial guess to a container file
 %
 
 if ctUsesHDF5()
@@ -105,7 +111,8 @@ else
 end
 stack.save(fileName, 'initial-guess', 'Initial guess', true);
 
-%% Solve freely propagating flame
+%%
+% Solve freely propagating flame
 %
 
 % Linearly interpolate to find location where this temperature would

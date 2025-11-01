@@ -25,19 +25,22 @@
 %
 % .. tags:: Matlab, surface chemistry, kinetics, electrochemistry, battery, plotting
 
-%% Initialization
+%%
+% Initialization
 
 tic
 help lithium_ion_battery
 
-%% Operation parameters
+%%
+% Operation parameters
 
 SOC = 0:0.02:1; % [-] Input state of charge (0...1) (can be a vector)
 I_app = -1; % [A] Externally-applied current, negative for discharge
 T = 293; % [K] Temperature
 P = OneAtm; % [Pa] Pressure
 
-%% Cell properties
+%%
+% Cell properties
 
 inputFile = 'lithium_ion_battery.yaml'; % Cantera input file name
 R_elyt = 0.0384; % [Ohm] Electrolyte resistance
@@ -53,7 +56,8 @@ X_Li_an_1 = 0.75; % [-] anode Li mole fraction at SOC = 100 %
 X_Li_ca_0 = 0.99; % [-] cathode Li mole fraction at SOC = 0 %
 X_Li_ca_1 = 0.49; % [-] cathode Li mole fraction at SOC = 100 %
 
-%% Calculations
+%%
+% Calculations
 
 % Calculate mole fractions from SOC
 X_Li_an = (X_Li_an_1 - X_Li_an_0) * SOC + X_Li_an_0; % anode balancing
@@ -110,7 +114,8 @@ set(gca, 'fontsize', 14)
 
 toc
 
-%% Helper functions
+%%
+% Helper functions
 
 % This function returns the Cantera calculated anode current (in A)
 function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, ...

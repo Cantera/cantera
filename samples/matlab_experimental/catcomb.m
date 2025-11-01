@@ -14,13 +14,15 @@
 %
 % .. tags:: Matlab, combustion, catalysis, 1D flow, surface chemistry
 
-%% Initialization
+%%
+% Initialization
 
 help catcomb;
 
 t0 = cputime; % record the starting time
 
-%% Set parameter values
+%%
+% Set parameter values
 
 p = OneAtm; % pressure
 tinlet = 300.0; % inlet temperature
@@ -49,7 +51,8 @@ loglevel = 1; % amount of diagnostic output (0 to 5)
 
 refine_grid = 1; % 1 to enable refinement, 0 to disable
 
-%% Create the gas object
+%%
+% Create the gas object
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -61,7 +64,8 @@ refine_grid = 1; % 1 to enable refinement, 0 to disable
 gas = Solution('ptcombust.yaml', 'gas', transport);
 gas.TPX = {tinlet, p, comp1};
 
-%% Create the interface object
+%%
+% Create the interface object
 %
 % This object will be used to evaluate all surface chemical production
 % rates. It will be created from the interface definition ``Pt_surf``
@@ -87,7 +91,8 @@ surf_phase.advanceCoverages(1.0);
 % for 1-D simulations. These will be 'stacked' together to create
 % the complete simulation.
 
-%% Create the inlet
+%%
+% Create the inlet
 %
 % The temperature, mass flux, and composition (relative molar) may be
 % specified. This object provides the inlet boundary conditions for
@@ -100,7 +105,8 @@ inlt.T = tinlet;
 inlt.X = comp1;
 inlt.massFlux = mdot;
 
-%% Create the flow object
+%%
+% Create the flow object
 %
 % The flow object is responsible for evaluating the 1D governing
 % equations for the flow. We will initialize it with the gas
@@ -114,7 +120,8 @@ flow.grid = initial_grid;
 flow.setSteadyTolerances(tol_ss{:});
 flow.setTransientTolerances(tol_ts{:});
 
-%% Create the surface
+%%
+% Create the surface
 %
 % This object provides the surface boundary conditions for the flow
 % equations. By supplying object ``surface_phase`` as an argument, the
@@ -125,7 +132,8 @@ flow.setTransientTolerances(tol_ts{:});
 surf = ReactingSurface(surf_phase, 'surface');
 surf.T = tsurf;
 
-%% Create the stack
+%%
+% Create the stack
 %
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
@@ -149,7 +157,8 @@ flow.info()
 stack.setTimeStep(1.0e-5, [1, 3, 6, 12]);
 stack.setMaxJacAge(4, 5);
 
-%% Solution
+%%
+% Solution
 % Start with the energy equation on
 flow.energyEnabled = true;
 
@@ -161,7 +170,8 @@ surf.coverageEnabled = false;
 surf_phase.setMultiplier(0.0);
 gas.setMultiplier(0.0);
 
-%% Solve the problem, refining the grid if needed
+%%
+% Solve the problem, refining the grid if needed
 stack.solve(1, refine_grid);
 
 %%
@@ -182,23 +192,27 @@ end
 % problem. Now switch the inlet to the methane/air composition.
 inlt.X = comp2;
 
-%% Set more stringent grid refinement criteria
+%%
+% Set more stringent grid refinement criteria
 flow.setRefineCriteria(100.0, 0.15, 0.2);
 
-%% Solve the problem for the final time
+%%
+% Solve the problem for the final time
 stack.solve(loglevel, refine_grid);
 
 %%
 % Display results and show statistics
 
-%% Show statistics
+%%
+% Show statistics
 
 stack.writeStats;
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
-%% Display solution
+%%
+% Display solution
 
 fprintf("\nFlow domain profile after final solution step:\n\n")
 flow.info()
@@ -209,7 +223,8 @@ surf.info()
 fprintf("Surface phase coverages after final solution step:\n\n")
 disp(surf_phase.coverages())
 
-%% Make plots
+%%
+% Make plots
 
 clf;
 
