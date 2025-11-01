@@ -138,17 +138,17 @@ toc
 
 figure(1);
 subplot(2, 3, 1);
-plotSolution(f, 'T', 'Temperature [K]');
+plotSolution(flow, 'T', 'Temperature [K]');
 subplot(2, 3, 2);
-plotSolution(f, 'velocity', 'Axial Velocity [m/s]');
+plotSolution(flow, 'velocity', 'Axial Velocity [m/s]');
 subplot(2, 3, 3);
-plotSolution(f, 'O2', 'O2 Mass Fraction');
+plotSolution(flow, 'O2', 'O2 Mass Fraction');
 subplot(2, 3, 4);
-plotSolution(f, 'H2O', 'H2O Mass Fraction');
+plotSolution(flow, 'H2O', 'H2O Mass Fraction');
 subplot(2, 3, 5);
-plotSolution(f, 'C2H6', 'C2H6 Mass Fraction');
+plotSolution(flow, 'C2H6', 'C2H6 Mass Fraction');
 subplot(2, 3, 6);
-plotSolution(f, 'CO2', 'CO2 Mass Fraction');
+plotSolution(flow, 'CO2', 'CO2 Mass Fraction');
 
 %%
 % Plotting Utility
@@ -161,5 +161,5 @@ function plotSolution(domain, component, titleStr)
     plot(z, x);
     xlabel('z (m)');
     ylabel(component);
-    title(titleStr)
+    title(titleStr);
 end

@@ -1,21 +1,23 @@
 %% Freely-propagating flame
 %
-% MATLAB demo program to compute flame speeds using GRI-Mech.
+% MATLAB demo program to compute flame speeds using GRI-Mech. This example is equivalent
+% to the C++ :doc:`flamespeed.cpp <../cxx/flamespeed>` example.
 %
 % Requires: cantera >= 3.2.0
 %
 % .. tags:: Matlab, combustion, 1D flow, premixed flame, flame speed, saving output
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
 tic
 help flamespeed
 
-t0 = cputime;  % record the starting time
+runtime = cputime;  % record the starting time
 
 %%
-% Set parameter values
+% **Set parameter values**
 
 phi = 1.;  % equivalence ratio
 Tin = 300.0;  % burner temperature (K)
@@ -29,7 +31,7 @@ logLevel = 1;
 refineGrid = true;  % turn on grid refinement
 
 %%
-% Create the gas object
+% **Create the gas object**
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -50,8 +52,7 @@ Tad = gas.T;
 disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
 
 %%
-% Create domains required for a flame simulation
-%
+% **Create domains required for a flame simulation**
 
 % Create the flow domain
 flame = FreeFlow(gas);
@@ -67,8 +68,7 @@ outlt = Outlet(gas);
 uOut = uIn * rhoIn / rhoOut;
 
 %%
-% Create the stack and insert the domains
-%
+% **Create the stack and insert the domains**
 
 stack = Sim1D({inlt, flame, outlt});
 
@@ -96,12 +96,11 @@ curve = 0.1;
 
 flame.setRefineCriteria(ratio,slope,curve);
 
+%%
+% Display the initial guess and save to a container file
+
 fprintf("Profile used for initial guess:\n\n")
 flame.info
-
-%%
-% Save the initial guess to a container file
-%
 
 if ctUsesHDF5()
     % Cantera is compiled with native HDF5 support
@@ -112,19 +111,27 @@ end
 stack.save(fileName, 'initial-guess', 'Initial guess', true);
 
 %%
-% Solve freely propagating flame
+% Solution
+% --------
 %
+% Solve freely propagating flame
 
 % Linearly interpolate to find location where this temperature would
 % exist. The temperature at this location will then be fixed for
 % remainder of calculation.
 stack.setFixedTemperature(0.5 * (Tin + Tad));
 
+%%
+% **Mixture-averaged Diffusion**
+
 flame.energyEnabled = true;
 stack.solve(logLevel, refineGrid);
 uVec = flame.values('velocity');
 disp(sprintf("Flame speed with mixture-averaged transport: %1.4f m/s\n", uVec(1)));
 stack.save(fileName, "mix", "Solution with mixture-averaged transport", true);
+
+%%
+% **Multicomponent Diffusion**
 
 % now switch to multicomponent transport
 flame.transportModel = 'multicomponent';
@@ -133,6 +140,9 @@ uVec = flame.values('velocity');
 disp(sprintf("Flame speed with multicomponent transport: %1.4f m/s\n", uVec(1)));
 stack.save(fileName, "multi", "Solution with multicomponent transport", true);
 
+%%
+% **Multicomponent Diffusion with Soret Effect**
+
 % now enable Soret diffusion
 flame.soretEnabled = true;
 stack.solve(logLevel, refineGrid);
@@ -140,5 +150,14 @@ uVec = flame.values('velocity');
 disp(sprintf("Flame speed with multicomponent transport + Soret: %1.4f m/s\n", uVec(1)));
 stack.save(fileName, "soret", "Solution with multicomponent transport and Soret", true);
 
+%%
+% **Display solution profile**
 fprintf("Profile after final solution step:\n\n")
 flame.info
+
+%%
+% Show elapsed time
+elapsed = cputime - runtime;
+e = sprintf('Elapsed CPU time: %10.4g', elapsed);
+disp(e);
+toc
