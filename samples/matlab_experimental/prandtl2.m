@@ -54,7 +54,8 @@ function prandtl2(g)
 
     disp(['CPU time = ' num2str(cputime - t0)]);
 
-    %% plot results
+    %%
+    % Plot results
 
     clf;
     subplot(2, 2, 1);

@@ -18,13 +18,16 @@ function reactor2(g)
         gas = Solution('gri30.yaml', 'gri30', 'none');
     end
 
-    %% set the initial conditions
+    %%
+    % Set the initial conditions
     gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
 
-    %% create a reactor, and insert the gas
+    %%
+    % Create a reactor, and insert the gas
     r = IdealGasReactor(gas);
 
-    %% create a reactor network and insert the reactor
+    %%
+    % Create a reactor network and insert the reactor
     network = ReactorNet({r});
 
     nSteps = 100;
@@ -45,6 +48,8 @@ function reactor2(g)
 
     disp(['CPU time = ' num2str(cputime - t0)]);
 
+    %%
+    % Plot results
     clf;
     subplot(2, 2, 1);
     plot(tim, temp);

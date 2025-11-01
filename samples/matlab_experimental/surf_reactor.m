@@ -8,7 +8,8 @@
 % .. tags:: Matlab, catalysis, combustion, reactor network, plotting
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
 tic
 help surf_reactor
@@ -31,12 +32,12 @@ nsp = gas.nSpecies;
 nSurfSp = surf.nSpecies;
 
 %%
-% create a reactor, and insert the gas
+% Create a reactor, and insert the gas
 r = IdealGasReactor(gas, 'reactor');
 r.V = 1.0e-6;
 
 %%
-% create a reservoir to represent the environment
+% Create a reservoir to represent the environment
 a = Solution('air.yaml', 'air', 'none');
 a.TP = {t, OneAtm};
 env = Reservoir(a);
@@ -56,15 +57,19 @@ rsurf.area = A;
 rphase = rsurf.phase  % output needs to use phase owned by reactor
 
 %%
-% set the wall area and heat transfer coefficient.
+% Set the wall area and heat transfer coefficient.
 w.area = A;
 w.heatTransferCoeff = 1.0e1; % W/m2/K
 
 %%
-% set expansion rate parameter. dV/dt = KA(P_1 - P_2)
+% Set expansion rate parameter. dV/dt = KA(P_1 - P_2)
 w.expansionRateCoeff = 1.0;
 
 network = ReactorNet({r});
+
+%%
+% Solution
+% --------
 
 nSteps = 100;
 p0 = r.P;
@@ -91,7 +96,7 @@ end
 disp(['CPU time = ' num2str(cputime - t0)]);
 
 %%
-% Plotting
+% Plot results
 
 clf;
 subplot(2, 2, 1);

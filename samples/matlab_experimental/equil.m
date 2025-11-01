@@ -19,7 +19,8 @@ function equil(g)
 
     nsp = gas.nSpecies;
 
-    %% find methane, nitrogen, and oxygen indices
+    %%
+    % Find methane, nitrogen, and oxygen indices
     ich4 = gas.speciesIndex('CH4');
     io2 = gas.speciesIndex('O2');
     in2 = gas.speciesIndex('N2');
@@ -40,7 +41,8 @@ function equil(g)
         xeq(:, i) = gas.X;
     end
 
-    %% make plots
+    %%
+    % Plot results
     clf;
     subplot(1, 2, 1);
     plot(phi, tad);

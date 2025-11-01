@@ -47,6 +47,9 @@ function ignite_uv(gas)
     toc
 end
 
+%%
+% Local Functions
+% ---------------
 
 function dydt = reactor_ode(t, y, gas, mw)
     % ODE system for a constant-volume, adiabatic reactor

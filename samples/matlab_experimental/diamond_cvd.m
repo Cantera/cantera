@@ -4,7 +4,7 @@
 % simplified version of a particular published growth mechanism (see file
 % ``diamond.yaml`` for details). Only the surface coverage equations are solved
 % here; the gas composition is fixed. (For an example of coupled gas-phase
-% and surface, see :doc:`catcomb.m <catcomb>`).
+% and surface, see :doc:`catalytic_combustion.m <catalytic_combustion>`).
 %
 % Atomic hydrogen plays an important role in diamond CVD, and this example computes the
 % growth rate and surface coverages as a function of [H] at the surface for
@@ -15,19 +15,20 @@
 % .. tags:: Matlab, surface chemistry, kinetics
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
 help diamond_cvd
 t0 = cputime; % record the starting time
 
 %%
-% Operation Parameters
+% **Set parameter values**
 
 t = 1200.0; % surface temperature
 p = 20.0 * OneAtm / 760.0; % pressure
 
 %%
-% Create the gas object
+% **Create the gas object**
 %
 % The gas phase will be taken from the definition of phase 'gas' in
 % input file 'diamond.yaml'.
@@ -39,7 +40,7 @@ ih = gas.speciesIndex('H');
 xh0 = x(ih);
 
 %%
-% Create the bulk diamond object
+% **Create the bulk diamond object**
 %
 % The bulk phase will be taken from the definition of phase 'diamond' in
 % input file 'diamond.yaml'.
@@ -48,7 +49,7 @@ dbulk = Solution('diamond.yaml', 'diamond');
 mw = dbulk.molecularWeights;
 
 %%
-% Create the interface object
+% **Create the interface object**
 %
 % This object will be used to evaluate all surface chemical production
 % rates. It will be created from the interface definition 'diamond_100'
@@ -57,6 +58,9 @@ mw = dbulk.molecularWeights;
 surf_phase = Interface('diamond.yaml', 'diamond_100', gas, dbulk);
 
 %%
+% Solution
+% --------
+%
 % Advance Coverages
 
 iC = surf_phase.kineticsSpeciesIndex('C(d)');
@@ -79,7 +83,7 @@ for i = 1:20
 end
 
 %%
-% Make Plots
+% **Plot Results**
 
 clf;
 

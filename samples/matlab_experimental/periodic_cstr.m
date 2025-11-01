@@ -29,7 +29,8 @@ function periodic_cstr
     tic
     help periodic_cstr
 
-    %% create the gas mixture
+    %%
+    % Create the gas mixture
     gas = Solution('h2o2.yaml', 'ohmech');
 
     % pressure = 60 Torr, T = 770 K
@@ -76,17 +77,19 @@ function periodic_cstr
     mfc = MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
     %%
-    % now create a downstream reservoir to exhaust into.
+    % Now create a downstream reservoir to exhaust into.
     downstream = Reservoir(gas);
     %%
-    % connect the reactor to the downstream reservoir with a valve, and
+    % Connect the reactor to the downstream reservoir with a valve, and
     % set the coefficient sufficiently large to keep the reactor pressure
     % close to the downstream pressure of 60 Torr.
     v = Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
-    %% create the network
+    %%
+    % Create the network
     network = ReactorNet({cstr});
-    %% now integrate in time
+    %%
+    % Now integrate in time
     tme = 0.0;
     dt = 0.1;
 
@@ -107,7 +110,8 @@ function periodic_cstr
             disp(tm(i))
         end
     end
-    %% plot
+    %%
+    % Plot results
     clf
     figure(1)
     plot(tm, y)

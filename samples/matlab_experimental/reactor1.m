@@ -19,7 +19,8 @@ function reactor1(g)
     end
 
     P = 101325.0;
-    %% set the initial conditions
+    %%
+    % Set the initial conditions
     gas.TP = {1001.0, P};
     nsp = gas.nSpecies;
     xx = zeros(nsp, 1);
@@ -28,10 +29,12 @@ function reactor1(g)
     xx(48) = 0.573;
     gas.X = xx;
 
-    %% create a reactor, and insert the gas
+    %%
+    % Create a reactor, and insert the gas
     r = IdealGasReactor(gas);
 
-    %% create a reservoir to represent the environment
+    %%
+    % Create a reservoir to represent the environment
     a = Solution('air.yaml', 'air', 'none');
     a.TP = {a.T, P};
     env = Reservoir(a);
@@ -42,13 +45,16 @@ function reactor1(g)
     % at the environment pressure.
     w = Wall(r, env);
 
-    %% Set expansion parameter. dV/dt = KA(P_1 - P_2)
+    %%
+    % Set expansion parameter. dV/dt = KA(P_1 - P_2)
     w.expansionRateCoeff = 1.0e6;
 
-    %% Set wall area
+    %%
+    % Set wall area
     w.area = 1.0;
 
-    %% create a reactor network and insert the reactor:
+    %%
+    % Create a reactor network and insert the reactor:
     network = ReactorNet({r});
 
     nSteps = 100;
@@ -69,6 +75,8 @@ function reactor1(g)
 
     disp(['CPU time = ' num2str(cputime - t0)]);
 
+    %%
+    % Plot results
     clf;
     subplot(2, 2, 1);
     plot(tim, temp);
