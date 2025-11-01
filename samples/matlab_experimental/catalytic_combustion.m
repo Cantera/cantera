@@ -1,11 +1,12 @@
 %% Catalytic combustion of a stagnation flow on a platinum surface
 %
-% This script solves a catalytic combustion problem. A stagnation flow
-% is set up, with a gas inlet 10 cm from a platinum surface at 900
-% K. The lean, premixed methane/air mixture enters at ~ 6 cm/s (0.06
-% kg/m2/s), and burns catalytically on the platinum surface. Gas-phase
-% chemistry is included too, and has some effect very near the
-% surface.
+% This script solves a catalytic combustion problem. This example is equivalent to the
+% Python :doc:`catalytic_combustion.py <../python/onedim/catalytic_combustion>` example.
+%
+% A stagnation flow is set up, with a gas inlet 10 cm from a platinum surface at 900 K.
+% The lean, premixed methane/air mixture enters at ~ 6 cm/s (0.06 kg/m2/s), and burns
+% catalytically on the platinum surface. Gas-phase chemistry is included too, and has
+% some effect very near the surface.
 %
 % The catalytic combustion mechanism is from Deutschmann et al., 26th
 % Symp. (Intl.) on Combustion,1996 pp. 1747-1754
@@ -15,20 +16,21 @@
 % .. tags:: Matlab, combustion, catalysis, 1D flow, surface chemistry
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
-help catcomb;
+help catalytic_combustion;
 
-t0 = cputime; % record the starting time
+t0 = cputime;  % record the starting time
 
 %%
-% Set parameter values
+% **Set parameter values**
 
-p = OneAtm; % pressure
-tinlet = 300.0; % inlet temperature
-tsurf = 900.0; % surface temperature
-mdot = 0.06; % kg/m^2/s
-transport = 'mixture-averaged'; % transport model
+p = OneAtm;  % pressure
+tinlet = 300.0;  % inlet temperature
+tsurf = 900.0;  % surface temperature
+mdot = 0.06;  % kg/m^2/s
+transport = 'mixture-averaged';  % transport model
 
 %%
 % Solve first for a hydrogen/air case for use as the initial estimate for
@@ -41,18 +43,18 @@ comp1 = 'H2:0.05, O2:0.21, N2:0.78, AR:0.01';
 comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01';
 
 % the initial grid, in meters. The inlet/surface separation is 10 cm.
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1]; % m
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1];  % m
 
 % numerical parameters
-tol_ss = {1.0e-8 1.0e-14}; % {rtol atol} for steady-state problem
-tol_ts = {1.0e-4 1.0e-9}; % {rtol atol} for time stepping
+tol_ss = {1.0e-8 1.0e-14};  % {rtol atol} for steady-state problem
+tol_ts = {1.0e-4 1.0e-9};  % {rtol atol} for time stepping
 
-loglevel = 1; % amount of diagnostic output (0 to 5)
+loglevel = 1;  % amount of diagnostic output (0 to 5)
 
-refine_grid = 1; % 1 to enable refinement, 0 to disable
+refine_grid = 1;  % 1 to enable refinement, 0 to disable
 
 %%
-% Create the gas object
+% **Create the gas object**
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -65,7 +67,7 @@ gas = Solution('ptcombust.yaml', 'gas', transport);
 gas.TPX = {tinlet, p, comp1};
 
 %%
-% Create the interface object
+% **Create the interface object**
 %
 % This object will be used to evaluate all surface chemical production
 % rates. It will be created from the interface definition ``Pt_surf``
@@ -92,7 +94,7 @@ surf_phase.advanceCoverages(1.0);
 % the complete simulation.
 
 %%
-% Create the inlet
+% **Create the inlet**
 %
 % The temperature, mass flux, and composition (relative molar) may be
 % specified. This object provides the inlet boundary conditions for
@@ -106,7 +108,7 @@ inlt.X = comp1;
 inlt.massFlux = mdot;
 
 %%
-% Create the flow object
+% **Create the flow object**
 %
 % The flow object is responsible for evaluating the 1D governing
 % equations for the flow. We will initialize it with the gas
@@ -121,7 +123,7 @@ flow.setSteadyTolerances(tol_ss{:});
 flow.setTransientTolerances(tol_ts{:});
 
 %%
-% Create the surface
+% **Create the surface**
 %
 % This object provides the surface boundary conditions for the flow
 % equations. By supplying object ``surface_phase`` as an argument, the
@@ -133,7 +135,7 @@ surf = ReactingSurface(surf_phase, 'surface');
 surf.T = tsurf;
 
 %%
-% Create the stack
+% **Create the stack**
 %
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
@@ -159,6 +161,8 @@ stack.setMaxJacAge(4, 5);
 
 %%
 % Solution
+% --------
+%
 % Start with the energy equation on
 flow.energyEnabled = true;
 
@@ -201,9 +205,8 @@ flow.setRefineCriteria(100.0, 0.15, 0.2);
 stack.solve(loglevel, refine_grid);
 
 %%
-% Display results and show statistics
-
-%%
+% **Show statistics and display results**
+%
 % Show statistics
 
 stack.writeStats;
@@ -229,50 +232,42 @@ disp(surf_phase.coverages())
 clf;
 
 subplot(3, 3, 1);
-plotSolution(flow, 'T');
-title('Temperature [K]');
+plotSolution(flow, 'T', 'Temperature [K]');
 
 subplot(3, 3, 2);
-plotSolution(flow, 'velocity');
-title('Axial Velocity [m/s]');
+plotSolution(flow, 'velocity', 'Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-plotSolution(flow, 'spreadRate');
-title('Radial Velocity / Radius [1/s]');
+plotSolution(flow, 'spreadRate', 'Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);
-plotSolution(flow, 'CH4');
-title('CH4 Mass Fraction');
+plotSolution(flow, 'CH4', 'CH4 Mass Fraction');
 
 subplot(3, 3, 5);
-plotSolution(flow, 'O2');
-title('O2 Mass Fraction');
+plotSolution(flow, 'O2', 'O2 Mass Fraction');
 
 subplot(3, 3, 6);
-plotSolution(flow, 'CO');
-title('CO Mass Fraction');
+plotSolution(flow, 'CO', 'CO Mass Fraction');
 
 subplot(3, 3, 7);
-plotSolution(flow, 'CO2');
-title('CO2 Mass Fraction');
+plotSolution(flow, 'CO2', 'CO2 Mass Fraction');
 
 subplot(3, 3, 8);
-plotSolution(flow, 'H2O');
-title('H2O Mass Fraction');
+plotSolution(flow, 'H2O', 'H2O Mass Fraction');
 
 subplot(3, 3, 9);
-plotSolution(flow, 'H2');
-title('H2 Mass Fraction');
+plotSolution(flow, 'H2', 'H2 Mass Fraction');
 
 %%
 % Plotting Utility
 % ----------------
 
-function plotSolution(domain, component)
+function plotSolution(domain, component, titleStr)
     % Utility for plotting a specific solution component
     z = domain.grid;
     x = domain.values(component);
     plot(z, x);
     xlabel('z (m)');
     ylabel(component);
+    title(titleStr)
 end
