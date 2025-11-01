@@ -36,6 +36,9 @@ function ignite(g)
     toc
 end
 
+%%
+% Local Functions
+% ---------------
 
 function dydt = reactor_ode(t, y, gas, vdot, area, heatflux)
     % ODE system for a generic zero-dimensional reactor

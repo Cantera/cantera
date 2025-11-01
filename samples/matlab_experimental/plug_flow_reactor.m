@@ -26,13 +26,14 @@
 % .. tags:: Matlab, combustion, user-defined model, compressible flow, plotting
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
 tic
 help plug_flow_reactor
 
 %%
-% Operation Parameters
+% **Set parameter values**
 
 % Temperature of gas, in K
 T0 = 1473;
@@ -151,7 +152,7 @@ for i = 1:length(x_calc)
 end
 
 %%
-% Plotting
+% Plot results
 plot(x_calc, M_calc)
 xlabel('X-Position (m)')
 ylabel('Mach No')
@@ -179,16 +180,19 @@ title('Pressure Variation')
 
 toc
 
+%%
+% Plug flow reactor governing equations
+% -------------------------------------
+%
+% This function defines the spatial derivatives for an ideal gas plug-flow
+% reactor, where the cross-sectional area and pressure are allowed to vary
+% axially.
+%
+% The integrator integrates the derivatives spatially, to solve the density,
+% temperature, and species mass fraction profiles as a function of distance x.
 
 function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp)
-    %% Plug flow reactor governing equations
-    %
-    % This function defines the spatial derivatives for an ideal gas plug-flow
-    % reactor, where the cross-sectional area and pressure are allowed to vary
-    % axially.
-    %
-    % The integrator integrates the derivatives spatially, to solve the density,
-    % temperature, and species mass fraction profiles as a function of distance x.
+    % Plug flow reactor governing equations
 
     rho = soln_vector(1);
     T = soln_vector(2);

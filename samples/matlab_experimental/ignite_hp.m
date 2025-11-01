@@ -48,6 +48,9 @@ function ignite_hp(gas)
     toc
 end
 
+%%
+% Local Functions
+% ---------------
 
 function dydt = reactor_ode(t, y, gas, mw, nsp)
     % ODE system for a constant-pressure, adiabatic reactor

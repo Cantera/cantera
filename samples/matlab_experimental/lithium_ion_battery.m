@@ -26,12 +26,15 @@
 % .. tags:: Matlab, surface chemistry, kinetics, electrochemistry, battery, plotting
 
 %%
-% Initialization
+% Problem Definition
+% ------------------
 
 tic
 help lithium_ion_battery
 
 %%
+% **Set parameter values**
+%
 % Operation parameters
 
 SOC = 0:0.02:1; % [-] Input state of charge (0...1) (can be a vector)
@@ -58,6 +61,7 @@ X_Li_ca_1 = 0.49; % [-] cathode Li mole fraction at SOC = 100 %
 
 %%
 % Calculations
+% ------------
 
 % Calculate mole fractions from SOC
 X_Li_an = (X_Li_an_1 - X_Li_an_0) * SOC + X_Li_an_0; % anode balancing
@@ -104,6 +108,9 @@ for i = 1:length(SOC)
     V_cell(i) = phi_s_ca - phi_s_an;
 end
 
+%%
+% **Plot Results**
+%
 % Let's plot the cell voltage, as a function of the state of charge:
 figure(1);
 plot(SOC * 100, V_cell, 'linewidth', 2.5)
@@ -115,7 +122,8 @@ set(gca, 'fontsize', 14)
 toc
 
 %%
-% Helper functions
+% Local Helper Functions
+% ----------------------
 
 % This function returns the Cantera calculated anode current (in A)
 function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, ...
