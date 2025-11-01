@@ -24,8 +24,8 @@ classdef (Abstract) Flow1D < Domain1D
         % effect is enabled.
         soretEnabled logical
 
-        % ID of the solution object used for calculating transport properties.
-        transportModel
+        % Transport model used for calculating transport properties.
+        transportModel string
 
         grid  % Grid points from a domain.
     end

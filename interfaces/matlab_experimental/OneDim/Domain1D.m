@@ -24,6 +24,8 @@ classdef (Abstract) Domain1D < handle
 
         domainID % ID of the domain
 
+        % The Solution object used to represent the contents of this domain.
+        phase
     end
 
     properties (SetAccess = protected)
@@ -77,6 +79,8 @@ classdef (Abstract) Domain1D < handle
         function d = Domain1D(domainID)
             % Create a :mat:class:`Domain1D` object.
             d.domainID = domainID;
+            phaseID = ctFunc('domain_phase', domainID);
+            d.phase= Solution(phaseID);
         end
 
         %% Domain1D Class Destructor

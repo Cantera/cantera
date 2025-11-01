@@ -21,6 +21,8 @@ recipes:
 - name: componentName
 - name: componentIndex
   wraps: componentIndex(const string&)
+- name: phase
+  what: accessor
 - name: value
   # alternative is deprecated in Cantera 3.2
   wraps: value(const string&)
