@@ -25,12 +25,14 @@
 %
 % .. tags:: Matlab, combustion, user-defined model, compressible flow, plotting
 
-%% Initialization
+%%
+% Initialization
 
 tic
 help plug_flow_reactor
 
-%% Operation Parameters
+%%
+% Operation Parameters
 
 % Temperature of gas, in K
 T0 = 1473;
@@ -57,7 +59,8 @@ x(in2, 1) = 7.52;
 gas_calc.TPX = {T0, P0, x};
 gas_calc.equilibrate('HP');
 
-%% Calculation of properties along the reactor length
+%%
+% Calculation of properties along the reactor length
 
 % The Dimensions and conditions of the reactor are given below
 
@@ -147,7 +150,8 @@ for i = 1:length(x_calc)
     P_calc(i) = rho_calc(i) * R_calc(i) * T_calc(i);
 end
 
-%% Plotting
+%%
+% Plotting
 plot(x_calc, M_calc)
 xlabel('X-Position (m)')
 ylabel('Mach No')

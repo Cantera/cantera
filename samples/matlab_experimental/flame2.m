@@ -6,14 +6,16 @@
 %
 % .. tags:: Matlab, combustion, 1D flow, strained flame, diffusion flame, plotting
 
-%% Initialization
+%%
+% Initialization
 
 tic
 help flame2
 
 t0 = cputime; % record the starting time
 
-%% Set parameter values
+%%
+% Set parameter values
 
 p = OneAtm; % pressure
 tin = 300.0; % inlet temperature
@@ -30,7 +32,8 @@ nz = 11;
 logLevel = 1; % amount of diagnostic output (0 to 5)
 refineGrid = 1; % 1 to enable refinement, 0 to disable
 
-%% Create the gas object
+%%
+% Create the gas object
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
@@ -40,13 +43,15 @@ gas = Solution(rxnmech, 'gri30', 'mixture-averaged');
 % set its state to that of the fuel (arbitrary)
 gas.TPX = {tin, p, comp2};
 
-%% Create the flow object
+%%
+% Create the flow object
 %
 f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
 f.setupUniformGrid(nz, width, 0.0);
 
-%% Create the air inlet
+%%
+% Create the air inlet
 %
 % The temperature, mass flux, and composition (relative molar) may be
 % specified.
@@ -56,14 +61,16 @@ inlet_o.T = tin;
 inlet_o.massFlux = mdot_o;
 inlet_o.X = comp1;
 
-%% Create the fuel inlet
+%%
+% Create the fuel inlet
 %
 inlet_f = Inlet(gas, 'fuel_inlet');
 inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
 inlet_f.X = comp2;
 
-%% Create the flame object
+%%
+% Create the flame object
 %
 % Once the component parts have been created, they can be assembled
 % to create the flame object.
@@ -78,7 +85,8 @@ f.setProfile('T', [0.0, mdot_o/(mdot_o + mdot_f), 1.0], [tin, 2000, tin]);
 % Solve with fixed temperature profile first
 fl.solve(logLevel, refineGrid);
 
-%% Enable the energy equation
+%%
+% Enable the energy equation
 %
 % The energy equation will now be solved to compute the temperature profile. We also
 % tighten the grid refinement criteria to get an accurate final solution.
@@ -87,14 +95,16 @@ f.energyEnabled = true;
 f.setRefineCriteria(200.0, 0.1, 0.1);
 fl.solve(logLevel, refineGrid);
 
-%% Show statistics
+%%
+% Show statistics
 
 fl.writeStats;
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
-%% Make plots
+%%
+% Make plots
 
 figure(1);
 subplot(2, 3, 1);

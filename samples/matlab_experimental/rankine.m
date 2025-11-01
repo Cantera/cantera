@@ -9,33 +9,39 @@
 
 help rankine
 
-%% Initialize parameters
+%%
+% Initialize parameters
 eta_pump = 0.6;
 eta_turbine = 0.8;
 p_max = 8.0 * OneAtm;
 t1 = 300.0;
 
-%% create a saturated liquid water object at t1
+%%
+% create a saturated liquid water object at t1
 w = Water;
 basis = 'mass';
 w.TQ = {t1, 0};
 h1 = w.H;
 p1 = w.P;
 
-%% pump it to p2
+%%
+% pump it to p2
 pump_work = pump(w, p_max, eta_pump);
 h2 = w.H;
 
-%% heat to saturated vapor
+%%
+% heat to saturated vapor
 w.PQ = {p_max, 1.0};
 h3 = w.H;
 
 heat_added = h3 - h2;
 
-%% expand adiabatically back to the initial pressure
+%%
+% expand adiabatically back to the initial pressure
 turbine_work = expand(w, p1, eta_turbine);
 
-%% compute the efficiency
+%%
+% compute the efficiency
 efficiency = (turbine_work - pump_work) / heat_added;
 disp(sprintf('efficiency = %.2f%%', efficiency*100));
 

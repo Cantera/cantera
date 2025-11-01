@@ -9,14 +9,16 @@
 %
 % .. tags:: Matlab, combustion, 1D flow, diffusion flame, plotting
 
-%% Initialization
+%%
+% Initialization
 
 tic % total running time of the script
 help diff_flame
 
 runtime = cputime; % Record the starting time
 
-%% Parameter values of inlet streams
+%%
+% Parameter values of inlet streams
 
 p = OneAtm; % Pressure
 tin = 300.0; % Inlet temperature
@@ -26,7 +28,8 @@ transport = 'mixture-averaged'; % Transport model
 % NOTE: Transport model needed if mechanism file does not have transport
 % properties.
 
-%% Set-up initial grid, loglevel, tolerances. Enable/Disable grid refinement
+%%
+% Set-up initial grid, loglevel, tolerances. Enable/Disable grid refinement
 
 width = 0.02;
 nz = 11;
@@ -36,7 +39,8 @@ tol_ts = {1.0e-3, 1.0e-9}; % {rtol atol} for time stepping
 logLevel = 1; % Amount of diagnostic output (0 to 5)
 refineGrid = 1; % 1 to enable refinement, 0 to disable
 
-%% Create the gas objects for the fuel and oxidizer streams
+%%
+% Create the gas objects for the fuel and oxidizer streams
 %
 % These objects will be used to evaluate all thermodynamic, kinetic, and
 % transport properties.
@@ -49,7 +53,8 @@ fuelcomp = 'C2H6:1'; % Fuel composition
 fuel.TPX = {tin, p, fuelcomp};
 ox.TPX = {tin, p, oxcomp};
 
-%% Set-up the flow object
+%%
+% Set-up the flow object
 %
 % For this problem, the ``AxisymmetricFlow`` model is needed. Set the state of
 % the flow as the fuel gas object. This is arbitrary and is only used to
@@ -62,7 +67,8 @@ f.setupUniformGrid(nz, width, 0.0);
 f.setSteadyTolerances(tol_ss{:}, 'default');
 f.setTransientTolerances(tol_ts{:}, 'default');
 
-%% Create the fuel and oxidizer inlet steams
+%%
+% Create the fuel and oxidizer inlet steams
 %
 % Specify the temperature, mass flux, and composition correspondingly.
 
@@ -78,7 +84,8 @@ inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
 inlet_f.X = fuelcomp;
 
-%% Create the flame object
+%%
+% Create the flame object
 %
 % Once the inlets have been created, they can be assembled
 % to create the flame object. Function ``CounterFlorDiffusionFlame``
@@ -89,14 +96,16 @@ inlet_f.X = fuelcomp;
 
 fl = CounterFlowDiffusionFlame(inlet_f, f, inlet_o, fuel, ox, 'O2');
 
-%% Solve with fixed temperature profile
+%%
+% Solve with fixed temperature profile
 %
 % Grid refinement is turned off for this process in this example.
 % To turn grid refinement on, change 0 to 1 for last input is solve function.
 
 fl.solve(logLevel, 0);
 
-%% Enable the energy equation
+%%
+% Enable the energy equation
 %
 % The energy equation will now be solved to compute the temperature profile.
 % We also tighten the grid refinement criteria to get an accurate final
@@ -108,14 +117,16 @@ f.energyEnabled = true;
 f.setRefineCriteria(200.0, 0.1, 0.2);
 fl.solve(logLevel, refineGrid);
 
-%% Show statistics of solution and elapsed time
+%%
+% Show statistics of solution and elapsed time
 
 fl.writeStats;
 elapsed = cputime - runtime;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
-%% Plot results
+%%
+% Plot results
 % Make a single plot showing temperature and mass fraction of select
 % species along axial distance from fuel inlet to air inlet.
 
