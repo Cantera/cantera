@@ -1,7 +1,7 @@
 classdef Func1 < handle
 
     properties (SetAccess = immutable)
-        id
+        id = -1
     end
 
     properties (SetAccess = protected)
@@ -137,7 +137,7 @@ classdef Func1 < handle
 
         function delete(f)
             % Delete the :mat:class:`Func1` object.
-            if isprop(f, 'id') && ~isempty(f.id)
+            if f.id >= 0
                 ctFunc('mFunc1_del', f.id);
             end
         end

@@ -35,7 +35,7 @@ classdef Mixture < handle
     %
 
     properties (SetAccess = immutable)
-        mixID
+        mixID = -1
     end
 
     properties (SetAccess = public)
@@ -106,7 +106,9 @@ classdef Mixture < handle
 
         function delete(m)
             % Delete the :mat:class:`Mixture` object.
-            ctFunc('mMix_del', m.mixID);
+            if m.mixID >= 0
+                ctFunc('mMix_del', m.mixID);
+            end
         end
 
         %% Mixture Utility methods

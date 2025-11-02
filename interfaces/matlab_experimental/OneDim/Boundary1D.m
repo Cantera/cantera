@@ -1,7 +1,7 @@
 classdef (Abstract) Boundary1D < Domain1D
     % Create a Boundary domain. ::
     %
-    %     >> m = Boundary(type, phase, id)
+    %     >> m = Boundary(type, phase, name)
     %
     % :param type:
     %    String type of Boundary. Possible values are:
@@ -13,7 +13,7 @@ classdef (Abstract) Boundary1D < Domain1D
     %      - `outlet-reservoir`
     % :param phase:
     %     Instance of class :mat:class:`Solution` or :mat:class:`Interface`.
-    % :param id:
+    % :param name:
     %     String, ID of the flow.
     % :return:
     %     Instance of class :mat:class:`Boundary`.
@@ -38,11 +38,14 @@ classdef (Abstract) Boundary1D < Domain1D
 
         %% Boundary Class Constructor
 
-        function b = Boundary1D(type, phase, id)
-
-            ctIsLoaded;
-            domainID = ctFunc('mDomain_newBoundary1D', type, phase.solnID, id);
-            b@Domain1D(domainID);
+        function b = Boundary1D(type, phase, name)
+            arguments
+                type (1,1) string
+                phase (1,1) Solution
+                name (1,1) string
+            end
+            id = ctFunc('mDomain_newBoundary1D', type, phase.solnID, name);
+            b@Domain1D(id);
 
         end
 

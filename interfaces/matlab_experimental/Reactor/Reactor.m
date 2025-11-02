@@ -27,12 +27,11 @@ classdef Reactor < ReactorBase
         function r = Reactor(phase, name, clone)
 
             arguments
-                phase {mustBeA(phase, 'Solution')}
+                phase (1,1) Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            ctIsLoaded;
             id = ctFunc('mReactor_new', 'Reactor', phase.solnID, clone, name);
             r@ReactorBase(id);
         end

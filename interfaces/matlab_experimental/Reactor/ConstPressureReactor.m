@@ -32,12 +32,11 @@ classdef ConstPressureReactor < ReactorBase
             % Constructor
 
             arguments
-                phase {mustBeA(phase, 'Solution')}
+                phase (1,1) Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            ctIsLoaded;
             id = ctFunc('mReactor_new', 'ConstPressureReactor', ...
                         phase.solnID, clone, name);
             r@ReactorBase(id);

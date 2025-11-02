@@ -420,10 +420,8 @@ classdef (Abstract) ThermoPhase < handle
 
         function tp = ThermoPhase(id)
             % Create a :mat:class:`ThermoPhase` object.
-            ctIsLoaded;
-
-            if ~isnumeric(id)
-                error('Invalid argument: constructor requires integer solution ID.')
+            arguments
+                id (1,1) double {mustBeInteger}
             end
 
             tp.tpID = ctFunc('mSol_thermo', id);
@@ -569,15 +567,10 @@ classdef (Abstract) ThermoPhase < handle
             %     String representing the element name.
             % :return:
             %     Elemental mass fraction within a gas object.
-
-            if nargin ~= 2
-                error('elementalMassFraction expects two input arguments.');
+            arguments
+                tp
+                element
             end
-
-            if ~tp.isIdealGas
-                error('Gas object must represent an ideal gas mixture.');
-            end
-
             if ~ischar(element)
                 error('Wrong type for element name: must be character.');
             end
@@ -615,18 +608,19 @@ classdef (Abstract) ThermoPhase < handle
             %     String element name or integer element number
             % :return:
             %     Number of atoms of element ``m`` in species ``k``.
-
-            if nargin ~= 3
-                error('Two input arguments required.')
+            arguments
+                tp
+                species
+                element
             end
 
-            if ischar(species)
+            if ischar(species) | isstring(species)
                 k = tp.speciesIndex(species);
             else
                 k = species;
             end
 
-            if ischar(element)
+            if ischar(element) | isstring(element)
                 m = tp.elementIndex(element);
             else
                 m = element;
@@ -821,8 +815,9 @@ classdef (Abstract) ThermoPhase < handle
         end
 
         function str = report(tp, threshold)
-            if nargin < 2
-                threshold = 1e-14;
+            arguments
+                tp
+                threshold (1,1) double = 1e-14
             end
             str = ctString('mThermo_report', tp.tpID, 1, threshold);
         end

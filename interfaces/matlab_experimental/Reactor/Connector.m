@@ -20,7 +20,7 @@ classdef (Abstract) Connector < handle
 
     properties (SetAccess = immutable)
 
-        id % ID of Connector object.
+        id = -1  % ID of Connector object.
 
     end
 
@@ -37,15 +37,12 @@ classdef (Abstract) Connector < handle
 
         function c = Connector(typ, r1, r2, name)
             % Create a :mat:class:`Connector` object.
-
             arguments
                 typ (1,1) string
-                r1 {mustBeA(r1, 'ReactorBase')}
-                r2 {mustBeA(r2, 'ReactorBase')}
+                r1 (1,1) ReactorBase
+                r2 (1,1) ReactorBase
                 name (1,1) string = "(none)"
             end
-
-            ctIsLoaded;
 
             c.id = ctFunc('mConnector_new', typ, r1.id, r2.id, name);
         end
@@ -54,7 +51,9 @@ classdef (Abstract) Connector < handle
 
         function delete(c)
             % Delete the :mat:class:`Connector` object.
-            ctFunc('mConnector_del', c.id);
+            if c.id >= 0
+                ctFunc('mConnector_del', c.id);
+            end
         end
 
         %% Connector Get Methods

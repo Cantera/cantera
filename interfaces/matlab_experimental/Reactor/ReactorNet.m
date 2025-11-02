@@ -13,7 +13,7 @@ classdef ReactorNet < handle
     %    Instance of class :mat:class:`ReactorNet`.
 
     properties (SetAccess = immutable)
-        id
+        id = -1
     end
 
     properties (SetAccess = public)
@@ -45,12 +45,11 @@ classdef ReactorNet < handle
 
         function n = ReactorNet(reactors)
             % Create a :mat:class:`ReactorNet` object.
-
-            ctIsLoaded;
-
+            arguments
+                reactors
+            end
             if isa(reactors, 'ReactorBase')
-                % Allow simpler syntax for creating a network with one
-                % reactor.
+                % Allow simpler syntax for creating a network with one reactor.
                 reactors = {reactors};
             end
             reactorIDs = cellfun(@(r) r.id, reactors);
@@ -64,7 +63,9 @@ classdef ReactorNet < handle
 
         function delete(n)
             % Delete the :mat:class:`ReactorNet` object object.
-            ctFunc('mReactornet_del', n.id);
+            if n.id >= 0
+                ctFunc('mReactornet_del', n.id);
+            end
         end
 
         %% ReactorNet Utility Methods

@@ -81,11 +81,8 @@ classdef (Abstract) Kinetics < handle
         %% Kinetics Class Constructor
 
         function kin = Kinetics(id)
-
-            ctIsLoaded;
-
-            if ~isnumeric(id)
-                error('Invalid argument: constructor requires integer solution ID.')
+            arguments
+                id (1,1) double {mustBeInteger}
             end
 
             kin.kinID = ctFunc('mSol_kinetics', id);
