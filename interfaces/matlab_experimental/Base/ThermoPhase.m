@@ -1,4 +1,4 @@
-classdef ThermoPhase < handle
+classdef (Abstract) ThermoPhase < handle
     % ThermoPhase Class ::
     %
     %     >> t = ThermoPhase(id)

@@ -1,4 +1,4 @@
-classdef Kinetics < handle
+classdef (Abstract) Kinetics < handle
     % Kinetics Class ::
     %
     %     >> k = Kinetics(id)
