@@ -78,7 +78,7 @@ classdef (Abstract) FlowDevice < Connector
         %% FlowDevice Get Methods
 
         function mdot = get.massFlowRate(f)
-            mdot = ctFunc('flowdev_massFlowRate', f.id);
+            mdot = ctFunc('mFlowdev_massFlowRate', f.id);
         end
 
         %% FlowDevice Set Methods
@@ -87,9 +87,9 @@ classdef (Abstract) FlowDevice < Connector
 
             if strcmp(f.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    ctFunc('flowdev_setDeviceCoefficient', f.id, mdot);
+                    ctFunc('mFlowdev_setDeviceCoefficient', f.id, mdot);
                 elseif isa(mdot, 'Func1')
-                    ctFunc('flowdev_setTimeFunction', f.id, mdot.id);
+                    ctFunc('mFlowdev_setTimeFunction', f.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
@@ -111,7 +111,7 @@ classdef (Abstract) FlowDevice < Connector
             %     Instance of class :mat:class:`Func1`.
 
             if strcmp(f.type, 'PressureController')
-                ctFunc('flowdev_setPrimary', f.id, d);
+                ctFunc('mFlowdev_setPrimary', f.id, d);
             else
                 error('Primary flow device can only be set for pressure controllers.');
             end
@@ -124,7 +124,7 @@ classdef (Abstract) FlowDevice < Connector
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ctFunc('flowdev_setDeviceCoefficient', f.id, k);
+            ctFunc('mFlowdev_setDeviceCoefficient', f.id, k);
         end
 
     end

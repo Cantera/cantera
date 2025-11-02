@@ -6,5 +6,5 @@ function r = Avogadro
     % :return:
     %     Avogadro's number in 1/kmol.
 
-    r = ctFunc('ct_Avogadro');
+    r = ctFunc('mCt_Avogadro');
 end

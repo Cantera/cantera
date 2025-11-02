@@ -6,5 +6,5 @@ function r = Boltzmann
     % :return:
     %     Boltzmann's constant in J/K.
 
-    r = ctFunc('ct_Boltzmann');
+    r = ctFunc('mCt_Boltzmann');
 end

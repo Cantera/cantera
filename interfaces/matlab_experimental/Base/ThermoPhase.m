@@ -426,7 +426,7 @@ classdef ThermoPhase < handle
                 error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            tp.tpID = ctFunc('sol_thermo', id);
+            tp.tpID = ctFunc('mSol_thermo', id);
             tp.basis = 'molar';
         end
 
@@ -479,7 +479,7 @@ classdef ThermoPhase < handle
                 loglevel (1,1) double {mustBeInteger, mustBeNonnegative} = 0
             end
 
-            ctFunc('thermo_equilibrate', tp.tpID, xy, solver, rtol, ...
+            ctFunc('mThermo_equilibrate', tp.tpID, xy, solver, rtol, ...
                    maxsteps, maxiter, loglevel);
         end
 
@@ -518,7 +518,7 @@ classdef ThermoPhase < handle
                 for i = 1:m
 
                     for j = 1:n
-                        k(i, j) = ctFunc('thermo_elementIndex', ...
+                        k(i, j) = ctFunc('mThermo_elementIndex', ...
                                         tp.tpID, name{i, j}) + 1;
 
                         if k(i, j) > 1e3
@@ -532,7 +532,7 @@ classdef ThermoPhase < handle
                 end
 
             elseif ischar(name)
-                k = ctFunc('thermo_elementIndex', tp.tpID, name) + 1;
+                k = ctFunc('mThermo_elementIndex', tp.tpID, name) + 1;
 
                 if k > 1e3
                     warning(['Element ', name, ' does not exist in the phase']);
@@ -632,7 +632,7 @@ classdef ThermoPhase < handle
                 m = element;
             end
 
-            n = ctFunc('thermo_nAtoms', tp.tpID, k - 1, m - 1);
+            n = ctFunc('mThermo_nAtoms', tp.tpID, k - 1, m - 1);
 
         end
 
@@ -671,7 +671,7 @@ classdef ThermoPhase < handle
                 for i = 1:m
 
                     for j = 1:n
-                        k(i, j) = ctFunc('thermo_speciesIndex', ...
+                        k(i, j) = ctFunc('mThermo_speciesIndex', ...
                                         tp.tpID, name{i, j}) + 1;
 
                         if k(i, j) > 1e6
@@ -685,7 +685,7 @@ classdef ThermoPhase < handle
                 end
 
             elseif ischar(name)
-                k = ctFunc('thermo_speciesIndex', tp.tpID, name) + 1;
+                k = ctFunc('mThermo_speciesIndex', tp.tpID, name) + 1;
 
                 if k > 1e6
                     warning(['Species ', name, ' does not exist in the phase.']);
@@ -720,7 +720,7 @@ classdef ThermoPhase < handle
 
                 for j = 1:n
                     ksp = k(i, j) - 1;
-                    output = ctString('thermo_speciesName', tp.tpID, ksp);
+                    output = ctString('mThermo_speciesName', tp.tpID, ksp);
                     nm{i, j} = output;
                 end
 
@@ -824,55 +824,55 @@ classdef ThermoPhase < handle
             if nargin < 2
                 threshold = 1e-14;
             end
-            str = ctString('thermo_report', tp.tpID, 1, threshold);
+            str = ctString('mThermo_report', tp.tpID, 1, threshold);
         end
 
         %% Single-property getter methods
 
         function amu = get.atomicWeights(tp)
             nel = tp.nElements;
-            amu = ctArray('thermo_atomicWeights', nel, tp.tpID);
+            amu = ctArray('mThermo_atomicWeights', nel, tp.tpID);
         end
 
         function e = get.charges(tp)
             nsp = tp.nSpecies;
-            e = ctArray('thermo_getCharges', nsp, tp.tpID);
+            e = ctArray('mThermo_getCharges', nsp, tp.tpID);
         end
 
         function c = get.cv(tp)
             if strcmp(tp.basis, 'molar')
-                c = ctFunc('thermo_cv_mole', tp.tpID);
+                c = ctFunc('mThermo_cv_mole', tp.tpID);
             else
-                c = ctFunc('thermo_cv_mass', tp.tpID);
+                c = ctFunc('mThermo_cv_mass', tp.tpID);
             end
         end
 
         function c = get.cp(tp)
             if strcmp(tp.basis, 'molar')
-                c = ctFunc('thermo_cp_mole', tp.tpID);
+                c = ctFunc('mThermo_cp_mole', tp.tpID);
             else
-                c = ctFunc('thermo_cp_mass', tp.tpID);
+                c = ctFunc('mThermo_cp_mass', tp.tpID);
             end
         end
 
         function d = get.critDensity(tp)
-            d = ctFunc('thermo_critDensity', tp.tpID);
+            d = ctFunc('mThermo_critDensity', tp.tpID);
         end
 
         function p = get.critPressure(tp)
-            p = ctFunc('thermo_critPressure', tp.tpID);
+            p = ctFunc('mThermo_critPressure', tp.tpID);
         end
 
         function t = get.critTemperature(tp)
-            t = ctFunc('thermo_critTemperature', tp.tpID);
+            t = ctFunc('mThermo_critTemperature', tp.tpID);
         end
 
         function v = get.electricPotential(tp)
-            v = ctFunc('thermo_electricPotential', tp.tpID);
+            v = ctFunc('mThermo_electricPotential', tp.tpID);
         end
 
         function e = get.eosType(tp)
-            e = ctString('thermo_type', tp.tpID);
+            e = ctString('mThermo_type', tp.tpID);
         end
 
         function v = get.isIdealGas(tp)
@@ -880,57 +880,57 @@ classdef ThermoPhase < handle
         end
 
         function b = get.isothermalCompressibility(tp)
-            b = ctFunc('thermo_isothermalCompressibility', tp.tpID);
+            b = ctFunc('mThermo_isothermalCompressibility', tp.tpID);
         end
 
         function t = get.maxTemp(tp)
-            t = ctFunc('thermo_maxTemp', tp.tpID, -1);
+            t = ctFunc('mThermo_maxTemp', tp.tpID, -1);
         end
 
         function t = get.minTemp(tp)
-            t = ctFunc('thermo_minTemp', tp.tpID, -1);
+            t = ctFunc('mThermo_minTemp', tp.tpID, -1);
         end
 
         function mmw = get.meanMolecularWeight(tp)
-            mmw = ctFunc('thermo_meanMolecularWeight', tp.tpID);
+            mmw = ctFunc('mThermo_meanMolecularWeight', tp.tpID);
         end
 
         function density = get.massDensity(tp)
-            density = ctFunc('thermo_density', tp.tpID);
+            density = ctFunc('mThermo_density', tp.tpID);
         end
 
         function density = get.molarDensity(tp)
-            density = ctFunc('thermo_molarDensity', tp.tpID);
+            density = ctFunc('mThermo_molarDensity', tp.tpID);
         end
 
         function c = get.concentrations(s)
             nsp = s.nSpecies;
-            c = ctArray('thermo_getConcentrations', nsp, tp.tpID);
+            c = ctArray('mThermo_getConcentrations', nsp, tp.tpID);
         end
 
         function mw = get.molecularWeights(tp)
             nsp = tp.nSpecies;
-            mw = ctArray('thermo_getMolecularWeights', nsp, tp.tpID);
+            mw = ctArray('mThermo_getMolecularWeights', nsp, tp.tpID);
         end
 
         function nel = get.nElements(tp)
-            nel = ctFunc('thermo_nElements', tp.tpID);
+            nel = ctFunc('mThermo_nElements', tp.tpID);
         end
 
         function nsp = get.nSpecies(tp)
-            nsp = ctFunc('thermo_nSpecies', tp.tpID);
+            nsp = ctFunc('mThermo_nSpecies', tp.tpID);
         end
 
         function p = get.refPressure(tp)
-            p = ctFunc('thermo_refPressure', tp.tpID);
+            p = ctFunc('mThermo_refPressure', tp.tpID);
         end
 
         function p = get.satPressure(tp)
-            p = ctFunc('thermo_satPressure', tp.tpID, tp.T);
+            p = ctFunc('mThermo_satPressure', tp.tpID, tp.T);
         end
 
         function t = get.satTemperature(tp)
-            t = ctFunc('thermo_satTemperature', tp.tpID, tp.P);
+            t = ctFunc('mThermo_satTemperature', tp.tpID, tp.P);
         end
 
         function c = get.soundSpeed(tp)
@@ -955,7 +955,7 @@ classdef ThermoPhase < handle
         end
 
         function s = get.name(tp)
-            s = ctString('thermo_name', tp.tpID);
+            s = ctString('mThermo_name', tp.tpID);
         end
 
         function n = get.speciesNames(tp)
@@ -963,24 +963,24 @@ classdef ThermoPhase < handle
         end
 
         function a = get.thermalExpansionCoeff(tp)
-            a = ctFunc('thermo_thermalExpansionCoeff', tp.tpID);
+            a = ctFunc('mThermo_thermalExpansionCoeff', tp.tpID);
         end
 
         function temperature = get.T(tp)
-            temperature = ctFunc('thermo_temperature', tp.tpID);
+            temperature = ctFunc('mThermo_temperature', tp.tpID);
         end
 
         function pressure = get.P(tp)
-            pressure = ctFunc('thermo_pressure', tp.tpID);
+            pressure = ctFunc('mThermo_pressure', tp.tpID);
         end
 
         function v = get.Q(tp)
-            v = ctFunc('thermo_vaporFraction', tp.tpID);
+            v = ctFunc('mThermo_vaporFraction', tp.tpID);
         end
 
         function density = get.D(tp)
             if strcmp(tp.basis, 'mass')
-                density = ctFunc('thermo_density', tp.tpID);
+                density = ctFunc('mThermo_density', tp.tpID);
             else
                 density = tp.molarDensity;
             end
@@ -992,78 +992,78 @@ classdef ThermoPhase < handle
 
         function moleFractions = get.X(tp)
             nsp = tp.nSpecies;
-            moleFractions = ctArray('thermo_getMoleFractions', nsp, tp.tpID);
+            moleFractions = ctArray('mThermo_getMoleFractions', nsp, tp.tpID);
         end
 
         function massFractions = get.Y(tp)
             nsp = tp.nSpecies;
-            massFractions = ctArray('thermo_getMassFractions', nsp, tp.tpID);
+            massFractions = ctArray('mThermo_getMassFractions', nsp, tp.tpID);
         end
 
         function enthalpy = get.H(tp)
             if strcmp(tp.basis, 'molar')
-                enthalpy = ctFunc('thermo_enthalpy_mole', tp.tpID);
+                enthalpy = ctFunc('mThermo_enthalpy_mole', tp.tpID);
             else
-                enthalpy = ctFunc('thermo_enthalpy_mass', tp.tpID);
+                enthalpy = ctFunc('mThermo_enthalpy_mass', tp.tpID);
             end
         end
 
         function mu = get.chemicalPotentials(tp)
             nsp = tp.nSpecies;
-            mu = ctArray('thermo_chemPotentials', nsp, tp.tpID);
+            mu = ctArray('mThermo_chemPotentials', nsp, tp.tpID);
         end
 
         function emu = get.electrochemicalPotentials(tp)
             nsp = tp.nSpecies;
-            emu = ctArray('thermo_electrochemPotentials', nsp, tp.tpID);
+            emu = ctArray('mThermo_electrochemPotentials', nsp, tp.tpID);
         end
 
         function enthalpies = get.partialMolarEnthalpies(tp)
             nsp = tp.nSpecies;
-            enthalpies = ctArray('thermo_getPartialMolarEnthalpies', nsp, tp.tpID);
+            enthalpies = ctArray('mThermo_getPartialMolarEnthalpies', nsp, tp.tpID);
         end
 
         function entropies = get.partialMolarEntropies(tp)
             nsp = tp.nSpecies;
-            entropies = ctArray('thermo_getPartialMolarEntropies', nsp, tp.tpID);
+            entropies = ctArray('mThermo_getPartialMolarEntropies', nsp, tp.tpID);
         end
 
         function intEnergies = get.partialMolarIntEnergies(tp)
             nsp = tp.nSpecies;
-            intEnergies = ctArray('thermo_getPartialMolarIntEnergies', nsp, tp.tpID);
+            intEnergies = ctArray('mThermo_getPartialMolarIntEnergies', nsp, tp.tpID);
         end
 
         function cps = get.partialMolarCp(tp)
             nsp = tp.nSpecies;
-            cps = ctArray('thermo_getPartialMolarCp', nsp, tp.tpID);
+            cps = ctArray('mThermo_getPartialMolarCp', nsp, tp.tpID);
         end
 
         function volumes = get.partialMolarVolumes(tp)
             nsp = tp.nSpecies;
-            volumes = ctFunc('thermo_getPartialMolarVolumes', nsp, tp.tpID);
+            volumes = ctFunc('mThermo_getPartialMolarVolumes', nsp, tp.tpID);
         end
 
         function entropy = get.S(tp)
             if strcmp(tp.basis, 'molar')
-                entropy = ctFunc('thermo_entropy_mole', tp.tpID);
+                entropy = ctFunc('mThermo_entropy_mole', tp.tpID);
             else
-                entropy = ctFunc('thermo_entropy_mass', tp.tpID);
+                entropy = ctFunc('mThermo_entropy_mass', tp.tpID);
             end
         end
 
         function intEnergy = get.U(tp)
             if strcmp(tp.basis, 'molar')
-                intEnergy = ctFunc('thermo_intEnergy_mole', tp.tpID);
+                intEnergy = ctFunc('mThermo_intEnergy_mole', tp.tpID);
             else
-                intEnergy = ctFunc('thermo_intEnergy_mass', tp.tpID);
+                intEnergy = ctFunc('mThermo_intEnergy_mass', tp.tpID);
             end
         end
 
         function gibbs = get.G(tp)
             if strcmp(tp.basis, 'molar')
-                gibbs = ctFunc('thermo_gibbs_mole', tp.tpID);
+                gibbs = ctFunc('mThermo_gibbs_mole', tp.tpID);
             else
-                gibbs = ctFunc('thermo_gibbs_mass', tp.tpID);
+                gibbs = ctFunc('mThermo_gibbs_mass', tp.tpID);
             end
         end
 
@@ -1276,7 +1276,7 @@ classdef ThermoPhase < handle
         %% Single-property setter methods
 
         function set.electricPotential(tp, phi)
-            ctFunc('thermo_setElectricPotential', tp.tpID, phi);
+            ctFunc('mThermo_setElectricPotential', tp.tpID, phi);
         end
 
         function set.basis(tp, b)
@@ -1293,14 +1293,14 @@ classdef ThermoPhase < handle
         end
 
         function set.name(tp, str)
-            ctFunc('thermo_setName', tp.tpID, str);
+            ctFunc('mThermo_setName', tp.tpID, str);
         end
 
         function set.X(tp, xx)
             if isa(xx, 'double')
-                ctFunc('thermo_setMoleFractions', tp.tpID, xx);
+                ctFunc('mThermo_setMoleFractions', tp.tpID, xx);
             elseif isa(xx, 'char')
-                ctFunc('thermo_setMoleFractionsByName', tp.tpID, xx);
+                ctFunc('mThermo_setMoleFractionsByName', tp.tpID, xx);
             else
                 error('Invalid input.')
             end
@@ -1308,9 +1308,9 @@ classdef ThermoPhase < handle
 
         function set.Y(tp, yy)
             if isa(yy, 'double')
-                ctFunc('thermo_setMassFractions', tp.tpID, yy);
+                ctFunc('mThermo_setMassFractions', tp.tpID, yy);
             elseif isa(yy, 'char')
-                ctFunc('thermo_setMassFractionsByName', tp.tpID, yy);
+                ctFunc('mThermo_setMassFractionsByName', tp.tpID, yy);
             else
                 error('Invalid input.')
             end
@@ -1325,7 +1325,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 d = d*tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_DP', tp.tpID, d, p);
+            ctFunc('mThermo_setState_DP', tp.tpID, d, p);
         end
 
         function set.DPX(tp, input)
@@ -1344,7 +1344,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 h = h/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_HP', tp.tpID, h, p);
+            ctFunc('mThermo_setState_HP', tp.tpID, h, p);
         end
 
         function set.HPX(tp, input)
@@ -1363,7 +1363,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 v = v/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_PV', tp.tpID, p, v);
+            ctFunc('mThermo_setState_PV', tp.tpID, p, v);
         end
 
         function set.PVX(tp, input)
@@ -1379,7 +1379,7 @@ classdef ThermoPhase < handle
         function set.PQ(tp, input)
             p = input{1};
             q = input{2};
-            ctFunc('thermo_setState_Psat', tp.tpID, p, q);
+            ctFunc('mThermo_setState_Psat', tp.tpID, p, q);
         end
 
         function set.SH(tp, input)
@@ -1389,7 +1389,7 @@ classdef ThermoPhase < handle
                 s = s/tp.meanMolecularWeight;
                 h = h/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_SH', tp.tpID, s, h);
+            ctFunc('mThermo_setState_SH', tp.tpID, s, h);
         end
 
         function set.SHX(tp, input)
@@ -1408,7 +1408,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 s = s/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_SP', tp.tpID, s, p);
+            ctFunc('mThermo_setState_SP', tp.tpID, s, p);
         end
 
         function set.SPX(tp, input)
@@ -1427,7 +1427,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 s = s/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_ST', tp.tpID, s, t);
+            ctFunc('mThermo_setState_ST', tp.tpID, s, t);
         end
 
         function set.STX(tp, input)
@@ -1447,7 +1447,7 @@ classdef ThermoPhase < handle
                 s = s/tp.meanMolecularWeight;
                 v = v/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_SV', tp.tpID, s, v);
+            ctFunc('mThermo_setState_SV', tp.tpID, s, v);
         end
 
         function set.SVX(tp, input)
@@ -1466,7 +1466,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 d = d*tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_TD', tp.tpID, t, d);
+            ctFunc('mThermo_setState_TD', tp.tpID, t, d);
         end
 
         function set.TDX(tp, input)
@@ -1485,7 +1485,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 h = h/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_TH', tp.tpID, t, h);
+            ctFunc('mThermo_setState_TH', tp.tpID, t, h);
         end
 
         function set.THX(tp, input)
@@ -1501,7 +1501,7 @@ classdef ThermoPhase < handle
         function set.TP(tp, input)
             t = input{1};
             p = input{2};
-            ctFunc('thermo_setState_TP', tp.tpID, t, p);
+            ctFunc('mThermo_setState_TP', tp.tpID, t, p);
         end
 
         function set.TPX(tp, input)
@@ -1509,9 +1509,9 @@ classdef ThermoPhase < handle
             p = input{2};
             x = input{3};
             if isa(x, 'char') || isa(x, 'string')
-                ctFunc('thermo_setState_TPX_byName', tp.tpID, t, p, x);
+                ctFunc('mThermo_setState_TPX_byName', tp.tpID, t, p, x);
             elseif isa(x, 'double')
-                ctFunc('thermo_setState_TPX', tp.tpID, t, p, x);
+                ctFunc('mThermo_setState_TPX', tp.tpID, t, p, x);
             else
                 error('Invalid input for mole fractions.')
             end
@@ -1522,9 +1522,9 @@ classdef ThermoPhase < handle
             p = input{2};
             y = input{3};
             if isa(y, 'char') || isa(y, 'string')
-                ctFunc('thermo_setState_TPY_byName', tp.tpID, t, p, y);
+                ctFunc('mThermo_setState_TPY_byName', tp.tpID, t, p, y);
             elseif isa(y, 'double')
-                ctFunc('thermo_setState_TPY', tp.tpID, t, p, y);
+                ctFunc('mThermo_setState_TPY', tp.tpID, t, p, y);
             else
                 error('Invalid input for mass fractions.')
             end
@@ -1533,7 +1533,7 @@ classdef ThermoPhase < handle
         function set.TQ(tp, input)
             t = input{1};
             q = input{2};
-            ctFunc('thermo_setState_Tsat', tp.tpID, t, q);
+            ctFunc('mThermo_setState_Tsat', tp.tpID, t, q);
         end
 
         function set.TV(tp, input)
@@ -1542,7 +1542,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 v = v/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_TV', tp.tpID, t, v);
+            ctFunc('mThermo_setState_TV', tp.tpID, t, v);
         end
 
         function set.TVX(tp, input)
@@ -1561,7 +1561,7 @@ classdef ThermoPhase < handle
             if strcmp(tp.basis, 'molar')
                 u = u/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_UP', tp.tpID, u, p);
+            ctFunc('mThermo_setState_UP', tp.tpID, u, p);
         end
 
         function set.UPX(tp, input)
@@ -1581,7 +1581,7 @@ classdef ThermoPhase < handle
                 u = u/tp.meanMolecularWeight;
                 v = v/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_UV', tp.tpID, u, v);
+            ctFunc('mThermo_setState_UV', tp.tpID, u, v);
         end
 
         function set.UVX(tp, input)
@@ -1601,7 +1601,7 @@ classdef ThermoPhase < handle
                 v = v/tp.meanMolecularWeight;
                 h = h/tp.meanMolecularWeight;
             end
-            ctFunc('thermo_setState_VH', tp.tpID, v, h);
+            ctFunc('mThermo_setState_VH', tp.tpID, v, h);
         end
 
         function set.VHX(tp, input)
@@ -1616,7 +1616,7 @@ classdef ThermoPhase < handle
 
         function setEquivalenceRatio(tp, phi, fuelComp, oxComp)
             % Set the mixture composition according to the equivalence ratio.
-            ctFunc('thermo_setEquivalenceRatio', tp.tpID, phi, fuelComp, oxComp);
+            ctFunc('mThermo_setEquivalenceRatio', tp.tpID, phi, fuelComp, oxComp);
         end
     end
 

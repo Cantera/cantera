@@ -47,30 +47,30 @@ classdef (Abstract) Connector < handle
 
             ctIsLoaded;
 
-            c.id = ctFunc('connector_new', typ, r1.id, r2.id, name);
+            c.id = ctFunc('mConnector_new', typ, r1.id, r2.id, name);
         end
 
         %% Connector Class Destructor
 
         function delete(c)
             % Delete the :mat:class:`Connector` object.
-            ctFunc('connector_del', c.id);
+            ctFunc('mConnector_del', c.id);
         end
 
         %% Connector Get Methods
 
         function typ = get.type(c)
-            typ = ctString('connector_type', c.id);
+            typ = ctString('mConnector_type', c.id);
         end
 
         function name = get.name(c)
-            name = ctString('connector_name', c.id);
+            name = ctString('mConnector_name', c.id);
         end
 
         %% Connector Set Methods
 
         function set.name(c, name)
-            ctFunc('connector_setName', c.id, name);
+            ctFunc('mConnector_setName', c.id, name);
         end
 
     end

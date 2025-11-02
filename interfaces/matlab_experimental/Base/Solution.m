@@ -75,7 +75,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                     transport_model = 'default';
                 end
 
-                ID = ctFunc('sol_newSolution', src, name, transport_model);
+                ID = ctFunc('mSol_newSolution', src, name, transport_model);
             end
 
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
@@ -83,7 +83,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             s@Kinetics(ID);
             s@Transport(ID);
             s.solnID = ID;
-            s.solnName = ctString('sol_name', s.solnID);
+            s.solnName = ctString('mSol_name', s.solnID);
             s.th = s.tpID;
         end
 
@@ -91,20 +91,20 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-            ctFunc('sol_del', s.solnID);
+            ctFunc('mSol_del', s.solnID);
         end
 
         %% Solution Class Getter Methods
 
         function str = get.transportModel(soln)
-            str = ctString('trans_transportModel', soln.trID);
+            str = ctString('mTrans_transportModel', soln.trID);
         end
 
         %% Solution Class Setter Methods
 
         function set.transportModel(soln, str)
-            ctFunc('sol_setTransportModel', soln.solnID, str);
-            soln.trID = ctFunc('sol_transport', soln.solnID);
+            ctFunc('mSol_setTransportModel', soln.solnID, str);
+            soln.trID = ctFunc('mSol_transport', soln.solnID);
         end
 
     end

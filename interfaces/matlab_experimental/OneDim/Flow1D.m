@@ -37,7 +37,7 @@ classdef (Abstract) Flow1D < Domain1D
         function f = Flow1D(type, phase, id)
 
             ctIsLoaded;
-            domainID = ctFunc('domain_newFlow1D', type, phase.solnID, id);
+            domainID = ctFunc('mDomain_newFlow1D', type, phase.solnID, id);
             f@Domain1D(domainID);
             f.energyEnabled = false;
             f.soretEnabled = false;
@@ -47,41 +47,41 @@ classdef (Abstract) Flow1D < Domain1D
         %% Domain Properties
 
         function pressure = get.P(d)
-            pressure = ctFunc('flow_pressure', d.domainID);
+            pressure = ctFunc('mFlow_pressure', d.domainID);
         end
 
         function set.P(d, p)
-            ctFunc('flow_setPressure', d.domainID, p);
+            ctFunc('mFlow_setPressure', d.domainID, p);
         end
 
         function flag = get.energyEnabled(d)
-            flag = ctFunc('flow_allOfEnergyEnabled', d.domainID);
+            flag = ctFunc('mFlow_allOfEnergyEnabled', d.domainID);
         end
 
         function set.energyEnabled(d, flag)
-            ctFunc('flow_setEnergyEnabled', d.domainID, flag);
+            ctFunc('mFlow_setEnergyEnabled', d.domainID, flag);
         end
 
         function set.soretEnabled(d, flag)
             d.soretEnabled = flag;
-            ctFunc('flow_enableSoret', d.domainID, flag);
+            ctFunc('mFlow_enableSoret', d.domainID, flag);
         end
 
         function model = get.transportModel(d)
-            model = ctString('flow_transportModel', d.domainID);
+            model = ctString('mFlow_transportModel', d.domainID);
         end
 
         function set.transportModel(d, model)
-            ctFunc('domain_setTransportModel', d.domainID, model);
+            ctFunc('mDomain_setTransportModel', d.domainID, model);
         end
 
         function zz = get.grid(d)
             np = d.nPoints;
-            zz = ctArray('domain_grid', np, d.domainID);
+            zz = ctArray('mDomain_grid', np, d.domainID);
         end
 
         function set.grid(d, grid)
-            ctFunc('domain_setupGrid', d.domainID, grid);
+            ctFunc('mDomain_setupGrid', d.domainID, grid);
         end
 
         %% Flow1D Class Methods
@@ -99,7 +99,7 @@ classdef (Abstract) Flow1D < Domain1D
             %     Length of domain
             % :param start:
             %     Start position of domain
-            ctFunc('domain_setupUniformGrid', d.domainID, points, length, start);
+            ctFunc('mDomain_setupUniformGrid', d.domainID, points, length, start);
         end
 
         function v = values(d, component)
@@ -114,7 +114,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctArray('domain_values', d.nPoints, d.domainID, component);
+            v = ctArray('mDomain_values', d.nPoints, d.domainID, component);
 
         end
 
@@ -146,7 +146,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param vProfile:
             %    Array containing component values at positions.
 
-            ctFunc('domain_setProfile', d.domainID, ...
+            ctFunc('mDomain_setProfile', d.domainID, ...
                    component, zProfile, vProfile);
 
         end
@@ -163,7 +163,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param v:
             %    Double value to be set.
 
-            ctFunc('domain_setFlatProfile', d.domainID, component, v);
+            ctFunc('mDomain_setFlatProfile', d.domainID, component, v);
         end
 
         function setFixedTempProfile(d, zFixed, tFixed)
@@ -182,7 +182,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param tFixed:
             %     Array containing temperatures
 
-            ctFunc('flow_setFixedTempProfile', d.domainID, ...
+            ctFunc('mFlow_setFixedTempProfile', d.domainID, ...
                    zFixed, tFixed);
 
         end
@@ -222,7 +222,7 @@ classdef (Abstract) Flow1D < Domain1D
                 prune = -0.1;
             end
 
-            ctFunc('domain_setRefineCriteria', d.domainID, ratio, slope, curve, prune);
+            ctFunc('mDomain_setRefineCriteria', d.domainID, ratio, slope, curve, prune);
         end
 
     end

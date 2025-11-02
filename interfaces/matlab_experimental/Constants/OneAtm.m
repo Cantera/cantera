@@ -6,5 +6,5 @@ function p = OneAtm
     % :return:
     %     One atmosphere in Pascals.
 
-    p = ctFunc('ct_OneAtm');
+    p = ctFunc('mCt_OneAtm');
 end

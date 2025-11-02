@@ -106,45 +106,45 @@ classdef Wall < Connector
         %% Wall get methods
 
         function a = get.area(w)
-            a = ctFunc('wall_area', w.id);
+            a = ctFunc('mWall_area', w.id);
         end
 
         function q = get.heatRate(w)
-            q = ctFunc('wall_heatRate', w.id);
+            q = ctFunc('mWall_heatRate', w.id);
         end
 
         function v = get.expansionRate(w)
-            v = ctFunc('wall_expansionRate', w.id);
+            v = ctFunc('mWall_expansionRate', w.id);
         end
 
         %% Wall set methods
 
         function set.area(w, a)
-            ctFunc('wall_setArea', w.id, a);
+            ctFunc('mWall_setArea', w.id, a);
         end
 
         function set.thermalResistance(w, r)
-            ctFunc('wall_setThermalResistance', w.id, r);
+            ctFunc('mWall_setThermalResistance', w.id, r);
         end
 
         function set.heatTransferCoeff(w, u)
-            ctFunc('wall_setHeatTransferCoeff', w.id, u);
+            ctFunc('mWall_setHeatTransferCoeff', w.id, u);
         end
 
         function set.emissivity(w, epsilon)
-            ctFunc('wall_setEmissivity', w.id, epsilon);
+            ctFunc('mWall_setEmissivity', w.id, epsilon);
         end
 
         function set.expansionRateCoeff(w, k)
-            ctFunc('wall_setExpansionRateCoeff', w.id, k);
+            ctFunc('mWall_setExpansionRateCoeff', w.id, k);
         end
 
         function set.heatFlux(w, f)
-            ctFunc('wall_setHeatFlux', w.id, f.id);
+            ctFunc('mWall_setHeatFlux', w.id, f.id);
         end
 
         function set.velocity(w, f)
-            ctFunc('wall_setVelocity', w.id, f.id);
+            ctFunc('mWall_setVelocity', w.id, f.id);
         end
 
     end

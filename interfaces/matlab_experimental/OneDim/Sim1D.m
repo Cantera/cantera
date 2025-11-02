@@ -41,7 +41,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = ctFunc('sim1D_newSim1D', ids);
+            s.stID = ctFunc('mSim1D_newSim1D', ids);
 
         end
 
@@ -49,14 +49,14 @@ classdef Sim1D < handle
 
         function delete(s)
             % Delete the :mat:class:`Sim1D` object.
-            ctFunc('sim1D_del', s.stID);
+            ctFunc('mSim1D_del', s.stID);
         end
 
         %% Sim1D Utility Methods
 
         function show(s)
             % Show all domains.
-            ctFunc('sim1D_show', s.stID);
+            ctFunc('mSim1D_show', s.stID);
         end
 
         function restore(s, fname, id)
@@ -75,7 +75,7 @@ classdef Sim1D < handle
             % :param id:
             %     ID of the element that should be restored.
 
-            ctFunc('sim1D_restore', s.stID, fname, id)
+            ctFunc('mSim1D_restore', s.stID, fname, id)
         end
 
         function save(s, fname, id, desc, overwrite)
@@ -106,7 +106,7 @@ classdef Sim1D < handle
                 overwrite = false;
             end
 
-            ctFunc('sim1D_save', s.stID, fname, id, desc, overwrite);
+            ctFunc('mSim1D_save', s.stID, fname, id, desc, overwrite);
         end
 
         function solve(s, loglevel, refineGrid)
@@ -122,7 +122,7 @@ classdef Sim1D < handle
             % :param refineGrid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
 
-            ctFunc('sim1D_solve', s.stID, loglevel, refineGrid);
+            ctFunc('mSim1D_solve', s.stID, loglevel, refineGrid);
         end
 
         function writeStats(s)
@@ -136,7 +136,7 @@ classdef Sim1D < handle
             % :param s:
             %     Instance of class class :mat:class:`Sim1D`
 
-            ctFunc('sim1D_writeStats', s.stID, 1);
+            ctFunc('mSim1D_writeStats', s.stID, 1);
         end
 
         %% Sim1D Get Methods
@@ -144,7 +144,7 @@ classdef Sim1D < handle
         function getInitialSoln(s)
             % Get the initial solution.
 
-            ctFunc('sim1D_getInitialSoln', s.stID);
+            ctFunc('mSim1D_getInitialSoln', s.stID);
         end
 
         function n = domainIndex(s, name)
@@ -160,7 +160,7 @@ classdef Sim1D < handle
             % :return:
             %    Index of domain.
 
-            n = ctFunc('sim1D_domainIndex', s.stID, name);
+            n = ctFunc('mSim1D_domainIndex', s.stID, name);
 
             if n >= 0
                 n = n + 1;
@@ -185,7 +185,7 @@ classdef Sim1D < handle
                 error('temperature must be positive');
             end
 
-            ctFunc('sim1D_setFixedTemperature', s.stID, T);
+            ctFunc('mSim1D_setFixedTemperature', s.stID, T);
         end
 
         function setGridMin(s, domain, gridmin)
@@ -198,7 +198,7 @@ classdef Sim1D < handle
             % :param gridmin:
             %    Double minimum grid spacing.
 
-            ctFunc('sim1D_setGridMin', s.stID, domain - 1, gridmin);
+            ctFunc('mSim1D_setGridMin', s.stID, domain - 1, gridmin);
         end
 
         function setMaxJacAge(s, ss_age, ts_age)
@@ -219,7 +219,7 @@ classdef Sim1D < handle
                 ts_age = ss_age;
             end
 
-            ctFunc('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
+            ctFunc('mSim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
         function setTimeStep(s, stepsize, steps)
@@ -236,7 +236,7 @@ classdef Sim1D < handle
             %    taken first time the steady-state solution attempted.
             %    If this failed, two time steps would be taken.
 
-            ctFunc('sim1D_setTimeStep', s.stID, stepsize, steps);
+            ctFunc('mSim1D_setTimeStep', s.stID, stepsize, steps);
         end
 
     end

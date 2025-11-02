@@ -6,5 +6,5 @@ function r = ElectronMass
     % :return:
     %     The electron mass in kg.
 
-    r = ctFunc('ct_ElectronMass');
+    r = ctFunc('mCt_ElectronMass');
 end

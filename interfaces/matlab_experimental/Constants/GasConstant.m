@@ -6,5 +6,5 @@ function r = GasConstant
     % :return:
     %     The universal gas constant in J/kmol-K.
 
-    r = ctFunc('ct_GasConstant');
+    r = ctFunc('mCt_GasConstant');
 end

@@ -92,7 +92,7 @@ classdef (Abstract) ReactorBase < handle
             end
 
             r.id = id;
-            phaseID = ctFunc('reactor_phase', id);
+            phaseID = ctFunc('mReactor_phase', id);
             r.phase= Solution(phaseID);
         end
 
@@ -100,7 +100,7 @@ classdef (Abstract) ReactorBase < handle
 
         function delete(r)
             % Delete the :mat:class:`ReactorBase` object.
-            ctFunc('reactor_del', r.id);
+            ctFunc('mReactor_del', r.id);
         end
 
         %% ReactorBase Utility Methods
@@ -115,49 +115,49 @@ classdef (Abstract) ReactorBase < handle
             % :param m:
             %    Index number of reaction.
 
-            ctFunc('reactor_addSensitivityReaction', r.id, m);
+            ctFunc('mReactor_addSensitivityReaction', r.id, m);
         end
 
         %% ReactorBase Get Methods
 
         function typ = get.type(r)
-            typ = ctString('reactor_type', r.id);
+            typ = ctString('mReactor_type', r.id);
         end
 
         function name = get.name(r)
-            name = ctString('reactor_name', r.id);
+            name = ctString('mReactor_name', r.id);
         end
 
         function temperature = get.T(r)
-            temperature = ctFunc('reactor_temperature', r.id);
+            temperature = ctFunc('mReactor_temperature', r.id);
         end
 
         function pressure = get.P(r)
-            pressure = ctFunc('reactor_pressure', r.id);
+            pressure = ctFunc('mReactor_pressure', r.id);
         end
 
         function rho = get.D(r)
-            rho = ctFunc('reactor_density', r.id);
+            rho = ctFunc('mReactor_density', r.id);
         end
 
         function mass = get.M(r)
-            mass = ctFunc('reactor_mass', r.id);
+            mass = ctFunc('mReactor_mass', r.id);
         end
 
         function volume = get.V(r)
-            volume = ctFunc('reactor_volume', r.id);
+            volume = ctFunc('mReactor_volume', r.id);
         end
 
         function enthalpy_mass = get.H(r)
-            enthalpy_mass = ctFunc('reactor_enthalpy_mass', r.id);
+            enthalpy_mass = ctFunc('mReactor_enthalpy_mass', r.id);
         end
 
         function intEnergy_mass = get.U(r)
-            intEnergy_mass = ctFunc('reactor_intEnergy_mass', r.id);
+            intEnergy_mass = ctFunc('mReactor_intEnergy_mass', r.id);
         end
 
         function a = get.area(r)
-            a = ctFunc('reactor_area', r.id);
+            a = ctFunc('mReactor_area', r.id);
         end
 
         function yi = massFraction(r, species)
@@ -167,29 +167,29 @@ classdef (Abstract) ReactorBase < handle
             %    String/Char array name of the species.
 
             k = r.phase.speciesIndex(species) - 1;
-            yi = ctFunc('reactor_massFraction', r.id, k);
+            yi = ctFunc('mReactor_massFraction', r.id, k);
         end
 
         function massFractions = get.Y(r)
-            massFractions = ctArray('reactor_massFractions', r.phase.nSpecies, r.id);
+            massFractions = ctArray('mReactor_massFractions', r.phase.nSpecies, r.id);
         end
 
         function flag = get.chemistryEnabled(r)
-            flag = logical(ctFunc('reactor_chemistryEnabled', r.id));
+            flag = logical(ctFunc('mReactor_chemistryEnabled', r.id));
         end
 
         function flag = get.energyEnabled(r)
-            flag = logical(ctFunc('reactor_energyEnabled', r.id));
+            flag = logical(ctFunc('mReactor_energyEnabled', r.id));
         end
 
         %% ReactorBase set methods
 
         function set.name(r, name)
-            ctFunc('reactor_setName', r.id, name);
+            ctFunc('mReactor_setName', r.id, name);
         end
 
         function set.V(r, v0)
-            ctFunc('reactor_setInitialVolume', r.id, v0);
+            ctFunc('mReactor_setInitialVolume', r.id, v0);
         end
 
         function set.chemistryEnabled(r, flag)
@@ -198,7 +198,7 @@ classdef (Abstract) ReactorBase < handle
                 flag (1,1) logical
             end
 
-            ctFunc('reactor_setChemistryEnabled', r.id, flag);
+            ctFunc('mReactor_setChemistryEnabled', r.id, flag);
         end
 
         function set.energyEnabled(r, flag)
@@ -207,11 +207,11 @@ classdef (Abstract) ReactorBase < handle
                 flag (1,1) logical
             end
 
-            ctFunc('reactor_setEnergyEnabled', r.id, flag);
+            ctFunc('mReactor_setEnergyEnabled', r.id, flag);
         end
 
         function set.area(s, a)
-            ctFunc('reactor_setArea', s.id, a);
+            ctFunc('mReactor_setArea', s.id, a);
         end
 
     end
