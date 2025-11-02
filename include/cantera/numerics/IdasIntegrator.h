@@ -82,6 +82,10 @@ public:
     }
     void includeAlgebraicInErrorTest(bool yesno) override;
 
+    double currentTime() const override {
+        return m_time;
+    }
+
     void setMethod(MethodType t) override;
 
 protected:

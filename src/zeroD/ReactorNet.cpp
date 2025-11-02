@@ -230,7 +230,7 @@ void ReactorNet::advance(double time)
         reinitialize();
     }
     m_integ->integrate(time);
-    m_time = time;
+    m_time = m_integ->currentTime();
     updateState(m_integ->solution());
 }
 
@@ -254,10 +254,18 @@ double ReactorNet::advance(double time, bool applylimit)
     getState(m_ybase.data());
     m_ybase_time = m_time;
     m_limit_check_active = true;
+    m_integ->setRootFunctionCount(nRootFunctions());
 
     // Integrate toward the requested time; integrator will return early
     // if a limit is reached (CV_ROOT_RETURN)
-    m_integ->integrate(time);
+    try {
+        m_integ->integrate(time);
+    } catch (...) {
+        m_limit_check_active = false;
+        m_integ->setRootFunctionCount(nRootFunctions());
+        throw;
+    }
+    m_time = m_integ->currentTime();
 
     // Update reactor states to match the integrator solution at the time
     // reached (which may be earlier than 'time' if a limit was triggered)
@@ -265,6 +273,7 @@ double ReactorNet::advance(double time, bool applylimit)
 
     // Disable limit checking after this call
     m_limit_check_active = false;
+    m_integ->setRootFunctionCount(nRootFunctions());
 
     // Verbose logging analogous to prior predictive limiter: when a root event
     // stopped integration before reaching the requested time, report the most
@@ -381,6 +390,16 @@ int ReactorNet::lastOrder() const
     } else {
         return 0;
     }
+}
+
+size_t ReactorNet::nRootFunctions() const
+{
+    return (m_limit_check_active && hasAdvanceLimits()) ? 1 : 0;
+}
+
+int ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
+{
+    return advanceLimitRootFunc(t, y, gout);
 }
 
 int ReactorNet::advanceLimitRootFunc(double t, const double* y, double* gout)

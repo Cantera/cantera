@@ -4,7 +4,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/CVodesIntegrator.h"
-#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>
@@ -92,18 +91,13 @@ extern "C" {
         return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
     }
 
-    // Root function to enforce ReactorNet advance limits via CVODE event detection
-    static int advance_limit_root(realtype t, N_Vector y, realtype *gout, void *user_data)
+    static int cvodes_root(realtype t, N_Vector y, realtype *gout, void *user_data)
     {
-        // user_data points to the FuncEval (e.g., ReactorNet)
-        auto* f = static_cast<Cantera::FuncEval*>(user_data);
-        // Only ReactorNet implements the limit-check root function
-        if (auto* net = dynamic_cast<Cantera::ReactorNet*>(f)) {
-            return net->advanceLimitRootFunc(t, NV_DATA_S(y), gout);
+        auto* f = static_cast<FuncEval*>(user_data);
+        if (!f) {
+            return 0;
         }
-        // Default: no root
-        gout[0] = 1.0;
-        return 0;
+        return f->evalRootFunctions(t, NV_DATA_S(y), gout);
     }
 }
 
@@ -231,6 +225,20 @@ void CVodesIntegrator::setMaxErrTestFails(int n)
     }
 }
 
+void CVodesIntegrator::setRootFunctionCount(size_t nroots)
+{
+    if (m_cvode_mem && m_nRootFunctions == nroots) {
+        return;
+    }
+    m_nRootFunctions = nroots;
+    if (!m_cvode_mem) {
+        return;
+    }
+    int flag = CVodeRootInit(m_cvode_mem, static_cast<int>(nroots),
+        nroots ? cvodes_root : nullptr);
+    checkError(flag, "setRootFunctionCount", "CVodeRootInit");
+}
+
 void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
@@ -338,10 +346,8 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     flag = CVodeSetUserData(m_cvode_mem, &func);
     checkError(flag, "initialize", "CVodeSetUserData");
 
-    // Initialize single root function hook; the underlying evaluator decides
-    // whether a root is active. This is safe for non-ReactorNet use cases.
-    flag = CVodeRootInit(m_cvode_mem, 1, advance_limit_root);
-    checkError(flag, "initialize", "CVodeRootInit");
+    m_nRootFunctions = static_cast<size_t>(-1);
+    setRootFunctionCount(func.nRootFunctions());
 
     if (func.nparams() > 0) {
         sensInit(t0, func);
@@ -366,6 +372,8 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     }
     int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     checkError(result, "reinitialize", "CVodeReInit");
+    m_nRootFunctions = static_cast<size_t>(-1);
+    setRootFunctionCount(func.nRootFunctions());
     applyOptions();
 }
 

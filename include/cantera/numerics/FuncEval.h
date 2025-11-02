@@ -137,6 +137,16 @@ public:
      */
     int preconditioner_solve_nothrow(double* rhs, double* output);
 
+    //! Number of root functions used for event detection
+    virtual size_t nRootFunctions() const {
+        return 0;
+    }
+
+    //! Evaluate root functions used for event detection
+    virtual int evalRootFunctions(double t, const double* y, double* gout) {
+        return 0;
+    }
+
     //! Fill in the vector *y* with the current state of the system.
     //! Used for getting the initial state for ODE systems.
     virtual void getState(double* y) {
