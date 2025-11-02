@@ -87,10 +87,10 @@ public:
         warn("setLinearSolverType");
     }
 
-    //! Configure how many event/root functions the integrator should monitor
-    /*!
+    /** Configure how many event/root functions the integrator should monitor
+     *
      * Callers toggle this to enable/disable root finding on the fly (when
-       ReactorNet enforces advance limits).
+     * ReactorNet enforces advance limits).
      * @param nroots Number of root functions
      */
     virtual void setRootFunctionCount(size_t nroots) {
