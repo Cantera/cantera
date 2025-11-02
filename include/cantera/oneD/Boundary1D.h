@@ -171,6 +171,8 @@ public:
     double massFraction(size_t k) override {
         return m_yin[k];
     }
+
+    void updateState(size_t loc) override;
     void init() override;
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
@@ -188,6 +190,7 @@ protected:
     string m_xstr; //!< inlet mass fractions. Parsing deferred to init()
     Flow1D* m_flow = nullptr; //!< the adjacent flow domain
 };
+
 
 /**
  * A terminator that does nothing.
@@ -219,6 +222,7 @@ public:
 
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
+
 
 /**
  * A symmetry plane. The axial velocity u = 0, and all other components have
@@ -325,6 +329,7 @@ protected:
     Flow1D* m_flow = nullptr; //!< The adjacent flow domain
 };
 
+
 /**
  * A non-reacting surface. The axial velocity is zero (impermeable), as is the
  * transverse velocity (no slip). The temperature is specified, and a zero flux
@@ -355,6 +360,7 @@ public:
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
     void show(const double* x) override;
 };
+
 
 /**
  * A reacting surface.
