@@ -11,6 +11,22 @@ function ctLoad(mode)
                            ["inprocess", "outofprocess"])} = "outofprocess"
     end
 
+    if ctIsLoaded
+        mode_ = ctExecutionMode;
+        msg = sprintf('Cantera %s is already loaded (%s mode).', ctVersion, mode_);
+        warning("ctLoad:IsLoaded", msg);
+        if mode == mode_ && mode == "inprocess"
+            return
+        elseif mode ~= mode_ && mode_ == "inprocess"
+            error("ctLoad:LoadFailed", ...
+                  ("Unloading of `ctMatlab` library is not supported for " + ...
+                   "'inprocess' execution mode. Restart MATLAB to update."));
+            return
+        else
+            ctUnload;
+        end
+    end
+
     pathVar = dictionary();
     if ismac
         arch = computer("arch");
@@ -20,7 +36,7 @@ function ctLoad(mode)
     end
 
     global ct
-    if isempty(ct)
+    if ~ctIsLoaded
         if isMATLABReleaseOlderThan("R2025a") || strcmp(mode, "inprocess")
             ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
         else

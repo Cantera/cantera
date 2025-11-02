@@ -1,7 +1,7 @@
 function ctCleanUp()
     % Delete all stored Cantera objects and reclaim memory.
 
-    ctIsLoaded;
+    ctIsLoaded(true);
 
     classList = {'Interface', 'Kinetics', 'Mixture', 'ThermoPhase', 'Transport', ...
                  'Solution', 'Func1', 'Domain1D', 'Connector', 'ReactorBase', 'ReactorNet'};

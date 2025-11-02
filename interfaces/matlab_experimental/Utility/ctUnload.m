@@ -1,11 +1,21 @@
 function ctUnload()
-    %UNLOAD Cantera C++ interface and clean up MATLAB side
+    % Unload Cantera MATLAB C++ interface and clean up MATLAB side
+    if ~ctIsLoaded(false)
+        return
+    end
 
     try
         ctCleanUp;
     catch ME
         warning("ctUnload:CleanupFailed", ...
                 "ctCleanUp failed (%s).", ME.message);
+    end
+
+    if ctExecutionMode() == "inprocess"
+        warning("ctUnload:UnloadFailed", ...
+                ("Unloading of `ctMatlab` library is not supported for " + ...
+                 "'inprocess' execution mode. Restart MATLAB to unload."));
+        return
     end
 
     global ct
