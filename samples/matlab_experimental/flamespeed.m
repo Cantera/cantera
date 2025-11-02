@@ -58,10 +58,13 @@ disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
 flame = FreeFlow(gas);
 flame.setupUniformGrid(nz, lz, 0.);
 flame.setSteadyTolerances(1e-5, 1e-11);
+flame.P = pressure;
 
 % Create the inlet
 inlt = Inlet(gas);
-mdot = uIn * rhoIn;
+inlt.T = Tin;
+inlt.X = Xin;
+inlt.massFlux = uIn * rhoIn;
 
 % Create the outlet
 outlt = Outlet(gas);
@@ -82,11 +85,6 @@ names = gas.speciesNames;
 for i = 1:gas.nSpecies
     flame.setProfile(names{i}, locs, [Yin(i), Yin(i), Yout(i), Yout(i)]);
 end
-flame.P = pressure;
-
-inlt.massFlux = mdot;
-inlt.T = Tin;
-inlt.X = Xin;
 
 stack.show();
 

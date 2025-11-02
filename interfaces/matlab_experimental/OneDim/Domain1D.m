@@ -98,6 +98,15 @@ classdef (Abstract) Domain1D < handle
 
         %% Domain1D Utility Methods
 
+        function updateState(d, loc)
+            % Set state of associated phase to specified location.
+            arguments
+                d
+                loc (1,1) double {mustBeInteger} = 0
+            end
+            ctFunc('mDomain_updateState', d.domainID, loc);
+        end
+
         function info(d, rows, width)
             % Print a concise summary of a Domain.
             %

@@ -39,19 +39,14 @@ logLevel = 1;  % Amount of diagnostic output (0 to 5)
 refineGrid = 1;  % 1 to enable refinement, 0 to disable
 
 %%
-% **Create the gas objects for the fuel and oxidizer streams**
+% **Create the gas object for the fuel and oxidizer streams**
 %
-% These objects will be used to evaluate all thermodynamic, kinetic, and
+% This object will be used to evaluate all thermodynamic, kinetic, and
 % transport properties.
 
-fuel = Solution('gri30.yaml', 'gri30', transport);
-ox = Solution('gri30.yaml', 'gri30', transport);
+gas = Solution('gri30.yaml', 'gri30', transport);
 oxcomp = 'O2:0.21, N2:0.78';  % Air composition
 fuelcomp = 'C2H6:1';  % Fuel composition
-
-% Set each gas mixture state with the corresponding composition.
-fuel.TPX = {tin, p, fuelcomp};
-ox.TPX = {tin, p, oxcomp};
 
 %%
 % **Set up the flow object**
@@ -61,7 +56,7 @@ ox.TPX = {tin, p, oxcomp};
 % initialize the flow object. Set the grid to the initial grid defined
 % prior, same for the tolerances.
 
-flow = AxisymmetricFlow(fuel, 'flow');
+flow = AxisymmetricFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
 flow.setSteadyTolerances(tol_ss{:}, 'default');
@@ -73,26 +68,22 @@ flow.setTransientTolerances(tol_ts{:}, 'default');
 % Specify the temperature, mass flux, and composition correspondingly.
 
 % Set the fuel inlet.
-inlet_f = Inlet(fuel, 'fuel_inlet');
-inlet_f.T = tin;
+gas.TPX = {tin, p, fuelcomp};
+inlet_f = Inlet(gas, 'fuel_inlet');
 inlet_f.massFlux = mdot_f;
-inlet_f.X = fuelcomp;
 
 % Set the oxidizer inlet.
-inlet_o = Inlet(ox, 'air_inlet');
-inlet_o.T = tin;
+gas.TPX = {tin, p, oxcomp};
+inlet_o = Inlet(gas, 'air_inlet');
 inlet_o.massFlux = mdot_o;
-inlet_o.X = oxcomp;
 
 %%
 % **Create the flame object**
 %
-% Once the inlets have been created, they can be assembled
-% to create the flame object. Function ``CounterFlorDiffusionFlame``
-% (in ``Cantera/1D``) sets up the initial guess for the solution using a
-% Burke-Schumann flame. The input parameters are: fuel inlet object, flow
-% object, oxidizer inlet object, fuel gas object, oxidizer gas object, and
-% the name of the oxidizer species as in character format.
+% Once the inlets have been created, they can be assembled to create the flame object.
+% The object ``CounterFlowDiffusionFlame`` sets up the initial guess for the solution
+% using a Burke-Schumann flame. The input parameters are: fuel inlet object, flow
+% object, oxidizer inlet object, and, optionally, the name of the oxidizer species.
 
 fl = CounterFlowDiffusionFlame(inlet_f, flow, inlet_o);
 

@@ -69,8 +69,8 @@ flow.energyEnabled = false;
 
 burner = Inlet(gas, 'burner');
 burner.T = Tburner;
-burner.massFlux = mdot;
 burner.X = comp;
+burner.massFlux = mdot;
 uIn = mdot / rhoIn;
 
 %%
