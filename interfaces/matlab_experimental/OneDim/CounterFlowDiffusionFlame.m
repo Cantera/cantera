@@ -26,9 +26,6 @@ classdef CounterFlowDiffusionFlame < Sim1D
                 oxidizer(1, :) char = 'O2'
             end
 
-            tp_f = left.phase;
-            tp_o = right.phase;
-
             %% Define elMoles function
 
             function moles = elMoles(tp, element)
@@ -64,19 +61,32 @@ classdef CounterFlowDiffusionFlame < Sim1D
 
             end
 
-            %% Get the density of both fuel and oxidizer streams.
+            %% Get properties of fuel and oxidizer streams.
             % To be used in determining velocity of each stream. Also get the
             % temperature of both inlet streams.
 
-            rhof = tp_f.massDensity;
+            % Oxidizer stream
+            right.updateState()
+            tp_o = right.phase;
             rho0 = tp_o.massDensity;
-            tf = left.T;
             tox = right.T;
-
-            %% Find the species index of the oxidizer.
-            % To be used in determining initial strain rate.
+            yox = tp_o.Y;
+            sOx = elMoles(tp_o, 'O') - 2 * elMoles(tp_o, 'C') - ...
+                    0.5 * elMoles(tp_o, 'H');
 
             ioxidizer = tp_o.speciesIndex(oxidizer);
+
+            % Fuel stream
+            left.updateState()
+            tp_f = left.phase;
+            rhof = tp_f.massDensity;
+            tf = left.T;
+            yf = tp_f.Y;
+            sFuel = elMoles(tp_f, 'O') - 2 * elMoles(tp_f, 'C') - ...
+                    0.5 * elMoles(tp_f, 'H');
+
+            spec = tp_f.speciesNames;  % Get all of the species names in gas object.
+            nsp = tp_f.nSpecies;  % Get total number of species in gas object.
 
             %% Calculate the stoichiometric mixture fraction.
             % Needed for determining location of flame edges and composition.
@@ -90,10 +100,6 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % conditions. The stoichiometric mixture fraction, Zst, is then
             % calculated.
 
-            sFuel = elMoles(tp_f, 'O') - 2 * elMoles(tp_f, 'C') - ...
-                    0.5 * elMoles(tp_f, 'H');
-            sOx = elMoles(tp_o, 'O') - 2 * elMoles(tp_o, 'C') - ...
-                    0.5 * elMoles(tp_o, 'H');
             phi = sFuel / sOx;
             zst = 1.0 / (1.0 - phi);
 
@@ -101,11 +107,6 @@ classdef CounterFlowDiffusionFlame < Sim1D
             % Use this to set the fuel gas object and calculate adiabatic flame
             % temperature and equilibrium composition.
 
-            spec = tp_f.speciesNames; % Get all of the species names in gas object.
-            nsp = tp_f.nSpecies; % Get total number of species in gas object.
-            % Get the current mass fractions of both fuel and inlet streams.
-            yox = tp_o.Y;
-            yf = tp_f.Y;
             ystoich_double = zeros(1, nsp); % Create empty vector for stoich mass frac.
 
             for n = 1:nsp
