@@ -69,7 +69,7 @@ classdef Func1 < handle
             % :return:
             %     Instance of class :mat:class:`Func1`.
 
-            ctIsLoaded;
+            ctIsLoaded(true);
 
             if isnumeric(typ)
                 % instantiate from handle

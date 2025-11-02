@@ -34,7 +34,7 @@ classdef Interface < Solution
         function s = Interface(src, name, varargin)
             % Create an :mat:class:`Interface` object.
 
-            ctIsLoaded;
+            ctIsLoaded(true);
 
             na = nargin - 2;
 

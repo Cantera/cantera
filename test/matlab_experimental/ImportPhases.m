@@ -10,7 +10,7 @@ function phases = ImportPhases(src, phasenames)
     % :return:
     %      A cell array of :mat:class:`Solution` objects created from each phase.
 
-    ctIsLoaded;
+    ctIsLoaded(true);
 
     if nargin < 2
         error('Please specify the source file and list of phases to import');

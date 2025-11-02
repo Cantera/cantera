@@ -8,6 +8,6 @@ function d = ctDataDirectories()
     % :return:
     %     Cell array with strings representing the data file search directories
 
-    ctIsLoaded;
+    ctIsLoaded(true);
     d = ctString('mCt_getDataDirectories', ';');
 end

@@ -62,7 +62,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                 transport_model (1,1) string = "default"
             end
 
-            ctIsLoaded;
+            ctIsLoaded(true);
 
             if isnumeric(src)
                 % New MATLAB object from existing C++ Solution
