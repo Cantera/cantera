@@ -6,5 +6,5 @@ function r = ElectronCharge
     % :return:
     %     The elementary charge in Coulombs.
 
-    r = ctFunc('ct_ElectronCharge');
+    r = ctFunc('mCt_ElectronCharge');
 end

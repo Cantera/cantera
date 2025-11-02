@@ -7,5 +7,5 @@ function v = ctUsesHDF5()
     %     A string containing the Git commit hash for the current version of Cantera.
 
     ctIsLoaded;
-    v = logical(ctFunc('ct_usesHDF5'));
+    v = logical(ctFunc('mCt_usesHDF5'));
 end

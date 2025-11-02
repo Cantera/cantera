@@ -45,7 +45,7 @@ classdef ReactorSurface < ReactorBase
 
             ctIsLoaded;
             reactorIDs = cellfun(@(r) r.id, reactors);
-            id = ctFunc('reactor_newSurface', surf.solnID, reactorIDs, clone, name);
+            id = ctFunc('mReactor_newSurface', surf.solnID, reactorIDs, clone, name);
             s@ReactorBase(id);
         end
 

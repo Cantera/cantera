@@ -6,5 +6,5 @@ function r = fineStructureConstant
     % :return:
     %     The fine-structure constant (dimensionless).
 
-    r = ctFunc('ct_fineStructureConstant');
+    r = ctFunc('mCt_fineStructureConstant');
 end

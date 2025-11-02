@@ -35,9 +35,9 @@ classdef Inlet < Boundary1D
 
         function set.X(d, X)
             if isa(X, 'float')
-                ctFunc('bdry_setMoleFractions', d.domainID, X);
+                ctFunc('mBdry_setMoleFractions', d.domainID, X);
             else
-                ctFunc('bdry_setMoleFractionsByName', d.domainID, X);
+                ctFunc('mBdry_setMoleFractionsByName', d.domainID, X);
             end
         end
 

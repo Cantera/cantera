@@ -4,5 +4,5 @@ function v = ctMakeDeprecationWarningsFatal()
     %     >> ctMakeDeprecationWarningsFatal()
 
     ctIsLoaded;
-    ctFunc('ct_makeDeprecationWarningsFatal');
+    ctFunc('mCt_makeDeprecationWarningsFatal');
 end

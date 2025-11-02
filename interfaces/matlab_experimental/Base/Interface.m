@@ -44,14 +44,14 @@ classdef Interface < Solution
                 adj(i) = varargin{i}.solnID;
             end
 
-            ID = ctFunc('sol_newInterface', src, name, adj);
+            ID = ctFunc('mSol_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
             s@Solution(ID);
-            s.nAdjacent = ctFunc('sol_nAdjacent', ID);
+            s.nAdjacent = ctFunc('mSol_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
-                s.adjacentNames{i} = ctString('sol_adjacentName', ID, i-1);
+                s.adjacentNames{i} = ctString('mSol_adjacentName', ID, i-1);
             end
         end
 
@@ -72,17 +72,17 @@ classdef Interface < Solution
                 error(['No adjacent phase with name ''' name ''' found.'])
             end
             location = find(exact_match);
-            id = ctFunc('sol_adjacent', s.solnID, location-1);
+            id = ctFunc('mSol_adjacent', s.solnID, location-1);
             adj = Solution(id);
         end
 
         function c = get.coverages(s)
             nsp = s.nSpecies;
-            c = ctArray('surf_getCoverages', nsp, s.tpID);
+            c = ctArray('mSurf_getCoverages', nsp, s.tpID);
         end
 
         function d = get.siteDensity(s)
-            d = ctFunc('surf_siteDensity', s.tpID);
+            d = ctFunc('mSurf_siteDensity', s.tpID);
         end
 
         function set.coverages(s, cov)
@@ -101,9 +101,9 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', s.tpID, cov);
+                ctFunc('mSurf_setCoverages', s.tpID, cov);
             elseif isa(cov, 'char')
-                ctFunc('surf_setCoveragesByName', s.tpID, cov);
+                ctFunc('mSurf_setCoveragesByName', s.tpID, cov);
             end
 
         end
@@ -118,7 +118,7 @@ classdef Interface < Solution
             % :param d
             %    Double site density. Unit: kmol/m^2 for surface phases,
             %    kmol/m for edge phases.
-            ctFunc('surf_setSiteDensity', s.tpID, d);
+            ctFunc('mSurf_setSiteDensity', s.tpID, d);
         end
 
         function setUnnormalizedCoverages(s, cov)
@@ -139,7 +139,7 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('surf_setCoverages', s.tpID, cov, 0);
+                ctFunc('mSurf_setCoverages', s.tpID, cov, 0);
             else
                 error('Coverage must be a numeric array');
             end

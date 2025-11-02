@@ -6,5 +6,5 @@ function r = lightSpeed
     % :return:
     %     The speed of light in m/s.
 
-    r = ctFunc('ct_lightSpeed');
+    r = ctFunc('mCt_lightSpeed');
 end

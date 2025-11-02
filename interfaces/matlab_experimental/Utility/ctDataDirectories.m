@@ -9,5 +9,5 @@ function d = ctDataDirectories()
     %     Cell array with strings representing the data file search directories
 
     ctIsLoaded;
-    d = ctString('ct_getDataDirectories', ';');
+    d = ctString('mCt_getDataDirectories', ';');
 end

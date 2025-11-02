@@ -6,5 +6,5 @@ function r = Planck
     % :return:
     %     Planck's constant in J-s.
 
-    r = ctFunc('ct_Planck');
+    r = ctFunc('mCt_Planck');
 end

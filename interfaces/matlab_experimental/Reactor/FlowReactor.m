@@ -42,20 +42,20 @@ classdef FlowReactor < ReactorBase
             end
 
             ctIsLoaded;
-            id = ctFunc('reactor_new', 'FlowReactor', phase.solnID, clone, name);
+            id = ctFunc('mReactor_new', 'FlowReactor', phase.solnID, clone, name);
             r@ReactorBase(id);
         end
 
         %% FlowReactor Get Methods
 
         function flag = get.massFlowRate(r)
-            rate = ctFunc('reactor_massFlowRate', r.id);
+            rate = ctFunc('mReactor_massFlowRate', r.id);
         end
 
         %% FlowReactor Set Methods
 
         function set.massFlowRate(r, MFR)
-            ctFunc('reactor_setMassFlowRate', r.id, MFR);
+            ctFunc('mReactor_setMassFlowRate', r.id, MFR);
             r.massFlowRate = MFR;
         end
 

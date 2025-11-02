@@ -26,19 +26,29 @@ function ctEditLibraryDefinitions(fileDir)
             continue
         end
 
-        if any(contains(blockLines, '<SHAPE>'))
-            for j = 3:numel(blockLines)
-                if contains(blockLines(j), '<SHAPE>')
-                    % Use name of preceding scalar variable
-                    tokens = regexp(blockLines(j-1), '"(\w+)"', 'tokens', 'once');
-                    if ~isempty(tokens)
-                        shape = ['"' tokens{1} '"'];
-                    else
-                        shape = '1';
-                    end
-                    % Replace <SHAPE> with determined value
-                    blockLines(j) = replace(blockLines(j), '<SHAPE>', shape);
+        % Modify wrapped function names to differentiate from CLib names
+        % as MATLAB changes signature for functions that contain shape information
+        for j = 1:length(blockLines)
+            blockLines(j) = regexprep(blockLines(j), ...
+                'clib\.ctMatlab\.(\w)(\w*)', 'clib.ctMatlab.m${upper($1)}$2');
+        end
+
+        if ~any(contains(blockLines, '<SHAPE>'))
+            lines(blockStartIdx(i):blockEndIdx(i)) = blockLines;
+            continue
+        end
+
+        for j = 3:numel(blockLines)
+            if contains(blockLines(j), '<SHAPE>')
+                % Use name of preceding scalar variable
+                tokens = regexp(blockLines(j-1), '"(\w+)"', 'tokens', 'once');
+                if ~isempty(tokens)
+                    shape = ['"' tokens{1} '"'];
+                else
+                    shape = '1';
                 end
+                % Replace <SHAPE> with determined value
+                blockLines(j) = replace(blockLines(j), '<SHAPE>', shape);
             end
         end
 

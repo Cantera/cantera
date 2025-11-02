@@ -6,5 +6,5 @@ function r = OneBar
     % :return:
     %     One bar in Pascals.
 
-    r = ctFunc('ct_OneBar');
+    r = ctFunc('mCt_OneBar');
 end

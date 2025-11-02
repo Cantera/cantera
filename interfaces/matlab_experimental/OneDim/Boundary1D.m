@@ -41,7 +41,7 @@ classdef (Abstract) Boundary1D < Domain1D
         function b = Boundary1D(type, phase, id)
 
             ctIsLoaded;
-            domainID = ctFunc('domain_newBoundary1D', type, phase.solnID, id);
+            domainID = ctFunc('mDomain_newBoundary1D', type, phase.solnID, id);
             b@Domain1D(domainID);
 
         end
@@ -49,19 +49,19 @@ classdef (Abstract) Boundary1D < Domain1D
         %% Boundary Methods
 
         function temperature = get.T(d)
-            temperature = ctFunc('bdry_temperature', d.domainID);
+            temperature = ctFunc('mBdry_temperature', d.domainID);
         end
 
         function set.T(d, t)
-            ctFunc('bdry_setTemperature', d.domainID, t);
+            ctFunc('mBdry_setTemperature', d.domainID, t);
         end
 
         function mdot = get.massFlux(d)
-            mdot = ctFunc('bdry_mdot', d.domainID);
+            mdot = ctFunc('mBdry_mdot', d.domainID);
         end
 
         function set.massFlux(d, mdot)
-            ctFunc('bdry_setMdot', d.domainID, mdot);
+            ctFunc('mBdry_setMdot', d.domainID, mdot);
         end
 
         function y = massFraction(d, k)
@@ -80,7 +80,7 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %     Mass fraction of species.
 
-            y = ctFunc('bdry_massFraction', d.domainID, k - 1);
+            y = ctFunc('mBdry_massFraction', d.domainID, k - 1);
 
         end
 
@@ -96,7 +96,7 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctFunc('domain_value', d.domainID, component);
+            v = ctFunc('mDomain_value', d.domainID, component);
 
         end
 

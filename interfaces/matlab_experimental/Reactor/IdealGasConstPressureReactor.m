@@ -41,7 +41,7 @@ classdef IdealGasConstPressureReactor < ReactorBase
             end
 
             ctIsLoaded;
-            id = ctFunc('reactor_new', 'IdealGasConstPressureReactor', ...
+            id = ctFunc('mReactor_new', 'IdealGasConstPressureReactor', ...
                         phase.solnID, clone, name);
             r@ReactorBase(id);
         end
