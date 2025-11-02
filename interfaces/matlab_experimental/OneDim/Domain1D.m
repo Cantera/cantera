@@ -98,14 +98,21 @@ classdef (Abstract) Domain1D < handle
             %     >> d.info()
             %
             % :param rows:
-            %       Maximum number of rendered rows.
+            %       Maximum number of rendered rows; defaults to 10.
             % :param width:
-            %       Maximum width of rendered output.
-            if nargin < 2
-                rows = 10;
+            %       Maximum width of rendered output; default adjusts to terminal width.
+            arguments
+                d (1,1) Domain1D
+                rows (1,1) double {mustBeInteger, mustBePositive} = 10
+                width (1,1) double {mustBeInteger} = -1
             end
-            if nargin < 3
-                width = 100;
+            if width < 0
+                try
+                    size = matlab.desktop.commandwindow.size;
+                    width = size(1);
+                catch ME
+                    width = 100;
+                end
             end
             disp(ctString('mDomain_info', d.domainID, rows, width));
             fprintf("\n")
