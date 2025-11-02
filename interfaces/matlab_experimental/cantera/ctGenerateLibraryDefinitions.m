@@ -16,6 +16,7 @@ function ctGenerateLibraryDefinitions(includeDir, ctLibDir, outputDir)
 
     % Get path for the shared library file
     libraries = ctLib(ctLibDir);
+    disp("Using shared library: " + libraries);
 
     if isMATLABReleaseOlderThan("R2024a")
         nameArg = "PackageName";
