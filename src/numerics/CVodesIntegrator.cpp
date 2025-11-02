@@ -92,7 +92,7 @@ extern "C" {
     }
 
     //! Sundials callback. Forwards root evaluations to the active FuncEval
-    static int cvodes_root(realtype t, N_Vector y, realtype *gout, void *user_data)
+    static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
         if (!f) {
@@ -238,8 +238,8 @@ void CVodesIntegrator::setRootFunctionCount(size_t nroots)
         return;
     }
     // Register (or remove) the root callback; passing nullptr disables root finding
-    int flag = CVodeRootInit(m_cvode_mem, static_cast<int>(nroots),
-        nroots ? cvodes_root : nullptr);
+    CVRootFn root_cb = nroots ? &cvodes_root : nullptr;
+    int flag = CVodeRootInit(m_cvode_mem, static_cast<int>(nroots), root_cb);
     checkError(flag, "setRootFunctionCount", "CVodeRootInit");
 }
 
