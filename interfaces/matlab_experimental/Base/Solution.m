@@ -56,26 +56,22 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function s = Solution(src, name, transport_model)
             % Create a :mat:class:`Solution` object.
+            arguments
+                src (1,:)
+                name (1,1) string = ""
+                transport_model (1,1) string = "default"
+            end
 
             ctIsLoaded;
 
             if isnumeric(src)
                 % New MATLAB object from existing C++ Solution
                 ID = src;
-            else
+            elseif ischar(src) | isstring(src)
                 % New C++/MATLAB object from YAML source
-                if ~ischar(src)
-                    error("Invalid argument: Solution requires name of input file.")
-                end
-                if nargin < 2
-                    name = '';
-                end
-
-                if nargin < 3
-                    transport_model = 'default';
-                end
-
                 ID = ctFunc('mSol_newSolution', src, name, transport_model);
+            else
+                error("Invalid argument: Solution requires name of input file.")
             end
 
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
