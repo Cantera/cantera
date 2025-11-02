@@ -1,28 +1,35 @@
-function ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir)
-    % Build the Cantera MATLAB interface.
-    % ctBuildInterface(ctToolboxDir, includeDir, ctLibDir) generates and compiles
-    % the MATLAB interface for Cantera from the provided header files and a
-    % compiled Cantera library.
+function ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir, cleanup)
+    % Build the Cantera MATLAB interface. ::
     %
-    % This function automates the full workflow for creating a usable
-    % MATLAB package:
-    %   1. Calls ctGenerateLibraryDefinitions to create the initial
-    %      `definectMatlab.m` interface definition file from the Cantera C++
+    %   >> ctBuildInterface(ctToolboxDir, includeDir, ctLibDir)
+    %
+    % Generate and compile the MATLAB interface for Cantera from the provided header
+    % files and a compiled Cantera library.
+    %
+    % This function automates the full workflow for creating a usable MATLAB package::
+    %
+    %   1. Calls the local `ctGenerateLibraryDefinitions` function to create the
+    %      initial `definectMatlab.m` interface definition file from the Cantera C++
     %      headers and libraries.
-    %   2. Post-processes the generated file with ctEditLibraryDefinitions to
-    %      handle edge cases in array argument shapes and cleanup.
-    %   3. Uses MATLAB's CLib generation functions to build the interface.
+    %   2. Post-processes the generated file with the local `ctEditLibraryDefinitions`
+    %      function to handle array argument shapes and cleanup.
+    %   3. Uses MATLAB's C++ interface generation functions to build the interface.
     %   4. Adds the generated interface folder to the MATLAB path.
     %   5. Copies runtime dependencies and saves the updated path.
     %
-    % Input arguments:
-    %   ctToolboxDir       - Root directory of the Cantera MATLAB toolbox.
-    %   ctIncludeDir       - Path to the Cantera include directory.
-    %   ctLibDir           - Path to the compiled Cantera library.
+    % :param ctToolboxDir:
+    %       Root directory of the Cantera MATLAB toolbox.
+    % :param ctIncludeDir:
+    %       Path to the Cantera include directory.
+    % :param ctLibDir:
+    %       Path to the compiled Cantera library.
+    % :param cleanup:
+    %       Flag indicating whether to delete `definectMatlab.m` after compilation.
     arguments
         ctToolboxDir (1,1) string {mustBeFolder}
         ctIncludeDir (1,1) string {mustBeFolder}
         ctLibDir (1,1) string {mustBeFolder}
+        cleanup (1,1) logical = true
     end
 
     if ~isfolder(ctIncludeDir + "/cantera_clib")
@@ -36,7 +43,7 @@ function ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir)
     ctLibDir = string(ctLibDir);
     outputDir = ctToolboxDir + "/cantera";
 
-    % Display the paths (Optional step, for debugging)
+    % Display the paths
     disp("Paths used in the build process:");
     disp("Cantera Toolbox Root: " + ctToolboxDir);
     disp("Include Directory: " + ctIncludeDir);
@@ -51,7 +58,131 @@ function ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir)
     build(libDef);
     addpath(fullfile(libDef.OutputFolder,libDef.InterfaceName));
     libDef.copyRuntimeDependencies(Verbose=true);
-    delete(fullfile(outputDir, 'definectMatlab.m'));
+    if cleanup
+        delete(fullfile(outputDir, 'definectMatlab.m'));
+    end
     delete(fullfile(outputDir, 'ctMatlabData.xml'));
     savepath;
+end
+
+function ctGenerateLibraryDefinitions(includeDir, ctLibDir, outputDir)
+    % Generate the MATLAB interface definition file.
+    %
+    % `ctGenerateLibraryDefinitions` creates the `definectMatlab.m` interface
+    % definition file for the Cantera C library. This file is later compiled into
+    % the MATLAB interface.
+    %
+    % The function::
+    %
+    %   1. Collects all header files under headerDir.
+    %   2. Locates the compiled Cantera shared library in ctLibDir.
+    %   3. Configures the MATLAB C++ compiler (MEX).
+    %   4. Calls `clibgen` to produce the `definectMatlab.m` file in outputDir.
+
+    headerFiles = dir(fullfile(includeDir, 'cantera_clib', '*.h'));
+    headerPaths = string({headerFiles.name});
+    headerPaths = fullfile({headerFiles.folder}, headerPaths);
+
+    % Get path for the shared library file
+    libraries = ctLib(ctLibDir);
+    disp("Using shared library: " + libraries);
+
+    if isMATLABReleaseOlderThan("R2024a")
+        nameArg = "PackageName";
+    else
+        nameArg = "InterfaceName";
+    end
+
+    overwriteExistingDefinitionFiles = true;
+
+    % Set up C++ compiler
+    mex -setup cpp
+
+    % Generate definition file for C++ library
+    clibgen.generateLibraryDefinition(headerPaths, ...
+        "IncludePath", includeDir, ...
+        "Libraries", libraries, ...
+        "OutputFolder", outputDir, ...
+        nameArg, "ctMatlab", ...
+        "OverwriteExistingDefinitionFiles", overwriteExistingDefinitionFiles, ...
+        "CLinkage", true, ...
+        "TreatObjectPointerAsScalar", true, ...
+        "TreatConstCharPointerAsCString", true, ...
+        "ReturnCArrays", false, ...
+        "Verbose", true);
+end
+
+function ctEditLibraryDefinitions(fileDir)
+    % Post-process auto-generated library definition file.
+    %
+    % `ctEditLibraryDefinitions` edits the autogenerated `definectMatlab.m` file
+    % created by MATLAB's C++ interface generator. Specifically::
+    %
+    %   - Add prefix `m` to differentiate MATLAB wrapped function names from CLib
+    %     function names, as signatures may differ.
+    %   - Adjusts array "shape" placeholders (`<SHAPE>`) for functions passing arrays.
+    %   - Clean up commented-out lines and trailing inline comments so that the
+    %     resulting file can be compiled as part of the Cantera MATLAB interface.
+
+    fname = fileDir + "/definectMatlab.m";
+    % Read original file
+    lines = string(readlines(fname));
+
+    % Find block boundaries
+    blockStartIdx = find(startsWith(lines, "%% "));
+    blockEndIdx = [blockStartIdx(2:end) - 1; numel(lines)];
+
+    % Process each block
+    for i = 2:numel(blockStartIdx)
+        blockLines = lines(blockStartIdx(i):blockEndIdx(i));
+
+        if any(contains(blockLines, '<DIRECTION>'))
+            continue
+        end
+
+        % Modify wrapped function names to differentiate from CLib names
+        % as MATLAB changes signature for functions that contain shape information
+        for j = 1:length(blockLines)
+            blockLines(j) = regexprep(blockLines(j), ...
+                'clib\.ctMatlab\.(\w)(\w*)', 'clib.ctMatlab.m${upper($1)}$2');
+        end
+
+        if ~any(contains(blockLines, '<SHAPE>'))
+            lines(blockStartIdx(i):blockEndIdx(i)) = blockLines;
+            continue
+        end
+
+        for j = 3:numel(blockLines)
+            if contains(blockLines(j), '<SHAPE>')
+                % Use name of preceding scalar variable
+                tokens = regexp(blockLines(j-1), '"(\w+)"', 'tokens', 'once');
+                if ~isempty(tokens)
+                    shape = ['"' tokens{1} '"'];
+                else
+                    shape = '1';
+                end
+                % Replace <SHAPE> with determined value
+                blockLines(j) = replace(blockLines(j), '<SHAPE>', shape);
+            end
+        end
+
+        % Uncomment and clean up trailing comments
+        for j = 3:numel(blockLines)
+            line = strtrim(blockLines(j));
+            if startsWith(line, "%")
+                line = extractAfter(line, 1);
+            end
+            pctIdx = strfind(line, '%');
+            if ~isempty(pctIdx)
+                lastPct = pctIdx(end);
+                line = strtrim(extractBefore(line, lastPct));
+            end
+            blockLines(j) = line;
+        end
+
+        lines(blockStartIdx(i):blockEndIdx(i)) = blockLines;
+    end
+
+    % Write to libDef file
+    writelines(lines, fname);
 end
