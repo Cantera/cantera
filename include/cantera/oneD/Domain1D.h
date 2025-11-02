@@ -818,6 +818,8 @@ protected:
     //! Retrieve meta data
     virtual void setMeta(const AnyMap& meta);
 
+    double m_press = -1.0; //!< pressure [Pa]
+
     shared_ptr<vector<double>> m_state; //!< data pointer shared from OneDim
 
     double m_rdt = 0.0; //!< Reciprocal of the time step

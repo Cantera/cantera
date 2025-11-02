@@ -90,8 +90,13 @@ Inlet1D::Inlet1D(shared_ptr<Solution> phase, const string& id)
     m_solution = phase;
     m_solution->thermo()->addSpeciesLock();
     m_id = id;
+    auto thermo = phase->thermo();
+    m_temp = thermo->temperature();
+    m_press = thermo->pressure();
+    m_nsp = thermo->nSpecies();
+    m_yin.resize(m_nsp);
+    thermo->getMassFractions(m_yin.data());
 }
-
 
 //! set spreading rate
 void Inlet1D::setSpreadRate(double V0)
@@ -127,21 +132,32 @@ void Inlet1D::show(const double* x)
 
 void Inlet1D::setMoleFractions(const string& xin)
 {
-    m_xstr = xin;
-    if (m_flow) {
-        m_flow->phase().setMoleFractionsByName(xin);
-        m_flow->phase().getMassFractions(m_yin.data());
+    if (m_solution) {
+        auto thermo = m_solution->thermo();
+        thermo->setMoleFractionsByName(xin);
+        thermo->getMassFractions(m_yin.data());
         needJacUpdate();
+    } else {
+        m_xstr = xin;
     }
 }
 
 void Inlet1D::setMoleFractions(const double* xin)
 {
-    if (m_flow) {
-        m_flow->phase().setMoleFractions(xin);
-        m_flow->phase().getMassFractions(m_yin.data());
+    if (m_solution) {
+        auto thermo = m_solution->thermo();
+        thermo->setMoleFractions(xin);
+        thermo->getMassFractions(m_yin.data());
         needJacUpdate();
     }
+}
+
+void Inlet1D::updateState(size_t loc)
+{
+    if (m_flow) {
+        m_press = m_flow->pressure();
+    }
+    m_solution->thermo()->setState_TPY(m_temp, m_press, m_yin.data());
 }
 
 void Inlet1D::init()
@@ -165,16 +181,20 @@ void Inlet1D::init()
     } else {
         throw CanteraError("Inlet1D::init", "Inlet1D is not properly connected.");
     }
+    m_press = m_flow->pressure();
 
     // components = u, V, T, Lambda, + mass fractions
-    m_nsp = m_flow->phase().nSpecies();
-    m_yin.resize(m_nsp, 0.0);
-    if (m_xstr != "") {
-        setMoleFractions(m_xstr);
-    } else {
+    if (!m_nsp) {
+        m_nsp = m_flow->phase().nSpecies();
+        m_yin.resize(m_nsp, 0.0);
         m_yin[0] = 1.0;
     }
-
+    if (m_temp > 0) {
+        setTemperature(m_temp);
+    }
+    if (m_xstr != "") {
+        setMoleFractions(m_xstr);
+    }
 }
 
 void Inlet1D::eval(size_t jg, double* xg, double* rg,

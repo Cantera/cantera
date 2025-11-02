@@ -921,8 +921,6 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    double m_press = -1.0; //!< pressure [Pa]
-
     //! Grid spacing. Element `j` holds the value of `z(j+1) - z(j)`.
     vector<double> m_dz;
 
