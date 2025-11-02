@@ -87,6 +87,14 @@ public:
         warn("setLinearSolverType");
     }
 
+    //! Configure the number of root functions evaluated by the integrator
+    virtual void setRootFunctionCount(size_t nroots) {
+        (void) nroots;
+    }
+
+    //! Current value of the independent variable represented by the integrator
+    virtual double currentTime() const = 0;
+
     //! Set preconditioner used by the linear solver
     /*!
      * @param preconditioner preconditioner object used for the linear solver

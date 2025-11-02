@@ -368,6 +368,8 @@ public:
     //! The function evaluates gout[0] = 1 - max_i(|y[i]-y_base[i]|/limit[i]).
     //! If advance limits are disabled or the limit check is inactive, gout[0]
     //! is set to a positive value so that no root is detected.
+    size_t nRootFunctions() const override;
+    int evalRootFunctions(double t, const double* y, double* gout) override;
     int advanceLimitRootFunc(double t, const double* y, double* gout);
 
 protected:

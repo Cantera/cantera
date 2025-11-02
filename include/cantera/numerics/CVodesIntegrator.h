@@ -81,6 +81,12 @@ public:
     //! Error message information provide by CVodes
     string m_error_message;
 
+    double currentTime() const override {
+        return m_time;
+    }
+
+    void setRootFunctionCount(size_t nroots) override;
+
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called
     //! during integrator initialization or reinitialization.
@@ -132,6 +138,7 @@ private:
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok = false;
+    size_t m_nRootFunctions = 0;
 };
 
 } // namespace
