@@ -105,10 +105,6 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
             flow->setProfile(gas->speciesName(i), locs, value);
         }
 
-        inlet->setMoleFractions(x.data());
-        inlet->setMdot(mdot);
-        inlet->setTemperature(temp);
-
         flame.show();
 
         double ratio = 10.0;
