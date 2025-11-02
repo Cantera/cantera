@@ -1,12 +1,12 @@
 classdef ReactingSurface < Boundary1D
     % Create a reacting surface domain. ::
     %
-    %     >> m = ReactingSurface(surface_mech, id)
+    %     >> m = ReactingSurface(surface_mech, name)
     %
     % :param surface_mech:
     %     Instance of class :mat:class:`Interface` defining
     %     the surface reaction mechanism to be used.
-    % :param id:
+    % :param name:
     %     String ID of the reacting surface.
     % :return:
     %     Instance of class :mat:class:`ReactingSurface`.
@@ -27,17 +27,13 @@ classdef ReactingSurface < Boundary1D
 
         %% ReactingSurface Class Constructor
 
-        function s = ReactingSurface(surface_mech, id)
-
-            if nargin < 2
-                id = 'reacting-surface';
+        function s = ReactingSurface(surface_mech, name)
+            arguments
+                surface_mech (1,1) Interface
+                name (1,1) string = "reacting-surface"
             end
 
-            if ~isa(surface_mech, 'Interface')
-                error('Wrong argument type. Expecting an instance of Interface class.');
-            end
-
-            s@Boundary1D('reacting-surface', surface_mech, id);
+            s@Boundary1D('reacting-surface', surface_mech, name);
             s.coverageEnabled = false;
         end
 

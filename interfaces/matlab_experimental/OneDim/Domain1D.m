@@ -22,10 +22,11 @@ classdef (Abstract) Domain1D < handle
 
     properties (SetAccess = immutable)
 
-        domainID % ID of the domain
+        domainID = -1  % ID of the domain
 
         % The Solution object used to represent the contents of this domain.
-        phase
+        phase Solution
+
     end
 
     properties (SetAccess = protected)
@@ -76,10 +77,13 @@ classdef (Abstract) Domain1D < handle
     methods
         %% Domain1D Class Constructor.
 
-        function d = Domain1D(domainID)
+        function d = Domain1D(id)
             % Create a :mat:class:`Domain1D` object.
-            d.domainID = domainID;
-            phaseID = ctFunc('mDomain_phase', domainID);
+            arguments
+                id (1,1) double {mustBeInteger}
+            end
+            d.domainID = id;
+            phaseID = ctFunc('mDomain_phase', id);
             d.phase= Solution(phaseID);
         end
 
@@ -87,7 +91,9 @@ classdef (Abstract) Domain1D < handle
 
         function delete(d)
             % Delete the :mat:class:`Domain1D` object.
-            ctFunc('mDomain_del', d.domainID);
+            if d.domainID >= 0
+                ctFunc('mDomain_del', d.domainID);
+            end
         end
 
         %% Domain1D Utility Methods

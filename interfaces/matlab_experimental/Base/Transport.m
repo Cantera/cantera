@@ -41,10 +41,8 @@ classdef (Abstract) Transport < handle
 
         function tr = Transport(id)
             % Create a :mat:class:`Transport` object.
-            ctIsLoaded;
-
-            if ~isnumeric(id)
-                error('Invalid argument: constructor requires integer solution ID.')
+            arguments
+                id (1,1) double {mustBeInteger}
             end
 
             tr.trID = ctFunc('mSol_transport', id);

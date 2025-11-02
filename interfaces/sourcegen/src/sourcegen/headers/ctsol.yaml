@@ -28,6 +28,9 @@ recipes:
   wraps: adjacent(size_t)
   uses: nAdjacent
   what: accessor
+- name: adjacentByName
+  wraps: adjacent(const string&)
+  what: accessor
 - name: adjacentName
 - name: source
 # service functions

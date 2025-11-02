@@ -55,24 +55,11 @@ classdef Interface < Solution
             end
         end
 
-        %% Interface Class Destructor
-
-        function delete(s)
-            % Delete :mat:class:`Interface` object.
-
-            delete@Solution(s);
-        end
-
         %% Interface Get Methods
 
         function adj = adjacent(s, name)
             % Get adjacent phase of an interface by name.
-            exact_match = strcmp(s.adjacentNames, name);
-            if sum(exact_match) ~= 1
-                error(['No adjacent phase with name ''' name ''' found.'])
-            end
-            location = find(exact_match);
-            id = ctFunc('mSol_adjacent', s.solnID, location-1);
+            id = ctFunc('mSol_adjacentByName', s.solnID, name);
             adj = Solution(id);
         end
 

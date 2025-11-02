@@ -1,7 +1,7 @@
 classdef (Abstract) Flow1D < Domain1D
     % Create a Flow domain. ::
     %
-    %     >> m = Flow1D(type, phase, id)
+    %     >> m = Flow1D(type, phase, name)
     %
     % :param type:
     %    String type of domain. Possible values are:
@@ -9,7 +9,7 @@ classdef (Abstract) Flow1D < Domain1D
     %      - `free-flow`
     % :param phase:
     %     Instance of class :mat:class:`Solution`.
-    % :param id:
+    % :param name:
     %     String, ID of the flow.
     % :return:
     %     Instance of class :mat:class:`Flow1D`.
@@ -34,11 +34,14 @@ classdef (Abstract) Flow1D < Domain1D
 
         %% Flow1D Class Constructor
 
-        function f = Flow1D(type, phase, id)
-
-            ctIsLoaded;
-            domainID = ctFunc('mDomain_newFlow1D', type, phase.solnID, id);
-            f@Domain1D(domainID);
+        function f = Flow1D(type, phase, name)
+            arguments
+                type (1,1) string
+                phase (1,1) Solution
+                name (1,1) string
+            end
+            id = ctFunc('mDomain_newFlow1D', type, phase.solnID, name);
+            f@Domain1D(id);
             f.energyEnabled = false;
             f.soretEnabled = false;
 
@@ -205,21 +208,12 @@ classdef (Abstract) Flow1D < Domain1D
             %    retained or curve value is below prune for all components,
             %    it will be deleted, unless either neighboring point is
             %    already marked for deletion.
-
-            if nargin < 3
-                ratio = 10.0;
-            end
-
-            if nargin < 4
-                slope = 0.8;
-            end
-
-            if nargin < 5
-                curve = 0.8;
-            end
-
-            if nargin < 6
-                prune = -0.1;
+            arguments
+                d
+                ratio (1,1) double {mustBePositive} = 10.0
+                slope (1,1) double {mustBePositive} = 0.8
+                curve (1,1) double {mustBePositive} = 0.8
+                prune (1,1) double = -0.1
             end
 
             ctFunc('mDomain_setRefineCriteria', d.domainID, ratio, slope, curve, prune);

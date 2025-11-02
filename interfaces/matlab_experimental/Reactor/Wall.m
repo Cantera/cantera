@@ -86,8 +86,8 @@ classdef Wall < Connector
             % Create a :mat:class:`Wall` object.
 
             arguments
-                l {mustBeA(l, 'ReactorBase')}
-                r {mustBeA(r, 'ReactorBase')}
+                l (1,1) ReactorBase
+                r (1,1) ReactorBase
                 name (1,1) string = "(none)"
             end
 

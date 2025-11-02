@@ -2,7 +2,7 @@ classdef (Abstract) ReactorBase < handle
 
     properties (SetAccess = immutable)
 
-        id % ID of reactor.
+        id = -1  % ID of reactor.
 
         % The Solution object used to represent the contents of this reactor.
         % If the `clone` parameter of the reactor constructor is true,
@@ -100,7 +100,9 @@ classdef (Abstract) ReactorBase < handle
 
         function delete(r)
             % Delete the :mat:class:`ReactorBase` object.
-            ctFunc('mReactor_del', r.id);
+            if r.id >= 0
+                ctFunc('mReactor_del', r.id);
+            end
         end
 
         %% ReactorBase Utility Methods
@@ -194,7 +196,7 @@ classdef (Abstract) ReactorBase < handle
 
         function set.chemistryEnabled(r, flag)
             arguments
-                r {mustBeA(r, 'ReactorBase')}
+                r (1,1) ReactorBase
                 flag (1,1) logical
             end
 
@@ -203,7 +205,7 @@ classdef (Abstract) ReactorBase < handle
 
         function set.energyEnabled(r, flag)
             arguments
-                r {mustBeA(r, 'ReactorBase')}
+                r (1,1) ReactorBase
                 flag (1,1) logical
             end
 

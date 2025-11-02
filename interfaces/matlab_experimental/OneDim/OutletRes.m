@@ -1,25 +1,25 @@
 classdef OutletRes < Boundary1D
     % Create an outlet reservoir domain. ::
     %
-    %     >> m = OutletRes(phase, id)
+    %     >> m = OutletRes(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`Solution`.
-    % :param id:
+    % :param name:
     %     String ID of the outlet reservoir.
     % :return:
     %     Instance of :mat:class:`OutletRes`.
 
     methods
 
-        function m = OutletRes(phase, id)
+        function m = OutletRes(phase, name)
             % Constructor
-
-            if nargin < 2
-                id = 'outlet-reservoir';
+            arguments
+                phase (1,1) Solution
+                name (1,1) string = "outlet-reservoir"
             end
 
-            m@Boundary1D('outlet-reservoir', phase, id);
+            m@Boundary1D('outlet-reservoir', phase, name);
 
         end
 

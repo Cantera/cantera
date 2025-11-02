@@ -16,7 +16,7 @@ classdef Sim1D < handle
 
     properties (SetAccess = immutable)
 
-        stID % ID of the Sim1D object.
+        stID = -1  % ID of the Sim1D object.
 
         domains % Domain instances contained within the :mat:class:`Sim1D` object.
 
@@ -28,10 +28,12 @@ classdef Sim1D < handle
 
         function s = Sim1D(domains)
             % Create a :mat:class:`Sim1D` object.
-
-            ctIsLoaded;
-
-            s.stID = -1;
+            arguments
+                domains (1,:) cell
+            end
+            if ~all(cellfun(@(d) isa(d, 'Domain1D'), domains))
+                error('All elements must be Domain1D objects');
+            end
             s.domains = domains;
 
             nd = length(domains);
@@ -49,7 +51,9 @@ classdef Sim1D < handle
 
         function delete(s)
             % Delete the :mat:class:`Sim1D` object.
-            ctFunc('mSim1D_del', s.stID);
+            if s.stID >= 0
+                ctFunc('mSim1D_del', s.stID);
+            end
         end
 
         %% Sim1D Utility Methods
@@ -95,15 +99,12 @@ classdef Sim1D < handle
             %     Description to be written to the output file.
             % :param overwrite:
             %     Force overwrite if file/name exists; optional (default=false)
-
-            if nargin < 3
-                error('Not enough input arguments');
-            end
-            if nargin < 4
-                desc = '';
-            end
-            if nargin < 5
-                overwrite = false;
+            arguments
+                s
+                fname (1,1) string
+                id (1,1) string
+                desc (1,1) string = ""
+                overwrite (1,1) logical = false
             end
 
             ctFunc('mSim1D_save', s.stID, fname, id, desc, overwrite);

@@ -42,8 +42,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
-        solnID % ID of the :mat:class:`Solution` object.
-        solnName % Name of the :mat:class:`Solution` object.
+        solnID = -1  % ID of the :mat:class:`Solution` object.
+        solnName  % Name of the :mat:class:`Solution` object.
     end
 
     properties (SetAccess = public)
@@ -87,7 +87,9 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-            ctFunc('mSol_del', s.solnID);
+            if s.solnID >= 0
+                ctFunc('mSol_del', s.solnID);
+            end
         end
 
         %% Solution Class Getter Methods

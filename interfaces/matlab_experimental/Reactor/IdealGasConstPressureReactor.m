@@ -33,14 +33,12 @@ classdef IdealGasConstPressureReactor < ReactorBase
 
         function r = IdealGasConstPressureReactor(phase, name, clone)
             % Constructor
-
             arguments
-                phase {mustBeA(phase, 'Solution')}
+                phase (1,1) Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            ctIsLoaded;
             id = ctFunc('mReactor_new', 'IdealGasConstPressureReactor', ...
                         phase.solnID, clone, name);
             r@ReactorBase(id);

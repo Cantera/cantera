@@ -33,7 +33,7 @@ classdef ReactorSurface < ReactorBase
             % Create a :mat:class:`ReactorSurface` object.
 
             arguments
-                surf {mustBeA(surf, 'Interface')}
+                surf (1,1) Interface
                 reactors
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
@@ -43,7 +43,6 @@ classdef ReactorSurface < ReactorBase
                 reactors = {reactors};
             end
 
-            ctIsLoaded;
             reactorIDs = cellfun(@(r) r.id, reactors);
             id = ctFunc('mReactor_newSurface', surf.solnID, reactorIDs, clone, name);
             s@ReactorBase(id);

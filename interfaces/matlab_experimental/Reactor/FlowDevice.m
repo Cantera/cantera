@@ -64,11 +64,10 @@ classdef (Abstract) FlowDevice < Connector
 
             arguments
                 typ (1,1) string
-                upstream {mustBeA(upstream, 'ReactorBase')}
-                downstream {mustBeA(downstream, 'ReactorBase')}
+                upstream (1,1) ReactorBase
+                downstream (1,1) ReactorBase
                 name (1,1) string = "(none)"
             end
-            ctIsLoaded;
 
             x@Connector(typ, upstream, downstream, name);
             x.upstream = upstream;

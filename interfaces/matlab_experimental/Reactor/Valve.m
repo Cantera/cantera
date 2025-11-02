@@ -37,8 +37,8 @@ classdef Valve < FlowDevice
             % Constructor
 
             arguments
-                upstream {mustBeA(upstream, 'ReactorBase')}
-                downstream {mustBeA(downstream, 'ReactorBase')}
+                upstream (1,1) ReactorBase
+                downstream (1,1) ReactorBase
                 name (1,1) string = "(none)"
             end
 

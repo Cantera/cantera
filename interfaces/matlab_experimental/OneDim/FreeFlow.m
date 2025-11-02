@@ -1,25 +1,25 @@
 classdef FreeFlow < Flow1D
     % Create a free flow domain. ::
     %
-    %     >> m = FreeFlow(phase, id)
+    %     >> m = FreeFlow(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`Solution`.
-    % :param id:
+    % :param name:
     %     String, ID of the flow.
     % :return:
     %     Instance of class :mat:class:`FreeFlow`.
 
     methods
 
-        function m = FreeFlow(phase, id)
+        function m = FreeFlow(phase, name)
             % Constructor
-
-            if nargin < 2
-                id = 'free-flow';
+            arguments
+                phase (1,1) Solution
+                name (1,1) string = "free-flow"
             end
 
-            m@Flow1D('free-flow', phase, id);
+            m@Flow1D('free-flow', phase, name);
 
         end
 
