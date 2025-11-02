@@ -87,12 +87,17 @@ public:
         warn("setLinearSolverType");
     }
 
-    //! Configure the number of root functions evaluated by the integrator
+    //! Configure how many event/root functions the integrator should monitor
+    /*!
+     * Callers toggle this to enable/disable root finding on the fly (when
+       ReactorNet enforces advance limits).
+     * @param nroots Number of root functions
+     */
     virtual void setRootFunctionCount(size_t nroots) {
         (void) nroots;
     }
 
-    //! Current value of the independent variable represented by the integrator
+    //! Current value of the independent variable tracked by the integrator
     virtual double currentTime() const = 0;
 
     //! Set preconditioner used by the linear solver

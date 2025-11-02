@@ -248,16 +248,15 @@ double ReactorNet::advance(double time, bool applylimit)
         return time;
     }
 
-    // Enable root-based limit detection for this advance call
-    // Set the base state to the current state
+    // Enable root-based limit detection and set the base state to the current state
     m_ybase.assign(m_nv, 0.0);
     getState(m_ybase.data());
     m_ybase_time = m_time;
     m_limit_check_active = true;
     m_integ->setRootFunctionCount(nRootFunctions());
 
-    // Integrate toward the requested time; integrator will return early
-    // if a limit is reached (CV_ROOT_RETURN)
+    // Integrate toward the requested time; integrator will return early if a limit is
+    // reached (CV_ROOT_RETURN)
     try {
         m_integ->integrate(time);
     } catch (...) {
@@ -267,17 +266,16 @@ double ReactorNet::advance(double time, bool applylimit)
     }
     m_time = m_integ->currentTime();
 
-    // Update reactor states to match the integrator solution at the time
-    // reached (which may be earlier than 'time' if a limit was triggered)
+    // Update reactor states to match the integrator solution at the time reached
+    // (which may be earlier than 'time' if a limit was triggered)
     updateState(m_integ->solution());
 
     // Disable limit checking after this call
     m_limit_check_active = false;
     m_integ->setRootFunctionCount(nRootFunctions());
 
-    // Verbose logging analogous to prior predictive limiter: when a root event
-    // stopped integration before reaching the requested time, report the most
-    // limiting component and details about the step.
+    // When a root event stopped integration before reaching the requested time, report
+    // the most limiting component and details about the step.
     if (m_verbose && m_time < time) {
         // Ensure limits are available
         if (m_advancelimits.size() != m_nv) {

@@ -137,12 +137,15 @@ public:
      */
     int preconditioner_solve_nothrow(double* rhs, double* output);
 
-    //! Number of root functions used for event detection
+    //! Number of event/root functions exposed to the integrator (0 disables root finding)
     virtual size_t nRootFunctions() const {
         return 0;
     }
 
-    //! Evaluate root functions used for event detection
+    /** Evaluate the event/root functions currently in play.
+     * Integrators invoke this whenever root finding is enabled; implementations
+     * should fill `gout` with the function values and return 0 on success.
+     */
     virtual int evalRootFunctions(double t, const double* y, double* gout) {
         return 0;
     }

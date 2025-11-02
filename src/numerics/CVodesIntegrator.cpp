@@ -91,6 +91,7 @@ extern "C" {
         return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
     }
 
+    //! Sundials callback. Forwards root evaluations to the active FuncEval
     static int cvodes_root(realtype t, N_Vector y, realtype *gout, void *user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
@@ -227,13 +228,16 @@ void CVodesIntegrator::setMaxErrTestFails(int n)
 
 void CVodesIntegrator::setRootFunctionCount(size_t nroots)
 {
+    // Skip the Sundials call when the requested count matches what CVODE already has
     if (m_cvode_mem && m_nRootFunctions == nroots) {
         return;
     }
     m_nRootFunctions = nroots;
+    // When initialize() hasn’t created CVODE memory yet, just cache the count
     if (!m_cvode_mem) {
         return;
     }
+    // Register (or remove) the root callback; passing nullptr disables root finding
     int flag = CVodeRootInit(m_cvode_mem, static_cast<int>(nroots),
         nroots ? cvodes_root : nullptr);
     checkError(flag, "setRootFunctionCount", "CVodeRootInit");
