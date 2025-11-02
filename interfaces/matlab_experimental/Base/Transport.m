@@ -1,4 +1,4 @@
-classdef Transport < handle
+classdef (Abstract) Transport < handle
     % Transport Class ::
     %
     %     >> tr = Transport(id)
