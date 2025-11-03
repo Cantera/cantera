@@ -249,16 +249,14 @@ jobs:
     - name: Rebuild Cantera with generated CLib
       run: |
         scons build clib_legacy=n -j3
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
     - name: Run googletests for generated CLib
       run: scons test-clib --debug=time
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
     - name: Upload shared library
       uses: actions/upload-artifact@v5
-      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-14'
+      if: matrix.python-version == '3.12'
       with:
         path: build/lib/libcantera_shared.dylib
-        name: libcantera_shared.dylib
+        name: libcantera_shared-${{ matrix.macos-version }}.dylib
         retention-days: 2
 
   # Coverage is its own job because macOS builds of the samples
@@ -891,7 +889,7 @@ jobs:
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/cantera_shared.dll
-        name: cantera_shared-windows_2022.dll
+        name: cantera_shared-windows-2022.dll
         retention-days: 2
 
   windows:
@@ -958,7 +956,7 @@ jobs:
         if: matrix.python-version == '3.11'
         with:
           path: build/lib/cantera_shared.dll
-          name: cantera_shared-windows_2025.dll
+          name: cantera_shared-windows-2025.dll
           retention-days: 2
 
   # Adapted from https://www.scivision.dev/intel-oneapi-github-actions/
@@ -1106,18 +1104,11 @@ jobs:
       name: Checkout the repository
       with:
         persist-credentials: false
-    - name: Set Python version (Windows)
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.10"
-        architecture: x64
-      if: runner.os == 'Windows'
-    - name: Set Python version (macOS)
+    - name: Set Python version
+      # Python version does not matter as it is only used to run sourcegen
       uses: actions/setup-python@v6
       with:
         python-version: "3.12"
-      if: runner.os == 'macOS'
-      # Ubuntu uses default system Python 3
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
       with:
@@ -1144,7 +1135,7 @@ jobs:
       # Install Python dependencies, which are used by 'dotnet build'
       run: |
         python3 -m pip install --upgrade pip setuptools wheel build
-        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
+        python3 -m pip install ruamel.yaml Jinja2
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v5
       with:
@@ -1152,27 +1143,21 @@ jobs:
     - name: Download the Cantera shared library (.so)
       uses: actions/download-artifact@v6
       with:
-        name: libcantera_shared-ubuntu-22.04.so
+        name: libcantera_shared-${{ matrix.os }}.so
         path: build/lib
       if: runner.os == 'Linux'
     - name: Download the Cantera shared library (.dylib)
       uses: actions/download-artifact@v6
       with:
-        name: libcantera_shared.dylib
+        name: libcantera_shared-${{ matrix.os }}.dylib
         path: build/lib
       if: runner.os == 'macOS'
     - name: Download the Cantera shared library (.dll)
       uses: actions/download-artifact@v6
       with:
-        name: cantera_shared-windows_2022.dll
+        name: cantera_shared-${{ matrix.os }}.dll
         path: build/lib
-      if: matrix.os == 'windows-2022'
-    - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v5
-      with:
-        name: cantera_shared-windows_2025.dll
-        path: build/lib
-      if: matrix.os == 'windows-2025'
+      if: runner.os == 'Windows'
     - name: Download the Doxygen artifacts
       uses: actions/download-artifact@v6
       with:
@@ -1209,10 +1194,20 @@ jobs:
       run: sourcegen --api=yaml --output=build/yaml -v
 
   matlab:
-    name: MATLAB on ${{ matrix.os }}
+    name: MATLAB ${{ matrix.release }} on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2025, macos-14]
+        os: [ubuntu-24.04, windows-2025, macos-14]
+        release: [R2024a, latest]
+        include:
+        - os: 'macos-14'
+          release: 'R2024b'
+        - os: 'macos-15'
+          release: 'latest'
+        exclude:
+        - os: 'ubuntu-24.04'
+          release: 'R2024a'
+          # excluded due to glibc compatility issues; see #2035
       fail-fast: false
     env:
       CANTERA_ROOT: ${{ github.workspace }}
@@ -1225,18 +1220,11 @@ jobs:
       name: Checkout the repository
       with:
         persist-credentials: false
-    - name: Set Python version (Windows)
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.10"
-        architecture: x64
-      if: runner.os == 'Windows'
-    - name: Set Python version (macOS)
+    - name: Set Python version
+      # Python version does not matter as it is only used to run sourcegen
       uses: actions/setup-python@v6
       with:
         python-version: "3.12"
-      if: runner.os == 'macOS'
-      # Ubuntu uses default system Python 3
     - name: Install Brew dependencies (macOS)
       run: |
         echo "Running on `sysctl -n machdep.cpu.brand_string`"
@@ -1249,10 +1237,10 @@ jobs:
         sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
       if: runner.os == 'Linux'
     - name: Install Python dependencies
-      # Install Python dependencies, which are used by 'dotnet build'
+      # Install Python dependencies, which are used by sourcegen
       run: |
         python3 -m pip install --upgrade pip setuptools wheel build
-        python3 -m pip install ruamel.yaml Jinja2 typing-extensions
+        python3 -m pip install ruamel.yaml Jinja2
     - name: Download the Cantera shared library (Linux)
       uses: actions/download-artifact@v5
       with:
@@ -1261,6 +1249,8 @@ jobs:
       if: runner.os == 'Linux'
     - name: Create library symlinks (Linux)
       working-directory: build/lib
+      # MATLAB requires a specific library name: libcantera_shared.so.X
+      # Recreating all symlinks to replicate status after build process
       run: |
         ln -s libcantera_shared.so libcantera_shared.so.3.2.0
         ln -s libcantera_shared.so.3.2.0 libcantera_shared.so.3
@@ -1268,11 +1258,13 @@ jobs:
     - name: Download the Cantera shared library (macOS)
       uses: actions/download-artifact@v5
       with:
-        name: libcantera_shared.dylib
+        name: libcantera_shared-${{ matrix.os }}.dylib
         path: build/lib
       if: runner.os == 'macOS'
     - name: Create library symlinks (macOS)
       working-directory: build/lib
+      # MATLAB requires a specific library name: libcantera_shared.X.Y.Z.dylib
+      # Recreating all symlinks to replicate status after build process
       run: |
         ln -s libcantera_shared.dylib libcantera_shared.3.2.0.dylib
         ln -s libcantera_shared.3.2.0.dylib libcantera_shared.3.dylib
@@ -1280,7 +1272,7 @@ jobs:
     - name: Download the Cantera shared library (Windows)
       uses: actions/download-artifact@v5
       with:
-        name: cantera_shared-windows_2025.dll
+        name: cantera_shared-${{ matrix.os }}.dll
         path: build/lib
       if: runner.os == 'Windows'
     - name: Download the Doxygen artifacts
@@ -1304,10 +1296,13 @@ jobs:
       if: runner.os == 'Linux'
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      with:
+        release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
       uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
       with:
         command: |
+          disp("MATLAB version: " + version);
           ctDir = getenv('CANTERA_ROOT');
           ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab_experimental');
           ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
