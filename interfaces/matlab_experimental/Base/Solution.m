@@ -38,8 +38,6 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     ``'none'``, ``'mixture-averaged'``, ``'mixture-averaged-CK'``,
     %     ``'ionized-gas'``, or ``'multicomponent'``.
     %     If not specified, ``'default'`` is used.
-    % :return:
-    %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
         solnID = -1  % ID of the :mat:class:`Solution` object.
@@ -55,7 +53,6 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         %% Solution Class Constructor
 
         function s = Solution(src, name, transport_model)
-            % Create a :mat:class:`Solution` object.
             arguments
                 src (1,:)
                 name (1,1) string = ""

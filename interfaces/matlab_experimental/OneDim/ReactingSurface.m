@@ -8,8 +8,6 @@ classdef ReactingSurface < Boundary1D
     %     the surface reaction mechanism to be used.
     % :param name:
     %     String ID of the reacting surface.
-    % :return:
-    %     Instance of class :mat:class:`ReactingSurface`.
 
     properties
         % Set bounds on the solution components. ::

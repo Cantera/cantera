@@ -10,8 +10,6 @@ classdef Interface < Solution
     % :param varargin:
     %     Optional list of phases pi adjacent to the interface; if omitted, adjacent
     %     phases are added automatically.
-    % :return:
-    %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = public)
 
@@ -32,8 +30,6 @@ classdef Interface < Solution
         %% Interface Class Constructor
 
         function s = Interface(src, name, varargin)
-            % Create an :mat:class:`Interface` object.
-
             ctIsLoaded(true);
 
             na = nargin - 2;

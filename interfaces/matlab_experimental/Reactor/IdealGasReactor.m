@@ -22,13 +22,10 @@ classdef IdealGasReactor < ReactorBase
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
     %    (optional; default is true).
-    % :return:
-    %     Instance of class :mat:class:`IdealGasReactor`.
 
     methods
 
         function r = IdealGasReactor(phase, name, clone)
-            % Constructor
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "(none)"

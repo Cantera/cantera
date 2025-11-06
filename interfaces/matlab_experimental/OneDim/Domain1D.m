@@ -17,8 +17,6 @@ classdef (Abstract) Domain1D < handle
     %     Instance of :mat:class:`Solution` or :mat:class:`Interface`.
     % :param id:
     %     String ID of the domain.
-    % :return:
-    %     Instance of class :mat:class:`Domain1D`
 
     properties (SetAccess = immutable)
 
@@ -78,7 +76,6 @@ classdef (Abstract) Domain1D < handle
         %% Domain1D Class Constructor.
 
         function d = Domain1D(id)
-            % Create a :mat:class:`Domain1D` object.
             arguments
                 id (1,1) double {mustBeInteger}
             end

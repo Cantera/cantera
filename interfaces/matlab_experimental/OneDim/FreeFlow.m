@@ -7,13 +7,10 @@ classdef FreeFlow < Flow1D
     %     Instance of class :mat:class:`Solution`.
     % :param name:
     %     String, ID of the flow.
-    % :return:
-    %     Instance of class :mat:class:`FreeFlow`.
 
     methods
 
         function m = FreeFlow(phase, name)
-            % Constructor
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "free-flow"

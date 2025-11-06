@@ -7,13 +7,10 @@ classdef Outlet < Boundary1D
     %     Instance of class :mat:class:`Solution`.
     % :param name:
     %     String ID of the outlet.
-    % :return:
-    %     Instance of :mat:class:`Outlet`.
 
     methods
 
         function m = Outlet(phase, name)
-            % Constructor
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "outlet"

@@ -21,8 +21,6 @@ classdef FlowReactor < ReactorBase
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
     %    (optional; default is true).
-    % :return:
-    %     Instance of class :mat:class:`FlowReactor`.
 
     properties (SetAccess = public)
 
@@ -33,7 +31,6 @@ classdef FlowReactor < ReactorBase
     methods
 
         function r = FlowReactor(phase, name, clone)
-            % Constructor
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "(none)"

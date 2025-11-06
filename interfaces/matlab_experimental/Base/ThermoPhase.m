@@ -9,8 +9,6 @@ classdef (Abstract) ThermoPhase < handle
     %
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`ThermoPhase` object.
-    % :return:
-    %     Instance of class :mat:class:`ThermoPhase`.
 
     properties (SetAccess = public)
 

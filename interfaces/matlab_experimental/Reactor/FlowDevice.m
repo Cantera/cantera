@@ -24,8 +24,6 @@ classdef (Abstract) FlowDevice < Connector
     %     Downstream Reactor or reservoir.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
-    % :return:
-    %     Instance of class :mat:class:`FlowDevice`.
 
     properties (SetAccess = immutable)
 
@@ -60,8 +58,6 @@ classdef (Abstract) FlowDevice < Connector
         %% FlowDevice Class Constructor
 
         function x = FlowDevice(typ, upstream, downstream, name)
-            % Create a :mat:class:`FlowDevice` object.
-
             arguments
                 typ (1,1) string
                 upstream (1,1) ReactorBase

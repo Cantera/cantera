@@ -9,8 +9,6 @@ classdef (Abstract) Transport < handle
     %
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`Transport` object.
-    % :return:
-    %     Instance of class :mat:class:`Transport`.
 
     properties (Access = protected)
         th % ID of the ThermoPhase object used to create the Transport object.
@@ -40,7 +38,6 @@ classdef (Abstract) Transport < handle
         %% Transport Class Constructor
 
         function tr = Transport(id)
-            % Create a :mat:class:`Transport` object.
             arguments
                 id (1,1) double {mustBeInteger}
             end

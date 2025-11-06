@@ -15,14 +15,10 @@ classdef MassFlowController < FlowDevice
     %     Downstream :mat:class:`ReactorBase`.
     % :param name:
     %     Flow device name (optional; default is ``(none)``).
-    % :return:
-    %     Instance of class :mat:class:`FlowDevice`.
 
     methods
 
         function m = MassFlowController(upstream, downstream, name)
-            % Constructor
-
             arguments
                 upstream (1,1) ReactorBase
                 downstream (1,1) ReactorBase

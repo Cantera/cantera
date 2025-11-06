@@ -30,9 +30,6 @@ classdef Mixture < handle
     %
     % :param phases:
     %     Cell array of phases and mole numbers.
-    % :return:
-    %     Instance of class :mat:class:`Mixture`.
-    %
 
     properties (SetAccess = immutable)
         mixID = -1

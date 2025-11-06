@@ -11,8 +11,6 @@ classdef (Abstract) Flow1D < Domain1D
     %     Instance of class :mat:class:`Solution`.
     % :param name:
     %     String, ID of the flow.
-    % :return:
-    %     Instance of class :mat:class:`Flow1D`.
 
     properties (SetAccess = public)
         P  % Flow Pressure. Units: Pa.
