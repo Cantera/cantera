@@ -12,7 +12,7 @@ function h = Heptane
     % computational equations for forty substances.* Stanford: Stanford
     % University, 1979. Print.
     %
-    % For more details, see classes Cantera::PureFluid and tpx::Heptane in the
+    % For more details, see classes :ct:`PureFluidPhase` and :ct:`Heptane` in the
     % Cantera C++ source code documentation.
     %
     % :return:
