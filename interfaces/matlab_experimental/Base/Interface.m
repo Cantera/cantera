@@ -13,8 +13,8 @@ classdef Interface < Solution
 
     properties (SetAccess = public)
 
-        % Surface coverages of the species on an interface.
-        % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
+        % Density of sites for interface species [kmol/m² for surface phases or
+        % kmol/m for edge phases].
         siteDensity
 
         coverages % Surface coverages of the species on an interface.
@@ -105,7 +105,7 @@ classdef Interface < Solution
         end
 
         function setUnnormalizedCoverages(s, cov)
-            % Set surface coverages without normalizing to force sumo(cov) == 1.0.
+            % Set surface coverages without normalizing to force `sum(cov) == 1.0`.
             % This should be used only when calculating partial derivatives
             % with respect to cov[k] by finite difference.
             %
