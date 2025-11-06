@@ -22,12 +22,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % Class :mat:class:`Solution` derives from three more basic classes, and most of
     % its methods are inherited from these classes. These are:
     %
-    %     * class :mat:class:`ThermoPhase`:
-    %       composition information and thermodynamic properties.
-    %     * class :mat:class:`Kinetics`: homogeneous kinetics.
-    %     * class :mat:class:`Transport`: transport properties.
-    %
-    % See also: :mat:class:`ThermoPhase`, :mat:class:`Kinetics`, :mat:class:`Transport`
+    % * class :mat:class:`ThermoPhase`: composition information and thermodynamic
+    %   properties.
+    % * class :mat:class:`Kinetics`: homogeneous kinetics.
+    % * class :mat:class:`Transport`: transport properties.
     %
     % :param src:
     %     Input string of YAML file name.

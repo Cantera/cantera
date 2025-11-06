@@ -16,16 +16,16 @@ classdef Wall < Connector
     %
     % .. math:: v = K(P_{left} - P_{right}) + v_0(t),
     %
-    % where K is a non-negative constant, and v_0 is a specified
+    % where K is a non-negative constant, and :math:`v_0` is a specified
     % function of time. The velocity is positive if the wall is
     % moving to the right.
     %
     % The heat flux through the wall is computed from:
     %
-    %  .. math:: q = U(T_{left} - T_{right}) + q_0(t),
+    % .. math:: q = U(T_{left} - T_{right}) + q_0(t),
     %
     % where U is the overall heat transfer coefficient for
-    % conduction/convection, and q_0 is a specified function of
+    % conduction/convection, and :math:`q_0` is a specified function of
     % time. The heat flux is positive when heat flows from the
     % reactor on the left to the reactor on the right.
     %

@@ -1,5 +1,5 @@
 function output = ctArray(funcName, buflen, varargin)
-    % Calls Cantera library functions with single outputs and returns
+    % Calls Cantera library functions that return arrays and handles
     % errors if necessary.
 
     idx = find(strcmp(varargin, 'extraArgs'), 1);
