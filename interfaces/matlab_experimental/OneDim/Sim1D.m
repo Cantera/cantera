@@ -11,8 +11,6 @@ classdef Sim1D < handle
     %
     % :param domains:
     %     Cell array of instances of :mat:class:`Domain1D` and its subclasses.
-    % :return:
-    %     Instance of class :mat:class:`Sim1D`.
 
     properties (SetAccess = immutable)
 
@@ -27,7 +25,6 @@ classdef Sim1D < handle
         %% Sim1D Class Constructor
 
         function s = Sim1D(domains)
-            % Create a :mat:class:`Sim1D` object.
             arguments
                 domains (1,:) cell
             end

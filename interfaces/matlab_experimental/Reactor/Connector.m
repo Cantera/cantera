@@ -15,8 +15,6 @@ classdef (Abstract) Connector < handle
     %     Reactor two.
     % :param name:
     %     Connector name (optional; default is ``(none)``).
-    % :return:
-    %     Instance of class :mat:class:`Connector`.
 
     properties (SetAccess = immutable)
 
@@ -36,7 +34,6 @@ classdef (Abstract) Connector < handle
         %% Connector Class Constructor
 
         function c = Connector(typ, r1, r2, name)
-            % Create a :mat:class:`Connector` object.
             arguments
                 typ (1,1) string
                 r1 (1,1) ReactorBase

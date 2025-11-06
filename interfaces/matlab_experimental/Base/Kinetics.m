@@ -17,8 +17,6 @@ classdef (Abstract) Kinetics < handle
     %
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`Kinetics` object.
-    % :return:
-    %     Instance of class :mat:class:`Kinetics`.
 
     properties (SetAccess = immutable)
         kinID % ID of the Kinetics object.

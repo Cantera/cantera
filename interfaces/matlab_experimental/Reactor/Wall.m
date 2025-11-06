@@ -42,8 +42,6 @@ classdef Wall < Connector
     %    on the right side of the wall.
     % :param name:
     %     Wall name (optional; default is ``(none)``).
-    % :return:
-    %    Instance of class :mat:class:`Wall`.
 
     properties (SetAccess = immutable)
 
@@ -83,8 +81,6 @@ classdef Wall < Connector
         %% Wall Class Constructor
 
         function w = Wall(l, r, name)
-            % Create a :mat:class:`Wall` object.
-
             arguments
                 l (1,1) ReactorBase
                 r (1,1) ReactorBase

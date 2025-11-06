@@ -23,15 +23,11 @@ classdef ReactorSurface < ReactorBase
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
     %    (optional; default is true).
-    % :return:
-    %    Instance of class :mat:class:`ReactorSurface`.
 
     methods
         %% ReactorSurface Class Constructor
 
         function s = ReactorSurface(surf, reactors, name, clone)
-            % Create a :mat:class:`ReactorSurface` object.
-
             arguments
                 surf (1,1) Interface
                 reactors

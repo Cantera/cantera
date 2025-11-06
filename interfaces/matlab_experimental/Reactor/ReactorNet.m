@@ -9,8 +9,6 @@ classdef ReactorNet < handle
     %
     % :param reactors:
     %    An instance of or a cell array of instances of class :mat:class:`ReactorBase`.
-    % :return:
-    %    Instance of class :mat:class:`ReactorNet`.
 
     properties (SetAccess = immutable)
         id = -1
@@ -44,7 +42,6 @@ classdef ReactorNet < handle
         %% ReactorNet Class Constructor
 
         function n = ReactorNet(reactors)
-            % Create a :mat:class:`ReactorNet` object.
             arguments
                 reactors
             end

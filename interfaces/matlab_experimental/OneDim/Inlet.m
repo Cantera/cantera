@@ -10,8 +10,6 @@ classdef Inlet < Boundary1D
     %     Instance of class :mat:class:`Solution`.
     % :param name:
     %     String name of the inlet.
-    % :return:
-    %     Instance of class :mat:class:`Inlet`.
 
     properties
         X  % Mole fractions.
@@ -20,7 +18,6 @@ classdef Inlet < Boundary1D
     methods
 
         function m = Inlet(phase, name)
-            % Constructor
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "inlet"

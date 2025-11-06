@@ -11,9 +11,6 @@ classdef CounterFlowDiffusionFlame < Sim1D
     %     :mat:class:`Inlet` object representing the right ('oxidizer') inlet boundary.
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
-    % :return:
-    %     Instance of :mat:class:`CounterFlowDiffusionFlame` object
-    %     representing the left inlet, flow, and right inlet.
 
     methods
 

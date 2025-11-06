@@ -15,8 +15,6 @@ classdef (Abstract) Boundary1D < Domain1D
     %     Instance of class :mat:class:`Solution` or :mat:class:`Interface`.
     % :param name:
     %     String, ID of the flow.
-    % :return:
-    %     Instance of class :mat:class:`Boundary`.
 
     properties
 

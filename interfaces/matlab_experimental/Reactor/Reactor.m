@@ -18,8 +18,6 @@ classdef Reactor < ReactorBase
     %    this reactor is independent of the original Solution object and
     %    any Solution objects used by other reactors in the network.
     %    (optional; default is true).
-    % :return:
-    %    Instance of :mat:class:`Reactor`.
 
     methods
         %% Reactor Class Constructor
