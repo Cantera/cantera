@@ -12,7 +12,7 @@ function w = Water(backend)
     % computational equations for forty substances.* Stanford: Stanford
     % University, 1979. Print.
     %
-    % For more details, see classes Cantera::PureFluid and tpx::water in the
+    % For more details, see classes :ct:`PureFluidPhase` and :ct:`water` in the
     % Cantera C++ source code documentation.
     %
     % :param backend:

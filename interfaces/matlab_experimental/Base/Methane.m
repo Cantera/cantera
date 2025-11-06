@@ -12,6 +12,9 @@ function m = Methane()
     % computational equations for forty substances* Stanford: Stanford
     % University, 1979. Print.
     %
+    % For more details, see classes :ct:`PureFluidPhase` and :ct:`methane` in the
+    % Cantera C++ source code documentation.
+    %
     % :return:
     %     Instance of class :mat:class:`Solution`.
 

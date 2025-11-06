@@ -14,7 +14,7 @@ function h = HFC134a()
     % Chem. Ref. Data, Vol. 23, No. 5, 1994. pp. 657--729.
     % http://dx.doi.org/10.1063/1.555958
     %
-    % For more details, see classes Cantera::PureFluid and tpx::HFC134a in the
+    % For more details, see classes :ct:`PureFluidPhase` and :ct:`HFC134a` in the
     % Cantera C++ source code documentation.
     %
     % :return:
