@@ -82,7 +82,7 @@ classdef (Abstract) ReactorBase < handle
         %% ReactorBase Class Constructor
 
         function r = ReactorBase(id)
-            % ReactorBase Class ::
+            % ReactorBase Class
             %
             % :param id:
             %    ID of reactor object instantiated by specialization.

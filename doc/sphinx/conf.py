@@ -42,6 +42,7 @@ extensions = [
               'sphinx.ext.autosummary',
               'sphinxarg.ext',
               'sphinxcontrib.doxylink',
+              'sphinxcontrib.matlab',
               'sphinxcontrib.bibtex',
               'sphinx.ext.intersphinx',
               'myst_nb',
@@ -170,6 +171,9 @@ bibtex_bibfiles = ["../../../doc/doxygen/cantera.bib"]
 bibtex_reference_style = 'author_year'
 bibtex_default_style = 'alpha'
 
+# Matlab setup
+matlab_src_dir = "../../../interfaces/matlab_experimental"
+matlab_short_links = True
 
 def setup(app):
     """Set up an event handler to escape splat characters (*) in docstrings
