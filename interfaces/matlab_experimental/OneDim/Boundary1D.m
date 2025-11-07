@@ -17,16 +17,7 @@ classdef (Abstract) Boundary1D < Domain1D
     %     String, ID of the flow.
 
     properties
-
-        % Mass flux. ::
-        %
-        %     >> mdot = d.massFlux
-        %
-        % :param d:
-        %     Instance of class :mat:class:`Boundary`.
-        % :return:
-        %     The mass flux in the domain. Unit: [kg/s/m^2].
-        massFlux
+        massFlux % The mass flux in the domain. Unit: [kg/s/m^2]
 
         T % Boundary Temperature. Units: K.
 
@@ -74,8 +65,6 @@ classdef (Abstract) Boundary1D < Domain1D
             % k is the integer index of the species in the flow domain
             % to which the boundary domain is attached.
             %
-            % :param d:
-            %     Instance of class :mat:class:`Boundary`.
             % :param k:
             %     Integer species index.
             % :return:
@@ -90,8 +79,6 @@ classdef (Abstract) Boundary1D < Domain1D
             %
             %     >> d.value(component)
             %
-            % :param d:
-            %    Instance of class :mat:class:`Flow1D`.
             % :param component:
             %    String component for which the solution is desired.
             % :return:

@@ -49,29 +49,15 @@ classdef (Abstract) ReactorBase < handle
         % "advance" or "step".
         Y
 
-        % Enable or disable changing reactor composition by reactions. ::
-        %
-        %     >> r.chemistryEnabled = flag
+        % Boolean to enable or disable changing reactor composition by reactions.
         %
         % If the chemistry is disabled, no reactions take place. Note that the
         % composition can still change due to mass transfer at inlets and outlets.
-        %
-        % :param r:
-        %    Instance of :mat:class:`ReactorBase`.
-        % :param flag:
-        %    Boolean to enable or disable chemical reactions.
         chemistryEnabled
 
-        % Enable or disable solving the energy equation. ::
-        %
-        %     >> r.energyEnabled = flag
+        % Boolean to enable or disable solving the energy equation.
         %
         % If the energy equation is disabled, then the reactor temperature is constant.
-        %
-        % :param r:
-        %    Instance of :mat:class:`ReactorBase`.
-        % :param flag:
-        %    Boolean to enable or disable energy equations.
         energyEnabled
 
         area % Area of the reactor in m².

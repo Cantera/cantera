@@ -14,8 +14,6 @@ classdef ReactingSurface < Boundary1D
         %
         %     >> d.coverageEnabled = flag
         %
-        % :param d:
-        %     Instance of class :mat:class:`Surface`
         % :param flag:
         %     Boolean flag indicating whether coverage equations are enabled.
         coverageEnabled

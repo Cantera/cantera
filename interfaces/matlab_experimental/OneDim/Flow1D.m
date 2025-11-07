@@ -92,8 +92,6 @@ classdef (Abstract) Flow1D < Domain1D
             %
             %     >> d.setupUniformGrid(points, length, start)
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
             % :param points:
             %     Number of grid points
             % :param length:
@@ -108,8 +106,6 @@ classdef (Abstract) Flow1D < Domain1D
             %
             %     >> d.values(component)
             %
-            % :param d:
-            %    Instance of class :mat:class:`Flow1D`.
             % :param component:
             %    String component for which the solution is desired.
             % :return:
@@ -136,8 +132,6 @@ classdef (Abstract) Flow1D < Domain1D
             %
             %    >> d.setProfile('T', zr, v);
             %
-            % :param d:
-            %    Instance of class :mat:class:`Domain1D`.
             % :param component:
             %    Component name.
             % :param zProfile:
@@ -157,8 +151,6 @@ classdef (Abstract) Flow1D < Domain1D
             %
             %     >> d.setFlatProfile(component, v)
             %
-            % :param d:
-            %    Instance of class :mat:class:`Domain1D`.
             % :param component:
             %    Component to be set.
             % :param v:
@@ -176,8 +168,6 @@ classdef (Abstract) Flow1D < Domain1D
             % is not being solved. The profile must be entered as a pair of arrays
             % specifying positions and temperatures.
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
             % :param zFixed:
             %     Array containing positions where the profile is specified
             % :param tFixed:
@@ -193,8 +183,6 @@ classdef (Abstract) Flow1D < Domain1D
             %
             %     >> d.setRefineCriteria(ratio, slope, curve, prune)
             %
-            % :param d:
-            %    Instance of class :mat:class:`Domain1D`.
             % :param ratio:
             %    Maximum size ratio between adjacent cells.
             % :param slope:

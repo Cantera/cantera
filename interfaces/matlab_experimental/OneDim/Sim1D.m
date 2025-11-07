@@ -69,8 +69,6 @@ classdef Sim1D < handle
             %
             % See also: :mat:class:`save`
             %
-            % :param s:
-            %     Instance of class :mat:class:`Sim1D`.
             % :param fname:
             %     File name of an YAML or HDF file containing solution information.
             % :param id:
@@ -86,8 +84,6 @@ classdef Sim1D < handle
             %
             % The output file is in a format that can be used by :mat:class:`restore`
             %
-            % :param s:
-            %     Instance of class :mat:class:`Sim1D`.
             % :param fname:
             %     File name where YAML or HDL file should be written.
             % :param id:
@@ -112,8 +108,6 @@ classdef Sim1D < handle
             %
             %     >> s.solve(loglevel, refineGrid)
             %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
             % :param loglevel:
             %    Integer flag controlling the amount of diagnostic output.
             %    Zero suppresses all output, and 5 produces very verbose output.
@@ -130,9 +124,6 @@ classdef Sim1D < handle
             %
             % Prints a summary of the number of function and Jacobian evaluations
             % for each grid, and the CPU time spent on each one.
-            %
-            % :param s:
-            %     Instance of class class :mat:class:`Sim1D`
 
             ctFunc('mSim1D_writeStats', s.stID, 1);
         end
@@ -150,8 +141,6 @@ classdef Sim1D < handle
             %
             %     >> n = s.domainIndex(name)
             %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
             % :param name:
             %    If double, the value is :returned. Otherwise, the name is
             %    looked up and its index is :returned.
@@ -205,8 +194,6 @@ classdef Sim1D < handle
             %
             %     >> s.setMaxJacAge(ss_age, ts_age)
             %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
             % :param ss_age:
             %    Maximum age of the Jacobian for steady state analysis.
             % :param ts_age:

@@ -100,10 +100,8 @@ classdef (Abstract) FlowDevice < Connector
             %
             %     >> f.setPrimary(d)
             %
-            % :param f:
-            %     Instance of class :mat:class:`MassFlowController`.
-            % :param mf:
-            %     Instance of class :mat:class:`Func1`.
+            % :param d:
+            %     Instance of class :mat:class:`FlowDevice`.
 
             if strcmp(f.type, 'PressureController')
                 ctFunc('mFlowdev_setPrimary', f.id, d);
