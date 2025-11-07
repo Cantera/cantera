@@ -6,9 +6,9 @@ function ctTestSetUp()
     thisFile = mfilename('fullpath');
     canteraRoot = fileparts(fileparts(fileparts(thisFile)));
 
-    addpath(genpath(fullfile(canteraRoot, 'interfaces', 'matlab_experimental')));
+    addpath(genpath(fullfile(canteraRoot, 'interfaces', 'matlab')));
     addpath(genpath(fullfile(canteraRoot, 'test', 'data')));
-    addpath(genpath(fullfile(canteraRoot, 'test', 'matlab_experimental')));
+    addpath(genpath(fullfile(canteraRoot, 'test', 'matlab')));
 
     if ~ctIsLoaded
         ctLoad();

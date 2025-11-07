@@ -5,7 +5,7 @@ classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
         function addSampleFolder(self)
             thisFile = mfilename('fullpath');
             canteraRoot = fileparts(fileparts(fileparts(thisFile)));
-            samplePath = fullfile(canteraRoot, 'samples', 'matlab_experimental');
+            samplePath = fullfile(canteraRoot, 'samples', 'matlab');
             addpath(samplePath);
         end
 
@@ -17,7 +17,7 @@ classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
             close all
             thisFile = mfilename('fullpath');
             canteraRoot = fileparts(fileparts(fileparts(thisFile)));
-            samplePath = fullfile(canteraRoot, 'samples', 'matlab_experimental');
+            samplePath = fullfile(canteraRoot, 'samples', 'matlab');
             rmpath(samplePath);
         end
 

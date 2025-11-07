@@ -5,8 +5,8 @@ import matlab.unittest.TestRunner
 import matlab.unittest.plugins.CodeCoveragePlugin
 import matlab.unittest.plugins.codecoverage.CoberturaFormat
 
-sourceFolder = fullfile(pwd, 'interfaces', 'matlab_experimental');
-testFolder = fullfile(pwd, 'test', 'matlab_experimental');
+sourceFolder = fullfile(pwd, 'interfaces', 'matlab');
+testFolder = fullfile(pwd, 'test', 'matlab');
 
 suite = testsuite(testFolder);
 % Sample tests are tagged as 'Slow' due to the extra headroom

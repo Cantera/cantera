@@ -21,7 +21,7 @@ GitHub issues and enhancement requests, specifically:
 - [**Open Enhancements**](https://github.com/Cantera/enhancements/issues?q=is%3Aissue%20state%3Aopen%20label%3Amatlab)
 
 Installation instructions are provided in
-[`interfaces/matlab_experimental/README.md`](https://github.com/Cantera/cantera/blob/main/interfaces/matlab_experimental/README.md)
+[`interfaces/matlab/README.md`](https://github.com/Cantera/cantera/blob/main/interfaces/matlab/README.md)
 within the Cantera source code.
 ```
 

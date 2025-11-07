@@ -35,7 +35,7 @@ Cantera objects and functions.
      Example:
 
      ```
-     /path/to/cantera/interfaces/matlab_experimental
+     /path/to/cantera/interfaces/matlab
      ```
    * **Linux:** Configure MATLAB to use the system C++ library instead of MATLAB’s built-in version:
 
@@ -49,7 +49,7 @@ Cantera objects and functions.
    Run the following commands in MATLAB:
 
    ```matlab
-   ctToolboxDir = '/path/to/cantera/source/interfaces/matlab_experimental';
+   ctToolboxDir = '/path/to/cantera/source/interfaces/matlab';
    ctCLibIncludeDir = '/path/to/cantera/include';
    ctLibDir = '/path/to/cantera/library';
    ctBuildInterface(ctToolboxDir, ctCLibIncludeDir, ctLibDir);
@@ -63,7 +63,7 @@ Cantera objects and functions.
    After building, the compiled interface should appear under:
 
    ```
-   /path/to/cantera/interfaces/matlab_experimental/cantera/ctMatlab
+   /path/to/cantera/interfaces/matlab/cantera/ctMatlab
    ```
 
 ---
@@ -85,14 +85,14 @@ Cantera objects and functions.
    Navigate to the samples folder:
 
    ```
-   /samples/matlab_experimental
+   /samples/matlab
    ```
 
 3. **Run the unit test suite**
    Navigate to the test folder:
 
    ```
-   /test/matlab_experimental
+   /test/matlab
    ```
 
    Execute:

@@ -25,7 +25,7 @@ Cantera can be used from a number of different programming languages. Numerous e
 are available on the Cantera website:
 
 * `Python <https://cantera.org/stable/examples/python/index.html>`_
-* `Matlab <https://cantera.org/stable/examples/matlab_experimental/index.html>`_
+* `Matlab <https://cantera.org/stable/examples/matlab/index.html>`_
 * `C++ <https://cantera.org/stable/examples/cxx/index.html>`_
 * `C <https://cantera.org/stable/examples/clib/index.html>`_
 * `Fortran 90 <https://cantera.org/stable/examples/fortran/index.html>`_

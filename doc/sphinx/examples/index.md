@@ -78,8 +78,8 @@ an introduction to the Cantera Python interface.
 :text-align: center
 ```
 
-```{grid-item-card} Matlab (experimental)
-:link: matlab_experimental/index
+```{grid-item-card} Matlab
+:link: matlab/index
 :link-type: doc
 :text-align: center
 ```
@@ -121,7 +121,7 @@ python/index
 cxx/index
 clib/index
 clib_legacy/index
-matlab_experimental/index
+matlab/index
 fortran/index
 dotnet/index
 input/index

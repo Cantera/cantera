@@ -67,7 +67,7 @@ sphinx_gallery_conf = {
        '../samples/clib/',
        '../samples/clib_legacy/',
        '../samples/fortran/',
-       '../samples/matlab_experimental/',
+       '../samples/matlab/',
        '../samples/dotnet/',
     ],
     'gallery_dirs': [
@@ -76,7 +76,7 @@ sphinx_gallery_conf = {
        'examples/clib',
        'examples/clib_legacy',
        'examples/fortran',
-       'examples/matlab_experimental',
+       'examples/matlab',
        'examples/dotnet',
     ],
     'subsection_order': ExplicitOrder([
@@ -172,7 +172,7 @@ bibtex_reference_style = 'author_year'
 bibtex_default_style = 'alpha'
 
 # Matlab setup
-matlab_src_dir = "../../../interfaces/matlab_experimental"
+matlab_src_dir = "../../../interfaces/matlab"
 matlab_short_links = True
 
 def setup(app):
