@@ -9,7 +9,7 @@ One-dimensional Reacting Flows
 Composite Domains
 -----------------
 
-CounterflowDiffusionFlame
+CounterFlowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CounterFlowDiffusionFlame(left, flow, right, oxidizer)
 
@@ -35,29 +35,29 @@ AxisymmetricFlow
 Boundaries
 ----------
 
-Inlet
-^^^^^
-.. autoclass:: Inlet(phase[, name])
-
-Outlet
-^^^^^^
-.. autoclass:: Outlet(phase[, name])
-
-OutletRes
-^^^^^^^^^
-.. autoclass:: OutletRes(phase[, name])
-
-SymmPlane
-^^^^^^^^^
-.. autoclass:: SymmPlane(phase[, name])
-
-Surface
+Inlet1D
 ^^^^^^^
-.. autoclass:: Surface(phase[, name])
+.. autoclass:: Inlet1D(phase[, name])
 
-ReactingSurface
+Outlet1D
+^^^^^^^^
+.. autoclass:: Outlet1D(phase[, name])
+
+OutletRes1D
+^^^^^^^^^^^
+.. autoclass:: OutletRes1D(phase[, name])
+
+SymmetryPlane1D
 ^^^^^^^^^^^^^^^
-.. autoclass:: ReactingSurface(phase[, name])
+.. autoclass:: SymmetryPlane1D(phase[, name])
+
+Surface1D
+^^^^^^^^^
+.. autoclass:: Surface1D(phase[, name])
+
+ReactingSurface1D
+^^^^^^^^^^^^^^^^^
+.. autoclass:: ReactingSurface1D(phase[, name])
 
 
 Base Classes

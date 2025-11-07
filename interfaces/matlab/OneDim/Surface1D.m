@@ -1,21 +1,18 @@
-classdef Surface < Boundary1D
+classdef Surface1D < Boundary1D
     % Create a surface domain. ::
     %
-    %     >> m = Surface(phase, name)
+    %     >> m = Surface1D(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`Solution`.
     % :param name:
     %     String ID of surface
-    % :return:
-    %     Instance of class :mat:class:`Surface` representing a
-    %     non-reacting surface.
 
     methods
 
-        %% Surface Class Constructor
+        %% Surface1D Class Constructor
 
-        function m = Surface(phase, name)
+        function m = Surface1D(phase, name)
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "surface"

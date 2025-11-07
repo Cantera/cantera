@@ -100,7 +100,7 @@ surf_phase.advanceCoverages(1.0);
 % specified. This object provides the inlet boundary conditions for
 % the flow equations.
 
-inlt = Inlet(gas, 'inlet');
+inlt = Inlet1D(gas, 'inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
@@ -131,7 +131,7 @@ flow.setTransientTolerances(tol_ts{:});
 % equation set, and used to compute the surface production rates of
 % the gas-phase species.
 
-surf = ReactingSurface(surf_phase, 'surface');
+surf = ReactingSurface1D(surf_phase, 'surface');
 surf.T = tsurf;
 
 %%
