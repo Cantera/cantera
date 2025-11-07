@@ -69,12 +69,12 @@ flow.setTransientTolerances(tol_ts{:}, 'default');
 
 % Set the fuel inlet.
 gas.TPX = {tin, p, fuelcomp};
-inlet_f = Inlet(gas, 'fuel_inlet');
+inlet_f = Inlet1D(gas, 'fuel_inlet');
 inlet_f.massFlux = mdot_f;
 
 % Set the oxidizer inlet.
 gas.TPX = {tin, p, oxcomp};
-inlet_o = Inlet(gas, 'air_inlet');
+inlet_o = Inlet1D(gas, 'air_inlet');
 inlet_o.massFlux = mdot_o;
 
 %%

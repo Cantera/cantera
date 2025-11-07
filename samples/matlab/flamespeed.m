@@ -61,13 +61,13 @@ flame.setSteadyTolerances(1e-5, 1e-11);
 flame.P = pressure;
 
 % Create the inlet
-inlt = Inlet(gas);
+inlt = Inlet1D(gas);
 inlt.T = Tin;
 inlt.X = Xin;
 inlt.massFlux = uIn * rhoIn;
 
 % Create the outlet
-outlt = Outlet(gas);
+outlt = Outlet1D(gas);
 uOut = uIn * rhoIn / rhoOut;
 
 %%

@@ -1,7 +1,7 @@
-classdef Inlet < Boundary1D
+classdef Inlet1D < Boundary1D
     % Create an inlet domain. ::
     %
-    %     >> m = Inlet(phase, name)
+    %     >> m = Inlet1D(phase, name)
     %
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
@@ -17,7 +17,7 @@ classdef Inlet < Boundary1D
 
     methods
 
-        function m = Inlet(phase, name)
+        function m = Inlet1D(phase, name)
             arguments
                 phase (1,1) Solution
                 name (1,1) string = "inlet"

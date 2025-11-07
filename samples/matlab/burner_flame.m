@@ -64,10 +64,10 @@ flow.energyEnabled = false;
 %%
 % **Create the burner**
 %
-% The burner is an ``Inlet`` object. The temperature, mass flux,
+% The burner is an ``Inlet1D`` object. The temperature, mass flux,
 % and composition (relative molar) may be specified.
 
-burner = Inlet(gas, 'burner');
+burner = Inlet1D(gas, 'burner');
 burner.T = Tburner;
 burner.X = comp;
 burner.massFlux = mdot;
@@ -77,11 +77,11 @@ uIn = mdot / rhoIn;
 % **Create the outlet**
 %
 % The type of flame is determined by the object that terminates
-% the domain. An ``Outlet`` object imposes zero gradient boundary
+% the domain. An ``Outlet1D`` object imposes zero gradient boundary
 % conditions for the temperature and mass fractions, and zero
 % radial velocity and radial pressure gradient.
 
-out = Outlet(gas, 'out');
+out = Outlet1D(gas, 'out');
 uOut = mdot / rhoOut;
 
 %%

@@ -1,7 +1,7 @@
-classdef ReactingSurface < Boundary1D
+classdef ReactingSurface1D < Boundary1D
     % Create a reacting surface domain. ::
     %
-    %     >> m = ReactingSurface(surface_mech, name)
+    %     >> m = ReactingSurface1D(surface_mech, name)
     %
     % :param surface_mech:
     %     Instance of class :mat:class:`Interface` defining
@@ -21,9 +21,9 @@ classdef ReactingSurface < Boundary1D
 
     methods
 
-        %% ReactingSurface Class Constructor
+        %% ReactingSurface1D Class Constructor
 
-        function s = ReactingSurface(surface_mech, name)
+        function s = ReactingSurface1D(surface_mech, name)
             arguments
                 surface_mech (1,1) Interface
                 name (1,1) string = "reacting-surface"
@@ -33,7 +33,7 @@ classdef ReactingSurface < Boundary1D
             s.coverageEnabled = false;
         end
 
-        %% ReactingSurface Class Methods
+        %% ReactingSurface1D Class Methods
 
         function set.coverageEnabled(obj, flag)
             obj.coverageEnabled = flag;
