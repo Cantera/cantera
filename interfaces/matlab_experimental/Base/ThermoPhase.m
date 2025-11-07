@@ -26,10 +26,9 @@ classdef (Abstract) ThermoPhase < handle
         % Density, Cv, and Cp, as well as the values used with the
         % state-setting properties such as HPX and UV.
         %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase`.
         % :param b:
-        %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
+        %     String. Can be ``mole`` / ``molar`` / ``Molar`` / ``Mole`` or
+        %     ``mass`` / ``Mass``.
         basis
 
         name % Name of the phase.
@@ -50,18 +49,10 @@ classdef (Abstract) ThermoPhase < handle
 
         charges % Species charges. Unit: elem. charge.
 
-        % Mean molecular weight ::
-        %
-        %     >> mmw = tp.meanMolecularWeight
+        % Mean molecular weight [kg/kmol] of the mixture
         %
         % The mean molecular weight is the mole-fraction-weighted sum of the
-        % molar masses of the individual species in the phase.
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Scalar double mean molecular weight. Units: kg/kmol.
+        % atomic weights of the individual species in the phase.
         meanMolecularWeight
 
         massDensity % Mass basis density. Units: kg/m^3.
@@ -134,27 +125,19 @@ classdef (Abstract) ThermoPhase < handle
 
         isothermalCompressibility % Isothermal compressibility. Units: 1/Pa.
 
-        % Maximum temperature of the parameter fits ::
-        %
-        %     >> v = tp.maxTemp
+        % Maximum temperature for which thermodynamic parameter fits are valid
+        % for all species.
         %
         % The parameterizations used to represent the temperature-dependent
         % species thermodynamic properties are generally only valid in some
         % finite temperature range, which may be different for each species
         % in the phase.
         %
-        % See also: :mat:class:`minTemp`
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Vector of maximum temperatures of all species.
+        % See also: :mat:meth:`minTemp`
         maxTemp
 
-        % Minimum temperature of the parameter fits ::
-        %
-        %     >> v = tp.minTemp
+        % Minimum temperature for which thermodynamic parameter fits are valid
+        % for all species.
         %
         % The parameterizations used to represent the temperature-dependent
         % species thermodynamic properties are generally only valid in some
@@ -162,37 +145,13 @@ classdef (Abstract) ThermoPhase < handle
         % in the phase.
         %
         % See also: :mat:class:`maxTemp`
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Vector of minimum temperatures of all species.
         minTemp
 
         refPressure % Reference pressure for standard-state. Units: Pa.
 
-        % Saturation pressure at current temperature ::
-        %
-        %     >> p = tp.satPressure.
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Saturation pressure for temperature T. Units: Pa.
-        satPressure
+        satPressure % Saturation pressure [Pa] at the current temperature
 
-        % Saturation temperature at current pressure ::
-        %
-        %     >> t = tp.satTemperature.
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Saturation temperature for pressure p. Units: K.
-        satTemperature
+        satTemperature % Saturation temperature [K] at the current pressure
 
         % Speed of sound ::
         %
@@ -214,24 +173,9 @@ classdef (Abstract) ThermoPhase < handle
         % and computing the change in pressure.
         %
         % .. math:: c = \sqrt{\frac{p_1 - p_0}{\rho_1-\rho_0}}
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     class derived from ThermoPhase).
-        % :return:
-        %     The speed of sound. Units: m/s.
         soundSpeed
 
-        % All species names ::
-        %
-        %     >> n = tp.speciesNames
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     class derived from ThermoPhase).
-        % :return:
-        %     Cell array of strings of all of the species names.
-        speciesNames
+        speciesNames % Cell array of species names
 
         thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
 
@@ -557,10 +501,6 @@ classdef (Abstract) ThermoPhase < handle
             % species :math:`k`; and :math:`mw(k)` is the molecular weight of
             % species :math:`k`.
             %
-            % :param tp:
-            %     Object representing the gas, instance of class :mat:class:`Solution`,
-            %     and an ideal gas. The state of this object should be set to an
-            %     estimate of the gas state before calling `elementalMassFraction`.
             % :param element:
             %     String representing the element name.
             % :return:
@@ -597,15 +537,12 @@ classdef (Abstract) ThermoPhase < handle
             %
             %   >> n = tp.nAtoms(k,m)
             %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     object that derives from ThermoPhase)
-            % :param k:
-            %     String species name or integer species number
-            % :param m:
-            %     String element name or integer element number
+            % :param species:
+            %     Species name or index
+            % :param element:
+            %     Element name or index
             % :return:
-            %     Number of atoms of element ``m`` in species ``k``.
+            %     Number of atoms of the specified element in the species.
             arguments
                 tp
                 species
@@ -634,20 +571,18 @@ classdef (Abstract) ThermoPhase < handle
             %   >> k = tp.speciesIndex(name)
             %
             % The index is an integer assigned to each species in sequence as it
-            % is read in from the input file.
+            % is read in from the input file. ::
             %
-            % NOTE: In keeping with the conventions used by Matlab, this method
-            % returns 1 for the first species, 2 for the second, etc. In
-            % contrast, the corresponding method speciesIndex in the Cantera C++
-            % and Python interfaces returns 0 for the first species, 1 for the
-            % second one, etc. ::
+            %    >> ich4 = gas.speciesIndex('CH4');
+            %    >> iho2 = gas.speciesIndex('HO2');
             %
-            %     >> ich4 = gas.speciesIndex('CH4');
-            %     >> iho2 = gas.speciesIndex('HO2');
+            % .. note::
             %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     class derived from ThermoPhase)
+            %    In keeping with the conventions used by Matlab, this method returns 1
+            %    for the first species, 2 for the second, etc. In contrast, the
+            %    corresponding method in the Cantera C++ and Python interfaces returns 0
+            %    for the first species, 1 for the second one, etc.
+            %
             % :param name:
             %     If name is a single string, the return value will be a integer
             %     containing the corresponding index. If it is an cell array of
@@ -695,9 +630,6 @@ classdef (Abstract) ThermoPhase < handle
             %
             %     >> k = tp.speciesName(k)
             %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     class derived from ThermoPhase)
             % :param k:
             %     Scalar of array of integers of
             %     NOTE: In keeping with the conventions used by Matlab, the indices of
@@ -725,9 +657,6 @@ classdef (Abstract) ThermoPhase < handle
             %
             %     >> x = tp.moleFraction(species)
             %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     object that derives from ThermoPhase)
             % :param species:
             %     String or cell array of strings of species whose mole
             %     fraction is desired
@@ -771,9 +700,6 @@ classdef (Abstract) ThermoPhase < handle
             %
             %     >> y = tp.massFraction(species)
             %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     object that derives from ThermoPhase)
             % :param species:
             %     String or cell array of strings of species whose mass
             %     fraction is desired

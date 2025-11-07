@@ -29,45 +29,16 @@ classdef (Abstract) Domain1D < handle
 
     properties (SetAccess = protected)
 
-        % Domain index. ::
-        %
-        %     >> i = d.domainIndex
-        %
-        % :param d:
-        %     Instance of class :mat:class:`Domain1D`.
-        % :return:
-        %     Integer flag denoting the location of the domain,
-        %     beginning with 1 at the left.
+        % Integer denoting the location of the domain, beginning with 1 at the left.
         domainIndex
 
-        % Type of the domain. ::
-        %
-        %     >> i = d.domainType
-        %
-        % :param d:
-        %     Instance of class :mat:class:`Domain1D`.
-        % :return:
-        %     Integer flag denoting the domain type.
+        % String denoting the domain type.
         domainType
 
-        % Number of components. ::
-        %
-        %     >> n = d.nComponents
-        %
-        % :param d:
-        %     Instance of class :mat:class:`Domain1D`.
-        % :return:
-        %     Number of variables at each grid point.
+        % Number of state components at each grid point.
         nComponents
 
-        % Get the number of grid points. ::
-        %
-        %     >> n = d.nPoints
-        %
-        % :param d:
-        %     Instance of class :mat:class:`Domain1D`.
-        % :return:
-        %     Integer number of grid points.
+        % Number of grid points in the domain.
         nPoints
 
     end
@@ -153,8 +124,6 @@ classdef (Abstract) Domain1D < handle
             %
             %     >>n = d.componentIndex(name)
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
             % :param name:
             %     String name of the component to look up. If a numeric value
             %     is passed, it will be returned.
@@ -183,8 +152,6 @@ classdef (Abstract) Domain1D < handle
             %
             %     >> n = d.componentName(index)
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
             % :param index:
             %     Integer or vector of integers of component names to get.
             % :return:
@@ -241,8 +208,6 @@ classdef (Abstract) Domain1D < handle
             %
             %     >> d.setBounds(component, lower, upper)
             %
-            % :param d:
-            %    Instance of class :mat:class:`Domain1D`.
             % :param component:
             %    String, component to set the bounds on.
             % :param lower:
@@ -258,8 +223,6 @@ classdef (Abstract) Domain1D < handle
             %
             %     >>d.setSteadyTolerances(rtol, atol, component)
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
             % :param rtol:
             %     Relative tolerance.
             % :param atol:
@@ -288,16 +251,14 @@ classdef (Abstract) Domain1D < handle
             %
             %     >> d.setTransientTolerances(rtol, atol, component)
             %
-            % :param d:
-            %     Instance of class :mat:class:`Domain1D`.
-            % :param component:
-            %     String or cell array of strings of component values
-            %     whose tolerances should be set. If ``'default'`` is
-            %     specified, the tolerance of all components will be set.
             % :param rtol:
             %     Relative tolerance.
             % :param atol:
             %     Absolute tolerance.
+            % :param component:
+            %     String or cell array of strings of component values
+            %     whose tolerances should be set. If ``'default'`` is
+            %     specified, the tolerance of all components will be set.
 
             if nargin < 4 | strcmp(component, 'default')
                 ctFunc('mDomain_setTransientTolerances', d.domainID, rtol, atol, -1);

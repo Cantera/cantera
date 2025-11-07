@@ -131,9 +131,6 @@ classdef Mixture < handle
             %
             %     >> m.addPhase(phase, moles)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture` to which phases
-            %     should be added.
             % :param phase:
             %     Instance of class :mat:class:`ThermoPhase` which should be added.
             % :param moles:
@@ -188,8 +185,6 @@ classdef Mixture < handle
             %
             %     >> n = m.nAtoms(e)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param e:
             %     Index of element.
             % :return:
@@ -207,8 +202,6 @@ classdef Mixture < handle
             %
             %     >> n = m.elementIndex(name)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param name:
             %     Name of the element whose index is desired.
             % :return:
@@ -226,8 +219,6 @@ classdef Mixture < handle
             %
             %     >> n = m.speciesIndex(k, p)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param name:
             %     Name of the species whose index is desired.
             % :return:
@@ -245,8 +236,6 @@ classdef Mixture < handle
             %
             %     >> moles = m.elementMoles(e)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param e:
             %    Integer element number.
             % :return:
@@ -274,8 +263,6 @@ classdef Mixture < handle
             %
             %     >> moles = m.phaseMoles(n)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param n:
             %    Integer phase number.
             % :return:
@@ -303,8 +290,6 @@ classdef Mixture < handle
             %
             %     >> moles = m.speciesMoles(k)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param k:
             %    Integer species number.
             % :return:
@@ -342,8 +327,6 @@ classdef Mixture < handle
             %
             %     >> m.setPhaseMoles(n, moles)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param n:
             %     Phase number in the input.
             % :param moles:
@@ -365,8 +348,6 @@ classdef Mixture < handle
             %
             %     >> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2');
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param moles:
             %     Vector or string specifying the moles of species.
 
@@ -386,8 +367,6 @@ classdef Mixture < handle
             %
             %     >> m.equilibrate(XY, solver, rtol, maxsteps, maxiter, estimate_equil)
             %
-            % :param m:
-            %     Instance of class :mat:class:`Mixture`.
             % :param XY:
             %     Two-letter string specifying the two properties to hold
             %     fixed.  Currently, ``'TP'``, ``'HP'``, ``'TV'``, and ``'SP'`` are

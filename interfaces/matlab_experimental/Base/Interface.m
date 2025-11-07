@@ -69,15 +69,6 @@ classdef Interface < Solution
         end
 
         function set.coverages(s, cov)
-            % Set the fraction of sites covered by each species.
-            %
-            % s.coverages = cov
-            %
-            % :param s:
-            %      Instance of class :mat:class:`Interface`
-            % :param cov:
-            %      Vector or string coverage of the species.
-
             nsp = s.nSpecies;
             if isa(cov, 'double')
                 if length(cov) ~= nsp
@@ -92,27 +83,16 @@ classdef Interface < Solution
         end
 
         function set.siteDensity(s, d)
-            % Set the site density of a phase on an interface.
-            %
-            % s.siteDensity = d
-            %
-            % :param s:
-            %      Instance of class :mat:class:`Interface`
-            % :param d
-            %    Double site density. Unit: kmol/m^2 for surface phases,
-            %    kmol/m for edge phases.
             ctFunc('mSurf_setSiteDensity', s.tpID, d);
         end
 
         function setUnnormalizedCoverages(s, cov)
-            % Set surface coverages without normalizing to force `sum(cov) == 1.0`.
+            % Set surface coverages without normalizing to force ``sum(cov) == 1.0``.
             % This should be used only when calculating partial derivatives
             % with respect to cov[k] by finite difference.
             %
             % s.setUnnormalizedCoverages(cov)
             %
-            % :param s:
-            %      Instance of class :mat:class:`Interface`
             % :param cov:
             %      Vector coverage of the species.
 
