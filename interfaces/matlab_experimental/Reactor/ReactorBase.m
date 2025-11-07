@@ -85,16 +85,16 @@ classdef (Abstract) ReactorBase < handle
 
         %% ReactorBase Class Destructor
 
-        function delete(r)
+        function delete(obj)
             % Delete the :mat:class:`ReactorBase` object.
-            if r.id >= 0
-                ctFunc('mReactor_del', r.id);
+            if obj.id >= 0
+                ctFunc('mReactor_del', obj.id);
             end
         end
 
         %% ReactorBase Utility Methods
 
-        function addSensitivityReaction(r, m)
+        function addSensitivityReaction(obj, m)
             % Specifies that the sensitivity of the state variables with
             % respect to reaction m should be computed. The reactor must be
             % part of a network first. ::
@@ -104,103 +104,103 @@ classdef (Abstract) ReactorBase < handle
             % :param m:
             %    Index number of reaction.
 
-            ctFunc('mReactor_addSensitivityReaction', r.id, m);
+            ctFunc('mReactor_addSensitivityReaction', obj.id, m);
         end
 
         %% ReactorBase Get Methods
 
-        function typ = get.type(r)
-            typ = ctString('mReactor_type', r.id);
+        function typ = get.type(obj)
+            typ = ctString('mReactor_type', obj.id);
         end
 
-        function name = get.name(r)
-            name = ctString('mReactor_name', r.id);
+        function name = get.name(obj)
+            name = ctString('mReactor_name', obj.id);
         end
 
-        function temperature = get.T(r)
-            temperature = ctFunc('mReactor_temperature', r.id);
+        function temperature = get.T(obj)
+            temperature = ctFunc('mReactor_temperature', obj.id);
         end
 
-        function pressure = get.P(r)
-            pressure = ctFunc('mReactor_pressure', r.id);
+        function pressure = get.P(obj)
+            pressure = ctFunc('mReactor_pressure', obj.id);
         end
 
-        function rho = get.D(r)
-            rho = ctFunc('mReactor_density', r.id);
+        function rho = get.D(obj)
+            rho = ctFunc('mReactor_density', obj.id);
         end
 
-        function mass = get.M(r)
-            mass = ctFunc('mReactor_mass', r.id);
+        function mass = get.M(obj)
+            mass = ctFunc('mReactor_mass', obj.id);
         end
 
-        function volume = get.V(r)
-            volume = ctFunc('mReactor_volume', r.id);
+        function volume = get.V(obj)
+            volume = ctFunc('mReactor_volume', obj.id);
         end
 
-        function enthalpy_mass = get.H(r)
-            enthalpy_mass = ctFunc('mReactor_enthalpy_mass', r.id);
+        function enthalpy_mass = get.H(obj)
+            enthalpy_mass = ctFunc('mReactor_enthalpy_mass', obj.id);
         end
 
-        function intEnergy_mass = get.U(r)
-            intEnergy_mass = ctFunc('mReactor_intEnergy_mass', r.id);
+        function intEnergy_mass = get.U(obj)
+            intEnergy_mass = ctFunc('mReactor_intEnergy_mass', obj.id);
         end
 
-        function a = get.area(r)
-            a = ctFunc('mReactor_area', r.id);
+        function a = get.area(obj)
+            a = ctFunc('mReactor_area', obj.id);
         end
 
-        function yi = massFraction(r, species)
+        function yi = massFraction(obj, species)
             % Get the mass fraction of a species.
             %
             % :param species:
             %    String/Char array name of the species.
 
-            k = r.phase.speciesIndex(species) - 1;
-            yi = ctFunc('mReactor_massFraction', r.id, k);
+            k = obj.phase.speciesIndex(species) - 1;
+            yi = ctFunc('mReactor_massFraction', obj.id, k);
         end
 
-        function massFractions = get.Y(r)
-            massFractions = ctArray('mReactor_massFractions', r.phase.nSpecies, r.id);
+        function massFractions = get.Y(obj)
+            massFractions = ctArray('mReactor_massFractions', obj.phase.nSpecies, obj.id);
         end
 
-        function flag = get.chemistryEnabled(r)
-            flag = logical(ctFunc('mReactor_chemistryEnabled', r.id));
+        function flag = get.chemistryEnabled(obj)
+            flag = logical(ctFunc('mReactor_chemistryEnabled', obj.id));
         end
 
-        function flag = get.energyEnabled(r)
-            flag = logical(ctFunc('mReactor_energyEnabled', r.id));
+        function flag = get.energyEnabled(obj)
+            flag = logical(ctFunc('mReactor_energyEnabled', obj.id));
         end
 
         %% ReactorBase set methods
 
-        function set.name(r, name)
-            ctFunc('mReactor_setName', r.id, name);
+        function set.name(obj, name)
+            ctFunc('mReactor_setName', obj.id, name);
         end
 
-        function set.V(r, v0)
-            ctFunc('mReactor_setInitialVolume', r.id, v0);
+        function set.V(obj, v0)
+            ctFunc('mReactor_setInitialVolume', obj.id, v0);
         end
 
-        function set.chemistryEnabled(r, flag)
+        function set.chemistryEnabled(obj, flag)
             arguments
-                r (1,1) ReactorBase
+                obj (1,1) ReactorBase
                 flag (1,1) logical
             end
 
-            ctFunc('mReactor_setChemistryEnabled', r.id, flag);
+            ctFunc('mReactor_setChemistryEnabled', obj.id, flag);
         end
 
-        function set.energyEnabled(r, flag)
+        function set.energyEnabled(obj, flag)
             arguments
-                r (1,1) ReactorBase
+                obj (1,1) ReactorBase
                 flag (1,1) logical
             end
 
-            ctFunc('mReactor_setEnergyEnabled', r.id, flag);
+            ctFunc('mReactor_setEnergyEnabled', obj.id, flag);
         end
 
-        function set.area(s, a)
-            ctFunc('mReactor_setArea', s.id, a);
+        function set.area(obj, a)
+            ctFunc('mReactor_setArea', obj.id, a);
         end
 
     end

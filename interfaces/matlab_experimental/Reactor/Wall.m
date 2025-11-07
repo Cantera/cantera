@@ -101,46 +101,46 @@ classdef Wall < Connector
 
         %% Wall get methods
 
-        function a = get.area(w)
-            a = ctFunc('mWall_area', w.id);
+        function a = get.area(obj)
+            a = ctFunc('mWall_area', obj.id);
         end
 
-        function q = get.heatRate(w)
-            q = ctFunc('mWall_heatRate', w.id);
+        function q = get.heatRate(obj)
+            q = ctFunc('mWall_heatRate', obj.id);
         end
 
-        function v = get.expansionRate(w)
-            v = ctFunc('mWall_expansionRate', w.id);
+        function v = get.expansionRate(obj)
+            v = ctFunc('mWall_expansionRate', obj.id);
         end
 
         %% Wall set methods
 
-        function set.area(w, a)
-            ctFunc('mWall_setArea', w.id, a);
+        function set.area(obj, a)
+            ctFunc('mWall_setArea', obj.id, a);
         end
 
-        function set.thermalResistance(w, r)
-            ctFunc('mWall_setThermalResistance', w.id, r);
+        function set.thermalResistance(obj, r)
+            ctFunc('mWall_setThermalResistance', obj.id, r);
         end
 
-        function set.heatTransferCoeff(w, u)
-            ctFunc('mWall_setHeatTransferCoeff', w.id, u);
+        function set.heatTransferCoeff(obj, u)
+            ctFunc('mWall_setHeatTransferCoeff', obj.id, u);
         end
 
-        function set.emissivity(w, epsilon)
-            ctFunc('mWall_setEmissivity', w.id, epsilon);
+        function set.emissivity(obj, epsilon)
+            ctFunc('mWall_setEmissivity', obj.id, epsilon);
         end
 
-        function set.expansionRateCoeff(w, k)
-            ctFunc('mWall_setExpansionRateCoeff', w.id, k);
+        function set.expansionRateCoeff(obj, k)
+            ctFunc('mWall_setExpansionRateCoeff', obj.id, k);
         end
 
-        function set.heatFlux(w, f)
-            ctFunc('mWall_setHeatFlux', w.id, f.id);
+        function set.heatFlux(obj, f)
+            ctFunc('mWall_setHeatFlux', obj.id, f.id);
         end
 
-        function set.velocity(w, f)
-            ctFunc('mWall_setVelocity', w.id, f.id);
+        function set.velocity(obj, f)
+            ctFunc('mWall_setVelocity', obj.id, f.id);
         end
 
     end

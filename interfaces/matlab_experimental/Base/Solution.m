@@ -80,24 +80,24 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         %% Solution Class Destructor
 
-        function delete(s)
+        function delete(obj)
             % Delete :mat:class:`Solution` object.
-            if s.solnID >= 0
-                ctFunc('mSol_del', s.solnID);
+            if obj.solnID >= 0
+                ctFunc('mSol_del', obj.solnID);
             end
         end
 
         %% Solution Class Getter Methods
 
-        function str = get.transportModel(soln)
-            str = ctString('mTrans_transportModel', soln.trID);
+        function str = get.transportModel(obj)
+            str = ctString('mTrans_transportModel', obj.trID);
         end
 
         %% Solution Class Setter Methods
 
-        function set.transportModel(soln, str)
-            ctFunc('mSol_setTransportModel', soln.solnID, str);
-            soln.trID = ctFunc('mSol_transport', soln.solnID);
+        function set.transportModel(obj, str)
+            ctFunc('mSol_setTransportModel', obj.solnID, str);
+            obj.trID = ctFunc('mSol_transport', obj.solnID);
         end
 
     end

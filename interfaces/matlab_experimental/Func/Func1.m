@@ -135,71 +135,71 @@ classdef Func1 < handle
 
         %% Func1 Class Destructor
 
-        function delete(f)
+        function delete(obj)
             % Delete the :mat:class:`Func1` object.
-            if f.id >= 0
-                ctFunc('mFunc1_del', f.id);
+            if obj.id >= 0
+                ctFunc('mFunc1_del', obj.id);
             end
         end
 
         %% Func1 Class Utility Methods
 
-        function r = plus(f1,f2)
-            if isa(f1, 'double') && length(f1) == 1
-                f1 = Func1('constant', f1);
+        function r = plus(obj,f2)
+            if isa(obj, 'double') && length(obj) == 1
+                obj = Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
                 f2 = Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newSumFunction', f1.id, f2.id);
+            id = ctFunc('mFunc1_newSumFunction', obj.id, f2.id);
             r = Func1(id);
         end
 
-        function r = minus(f1,f2)
-            if isa(f1, 'double') && length(f1) == 1
-                f1 = Func1('constant', f1);
+        function r = minus(obj,f2)
+            if isa(obj, 'double') && length(obj) == 1
+                obj = Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
                 f2 = Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newDiffFunction', f1.id, f2.id);
+            id = ctFunc('mFunc1_newDiffFunction', obj.id, f2.id);
             r = Func1(id);
         end
 
-        function r = mtimes(f1,f2)
-            if isa(f1, 'double') && length(f1) == 1
-                f1 = Func1('constant', f1);
+        function r = mtimes(obj,f2)
+            if isa(obj, 'double') && length(obj) == 1
+                obj = Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
                 f2 = Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newProdFunction', f1.id, f2.id);
+            id = ctFunc('mFunc1_newProdFunction', obj.id, f2.id);
             r = Func1(id);
         end
 
-        function r = mrdivide(f1,f2)
-            if isa(f1, 'double') && length(f1) == 1
-                f1 = Func1('constant', f1);
+        function r = mrdivide(obj,f2)
+            if isa(obj, 'double') && length(obj) == 1
+                obj = Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
                 f2 = Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newRatioFunction', f1.id, f2.id);
+            id = ctFunc('mFunc1_newRatioFunction', obj.id, f2.id);
             r = Func1(id);
         end
 
-        function s = get.type(f)
+        function s = get.type(obj)
             % Return function type.
-            s = ctString('mFunc1_type', f.id);
+            s = ctString('mFunc1_type', obj.id);
         end
 
-        function display(f)
+        function display(obj)
             % Display the equation of the input function on the terminal.
 
             disp(' ');
             disp([inputname(1), ' = '])
             disp(' ');
-            disp(['   ' f.write])
+            disp(['   ' obj.write])
             disp(' ');
         end
 
-        function b = subsref(a, s)
+        function b = subsref(obj, s)
             % Redefine subscripted references for functors. ::
             %
             %     >> b = a.subsref(s)
@@ -213,7 +213,7 @@ classdef Func1 < handle
 
             if length(s) > 1
                 name = s(1).subs;
-                aa = a.(name);
+                aa = obj.(name);
                 b = subsref(aa, s(2:end));
                 return
             end
@@ -222,19 +222,19 @@ classdef Func1 < handle
                 b = zeros(1, length(ind));
 
                 for k = 1:length(ind)
-                    b(k) = ctFunc('mFunc1_eval', a.id, ind(k));
+                    b(k) = ctFunc('mFunc1_eval', obj.id, ind(k));
                 end
 
             elseif strcmp(s.type, '.')
                 name = s.subs;
-                b = a.(name);
+                b = obj.(name);
             else
                 error('Specify value for x as p(x)');
             end
 
         end
 
-        function s = write(f)
+        function s = write(obj)
             % Get the formatted string to display the function. ::
             %
             %     >> s = f.write
@@ -244,7 +244,7 @@ classdef Func1 < handle
             % :return:
             %     LaTeX-formatted string displaying the function.
             arg = 'x';
-            s = ctString('mFunc1_write', f.id, arg);
+            s = ctString('mFunc1_write', obj.id, arg);
         end
 
     end

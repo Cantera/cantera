@@ -40,23 +40,23 @@ classdef (Abstract) Boundary1D < Domain1D
 
         %% Boundary Methods
 
-        function temperature = get.T(d)
-            temperature = ctFunc('mBdry_temperature', d.domainID);
+        function temperature = get.T(obj)
+            temperature = ctFunc('mBdry_temperature', obj.domainID);
         end
 
-        function set.T(d, t)
-            ctFunc('mBdry_setTemperature', d.domainID, t);
+        function set.T(obj, t)
+            ctFunc('mBdry_setTemperature', obj.domainID, t);
         end
 
-        function mdot = get.massFlux(d)
-            mdot = ctFunc('mBdry_mdot', d.domainID);
+        function mdot = get.massFlux(obj)
+            mdot = ctFunc('mBdry_mdot', obj.domainID);
         end
 
-        function set.massFlux(d, mdot)
-            ctFunc('mBdry_setMdot', d.domainID, mdot);
+        function set.massFlux(obj, mdot)
+            ctFunc('mBdry_setMdot', obj.domainID, mdot);
         end
 
-        function y = massFraction(d, k)
+        function y = massFraction(obj, k)
             % Get the mass fraction of a species given its integer index. ::
             %
             %     >> y = d.massFraction(k)
@@ -70,11 +70,11 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %     Mass fraction of species.
 
-            y = ctFunc('mBdry_massFraction', d.domainID, k - 1);
+            y = ctFunc('mBdry_massFraction', obj.domainID, k - 1);
 
         end
 
-        function v = value(d, component)
+        function v = value(obj, component)
             % Get the value of a component at a boundary. ::
             %
             %     >> d.value(component)
@@ -84,7 +84,7 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctFunc('mDomain_value', d.domainID, component);
+            v = ctFunc('mDomain_value', obj.domainID, component);
 
         end
 

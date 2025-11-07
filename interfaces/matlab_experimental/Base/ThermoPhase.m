@@ -371,11 +371,11 @@ classdef (Abstract) ThermoPhase < handle
 
         %% ThermoPhase Utility Methods
 
-        function display(tp)
-            disp(tp.report);
+        function display(obj)
+            disp(obj.report);
         end
 
-        function tp = equilibrate(tp, xy, solver, rtol, maxsteps, maxiter, loglevel)
+        function tp = equilibrate(obj, xy, solver, rtol, maxsteps, maxiter, loglevel)
             % Set the phase to a state of chemical equilibrium ::
             %
             %     >> tp.equilibrate(xy, solver, rtol, maxsteps, maxiter, loglevel)
@@ -407,7 +407,7 @@ classdef (Abstract) ThermoPhase < handle
             %     generate more detailed information.
 
             arguments
-                tp (1,1) ThermoPhase
+                obj (1,1) ThermoPhase
                 xy (1,1) string {mustBeMember(xy, ["TP", "TV", "HP", "SP", ...
                                                    "SV", "UV", "UP"])} = "TP"
                 solver (1,1) string {mustBeMember(solver, ["auto", ...
@@ -418,13 +418,13 @@ classdef (Abstract) ThermoPhase < handle
                 loglevel (1,1) double {mustBeInteger, mustBeNonnegative} = 0
             end
 
-            ctFunc('mThermo_equilibrate', tp.tpID, xy, solver, rtol, ...
+            ctFunc('mThermo_equilibrate', obj.tpID, xy, solver, rtol, ...
                    maxsteps, maxiter, loglevel);
         end
 
         %% ThermoPhase inquiry methods
 
-        function k = elementIndex(tp, name)
+        function k = elementIndex(obj, name)
             % Index of an element given its name ::
             %
             %     >> k = tp.elementIndex(name)
@@ -458,7 +458,7 @@ classdef (Abstract) ThermoPhase < handle
 
                     for j = 1:n
                         k(i, j) = ctFunc('mThermo_elementIndex', ...
-                                        tp.tpID, name{i, j}) + 1;
+                                        obj.tpID, name{i, j}) + 1;
 
                         if k(i, j) > 1e3
                             warning(['Element ', name{i, j}, ...
@@ -471,7 +471,7 @@ classdef (Abstract) ThermoPhase < handle
                 end
 
             elseif ischar(name)
-                k = ctFunc('mThermo_elementIndex', tp.tpID, name) + 1;
+                k = ctFunc('mThermo_elementIndex', obj.tpID, name) + 1;
 
                 if k > 1e3
                     warning(['Element ', name, ' does not exist in the phase']);
@@ -484,7 +484,7 @@ classdef (Abstract) ThermoPhase < handle
 
         end
 
-        function elMassFrac = elementalMassFraction(tp, element)
+        function elMassFrac = elementalMassFraction(obj, element)
             % Elemental mass fraction in gas object ::
             %
             %     >> elMassFrac = tp.elementalMassFraction(element)
@@ -505,33 +505,33 @@ classdef (Abstract) ThermoPhase < handle
             % :return:
             %     Elemental mass fraction within a gas object.
             arguments
-                tp
+                obj
                 element
             end
             if ~ischar(element)
                 error('Wrong type for element name: must be character.');
             end
 
-            n = tp.nSpecies;
-            spec = tp.speciesNames;
-            eli = tp.elementIndex(element);
-            M = tp.atomicWeights;
+            n = obj.nSpecies;
+            spec = obj.speciesNames;
+            eli = obj.elementIndex(element);
+            M = obj.atomicWeights;
             Mel = M(eli);
-            MW = tp.molecularWeights;
+            MW = obj.molecularWeights;
             natoms = zeros(1, n);
             yy = zeros(1, n);
             % Initialize the element mass fraction as zero.
             elMassFrac = 0.0;
             % Perform summation of elemental mass fraction over all species.
             for i = 1:n
-                natoms(i) = tp.nAtoms(spec{i}, element);
-                yy(i) = tp.massFraction(spec{i});
+                natoms(i) = obj.nAtoms(spec{i}, element);
+                yy(i) = obj.massFraction(spec{i});
                 elMassFrac = elMassFrac + (natoms(i) * Mel * yy(i)) / MW(i);
             end
 
         end
 
-        function n = nAtoms(tp, species, element)
+        function n = nAtoms(obj, species, element)
             % Number of atoms of an element in a species ::
             %
             %   >> n = tp.nAtoms(k,m)
@@ -543,28 +543,28 @@ classdef (Abstract) ThermoPhase < handle
             % :return:
             %     Number of atoms of the specified element in the species.
             arguments
-                tp
+                obj
                 species
                 element
             end
 
             if ischar(species) | isstring(species)
-                k = tp.speciesIndex(species);
+                k = obj.speciesIndex(species);
             else
                 k = species;
             end
 
             if ischar(element) | isstring(element)
-                m = tp.elementIndex(element);
+                m = obj.elementIndex(element);
             else
                 m = element;
             end
 
-            n = ctFunc('mThermo_nAtoms', tp.tpID, k - 1, m - 1);
+            n = ctFunc('mThermo_nAtoms', obj.tpID, k - 1, m - 1);
 
         end
 
-        function k = speciesIndex(tp, name)
+        function k = speciesIndex(obj, name)
             % Index of a species given the name ::
             %
             %   >> k = tp.speciesIndex(name)
@@ -598,7 +598,7 @@ classdef (Abstract) ThermoPhase < handle
 
                     for j = 1:n
                         k(i, j) = ctFunc('mThermo_speciesIndex', ...
-                                        tp.tpID, name{i, j}) + 1;
+                                        obj.tpID, name{i, j}) + 1;
 
                         if k(i, j) > 1e6
                             warning(['Species ', name{i, j}, ...
@@ -611,7 +611,7 @@ classdef (Abstract) ThermoPhase < handle
                 end
 
             elseif ischar(name)
-                k = ctFunc('mThermo_speciesIndex', tp.tpID, name) + 1;
+                k = ctFunc('mThermo_speciesIndex', obj.tpID, name) + 1;
 
                 if k > 1e6
                     warning(['Species ', name, ' does not exist in the phase.']);
@@ -624,7 +624,7 @@ classdef (Abstract) ThermoPhase < handle
 
         end
 
-        function nm = speciesName(tp, k)
+        function nm = speciesName(obj, k)
             % Name of one or multiple species given the index ::
             %
             %     >> k = tp.speciesName(k)
@@ -643,7 +643,7 @@ classdef (Abstract) ThermoPhase < handle
 
                 for j = 1:n
                     ksp = k(i, j) - 1;
-                    output = ctString('mThermo_speciesName', tp.tpID, ksp);
+                    output = ctString('mThermo_speciesName', obj.tpID, ksp);
                     nm{i, j} = output;
                 end
 
@@ -651,7 +651,7 @@ classdef (Abstract) ThermoPhase < handle
 
         end
 
-        function x = moleFraction(tp, species)
+        function x = moleFraction(obj, species)
             % Get the mole fraction of one or a list of species ::
             %
             %     >> x = tp.moleFraction(species)
@@ -662,10 +662,10 @@ classdef (Abstract) ThermoPhase < handle
             % :return:
             %     Scalar or vector double mole fractions
 
-            xarray = tp.X;
+            xarray = obj.X;
 
             if isa(species, 'char')
-                k = tp.speciesIndex(species);
+                k = obj.speciesIndex(species);
 
                 if k > 0
                     x = xarray(k);
@@ -678,7 +678,7 @@ classdef (Abstract) ThermoPhase < handle
                 x = zeros(1, n);
 
                 for j = 1:n
-                    k = tp.speciesIndex(species{j});
+                    k = obj.speciesIndex(species{j});
 
                     if k > 0
                         x(j) = xarray(k);
@@ -694,7 +694,7 @@ classdef (Abstract) ThermoPhase < handle
 
         end
 
-        function y = massFraction(tp, species)
+        function y = massFraction(obj, species)
             % Get the mass fraction of one or a list of species ::
             %
             %     >> y = tp.massFraction(species)
@@ -705,10 +705,10 @@ classdef (Abstract) ThermoPhase < handle
             % :return:
             %     Scalar or vector double mass fractions
 
-            yy = tp.Y;
+            yy = obj.Y;
 
             if isa(species, 'char')
-                k = tp.speciesIndex(species);
+                k = obj.speciesIndex(species);
 
                 if k > 0
                     y = yy(k);
@@ -721,7 +721,7 @@ classdef (Abstract) ThermoPhase < handle
                 y = zeros(1, n);
 
                 for j = 1:n
-                    k = tp.speciesIndex(species{j});
+                    k = obj.speciesIndex(species{j});
 
                     if k > 0
                         y(j) = yy(k);
@@ -737,498 +737,498 @@ classdef (Abstract) ThermoPhase < handle
 
         end
 
-        function str = report(tp, threshold)
+        function str = report(obj, threshold)
             arguments
-                tp
+                obj
                 threshold (1,1) double = 1e-14
             end
-            str = ctString('mThermo_report', tp.tpID, 1, threshold);
+            str = ctString('mThermo_report', obj.tpID, 1, threshold);
         end
 
         %% Single-property getter methods
 
-        function amu = get.atomicWeights(tp)
-            nel = tp.nElements;
-            amu = ctArray('mThermo_atomicWeights', nel, tp.tpID);
+        function amu = get.atomicWeights(obj)
+            nel = obj.nElements;
+            amu = ctArray('mThermo_atomicWeights', nel, obj.tpID);
         end
 
-        function e = get.charges(tp)
-            nsp = tp.nSpecies;
-            e = ctArray('mThermo_getCharges', nsp, tp.tpID);
+        function e = get.charges(obj)
+            nsp = obj.nSpecies;
+            e = ctArray('mThermo_getCharges', nsp, obj.tpID);
         end
 
-        function c = get.cv(tp)
-            if strcmp(tp.basis, 'molar')
-                c = ctFunc('mThermo_cv_mole', tp.tpID);
+        function c = get.cv(obj)
+            if strcmp(obj.basis, 'molar')
+                c = ctFunc('mThermo_cv_mole', obj.tpID);
             else
-                c = ctFunc('mThermo_cv_mass', tp.tpID);
+                c = ctFunc('mThermo_cv_mass', obj.tpID);
             end
         end
 
-        function c = get.cp(tp)
-            if strcmp(tp.basis, 'molar')
-                c = ctFunc('mThermo_cp_mole', tp.tpID);
+        function c = get.cp(obj)
+            if strcmp(obj.basis, 'molar')
+                c = ctFunc('mThermo_cp_mole', obj.tpID);
             else
-                c = ctFunc('mThermo_cp_mass', tp.tpID);
+                c = ctFunc('mThermo_cp_mass', obj.tpID);
             end
         end
 
-        function d = get.critDensity(tp)
-            d = ctFunc('mThermo_critDensity', tp.tpID);
+        function d = get.critDensity(obj)
+            d = ctFunc('mThermo_critDensity', obj.tpID);
         end
 
-        function p = get.critPressure(tp)
-            p = ctFunc('mThermo_critPressure', tp.tpID);
+        function p = get.critPressure(obj)
+            p = ctFunc('mThermo_critPressure', obj.tpID);
         end
 
-        function t = get.critTemperature(tp)
-            t = ctFunc('mThermo_critTemperature', tp.tpID);
+        function t = get.critTemperature(obj)
+            t = ctFunc('mThermo_critTemperature', obj.tpID);
         end
 
-        function v = get.electricPotential(tp)
-            v = ctFunc('mThermo_electricPotential', tp.tpID);
+        function v = get.electricPotential(obj)
+            v = ctFunc('mThermo_electricPotential', obj.tpID);
         end
 
-        function e = get.eosType(tp)
-            e = ctString('mThermo_type', tp.tpID);
+        function e = get.eosType(obj)
+            e = ctString('mThermo_type', obj.tpID);
         end
 
-        function v = get.isIdealGas(tp)
-            v = strcmp(tp.eosType, 'ideal-gas');
+        function v = get.isIdealGas(obj)
+            v = strcmp(obj.eosType, 'ideal-gas');
         end
 
-        function b = get.isothermalCompressibility(tp)
-            b = ctFunc('mThermo_isothermalCompressibility', tp.tpID);
+        function b = get.isothermalCompressibility(obj)
+            b = ctFunc('mThermo_isothermalCompressibility', obj.tpID);
         end
 
-        function t = get.maxTemp(tp)
-            t = ctFunc('mThermo_maxTemp', tp.tpID, -1);
+        function t = get.maxTemp(obj)
+            t = ctFunc('mThermo_maxTemp', obj.tpID, -1);
         end
 
-        function t = get.minTemp(tp)
-            t = ctFunc('mThermo_minTemp', tp.tpID, -1);
+        function t = get.minTemp(obj)
+            t = ctFunc('mThermo_minTemp', obj.tpID, -1);
         end
 
-        function mmw = get.meanMolecularWeight(tp)
-            mmw = ctFunc('mThermo_meanMolecularWeight', tp.tpID);
+        function mmw = get.meanMolecularWeight(obj)
+            mmw = ctFunc('mThermo_meanMolecularWeight', obj.tpID);
         end
 
-        function density = get.massDensity(tp)
-            density = ctFunc('mThermo_density', tp.tpID);
+        function density = get.massDensity(obj)
+            density = ctFunc('mThermo_density', obj.tpID);
         end
 
-        function density = get.molarDensity(tp)
-            density = ctFunc('mThermo_molarDensity', tp.tpID);
+        function density = get.molarDensity(obj)
+            density = ctFunc('mThermo_molarDensity', obj.tpID);
         end
 
-        function c = get.concentrations(s)
-            nsp = s.nSpecies;
-            c = ctArray('mThermo_getConcentrations', nsp, tp.tpID);
+        function c = get.concentrations(obj)
+            nsp = obj.nSpecies;
+            c = ctArray('mThermo_getConcentrations', nsp, obj.tpID);
         end
 
-        function mw = get.molecularWeights(tp)
-            nsp = tp.nSpecies;
-            mw = ctArray('mThermo_getMolecularWeights', nsp, tp.tpID);
+        function mw = get.molecularWeights(obj)
+            nsp = obj.nSpecies;
+            mw = ctArray('mThermo_getMolecularWeights', nsp, obj.tpID);
         end
 
-        function nel = get.nElements(tp)
-            nel = ctFunc('mThermo_nElements', tp.tpID);
+        function nel = get.nElements(obj)
+            nel = ctFunc('mThermo_nElements', obj.tpID);
         end
 
-        function nsp = get.nSpecies(tp)
-            nsp = ctFunc('mThermo_nSpecies', tp.tpID);
+        function nsp = get.nSpecies(obj)
+            nsp = ctFunc('mThermo_nSpecies', obj.tpID);
         end
 
-        function p = get.refPressure(tp)
-            p = ctFunc('mThermo_refPressure', tp.tpID);
+        function p = get.refPressure(obj)
+            p = ctFunc('mThermo_refPressure', obj.tpID);
         end
 
-        function p = get.satPressure(tp)
-            p = ctFunc('mThermo_satPressure', tp.tpID, tp.T);
+        function p = get.satPressure(obj)
+            p = ctFunc('mThermo_satPressure', obj.tpID, obj.T);
         end
 
-        function t = get.satTemperature(tp)
-            t = ctFunc('mThermo_satTemperature', tp.tpID, tp.P);
+        function t = get.satTemperature(obj)
+            t = ctFunc('mThermo_satTemperature', obj.tpID, obj.P);
         end
 
-        function c = get.soundSpeed(tp)
+        function c = get.soundSpeed(obj)
 
-            if tp.isIdealGas
-                tp.basis = 'mass';
-                gamma = tp.cp / tp.cv;
-                wtm = tp.meanMolecularWeight;
+            if obj.isIdealGas
+                obj.basis = 'mass';
+                gamma = obj.cp / obj.cv;
+                wtm = obj.meanMolecularWeight;
                 r = 8314.4621 / wtm;
-                c = sqrt(gamma * r * tp.T);
+                c = sqrt(gamma * r * obj.T);
             else
-                rho0 = tp.D;
-                p0 = tp.P;
-                s0 = tp.S;
+                rho0 = obj.D;
+                p0 = obj.P;
+                s0 = obj.S;
                 rho1 = 1.001 * rho0;
-                tp.SV = {s0, 1/rho0};
-                p1 = tp.P;
+                obj.SV = {s0, 1/rho0};
+                p1 = obj.P;
                 dpdrho_s = (p1 - p0) / (rho1 - rho0);
                 c = sqrt(dpdrho_s);
             end
 
         end
 
-        function s = get.name(tp)
-            s = ctString('mThermo_name', tp.tpID);
+        function s = get.name(obj)
+            s = ctString('mThermo_name', obj.tpID);
         end
 
-        function n = get.speciesNames(tp)
-            n = tp.speciesName(1:tp.nSpecies);
+        function n = get.speciesNames(obj)
+            n = obj.speciesName(1:obj.nSpecies);
         end
 
-        function a = get.thermalExpansionCoeff(tp)
-            a = ctFunc('mThermo_thermalExpansionCoeff', tp.tpID);
+        function a = get.thermalExpansionCoeff(obj)
+            a = ctFunc('mThermo_thermalExpansionCoeff', obj.tpID);
         end
 
-        function temperature = get.T(tp)
-            temperature = ctFunc('mThermo_temperature', tp.tpID);
+        function temperature = get.T(obj)
+            temperature = ctFunc('mThermo_temperature', obj.tpID);
         end
 
-        function pressure = get.P(tp)
-            pressure = ctFunc('mThermo_pressure', tp.tpID);
+        function pressure = get.P(obj)
+            pressure = ctFunc('mThermo_pressure', obj.tpID);
         end
 
-        function v = get.Q(tp)
-            v = ctFunc('mThermo_vaporFraction', tp.tpID);
+        function v = get.Q(obj)
+            v = ctFunc('mThermo_vaporFraction', obj.tpID);
         end
 
-        function density = get.D(tp)
-            if strcmp(tp.basis, 'mass')
-                density = ctFunc('mThermo_density', tp.tpID);
+        function density = get.D(obj)
+            if strcmp(obj.basis, 'mass')
+                density = ctFunc('mThermo_density', obj.tpID);
             else
-                density = tp.molarDensity;
+                density = obj.molarDensity;
             end
         end
 
-        function volume = get.V(tp)
-            volume = 1 / tp.D;
+        function volume = get.V(obj)
+            volume = 1 / obj.D;
         end
 
-        function moleFractions = get.X(tp)
-            nsp = tp.nSpecies;
-            moleFractions = ctArray('mThermo_getMoleFractions', nsp, tp.tpID);
+        function moleFractions = get.X(obj)
+            nsp = obj.nSpecies;
+            moleFractions = ctArray('mThermo_getMoleFractions', nsp, obj.tpID);
         end
 
-        function massFractions = get.Y(tp)
-            nsp = tp.nSpecies;
-            massFractions = ctArray('mThermo_getMassFractions', nsp, tp.tpID);
+        function massFractions = get.Y(obj)
+            nsp = obj.nSpecies;
+            massFractions = ctArray('mThermo_getMassFractions', nsp, obj.tpID);
         end
 
-        function enthalpy = get.H(tp)
-            if strcmp(tp.basis, 'molar')
-                enthalpy = ctFunc('mThermo_enthalpy_mole', tp.tpID);
+        function enthalpy = get.H(obj)
+            if strcmp(obj.basis, 'molar')
+                enthalpy = ctFunc('mThermo_enthalpy_mole', obj.tpID);
             else
-                enthalpy = ctFunc('mThermo_enthalpy_mass', tp.tpID);
+                enthalpy = ctFunc('mThermo_enthalpy_mass', obj.tpID);
             end
         end
 
-        function mu = get.chemicalPotentials(tp)
-            nsp = tp.nSpecies;
-            mu = ctArray('mThermo_chemPotentials', nsp, tp.tpID);
+        function mu = get.chemicalPotentials(obj)
+            nsp = obj.nSpecies;
+            mu = ctArray('mThermo_chemPotentials', nsp, obj.tpID);
         end
 
-        function emu = get.electrochemicalPotentials(tp)
-            nsp = tp.nSpecies;
-            emu = ctArray('mThermo_electrochemPotentials', nsp, tp.tpID);
+        function emu = get.electrochemicalPotentials(obj)
+            nsp = obj.nSpecies;
+            emu = ctArray('mThermo_electrochemPotentials', nsp, obj.tpID);
         end
 
-        function enthalpies = get.partialMolarEnthalpies(tp)
-            nsp = tp.nSpecies;
-            enthalpies = ctArray('mThermo_getPartialMolarEnthalpies', nsp, tp.tpID);
+        function enthalpies = get.partialMolarEnthalpies(obj)
+            nsp = obj.nSpecies;
+            enthalpies = ctArray('mThermo_getPartialMolarEnthalpies', nsp, obj.tpID);
         end
 
-        function entropies = get.partialMolarEntropies(tp)
-            nsp = tp.nSpecies;
-            entropies = ctArray('mThermo_getPartialMolarEntropies', nsp, tp.tpID);
+        function entropies = get.partialMolarEntropies(obj)
+            nsp = obj.nSpecies;
+            entropies = ctArray('mThermo_getPartialMolarEntropies', nsp, obj.tpID);
         end
 
-        function intEnergies = get.partialMolarIntEnergies(tp)
-            nsp = tp.nSpecies;
-            intEnergies = ctArray('mThermo_getPartialMolarIntEnergies', nsp, tp.tpID);
+        function intEnergies = get.partialMolarIntEnergies(obj)
+            nsp = obj.nSpecies;
+            intEnergies = ctArray('mThermo_getPartialMolarIntEnergies', nsp, obj.tpID);
         end
 
-        function cps = get.partialMolarCp(tp)
-            nsp = tp.nSpecies;
-            cps = ctArray('mThermo_getPartialMolarCp', nsp, tp.tpID);
+        function cps = get.partialMolarCp(obj)
+            nsp = obj.nSpecies;
+            cps = ctArray('mThermo_getPartialMolarCp', nsp, obj.tpID);
         end
 
-        function volumes = get.partialMolarVolumes(tp)
-            nsp = tp.nSpecies;
-            volumes = ctFunc('mThermo_getPartialMolarVolumes', nsp, tp.tpID);
+        function volumes = get.partialMolarVolumes(obj)
+            nsp = obj.nSpecies;
+            volumes = ctFunc('mThermo_getPartialMolarVolumes', nsp, obj.tpID);
         end
 
-        function entropy = get.S(tp)
-            if strcmp(tp.basis, 'molar')
-                entropy = ctFunc('mThermo_entropy_mole', tp.tpID);
+        function entropy = get.S(obj)
+            if strcmp(obj.basis, 'molar')
+                entropy = ctFunc('mThermo_entropy_mole', obj.tpID);
             else
-                entropy = ctFunc('mThermo_entropy_mass', tp.tpID);
+                entropy = ctFunc('mThermo_entropy_mass', obj.tpID);
             end
         end
 
-        function intEnergy = get.U(tp)
-            if strcmp(tp.basis, 'molar')
-                intEnergy = ctFunc('mThermo_intEnergy_mole', tp.tpID);
+        function intEnergy = get.U(obj)
+            if strcmp(obj.basis, 'molar')
+                intEnergy = ctFunc('mThermo_intEnergy_mole', obj.tpID);
             else
-                intEnergy = ctFunc('mThermo_intEnergy_mass', tp.tpID);
+                intEnergy = ctFunc('mThermo_intEnergy_mass', obj.tpID);
             end
         end
 
-        function gibbs = get.G(tp)
-            if strcmp(tp.basis, 'molar')
-                gibbs = ctFunc('mThermo_gibbs_mole', tp.tpID);
+        function gibbs = get.G(obj)
+            if strcmp(obj.basis, 'molar')
+                gibbs = ctFunc('mThermo_gibbs_mole', obj.tpID);
             else
-                gibbs = ctFunc('mThermo_gibbs_mass', tp.tpID);
+                gibbs = ctFunc('mThermo_gibbs_mass', obj.tpID);
             end
         end
 
         %% Multi-property getter methods
 
-        function output = get.DP(tp)
-            output = {tp.D, tp.P};
+        function output = get.DP(obj)
+            output = {obj.D, obj.P};
         end
 
-        function output = get.DPX(tp)
-            output = {tp.D, tp.P, tp.X};
+        function output = get.DPX(obj)
+            output = {obj.D, obj.P, obj.X};
         end
 
-        function output = get.DPY(tp)
-            output = {tp.D, tp.P, tp.Y};
+        function output = get.DPY(obj)
+            output = {obj.D, obj.P, obj.Y};
         end
 
-        function output = get.DPQ(tp)
-            output = {tp.D, tp.P, tp.Q};
+        function output = get.DPQ(obj)
+            output = {obj.D, obj.P, obj.Q};
         end
 
-        function output = get.HP(tp)
-            output = {tp.H, tp.P};
+        function output = get.HP(obj)
+            output = {obj.H, obj.P};
         end
 
-        function output = get.HPX(tp)
-            output = {tp.H, tp.P, tp.X};
+        function output = get.HPX(obj)
+            output = {obj.H, obj.P, obj.X};
         end
 
-        function output = get.HPY(tp)
-            output = {tp.H, tp.P, tp.Y};
+        function output = get.HPY(obj)
+            output = {obj.H, obj.P, obj.Y};
         end
 
-        function output = get.HPQ(tp)
-            output = {tp.H, tp.P, tp.Q};
+        function output = get.HPQ(obj)
+            output = {obj.H, obj.P, obj.Q};
         end
 
-        function output = get.PV(tp)
-            output = {tp.P, tp.V};
+        function output = get.PV(obj)
+            output = {obj.P, obj.V};
         end
 
-        function output = get.PVX(tp)
-            output = {tp.P, tp.V, tp.X};
+        function output = get.PVX(obj)
+            output = {obj.P, obj.V, obj.X};
         end
 
-        function output = get.PVY(tp)
-            output = {tp.P, tp.V, tp.Y};
+        function output = get.PVY(obj)
+            output = {obj.P, obj.V, obj.Y};
         end
 
-        function output = get.PQ(tp)
-            output = {tp.P, tp.Q};
+        function output = get.PQ(obj)
+            output = {obj.P, obj.Q};
         end
 
-        function output = get.SH(tp)
-            output = {tp.S, tp.H};
+        function output = get.SH(obj)
+            output = {obj.S, obj.H};
         end
 
-        function output = get.SHX(tp)
-            output = {tp.S, tp.H, tp.X};
+        function output = get.SHX(obj)
+            output = {obj.S, obj.H, obj.X};
         end
 
-        function output = get.SHY(tp)
-            output = {tp.S, tp.H, tp.Y};
+        function output = get.SHY(obj)
+            output = {obj.S, obj.H, obj.Y};
         end
 
-        function output = get.SP(tp)
-            output = {tp.S, tp.P};
+        function output = get.SP(obj)
+            output = {obj.S, obj.P};
         end
 
-        function output = get.SPX(tp)
-            output = {tp.S, tp.P, tp.X};
+        function output = get.SPX(obj)
+            output = {obj.S, obj.P, obj.X};
         end
 
-        function output = get.SPY(tp)
-            output = {tp.S, tp.P, tp.Y};
+        function output = get.SPY(obj)
+            output = {obj.S, obj.P, obj.Y};
         end
 
-        function output = get.SPQ(tp)
-            output = {tp.S, tp.P, tp.Q};
+        function output = get.SPQ(obj)
+            output = {obj.S, obj.P, obj.Q};
         end
 
-        function output = get.ST(tp)
-            output = {tp.S, tp.T};
+        function output = get.ST(obj)
+            output = {obj.S, obj.T};
         end
 
-        function output = get.STX(tp)
-            output = {tp.S, tp.T, tp.X};
+        function output = get.STX(obj)
+            output = {obj.S, obj.T, obj.X};
         end
 
-        function output = get.STY(tp)
-            output = {tp.S, tp.T, tp.Y};
+        function output = get.STY(obj)
+            output = {obj.S, obj.T, obj.Y};
         end
 
-        function output = get.SV(tp)
-            output = {tp.S, tp.V};
+        function output = get.SV(obj)
+            output = {obj.S, obj.V};
         end
 
-        function output = get.SVX(tp)
-            output = {tp.S, tp.V, tp.X};
+        function output = get.SVX(obj)
+            output = {obj.S, obj.V, obj.X};
         end
 
-        function output = get.SVY(tp)
-            output = {tp.S, tp.V, tp.Y};
+        function output = get.SVY(obj)
+            output = {obj.S, obj.V, obj.Y};
         end
 
-        function output = get.SVQ(tp)
-            output = {tp.S, tp.V, tp.Q};
+        function output = get.SVQ(obj)
+            output = {obj.S, obj.V, obj.Q};
         end
 
-        function output = get.TD(tp)
-            output = {tp.T, tp.D};
+        function output = get.TD(obj)
+            output = {obj.T, obj.D};
         end
 
-        function output = get.TDX(tp)
-            output = {tp.T, tp.D, tp.X};
+        function output = get.TDX(obj)
+            output = {obj.T, obj.D, obj.X};
         end
 
-        function output = get.TDY(tp)
-            output = {tp.T, tp.D, tp.Y};
+        function output = get.TDY(obj)
+            output = {obj.T, obj.D, obj.Y};
         end
 
-        function output = get.TDQ(tp)
-            output = {tp.T, tp.D, tp.Q};
+        function output = get.TDQ(obj)
+            output = {obj.T, obj.D, obj.Q};
         end
 
-        function output = get.TH(tp)
-            output = {tp.T, tp.H};
+        function output = get.TH(obj)
+            output = {obj.T, obj.H};
         end
 
-        function output = get.THX(tp)
-            output = {tp.T, tp.H, tp.X};
+        function output = get.THX(obj)
+            output = {obj.T, obj.H, obj.X};
         end
 
-        function output = get.THY(tp)
-            output = {tp.T, tp.H, tp.Y};
+        function output = get.THY(obj)
+            output = {obj.T, obj.H, obj.Y};
         end
 
-        function output = get.TP(tp)
-            output = {tp.T, tp.P};
+        function output = get.TP(obj)
+            output = {obj.T, obj.P};
         end
 
-        function output = get.TPX(tp)
-            output = {tp.T, tp.P, tp.X};
+        function output = get.TPX(obj)
+            output = {obj.T, obj.P, obj.X};
         end
 
-        function output = get.TPY(tp)
-            output = {tp.T, tp.P, tp.Y};
+        function output = get.TPY(obj)
+            output = {obj.T, obj.P, obj.Y};
         end
 
-        function output = get.TPQ(tp)
-            output = {tp.T, tp.P, tp.Q};
+        function output = get.TPQ(obj)
+            output = {obj.T, obj.P, obj.Q};
         end
 
-        function output = get.TQ(tp)
-            output = {tp.T, tp.Q};
+        function output = get.TQ(obj)
+            output = {obj.T, obj.Q};
         end
 
-        function output = get.TV(tp)
-            output = {tp.T, tp.V};
+        function output = get.TV(obj)
+            output = {obj.T, obj.V};
         end
 
-        function output = get.TVX(tp)
-            output = {tp.T, tp.V, tp.X};
+        function output = get.TVX(obj)
+            output = {obj.T, obj.V, obj.X};
         end
 
-        function output = get.TVY(tp)
-            output = {tp.T, tp.V, tp.Y};
+        function output = get.TVY(obj)
+            output = {obj.T, obj.V, obj.Y};
         end
 
-        function output = get.UV(tp)
-            output = {tp.U, tp.V};
+        function output = get.UV(obj)
+            output = {obj.U, obj.V};
         end
 
-        function output = get.UVX(tp)
-            output = {tp.U, tp.V, tp.X};
+        function output = get.UVX(obj)
+            output = {obj.U, obj.V, obj.X};
         end
 
-        function output = get.UVY(tp)
-            output = {tp.U, tp.V, tp.Y};
+        function output = get.UVY(obj)
+            output = {obj.U, obj.V, obj.Y};
         end
 
-        function output = get.UVQ(tp)
-            output = {tp.U, tp.V, tp.Q};
+        function output = get.UVQ(obj)
+            output = {obj.U, obj.V, obj.Q};
         end
 
-        function output = get.UP(tp)
-            output = {tp.U, tp.P};
+        function output = get.UP(obj)
+            output = {obj.U, obj.P};
         end
 
-        function output = get.UPX(tp)
-            output = {tp.U, tp.P, tp.X};
+        function output = get.UPX(obj)
+            output = {obj.U, obj.P, obj.X};
         end
 
-        function output = get.UPY(tp)
-            output = {tp.U, tp.P, tp.Y};
+        function output = get.UPY(obj)
+            output = {obj.U, obj.P, obj.Y};
         end
 
-        function output = get.VH(tp)
-            output = {tp.V, tp.H};
+        function output = get.VH(obj)
+            output = {obj.V, obj.H};
         end
 
-        function output = get.VHX(tp)
-            output = {tp.V, tp.H, tp.X};
+        function output = get.VHX(obj)
+            output = {obj.V, obj.H, obj.X};
         end
 
-        function output = get.VHY(tp)
-            output = {tp.V, tp.H, tp.Y};
+        function output = get.VHY(obj)
+            output = {obj.V, obj.H, obj.Y};
         end
 
         %% Single-property setter methods
 
-        function set.electricPotential(tp, phi)
-            ctFunc('mThermo_setElectricPotential', tp.tpID, phi);
+        function set.electricPotential(obj, phi)
+            ctFunc('mThermo_setElectricPotential', obj.tpID, phi);
         end
 
-        function set.basis(tp, b)
+        function set.basis(obj, b)
 
             if strcmp(b, 'mole') || strcmp(b, 'molar') ...
                || strcmp(b, 'Mole') || strcmp(b, 'Molar')
-                tp.basis = 'molar';
+                obj.basis = 'molar';
             elseif strcmp(b, 'mass') || strcmp(b, 'Mass')
-                tp.basis = 'mass';
+                obj.basis = 'mass';
             else
                 error("Basis must be mass or molar.")
             end
 
         end
 
-        function set.name(tp, str)
-            ctFunc('mThermo_setName', tp.tpID, str);
+        function set.name(obj, str)
+            ctFunc('mThermo_setName', obj.tpID, str);
         end
 
-        function set.X(tp, xx)
+        function set.X(obj, xx)
             if isa(xx, 'double')
-                ctFunc('mThermo_setMoleFractions', tp.tpID, xx);
+                ctFunc('mThermo_setMoleFractions', obj.tpID, xx);
             elseif isa(xx, 'char')
-                ctFunc('mThermo_setMoleFractionsByName', tp.tpID, xx);
+                ctFunc('mThermo_setMoleFractionsByName', obj.tpID, xx);
             else
                 error('Invalid input.')
             end
         end
 
-        function set.Y(tp, yy)
+        function set.Y(obj, yy)
             if isa(yy, 'double')
-                ctFunc('mThermo_setMassFractions', tp.tpID, yy);
+                ctFunc('mThermo_setMassFractions', obj.tpID, yy);
             elseif isa(yy, 'char')
-                ctFunc('mThermo_setMassFractionsByName', tp.tpID, yy);
+                ctFunc('mThermo_setMassFractionsByName', obj.tpID, yy);
             else
                 error('Invalid input.')
             end
@@ -1237,304 +1237,304 @@ classdef (Abstract) ThermoPhase < handle
 
         %% Multi-property setter methods
 
-        function set.DP(tp, input)
+        function set.DP(obj, input)
             d = input{1};
             p = input{2};
-            if strcmp(tp.basis, 'molar')
-                d = d*tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                d = d*obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_DP', tp.tpID, d, p);
+            ctFunc('mThermo_setState_DP', obj.tpID, d, p);
         end
 
-        function set.DPX(tp, input)
-            tp.X = input{3};
-            tp.DP = input(1:2);
+        function set.DPX(obj, input)
+            obj.X = input{3};
+            obj.DP = input(1:2);
         end
 
-        function set.DPY(tp, input)
-            tp.Y = input{3};
-            tp.DP = input(1:2);
+        function set.DPY(obj, input)
+            obj.Y = input{3};
+            obj.DP = input(1:2);
         end
 
-        function set.HP(tp, input)
+        function set.HP(obj, input)
             h = input{1};
             p = input{2};
-            if strcmp(tp.basis, 'molar')
-                h = h/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                h = h/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_HP', tp.tpID, h, p);
+            ctFunc('mThermo_setState_HP', obj.tpID, h, p);
         end
 
-        function set.HPX(tp, input)
-            tp.X = input{3};
-            tp.HP = input(1:2);
+        function set.HPX(obj, input)
+            obj.X = input{3};
+            obj.HP = input(1:2);
         end
 
-        function set.HPY(tp, input)
-            tp.Y = input{3};
-            tp.HP = input(1:2);
+        function set.HPY(obj, input)
+            obj.Y = input{3};
+            obj.HP = input(1:2);
         end
 
-        function set.PV(tp, input)
+        function set.PV(obj, input)
             p = input{1};
             v = input{2};
-            if strcmp(tp.basis, 'molar')
-                v = v/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                v = v/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_PV', tp.tpID, p, v);
+            ctFunc('mThermo_setState_PV', obj.tpID, p, v);
         end
 
-        function set.PVX(tp, input)
-            tp.X = input{3};
-            tp.PV = input(1:2);
+        function set.PVX(obj, input)
+            obj.X = input{3};
+            obj.PV = input(1:2);
         end
 
-        function set.PVY(tp, input)
-            tp.Y = input{3};
-            tp.PV = input(1:2);
+        function set.PVY(obj, input)
+            obj.Y = input{3};
+            obj.PV = input(1:2);
         end
 
-        function set.PQ(tp, input)
+        function set.PQ(obj, input)
             p = input{1};
             q = input{2};
-            ctFunc('mThermo_setState_Psat', tp.tpID, p, q);
+            ctFunc('mThermo_setState_Psat', obj.tpID, p, q);
         end
 
-        function set.SH(tp, input)
+        function set.SH(obj, input)
             s = input{1};
             h = input{2};
-            if strcmp(tp.basis, 'molar')
-                s = s/tp.meanMolecularWeight;
-                h = h/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                s = s/obj.meanMolecularWeight;
+                h = h/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_SH', tp.tpID, s, h);
+            ctFunc('mThermo_setState_SH', obj.tpID, s, h);
         end
 
-        function set.SHX(tp, input)
-            tp.X = input{3};
-            tp.SH = input(1:2);
+        function set.SHX(obj, input)
+            obj.X = input{3};
+            obj.SH = input(1:2);
         end
 
-        function set.SHY(tp, input)
-            tp.Y = input{3};
-            tp.SH = input(1:2);
+        function set.SHY(obj, input)
+            obj.Y = input{3};
+            obj.SH = input(1:2);
         end
 
-        function set.SP(tp, input)
+        function set.SP(obj, input)
             s = input{1};
             p = input{2};
-            if strcmp(tp.basis, 'molar')
-                s = s/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                s = s/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_SP', tp.tpID, s, p);
+            ctFunc('mThermo_setState_SP', obj.tpID, s, p);
         end
 
-        function set.SPX(tp, input)
-            tp.X = input{3};
-            tp.SP = input(1:2);
+        function set.SPX(obj, input)
+            obj.X = input{3};
+            obj.SP = input(1:2);
         end
 
-        function set.SPY(tp, input)
-            tp.Y = input{3};
-            tp.SP = input(1:2);
+        function set.SPY(obj, input)
+            obj.Y = input{3};
+            obj.SP = input(1:2);
         end
 
-        function set.ST(tp, input)
+        function set.ST(obj, input)
             s = input{1};
             t = input{2};
-            if strcmp(tp.basis, 'molar')
-                s = s/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                s = s/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_ST', tp.tpID, s, t);
+            ctFunc('mThermo_setState_ST', obj.tpID, s, t);
         end
 
-        function set.STX(tp, input)
-            tp.X = input{3};
-            tp.ST = input(1:2);
+        function set.STX(obj, input)
+            obj.X = input{3};
+            obj.ST = input(1:2);
         end
 
-        function set.STY(tp, input)
-            tp.Y = input{3};
-            tp.ST = input(1:2);
+        function set.STY(obj, input)
+            obj.Y = input{3};
+            obj.ST = input(1:2);
         end
 
-        function set.SV(tp, input)
+        function set.SV(obj, input)
             s = input{1};
             v = input{2};
-            if strcmp(tp.basis, 'molar')
-                s = s/tp.meanMolecularWeight;
-                v = v/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                s = s/obj.meanMolecularWeight;
+                v = v/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_SV', tp.tpID, s, v);
+            ctFunc('mThermo_setState_SV', obj.tpID, s, v);
         end
 
-        function set.SVX(tp, input)
-            tp.X = input{3};
-            tp.SV = input(1:2);
+        function set.SVX(obj, input)
+            obj.X = input{3};
+            obj.SV = input(1:2);
         end
 
-        function set.SVY(tp, input)
-            tp.Y = input{3};
-            tp.SV = input(1:2);
+        function set.SVY(obj, input)
+            obj.Y = input{3};
+            obj.SV = input(1:2);
         end
 
-        function set.TD(tp, input)
+        function set.TD(obj, input)
             t = input{1};
             d = input{2};
-            if strcmp(tp.basis, 'molar')
-                d = d*tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                d = d*obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_TD', tp.tpID, t, d);
+            ctFunc('mThermo_setState_TD', obj.tpID, t, d);
         end
 
-        function set.TDX(tp, input)
-            tp.X = input{3};
-            tp.TD = input(1:2);
+        function set.TDX(obj, input)
+            obj.X = input{3};
+            obj.TD = input(1:2);
         end
 
-        function set.TDY(tp, input)
-            tp.Y = input{3};
-            tp.TD = input(1:2);
+        function set.TDY(obj, input)
+            obj.Y = input{3};
+            obj.TD = input(1:2);
         end
 
-        function set.TH(tp, input)
+        function set.TH(obj, input)
             t = input{1};
             h = input{2};
-            if strcmp(tp.basis, 'molar')
-                h = h/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                h = h/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_TH', tp.tpID, t, h);
+            ctFunc('mThermo_setState_TH', obj.tpID, t, h);
         end
 
-        function set.THX(tp, input)
-            tp.X = input{3};
-            tp.TH = input(1:2);
+        function set.THX(obj, input)
+            obj.X = input{3};
+            obj.TH = input(1:2);
         end
 
-        function set.THY(tp, input)
-            tp.Y = input{3};
-            tp.TH = input(1:2);
+        function set.THY(obj, input)
+            obj.Y = input{3};
+            obj.TH = input(1:2);
         end
 
-        function set.TP(tp, input)
+        function set.TP(obj, input)
             t = input{1};
             p = input{2};
-            ctFunc('mThermo_setState_TP', tp.tpID, t, p);
+            ctFunc('mThermo_setState_TP', obj.tpID, t, p);
         end
 
-        function set.TPX(tp, input)
+        function set.TPX(obj, input)
             t = input{1};
             p = input{2};
             x = input{3};
             if isa(x, 'char') || isa(x, 'string')
-                ctFunc('mThermo_setState_TPX_byName', tp.tpID, t, p, x);
+                ctFunc('mThermo_setState_TPX_byName', obj.tpID, t, p, x);
             elseif isa(x, 'double')
-                ctFunc('mThermo_setState_TPX', tp.tpID, t, p, x);
+                ctFunc('mThermo_setState_TPX', obj.tpID, t, p, x);
             else
                 error('Invalid input for mole fractions.')
             end
         end
 
-        function set.TPY(tp, input)
+        function set.TPY(obj, input)
             t = input{1};
             p = input{2};
             y = input{3};
             if isa(y, 'char') || isa(y, 'string')
-                ctFunc('mThermo_setState_TPY_byName', tp.tpID, t, p, y);
+                ctFunc('mThermo_setState_TPY_byName', obj.tpID, t, p, y);
             elseif isa(y, 'double')
-                ctFunc('mThermo_setState_TPY', tp.tpID, t, p, y);
+                ctFunc('mThermo_setState_TPY', obj.tpID, t, p, y);
             else
                 error('Invalid input for mass fractions.')
             end
         end
 
-        function set.TQ(tp, input)
+        function set.TQ(obj, input)
             t = input{1};
             q = input{2};
-            ctFunc('mThermo_setState_Tsat', tp.tpID, t, q);
+            ctFunc('mThermo_setState_Tsat', obj.tpID, t, q);
         end
 
-        function set.TV(tp, input)
+        function set.TV(obj, input)
             t = input{1};
             v = input{2};
-            if strcmp(tp.basis, 'molar')
-                v = v/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                v = v/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_TV', tp.tpID, t, v);
+            ctFunc('mThermo_setState_TV', obj.tpID, t, v);
         end
 
-        function set.TVX(tp, input)
-            tp.X = input{3};
-            tp.TV = input(1:2);
+        function set.TVX(obj, input)
+            obj.X = input{3};
+            obj.TV = input(1:2);
         end
 
-        function set.TVY(tp, input)
-            tp.Y = input{3};
-            tp.TV = input(1:2);
+        function set.TVY(obj, input)
+            obj.Y = input{3};
+            obj.TV = input(1:2);
         end
 
-        function set.UP(tp, input)
+        function set.UP(obj, input)
             u = input{1};
             p = input{2};
-            if strcmp(tp.basis, 'molar')
-                u = u/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                u = u/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_UP', tp.tpID, u, p);
+            ctFunc('mThermo_setState_UP', obj.tpID, u, p);
         end
 
-        function set.UPX(tp, input)
-            tp.X = input{3};
-            tp.UP = input(1:2);
+        function set.UPX(obj, input)
+            obj.X = input{3};
+            obj.UP = input(1:2);
         end
 
-        function set.UPY(tp, input)
-            tp.Y = input{3};
-            tp.UP = input(1:2);
+        function set.UPY(obj, input)
+            obj.Y = input{3};
+            obj.UP = input(1:2);
         end
 
-        function set.UV(tp, input)
+        function set.UV(obj, input)
             u = input{1};
             v = input{2};
-            if strcmp(tp.basis, 'molar')
-                u = u/tp.meanMolecularWeight;
-                v = v/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                u = u/obj.meanMolecularWeight;
+                v = v/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_UV', tp.tpID, u, v);
+            ctFunc('mThermo_setState_UV', obj.tpID, u, v);
         end
 
-        function set.UVX(tp, input)
-            tp.X = input{3};
-            tp.UV = input(1:2);
+        function set.UVX(obj, input)
+            obj.X = input{3};
+            obj.UV = input(1:2);
         end
 
-        function set.UVY(tp, input)
-            tp.Y = input{3};
-            tp.UV = input(1:2);
+        function set.UVY(obj, input)
+            obj.Y = input{3};
+            obj.UV = input(1:2);
         end
 
-        function set.VH(tp, input)
+        function set.VH(obj, input)
             v = input{1};
             h = input{2};
-            if strcmp(tp.basis, 'molar')
-                v = v/tp.meanMolecularWeight;
-                h = h/tp.meanMolecularWeight;
+            if strcmp(obj.basis, 'molar')
+                v = v/obj.meanMolecularWeight;
+                h = h/obj.meanMolecularWeight;
             end
-            ctFunc('mThermo_setState_VH', tp.tpID, v, h);
+            ctFunc('mThermo_setState_VH', obj.tpID, v, h);
         end
 
-        function set.VHX(tp, input)
-            tp.X = input{3};
-            tp.VH = input(1:2);
+        function set.VHX(obj, input)
+            obj.X = input{3};
+            obj.VH = input(1:2);
         end
 
-        function set.VHY(tp, input)
-            tp.Y = input{3};
-            tp.VH = input(1:2);
+        function set.VHY(obj, input)
+            obj.Y = input{3};
+            obj.VH = input(1:2);
         end
 
-        function setEquivalenceRatio(tp, phi, fuelComp, oxComp)
+        function setEquivalenceRatio(obj, phi, fuelComp, oxComp)
             % Set the mixture composition according to the equivalence ratio.
-            ctFunc('mThermo_setEquivalenceRatio', tp.tpID, phi, fuelComp, oxComp);
+            ctFunc('mThermo_setEquivalenceRatio', obj.tpID, phi, fuelComp, oxComp);
         end
     end
 

@@ -57,25 +57,25 @@ classdef (Abstract) Domain1D < handle
 
         %% Domain1D Class Destructor
 
-        function delete(d)
+        function delete(obj)
             % Delete the :mat:class:`Domain1D` object.
-            if d.domainID >= 0
-                ctFunc('mDomain_del', d.domainID);
+            if obj.domainID >= 0
+                ctFunc('mDomain_del', obj.domainID);
             end
         end
 
         %% Domain1D Utility Methods
 
-        function updateState(d, loc)
+        function updateState(obj, loc)
             % Set state of associated phase to specified location.
             arguments
-                d
+                obj
                 loc (1,1) double {mustBeInteger} = 0
             end
-            ctFunc('mDomain_updateState', d.domainID, loc);
+            ctFunc('mDomain_updateState', obj.domainID, loc);
         end
 
-        function info(d, rows, width)
+        function info(obj, rows, width)
             % Print a concise summary of a Domain.
             %
             %     >> d.info()
@@ -85,7 +85,7 @@ classdef (Abstract) Domain1D < handle
             % :param width:
             %       Maximum width of rendered output; default adjusts to terminal width.
             arguments
-                d (1,1) Domain1D
+                obj (1,1) Domain1D
                 rows (1,1) double {mustBeInteger, mustBePositive} = 10
                 width (1,1) double {mustBeInteger} = -1
             end
@@ -97,13 +97,13 @@ classdef (Abstract) Domain1D < handle
                     width = 100;
                 end
             end
-            disp(ctString('mDomain_info', d.domainID, rows, width));
+            disp(ctString('mDomain_info', obj.domainID, rows, width));
             fprintf("\n")
         end
 
         %% Domain Get Methods
 
-        function b = bounds(d, component)
+        function b = bounds(obj, component)
             % Get the (lower, upper) bounds for a solution component. ::
             %
             %     >> b = d.bounds(component)
@@ -113,13 +113,13 @@ classdef (Abstract) Domain1D < handle
             % :return:
             %    :math:`1\times 2` vector of the lower and upper bounds.
 
-            n = d.componentIndex(component);
-            lower = ctFunc('mDomain_lowerBound', d.domainID, n);
-            upper = ctFunc('mDomain_upperBound', d.domainID, n);
+            n = obj.componentIndex(component);
+            lower = ctFunc('mDomain_lowerBound', obj.domainID, n);
+            upper = ctFunc('mDomain_upperBound', obj.domainID, n);
             b = [lower, upper];
         end
 
-        function n = componentIndex(d, name)
+        function n = componentIndex(obj, name)
             % Index of a component given its name. ::
             %
             %     >>n = d.componentIndex(name)
@@ -133,7 +133,7 @@ classdef (Abstract) Domain1D < handle
             if isa(name, 'double')
                 n = name;
             else
-                n = ctFunc('mDomain_componentIndex', d.domainID, name);
+                n = ctFunc('mDomain_componentIndex', obj.domainID, name);
 
                 if n >= 0
                     n = n + 1;
@@ -147,7 +147,7 @@ classdef (Abstract) Domain1D < handle
 
         end
 
-        function s = componentName(d, index)
+        function s = componentName(obj, index)
             % Name of a component given its index. ::
             %
             %     >> n = d.componentName(index)
@@ -162,29 +162,29 @@ classdef (Abstract) Domain1D < handle
 
             for i = 1:n
                 id = index(i) - 1;
-                output = ctString('mDomain_componentName', d.domainID, id);
+                output = ctString('mDomain_componentName', obj.domainID, id);
                 s{i} = output;
             end
 
         end
 
-        function i = get.domainIndex(d)
-            i = ctFunc('mDomain_domainIndex', d.domainID) + 1;
+        function i = get.domainIndex(obj)
+            i = ctFunc('mDomain_domainIndex', obj.domainID) + 1;
         end
 
-        function str = get.domainType(d)
-            str = ctString('mDomain_type', d.domainID);
+        function str = get.domainType(obj)
+            str = ctString('mDomain_type', obj.domainID);
         end
 
-        function n = get.nComponents(d)
-            n = ctFunc('mDomain_nComponents', d.domainID);
+        function n = get.nComponents(obj)
+            n = ctFunc('mDomain_nComponents', obj.domainID);
         end
 
-        function n = get.nPoints(d)
-            n = ctFunc('mDomain_nPoints', d.domainID);
+        function n = get.nPoints(obj)
+            n = ctFunc('mDomain_nPoints', obj.domainID);
         end
 
-        function tol = tolerances(d, component)
+        function tol = tolerances(obj, component)
             % Return the (relative, absolute) error tolerances for a
             % solution component. ::
             %
@@ -195,15 +195,15 @@ classdef (Abstract) Domain1D < handle
             % :return:
             %    :math:`1\times 2` vector of the relative and absolute error tolerances.
 
-            n = d.componentIndex(component);
-            rerr = ctFunc('mDomain_rtol', d.domainID, n);
-            aerr = ctFunc('mDomain_atol', d.domainID, n);
+            n = obj.componentIndex(component);
+            rerr = ctFunc('mDomain_rtol', obj.domainID, n);
+            aerr = ctFunc('mDomain_atol', obj.domainID, n);
             tol = [rerr, aerr];
         end
 
         %% Domain Set Methods
 
-        function setBounds(d, component, lower, upper)
+        function setBounds(obj, component, lower, upper)
             % Set bounds on the solution components. ::
             %
             %     >> d.setBounds(component, lower, upper)
@@ -214,11 +214,11 @@ classdef (Abstract) Domain1D < handle
             %    Lower bound.
             % :param upper:
 
-            n = d.componentIndex(component);
-            ctFunc('mDomain_setBounds', d.domainID, n - 1, lower, upper);
+            n = obj.componentIndex(component);
+            ctFunc('mDomain_setBounds', obj.domainID, n - 1, lower, upper);
         end
 
-        function setSteadyTolerances(d, rtol, atol, component)
+        function setSteadyTolerances(obj, rtol, atol, component)
             % Set the steady-state tolerances. ::
             %
             %     >>d.setSteadyTolerances(rtol, atol, component)
@@ -233,20 +233,20 @@ classdef (Abstract) Domain1D < handle
             %     specified, the tolerance of all components will be set.
 
             if nargin < 4 | strcmp(component, 'default')
-                ctFunc('mDomain_setSteadyTolerances', d.domainID, rtol, atol, -1);
+                ctFunc('mDomain_setSteadyTolerances', obj.domainID, rtol, atol, -1);
             elseif iscell(component)
                 for ii = 1:length(component)
-                    n = d.componentIndex(component{ii});
-                    ctFunc('mDomain_setSteadyTolerances', d.domainID, rtol, atol, n);
+                    n = obj.componentIndex(component{ii});
+                    ctFunc('mDomain_setSteadyTolerances', obj.domainID, rtol, atol, n);
                 end
             else
-                n = d.componentIndex(component);
-                ctFunc('mDomain_setSteadyTolerances', d.domainID, rtol, atol, n);
+                n = obj.componentIndex(component);
+                ctFunc('mDomain_setSteadyTolerances', obj.domainID, rtol, atol, n);
             end
 
         end
 
-        function setTransientTolerances(d, rtol, atol, component)
+        function setTransientTolerances(obj, rtol, atol, component)
             % Set the transient tolerances. ::
             %
             %     >> d.setTransientTolerances(rtol, atol, component)
@@ -261,15 +261,15 @@ classdef (Abstract) Domain1D < handle
             %     specified, the tolerance of all components will be set.
 
             if nargin < 4 | strcmp(component, 'default')
-                ctFunc('mDomain_setTransientTolerances', d.domainID, rtol, atol, -1);
+                ctFunc('mDomain_setTransientTolerances', obj.domainID, rtol, atol, -1);
             elseif iscell(component)
                 for ii = 1:length(component)
-                    n = d.componentIndex(component{ii});
-                    ctFunc('mDomain_setTransientTolerances', d.domainID, rtol, atol, n);
+                    n = obj.componentIndex(component{ii});
+                    ctFunc('mDomain_setTransientTolerances', obj.domainID, rtol, atol, n);
                 end
             else
-                n = d.componentIndex(component);
-                ctFunc('mDomain_setTransientTolerances', d.domainID, rtol, atol, n);
+                n = obj.componentIndex(component);
+                ctFunc('mDomain_setTransientTolerances', obj.domainID, rtol, atol, n);
             end
 
         end
