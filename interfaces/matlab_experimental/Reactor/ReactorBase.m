@@ -18,31 +18,32 @@ classdef (Abstract) ReactorBase < handle
 
         name  % Name of reactor.
 
-        % Density of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: kg/m^3.
+        % Density [kg/m³] of the reactor contents at the end of the last call to
+        % "advance" or "step".
         D
 
-        % Pressure of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: K.
+        % Pressure [Pa] of the reactor contents at the end of the last call to
+        % "advance" or "step".
         P
 
-        % Mass of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: kg.
+        % Mass [kg] of the reactor contents at the end of the last call to
+        % "advance" or "step".
         M
 
-        % Mass specific enthalpy of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: J/kg.
+        % Mass specific enthalpy [J/kg] of the reactor contents at the end of the last
+        % call to "advance" or "step".
         H
 
-        % Mass specific internal energy of the reactor contents at the end of the last call to "advance" or "step". Unit: J/kg.
+        % Mass specific internal energy [J/kg] of the reactor contents at the end of the
+        % last call to "advance" or "step".
         U
 
-        % Temperature of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: K.
+        % Temperature [K] of the reactor contents at the end of the last call to
+        % "advance" or "step".
         T
 
-        % Volume of the reactor contents at the end of the last call to
-        % "advance" or "step". Unit: m^3.
+        % Volume [m³] of the reactor contents at the end of the last call to "advance"
+        % or "step".
         V
 
         % Mass fractions of the reactor contents at the end of the last call to
@@ -60,7 +61,7 @@ classdef (Abstract) ReactorBase < handle
         % If the energy equation is disabled, then the reactor temperature is constant.
         energyEnabled
 
-        area % Area of the reactor in m².
+        area % Area of the reactor [m²].
 
     end
 

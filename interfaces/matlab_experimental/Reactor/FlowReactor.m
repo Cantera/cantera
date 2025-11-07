@@ -24,7 +24,7 @@ classdef FlowReactor < ReactorBase
 
     properties (SetAccess = public)
 
-        massFlowRate % Mass flow rate in kg/s.
+        massFlowRate % Mass flow rate [kg/s].
 
     end
 

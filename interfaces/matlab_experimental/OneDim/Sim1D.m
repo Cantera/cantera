@@ -166,7 +166,7 @@ classdef Sim1D < handle
             %     >> s.setFixedTemperature(T)
             %
             % :param T:
-            %    Double Temperature to be set. Unit: K.
+            %    Temperature [K] to be set.
 
             if T <= 0
                 error('temperature must be positive');
@@ -183,7 +183,7 @@ classdef Sim1D < handle
             % :param domain:
             %    Integer ID of the domain.
             % :param gridmin:
-            %    Double minimum grid spacing.
+            %    Minimum grid spacing [m].
 
             ctFunc('mSim1D_setGridMin', s.stID, domain - 1, gridmin);
         end
@@ -213,7 +213,7 @@ classdef Sim1D < handle
             %     >> s.setTimeStep(stepsize, steps)
             %
             % :param stepsize:
-            %    Initial step size.
+            %    Initial step size [s].
             % :param steps:
             %    Vector of number of steps to take before re-attempting solution
             %    of steady-state problem.

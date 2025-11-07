@@ -16,12 +16,12 @@ classdef ReactorNet < handle
 
     properties (SetAccess = public)
 
-        % Current time in s.
+        % Current time [s].
         % The setter method sets the time at which integration should be
         % restarted, using the current state as the initial condition.
         time
 
-        % Max time step in s.
+        % Max time step [s].
         %
         % The integrator chooses a step size based on the desired error
         % tolerance and the rate at which the solution is changing.
@@ -80,7 +80,7 @@ classdef ReactorNet < handle
             % take many internal timesteps before reaching tout.
             %
             % :param tout:
-            %    End time of the integration. Unit: s.
+            %    End time [s] of the integration.
 
             ctFunc('mReactornet_advance', n.id, tout);
         end
@@ -115,7 +115,7 @@ classdef ReactorNet < handle
             % upper bound on the timestep.
             %
             % :param maxstep:
-            %    Scalar max time step.
+            %    max time step [s].
 
             ctFunc('mReactornet_setMaxTimeStep', n.id, maxstep);
         end

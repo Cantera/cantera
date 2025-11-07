@@ -18,19 +18,19 @@ classdef (Abstract) Transport < handle
 
         trID % ID of :mat:class:`Transport` object.
 
-        viscosity % Dynamic viscosity. Unit: Pa*s.
+        viscosity % Dynamic viscosity [Pa·s].
 
-        thermalConductivity % Thermal conductivity. Unit: W/m-K.
+        thermalConductivity % Thermal conductivity [W/m/K]
 
-        electricalConductivity % Electrical conductivity. Unit: S/m.
+        electricalConductivity % Electrical conductivity [S/m].
 
-        mixDiffCoeffs % Mixture-averaged diffusion coefficients. Unit: m^2/s.
+        mixDiffCoeffs % Mixture-averaged diffusion coefficients. [m²/s].
 
-        thermalDiffCoeffs % Thermal diffusion coefficients.
+        thermalDiffCoeffs % Thermal diffusion coefficients [kg/m/s].
 
-        binDiffCoeffs % Binary diffusion coefficients. Unit: m^2/s.
+        binDiffCoeffs % Binary diffusion coefficients [m²/s].
 
-        multiDiffCoeffs % Multicomponent diffusion coefficients. Unit: m^2/s.
+        multiDiffCoeffs % Multicomponent diffusion coefficients [m²/s].
 
     end
 

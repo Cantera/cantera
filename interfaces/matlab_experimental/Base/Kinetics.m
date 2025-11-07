@@ -30,21 +30,22 @@ classdef (Abstract) Kinetics < handle
 
         nTotalSpecies % The total number of species.
 
-        creationRates % Chemical reaction rates. Unit: kmol/m^3-s.
+        creationRates % Creation rates for each species [kmol/m³/s for bulk phases]
 
-        destructionRates % Chemical destruction rates. Unit: kmol/m^3-s.
+        % Destruction rates for each species [kmol/m³/s for bulk phases]
+        destructionRates
 
-        deltaEnthalpy % Enthalpy of reaction. Unit: J/kmol.
+        deltaEnthalpy % Enthalpy of reaction [J/kmol]
 
-        deltaStandardEnthalpy % Standard state enthalpy of reaction. Unit: J/kmol.
+        deltaStandardEnthalpy % Standard state enthalpy of reaction [J/kmol]
 
-        deltaEntropy % Entropy of reaction. Unit: J/kmol-K.
+        deltaEntropy % Entropy of reaction [J/kmol/K]
 
-        deltaStandardEntropy % Standard state entropy of reaction. Unit: J/kmol-K.
+        deltaStandardEntropy % Standard state entropy of reaction [J/kmol/K]
 
-        deltaGibbs % Gibbs free energy of reaction. Unit: J/kmol-K.
+        deltaGibbs % Gibbs free energy of reaction [J/kmol]
 
-        % Standard state gibbs free energy of reaction. Unit: J/kmol-K.
+        % Standard state Gibbs free energy of reaction [J/kmol]
         deltaStandardGibbs
 
         % Equilibrium constants in concentration units for all reactions, calculated
@@ -55,15 +56,16 @@ classdef (Abstract) Kinetics < handle
 
         reverseRateConstants % Reverse reaction rate constants for all reactions.
 
-        netProdRates % Net chemical production rates for all species. Unit: kmol/m^3-s.
+        % Net chemical production rates for all species [kmol/m³/s for bulk phases]
+        netProdRates
 
-        % Forward rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Forward rates of progress for all reactions [kmol/m³/s for bulk phases]
         forwardRatesOfProgress
 
-        % Reverse rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Reverse rates of progress for all reactions [kmol/m³/s for bulk phases]
         reverseRatesOfProgress
 
-        % Net rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Net rates of progress for all reactions [kmol/m³/s for bulk phases]
         netRatesOfProgress
 
         reactionEquations % All reaction equations within the Kinetics object.

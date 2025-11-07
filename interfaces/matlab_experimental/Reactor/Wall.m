@@ -52,15 +52,15 @@ classdef Wall < Connector
 
     properties (SetAccess = public)
 
-        area % Area of the wall in m^2.
-        heatRate % Total heat transfer rate through the wall at current time step in W.
-        expansionRate % Rate of volumetric change at current time step in m^3/s.
-        thermalResistance % Thermal resistance in K*m^2/W.
-        heatTransferCoeff % Heat transfer coefficient in W/(m^2-K).
-        emissivity % Non-dimensional emissivity.
-        expansionRateCoeff % Expansion rate coefficient in m/(s-Pa).
+        area % Area of the wall [m²].
+        heatRate % Total heat transfer rate [W] through the wall at the current time.
+        expansionRate % Rate of volumetric change [m³/s] at the current time.
+        thermalResistance % Thermal resistance [K·m²/W].
+        heatTransferCoeff % Heat transfer coefficient [W/m²/K].
+        emissivity % Emissivity [-].
+        expansionRateCoeff % Expansion rate coefficient [m/s/Pa].
 
-        % Heat flux in W/m^2.
+        % Heat flux [W/m²].
         %
         % Must be set by an instance of :mat:class:`Func1`, which allows the
         % heat flux to be an arbitrary function of time. It is possible
@@ -68,7 +68,7 @@ classdef Wall < Connector
         % functor with only the first term specified.
         heatFlux
 
-        % Velocity in m/s.
+        % Velocity [m/s].
         %
         % Must be set by an instance of :mat:class:`Func1`, which allows the
         % velocity to be an arbitrary function of time. It is possible
