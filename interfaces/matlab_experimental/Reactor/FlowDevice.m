@@ -72,19 +72,19 @@ classdef (Abstract) FlowDevice < Connector
 
         %% FlowDevice Get Methods
 
-        function mdot = get.massFlowRate(f)
-            mdot = ctFunc('mFlowdev_massFlowRate', f.id);
+        function mdot = get.massFlowRate(obj)
+            mdot = ctFunc('mFlowdev_massFlowRate', obj.id);
         end
 
         %% FlowDevice Set Methods
 
-        function set.massFlowRate(f, mdot)
+        function set.massFlowRate(obj, mdot)
 
-            if strcmp(f.type, 'MassFlowController')
+            if strcmp(obj.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    ctFunc('mFlowdev_setDeviceCoefficient', f.id, mdot);
+                    ctFunc('mFlowdev_setDeviceCoefficient', obj.id, mdot);
                 elseif isa(mdot, 'Func1')
-                    ctFunc('mFlowdev_setTimeFunction', f.id, mdot.id);
+                    ctFunc('mFlowdev_setTimeFunction', obj.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
@@ -94,7 +94,7 @@ classdef (Abstract) FlowDevice < Connector
 
         end
 
-        function setPrimary(f, d)
+        function setPrimary(obj, d)
             % Set the primary flow device used to compute this device's
             % mass flow rate. ::
             %
@@ -103,21 +103,21 @@ classdef (Abstract) FlowDevice < Connector
             % :param d:
             %     Instance of class :mat:class:`FlowDevice`.
 
-            if strcmp(f.type, 'PressureController')
-                ctFunc('mFlowdev_setPrimary', f.id, d);
+            if strcmp(obj.type, 'PressureController')
+                ctFunc('mFlowdev_setPrimary', obj.id, d);
             else
                 error('Primary flow device can only be set for pressure controllers.');
             end
 
         end
 
-        function set.valveCoeff(f, k)
+        function set.valveCoeff(obj, k)
 
-            if ~strcmp(f.type, 'Valve')
+            if ~strcmp(obj.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ctFunc('mFlowdev_setDeviceCoefficient', f.id, k);
+            ctFunc('mFlowdev_setDeviceCoefficient', obj.id, k);
         end
 
     end

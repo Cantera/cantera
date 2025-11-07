@@ -27,15 +27,15 @@ classdef Inlet < Boundary1D
 
         end
 
-        function xx = get.X(d)
+        function xx = get.X(obj)
             error('not implemented.')
         end
 
-        function set.X(d, X)
+        function set.X(obj, X)
             if isa(X, 'float')
-                ctFunc('mBdry_setMoleFractions', d.domainID, X);
+                ctFunc('mBdry_setMoleFractions', obj.domainID, X);
             else
-                ctFunc('mBdry_setMoleFractionsByName', d.domainID, X);
+                ctFunc('mBdry_setMoleFractionsByName', obj.domainID, X);
             end
         end
 

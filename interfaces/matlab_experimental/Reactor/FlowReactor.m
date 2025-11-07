@@ -43,15 +43,15 @@ classdef FlowReactor < ReactorBase
 
         %% FlowReactor Get Methods
 
-        function flag = get.massFlowRate(r)
-            rate = ctFunc('mReactor_massFlowRate', r.id);
+        function flag = get.massFlowRate(obj)
+            rate = ctFunc('mReactor_massFlowRate', obj.id);
         end
 
         %% FlowReactor Set Methods
 
-        function set.massFlowRate(r, MFR)
-            ctFunc('mReactor_setMassFlowRate', r.id, MFR);
-            r.massFlowRate = MFR;
+        function set.massFlowRate(obj, MFR)
+            ctFunc('mReactor_setMassFlowRate', obj.id, MFR);
+            obj.massFlowRate = MFR;
         end
 
     end

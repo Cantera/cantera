@@ -46,27 +46,27 @@ classdef (Abstract) Connector < handle
 
         %% Connector Class Destructor
 
-        function delete(c)
+        function delete(obj)
             % Delete the :mat:class:`Connector` object.
-            if c.id >= 0
-                ctFunc('mConnector_del', c.id);
+            if obj.id >= 0
+                ctFunc('mConnector_del', obj.id);
             end
         end
 
         %% Connector Get Methods
 
-        function typ = get.type(c)
-            typ = ctString('mConnector_type', c.id);
+        function typ = get.type(obj)
+            typ = ctString('mConnector_type', obj.id);
         end
 
-        function name = get.name(c)
-            name = ctString('mConnector_name', c.id);
+        function name = get.name(obj)
+            name = ctString('mConnector_name', obj.id);
         end
 
         %% Connector Set Methods
 
-        function set.name(c, name)
-            ctFunc('mConnector_setName', c.id, name);
+        function set.name(obj, name)
+            ctFunc('mConnector_setName', obj.id, name);
         end
 
     end

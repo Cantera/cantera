@@ -53,40 +53,40 @@ classdef Interface < Solution
 
         %% Interface Get Methods
 
-        function adj = adjacent(s, name)
+        function adj = adjacent(obj, name)
             % Get adjacent phase of an interface by name.
-            id = ctFunc('mSol_adjacentByName', s.solnID, name);
+            id = ctFunc('mSol_adjacentByName', obj.solnID, name);
             adj = Solution(id);
         end
 
-        function c = get.coverages(s)
-            nsp = s.nSpecies;
-            c = ctArray('mSurf_getCoverages', nsp, s.tpID);
+        function c = get.coverages(obj)
+            nsp = obj.nSpecies;
+            c = ctArray('mSurf_getCoverages', nsp, obj.tpID);
         end
 
-        function d = get.siteDensity(s)
-            d = ctFunc('mSurf_siteDensity', s.tpID);
+        function d = get.siteDensity(obj)
+            d = ctFunc('mSurf_siteDensity', obj.tpID);
         end
 
-        function set.coverages(s, cov)
-            nsp = s.nSpecies;
+        function set.coverages(obj, cov)
+            nsp = obj.nSpecies;
             if isa(cov, 'double')
                 if length(cov) ~= nsp
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('mSurf_setCoverages', s.tpID, cov);
+                ctFunc('mSurf_setCoverages', obj.tpID, cov);
             elseif isa(cov, 'char')
-                ctFunc('mSurf_setCoveragesByName', s.tpID, cov);
+                ctFunc('mSurf_setCoveragesByName', obj.tpID, cov);
             end
 
         end
 
-        function set.siteDensity(s, d)
-            ctFunc('mSurf_setSiteDensity', s.tpID, d);
+        function set.siteDensity(obj, d)
+            ctFunc('mSurf_setSiteDensity', obj.tpID, d);
         end
 
-        function setUnnormalizedCoverages(s, cov)
+        function setUnnormalizedCoverages(obj, cov)
             % Set surface coverages without normalizing to force ``sum(cov) == 1.0``.
             % This should be used only when calculating partial derivatives
             % with respect to cov[k] by finite difference.
@@ -96,13 +96,13 @@ classdef Interface < Solution
             % :param cov:
             %      Vector coverage of the species.
 
-            nsp = s.nSpecies;
+            nsp = obj.nSpecies;
             if isa(cov, 'double')
                 if length(cov) ~= nsp
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('mSurf_setCoverages', s.tpID, cov, 0);
+                ctFunc('mSurf_setCoverages', obj.tpID, cov, 0);
             else
                 error('Coverage must be a numeric array');
             end

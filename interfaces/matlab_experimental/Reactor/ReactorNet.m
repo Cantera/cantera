@@ -58,16 +58,16 @@ classdef ReactorNet < handle
 
         %% ReactorNet Class Destructor
 
-        function delete(n)
+        function delete(obj)
             % Delete the :mat:class:`ReactorNet` object object.
-            if n.id >= 0
-                ctFunc('mReactornet_del', n.id);
+            if obj.id >= 0
+                ctFunc('mReactornet_del', obj.id);
             end
         end
 
         %% ReactorNet Utility Methods
 
-        function advance(n, tout)
+        function advance(obj, tout)
             % Advance the state of the reactor network in time. ::
             %
             %     >> n.advance(tout)
@@ -82,26 +82,26 @@ classdef ReactorNet < handle
             % :param tout:
             %    End time [s] of the integration.
 
-            ctFunc('mReactornet_advance', n.id, tout);
+            ctFunc('mReactornet_advance', obj.id, tout);
         end
 
-        function t = step(n)
+        function t = step(obj)
             % Take a single internal step. ::
             %
             %     >> n.step()
             %
             % The time/distance after taking the step is returned.
 
-            t = ctFunc('mReactornet_step', n.id);
+            t = ctFunc('mReactornet_step', obj.id);
         end
 
         %% ReactorNet set methods
 
-        function set.time(n, t)
-            ctFunc('mReactornet_setInitialTime', n.id, t);
+        function set.time(obj, t)
+            ctFunc('mReactornet_setInitialTime', obj.id, t);
         end
 
-        function set.maxTimeStep(n, maxstep)
+        function set.maxTimeStep(obj, maxstep)
             % Set the maximum time step. ::
             %
             %     >> n.setMaxTimeStep(maxstep)
@@ -117,10 +117,10 @@ classdef ReactorNet < handle
             % :param maxstep:
             %    max time step [s].
 
-            ctFunc('mReactornet_setMaxTimeStep', n.id, maxstep);
+            ctFunc('mReactornet_setMaxTimeStep', obj.id, maxstep);
         end
 
-        function setSensitivityTolerances(n, rerr, aerr)
+        function setSensitivityTolerances(obj, rerr, aerr)
             % Set the error tolerance for sensitivity analysis. ::
             %
             %     >> n.setSensitivityTOlerances(nerr, aerr)
@@ -130,34 +130,34 @@ classdef ReactorNet < handle
             % :param aerr:
             %    Scalar absolute error tolerance.
 
-            ctFunc('mReactornet_setSensitivityTolerances', n.id, rerr, aerr);
+            ctFunc('mReactornet_setSensitivityTolerances', obj.id, rerr, aerr);
         end
 
-        function set.atol(n, aerr)
-            rerr = n.rtol;
-            ctFunc('mReactornet_setTolerances', n.id, rerr, aerr);
+        function set.atol(obj, aerr)
+            rerr = obj.rtol;
+            ctFunc('mReactornet_setTolerances', obj.id, rerr, aerr);
         end
 
-        function set.rtol(n, rerr)
-            aerr = n.atol;
-            ctFunc('mReactornet_setTolerances', n.id, rerr, aerr);
+        function set.rtol(obj, rerr)
+            aerr = obj.atol;
+            ctFunc('mReactornet_setTolerances', obj.id, rerr, aerr);
         end
 
         %% ReactorNet get methods
 
-        function t = get.time(n)
-            t = ctFunc('mReactornet_time', n.id);
+        function t = get.time(obj)
+            t = ctFunc('mReactornet_time', obj.id);
         end
 
-        function t = get.atol(n)
-            t = ctFunc('mReactornet_atol', n.id);
+        function t = get.atol(obj)
+            t = ctFunc('mReactornet_atol', obj.id);
         end
 
-        function t = get.rtol(n)
-            t = ctFunc('mReactornet_rtol', n.id);
+        function t = get.rtol(obj)
+            t = ctFunc('mReactornet_rtol', obj.id);
         end
 
-        function s = sensitivity(n, component, p, r)
+        function s = sensitivity(obj, component, p, r)
             % Sensitivity of the solution variable `c` in reactor `r`
             % with respect to the parameter `p` ::
             %
@@ -171,7 +171,7 @@ classdef ReactorNet < handle
             %    Instance of class :mat:class:`ReactorBase`.
 
             if isa(component, 'string')
-                s = ctFunc('mReactornet_sensitivity', n.id, component, p, r.id);
+                s = ctFunc('mReactornet_sensitivity', obj.id, component, p, r.id);
             end
 
         end

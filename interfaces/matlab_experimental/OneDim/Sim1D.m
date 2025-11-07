@@ -46,21 +46,21 @@ classdef Sim1D < handle
 
         %% Sim1D Class Destructor
 
-        function delete(s)
+        function delete(obj)
             % Delete the :mat:class:`Sim1D` object.
-            if s.stID >= 0
-                ctFunc('mSim1D_del', s.stID);
+            if obj.stID >= 0
+                ctFunc('mSim1D_del', obj.stID);
             end
         end
 
         %% Sim1D Utility Methods
 
-        function show(s)
+        function show(obj)
             % Show all domains.
-            ctFunc('mSim1D_show', s.stID);
+            ctFunc('mSim1D_show', obj.stID);
         end
 
-        function restore(s, fname, id)
+        function restore(obj, fname, id)
             % Restore a previously-saved solution. ::
             %
             %     >> s.restore(fname, id)
@@ -74,10 +74,10 @@ classdef Sim1D < handle
             % :param id:
             %     ID of the element that should be restored.
 
-            ctFunc('mSim1D_restore', s.stID, fname, id)
+            ctFunc('mSim1D_restore', obj.stID, fname, id)
         end
 
-        function save(s, fname, id, desc, overwrite)
+        function save(obj, fname, id, desc, overwrite)
             % Save a solution to a file. ::
             %
             %     >> s.save(fname, id, desc)
@@ -93,17 +93,17 @@ classdef Sim1D < handle
             % :param overwrite:
             %     Force overwrite if file/name exists; optional (default=false)
             arguments
-                s
+                obj
                 fname (1,1) string
                 id (1,1) string
                 desc (1,1) string = ""
                 overwrite (1,1) logical = false
             end
 
-            ctFunc('mSim1D_save', s.stID, fname, id, desc, overwrite);
+            ctFunc('mSim1D_save', obj.stID, fname, id, desc, overwrite);
         end
 
-        function solve(s, loglevel, refineGrid)
+        function solve(obj, loglevel, refineGrid)
             % Solve the problem. ::
             %
             %     >> s.solve(loglevel, refineGrid)
@@ -114,10 +114,10 @@ classdef Sim1D < handle
             % :param refineGrid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
 
-            ctFunc('mSim1D_solve', s.stID, loglevel, refineGrid);
+            ctFunc('mSim1D_solve', obj.stID, loglevel, refineGrid);
         end
 
-        function writeStats(s)
+        function writeStats(obj)
             % Print statistics for the current solution. ::
             %
             %     >> s.writeStats
@@ -125,18 +125,18 @@ classdef Sim1D < handle
             % Prints a summary of the number of function and Jacobian evaluations
             % for each grid, and the CPU time spent on each one.
 
-            ctFunc('mSim1D_writeStats', s.stID, 1);
+            ctFunc('mSim1D_writeStats', obj.stID, 1);
         end
 
         %% Sim1D Get Methods
 
-        function getInitialSoln(s)
+        function getInitialSoln(obj)
             % Get the initial solution.
 
-            ctFunc('mSim1D_getInitialSoln', s.stID);
+            ctFunc('mSim1D_getInitialSoln', obj.stID);
         end
 
-        function n = domainIndex(s, name)
+        function n = domainIndex(obj, name)
             % The index of a domain in a Sim1D given its name. ::
             %
             %     >> n = s.domainIndex(name)
@@ -147,7 +147,7 @@ classdef Sim1D < handle
             % :return:
             %    Index of domain.
 
-            n = ctFunc('mSim1D_domainIndex', s.stID, name);
+            n = ctFunc('mSim1D_domainIndex', obj.stID, name);
 
             if n >= 0
                 n = n + 1;
@@ -159,7 +159,7 @@ classdef Sim1D < handle
 
         %% Sim1D Set Methods
 
-        function setFixedTemperature(s, T)
+        function setFixedTemperature(obj, T)
             % Set the temperature used to fix the spatial location of a
             % freely propagating flame. ::
             %
@@ -172,10 +172,10 @@ classdef Sim1D < handle
                 error('temperature must be positive');
             end
 
-            ctFunc('mSim1D_setFixedTemperature', s.stID, T);
+            ctFunc('mSim1D_setFixedTemperature', obj.stID, T);
         end
 
-        function setGridMin(s, domain, gridmin)
+        function setGridMin(obj, domain, gridmin)
             % Set the minimum grid spacing on domain. ::
             %
             %     >> s.setGridMin(domain, gridmin)
@@ -185,10 +185,10 @@ classdef Sim1D < handle
             % :param gridmin:
             %    Minimum grid spacing [m].
 
-            ctFunc('mSim1D_setGridMin', s.stID, domain - 1, gridmin);
+            ctFunc('mSim1D_setGridMin', obj.stID, domain - 1, gridmin);
         end
 
-        function setMaxJacAge(s, ss_age, ts_age)
+        function setMaxJacAge(obj, ss_age, ts_age)
             % Set the number of times the Jacobian will be used before it
             % is recomputed. ::
             %
@@ -204,10 +204,10 @@ classdef Sim1D < handle
                 ts_age = ss_age;
             end
 
-            ctFunc('mSim1D_setMaxJacAge', s.stID, ss_age, ts_age);
+            ctFunc('mSim1D_setMaxJacAge', obj.stID, ss_age, ts_age);
         end
 
-        function setTimeStep(s, stepsize, steps)
+        function setTimeStep(obj, stepsize, steps)
             % Specify a sequence of time steps. ::
             %
             %     >> s.setTimeStep(stepsize, steps)
@@ -221,7 +221,7 @@ classdef Sim1D < handle
             %    taken first time the steady-state solution attempted.
             %    If this failed, two time steps would be taken.
 
-            ctFunc('mSim1D_setTimeStep', s.stID, stepsize, steps);
+            ctFunc('mSim1D_setTimeStep', obj.stID, stepsize, steps);
         end
 
     end

@@ -101,32 +101,32 @@ classdef Mixture < handle
 
         %% Mixture Class Destructor
 
-        function delete(m)
+        function delete(obj)
             % Delete the :mat:class:`Mixture` object.
-            if m.mixID >= 0
-                ctFunc('mMix_del', m.mixID);
+            if obj.mixID >= 0
+                ctFunc('mMix_del', obj.mixID);
             end
         end
 
         %% Mixture Utility methods
 
-        function display(m)
+        function display(obj)
             % Display the state of the mixture on the terminal.
 
-            ctFunc('mMix_updatePhases', m.mixID);
-            [np, nc] = size(m.phases);
+            ctFunc('mMix_updatePhases', obj.mixID);
+            [np, nc] = size(obj.phases);
 
             for n = 1:np
                 s = [sprintf('\n*******************    Phase %d', n) ...
                      sprintf('    ******************************\n\n Moles: %12.6g', ...
-                     m.phaseMoles(n))];
+                     obj.phaseMoles(n))];
                 disp(s);
-                display(m.phases{n, 1});
+                display(obj.phases{n, 1});
             end
 
         end
 
-        function addPhase(m, phase, moles)
+        function addPhase(obj, phase, moles)
             % Add a phase to a mixture. ::
             %
             %     >> m.addPhase(phase, moles)
@@ -148,38 +148,38 @@ classdef Mixture < handle
                 error('Negative moles');
             end
 
-            ctFunc('mMix_addPhase', m.mixID, phase.tpID, moles);
+            ctFunc('mMix_addPhase', obj.mixID, phase.tpID, moles);
 
         end
 
         %% Mixture Get methods
 
-        function temperature = get.T(m)
-            temperature = ctFunc('mMix_temperature', m.mixID);
+        function temperature = get.T(obj)
+            temperature = ctFunc('mMix_temperature', obj.mixID);
         end
 
-        function pressure = get.P(m)
-            pressure = ctFunc('mMix_pressure', m.mixID);
+        function pressure = get.P(obj)
+            pressure = ctFunc('mMix_pressure', obj.mixID);
         end
 
-        function n = get.nElements(m)
-            n = ctFunc('mMix_nElements', m.mixID);
+        function n = get.nElements(obj)
+            n = ctFunc('mMix_nElements', obj.mixID);
         end
 
-        function n = get.nPhases(m)
-            n = ctFunc('mMix_nPhases', m.mixID);
+        function n = get.nPhases(obj)
+            n = ctFunc('mMix_nPhases', obj.mixID);
         end
 
-        function n = get.nSpecies(m)
-            n = ctFunc('mMix_nSpecies', m.mixID);
+        function n = get.nSpecies(obj)
+            n = ctFunc('mMix_nSpecies', obj.mixID);
         end
 
-        function mu = get.chemPotentials(m)
-            nsp = m.nSpecies;
-            mu = ctArray('mMix_getChemPotentials', nsp, m.mixID);
+        function mu = get.chemPotentials(obj)
+            nsp = obj.nSpecies;
+            mu = ctArray('mMix_getChemPotentials', nsp, obj.mixID);
         end
 
-        function n = nAtoms(m, e)
+        function n = nAtoms(obj, e)
             % Number of atoms of an element in a mixture. ::
             %
             %     >> n = m.nAtoms(e)
@@ -193,10 +193,10 @@ classdef Mixture < handle
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
-            n = ctFunc('mMix_nPhases', m.mixID, k - 1, e - 1);
+            n = ctFunc('mMix_nPhases', obj.mixID, k - 1, e - 1);
         end
 
-        function n = elementIndex(m, name)
+        function n = elementIndex(obj, name)
             % Index of an element. ::
             %
             %     >> n = m.elementIndex(name)
@@ -210,10 +210,10 @@ classdef Mixture < handle
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
-            n = ctFunc('mMix_elementIndex', m.mixID, name) + 1;
+            n = ctFunc('mMix_elementIndex', obj.mixID, name) + 1;
         end
 
-        function n = speciesIndex(m, k, p)
+        function n = speciesIndex(obj, k, p)
             % Index of a species in a mixture. ::
             %
             %     >> n = m.speciesIndex(k, p)
@@ -227,10 +227,10 @@ classdef Mixture < handle
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
-            n = ctFunc('mMix_speciesIndex', m.mixID, k - 1, p - 1) + 1;
+            n = ctFunc('mMix_speciesIndex', obj.mixID, k - 1, p - 1) + 1;
         end
 
-        function moles = elementMoles(m, e)
+        function moles = elementMoles(obj, e)
             % Number of moles [kmol] of an element in a mixture. ::
             %
             %     >> moles = m.elementMoles(e)
@@ -242,13 +242,13 @@ classdef Mixture < handle
             %    moles of every element in the mixture.
 
             if nargin == 2
-                moles = ctFunc('mMix_elementMoles', m.mixID, e);
+                moles = ctFunc('mMix_elementMoles', obj.mixID, e);
             elseif nargin == 1
-                nel = m.nElements;
+                nel = obj.nElements;
                 moles = zeros(1, nel);
 
                 for i = 1:nel
-                    moles(i) = ctFunc('mMix_elementMoles', m.mixID, i-1);
+                    moles(i) = ctFunc('mMix_elementMoles', obj.mixID, i-1);
                 end
 
             else
@@ -257,7 +257,7 @@ classdef Mixture < handle
 
         end
 
-        function moles = phaseMoles(m, n)
+        function moles = phaseMoles(obj, n)
             % Number of moles [kmol] of a phase in a mixture. ::
             %
             %     >> moles = m.phaseMoles(n)
@@ -269,13 +269,13 @@ classdef Mixture < handle
             %    moles of every element in the mixture.
 
             if nargin == 2
-                moles = ctFunc('mMix_phaseMoles', m.mixID, n);
+                moles = ctFunc('mMix_phaseMoles', obj.mixID, n);
             elseif nargin == 1
-                np = m.nPhases;
+                np = obj.nPhases;
                 moles = zeros(1, np);
 
                 for i = 1:np
-                    moles(i) = ctFunc('mMix_phaseMoles', m.mixID, i-1);
+                    moles(i) = ctFunc('mMix_phaseMoles', obj.mixID, i-1);
                 end
 
             else
@@ -284,7 +284,7 @@ classdef Mixture < handle
 
         end
 
-        function moles = speciesMoles(m, k)
+        function moles = speciesMoles(obj, k)
             % Number of moles [kmol] of a species in a mixture. ::
             %
             %     >> moles = m.speciesMoles(k)
@@ -296,13 +296,13 @@ classdef Mixture < handle
             %    moles of every species in the mixture
 
             if nargin == 2
-                moles = ctFunc('mMix_speciesMoles', m.mixID, k);
+                moles = ctFunc('mMix_speciesMoles', obj.mixID, k);
             elseif nargin == 1
-                nsp = m.nSpecies;
+                nsp = obj.nSpecies;
                 moles = zeros(1, nsp);
 
                 for i = 1:nsp
-                    moles(i) = ctFunc('mMix_speciesMoles', m.mixID, i-1);
+                    moles(i) = ctFunc('mMix_speciesMoles', obj.mixID, i-1);
                 end
 
             else
@@ -313,15 +313,15 @@ classdef Mixture < handle
 
         %% Mixture Set methods
 
-        function set.T(m, temp)
-            ctFunc('mMix_setTemperature', m.mixID, temp);
+        function set.T(obj, temp)
+            ctFunc('mMix_setTemperature', obj.mixID, temp);
         end
 
-        function set.P(m, pressure)
-            ctFunc('mMix_setPressure', m.mixID, pressure);
+        function set.P(obj, pressure)
+            ctFunc('mMix_setPressure', obj.mixID, pressure);
         end
 
-        function setPhaseMoles(m, n, moles)
+        function setPhaseMoles(obj, n, moles)
             % Set the number of moles [kmol] of a phase in a mixture. ::
             %
             %     >> m.setPhaseMoles(n, moles)
@@ -331,10 +331,10 @@ classdef Mixture < handle
             % :param moles:
             %     Number of moles to add.
 
-            ctFunc('mMix_setPhaseMoles', m.mixID, n - 1, moles);
+            ctFunc('mMix_setPhaseMoles', obj.mixID, n - 1, moles);
         end
 
-        function setSpeciesMoles(m, moles)
+        function setSpeciesMoles(obj, moles)
             % Set the moles [kmol] of the species. ::
             %
             %     >> m.setSpeciesMoles(moles)
@@ -352,16 +352,16 @@ classdef Mixture < handle
 
             if isa(moles, 'double')
                 l = length(moles);
-                ctFunc('mMix_setMoles', m.mixID, l, moles);
+                ctFunc('mMix_setMoles', obj.mixID, l, moles);
             elseif isa(moles, 'char')
-                ctFunc('mMix_setMolesByName', m.mixID, moles);
+                ctFunc('mMix_setMolesByName', obj.mixID, moles);
             else
                 error('The input must be a vector or string!');
             end
 
         end
 
-        function r = equilibrate(m, XY, solver, rtol, maxsteps, maxiter, estimate_equil)
+        function r = equilibrate(obj, XY, solver, rtol, maxsteps, maxiter, estimate_equil)
             % Set the mixture to a state of chemical equilibrium. ::
             %
             %     >> m.equilibrate(XY, solver, rtol, maxsteps, maxiter, estimate_equil)
@@ -406,7 +406,7 @@ classdef Mixture < handle
             %     The error in the solution.
 
             arguments
-                m
+                obj
                 XY (1,1) string {mustBeMember(XY, ["TP", "HP", "TV", "SP"])} = "TP"
                 solver (1,1) string {mustBeMember(solver, ["auto", ...
                                      "vcs", "gibbs", "element_potential"])} = "auto"
@@ -416,7 +416,7 @@ classdef Mixture < handle
                 estimate_equil (1,1) double {mustBeInteger} = 0
             end
 
-            r = ctFunc('mMix_equilibrate', m.mixID, XY, solver, rtol, ...
+            r = ctFunc('mMix_equilibrate', obj.mixID, XY, solver, rtol, ...
                         maxsteps, maxiter, estimate_equil);
         end
 
