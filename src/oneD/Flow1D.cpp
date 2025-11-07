@@ -18,11 +18,12 @@ using namespace std;
 namespace Cantera
 {
 
-Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t points) :
-    Domain1D(nsp, points,  0.0, nsoot, neq), // CERFACS : c_offset_Y is not added like in the official cantera release because in Domain1D.cpp we resize with nsoot and neq. 
+Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t nfic, size_t neq, size_t points) :
+    Domain1D(nsp, points,  0.0, nsoot, nfic, neq), // CERFACS : c_offset_Y is not added like in the official cantera release because in Domain1D.cpp we resize with nsoot and neq. 
     m_nsp(nsp),
     m_neq(neq),
-    m_nsoot(nsoot)
+    m_nsoot(nsoot),
+    m_nfic(nfic)
 {
     m_points = points;
 
@@ -32,10 +33,10 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t poi
     m_thermo = ph;
 
     size_t nsp2 = m_thermo->nSpecies();
-    m_nv = m_neq + m_nsp + m_nsoot; // CERFACS the number of variable is number of equations + number of species + number of soot sections (soot sections are placed after the species.) 
+    m_nv = m_neq + m_nsp + m_nsoot + m_nfic; // CERFACS the number of variable is number of equations + number of species + number of soot sections (soot sections are placed after the species.) + number of fictive species 
 
     // CERFACS : I don't understand why do we do that ? nsp2 will always be different than nsp if we have soots. And even if we have soots, the domain size should already have the correct size. 
-    if (nsp2 + m_nsoot != m_nsp) {
+    if (nsp2 + m_nsoot + m_nfic != m_nsp) {
         m_nsp = nsp2;
         Domain1D::resize(m_nv, points);
     }
@@ -109,18 +110,24 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t neq, size_t poi
     if (m_nsoot > 0){
         initSoot();
         }
+    // A. Coudray
+    //---------------------Fictive initialisation-----------
+    
+    if (m_nfic > 0){
+        initFictive();
+        }
 }
 
-Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t nsoot, size_t neq, size_t points)
-    : Flow1D(th.get(), nsp, nsoot, neq, points)
+Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t nsoot, size_t nfic, size_t neq, size_t points)
+    : Flow1D(th.get(), nsp, nsoot, nfic, neq, points)
 {
     auto sol = Solution::create();
     sol->setThermo(th);
     setSolution(sol);
 }
 
-Flow1D::Flow1D(shared_ptr<Solution> sol, const string& id, size_t nsoot, size_t neq, size_t points)
-    : Flow1D(sol->thermo().get(), sol->thermo()->nSpecies(), nsoot, neq, points)
+Flow1D::Flow1D(shared_ptr<Solution> sol, const string& id, size_t nsoot, size_t nfic, size_t neq, size_t points)
+    : Flow1D(sol->thermo().get(), sol->thermo()->nSpecies(), nsoot, nfic, neq, points)
 {
     setSolution(sol);
     m_id = id;
@@ -222,6 +229,17 @@ void Flow1D::resize(size_t ncomponents, size_t points)
         m_qdotSg.resize(m_nsoot, m_points, 0.0);
         m_qdotOxidation.resize(m_nsoot, m_points, 0.0);
     }
+
+    // Fictive species
+    if (m_nfic != 0){
+        m_fic_diff.resize(m_nfic, m_points, 0.0);
+        m_fic_soret.resize(m_nfic, m_points, 0.0);
+        m_fictive_source_term.resize(m_nfic,m_points, 0.0);
+        m_fictive_oxidizer_inlet_Y.resize(m_nfic);
+        m_fictive_fuel_inlet_Y.resize(m_nfic);
+        m_fictive_schmidt.resize(m_nfic);
+    }
+
 }
 
 void Flow1D::setupGrid(size_t n, const double* z)
@@ -424,6 +442,7 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     evalContinuity(x, rsd, diag, rdt, jmin, jmax);
     evalMomentum(x, rsd, diag, rdt, jmin, jmax);
     evalSoot(x, rsd, diag, rdt, jmin, jmax); 
+    evalFictives(x, rsd, diag, rdt, jmin, jmax); 
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
     evalLambda(x, rsd, diag, rdt, jmin, jmax);
@@ -458,6 +477,10 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     if (m_nsoot > 0){
         updateSootDiffFluxes(x, j0, j1);
     }
+    if (m_nfic > 0){
+        updateFictiveDiffFluxes(x, j0, j1);
+    }
+
 }
 
 void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
@@ -949,6 +972,51 @@ void Flow1D::evalSoot(double* x, double* rsd, int* diag,
     }
 }
 
+void Flow1D::evalFictives(double* x, double* rsd, int* diag,
+                               double rdt, size_t jmin, size_t jmax)
+{
+    if (m_nfic > 0){
+        
+        if (jmin == 0) { // left boundary
+            for (size_t k = 0; k < m_nfic; k++){
+                rsd[index(c_offset_F + k, jmin)] = Yfic(x,k,0)-m_fictive_fuel_inlet_Y[k];
+                diag[index(c_offset_F + k, jmin)] = 0;
+            }
+        }
+        if (jmax == m_points - 1) { // right boundary
+            for (size_t k = 0; k < m_nfic; k++){ //right boundary
+                rsd[index(c_offset_F + k, jmax)] = m_fic_diff(k,jmax-1) + rho_u(x,jmax)*Yfic(x,k,jmax);
+                diag[index(c_offset_F + k, jmax)] = 0;
+            }
+        }
+        // j0 and j1 are constrained to only interior points
+        size_t j0 = std::max<size_t>(jmin, 1);
+        size_t j1 = std::min(jmax, m_points-2);
+        for (size_t j = j0; j <= j1; j++) { // interior points
+
+            for (size_t k = 0; k < m_nfic; k++){
+                // Convection
+                double fic_convec = rho_u(x,j)*dYficdz(x,k,j);
+                // Diffusion
+                double fic_diffus = 2.0 * (m_fic_diff(k,j) - m_fic_diff(k,j-1))
+                                        / (z(j+1) - z(j-1));
+                // Thermophoresis
+                double fic_soret = 2.0 * (m_fic_soret(k,j) - m_fic_soret(k,j-1))
+                                    / (z(j+1) - z(j-1));
+
+                // Source terms [m3/kg/s]
+                double fic_source = m_fictive_source_term(k,j); // m_wt[5]*m_wdot(5, j); //
+                
+                // Residual
+                rsd[index(c_offset_F + k, j)] =
+                      (fic_source - fic_convec + fic_diffus + fic_soret) / m_rho[j]
+                      - rdt * (Yfic(x,k,j) - Yfic_prev(k,j));
+                diag[index(c_offset_F + k, j)] = 1;
+            }
+        }
+    }
+}
+
 void Flow1D::show(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
@@ -986,6 +1054,8 @@ string Flow1D::componentName(size_t n) const
             return m_thermo->speciesName(n - c_offset_Y);
         } else if (n >= c_offset_S && n < (c_offset_S + m_nsoot)) {
             return sectionName(n-c_offset_S);
+        } else if (n >= c_offset_F && n < (c_offset_F + m_nfic)) {
+            return fictiveName(n-c_offset_F);
         } else {
             return "<unknown>";
         }
@@ -1008,6 +1078,8 @@ size_t Flow1D::componentIndex(const string& name) const
         return c_offset_Uo;
     } else if (find(m_section_name.begin(), m_section_name.end(), name) != m_section_name.end()) {
         return stoi(name.substr(2))+c_offset_S; // offset not required in previous version, why?
+    } else if (find(m_fictive_name.begin(), m_fictive_name.end(), name) != m_fictive_name.end()) {
+        return stoi(name.substr(5))+c_offset_F; // CAC
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
@@ -1127,6 +1199,7 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
     auto phase = arr.thermo();
     m_press = phase->pressure();
     vector<bool> did_section(m_nsoot,false);
+    vector<bool> did_fictive(m_nfic,false);
     bool wrote_header = false;
 
     const auto grid = arr.getComponent("grid").as<vector<double>>();
@@ -1145,15 +1218,27 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
                     did_section[n]=true;
                     writelog("Adding soot section to soln "+name+"\n");
                 }
+            else if (find(m_fictive_name.begin(), m_fictive_name.end(), name) != m_fictive_name.end()){  
+                    size_t n = stoi(name.substr(5)); 
+                    did_fictive[n]=true;
+                    writelog("Adding fictive equation to soln "+name+"\n");
+                }
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }
         } else if (find(m_section_name.begin(), m_section_name.end(), name) != m_section_name.end()){
-            size_t n = stoi(name.substr(2));    
+            size_t n = stoi(name.substr(2));
             did_section[n]=true;
             writelog("Creating soot section in soln "+name+"\n");
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(n+c_offset_S,j)] = 0.0;
+            }
+        } else if (find(m_fictive_name.begin(), m_fictive_name.end(), name) != m_fictive_name.end()){
+            size_t n = stoi(name.substr(5));     
+            did_fictive[n]=true;
+            writelog("Creating fictive equation in soln "+name+"\n");
+            for (size_t j = 0; j < nPoints(); j++) {
+                soln[index(n+c_offset_F,j)] = 0.0;
             }
         } else {
             warn_user("Flow1D::fromArray", "Saved state does not contain values for "
@@ -1174,6 +1259,21 @@ void Flow1D::fromArray(SolutionArray& arr, double* soln)
             }
         }
     }
+
+    if (m_nfic != 0) {
+        wrote_header = false;
+        for (size_t ks = 0; ks < m_nfic; ks++) {
+            if (did_fictive[ks] == false) {
+                if (!wrote_header) {
+                    writelog("\n\n");
+                    writelog("Missing data for fictives species:\n");
+                    wrote_header = true;
+                }
+                writelog(m_fictive_name[ks]+" ");
+            }
+        }
+    }
+
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
 }
@@ -1455,6 +1555,72 @@ void Flow1D::AVBPReadInputChem() {
 void Flow1D::AVBPcompute_local_thick(double* x,size_t j){
   avbp_thick[j] = avbp_fthick;
 }
+
+//---------------------------------//
+// Fictive SPECIES RELATED MTEHODS //
+//---------------------------------//
+
+void Flow1D:: initFictive(){
+    //----------------------------------------------------
+    // Initializes fictives computation
+    //----------------------------------------------------
+
+    // Sets offset of fictives equations in solution array
+    // Resizes necessay arrays
+    // Sets fictives names "Yfic_X", disables refinement on fictives and sets clipping
+
+    // Offset definition
+    c_offset_F = c_offset_Y + m_nsp;
+    // Array allocation
+    m_fictive_name.resize(m_nfic);
+    m_fic_diff.resize(m_nfic, m_points, 0.0);
+    m_fic_soret.resize(m_nfic, m_points, 0.0);
+    m_fictive_source_term.resize(m_nfic,m_points, 0.0);
+    m_fictive_oxidizer_inlet_Y.resize(m_nfic);
+    m_fictive_fuel_inlet_Y.resize(m_nfic);
+    m_fictive_schmidt.resize(m_nfic);
+    // Fictive equations setup
+    for (size_t k = 0; k < m_nfic; k++) {
+        std::string string_k = std::to_string(k);
+        m_fictive_name[k] = "Yfic_" + string_k;
+        m_refiner->setActive(c_offset_F+k, false);
+        setBounds(c_offset_F + k, -1.0e-5, 1e5);
+        
+    }
+}
+
+
+void Flow1D::updateFictiveDiffFluxes(const doublereal* x, size_t j0, size_t j1){
+    //----------------------------------------------------
+    // Computes fictive species molecular and thermal diffusion fluxes
+    //----------------------------------------------------
+    for (size_t j = j0; j < j1; j++) {
+        // Evaluate gas at midpoints : j->j+1/2
+        setGasAtMidpoint(x,j);
+
+        doublereal rho = m_thermo->density();
+        doublereal visco = m_trans->viscosity();
+        doublereal lambda_th = m_trans->thermalConductivity();
+
+        doublereal dz = z(j+1) - z(j);
+        // Evaluate viscosity
+        for (size_t k = 0; k < m_nfic; k++){
+            // Evaluate fictive mass fraction at j+1/2
+            doublereal Yficmid = 0.5 * (Yfic(x,k,j)+Yfic(x,k,j+1));
+            // Evaluate centered differencies at j+1/2
+            doublereal dYfic = Yfic(x,k,j+1) - Yfic(x,k,j);
+            //Evaluate diffusion coefficient at j+1/2
+            doublereal Dfic = visco / rho / m_fictive_schmidt[k];
+            // Evaluate fictive mass diffusion flux at j+1/2
+            m_fic_diff(k,j) = rho * Dfic * dYfic/dz;
+        }
+    }
+}
+
+//--------------------------------------//
+// END FICITVE SPECIES RELATED MTEHODS //
+//---------------------------------//
+
 
 //----------------------//
 // SOOT RELATED MTEHODS //

@@ -288,6 +288,32 @@ class FlameBase(Sim1D):
         if len(epsilon) != 2:
             raise ValueError("Boundary emissivities must both be set at the same time.")
         self.flame.boundary_emissivities = epsilon[0], epsilon[1]
+
+
+    @property
+    def fic_Y(self):
+        """
+        Gets fictive mass fraction.
+
+        : param None
+
+        : return (fictives equations x points) numpy array :
+            fictive mass fraction for each equations at each point
+        """
+        data = np.empty((self.flame.fictive_equations, self.flame.n_points))
+        ns = self.flame.fictive_equations
+        for k in range(ns):
+            data[k,:] = self.profile(self.flame, 'Yfic_'+str(k))
+
+        return data
+
+     # BEGIN of fictive species API
+    def add_fic(self, fictive_schmidt=[0], fictive_fuel_inlet_Y = [0], fictive_oxidizer_inlet_Y=[0] ):
+        if self.flame.fictive_equations == 0:
+            raise CanteraError('/!\ FICTIVES SPECIES ERROR : cannot set fictive equations')
+        self.flame.fictive_schmidt = fictive_schmidt
+        self.flame.fictive_fuel_inlet_Y = fictive_fuel_inlet_Y
+        self.flame.fictive_oxidizer_inlet_Y = fictive_oxidizer_inlet_Y
     
     # BEGIN of soot API
 
@@ -1198,7 +1224,7 @@ class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, sections=0, fictives=0):
         """
         A domain of type `FreeFlow` named 'flame' will be created to represent
         the flame. The three domains comprising the stack are stored as ``self.inlet``,
@@ -1214,15 +1240,15 @@ class FreeFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing premixed reactants
-        self.inlet = Inlet1D(name='reactants', phase=gas, sections=sections)
+        self.inlet = Inlet1D(name='reactants', phase=gas, sections=sections, fictives=fictives)
 
         #: `Outlet1D` at the right of the domain representing the burned products
-        self.outlet = Outlet1D(name='products', phase=gas, sections=sections)
+        self.outlet = Outlet1D(name='products', phase=gas, sections=sections, fictives=fictives)
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
             #: `FreeFlow` domain representing the flame
-            self.flame = FreeFlow(gas, name='flame', sections=sections)
+            self.flame = FreeFlow(gas, name='flame', sections=sections, fictives=fictives)
 
         if width is not None:
             if grid is not None:
@@ -1393,7 +1419,7 @@ class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, sections=0, fictives=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1412,15 +1438,15 @@ class BurnerFlame(FlameBase):
         """
         #: `Inlet1D` at the left of the domain representing the burner surface through
         #: which reactants flow
-        self.burner = Inlet1D(name='burner', phase=gas, sections=sections)
+        self.burner = Inlet1D(name='burner', phase=gas, sections=sections, fictives=fictives)
 
         #: `Outlet1D` at the right of the domain representing the burned gas
-        self.outlet = Outlet1D(name='outlet', phase=gas, sections=sections)
+        self.outlet = Outlet1D(name='outlet', phase=gas, sections=sections, fictives=fictives)
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
             #: `UnstrainedFlow` domain representing the flame
-            self.flame = UnstrainedFlow(gas, name='flame', sections=sections)
+            self.flame = UnstrainedFlow(gas, name='flame', sections=sections, fictives=fictives)
 
         if width is not None:
             if grid is not None:
@@ -1531,7 +1557,7 @@ class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
 
-    def __init__(self, gas, grid=None, width=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, sections=0, fictives=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1550,15 +1576,15 @@ class CounterflowDiffusionFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing the fuel mixture
-        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas, sections=sections)
+        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas, sections=sections, fictives=fictives)
         self.fuel_inlet.T = gas.T
 
         #: `Inlet1D` at the right of the domain representing the oxidizer mixture
-        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas, sections=sections)
+        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas, sections=sections, fictives=fictives)
         self.oxidizer_inlet.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
 
         if width is not None:
             if grid is not None:
@@ -1850,7 +1876,7 @@ class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
 
-    def __init__(self, gas, grid=None, width=None, surface=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, surface=None, sections=0, fictives=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1871,10 +1897,10 @@ class ImpingingJet(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing the incoming reactants
-        self.inlet = Inlet1D(name='inlet', phase=gas, sections=sections)
+        self.inlet = Inlet1D(name='inlet', phase=gas, sections=sections, fictives=fictives)
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
         self.flame.set_axisymmetric_flow()
 
         if width is not None:
@@ -1940,7 +1966,7 @@ class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, sections=0, fictives=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1958,15 +1984,15 @@ class CounterflowPremixedFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing premixed reactants
-        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections)
+        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections, fictives=fictives)
         self.reactants.T = gas.T
 
         #: `Inlet1D` at the right of the domain representing burned products
-        self.products = Inlet1D(name='products', phase=gas, sections=sections)
+        self.products = Inlet1D(name='products', phase=gas, sections=sections, fictives=fictives)
         self.products.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
 
         if width is not None:
             if grid is not None:
@@ -2047,7 +2073,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None, sections=0):
+    def __init__(self, gas, grid=None, width=None, sections=0, fictives=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -2063,14 +2089,14 @@ class CounterflowTwinPremixedFlame(FlameBase):
         represent the flame. The three domains comprising the stack are stored as
         ``self.reactants``, ``self.flame``, and ``self.products``.
         """
-        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections)
+        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections, fictives=fictives)
         self.reactants.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
 
         #The right boundary is a symmetry plane
-        self.products = SymmetryPlane1D(name='products', phase=gas, sections=sections)
+        self.products = SymmetryPlane1D(name='products', phase=gas, sections=sections, fictives=fictives)
 
         if width is not None:
             if grid is not None:

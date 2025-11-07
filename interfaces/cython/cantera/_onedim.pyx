@@ -308,7 +308,10 @@ cdef class Boundary1D(Domain1D):
             self._domain = CxxNewDomain1D(
                 stringify(self._domain_type), phase._base, stringify(name),
                 #add kwargs if kwargs provided
-                kwargs['sections'] if 'sections' in kwargs else 0,
+                # Get 'sections' from kwargs, defaulting to 0 if not provided
+                kwargs.get('sections', 0),
+                # Get 'fictives' from kwargs, defaulting to 0 if not provided
+                kwargs.get('fictives', 0),
                 )
             self.domain = self._domain.get()
             self.boundary = <CxxBoundary1D*>self.domain
@@ -452,7 +455,10 @@ cdef class FlowBase(Domain1D):
         self._domain = CxxNewDomain1D(
             stringify(self._domain_type), phase._base, stringify(name),
             #add kwargs if kwargs provided
-            kwargs['sections'] if 'sections' in kwargs else 0,
+            # Get 'sections' from kwargs, defaulting to 0 if not provided
+            kwargs.get('sections', 0),
+            # Get 'fictives' from kwargs, defaulting to 0 if not provided
+            kwargs.get('fictives', 0),
             )
         self.domain = self._domain.get()
         self.flow = <CxxFlow1D*>self.domain
@@ -596,6 +602,81 @@ cdef class FlowBase(Domain1D):
             for j in range(self.n_points):
                 data[j] = self.flow.radiativeHeatLoss(j)
             return data
+
+    # BEGIN of fictive species API
+
+    property fictive_equations:
+        """
+        Returns number of fictive equations.
+
+        :param None
+
+        :return int :
+            Number of fictive equations
+        """
+        def __set__(self, nFic):
+            #self.flow.setFictives(nFic)
+            raise KeyError ('/!\ FICTIVE SPECIES ERROR : You cannot set equations number this way !')
+        def __get__(self):
+            return self.flow.getFictives()
+
+    property fictive_schmidt :
+        """
+        Gets / sets flame Schmidt number of the fictive species
+
+        : param adiabatic_temperature = double :
+            adiabatic temperature (K)
+
+        : return double : 
+            adiabatic temperature (K)
+        """
+        def __set__(self, fictive_schmidt):
+            self.flow.setFictiveSchmidt(fictive_schmidt)
+
+    property fictive_fuel_inlet_Y :
+        """
+        Gets / sets flame temperature used as reference for Kazakov's surface reactions model
+
+        : param adiabatic_temperature = double :
+            adiabatic temperature (K)
+
+        : return double : 
+            adiabatic temperature (K)
+        """
+        def __set__(self, fictive_fuel_inlet_Y):
+            self.flow.setFictive_fuel_inlet_Y(fictive_fuel_inlet_Y)
+    
+    property fictive_oxidizer_inlet_Y :
+        """
+        Gets / sets flame temperature used as reference for Kazakov's surface reactions model
+
+        : param adiabatic_temperature = double :
+            adiabatic temperature (K)
+
+        : return double : 
+            adiabatic temperature (K)
+        """
+        def __set__(self, fictive_oxidizer_inlet_Y):
+            self.flow.setFictive_oxidizer_inlet_Y(fictive_oxidizer_inlet_Y)
+
+    def set_fictive_source_term_profile(self, name, pos, Omegas):
+        """Set the fixed temperature profile. This profile is used
+        whenever the energy equation is disabled.
+
+        :param pos:
+            arrray of relative positions from 0 to 1
+        :param temp:
+            array of temperature values
+
+        >>> d.set_fixed_temp_profile(array([0.0, 0.5, 1.0]),
+        ...                          array([500.0, 1500.0, 2000.0])
+        """
+        cdef vector[double] x, y
+        for p in pos:
+            x.push_back(p)
+        for value in Omegas:
+            y.push_back(value)
+        self.flow.setFictiveSourceTermProfile(stringify(name) ,x, y)
 
     # BEGIN of soot API
 

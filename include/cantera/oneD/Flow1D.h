@@ -62,17 +62,17 @@ public:
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
     //! @param n_eq Number of non-species equations (default = 6 for spatial resolution)
-    Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Y, size_t points = 1);
+    Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t nfic = 0, size_t neq = c_offset_Y, size_t points = 1);
 
     //! Delegating constructor
-    Flow1D(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Y, size_t points = 1);
+    Flow1D(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t nsoot = 0, size_t nfic = 0, size_t neq = c_offset_Y, size_t points = 1);
 
     //! Create a new flow domain.
     //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    Flow1D(shared_ptr<Solution> sol, const string& id="", size_t nsoot = 0, size_t neq = c_offset_Y, size_t points=1);
+    Flow1D(shared_ptr<Solution> sol, const string& id="", size_t nsoot = 0, size_t nfic = 0, size_t neq = c_offset_Y, size_t points=1);
 
     virtual ~Flow1D(); // virtual kw required for derived class destructors (flamelet)
 
@@ -321,6 +321,59 @@ public:
     double rightEmissivity() const {
         return m_epsilon_right;
     }
+
+    // Turn fictive species on / off.
+    
+    const size_t getFictives() const {
+        return m_nfic;
+    }
+
+    void setFictives(size_t nFic) {
+        m_nfic = nFic;
+    }
+
+    void initFictive();
+
+    // Returns fictive name
+    std::string fictiveName(size_t n) const {
+        return m_fictive_name[n];
+    }
+
+    // Fictive transport properties
+    void setFictiveSchmidt(std::vector<double> fictive_schmidt) {
+        m_fictive_schmidt = fictive_schmidt;
+    }
+    const doublereal getFictiveSchmidt(size_t k) const {
+        return m_fictive_schmidt[k];
+    }
+
+    // Fictive fuel and oxidizer inlet conditions
+    void setFictive_fuel_inlet_Y(std::vector<double> fictive_fuel_inlet_Y) {
+        m_fictive_fuel_inlet_Y = fictive_fuel_inlet_Y;
+    }
+
+    const doublereal getFictive_fuel_inlet_Y(size_t k) const {
+        return m_fictive_fuel_inlet_Y[k];
+    }
+    void setFictive_oxidizer_inlet_Y(std::vector<double> fictive_oxidizer_inlet_Y) {
+        m_fictive_oxidizer_inlet_Y = fictive_oxidizer_inlet_Y;
+    }
+    const doublereal getFictive_oxidizer_inlet_Y(size_t k) const {
+        return m_fictive_oxidizer_inlet_Y[k];
+    }
+    
+    // Fictive source term 
+    void setFictiveSourceTermProfile(const std::string& name, vector<double>& zfixed, vector<double>& omegafixed) {
+        for (size_t k = 0; k < m_nfic; k++) {
+            if (m_fictive_name[k] == name) {
+                for (size_t i = 0; i < m_points; i++) {
+                    m_fictive_source_term(k, i) = omegafixed[i];
+                }
+            }
+        }
+    }
+
+
 
     // Turn soot formation on / off.
     // setSections
@@ -1159,8 +1212,12 @@ protected:
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
 
-    // Evaluate the species equations' residuals.
+    // Evaluate the soot sections equations' residuals.
     virtual void evalSoot(double* x, double* rsd, int* diag,
+                                   double rdt, size_t jmin, size_t jmax);
+
+    // Evaluate the fictive species equations' residuals.
+    virtual void evalFictives(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
 
     //! @} End of Governing Equations
@@ -1265,6 +1322,19 @@ protected:
     double Ys_prev(size_t k, size_t j) const {
         return prevSoln(c_offset_S + k, j);
     }
+
+    //Fictive species
+    double Yfic(const double* x, size_t k, size_t j) const {
+        return x[index(c_offset_F+k, j)];
+    }
+
+    double& Yfic(double* x, size_t k, size_t j) {
+        return x[index(c_offset_F+k, j)];
+    }
+
+    double Yfic_prev(size_t k, size_t j) const {
+        return prevSoln(c_offset_F + k, j);
+    }
     //----
 
     //! Get the mole fraction of species `k` at point `j` from the local state vector
@@ -1331,6 +1401,12 @@ protected:
     double dYsdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (Ys(x,k,jloc) - Ys(x,k,jloc-1))/m_dz[jloc-1];
+    }
+
+    // Fictive species
+    double dYficdz(const double* x, size_t k, size_t j) const {
+        size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
+        return (Yfic(x,k,jloc) - Yfic(x,k,jloc-1))/m_dz[jloc-1];
     }
 
     /**
@@ -1412,6 +1488,9 @@ protected:
     //! Update the soot diffusive mass fluxes.
     virtual void updateSootDiffFluxes(const double* x, size_t j0, size_t j1);
 
+    //! Update the fictive species diffusive mass fluxes.
+    virtual void updateFictiveDiffFluxes(const double* x, size_t j0, size_t j1);
+
     /**
      * Compute the spatial derivative of species specific molar enthalpies using upwind
      * differencing. Updates all species molar enthalpies for all species at point j.
@@ -1482,7 +1561,9 @@ protected:
 
     size_t m_nsp; //!< Number of species in the mechanism
     size_t m_neq; //!< Number of non-species equations 
-    size_t m_nsoot;
+    size_t m_nsoot; //!< Number of soot sections
+    size_t m_nfic; //!< Number of fictive species equations 
+
     std::string m_fuel;
 
     //! Phase object used for calculating thermodynamic properties
@@ -1565,6 +1646,20 @@ protected:
 
     //! radiative heat loss vector
     vector<double> m_qdotRadiation;
+
+    // ----------------------
+    // FICTIVE SPECIES RELATED VARIABLES
+    // ----------------------
+    size_t fictive_loglevel=1;
+    std::vector<std::string> m_fictive_name;
+    Array2D m_fic_diff ;
+    Array2D m_fic_soret ;
+    Array2D m_fictive_source_term;
+    size_t c_offset_F = 7; // CAC
+    vector<double> m_fictive_schmidt;
+    vector<double> m_fictive_fuel_inlet_Y;
+    vector<double> m_fictive_oxidizer_inlet_Y;
+    
 
     // ----------------------
     // SOOT RELATED VARIABLES

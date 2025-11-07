@@ -18,72 +18,72 @@ std::mutex DomainFactory::domain_mutex;
 
 DomainFactory::DomainFactory()
 {
-    reg("inlet", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("inlet", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Inlet1D(solution, id);
     });
-    reg("empty", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("empty", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Empty1D(solution, id);
     });
-    reg("symmetry-plane", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("symmetry-plane", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Symm1D(solution, id);
     });
-    reg("outlet", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("outlet", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Outlet1D(solution, id);
     });
-    reg("outlet-reservoir", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("outlet-reservoir", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new OutletRes1D(solution, id);
     });
-    reg("surface", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("surface", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Surf1D(solution, id);
     });
-    reg("reacting-surface", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("reacting-surface", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new ReactingSurf1D(solution, id);
     });
-    reg("gas-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("gas-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Flow1D(solution, id, sections);
     });
-    reg("legacy-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("legacy-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new Flow1D(solution, id, sections);
     });
-    reg("ion-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("ion-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new IonFlow(solution, id);
     });
-    reg("free-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("free-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         Flow1D* ret;
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new Flow1D(solution, id, sections);
+            ret = new Flow1D(solution, id, sections, fictives);
         }
         ret->setFreeFlow();
         return ret;
     });
-    reg("axisymmetric-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("axisymmetric-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0 , const size_t& fictives = 0) {
         Flow1D* ret;
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new Flow1D(solution, id, sections);
+            ret = new Flow1D(solution, id, sections, fictives);
         }
         ret->setAxisymmetricFlow();
         return ret;
     });
-    reg("unstrained-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("unstrained-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         Flow1D* ret;
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new Flow1D(solution, id, sections);
+            ret = new Flow1D(solution, id, sections, fictives);
         }
         ret->setUnstrainedFlow();
         return ret;
     });
-    reg("flamelet-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0) {
+    reg("flamelet-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         Flow1D* ret;
         if (solution->transport()->transportModel() == "ionized-gas") {
             ret = new IonFlow(solution, id);
         } else {
-            ret = new Flamelet(solution, id, sections); // neq = 1 for flamelet
+            ret = new Flamelet(solution, id, sections, fictives); // neq = 1 for flamelet
         }
         ret->setFlameletFlow();
         return ret;

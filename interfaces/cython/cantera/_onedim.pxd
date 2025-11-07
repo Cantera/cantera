@@ -13,7 +13,7 @@ from .thermo cimport *
 
 cdef extern from "cantera/oneD/DomainFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxDomain1D] CxxNewDomain1D "newDomain" (
-        string, shared_ptr[CxxSolution], string, size_t) except +translate_exception
+        string, shared_ptr[CxxSolution], string, size_t, size_t) except +translate_exception
 
 
 cdef extern from "cantera/oneD/Domain1D.h":
@@ -105,6 +105,17 @@ cdef extern from "cantera/oneD/Flow1D.h":
         void setRightControlPointTemperature(double) except +translate_exception
         void setSections(size_t)
         size_t getSections()
+
+        void setFictives(size_t)
+        size_t getFictives()
+        double getFictiveSchmidt(size_t)
+        void setFictiveSchmidt(vector[double]&)
+        double getFictive_fuel_inlet_Y(size_t)
+        void setFictive_fuel_inlet_Y(vector[double]&)
+        double getFictive_oxidizer_inlet_Y(size_t)
+        void setFictive_oxidizer_inlet_Y(vector[double]&)
+        void setFictiveSourceTermProfile(string, vector[double]&, vector[double]&)
+
         void setFlameletFlow()
 
 
