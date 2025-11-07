@@ -320,7 +320,7 @@ jobs:
       with:
         command: |
           ctDir = getenv('CANTERA_ROOT');
-          ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab_experimental');
+          ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab');
           ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
           ctLibDir = fullfile(ctDir, 'build', 'lib');
           addpath(genpath(ctToolboxDir));
@@ -333,7 +333,7 @@ jobs:
       with:
         command: |
           ctDir = getenv('CANTERA_ROOT');
-          addpath(fullfile(ctDir, 'test', 'matlab_experimental'));
+          addpath(fullfile(ctDir, 'test', 'matlab'));
           matlabCoverage;
     - name: Build the .NET interface
       run: dotnet build
@@ -375,13 +375,13 @@ jobs:
       uses: actions/upload-artifact@v5
       with:
         name: matlab-coverage-report
-        path: test/matlab_experimental/matlabCoverage*
+        path: test/matlab/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
       with:
         verbose: true
-        files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab_experimental/matlabCoverage.xml
+        files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab/matlabCoverage.xml
         fail_ci_if_error: true
 
   type-checking:
@@ -1304,7 +1304,7 @@ jobs:
         command: |
           disp("MATLAB version: " + version);
           ctDir = getenv('CANTERA_ROOT');
-          ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab_experimental');
+          ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab');
           ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
           ctLibDir = fullfile(ctDir, 'build', 'lib');
           addpath(genpath(ctToolboxDir));
@@ -1312,4 +1312,4 @@ jobs:
     - name: Run tests
       uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
       with:
-        select-by-folder: test/matlab_experimental
+        select-by-folder: test/matlab

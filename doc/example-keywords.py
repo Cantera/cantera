@@ -137,7 +137,7 @@ def get_all_keywords():
                 if kw:
                     all_keywords.update(kw)
 
-    for f in (cantera_root / "samples/matlab_experimental").glob("*.m"):
+    for f in (cantera_root / "samples/matlab").glob("*.m"):
         if f.name in skip:
             continue
         kw = get_matlab_keywords(f)
