@@ -36,8 +36,8 @@ classdef Mixture < handle
     end
 
     properties (SetAccess = public)
-        T % Temperature. Units: K.
-        P % Pressure. Units: Pa.
+        T % Temperature [K].
+        P % Pressure [Pa].
     end
 
     properties (SetAccess = protected)
@@ -50,7 +50,7 @@ classdef Mixture < handle
 
         nSpecies % Number of species in a mixture.
 
-        chemPotentials % Chemical potentials of species in the mixture. Units: J/kmol.
+        chemPotentials % Chemical potentials [J/kmol] of species in the mixture.
     end
 
     methods
@@ -134,8 +134,7 @@ classdef Mixture < handle
             % :param phase:
             %     Instance of class :mat:class:`ThermoPhase` which should be added.
             % :param moles:
-            %     Number of moles of the ``phase`` to be added to this mixture.
-            %     Units: kmol.
+            %     Number of moles [kmol] of the ``phase`` to be added to this mixture.
 
             if ~isa(phase, 'ThermoPhase')
                 error('Phase object of wrong type.');
@@ -232,7 +231,7 @@ classdef Mixture < handle
         end
 
         function moles = elementMoles(m, e)
-            % Number of moles of an element in a mixture. ::
+            % Number of moles [kmol] of an element in a mixture. ::
             %
             %     >> moles = m.elementMoles(e)
             %
@@ -240,7 +239,7 @@ classdef Mixture < handle
             %    Integer element number.
             % :return:
             %    Moles of element number 'e'. If input 'e' is empty, return
-            %    moles of every element in the mixture. Unit: kmol.
+            %    moles of every element in the mixture.
 
             if nargin == 2
                 moles = ctFunc('mMix_elementMoles', m.mixID, e);
@@ -259,7 +258,7 @@ classdef Mixture < handle
         end
 
         function moles = phaseMoles(m, n)
-            % Number of moles of a phase in a mixture. ::
+            % Number of moles [kmol] of a phase in a mixture. ::
             %
             %     >> moles = m.phaseMoles(n)
             %
@@ -267,7 +266,7 @@ classdef Mixture < handle
             %    Integer phase number.
             % :return:
             %    Moles of element number 'n'. If input 'n' is empty, return
-            %    moles of every element in the mixture. Unit: kmol.
+            %    moles of every element in the mixture.
 
             if nargin == 2
                 moles = ctFunc('mMix_phaseMoles', m.mixID, n);
@@ -286,7 +285,7 @@ classdef Mixture < handle
         end
 
         function moles = speciesMoles(m, k)
-            % Number of moles of a species in a mixture. ::
+            % Number of moles [kmol] of a species in a mixture. ::
             %
             %     >> moles = m.speciesMoles(k)
             %
@@ -294,7 +293,7 @@ classdef Mixture < handle
             %    Integer species number.
             % :return:
             %    Moles of species number 'k'. If input 'k' is empty, return
-            %    moles of every species in the mixture. Unit: kmol.
+            %    moles of every species in the mixture
 
             if nargin == 2
                 moles = ctFunc('mMix_speciesMoles', m.mixID, k);
@@ -323,28 +322,28 @@ classdef Mixture < handle
         end
 
         function setPhaseMoles(m, n, moles)
-            % Set the number of moles of a phase in a mixture. ::
+            % Set the number of moles [kmol] of a phase in a mixture. ::
             %
             %     >> m.setPhaseMoles(n, moles)
             %
             % :param n:
             %     Phase number in the input.
             % :param moles:
-            %     Number of moles to add. Units: kmol.
+            %     Number of moles to add.
 
             ctFunc('mMix_setPhaseMoles', m.mixID, n - 1, moles);
         end
 
         function setSpeciesMoles(m, moles)
-            % Set the moles of the species. ::
+            % Set the moles [kmol] of the species. ::
             %
             %     >> m.setSpeciesMoles(moles)
             %
-            % Set the moles of the species in kmol. The moles may be specified
-            % either as a string, or as an vector. If a vector is used,
-            % it must be dimensioned at least as large as the total number
-            % of species in the mixture. Note that the species may belong to any
-            % phase, and unspecified species are set to zero. ::
+            % Set the moles of multiple species. The moles may be specified either as a
+            % string, or as an vector. If a vector is used, it must be dimensioned at
+            % least as large as the total number of species in the mixture. Note that
+            % the species may belong to any phase, and unspecified species are set to
+            % zero. ::
             %
             %     >> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2');
             %

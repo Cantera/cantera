@@ -33,7 +33,7 @@ classdef (Abstract) ThermoPhase < handle
 
         name % Name of the phase.
 
-        electricPotential % Electric potential. Units: V.
+        electricPotential % Electric potential [V].
 
     end
 
@@ -45,9 +45,9 @@ classdef (Abstract) ThermoPhase < handle
 
     properties (SetAccess = immutable)
 
-        atomicWeights % Atomic weights of the elements. Unit: kg/kmol.
+        atomicWeights % Atomic weights of the elements [kg/kmol].
 
-        charges % Species charges. Unit: elem. charge.
+        charges % Species charges in units of the elementary charge.
 
         % Mean molecular weight [kg/kmol] of the mixture
         %
@@ -55,75 +55,76 @@ classdef (Abstract) ThermoPhase < handle
         % atomic weights of the individual species in the phase.
         meanMolecularWeight
 
-        massDensity % Mass basis density. Units: kg/m^3.
+        massDensity % Mass basis density [kg/m³].
 
-        molarDensity % Molar basis density. Units: kmol/m^3.
+        molarDensity % Molar basis density [kmol/m³].
 
-        molecularWeights % Molecular weights of the species. Units: kg/kmol.
+        molecularWeights % Molecular weights [kg/kmol] of the species.
 
         nElements % Number of elements in the phase.
 
         nSpecies % Number of species in the phase.
 
-        T % Temperature. Units: K.
+        T % Temperature [K].
 
-        P % Pressure. Units: Pa.
+        P % Pressure [Pa].
 
-        D % Density depending on the basis. Units: kmol/m^3 (molar) kg/m^3 (mass)
+        D % Density depending on the basis [kmol/m³ or kg/m³].
 
-        H % Enthalpy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        H % Enthalpy depending on the basis [J/kmol or J/kg].
 
-        S % Entropy depending on the basis. Units: J/kmol-K (molar) J/kg-K (mass).
+        S % Entropy depending on the basis [J/kmol/K or J/kg/K].
 
-        U % Internal energy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        U % Internal energy depending on the basis [J/kmol or J/kg].
 
-        G % Gibbs free energy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        G % Gibbs free energy depending on the basis [J/kmol or J/kg].
 
         Q % Vapor fraction of the phase.
 
-        % Basis-dependent specific heat at constant volume and composition.
-        % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
+        % Basis-dependent specific heat at constant volume and composition
+        % [J/kmol/K or J/kg/K].
         cv
 
-        % Basis-dependent specific heat at constant pressure and composition.
-        % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
+        % Basis-dependent specific heat at constant pressure and composition
+        % [J/kmol/K or J/kg/K].
         cp
 
-        % Concentrations of the species.
+        % Concentrations of the species [kmol/m³ for bulk phases; kmol/m² for surface
+        % phases].
         concentrations
 
-        % Chemical potentials of the species. Units: J/kmol.
+        % Chemical potentials of the species [J/kmol].
         chemicalPotentials
 
-        % Electrochemical potentials of the species. Units: J/kmol.
+        % Electrochemical potentials of the species [J/kmol].
         electrochemicalPotentials
 
-        % Partial molar enthalpies for the species in the mixture. Units: J/kmol.
+        % Partial molar enthalpies for the species in the mixture [J/kmol].
         partialMolarEnthalpies
 
-        % Partial molar entropies for the species in the mixture. Units: J/kmol/K.
+        % Partial molar entropies for the species in the mixture [J/kmol/K].
         partialMolarEntropies
 
-        % Partial molar internal energies for the species in the mixture. Units: J/kmol.
+        % Partial molar internal energies for the species in the mixture [J/kmol].
         partialMolarIntEnergies
 
-        % Partial molar heat capacities for the species in the mixture. Units: J/kmol/K.
+        % Partial molar heat capacities for the species in the mixture [J/kmol/K].
         partialMolarCp
 
-        % Partial molar volumes for the species in the mixture. Units: m^3/kmol.
+        % Partial molar volumes for the species in the mixture [m³/kmol].
         partialMolarVolumes
 
-        critDensity % Critical density. Units: kg/m^3.
+        critDensity % Critical density [kg/m³].
 
-        critPressure % Critical pressure. Units: Pa.
+        critPressure % Critical pressure [Pa].
 
-        critTemperature % Critical temperature. Units: K.
+        critTemperature % Critical temperature [K].
 
         eosType % Type of equation of state.
 
         isIdealGas % A flag indicating whether the phase is an ideal gas.
 
-        isothermalCompressibility % Isothermal compressibility. Units: 1/Pa.
+        isothermalCompressibility % Isothermal compressibility [1/Pa].
 
         % Maximum temperature for which thermodynamic parameter fits are valid
         % for all species.
@@ -147,13 +148,13 @@ classdef (Abstract) ThermoPhase < handle
         % See also: :mat:class:`maxTemp`
         minTemp
 
-        refPressure % Reference pressure for standard-state. Units: Pa.
+        refPressure % Reference pressure [Pa] for standard-state.
 
         satPressure % Saturation pressure [Pa] at the current temperature
 
         satTemperature % Saturation temperature [K] at the current pressure
 
-        % Speed of sound ::
+        % Speed of sound [m/s] ::
         %
         %     >> c = tp.soundspeed
         %
@@ -177,24 +178,24 @@ classdef (Abstract) ThermoPhase < handle
 
         speciesNames % Cell array of species names
 
-        thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
+        thermalExpansionCoeff % Thermal expansion coefficient [1/K].
 
     end
 
     properties (Dependent = true)
 
-        V % Basis-dependent specific volume. Units: m^3/kmol (molar) m^3/kg (mass).
+        V % Basis-dependent specific volume [m³/kmol or m³/kg]
 
-        % Get/Set density [kg/m^3 or kmol/m^3] and pressure [Pa].
+        % Get/Set density [kg/m³ or kmol/m³] and pressure [Pa].
         DP
 
-        % Get/Set density [kg/m^3 or kmol/m^3], pressure [Pa], and mole fractions.
+        % Get/Set density [kg/m³ or kmol/m³], pressure [Pa], and mole fractions.
         DPX
 
-        % Get/Set density [kg/m^3 or kmol/m^3], pressure [Pa], and mass fractions.
+        % Get/Set density [kg/m³ or kmol/m³], pressure [Pa], and mass fractions.
         DPY
 
-        % Get density [kg/m^3 or kmol/m^3], pressure [Pa], and vapor fraction.
+        % Get density [kg/m³ or kmol/m³], pressure [Pa], and vapor fraction.
         DPQ
 
         % Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa].
@@ -209,77 +210,77 @@ classdef (Abstract) ThermoPhase < handle
         % Get enthalpy [J/kg or J/kmol], pressure [Pa], and vapor fraction.
         HPQ
 
-        % Get/Set pressure [Pa] and specific volume [m^3/kg or m^3/kmol].
+        % Get/Set pressure [Pa] and specific volume [m³/kg or m³/kmol].
         PV
 
-        % Get/Set pressure [Pa], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set pressure [Pa], specific volume [m³/kg or m³/kmol],
         % and mole fractions.
         PVX
 
-        % Get/Set pressure [Pa], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set pressure [Pa], specific volume [m³/kg or m³/kmol],
         % and mass fractions.
         PVY
 
         % Get/Set pressure [Pa] and vapor fraction of a two-phase state.
         PQ
 
-        % Get/Set entropy [J/kg-K or J/kmol-K] and enthalpy [J/kg or J/kmol].
+        % Get/Set entropy [J/kg/K or J/kmol/K] and enthalpy [J/kg or J/kmol].
         SH
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], enthalpy [J/kg or J/kmol],
+        % Get/Set entropy [J/kg/K or J/kmol/K], enthalpy [J/kg or J/kmol],
         % and mole fractions.
         SHX
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], enthalpy [J/kg or J/kmol],
+        % Get/Set entropy [J/kg/K or J/kmol/K], enthalpy [J/kg or J/kmol],
         % and mass fractions.
         SHY
 
-        % Get/Set entropy [J/kg-K or J/kmol-K] and pressure [Pa].
+        % Get/Set entropy [J/kg/K or J/kmol/K] and pressure [Pa].
         SP
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], pressure [Pa], and mole fractions.
+        % Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions.
         SPX
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], pressure [Pa], and mass fractions.
+        % Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mass fractions.
         SPY
 
-        % Get entropy [J/kg-K or J/kmol-K], pressure [Pa], and vapor fraction.
+        % Get entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
         SPQ
 
-        % Get/Set entropy [J/kg-K or J/kmol-K] and temperature [K].
+        % Get/Set entropy [J/kg/K or J/kmol/K] and temperature [K].
         ST
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], temperature [K], and mole fractions.
+        % Get/Set entropy [J/kg/K or J/kmol/K], temperature [K], and mole fractions.
         STX
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], temperature [K], and mass fractions.
+        % Get/Set entropy [J/kg/K or J/kmol/K], temperature [K], and mass fractions.
         STY
 
-        % Get/Set entropy [J/kg-K or J/kmol-K] and specific volume [m^3/kg or m^3/kmol].
+        % Get/Set entropy [J/kg/K or J/kmol/K] and specific volume [m³/kg or m³/kmol].
         SV
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol],
         % and mole fractions.
         SVX
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol],
         % and mass fractions.
         SVY
 
-        % Get/Set entropy [J/kg-K or J/kmol-K], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol],
         % and vapor fraction.
         SVQ
 
-        % Get/Set temperature [K] and density [kg/m^3 or kmol/m^3].
+        % Get/Set temperature [K] and density [kg/m³ or kmol/m³].
         TD
 
-        % Get/Set temperature [K], density [kg/m^3 or kmol/m^3], and mole fractions.
+        % Get/Set temperature [K], density [kg/m³ or kmol/m³], and mole fractions.
         TDX
 
-        % Get/Set temperature [K], density [kg/m^3 or kmol/m^3], and mass fractions.
+        % Get/Set temperature [K], density [kg/m³ or kmol/m³], and mass fractions.
         TDY
 
-        % Get temperature [K], density [kg/m^3 or kmol/m^3], and vapor fraction.
+        % Get temperature [K], density [kg/m³ or kmol/m³], and vapor fraction.
         TDQ
 
         % Get/Set temperature [K] and enthalpy [J/kg or J/kmol].
@@ -306,52 +307,50 @@ classdef (Abstract) ThermoPhase < handle
         % Get/Set temperature [K] and vapor fraction of a two-phase state.
         TQ
 
-        % Get/Set temperature [K] and specific volume [m^3/kg or m^3/kmol].
+        % Get/Set temperature [K] and specific volume [m³/kg or m³/kmol].
         TV
 
-        % Get/Set temperature [K], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set temperature [K], specific volume [m³/kg or m³/kmol],
         % and mole fractions.
         TVX
 
-        % Get/Set temperature [K], specific volume [m^3/kg or m^3/kmol],
+        % Get/Set temperature [K], specific volume [m³/kg or m³/kmol],
         % and mass fractions.
         TVY
 
         % Get/Set internal energy [J/kg or J/kmol] and specific volume
-        % [m^3/kg or m^3/kmol].
+        % [m³/kg or m³/kmol].
         UV
 
         % Get/Set internal energy [J/kg or J/kmol], specific volume
-        % [m^3/kg or m^3/kmol], and mole fractions.
+        % [m³/kg or m³/kmol], and mole fractions.
         UVX
 
         % Get/Set internal energy [J/kg or J/kmol], specific volume
-        % [m^3/kg or m^3/kmol], and mass fractions.
+        % [m³/kg or m³/kmol], and mass fractions.
         UVY
 
         % Get internal energy [J/kg or J/kmol], specific volume
-        % [m^3/kg or m^3/kmol], and vapor fraction.
+        % [m³/kg or m³/kmol], and vapor fraction.
         UVQ
 
         % Get/Set internal energy [J/kg or J/kmol] and pressure [Pa].
         UP
 
-        % Get/Set internal energy [J/kg or J/kmol], pressure [Pa],
-        % and mole fractions.
+        % Get/Set internal energy [J/kg or J/kmol], pressure [Pa], and mole fractions.
         UPX
 
-        % Get/Set internal energy [J/kg or J/kmol], pressure [Pa],
-        % and mass fractions.
+        % Get/Set internal energy [J/kg or J/kmol], pressure [Pa], and mass fractions.
         UPY
 
-        % Get/Set volume [m^3/kg or m^3/kmol] and enthalpy [J/kg or J/kmol].
+        % Get/Set volume [m³/kg or m³/kmol] and enthalpy [J/kg or J/kmol].
         VH
 
-        % Get/Set specific volume [m^3/kg or m^3/kmol], enthalpy [J/kg or J/kmol],
+        % Get/Set specific volume [m³/kg or m³/kmol], enthalpy [J/kg or J/kmol],
         % and mole fractions.
         VHX
 
-        % Get/Set specific volume [m^3/kg or m^3/kmol], enthalpy [J/kg or J/kmol],
+        % Get/Set specific volume [m³/kg or m³/kmol], enthalpy [J/kg or J/kmol],
         % and mass fractions.
         VHY
 

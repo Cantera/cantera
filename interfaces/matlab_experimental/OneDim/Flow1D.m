@@ -13,7 +13,7 @@ classdef (Abstract) Flow1D < Domain1D
     %     String, ID of the flow.
 
     properties (SetAccess = public)
-        P  % Flow Pressure. Units: Pa.
+        P  % Flow Pressure [Pa].
 
         % Boolean flag indicating whether the energy equation is enabled.
         energyEnabled logical

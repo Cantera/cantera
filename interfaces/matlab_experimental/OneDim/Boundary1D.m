@@ -17,9 +17,9 @@ classdef (Abstract) Boundary1D < Domain1D
     %     String, ID of the flow.
 
     properties
-        massFlux % The mass flux in the domain. Unit: [kg/s/m^2]
+        massFlux % The mass flux [kg/s/m²] in the domain.
 
-        T % Boundary Temperature. Units: K.
+        T % Boundary temperature [K].
 
     end
 

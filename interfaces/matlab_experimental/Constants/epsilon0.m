@@ -1,10 +1,10 @@
 function r = epsilon0
-    % Get the vacuum permittivity in C^2/N/m^2. ::
+    % Get the vacuum permittivity in C²/N/m². ::
     %
     %     >> r = epsilon0
     %
     % :return:
-    %     The vacuum permittivity in C^2/N/m^2.
+    %     The vacuum permittivity in C²/N/m².
 
     r = ctFunc('mCt_epsilon0');
 end

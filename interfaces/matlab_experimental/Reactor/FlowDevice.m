@@ -43,7 +43,7 @@ classdef (Abstract) FlowDevice < Connector
         % an instance of :mat:class:`Func1`.
         massFlowRate
 
-        % Valve coefficient in kg/Pa-s.
+        % Valve coefficient in kg/s/Pa.
         %
         % The mass flow rate [kg/s] is computed from the expression:
         %
