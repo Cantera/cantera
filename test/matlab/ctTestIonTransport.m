@@ -13,8 +13,8 @@ classdef ctTestIonTransport < ctTestCase
 
         function createPhase(self)
             src = '../data/ch4_ion.yaml';
-            self.phase = Solution(src);
-            self.phase.TPX = {2237, OneAtm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'};
+            self.phase = ct.Solution(src);
+            self.phase.TPX = {2237, ct.OneAtm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'};
         end
 
     end
@@ -55,8 +55,8 @@ classdef ctTestIonTransport < ctTestCase
 
 
         function testIonizedGasWithoutIons(self)
-            gas = Solution('h2o2.yaml');
-            gas.TPX = {800, 2*OneAtm, ...
+            gas = ct.Solution('h2o2.yaml');
+            gas.TPX = {800, 2*ct.OneAtm, ...
                        [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]};
 
             gas.transportModel = 'ionized-gas';
@@ -72,17 +72,17 @@ classdef ctTestIonTransport < ctTestCase
         end
 
         function testIonizedLowT(self)
-            gas = Solution('../data/ET_test.yaml');
+            gas = ct.Solution('../data/ET_test.yaml');
 
             kO2m = gas.speciesIndex('O2^-');
             kC10H8 = gas.speciesIndex('C10H8');
 
-            gas.TP = {300, OneAtm};
+            gas.TP = {300, ct.OneAtm};
             Dbin = gas.binDiffCoeffs;
             self.verifyEqual(Dbin(kO2m, kC10H8), 2.18902175e-06, ...
                              'RelTol', self.rtol);
 
-            gas.TP = {350, OneAtm};
+            gas.TP = {350, ct.OneAtm};
             Dbin = gas.binDiffCoeffs;
             self.verifyEqual(Dbin(kO2m, kC10H8), 2.92899733e-06, ...
                              'RelTol', self.rtol);

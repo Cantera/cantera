@@ -7,7 +7,7 @@ classdef ctTestWaterTransport < ctTestCase
     methods (TestMethodSetup)
 
         function createPhase(self)
-            self.phase = Water;
+            self.phase = ct.Water();
         end
 
     end

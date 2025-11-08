@@ -14,8 +14,8 @@ classdef ctTestTransport < ctTestCase
 
         function createPhase(self)
             src = 'h2o2.yaml';
-            self.phase = Solution(src);
-            self.phase.TPX = {800, 2*OneAtm, ...
+            self.phase = ct.Solution(src);
+            self.phase.TPX = {800, 2*ct.OneAtm, ...
                               [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]};
         end
 

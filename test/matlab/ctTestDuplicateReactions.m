@@ -8,7 +8,7 @@ classdef ctTestDuplicateReactions < ctTestCase
 
         function check(self, name)
             try
-                self.phase = Solution('../data/duplicate-reactions.yaml', name);
+                self.phase = ct.Solution('../data/duplicate-reactions.yaml', name);
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'duplicate reaction');

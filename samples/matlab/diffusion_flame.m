@@ -21,7 +21,7 @@ runtime = cputime;  % Record the starting time
 %%
 % **Set parameter values**
 
-p = OneAtm;  % Pressure
+p = ct.OneAtm;  % Pressure
 tin = 300.0;  % Inlet temperature
 mdot_o = 0.72;  % Air mass flux, kg/m^2/s
 mdot_f = 0.24;  % Fuel mass flux, kg/m^2/s
@@ -44,7 +44,7 @@ refineGrid = 1;  % 1 to enable refinement, 0 to disable
 % This object will be used to evaluate all thermodynamic, kinetic, and
 % transport properties.
 
-gas = Solution('gri30.yaml', 'gri30', transport);
+gas = ct.Solution('gri30.yaml', 'gri30', transport);
 oxcomp = 'O2:0.21, N2:0.78';  % Air composition
 fuelcomp = 'C2H6:1';  % Fuel composition
 
@@ -56,7 +56,7 @@ fuelcomp = 'C2H6:1';  % Fuel composition
 % initialize the flow object. Set the grid to the initial grid defined
 % prior, same for the tolerances.
 
-flow = AxisymmetricFlow(gas, 'flow');
+flow = ct.AxisymmetricFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
 flow.setSteadyTolerances(tol_ss{:}, 'default');
@@ -69,12 +69,12 @@ flow.setTransientTolerances(tol_ts{:}, 'default');
 
 % Set the fuel inlet.
 gas.TPX = {tin, p, fuelcomp};
-inlet_f = Inlet1D(gas, 'fuel_inlet');
+inlet_f = ct.Inlet1D(gas, 'fuel_inlet');
 inlet_f.massFlux = mdot_f;
 
 % Set the oxidizer inlet.
 gas.TPX = {tin, p, oxcomp};
-inlet_o = Inlet1D(gas, 'air_inlet');
+inlet_o = ct.Inlet1D(gas, 'air_inlet');
 inlet_o.massFlux = mdot_o;
 
 %%
@@ -85,7 +85,7 @@ inlet_o.massFlux = mdot_o;
 % using a Burke-Schumann flame. The input parameters are: fuel inlet object, flow
 % object, oxidizer inlet object, and, optionally, the name of the oxidizer species.
 
-fl = CounterFlowDiffusionFlame(inlet_f, flow, inlet_o);
+fl = ct.CounterFlowDiffusionFlame(inlet_f, flow, inlet_o);
 
 %%
 % Solution

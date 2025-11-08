@@ -14,11 +14,11 @@ function isentropic(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30');
+        gas = ct.Solution('gri30.yaml', 'gri30');
     end
 
     % set the stagnation state
-    gas.TPX = {1200.0, 10.0 * OneAtm, 'H2:1,N2:0.1'};
+    gas.TPX = {1200.0, 10.0 * ct.OneAtm, 'H2:1,N2:0.1'};
     gas.basis = 'mass';
     s0 = gas.S;
     h0 = gas.H;

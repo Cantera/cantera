@@ -44,7 +44,7 @@ P0 = 4.47 * 101325;
 Phi = 0.2899;
 
 % Import the gas phase, read out key species indices:
-gas_calc = Solution('gri30.yaml', 'gri30');
+gas_calc = ct.Solution('gri30.yaml', 'gri30');
 ich4 = gas_calc.speciesIndex('CH4');
 io2 = gas_calc.speciesIndex('O2');
 in2 = gas_calc.speciesIndex('N2');
@@ -144,7 +144,7 @@ for i = 1:length(x_calc)
     % Velocity is calculated from Mass flow rate, Area and Density
     vx_calc(i) = mdot_calc ./ (A_calc(i) * rho_calc(i));
     % Specific Gas Constant
-    R_calc(i) = GasConstant() / gas_calc.meanMolecularWeight;
+    R_calc(i) = ct.GasConstant / gas_calc.meanMolecularWeight;
     % Mach No. is calculated from local velocity and local speed of sound
     M_calc(i) = vx_calc(i) / gas_calc.soundSpeed;
     % Pressure is calculated from density, temperature and gas constant
@@ -211,7 +211,7 @@ function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp)
     gas.TDY = {T, rho, Y};
 
     MW_mix = gas.meanMolecularWeight;
-    Ru = GasConstant;
+    Ru = ct.GasConstant;
     R = Ru / MW_mix;
     vx = mdot / (rho * A);
     P = rho * R * T;

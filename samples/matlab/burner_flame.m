@@ -21,7 +21,7 @@ t0 = cputime;  % record the starting time
 %%
 % **Set parameter values**
 
-p = 0.05 * OneAtm;  % pressure
+p = 0.05 * ct.OneAtm;  % pressure
 Tburner = 373.0;  % burner temperature
 mdot = 0.06;  % kg/m^2/s
 
@@ -41,7 +41,7 @@ maxJacobianAge = [5, 10];
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 
-gas = Solution(rxnmech, 'ohmech', 'mixture-averaged');
+gas = ct.Solution(rxnmech, 'ohmech', 'mixture-averaged');
 
 % set its state to that of the unburned gas at the burner
 gas.TPX = {Tburner, p, comp};
@@ -56,7 +56,7 @@ Tad = gas.T;
 %%
 % **Create the flow object**
 
-flow = UnstrainedFlow(gas, 'flow');
+flow = ct.UnstrainedFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
 flow.energyEnabled = false;
@@ -67,7 +67,7 @@ flow.energyEnabled = false;
 % The burner is an ``Inlet1D`` object. The temperature, mass flux,
 % and composition (relative molar) may be specified.
 
-burner = Inlet1D(gas, 'burner');
+burner = ct.Inlet1D(gas, 'burner');
 burner.T = Tburner;
 burner.X = comp;
 burner.massFlux = mdot;
@@ -81,7 +81,7 @@ uIn = mdot / rhoIn;
 % conditions for the temperature and mass fractions, and zero
 % radial velocity and radial pressure gradient.
 
-out = Outlet1D(gas, 'out');
+out = ct.Outlet1D(gas, 'out');
 uOut = mdot / rhoOut;
 
 %%
@@ -89,7 +89,7 @@ uOut = mdot / rhoOut;
 %
 % Once the component parts have been created, they can be assembled
 % to create the flame object.
-fl = Sim1D({burner, flow, out});
+fl = ct.Sim1D({burner, flow, out});
 fl.setMaxJacAge(maxJacobianAge(1), maxJacobianAge(2));
 
 % Supply initial guess

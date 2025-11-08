@@ -17,14 +17,14 @@ help surf_reactor
 % The surface reaction mechanism describes catalytic combustion of
 % methane on platinum, and is from Deutschmann et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
-surf = Interface('ptcombust.yaml', 'Pt_surf');
+surf = ct.Interface('ptcombust.yaml', 'Pt_surf');
 gas = surf.adjacent('gas');
 
 %%
 % Set the initial conditions
 
 t = 870.0;
-gas.TPX = {t, OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
+gas.TPX = {t, ct.OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
 
 surf.TP = {t, surf.P};
 
@@ -33,26 +33,26 @@ nSurfSp = surf.nSpecies;
 
 %%
 % Create a reactor, and insert the gas
-r = IdealGasReactor(gas, 'reactor');
+r = ct.IdealGasReactor(gas, 'reactor');
 r.V = 1.0e-6;
 
 %%
 % Create a reservoir to represent the environment
-a = Solution('air.yaml', 'air', 'none');
-a.TP = {t, OneAtm};
-env = Reservoir(a);
+a = ct.Solution('air.yaml', 'air', 'none');
+a.TP = {t, ct.OneAtm};
+env = ct.Reservoir(a);
 
 %%
 % Define a wall between the reactor and the environment and
 % make it flexible, so that the pressure in the reactor is held
 % at the environment pressure.
-w = Wall(r, env);
+w = ct.Wall(r, env);
 
 A = 1e-4; % Wall area
 
 %%
 % Add a reacting surface, with an area matching that of the wall
-rsurf = ReactorSurface(surf, r, 'surface');
+rsurf = ct.ReactorSurface(surf, r, 'surface');
 rsurf.area = A;
 rphase = rsurf.phase  % output needs to use phase owned by reactor
 
@@ -65,7 +65,7 @@ w.heatTransferCoeff = 1.0e1; % W/m2/K
 % Set expansion rate parameter. dV/dt = KA(P_1 - P_2)
 w.expansionRateCoeff = 1.0;
 
-network = ReactorNet({r});
+network = ct.ReactorNet({r});
 
 %%
 % Solution

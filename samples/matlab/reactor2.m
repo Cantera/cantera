@@ -15,20 +15,20 @@ function reactor2(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30', 'none');
+        gas = ct.Solution('gri30.yaml', 'gri30', 'none');
     end
 
     %%
     % Set the initial conditions
-    gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, ct.OneAtm, 'H2:2,O2:1,N2:4'};
 
     %%
     % Create a reactor, and insert the gas
-    r = IdealGasReactor(gas);
+    r = ct.IdealGasReactor(gas);
 
     %%
     % Create a reactor network and insert the reactor
-    network = ReactorNet({r});
+    network = ct.ReactorNet({r});
 
     nSteps = 100;
     tim(nSteps) = 0;

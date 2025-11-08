@@ -14,7 +14,7 @@ function prandtl2(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30', 'multicomponent');
+        gas = ct.Solution('gri30.yaml', 'gri30', 'multicomponent');
     end
 
     pr = zeros(31, 31);
@@ -40,7 +40,7 @@ function prandtl2(g)
             x = zeros(gas.nSpecies, 1);
             x(io2) = xo2(j);
             x(ih2) = 1.0 - xo2(j);
-            gas.TPX = {t(i), OneAtm, x};
+            gas.TPX = {t(i), ct.OneAtm, x};
             equilibrate(gas, 'TP');
             visc(i, j) = gas.viscosity;
             lambda(i, j) = gas.thermalConductivity;

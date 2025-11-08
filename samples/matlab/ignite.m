@@ -16,12 +16,12 @@ function ignite(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30');
+        gas = ct.Solution('gri30.yaml', 'gri30');
     end
 
     % set the initial conditions
 
-    gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, ct.OneAtm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
     y0 = [gas.U, 1.0 / gas.massDensity, gas.Y];
 
@@ -138,7 +138,7 @@ function pv = output(s, gas)
     [~, n] = size(times);
     pv = zeros(gas.nSpecies + 4, n);
 
-    gas.TP = {1001.0, OneAtm};
+    gas.TP = {1001.0, ct.OneAtm};
 
     for j = 1:n
         ss = soln(:, j);

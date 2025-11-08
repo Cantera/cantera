@@ -10,7 +10,7 @@ function phases = ImportPhases(src, phasenames)
     % :return:
     %      A cell array of :mat:class:`Solution` objects created from each phase.
 
-    isLoaded(true);
+    ct.isLoaded(true);
 
     if nargin < 2
         error('Please specify the source file and list of phases to import');
@@ -19,11 +19,11 @@ function phases = ImportPhases(src, phasenames)
     phases = {};
 
     if ischar(phasenames)
-        phases = {Solution(src, phasenames)};
+        phases = {ct.Solution(src, phasenames)};
         return
     elseif iscell(phasenames)
         for name = phasenames
-            phases = [phases; {Solution(src, name{:})}];
+            phases = [phases; {ct.Solution(src, name{:})}];
         end
     else
         error (['Invalid type for phasenames, ' , ...

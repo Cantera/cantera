@@ -12,7 +12,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingConvert1(self)
             try
-                self.phase = Solution(self.inputfile, 'A');
+                self.phase = ct.Solution(self.inputfile, 'A');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'UnitSystem::convert');
@@ -21,7 +21,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingConvert2(self)
             try
-                self.phase = Solution(self.inputfile, 'B');
+                self.phase = ct.Solution(self.inputfile, 'B');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'UnitSystem::convertActivationEnergy');
@@ -30,7 +30,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingUnconfigured1(self)
             try
-                self.phase = Solution(self.inputfile, 'C');
+                self.phase = ct.Solution(self.inputfile, 'C');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'ArrheniusBase::validate');
@@ -39,7 +39,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingUnconfigured2(self)
             try
-                self.phase = Solution(self.inputfile, 'D');
+                self.phase = ct.Solution(self.inputfile, 'D');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'FalloffRate::validate');
@@ -48,7 +48,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingUnconfigured3(self)
             try
-                self.phase = Solution(self.inputfile, 'E');
+                self.phase = ct.Solution(self.inputfile, 'E');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'PlogRate::validate');
@@ -57,7 +57,7 @@ classdef ctTestInvalidInputs < ctTestCase
 
         function testFailingInvalidDuplicate(self)
             try
-                self.phase = Solution(self.inputfile, 'F');
+                self.phase = ct.Solution(self.inputfile, 'F');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'ArrheniusBase::check');
