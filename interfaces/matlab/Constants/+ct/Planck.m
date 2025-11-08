@@ -6,5 +6,5 @@ function r = Planck
     % :return:
     %     Planck's constant in J·s.
 
-    r = ctFunc('mCt_Planck');
+    r = ct.impl.call('mCt_Planck');
 end

@@ -324,7 +324,7 @@ jobs:
           ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
           ctLibDir = fullfile(ctDir, 'build', 'lib');
           addpath(genpath(ctToolboxDir));
-          ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
+          ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
       uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
       env:
@@ -1308,7 +1308,7 @@ jobs:
           ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
           ctLibDir = fullfile(ctDir, 'build', 'lib');
           addpath(genpath(ctToolboxDir));
-          ctBuildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
+          ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
       uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
       with:

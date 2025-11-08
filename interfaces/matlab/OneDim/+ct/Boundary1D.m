@@ -1,4 +1,4 @@
-classdef (Abstract) Boundary1D < Domain1D
+classdef (Abstract) Boundary1D < ct.Domain1D
     % Create a Boundary domain. ::
     %
     %     >> m = Boundary(type, phase, name)
@@ -30,30 +30,30 @@ classdef (Abstract) Boundary1D < Domain1D
         function b = Boundary1D(type, phase, name)
             arguments
                 type (1,1) string
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string
             end
-            id = ctFunc('mDomain_newBoundary1D', type, phase.solnID, name);
-            b@Domain1D(id);
+            id = ct.impl.call('mDomain_newBoundary1D', type, phase.solnID, name);
+            b@ct.Domain1D(id);
 
         end
 
         %% Boundary Methods
 
         function temperature = get.T(obj)
-            temperature = ctFunc('mBdry_temperature', obj.domainID);
+            temperature = ct.impl.call('mBdry_temperature', obj.domainID);
         end
 
         function set.T(obj, t)
-            ctFunc('mBdry_setTemperature', obj.domainID, t);
+            ct.impl.call('mBdry_setTemperature', obj.domainID, t);
         end
 
         function mdot = get.massFlux(obj)
-            mdot = ctFunc('mBdry_mdot', obj.domainID);
+            mdot = ct.impl.call('mBdry_mdot', obj.domainID);
         end
 
         function set.massFlux(obj, mdot)
-            ctFunc('mBdry_setMdot', obj.domainID, mdot);
+            ct.impl.call('mBdry_setMdot', obj.domainID, mdot);
         end
 
         function y = massFraction(obj, k)
@@ -70,7 +70,7 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %     Mass fraction of species.
 
-            y = ctFunc('mBdry_massFraction', obj.domainID, k - 1);
+            y = ct.impl.call('mBdry_massFraction', obj.domainID, k - 1);
 
         end
 
@@ -84,7 +84,7 @@ classdef (Abstract) Boundary1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctFunc('mDomain_value', obj.domainID, component);
+            v = ct.impl.call('mDomain_value', obj.domainID, component);
 
         end
 

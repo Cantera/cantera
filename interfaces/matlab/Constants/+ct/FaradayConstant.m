@@ -6,5 +6,5 @@ function r = FaradayConstant
     % :return:
     %     The Faraday constant in C/kmol of electron.
 
-    r = ctFunc('mCt_Faraday');
+    r = ct.impl.call('mCt_Faraday');
 end

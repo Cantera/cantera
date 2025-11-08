@@ -1,4 +1,4 @@
-classdef Reactor < ReactorBase
+classdef Reactor < ct.ReactorBase
     % Reactor Class ::
     %
     %     >> r = Reactor(phase, name, clone)
@@ -25,13 +25,13 @@ classdef Reactor < ReactorBase
         function r = Reactor(phase, name, clone)
 
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            id = ctFunc('mReactor_new', 'Reactor', phase.solnID, clone, name);
-            r@ReactorBase(id);
+            id = ct.impl.call('mReactor_new', 'Reactor', phase.solnID, clone, name);
+            r@ct.ReactorBase(id);
         end
 
     end

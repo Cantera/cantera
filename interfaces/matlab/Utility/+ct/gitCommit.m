@@ -6,6 +6,6 @@ function v = gitCommit()
     % :return:
     %     A string containing the Git commit hash for the current version of Cantera.
 
-    isLoaded(true);
-    v = ctString('mCt_getGitCommit');
+    ct.isLoaded(true);
+    v = ct.impl.getString('mCt_getGitCommit');
 end

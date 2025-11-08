@@ -1,4 +1,4 @@
-classdef Interface < Solution
+classdef Interface < ct.Solution
     % Interface Class ::
     %
     %     >> s = Interface(src, name, p1, p2)
@@ -30,7 +30,7 @@ classdef Interface < Solution
         %% Interface Class Constructor
 
         function s = Interface(src, name, varargin)
-            isLoaded(true);
+            ct.isLoaded(true);
 
             na = nargin - 2;
 
@@ -40,14 +40,14 @@ classdef Interface < Solution
                 adj(i) = varargin{i}.solnID;
             end
 
-            ID = ctFunc('mSol_newInterface', src, name, adj);
+            ID = ct.impl.call('mSol_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
-            s@Solution(ID);
-            s.nAdjacent = ctFunc('mSol_nAdjacent', ID);
+            s@ct.Solution(ID);
+            s.nAdjacent = ct.impl.call('mSol_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
-                s.adjacentNames{i} = ctString('mSol_adjacentName', ID, i-1);
+                s.adjacentNames{i} = ct.impl.getString('mSol_adjacentName', ID, i-1);
             end
         end
 
@@ -55,17 +55,17 @@ classdef Interface < Solution
 
         function adj = adjacent(obj, name)
             % Get adjacent phase of an interface by name.
-            id = ctFunc('mSol_adjacentByName', obj.solnID, name);
-            adj = Solution(id);
+            id = ct.impl.call('mSol_adjacentByName', obj.solnID, name);
+            adj = ct.Solution(id);
         end
 
         function c = get.coverages(obj)
             nsp = obj.nSpecies;
-            c = ctArray('mSurf_getCoverages', nsp, obj.tpID);
+            c = ct.impl.getArray('mSurf_getCoverages', nsp, obj.tpID);
         end
 
         function d = get.siteDensity(obj)
-            d = ctFunc('mSurf_siteDensity', obj.tpID);
+            d = ct.impl.call('mSurf_siteDensity', obj.tpID);
         end
 
         function set.coverages(obj, cov)
@@ -75,15 +75,15 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('mSurf_setCoverages', obj.tpID, cov);
+                ct.impl.call('mSurf_setCoverages', obj.tpID, cov);
             elseif isa(cov, 'char')
-                ctFunc('mSurf_setCoveragesByName', obj.tpID, cov);
+                ct.impl.call('mSurf_setCoveragesByName', obj.tpID, cov);
             end
 
         end
 
         function set.siteDensity(obj, d)
-            ctFunc('mSurf_setSiteDensity', obj.tpID, d);
+            ct.impl.call('mSurf_setSiteDensity', obj.tpID, d);
         end
 
         function setUnnormalizedCoverages(obj, cov)
@@ -102,7 +102,7 @@ classdef Interface < Solution
                     error('wrong size for coverage array');
                 end
 
-                ctFunc('mSurf_setCoverages', obj.tpID, cov, 0);
+                ct.impl.call('mSurf_setCoverages', obj.tpID, cov, 0);
             else
                 error('Coverage must be a numeric array');
             end

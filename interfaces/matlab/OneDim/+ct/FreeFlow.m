@@ -1,4 +1,4 @@
-classdef FreeFlow < Flow1D
+classdef FreeFlow < ct.Flow1D
     % Create a free flow domain. ::
     %
     %     >> m = FreeFlow(phase, name)
@@ -12,11 +12,11 @@ classdef FreeFlow < Flow1D
 
         function m = FreeFlow(phase, name)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "free-flow"
             end
 
-            m@Flow1D('free-flow', phase, name);
+            m@ct.Flow1D('free-flow', phase, name);
 
         end
 

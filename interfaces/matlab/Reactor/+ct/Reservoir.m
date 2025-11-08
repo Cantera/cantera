@@ -1,4 +1,4 @@
-classdef Reservoir < ReactorBase
+classdef Reservoir < ct.ReactorBase
     % Create a :mat:class:`Reservoir` object. ::
     %
     %     >> r = Reservoir(phase, name, clone)
@@ -32,13 +32,13 @@ classdef Reservoir < ReactorBase
 
         function r = Reservoir(phase, name, clone)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            id = ctFunc('mReactor_new', 'Reservoir', phase.solnID, clone, name);
-            r@ReactorBase(id);
+            id = ct.impl.call('mReactor_new', 'Reservoir', phase.solnID, clone, name);
+            r@ct.ReactorBase(id);
         end
 
     end

@@ -1,4 +1,4 @@
-classdef SymmetryPlane1D < Boundary1D
+classdef SymmetryPlane1D < ct.Boundary1D
     % Create a symmetry plane domain. ::
     %
     %     >> m = SymmetryPlane1D(phase, name)
@@ -15,11 +15,11 @@ classdef SymmetryPlane1D < Boundary1D
         function m = SymmetryPlane1D(phase, name)
             % Constructor
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "symmetry-plane"
             end
 
-            m@Boundary1D('symmetry-plane', phase, name);
+            m@ct.Boundary1D('symmetry-plane', phase, name);
 
         end
 

@@ -45,13 +45,13 @@ classdef ReactorNet < handle
             arguments
                 reactors
             end
-            if isa(reactors, 'ReactorBase')
+            if isa(reactors, 'ct.ReactorBase')
                 % Allow simpler syntax for creating a network with one reactor.
                 reactors = {reactors};
             end
             reactorIDs = cellfun(@(r) r.id, reactors);
 
-            n.id = ctFunc('mReactornet_new', reactorIDs);
+            n.id = ct.impl.call('mReactornet_new', reactorIDs);
             n.time = 0;
 
         end
@@ -61,7 +61,7 @@ classdef ReactorNet < handle
         function delete(obj)
             % Delete the :mat:class:`ReactorNet` object object.
             if obj.id >= 0
-                ctFunc('mReactornet_del', obj.id);
+                ct.impl.call('mReactornet_del', obj.id);
             end
         end
 
@@ -82,7 +82,7 @@ classdef ReactorNet < handle
             % :param tout:
             %    End time [s] of the integration.
 
-            ctFunc('mReactornet_advance', obj.id, tout);
+            ct.impl.call('mReactornet_advance', obj.id, tout);
         end
 
         function t = step(obj)
@@ -92,13 +92,13 @@ classdef ReactorNet < handle
             %
             % The time/distance after taking the step is returned.
 
-            t = ctFunc('mReactornet_step', obj.id);
+            t = ct.impl.call('mReactornet_step', obj.id);
         end
 
         %% ReactorNet set methods
 
         function set.time(obj, t)
-            ctFunc('mReactornet_setInitialTime', obj.id, t);
+            ct.impl.call('mReactornet_setInitialTime', obj.id, t);
         end
 
         function set.maxTimeStep(obj, maxstep)
@@ -117,7 +117,7 @@ classdef ReactorNet < handle
             % :param maxstep:
             %    max time step [s].
 
-            ctFunc('mReactornet_setMaxTimeStep', obj.id, maxstep);
+            ct.impl.call('mReactornet_setMaxTimeStep', obj.id, maxstep);
         end
 
         function setSensitivityTolerances(obj, rerr, aerr)
@@ -130,31 +130,31 @@ classdef ReactorNet < handle
             % :param aerr:
             %    Scalar absolute error tolerance.
 
-            ctFunc('mReactornet_setSensitivityTolerances', obj.id, rerr, aerr);
+            ct.impl.call('mReactornet_setSensitivityTolerances', obj.id, rerr, aerr);
         end
 
         function set.atol(obj, aerr)
             rerr = obj.rtol;
-            ctFunc('mReactornet_setTolerances', obj.id, rerr, aerr);
+            ct.impl.call('mReactornet_setTolerances', obj.id, rerr, aerr);
         end
 
         function set.rtol(obj, rerr)
             aerr = obj.atol;
-            ctFunc('mReactornet_setTolerances', obj.id, rerr, aerr);
+            ct.impl.call('mReactornet_setTolerances', obj.id, rerr, aerr);
         end
 
         %% ReactorNet get methods
 
         function t = get.time(obj)
-            t = ctFunc('mReactornet_time', obj.id);
+            t = ct.impl.call('mReactornet_time', obj.id);
         end
 
         function t = get.atol(obj)
-            t = ctFunc('mReactornet_atol', obj.id);
+            t = ct.impl.call('mReactornet_atol', obj.id);
         end
 
         function t = get.rtol(obj)
-            t = ctFunc('mReactornet_rtol', obj.id);
+            t = ct.impl.call('mReactornet_rtol', obj.id);
         end
 
         function s = sensitivity(obj, component, p, r)
@@ -171,7 +171,7 @@ classdef ReactorNet < handle
             %    Instance of class :mat:class:`ReactorBase`.
 
             if isa(component, 'string')
-                s = ctFunc('mReactornet_sensitivity', obj.id, component, p, r.id);
+                s = ct.impl.call('mReactornet_sensitivity', obj.id, component, p, r.id);
             end
 
         end

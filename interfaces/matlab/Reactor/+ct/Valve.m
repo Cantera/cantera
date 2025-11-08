@@ -1,4 +1,4 @@
-classdef Valve < FlowDevice
+classdef Valve < ct.FlowDevice
     % Create a valve. ::
     %
     %     >> v = Valve(upstream, downstream, name)
@@ -33,12 +33,12 @@ classdef Valve < FlowDevice
 
         function v = Valve(upstream, downstream, name)
             arguments
-                upstream (1,1) ReactorBase
-                downstream (1,1) ReactorBase
+                upstream (1,1) ct.ReactorBase
+                downstream (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            v@FlowDevice('Valve', upstream, downstream, name);
+            v@ct.FlowDevice('Valve', upstream, downstream, name);
         end
 
     end

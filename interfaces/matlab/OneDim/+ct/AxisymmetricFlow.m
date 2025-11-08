@@ -1,4 +1,4 @@
-classdef AxisymmetricFlow < Flow1D
+classdef AxisymmetricFlow < ct.Flow1D
     % Create an axisymmetric flow domain. ::
     %
     %     >> m = AxisymmetricFlow(phase, name)
@@ -12,11 +12,11 @@ classdef AxisymmetricFlow < Flow1D
 
         function m = AxisymmetricFlow(phase, name)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "axisymmetric-flow"
             end
 
-            m@Flow1D('axisymmetric-flow', phase, name);
+            m@ct.Flow1D('axisymmetric-flow', phase, name);
 
         end
 

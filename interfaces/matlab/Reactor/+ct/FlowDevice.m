@@ -1,4 +1,4 @@
-classdef (Abstract) FlowDevice < Connector
+classdef (Abstract) FlowDevice < ct.Connector
     % FlowDevice Class ::
     %
     %     >> x = FlowDevice(typ, name)
@@ -60,12 +60,12 @@ classdef (Abstract) FlowDevice < Connector
         function x = FlowDevice(typ, upstream, downstream, name)
             arguments
                 typ (1,1) string
-                upstream (1,1) ReactorBase
-                downstream (1,1) ReactorBase
+                upstream (1,1) ct.ReactorBase
+                downstream (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            x@Connector(typ, upstream, downstream, name);
+            x@ct.Connector(typ, upstream, downstream, name);
             x.upstream = upstream;
             x.downstream = downstream;
         end
@@ -73,7 +73,7 @@ classdef (Abstract) FlowDevice < Connector
         %% FlowDevice Get Methods
 
         function mdot = get.massFlowRate(obj)
-            mdot = ctFunc('mFlowdev_massFlowRate', obj.id);
+            mdot = ct.impl.call('mFlowdev_massFlowRate', obj.id);
         end
 
         %% FlowDevice Set Methods
@@ -82,9 +82,9 @@ classdef (Abstract) FlowDevice < Connector
 
             if strcmp(obj.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    ctFunc('mFlowdev_setDeviceCoefficient', obj.id, mdot);
-                elseif isa(mdot, 'Func1')
-                    ctFunc('mFlowdev_setTimeFunction', obj.id, mdot.id);
+                    ct.impl.call('mFlowdev_setDeviceCoefficient', obj.id, mdot);
+                elseif isa(mdot, 'ct.Func1')
+                    ct.impl.call('mFlowdev_setTimeFunction', obj.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
@@ -104,7 +104,7 @@ classdef (Abstract) FlowDevice < Connector
             %     Instance of class :mat:class:`FlowDevice`.
 
             if strcmp(obj.type, 'PressureController')
-                ctFunc('mFlowdev_setPrimary', obj.id, d);
+                ct.impl.call('mFlowdev_setPrimary', obj.id, d);
             else
                 error('Primary flow device can only be set for pressure controllers.');
             end
@@ -117,7 +117,7 @@ classdef (Abstract) FlowDevice < Connector
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ctFunc('mFlowdev_setDeviceCoefficient', obj.id, k);
+            ct.impl.call('mFlowdev_setDeviceCoefficient', obj.id, k);
         end
 
     end

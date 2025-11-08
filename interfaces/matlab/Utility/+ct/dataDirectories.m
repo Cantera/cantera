@@ -8,6 +8,6 @@ function d = dataDirectories()
     % :return:
     %     Cell array with strings representing the data file search directories
 
-    isLoaded(true);
-    d = ctString('mCt_getDataDirectories', ';');
+    ct.isLoaded(true);
+    d = ct.impl.getString('mCt_getDataDirectories', ';');
 end

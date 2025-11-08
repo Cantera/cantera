@@ -18,5 +18,5 @@ function h = Hydrogen()
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
-    h = Solution('liquidvapor.yaml', 'hydrogen');
+    h = ct.Solution('liquidvapor.yaml', 'hydrogen');
 end

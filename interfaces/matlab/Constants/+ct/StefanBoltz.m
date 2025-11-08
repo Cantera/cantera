@@ -6,5 +6,5 @@ function r = StefanBoltz
     % :return:
     %     Stefan-Boltzmann constant in W/m²/K⁴.
 
-    r = ctFunc('mCt_StefanBoltz');
+    r = ct.impl.call('mCt_StefanBoltz');
 end

@@ -1,4 +1,4 @@
-classdef Surface1D < Boundary1D
+classdef Surface1D < ct.Boundary1D
     % Create a surface domain. ::
     %
     %     >> m = Surface1D(phase, name)
@@ -14,11 +14,11 @@ classdef Surface1D < Boundary1D
 
         function m = Surface1D(phase, name)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "surface"
             end
 
-            m@Boundary1D('surface', phase, name);
+            m@ct.Boundary1D('surface', phase, name);
 
         end
 

@@ -1,4 +1,4 @@
-classdef (Abstract) Flow1D < Domain1D
+classdef (Abstract) Flow1D < ct.Domain1D
     % Create a Flow domain. ::
     %
     %     >> m = Flow1D(type, phase, name)
@@ -35,11 +35,11 @@ classdef (Abstract) Flow1D < Domain1D
         function f = Flow1D(type, phase, name)
             arguments
                 type (1,1) string
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string
             end
-            id = ctFunc('mDomain_newFlow1D', type, phase.solnID, name);
-            f@Domain1D(id);
+            id = ct.impl.call('mDomain_newFlow1D', type, phase.solnID, name);
+            f@ct.Domain1D(id);
             f.energyEnabled = false;
             f.soretEnabled = false;
 
@@ -48,41 +48,41 @@ classdef (Abstract) Flow1D < Domain1D
         %% Domain Properties
 
         function pressure = get.P(obj)
-            pressure = ctFunc('mFlow_pressure', obj.domainID);
+            pressure = ct.impl.call('mFlow_pressure', obj.domainID);
         end
 
         function set.P(obj, p)
-            ctFunc('mFlow_setPressure', obj.domainID, p);
+            ct.impl.call('mFlow_setPressure', obj.domainID, p);
         end
 
         function flag = get.energyEnabled(obj)
-            flag = ctFunc('mFlow_allOfEnergyEnabled', obj.domainID);
+            flag = ct.impl.call('mFlow_allOfEnergyEnabled', obj.domainID);
         end
 
         function set.energyEnabled(obj, flag)
-            ctFunc('mFlow_setEnergyEnabled', obj.domainID, flag);
+            ct.impl.call('mFlow_setEnergyEnabled', obj.domainID, flag);
         end
 
         function set.soretEnabled(obj, flag)
             obj.soretEnabled = flag;
-            ctFunc('mFlow_enableSoret', obj.domainID, flag);
+            ct.impl.call('mFlow_enableSoret', obj.domainID, flag);
         end
 
         function model = get.transportModel(obj)
-            model = ctString('mFlow_transportModel', obj.domainID);
+            model = ct.impl.getString('mFlow_transportModel', obj.domainID);
         end
 
         function set.transportModel(obj, model)
-            ctFunc('mDomain_setTransportModel', obj.domainID, model);
+            ct.impl.call('mDomain_setTransportModel', obj.domainID, model);
         end
 
         function zz = get.grid(obj)
             np = obj.nPoints;
-            zz = ctArray('mDomain_grid', np, obj.domainID);
+            zz = ct.impl.getArray('mDomain_grid', np, obj.domainID);
         end
 
         function set.grid(obj, grid)
-            ctFunc('mDomain_setupGrid', obj.domainID, grid);
+            ct.impl.call('mDomain_setupGrid', obj.domainID, grid);
         end
 
         %% Flow1D Class Methods
@@ -98,7 +98,7 @@ classdef (Abstract) Flow1D < Domain1D
             %     Length of domain
             % :param start:
             %     Start position of domain
-            ctFunc('mDomain_setupUniformGrid', obj.domainID, points, length, start);
+            ct.impl.call('mDomain_setupUniformGrid', obj.domainID, points, length, start);
         end
 
         function v = values(obj, component)
@@ -111,7 +111,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :return:
             %    Value of the component in domain d.
 
-            v = ctArray('mDomain_values', obj.nPoints, obj.domainID, component);
+            v = ct.impl.getArray('mDomain_values', obj.nPoints, obj.domainID, component);
 
         end
 
@@ -141,7 +141,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param vProfile:
             %    Array containing component values at positions.
 
-            ctFunc('mDomain_setProfile', obj.domainID, ...
+            ct.impl.call('mDomain_setProfile', obj.domainID, ...
                    component, zProfile, vProfile);
 
         end
@@ -156,7 +156,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param v:
             %    Double value to be set.
 
-            ctFunc('mDomain_setFlatProfile', obj.domainID, component, v);
+            ct.impl.call('mDomain_setFlatProfile', obj.domainID, component, v);
         end
 
         function setFixedTempProfile(obj, zFixed, tFixed)
@@ -173,7 +173,7 @@ classdef (Abstract) Flow1D < Domain1D
             % :param tFixed:
             %     Array containing temperatures
 
-            ctFunc('mFlow_setFixedTempProfile', obj.domainID, ...
+            ct.impl.call('mFlow_setFixedTempProfile', obj.domainID, ...
                    zFixed, tFixed);
 
         end
@@ -202,7 +202,7 @@ classdef (Abstract) Flow1D < Domain1D
                 prune (1,1) double = -0.1
             end
 
-            ctFunc('mDomain_setRefineCriteria', obj.domainID, ratio, slope, curve, prune);
+            ct.impl.call('mDomain_setRefineCriteria', obj.domainID, ratio, slope, curve, prune);
         end
 
     end

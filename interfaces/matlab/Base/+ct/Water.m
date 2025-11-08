@@ -20,9 +20,9 @@ function w = Water(backend)
     % :return:
     %     Instance of class :mat:class:`Solution`.
     if nargin == 0 | strcmp(backend, 'Reynolds')
-        w = Solution('liquidvapor.yaml', 'water', 'water');
+        w = ct.Solution('liquidvapor.yaml', 'water', 'water');
     elseif strcmp(backend, 'IAPWS95')
-        w = Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
+        w = ct.Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
     else
         error(['Backend must be either ''Reynolds'' or ''IAPWS95''']);
     end

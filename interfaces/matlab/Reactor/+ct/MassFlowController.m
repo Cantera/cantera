@@ -1,4 +1,4 @@
-classdef MassFlowController < FlowDevice
+classdef MassFlowController < ct.FlowDevice
     % Create a mass flow controller. ::
     %
     %     >> m = MassFlowController(upstream, downstream, name)
@@ -20,12 +20,12 @@ classdef MassFlowController < FlowDevice
 
         function m = MassFlowController(upstream, downstream, name)
             arguments
-                upstream (1,1) ReactorBase
-                downstream (1,1) ReactorBase
+                upstream (1,1) ct.ReactorBase
+                downstream (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            m@FlowDevice('MassFlowController', upstream, downstream, name);
+            m@ct.FlowDevice('MassFlowController', upstream, downstream, name);
         end
 
     end

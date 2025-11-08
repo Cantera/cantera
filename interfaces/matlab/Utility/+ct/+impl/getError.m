@@ -1,8 +1,8 @@
-function e = ctGetErr()
+function e = getError()
     % Get the error message from a Cantera error.
 
     try
-        e = ctString('mCt_getCanteraError');
+        e = ct.impl.getString('mCt_getCanteraError');
     catch ME
         e = getReport(ME);
     end

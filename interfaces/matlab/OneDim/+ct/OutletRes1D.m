@@ -1,4 +1,4 @@
-classdef OutletRes1D < Boundary1D
+classdef OutletRes1D < ct.Boundary1D
     % Create an outlet reservoir domain. ::
     %
     %     >> m = OutletRes1D(phase, name)
@@ -12,11 +12,11 @@ classdef OutletRes1D < Boundary1D
 
         function m = OutletRes1D(phase, name)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "outlet-reservoir"
             end
 
-            m@Boundary1D('outlet-reservoir', phase, name);
+            m@ct.Boundary1D('outlet-reservoir', phase, name);
 
         end
 

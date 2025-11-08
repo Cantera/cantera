@@ -42,43 +42,43 @@ classdef (Abstract) Transport < handle
                 id (1,1) double {mustBeInteger}
             end
 
-            tr.trID = ctFunc('mSol_transport', id);
-            tr.th = ctFunc('mSol_thermo', id);
+            tr.trID = ct.impl.call('mSol_transport', id);
+            tr.th = ct.impl.call('mSol_thermo', id);
         end
 
         %% Transport Get Methods
 
         function v = get.viscosity(obj)
-            v = ctFunc('mTrans_viscosity', obj.trID);
+            v = ct.impl.call('mTrans_viscosity', obj.trID);
         end
 
         function v = get.thermalConductivity(obj)
-            v = ctFunc('mTrans_thermalConductivity', obj.trID);
+            v = ct.impl.call('mTrans_thermalConductivity', obj.trID);
         end
 
         function v = get.electricalConductivity(obj)
-            v = ctFunc('mTrans_electricalConductivity', obj.trID);
+            v = ct.impl.call('mTrans_electricalConductivity', obj.trID);
         end
 
         function v = get.mixDiffCoeffs(obj)
-            nsp = ctFunc('mThermo_nSpecies', obj.th);
-            v = ctArray('mTrans_getMixDiffCoeffs', nsp, obj.trID);
+            nsp = ct.impl.call('mThermo_nSpecies', obj.th);
+            v = ct.impl.getArray('mTrans_getMixDiffCoeffs', nsp, obj.trID);
         end
 
         function v = get.thermalDiffCoeffs(obj)
-            nsp = ctFunc('mThermo_nSpecies', obj.th);
-            v = ctArray('mTrans_getThermalDiffCoeffs', nsp, obj.trID);
+            nsp = ct.impl.call('mThermo_nSpecies', obj.th);
+            v = ct.impl.getArray('mTrans_getThermalDiffCoeffs', nsp, obj.trID);
         end
 
         function v = get.binDiffCoeffs(obj)
-            nsp = ctFunc('mThermo_nSpecies', obj.th);
-            val = ctArray('mTrans_getBinaryDiffCoeffs', nsp*nsp, obj.trID, nsp);
+            nsp = ct.impl.call('mThermo_nSpecies', obj.th);
+            val = ct.impl.getArray('mTrans_getBinaryDiffCoeffs', nsp*nsp, obj.trID, nsp);
             v = reshape(val, [nsp, nsp]);
         end
 
         function v = get.multiDiffCoeffs(obj)
-            nsp = ctFunc('mThermo_nSpecies', obj.th);
-            val = ctArray('mTrans_getMultiDiffCoeffs', nsp*nsp, obj.trID, nsp);
+            nsp = ct.impl.call('mThermo_nSpecies', obj.th);
+            val = ct.impl.getArray('mTrans_getMultiDiffCoeffs', nsp*nsp, obj.trID, nsp);
             v = reshape(val, [nsp, nsp]);
         end
 
