@@ -1,7 +1,7 @@
-function v = ctVersion()
+function v = version()
     % Get Cantera version information. ::
     %
-    %     >> ctVersion()
+    %     >> ct.version()
     %
     % :return:
     %     A string containing the Cantera version.

@@ -8,7 +8,7 @@ classdef ctTestCase < matlab.unittest.TestCase
 
     methods (TestClassTeardown)
         function testTearDown(self)
-            ctCleanUp
+            ct.cleanUp
             ctTestTearDown
         end
     end

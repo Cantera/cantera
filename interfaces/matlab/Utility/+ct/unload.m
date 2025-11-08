@@ -1,35 +1,35 @@
-function ctUnload()
+function unload()
     % Unload Cantera MATLAB C++ interface and clean up MATLAB side
-    if ~ctIsLoaded(false)
+    if ~isLoaded(false)
         return
     end
 
     try
-        ctCleanUp;
+        cleanUp;
     catch ME
         warning("ctUnload:CleanupFailed", ...
-                "ctCleanUp failed (%s).", ME.message);
+                "cleanUp failed (%s).", ME.message);
     end
 
-    if ctExecutionMode() == "inprocess"
+    if executionMode() == "inprocess"
         warning("ctUnload:UnloadFailed", ...
                 ("Unloading of `ctMatlab` library is not supported for " + ...
                  "'inprocess' execution mode. Restart MATLAB to unload."));
         return
     end
 
-    global ct
-    hasGlobalCt = evalin('base', ['exist("ct","var") && ', ...
-                         'isa(ct,"matlab.cppclient.CLibraryConfiguration")']);
+    global ctMatlab
+    hasGlobalCt = evalin('base', ['exist("ctMatlab","var") && ', ...
+                         'isa(ctMatlab,"matlab.cppclient.CLibraryConfiguration")']);
     if hasGlobalCt
         try
-            ct.unload;
+            ctMatlab.unload;
             disp("Cantera has been unloaded");
         catch ME
             warning("ctUnload:UnloadFailed", ...
-                    "ct.unload failed (%s). Attempting fallback.", ME.message);
+                    "ctMatlab.unload failed (%s). Attempting fallback.", ME.message);
         end
-        clear global ct
+        clear global ctMatlab
     else
         cfg = clibConfiguration("ctMatlab");
         try

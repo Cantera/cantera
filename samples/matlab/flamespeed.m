@@ -100,7 +100,7 @@ flame.setRefineCriteria(ratio,slope,curve);
 fprintf("Profile used for initial guess:\n\n")
 flame.info
 
-if ctUsesHDF5()
+if ct.usesHDF5()
     % Cantera is compiled with native HDF5 support
     fileName = 'flamespeed.h5';
 else

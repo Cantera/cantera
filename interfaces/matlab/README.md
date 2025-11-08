@@ -73,7 +73,7 @@ Cantera objects and functions.
 1. **Load the toolbox**
 
    ```matlab
-   ctLoad
+   ct.load()
    ```
 
    The interface supports two modes:

@@ -1,11 +1,11 @@
-function v = ctGitCommit()
+function v = gitCommit()
     % Get Cantera Git commit hash. ::
     %
-    %     >> ctGitCommit()
+    %     >> ct.gitCommit()
     %
     % :return:
     %     A string containing the Git commit hash for the current version of Cantera.
 
-    ctIsLoaded(true);
+    isLoaded(true);
     v = ctString('mCt_getGitCommit');
 end
