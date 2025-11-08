@@ -1,24 +1,24 @@
-function ctLoad(mode)
+function load(mode)
     % Load the MATLAB-to-C++ Interface
     %
     % Usage:
-    %   ctLoad                % defaults to 'outofprocess'
-    %   ctLoad('inprocess')   % load in-process
-    %   ctLoad('outofprocess')% load out-of-process
+    %   ct.load                % defaults to 'outofprocess'
+    %   ct.load('inprocess')   % load in-process
+    %   ct.load('outofprocess')% load out-of-process
 
     arguments
         mode (1,1) string {mustBeMember(mode, ...
                            ["inprocess", "outofprocess"])} = "outofprocess"
     end
 
-    if ctIsLoaded
-        mode_ = ctExecutionMode;
-        msg = sprintf('Cantera %s is already loaded (%s mode).', ctVersion, mode_);
-        warning("ctLoad:IsLoaded", msg);
+    if isLoaded
+        mode_ = executionMode;
+        msg = sprintf('Cantera %s is already loaded (%s mode).', version, mode_);
+        warning("load:IsLoaded", msg);
         if mode == mode_ && mode == "inprocess"
             return
         elseif mode ~= mode_ && mode_ == "inprocess"
-            error("ctLoad:LoadFailed", ...
+            error("load:LoadFailed", ...
                   ("Unloading of `ctMatlab` library is not supported for " + ...
                    "'inprocess' execution mode. Restart MATLAB to update."));
             return
@@ -35,15 +35,15 @@ function ctLoad(mode)
         pathVar = dictionary("DYLD_LIBRARY_PATH", matlabLibPath);
     end
 
-    global ct
-    if ~ctIsLoaded
+    global ctMatlab
+    if ~isLoaded
         if isMATLABReleaseOlderThan("R2025a") || strcmp(mode, "inprocess")
-            ct = clibConfiguration("ctMatlab", ExecutionMode=mode);
+            ctMatlab = clibConfiguration("ctMatlab", ExecutionMode=mode);
         else
-            ct = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
+            ctMatlab = clibConfiguration("ctMatlab", ExecutionMode=mode, ...
                                    OutOfProcessEnvironmentVariables=pathVar);
         end
     end
 
-    fprintf('Cantera %s is ready for use (%s mode).\n', ctVersion, mode);
+    fprintf('Cantera %s is ready for use (%s mode).\n', version, mode);
 end

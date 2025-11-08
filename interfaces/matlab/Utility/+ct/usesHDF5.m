@@ -1,11 +1,11 @@
-function v = ctUsesHDF5()
+function v = usesHDF5()
     % Returns true if Cantera was compiled with HDF5 support. ::
     %
-    %     >> ctUsesHDF5()
+    %     >> ct.usesHDF5()
     %
     % :return:
     %     A string containing the Git commit hash for the current version of Cantera.
 
-    ctIsLoaded(true);
+    isLoaded(true);
     v = logical(ctFunc('mCt_usesHDF5'));
 end

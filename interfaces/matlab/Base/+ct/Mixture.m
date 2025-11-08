@@ -59,7 +59,7 @@ classdef Mixture < handle
         function m = Mixture(phases)
             % Create a :mat:class:`Mixture` object.
 
-            ctIsLoaded(true);
+            isLoaded(true);
 
             if nargin > 1
                 error('Mixture: wrong number of arguments');

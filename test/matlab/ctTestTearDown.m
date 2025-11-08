@@ -2,10 +2,10 @@ function ctTestTearDown()
     % ctTestTearDown
     % Unload the Cantera C library and remove test paths from MATLAB.
 
-    if ctExecutionMode == "outofprocess"
-        ctUnload;
+    if ct.executionMode == "outofprocess"
+        ct.unload;
     else
-        ctCleanUp;
+        ct.cleanUp;
     end
 
     thisFile = mfilename('fullpath');

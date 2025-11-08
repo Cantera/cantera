@@ -1,8 +1,8 @@
-function i = ctIsLoaded(throw)
+function i = isLoaded(throw)
     % Check whether Cantera MATLAB C++ interface is loaded.
     %
-    %     >> s = ctIsLoaded
-    %     >> s = ctIsLoaded(true)
+    %     >> s = ct.isLoaded
+    %     >> s = ct.isLoaded(true)
     %
     % :param throw:
     %     If interface is not loaded, throw error instead of issuing warning;
@@ -15,10 +15,10 @@ function i = ctIsLoaded(throw)
     end
     i = false;
 
-    hasGlobalCt = evalin('base', 'exist("ct","var") && isa(ct,"clibConfiguration")');
+    hasGlobalCt = evalin('base', 'exist("ctMatlab","var") && isa(ctMatlab,"clibConfiguration")');
     if hasGlobalCt
-        global ct
-        i = ct.Loaded;
+        global ctMatlab
+        i = ctMatlab.Loaded;
     else
         cfg = clibConfiguration("ctMatlab");
         i = cfg.Loaded;

@@ -8,19 +8,19 @@ Utility Functions
 
 Library Setup
 -------------
-.. autofunction:: ctLoad
-.. autofunction:: ctUnload
-.. autofunction:: ctIsLoaded
-.. autofunction:: ctCleanUp
+.. autofunction:: load
+.. autofunction:: unload
+.. autofunction:: isLoaded
+.. autofunction:: cleanUp
 
 
 Global Settings
 ---------------
-.. autofunction:: ctDataDirectories
-.. autofunction:: ctMakeDeprecationWarningsFatal
+.. autofunction:: dataDirectories
+.. autofunction:: makeDeprecationWarningsFatal
 
 Library Information
 -------------------
-.. autofunction:: ctGitCommit
-.. autofunction:: ctUsesHDF5
-.. autofunction:: ctVersion
+.. autofunction:: gitCommit
+.. autofunction:: usesHDF5
+.. autofunction:: version

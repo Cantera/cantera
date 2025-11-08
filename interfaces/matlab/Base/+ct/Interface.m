@@ -30,7 +30,7 @@ classdef Interface < Solution
         %% Interface Class Constructor
 
         function s = Interface(src, name, varargin)
-            ctIsLoaded(true);
+            isLoaded(true);
 
             na = nargin - 2;
 
