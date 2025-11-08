@@ -28,18 +28,18 @@ classdef ctTestReactor < ctTestCase
                 arg.X2 (1,:) char = 'O2:1.0';
             end
 
-            self.gas1 = Solution('h2o2.yaml', '', 'none');
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
-            self.r1 = Reactor(self.gas1);
+            self.r1 = ct.Reactor(self.gas1);
 
             if arg.nr == 1
-                self.net = ReactorNet(self.r1);
+                self.net = ct.ReactorNet(self.r1);
             elseif arg.nr >= 2
-                self.gas2 = Solution('h2o2.yaml', '', 'none');
+                self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
-                self.r2 = Reactor(self.gas2);
+                self.r2 = ct.Reactor(self.gas2);
                 self.r2.energyEnabled = true;
-                self.net = ReactorNet({self.r1, self.r2});
+                self.net = ct.ReactorNet({self.r1, self.r2});
             end
             self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
         end
@@ -52,7 +52,7 @@ classdef ctTestReactor < ctTestCase
                 arg.A (1,1) double {mustBeNumeric} = 1.0
             end
 
-            self.w = Wall(self.r1, self.r2);
+            self.w = ct.Wall(self.r1, self.r2);
             self.w.area = arg.A;
             self.w.expansionRateCoeff = arg.K;
             self.w.heatTransferCoeff = arg.U;
@@ -63,8 +63,8 @@ classdef ctTestReactor < ctTestCase
     methods (Test)
 
         function testV(self)
-            g = Solution('h2o2.yaml', '', 'none');
-            r = Reactor(g);
+            g = ct.Solution('h2o2.yaml', '', 'none');
+            r = ct.Reactor(g);
             self.verifyEqual(r.V, 1.0, 'AbsTol', self.atol);
 
             r.V = 9;
@@ -121,17 +121,17 @@ classdef ctTestReactor < ctTestCase
 
         function testWall2(self)
             self.makeReactors('nr', 1);
-            res = Reservoir(self.gas1);
-            w = Wall(self.r1, res);
-            net = ReactorNet([self.r1]);
+            res = ct.Reservoir(self.gas1);
+            w = ct.Wall(self.r1, res);
+            net = ct.ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
         end
 
         function testWall3(self)
             self.makeReactors('nr', 1);
-            res = Reservoir(self.gas1);
-            w = Wall(res, self.r1);
-            net = ReactorNet([self.r1]);
+            res = ct.Reservoir(self.gas1);
+            w = ct.Wall(res, self.r1);
+            net = ct.ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
         end
 
@@ -184,7 +184,7 @@ classdef ctTestReactor < ctTestCase
 
         function testTolerances(self)
             function n = integrate(atol, rtol)
-                P0 = 10 * OneAtm;
+                P0 = 10 * ct.OneAtm;
                 T0 = 1100;
                 X0 = 'H2:1.0, O2:0.5, AR:8.0';
                 self.makeReactors('nr', 1, 'T1', T0, 'P1', P0, 'X1', X0);
@@ -227,14 +227,14 @@ classdef ctTestReactor < ctTestCase
         end
 
         function testEquilibriumUV(self)
-            P0 = 10 * OneAtm;
+            P0 = 10 * ct.OneAtm;
             T0 = 1100;
             X0 = 'H2:1.0, O2:0.5, AR:8.0';
             self.makeReactors('nr', 1, 'T1', T0, 'P1', P0, 'X1', X0);
 
             self.net.advance(1.0);
 
-            gas = Solution('h2o2.yaml', '', 'none');
+            gas = ct.Solution('h2o2.yaml', '', 'none');
             gas.TPX = {T0, P0, X0};
             gas.equilibrate('UV');
             gas.basis = 'mass';
@@ -246,19 +246,19 @@ classdef ctTestReactor < ctTestCase
         end
 
         function testEquilibriumHP(self)
-            P0 = 10 * OneAtm;
+            P0 = 10 * ct.OneAtm;
             T0 = 1100;
             X0 = 'H2:1.0, O2:0.5, AR:8.0';
 
-            self.gas1 = Solution('h2o2.yaml', '', 'none');
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {T0, P0, X0};
-            self.r1 = IdealGasConstPressureReactor(self.gas1);
+            self.r1 = ct.IdealGasConstPressureReactor(self.gas1);
 
-            self.net = ReactorNet(self.r1);
+            self.net = ct.ReactorNet(self.r1);
             self.net.time = 0.0;
             self.net.advance(1.0);
 
-            self.gas2 = Solution('h2o2.yaml', '', 'none');
+            self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas2.TPX = {T0, P0, X0};
             self.gas2.equilibrate('HP');
             self.gas2.basis = 'mass';
@@ -281,7 +281,7 @@ classdef ctTestReactor < ctTestCase
             self.r2.V = V2;
             self.addWall('A', A);
 
-            v = Func1('tabulated-linear', [0.0, 1.0, 2.0], [0.0, 1.0, 0.0]);
+            v = ct.Func1('tabulated-linear', [0.0, 1.0, 2.0], [0.0, 1.0, 0.0]);
             self.w.velocity = v;
             self.net.advance(1.0);
 
@@ -328,7 +328,7 @@ classdef ctTestReactor < ctTestCase
             V2a = self.r2.V;
 
             self.addWall('A', 0.3);
-            f = Func1('polynomial3', [-90000, 0, 90000]);
+            f = ct.Func1('polynomial3', [-90000, 0, 90000]);
             self.w.heatFlux = f;
             Q = 0.3 * 60000;
 

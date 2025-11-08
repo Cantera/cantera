@@ -12,7 +12,7 @@ classdef ctTestPureFluid < ctTestCase
     methods (TestMethodSetup)
 
         function createPhase(self)
-            self.fluid = Water;
+            self.fluid = ct.Water();
         end
 
     end
@@ -52,7 +52,7 @@ classdef ctTestPureFluid < ctTestCase
     methods (Test)
 
         function testTemperatureLimits(self)
-            CO2 = CarbonDioxide;
+            CO2 = ct.CarbonDioxide();
             self.verifyEqual(CO2.minTemp, 216.54, 'RelTol', self.rtol);
             self.verifyEqual(CO2.maxTemp, 1500.0, 'RelTol', self.rtol);
         end
@@ -148,7 +148,7 @@ classdef ctTestPureFluid < ctTestCase
         end
 
         function testIsothermalCompressibilityLowP(self)
-            ref = Solution('h2o2.yaml', '', 'none');
+            ref = ct.Solution('h2o2.yaml', '', 'none');
             ref.TPX = {450, 12, 'H2O:1.0'};
             self.fluid.TP = {450, 12};
 
@@ -157,7 +157,7 @@ classdef ctTestPureFluid < ctTestCase
         end
 
         function testThermalExpansionCoeffLowP(self)
-            ref = Solution('h2o2.yaml', '', 'none');
+            ref = ct.Solution('h2o2.yaml', '', 'none');
             ref.TPX = {450, 12, 'H2O:1.0'};
             self.fluid.TP = {450, 12};
 
@@ -198,12 +198,12 @@ classdef ctTestPureFluid < ctTestCase
 
         function testQualityExceptions(self)
             % Critical Point
-            self.fluid.TP = {300, OneAtm};
+            self.fluid.TP = {300, ct.OneAtm};
             self.fluid.TQ = {self.fluid.critTemperature, 0.5};
             self.verifyEqual(self.fluid.P, self.fluid.critPressure, ...
                              'RelTol', self.rtol);
 
-            self.fluid.TP = {300, OneAtm};
+            self.fluid.TP = {300, ct.OneAtm};
             self.fluid.PQ = {self.fluid.critPressure, 0.5};
             self.verifyEqual(self.fluid.T, self.fluid.critTemperature, ...
                             'RelTol', self.rtol);
@@ -232,7 +232,7 @@ classdef ctTestPureFluid < ctTestCase
             end
 
             try
-                self.fluid.PQ = {OneAtm, -0.001};
+                self.fluid.PQ = {ct.OneAtm, -0.001};
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Invalid vapor fraction');
@@ -247,7 +247,7 @@ classdef ctTestPureFluid < ctTestCase
             end
 
             try
-                self.fluid.PQ = {OneAtm, 1.001};
+                self.fluid.PQ = {ct.OneAtm, 1.001};
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Invalid vapor fraction');
@@ -255,8 +255,8 @@ classdef ctTestPureFluid < ctTestCase
         end
 
         function testSaturatedMixture(self)
-            w = Water;
-            self.fluid.TP = {300, OneAtm};
+            w = ct.Water();
+            self.fluid.TP = {300, ct.OneAtm};
 
             try
                 self.fluid.TP = {300, self.fluid.satPressure};
@@ -298,17 +298,17 @@ classdef ctTestPureFluid < ctTestCase
 
         function testSaturationNearLimits(self)
             % Low temperature limit (triple point)
-            self.fluid.TP = {300, OneAtm};
-            self.fluid.TP = {self.fluid.minTemp, OneAtm};
+            self.fluid.TP = {300, ct.OneAtm};
+            self.fluid.TP = {self.fluid.minTemp, ct.OneAtm};
             psat = self.fluid.satPressure;
 
-            self.fluid.TP = {300, OneAtm};
+            self.fluid.TP = {300, ct.OneAtm};
             self.fluid.TP = {300, psat};
             self.verifyEqual(self.fluid.satTemperature, self.fluid.minTemp, ...
                              'RelTol', self.rtol);
 
             % High temperature limit (critical point)
-            self.fluid.TP = {300, OneAtm};
+            self.fluid.TP = {300, ct.OneAtm};
             self.fluid.TP = {self.fluid.critTemperature, self.fluid.critPressure};
             self.verifyEqual(self.fluid.satTemperature, self.fluid.critTemperature, ...
                              'RelTol', self.rtol);
@@ -336,7 +336,7 @@ classdef ctTestPureFluid < ctTestCase
 
             % Below triple point
             try
-                self.fluid.TP = {0.999 * self.fluid.critTemperature, OneAtm};
+                self.fluid.TP = {0.999 * self.fluid.critTemperature, ct.OneAtm};
                 p1 = self.fluid.satPressure;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
@@ -366,7 +366,7 @@ classdef ctTestPureFluid < ctTestCase
         end
 
         function testWaterIPAWS(self)
-            w = Water('IAPWS95');
+            w = ct.Water('IAPWS95');
             w.basis = 'mass';
 
             self.verifyEqual(w.critDensity, 322, 'RelTol', self.rtol);
@@ -374,33 +374,33 @@ classdef ctTestPureFluid < ctTestCase
             self.verifyEqual(w.critPressure, 22064000, 'RelTol', self.rtol);
 
             % Test internal TP setters
-            w.TP = {300, OneAtm};
+            w.TP = {300, ct.OneAtm};
             d1 = w.D;
-            w.TP = {2000, OneAtm};
+            w.TP = {2000, ct.OneAtm};
             % self.verifyEqual(w.phaseOfMatter, 'supercritical');
-            w.TP = {300, OneAtm};
+            w.TP = {300, ct.OneAtm};
             self.verifyEqual(w.D, d1, 'RelTol', self.rtol);
             % self.verifyEqual(w.phaseOfMatter, 'liquid');
 
             % Test setters for critical conditions
             w.TP = {w.critTemperature, w.critPressure};
             self.verifyEqual(w.D, 322, 'RelTol', self.rtol);
-            w.TP = {2000, OneAtm}; % Uses current density as initial guess
-            w.TP = {273.16, OneAtm}; % Uses fixed density as initial guess
+            w.TP = {2000, ct.OneAtm}; % Uses current density as initial guess
+            w.TP = {273.16, ct.OneAtm}; % Uses fixed density as initial guess
             self.verifyEqual(w.D, 999.84376, 'RelTol', self.rtol);
             % self.verifyEqual(w.phaseOfMatter, 'liquid');
             w.TP = {w.T, w.satPressure};
             % self.verifyEqual(w.phaseOfMatter, 'liquid');
 
             try
-                w.TP = {273.15999999, OneAtm};
+                w.TP = {273.15999999, ct.OneAtm};
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'assumes liquid phase');
             end
 
             try
-                w.TP = {500, OneAtm};
+                w.TP = {500, ct.OneAtm};
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'assumes liquid phase');

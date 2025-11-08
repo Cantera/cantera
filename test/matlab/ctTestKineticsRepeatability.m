@@ -20,7 +20,7 @@ classdef ctTestKineticsRepeatability < ctTestCase
     methods
 
         function setup_phase(self, mech)
-            self.phase = Solution(mech);
+            self.phase = ct.Solution(mech);
             self.X0 = 1 + sin(1:self.phase.nSpecies);
             self.X1 = 1 + sin(2:self.phase.nSpecies + 1);
         end

@@ -13,11 +13,11 @@ function ignite_uv(gas)
     help ignite_uv
 
     if nargin == 0
-        gas = Solution('gri30.yaml', 'gri30');
+        gas = ct.Solution('gri30.yaml', 'gri30');
     end
 
     mw = gas.molecularWeights;
-    gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, ct.OneAtm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
 
     y0 = [gas.T

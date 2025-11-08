@@ -15,7 +15,7 @@ function reactor1(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30', 'none');
+        gas = ct.Solution('gri30.yaml', 'gri30', 'none');
     end
 
     P = 101325.0;
@@ -31,19 +31,19 @@ function reactor1(g)
 
     %%
     % Create a reactor, and insert the gas
-    r = IdealGasReactor(gas);
+    r = ct.IdealGasReactor(gas);
 
     %%
     % Create a reservoir to represent the environment
-    a = Solution('air.yaml', 'air', 'none');
+    a = ct.Solution('air.yaml', 'air', 'none');
     a.TP = {a.T, P};
-    env = Reservoir(a);
+    env = ct.Reservoir(a);
 
     %%
     % Define a wall between the reactor and the environment and
     % make it flexible, so that the pressure in the reactor is held
     % at the environment pressure.
-    w = Wall(r, env);
+    w = ct.Wall(r, env);
 
     %%
     % Set expansion parameter. dV/dt = KA(P_1 - P_2)
@@ -55,7 +55,7 @@ function reactor1(g)
 
     %%
     % Create a reactor network and insert the reactor:
-    network = ReactorNet({r});
+    network = ct.ReactorNet({r});
 
     nSteps = 100;
     tim(nSteps) = 0;

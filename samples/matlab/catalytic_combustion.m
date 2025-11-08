@@ -26,7 +26,7 @@ t0 = cputime;  % record the starting time
 %%
 % **Set parameter values**
 
-p = OneAtm;  % pressure
+p = ct.OneAtm;  % pressure
 tinlet = 300.0;  % inlet temperature
 tsurf = 900.0;  % surface temperature
 mdot = 0.06;  % kg/m^2/s
@@ -63,7 +63,7 @@ refine_grid = 1;  % 1 to enable refinement, 0 to disable
 % input file ``ptcombust.yaml``, which is a stripped-down version of
 % GRI-Mech 3.0.
 
-gas = Solution('ptcombust.yaml', 'gas', transport);
+gas = ct.Solution('ptcombust.yaml', 'gas', transport);
 gas.TPX = {tinlet, p, comp1};
 
 %%
@@ -75,7 +75,7 @@ gas.TPX = {tinlet, p, comp1};
 % mechanism of Deutschmann et al., 1995 for catalytic combustion on
 % platinum.
 
-surf_phase = Interface('ptcombust.yaml', 'Pt_surf', gas);
+surf_phase = ct.Interface('ptcombust.yaml', 'Pt_surf', gas);
 surf_phase.TP = {tsurf, surf_phase.P};
 
 %%
@@ -100,7 +100,7 @@ surf_phase.advanceCoverages(1.0);
 % specified. This object provides the inlet boundary conditions for
 % the flow equations.
 
-inlt = Inlet1D(gas, 'inlet');
+inlt = ct.Inlet1D(gas, 'inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
@@ -114,7 +114,7 @@ inlt.massFlux = mdot;
 % equations for the flow. We will initialize it with the gas
 % object, and assign it the name ``flow``.
 
-flow = AxisymmetricFlow(gas, 'flow');
+flow = ct.AxisymmetricFlow(gas, 'flow');
 
 % set some parameters for the flow
 flow.P = p;
@@ -131,7 +131,7 @@ flow.setTransientTolerances(tol_ts{:});
 % equation set, and used to compute the surface production rates of
 % the gas-phase species.
 
-surf = ReactingSurface1D(surf_phase, 'surface');
+surf = ct.ReactingSurface1D(surf_phase, 'surface');
 surf.T = tsurf;
 
 %%
@@ -140,7 +140,7 @@ surf.T = tsurf;
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
 
-stack = Sim1D({inlt, flow, surf});
+stack = ct.Sim1D({inlt, flow, surf});
 
 % set the initial profiles.
 flow.setProfile('velocity', [0.0, 1.0], [0.06, 0.0]);

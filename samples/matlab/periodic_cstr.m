@@ -31,7 +31,7 @@ function periodic_cstr
 
     %%
     % Create the gas mixture
-    gas = Solution('h2o2.yaml', 'ohmech');
+    gas = ct.Solution('h2o2.yaml', 'ohmech');
 
     % pressure = 60 Torr, T = 770 K
     p = 60.0 * 133.3;
@@ -44,12 +44,12 @@ function periodic_cstr
     % The temperature, pressure, and composition of the upstream reservoir are
     % set to those of the 'gas' object at the time the reservoir is
     % created.
-    upstream = Reservoir(gas);
+    upstream = ct.Reservoir(gas);
     %%
     % Now set the gas to the initial temperature of the reactor, and create
     % the reactor object.
     gas.TP = {t, p};
-    cstr = IdealGasReactor(gas);
+    cstr = ct.IdealGasReactor(gas);
     %%
     % Set its volume to 10 cm^3. In this problem, the reactor volume is
     % fixed, so the initial volume is the volume at all later times.
@@ -58,36 +58,36 @@ function periodic_cstr
     % We need to have heat loss to see the oscillations. Create a
     % reservoir to represent the environment, and initialize its
     % temperature to the reactor temperature.
-    env = Reservoir(gas);
+    env = ct.Reservoir(gas);
     %%
     % Create a heat-conducting wall between the reactor and the
     % environment. Set its area, and its overall heat transfer
     % coefficient. Larger U causes the reactor to be closer to isothermal.
     % If U is too small, the gas ignites, and the temperature spikes and
     % stays high.
-    w = Wall(cstr, env);
+    w = ct.Wall(cstr, env);
     w.area = 1.0;
     w.heatTransferCoeff = 0.02;
     %%
     % Connect the upstream reservoir to the reactor with a mass flow
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
     sccm = 1.25;
-    vdot = sccm * 1.0e-6/60.0 * ((OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
+    vdot = sccm * 1.0e-6/60.0 * ((ct.OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
     mdot = gas.massDensity * vdot; % kg/s
-    mfc = MassFlowController(upstream, cstr);
+    mfc = ct.MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
     %%
     % Now create a downstream reservoir to exhaust into.
-    downstream = Reservoir(gas);
+    downstream = ct.Reservoir(gas);
     %%
     % Connect the reactor to the downstream reservoir with a valve, and
     % set the coefficient sufficiently large to keep the reactor pressure
     % close to the downstream pressure of 60 Torr.
-    v = Valve(cstr, downstream);
+    v = ct.Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
     %%
     % Create the network
-    network = ReactorNet({cstr});
+    network = ct.ReactorNet({cstr});
     %%
     % Now integrate in time
     tme = 0.0;

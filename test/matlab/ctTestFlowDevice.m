@@ -28,23 +28,23 @@ classdef ctTestFlowDevice < ctTestCase
                 arg.X2 (1,:) char = 'O2:1.0';
             end
 
-            self.gas1 = Solution('h2o2.yaml', '', 'none');
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
-            self.r1 = Reactor(self.gas1);
+            self.r1 = ct.Reactor(self.gas1);
 
             if arg.independent
-                self.gas2 = Solution('h2o2.yaml', '', 'none');
+                self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
             else
                 self.gas2 = self.gas1;
             end
 
             if arg.nr == 1
-                self.net = ReactorNet(self.r1);
+                self.net = ct.ReactorNet(self.r1);
             elseif arg.nr >= 2
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
-                self.r2 = Reactor(self.gas2);
+                self.r2 = ct.Reactor(self.gas2);
                 self.r2.energyEnabled = true;
-                self.net = ReactorNet({self.r1, self.r2});
+                self.net = ct.ReactorNet({self.r1, self.r2});
             end
 
             self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
@@ -60,8 +60,8 @@ classdef ctTestFlowDevice < ctTestCase
 
         function testMFCType(self)
             self.makeReactors('nr', 2);
-            mfc = MassFlowController(self.r1, self.r2);
-            n1 = ReactorNet({self.r1, self.r2});
+            mfc = ct.MassFlowController(self.r1, self.r2);
+            n1 = ct.ReactorNet({self.r1, self.r2});
 
             self.verifyEqual(mfc.type, 'MassFlowController');
             self.verifyTrue(startsWith(mfc.name, 'MassFlowController_'));
@@ -74,9 +74,9 @@ classdef ctTestFlowDevice < ctTestCase
         end
 
         function testValve1(self)
-            self.makeReactors('P1', OneAtm, 'X1', 'AR:1.0', 'X2', 'O2:1.0');
+            self.makeReactors('P1', ct.OneAtm, 'X1', 'AR:1.0', 'X2', 'O2:1.0');
             self.net.rtol = 1e-12;
-            valve = Valve(self.r1, self.r2);
+            valve = ct.Valve(self.r1, self.r2);
             k = 2e-5;
             valve.valveCoeff = k;
             self.net.time = 0;
@@ -113,11 +113,11 @@ classdef ctTestFlowDevice < ctTestCase
         end
 
         function testValve2(self)
-            self.makeReactors('P1', OneAtm);
+            self.makeReactors('P1', ct.OneAtm);
             self.net.rtol = 1e-11;
             self.r1.energyEnabled = false;
             self.r2.energyEnabled = false;
-            valve = Valve(self.r1, self.r2);
+            valve = ct.Valve(self.r1, self.r2);
             k = 2e-5;
             valve.valveCoeff = k;
             self.net.time = 0;
@@ -158,9 +158,9 @@ classdef ctTestFlowDevice < ctTestCase
 
         function testValveType1(self)
             self.makeReactors();
-            res = Reservoir(self.gas1);
-            v = Valve(self.r1, res);
-            n1 = ReactorNet(self.r1);
+            res = ct.Reservoir(self.gas1);
+            v = ct.Valve(self.r1, res);
+            n1 = ct.ReactorNet(self.r1);
 
             self.verifyTrue(startsWith(self.r1.name, sprintf('%s_', self.r1.type)));
             self.verifyTrue(startsWith(res.name, sprintf('%s_', res.type)));
@@ -172,9 +172,9 @@ classdef ctTestFlowDevice < ctTestCase
 
         function testValveType2(self)
             self.makeReactors();
-            res = Reservoir(self.gas1);
-            v = Valve(res, self.r1);
-            n1 = ReactorNet(self.r1);
+            res = ct.Reservoir(self.gas1);
+            v = ct.Valve(res, self.r1);
+            n1 = ct.ReactorNet(self.r1);
 
             self.verifyTrue(startsWith(self.r1.name, sprintf('%s_', self.r1.type)));
             self.verifyTrue(startsWith(res.name, sprintf('%s_', res.type)));

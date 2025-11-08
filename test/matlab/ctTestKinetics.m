@@ -15,8 +15,8 @@ classdef ctTestKinetics < ctTestCase
             src = 'h2o2.yaml';
             id = 'ohmech';
             transport = 'none';
-            self.phase = Solution(src, id, transport);
-            self.phase.TPX = {800, 2 * OneAtm, ...
+            self.phase = ct.Solution(src, id, transport);
+            self.phase.TPX = {800, 2 * ct.OneAtm, ...
                               [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]};
         end
 
@@ -35,7 +35,7 @@ classdef ctTestKinetics < ctTestCase
                 self.verifyTrue(self.phase.isReversible(i));
             end
 
-            diamond = Solution('diamond.yaml', 'diamond_100', 'none');
+            diamond = ct.Solution('diamond.yaml', 'diamond_100', 'none');
             self.verifyFalse(diamond.isReversible(20));
         end
 
@@ -186,7 +186,7 @@ classdef ctTestKinetics < ctTestCase
 
         function testEmptyKinetics(self)
             try
-                gas = Solution('../data/air-no-reactions.yaml');
+                gas = ct.Solution('../data/air-no-reactions.yaml');
                 arr = zeros(1, gas.nSpecies);
                 tol = ones(1, gas.nSpecies) .* self.atol;
 
@@ -201,7 +201,7 @@ classdef ctTestKinetics < ctTestCase
 
         function testChemicallyActivated(self)
             try
-                gas = Solution('../data/chemically-activated-reaction.yaml');
+                gas = ct.Solution('../data/chemically-activated-reaction.yaml');
 
                 P = [2026.5, 202650.0, 10132500.0];
                 Rf = [2.851022e-04, 2.775924e+00, 2.481792e+03];
@@ -218,7 +218,7 @@ classdef ctTestKinetics < ctTestCase
 
         function testPdepError(self)
             try
-                gas = Solution('../data/addReactions_err_test.yaml');
+                gas = ct.Solution('../data/addReactions_err_test.yaml');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'Invalid rate coefficient');

@@ -25,7 +25,7 @@ t0 = cputime; % record the starting time
 % **Set parameter values**
 
 t = 1200.0; % surface temperature
-p = 20.0 * OneAtm / 760.0; % pressure
+p = 20.0 * ct.OneAtm / 760.0; % pressure
 
 %%
 % **Create the gas object**
@@ -33,7 +33,7 @@ p = 20.0 * OneAtm / 760.0; % pressure
 % The gas phase will be taken from the definition of phase 'gas' in
 % input file 'diamond.yaml'.
 
-gas = Solution('diamond.yaml', 'gas');
+gas = ct.Solution('diamond.yaml', 'gas');
 gas.TP = {t, p};
 x = gas.X;
 ih = gas.speciesIndex('H');
@@ -45,7 +45,7 @@ xh0 = x(ih);
 % The bulk phase will be taken from the definition of phase 'diamond' in
 % input file 'diamond.yaml'.
 
-dbulk = Solution('diamond.yaml', 'diamond');
+dbulk = ct.Solution('diamond.yaml', 'diamond');
 mw = dbulk.molecularWeights;
 
 %%
@@ -55,7 +55,7 @@ mw = dbulk.molecularWeights;
 % rates. It will be created from the interface definition 'diamond_100'
 % in input file 'diamond.yaml'.
 
-surf_phase = Interface('diamond.yaml', 'diamond_100', gas, dbulk);
+surf_phase = ct.Interface('diamond.yaml', 'diamond_100', gas, dbulk);
 
 %%
 % Solution

@@ -21,7 +21,7 @@ runtime = cputime;  % record the starting time
 
 phi = 1.;  % equivalence ratio
 Tin = 300.0;  % burner temperature (K)
-pressure = OneAtm;  % pressure
+pressure = ct.OneAtm;  % pressure
 
 uIn = 0.3;  % initial guess (m/s)
 lz = 0.1;  % length of simulated flow domain
@@ -36,7 +36,7 @@ refineGrid = true;  % turn on grid refinement
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 
-gas = Solution('gri30.yaml', 'gri30', 'mixture-averaged');
+gas = ct.Solution('gri30.yaml', 'gri30', 'mixture-averaged');
 nsp = gas.nSpecies;
 
 gas.setEquivalenceRatio(phi, 'CH4', 'O2:0.21,N2:0.79');
@@ -55,25 +55,25 @@ disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
 % **Create domains required for a flame simulation**
 
 % Create the flow domain
-flame = FreeFlow(gas);
+flame = ct.FreeFlow(gas);
 flame.setupUniformGrid(nz, lz, 0.);
 flame.setSteadyTolerances(1e-5, 1e-11);
 flame.P = pressure;
 
 % Create the inlet
-inlt = Inlet1D(gas);
+inlt = ct.Inlet1D(gas);
 inlt.T = Tin;
 inlt.X = Xin;
 inlt.massFlux = uIn * rhoIn;
 
 % Create the outlet
-outlt = Outlet1D(gas);
+outlt = ct.Outlet1D(gas);
 uOut = uIn * rhoIn / rhoOut;
 
 %%
 % **Create the stack and insert the domains**
 
-stack = Sim1D({inlt, flame, outlt});
+stack = ct.Sim1D({inlt, flame, outlt});
 
 % Supply initial guess
 

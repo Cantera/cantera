@@ -13,12 +13,12 @@ help rankine
 % Initialize parameters
 eta_pump = 0.6;
 eta_turbine = 0.8;
-p_max = 8.0 * OneAtm;
+p_max = 8.0 * ct.OneAtm;
 t1 = 300.0;
 
 %%
 % Create a saturated liquid water object at t1
-w = Water;
+w = ct.Water();
 basis = 'mass';
 w.TQ = {t1, 0};
 h1 = w.H;

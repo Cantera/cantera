@@ -24,7 +24,7 @@ classdef ctTestEquilibrium < ctTestCase
     methods (Test)
 
         function testEquilCompleteStoichiometric(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'complete');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'complete');
             self.phase.TPX = {298, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP');
 
@@ -34,7 +34,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilCompleteLean(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'complete');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'complete');
             self.phase.TPX = {298, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP');
 
@@ -44,7 +44,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilIncompleteStoichiometric(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'incomplete');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'incomplete');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP');
 
@@ -54,7 +54,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilIncompleteLean(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'incomplete');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'incomplete');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP');
 
@@ -64,7 +64,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilGriStoichiometric(self)
-            self.phase = Solution('gri30.yaml', '', 'none');
+            self.phase = ct.Solution('gri30.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP');
 
@@ -74,7 +74,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilGriLean(self)
-            self.phase = Solution('gri30.yaml', '', 'none');
+            self.phase = ct.Solution('gri30.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP');
 
@@ -84,7 +84,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilOverconstrained1(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'overconstrained-1');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'overconstrained-1');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:1.0'};
             self.phase.equilibrate('TP');
 
@@ -94,7 +94,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilOverconstrained2(self)
-            self.phase = Solution('../data/equilibrium.yaml', 'overconstrained-2');
+            self.phase = ct.Solution('../data/equilibrium.yaml', 'overconstrained-2');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:1.0'};
             self.phase.equilibrate('TP');
 
@@ -104,7 +104,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilGriStoichiometricGibbs(self)
-            self.phase = Solution('../data/equilibrium.yaml', '', 'none');
+            self.phase = ct.Solution('../data/equilibrium.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:2.0'};
             self.phase.equilibrate('TP', 'gibbs');
 
@@ -116,7 +116,7 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testEquilGriLeanGibbs(self)
-            self.phase = Solution('../data/equilibrium.yaml', '', 'none');
+            self.phase = ct.Solution('../data/equilibrium.yaml', '', 'none');
             self.phase.TPX = {301, 1.0e6, 'CH4:1.0, O2:3.0'};
             self.phase.equilibrate('TP', 'gibbs');
 
@@ -133,7 +133,7 @@ classdef ctTestEquilibrium < ctTestCase
                           'K2O2_solid', 'K2O_solid', 'KO2_solid', ...
                           'ice', 'liquid_water', 'KOH_plasma'};
             phases = ImportPhases('KOH.yaml', phasenames);
-            self.mix = Mixture(phases);
+            self.mix = ct.Mixture(phases);
 
             temp = 350:300:5000;
             data = zeros(length(temp), self.mix.nSpecies + 1);
@@ -141,7 +141,7 @@ classdef ctTestEquilibrium < ctTestCase
 
             for i  = 1:length(temp)
                 self.mix.T = temp(i);
-                self.mix.P = OneAtm;
+                self.mix.P = ct.OneAtm;
                 self.mix.setSpeciesMoles('K:1.03, H2:2.12, O2:0.9');
                 self.mix.equilibrate('TP');
 
@@ -160,14 +160,14 @@ classdef ctTestEquilibrium < ctTestCase
                           'K2O2_solid', 'K2O_solid', 'KO2_solid', ...
                           'ice', 'liquid_water', 'KOH_plasma'};
             phases = ImportPhases('KOH.yaml', phasenames);
-            self.mix = Mixture(phases);
+            self.mix = ct.Mixture(phases);
 
             temp = 350:300:5000;
             dT = 1;
             data = zeros(length(temp), self.mix.nSpecies + 2);
             data(:, 1) = temp;
 
-            self.mix.P = OneAtm;
+            self.mix.P = ct.OneAtm;
             for i  = 1:length(temp)
                 self.mix.setSpeciesMoles('K:1.03, H2:2.12, O2:0.9');
                 self.mix.T = temp(i) - dT;
@@ -186,8 +186,8 @@ classdef ctTestEquilibrium < ctTestCase
         end
 
         function testIdealSolidSolnPhaseEquil(self)
-            self.phase = Solution('../data/IdealSolidSolnPhaseExample.yaml');
-            self.phase.TPX = {500, OneAtm, 'C2H2-graph: 1.0'};
+            self.phase = ct.Solution('../data/IdealSolidSolnPhaseExample.yaml');
+            self.phase.TPX = {500, ct.OneAtm, 'C2H2-graph: 1.0'};
             self.phase.equilibrate('TP', 'element_potential');
 
             self.verifyEqual(self.phase.X(self.phase.speciesIndex('C-graph')), ...

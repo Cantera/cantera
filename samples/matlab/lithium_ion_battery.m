@@ -40,7 +40,7 @@ help lithium_ion_battery
 SOC = 0:0.02:1; % [-] Input state of charge (0...1) (can be a vector)
 I_app = -1; % [A] Externally-applied current, negative for discharge
 T = 293; % [K] Temperature
-P = OneAtm; % [Pa] Pressure
+P = ct.OneAtm; % [Pa] Pressure
 
 %%
 % Cell properties
@@ -68,12 +68,12 @@ X_Li_an = (X_Li_an_1 - X_Li_an_0) * SOC + X_Li_an_0; % anode balancing
 X_Li_ca = (X_Li_ca_0 - X_Li_ca_1) * (1 - SOC) + X_Li_ca_1; % cathode balancing
 
 % Import all Cantera phases
-anode = Solution(inputFile, 'anode');
-cathode = Solution(inputFile, 'cathode');
-elde = Solution(inputFile, 'electron');
-elyt = Solution(inputFile, 'electrolyte');
-anode_interface = Interface(inputFile, 'edge_anode_electrolyte', anode, elde, elyt);
-cathode_interface = Interface(inputFile, 'edge_cathode_electrolyte', cathode, elde, elyt);
+anode = ct.Solution(inputFile, 'anode');
+cathode = ct.Solution(inputFile, 'cathode');
+elde = ct.Solution(inputFile, 'electron');
+elyt = ct.Solution(inputFile, 'electrolyte');
+anode_interface = ct.Interface(inputFile, 'edge_anode_electrolyte', anode, elde, elyt);
+cathode_interface = ct.Interface(inputFile, 'edge_cathode_electrolyte', cathode, elde, elyt);
 
 % Set the temperatures and pressures of all phases
 anode.TP = {T, P};
@@ -140,7 +140,7 @@ function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, ...
     r = anode_interface.netRatesOfProgress; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    anCurr = r * FaradayConstant * S_an; %
+    anCurr = r * ct.FaradayConstant * S_an; %
 end
 
 % This function returns the Cantera calculated cathode current (in A)
@@ -157,5 +157,5 @@ function caCurr = cathode_curr(phi_s, phi_l, X_Li_ca, cathode, elde, elyt, catho
     r = cathode_interface.netRatesOfProgress; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    caCurr = r * FaradayConstant * S_ca * (-1); %
+    caCurr = r * ct.FaradayConstant * S_ca * (-1); %
 end

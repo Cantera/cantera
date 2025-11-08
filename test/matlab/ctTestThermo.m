@@ -15,7 +15,7 @@ classdef ctTestThermo < ctTestCase
             src = 'h2o2.yaml';
             id = 'ohmech';
             transport = 'none';
-            self.phase = Solution(src, id, transport);
+            self.phase = ct.Solution(src, id, transport);
         end
 
     end
@@ -254,7 +254,7 @@ classdef ctTestThermo < ctTestCase
         end
 
         function testCharges(self)
-            chargePhase = Solution('gri30_ion.yaml', 'gas');
+            chargePhase = ct.Solution('gri30_ion.yaml', 'gas');
             charges = chargePhase.charges;
             test = {{'E',-1}, {'N2',0}, {'H3O+',1}};
 
@@ -280,7 +280,7 @@ classdef ctTestThermo < ctTestCase
         end
 
         function testRefInfo(self)
-            self.verifyEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
+            self.verifyEqual(self.phase.refPressure, ct.OneAtm, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
         end
@@ -291,14 +291,14 @@ classdef ctTestThermo < ctTestCase
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
 
             val = self.phase.P;
-            exp = OneAtm;
+            exp = ct.OneAtm;
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
 
             self.phase.basis = 'mass';
 
             val = self.phase.D;
             exp = self.phase.P * self.phase.meanMolecularWeight / ...
-                  (GasConstant * self.phase.T);
+                  (ct.GasConstant * self.phase.T);
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
 
             val = self.phase.molarDensity;

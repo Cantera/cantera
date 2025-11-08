@@ -6,7 +6,7 @@ classdef ctTestWaterTransportIAPWS95 < ctTestCase
     methods (TestMethodSetup)
 
         function createPhase(self)
-            self.phase = Solution('../data/thermo-models.yaml', 'liquid-water');
+            self.phase = ct.Solution('../data/thermo-models.yaml', 'liquid-water');
         end
 
     end

@@ -14,7 +14,7 @@ function equil(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30');
+        gas = ct.Solution('gri30.yaml', 'gri30');
     end
 
     nsp = gas.nSpecies;

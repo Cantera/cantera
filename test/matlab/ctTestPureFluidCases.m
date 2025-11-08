@@ -12,7 +12,7 @@ classdef ctTestPureFluidCases < ctTestCase
     methods
 
         function setupFluid(self, type)
-            self.fluid = Solution('liquidvapor.yaml', type);
+            self.fluid = ct.Solution('liquidvapor.yaml', type);
             self.fluid.basis = 'mass';
             self.fluid.TD = {self.refState.T, self.refState.D};
             self.u0 = self.fluid.U;
