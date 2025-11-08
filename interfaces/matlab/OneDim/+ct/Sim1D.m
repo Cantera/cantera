@@ -28,7 +28,7 @@ classdef Sim1D < handle
             arguments
                 domains (1,:) cell
             end
-            if ~all(cellfun(@(d) isa(d, 'Domain1D'), domains))
+            if ~all(cellfun(@(d) isa(d, 'ct.Domain1D'), domains))
                 error('All elements must be Domain1D objects');
             end
             s.domains = domains;
@@ -40,7 +40,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = ctFunc('mSim1D_newSim1D', ids);
+            s.stID = ct.impl.call('mSim1D_newSim1D', ids);
 
         end
 
@@ -49,7 +49,7 @@ classdef Sim1D < handle
         function delete(obj)
             % Delete the :mat:class:`Sim1D` object.
             if obj.stID >= 0
-                ctFunc('mSim1D_del', obj.stID);
+                ct.impl.call('mSim1D_del', obj.stID);
             end
         end
 
@@ -57,7 +57,7 @@ classdef Sim1D < handle
 
         function show(obj)
             % Show all domains.
-            ctFunc('mSim1D_show', obj.stID);
+            ct.impl.call('mSim1D_show', obj.stID);
         end
 
         function restore(obj, fname, id)
@@ -74,7 +74,7 @@ classdef Sim1D < handle
             % :param id:
             %     ID of the element that should be restored.
 
-            ctFunc('mSim1D_restore', obj.stID, fname, id)
+            ct.impl.call('mSim1D_restore', obj.stID, fname, id)
         end
 
         function save(obj, fname, id, desc, overwrite)
@@ -100,7 +100,7 @@ classdef Sim1D < handle
                 overwrite (1,1) logical = false
             end
 
-            ctFunc('mSim1D_save', obj.stID, fname, id, desc, overwrite);
+            ct.impl.call('mSim1D_save', obj.stID, fname, id, desc, overwrite);
         end
 
         function solve(obj, loglevel, refineGrid)
@@ -114,7 +114,7 @@ classdef Sim1D < handle
             % :param refineGrid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
 
-            ctFunc('mSim1D_solve', obj.stID, loglevel, refineGrid);
+            ct.impl.call('mSim1D_solve', obj.stID, loglevel, refineGrid);
         end
 
         function writeStats(obj)
@@ -125,7 +125,7 @@ classdef Sim1D < handle
             % Prints a summary of the number of function and Jacobian evaluations
             % for each grid, and the CPU time spent on each one.
 
-            ctFunc('mSim1D_writeStats', obj.stID, 1);
+            ct.impl.call('mSim1D_writeStats', obj.stID, 1);
         end
 
         %% Sim1D Get Methods
@@ -133,7 +133,7 @@ classdef Sim1D < handle
         function getInitialSoln(obj)
             % Get the initial solution.
 
-            ctFunc('mSim1D_getInitialSoln', obj.stID);
+            ct.impl.call('mSim1D_getInitialSoln', obj.stID);
         end
 
         function n = domainIndex(obj, name)
@@ -147,7 +147,7 @@ classdef Sim1D < handle
             % :return:
             %    Index of domain.
 
-            n = ctFunc('mSim1D_domainIndex', obj.stID, name);
+            n = ct.impl.call('mSim1D_domainIndex', obj.stID, name);
 
             if n >= 0
                 n = n + 1;
@@ -172,7 +172,7 @@ classdef Sim1D < handle
                 error('temperature must be positive');
             end
 
-            ctFunc('mSim1D_setFixedTemperature', obj.stID, T);
+            ct.impl.call('mSim1D_setFixedTemperature', obj.stID, T);
         end
 
         function setGridMin(obj, domain, gridmin)
@@ -185,7 +185,7 @@ classdef Sim1D < handle
             % :param gridmin:
             %    Minimum grid spacing [m].
 
-            ctFunc('mSim1D_setGridMin', obj.stID, domain - 1, gridmin);
+            ct.impl.call('mSim1D_setGridMin', obj.stID, domain - 1, gridmin);
         end
 
         function setMaxJacAge(obj, ss_age, ts_age)
@@ -204,7 +204,7 @@ classdef Sim1D < handle
                 ts_age = ss_age;
             end
 
-            ctFunc('mSim1D_setMaxJacAge', obj.stID, ss_age, ts_age);
+            ct.impl.call('mSim1D_setMaxJacAge', obj.stID, ss_age, ts_age);
         end
 
         function setTimeStep(obj, stepsize, steps)
@@ -221,7 +221,7 @@ classdef Sim1D < handle
             %    taken first time the steady-state solution attempted.
             %    If this failed, two time steps would be taken.
 
-            ctFunc('mSim1D_setTimeStep', obj.stID, stepsize, steps);
+            ct.impl.call('mSim1D_setTimeStep', obj.stID, stepsize, steps);
         end
 
     end

@@ -1,4 +1,4 @@
-classdef IdealGasReactor < ReactorBase
+classdef IdealGasReactor < ct.ReactorBase
     % Create a reactor with an ideal gas. ::
     %
     %     >> r = IdealGasReactor(phase, name, clone)
@@ -27,13 +27,14 @@ classdef IdealGasReactor < ReactorBase
 
         function r = IdealGasReactor(phase, name, clone)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            id = ctFunc('mReactor_new', 'IdealGasReactor', phase.solnID, clone, name);
-            r@ReactorBase(id);
+            id = ct.impl.call('mReactor_new', 'IdealGasReactor', phase.solnID, ...
+                              clone, name);
+            r@ct.ReactorBase(id);
         end
 
     end

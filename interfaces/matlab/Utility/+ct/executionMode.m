@@ -1,6 +1,6 @@
 function mode = executionMode()
     % Retrieve the MATLAB toolbox execution mode
-    if ~isLoaded
+    if ~ct.isLoaded
         error("executionMode:NotLoaded", "Cantera toolbox is not loaded.")
     end
 

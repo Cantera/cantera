@@ -6,5 +6,5 @@ function r = permeability0
     % :return:
     %     The vacuum permeability in N/A².
 
-    r = ctFunc('mCt_permeability0');
+    r = ct.impl.call('mCt_permeability0');
 end

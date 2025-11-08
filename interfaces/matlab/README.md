@@ -52,7 +52,7 @@ Cantera objects and functions.
    ctToolboxDir = '/path/to/cantera/source/interfaces/matlab';
    ctCLibIncludeDir = '/path/to/cantera/include';
    ctLibDir = '/path/to/cantera/library';
-   ctBuildInterface(ctToolboxDir, ctCLibIncludeDir, ctLibDir);
+   ct.buildInterface(ctToolboxDir, ctCLibIncludeDir, ctLibDir);
    ```
 
    If you compiled Cantera from source, `ctCLibIncludeDir` should be
@@ -105,8 +105,8 @@ Cantera objects and functions.
    To stop using the interface, run:
 
    ```matlab
-   ctCleanUp
-   ctUnload
+   ct.cleanUp
+   ct.unload
    ```
 
 ---

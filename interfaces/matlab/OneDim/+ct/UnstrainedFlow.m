@@ -1,4 +1,4 @@
-classdef UnstrainedFlow < Flow1D
+classdef UnstrainedFlow < ct.Flow1D
     % Create an unstrained flow domain. ::
     %
     %     >> m = UnstrainedFlow(phase, name)
@@ -15,11 +15,11 @@ classdef UnstrainedFlow < Flow1D
         function m = UnstrainedFlow(phase, name)
             % Constructor
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "unstrained-flow"
             end
 
-            m@Flow1D('unstrained-flow', phase, name);
+            m@ct.Flow1D('unstrained-flow', phase, name);
 
         end
 

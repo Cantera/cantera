@@ -1,4 +1,4 @@
-classdef FlowReactor < ReactorBase
+classdef FlowReactor < ct.ReactorBase
     % Create a flow reactor object. ::
     %
     %     >> r = FlowReactor(phase, name, clone)
@@ -32,25 +32,25 @@ classdef FlowReactor < ReactorBase
 
         function r = FlowReactor(phase, name, clone)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            id = ctFunc('mReactor_new', 'FlowReactor', phase.solnID, clone, name);
-            r@ReactorBase(id);
+            id = ct.impl.call('mReactor_new', 'FlowReactor', phase.solnID, clone, name);
+            r@ct.ReactorBase(id);
         end
 
         %% FlowReactor Get Methods
 
         function flag = get.massFlowRate(obj)
-            rate = ctFunc('mReactor_massFlowRate', obj.id);
+            rate = ct.impl.call('mReactor_massFlowRate', obj.id);
         end
 
         %% FlowReactor Set Methods
 
         function set.massFlowRate(obj, MFR)
-            ctFunc('mReactor_setMassFlowRate', obj.id, MFR);
+            ct.impl.call('mReactor_setMassFlowRate', obj.id, MFR);
             obj.massFlowRate = MFR;
         end
 

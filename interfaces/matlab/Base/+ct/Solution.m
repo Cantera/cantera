@@ -1,4 +1,4 @@
-classdef Solution < handle & ThermoPhase & Kinetics & Transport
+classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
     % Solution Class ::
     %
     %     >> s = Solution(src, name, transport_model)
@@ -57,24 +57,24 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                 transport_model (1,1) string = "default"
             end
 
-            isLoaded(true);
+            ct.isLoaded(true);
 
             if isnumeric(src)
                 % New MATLAB object from existing C++ Solution
                 ID = src;
             elseif ischar(src) | isstring(src)
                 % New C++/MATLAB object from YAML source
-                ID = ctFunc('mSol_newSolution', src, name, transport_model);
+                ID = ct.impl.call('mSol_newSolution', src, name, transport_model);
             else
                 error("Invalid argument: Solution requires name of input file.")
             end
 
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
-            s@ThermoPhase(ID);
-            s@Kinetics(ID);
-            s@Transport(ID);
+            s@ct.ThermoPhase(ID);
+            s@ct.Kinetics(ID);
+            s@ct.Transport(ID);
             s.solnID = ID;
-            s.solnName = ctString('mSol_name', s.solnID);
+            s.solnName = ct.impl.getString('mSol_name', s.solnID);
             s.th = s.tpID;
         end
 
@@ -83,21 +83,21 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         function delete(obj)
             % Delete :mat:class:`Solution` object.
             if obj.solnID >= 0
-                ctFunc('mSol_del', obj.solnID);
+                ct.impl.call('mSol_del', obj.solnID);
             end
         end
 
         %% Solution Class Getter Methods
 
         function str = get.transportModel(obj)
-            str = ctString('mTrans_transportModel', obj.trID);
+            str = ct.impl.getString('mTrans_transportModel', obj.trID);
         end
 
         %% Solution Class Setter Methods
 
         function set.transportModel(obj, str)
-            ctFunc('mSol_setTransportModel', obj.solnID, str);
-            obj.trID = ctFunc('mSol_transport', obj.solnID);
+            ct.impl.call('mSol_setTransportModel', obj.solnID, str);
+            obj.trID = ct.impl.call('mSol_transport', obj.solnID);
         end
 
     end

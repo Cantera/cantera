@@ -1,4 +1,4 @@
-classdef Inlet1D < Boundary1D
+classdef Inlet1D < ct.Boundary1D
     % Create an inlet domain. ::
     %
     %     >> m = Inlet1D(phase, name)
@@ -19,11 +19,11 @@ classdef Inlet1D < Boundary1D
 
         function m = Inlet1D(phase, name)
             arguments
-                phase (1,1) Solution
+                phase (1,1) ct.Solution
                 name (1,1) string = "inlet"
             end
 
-            m@Boundary1D('inlet', phase, name);
+            m@ct.Boundary1D('inlet', phase, name);
 
         end
 
@@ -33,9 +33,9 @@ classdef Inlet1D < Boundary1D
 
         function set.X(obj, X)
             if isa(X, 'float')
-                ctFunc('mBdry_setMoleFractions', obj.domainID, X);
+                ct.impl.call('mBdry_setMoleFractions', obj.domainID, X);
             else
-                ctFunc('mBdry_setMoleFractionsByName', obj.domainID, X);
+                ct.impl.call('mBdry_setMoleFractionsByName', obj.domainID, X);
             end
         end
 

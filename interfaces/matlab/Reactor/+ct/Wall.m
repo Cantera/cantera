@@ -1,4 +1,4 @@
-classdef Wall < Connector
+classdef Wall < ct.Connector
     % Wall Class ::
     %
     %     >> x = Wall(l, r, name)
@@ -82,13 +82,13 @@ classdef Wall < Connector
 
         function w = Wall(l, r, name)
             arguments
-                l (1,1) ReactorBase
-                r (1,1) ReactorBase
+                l (1,1) ct.ReactorBase
+                r (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
             % Install the wall between left and right reactors
-            w@Connector('Wall', l, r, name);
+            w@ct.Connector('Wall', l, r, name);
             w.left = l;
             w.right = r;
 
@@ -102,45 +102,45 @@ classdef Wall < Connector
         %% Wall get methods
 
         function a = get.area(obj)
-            a = ctFunc('mWall_area', obj.id);
+            a = ct.impl.call('mWall_area', obj.id);
         end
 
         function q = get.heatRate(obj)
-            q = ctFunc('mWall_heatRate', obj.id);
+            q = ct.impl.call('mWall_heatRate', obj.id);
         end
 
         function v = get.expansionRate(obj)
-            v = ctFunc('mWall_expansionRate', obj.id);
+            v = ct.impl.call('mWall_expansionRate', obj.id);
         end
 
         %% Wall set methods
 
         function set.area(obj, a)
-            ctFunc('mWall_setArea', obj.id, a);
+            ct.impl.call('mWall_setArea', obj.id, a);
         end
 
         function set.thermalResistance(obj, r)
-            ctFunc('mWall_setThermalResistance', obj.id, r);
+            ct.impl.call('mWall_setThermalResistance', obj.id, r);
         end
 
         function set.heatTransferCoeff(obj, u)
-            ctFunc('mWall_setHeatTransferCoeff', obj.id, u);
+            ct.impl.call('mWall_setHeatTransferCoeff', obj.id, u);
         end
 
         function set.emissivity(obj, epsilon)
-            ctFunc('mWall_setEmissivity', obj.id, epsilon);
+            ct.impl.call('mWall_setEmissivity', obj.id, epsilon);
         end
 
         function set.expansionRateCoeff(obj, k)
-            ctFunc('mWall_setExpansionRateCoeff', obj.id, k);
+            ct.impl.call('mWall_setExpansionRateCoeff', obj.id, k);
         end
 
         function set.heatFlux(obj, f)
-            ctFunc('mWall_setHeatFlux', obj.id, f.id);
+            ct.impl.call('mWall_setHeatFlux', obj.id, f.id);
         end
 
         function set.velocity(obj, f)
-            ctFunc('mWall_setVelocity', obj.id, f.id);
+            ct.impl.call('mWall_setVelocity', obj.id, f.id);
         end
 
     end

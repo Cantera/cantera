@@ -1,4 +1,4 @@
-function output = ctString(funcName, varargin)
+function output = getString(funcName, varargin)
     % Calls Cantera library functions with string outputs and returns
     % errors if necessary.
 
@@ -15,12 +15,12 @@ function output = ctString(funcName, varargin)
             error('not implemented - argument list contains more than one char array.')
         end
     else
-        error('Cantera:ctError', ctGetErr);
+        error('Cantera:ctError', ct.impl.getError());
     end
 
     iok = double(iok);
-    if ismember(iok, ctErrorCode)
-        error('Cantera:ctError', ctGetErr);
+    if ismember(iok, ct.impl.errorCode)
+        error('Cantera:ctError', ct.impl.getError());
     end
 
     % Discard the last character

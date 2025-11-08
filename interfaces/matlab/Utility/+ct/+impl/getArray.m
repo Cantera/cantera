@@ -1,4 +1,4 @@
-function output = ctArray(funcName, buflen, varargin)
+function output = getArray(funcName, buflen, varargin)
     % Calls Cantera library functions that return arrays and handles
     % errors if necessary.
 
@@ -16,8 +16,8 @@ function output = ctArray(funcName, buflen, varargin)
     iok = clib.ctMatlab.(funcName)(args{:}, buf, extraArgs{:});
 
     iok = double(iok);
-    if ismember(iok, ctErrorCode)
-        error('Cantera:ctError', ctGetErr);
+    if ismember(iok, ct.impl.errorCode)
+        error('Cantera:ctError', ct.impl.getError());
     end
 
     % Convert output to double for better data compatibility

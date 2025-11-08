@@ -80,7 +80,7 @@ classdef (Abstract) Kinetics < handle
                 id (1,1) double {mustBeInteger}
             end
 
-            kin.kinID = ctFunc('mSol_kinetics', id);
+            kin.kinID = ct.impl.call('mSol_kinetics', id);
         end
 
         %% Get scalar attributes
@@ -95,7 +95,7 @@ classdef (Abstract) Kinetics < handle
             % :return:
             %    Index of the species.
 
-            n = ctFunc('mKin_kineticsSpeciesIndex', obj.kinID, name) + 1;
+            n = ct.impl.call('mKin_kineticsSpeciesIndex', obj.kinID, name) + 1;
         end
 
         function n = multiplier(obj, irxn)
@@ -108,19 +108,19 @@ classdef (Abstract) Kinetics < handle
             % :return:
             %    Multiplier of the rate of progress of reaction irxn.
 
-            n = ctFunc('mKin_multiplier', obj.kinID, irxn - 1);
+            n = ct.impl.call('mKin_multiplier', obj.kinID, irxn - 1);
         end
 
         function n = get.nPhases(obj)
-            n = ctFunc('mKin_nPhases', obj.kinID);
+            n = ct.impl.call('mKin_nPhases', obj.kinID);
         end
 
         function n = get.nReactions(obj)
-            n = ctFunc('mKin_nReactions', obj.kinID);
+            n = ct.impl.call('mKin_nReactions', obj.kinID);
         end
 
         function n = get.nTotalSpecies(obj)
-            n = ctFunc('mKin_nTotalSpecies', obj.kinID);
+            n = ct.impl.call('mKin_nTotalSpecies', obj.kinID);
         end
 
         function n = phaseIndex(obj, phase)
@@ -133,7 +133,7 @@ classdef (Abstract) Kinetics < handle
             % :return:
             %    Index of the phase.
 
-            n = ctFunc('mKin_phaseIndex', obj.kinID, phase) + 1;
+            n = ct.impl.call('mKin_phaseIndex', obj.kinID, phase) + 1;
         end
 
         function rxn = reactionEquation(obj, irxn)
@@ -145,8 +145,8 @@ classdef (Abstract) Kinetics < handle
             %    Integer index of the reaction.
             % :return:
             %    String reaction equation.
-            r = ctFunc('mKin_reaction', obj.kinID, irxn - 1);
-            rxn = ctString('mRxn_equation', r);
+            r = ct.impl.call('mKin_reaction', obj.kinID, irxn - 1);
+            rxn = ct.impl.getString('mRxn_equation', r);
         end
 
         %% Get reaction array attributes
@@ -205,7 +205,7 @@ classdef (Abstract) Kinetics < handle
                         kk = k;
                     end
 
-                    t = ctFunc('mKin_reactantStoichCoeff', obj.kinID, kk - 1, i - 1);
+                    t = ct.impl.call('mKin_reactantStoichCoeff', obj.kinID, kk - 1, i - 1);
 
                     if t ~= 0.0
                         temp(kk, i) = t;
@@ -275,7 +275,7 @@ classdef (Abstract) Kinetics < handle
                         kk = k;
                     end
 
-                    t = ctFunc('mKin_productStoichCoeff', obj.kinID, kk - 1, i - 1);
+                    t = ct.impl.call('mKin_productStoichCoeff', obj.kinID, kk - 1, i - 1);
 
                     if t ~= 0.0
                         temp(kk, i) = t;
@@ -330,12 +330,12 @@ classdef (Abstract) Kinetics < handle
 
         function cdot = get.creationRates(obj)
             nsp = obj.nTotalSpecies;
-            cdot = ctArray('mKin_getCreationRates', nsp, obj.kinID);
+            cdot = ct.impl.getArray('mKin_getCreationRates', nsp, obj.kinID);
         end
 
         function ddot = get.destructionRates(obj)
             nsp = obj.nTotalSpecies;
-            ddot = ctArray('mKin_getDestructionRates', nsp, obj.kinID);
+            ddot = ct.impl.getArray('mKin_getDestructionRates', nsp, obj.kinID);
         end
 
         function n = isReversible(obj, i)
@@ -348,27 +348,27 @@ classdef (Abstract) Kinetics < handle
             % :return:
             %    True if reaction number i is reversible. false if irreversible.
 
-            n = ctFunc('mKin_isReversible', obj.kinID, i - 1) == 1;
+            n = ct.impl.call('mKin_isReversible', obj.kinID, i - 1) == 1;
         end
 
         function wdot = get.netProdRates(obj)
             nsp = obj.nTotalSpecies;
-            wdot = ctArray('mKin_getNetProductionRates', nsp, obj.kinID);
+            wdot = ct.impl.getArray('mKin_getNetProductionRates', nsp, obj.kinID);
         end
 
         function q = get.forwardRatesOfProgress(obj)
             nr = obj.nReactions;
-            q = ctArray('mKin_getFwdRatesOfProgress', nr, obj.kinID);
+            q = ct.impl.getArray('mKin_getFwdRatesOfProgress', nr, obj.kinID);
         end
 
         function q = get.reverseRatesOfProgress(obj)
             nr = obj.nReactions;
-            q = ctArray('mKin_getRevRatesOfProgress', nr, obj.kinID);
+            q = ct.impl.getArray('mKin_getRevRatesOfProgress', nr, obj.kinID);
         end
 
         function q = get.netRatesOfProgress(obj)
             nr = obj.nReactions;
-            q = ctArray('mKin_getNetRatesOfProgress', nr, obj.kinID);
+            q = ct.impl.getArray('mKin_getNetRatesOfProgress', nr, obj.kinID);
         end
 
         function rxns = get.reactionEquations(obj)
@@ -383,47 +383,47 @@ classdef (Abstract) Kinetics < handle
 
         function enthalpy = get.deltaEnthalpy(obj)
             nr = obj.nReactions;
-            enthalpy = ctArray('mKin_getDeltaEnthalpy', nr, obj.kinID);
+            enthalpy = ct.impl.getArray('mKin_getDeltaEnthalpy', nr, obj.kinID);
         end
 
         function enthalpy = get.deltaStandardEnthalpy(obj)
             nr = obj.nReactions;
-            enthalpy = ctArray('mKin_getDeltaSSEnthalpy', nr, obj.kinID);
+            enthalpy = ct.impl.getArray('mKin_getDeltaSSEnthalpy', nr, obj.kinID);
         end
 
         function entropy = get.deltaEntropy(obj)
             nr = obj.nReactions;
-            entropy = ctArray('mKin_getDeltaEntropy', nr, obj.kinID);
+            entropy = ct.impl.getArray('mKin_getDeltaEntropy', nr, obj.kinID);
         end
 
         function entropy = get.deltaStandardEntropy(obj)
             nr = obj.nReactions;
-            entropy = ctArray('mKin_getDeltaSSEntropy', nr, obj.kinID);
+            entropy = ct.impl.getArray('mKin_getDeltaSSEntropy', nr, obj.kinID);
         end
 
         function gibbs = get.deltaGibbs(obj)
             nr = obj.nReactions;
-            gibbs = ctArray('mKin_getDeltaGibbs', nr, obj.kinID);
+            gibbs = ct.impl.getArray('mKin_getDeltaGibbs', nr, obj.kinID);
         end
 
         function gibbs = get.deltaStandardGibbs(obj)
             nr = obj.nReactions;
-            gibbs = ctArray('mKin_getDeltaSSGibbs', nr, obj.kinID);
+            gibbs = ct.impl.getArray('mKin_getDeltaSSGibbs', nr, obj.kinID);
         end
 
         function k = get.equilibriumConstants(obj)
             nr = obj.nReactions;
-            k = ctArray('mKin_getEquilibriumConstants', nr, obj.kinID);
+            k = ct.impl.getArray('mKin_getEquilibriumConstants', nr, obj.kinID);
         end
 
         function k = get.forwardRateConstants(obj)
             nr = obj.nReactions;
-            k = ctArray('mKin_getFwdRateConstants', nr, obj.kinID);
+            k = ct.impl.getArray('mKin_getFwdRateConstants', nr, obj.kinID);
         end
 
         function k = get.reverseRateConstants(obj)
             nr = obj.nReactions;
-            k = ctArray('mKin_getRevRateConstants', nr, obj.kinID, 'extraArgs', 0);
+            k = ct.impl.getArray('mKin_getRevRateConstants', nr, obj.kinID, 'extraArgs', 0);
         end
 
         %% Kinetics Set Methods
@@ -451,7 +451,7 @@ classdef (Abstract) Kinetics < handle
             end
 
             for i = 1:n
-                ctFunc('mKin_setMultiplier', obj.kinID, irxn(i) - 1, v);
+                ct.impl.call('mKin_setMultiplier', obj.kinID, irxn(i) - 1, v);
             end
 
         end
@@ -464,7 +464,7 @@ classdef (Abstract) Kinetics < handle
             % :param dt:
             %    Time interval by which the coverages should be advanced.
 
-            ctFunc('mKin_advanceCoverages', obj.kinID, dt);
+            ct.impl.call('mKin_advanceCoverages', obj.kinID, dt);
         end
 
     end

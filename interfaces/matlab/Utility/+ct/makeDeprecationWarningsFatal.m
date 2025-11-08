@@ -3,6 +3,6 @@ function v = makeDeprecationWarningsFatal()
     %
     %     >> ct.makeDeprecationWarningsFatal()
 
-    isLoaded(true);
-    ctFunc('mCt_makeDeprecationWarningsFatal');
+    ct.isLoaded(true);
+    ct.impl.call('mCt_makeDeprecationWarningsFatal');
 end

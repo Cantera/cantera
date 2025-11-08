@@ -6,5 +6,5 @@ function r = ElectronCharge
     % :return:
     %     The elementary charge in Coulombs.
 
-    r = ctFunc('mCt_ElectronCharge');
+    r = ct.impl.call('mCt_ElectronCharge');
 end

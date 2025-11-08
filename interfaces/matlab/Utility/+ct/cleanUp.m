@@ -1,10 +1,11 @@
 function cleanUp()
     % Delete all stored Cantera objects and reclaim memory.
 
-    isLoaded(true);
+    ct.isLoaded(true);
 
-    classList = {'Interface', 'Kinetics', 'Mixture', 'ThermoPhase', 'Transport', ...
-                 'Solution', 'Func1', 'Domain1D', 'Connector', 'ReactorBase', 'ReactorNet'};
+    classList = {'ct.Interface', 'ct.Kinetics', 'ct.Mixture', 'ct.ThermoPhase', ...
+                 'ct.Transport', 'ct.Solution', 'ct.Func1', 'ct.Domain1D', ...
+                 'ct.Connector', 'ct.ReactorBase', 'ct.ReactorNet'};
 
     varList = evalin('base', 'whos');
 

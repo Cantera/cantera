@@ -6,5 +6,5 @@ function r = epsilon0
     % :return:
     %     The vacuum permittivity in C²/N/m².
 
-    r = ctFunc('mCt_epsilon0');
+    r = ct.impl.call('mCt_epsilon0');
 end

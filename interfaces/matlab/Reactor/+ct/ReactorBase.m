@@ -79,8 +79,8 @@ classdef (Abstract) ReactorBase < handle
             end
 
             r.id = id;
-            phaseID = ctFunc('mReactor_phase', id);
-            r.phase= Solution(phaseID);
+            phaseID = ct.impl.call('mReactor_phase', id);
+            r.phase = ct.Solution(phaseID);
         end
 
         %% ReactorBase Class Destructor
@@ -88,7 +88,7 @@ classdef (Abstract) ReactorBase < handle
         function delete(obj)
             % Delete the :mat:class:`ReactorBase` object.
             if obj.id >= 0
-                ctFunc('mReactor_del', obj.id);
+                ct.impl.call('mReactor_del', obj.id);
             end
         end
 
@@ -104,49 +104,49 @@ classdef (Abstract) ReactorBase < handle
             % :param m:
             %    Index number of reaction.
 
-            ctFunc('mReactor_addSensitivityReaction', obj.id, m);
+            ct.impl.call('mReactor_addSensitivityReaction', obj.id, m);
         end
 
         %% ReactorBase Get Methods
 
         function typ = get.type(obj)
-            typ = ctString('mReactor_type', obj.id);
+            typ = ct.impl.getString('mReactor_type', obj.id);
         end
 
         function name = get.name(obj)
-            name = ctString('mReactor_name', obj.id);
+            name = ct.impl.getString('mReactor_name', obj.id);
         end
 
         function temperature = get.T(obj)
-            temperature = ctFunc('mReactor_temperature', obj.id);
+            temperature = ct.impl.call('mReactor_temperature', obj.id);
         end
 
         function pressure = get.P(obj)
-            pressure = ctFunc('mReactor_pressure', obj.id);
+            pressure = ct.impl.call('mReactor_pressure', obj.id);
         end
 
         function rho = get.D(obj)
-            rho = ctFunc('mReactor_density', obj.id);
+            rho = ct.impl.call('mReactor_density', obj.id);
         end
 
         function mass = get.M(obj)
-            mass = ctFunc('mReactor_mass', obj.id);
+            mass = ct.impl.call('mReactor_mass', obj.id);
         end
 
         function volume = get.V(obj)
-            volume = ctFunc('mReactor_volume', obj.id);
+            volume = ct.impl.call('mReactor_volume', obj.id);
         end
 
         function enthalpy_mass = get.H(obj)
-            enthalpy_mass = ctFunc('mReactor_enthalpy_mass', obj.id);
+            enthalpy_mass = ct.impl.call('mReactor_enthalpy_mass', obj.id);
         end
 
         function intEnergy_mass = get.U(obj)
-            intEnergy_mass = ctFunc('mReactor_intEnergy_mass', obj.id);
+            intEnergy_mass = ct.impl.call('mReactor_intEnergy_mass', obj.id);
         end
 
         function a = get.area(obj)
-            a = ctFunc('mReactor_area', obj.id);
+            a = ct.impl.call('mReactor_area', obj.id);
         end
 
         function yi = massFraction(obj, species)
@@ -156,51 +156,52 @@ classdef (Abstract) ReactorBase < handle
             %    String/Char array name of the species.
 
             k = obj.phase.speciesIndex(species) - 1;
-            yi = ctFunc('mReactor_massFraction', obj.id, k);
+            yi = ct.impl.call('mReactor_massFraction', obj.id, k);
         end
 
         function massFractions = get.Y(obj)
-            massFractions = ctArray('mReactor_massFractions', obj.phase.nSpecies, obj.id);
+            massFractions = ct.impl.getArray('mReactor_massFractions', ...
+                                             obj.phase.nSpecies, obj.id);
         end
 
         function flag = get.chemistryEnabled(obj)
-            flag = logical(ctFunc('mReactor_chemistryEnabled', obj.id));
+            flag = logical(ct.impl.call('mReactor_chemistryEnabled', obj.id));
         end
 
         function flag = get.energyEnabled(obj)
-            flag = logical(ctFunc('mReactor_energyEnabled', obj.id));
+            flag = logical(ct.impl.call('mReactor_energyEnabled', obj.id));
         end
 
         %% ReactorBase set methods
 
         function set.name(obj, name)
-            ctFunc('mReactor_setName', obj.id, name);
+            ct.impl.call('mReactor_setName', obj.id, name);
         end
 
         function set.V(obj, v0)
-            ctFunc('mReactor_setInitialVolume', obj.id, v0);
+            ct.impl.call('mReactor_setInitialVolume', obj.id, v0);
         end
 
         function set.chemistryEnabled(obj, flag)
             arguments
-                obj (1,1) ReactorBase
+                obj (1,1) ct.ReactorBase
                 flag (1,1) logical
             end
 
-            ctFunc('mReactor_setChemistryEnabled', obj.id, flag);
+            ct.impl.call('mReactor_setChemistryEnabled', obj.id, flag);
         end
 
         function set.energyEnabled(obj, flag)
             arguments
-                obj (1,1) ReactorBase
+                obj (1,1) ct.ReactorBase
                 flag (1,1) logical
             end
 
-            ctFunc('mReactor_setEnergyEnabled', obj.id, flag);
+            ct.impl.call('mReactor_setEnergyEnabled', obj.id, flag);
         end
 
         function set.area(obj, a)
-            ctFunc('mReactor_setArea', obj.id, a);
+            ct.impl.call('mReactor_setArea', obj.id, a);
         end
 
     end

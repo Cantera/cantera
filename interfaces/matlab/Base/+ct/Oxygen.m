@@ -18,5 +18,5 @@ function o = Oxygen()
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
-    o = Solution('liquidvapor.yaml', 'oxygen');
+    o = ct.Solution('liquidvapor.yaml', 'oxygen');
 end

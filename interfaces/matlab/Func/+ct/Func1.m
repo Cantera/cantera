@@ -69,7 +69,7 @@ classdef Func1 < handle
             % :return:
             %     Instance of class :mat:class:`Func1`.
 
-            isLoaded(true);
+            ct.isLoaded(true);
 
             if isnumeric(typ)
                 % instantiate from handle
@@ -80,7 +80,7 @@ classdef Func1 < handle
             if ~isa(typ, 'char')
                 error('Function type must be a string');
             end
-            func1Type = ctString('mFunc1_checkFunc1', typ);
+            func1Type = ct.impl.getString('mFunc1_checkFunc1', typ);
 
             if func1Type == "undefined"
                 error(['Functor ''' typ ''' is not implemented'])
@@ -88,15 +88,15 @@ classdef Func1 < handle
 
             if length(varargin) == 0 && func1Type == "standard"
                 % basic functor with no parameter
-                x.id = ctFunc('mFunc1_newBasic', typ, 1.);
+                x.id = ct.impl.call('mFunc1_newBasic', typ, 1.);
             elseif length(varargin) == 1 && func1Type == "standard"
                 coeffs = varargin{1};
                 if length(coeffs) == 1
                     % basic functor with scalar parameter
-                    x.id = ctFunc('mFunc1_newBasic', typ, coeffs);
+                    x.id = ct.impl.call('mFunc1_newBasic', typ, coeffs);
                 elseif isa(coeffs, 'double')
                     % advanced functor with array parameter
-                    x.id = ctFunc('mFunc1_newAdvanced', typ, coeffs);
+                    x.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
                 else
                     error('Invalid arguments for functor')
                 end
@@ -106,27 +106,27 @@ classdef Func1 < handle
                 if func1Type == "compound"
                     % compounding functor
                     if isa(arg1, 'double') && length(arg1) == 1
-                        arg1 = Func1('constant', arg1);
+                        arg1 = ct.Func1('constant', arg1);
                     elseif isa(arg2, 'double') && length(arg2) == 1
-                        arg2 = Func1('constant', arg2);
+                        arg2 = ct.Func1('constant', arg2);
                     end
-                    if ~isa(arg1, 'Func1') || ~isa(arg2, 'Func1')
+                    if ~isa(arg1, 'ct.Func1') || ~isa(arg2, 'ct.Func1')
                         error('Invalid arguments for compounding functor')
                     end
-                    x.id = ctFunc('mFunc1_newCompound', typ, arg1.id, arg2.id);
+                    x.id = ct.impl.call('mFunc1_newCompound', typ, arg1.id, arg2.id);
                 elseif func1Type == "modified"
                     % modifying functor
-                    if ~isa(arg1, 'Func1') || ~isa(arg2, 'double') || length(arg2) > 1
+                    if ~isa(arg1, 'ct.Func1') || ~isa(arg2, 'double') || length(arg2) > 1
                         error('Invalid arguments for modifying functor')
                     end
-                    x.id = ctFunc('mFunc1_newModified', typ, arg1.id, arg2);
+                    x.id = ct.impl.call('mFunc1_newModified', typ, arg1.id, arg2);
                 else % func1Type == "standard"
                     % tabulating functors
                     if ~isa(arg1, 'double') || ~isa(arg2, 'double')
                         error('Invalid arguments for tabulating functor')
                     end
                     coeffs = [varargin{1}, varargin{2}];
-                    x.id = ctFunc('mFunc1_newAdvanced', typ, coeffs);
+                    x.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
                 end
             else
                 error('Invalid number of arguments');
@@ -138,7 +138,7 @@ classdef Func1 < handle
         function delete(obj)
             % Delete the :mat:class:`Func1` object.
             if obj.id >= 0
-                ctFunc('mFunc1_del', obj.id);
+                ct.impl.call('mFunc1_del', obj.id);
             end
         end
 
@@ -146,47 +146,47 @@ classdef Func1 < handle
 
         function r = plus(obj,f2)
             if isa(obj, 'double') && length(obj) == 1
-                obj = Func1('constant', obj);
+                obj = ct.Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
-                f2 = Func1('constant', f2);
+                f2 = ct.Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newSumFunction', obj.id, f2.id);
-            r = Func1(id);
+            id = ct.impl.call('mFunc1_newSumFunction', obj.id, f2.id);
+            r = ct.Func1(id);
         end
 
         function r = minus(obj,f2)
             if isa(obj, 'double') && length(obj) == 1
-                obj = Func1('constant', obj);
+                obj = ct.Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
-                f2 = Func1('constant', f2);
+                f2 = ct.Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newDiffFunction', obj.id, f2.id);
-            r = Func1(id);
+            id = ct.impl.call('mFunc1_newDiffFunction', obj.id, f2.id);
+            r = ct.Func1(id);
         end
 
         function r = mtimes(obj,f2)
             if isa(obj, 'double') && length(obj) == 1
-                obj = Func1('constant', obj);
+                obj = ct.Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
-                f2 = Func1('constant', f2);
+                f2 = ct.Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newProdFunction', obj.id, f2.id);
-            r = Func1(id);
+            id = ct.impl.call('mFunc1_newProdFunction', obj.id, f2.id);
+            r = ct.Func1(id);
         end
 
         function r = mrdivide(obj,f2)
             if isa(obj, 'double') && length(obj) == 1
-                obj = Func1('constant', obj);
+                obj = ct.Func1('constant', obj);
             elseif isa(f2, 'double') && length(f2) == 1
-                f2 = Func1('constant', f2);
+                f2 = ct.Func1('constant', f2);
             end
-            id = ctFunc('mFunc1_newRatioFunction', obj.id, f2.id);
-            r = Func1(id);
+            id = ct.impl.call('mFunc1_newRatioFunction', obj.id, f2.id);
+            r = ct.Func1(id);
         end
 
         function s = get.type(obj)
             % Return function type.
-            s = ctString('mFunc1_type', obj.id);
+            s = ct.impl.getString('mFunc1_type', obj.id);
         end
 
         function display(obj)
@@ -222,7 +222,7 @@ classdef Func1 < handle
                 b = zeros(1, length(ind));
 
                 for k = 1:length(ind)
-                    b(k) = ctFunc('mFunc1_eval', obj.id, ind(k));
+                    b(k) = ct.impl.call('mFunc1_eval', obj.id, ind(k));
                 end
 
             elseif strcmp(s.type, '.')
@@ -244,7 +244,7 @@ classdef Func1 < handle
             % :return:
             %     LaTeX-formatted string displaying the function.
             arg = 'x';
-            s = ctString('mFunc1_write', obj.id, arg);
+            s = ct.impl.getString('mFunc1_write', obj.id, arg);
         end
 
     end

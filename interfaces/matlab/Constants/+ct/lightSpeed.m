@@ -6,5 +6,5 @@ function r = lightSpeed
     % :return:
     %     The speed of light in m/s.
 
-    r = ctFunc('mCt_lightSpeed');
+    r = ct.impl.call('mCt_lightSpeed');
 end

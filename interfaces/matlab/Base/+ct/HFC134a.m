@@ -20,5 +20,5 @@ function h = HFC134a()
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
-    h = Solution('liquidvapor.yaml', 'HFC-134a');
+    h = ct.Solution('liquidvapor.yaml', 'HFC-134a');
 end

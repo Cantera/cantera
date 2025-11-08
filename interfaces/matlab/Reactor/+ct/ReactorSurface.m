@@ -1,4 +1,4 @@
-classdef ReactorSurface < ReactorBase
+classdef ReactorSurface < ct.ReactorBase
     % ReactorSurface Class ::
     %
     %     >> s = ReactorSurface(surf, reactor, name, clone)
@@ -29,19 +29,20 @@ classdef ReactorSurface < ReactorBase
 
         function s = ReactorSurface(surf, reactors, name, clone)
             arguments
-                surf (1,1) Interface
+                surf (1,1) ct.Interface
                 reactors
                 name (1,1) string = "(none)"
                 clone (1,1) logical = true
             end
 
-            if isa(reactors, 'ReactorBase')
+            if isa(reactors, 'ct.ReactorBase')
                 reactors = {reactors};
             end
 
             reactorIDs = cellfun(@(r) r.id, reactors);
-            id = ctFunc('mReactor_newSurface', surf.solnID, reactorIDs, clone, name);
-            s@ReactorBase(id);
+            id = ct.impl.call('mReactor_newSurface', surf.solnID, reactorIDs, ...
+                              clone, name);
+            s@ct.ReactorBase(id);
         end
 
     end

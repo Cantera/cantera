@@ -11,9 +11,9 @@ function load(mode)
                            ["inprocess", "outofprocess"])} = "outofprocess"
     end
 
-    if isLoaded
-        mode_ = executionMode;
-        msg = sprintf('Cantera %s is already loaded (%s mode).', version, mode_);
+    if ct.isLoaded
+        mode_ = ct.executionMode;
+        msg = sprintf('Cantera %s is already loaded (%s mode).', ct.version, mode_);
         warning("load:IsLoaded", msg);
         if mode == mode_ && mode == "inprocess"
             return
@@ -23,7 +23,7 @@ function load(mode)
                    "'inprocess' execution mode. Restart MATLAB to update."));
             return
         else
-            ctUnload;
+            ct.unload();
         end
     end
 
@@ -36,7 +36,7 @@ function load(mode)
     end
 
     global ctMatlab
-    if ~isLoaded
+    if ~ct.isLoaded
         if isMATLABReleaseOlderThan("R2025a") || strcmp(mode, "inprocess")
             ctMatlab = clibConfiguration("ctMatlab", ExecutionMode=mode);
         else
@@ -45,5 +45,5 @@ function load(mode)
         end
     end
 
-    fprintf('Cantera %s is ready for use (%s mode).\n', version, mode);
+    fprintf('Cantera %s is ready for use (%s mode).\n', ct.version, mode);
 end

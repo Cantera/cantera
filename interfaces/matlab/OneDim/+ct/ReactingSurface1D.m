@@ -1,4 +1,4 @@
-classdef ReactingSurface1D < Boundary1D
+classdef ReactingSurface1D < ct.Boundary1D
     % Create a reacting surface domain. ::
     %
     %     >> m = ReactingSurface1D(surface_mech, name)
@@ -25,11 +25,11 @@ classdef ReactingSurface1D < Boundary1D
 
         function s = ReactingSurface1D(surface_mech, name)
             arguments
-                surface_mech (1,1) Interface
+                surface_mech (1,1) ct.Interface
                 name (1,1) string = "reacting-surface"
             end
 
-            s@Boundary1D('reacting-surface', surface_mech, name);
+            s@ct.Boundary1D('reacting-surface', surface_mech, name);
             s.coverageEnabled = false;
         end
 
@@ -37,7 +37,7 @@ classdef ReactingSurface1D < Boundary1D
 
         function set.coverageEnabled(obj, flag)
             obj.coverageEnabled = flag;
-            ctFunc('mReactingsurf_enableCoverageEquations', obj.domainID, int8(flag));
+            ct.impl.call('mReactingsurf_enableCoverageEquations', obj.domainID, int8(flag));
         end
 
     end

@@ -36,12 +36,12 @@ classdef (Abstract) Connector < handle
         function c = Connector(typ, r1, r2, name)
             arguments
                 typ (1,1) string
-                r1 (1,1) ReactorBase
-                r2 (1,1) ReactorBase
+                r1 (1,1) ct.ReactorBase
+                r2 (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            c.id = ctFunc('mConnector_new', typ, r1.id, r2.id, name);
+            c.id = ct.impl.call('mConnector_new', typ, r1.id, r2.id, name);
         end
 
         %% Connector Class Destructor
@@ -49,24 +49,24 @@ classdef (Abstract) Connector < handle
         function delete(obj)
             % Delete the :mat:class:`Connector` object.
             if obj.id >= 0
-                ctFunc('mConnector_del', obj.id);
+                ct.impl.call('mConnector_del', obj.id);
             end
         end
 
         %% Connector Get Methods
 
         function typ = get.type(obj)
-            typ = ctString('mConnector_type', obj.id);
+            typ = ct.impl.getString('mConnector_type', obj.id);
         end
 
         function name = get.name(obj)
-            name = ctString('mConnector_name', obj.id);
+            name = ct.impl.getString('mConnector_name', obj.id);
         end
 
         %% Connector Set Methods
 
         function set.name(obj, name)
-            ctFunc('mConnector_setName', obj.id, name);
+            ct.impl.call('mConnector_setName', obj.id, name);
         end
 
     end
