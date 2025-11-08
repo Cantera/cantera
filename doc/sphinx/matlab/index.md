@@ -27,35 +27,35 @@ within the Cantera source code.
 
 ## [Objects Representing Phases](./phases)
 
-The most frequently used class in Cantera is the {mat:class}`Solution`. It can represent
-a mixture of gases, a liquid solution, or a solid solution and provides access to the
-solution's thermodynamic, kinetic, and transport properties. The {mat:class}`Interface`
-class represents surfaces formed by two adjacent phases or edges where three phases
-meet. Several [special constructors](sec-matlab-purefluid) are provided to instantiate
-{mat:class}`Solution` objects that implement pure fluid equations of state for certain
-substances.
+The most frequently used class in Cantera is the {mat:class}`~ct.Solution`. It can
+represent a mixture of gases, a liquid solution, or a solid solution and provides access
+to the solution's thermodynamic, kinetic, and transport properties. The
+{mat:class}`~ct.Interface` class represents surfaces formed by two adjacent phases or
+edges where three phases meet. Several [special constructors](sec-matlab-purefluid) are
+provided to instantiate {mat:class}`~ct.Solution` objects that implement pure fluid
+equations of state for certain substances.
 
 ## [Thermodynamic Properties](./thermo)
 
-Class {mat:class}`ThermoPhase` is one of the base classes for {mat:class}`Solution`
-objects. It represents the intensive thermodynamic state using one of the [phase
-thermodynamic models](/reference/thermo/phase-thermo) implemented by Cantera and
-provides methods for computing thermodynamic properties.
+Class {mat:class}`~ct.ThermoPhase` is one of the base classes for
+{mat:class}`~ct.Solution` objects. It represents the intensive thermodynamic state using
+one of the [phase thermodynamic models](/reference/thermo/phase-thermo) implemented by
+Cantera and provides methods for computing thermodynamic properties.
 
-The {mat:class}`Mixture` class provides an interface for computing equilibrium
+The {mat:class}`~ct.Mixture` class provides an interface for computing equilibrium
 properties of mixtures composed of multiple phases.
 
 ## [Chemical Kinetics](./kinetics)
 
-Class {mat:class}`Kinetics` is a base class of {mat:class}`Solution` that provides access
-to [reaction rates](/reference/kinetics/reaction-rates) of progress, species production
-rates, and other quantities pertaining to a reaction mechanism.
+Class {mat:class}`~ct.Kinetics` is a base class of {mat:class}`~ct.Solution` that
+provides access to [reaction rates](/reference/kinetics/reaction-rates) of progress,
+species production rates, and other quantities pertaining to a reaction mechanism.
 
 ## [Transport Properties](./transport)
 
-Class {mat:class}`Transport` is a base class of {mat:class}`Solution` that provides
-access to transport properties such as viscosity and species diffusivities, using one of
-the available [transport models](sec-phase-transport-models).
+Class {mat:class}`~ct.Transport` is a base class of {mat:class}`~ct.Solution` that
+provides access to transport properties such as viscosity and species diffusivities,
+using one of the available [transport models](sec-phase-transport-models).
 
 ## [Zero-Dimensional Reactor Networks](./zerodim)
 

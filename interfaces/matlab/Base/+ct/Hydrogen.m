@@ -1,7 +1,7 @@
 function h = Hydrogen()
     % Return an object representing hydrogen. ::
     %
-    %     >> h = Hydrogen()
+    %     >> h = ct.Hydrogen()
     %
     % The object returned by this method implements an accurate equation of
     % state for hydrogen that can be used in the liquid, vapor, saturated
@@ -16,7 +16,7 @@ function h = Hydrogen()
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
 
     h = ct.Solution('liquidvapor.yaml', 'hydrogen');
 end

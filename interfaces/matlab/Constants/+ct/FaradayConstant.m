@@ -1,7 +1,7 @@
 function r = FaradayConstant
     % Get the Faraday constant in C/kmol of electron. ::
     %
-    %     >> r = FaradayConstant
+    %     >> r = ct.FaradayConstant
     %
     % :return:
     %     The Faraday constant in C/kmol of electron.

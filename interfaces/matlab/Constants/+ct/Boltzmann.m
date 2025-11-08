@@ -1,7 +1,7 @@
 function r = Boltzmann
     % Get Boltzmann's constant in J/K. ::
     %
-    %     >> r = Boltzmann
+    %     >> r = ct.Boltzmann
     %
     % :return:
     %     Boltzmann's constant in J/K.

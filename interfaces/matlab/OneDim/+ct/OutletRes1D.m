@@ -1,10 +1,10 @@
 classdef OutletRes1D < ct.Boundary1D
     % Create an outlet reservoir domain. ::
     %
-    %     >> m = OutletRes1D(phase, name)
+    %     >> m = ct.OutletRes1D(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String ID of the outlet reservoir.
 

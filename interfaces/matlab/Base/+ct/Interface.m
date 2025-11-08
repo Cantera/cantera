@@ -1,7 +1,7 @@
 classdef Interface < ct.Solution
     % Interface Class ::
     %
-    %     >> s = Interface(src, name, p1, p2)
+    %     >> s = ct.Interface(src, name, p1, p2)
     %
     % See :ref:`sec-yaml-ideal-surface` and :ref:`sec-yaml-guide-adjacent`.
     %

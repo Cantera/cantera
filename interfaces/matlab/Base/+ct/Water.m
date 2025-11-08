@@ -1,7 +1,7 @@
 function w = Water(backend)
     % Return an object representing water. ::
     %
-    %     >> w = Water(backend)
+    %     >> w = ct.Water(backend)
     %
     % The object returned by this method implements an accurate equation of
     % state for water that can be used in the liquid, vapor, saturated
@@ -18,7 +18,7 @@ function w = Water(backend)
     % :param backend:
     %     Can be either 'Reynolds' or 'IAPWS95'.
     % :return:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     if nargin == 0 | strcmp(backend, 'Reynolds')
         w = ct.Solution('liquidvapor.yaml', 'water', 'water');
     elseif strcmp(backend, 'IAPWS95')

@@ -1,19 +1,19 @@
 classdef FlowReactor < ct.ReactorBase
     % Create a flow reactor object. ::
     %
-    %     >> r = FlowReactor(phase, name, clone)
+    %     >> r = ct.FlowReactor(phase, name, clone)
     %
     % A reactor representing adiabatic plug flow in a constant-area
     % duct. Examples:
     %
     % .. code-block:: matlab
     %
-    %     r2 = FlowReactor(gas)    % a reactor containing a gas
+    %     r2 = ct.FlowReactor(gas)    % a reactor containing a gas
     %
-    % See also: :mat:class:`ReactorBase`
+    % See also: :mat:class:`ct.ReactorBase`
     %
     % :param phase:
-    %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    %     Cantera :mat:class:`ct.Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
     % :param clone:

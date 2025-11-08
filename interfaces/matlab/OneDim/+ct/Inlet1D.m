@@ -1,13 +1,13 @@
 classdef Inlet1D < ct.Boundary1D
     % Create an inlet domain. ::
     %
-    %     >> m = Inlet1D(phase, name)
+    %     >> m = ct.Inlet1D(phase, name)
     %
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String name of the inlet.
 

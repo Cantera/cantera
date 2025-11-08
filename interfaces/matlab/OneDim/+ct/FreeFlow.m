@@ -1,10 +1,10 @@
 classdef FreeFlow < ct.Flow1D
     % Create a free flow domain. ::
     %
-    %     >> m = FreeFlow(phase, name)
+    %     >> m = ct.FreeFlow(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String, ID of the flow.
 

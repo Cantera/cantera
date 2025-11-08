@@ -1,11 +1,11 @@
 classdef (Abstract) Connector < handle
     % Connector Class ::
     %
-    %     >> c = Connector(typ, r1, r2, name)
+    %     >> c = ct.Connector(typ, r1, r2, name)
     %
     % Base class for walls and flow devices.
     %
-    % See also: :mat:class:`FlowDevice`, :mat:class:`Wall`
+    % See also: :mat:class:`ct.FlowDevice`, :mat:class:`ct.Wall`
     %
     % :param typ:
     %     Type of connector.
@@ -47,7 +47,7 @@ classdef (Abstract) Connector < handle
         %% Connector Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`Connector` object.
+            % Delete the :mat:class:`ct.Connector` object.
             if obj.id >= 0
                 ct.impl.call('mConnector_del', obj.id);
             end

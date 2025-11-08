@@ -1,10 +1,10 @@
 classdef Surface1D < ct.Boundary1D
     % Create a surface domain. ::
     %
-    %     >> m = Surface1D(phase, name)
+    %     >> m = ct.Surface1D(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String ID of surface
 

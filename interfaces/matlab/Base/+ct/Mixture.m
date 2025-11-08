@@ -1,18 +1,18 @@
 classdef Mixture < handle
     % Mixture Class ::
     %
-    %     >> m = Mixture(phases)
+    %     >> m = ct.Mixture(phases)
     %
-    % Class :mat:class:`Mixture` represents mixtures of one or more phases of matter.
+    % Class :mat:class:`ct.Mixture` represents mixtures of one or more phases of matter.
     % To construct a mixture, supply a cell array of phases and mole numbers ::
     %
-    %     >> gas = Solution('gas.yaml');
-    %     >> graphite = Solution('graphite.yaml');
-    %     >> mix = Mixture({gas, 1.0; graphite, 0.1});
+    %     >> gas = ct.Solution('gas.yaml');
+    %     >> graphite = ct.Solution('graphite.yaml');
+    %     >> mix = ct.Mixture({gas, 1.0; graphite, 0.1});
     %
     % Phases may also be added later using the addPhase method ::
     %
-    %     >> water = Solution('water.yaml');
+    %     >> water = ct.Solution('water.yaml');
     %     >> mix.addPhase(water, 3.0);
     %
     % Note that the objects representing each phase compute only the
@@ -57,12 +57,12 @@ classdef Mixture < handle
         %% Mixture Class Constructor
 
         function m = Mixture(phases)
-            % Create a :mat:class:`Mixture` object.
+            % Create a :mat:class:`ct.Mixture` object.
 
             ct.isLoaded(true);
 
             if nargin > 1
-                error('Mixture: wrong number of arguments');
+                error('ct.Mixture: wrong number of arguments');
             end
 
             % Create an empty mixture.
@@ -102,7 +102,7 @@ classdef Mixture < handle
         %% Mixture Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`Mixture` object.
+            % Delete the :mat:class:`ct.Mixture` object.
             if obj.mixID >= 0
                 ct.impl.call('mMix_del', obj.mixID);
             end
@@ -132,7 +132,7 @@ classdef Mixture < handle
             %     >> m.addPhase(phase, moles)
             %
             % :param phase:
-            %     Instance of class :mat:class:`ThermoPhase` which should be added.
+            %     Instance of class :mat:class:`ct.ThermoPhase` which should be added.
             % :param moles:
             %     Number of moles [kmol] of the ``phase`` to be added to this mixture.
 

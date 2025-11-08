@@ -1,14 +1,14 @@
 classdef SymmetryPlane1D < ct.Boundary1D
     % Create a symmetry plane domain. ::
     %
-    %     >> m = SymmetryPlane1D(phase, name)
+    %     >> m = ct.SymmetryPlane1D(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String ID of the symmetry plane.
     % :return:
-    %     Instance of class :mat:class:`SymmetryPlane1D`.
+    %     Instance of class :mat:class:`ct.SymmetryPlane1D`.
 
     methods
 

@@ -1,9 +1,9 @@
 classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
     % Solution Class ::
     %
-    %     >> s = Solution(src, name, transport_model)
+    %     >> s = ct.Solution(src, name, transport_model)
     %
-    % Class :mat:class:`Solution` represents solutions of multiple species. A
+    % Class :mat:class:`ct.Solution` represents solutions of multiple species. A
     % solution is defined as a mixture of two or more constituents
     % (species) that are completely mixed on molecular length
     % scales. The macroscopic intensive thermodynamic state of a
@@ -12,20 +12,20 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
     % of each species, which may be given as mole fractions or mass
     % fractions. ::
     %
-    %     >> s = Solution('input.yaml')
+    %     >> s = ct.Solution('input.yaml')
     %
-    % constructs a :mat:class:`Solution` object from specifications contained in
+    % constructs a :mat:class:`ct.Solution` object from specifications contained in
     % file ``input.yaml``. The phase defaults to the first phase listed in the
-    % YAML input file and no :mat:class:`Transport` model is included unless
+    % YAML input file and no :mat:class:`ct.Transport` model is included unless
     % explicitly specified.
     %
-    % Class :mat:class:`Solution` derives from three more basic classes, and most of
+    % Class :mat:class:`ct.Solution` derives from three more basic classes, and most of
     % its methods are inherited from these classes. These are:
     %
-    % * class :mat:class:`ThermoPhase`: composition information and thermodynamic
+    % * class :mat:class:`ct.ThermoPhase`: composition information and thermodynamic
     %   properties.
-    % * class :mat:class:`Kinetics`: homogeneous kinetics.
-    % * class :mat:class:`Transport`: transport properties.
+    % * class :mat:class:`ct.Kinetics`: homogeneous kinetics.
+    % * class :mat:class:`ct.Transport`: transport properties.
     %
     % :param src:
     %     Input string of YAML file name.
@@ -38,12 +38,12 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
     %     If not specified, ``'default'`` is used.
 
     properties (SetAccess = immutable)
-        solnID = -1  % ID of the :mat:class:`Solution` object.
-        solnName  % Name of the :mat:class:`Solution` object.
+        solnID = -1  % ID of the :mat:class:`ct.Solution` object.
+        solnName  % Name of the :mat:class:`ct.Solution` object.
     end
 
     properties (SetAccess = public)
-        transportModel % Transport model of the :mat:class:`Solution` object.
+        transportModel % Transport model of the :mat:class:`ct.Solution` object.
     end
 
     methods
@@ -66,7 +66,7 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
                 % New C++/MATLAB object from YAML source
                 ID = ct.impl.call('mSol_newSolution', src, name, transport_model);
             else
-                error("Invalid argument: Solution requires name of input file.")
+                error("Invalid argument: ct.Solution requires name of input file.")
             end
 
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
@@ -81,7 +81,7 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
         %% Solution Class Destructor
 
         function delete(obj)
-            % Delete :mat:class:`Solution` object.
+            % Delete :mat:class:`ct.Solution` object.
             if obj.solnID >= 0
                 ct.impl.call('mSol_del', obj.solnID);
             end

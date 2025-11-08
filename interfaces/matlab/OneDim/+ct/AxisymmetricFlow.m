@@ -1,10 +1,10 @@
 classdef AxisymmetricFlow < ct.Flow1D
     % Create an axisymmetric flow domain. ::
     %
-    %     >> m = AxisymmetricFlow(phase, name)
+    %     >> m = ct.AxisymmetricFlow(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String, ID of the flow.
 

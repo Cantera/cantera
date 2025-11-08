@@ -1,14 +1,16 @@
 classdef ReactorNet < handle
     % ReactorNet class ::
     %
-    %     >> r = ReactorNet(reactors)
+    %     >> r = ct.ReactorNet(reactors)
     %
-    % A :mat:class:`ReactorNet` object is a container that holds one or more
-    % :mat:class:`ReactorBase` objects in a network. :mat:class:`ReactorNet` objects
-    % are used to simultaneously advance the state of one or more coupled reactors.
+    % A :mat:class:`ct.ReactorNet` object is a container that holds one or more
+    % :mat:class:`ct.ReactorBase` objects in a network. :mat:class:`ct.ReactorNet`
+    % objects are used to simultaneously advance the state of one or more coupled
+    % reactors.
     %
     % :param reactors:
-    %    An instance of or a cell array of instances of class :mat:class:`ReactorBase`.
+    %    An instance of or a cell array of instances of class
+    %    :mat:class:`ct.ReactorBase`.
 
     properties (SetAccess = immutable)
         id = -1
@@ -59,7 +61,7 @@ classdef ReactorNet < handle
         %% ReactorNet Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ReactorNet` object object.
+            % Delete the :mat:class:`ct.ReactorNet` object object.
             if obj.id >= 0
                 ct.impl.call('mReactornet_del', obj.id);
             end
@@ -168,7 +170,7 @@ classdef ReactorNet < handle
             % :param p:
             %    Integer sensitivity parameter.
             % :param r:
-            %    Instance of class :mat:class:`ReactorBase`.
+            %    Instance of class :mat:class:`ct.ReactorBase`.
 
             if isa(component, 'string')
                 s = ct.impl.call('mReactornet_sensitivity', obj.id, component, p, r.id);

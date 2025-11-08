@@ -1,14 +1,14 @@
 classdef UnstrainedFlow < ct.Flow1D
     % Create an unstrained flow domain. ::
     %
-    %     >> m = UnstrainedFlow(phase, name)
+    %     >> m = ct.UnstrainedFlow(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String, ID of the flow.
     % :return:
-    %     Instance of class :mat:class:`UnstrainedFlow`.
+    %     Instance of class :mat:class:`ct.UnstrainedFlow`.
 
     methods
 

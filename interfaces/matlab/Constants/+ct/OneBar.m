@@ -1,7 +1,7 @@
 function r = OneBar
     % Get one bar in Pascals. ::
     %
-    %     >> r = OneBar
+    %     >> r = ct.OneBar
     %
     % :return:
     %     One bar in Pascals.

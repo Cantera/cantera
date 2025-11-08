@@ -1,7 +1,7 @@
 function p = OneAtm
     % Get one atmosphere in Pa. ::
     %
-    %     >> p = oneatm
+    %     >> p = ct.OneAtm
     %
     % :return:
     %     One atmosphere in Pascals.

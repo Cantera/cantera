@@ -1,7 +1,7 @@
 function o = Oxygen()
     % Return an object representing oxygen. ::
     %
-    %     >> o = Oxygen()
+    %     >> o = ct.Oxygen()
     %
     % The object returned by this method implements an accurate equation of
     % state for oxygen that can be used in the liquid, vapor, saturated
@@ -16,7 +16,7 @@ function o = Oxygen()
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
 
     o = ct.Solution('liquidvapor.yaml', 'oxygen');
 end
