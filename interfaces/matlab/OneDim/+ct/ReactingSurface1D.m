@@ -1,10 +1,10 @@
 classdef ReactingSurface1D < ct.Boundary1D
     % Create a reacting surface domain. ::
     %
-    %     >> m = ReactingSurface1D(surface_mech, name)
+    %     >> m = ct.ReactingSurface1D(surface_mech, name)
     %
     % :param surface_mech:
-    %     Instance of class :mat:class:`Interface` defining
+    %     Instance of class :mat:class:`ct.Interface` defining
     %     the surface reaction mechanism to be used.
     % :param name:
     %     String ID of the reacting surface.

@@ -1,10 +1,10 @@
 classdef ReactorSurface < ct.ReactorBase
     % ReactorSurface Class ::
     %
-    %     >> s = ReactorSurface(surf, reactor, name, clone)
+    %     >> s = ct.ReactorSurface(surf, reactor, name, clone)
     %
     % A surface on which heterogeneous reactions take place. The
-    % mechanism object (typically an instance of :mat:class:`Interface`)
+    % mechanism object (typically an instance of :mat:class:`ct.Interface`)
     % must be constructed so that it is properly linked to the
     % object representing the fluid in the reactor. The surface
     % temperature on each side is taken to be equal to the
@@ -12,10 +12,11 @@ classdef ReactorSurface < ct.ReactorBase
     %
     % :param surf:
     %    Surface reaction mechanisms for the left-facing surface.
-    %    This must bean instance of class :mat:class:`Kinetics`, or of a class
-    %    derived from Kinetics, such as :mat:class:`Interface`.
+    %    This must bean instance of class :mat:class:`ct.Kinetics`, or of a class
+    %    derived from Kinetics, such as :mat:class:`ct.Interface`.
     % :param reactors:
-    %    An instance of or a cell array of instances of class :mat:class:`ReactorBase`.
+    %    An instance of or a cell array of instances of class
+    %    :mat:class:`ct.ReactorBase`.
     % :param name:
     %    Reactor surface name (optional; default is ``(none)``).
     % :param clone:

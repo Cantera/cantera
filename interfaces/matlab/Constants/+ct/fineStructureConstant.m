@@ -1,7 +1,7 @@
 function r = fineStructureConstant
     % Get the fine-structure constant (dimensionless). ::
     %
-    %     >> r = fineStructureConstant
+    %     >> r = ct.fineStructureConstant
     %
     % :return:
     %     The fine-structure constant (dimensionless).

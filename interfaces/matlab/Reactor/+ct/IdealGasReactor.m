@@ -1,20 +1,20 @@
 classdef IdealGasReactor < ct.ReactorBase
     % Create a reactor with an ideal gas. ::
     %
-    %     >> r = IdealGasReactor(phase, name, clone)
+    %     >> r = ct.IdealGasReactor(phase, name, clone)
     %
-    % An :mat:class:`IdealGasReactor` is an instance of :mat:class:`ReactorBase` where
+    % An :mat:class:`ct.IdealGasReactor` is an instance of :mat:class:`ct.ReactorBase` where
     % the governing equations are specialized for the ideal gas equation of state
     % (and do not work correctly with other thermodynamic models). Examples:
     %
     % .. code-block:: matlab
     %
-    %     r2 = IdealGasReactor(gas)    % a reactor containing a gas
+    %     r2 = ct.IdealGasReactor(gas)    % a reactor containing a gas
     %
-    % See also: :mat:class:`ReactorBase`
+    % See also: :mat:class:`ct.ReactorBase`
     %
     % :param phase:
-    %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    %     Cantera :mat:class:`ct.Solution` to be set as the contents of the reactor.
     % :param name:
     %     Reactor name (optional; default is ``(none)``).
     % :param clone:

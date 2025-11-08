@@ -1,7 +1,7 @@
 classdef (Abstract) Domain1D < handle
     % Domain1D Class ::
     %
-    %     >> d = Domain1D(type, phase, id)
+    %     >> d = ct.Domain1D(type, phase, id)
     %
     % :param type:
     %    String type of domain. Possible values are:
@@ -14,7 +14,7 @@ classdef (Abstract) Domain1D < handle
     %      - `symmetry-plane`
     %      - `outlet-reservoir`
     % :param phase:
-    %     Instance of :mat:class:`Solution` or :mat:class:`Interface`.
+    %     Instance of :mat:class:`ct.Solution` or :mat:class:`ct.Interface`.
     % :param id:
     %     String ID of the domain.
 
@@ -58,7 +58,7 @@ classdef (Abstract) Domain1D < handle
         %% Domain1D Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`Domain1D` object.
+            % Delete the :mat:class:`ct.Domain1D` object.
             if obj.domainID >= 0
                 ct.impl.call('mDomain_del', obj.domainID);
             end

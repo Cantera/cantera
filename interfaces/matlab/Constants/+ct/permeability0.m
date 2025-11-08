@@ -1,7 +1,7 @@
 function r = permeability0
     % Get the vacuum permeability in N/A². ::
     %
-    %     >> r = permeability0
+    %     >> r = ct.permeability0
     %
     % :return:
     %     The vacuum permeability in N/A².

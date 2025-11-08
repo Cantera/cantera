@@ -1,7 +1,7 @@
 classdef (Abstract) Boundary1D < ct.Domain1D
     % Create a Boundary domain. ::
     %
-    %     >> m = Boundary(type, phase, name)
+    %     >> m = ct.Boundary1D(type, phase, name)
     %
     % :param type:
     %    String type of Boundary. Possible values are:
@@ -12,7 +12,7 @@ classdef (Abstract) Boundary1D < ct.Domain1D
     %      - `symmetry-plane`
     %      - `outlet-reservoir`
     % :param phase:
-    %     Instance of class :mat:class:`Solution` or :mat:class:`Interface`.
+    %     Instance of class :mat:class:`ct.Solution` or :mat:class:`ct.Interface`.
     % :param name:
     %     String, ID of the flow.
 

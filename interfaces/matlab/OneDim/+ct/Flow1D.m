@@ -1,14 +1,14 @@
 classdef (Abstract) Flow1D < ct.Domain1D
     % Create a Flow domain. ::
     %
-    %     >> m = Flow1D(type, phase, name)
+    %     >> m = ct.Flow1D(type, phase, name)
     %
     % :param type:
     %    String type of domain. Possible values are:
     %      - `axisymmetric-flow`
     %      - `free-flow`
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String, ID of the flow.
 
@@ -125,7 +125,7 @@ classdef (Abstract) Flow1D < ct.Domain1D
             % This method can be called at any time, but is usually used to set the
             % initial guess for the solution.
             %
-            % Example (assuming 'd' is an instance of class :mat:class:`Domain1D`):
+            % Example (assuming 'd' is an instance of class :mat:class:`ct.Domain1D`):
             %    >> zr = [0.0, 0.1, 0.2, 0.4, 0.8, 1.0];
             %
             %    >> v = [500, 650, 700, 730, 800, 900];

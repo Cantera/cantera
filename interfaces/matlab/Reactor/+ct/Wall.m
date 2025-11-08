@@ -1,7 +1,7 @@
 classdef Wall < ct.Connector
     % Wall Class ::
     %
-    %     >> x = Wall(l, r, name)
+    %     >> x = ct.Wall(l, r, name)
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -35,10 +35,10 @@ classdef Wall < ct.Connector
     % the Wall class.
     %
     % :param l:
-    %    Instance of class :mat:class:`ReactorBase` to be used as the bulk phase
+    %    Instance of class :mat:class:`ct.ReactorBase` to be used as the bulk phase
     %    on the left side of the wall.
     % :param r:
-    %    Instance of class :mat:class:`ReactorBase` to be used as the bulk phase
+    %    Instance of class :mat:class:`ct.ReactorBase` to be used as the bulk phase
     %    on the right side of the wall.
     % :param name:
     %     Wall name (optional; default is ``(none)``).
@@ -62,7 +62,7 @@ classdef Wall < ct.Connector
 
         % Heat flux [W/m²].
         %
-        % Must be set by an instance of :mat:class:`Func1`, which allows the
+        % Must be set by an instance of :mat:class:`ct.Func1`, which allows the
         % heat flux to be an arbitrary function of time. It is possible
         % to specify a constant heat flux by using the polynomial
         % functor with only the first term specified.
@@ -70,7 +70,7 @@ classdef Wall < ct.Connector
 
         % Velocity [m/s].
         %
-        % Must be set by an instance of :mat:class:`Func1`, which allows the
+        % Must be set by an instance of :mat:class:`ct.Func1`, which allows the
         % velocity to be an arbitrary function of time. It is possible
         % to specify a constant velocity by using the polynomial
         % functor with only the first term specified.

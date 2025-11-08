@@ -1,10 +1,10 @@
 classdef Outlet1D < ct.Boundary1D
     % Create an outlet domain. ::
     %
-    %     >> m = Outlet1D(phase, name)
+    %     >> m = ct.Outlet1D(phase, name)
     %
     % :param phase:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String ID of the outlet.
 

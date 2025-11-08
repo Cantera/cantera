@@ -1,23 +1,24 @@
 classdef (Abstract) FlowDevice < ct.Connector
     % FlowDevice Class ::
     %
-    %     >> x = FlowDevice(typ, name)
+    %     >> x = ct.FlowDevice(typ, name)
     %
     % Base class for devices that allow flow between reactors.
-    % :mat:class:`FlowDevice` objects are assumed to be adiabatic,
+    % :mat:class:`ct.FlowDevice` objects are assumed to be adiabatic,
     % non-reactive, and have negligible internal volume, so that they are
     % internally always in steady-state even if the upstream and downstream
     % reactors are not. The fluid enthalpy, chemical composition, and mass
-    % flow rate are constant across a :mat:class:`FlowDevice`, and the
+    % flow rate are constant across a :mat:class:`ct.FlowDevice`, and the
     % pressure difference equals the difference in pressure between the
     % upstream and downstream reactors.
     %
-    % See also: :mat:class:`MassFlowController`, :mat:class:`Valve`
+    % See also: :mat:class:`ct.MassFlowController`, :mat:class:`ct.Valve`
     %
     % :param typ:
-    %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
-    %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
-    %     :mat:class:`PressureController`, and ``typ='Valve'`` for :mat:class:`Valve`.
+    %     Type of :mat:class:`ct.FlowDevice` to be created. ``typ='MassFlowController'``
+    %     for :mat:class:`ct.MassFlowController`,  ``typ='PressureController'`` for
+    %     :mat:class:`ct.PressureController`, and ``typ='Valve'`` for
+    %     :mat:class:`ct.Valve`.
     % :param upstream:
     %     Upstream reactor or reservoir.
     % :param downstream:
@@ -27,20 +28,20 @@ classdef (Abstract) FlowDevice < ct.Connector
 
     properties (SetAccess = immutable)
 
-        % Upstream object of type :mat:class:`ReactorBase`.
+        % Upstream object of type :mat:class:`ct.ReactorBase`.
         upstream
 
-        % Downstream object of type :mat:class:`ReactorBase`.
+        % Downstream object of type :mat:class:`ct.ReactorBase`.
         downstream
 
     end
 
     properties (SetAccess = public)
 
-        % The mass flow rate through the :mat:class:`FlowDevice` at the current time.
+        % The mass flow rate through the :mat:class:`ct.FlowDevice` at the current time.
         %
         % The setter method can either take a double value or a function represented by
-        % an instance of :mat:class:`Func1`.
+        % an instance of :mat:class:`ct.Func1`.
         massFlowRate
 
         % Valve coefficient in kg/s/Pa.
@@ -101,7 +102,7 @@ classdef (Abstract) FlowDevice < ct.Connector
             %     >> f.setPrimary(d)
             %
             % :param d:
-            %     Instance of class :mat:class:`FlowDevice`.
+            %     Instance of class :mat:class:`ct.FlowDevice`.
 
             if strcmp(obj.type, 'PressureController')
                 ct.impl.call('mFlowdev_setPrimary', obj.id, d);

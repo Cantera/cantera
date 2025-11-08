@@ -1,7 +1,7 @@
 function r = lightSpeed
     % Get the speed of light in m/s. ::
     %
-    %     >> r = lightSpeed
+    %     >> r = ct.lightSpeed
     %
     % :return:
     %     The speed of light in m/s.

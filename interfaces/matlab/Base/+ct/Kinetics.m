@@ -1,22 +1,22 @@
 classdef (Abstract) Kinetics < handle
     % Kinetics Class ::
     %
-    %     >> k = Kinetics(id)
+    %     >> k = ct.Kinetics(id)
     %
-    % Retrieve instance of class :mat:class:`Kinetics` associated with a
-    % :mat:class:`Solution` object. The constructor is called whenever a new
-    % :mat:class:`Solution` is instantiated and should not be used directly.
+    % Retrieve instance of class :mat:class:`ct.Kinetics` associated with a
+    % :mat:class:`ct.Solution` object. The constructor is called whenever a new
+    % :mat:class:`ct.Solution` is instantiated and should not be used directly.
     %
-    % Class :mat:class:`Kinetics` represents kinetics managers, which manage
+    % Class :mat:class:`ct.Kinetics` represents kinetics managers, which manage
     % reaction mechanisms. The reaction mechanism attributes are specified in a
     % YAML file.
     %
-    % Instances of class :mat:class:`Kinetics` are responsible for evaluating
+    % Instances of class :mat:class:`ct.Kinetics` are responsible for evaluating
     % reaction rates of progress, species production rates, and other
     % quantities pertaining to a reaction mechanism.
     %
     % :param id:
-    %     Integer ID of the solution holding the :mat:class:`Kinetics` object.
+    %     Integer ID of the solution holding the :mat:class:`ct.Kinetics` object.
 
     properties (SetAccess = immutable)
         kinID % ID of the Kinetics object.

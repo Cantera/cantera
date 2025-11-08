@@ -6,7 +6,7 @@ classdef (Abstract) ReactorBase < handle
 
         % The Solution object used to represent the contents of this reactor.
         % If the `clone` parameter of the reactor constructor is true,
-        % a new instance of :mat:class:`Solution` will be created for this reactor.
+        % a new instance of :mat:class:`ct.Solution` will be created for this reactor.
         % Otherwise, the same instance as passed to the constructor will be used.
         phase
 
@@ -86,7 +86,7 @@ classdef (Abstract) ReactorBase < handle
         %% ReactorBase Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ReactorBase` object.
+            % Delete the :mat:class:`ct.ReactorBase` object.
             if obj.id >= 0
                 ct.impl.call('mReactor_del', obj.id);
             end

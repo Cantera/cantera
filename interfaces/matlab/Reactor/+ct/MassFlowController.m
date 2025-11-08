@@ -1,18 +1,18 @@
 classdef MassFlowController < ct.FlowDevice
     % Create a mass flow controller. ::
     %
-    %     >> m = MassFlowController(upstream, downstream, name)
+    %     >> m = ct.MassFlowController(upstream, downstream, name)
     %
-    % Creates an instance of class :mat:class:`FlowDevice` configured to
+    % Creates an instance of class :mat:class:`ct.FlowDevice` configured to
     % simulate a mass flow controller that maintains a constant mass flow
     % rate independent of upstream or downstream conditions.
     %
-    % see also: :mat:class:`FlowDevice`, :mat:class:`Valve`
+    % see also: :mat:class:`ct.FlowDevice`, :mat:class:`ct.Valve`
     %
     % :param upstream:
-    %     Upstream :mat:class:`ReactorBase`.
+    %     Upstream :mat:class:`ct.ReactorBase`.
     % :param downstream:
-    %     Downstream :mat:class:`ReactorBase`.
+    %     Downstream :mat:class:`ct.ReactorBase`.
     % :param name:
     %     Flow device name (optional; default is ``(none)``).
 

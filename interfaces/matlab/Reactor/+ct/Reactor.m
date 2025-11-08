@@ -1,15 +1,15 @@
 classdef Reactor < ct.ReactorBase
     % Reactor Class ::
     %
-    %     >> r = Reactor(phase, name, clone)
+    %     >> r = ct.Reactor(phase, name, clone)
     %
-    % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
+    % A :mat:class:`ct.Reactor` object simulates a perfectly-stirred reactor.
     % It has a time-dependent state, and may be coupled to other
     % reactors through flow lines or through walls that may expand
     % or contract and/or conduct heat.
     %
     % :param phase:
-    %    Instance of :mat:class:`Solution` representing the contents of
+    %    Instance of :mat:class:`ct.Solution` representing the contents of
     %    the reactor.
     % :param name:
     %    Reactor name (optional; default is ``(none)``).

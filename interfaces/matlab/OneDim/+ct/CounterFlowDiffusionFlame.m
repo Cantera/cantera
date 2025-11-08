@@ -1,14 +1,15 @@
 classdef CounterFlowDiffusionFlame < ct.Sim1D
     % Create a counter flow diffusion flame stack. ::
     %
-    %     >> flame = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
+    %     >> flame = ct.CounterFlowDiffusionFlame(left, flow, right, oxidizer)
     %
     % :param left:
-    %     :mat:class:`Inlet1D` object representing the left ('fuel') inlet boundary.
+    %     :mat:class:`ct.Inlet1D` object representing the left ('fuel') inlet boundary.
     % :param flow:
-    %     :mat:class:`AxisymmetricFlow` object representing the flow domain.
+    %     :mat:class:`ct.AxisymmetricFlow` object representing the flow domain.
     % :param right:
-    %     :mat:class:`Inlet1D` object representing the right ('oxidizer') inlet boundary.
+    %     :mat:class:`ct.Inlet1D` object representing the right ('oxidizer') inlet
+    %     boundary.
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
 

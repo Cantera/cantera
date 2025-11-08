@@ -1,7 +1,7 @@
 function n = Nitrogen()
     % Return an object representing nitrogen. ::
     %
-    %     >> n = Nitrogen()
+    %     >> n = ct.Nitrogen()
     %
     % The object returned by this method implements an accurate equation of
     % state for nitrogen that can be used in the liquid, vapor, saturated
@@ -16,7 +16,7 @@ function n = Nitrogen()
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:class:`Solution`.
+    %     Instance of class :mat:class:`ct.Solution`.
 
     n = ct.Solution('liquidvapor.yaml', 'nitrogen');
 end
