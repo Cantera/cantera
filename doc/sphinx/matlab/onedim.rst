@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: OneDim
+.. currentmodule:: OneDim.+ct
 
 One-dimensional Reacting Flows
 ==============================

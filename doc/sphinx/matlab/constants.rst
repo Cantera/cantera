@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: Constants
+.. currentmodule:: Constants.+ct
 
 Physical Constants
 ==================

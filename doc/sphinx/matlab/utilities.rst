@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: Utility
+.. currentmodule:: Utility.+ct
 
 Utility Functions
 =================

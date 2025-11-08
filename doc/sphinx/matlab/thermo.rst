@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: Base
+.. currentmodule:: Base.+ct
 
 Thermodynamic Properties
 ========================
