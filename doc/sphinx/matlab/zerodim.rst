@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: Reactor
+.. currentmodule:: Reactor.+ct
 
 Zero-Dimensional Reactor Networks
 =================================
