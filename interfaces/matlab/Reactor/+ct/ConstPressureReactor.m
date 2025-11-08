@@ -26,7 +26,7 @@ classdef ConstPressureReactor < ct.ReactorBase
 
     methods
 
-        function r = ConstPressureReactor(phase, name, clone)
+        function obj = ConstPressureReactor(phase, name, clone)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
@@ -35,7 +35,7 @@ classdef ConstPressureReactor < ct.ReactorBase
 
             id = ct.impl.call('mReactor_new', 'ConstPressureReactor', ...
                               phase.solnID, clone, name);
-            r@ct.ReactorBase(id);
+            obj@ct.ReactorBase(id);
         end
 
     end

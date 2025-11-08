@@ -28,7 +28,7 @@ classdef ReactorSurface < ct.ReactorBase
     methods
         %% ReactorSurface Class Constructor
 
-        function s = ReactorSurface(surf, reactors, name, clone)
+        function obj = ReactorSurface(surf, reactors, name, clone)
             arguments
                 surf (1,1) ct.Interface
                 reactors
@@ -43,7 +43,7 @@ classdef ReactorSurface < ct.ReactorBase
             reactorIDs = cellfun(@(r) r.id, reactors);
             id = ct.impl.call('mReactor_newSurface', surf.solnID, reactorIDs, ...
                               clone, name);
-            s@ct.ReactorBase(id);
+            obj@ct.ReactorBase(id);
         end
 
     end

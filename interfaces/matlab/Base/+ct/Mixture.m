@@ -56,7 +56,7 @@ classdef Mixture < handle
     methods
         %% Mixture Class Constructor
 
-        function m = Mixture(phases)
+        function obj = Mixture(phases)
             % Create a :mat:class:`ct.Mixture` object.
 
             ct.isLoaded(true);
@@ -66,8 +66,8 @@ classdef Mixture < handle
             end
 
             % Create an empty mixture.
-            m.mixID = ct.impl.call('mMix_new');
-            m.phases = phases;
+            obj.mixID = ct.impl.call('mMix_new');
+            obj.phases = phases;
 
             % If phases are supplied, add them
             if nargin == 0
@@ -91,11 +91,11 @@ classdef Mixture < handle
             end
 
             for n = 1:np
-                m.addPhase(phases{n, 1}, phases{n, 2});
+                obj.addPhase(phases{n, 1}, phases{n, 2});
             end
 
-            m.T = phases{n, 1}.T;
-            m.P = phases{n, 1}.P;
+            obj.T = phases{n, 1}.T;
+            obj.P = phases{n, 1}.P;
 
         end
 

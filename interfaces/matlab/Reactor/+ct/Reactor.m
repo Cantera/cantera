@@ -22,7 +22,7 @@ classdef Reactor < ct.ReactorBase
     methods
         %% Reactor Class Constructor
 
-        function r = Reactor(phase, name, clone)
+        function obj = Reactor(phase, name, clone)
 
             arguments
                 phase (1,1) ct.Solution
@@ -31,7 +31,7 @@ classdef Reactor < ct.ReactorBase
             end
 
             id = ct.impl.call('mReactor_new', 'Reactor', phase.solnID, clone, name);
-            r@ct.ReactorBase(id);
+            obj@ct.ReactorBase(id);
         end
 
     end

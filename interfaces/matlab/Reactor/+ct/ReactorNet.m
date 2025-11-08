@@ -43,7 +43,7 @@ classdef ReactorNet < handle
     methods
         %% ReactorNet Class Constructor
 
-        function n = ReactorNet(reactors)
+        function obj = ReactorNet(reactors)
             arguments
                 reactors
             end
@@ -53,8 +53,8 @@ classdef ReactorNet < handle
             end
             reactorIDs = cellfun(@(r) r.id, reactors);
 
-            n.id = ct.impl.call('mReactornet_new', reactorIDs);
-            n.time = 0;
+            obj.id = ct.impl.call('mReactornet_new', reactorIDs);
+            obj.time = 0;
 
         end
 

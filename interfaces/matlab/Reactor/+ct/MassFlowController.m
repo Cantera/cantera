@@ -18,14 +18,14 @@ classdef MassFlowController < ct.FlowDevice
 
     methods
 
-        function m = MassFlowController(upstream, downstream, name)
+        function obj = MassFlowController(upstream, downstream, name)
             arguments
                 upstream (1,1) ct.ReactorBase
                 downstream (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            m@ct.FlowDevice('MassFlowController', upstream, downstream, name);
+            obj@ct.FlowDevice('MassFlowController', upstream, downstream, name);
         end
 
     end

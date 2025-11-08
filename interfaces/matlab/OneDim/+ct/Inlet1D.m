@@ -17,13 +17,13 @@ classdef Inlet1D < ct.Boundary1D
 
     methods
 
-        function m = Inlet1D(phase, name)
+        function obj = Inlet1D(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "inlet"
             end
 
-            m@ct.Boundary1D('inlet', phase, name);
+            obj@ct.Boundary1D('inlet', phase, name);
 
         end
 

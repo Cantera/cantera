@@ -23,14 +23,14 @@ classdef ReactingSurface1D < ct.Boundary1D
 
         %% ReactingSurface1D Class Constructor
 
-        function s = ReactingSurface1D(surface_mech, name)
+        function obj = ReactingSurface1D(surface_mech, name)
             arguments
                 surface_mech (1,1) ct.Interface
                 name (1,1) string = "reacting-surface"
             end
 
-            s@ct.Boundary1D('reacting-surface', surface_mech, name);
-            s.coverageEnabled = false;
+            obj@ct.Boundary1D('reacting-surface', surface_mech, name);
+            obj.coverageEnabled = false;
         end
 
         %% ReactingSurface1D Class Methods

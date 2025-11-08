@@ -29,7 +29,7 @@ classdef IdealGasConstPressureReactor < ct.ReactorBase
 
     methods
 
-        function r = IdealGasConstPressureReactor(phase, name, clone)
+        function obj = IdealGasConstPressureReactor(phase, name, clone)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
@@ -38,7 +38,7 @@ classdef IdealGasConstPressureReactor < ct.ReactorBase
 
             id = ct.impl.call('mReactor_new', 'IdealGasConstPressureReactor', ...
                               phase.solnID, clone, name);
-            r@ct.ReactorBase(id);
+            obj@ct.ReactorBase(id);
         end
 
     end

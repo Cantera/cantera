@@ -10,13 +10,13 @@ classdef AxisymmetricFlow < ct.Flow1D
 
     methods
 
-        function m = AxisymmetricFlow(phase, name)
+        function obj = AxisymmetricFlow(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "axisymmetric-flow"
             end
 
-            m@ct.Flow1D('axisymmetric-flow', phase, name);
+            obj@ct.Flow1D('axisymmetric-flow', phase, name);
 
         end
 

@@ -359,14 +359,14 @@ classdef (Abstract) ThermoPhase < handle
     methods
         %% ThermoPhase Class Constructor
 
-        function tp = ThermoPhase(id)
+        function obj = ThermoPhase(id)
             % Create a :mat:class:`ct.ThermoPhase` object.
             arguments
                 id (1,1) double {mustBeInteger}
             end
 
-            tp.tpID = ct.impl.call('mSol_thermo', id);
-            tp.basis = 'molar';
+            obj.tpID = ct.impl.call('mSol_thermo', id);
+            obj.basis = 'molar';
         end
 
         %% ThermoPhase Utility Methods

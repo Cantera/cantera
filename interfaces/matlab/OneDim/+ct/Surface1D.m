@@ -12,13 +12,13 @@ classdef Surface1D < ct.Boundary1D
 
         %% Surface1D Class Constructor
 
-        function m = Surface1D(phase, name)
+        function obj = Surface1D(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "surface"
             end
 
-            m@ct.Boundary1D('surface', phase, name);
+            obj@ct.Boundary1D('surface', phase, name);
 
         end
 

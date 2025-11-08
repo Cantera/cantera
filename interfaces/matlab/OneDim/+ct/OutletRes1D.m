@@ -10,13 +10,13 @@ classdef OutletRes1D < ct.Boundary1D
 
     methods
 
-        function m = OutletRes1D(phase, name)
+        function obj = OutletRes1D(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "outlet-reservoir"
             end
 
-            m@ct.Boundary1D('outlet-reservoir', phase, name);
+            obj@ct.Boundary1D('outlet-reservoir', phase, name);
 
         end
 

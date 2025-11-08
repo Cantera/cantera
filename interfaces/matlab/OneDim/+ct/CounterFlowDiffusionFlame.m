@@ -15,7 +15,7 @@ classdef CounterFlowDiffusionFlame < ct.Sim1D
 
     methods
 
-        function flame = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
+        function obj = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
 
             arguments
                 left(1, 1) ct.Inlet1D
@@ -192,7 +192,7 @@ classdef CounterFlowDiffusionFlame < ct.Sim1D
             %% Create the flame stack.
             % Set the profile of the flame with the estimated axial velocities,
             % radial velocities, temperature, and mass fractions calculated above.
-            flame@ct.Sim1D({left flow right});
+            obj@ct.Sim1D({left flow right});
             flow.setProfile('velocity', zrel, u);
             flow.setProfile('spreadRate', zrel, v);
             flow.setProfile('T', zrel, t);

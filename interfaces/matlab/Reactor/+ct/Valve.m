@@ -31,14 +31,14 @@ classdef Valve < ct.FlowDevice
 
     methods
 
-        function v = Valve(upstream, downstream, name)
+        function obj = Valve(upstream, downstream, name)
             arguments
                 upstream (1,1) ct.ReactorBase
                 downstream (1,1) ct.ReactorBase
                 name (1,1) string = "(none)"
             end
 
-            v@ct.FlowDevice('Valve', upstream, downstream, name);
+            obj@ct.FlowDevice('Valve', upstream, downstream, name);
         end
 
     end

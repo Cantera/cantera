@@ -32,16 +32,16 @@ classdef (Abstract) Flow1D < ct.Domain1D
 
         %% Flow1D Class Constructor
 
-        function f = Flow1D(type, phase, name)
+        function obj = Flow1D(type, phase, name)
             arguments
                 type (1,1) string
                 phase (1,1) ct.Solution
                 name (1,1) string
             end
             id = ct.impl.call('mDomain_newFlow1D', type, phase.solnID, name);
-            f@ct.Domain1D(id);
-            f.energyEnabled = false;
-            f.soretEnabled = false;
+            obj@ct.Domain1D(id);
+            obj.energyEnabled = false;
+            obj.soretEnabled = false;
 
         end
 

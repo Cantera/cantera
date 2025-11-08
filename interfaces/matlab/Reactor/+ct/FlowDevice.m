@@ -58,7 +58,7 @@ classdef (Abstract) FlowDevice < ct.Connector
     methods
         %% FlowDevice Class Constructor
 
-        function x = FlowDevice(typ, upstream, downstream, name)
+        function obj = FlowDevice(typ, upstream, downstream, name)
             arguments
                 typ (1,1) string
                 upstream (1,1) ct.ReactorBase
@@ -66,9 +66,9 @@ classdef (Abstract) FlowDevice < ct.Connector
                 name (1,1) string = "(none)"
             end
 
-            x@ct.Connector(typ, upstream, downstream, name);
-            x.upstream = upstream;
-            x.downstream = downstream;
+            obj@ct.Connector(typ, upstream, downstream, name);
+            obj.upstream = upstream;
+            obj.downstream = downstream;
         end
 
         %% FlowDevice Get Methods

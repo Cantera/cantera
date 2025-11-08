@@ -30,7 +30,7 @@ classdef FlowReactor < ct.ReactorBase
 
     methods
 
-        function r = FlowReactor(phase, name, clone)
+        function obj = FlowReactor(phase, name, clone)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "(none)"
@@ -38,7 +38,7 @@ classdef FlowReactor < ct.ReactorBase
             end
 
             id = ct.impl.call('mReactor_new', 'FlowReactor', phase.solnID, clone, name);
-            r@ct.ReactorBase(id);
+            obj@ct.ReactorBase(id);
         end
 
         %% FlowReactor Get Methods

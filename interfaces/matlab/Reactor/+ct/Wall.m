@@ -80,7 +80,7 @@ classdef Wall < ct.Connector
     methods
         %% Wall Class Constructor
 
-        function w = Wall(l, r, name)
+        function obj = Wall(l, r, name)
             arguments
                 l (1,1) ct.ReactorBase
                 r (1,1) ct.ReactorBase
@@ -88,14 +88,14 @@ classdef Wall < ct.Connector
             end
 
             % Install the wall between left and right reactors
-            w@ct.Connector('Wall', l, r, name);
-            w.left = l;
-            w.right = r;
+            obj@ct.Connector('Wall', l, r, name);
+            obj.left = l;
+            obj.right = r;
 
             % Set default values.
-            w.area = 1.0;
-            w.expansionRateCoeff = 0.0;
-            w.heatTransferCoeff = 0.0;
+            obj.area = 1.0;
+            obj.expansionRateCoeff = 0.0;
+            obj.heatTransferCoeff = 0.0;
 
         end
 
