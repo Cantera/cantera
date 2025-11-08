@@ -50,7 +50,7 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
 
         %% Solution Class Constructor
 
-        function s = Solution(src, name, transport_model)
+        function obj = Solution(src, name, transport_model)
             arguments
                 src (1,:)
                 name (1,1) string = ""
@@ -70,12 +70,12 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
             end
 
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
-            s@ct.ThermoPhase(ID);
-            s@ct.Kinetics(ID);
-            s@ct.Transport(ID);
-            s.solnID = ID;
-            s.solnName = ct.impl.getString('mSol_name', s.solnID);
-            s.th = s.tpID;
+            obj@ct.ThermoPhase(ID);
+            obj@ct.Kinetics(ID);
+            obj@ct.Transport(ID);
+            obj.solnID = ID;
+            obj.solnName = ct.impl.getString('mSol_name', obj.solnID);
+            obj.th = obj.tpID;
         end
 
         %% Solution Class Destructor

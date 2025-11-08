@@ -37,13 +37,13 @@ classdef (Abstract) Transport < handle
     methods
         %% Transport Class Constructor
 
-        function tr = Transport(id)
+        function obj = Transport(id)
             arguments
                 id (1,1) double {mustBeInteger}
             end
 
-            tr.trID = ct.impl.call('mSol_transport', id);
-            tr.th = ct.impl.call('mSol_thermo', id);
+            obj.trID = ct.impl.call('mSol_transport', id);
+            obj.th = ct.impl.call('mSol_thermo', id);
         end
 
         %% Transport Get Methods

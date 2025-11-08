@@ -46,13 +46,13 @@ classdef (Abstract) Domain1D < handle
     methods
         %% Domain1D Class Constructor.
 
-        function d = Domain1D(id)
+        function obj = Domain1D(id)
             arguments
                 id (1,1) double {mustBeInteger}
             end
-            d.domainID = id;
+            obj.domainID = id;
             phaseID = ct.impl.call('mDomain_phase', id);
-            d.phase = ct.Solution(phaseID);
+            obj.phase = ct.Solution(phaseID);
         end
 
         %% Domain1D Class Destructor

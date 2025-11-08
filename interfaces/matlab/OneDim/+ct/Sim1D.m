@@ -24,14 +24,14 @@ classdef Sim1D < handle
 
         %% Sim1D Class Constructor
 
-        function s = Sim1D(domains)
+        function obj = Sim1D(domains)
             arguments
                 domains (1,:) cell
             end
             if ~all(cellfun(@(d) isa(d, 'ct.Domain1D'), domains))
                 error('All elements must be ct.Domain1D objects');
             end
-            s.domains = domains;
+            obj.domains = domains;
 
             nd = length(domains);
             ids = zeros(1, nd);
@@ -40,7 +40,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = ct.impl.call('mSim1D_newSim1D', ids);
+            obj.stID = ct.impl.call('mSim1D_newSim1D', ids);
 
         end
 

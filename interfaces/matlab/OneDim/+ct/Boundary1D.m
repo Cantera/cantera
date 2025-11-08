@@ -27,14 +27,14 @@ classdef (Abstract) Boundary1D < ct.Domain1D
 
         %% Boundary Class Constructor
 
-        function b = Boundary1D(type, phase, name)
+        function obj = Boundary1D(type, phase, name)
             arguments
                 type (1,1) string
                 phase (1,1) ct.Solution
                 name (1,1) string
             end
             id = ct.impl.call('mDomain_newBoundary1D', type, phase.solnID, name);
-            b@ct.Domain1D(id);
+            obj@ct.Domain1D(id);
 
         end
 

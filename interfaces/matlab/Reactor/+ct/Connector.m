@@ -33,7 +33,7 @@ classdef (Abstract) Connector < handle
     methods
         %% Connector Class Constructor
 
-        function c = Connector(typ, r1, r2, name)
+        function obj = Connector(typ, r1, r2, name)
             arguments
                 typ (1,1) string
                 r1 (1,1) ct.ReactorBase
@@ -41,7 +41,7 @@ classdef (Abstract) Connector < handle
                 name (1,1) string = "(none)"
             end
 
-            c.id = ct.impl.call('mConnector_new', typ, r1.id, r2.id, name);
+            obj.id = ct.impl.call('mConnector_new', typ, r1.id, r2.id, name);
         end
 
         %% Connector Class Destructor

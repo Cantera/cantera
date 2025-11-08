@@ -12,14 +12,14 @@ classdef SymmetryPlane1D < ct.Boundary1D
 
     methods
 
-        function m = SymmetryPlane1D(phase, name)
+        function obj = SymmetryPlane1D(phase, name)
             % Constructor
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "symmetry-plane"
             end
 
-            m@ct.Boundary1D('symmetry-plane', phase, name);
+            obj@ct.Boundary1D('symmetry-plane', phase, name);
 
         end
 

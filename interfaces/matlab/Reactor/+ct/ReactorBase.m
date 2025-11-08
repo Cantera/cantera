@@ -68,7 +68,7 @@ classdef (Abstract) ReactorBase < handle
     methods
         %% ReactorBase Class Constructor
 
-        function r = ReactorBase(id)
+        function obj = ReactorBase(id)
             % ReactorBase Class
             %
             % :param id:
@@ -78,9 +78,9 @@ classdef (Abstract) ReactorBase < handle
                 id (1,1) {mustBeInteger, mustBeGreaterThan(id, -1)}
             end
 
-            r.id = id;
+            obj.id = id;
             phaseID = ct.impl.call('mReactor_phase', id);
-            r.phase = ct.Solution(phaseID);
+            obj.phase = ct.Solution(phaseID);
         end
 
         %% ReactorBase Class Destructor

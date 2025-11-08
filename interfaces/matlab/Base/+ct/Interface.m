@@ -29,7 +29,7 @@ classdef Interface < ct.Solution
     methods
         %% Interface Class Constructor
 
-        function s = Interface(src, name, varargin)
+        function obj = Interface(src, name, varargin)
             ct.isLoaded(true);
 
             na = nargin - 2;
@@ -43,11 +43,11 @@ classdef Interface < ct.Solution
             ID = ct.impl.call('mSol_newInterface', src, name, adj);
 
             % Inherit methods and properties from Solution
-            s@ct.Solution(ID);
-            s.nAdjacent = ct.impl.call('mSol_nAdjacent', ID);
-            s.adjacentNames = {};
-            for i = 1:s.nAdjacent
-                s.adjacentNames{i} = ct.impl.getString('mSol_adjacentName', ID, i-1);
+            obj@ct.Solution(ID);
+            obj.nAdjacent = ct.impl.call('mSol_nAdjacent', ID);
+            obj.adjacentNames = {};
+            for i = 1:obj.nAdjacent
+                obj.adjacentNames{i} = ct.impl.getString('mSol_adjacentName', ID, i-1);
             end
         end
 

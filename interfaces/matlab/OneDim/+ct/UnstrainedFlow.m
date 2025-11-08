@@ -12,14 +12,14 @@ classdef UnstrainedFlow < ct.Flow1D
 
     methods
 
-        function m = UnstrainedFlow(phase, name)
+        function obj = UnstrainedFlow(phase, name)
             % Constructor
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "unstrained-flow"
             end
 
-            m@ct.Flow1D('unstrained-flow', phase, name);
+            obj@ct.Flow1D('unstrained-flow', phase, name);
 
         end
 

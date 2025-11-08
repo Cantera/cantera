@@ -75,12 +75,12 @@ classdef (Abstract) Kinetics < handle
     methods
         %% Kinetics Class Constructor
 
-        function kin = Kinetics(id)
+        function obj = Kinetics(id)
             arguments
                 id (1,1) double {mustBeInteger}
             end
 
-            kin.kinID = ct.impl.call('mSol_kinetics', id);
+            obj.kinID = ct.impl.call('mSol_kinetics', id);
         end
 
         %% Get scalar attributes

@@ -10,13 +10,13 @@ classdef FreeFlow < ct.Flow1D
 
     methods
 
-        function m = FreeFlow(phase, name)
+        function obj = FreeFlow(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "free-flow"
             end
 
-            m@ct.Flow1D('free-flow', phase, name);
+            obj@ct.Flow1D('free-flow', phase, name);
 
         end
 

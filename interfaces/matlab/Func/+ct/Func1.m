@@ -11,7 +11,7 @@ classdef Func1 < handle
     methods
         %% Func1 Class Constructor
 
-        function x = Func1(typ, varargin)
+        function obj = Func1(typ, varargin)
             % Func1 Class ::
             %
             %     >> x = ct.Func1(typ, coeff)
@@ -73,7 +73,7 @@ classdef Func1 < handle
 
             if isnumeric(typ)
                 % instantiate from handle
-                x.id = typ;
+                obj.id = typ;
                 return
             end
 
@@ -88,15 +88,15 @@ classdef Func1 < handle
 
             if length(varargin) == 0 && func1Type == "standard"
                 % basic functor with no parameter
-                x.id = ct.impl.call('mFunc1_newBasic', typ, 1.);
+                obj.id = ct.impl.call('mFunc1_newBasic', typ, 1.);
             elseif length(varargin) == 1 && func1Type == "standard"
                 coeffs = varargin{1};
                 if length(coeffs) == 1
                     % basic functor with scalar parameter
-                    x.id = ct.impl.call('mFunc1_newBasic', typ, coeffs);
+                    obj.id = ct.impl.call('mFunc1_newBasic', typ, coeffs);
                 elseif isa(coeffs, 'double')
                     % advanced functor with array parameter
-                    x.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
+                    obj.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
                 else
                     error('Invalid arguments for functor')
                 end
@@ -113,20 +113,20 @@ classdef Func1 < handle
                     if ~isa(arg1, 'ct.Func1') || ~isa(arg2, 'ct.Func1')
                         error('Invalid arguments for compounding functor')
                     end
-                    x.id = ct.impl.call('mFunc1_newCompound', typ, arg1.id, arg2.id);
+                    obj.id = ct.impl.call('mFunc1_newCompound', typ, arg1.id, arg2.id);
                 elseif func1Type == "modified"
                     % modifying functor
                     if ~isa(arg1, 'ct.Func1') || ~isa(arg2, 'double') || length(arg2) > 1
                         error('Invalid arguments for modifying functor')
                     end
-                    x.id = ct.impl.call('mFunc1_newModified', typ, arg1.id, arg2);
+                    obj.id = ct.impl.call('mFunc1_newModified', typ, arg1.id, arg2);
                 else % func1Type == "standard"
                     % tabulating functors
                     if ~isa(arg1, 'double') || ~isa(arg2, 'double')
                         error('Invalid arguments for tabulating functor')
                     end
                     coeffs = [varargin{1}, varargin{2}];
-                    x.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
+                    obj.id = ct.impl.call('mFunc1_newAdvanced', typ, coeffs);
                 end
             else
                 error('Invalid number of arguments');
