@@ -184,7 +184,7 @@ if env["stage_dir"]:
     install_cmd.append(f"--root={stage_dir.resolve()}")
 
 install_cmd.extend(("--no-build-isolation", "--no-deps", "-v", "--force-reinstall",
-                    "build/python"))
+                    "$SOURCE"))
 
 mod_inst = install(localenv.Command, "dummy", mod, " ".join(install_cmd))
 env["install_python_action"] = mod_inst
