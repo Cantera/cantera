@@ -8,7 +8,7 @@ Zero-Dimensional Reactor Networks
 
 Defining Functions
 ------------------
-.. autoclass:: Func1(typ, varargin)
+.. autoclass:: Base.+ct.Func1(typ, varargin)
 
 Reactor Networks
 ----------------
