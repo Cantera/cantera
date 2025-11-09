@@ -41,7 +41,7 @@ function buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir, cleanup)
     ctToolboxDir = string(ctToolboxDir);
     ctIncludeDir = string(ctIncludeDir);
     ctLibDir = string(ctLibDir);
-    outputDir = ctToolboxDir + "/cantera";
+    outputDir = ctToolboxDir + "/+ct/+impl";
 
     % Display the paths
     disp("Paths used in the build process:");
@@ -52,16 +52,18 @@ function buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir, cleanup)
 
     generateLibraryDefinitions(ctIncludeDir, ctLibDir, outputDir);
     editLibraryDefinitions(outputDir);
+    movefile(fullfile(outputDir, 'ctMatlabData.xml'), ...
+             fullfile(ctToolboxDir, 'ctMatlabData.xml'))
 
     % Build C++ Interface
-    libDef = feval("definectMatlab");
+    libDef = feval("ct.impl.definectMatlab");
     build(libDef);
     addpath(fullfile(libDef.OutputFolder,libDef.InterfaceName));
     libDef.copyRuntimeDependencies(Verbose=true);
     if cleanup
         delete(fullfile(outputDir, 'definectMatlab.m'));
     end
-    delete(fullfile(outputDir, 'ctMatlabData.xml'));
+    delete(fullfile(ctToolboxDir, 'ctMatlabData.xml'));
     savepath;
 end
 
