@@ -56,7 +56,7 @@ fuelcomp = 'C2H6:1';  % Fuel composition
 % initialize the flow object. Set the grid to the initial grid defined
 % prior, same for the tolerances.
 
-flow = ct.AxisymmetricFlow(gas, 'flow');
+flow = ct.oneD.AxisymmetricFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
 flow.setSteadyTolerances(tol_ss{:}, 'default');
@@ -69,12 +69,12 @@ flow.setTransientTolerances(tol_ts{:}, 'default');
 
 % Set the fuel inlet.
 gas.TPX = {tin, p, fuelcomp};
-inlet_f = ct.Inlet1D(gas, 'fuel_inlet');
+inlet_f = ct.oneD.Inlet(gas, 'fuel_inlet');
 inlet_f.massFlux = mdot_f;
 
 % Set the oxidizer inlet.
 gas.TPX = {tin, p, oxcomp};
-inlet_o = ct.Inlet1D(gas, 'air_inlet');
+inlet_o = ct.oneD.Inlet(gas, 'air_inlet');
 inlet_o.massFlux = mdot_o;
 
 %%
@@ -85,7 +85,7 @@ inlet_o.massFlux = mdot_o;
 % using a Burke-Schumann flame. The input parameters are: fuel inlet object, flow
 % object, oxidizer inlet object, and, optionally, the name of the oxidizer species.
 
-fl = ct.CounterFlowDiffusionFlame(inlet_f, flow, inlet_o);
+fl = ct.oneD.CounterFlowDiffusionFlame(inlet_f, flow, inlet_o);
 
 %%
 % Solution

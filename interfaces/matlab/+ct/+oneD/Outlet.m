@@ -1,7 +1,7 @@
-classdef Outlet1D < ct.Boundary1D
+classdef Outlet < ct.oneD.Boundary
     % Create an outlet domain. ::
     %
-    %     >> m = ct.Outlet1D(phase, name)
+    %     >> m = ct.oneD.Outlet(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`ct.Solution`.
@@ -10,13 +10,13 @@ classdef Outlet1D < ct.Boundary1D
 
     methods
 
-        function obj = Outlet1D(phase, name)
+        function obj = Outlet(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "outlet"
             end
 
-            obj@ct.Boundary1D('outlet', phase, name);
+            obj@ct.oneD.Boundary('outlet', phase, name);
         end
 
     end

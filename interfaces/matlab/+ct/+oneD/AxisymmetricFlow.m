@@ -1,7 +1,7 @@
-classdef AxisymmetricFlow < ct.Flow1D
+classdef AxisymmetricFlow < ct.oneD.Flow
     % Create an axisymmetric flow domain. ::
     %
-    %     >> m = ct.AxisymmetricFlow(phase, name)
+    %     >> m = ct.oneD.AxisymmetricFlow(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`ct.Solution`.
@@ -16,7 +16,7 @@ classdef AxisymmetricFlow < ct.Flow1D
                 name (1,1) string = "axisymmetric-flow"
             end
 
-            obj@ct.Flow1D('axisymmetric-flow', phase, name);
+            obj@ct.oneD.Flow('axisymmetric-flow', phase, name);
 
         end
 

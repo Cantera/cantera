@@ -1,7 +1,7 @@
-classdef Inlet1D < ct.Boundary1D
+classdef Inlet < ct.oneD.Boundary
     % Create an inlet domain. ::
     %
-    %     >> m = ct.Inlet1D(phase, name)
+    %     >> m = ct.oneD.Inlet(phase, name)
     %
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
@@ -17,13 +17,13 @@ classdef Inlet1D < ct.Boundary1D
 
     methods
 
-        function obj = Inlet1D(phase, name)
+        function obj = Inlet(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "inlet"
             end
 
-            obj@ct.Boundary1D('inlet', phase, name);
+            obj@ct.oneD.Boundary('inlet', phase, name);
 
         end
 

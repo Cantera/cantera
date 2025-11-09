@@ -55,25 +55,25 @@ disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
 % **Create domains required for a flame simulation**
 
 % Create the flow domain
-flame = ct.FreeFlow(gas);
+flame = ct.oneD.FreeFlow(gas);
 flame.setupUniformGrid(nz, lz, 0.);
 flame.setSteadyTolerances(1e-5, 1e-11);
 flame.P = pressure;
 
 % Create the inlet
-inlt = ct.Inlet1D(gas);
+inlt = ct.oneD.Inlet(gas);
 inlt.T = Tin;
 inlt.X = Xin;
 inlt.massFlux = uIn * rhoIn;
 
 % Create the outlet
-outlt = ct.Outlet1D(gas);
+outlt = ct.oneD.Outlet(gas);
 uOut = uIn * rhoIn / rhoOut;
 
 %%
 % **Create the stack and insert the domains**
 
-stack = ct.Sim1D({inlt, flame, outlt});
+stack = ct.oneD.Sim1D({inlt, flame, outlt});
 
 % Supply initial guess
 

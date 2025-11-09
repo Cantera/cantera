@@ -75,12 +75,14 @@ class.
 ## [One-dimensional Reacting Flows](./onedim)
 
 A [1D simulation](/reference/onedim/index) in Cantera is set up as a [flow
-domain](sec-matlab-flow-domains) surrounded by two [boundary
-domains](sec-matlab-boundary-domains) that define inlet/outlet boundary conditions.
+domain](sec-matlab-flow-domains)—instances of {mat:class}`~ct.oneD.Flow` and its
+subclasses—surrounded by two [boundary
+domains](sec-matlab-boundary-domains) built from subclasses of
+{mat:class}`~ct.oneD.Boundary` that define inlet/outlet boundary conditions.
 
-These domain objects are combined in a {mat:class}`Sim1D` object that manages the
-numerical solution. A specialization {mat:class}`CounterFlowDiffusionFlame` handles
-setup and initial condition definitions for diffusion flame simulations.
+These domain objects are combined in a {mat:class}`~ct.oneD.Sim1D` object that manages
+the numerical solution. A specialization {mat:class}`~ct.oneD.CounterFlowDiffusionFlame`
+handles setup and initial condition definitions for diffusion flame simulations.
 
 ## [Physical Constants](./constants.rst)
 

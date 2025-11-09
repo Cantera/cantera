@@ -1,7 +1,7 @@
-classdef (Abstract) Flow1D < ct.Domain1D
+classdef (Abstract) Flow < ct.oneD.Domain
     % Create a Flow domain. ::
     %
-    %     >> m = ct.Flow1D(type, phase, name)
+    %     >> m = ct.oneD.Flow(type, phase, name)
     %
     % :param type:
     %    String type of domain. Possible values are:
@@ -30,16 +30,16 @@ classdef (Abstract) Flow1D < ct.Domain1D
 
     methods
 
-        %% Flow1D Class Constructor
+        %% Flow Class Constructor
 
-        function obj = Flow1D(type, phase, name)
+        function obj = Flow(type, phase, name)
             arguments
                 type (1,1) string
                 phase (1,1) ct.Solution
                 name (1,1) string
             end
             id = ct.impl.call('mDomain_newFlow1D', type, phase.solnID, name);
-            obj@ct.Domain1D(id);
+            obj@ct.oneD.Domain(id);
             obj.energyEnabled = false;
             obj.soretEnabled = false;
 
@@ -85,7 +85,7 @@ classdef (Abstract) Flow1D < ct.Domain1D
             ct.impl.call('mDomain_setupGrid', obj.domainID, grid);
         end
 
-        %% Flow1D Class Methods
+        %% Flow Class Methods
 
         function setupUniformGrid(obj, points, length, start)
             % Set up the solution grid. ::
@@ -125,7 +125,7 @@ classdef (Abstract) Flow1D < ct.Domain1D
             % This method can be called at any time, but is usually used to set the
             % initial guess for the solution.
             %
-            % Example (assuming 'd' is an instance of class :mat:class:`ct.Domain1D`):
+            % Example (assuming 'd' is an instance of class :mat:class:`ct.oneD.Domain`):
             %    >> zr = [0.0, 0.1, 0.2, 0.4, 0.8, 1.0];
             %
             %    >> v = [500, 650, 700, 730, 800, 900];
