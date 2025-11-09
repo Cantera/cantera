@@ -793,10 +793,10 @@ if "help" in COMMAND_LINE_TARGETS:
 
         sys.exit(0)
 
-if "sphinx" in COMMAND_LINE_TARGETS or text2bool(ARGUMENTS.get("sphinx_docs", "n")):
-    # need to buffer all options before system-dependent selections are applied
-    windows_options_full = deepcopy(windows_options)
-    config_options_full = deepcopy(config_options)
+# Need to buffer all options before system-dependent selections are applied. Only used
+# for populating Sphinx docs.
+windows_options_full = deepcopy(windows_options)
+config_options_full = deepcopy(config_options)
 
 # **************************************
 # *** Read user-configurable options ***
