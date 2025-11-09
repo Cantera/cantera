@@ -1,7 +1,7 @@
-classdef (Abstract) Boundary1D < ct.Domain1D
+classdef (Abstract) Boundary < ct.oneD.Domain
     % Create a Boundary domain. ::
     %
-    %     >> m = ct.Boundary1D(type, phase, name)
+    %     >> m = ct.oneD.Boundary(type, phase, name)
     %
     % :param type:
     %    String type of Boundary. Possible values are:
@@ -27,14 +27,14 @@ classdef (Abstract) Boundary1D < ct.Domain1D
 
         %% Boundary Class Constructor
 
-        function obj = Boundary1D(type, phase, name)
+        function obj = Boundary(type, phase, name)
             arguments
                 type (1,1) string
                 phase (1,1) ct.Solution
                 name (1,1) string
             end
             id = ct.impl.call('mDomain_newBoundary1D', type, phase.solnID, name);
-            obj@ct.Domain1D(id);
+            obj@ct.oneD.Domain(id);
 
         end
 

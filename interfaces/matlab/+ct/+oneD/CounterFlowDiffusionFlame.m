@@ -1,14 +1,14 @@
-classdef CounterFlowDiffusionFlame < ct.Sim1D
+classdef CounterFlowDiffusionFlame < ct.oneD.Sim1D
     % Create a counter flow diffusion flame stack. ::
     %
-    %     >> flame = ct.CounterFlowDiffusionFlame(left, flow, right, oxidizer)
+    %     >> flame = ct.oneD.CounterFlowDiffusionFlame(left, flow, right, oxidizer)
     %
     % :param left:
-    %     :mat:class:`ct.Inlet1D` object representing the left ('fuel') inlet boundary.
+    %     :mat:class:`ct.oneD.Inlet` object representing the left ('fuel') inlet boundary.
     % :param flow:
-    %     :mat:class:`ct.AxisymmetricFlow` object representing the flow domain.
+    %     :mat:class:`ct.oneD.AxisymmetricFlow` object representing the flow domain.
     % :param right:
-    %     :mat:class:`ct.Inlet1D` object representing the right ('oxidizer') inlet
+    %     :mat:class:`ct.oneD.Inlet` object representing the right ('oxidizer') inlet
     %     boundary.
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
@@ -18,9 +18,9 @@ classdef CounterFlowDiffusionFlame < ct.Sim1D
         function obj = CounterFlowDiffusionFlame(left, flow, right, oxidizer)
 
             arguments
-                left(1, 1) ct.Inlet1D
-                flow(1, 1) ct.Flow1D
-                right(1, 1) ct.Inlet1D
+                left(1, 1) ct.oneD.Inlet
+                flow(1, 1) ct.oneD.Flow
+                right(1, 1) ct.oneD.Inlet
                 oxidizer(1, :) char = 'O2'
             end
 
@@ -192,7 +192,7 @@ classdef CounterFlowDiffusionFlame < ct.Sim1D
             %% Create the flame stack.
             % Set the profile of the flame with the estimated axial velocities,
             % radial velocities, temperature, and mass fractions calculated above.
-            obj@ct.Sim1D({left flow right});
+            obj@ct.oneD.Sim1D({left flow right});
             flow.setProfile('velocity', zrel, u);
             flow.setProfile('spreadRate', zrel, v);
             flow.setProfile('T', zrel, t);

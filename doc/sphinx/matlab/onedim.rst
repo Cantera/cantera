@@ -1,5 +1,5 @@
 .. default-domain:: mat
-.. currentmodule:: OneDim.+ct
+.. currentmodule:: +ct.+oneD
 
 One-dimensional Reacting Flows
 ==============================
@@ -35,41 +35,41 @@ AxisymmetricFlow
 Boundaries
 ----------
 
-Inlet1D
-^^^^^^^
-.. autoclass:: Inlet1D(phase[, name])
+Inlet
+^^^^^
+.. autoclass:: Inlet(phase[, name])
 
-Outlet1D
-^^^^^^^^
-.. autoclass:: Outlet1D(phase[, name])
+Outlet
+^^^^^^
+.. autoclass:: Outlet(phase[, name])
 
-OutletRes1D
-^^^^^^^^^^^
-.. autoclass:: OutletRes1D(phase[, name])
-
-SymmetryPlane1D
-^^^^^^^^^^^^^^^
-.. autoclass:: SymmetryPlane1D(phase[, name])
-
-Surface1D
+OutletRes
 ^^^^^^^^^
-.. autoclass:: Surface1D(phase[, name])
+.. autoclass:: OutletRes(phase[, name])
 
-ReactingSurface1D
-^^^^^^^^^^^^^^^^^
-.. autoclass:: ReactingSurface1D(phase[, name])
+SymmetryPlane
+^^^^^^^^^^^^^
+.. autoclass:: SymmetryPlane(phase[, name])
+
+Surface
+^^^^^^^
+.. autoclass:: Surface(phase[, name])
+
+ReactingSurface
+^^^^^^^^^^^^^^^
+.. autoclass:: ReactingSurface(phase[, name])
 
 
 Base Classes
 ------------
 
-Domain1D
-^^^^^^^^
-.. autoclass:: Domain1D
+Domain
+^^^^^^
+.. autoclass:: Domain
 
-Boundary1D
-^^^^^^^^^^
-.. autoclass:: Boundary1D
+Boundary
+^^^^^^^^
+.. autoclass:: Boundary
 
 Sim1D
 ^^^^^

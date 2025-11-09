@@ -1,7 +1,7 @@
-classdef (Abstract) Domain1D < handle
-    % Domain1D Class ::
+classdef (Abstract) Domain < handle
+    % Domain Class ::
     %
-    %     >> d = ct.Domain1D(type, phase, id)
+    %     >> d = ct.oneD.Domain(type, phase, id)
     %
     % :param type:
     %    String type of domain. Possible values are:
@@ -44,9 +44,9 @@ classdef (Abstract) Domain1D < handle
     end
 
     methods
-        %% Domain1D Class Constructor.
+        %% Domain Class Constructor.
 
-        function obj = Domain1D(id)
+        function obj = Domain(id)
             arguments
                 id (1,1) double {mustBeInteger}
             end
@@ -55,16 +55,16 @@ classdef (Abstract) Domain1D < handle
             obj.phase = ct.Solution(phaseID);
         end
 
-        %% Domain1D Class Destructor
+        %% Domain Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ct.Domain1D` object.
+            % Delete the :mat:class:`ct.oneD.Domain` object.
             if obj.domainID >= 0
                 ct.impl.call('mDomain_del', obj.domainID);
             end
         end
 
-        %% Domain1D Utility Methods
+        %% Domain Utility Methods
 
         function updateState(obj, loc)
             % Set state of associated phase to specified location.
@@ -85,7 +85,7 @@ classdef (Abstract) Domain1D < handle
             % :param width:
             %       Maximum width of rendered output; default adjusts to terminal width.
             arguments
-                obj (1,1) ct.Domain1D
+                obj (1,1) ct.oneD.Domain
                 rows (1,1) double {mustBeInteger, mustBePositive} = 10
                 width (1,1) double {mustBeInteger} = -1
             end

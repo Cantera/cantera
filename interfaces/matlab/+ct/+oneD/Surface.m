@@ -1,7 +1,7 @@
-classdef Surface1D < ct.Boundary1D
+classdef Surface < ct.oneD.Boundary
     % Create a surface domain. ::
     %
-    %     >> m = ct.Surface1D(phase, name)
+    %     >> m = ct.oneD.Surface(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`ct.Solution`.
@@ -10,15 +10,15 @@ classdef Surface1D < ct.Boundary1D
 
     methods
 
-        %% Surface1D Class Constructor
+        %% Surface Class Constructor
 
-        function obj = Surface1D(phase, name)
+        function obj = Surface(phase, name)
             arguments
                 phase (1,1) ct.Solution
                 name (1,1) string = "surface"
             end
 
-            obj@ct.Boundary1D('surface', phase, name);
+            obj@ct.oneD.Boundary('surface', phase, name);
 
         end
 

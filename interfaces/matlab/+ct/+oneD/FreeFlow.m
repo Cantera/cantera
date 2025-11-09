@@ -1,7 +1,7 @@
-classdef FreeFlow < ct.Flow1D
+classdef FreeFlow < ct.oneD.Flow
     % Create a free flow domain. ::
     %
-    %     >> m = ct.FreeFlow(phase, name)
+    %     >> m = ct.oneD.FreeFlow(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`ct.Solution`.
@@ -16,7 +16,7 @@ classdef FreeFlow < ct.Flow1D
                 name (1,1) string = "free-flow"
             end
 
-            obj@ct.Flow1D('free-flow', phase, name);
+            obj@ct.oneD.Flow('free-flow', phase, name);
 
         end
 

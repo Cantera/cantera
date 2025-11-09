@@ -100,7 +100,7 @@ surf_phase.advanceCoverages(1.0);
 % specified. This object provides the inlet boundary conditions for
 % the flow equations.
 
-inlt = ct.Inlet1D(gas, 'inlet');
+inlt = ct.oneD.Inlet(gas, 'inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
@@ -114,7 +114,7 @@ inlt.massFlux = mdot;
 % equations for the flow. We will initialize it with the gas
 % object, and assign it the name ``flow``.
 
-flow = ct.AxisymmetricFlow(gas, 'flow');
+flow = ct.oneD.AxisymmetricFlow(gas, 'flow');
 
 % set some parameters for the flow
 flow.P = p;
@@ -131,7 +131,7 @@ flow.setTransientTolerances(tol_ts{:});
 % equation set, and used to compute the surface production rates of
 % the gas-phase species.
 
-surf = ct.ReactingSurface1D(surf_phase, 'surface');
+surf = ct.oneD.ReactingSurface(surf_phase, 'surface');
 surf.T = tsurf;
 
 %%
@@ -140,7 +140,7 @@ surf.T = tsurf;
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
 
-stack = ct.Sim1D({inlt, flow, surf});
+stack = ct.oneD.Sim1D({inlt, flow, surf});
 
 % set the initial profiles.
 flow.setProfile('velocity', [0.0, 1.0], [0.06, 0.0]);

@@ -1,22 +1,23 @@
 classdef Sim1D < handle
     % Sim1D Class. ::
     %
-    %     >> s = ct.Sim1D(domains)
+    %     >> s = ct.oneD.Sim1D(domains)
     %
     % A Sim1D object is a container for one-dimensional domains,
-    % which are instances of :mat:class:`ct.Domain1D`. The domains are of two
+    % which are instances of :mat:class:`ct.oneD.Domain`. The domains are of two
     % types - extended domains, and connector domains.
     %
-    % See also: :mat:class:`ct.Domain1D`
+    % See also: :mat:class:`ct.oneD.Domain`
     %
     % :param domains:
-    %     Cell array of instances of :mat:class:`ct.Domain1D` and its subclasses.
+    %     Cell array of instances of :mat:class:`ct.oneD.Domain` and its subclasses.
 
     properties (SetAccess = immutable)
 
         stID = -1  % ID of the Sim1D object.
 
-        domains % Domain instances contained within the :mat:class:`ct.Sim1D` object.
+        % Domain instances contained within the :mat:class:`ct.oneD.Sim1D` object.
+        domains
 
     end
 
@@ -28,8 +29,8 @@ classdef Sim1D < handle
             arguments
                 domains (1,:) cell
             end
-            if ~all(cellfun(@(d) isa(d, 'ct.Domain1D'), domains))
-                error('All elements must be ct.Domain1D objects');
+            if ~all(cellfun(@(d) isa(d, 'ct.oneD.Domain'), domains))
+                error('All elements must be ct.oneD.Domain objects');
             end
             obj.domains = domains;
 
@@ -47,7 +48,7 @@ classdef Sim1D < handle
         %% Sim1D Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ct.Sim1D` object.
+            % Delete the :mat:class:`ct.oneD.Sim1D` object.
             if obj.stID >= 0
                 ct.impl.call('mSim1D_del', obj.stID);
             end

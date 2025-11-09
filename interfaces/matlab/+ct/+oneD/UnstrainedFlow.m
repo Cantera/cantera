@@ -1,14 +1,14 @@
-classdef UnstrainedFlow < ct.Flow1D
+classdef UnstrainedFlow < ct.oneD.Flow
     % Create an unstrained flow domain. ::
     %
-    %     >> m = ct.UnstrainedFlow(phase, name)
+    %     >> m = ct.oneD.UnstrainedFlow(phase, name)
     %
     % :param phase:
     %     Instance of class :mat:class:`ct.Solution`.
     % :param name:
     %     String, ID of the flow.
     % :return:
-    %     Instance of class :mat:class:`ct.UnstrainedFlow`.
+    %     Instance of class :mat:class:`ct.oneD.UnstrainedFlow`.
 
     methods
 
@@ -19,7 +19,7 @@ classdef UnstrainedFlow < ct.Flow1D
                 name (1,1) string = "unstrained-flow"
             end
 
-            obj@ct.Flow1D('unstrained-flow', phase, name);
+            obj@ct.oneD.Flow('unstrained-flow', phase, name);
 
         end
 

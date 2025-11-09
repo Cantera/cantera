@@ -56,7 +56,7 @@ Tad = gas.T;
 %%
 % **Create the flow object**
 
-flow = ct.UnstrainedFlow(gas, 'flow');
+flow = ct.oneD.UnstrainedFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
 flow.energyEnabled = false;
@@ -64,10 +64,10 @@ flow.energyEnabled = false;
 %%
 % **Create the burner**
 %
-% The burner is an ``Inlet1D`` object. The temperature, mass flux,
+% The burner is an ``Inlet`` object. The temperature, mass flux,
 % and composition (relative molar) may be specified.
 
-burner = ct.Inlet1D(gas, 'burner');
+burner = ct.oneD.Inlet(gas, 'burner');
 burner.T = Tburner;
 burner.X = comp;
 burner.massFlux = mdot;
@@ -77,11 +77,11 @@ uIn = mdot / rhoIn;
 % **Create the outlet**
 %
 % The type of flame is determined by the object that terminates
-% the domain. An ``Outlet1D`` object imposes zero gradient boundary
+% the domain. An ``Outlet`` object imposes zero gradient boundary
 % conditions for the temperature and mass fractions, and zero
 % radial velocity and radial pressure gradient.
 
-out = ct.Outlet1D(gas, 'out');
+out = ct.oneD.Outlet(gas, 'out');
 uOut = mdot / rhoOut;
 
 %%
@@ -89,7 +89,7 @@ uOut = mdot / rhoOut;
 %
 % Once the component parts have been created, they can be assembled
 % to create the flame object.
-fl = ct.Sim1D({burner, flow, out});
+fl = ct.oneD.Sim1D({burner, flow, out});
 fl.setMaxJacAge(maxJacobianAge(1), maxJacobianAge(2));
 
 % Supply initial guess
