@@ -1298,12 +1298,14 @@ def setup_python_env(env):
         import json
         import site
         import sys
+        import setuptools
         vars = get_config_vars()
         vars["plat"] = get_platform()
         vars["numpy_include"] = numpy.get_include()
         vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
         vars["user_site_packages"] = site.getusersitepackages()
         vars["abiflags"] = getattr(sys, "abiflags", "")
+        vars["setuptools_version"] = setuptools.__version__
         print(json.dumps(vars))
         """)
         _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
@@ -1331,6 +1333,7 @@ def setup_python_env(env):
     env["py_base"] = info["installed_base"]
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]
+    env["setuptools_version"] = parse_version(info["setuptools_version"])
     if env["OS"] != "Windows":
         env["py_libpath"] = [info["LIBPL"], info["LIBDIR"]]
         py_lib = "python" + info["py_version_short"] + info["abiflags"]

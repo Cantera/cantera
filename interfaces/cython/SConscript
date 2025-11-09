@@ -85,7 +85,14 @@ build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
 # pip's check for a correct version of Python.
 if parse_version(localenv["py_version_short"]) >= env["python_max_version"]:
     build_cmd += " --ignore-requires-python"
-wheel_name = ("Cantera-${cantera_version}-cp${py_version_nodot}"
+
+# Setuptools 75.3.1 and later always lowercase the package name
+if localenv["setuptools_version"] >= parse_version("75.3.1"):
+    pkg_name = "cantera"
+else:
+    pkg_name = "Cantera"
+
+wheel_name = (pkg_name + "-${cantera_version}-cp${py_version_nodot}"
               "-cp${py_version_nodot}-${py_plat}.whl")
 mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
                              build_cmd))
