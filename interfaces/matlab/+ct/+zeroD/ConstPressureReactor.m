@@ -1,18 +1,18 @@
-classdef ConstPressureReactor < ct.ReactorBase
+classdef ConstPressureReactor < ct.zeroD.ReactorBase
     % Create a constant pressure reactor object. ::
     %
-    %     >> r = ct.ConstPressureReactor(phase, name, clone)
+    %     >> r = ct.zeroD.ConstPressureReactor(phase, name, clone)
     %
-    % A :mat:class:`ct.ConstPressureReactor` is an instance of class
-    % :mat:class:`ct.ReactorBase` where the pressure is held constant. The volume
+    % A :mat:class:`ct.zeroD.ConstPressureReactor` is an instance of class
+    % :mat:class:`ct.zeroD.ReactorBase` where the pressure is held constant. The volume
     % is not a state variable, but instead takes on whatever value is
     % consistent with holding the pressure constant. Examples:
     %
     % .. code-block:: matlab
     %
-    %     r2 = ct.ConstPressureReactor(phase)    % a reactor containing contents
+    %     r2 = ct.zeroD.ConstPressureReactor(phase)    % a reactor containing contents
     %
-    % See also: :mat:class:`ct.ReactorBase`
+    % See also: :mat:class:`ct.zeroD.ReactorBase`
     %
     % :param phase:
     %     Cantera :mat:class:`ct.Solution` to be set as the contents of the reactor.
@@ -35,7 +35,7 @@ classdef ConstPressureReactor < ct.ReactorBase
 
             id = ct.impl.call('mReactor_new', 'ConstPressureReactor', ...
                               phase.solnID, clone, name);
-            obj@ct.ReactorBase(id);
+            obj@ct.zeroD.ReactorBase(id);
         end
 
     end

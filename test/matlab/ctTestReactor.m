@@ -30,16 +30,16 @@ classdef ctTestReactor < ctTestCase
 
             self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
-            self.r1 = ct.Reactor(self.gas1);
+            self.r1 = ct.zeroD.Reactor(self.gas1);
 
             if arg.nr == 1
-                self.net = ct.ReactorNet(self.r1);
+                self.net = ct.zeroD.ReactorNet(self.r1);
             elseif arg.nr >= 2
                 self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
-                self.r2 = ct.Reactor(self.gas2);
+                self.r2 = ct.zeroD.Reactor(self.gas2);
                 self.r2.energyEnabled = true;
-                self.net = ct.ReactorNet({self.r1, self.r2});
+                self.net = ct.zeroD.ReactorNet({self.r1, self.r2});
             end
             self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
         end
@@ -52,7 +52,7 @@ classdef ctTestReactor < ctTestCase
                 arg.A (1,1) double {mustBeNumeric} = 1.0
             end
 
-            self.w = ct.Wall(self.r1, self.r2);
+            self.w = ct.zeroD.Wall(self.r1, self.r2);
             self.w.area = arg.A;
             self.w.expansionRateCoeff = arg.K;
             self.w.heatTransferCoeff = arg.U;
@@ -64,7 +64,7 @@ classdef ctTestReactor < ctTestCase
 
         function testV(self)
             g = ct.Solution('h2o2.yaml', '', 'none');
-            r = ct.Reactor(g);
+            r = ct.zeroD.Reactor(g);
             self.verifyEqual(r.V, 1.0, 'AbsTol', self.atol);
 
             r.V = 9;
@@ -121,17 +121,17 @@ classdef ctTestReactor < ctTestCase
 
         function testWall2(self)
             self.makeReactors('nr', 1);
-            res = ct.Reservoir(self.gas1);
-            w = ct.Wall(self.r1, res);
-            net = ct.ReactorNet([self.r1]);
+            res = ct.zeroD.Reservoir(self.gas1);
+            w = ct.zeroD.Wall(self.r1, res);
+            net = ct.zeroD.ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
         end
 
         function testWall3(self)
             self.makeReactors('nr', 1);
-            res = ct.Reservoir(self.gas1);
-            w = ct.Wall(res, self.r1);
-            net = ct.ReactorNet([self.r1]);
+            res = ct.zeroD.Reservoir(self.gas1);
+            w = ct.zeroD.Wall(res, self.r1);
+            net = ct.zeroD.ReactorNet([self.r1]);
             self.verifyEqual(w.type, 'Wall');
         end
 
@@ -252,9 +252,9 @@ classdef ctTestReactor < ctTestCase
 
             self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas1.TPX = {T0, P0, X0};
-            self.r1 = ct.IdealGasConstPressureReactor(self.gas1);
+            self.r1 = ct.zeroD.IdealGasConstPressureReactor(self.gas1);
 
-            self.net = ct.ReactorNet(self.r1);
+            self.net = ct.zeroD.ReactorNet(self.r1);
             self.net.time = 0.0;
             self.net.advance(1.0);
 

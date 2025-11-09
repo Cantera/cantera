@@ -1,7 +1,7 @@
-classdef ReactorSurface < ct.ReactorBase
+classdef ReactorSurface < ct.zeroD.ReactorBase
     % ReactorSurface Class ::
     %
-    %     >> s = ct.ReactorSurface(surf, reactor, name, clone)
+    %     >> s = ct.zeroD.ReactorSurface(surf, reactor, name, clone)
     %
     % A surface on which heterogeneous reactions take place. The
     % mechanism object (typically an instance of :mat:class:`ct.Interface`)
@@ -16,7 +16,7 @@ classdef ReactorSurface < ct.ReactorBase
     %    derived from Kinetics, such as :mat:class:`ct.Interface`.
     % :param reactors:
     %    An instance of or a cell array of instances of class
-    %    :mat:class:`ct.ReactorBase`.
+    %    :mat:class:`ct.zeroD.ReactorBase`.
     % :param name:
     %    Reactor surface name (optional; default is ``(none)``).
     % :param clone:
@@ -36,14 +36,14 @@ classdef ReactorSurface < ct.ReactorBase
                 clone (1,1) logical = true
             end
 
-            if isa(reactors, 'ct.ReactorBase')
+            if isa(reactors, 'ct.zeroD.ReactorBase')
                 reactors = {reactors};
             end
 
             reactorIDs = cellfun(@(r) r.id, reactors);
             id = ct.impl.call('mReactor_newSurface', surf.solnID, reactorIDs, ...
                               clone, name);
-            obj@ct.ReactorBase(id);
+            obj@ct.zeroD.ReactorBase(id);
         end
 
     end

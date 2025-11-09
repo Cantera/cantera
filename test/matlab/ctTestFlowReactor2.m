@@ -16,12 +16,12 @@ classdef ctTestFlowReactor2 < ctTestCase
     methods
 
         function makeReactors(self)
-            self.reactor = ct.FlowReactor(self.gas);
+            self.reactor = ct.zeroD.FlowReactor(self.gas);
             % self.reactor.area = 1e-4;
             % self.reactor.surfaceAreaToVolumeRatio = 5000;
             self.reactor.massFlowRate = 0.02;
-            self.rsurf = ct.ReactorSurface(self.surf, self.reactor);
-            self.net = ct.ReactorNet(self.reactor);
+            self.rsurf = ct.zeroD.ReactorSurface(self.surf, self.reactor);
+            self.net = ct.zeroD.ReactorNet(self.reactor);
         end
 
         function getPhases(self)
@@ -64,11 +64,11 @@ classdef ctTestFlowReactor2 < ctTestCase
 
         function testMixedReactorTypes(self)
             self.getPhases();
-            r1 = ct.FlowReactor(self.gas);
-            r2 = ct.IdealGasReactor(self.gas);
+            r1 = ct.zeroD.FlowReactor(self.gas);
+            r2 = ct.zeroD.IdealGasReactor(self.gas);
 
             try
-                self.net = ct.ReactorNet({r1, r2});
+                self.net = ct.zeroD.ReactorNet({r1, r2});
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message,  'Cannot mix Reactor types');

@@ -21,29 +21,29 @@ classdef ctTestWellStirredReactor < ctTestCase
 
             % fuel inlet
             self.gas.TPX = {T0, P0, 'CH4:1.0'};
-            self.fuel_in = ct.Reservoir(self.gas);
+            self.fuel_in = ct.zeroD.Reservoir(self.gas);
 
             % oxidizer inlet
             self.gas.TPX = {T0, P0, 'N2:3.76, O2:1.0'};
-            self.oxidizer_in = ct.Reservoir(self.gas);
+            self.oxidizer_in = ct.zeroD.Reservoir(self.gas);
 
             % reactor filled with N2
             self.gas.TPX = {T0, P0, 'N2:1.0'};
-            self.combustor = ct.IdealGasReactor(self.gas);
+            self.combustor = ct.zeroD.IdealGasReactor(self.gas);
             self.combustor.V = 1.0;
 
             % outlet
-            self.exhaust = ct.Reservoir(self.gas);
+            self.exhaust = ct.zeroD.Reservoir(self.gas);
 
             % connect the reactor to the reservois
-            self.fuel_mfc = ct.MassFlowController(self.fuel_in, self.combustor);
+            self.fuel_mfc = ct.zeroD.MassFlowController(self.fuel_in, self.combustor);
             self.fuel_mfc.massFlowRate = mdot_fuel;
-            self.oxidizer_mfc = ct.MassFlowController(self.oxidizer_in, self.combustor);
+            self.oxidizer_mfc = ct.zeroD.MassFlowController(self.oxidizer_in, self.combustor);
             self.oxidizer_mfc.massFlowRate = mdot_ox;
-            self.valve = ct.Valve(self.combustor, self.exhaust);
+            self.valve = ct.zeroD.Valve(self.combustor, self.exhaust);
             self.valve.valveCoeff = 1.0;
 
-            self.net = ct.ReactorNet(self.combustor);
+            self.net = ct.zeroD.ReactorNet(self.combustor);
             % self.net.maxErrTestFails = 10;
         end
 

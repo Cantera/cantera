@@ -1,9 +1,9 @@
-classdef Reactor < ct.ReactorBase
+classdef Reactor < ct.zeroD.ReactorBase
     % Reactor Class ::
     %
-    %     >> r = ct.Reactor(phase, name, clone)
+    %     >> r = ct.zeroD.Reactor(phase, name, clone)
     %
-    % A :mat:class:`ct.Reactor` object simulates a perfectly-stirred reactor.
+    % A :mat:class:`ct.zeroD.Reactor` object simulates a perfectly-stirred reactor.
     % It has a time-dependent state, and may be coupled to other
     % reactors through flow lines or through walls that may expand
     % or contract and/or conduct heat.
@@ -31,7 +31,7 @@ classdef Reactor < ct.ReactorBase
             end
 
             id = ct.impl.call('mReactor_new', 'Reactor', phase.solnID, clone, name);
-            obj@ct.ReactorBase(id);
+            obj@ct.zeroD.ReactorBase(id);
         end
 
     end

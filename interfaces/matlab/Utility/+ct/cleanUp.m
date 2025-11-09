@@ -5,7 +5,7 @@ function cleanUp()
 
     classList = {'ct.Interface', 'ct.Kinetics', 'ct.Mixture', 'ct.ThermoPhase', ...
                  'ct.Transport', 'ct.Solution', 'ct.Func1', 'ct.Domain1D', ...
-                 'ct.Connector', 'ct.ReactorBase', 'ct.ReactorNet'};
+                 'ct.zeroD.Connector', 'ct.zeroD.ReactorBase', 'ct.zeroD.ReactorNet'};
 
     varList = evalin('base', 'whos');
 

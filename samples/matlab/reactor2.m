@@ -24,11 +24,11 @@ function reactor2(g)
 
     %%
     % Create a reactor, and insert the gas
-    r = ct.IdealGasReactor(gas);
+    r = ct.zeroD.IdealGasReactor(gas);
 
     %%
     % Create a reactor network and insert the reactor
-    network = ct.ReactorNet({r});
+    network = ct.zeroD.ReactorNet({r});
 
     nSteps = 100;
     tim(nSteps) = 0;

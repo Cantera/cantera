@@ -53,30 +53,30 @@ classdef ctTestConstPressureReactor < ctTestCase
             self.gas1.TPX = {T0, P0, X0};
             self.gas2.TPX = {T0, P0, X0};
 
-            self.r1 = ct.IdealGasReactor(self.gas1);
-            self.r2 = ct.ConstPressureReactor(self.gas2);
+            self.r1 = ct.zeroD.IdealGasReactor(self.gas1);
+            self.r2 = ct.zeroD.ConstPressureReactor(self.gas2);
 
             self.r1.V = 0.2;
             self.r2.V = 0.2;
 
             self.resGas.TP = {T0 - 300, P0};
-            self.env = ct.Reservoir(self.resGas);
+            self.env = ct.zeroD.Reservoir(self.resGas);
 
             U = 300 * arg.addQ;
 
-            self.w1 = ct.Wall(self.r1, self.env);
+            self.w1 = ct.zeroD.Wall(self.r1, self.env);
             self.w1.area = 0.1;
             self.w1.expansionRateCoeff = 1e3;
             self.w1.heatTransferCoeff = U;
 
-            self.w2 = ct.Wall(self.r2, self.env);
+            self.w2 = ct.zeroD.Wall(self.r2, self.env);
             self.w2.area = 0.1;
             self.w2.heatTransferCoeff = U;
 
             if arg.addMdot
-                self.mfc1 = ct.MassFlowController(self.env, self.r1);
+                self.mfc1 = ct.zeroD.MassFlowController(self.env, self.r1);
                 self.mfc1.massFlowRate = 0.05;
-                self.mfc2 = ct.MassFlowController(self.env, self.r2);
+                self.mfc2 = ct.zeroD.MassFlowController(self.env, self.r2);
                 self.mfc2.massFlowRate = 0.05;
             end
 
@@ -90,16 +90,16 @@ classdef ctTestConstPressureReactor < ctTestCase
                 C(1) = 0.3;
                 C(5) = 0.7;
 
-                self.surf1 = ct.ReactorSurface(self.interface1, self.r1);
+                self.surf1 = ct.zeroD.ReactorSurface(self.interface1, self.r1);
                 self.surf1.area = 0.2;
                 self.interface1.coverages = C;
-                self.surf2 = ct.ReactorSurface(self.interface2, self.r2);
+                self.surf2 = ct.zeroD.ReactorSurface(self.interface2, self.r2);
                 self.surf2.area = 0.2;
                 self.interface2.coverages = C;
             end
 
-            self.net1 = ct.ReactorNet(self.r1);
-            self.net2 = ct.ReactorNet(self.r2);
+            self.net1 = ct.zeroD.ReactorNet(self.r1);
+            self.net2 = ct.zeroD.ReactorNet(self.r2);
             self.net1.maxTimeStep = 0.05;
             self.net2.maxTimeStep = 0.05;
         end
@@ -142,7 +142,7 @@ classdef ctTestConstPressureReactor < ctTestCase
 
         function testReactorSurfaceType(self)
             self.makeReactors('addSurf', true);
-            self.verifyTrue(isa(self.surf1, 'ct.ReactorSurface'));
+            self.verifyTrue(isa(self.surf1, 'ct.zeroD.ReactorSurface'));
             self.verifyTrue(startsWith(self.surf1.name, 'ReactorSurface_'));
             self.surf1.name = 'name-of-reactor-surface';
             self.verifyEqual(self.surf1.name, 'name-of-reactor-surface');
