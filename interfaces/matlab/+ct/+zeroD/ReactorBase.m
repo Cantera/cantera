@@ -86,7 +86,7 @@ classdef (Abstract) ReactorBase < handle
         %% ReactorBase Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ct.ReactorBase` object.
+            % Delete the :mat:class:`ct.zeroD.ReactorBase` object.
             if obj.id >= 0
                 ct.impl.call('mReactor_del', obj.id);
             end
@@ -184,7 +184,7 @@ classdef (Abstract) ReactorBase < handle
 
         function set.chemistryEnabled(obj, flag)
             arguments
-                obj (1,1) ct.ReactorBase
+                obj (1,1) ct.zeroD.ReactorBase
                 flag (1,1) logical
             end
 
@@ -193,7 +193,7 @@ classdef (Abstract) ReactorBase < handle
 
         function set.energyEnabled(obj, flag)
             arguments
-                obj (1,1) ct.ReactorBase
+                obj (1,1) ct.zeroD.ReactorBase
                 flag (1,1) logical
             end
 

@@ -1,10 +1,10 @@
-classdef IdealGasConstPressureReactor < ct.ReactorBase
+classdef IdealGasConstPressureReactor < ct.zeroD.ReactorBase
     % Create a constant pressure reactor with an ideal gas. ::
     %
-    %     >> r = ct.IdealGasConstPressureReactor(phase, name, clone)
+    %     >> r = ct.zeroD.IdealGasConstPressureReactor(phase, name, clone)
     %
-    % An :mat:class:`ct.IdealGasConstPressureReactor` is an instance of
-    % :mat:class:`ct.ReactorBase` where the pressure is held constant.
+    % An :mat:class:`ct.zeroD.IdealGasConstPressureReactor` is an instance of
+    % :mat:class:`ct.zeroD.ReactorBase` where the pressure is held constant.
     % The volume is not a state variable, but instead takes on
     % whatever value is consistent with holding the pressure constant.
     % Additionally, its governing equations are specialized for the
@@ -13,9 +13,9 @@ classdef IdealGasConstPressureReactor < ct.ReactorBase
     %
     % .. code-block:: matlab
     %
-    %     r2 = ct.IdealGasConstPressureReactor(gas) % a reactor containing a gas
+    %     r2 = ct.zeroD.IdealGasConstPressureReactor(gas) % a reactor containing a gas
     %
-    % See also: :mat:class:`ct.ReactorBase`
+    % See also: :mat:class:`ct.zeroD.ReactorBase`
     %
     % :param phase:
     %     Cantera :mat:class:`ct.Solution` to be set as the contents of the reactor.
@@ -38,7 +38,7 @@ classdef IdealGasConstPressureReactor < ct.ReactorBase
 
             id = ct.impl.call('mReactor_new', 'IdealGasConstPressureReactor', ...
                               phase.solnID, clone, name);
-            obj@ct.ReactorBase(id);
+            obj@ct.zeroD.ReactorBase(id);
         end
 
     end

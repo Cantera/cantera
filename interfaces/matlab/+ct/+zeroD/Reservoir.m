@@ -1,9 +1,9 @@
-classdef Reservoir < ct.ReactorBase
-    % Create a :mat:class:`ct.Reservoir` object. ::
+classdef Reservoir < ct.zeroD.ReactorBase
+    % Create a :mat:class:`ct.zeroD.Reservoir` object. ::
     %
-    %     >> r = ct.Reservoir(phase, name, clone)
+    %     >> r = ct.zeroD.Reservoir(phase, name, clone)
     %
-    % A :mat:class:`ct.Reservoir` is an instance of class :mat:class:`ct.ReactorBase`
+    % A :mat:class:`ct.zeroD.Reservoir` is an instance of class :mat:class:`ct.zeroD.ReactorBase`
     % configured so that its intensive state is constant in time. A reservoir
     % may be thought of as infinite in extent, perfectly mixed,
     % and non-reacting, so that fluid may be extracted or added without
@@ -14,9 +14,9 @@ classdef Reservoir < ct.ReactorBase
     %
     % .. code-block:: matlab
     %
-    %     r2 = ct.Reservoir(gas)    % a reservoir containing a gas
+    %     r2 = ct.zeroD.Reservoir(gas)    % a reservoir containing a gas
     %
-    % See also: :mat:class:`ct.ReactorBase`
+    % See also: :mat:class:`ct.zeroD.ReactorBase`
     %
     % :param phase:
     %     Cantera :mat:class:`ct.Solution` to be set as the contents of the reactor.
@@ -38,7 +38,7 @@ classdef Reservoir < ct.ReactorBase
             end
 
             id = ct.impl.call('mReactor_new', 'Reservoir', phase.solnID, clone, name);
-            obj@ct.ReactorBase(id);
+            obj@ct.zeroD.ReactorBase(id);
         end
 
     end

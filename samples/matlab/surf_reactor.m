@@ -33,26 +33,26 @@ nSurfSp = surf.nSpecies;
 
 %%
 % Create a reactor, and insert the gas
-r = ct.IdealGasReactor(gas, 'reactor');
+r = ct.zeroD.IdealGasReactor(gas, 'reactor');
 r.V = 1.0e-6;
 
 %%
 % Create a reservoir to represent the environment
 a = ct.Solution('air.yaml', 'air', 'none');
 a.TP = {t, ct.OneAtm};
-env = ct.Reservoir(a);
+env = ct.zeroD.Reservoir(a);
 
 %%
 % Define a wall between the reactor and the environment and
 % make it flexible, so that the pressure in the reactor is held
 % at the environment pressure.
-w = ct.Wall(r, env);
+w = ct.zeroD.Wall(r, env);
 
 A = 1e-4; % Wall area
 
 %%
 % Add a reacting surface, with an area matching that of the wall
-rsurf = ct.ReactorSurface(surf, r, 'surface');
+rsurf = ct.zeroD.ReactorSurface(surf, r, 'surface');
 rsurf.area = A;
 rphase = rsurf.phase  % output needs to use phase owned by reactor
 
@@ -65,7 +65,7 @@ w.heatTransferCoeff = 1.0e1; % W/m2/K
 % Set expansion rate parameter. dV/dt = KA(P_1 - P_2)
 w.expansionRateCoeff = 1.0;
 
-network = ct.ReactorNet({r});
+network = ct.zeroD.ReactorNet({r});
 
 %%
 % Solution

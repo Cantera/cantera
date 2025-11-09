@@ -14,10 +14,10 @@ classdef ctTestFlowReactor1 < ctTestCase
             self.gas = ct.Solution('../data/ch4_minimal.yaml', ...
                                    'testConstPressureReactor');
             self.gas.TPX = {300, ct.OneAtm, 'O2:1.0'};
-            self.reactor = ct.FlowReactor(self.gas);
+            self.reactor = ct.zeroD.FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
 
-            self.net = ct.ReactorNet(self.reactor);
+            self.net = ct.zeroD.ReactorNet(self.reactor);
 
             self.assumeFail('Skipped until Reactor.speed is implemented');
             % x = 0;
@@ -33,10 +33,10 @@ classdef ctTestFlowReactor1 < ctTestCase
             self.gas = ct.Solution('../data/ch4_minimal.yaml', ...
                                    'testConstPressureReactor');
             self.gas.TPX = {1400, 20 * ct.OneAtm, 'CO:1.0, H2O:1.0'};
-            self.reactor = ct.FlowReactor(self.gas);
+            self.reactor = ct.zeroD.FlowReactor(self.gas);
             self.reactor.massFlowRate = 10;
 
-            self.net = ct.ReactorNet(self.reactor);
+            self.net = ct.zeroD.ReactorNet(self.reactor);
 
             self.assumeFail('Skipped until Reactor.speed is implemented');
 
@@ -69,7 +69,7 @@ classdef ctTestFlowReactor1 < ctTestCase
             self.gas = self.surf.adjacent('gas');
             self.gas.TPX = {T0, P0, X0};
 
-            % self.reactor = ct.FlowReactor(self.gas);
+            % self.reactor = ct.zeroD.FlowReactor(self.gas);
             % self.reactor.area = 1e-4;
             % porosity = 0.3;
             % velocity = 0.4 / 60;
@@ -78,9 +78,9 @@ classdef ctTestFlowReactor1 < ctTestCase
             % self.reactor.massFlowRate = mdot;
             % self.reactor.energy = 'off';
 
-            % self.rsurf = ct.ReactorSurface(self.surf, self.reactor);
+            % self.rsurf = ct.zeroD.ReactorSurface(self.surf, self.reactor);
 
-            % self.net = ct.ReactorNet(self.reactor);
+            % self.net = ct.zeroD.ReactorNet(self.reactor);
             % kCH4 = self.gas.speciesIndex('CH4');
             % kH2 = self.gas.speciesIndex('H2');
             % kCO = self.gas.speciesIndex('CO');

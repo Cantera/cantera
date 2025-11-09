@@ -31,19 +31,19 @@ function reactor1(g)
 
     %%
     % Create a reactor, and insert the gas
-    r = ct.IdealGasReactor(gas);
+    r = ct.zeroD.IdealGasReactor(gas);
 
     %%
     % Create a reservoir to represent the environment
     a = ct.Solution('air.yaml', 'air', 'none');
     a.TP = {a.T, P};
-    env = ct.Reservoir(a);
+    env = ct.zeroD.Reservoir(a);
 
     %%
     % Define a wall between the reactor and the environment and
     % make it flexible, so that the pressure in the reactor is held
     % at the environment pressure.
-    w = ct.Wall(r, env);
+    w = ct.zeroD.Wall(r, env);
 
     %%
     % Set expansion parameter. dV/dt = KA(P_1 - P_2)
@@ -55,7 +55,7 @@ function reactor1(g)
 
     %%
     % Create a reactor network and insert the reactor:
-    network = ct.ReactorNet({r});
+    network = ct.zeroD.ReactorNet({r});
 
     nSteps = 100;
     tim(nSteps) = 0;

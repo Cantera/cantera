@@ -57,19 +57,20 @@ Class {mat:class}`~ct.Transport` is a base class of {mat:class}`~ct.Solution` th
 provides access to transport properties such as viscosity and species diffusivities,
 using one of the available [transport models](sec-phase-transport-models).
 
-## [Zero-Dimensional Reactor Networks](./zerodim)
+## [Zero-Dimensional Reactor Networks](./zeroD)
 
 A reactor network consists of one or more interconnected reactors. Several reactor types
 are implemented by [classes derived from `Reactor`](sec-matlab-reactors), each with its
 own set of [governing equations](sec-homogenous-reactor-types).
 
 Reactors can be connected to each other and upstream or downstream
-{mat:class}`Reservoir`s using {mat:class}`Valve`s, {mat:class}`MassFlowController`s, and
-{mat:class}`Wall`s, which introduce [additional terms to the governing
-equations](sec-reactor-interactions). Heterogeneous reactions are handled by
-{mat:class}`ReactorSurface`.
+{mat:class}`~ct.zeroD.Reservoir`s using {mat:class}`~ct.zeroD.Valve`s,
+{mat:class}`~ct.zeroD.MassFlowController`s, and {mat:class}`~ct.zeroD.Wall`s, which
+introduce [additional terms to the governing equations](sec-reactor-interactions).
+Heterogeneous reactions are handled by {mat:class}`~ct.zeroD.ReactorSurface`.
 
-Time integration of reactor networks is handled by the {mat:class}`ReactorNet` class.
+Time integration of reactor networks is handled by the {mat:class}`~ct.zeroD.ReactorNet`
+class.
 
 ## [One-dimensional Reacting Flows](./onedim)
 
@@ -100,7 +101,7 @@ phases
 thermo
 kinetics
 transport
-zerodim
+zeroD
 onedim
 constants
 utilities

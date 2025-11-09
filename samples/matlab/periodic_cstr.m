@@ -44,12 +44,12 @@ function periodic_cstr
     % The temperature, pressure, and composition of the upstream reservoir are
     % set to those of the 'gas' object at the time the reservoir is
     % created.
-    upstream = ct.Reservoir(gas);
+    upstream = ct.zeroD.Reservoir(gas);
     %%
     % Now set the gas to the initial temperature of the reactor, and create
     % the reactor object.
     gas.TP = {t, p};
-    cstr = ct.IdealGasReactor(gas);
+    cstr = ct.zeroD.IdealGasReactor(gas);
     %%
     % Set its volume to 10 cm^3. In this problem, the reactor volume is
     % fixed, so the initial volume is the volume at all later times.
@@ -58,14 +58,14 @@ function periodic_cstr
     % We need to have heat loss to see the oscillations. Create a
     % reservoir to represent the environment, and initialize its
     % temperature to the reactor temperature.
-    env = ct.Reservoir(gas);
+    env = ct.zeroD.Reservoir(gas);
     %%
     % Create a heat-conducting wall between the reactor and the
     % environment. Set its area, and its overall heat transfer
     % coefficient. Larger U causes the reactor to be closer to isothermal.
     % If U is too small, the gas ignites, and the temperature spikes and
     % stays high.
-    w = ct.Wall(cstr, env);
+    w = ct.zeroD.Wall(cstr, env);
     w.area = 1.0;
     w.heatTransferCoeff = 0.02;
     %%
@@ -74,20 +74,20 @@ function periodic_cstr
     sccm = 1.25;
     vdot = sccm * 1.0e-6/60.0 * ((ct.OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
     mdot = gas.massDensity * vdot; % kg/s
-    mfc = ct.MassFlowController(upstream, cstr);
+    mfc = ct.zeroD.MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
     %%
     % Now create a downstream reservoir to exhaust into.
-    downstream = ct.Reservoir(gas);
+    downstream = ct.zeroD.Reservoir(gas);
     %%
     % Connect the reactor to the downstream reservoir with a valve, and
     % set the coefficient sufficiently large to keep the reactor pressure
     % close to the downstream pressure of 60 Torr.
-    v = ct.Valve(cstr, downstream);
+    v = ct.zeroD.Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
     %%
     % Create the network
-    network = ct.ReactorNet({cstr});
+    network = ct.zeroD.ReactorNet({cstr});
     %%
     % Now integrate in time
     tme = 0.0;

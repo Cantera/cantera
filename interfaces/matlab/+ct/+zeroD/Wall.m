@@ -1,7 +1,7 @@
-classdef Wall < ct.Connector
+classdef Wall < ct.zeroD.Connector
     % Wall Class ::
     %
-    %     >> x = ct.Wall(l, r, name)
+    %     >> x = ct.zeroD.Wall(l, r, name)
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -35,10 +35,10 @@ classdef Wall < ct.Connector
     % the Wall class.
     %
     % :param l:
-    %    Instance of class :mat:class:`ct.ReactorBase` to be used as the bulk phase
+    %    Instance of class :mat:class:`ct.zeroD.ReactorBase` to be used as the bulk phase
     %    on the left side of the wall.
     % :param r:
-    %    Instance of class :mat:class:`ct.ReactorBase` to be used as the bulk phase
+    %    Instance of class :mat:class:`ct.zeroD.ReactorBase` to be used as the bulk phase
     %    on the right side of the wall.
     % :param name:
     %     Wall name (optional; default is ``(none)``).
@@ -82,13 +82,13 @@ classdef Wall < ct.Connector
 
         function obj = Wall(l, r, name)
             arguments
-                l (1,1) ct.ReactorBase
-                r (1,1) ct.ReactorBase
+                l (1,1) ct.zeroD.ReactorBase
+                r (1,1) ct.zeroD.ReactorBase
                 name (1,1) string = "(none)"
             end
 
             % Install the wall between left and right reactors
-            obj@ct.Connector('Wall', l, r, name);
+            obj@ct.zeroD.Connector('Wall', l, r, name);
             obj.left = l;
             obj.right = r;
 
