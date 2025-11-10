@@ -47,6 +47,12 @@ localenv["pc_prefix"] = localenv["prefix"]
 localenv["pc_libdirs"] = " ".join(f"-L{dir}" for dir in pc_libdirs if dir)
 localenv["pc_libs"] = " ".join(f"-l{lib}" for lib in pc_libs)
 localenv["pc_cflags"] = " ".join(compiler_flag_list(pc_cflags, env["CC"], flag_excludes))
+if localenv["prefix"] == "/usr":
+    localenv["pc_rpath"] = ""
+    localenv["pc_lib_include"] = "-I${includedir}"
+else:
+    localenv["pc_rpath"] = "-Wl,-rpath,${libdir} "
+    localenv["pc_lib_include"] = " -isystem ${includedir}"
 
 pc = build(localenv.SubstFile("cantera.pc", "cantera.pc.in"))
 install("$inst_libdir/pkgconfig", pc)
