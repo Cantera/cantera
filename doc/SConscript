@@ -133,5 +133,8 @@ if localenv['sphinx_docs']:
     localenv.AlwaysBuild(sphinxdocs)
     if localenv['doxygen_docs']:
         localenv.Depends(sphinxdocs, docs)
-    install(localenv.RecursiveInstall, '$inst_docdir/html',
-            '#build/doc/html', exclude=['\\.map', '\\.md5'])
+
+doc_files = install(localenv.RecursiveInstall, '$inst_docdir',
+                    '#build/doc/html', exclude=['\\.map', '\\.md5'])
+
+env['installed_docs'] = bool(doc_files)
