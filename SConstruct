@@ -1994,7 +1994,7 @@ if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if env['doxygen_docs'] or env['sphinx_docs']:
+if env['doxygen_docs'] or env['sphinx_docs'] or "install" in COMMAND_LINE_TARGETS:
     SConscript('doc/SConscript')
 
 # Sample programs (also used from test_problems/SConscript)
@@ -2067,7 +2067,7 @@ def postInstallMessage(target, source, env):
             name=name, location=env_dict[location]
         ))
 
-    if env["sphinx_docs"] or env["doxygen_docs"]:
+    if env["installed_docs"]:
         name = "HTML documentation"
         install_message.append(locations_message.format(
             name="HTML documentation", location=env_dict["inst_docdir"]
