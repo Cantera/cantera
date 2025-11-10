@@ -16,7 +16,6 @@ vars = {
 }
 env.Substfile(
     "#build/doc/Doxyfile_xml", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
-logger.info("Generating Doxygen tagfile.")
 tags = env.Command(
         "#build/doc/Cantera.tag", "#build/doc/Doxyfile_xml", "doxygen $SOURCE")
 cxx_files = list(env.Glob("#doc/doxygen/*") +
@@ -44,7 +43,6 @@ install(env.RecursiveInstall, "$inst_incdir/../cantera_clib",
         "#interfaces/clib/include/cantera_clib")
 
 # Run sourcegen without installation
-logger.info("Running sourcegen to generate CLib files.")
 sourcegen = env.Command(
     generated_files,
     tags,
