@@ -25,8 +25,6 @@ classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
 
     properties (TestParameter)
 
-            % `ignite` solves without crashing, but produces results that differ from
-            % expected.
             ExampleScript = {
                 'equil', 'isentropic', 'reactor1', 'reactor2', 'surf_reactor', ...
                 'periodic_cstr', 'lithium_ion_battery', ...
@@ -34,7 +32,6 @@ classdef (TestTags = {'Slow'}) ctTestSamples < ctTestCase
                 'burner_flame', 'diffusion_flame', ...
                 'diamond_cvd', ...
                 % 'ignite_hp', 'ignite_uv', 'plug_flow_reactor', % disabled due to excessive run times; see GH issue #2034
-                % 'ignite', % disabled as it is broken; see GH issue #2033
             };
     end
 
