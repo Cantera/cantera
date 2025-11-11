@@ -2070,7 +2070,7 @@ def postInstallMessage(target, source, env):
     if env["installed_docs"]:
         name = "HTML documentation"
         install_message.append(locations_message.format(
-            name="HTML documentation", location=env_dict["inst_docdir"]
+            name="HTML documentation", location=env_dict["ct_docdir"]
         ))
 
     if env["python_package"] == "y":
