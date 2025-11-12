@@ -10,6 +10,17 @@ classdef (Abstract) ThermoPhase < handle
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`ct.ThermoPhase` object.
 
+    properties (Hidden)
+        thermoCache struct = struct('nElements', NaN, ...
+                                    'nSpecies', NaN, ...
+                                    'minTemp', NaN, ...
+                                    'maxTemp', NaN, ...
+                                    'refPressure', NaN, ...
+                                    'molecularWeights', [], ...
+                                    'atomicWeights', [], ...
+                                    'charges', [])
+    end
+
     properties (SetAccess = public)
 
         X % Mole fractions.
@@ -745,17 +756,73 @@ classdef (Abstract) ThermoPhase < handle
             str = ct.impl.getString('mThermo_report', obj.tpID, 1, threshold);
         end
 
-        %% Single-property getter methods
+        %% Getter methods for cached properties.
+        % These properties rarely change, so we cache their values for efficiency.
+        % But make sure to update the cache if a certain method modifies them.
+
+        function n = get.nSpecies(obj)
+            if isnan(obj.thermoCache.nSpecies)
+                obj.thermoCache.nSpecies = ct.impl.call('mThermo_nSpecies', obj.tpID);
+            end
+            n = obj.thermoCache.nSpecies;
+        end
+
+        function n = get.nElements(obj)
+            if isnan(obj.thermoCache.nElements)
+                obj.thermoCache.nElements = ct.impl.call('mThermo_nElements', obj.tpID);
+            end
+            n = obj.thermoCache.nElements;
+        end
+
+        function t = get.maxTemp(obj)
+            if isnan(obj.thermoCache.maxTemp)
+                obj.thermoCache.maxTemp = ct.impl.call('mThermo_maxTemp', obj.tpID, -1);
+            end
+            t = obj.thermoCache.maxTemp;
+        end
+
+        function t = get.minTemp(obj)
+            if isnan(obj.thermoCache.minTemp)
+                obj.thermoCache.minTemp = ct.impl.call('mThermo_minTemp', obj.tpID, -1);
+            end
+            t = obj.thermoCache.minTemp;
+        end
+
+        function p = get.refPressure(obj)
+            if isnan(obj.thermoCache.refPressure)
+                obj.thermoCache.refPressure = ct.impl.call('mThermo_refPressure', obj.tpID);
+            end
+            p = obj.thermoCache.refPressure;
+        end
+
+        function mw = get.molecularWeights(obj)
+            if isempty(obj.thermoCache.molecularWeights)
+                nsp = obj.nSpecies;
+                obj.thermoCache.molecularWeights = ...
+                    ct.impl.getArray('mThermo_getMolecularWeights', nsp, obj.tpID);
+            end
+            mw = obj.thermoCache.molecularWeights;
+        end
 
         function amu = get.atomicWeights(obj)
-            nel = obj.nElements;
-            amu = ct.impl.getArray('mThermo_atomicWeights', nel, obj.tpID);
+            if isempty(obj.thermoCache.atomicWeights)
+                nel = obj.nElements;
+                obj.thermoCache.atomicWeights = ...
+                    ct.impl.getArray('mThermo_atomicWeights', nel, obj.tpID);
+            end
+            amu = obj.thermoCache.atomicWeights;
         end
 
         function e = get.charges(obj)
-            nsp = obj.nSpecies;
-            e = ct.impl.getArray('mThermo_getCharges', nsp, obj.tpID);
+            if isempty(obj.thermoCache.charges)
+                nsp = obj.nSpecies;
+                obj.thermoCache.charges = ...
+                    ct.impl.getArray('mThermo_getCharges', nsp, obj.tpID);
+            end
+            e = obj.thermoCache.charges;
         end
+
+        %% Single-property getter methods
 
         function c = get.cv(obj)
             if strcmp(obj.basis, 'molar')
@@ -801,14 +868,6 @@ classdef (Abstract) ThermoPhase < handle
             b = ct.impl.call('mThermo_isothermalCompressibility', obj.tpID);
         end
 
-        function t = get.maxTemp(obj)
-            t = ct.impl.call('mThermo_maxTemp', obj.tpID, -1);
-        end
-
-        function t = get.minTemp(obj)
-            t = ct.impl.call('mThermo_minTemp', obj.tpID, -1);
-        end
-
         function mmw = get.meanMolecularWeight(obj)
             mmw = ct.impl.call('mThermo_meanMolecularWeight', obj.tpID);
         end
@@ -824,23 +883,6 @@ classdef (Abstract) ThermoPhase < handle
         function c = get.concentrations(obj)
             nsp = obj.nSpecies;
             c = ct.impl.getArray('mThermo_getConcentrations', nsp, obj.tpID);
-        end
-
-        function mw = get.molecularWeights(obj)
-            nsp = obj.nSpecies;
-            mw = ct.impl.getArray('mThermo_getMolecularWeights', nsp, obj.tpID);
-        end
-
-        function nel = get.nElements(obj)
-            nel = ct.impl.call('mThermo_nElements', obj.tpID);
-        end
-
-        function nsp = get.nSpecies(obj)
-            nsp = ct.impl.call('mThermo_nSpecies', obj.tpID);
-        end
-
-        function p = get.refPressure(obj)
-            p = ct.impl.call('mThermo_refPressure', obj.tpID);
         end
 
         function p = get.satPressure(obj)

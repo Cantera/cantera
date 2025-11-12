@@ -22,6 +22,13 @@ classdef (Abstract) Kinetics < handle
         kinID % ID of the Kinetics object.
     end
 
+    properties (Hidden)
+        kinCache struct = struct('nPhases', NaN, ...
+                                 'nTotalSpecies', NaN, ...
+                                 'nReactions', NaN)
+    end
+
+
     properties (SetAccess = protected)
 
         nPhases % Number of phases.
@@ -83,6 +90,31 @@ classdef (Abstract) Kinetics < handle
             obj.kinID = ct.impl.call('mSol_kinetics', id);
         end
 
+        %% Getter methods for cached properties.
+        % These properties rarely change, so we cache their values for efficiency.
+        % But make sure to update the cache if a certain method modifies them.
+
+        function n = get.nPhases(obj)
+            if isnan(obj.kinCache.nPhases)
+                obj.kinCache.nPhases = ct.impl.call('mKin_nPhases', obj.kinID);
+            end
+            n = obj.kinCache.nPhases;
+        end
+
+        function n = get.nTotalSpecies(obj)
+            if isnan(obj.kinCache.nTotalSpecies)
+                obj.kinCache.nTotalSpecies = ct.impl.call('mKin_nTotalSpecies', obj.kinID);
+            end
+            n = obj.kinCache.nTotalSpecies;
+        end
+
+        function n = get.nReactions(obj)
+            if isnan(obj.kinCache.nReactions)
+                obj.kinCache.nReactions = ct.impl.call('mKin_nReactions', obj.kinID);
+            end
+            n = obj.kinCache.nReactions;
+        end
+
         %% Get scalar attributes
 
         function n = kineticsSpeciesIndex(obj, name)
@@ -109,18 +141,6 @@ classdef (Abstract) Kinetics < handle
             %    Multiplier of the rate of progress of reaction irxn.
 
             n = ct.impl.call('mKin_multiplier', obj.kinID, irxn - 1);
-        end
-
-        function n = get.nPhases(obj)
-            n = ct.impl.call('mKin_nPhases', obj.kinID);
-        end
-
-        function n = get.nReactions(obj)
-            n = ct.impl.call('mKin_nReactions', obj.kinID);
-        end
-
-        function n = get.nTotalSpecies(obj)
-            n = ct.impl.call('mKin_nTotalSpecies', obj.kinID);
         end
 
         function n = phaseIndex(obj, phase)
