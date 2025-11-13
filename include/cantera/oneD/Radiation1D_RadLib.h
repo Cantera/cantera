@@ -164,7 +164,7 @@ private:
 };
 
 // ------------------- Factory utility (optional) -------------------
-// You can call these helpers from createRadiation1D(...)
+// Can call these helpers from createRadiation1D(...)
 
 inline std::unique_ptr<RadiationPropertyCalculator>
 makeRadLibProps(const std::string& model,

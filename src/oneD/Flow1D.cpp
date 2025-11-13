@@ -1301,7 +1301,7 @@ void Flow1D::fromArray(const shared_ptr<SolutionArray>& arr)
     Domain1D::setMeta(arr->meta());
     arr->setLoc(0);
     auto phase = arr->thermo();
-    m_press = phase->pressure();
+    setPressure(phase->pressure());
 
     const auto grid = arr->getComponent("grid").as<vector<double>>();
     setupGrid(nPoints(), &grid[0]);

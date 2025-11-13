@@ -156,6 +156,9 @@ public:
     //! Mach number, the pressure is very nearly constant throughout the flow.
     void setPressure(double p) {
         m_press = p;
+        if (m_radiation) {
+            m_radiation->setPressure(p);
+        }
     }
 
     //! The current pressure [Pa].

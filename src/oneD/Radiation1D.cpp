@@ -203,6 +203,11 @@ Radiation1D::Radiation1D(ThermoPhase* thermo, double pressure, size_t points,
 {
 }
 
+void Radiation1D::setPressure(double pressure)
+{
+    m_press = pressure;
+}
+
 void Radiation1D::setBoundaryEmissivities(double e_left, double e_right)
 {
     if (e_left < 0 || e_left > 1) {

@@ -317,6 +317,9 @@ public:
     void computeRadiation(double* x, size_t jmin, size_t jmax,
                           vector<double>& qdotRadiation);
 
+    //! Update the operating pressure [Pa] used for property evaluations.
+    void setPressure(double pressure);
+
     /**
      * Sets the emissivities for the left and right boundary values in the
      * radiative term.
