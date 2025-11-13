@@ -41,9 +41,20 @@ bool isRadLibModel(const string& propertyModel)
 }
 
 #ifndef CT_ENABLE_RADLIB
-void ensureRadLibEnabled(const string& propertyModel, const string& context)
+bool ensureRadLibEnabled(const string& propertyModel, const string& context,
+    bool allowFallback)
 {
     if (isRadLibModel(propertyModel)) {
+        if (allowFallback) {
+            warn_user(context,
+                "Radiation property '{}' requires RadLib support, but this "
+                "build was compiled without RadLib. Falling back to "
+                "'TabularPlanckMean'. Rebuild Cantera with RadLib enabled "
+                "(set 'system_radlib=y' for a system install, or "
+                "'system_radlib=n' to use the bundled RadLib submodule) to "
+                "use RadLib models.", propertyModel);
+            return false;
+        }
         throw CanteraError(context,
             "Radiation property '{}' requires RadLib support, but this Cantera "
             "build was compiled without RadLib. Rebuild Cantera with RadLib "
@@ -51,9 +62,10 @@ void ensureRadLibEnabled(const string& propertyModel, const string& context)
             "'system_radlib=n' to use the bundled RadLib submodule), or "
             "select a non-RadLib radiation model.", propertyModel);
     }
+    return true;
 }
 #else
-void ensureRadLibEnabled(const string&, const string&) {}
+bool ensureRadLibEnabled(const string&, const string&, bool) { return true; }
 #endif
 
 std::optional<AnyMap> loadRadiationParameters(const string& context)
@@ -207,7 +219,9 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
     }
 #endif
 
-    ensureRadLibEnabled(propertyModel, "Flow1D::_init");
+    if (!ensureRadLibEnabled(propertyModel, "Flow1D::_init", true)) {
+        propertyModel = "TabularPlanckMean";
+    }
     bool builtRadiation = false;
 #ifdef CT_ENABLE_RADLIB
     if (isRadLibModel(propertyModel)) {
@@ -670,7 +684,7 @@ Flow1D::buildRadLibProps(const std::string& propertyModel) const
 void Flow1D::setRadiationModels(const std::string& propertyModel,
                                 const std::string& solverModel)
 {
-    ensureRadLibEnabled(propertyModel, "Flow1D::setRadiationModels");
+    ensureRadLibEnabled(propertyModel, "Flow1D::setRadiationModels", false);
 
     // Rebuild the Radiation1D object with the requested models, preserving
     // current boundary emissivities

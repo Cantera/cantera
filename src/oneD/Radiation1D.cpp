@@ -36,7 +36,7 @@ void TabularPlanckMean::parseRadiationData()
             const std::string& name = item.first;
             const auto& sp = item.second.as<AnyMap>();
 
-            size_t k = m_thermo->speciesIndex(name);
+            size_t k = m_thermo->speciesIndex(name, false);
             if (k == npos) {
                 // Skip species not present in this mechanism
                 continue;
@@ -79,7 +79,7 @@ void TabularPlanckMean::parseRadiationData()
         m_PMAC["CO2"]["coefficients"] = c_CO2;
     }
     if (m_absorptionSpecies.find("CO2") == m_absorptionSpecies.end()) {
-         size_t k = m_thermo->speciesIndex("CO2");
+         size_t k = m_thermo->speciesIndex("CO2", false);
          if (k != npos) m_absorptionSpecies.emplace("CO2", k);
      }
 
@@ -91,7 +91,7 @@ void TabularPlanckMean::parseRadiationData()
         m_PMAC["H2O"]["coefficients"] = c_H2O;
     }
     if (m_absorptionSpecies.find("H2O") == m_absorptionSpecies.end()) {
-         size_t k = m_thermo->speciesIndex("H2O");
+         size_t k = m_thermo->speciesIndex("H2O", false);
          if (k != npos) m_absorptionSpecies.emplace("H2O", k);
      }
 }

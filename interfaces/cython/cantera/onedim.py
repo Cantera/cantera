@@ -288,6 +288,13 @@ class FlameBase(Sim1D):
         self.flame.set_radlib_options(fvsoot=fvsoot, ngray=ngray, Tref=Tref, Pref=Pref)
 
     @property
+    def radlib_options(self):
+        """
+        Return the current RadLib parameter settings for this flow domain.
+        """
+        return self.flame.radlib_options
+
+    @property
     def grid(self):
         """ Array of grid point positions along the flame. """
         return self.flame.grid

@@ -834,6 +834,18 @@ cdef class FlowBase(Domain1D):
             pref = float(Pref)
         self.flow.setRadLibOptions(fv, ng, tref, pref)
 
+    @property
+    def radlib_options(self):
+        """
+        Return the current RadLib parameter settings as a dictionary.
+        """
+        return {
+            "fvsoot": self.flow.radlibFvSoot(),
+            "nGray": self.flow.radlibNGray(),
+            "Tref": self.flow.radlibTref(),
+            "Pref": self.flow.radlibPref(),
+        }
+
     def get_settings3(self):
         """
         Temporary method returning new behavior of settings getter.
