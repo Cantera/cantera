@@ -329,6 +329,10 @@ public:
         return m_qdotRadiation[j];
     }
 
+    //! Reconfigure the radiation property / solver models.
+    void setRadiationModels(const std::string& propertyModel,
+                            const std::string& solverModel);
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
@@ -543,9 +547,6 @@ protected:
 
     //! Compute the radiative heat loss at each grid point
     void computeRadiation(double*, size_t, size_t);
-
-    void setRadiationModels(const std::string& propertyModel,
-                            const std::string& solverModel);
 
     //! @}
 
