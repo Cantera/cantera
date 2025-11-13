@@ -197,9 +197,13 @@ Radiation1D::Radiation1D(ThermoPhase* thermo, double pressure, size_t points,
                          std::function<double(const double*, size_t, size_t)> moleFractionFunction,
                          std::unique_ptr<RadiationPropertyCalculator> props,
                          std::unique_ptr<RadiationSolver> solver)
-    : m_thermo(thermo), m_press(pressure), m_points(points),
-    m_T(temperatureFunction), m_X(moleFractionFunction),
-    m_props(std::move(props)), m_solver(std::move(solver))
+    : m_thermo(thermo)
+    , m_press(pressure)
+    , m_points(points)
+    , m_props(std::move(props))
+    , m_solver(std::move(solver))
+    , m_T(temperatureFunction)
+    , m_X(moleFractionFunction)
 {
 }
 
