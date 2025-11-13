@@ -366,17 +366,10 @@ public:
     //! Root finding is enabled only while enforcing advance limits
     size_t nRootFunctions() const override;
 
-    //! Relay the advance-limit root function to the integrator
+    //! Evaluate the advance-limit root function used to stop integration once a limit is met.
+    //! When limits are active this sets `gout[0] = 1 - max_i(|y[i]-y_base[i]| / limit[i])`
+    //! so a zero indicates a component has reached its limit; otherwise gout[0] is positive.
     int evalRootFunctions(double t, const double* y, double* gout) override;
-
-    /** Root callback used to stop integration when an advance limit is reached
-     *
-     * When limit enforcement is active this evaluates
-     * `gout[0] = 1 - max_i(|y[i] - y_base[i]| / limit[i])`, so a zero signals that
-     * some component has reached its limit. If limits are inactive the method fills
-     * `gout[0]` with a positive value to prevent a false root. Returns 0 on success.
-     */
-    int advanceLimitRootFunc(double t, const double* y, double* gout);
 
 protected:
     //! Add the reactor *r* to this reactor network.
@@ -400,7 +393,6 @@ protected:
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
     virtual int lastOrder() const;
-
 
     vector<Reactor*> m_reactors;
     map<string, int> m_counts;  //!< Map used for default name generation

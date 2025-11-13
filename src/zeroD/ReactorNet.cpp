@@ -256,7 +256,8 @@ double ReactorNet::advance(double time, bool applylimit)
     m_integ->setRootFunctionCount(nRootFunctions());
 
     // Integrate toward the requested time; integrator will return early if a limit is
-    // reached (CV_ROOT_RETURN)
+    // reached (CV_ROOT_RETURN). The try/catch ensures the temporary root-finding state
+    // is cleared even when CVODE throws so subsequent calls start clean.
     try {
         m_integ->integrate(time);
     } catch (...) {
@@ -285,7 +286,6 @@ double ReactorNet::advance(double time, bool applylimit)
         double* ycurr = m_integ->solution();
         size_t jmax = npos;
         double max_ratio = -1.0;
-        double best_delta = 0.0;
         double best_limit = 0.0;
         for (size_t j = 0; j < m_nv; j++) {
             double lim = m_advancelimits[j];
@@ -295,16 +295,18 @@ double ReactorNet::advance(double time, bool applylimit)
                 if (ratio > max_ratio) {
                     max_ratio = ratio;
                     jmax = j;
-                    best_delta = delta;
                     best_limit = lim;
                 }
             }
         }
         if (jmax != npos) {
             double dt = m_time - m_ybase_time;
+            double y_start = m_ybase[jmax];
+            double y_end = ycurr[jmax];
+            double delta = y_end - y_start;
             writelog("    Advance limit triggered for component {:d} (dt = {:9.4g}):"
-                     " |Δ| = {:11.6g}, limit = {:9.4g}, ratio = {:9.4g}\n",
-                     jmax, dt, best_delta, best_limit, max_ratio);
+                     " y_start = {:11.6g}, y_end = {:11.6g}, delta = {:11.6g}, limit = {:9.4g}\n",
+                     jmax, dt, y_start, y_end, delta, best_limit);
         }
     }
 
@@ -396,11 +398,6 @@ size_t ReactorNet::nRootFunctions() const
 }
 
 int ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
-{
-    return advanceLimitRootFunc(t, y, gout);
-}
-
-int ReactorNet::advanceLimitRootFunc(double t, const double* y, double* gout)
 {
     // Default: no root detected
     double g = 1.0;

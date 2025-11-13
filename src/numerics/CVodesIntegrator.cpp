@@ -91,13 +91,17 @@ extern "C" {
         return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
     }
 
-    //! Sundials callback. Forwards root evaluations to the active FuncEval
+    /**
+     * SUNDIALS callback that forwards root evaluations to the FuncEval.
+     * @param[in] t Current integration time at which roots are requested
+     * @param[in] y Solution vector provided by CVODE (length neq())
+     * @param[out] gout Output array that must be filled with nRootFunctions() values
+     * @param[in] user_data Opaque pointer (FuncEval*) supplied during integrator setup
+     * @returns The result of FuncEval::evalRootFunctions (0 on success)
+     */
     static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
-        if (!f) {
-            return 0;
-        }
         return f->evalRootFunctions(t, NV_DATA_S(y), gout);
     }
 }
@@ -350,7 +354,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     flag = CVodeSetUserData(m_cvode_mem, &func);
     checkError(flag, "initialize", "CVodeSetUserData");
 
-    m_nRootFunctions = static_cast<size_t>(-1);
+    m_nRootFunctions = npos;
     setRootFunctionCount(func.nRootFunctions());
 
     if (func.nparams() > 0) {
@@ -376,7 +380,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     }
     int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     checkError(result, "reinitialize", "CVodeReInit");
-    m_nRootFunctions = static_cast<size_t>(-1);
+    m_nRootFunctions = npos;
     setRootFunctionCount(func.nRootFunctions());
     applyOptions();
 }
@@ -522,7 +526,6 @@ void CVodesIntegrator::integrate(double tout)
                            tout, m_time);
     }
     int nsteps = 0;
-    bool root_triggered = false;
     while (m_tInteg < tout) {
         if (nsteps >= m_maxsteps) {
             string f_errs = m_func->getErrors();
@@ -547,16 +550,16 @@ void CVodesIntegrator::integrate(double tout)
                 flag, m_error_message, f_errs, getErrorInfo(10));
         }
         if (flag == CV_ROOT_RETURN) {
-            // Stop early at root (e.g., advance limit reached)
-            root_triggered = true;
+            // Stop early at root (e.g., advance limit reached); align tout to the root time
+            tout = m_tInteg;
             break;
         }
         nsteps++;
     }
-    // Align solution time to the requested tout when no root event occurred; this
-    // avoids small positive overshoots from CV_ONE_STEP, which can otherwise cause
-    // callers to see non-monotonic target times.
-    double t_eval = root_triggered ? m_tInteg : tout;
+
+    // Interpolate the solution to either the user-specified output time or
+    // the time at which a root event occurred.
+    double t_eval = tout;
     int flag = CVodeGetDky(m_cvode_mem, t_eval, 0, m_y);
     checkError(flag, "integrate", "CVodeGetDky");
     m_time = t_eval;
