@@ -93,9 +93,7 @@ public:
      * ReactorNet enforces advance limits).
      * @param nroots Number of root functions
      */
-    virtual void setRootFunctionCount(size_t nroots) {
-        (void) nroots;
-    }
+    virtual void setRootFunctionCount([[maybe_unused]] size_t nroots) {}
 
     //! Current value of the independent variable tracked by the integrator
     virtual double currentTime() const = 0;
