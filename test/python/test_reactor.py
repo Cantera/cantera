@@ -315,7 +315,6 @@ class TestReactor:
         self.net.advance_limits = 0 * self.net.advance_limits - 1.
         assert self.net.advance_limits[ix] == -1.
 
-    @pytest.mark.xfail(reason="See GitHub Issue #1453")
     def test_advance_with_limits(self):
         def integrate(limit_H2 = None, apply=True):
             P0 = 10 * ct.one_atm
@@ -330,26 +329,129 @@ class TestReactor:
             tEnd = 0.1
             tStep = 7e-4
             nSteps = 0
+            nEvents = 0
 
             t = tStep
             while t < tEnd:
                 t_curr = self.net.advance(t, apply_limit=apply)
                 nSteps += 1
-                if t_curr == t:
+                if t_curr < t:
+                    nEvents += 1
+                else:
                     t += tStep
 
-            return nSteps
+            return nSteps, nEvents
 
-        n_baseline = integrate()
-        n_advance_coarse = integrate(.01)
-        n_advance_fine = integrate(.001)
-        n_advance_negative = integrate(-1.0)
-        n_advance_override = integrate(.001, False)
+        n_baseline, events_baseline = integrate()
+        n_advance_coarse, events_coarse = integrate(1e-4)
+        n_advance_fine, events_fine = integrate(3e-5)
+        n_advance_negative, events_negative = integrate(-1.0)
+        n_advance_override, events_override = integrate(3e-5, False)
 
-        assert n_advance_coarse > n_baseline
-        assert n_advance_fine > n_advance_coarse
+        assert events_baseline == 0
+        assert events_coarse >= 1
+        assert events_fine >= events_coarse
         assert n_advance_negative == n_baseline
+        assert events_negative == 0
         assert n_advance_override == n_baseline
+        assert events_override == 0
+
+    def test_advance_limit_triggers(self):
+        """
+        Tests that advance stops when a limit is reached, and that the change in the
+        specified component is approximately equal to the limit.
+        """
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+
+        comp = 'H2'
+        limit = 1e-3
+        target = 5e-2
+        self.net.initialize()
+        baseline = np.copy(self.net.get_state())
+        self.r1.set_advance_limit(comp, limit)
+        ix = self.net.global_component_index(comp, 0)
+
+        reached = self.net.advance(target, apply_limit=True)
+
+        assert reached == approx(self.net.time)
+        assert self.net.time < target
+        delta = abs(self.net.get_state()[ix] - baseline[ix])
+        assert delta == approx(limit, rel=0.1, abs=1e-10)
+
+    def test_advance_limit_logging(self, capsys):
+        """
+        Ensure the verbose message appears when an advance limit is triggered, and does
+        not appear when advance limits are not applied.
+        """
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        limit = 1e-3
+        target = 5e-2
+
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        self.net.verbose = True
+        self.r1.set_advance_limit('H2', limit)
+        capsys.readouterr()
+        self.net.advance(target, apply_limit=True)
+        out = capsys.readouterr().out
+        assert "Advance limit triggered" in out
+        assert "y_start" in out
+        assert "y_end" in out
+        assert "delta" in out
+        assert "limit =" in out
+
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        self.net.verbose = True
+        self.r1.set_advance_limit('H2', limit)
+        capsys.readouterr()
+        self.net.advance(target, apply_limit=False)
+        out = capsys.readouterr().out
+        assert "Advance limit triggered" not in out
+
+    def test_advance_limit_cleanup_after_failure(self):
+        """Limit-check state resets even when integration raises an error"""
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        self.r1.set_advance_limit('H2', 1e-3)
+        self.net.max_time_step = 1e-6
+        self.net.max_steps = 1
+        with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
+            self.net.advance(1e-2, apply_limit=True)
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        self.r1.set_advance_limit('H2', 1e-3)
+        self.net.advance(1e-2, apply_limit=True)
+
+    def test_multicomponent_advance_limits(self):
+        """Most restrictive component determines which limit triggers first"""
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        limits = {'H2': 3e-5, 'O2': 2e-3}
+        self.net.initialize()
+        base = np.copy(self.net.get_state())
+        for comp, lim in limits.items():
+            self.r1.set_advance_limit(comp, lim)
+        h2_ix = self.net.global_component_index('H2', 0)
+        o2_ix = self.net.global_component_index('O2', 0)
+        t_hit_h2 = self.net.advance(5e-2, apply_limit=True)
+        assert t_hit_h2 == approx(self.net.time)
+        delta_h2 = abs(self.net.get_state()[h2_ix] - base[h2_ix])
+        delta_o2 = abs(self.net.get_state()[o2_ix] - base[o2_ix])
+        assert delta_h2 >= 0.8 * limits['H2']
+        assert delta_o2 < 0.2 * limits['O2']
+        base = np.copy(self.net.get_state())
+        self.r1.set_advance_limit('H2', None)
+        t_hit_o2 = self.net.advance(t_hit_h2 + 5e-2, apply_limit=True)
+        assert t_hit_o2 == approx(self.net.time)
+        delta_o2 = abs(self.net.get_state()[o2_ix] - base[o2_ix])
+        assert delta_o2 >= 0.8 * limits['O2']
 
     def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time
