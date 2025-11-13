@@ -66,29 +66,6 @@ public:
     virtual std::vector<std::string> requiredSpecies() const { return {}; }
 };
 
-
-/* Commented out for now until RadLib dependency is resolved
-class RadLibPlanckMean : public RadiationPropertyCalculator {
-public:
-    RadLibPlanckMean() {
-        m_rad = new rad_planck_mean();
-    }
-    ~RadLibPlanckMean() {
-        delete m_rad;
-    }
-
-    void getBandProperties(std::vector<double>& kabs,
-                           std::vector<double>& awts,
-                           double T, double P, const RadComposition& comp) override
-    {
-        m_rad->get_k_a(kabs, awts, T, P, comp.fvSoot, comp.xH2O, comp.xCO2, comp.xCO, comp.xCH4);
-    }
-
-private:
-    rad* m_rad; // pointer to rad_planck_mean
-};
-*/
-
 /* Reads species-specific Planck-mean absorption coefficient data from a YAML file
  * (radiation-properties.yaml) if available, falling back to polynomial approximations
  * for CO2 and H2O otherwise. A `fit-type` of "table" or "polynomial" can be specified

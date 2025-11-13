@@ -196,13 +196,15 @@ makeRadLibProps(const std::string& model,
 // If a build without RadLib tries to select a RadLib model, throw a clear error.
 namespace Cantera {
 inline std::unique_ptr<RadiationPropertyCalculator>
-makeRadLibProps(const std::string&, ThermoPhase*, double fvsoot = 0.0,
+makeRadLibProps(const std::string& model, ThermoPhase*, double fvsoot = 0.0,
                 int nGray = 25, double Tref = 1500.0, double Pref = OneAtm)
 {
     throw CanteraError("makeRadLibProps",
-        "RadLib support is not enabled in this Cantera build. "
+        "Radiation property '{}' requires RadLib support, but RadLib is not "
+        "enabled in this Cantera build. "
         "Rebuild Cantera with RadLib enabled (set 'system_radlib=y' for a system install, "
-        "or 'system_radlib=n' to use the bundled RadLib submodule).");
+        "or 'system_radlib=n' to use the bundled RadLib submodule).",
+        model);
 }
 } // namespace Cantera
 
