@@ -12,6 +12,26 @@ from .utilities import (
 )
 
 
+def _radlib_available():
+    gas = ct.Solution("h2o2.yaml")
+    try:
+        flow = ct.FreeFlow(gas)
+    except ct.CanteraError as err:
+        if "RadLib support" in str(err):
+            return False
+        raise
+    try:
+        flow.set_radiation_models("RadLib.PlanckMean")
+    except ct.CanteraError as err:
+        if "RadLib support" in str(err):
+            return False
+        raise
+    return True
+
+
+_HAS_RADLIB = _radlib_available()
+
+
 class TestOnedim:
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
@@ -167,6 +187,42 @@ class TestOnedim:
         for cls in ct.FlameBase.__subclasses__():
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
+
+
+class TestRadLibOptions:
+
+    def setup_method(self):
+        self.gas = ct.Solution("h2o2.yaml")
+        self.flow = ct.FreeFlow(self.gas)
+
+    @pytest.mark.skipif(_HAS_RADLIB, reason="RadLib-enabled builds should not raise")
+    def test_radlib_model_requires_support(self):
+        with pytest.raises(ct.CanteraError, match="RadLib support"):
+            self.flow.set_radiation_models("RadLib.PlanckMean")
+
+    @pytest.mark.skipif(_HAS_RADLIB, reason="RadLib-enabled builds should not raise")
+    def test_set_radlib_options_requires_support(self):
+        with pytest.raises(ct.CanteraError, match="RadLib support"):
+            self.flow.set_radlib_options(1e-6, 25, 1500.0, ct.one_atm)
+
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_radlib_options_roundtrip(self):
+        self.flow.P = 2 * ct.one_atm
+        self.flow.set_radlib_options(5e-6, 33, 1400.0, 5e5)
+        opts = self.flow.radlib_options
+        assert opts["fvsoot"] == approx(5e-6)
+        assert opts["nGray"] == 33
+        assert opts["Tref"] == approx(1400.0)
+        assert opts["Pref"] == approx(5e5)
+
+        self.flow.set_radlib_options(2e-6, 12, 1800.0, 0.0)
+        opts = self.flow.radlib_options
+        assert opts["Pref"] == approx(self.flow.P)
+
+        self.flow.set_radiation_models("RadLib.RCSLW")
+        opts_after = self.flow.radlib_options
+        assert opts_after["nGray"] == 12
+        assert opts_after["fvsoot"] == approx(2e-6)
 
 def check_component_order(fname: str, group: str):
     with fname.open("r", encoding="utf-8") as fid:
