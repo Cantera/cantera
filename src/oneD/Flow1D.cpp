@@ -74,12 +74,6 @@ std::optional<AnyMap> loadRadiationParameters(const string& context)
         AnyMap data = AnyMap::fromYamlFile(kRadiationParametersFile);
         return data;
     } catch (CanteraError& err) {
-        warn_user(context,
-            "Unable to load '{}': {}\n"
-            "Default radiation settings will be used. Place this file in the "
-            "working directory or add its directory to the Cantera data "
-            "search path (set the CANTERA_DATA environment variable).",
-            kRadiationParametersFile, err.what());
         return std::nullopt;
     }
 }

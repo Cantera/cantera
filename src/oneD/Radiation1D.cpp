@@ -11,7 +11,6 @@
 
 namespace Cantera
 {
-
 TabularPlanckMean::TabularPlanckMean(ThermoPhase* thermo)
     : m_thermo(thermo)
 {
@@ -24,9 +23,7 @@ void TabularPlanckMean::parseRadiationData()
     try {
         radiationPropertiesDB = AnyMap::fromYamlFile("radiation-parameters.yaml");
     } catch (CanteraError& err) {
-        warn_user("TabularPlanckMean::parseRadiationData",
-            "Failed to load 'radiation-parameters.yaml': {}\n"
-            "Falling back to default polynomial data for CO2, H2O.", err.what());
+        // Optional file; fall back to built-in coefficients silently.
     }
 
     if (!radiationPropertiesDB.empty() && radiationPropertiesDB.hasKey("PMAC")) {
@@ -252,7 +249,7 @@ void Radiation1D::computeRadiation(double* x, size_t jmin, size_t jmax,
         } else {
             // Provide only required species
             for (const auto& nm : req) {
-                size_t k = m_thermo->speciesIndex(nm);
+                size_t k = m_thermo->speciesIndex(nm, false);
                 if (k != npos) {
                     comp.X[nm] = m_X(x, k, j);
                 }
