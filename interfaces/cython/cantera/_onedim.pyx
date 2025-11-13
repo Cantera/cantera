@@ -804,6 +804,36 @@ cdef class FlowBase(Domain1D):
         """
         self.flow.setRadiationModels(stringify(property_model), stringify(solver_model))
 
+    def set_radlib_options(self, fvsoot=None, ngray=None, Tref=None, Pref=None):
+        """
+        Set RadLib-specific parameters used when RadLib radiation models are selected.
+
+        Parameters
+        ----------
+        fvsoot : float, optional
+            Spatially uniform soot volume fraction (default: current setting).
+        ngray : int, optional
+            Number of gray gases for the RadLib RCSLW model (default: current setting).
+        Tref : float, optional
+            Reference temperature in kelvin for RadLib RCSLW (default: current setting).
+        Pref : float, optional
+            Reference pressure in pascal for RadLib RCSLW. If not provided or <= 0, the
+            flow-domain pressure is used.
+        """
+        cdef double fv = self.flow.radlibFvSoot()
+        cdef int ng = self.flow.radlibNGray()
+        cdef double tref = self.flow.radlibTref()
+        cdef double pref = self.flow.radlibPref()
+        if fvsoot is not None:
+            fv = float(fvsoot)
+        if ngray is not None:
+            ng = int(ngray)
+        if Tref is not None:
+            tref = float(Tref)
+        if Pref is not None:
+            pref = float(Pref)
+        self.flow.setRadLibOptions(fv, ng, tref, pref)
+
     def get_settings3(self):
         """
         Temporary method returning new behavior of settings getter.

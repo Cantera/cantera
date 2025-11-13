@@ -333,6 +333,29 @@ public:
     void setRadiationModels(const std::string& propertyModel,
                             const std::string& solverModel);
 
+    //! Configure RadLib-specific parameters used when RadLib radiation models are selected.
+    void setRadLibOptions(double fvsoot, int nGray, double Tref, double Pref);
+
+    //! Current RadLib soot volume fraction setting.
+    double radlibFvSoot() const {
+        return m_radlibOptions.fvsoot;
+    }
+
+    //! Current number of gray gases for RadLib RCSLW.
+    int radlibNGray() const {
+        return m_radlibOptions.nGray;
+    }
+
+    //! Current RadLib reference temperature.
+    double radlibTref() const {
+        return m_radlibOptions.Tref;
+    }
+
+    //! Current RadLib reference pressure.
+    double radlibPref() const {
+        return m_radlibOptions.Pref;
+    }
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
@@ -547,6 +570,11 @@ protected:
 
     //! Compute the radiative heat loss at each grid point
     void computeRadiation(double*, size_t, size_t);
+
+#ifdef CT_ENABLE_RADLIB
+    std::unique_ptr<RadiationPropertyCalculator> buildRadLibProps(
+        const std::string& propertyModel) const;
+#endif
 
     //! @}
 
@@ -977,6 +1005,15 @@ protected:
 
     //! Radiation object used for calculating radiative heat loss
     std::unique_ptr<Radiation1D> m_radiation;
+
+    struct RadLibOptions {
+        double fvsoot = 0.0;
+        int nGray = 25;
+        double Tref = 1500.0;
+        double Pref = OneAtm;
+    };
+
+    RadLibOptions m_radlibOptions;
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.

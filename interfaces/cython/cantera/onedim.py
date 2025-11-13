@@ -269,6 +269,24 @@ class FlameBase(Sim1D):
         """
         self.flame.set_radiation_models(property_model, solver_model)
 
+    def set_radlib_options(self, fvsoot=None, ngray=None, Tref=None, Pref=None):
+        """
+        Set RadLib-specific parameters used by the RadLib radiation property models.
+
+        Parameters
+        ----------
+        fvsoot : float, optional
+            Soot volume fraction supplied to RadLib property calculators.
+        ngray : int, optional
+            Number of gray gases when using the RadLib RCSLW model.
+        Tref : float, optional
+            Reference temperature (K) for the RadLib RCSLW model.
+        Pref : float, optional
+            Reference pressure (Pa) for the RadLib RCSLW model. If omitted or
+            non-positive, the current domain pressure is used.
+        """
+        self.flame.set_radlib_options(fvsoot=fvsoot, ngray=ngray, Tref=Tref, Pref=Pref)
+
     @property
     def grid(self):
         """ Array of grid point positions along the flame. """
