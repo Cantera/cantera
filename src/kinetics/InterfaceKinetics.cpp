@@ -110,6 +110,8 @@ void InterfaceKinetics::_update_rates_C()
 
 void InterfaceKinetics::getActivityConcentrations(double* const conc)
 {
+    warn_deprecated("InterfaceKinetics::getActivityConcentrations",
+        "To be removed after Cantera 3.2.");
     _update_rates_C();
     copy(m_actConc.begin(), m_actConc.end(), conc);
 }
