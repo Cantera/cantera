@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "cython @cython_version_spec@", "numpy>=2.0"]
+requires = ["scikit-build-core", "cython @cython_version_spec@", "numpy>=2.0", typing_extensions]
 build-backend = "scikit_build_core.build"
 
 [project]
