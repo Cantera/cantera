@@ -382,6 +382,8 @@ void CoverageDependentSurfPhase::getGibbs_RT(double* grt) const
 
 void CoverageDependentSurfPhase::getPureGibbs(double* g) const
 {
+    warn_deprecated("CoverageDependentSurfPhase::getPureGibbs",
+        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
     getGibbs_RT(g);
     for (size_t k = 0; k < m_kk; k++) {
         g[k] *= RT();

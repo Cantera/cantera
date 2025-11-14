@@ -179,6 +179,8 @@ public:
      *
      * @param[out] gpure   Array of standard state Gibbs free energies. length =
      *     m_kk. units are J/kmol.
+     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
+     *     instead.
      */
     void getPureGibbs(double* gpure) const override;
 

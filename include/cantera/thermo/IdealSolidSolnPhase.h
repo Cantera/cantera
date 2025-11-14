@@ -359,9 +359,7 @@ public:
      * @param mu0   Output vector of standard state chemical potentials.
      *              Length: m_kk.
      */
-    void getStandardChemPotentials(double* mu0) const override {
-        getPureGibbs(mu0);
-    }
+    void getStandardChemPotentials(double* mu0) const override;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
     //! state species at the current *T* and *P* of the solution.
@@ -418,6 +416,8 @@ public:
      * the reference pressure, @f$ P_{ref} @f$.
      *
      * @param gpure  Output vector of Gibbs functions for species. Length: m_kk.
+     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
+     *     instead.
      */
     void getPureGibbs(double* gpure) const override;
 

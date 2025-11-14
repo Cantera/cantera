@@ -144,6 +144,8 @@ void IdealGasPhase::getGibbs_RT(double* grt) const
 
 void IdealGasPhase::getPureGibbs(double* gpure) const
 {
+    warn_deprecated("IdealGasPhase::getPureGibbs",
+        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
     const vector<double>& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), gpure, RT());
     double tmp = log(pressure() / refPressure()) * RT();

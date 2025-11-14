@@ -295,6 +295,8 @@ public:
      * @f[
      *      g^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
      * @f]
+     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
+     *     instead.
      */
     void getPureGibbs(double* g) const override;
 
