@@ -9,10 +9,15 @@ from pathlib import Path
 from ._utils import add_data_directory
 from .composite import Solution
 
+# TODO: remove this module after Cantera 3.2.
+
 def import_phases(filename: Path | str, phase_names: _Iterable[str]) -> list[Solution]:
     """
     Import multiple phases from one file. The phase names should be
     entered as a list of strings.
+
+    .. deprecated:: 3.2
+       To be removed after Cantera 3.2.
     """
     return [Solution(filename, p) for p in phase_names]
 
