@@ -183,11 +183,6 @@ compile Cantera on your operating system.
   `pip`, `sphinx`, `doxygen`, and any other lines marked as "needed for documentation"
   in the `environment.yaml` sample above.
 
-- (Cantera \< 2.6 only) On previous Cantera versions, the build process required
-  configuration options `boost_inc_dir` and `prefix` (see [configuration
-  options](configure-build)); starting with Cantera 2.6, these settings are detected
-  automatically.
-
 :::{note}
 As the compiled code is based on the conda environment `ct-build`, it is only
 usable from within that environment. This means that in order to use the compiled
@@ -265,7 +260,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than 2009a
+  - MATLAB version later than R2022a
 
     - Typically installed to:
 
@@ -311,7 +306,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than 2009a
+  - MATLAB version later than R2022a
 
     - Typically installed to:
 
@@ -363,7 +358,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than 2009a
+  - MATLAB version later than R2022a
 
     - Typically installed to:
 
@@ -392,11 +387,6 @@ Next: Download the Source Code
 - The following instructions use the versions of Python downloaded from
   <https://www.python.org/downloads/>, but alternate installations such as the Anaconda
   distribution of Python can be used as well.
-
-- If you want to build the Matlab toolbox and you have a 64-bit copy of Windows, by
-  default you will be using a 64-bit copy of Matlab, and therefore you need to compile
-  Cantera in 64-bit mode. For simplicity, it is highly recommended that you use a 64-bit
-  version of Python to handle this automatically.
 
 - It is generally helpful to have SCons and Python in your `PATH` environment variable.
   This can be done by checking the appropriate box during the installation of Python or
@@ -474,12 +464,6 @@ Next: Download the Source Code
 (sec-macos)=
 ## macOS
 
-### General Notes
-
-- Cantera 2.5.0 and higher do not support Python 2, which may be installed by default
-  on your computer. You must install Python 3 from another source to be able to build
-  Cantera. The instructions below use Homebrew.
-
 (sec-mac-os-reqs)=
 ### macOS Requirements
 
@@ -541,7 +525,7 @@ Next: Download the Source Code
 
 - In addition to the general software, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than 2009a
+  - MATLAB version later than R2022a
 
     - Typically installed to:
 
