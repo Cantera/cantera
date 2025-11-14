@@ -37,6 +37,7 @@ requires-python = "@py_requires_ver_str@"
 dependencies = [
     "numpy @numpy_version_spec@",
     "ruamel.yaml @ruamel_version_spec@",
+    "typing_extensions >= 4.13.0",
 ]
 
 [project.readme]

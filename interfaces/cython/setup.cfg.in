@@ -42,6 +42,7 @@ zip_safe = False
 install_requires =
     numpy @numpy_version_spec_str@
     ruamel.yaml @ruamel_version_spec_str@
+    typing_extensions >=4.13.0
 python_requires = @py_requires_ver_str@
 packages =
     cantera

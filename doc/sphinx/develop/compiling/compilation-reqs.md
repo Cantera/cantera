@@ -128,6 +128,7 @@ compile Cantera on your operating system.
   - pip  # needed to build Python package
   - wheel  # needed to build Python package
   - setuptools  # needed to build Python package
+  - typing-extensions  # needed to build Python package
   - pytest  # needed for the Python test suite
   # - pytest-cov  # optional (needed if running with test coverage enabled)
   - ruamel.yaml  # needed for converter scripts
@@ -155,7 +156,6 @@ compile Cantera on your operating system.
   # - perl  # optional (needed for documentation)
   # - coolprop  # optional (needed for some examples)
   # - pint  # optional (needed for some examples)
-  # - typing-extensions  # optional (needed for code generation with Python<3.11)
   # - pip:  # optional (list of PyPI managed packages)
   #   - "git+https://github.com/Cantera/sphinx-tags.git@main"  # optional (needed for documentation)
   ```
