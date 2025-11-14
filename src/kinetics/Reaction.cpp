@@ -884,6 +884,7 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
 
 unique_ptr<Reaction> newReaction(const string& type)
 {
+    warn_deprecated("newReaction(string)", "To be removed after Cantera 3.2.");
     return make_unique<Reaction>();
 }
 
