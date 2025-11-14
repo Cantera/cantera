@@ -33,8 +33,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
-ct.add_module_directory()
-
 # parameters
 T = 1073.15  # T in K
 P = ct.one_atm  # One atm in Pa

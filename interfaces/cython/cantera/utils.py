@@ -21,5 +21,8 @@ def add_module_directory() -> None:
     """
     Add the directory containing the module from which this function is called
     to the Cantera input file search path.
+
+    .. deprecated:: 3.2
+       To be removed after Cantera 3.2.
     """
     add_data_directory(os.path.dirname(os.path.abspath(_inspect.stack()[1][1])))
