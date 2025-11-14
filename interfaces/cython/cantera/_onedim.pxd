@@ -80,6 +80,12 @@ cdef extern from "cantera/oneD/Boundary1D.h":
 cdef extern from "cantera/oneD/Flow1D.h":
     cdef cppclass CxxFlow1D "Cantera::Flow1D" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
+        void setRadiationModels(const string&, const string&) except +translate_exception
+        void setRadLibOptions(double, int, double, double) except +translate_exception
+        double radlibFvSoot()
+        int radlibNGray()
+        double radlibTref()
+        double radlibPref()
         string type()
         string transportModel()
         void setPressure(double)

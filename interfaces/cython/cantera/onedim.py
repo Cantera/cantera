@@ -258,6 +258,42 @@ class FlameBase(Sim1D):
             raise ValueError("Boundary emissivities must both be set at the same time.")
         self.flame.boundary_emissivities = epsilon[0], epsilon[1]
 
+    def set_radiation_models(self, property_model, solver_model="OpticallyThin"):
+        """
+        Set the radiation property and solver models.
+
+        Examples
+        --------
+        >>> f.set_radiation_models("TabularPlanckMean", "OpticallyThin")
+        >>> f.set_radiation_models("RadLib.WSGG")  # solver defaults to OpticallyThin
+        """
+        self.flame.set_radiation_models(property_model, solver_model)
+
+    def set_radlib_options(self, fvsoot=None, ngray=None, Tref=None, Pref=None):
+        """
+        Set RadLib-specific parameters used by the RadLib radiation property models.
+
+        Parameters
+        ----------
+        fvsoot : float, optional
+            Soot volume fraction supplied to RadLib property calculators.
+        ngray : int, optional
+            Number of gray gases when using the RadLib RCSLW model.
+        Tref : float, optional
+            Reference temperature (K) for the RadLib RCSLW model.
+        Pref : float, optional
+            Reference pressure (Pa) for the RadLib RCSLW model. If omitted or
+            non-positive, the current domain pressure is used.
+        """
+        self.flame.set_radlib_options(fvsoot=fvsoot, ngray=ngray, Tref=Tref, Pref=Pref)
+
+    @property
+    def radlib_options(self):
+        """
+        Return the current RadLib parameter settings for this flow domain.
+        """
+        return self.flame.radlib_options
+
     @property
     def grid(self):
         """ Array of grid point positions along the flame. """

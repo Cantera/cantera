@@ -53,5 +53,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 {CT_USE_HDF5!s}
 {CT_USE_SYSTEM_HIGHFIVE!s}
 {CT_USE_HIGHFIVE_BOOLEAN!s}
+{CT_USE_SYSTEM_RADLIB!s}
+{CT_ENABLE_RADLIB!s}
 
 #endif
