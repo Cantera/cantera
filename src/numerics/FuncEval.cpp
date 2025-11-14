@@ -143,4 +143,37 @@ int FuncEval::preconditioner_solve_nothrow(double* rhs, double* output)
     return 0; // successful evaluation
 }
 
+int FuncEval::evalRootFunctionsNoThrow(double t, const double* y, double* gout)
+{
+    try {
+        evalRootFunctions(t, y, gout);
+    } catch (CanteraError& err) {
+        if (suppressErrors()) {
+            m_errors.push_back(err.what());
+        } else {
+            writelog(err.what());
+        }
+        return 1; // possibly recoverable error
+    } catch (std::exception& err) {
+        if (suppressErrors()) {
+            m_errors.push_back(err.what());
+        } else {
+            writelog("FuncEval::evalRootFunctionsNoThrow: unhandled exception:\n");
+            writelog(err.what());
+            writelogendl();
+        }
+        return -1; // unrecoverable error
+    } catch (...) {
+        string msg = "FuncEval::evalRootFunctionsNoThrow: unhandled exception"
+            "  of unknown type\n";
+        if (suppressErrors()) {
+            m_errors.push_back(msg);
+        } else {
+            writelog(msg);
+        }
+        return -1; // unrecoverable error
+    }
+    return 0; // successful evaluation
+}
+
 }

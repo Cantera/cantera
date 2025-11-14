@@ -369,7 +369,7 @@ public:
     //! Evaluate the advance-limit root function used to stop integration once a limit is met.
     //! When limits are active this sets `gout[0] = 1 - max_i(|y[i]-y_base[i]| / limit[i])`
     //! so a zero indicates a component has reached its limit; otherwise gout[0] is positive.
-    int evalRootFunctions(double t, const double* y, double* gout) override;
+    void evalRootFunctions(double t, const double* y, double* gout) override;
 
 protected:
     //! Add the reactor *r* to this reactor network.
