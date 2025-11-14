@@ -397,7 +397,7 @@ size_t ReactorNet::nRootFunctions() const
     return (m_limit_check_active && hasAdvanceLimits()) ? 1 : 0;
 }
 
-int ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
+void ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
 {
     // Default: no root detected
     double g = 1.0;
@@ -424,7 +424,6 @@ int ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
     }
 
     gout[0] = g;
-    return 0;
 }
 
 void ReactorNet::addReactor(Reactor& r)

@@ -145,16 +145,18 @@ public:
     /**
      * Evaluate the event/root functions currently in play.
      * Integrators invoke this whenever root finding is enabled; implementations
-     * should fill `gout` with the function values and return 0 on success.
+     * should fill `gout` with the function values.
      * @param[in] t Time at which to evaluate the root functions
      * @param[in] y Current solution vector at time *t* of length neq()
      * @param[out] gout Array of length nRootFunctions() to be filled with the
      *      values of the root functions
-     * @returns 0 on success
      */
-    virtual int evalRootFunctions(double t, const double* y, double* gout) {
-        return 0;
-    }
+    virtual void evalRootFunctions(double t, const double* y, double* gout) { }
+
+    //! Wrapper for evalRootFunctions that converts exceptions to return codes.
+    //! @returns 0 for a successful evaluation, 1 after a potentially-
+    //!     recoverable error, or -1 after an unrecoverable error.
+    int evalRootFunctionsNoThrow(double t, const double* y, double* gout);
 
     //! Fill in the vector *y* with the current state of the system.
     //! Used for getting the initial state for ODE systems.

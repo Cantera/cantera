@@ -102,7 +102,7 @@ extern "C" {
     static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
-        return f->evalRootFunctions(t, NV_DATA_S(y), gout);
+        return f->evalRootFunctionsNoThrow(t, NV_DATA_S(y), gout);
     }
 }
 
