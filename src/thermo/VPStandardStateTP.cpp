@@ -117,12 +117,6 @@ void VPStandardStateTP::getGibbs_ref(double* g) const
     scale(g, g+m_kk, g, RT());
 }
 
-const vector<double>& VPStandardStateTP::Gibbs_RT_ref() const
-{
-    updateStandardStateThermo();
-    return m_g0_RT;
-}
-
 void VPStandardStateTP::getEntropy_R_ref(double* sr) const
 {
     updateStandardStateThermo();

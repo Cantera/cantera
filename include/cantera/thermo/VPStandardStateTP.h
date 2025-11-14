@@ -191,11 +191,6 @@ public:
 
     void getEnthalpy_RT_ref(double* hrt) const override;
     void getGibbs_RT_ref(double* grt) const override;
-
-protected:
-    const vector<double>& Gibbs_RT_ref() const;
-
-public:
     void getGibbs_ref(double* g) const override;
     void getEntropy_R_ref(double* er) const override;
     void getCp_R_ref(double* cprt) const override;
