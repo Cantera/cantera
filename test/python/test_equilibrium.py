@@ -155,10 +155,9 @@ class TestVCS_EquilTest(EquilTestCases):
 
 @pytest.fixture(scope='function')
 def koh_equil(request):
-    phases = ct.import_phases("KOH.yaml",
-            ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
-             'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
-             'KOH_plasma'])
+    phase_names = ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid', 'K2O2_solid',
+                'K2O_solid', 'KO2_solid', 'ice', 'liquid_water', 'KOH_plasma']
+    phases = [ct.Solution('KOH.yaml', name) for name in phase_names]
     request.cls.mix = ct.Mixture(phases)
 
 @pytest.mark.usefixtures('koh_equil')

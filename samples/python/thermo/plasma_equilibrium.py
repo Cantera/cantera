@@ -22,10 +22,9 @@ import csv
 # is a mixture of multiple species, and the condensed phases are all modeled
 # as incompressible stoichiometric substances. See file KOH.yaml for more
 # information.
-phases = ct.import_phases('KOH.yaml', ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b',
-                                       'KOH_liquid', 'K2O2_solid', 'K2O_solid',
-                                       'KO2_solid', 'ice', 'liquid_water',
-                                       'KOH_plasma'])
+phase_names = ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid', 'K2O2_solid',
+               'K2O_solid', 'KO2_solid', 'ice', 'liquid_water', 'KOH_plasma']
+phases = [ct.Solution('KOH.yaml', name) for name in phase_names]
 
 # create the Mixture object from the list of phases
 mix = ct.Mixture(phases)

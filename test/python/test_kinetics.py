@@ -1052,8 +1052,10 @@ class TestLithiumIonBatteryKinetics:
                     return x0
 
         # Phases
-        anode, cathode, metal, electrolyte = ct.import_phases(
-            mech, ["anode", "cathode", "electron", "electrolyte"])
+        anode = ct.Solution(mech, "anode")
+        cathode = ct.Solution(mech, "cathode")
+        metal = ct.Solution(mech, "electron")
+        electrolyte = ct.Solution(mech, "electrolyte")
         anode_int = ct.Interface(
             mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
         cathode_int = ct.Interface(
