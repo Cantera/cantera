@@ -305,7 +305,8 @@ double ReactorNet::advance(double time, bool applylimit)
             double y_end = ycurr[jmax];
             double delta = y_end - y_start;
             writelog("    Advance limit triggered for component {:d} (dt = {:9.4g}):"
-                     " y_start = {:11.6g}, y_end = {:11.6g}, delta = {:11.6g}, limit = {:9.4g}\n",
+                     " y_start = {:11.6g}, y_end = {:11.6g},"
+                     " delta = {:11.6g}, limit = {:9.4g}\n",
                      jmax, dt, y_start, y_end, delta, best_limit);
         }
     }

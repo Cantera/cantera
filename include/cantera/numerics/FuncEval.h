@@ -137,7 +137,8 @@ public:
      */
     int preconditioner_solve_nothrow(double* rhs, double* output);
 
-    //! Number of event/root functions exposed to the integrator (0 disables root finding)
+    //! Number of event/root functions exposed to the integrator.
+    //! 0 indicates root finding is disabled.
     virtual size_t nRootFunctions() const {
         return 0;
     }
