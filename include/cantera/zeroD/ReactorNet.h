@@ -366,9 +366,12 @@ public:
     //! Root finding is enabled only while enforcing advance limits
     size_t nRootFunctions() const override;
 
-    //! Evaluate the advance-limit root function used to stop integration once a limit is met.
-    //! When limits are active this sets `gout[0] = 1 - max_i(|y[i]-y_base[i]| / limit[i])`
-    //! so a zero indicates a component has reached its limit; otherwise gout[0] is positive.
+    //! Evaluate the advance-limit root function used to stop integration once a limit
+    //! is met.
+    //!
+    //! When limits are active, this sets `gout[0]` to
+    //! `1 - max_i(|y[i]-y_base[i]| / limit[i])` so a zero indicates a component has
+    //! reached its limit; otherwise `gout[0]` is positive.
     void evalRootFunctions(double t, const double* y, double* gout) override;
 
 protected:
@@ -434,13 +437,13 @@ protected:
     vector<double> m_ydot;
     vector<double> m_yest;
     vector<double> m_advancelimits;
-    //! Base state used for evaluating advance limits during a single advance
+    //! Base state used for evaluating advance limits during a single advance()
     //! call when root-finding is enabled
     vector<double> m_ybase;
-    //! Base time corresponding to m_ybase
+    //! Base time corresponding to #m_ybase
     double m_ybase_time = 0.0;
     //! Indicates whether the advance-limit root check is active for the
-    //! current call to advance(t, applylimit=True)
+    //! current call to `advance(t, applylimit=true)`
     bool m_limit_check_active = false;
     //! m_LHS is a vector representing the coefficients on the
     //! "left hand side" of each governing equation

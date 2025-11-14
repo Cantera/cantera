@@ -94,12 +94,13 @@ extern "C" {
     /**
      * SUNDIALS callback that forwards root evaluations to the FuncEval.
      * @param[in] t Current integration time at which roots are requested
-     * @param[in] y Solution vector provided by CVODE (length neq())
-     * @param[out] gout Output array that must be filled with nRootFunctions() values
+     * @param[in] y Solution vector provided by CVODE (length FuncEval::neq())
+     * @param[out] gout Output array that must be filled with FuncEval::nRootFunctions()
+     *     values
      * @param[in] user_data Opaque pointer (FuncEval*) supplied during integrator setup
      * @returns The result of FuncEval::evalRootFunctions (0 on success)
      */
-    static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
+    static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
         return f->evalRootFunctionsNoThrow(t, NV_DATA_S(y), gout);
@@ -550,7 +551,8 @@ void CVodesIntegrator::integrate(double tout)
                 flag, m_error_message, f_errs, getErrorInfo(10));
         }
         if (flag == CV_ROOT_RETURN) {
-            // Stop early at root (e.g., advance limit reached); align tout to the root time
+            // Stop early at root (e.g., advance limit reached); align tout to the
+            // root time
             tout = m_tInteg;
             break;
         }
