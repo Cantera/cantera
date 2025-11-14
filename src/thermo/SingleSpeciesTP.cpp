@@ -119,6 +119,8 @@ void SingleSpeciesTP::getPartialMolarVolumes(double* vbar) const
 
 void SingleSpeciesTP::getPureGibbs(double* gpure) const
 {
+    warn_deprecated("SingleSpeciesTP::getPureGibbs",
+        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
     getGibbs_RT(gpure);
     gpure[0] *= RT();
 }

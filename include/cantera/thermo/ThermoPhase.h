@@ -953,6 +953,8 @@ public:
      * Units are Joules/kmol
      * @param gpure  Output vector of standard state Gibbs free energies.
      *               Length: m_kk.
+     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
+     *     instead.
      */
     virtual void getPureGibbs(double* gpure) const {
         throw NotImplementedError("ThermoPhase::getPureGibbs",

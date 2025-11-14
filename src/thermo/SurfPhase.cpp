@@ -127,6 +127,8 @@ double SurfPhase::logStandardConc(size_t k) const
 
 void SurfPhase::getPureGibbs(double* g) const
 {
+    warn_deprecated("SurfPhase::getPureGibbs",
+        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), g);
 }
