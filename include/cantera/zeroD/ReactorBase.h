@@ -252,7 +252,7 @@ public:
     virtual void syncState();
 
     //! return a reference to the contents.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by
     //!     ReactorBase->phase()->thermo().
     ThermoPhase& contents() {
         warn_deprecated("ReactorBase::contents", "To be removed after Cantera 3.2. "
@@ -265,7 +265,7 @@ public:
     }
 
     //! return a reference to the contents.
-    //! @deprecated  To be removed after Cantera 3.2. Replaceable by
+    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by
     //!     ReactorBase->phase()->thermo().
     const ThermoPhase& contents() const {
         warn_deprecated("ReactorBase::contents", "To be removed after Cantera 3.2. "

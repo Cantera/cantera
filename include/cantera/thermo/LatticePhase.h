@@ -19,7 +19,7 @@ namespace Cantera
 //! A simple thermodynamic model for a bulk phase, assuming a lattice of solid
 //! atoms
 /*!
- * @deprecated To be removed after Cantera 3.2. Can be replaced by use of
+ * @deprecated To be removed after %Cantera 3.2. Can be replaced by use of
  *     IdealSolidSolnPhase with the site density used to set the molar density of each
  *     constituent species.
  *

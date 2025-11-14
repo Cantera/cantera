@@ -225,7 +225,7 @@ protected:
     string m_precon_side = "none";
 };
 
-//! @deprecated To be removed after Cantera 3.2. Renamed to SystemJacobian.
+//! @deprecated To be removed after %Cantera 3.2. Renamed to SystemJacobian.
 class PreconditionerBase : public SystemJacobian
 {
     PreconditionerBase() {
