@@ -15,8 +15,8 @@ implementation, you can install the [Conda](conda) package instead.
 
 The first step in installing the Cantera Python module using `pip` is to make sure you
 have a compatible version of Python installed and are able to run `pip` from the command
-line. Packages for Cantera 3.1.0 are available for Python versions 3.8, 3.9, 3.10, 3.11,
-3.12, and 3.13.
+line. Packages for Cantera 3.2.0 are available for Python versions 3.10, 3.11, 3.12,
+3.13, and 3.14.
 
 If you don't already have Python installed, it can be downloaded from
 [python.org](https://www.python.org/) or installed using your operating system's package

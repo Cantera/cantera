@@ -232,7 +232,7 @@ conda update --channel conda-forge libcantera-devel
 ## Matlab Interface
 
 :::{attention}
-The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
+The *legacy* Matlab Cantera interface was discontinued and removed in Cantera 3.1. Users
 requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
 packages, or migrate their code base to the
 [experimental Matlab toolbox](../matlab/index) that is currently under development.
