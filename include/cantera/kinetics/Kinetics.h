@@ -1256,6 +1256,7 @@ public:
     /*!
      *  @param[out] conc  Vector of activity concentrations. Length is equal
      *               to the number of species in the kinetics object
+     *  @deprecated  To be removed after %Cantera 3.2.
      */
     virtual void getActivityConcentrations(double* const conc) {
         throw NotImplementedError("Kinetics::getActivityConcentrations");
