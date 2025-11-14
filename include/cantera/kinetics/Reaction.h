@@ -268,6 +268,7 @@ protected:
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.
+ * @deprecated  To be removed after %Cantera 3.2.
  */
 unique_ptr<Reaction> newReaction(const string& type);
 
