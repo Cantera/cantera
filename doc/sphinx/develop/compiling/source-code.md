@@ -13,7 +13,7 @@
   Then, check out the tag of the most recent stable version:
 
   ```bash
-  git checkout tags/v3.1.0
+  git checkout tags/v3.2.0
   git submodule update
   ```
 
@@ -49,7 +49,7 @@ Next: Configure & Build Cantera
 - **Option 1**: Check out the tag with the most recent beta release:
 
   ```bash
-  git checkout tags/v3.1.0b1
+  git checkout tags/v3.2.0b1
   git submodule update
   ```
 
@@ -64,17 +64,17 @@ Next: Configure & Build Cantera
   release of the stable version:
 
   ```bash
-  git checkout 3.1
+  git checkout 3.2
   git submodule update
   ```
 
-  This branch has all the work on the 3.1.x version of the software.
+  This branch has all the work on the 3.2.x version of the software.
 
-  If you've already checked out the 3.1 branch, you can get the latest updates from the
+  If you've already checked out the 3.2 branch, you can get the latest updates from the
   main Cantera repository and synchronize your local repository by running:
 
   ```bash
-  git checkout 3.1
+  git checkout 3.2
   git fetch --all
   git pull --ff-only
   ```

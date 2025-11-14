@@ -157,7 +157,7 @@ compiler is required only if you plan to build the Fortran module.
 - MATLAB
 
   - Required to run the experimental MATLAB toolbox.
-  - Known to work with 2022a. Expected to work with versions >= 2009a.
+  - Known to work with R2025b. Expected to work with versions >= R2022a.
 
 - [Windows Installer XML (WiX) toolset](http://wixtoolset.org/)
 
