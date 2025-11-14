@@ -35,7 +35,7 @@ public:
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
 
-    //! @deprecated To be removed after Cantera 3.2. Use linearSolver() instead.
+    //! @deprecated To be removed after %Cantera 3.2. Use linearSolver() instead.
     shared_ptr<SystemJacobian> getJacobian() {
         warn_deprecated("OneDim::getJacobian",
                         "To be removed after Cantera 3.2. Use linearSolver() instead.");
@@ -65,7 +65,7 @@ public:
     double weightedNorm(const double* step) const override;
 
     //! Return a reference to the Jacobian evaluator of an OneDim object.
-    //! @deprecated To be removed after Cantera 3.2. Superseded by linearSolver()
+    //! @deprecated To be removed after %Cantera 3.2. Superseded by linearSolver()
     //! @ingroup derivGroup
     MultiJac& jacobian();
 

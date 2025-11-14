@@ -19,7 +19,7 @@ namespace Cantera
 //! A phase that is comprised of a fixed additive combination of other lattice
 //! phases
 /*!
- * @deprecated To be removed after Cantera 3.2. No known usage exists, and the model
+ * @deprecated To be removed after %Cantera 3.2. No known usage exists, and the model
  *     does not satisfy several basic thermodynamic identities.
  *     See https://github.com/Cantera/cantera/issues/1310.
  *

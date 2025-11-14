@@ -68,7 +68,7 @@ public:
     //! - -2 failure (maximum number of damping steps was reached)
     //! - -3 failure (solution was up against the bounds
     //!
-    //! @deprecated To be removed after Cantera 3.2. Use setInitialGuess(), solve(int),
+    //! @deprecated To be removed after %Cantera 3.2. Use setInitialGuess(), solve(int),
     //!     and getState() instead.
     int solve(double* x0, double* x1, int loglevel);
 

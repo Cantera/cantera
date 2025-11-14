@@ -283,29 +283,29 @@ public:
 
     //! Get the solving stage (used by IonFlow specialization)
     //! @since New in %Cantera 3.0
-    //! @deprecated To be removed after Cantera 3.2. Use doElectricField() instead.
+    //! @deprecated To be removed after %Cantera 3.2. Use doElectricField() instead.
     virtual size_t getSolvingStage() const;
 
     //! Solving stage mode for handling ionized species (used by IonFlow specialization)
     //! - @c stage=1: the fluxes of charged species are set to zero
     //! - @c stage=2: the electric field equation is solved, and the drift flux for
     //!     ionized species is evaluated
-    //! @deprecated To be removed after Cantera 3.2. Use solveElectricField() instead.
+    //! @deprecated To be removed after %Cantera 3.2. Use solveElectricField() instead.
     virtual void setSolvingStage(const size_t stage);
 
     //! Set to solve electric field in a point (used by IonFlow specialization)
-    //! @deprecated After Cantera 3.2, the argument will be removed; the option of
+    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
     //!     solving the electric field applies to the whole domain.
     virtual void solveElectricField(size_t j=npos);
 
     //! Set to fix voltage in a point (used by IonFlow specialization)
-    //! @deprecated After Cantera 3.2, the argument will be removed; the option of
+    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
     //!     solving the electric field applies to the whole domain.
     virtual void fixElectricField(size_t j=npos);
 
     //! Retrieve flag indicating whether electric field is solved or not (used by
     //! IonFlow specialization)
-    //! @deprecated After Cantera 3.2, the argument will be removed; the option of
+    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
     //!     solving the electric field applies to the whole domain.
     virtual bool doElectricField(size_t j=npos) const;
 
