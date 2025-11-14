@@ -1,13 +1,12 @@
 (sec-install-ubuntu)=
 # Ubuntu Packages
 
-As of Cantera 3.1.0, packages are available for Ubuntu 20.04 (Focal Fossa), Ubuntu 22.04
-(Jammy Jellyfish), Ubuntu 24.04 (Noble Numbat) and Ubuntu 24.10 (Oracular Oriole).
-Generally, packages are available for the two most-recent LTS releases as well as the
-non-LTS releases supported on [Launchpad](https://launchpad.net/ubuntu) at the time of
-the Cantera release. To see which Ubuntu releases and Cantera versions are currently
-supported, visit the
-[Cantera PPA](https://launchpad.net/~cantera-team/+archive/ubuntu/cantera).
+As of Cantera 3.2.0, packages are available for Ubuntu 24.04 (Noble Numbat) and Ubuntu
+25.10 (Questing Quokka). Generally, packages are available for the most-recent LTS
+release and the latest non-LTS release. Packages for other Ubuntu releases supported by
+[Launchpad](https://launchpad.net/ubuntu) are provided on a best-effort basis. To see
+which Ubuntu releases and Cantera versions are currently supported, visit the [Cantera
+PPA](https://launchpad.net/~cantera-team/+archive/ubuntu/cantera).
 
 The available packages are:
 
@@ -18,8 +17,8 @@ The available packages are:
   - Samples for all language interfaces are installed to `/usr/share/cantera/samples/`
   - Data files are installed in `/usr/share/cantera/data/`. This location is
     automatically added to the Cantera data path.
-- `libcantera3.1` - The Cantera C++ library, for use by packaged C++ applications.
-- `libcantera-fortran3.1` - The Cantera Fortran 90 library, for use by packaged
+- `libcantera3.2` - The Cantera C++ library, for use by packaged C++ applications.
+- `libcantera-fortran3.2` - The Cantera Fortran 90 library, for use by packaged
   Fortran 90 applications.
 - `cantera` - A metapackage that will install everything except for the development
   files.
