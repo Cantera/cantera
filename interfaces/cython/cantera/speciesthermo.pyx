@@ -7,7 +7,7 @@ import numpy as np
 from ._utils cimport *
 from .constants import gas_constant
 
-# These match the definitions in speciesThermoTyeps.h
+# These match the definitions in speciesThermoTypes.h
 cdef int SPECIES_THERMO_CONSTANT_CP = 1
 cdef int SPECIES_THERMO_NASA2 = 4
 cdef int SPECIES_THERMO_SHOMATE2 = 8
@@ -269,7 +269,7 @@ cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo):
     elif thermo_type == SPECIES_THERMO_SHOMATE2:
         st = ShomatePoly2(init=False)
     else:
-        st = SpeciesThermo()
+        return None
 
     st._assign(spthermo)
     return st

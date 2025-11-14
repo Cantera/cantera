@@ -1750,6 +1750,10 @@ class TestSpeciesThermo:
             assert st.h(T) == approx(st2.h(T))
             assert st.s(T) == approx(st2.s(T))
 
+def test_null_species_thermo():
+    # Some species don't use a SpeciesThermoInterp object
+    liq = ct.Solution('debye-huckel-all.yaml', 'debye-huckel-B-dot-ak-IAPWS')
+    assert liq.species('H2O(L)').thermo is None
 
 @pytest.fixture(scope='class')
 def setup_quantity_tests(request):
