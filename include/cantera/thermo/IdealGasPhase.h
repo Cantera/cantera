@@ -366,7 +366,7 @@ public:
      * @param p Pressure (Pa)
      * @since New in %Cantera 3.0.
      */
-    void setState_DP(double rho, double p) override {
+    void setState_DP(double rho, double p,double tol=1e-9, double Tguess=300) override {
         if (p <= 0) {
             throw CanteraError("IdealGasPhase::setState_DP",
                                "pressure must be positive");
