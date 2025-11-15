@@ -260,7 +260,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than R2022a
+  - MATLAB version later than R2024a
 
     - Typically installed to:
 
@@ -306,7 +306,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than R2022a
+  - MATLAB version later than R2024a
 
     - Typically installed to:
 
@@ -358,7 +358,7 @@ Next: Download the Source Code
 
 - In addition to the general packages, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than R2022a
+  - MATLAB version later than R2024a
 
     - Typically installed to:
 
@@ -525,7 +525,7 @@ Next: Download the Source Code
 
 - In addition to the general software, building the MATLAB toolbox also requires:
 
-  - MATLAB version later than R2022a
+  - MATLAB version later than R2024a
 
     - Typically installed to:
 

@@ -11,7 +11,7 @@ Cantera objects and functions.
 
 ### Prerequisites
 
-1. **MATLAB** (R2022a or later)
+1. **MATLAB** (R2024a or later)
 2. **MATLAB-compatible C++ compiler**. Refer to the [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html) list.
 
 ---
