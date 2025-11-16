@@ -1,7 +1,8 @@
 classdef (Abstract) Flow < ct.oneD.Domain
-    % Create a Flow domain. ::
+    % Flow Class.
     %
-    %     >> m = ct.oneD.Flow(type, phase, name)
+    % Base class for objects representing flow domains. The constructor is called
+    % by derived classes and cannot be used directly.
     %
     % :param type:
     %    String type of domain. Possible values are:

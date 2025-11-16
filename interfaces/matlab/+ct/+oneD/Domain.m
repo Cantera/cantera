@@ -1,7 +1,8 @@
 classdef (Abstract) Domain < handle
-    % Domain Class ::
+    % Domain Class.
     %
-    %     >> d = ct.oneD.Domain(type, phase, id)
+    % Base class for objects representing boundaries and flow domains. The constructor
+    % is called by derived classes and cannot be used directly.
     %
     % :param type:
     %    String type of domain. Possible values are:

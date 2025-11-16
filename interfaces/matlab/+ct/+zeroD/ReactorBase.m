@@ -1,4 +1,8 @@
 classdef (Abstract) ReactorBase < handle
+    % ReactorBase Class.
+    %
+    % Base class for objects representing reactors. The constructor is called
+    % by derived classes and cannot be used directly.
 
     properties (SetAccess = immutable)
 
