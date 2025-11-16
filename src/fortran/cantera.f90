@@ -2,6 +2,9 @@
 ! an application program. It's primary purpose is to provide generic
 ! procedure names that map to specific procedures depending on the
 ! argument types.
+!
+! @warning  The Fortran API is an experimental part of %Cantera and
+!   may be changed or removed without notice.
 
 ! This file is part of Cantera. See License.txt in the top-level directory or
 ! at https://cantera.org/license.txt for license and copyright information.
