@@ -3,6 +3,9 @@
 
 ```{caution}
 The MATLAB toolbox is an experimental part of Cantera and may be changed without notice.
+It includes breaking changes from the legacy MATLAB API. While almost all features of
+the legacy MATLAB API are implemented, the toolbox does not include all functionality
+available for the C++ and Python interfaces.
 ```
 
 The _experimental_ MATLAB toolbox for Cantera is currently in preview and replaces the
