@@ -5,6 +5,9 @@
  *   library functions is provided that are declared "extern C". All
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
+ *
+ *   @warning  The Fortran API is an experimental part of %Cantera and
+ *      may be changed or removed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
