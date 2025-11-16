@@ -1,9 +1,9 @@
 classdef (Abstract) FlowDevice < ct.zeroD.Connector
-    % FlowDevice Class ::
+    % FlowDevice Class.
     %
-    %     >> x = ct.zeroD.FlowDevice(typ, name)
+    % Base class for devices that allow flow between reactors. The constructor is called
+    % by derived classes and cannot be used directly.
     %
-    % Base class for devices that allow flow between reactors.
     % :mat:class:`ct.zeroD.FlowDevice` objects are assumed to be adiabatic,
     % non-reactive, and have negligible internal volume, so that they are
     % internally always in steady-state even if the upstream and downstream

@@ -1,7 +1,8 @@
 classdef (Abstract) Boundary < ct.oneD.Domain
-    % Create a Boundary domain. ::
+    % Boundary Class.
     %
-    %     >> m = ct.oneD.Boundary(type, phase, name)
+    % Base class for objects representing domain boundaries. The constructor is called
+    % by derived classes and cannot be used directly.
     %
     % :param type:
     %    String type of Boundary. Possible values are:

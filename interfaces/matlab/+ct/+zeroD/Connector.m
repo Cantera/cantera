@@ -1,9 +1,8 @@
 classdef (Abstract) Connector < handle
-    % Connector Class ::
+    % Connector Class.
     %
-    %     >> c = ct.zeroD.Connector(typ, r1, r2, name)
-    %
-    % Base class for walls and flow devices.
+    % Base class for walls and flow devices. The constructor is called
+    % by derived classes and cannot be used directly.
     %
     % See also: :mat:class:`ct.zeroD.FlowDevice`, :mat:class:`ct.zeroD.Wall`
     %
