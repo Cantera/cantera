@@ -1,11 +1,16 @@
 [
     {
-        "name": "3.2 (dev)",
-        "version": "3.2",
+        "name": "3.3 (dev)",
+        "version": "3.3",
         "url": "/dev/"
     },
     {
-        "name": "3.1.0 (stable)",
+        "name": "3.2.0 (stable)",
+        "version": "3.2",
+        "url": "/3.2/"
+    },
+    {
+        "name": "3.1.0",
         "version": "3.1",
         "url": "/3.1/"
     },

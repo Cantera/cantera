@@ -9,7 +9,8 @@
 | Version | Status | Release Date |
 |---------|--------|--------------|
 | [dev/latest](https://cantera.org/dev/cxx/index.html) | unstable | -- |
-| [v3.1.0](https://cantera.org/stable/cxx/index.html) | stable |*December 2024* |
+| [v3.2.0](https://cantera.org/stable/cxx/index.html) | stable |*November 2025* |
+| [v3.1.0](https://cantera.org/3.1/cxx/index.html) | stable |*December 2024* |
 | [v3.0.0](https://cantera.org/3.0/doxygen/html/index.html) | legacy | *August 2023* |
 | [v2.6.0](https://cantera.org/2.6/doxygen/html/modules.html) | archived | *May 2022* |
 | [v2.5.1](https://cantera.org/2.5/doxygen/html/modules.html) | archived | *February 2021* |
