@@ -290,7 +290,7 @@ double ReactorNet::advance(double time, bool applylimit)
         for (size_t j = 0; j < m_nv; j++) {
             double lim = m_advancelimits[j];
             if (lim > 0.0) {
-                double delta = abs(ycurr[j] - m_ybase[j]);
+                double delta = std::abs(ycurr[j] - m_ybase[j]);
                 double ratio = delta / lim;
                 if (ratio > max_ratio) {
                     max_ratio = ratio;
@@ -414,7 +414,7 @@ void ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
         for (size_t i = 0; i < m_nv; i++) {
             double lim = m_advancelimits[i];
             if (lim > 0.0) {
-                double delta = abs(y[i] - m_ybase[i]);
+                double delta = std::abs(y[i] - m_ybase[i]);
                 double ratio = delta / lim;
                 if (ratio > max_ratio) {
                     max_ratio = ratio;
