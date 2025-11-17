@@ -16,6 +16,6 @@ authors:
   given-names: Bryan W.
   orcid: https://orcid.org/0000-0003-0815-9270
 title: "Cantera: An Object-oriented Software Toolkit for Chemical Kinetics, Thermodynamics, and Transport Processes"
-version: "3.1.0"
-doi: 10.5281/zenodo.14455267
-date-released: 2024-12-14
+version: "3.2.0"
+doi: 10.5281/zenodo.17620923
+date-released: 2025-11-17
