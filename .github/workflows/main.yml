@@ -11,12 +11,12 @@ on:
       - testing
       # This workflow does not publish artifacts, so we can ignore the cache
       # poisoning finding.
-      - "3.1" # zizmor: ignore[cache-poisoning]
+      - "3.2" # zizmor: ignore[cache-poisoning]
   pull_request:
     # Build when a pull request targets main or the maintenance branch
     branches:
       - main
-      - "3.1"
+      - "3.2"
 
 permissions:
   contents: read
