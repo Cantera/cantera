@@ -31,7 +31,7 @@ maintainers.
 - Make sure version is set correctly:
   - `SConstruct`: `'cantera_version'` (most widely used)
   - `README.rst`
-  - `doc/doxygen/Doxyfile`: `'PROJECT_NUMBER'`
+  - `doc/doxygen/Doxyfile.in`: `'PROJECT_NUMBER'`
   - `ck2yaml.py`, `cti2yaml.py`, and `ctml2yaml.py`
   - For final (non alpha/beta) releases, make sure any alpha/beta suffixes are removed
     from the `cantera-version` field of any YAML input files that have been updated
@@ -42,11 +42,11 @@ maintainers.
 
 - Update entries in `doc/sphinx/_static/doc-versions.json`
 
+- Update entries in `doc/doxygen/versions.md`
+
 - Update DOI in `README.rst` and `CITATION.cff`
 
-- Make sure copyright years are correct:
-  - `doc/sphinx/conf.py`
-  - `License.txt`
+- Make sure copyright year is correct in `License.txt`
 
 - Add release notes to `doc/sphinx/reference/releasenotes/vX.Y.md`, linked from
   `doc/sphinx/reference/releasenotes/index.md`.
