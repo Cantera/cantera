@@ -3,7 +3,7 @@ solution:
     Test import for legacy component names 'lambda' and 'spread_rate'
     (replaced by 'Lambda' and 'spreadRate' in Cantera 3.2)
   generator: Cantera SolutionArray
-  cantera-version: 3.2.0a4
+  cantera-version: 3.2.0
   git-commit: d7f7a0a6a
   date: Tue Oct  7 21:22:10 2025
   fuel_inlet:
