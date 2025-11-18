@@ -216,27 +216,14 @@ public:
     void checkPhaseArraySize(size_t mm) const;
 
     /**
-     * Return the phase index of a phase in the list of phases defined within
-     * the object.
-     *
-     *  @param ph string name of the phase
-     *
-     * If a -1 is returned, then the phase is not defined in the Kinetics
-     * object.
-     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
-     */
-    size_t phaseIndex(const string& ph) const;
-
-    /**
      * Return the index of a phase among the phases participating in this kinetic
      * mechanism.
      *
      * @param ph string name of the phase
      * @param raise  If `true`, raise exception if the specified phase is not defined
      *      in the Kinetics object.
-     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
-     *      behavior if a phase is not found in %Cantera 3.2 is to return `npos`.
-     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified phase is not found and
      *      `raise` is `true`.
      */
@@ -309,44 +296,14 @@ public:
     /*!
      * k is an integer from 0 to ktot - 1, where ktot is the number of
      * species in the kinetics manager, which is the sum of the number of
-     * species in all phases participating in the kinetics manager. If k is
-     * out of bounds, the string "<unknown>" is returned.
-     *
-     * @param k species index
-     * @todo Update docstring after %Cantera 3.2 to reflect that future versions
-     *      raise exception.
-     */
-    string kineticsSpeciesName(size_t k) const;
-
-    /**
-     * Return the name of the kth species in the kinetics manager.
-     * k is an integer from 0 to ktot - 1, where ktot is the number of
-     * species in the kinetics manager, which is the sum of the number of
      * species in all phases participating in the kinetics manager.
      *
      * @param k species index
-     * @param raise  If `true`, raise exception if the species index is out of bounds.
-     * @since New in %Cantera 3.2.
-     * @deprecated  To be removed after %Cantera 3.2. Only used for transitional
-     *      behavior.
      * @exception Throws an IndexError if the specified species index is out of bounds
-     *      and `raise` is `true`.
+     * @since  Starting in %Cantera 3.3, this method throws an exception if the
+     *     species index is out of bounds instead of returning "<unknown>".
      */
-    string kineticsSpeciesName(size_t k, bool raise) const;
-
-    /**
-     * This routine will look up a species number based on the input
-     * string nm. The lookup of species will occur for all phases
-     * listed in the kinetics object.
-     *
-     *  return
-     *   - If a match is found, the position in the species list is returned.
-     *   - If no match is found, the value -1 is returned.
-     *
-     * @param nm   Input string name of the species
-     * @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
-     */
-    size_t kineticsSpeciesIndex(const string& nm) const;
+    string kineticsSpeciesName(size_t k) const;
 
     /**
      * Return the index of a species within the phases participating in this kinetic
@@ -356,13 +313,12 @@ public:
      * @param nm  Name of the species.
      * @param raise  If `true`, raise exception if the specified species is not defined
      *      in the Kinetics object.
-     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
-     *      behavior if a phase is not found in %Cantera 3.2 is to return `npos`.
-     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified species is not found and
      *      `raise` is `true`.
      */
-    size_t kineticsSpeciesIndex(const string& nm, bool raise) const;
+    size_t kineticsSpeciesIndex(const string& nm, bool raise=true) const;
 
     /**
      * This function looks up the name of a species and returns a

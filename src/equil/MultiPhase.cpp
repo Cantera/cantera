@@ -739,17 +739,6 @@ string MultiPhase::elementName(size_t m) const
     throw IndexError("MultiPhase::elementName", "element", m, m_nel);
 }
 
-size_t MultiPhase::elementIndex(const string& name) const
-{
-    size_t ix = elementIndex(name, false);
-    if (ix == npos) {
-        warn_deprecated("MultiPhase::elementIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning npos to throwing an exception "
-            "after Cantera 3.2.");
-    }
-    return ix;
-}
-
 size_t MultiPhase::elementIndex(const string& name, bool raise) const
 {
     for (size_t e = 0; e < m_nel; e++) {
@@ -804,17 +793,6 @@ string MultiPhase::phaseName(size_t iph) const
         return m_phase[iph]->name();
     }
     throw IndexError("MultiPhase::phaseName", "phase", iph, m_phase.size());
-}
-
-int MultiPhase::phaseIndex(const string& pName) const
-{
-    size_t ix = phaseIndex(pName, false);
-    if (ix == npos) {
-        warn_deprecated("MultiPhase::phaseIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning -1 to throwing an exception "
-            "after Cantera 3.2. 'npos' will be return instead of -1 if 'raise=true'.");
-    }
-    return ix;
 }
 
 size_t MultiPhase::phaseIndex(const string& pName, bool raise) const
