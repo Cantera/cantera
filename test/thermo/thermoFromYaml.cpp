@@ -368,56 +368,6 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     EXPECT_NEAR(thermo->enthalpy_mole(), h_avg, 1e-6);
 }
 
-TEST(ThermoFromYaml, Lattice)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "Li7Si3_and_interstitials");
-    make_deprecation_warnings_fatal();
-
-    // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
-    double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.095564748201438871, 0.2, 0.09557086};
-    vector<double> mu(thermo->nSpecies());
-    vector<double> vol(thermo->nSpecies());
-    thermo->getChemPotentials(mu.data());
-    thermo->getPartialMolarVolumes(vol.data());
-
-    for (size_t k = 0; k < thermo->nSpecies(); k++) {
-        EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
-        EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
-    }
-}
-
-TEST(ThermoFromYaml, Lattice_fromString)
-{
-    // A little different because we can't re-read the input file to get the
-    // phase definition for the neutral phase
-    std::ifstream infile("../data/thermo-models.yaml");
-    std::stringstream buffer;
-    buffer << infile.rdbuf();
-    AnyMap input = AnyMap::fromYamlString(buffer.str());
-    suppress_deprecation_warnings();
-    auto thermo = newThermo(
-        input["phases"].getMapWhere("name", "Li7Si3_and_interstitials"),
-        input);
-    make_deprecation_warnings_fatal();
-
-    // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
-    double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.095564748201438871, 0.2, 0.09557086};
-    vector<double> mu(thermo->nSpecies());
-    vector<double> vol(thermo->nSpecies());
-    thermo->getChemPotentials(mu.data());
-    thermo->getPartialMolarVolumes(vol.data());
-
-    for (size_t k = 0; k < thermo->nSpecies(); k++) {
-        EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
-        EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
-    }
-}
-
 TEST(ThermoFromYaml, Metal)
 {
     auto thermo = newThermo("thermo-models.yaml", "Metal");

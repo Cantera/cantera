@@ -24,15 +24,6 @@ static Application* app()
 
 // **************** Text Logging ****************
 
-void setLogger(Logger* logwriter)
-{
-    try {
-        app()->setLogger(logwriter);
-    } catch (const std::bad_alloc&) {
-        logwriter->error("bad alloc thrown by app()");
-    }
-}
-
 void setLogger(unique_ptr<Logger> logwriter)
 {
     try {
@@ -163,13 +154,6 @@ string gitCommit()
 #else
     return "unknown";
 #endif
-}
-
-void addDirectory(const string& dir)
-{
-    warn_deprecated("addDirectory",
-                    "To be removed after Cantera 3.2. Renamed to addDataDirectory.");
-    app()->addDataDirectory(dir);
 }
 
 void addDataDirectory(const string& dir)

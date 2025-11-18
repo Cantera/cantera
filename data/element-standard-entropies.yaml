@@ -1,7 +1,6 @@
 description: |-
-  Standard entropies of the elements in their standard states. Used by the
-  `compound-lattice` ThermoPhase model and the `HKFT` pressure dependent standard state
-  (PDSS) model.
+  Standard entropies of the elements in their standard states. Used by the `HKFT`
+  pressure dependent standard state (PDSS) model.
 
   All values are in J/kmol/K.
 

@@ -151,9 +151,6 @@ protected:
 public:
     double liquidVolEst(double TKelvin, double& pres) const override;
     double densityCalc(double T, double pressure, int phase, double rhoguess) override;
-
-    double densSpinodalLiquid() const override;
-    double densSpinodalGas() const override;
     double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const override;
 
     double isothermalCompressibility() const override;

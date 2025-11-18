@@ -78,10 +78,6 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, bool clone, const string& name)
         { return new MoleReactor(sol, clone, name); });
-    // TODO: Remove after Cantera 3.2
-    reg("ReactorSurface",
-        [](shared_ptr<Solution> sol, bool clone, const string& name)
-        { return new ReactorSurface(sol, clone, name); });
 }
 
 ReactorFactory* ReactorFactory::factory() {
@@ -105,19 +101,7 @@ shared_ptr<ReactorBase> newReactorBase(
         ReactorFactory::factory()->create(model, phase, clone, name));
 }
 
-shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> phase, const string& name)
-{
-    warn_deprecated("newReactor", "Behavior changes after Cantera 3.2, when a "
-        "'shared_ptr<Reactor>' is returned.\nFor new behavior, use 'newReactor4'.");
-    warn_deprecated("newReactor", "`clone` argument not specified; Default behavior "
-        "will change from `clone=False` to `clone=True` after Cantera 3.2.\n"
-        "Use the transitional newReactor4() function to provide a value for the clone "
-        "argument");
-    return newReactorBase(model, phase, false, name);
-}
-
-shared_ptr<Reactor> newReactor4(
+shared_ptr<Reactor> newReactor(
     const string& model, shared_ptr<Solution> phase, bool clone, const string& name)
 {
     auto reactor = std::dynamic_pointer_cast<Reactor>(

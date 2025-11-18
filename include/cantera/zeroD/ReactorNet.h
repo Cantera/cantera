@@ -183,11 +183,6 @@ public:
     //! @since New in %Cantera 3.2.
     Eigen::SparseMatrix<double> steadyJacobian(double rdt=0.0);
 
-    //! Add the reactor *r* to this reactor network.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by reactor net
-    //!     instantiation with contents.
-    void addReactor(Reactor& r);
-
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.

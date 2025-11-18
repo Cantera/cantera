@@ -50,9 +50,6 @@ class FlameBase(Sim1D):
         group: str | None = None,
         **kwargs: Any,
     ) -> None: ...
-    def set_profile(  # type: ignore[override]
-        self, component: str | int, positions: Sequence[float], values: Sequence[float]
-    ) -> None: ...
     @property
     def max_grid_points(self) -> int: ...
     @max_grid_points.setter
@@ -113,7 +110,6 @@ class FlameBase(Sim1D):
     def right_control_point_coordinate(self) -> float: ...
     def elemental_mass_fraction(self, m: str) -> Array: ...
     def elemental_mole_fraction(self, m: str) -> Array: ...
-    def set_gas_state(self, point: int) -> None: ...
     def to_array(
         self, domain: Domain1D | str | int | None = None, normalize: bool = False
     ) -> SolutionArray[Solution]: ...
@@ -336,7 +332,6 @@ class FreeFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] | None = None,
     ) -> None: ...
     def get_flame_speed_reaction_sensitivities(self) -> Array: ...
 
@@ -357,7 +352,6 @@ class BurnerFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] | None = None,
     ) -> None: ...
 
 class CounterflowDiffusionFlame(FlameBase):
@@ -378,7 +372,6 @@ class CounterflowDiffusionFlame(FlameBase):
         loglevel: LogLevel = 1,
         refine_grid: bool = True,
         auto: bool = False,
-        stage: Literal[1, 2] | None = None,
     ) -> None: ...
     def strain_rate(
         self,

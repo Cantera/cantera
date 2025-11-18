@@ -25,5 +25,4 @@ from .speciesthermo import *
 from .thermo import *
 from .transport import *
 from .units import *
-from .utils import *
 from .yamlwriter import *

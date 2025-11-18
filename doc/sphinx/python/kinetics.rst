@@ -148,10 +148,6 @@ ThirdBody
 .. autoclass:: ThirdBody(collider="M", *, efficiencies=None, default_efficiency=None)
    :no-undoc-members:
 
-Arrhenius
-^^^^^^^^^
-.. autoclass:: Arrhenius(A, b, E)
-
 Reaction Path Analysis
 ----------------------
 

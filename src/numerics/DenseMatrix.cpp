@@ -52,8 +52,6 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     for (size_t j = 0; j < m_ncols; j++) {
         m_colPts[j] = &m_data[m_nrows*j];
     }
-    m_useReturnErrorCode = y.m_useReturnErrorCode;
-    m_printLevel = y.m_printLevel;
     return *this;
 }
 
@@ -130,20 +128,9 @@ vector<int>& DenseMatrix::ipiv()
     return m_ipiv;
 }
 
-int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
+void solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
 {
-    if (A.m_printLevel) {
-        warn_deprecated("DenseMatrix::m_printLevel",
-                        "To be removed after Cantera 3.2.");
-    }
-    if (A.m_useReturnErrorCode) {
-        warn_deprecated("DenseMatrix::m_useReturnErrorCode",
-                        "To be removed after Cantera 3.2.");
-    }
     if (A.nColumns() != A.nRows()) {
-        if (A.m_printLevel) {
-            writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
-        }
         throw CanteraError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
     }
 
@@ -155,23 +142,11 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
         ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
                   A.nRows(), &A.ipiv()[0], info);
         if (info > 0) {
-            if (A.m_printLevel) {
-                writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d   U(i,i) is exactly zero. The factorization has"
-                          " been completed, but the factor U is exactly singular, and division by zero will occur if "
-                          "it is used to solve a system of equations.\n", info);
-            }
-            if (!A.m_useReturnErrorCode) {
-                throw CanteraError("solve(DenseMatrix& A, double* b)",
-                                    "DGETRF returned INFO = {}. U(i,i) is exactly zero. The factorization has"
-                                    " been completed, but the factor U is exactly singular, and division by zero will occur if "
-                                    "it is used to solve a system of equations.", info);
-            }
-            return info;
+            throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                "DGETRF returned INFO = {}. U(i,i) is exactly zero. The factorization has"
+                                " been completed, but the factor U is exactly singular, and division by zero will occur if "
+                                "it is used to solve a system of equations.", info);
         } else if (info < 0) {
-            if (A.m_printLevel) {
-                writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
-            }
-
             throw CanteraError("solve(DenseMatrix& A, double* b)",
                                "DGETRF returned INFO = {}. The argument i has an illegal value", info);
         }
@@ -179,13 +154,8 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
         ct_dgetrs(ctlapack::NoTranspose, A.nRows(), nrhs, A.ptrColumn(0),
                   A.nRows(), &A.ipiv()[0], b, ldb, info);
         if (info != 0) {
-            if (A.m_printLevel) {
-                writelog("solve(DenseMatrix& A, double* b): DGETRS returned INFO = {}\n", info);
-            }
-            if (info < 0 || !A.m_useReturnErrorCode) {
-                throw CanteraError("solve(DenseMatrix& A, double* b)",
-                                   "DGETRS returned INFO = {}", info);
-            }
+            throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                "DGETRS returned INFO = {}", info);
         }
     #else
         MappedMatrix Am(&A(0,0), A.nRows(), A.nColumns());
@@ -204,12 +174,11 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
             bm = lu.solve(bm);
         }
     #endif
-    return info;
 }
 
-int solve(DenseMatrix& A, DenseMatrix& b)
+void solve(DenseMatrix& A, DenseMatrix& b)
 {
-    return solve(A, b.ptrColumn(0), b.nColumns(), b.nRows());
+    solve(A, b.ptrColumn(0), b.nColumns(), b.nRows());
 }
 
 void multiply(const DenseMatrix& A, const double* const b, double* const prod)
@@ -231,29 +200,15 @@ void increment(const DenseMatrix& A, const double* b, double* prod)
     #endif
 }
 
-int invert(DenseMatrix& A, size_t nn)
+void invert(DenseMatrix& A, size_t nn)
 {
-    if (A.m_printLevel) {
-        warn_deprecated("DenseMatrix::m_printLevel",
-                        "To be removed after Cantera 3.2.");
-    }
-    if (A.m_useReturnErrorCode) {
-        warn_deprecated("DenseMatrix::m_useReturnErrorCode",
-                        "To be removed after Cantera 3.2.");
-    }
     int info=0;
     #if CT_USE_LAPACK
         integer n = static_cast<int>(nn != npos ? nn : A.nRows());
         ct_dgetrf(n, n, A.ptrColumn(0), static_cast<int>(A.nRows()),
                   &A.ipiv()[0], info);
         if (info != 0) {
-            if (A.m_printLevel) {
-                writelogf("invert(DenseMatrix& A, size_t nn): DGETRS returned INFO = %d\n", info);
-            }
-            if (! A.m_useReturnErrorCode) {
-                throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRS returned INFO = {}", info);
-            }
-            return info;
+            throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRS returned INFO = {}", info);
         }
 
         vector<double> work(n);
@@ -261,12 +216,7 @@ int invert(DenseMatrix& A, size_t nn)
         ct_dgetri(n, A.ptrColumn(0), static_cast<int>(A.nRows()),
                   &A.ipiv()[0], &work[0], lwork, info);
         if (info != 0) {
-            if (A.m_printLevel) {
-                writelogf("invert(DenseMatrix& A, size_t nn): DGETRS returned INFO = %d\n", info);
-            }
-            if (! A.m_useReturnErrorCode) {
-                throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRI returned INFO={}", info);
-            }
+            throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRI returned INFO={}", info);
         }
     #else
         MappedMatrix Am(&A(0,0), A.nRows(), A.nColumns());
@@ -276,7 +226,6 @@ int invert(DenseMatrix& A, size_t nn)
             Am.topLeftCorner(nn, nn) = Am.topLeftCorner(nn, nn).inverse();
         }
     #endif
-    return info;
 }
 
 }

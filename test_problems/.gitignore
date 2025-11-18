@@ -8,8 +8,6 @@
 ChemEquil_ionizedGas/ChemEquil_ionizedGas
 CpJump/CpJump
 VCSnonideal/NaCl_equil/nacl_equil
-VCSnonideal/LatticeSolid_LiSi/latticeSolid_LiSi
-VCSnonideal/LatticeSolid_LiSi/latsol
 cathermo/DH_graph_1/DH_graph_1
 cathermo/DH_graph_1/DH_graph_1.log
 cathermo/HMW_graph_CpvT/HMW_graph_CpvT

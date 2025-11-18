@@ -299,6 +299,3 @@ cdef class Reaction:
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
     cdef ReactionRate _rate
-
-cdef class Arrhenius:
-    cdef CxxArrheniusRate* base

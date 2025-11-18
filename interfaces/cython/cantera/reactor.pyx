@@ -42,19 +42,6 @@ cdef class ReactorBase:
 
         self.node_attr = node_attr or {}
 
-    def insert(self, _SolutionBase solution):
-        """
-        Set ``solution`` to be the object used to compute thermodynamic
-        properties and kinetic rates for this reactor.
-
-        .. deprecated:: 3.2
-
-            After Cantera 3.2, a change of reactor contents after instantiation
-            will be disabled and this method will be removed.
-        """
-        self.rbase.setSolution(solution._base)  # raises warning in C++ core
-        self._phase = solution
-
     property type:
         """The type of the reactor."""
         def __get__(self):
@@ -74,20 +61,6 @@ cdef class ReactorBase:
         ReactorNet.reinitialize() before further integration.
         """
         self.rbase.syncState()
-
-    property thermo:
-        """
-        The `ThermoPhase` object representing the reactor's contents.
-
-        .. deprecated:: 3.2
-           Renamed to ``phase``
-        """
-        def __get__(self):
-            warnings.warn("ReactorBase.thermo: To be removed after Cantera 3.2. "
-                "Renamed to `phase`.",
-                DeprecationWarning)
-            self.rbase.restoreState()
-            return self._phase
 
     @property
     def phase(self):
@@ -287,20 +260,6 @@ cdef class Reactor(ReactorBase):
             raise ValueError("'energy' must be either 'on' or 'off'")
 
         self.group_name = group_name
-
-    property kinetics:
-        """
-        The `Kinetics` object used for calculating kinetic rates in
-        this reactor.
-
-        .. deprecated:: 3.2
-            Replaced by ``phase`` property.
-        """
-        def __get__(self):
-            warnings.warn("Reactor.kinetics: To be removed after Cantera 3.2. "
-                "Renamed to `phase`.", DeprecationWarning)
-            self.rbase.restoreState()
-            return self._phase
 
     property chemistry_enabled:
         """
@@ -890,41 +849,12 @@ cdef class ReactorSurface(ReactorBase):
             self.area = A
         self.node_attr = node_attr or {'shape': 'underline'}
 
-    def install(self, Reactor r):
-        """
-        Add this `ReactorSurface` to the specified `Reactor`
-
-        .. deprecated:: 3.2
-           Replaced by specifying list of adjacent reactors in the `ReactorSurface`
-           constructor.
-        """
-        warnings.warn("ReactorSurface.install: To be removed after Cantera 3.2. "
-            "Adjacent reactors should be specified in the ReactorSurface constructor.",
-            DeprecationWarning)
-        r._surfaces.append(self)
-        r.reactor.addSurface(self.surface)
-        self._reactors.append(r)
-
     property area:
         """Area on which reactions can occur [m²]."""
         def __get__(self):
             return self.surface.area()
         def __set__(self, A):
             self.surface.setArea(A)
-
-    property kinetics:
-        """
-        The `InterfaceKinetics` object used for calculating reaction rates on
-        this surface.
-
-        .. deprecated:: 3.2
-            Replaced by ``phase`` property.
-        """
-        def __get__(self):
-            warnings.warn("ReactorSurface.kinetics: To be removed after Cantera 3.2. "
-                "Renamed to `phase`.", DeprecationWarning)
-            self.syncState()
-            return self._phase
 
     property coverages:
         """
@@ -1654,21 +1584,6 @@ cdef class ReactorNet:
             cxx_reactors.push_back(r._rbase)
         self._net = CxxNewReactorNet(cxx_reactors)
         self.net = self._net.get()
-
-    def add_reactor(self, Reactor r):
-        """
-        Add a reactor to the network.
-
-        .. deprecated:: 3.2
-
-            After Cantera 3.2, a change of reactor net contents after instantiation
-            will be disabled and this method will be removed.
-        """
-        warnings.warn("ReactorNet.add_reactor: A change of reactor net contents after "
-            "instantiation will be disabled and this method will be removed.",
-            DeprecationWarning)
-        self._reactors.append(r)
-        self.net.addReactor(deref(r.reactor))
 
     def advance(self, double t, pybool apply_limit=True):
         """

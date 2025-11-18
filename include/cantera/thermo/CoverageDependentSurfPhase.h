@@ -290,16 +290,6 @@ public:
      */
     void getGibbs_RT(double* grt) const override;
 
-    //! Get the standard state gibbs free energy vector. Units: J/kmol.
-    /*!
-     * @f[
-     *      g^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
-     * @f]
-     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
-     *     instead.
-     */
-    void getPureGibbs(double* g) const override;
-
     //! Get the standard state chemical potential vector. Units: J/kmol.
     /*!
      * @f[

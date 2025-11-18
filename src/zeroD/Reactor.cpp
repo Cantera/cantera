@@ -22,14 +22,9 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-// TODO: After Cantera 3.2, this method can be replaced by delegating to
-// Reactor::Reactor(sol, true, name)
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(sol, name)
+    : Reactor(sol, true, name)
 {
-    m_kin = m_solution->kinetics().get();
-    setChemistryEnabled(m_kin->nReactions() > 0);
-    m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
 Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
@@ -47,15 +42,6 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
     for (auto S : m_surfaces) {
         S->kinetics()->setDerivativeSettings(settings);
     }
-}
-
-void Reactor::setKinetics(Kinetics& kin)
-{
-    warn_deprecated("Reactor::setKinetics",
-        "After Cantera 3.2, a change of reactor contents after instantiation "
-        "will be disabled.");
-    m_kin = &kin;
-    setChemistryEnabled(m_kin->nReactions() > 0);
 }
 
 void Reactor::getState(double* y)
@@ -192,11 +178,6 @@ void Reactor::updateConnected(bool updatePressure) {
     m_enthalpy = m_thermo->enthalpy_mass();
     if (updatePressure) {
         m_pressure = m_thermo->pressure();
-    }
-    try {
-        m_intEnergy = m_thermo->intEnergy_mass();
-    } catch (NotImplementedError&) {
-        m_intEnergy = NAN;
     }
     m_thermo->saveState(m_state);
 

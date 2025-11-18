@@ -32,14 +32,11 @@ recipes:
 - name: density
 - name: temperature
 - name: enthalpy_mass
-- name: intEnergy_mass
 - name: pressure
 - name: massFraction
 - name: massFractions
 - name: nSensParams
 - name: addSensitivityReaction
-- name: addSurface  # Renamed in Cantera 3.2 (previously install)
-  wraps: addSurface(shared_ptr<ReactorBase>)
 # FlowReactor
 - name: massFlowRate
 - name: setMassFlowRate

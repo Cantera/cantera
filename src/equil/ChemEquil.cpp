@@ -257,9 +257,9 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector<double>& lambda_
         b[m] = mu_RT[m_component[m]];
     }
 
-    int info;
+    int info = 0;
     try {
-        info = solve(aa, b.data());
+        solve(aa, b.data());
     } catch (CanteraError&) {
         info = -2;
     }
@@ -611,7 +611,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 
         // Solve the system
         try {
-            info = solve(jac, res_trial.data());
+            solve(jac, res_trial.data());
         } catch (CanteraError& err) {
             s.restoreState(state);
             throw CanteraError("ChemEquil::equilibrate",

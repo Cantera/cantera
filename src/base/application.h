@@ -358,20 +358,6 @@ public:
         return m_use_legacy_rate_constants;
     }
 
-    //! Install a logger.
-    /*!
-     * Called by the language interfaces to install an appropriate logger.
-     * The logger is used for the writelog() function
-     *
-     * @param logwriter Pointer to a logger object
-     * @see Logger.
-     * @ingroup logGroup
-     *
-     * @deprecated To be removed after %Cantera 3.2. Replaced by version taking
-     *     `unique_ptr`.
-     */
-    void setLogger(Logger* logwriter);
-
     //! Install a Logger.
     /*!
      * Called by the language interfaces to install an appropriate logger.

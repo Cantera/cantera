@@ -179,8 +179,6 @@ public:
     //! are not resolved at the SingleSpeciesTP level.
     //! @{
 
-    void getPureGibbs(double* gpure) const override;
-
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
     /*!

@@ -231,32 +231,6 @@ public:
     double density(double temperature, double pressure,
                    int phase = -1, double rhoguess = -1.0);
 
-    //! Calculates the density given the temperature and the pressure,
-    //! and a guess at the density, while not changing the internal state
-    /*!
-     * Note, below T_c, this is a multivalued function.
-     *
-     * The density() function calculates the density that is consistent with a
-     * particular value of the temperature and pressure. It may therefore be
-     * multivalued or potentially there may be no answer from this function.
-     * It therefore takes a phase guess and a density guess as optional
-     * parameters. If no guesses are supplied to density(), a gas phase guess
-     * is assumed. This may or may not be what is wanted. Therefore, density()
-     * should usually at least be supplied with a phase guess so that it may
-     * manufacture an appropriate density guess. density() manufactures the
-     * initial density guess, nondimensionalizes everything, and then calls
-     * WaterPropsIAPWSphi::dfind(), which does the iterative calculation to
-     * find the density condition that matches the desired input pressure.
-     *
-     * @param pressure    Pressure in Pascals (Newton/m**2)
-     * @param phase       guessed phase of water; -1: no guessed phase
-     * @param rhoguess    guessed density of the water; -1.0: no guessed density
-     * @returns the density. If an error is encountered in the calculation the
-     *     value of -1.0 is returned.
-     * @deprecated To be removed after %Cantera 3.1.
-     */
-    double density_const(double pressure, int phase = -1, double rhoguess = -1.0) const;
-
     //! Returns the density (kg m-3)
     /*!
      * The density is an independent variable in the underlying equation of state
@@ -337,22 +311,6 @@ public:
      * @returns the saturation pressure. units = Pascal
      */
     double psat(double temperature, int waterState = WATER_LIQUID);
-
-    //! Return the value of the density at the water spinodal point (on the
-    //! liquid side) for the current temperature.
-    /*!
-     * @returns the density with units of kg m-3
-     * @deprecated To be removed after %Cantera 3.1.
-     */
-    double densSpinodalWater() const;
-
-    //! Return the value of the density at the water spinodal point (on the gas
-    //! side) for the current temperature.
-    /*!
-     * @returns the density with units of kg m-3
-     * @deprecated To be removed after %Cantera 3.1.
-     */
-    double densSpinodalSteam() const;
 
     //! Returns the Phase State flag for the current state of the object
     /*!

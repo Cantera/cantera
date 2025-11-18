@@ -37,14 +37,6 @@ public:
                    bool clone,
                    const string& name="(none)");
 
-    //! @deprecated To be removed after %Cantera 3.2. Replaced by constructor where
-    //!    contents and adjacent reactors are specified
-    ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
-
-    //! @deprecated To be removed after %Cantera 3.2. Replaced by constructor where
-    //!    contents and adjacent reactors are specified
-    ReactorSurface(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
-
     //! String indicating the wall model implemented.
     string type() const override {
         return "ReactorSurface";
@@ -66,11 +58,6 @@ public:
         return m_kinetics;
     }
 
-    //! Set the InterfaceKinetics object for this surface
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
-    //!     Solution object instead.
-    void setKinetics(Kinetics* kin);
-
     void addInlet(FlowDevice& inlet) override {
         throw NotImplementedError("ReactorSurface::addInlet",
             "Inlets are undefined for reactors of type '{}'.", type());
@@ -88,11 +75,6 @@ public:
     void addSurface(ReactorSurface* surf) override {
         throw NotImplementedError("ReactorSurface::addSurface");
     }
-
-    //! Set the reactor that this Surface interacts with
-    //! @deprecated To be removed after %Cantera 3.2. Superseded by constructor taking
-    //!     a list of adjacent reactors.
-    void setReactor(ReactorBase* reactor);
 
     //! Set the surface coverages. Array `cov` has length equal to the number of
     //! surface species.
@@ -134,16 +116,6 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    void setThermo(ThermoPhase& thermo) override {}
-
-    //! Set the InterfaceKinetics object for this surface.
-    //! Method is needed to prevent compiler warnings by disambiguating from the
-    //! non-protected variant.
-    //! @since New in %Cantera 3.2.
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
-    //!     Solution object instead.
-    void setKinetics(Kinetics& kin) override;
-
     double m_area = 1.0;
 
     SurfPhase* m_surf = nullptr;

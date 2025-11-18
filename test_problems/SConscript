@@ -203,12 +203,6 @@ CompileAndTest('VCS-NaCl', 'VCSnonideal/NaCl_equil',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
 
-vcs_LiSi = CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', 'latsol',
-                          artifacts=['vcs_equilibrate_res.csv'])
-Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi.program,
-     'verbose_blessed.txt', options='8',
-     artifacts=['vcs_equilibrate_res.csv'])
-
 # C++ Samples
 Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
      profiles=[('blasius_blessed.csv', 'blasius.csv')],

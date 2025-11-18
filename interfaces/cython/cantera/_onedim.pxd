@@ -53,7 +53,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double transient_atol(size_t)
         void setID(string)
         string& id()
-        string domainType "type"()
+        string domainType()
         shared_ptr[CxxSolutionArray] toArray(cbool) except +translate_exception
         void fromArray(shared_ptr[CxxSolutionArray]) except +translate_exception
 
@@ -80,7 +80,6 @@ cdef extern from "cantera/oneD/Boundary1D.h":
 cdef extern from "cantera/oneD/Flow1D.h":
     cdef cppclass CxxFlow1D "Cantera::Flow1D" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
-        string type()
         string transportModel()
         void setPressure(double)
         void enableRadiation(cbool)
@@ -88,8 +87,6 @@ cdef extern from "cantera/oneD/Flow1D.h":
         double radiativeHeatLoss(size_t)
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
-        size_t getSolvingStage() except +translate_exception
-        void setSolvingStage(size_t) except +translate_exception
         void solveElectricField() except +translate_exception
         void fixElectricField() except +translate_exception
         cbool doElectricField() except +translate_exception
@@ -121,9 +118,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
 
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
-        void setValue(size_t, size_t, size_t, double) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
-        void setFlatProfile(size_t, size_t, double) except +translate_exception
         void show() except +translate_exception
         void setTimeStep(double, size_t, int*) except +translate_exception
         void restoreTimeSteppingSolution() except +translate_exception
@@ -150,8 +145,6 @@ cdef extern from "cantera/oneD/Sim1D.h":
         vector[int]& timeStepStats()
 
         int domainIndex(string) except +translate_exception
-        double value(size_t, size_t, size_t) except +translate_exception
-        double workValue(size_t, size_t, size_t) except +translate_exception
         void eval(double ) except +translate_exception
         size_t size()
         void solveAdjoint(const double*, double*) except +translate_exception

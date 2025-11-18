@@ -117,14 +117,6 @@ void SingleSpeciesTP::getPartialMolarVolumes(double* vbar) const
 
 // Properties of the Standard State of the Species in the Solution
 
-void SingleSpeciesTP::getPureGibbs(double* gpure) const
-{
-    warn_deprecated("SingleSpeciesTP::getPureGibbs",
-        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
-    getGibbs_RT(gpure);
-    gpure[0] *= RT();
-}
-
 void SingleSpeciesTP::getStandardVolumes(double* vbar) const
 {
     vbar[0] = molecularWeight(0) / density();

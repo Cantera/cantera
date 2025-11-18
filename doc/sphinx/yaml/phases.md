@@ -83,7 +83,6 @@ are:
 : String specifying the phase thermodynamic model to be used. Supported model strings
   are:
   - [`binary-solution-tabulated`](sec-yaml-binary-solution-tabulated)
-  - [`compound-lattice`](sec-yaml-compound-lattice)
   - [`coverage-dependent-surface`](sec-yaml-coverage-dependent-surface)
   - [`Debye-Huckel`](sec-yaml-Debye-Huckel)
   - [`edge`](sec-yaml-edge)
@@ -95,7 +94,6 @@ are:
   - [`ideal-condensed`](sec-yaml-ideal-condensed)
   - [`ideal-solution-VPSS`](sec-yaml-ideal-solution-VPSS)
   - [`ideal-surface`](sec-yaml-ideal-surface)
-  - [`lattice`](sec-yaml-lattice)
   - [`liquid-water-IAPWS95`](sec-yaml-liquid-water-IAPWS95)
   - [`Margules`](sec-yaml-Margules)
   - [`Peng-Robinson`](sec-yaml-Peng-Robinson)
@@ -261,31 +259,6 @@ Includes the fields of [](sec-yaml-ideal-condensed), plus:
 
 :::{versionadded} 2.5
 :::
-
-(sec-yaml-compound-lattice)=
-### `compound-lattice`
-
-A phase that is comprised of a fixed additive combination of other lattice phases, as
-{ct}`described here <LatticeSolidPhase>`.
-
-:::{deprecated} 3.2
-To be removed after Cantera 3.2. No known usage exists, and the model does not satisfy
-several basic thermodynamic identities. See[Issue #1310](https://github.com/Cantera/cantera/issues/1310).
-:::
-
-Additional fields:
-
-`composition`
-: A mapping of component phase names to their relative stoichiometries.
-
-Example:
-
-```yaml
-- name: Li7Si3_and_Interstitials(S)
-  elements: [Li, Si]
-  thermo: compound-lattice
-  composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
-```
 
 (sec-yaml-coverage-dependent-surface)=
 
@@ -753,33 +726,6 @@ Example:
     T: 900.0
     coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
   site-density: 2.7063e-09
-```
-
-(sec-yaml-lattice)=
-### `lattice`
-
-A simple thermodynamic model for a bulk phase, assuming an incompressible lattice of
-solid atoms, as {ct}`described here <LatticePhase>`.
-
-:::{deprecated} 3.2
-Can be replaced by the [`ideal-condensed`](sec-yaml-ideal-condensed) phase
-model with the `site-density` field used to set the molar density of each constituent
-species in that species' [`equation-of-state`](sec-yaml-eos-constant-volume) field.
-:::
-
-Additional fields:
-
-`site-density`
-: The molar density of lattice sites
-
-Example:
-
-```yaml
-- name: oxide_bulk
-  thermo: lattice
-  species: [Ox, VO**]
-  state: {T: 1073.15, P: 1.01325e+05, X: {Ox: 0.95, VO**: 0.05}}
-  site-density: 0.0176 mol/cm^3
 ```
 
 (sec-yaml-liquid-water-iapws95)=

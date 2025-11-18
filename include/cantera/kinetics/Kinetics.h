@@ -169,24 +169,12 @@ public:
      */
     size_t checkReactionIndex(size_t m) const;
 
-    //! Check that an array size is at least nReactions()
-    //! Throws an exception if ii is less than nReactions(). Used before calls
-    //! which take an array pointer.
-    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
-    void checkReactionArraySize(size_t ii) const;
-
     //! Check that the specified species index is in range
     /*!
      * @since Starting in %Cantera 3.2, returns the input species index, if valid.
      * @exception Throws an IndexError if k is greater than nSpecies()-1
      */
     size_t checkSpeciesIndex(size_t k) const;
-
-    //! Check that an array size is at least nSpecies()
-    //! Throws an exception if kk is less than nSpecies(). Used before calls
-    //! which take an array pointer.
-    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
-    void checkSpeciesArraySize(size_t mm) const;
 
     //! @}
     //! @name Information/Lookup Functions about Phases and Species
@@ -209,12 +197,6 @@ public:
      */
     size_t checkPhaseIndex(size_t m) const;
 
-    //! Check that an array size is at least nPhases()
-    //! Throws an exception if mm is less than nPhases(). Used before calls
-    //! which take an array pointer.
-    //! @deprecated To be removed after %Cantera 3.2. Unused
-    void checkPhaseArraySize(size_t mm) const;
-
     /**
      * Return the index of a phase among the phases participating in this kinetic
      * mechanism.
@@ -227,7 +209,7 @@ public:
      * @exception Throws a CanteraError if the specified phase is not found and
      *      `raise` is `true`.
      */
-    size_t phaseIndex(const string& ph, bool raise) const;
+    size_t phaseIndex(const string& ph, bool raise=true) const;
 
     /**
      * Return pointer to phase where the reactions occur.
@@ -1206,16 +1188,6 @@ public:
      */
     virtual double productOrder(int k, int i) const {
         throw NotImplementedError("Kinetics::productOrder");
-    }
-
-    //! Get the vector of activity concentrations used in the kinetics object
-    /*!
-     *  @param[out] conc  Vector of activity concentrations. Length is equal
-     *               to the number of species in the kinetics object
-     *  @deprecated  To be removed after %Cantera 3.2.
-     */
-    virtual void getActivityConcentrations(double* const conc) {
-        throw NotImplementedError("Kinetics::getActivityConcentrations");
     }
 
     /**

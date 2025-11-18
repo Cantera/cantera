@@ -34,17 +34,6 @@ void SteadyStateSystem::getState(double* x) const
     copy(m_xnew.begin(), m_xnew.end(), x);
 }
 
-int SteadyStateSystem::solve(double* x, double* xnew, int loglevel)
-{
-    warn_deprecated("SteadyStateSystem::solve(double*, double*, int)",
-        "To be removed after Cantera 3.2. Use setInitialGuess, solve(int), and "
-        "getState instead.");
-    setInitialGuess(x);
-    solve(loglevel);
-    getState(xnew);
-    return 1;
-}
-
 void SteadyStateSystem::solve(int loglevel)
 {
     size_t istep = 0;

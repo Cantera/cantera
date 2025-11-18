@@ -53,14 +53,6 @@ shared_ptr<ReactorBase> newReactorBase(
     const string& name="(none)");
 
 //! Create a Reactor object of the specified type and contents
-//! @since Starting in %Cantera 3.1, this method requires a valid Solution object and
-//!     returns a `shared_ptr<ReactorBase>` instead of a `ReactorBase*`.
-//! @deprecated  Behavior changes after %Cantera 3.2, when a `shared_ptr<Reactor>` will
-//!     be returned. For new behavior, see `newReactor4`.
-shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> phase, const string& name="(none)");
-
-//! Create a Reactor object of the specified type and contents
 //! @param  model  Reactor type to be created. See [this list of reactor
 //!     types](../reference/reactors/index.html) for available options.
 //! @param phase  Solution object to model the thermodynamic properties and
@@ -69,10 +61,19 @@ shared_ptr<ReactorBase> newReactor(
 //!     reactor is independent of the original Solution object and any Solution objects
 //!     used by other reactors in the network.
 //! @param name  Name of the reactor.
-//! @since  New in %Cantera 3.2. Transitional method returning a `Reactor` object.
-shared_ptr<Reactor> newReactor4(
+//! @since  Starting in %Cantera 3.3, returns a `shared_ptr<Reactor>` instead of a
+//!     `shared_ptr<ReactorBase>`.
+shared_ptr<Reactor> newReactor(
     const string& model, shared_ptr<Solution> phase, bool clone=true,
     const string& name="(none)");
+
+//! @copydoc newReactor
+//! @deprecated Transitional method; to be removed after %Cantera 3.3.
+inline shared_ptr<Reactor> newReactor4(const string& model, shared_ptr<Solution> phase,
+                                bool clone=true, const string& name="(none)")
+{
+    return newReactor(model, phase, clone, name);
+}
 
 //! Create a Reservoir object with the specified contents
 //! @param phase  Solution object to model the contents of this reservoir

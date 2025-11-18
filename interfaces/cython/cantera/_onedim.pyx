@@ -851,28 +851,7 @@ cdef class FlowBase(Domain1D):
         - ``axisymmetric-flow``/``axisymmetric-ion-flow``,
         - ``unstrained-flow``/``unstrained-ion-flow``
         """
-        return pystr(self.flow.type())
-
-    @property
-    def solving_stage(self):
-        """
-        Solving stage mode for handling ionized species (only relevant if transport
-        model is ``ionized-gas``):
-
-        - ``stage == 1``: the fluxes of charged species are set to zero
-        - ``stage == 2``: the electric field equation is solved, and the drift flux for
-          ionized species is evaluated
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Use the `electric_field_enabled` property
-            instead.
-        """
-        return self.flow.getSolvingStage()
-
-    @solving_stage.setter
-    def solving_stage(self, stage):
-        self.flow.setSolvingStage(stage)
+        return pystr(self.flow.domainType())
 
     @property
     def electric_field_enabled(self):
@@ -1001,28 +980,6 @@ cdef class Sim1D:
         self._initial_guess_args = ()
         self._initial_guess_kwargs = {}
 
-    def phase(self, domain=None):
-        """
-        Return phase describing a domain (that is, a gas phase or surface phase).
-
-        :param domain: Index of domain within `Sim1D.domains` list; the default
-            is to return the phase of the parent `Sim1D` object.
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Contents should be accessed via
-            `Domain1D.phase` properties of domain objects instead.
-        """
-        warnings.warn(
-            "To be removed after Cantera 3.2. Contents should be accessed via "
-            "property 'phase' of domain objects instead.",
-            DeprecationWarning)
-        if domain is None:
-            return self.gas
-
-        dom = self.domains[self.domain_index(domain)]
-        return dom.phase
-
     def set_interrupt(self, f):
         """
         Set an interrupt function to be called each time that :ct:`OneDim::eval` is
@@ -1095,52 +1052,6 @@ cdef class Sim1D:
 
         return idom, kcomp
 
-    def value(self, domain, component, point):
-        """
-        Solution value at one point
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-        :param point:
-            grid point number within ``domain`` starting with 0 on the left
-
-        >>> t = s.value('flow', 'T', 6)
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.value` or
-            `Domain1D.getValues`.
-        """
-        dom, comp = self._get_indices(domain, component)
-        return self.sim.value(dom, comp, point)
-
-    def set_value(self, domain, component, point, value):
-        """
-        Set the value of one component in one domain at one point to 'value'.
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-        :param point:
-            grid point number within ``domain`` starting with 0 on the left
-        :param value:
-            numerical value
-
-        >>> s.set(d, 3, 5, 6.7)
-        >>> s.set(1, 0, 5, 6.7)
-        >>> s.set('flow', 'T', 5, 500)
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.setValue` or
-            `Domain1D.setValues`.
-        """
-        dom, comp = self._get_indices(domain, component)
-        self.sim.setValue(dom, comp, point, value)
-
     def eval(self, rdt=0.0):
         """
         Evaluate the governing equations using the current solution estimate,
@@ -1151,100 +1062,6 @@ cdef class Sim1D:
            Reciprocal of the time-step
         """
         self.sim.eval(rdt)
-
-    def work_value(self, domain, component, point):
-        """
-        Internal work array value at one point. After calling `eval`, this array
-        contains the values of the residual function.
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-        :param point:
-            grid point number in the domain, starting with zero at the left
-
-        >>> t = s.value(flow, 'T', 6)
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.residuals`.
-        """
-        dom, comp = self._get_indices(domain, component)
-        return self.sim.workValue(dom, comp, point)
-
-    def profile(self, domain, component):
-        """
-        Spatial profile of one component in one domain.
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-
-        >>> T = s.profile(flow, 'T')
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.values`.
-        """
-        warnings.warn("To be removed after Cantera 3.2. Replaceable by "
-                      "'Domain1D.values'.", DeprecationWarning)
-        idom, kcomp = self._get_indices(domain, component)
-        dom = self.domains[idom]
-        cdef int j
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dom.n_points)
-        for j in range(dom.n_points):
-            data[j] = self.sim.value(idom, kcomp, j)
-        return data
-
-    def set_profile(self, domain, component, positions, values):
-        """
-        Set an initial estimate for a profile of one component in one domain.
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-        :param positions:
-            sequence of relative positions, from 0 on the left to 1 on the right
-        :param values:
-            sequence of values at the relative positions specified in ``positions``
-
-        >>> s.set_profile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.set_profile`.
-        """
-        dom, comp = self._get_indices(domain, component)
-
-        cdef vector[double] pos_vec, val_vec
-        for p in positions:
-            pos_vec.push_back(p)
-        for v in values:
-            val_vec.push_back(v)
-
-        self.sim.setProfile(dom, comp, pos_vec, val_vec)
-
-    def set_flat_profile(self, domain, component, value):
-        """Set a flat profile for one component in one domain.
-
-        :param domain:
-            Domain1D object, name, or index
-        :param component:
-            component name or index
-        :param v:
-            value
-
-        >>> s.set_flat_profile(d, 'u', -3.0)
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by `Domain1D.set_flat_profile`.
-        """
-        dom, comp = self._get_indices(domain, component)
-        self.sim.setFlatProfile(dom, comp, value)
 
     def show(self):
         """
@@ -1656,8 +1473,8 @@ cdef class Sim1D:
         """
         self.sim.setRightControlPoint(T)
 
-    def save(self, filename='soln.yaml', name='solution', description=None,
-             loglevel=None, *, overwrite=False, compression=0, basis=None):
+    def save(self, filename='soln.yaml', name='solution', description=None, *,
+             overwrite=False, compression=0, basis=None):
         """
         Save current simulation data to a data file (CSV, YAML or HDF).
 
@@ -1693,17 +1510,11 @@ cdef class Sim1D:
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
-
-        .. versionchanged:: 3.0
-            Argument loglevel is no longer supported
         """
-        if loglevel is not None:
-            warnings.warn("Sim1D.save: Argument 'loglevel' is deprecated and will be "
-                "ignored.", DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), overwrite, compression, stringify(basis))
 
-    def restore(self, filename='soln.yaml', name='solution', loglevel=None):
+    def restore(self, filename='soln.yaml', name='solution'):
         """Retrieve data and settings from a previously saved simulation.
 
         This method restores a simulation object from YAML or HDF data previously saved
@@ -1721,13 +1532,7 @@ cdef class Sim1D:
             Dictionary containing header information
 
         >>> s.restore(filename='save.yaml', name='energy_off')
-
-        .. versionchanged:: 3.0
-            Implemented return value for meta data; loglevel is no longer supported
         """
-        if loglevel is not None:
-            warnings.warn("Sim1D.restore: Argument 'loglevel' is deprecated and will be"
-                 " ignored.", DeprecationWarning)
         cdef CxxAnyMap header
         header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True

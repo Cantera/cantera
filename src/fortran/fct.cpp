@@ -94,8 +94,7 @@ extern "C" {
     }
 
     void ctturnoffexitonerror_() {
-      Cantera::Logger* noexitlog = new Cantera::NoExitLogger;
-      setLogger(noexitlog);
+      setLogger(make_unique<Cantera::NoExitLogger>());
     }
 
     //--------------- Phase ---------------------//

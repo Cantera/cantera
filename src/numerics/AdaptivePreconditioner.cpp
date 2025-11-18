@@ -37,14 +37,6 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
     m_init = true;
 }
 
-void AdaptivePreconditioner::setup()
-{
-    warn_deprecated("AdaptivePreconditioner::setup",
-        "To be removed after Cantera 3.2. Use updatePreconditioner() instead.");
-    updatePreconditioner();
-    factorize();
-}
-
 void AdaptivePreconditioner::factorize()
 {
     if (m_prune_precon) {

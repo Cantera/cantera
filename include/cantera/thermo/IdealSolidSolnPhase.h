@@ -404,23 +404,6 @@ public:
      */
     void getGibbs_RT(double* grt) const override;
 
-    /**
-     * Get the Gibbs functions for the pure species at the current *T* and *P*
-     * of the solution. We assume an incompressible constant partial molar
-     * volume here:
-     * @f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-     * @f]
-     * where @f$ V_k @f$ is the molar volume of pure species *k*.
-     * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure species *k* at
-     * the reference pressure, @f$ P_{ref} @f$.
-     *
-     * @param gpure  Output vector of Gibbs functions for species. Length: m_kk.
-     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
-     *     instead.
-     */
-    void getPureGibbs(double* gpure) const override;
-
     void getIntEnergy_RT(double* urt) const override;
 
     /**

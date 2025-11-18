@@ -118,21 +118,6 @@ Ideal Condensed Phase with {term}`VPSS` Species
   [`ideal-solution-VPSS`](sec-yaml-ideal-solution-VPSS) in the `thermo` field of the
   phase definition. Implemented by class {ct}`IdealSolnGasVPSS`.
 
-(sec-lattice-phase)=
-Lattice Phase
-: A simple thermodynamic model for a bulk phase, assuming an incompressible lattice of
-  solid atoms. Defined in the YAML format by specifying [`lattice`](sec-yaml-lattice) in
-  the `thermo` field of the phase definition. Implemented by class {ct}`LatticePhase`.
-  *Deprecated in Cantera 3.2.*
-
-(sec-compound-lattice-phase)=
-Compound Lattice Phase
-: A phase that is comprised of a fixed additive combination of other lattice phases.
-  Defined in the YAML format by specifying [`compound-lattice`](sec-yaml-compound-lattice)
-  in the `thermo` field of the phase definition. Implemented by class
-  {ct}`LatticeSolidPhase`. *Deprecated in Cantera 3.2.*
-
-
 ## Non-ideal Solid and Liquid Solutions
 
 (sec-binary-solution-tabulated-phase)=

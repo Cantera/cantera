@@ -42,62 +42,6 @@ public:
     //! These methods are used to set the initial values of solution components.
     //! @{
 
-    //! Set initial guess for one component for all domains
-    /**
-     * @param component  component name
-     * @param[in] locs  A vector of relative positions, beginning with 0.0 at the
-     *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param[in] vals  A vector of values corresponding to the relative position
-     *     locations.
-     *
-     * @deprecated To be removed after %Cantera 3.2.
-     *      Replaceable by Domain1D::setProfile.
-     */
-    void setInitialGuess(const string& component, vector<double>& locs,
-                         vector<double>& vals);
-
-    /**
-     * Set a single value in the solution vector.
-     * @param dom  domain number, beginning with 0 for the leftmost domain.
-     * @param comp  component number
-     * @param localPoint  grid point within the domain, beginning with 0 for
-     *     the leftmost grid point in the domain.
-     * @param value  the value.
-     * @deprecated To be removed after %Cantera 3.2. Replaceable by Domain1D::setValue()
-     */
-    void setValue(size_t dom, size_t comp, size_t localPoint, double value) {
-        warn_deprecated("Sim1D::setValue",
-            "To be removed after Cantera 3.2. Access from Domain1D object instead.");
-        _setValue(dom, comp, localPoint, value);
-    }
-
-    /**
-     * Get one entry in the solution vector.
-     * @param dom  domain number, beginning with 0 for the leftmost domain.
-     * @param comp  component number
-     * @param localPoint  grid point within the domain, beginning with 0 for
-     *     the leftmost grid point in the domain.
-     * @deprecated To be removed after %Cantera 3.2. Replaceable by Domain1D::value()
-     */
-    double value(size_t dom, size_t comp, size_t localPoint) const {
-        warn_deprecated("Sim1D::setValue",
-            "To be removed after Cantera 3.2. Access from Domain1D object instead.");
-        return _value(dom, comp, localPoint);
-    }
-
-    //! Get an entry in the work vector, which may contain either a new system state
-    //! or the current residual of the system.
-    //! @param dom  domain index
-    //! @param comp  component index
-    //! @param localPoint  grid point within the domain
-    //! @deprecated To be removed after %Cantera 3.2. Replaceable by
-    //!     Domain1D::getResiduals()
-    double workValue(size_t dom, size_t comp, size_t localPoint) const {
-        warn_deprecated("Sim1D::setValue",
-            "To be removed after Cantera 3.2. Access residuals via Domain1D instead.");
-        return _workValue(dom, comp, localPoint);
-    }
-
 protected:
     /**
      * Set a single value in the solution vector.
@@ -129,34 +73,9 @@ protected:
      * @since New in %Cantera 3.2. Previously part of public interface.
      */
     double _workValue(size_t dom, size_t comp, size_t localPoint) const;
+    //! @}
 
 public:
-    /**
-     * Specify a profile for one component of one domain.
-     * @param dom  domain number, beginning with 0 for the leftmost domain.
-     * @param comp  component number
-     * @param pos  A vector of relative positions, beginning with 0.0 at the
-     *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param values  A vector of values corresponding to the relative position
-     *     locations.
-     *
-     * Note that the vector pos and values can have lengths different than the
-     * number of grid points, but their lengths must be equal. The values at
-     * the grid points will be linearly interpolated based on the (pos,
-     * values) specification.
-     *
-     * @deprecated To be removed after %Cantera 3.2.
-     *      Replaceable by Domain1D::setProfile.
-     */
-    void setProfile(size_t dom, size_t comp, const vector<double>& pos,
-                    const vector<double>& values);
-
-    //! Set component 'comp' of domain 'dom' to value 'v' at all points.
-    //! @deprecated To be removed after %Cantera 3.2.
-    //!     Replaceable by Domain1D::setProfile.
-    void setFlatProfile(size_t dom, size_t comp, double v);
-
-    //! @}
 
     //! @name Logging, saving and restoring of solutions
     //!
@@ -390,10 +309,6 @@ public:
 
     //! Get the initial value of the system state from each domain in the simulation.
     void getInitialSoln();
-
-    //! Get the Jacobian element @f$ J_{ij} = \partial f_i / \partial x_j \f$
-    //! @deprecated To be removed after %Cantera 3.2.
-    double jacobian(int i, int j);
 
     //! Evaluate the Jacobian in steady-state mode.
     void evalSSJacobian();

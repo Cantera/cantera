@@ -33,13 +33,6 @@ TEST(zerodim, simple)
 // Test guards preventing segfaults for uninitialized zerodim objects
 TEST(zerodim, test_guards)
 {
-    // Reactor with no contents
-    Reactor reactor;
-    EXPECT_THROW(reactor.temperature(), CanteraError);
-    EXPECT_THROW(reactor.density(), CanteraError);
-    EXPECT_THROW(reactor.massFractions(), CanteraError);
-    EXPECT_THROW(reactor.massFraction(0), CanteraError);
-
     // Wall with no adjacent reactors
     Wall wall;
     EXPECT_THROW(wall.heatRate(), CanteraError);

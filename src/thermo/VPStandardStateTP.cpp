@@ -61,15 +61,6 @@ void VPStandardStateTP::getGibbs_RT(double* grt) const
     std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
 }
 
-void VPStandardStateTP::getPureGibbs(double* g) const
-{
-    warn_deprecated("VPStandardStateTP::getPureGibbs",
-        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
-    updateStandardStateThermo();
-    std::copy(m_gss_RT.begin(), m_gss_RT.end(), g);
-    scale(g, g+m_kk, g, RT());
-}
-
 void VPStandardStateTP::getIntEnergy_RT(double* urt) const
 {
     updateStandardStateThermo();

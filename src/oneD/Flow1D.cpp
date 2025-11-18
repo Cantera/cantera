@@ -29,15 +29,6 @@ const map<string, size_t> componentMap = {
 
 } // end unnamed namespace
 
-Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
-    Domain1D(nsp+c_offset_Y, points),
-    m_nsp(nsp)
-{
-    warn_deprecated("Flow1D::Flow1D(ThermoPhase*, size_t, size_t)",
-        "To be removed after Cantera 3.2. Use constructor using Solution instead.");
-    _init(ph, nsp, points);
-}
-
 void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
 {
     m_points = points;
@@ -107,14 +98,6 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
     m_kRadiating[1] = m_thermo->speciesIndex("H2O", false);
 }
 
-Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
-    : Flow1D(th.get(), nsp, points)
-{
-    auto sol = Solution::create();
-    sol->setThermo(th);
-    setSolution(sol);
-}
-
 Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
     : Domain1D(phase->thermo()->nSpecies()+c_offset_Y, points)
     , m_nsp(phase->thermo()->nSpecies())
@@ -144,12 +127,6 @@ Flow1D::~Flow1D()
     }
 }
 
-double Flow1D::lambda(const double* x, size_t j) const {
-    warn_deprecated("Flow1D::lambda",
-        "To be removed after Cantera 3.2. Component 'lambda' is renamed to 'Lambda'.");
-    return x[index(c_offset_L, j)];
-}
-
 string Flow1D::domainType() const {
     if (m_isFree) {
         return "free-flow";
@@ -160,26 +137,10 @@ string Flow1D::domainType() const {
     return "unstrained-flow";
 }
 
-void Flow1D::setKinetics(shared_ptr<Kinetics> kin)
-{
-    warn_deprecated("Flow1D::setKinetics",
-        "After Cantera 3.2, a change of domain contents after instantiation "
-        "will be disabled.");
-    _setKinetics(kin);
-}
-
 void Flow1D::_setKinetics(shared_ptr<Kinetics> kin)
 {
     m_kin = kin.get();
     m_solution->setKinetics(kin);
-}
-
-void Flow1D::setTransport(shared_ptr<Transport> trans)
-{
-    warn_deprecated("Flow1D::setTransport",
-        "After Cantera 3.2, a change of domain contents after instantiation "
-        "will be disabled.");
-    _setTransport(trans);
 }
 
 void Flow1D::_setTransport(shared_ptr<Transport> trans)
@@ -1285,31 +1246,19 @@ void Flow1D::solveEnergyEqn(size_t j)
     }
 }
 
-size_t Flow1D::getSolvingStage() const
-{
-    throw NotImplementedError("Flow1D::getSolvingStage",
-        "Not used by '{}' objects.", type());
-}
-
-void Flow1D::setSolvingStage(const size_t stage)
-{
-    throw NotImplementedError("Flow1D::setSolvingStage",
-        "Not used by '{}' objects.", type());
-}
-
-void Flow1D::solveElectricField(size_t j)
+void Flow1D::solveElectricField()
 {
     throw NotImplementedError("Flow1D::solveElectricField",
         "Not used by '{}' objects.", domainType());
 }
 
-void Flow1D::fixElectricField(size_t j)
+void Flow1D::fixElectricField()
 {
     throw NotImplementedError("Flow1D::fixElectricField",
         "Not used by '{}' objects.", domainType());
 }
 
-bool Flow1D::doElectricField(size_t j) const
+bool Flow1D::doElectricField() const
 {
     throw NotImplementedError("Flow1D::doElectricField",
         "Not used by '{}' objects.", domainType());

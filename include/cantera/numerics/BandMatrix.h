@@ -136,24 +136,15 @@ public:
     void leftMult(const double* const b, double* const prod) const override;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
-    /*!
-     * The factorization is saved in ludata.
-     *
-     * @returns a success flag. 0 indicates a success; ~0 indicates some
-     *         error occurred, see the LAPACK documentation
-     * @deprecated After %Cantera 3.2, the return type will be `void`
-     */
-    int factor() override;
+    //! The factorization is saved in ludata.
+    void factor() override;
 
     //! Solve the matrix problem Ax = b
     /*!
      * @param b  INPUT RHS of the problem
      * @param x  OUTPUT solution to the problem
-     * @return a success flag. 0 indicates a success; ~0 indicates some error
-     *     occurred, see the LAPACK documentation
-     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
-    int solve(const double* const b, double* const x);
+    void solve(const double* const b, double* const x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -161,11 +152,8 @@ public:
      *              OUTPUT solution to the problem
      * @param nrhs  Number of right hand sides to solve
      * @param ldb   Leading dimension of `b`. Default is nColumns()
-     * @returns a success flag. 0 indicates a success; ~0 indicates some error
-     *     occurred, see the LAPACK documentation
-     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
-    int solve(double* b, size_t nrhs=1, size_t ldb=0) override;
+    void solve(double* b, size_t nrhs=1, size_t ldb=0) override;
 
     void zero() override;
 

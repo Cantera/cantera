@@ -145,13 +145,6 @@ public:
     //!     @param m  Element index.
     string elementName(size_t m) const;
 
-    //! Return the index of element named 'name'. The index is an integer
-    //! assigned to each element in the order it was added. Returns @ref npos
-    //! if the specified element is not found.
-    //!     @param name Name of the element
-    //! @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
-    size_t elementIndex(const string& name) const;
-
     //! Return the index of element named 'name'.
     /*!
      * The index is an integer assigned to each element in the order it was added.
@@ -159,13 +152,12 @@ public:
      * @param name Name of the element.
      * @param raise  If `true`, raise exception if the specified element is not found;
      *      otherwise, return @ref npos.
-     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
-     *      behavior if an element is not found in %Cantera 3.2 is to return `npos`.
-     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified element is not found and
      *      `raise` is `true`.
      */
-    size_t elementIndex(const string& name, bool raise) const;
+    size_t elementIndex(const string& name, bool raise=true) const;
 
     //! Return a read-only reference to the vector of element names.
     const vector<string>& elementNames() const;
@@ -221,26 +213,10 @@ public:
      */
     size_t checkElementIndex(size_t m) const;
 
-    //! Check that an array size is at least nElements().
-    //! Throws an exception if mm is less than nElements(). Used before calls
-    //! which take an array pointer.
-    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
-    void checkElementArraySize(size_t mm) const;
-
     //! Number of atoms of element @c m in species @c k.
     //!     @param k    species index
     //!     @param m    element index
     double nAtoms(size_t k, size_t m) const;
-
-    //! Returns the index of a species named 'name' within the Phase object.
-    //! The first species in the phase will have an index 0, and the last one
-    //! will have an index of nSpecies() - 1.
-    //!     @param name String name of the species. It may also be in the form
-    //!            phaseName:speciesName
-    //!     @return The index of the species. If the name is not found,
-    //!             the value @ref npos is returned.
-    //! @deprecated  To be removed after %Cantera 3.2. Use 2-parameter version instead.
-    size_t speciesIndex(const string& name) const;
 
     //! Returns the index of a species named 'name' within the Phase object.
     /*!
@@ -251,13 +227,12 @@ public:
      * @param raise  If `true`, raise exception if the specified species is not found;
      *      otherwise, return @ref npos.
      * @return The index of the species.
-     * @since Added the `raise` argument in %Cantera 3.2. If not specified, the default
-     *      behavior if a species is not found in %Cantera 3.2 is to return `npos`.
-     *      After %Cantera 3.2, the default behavior will be to throw an exception.
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified species is not found and
      *      `raise` is `true`.
      */
-    size_t speciesIndex(const string& name, bool raise) const;
+    size_t speciesIndex(const string& name, bool raise=true) const;
 
     //! Name of the species with index k
     //!     @param k index of the species
@@ -277,12 +252,6 @@ public:
      * @exception Throws an IndexError if k is greater than nSpecies()-1
      */
     size_t checkSpeciesIndex(size_t k) const;
-
-    //! Check that an array size is at least nSpecies().
-    //! Throws an exception if kk is less than nSpecies(). Used before calls
-    //! which take an array pointer.
-    //! @deprecated To be removed after %Cantera 3.2. Only used by legacy CLib.
-    void checkSpeciesArraySize(size_t kk) const;
 
     //! @} end group Element and Species Information
 

@@ -34,22 +34,6 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     }
 }
 
-void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
-                            vector<double>& vals)
-{
-    warn_deprecated("Sim1D::setInitialGuess", "To be removed after Cantera 3.2. "
-                    "Replaceable by Domain1D::setProfile.");
-    for (size_t dom=0; dom<nDomains(); dom++) {
-        Domain1D& d = domain(dom);
-        size_t ncomp = d.nComponents();
-        for (size_t comp=0; comp<ncomp; comp++) {
-            if (d.componentName(comp)==component) {
-                setProfile(dom,comp,locs,vals);
-            }
-        }
-    }
-}
-
 void Sim1D::_setValue(size_t dom, size_t comp, size_t localPoint, double value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
@@ -72,27 +56,6 @@ double Sim1D::_workValue(size_t dom, size_t comp, size_t localPoint) const
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::workValue",
                    "Index out of bounds: {} > {}", iloc, m_state->size());
     return m_xnew[iloc];
-}
-
-void Sim1D::setProfile(size_t dom, size_t comp,
-                       const vector<double>& pos, const vector<double>& values)
-{
-    warn_deprecated("Sim1D::setProfile", "To be removed after Cantera 3.2. "
-                    "Replaceable by Domain1D::setProfile.");
-    if (pos.front() != 0.0 || pos.back() != 1.0) {
-        throw CanteraError("Sim1D::setProfile",
-            "`pos` vector must span the range [0, 1]. Got a vector spanning "
-            "[{}, {}] instead.", pos.front(), pos.back());
-    }
-    Domain1D& d = domain(dom);
-    double z0 = d.zmin();
-    double z1 = d.zmax();
-    for (size_t n = 0; n < d.nPoints(); n++) {
-        double zpt = d.z(n);
-        double frac = (zpt - z0)/(z1 - z0);
-        double v = linearInterp(frac, pos, values);
-        _setValue(dom, comp, n, v);
-    }
 }
 
 void Sim1D::save(const string& fname, const string& name, const string& desc,
@@ -323,16 +286,6 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
 void Sim1D::_restore(const string& fname, const string& name)
 {
     restore(fname, name);
-}
-
-void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
-{
-    warn_deprecated("Sim1D::setFlatProfile", "To be removed after Cantera 3.2. "
-                    "Replaceable by Domain1D::setProfile.");
-    size_t np = domain(dom).nPoints();
-    for (size_t n = 0; n < np; n++) {
-        _setValue(dom, comp, n, v);
-    }
 }
 
 void Sim1D::show()
@@ -808,12 +761,6 @@ size_t Sim1D::maxGridPoints(size_t dom)
 {
     Refiner& r = domain(dom).refiner();
     return r.maxPoints();
-}
-
-double Sim1D::jacobian(int i, int j)
-{
-    warn_deprecated("Sim1D::jacobian", "To be removed after Cantera 3.2.");
-    return OneDim::jacobian().value(i,j);
 }
 
 void Sim1D::evalSSJacobian()

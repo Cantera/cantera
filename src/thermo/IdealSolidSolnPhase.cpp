@@ -162,13 +162,6 @@ void IdealSolidSolnPhase::getPartialMolarVolumes(double* vbar) const
 
 // Properties of the Standard State of the Species in the Solution
 
-void IdealSolidSolnPhase::getPureGibbs(double* gpure) const
-{
-    warn_deprecated("IdealSolidSolnPhase::getPureGibbs",
-        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
-        getStandardChemPotentials(gpure);
-}
-
 void IdealSolidSolnPhase::getStandardChemPotentials(double* g0) const
 {
     const vector<double>& gibbsrt = gibbs_RT_ref();

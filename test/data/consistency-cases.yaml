@@ -272,38 +272,6 @@ margules:
   - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
   - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}
 
-lattice:
-  setup:
-    file: thermo-models.yaml
-    phase: Li7Si3-interstitial
-    ignore-deprecations: true
-    known-failures:
-      _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
-      gk_eq_hk_minus_T_sk: "Implementation is wrong. See GitHub Issue #1309"
-      standard_gibbs_nondim: "Implementation is wrong. See GitHub Issue #1309"
-      chem_potentials_to_activities: "Implementation is wrong. See GitHub Issue #1309"
-  states:
-  - {T: 725.0 K, P: 1.0 atm, X: {Li(i): 0.2, V(i): 0.8}}
-  - {T: 825.0 K, P: 50.0 bar, X: {Li(i): 0.7, V(i): 0.3}}
-  - {T: 925.0 K, P: 50.0 bar, X: {Li(i): 1.0, V(i): 0.0}}
-
-compound-lattice:
-  setup:
-    file: thermo-models.yaml
-    phase: Li7Si3_and_interstitials
-    ignore-deprecations: true
-    known-failures:
-      _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
-      h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"
-      gk_eq_hk_minus_T_sk: "Implementation is inconsistent. See GitHub Issue #1310"
-      chem_potentials_to_activities:
-        "LatticePhase implementation is wrong. See GitHub Issue #1309"
-      activity_coeffs: "See GitHub Issue #1309"
-  states:
-  - {T: 725.0 K, P: 1.0 atm}
-  - {T: 825.0 K, P: 50.0 bar}
-  - {T: 825.0 K, P: 50.0 bar, X: {Li7Si3(s): 0.3, Li(i): 0.5, V(i): 0.2}}
-
 fixed-stoichiometry:
   setup:
     file: thermo-models.yaml

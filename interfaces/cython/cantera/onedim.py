@@ -157,25 +157,6 @@ class FlameBase(Sim1D):
 
         self.from_array(arr)
 
-    def set_profile(self, component, positions, values):
-        """
-        Set an initial estimate for a profile of one component.
-
-        :param component:
-            component name or index
-        :param positions:
-            sequence of relative positions, from 0 on the left to 1 on the right
-        :param values:
-            sequence of values at the relative positions specified in ``positions``
-
-        >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable by Domain1D.set_profile.
-        """
-        super().set_profile(self.flame, component, positions, values)
-
     @property
     def max_grid_points(self):
         """
@@ -393,19 +374,6 @@ class FlameBase(Sim1D):
             self.flame.update_state(i)
             vals[i] = self.gas.elemental_mole_fraction(m)
         return vals
-
-    def set_gas_state(self, point):
-        """
-        Set the state of the `Solution` object used for calculations to the temperature
-        and composition at the point with index ``point``.
-
-        .. deprecated:: 3.2
-
-            To be removed after Cantera 3.2. Replaceable with `Domain1D.updateState`.
-        """
-        warnings.warn("To be removed after Cantera 3.2. Replaceable with "
-                      "'Domain1D.updateState'.", DeprecationWarning)
-        self.flame.update_state(point)
 
     def to_array(self, domain=None, normalize=False):
         """
@@ -690,7 +658,7 @@ class FreeFlame(FlameBase):
             self.flame.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
 
@@ -707,20 +675,7 @@ class FreeFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
-        :param stage: solution stage; only used when transport model is ``ionized-gas``.
-
-        .. deprecated:: 3.2
-
-            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
-            setting the `electric_field_enabled` property.
         """
-        if stage is not None:
-            warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
-                          "Replaced by setting the `electric_field_enabled` property.",
-                          DeprecationWarning)
-            if self.flame.transport_model == 'ionized-gas':
-                self.flame.electric_field_enabled = (stage == 2)
-
         if not auto:
             return super().solve(loglevel, refine_grid, auto)
 
@@ -872,7 +827,7 @@ class BurnerFlame(FlameBase):
             self.flame.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
 
@@ -889,20 +844,7 @@ class BurnerFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
-        :param stage: solution stage; only used when transport model is ``ionized-gas``.
-
-        .. deprecated:: 3.2
-
-            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
-            setting the `electric_field_enabled` property.
         """
-        if stage is not None:
-            warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
-                          "Replaced by setting the `electric_field_enabled` property.",
-                          DeprecationWarning)
-            if self.flame.transport_model == 'ionized-gas':
-                self.flame.electric_field_enabled = (stage == 2)
-
         # Use a callback function to check that the flame has not been blown off
         # the burner surface. If the user provided a callback, store this so it
         # can called in addition to our callback, and restored at the end.
@@ -1062,7 +1004,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def extinct(self):
         return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=None):
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
 
@@ -1079,22 +1021,11 @@ class CounterflowDiffusionFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
-        :param stage: solution stage; only used when transport model is ``ionized-gas``.
-
-        .. deprecated:: 3.2
-
-            The ``stage`` argument will be removed after Cantera 3.2. Replaced by
-            setting the `electric_field_enabled` property.
         """
         if self.flame.transport_model == 'ionized-gas':
             warnings.warn(
                 "The 'ionized-gas' transport model is untested for "
                 "'CounterflowDiffusionFlame' objects.", UserWarning)
-            if stage is not None:
-                warnings.warn("The `stage` argument will be removed after Cantera 3.2. "
-                            "Replaced by setting the `electric_field_enabled` property.",
-                            DeprecationWarning)
-                self.flame.electric_field_enabled = (stage == 2)
 
         super().solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set

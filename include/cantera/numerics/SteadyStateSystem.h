@@ -57,21 +57,6 @@ public:
     //! OneDim::weightedNorm() for a representative implementation.
     virtual double weightedNorm(const double* step) const = 0;
 
-    //! Solve @f$ F(x) = 0 @f$, where @f$ F(x) @f$ is the residual function.
-    //!
-    //! @param[in] x0  Starting estimate of solution.
-    //! @param[out] x1  Final solution satisfying @f$ F(x1) = 0 @f$.
-    //! @param loglevel   Controls amount of diagnostic output.
-    //!
-    //! @returns
-    //! - 1 for success
-    //! - -2 failure (maximum number of damping steps was reached)
-    //! - -3 failure (solution was up against the bounds
-    //!
-    //! @deprecated To be removed after %Cantera 3.2. Use setInitialGuess(), solve(int),
-    //!     and getState() instead.
-    int solve(double* x0, double* x1, int loglevel);
-
     //! Set the initial guess. Should be called before solve().
     void setInitialGuess(const double* x);
 

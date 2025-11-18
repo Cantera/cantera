@@ -32,7 +32,6 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         m_solution = soln;
     }
     m_solution->thermo()->addSpeciesLock();
-    setThermo(*m_solution->thermo());
     if (!std::dynamic_pointer_cast<SurfPhase>(soln->thermo())) {
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Solution object must have a SurfPhase object as the thermo manager.");
@@ -53,39 +52,6 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     m_surf->getCoverages(m_cov.data());
 }
 
-ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(sol, false, name)
-{
-    if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
-        throw CanteraError("ReactorSurface::ReactorSurface",
-            "Solution object must have a SurfPhase object as the thermo manager.");
-    }
-
-    if (!sol->kinetics() ) {
-        throw CanteraError("ReactorSurface::ReactorSurface",
-            "Solution object must have kinetics manager.");
-    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(sol->kinetics())) {
-        throw CanteraError("ReactorSurface::ReactorSurface",
-            "Kinetics manager must be an InterfaceKinetics object.");
-    }
-    // todo: move all member variables to use shared pointers after Cantera 3.2
-    m_kinetics = m_solution->kinetics().get();
-    m_thermo = m_solution->thermo().get();
-    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
-    m_cov.resize(m_surf->nSpecies());
-    m_surf->getCoverages(m_cov.data());
-}
-
-ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, bool clone, const string& name)
-    : ReactorSurface(sol, name)
-{
-    // TODO: Remove after Cantera 3.2 when removing ReactorSurface from ReactorFactory
-    if (clone) {
-        throw CanteraError("ReactorSurface::ReactorSurface", "Bad constructor arguments."
-            " When clone=true, list of adjacent reactors must be provided");
-    }
-}
-
 double ReactorSurface::area() const
 {
     return m_area;
@@ -94,43 +60,6 @@ double ReactorSurface::area() const
 void ReactorSurface::setArea(double a)
 {
     m_area = a;
-}
-
-void ReactorSurface::setKinetics(Kinetics* kin)
-{
-    warn_deprecated("ReactorSurface::setKinetics",
-                    "To be removed after Cantera 3.2.");
-    m_kinetics = kin;
-    if (kin == nullptr) {
-        m_surf = nullptr;
-        return;
-    }
-
-    m_surf = dynamic_cast<SurfPhase*>(&kin->thermo(0));
-    if (m_surf == nullptr) {
-        throw CanteraError("ReactorSurface::setKinetics",
-            "Specified kinetics manager does not represent a surface "
-            "kinetics mechanism.");
-    }
-    m_cov.resize(m_surf->nSpecies());
-    m_surf->getCoverages(m_cov.data());
-}
-
-void ReactorSurface::setKinetics(Kinetics& kin)
-{
-    setKinetics(&kin);
-}
-
-void ReactorSurface::setReactor(ReactorBase* reactor)
-{
-    if (std::find(m_reactors.begin(), m_reactors.end(), reactor) != m_reactors.end()) {
-        // Ignore case where reactor has already been added in the opposite direction
-        return;
-    }
-    warn_deprecated("ReactorSurface::setReactor", "To be removed after Cantera 3.2. "
-        "Superseded by constructor taking a list of adjacent reactors.");
-    m_reactors.resize(1);
-    m_reactors[0] = reactor;
 }
 
 void ReactorSurface::setCoverages(const double* cov)
