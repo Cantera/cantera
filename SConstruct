@@ -377,10 +377,6 @@ config_options = [
         "Build HTML documentation for Cantera using Sphinx.",
         False),
     BoolOption(
-        "clib_legacy",
-        "Build the legacy CLib instead of the generated CLib.",
-        False),
-    BoolOption(
         "run_examples",
         """Run examples to generate plots and outputs for Sphinx Gallery. Disable to
            speed up doc builds when not working on the examples or if dependencies of
@@ -1915,17 +1911,7 @@ if (env["example_data"]
 
 if addInstallActions:
     # Put headers in place
-    # TODO: After Cantera 3.2 and removal of legacy clib, this can be simplified to:
-    #     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
-    for item in Path("include/cantera").iterdir():
-        if item.is_dir():
-            if item.name != "clib":
-                install(env.RecursiveInstall, f"$inst_incdir/{item.name}", str(item))
-        else:
-            install("$inst_incdir", str(item))
-
-    if env["clib_legacy"]:
-        install(env.RecursiveInstall, f"$inst_incdir/clib", "include/cantera/clib")
+    install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
     for yaml in multi_glob(env, "data", "yaml") + multi_glob(env, "data", "md"):
@@ -1980,7 +1966,7 @@ if env['f90_interface'] == 'y':
 
 # CLib needs to come before src so generated code is available but we don't want
 # to run this for scons doxygen and scons sphinx
-if not (env["clib_legacy"] or {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS)):
+if not {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS):
     SConscript("interfaces/clib/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
@@ -2007,14 +1993,9 @@ install(env.RecursiveInstall, '$inst_sampledir/cxx',
         'samples/cxx', exclude=sampledir_excludes)
 
 # Install C samples
-if env["clib_legacy"]:
-    SConscript('build/samples/clib_legacy/SConscript')
-    install(env.RecursiveInstall, '$inst_sampledir/clib_legacy',
-            'samples/clib_legacy', exclude=sampledir_excludes)
-else:
-    SConscript("build/samples/clib/SConscript")
-    install(env.RecursiveInstall, "$inst_sampledir/clib",
-            "samples/clib", exclude=sampledir_excludes)
+SConscript("build/samples/clib/SConscript")
+install(env.RecursiveInstall, "$inst_sampledir/clib",
+        "samples/clib", exclude=sampledir_excludes)
 
 if env['f90_interface'] == 'y':
     SConscript('build/samples/f77/SConscript')

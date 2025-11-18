@@ -29,19 +29,6 @@ While the generated CLib is not feature-complete compared to the C++ API, it
 re-implements all features of the legacy CLib and is easily extensible. See
 [](../develop/clib-extensions) for further information.
 
-## Legacy C Interface
-
-:::{deprecated} 3.2
-The legacy CLib is superseded by the generated CLib and will be removed in Cantera 3.3.
-:::
-
-The (undocumented) legacy CLib is available when Cantera is built with the
-`clib_legacy=y` option:
-
-```bash
-scons build clib_legacy=y
-```
-
 ```{toctree}
 :hidden:
 :maxdepth: 1

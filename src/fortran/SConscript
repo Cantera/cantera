@@ -3,7 +3,8 @@ from buildutils import multi_glob, get_spawn
 Import('env', 'build', 'install')
 
 localenv = env.Clone()
-localenv.Prepend(CPPPATH=['#include', '#src'])
+localenv.Prepend(CPPPATH=['#include', '#interfaces/clib/src',
+                          '#interfaces/clib/include', '#src', '#src/base'])
 
 f90_src = multi_glob(localenv, '.', 'f90', 'cpp')
 

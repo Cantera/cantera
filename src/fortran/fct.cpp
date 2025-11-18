@@ -20,11 +20,10 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
-#include "clib/clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
-#include "cantera/clib/clib_defs.h"
-#include "cantera/clib/ct.h"
+#include "clib_utils.h"
+#include "cantera_clib/clib_defs.h"
 
 using namespace Cantera;
 

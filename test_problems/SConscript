@@ -243,13 +243,8 @@ if env['HAS_OPENMP']:
         ignoreLines=['Running on'])
 Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
      'rankine_blessed.txt')
-
-if env["clib_legacy"]:
-    Test('clib-demo', 'clib',
-         '#build/samples/clib_legacy/demo', 'clib_demo_blessed.txt')
-else:
-    Test('clib-demo', 'clib',
-         '#build/samples/clib/demo', 'clib_demo_blessed.txt')
+Test('clib-demo', 'clib',
+     '#build/samples/clib/demo', 'clib_demo_blessed.txt')
 
 # C++ programs from User Guide
 Test('cxx-guide-demo1a', 'cxx_userguide', '#build/samples/userguide/demo1a',
