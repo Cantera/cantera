@@ -191,9 +191,6 @@ protected:
 
     double liquidVolEst(double T, double& pres) const override;
     double densityCalc(double T, double pressure, int phase, double rhoguess) override;
-
-    double densSpinodalLiquid() const override;
-    double densSpinodalGas() const override;
     double dpdVCalc(double T, double molarVol, double& presCalc) const override;
 
     // Special functions not inherited from MixtureFugacityTP

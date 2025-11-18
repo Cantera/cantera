@@ -65,13 +65,6 @@ shared_ptr<FlowDevice> newFlowDevice(
     return dev;
 }
 
-shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
-{
-    warn_deprecated("newFlowDevice",
-                    "After Cantera 3.2, Reactors must be provided as parameters.");
-    return newFlowDevice(model, nullptr, nullptr, name);
-}
-
 shared_ptr<WallBase> newWall(
     const string& model,
     shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
@@ -83,13 +76,6 @@ shared_ptr<WallBase> newWall(
             "Detected incompatible ConnectorNode type '{}'", model);
     }
     return wall;
-}
-
-shared_ptr<WallBase> newWall(const string& model, const string& name)
-{
-    warn_deprecated("newWall",
-                    "After Cantera 3.2, Reactors must be provided as parameters.");
-    return newWall(model, nullptr, nullptr, name);
 }
 
 }

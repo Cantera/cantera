@@ -46,24 +46,6 @@ class Transport;
 class Flow1D : public Domain1D
 {
 public:
-    //--------------------------------
-    // construction and destruction
-    //--------------------------------
-
-    //! Create a new flow domain.
-    //! @param ph  Object representing the gas phase. This object will be used
-    //!     to evaluate all thermodynamic, kinetic, and transport properties.
-    //! @param nsp  Number of species.
-    //! @param points  Initial number of grid points
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
-    //!     instead.
-    Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
-
-    //! Delegating constructor
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
-    //!     instead.
-    Flow1D(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
-
     //! Create a new flow domain.
     //! @param phase  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
@@ -99,12 +81,6 @@ public:
     Kinetics& kinetics() {
         return *m_kin;
     }
-
-    //! Set the Kinetics object used for reaction rate calculations.
-    void setKinetics(shared_ptr<Kinetics> kin) override;
-
-    //! Set the transport manager used for transport property calculations
-    void setTransport(shared_ptr<Transport> trans) override;
 
 protected:
     void _setKinetics(shared_ptr<Kinetics> kin) override;
@@ -281,33 +257,15 @@ public:
         }
     }
 
-    //! Get the solving stage (used by IonFlow specialization)
-    //! @since New in %Cantera 3.0
-    //! @deprecated To be removed after %Cantera 3.2. Use doElectricField() instead.
-    virtual size_t getSolvingStage() const;
-
-    //! Solving stage mode for handling ionized species (used by IonFlow specialization)
-    //! - @c stage=1: the fluxes of charged species are set to zero
-    //! - @c stage=2: the electric field equation is solved, and the drift flux for
-    //!     ionized species is evaluated
-    //! @deprecated To be removed after %Cantera 3.2. Use solveElectricField() instead.
-    virtual void setSolvingStage(const size_t stage);
-
     //! Set to solve electric field in a point (used by IonFlow specialization)
-    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
-    //!     solving the electric field applies to the whole domain.
-    virtual void solveElectricField(size_t j=npos);
+    virtual void solveElectricField();
 
     //! Set to fix voltage in a point (used by IonFlow specialization)
-    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
-    //!     solving the electric field applies to the whole domain.
-    virtual void fixElectricField(size_t j=npos);
+    virtual void fixElectricField();
 
     //! Retrieve flag indicating whether electric field is solved or not (used by
     //! IonFlow specialization)
-    //! @deprecated After %Cantera 3.2, the argument will be removed; the option of
-    //!     solving the electric field applies to the whole domain.
-    virtual bool doElectricField(size_t j=npos) const;
+    virtual bool doElectricField() const;
 
     //! Turn radiation on / off.
     void enableRadiation(bool doRadiation) {
@@ -738,11 +696,6 @@ protected:
     double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
-
-    //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
-    //! `x`
-    //! @deprecated To be removed after %Cantera 3.2. Renamed to Lambda().
-    double lambda(const double* x, size_t j) const;
 
     //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
     //! `x`

@@ -13,7 +13,7 @@ derived:  # Specialization/prefix dictionary
 recipes:
 - name: newFlow1D
 - name: newBoundary1D
-- name: type
+- name: domainType
 - name: domainIndex
 - name: index
 - name: nComponents
@@ -25,16 +25,12 @@ recipes:
   what: accessor
 - name: updateState
 - name: value
-  # alternative is deprecated in Cantera 3.2
-  wraps: value(const string&)
 - name: setValue
 - name: values
 - name: getValues
 - name: setValues
 - name: residuals
 - name: setProfile
-  # alternative is deprecated in Cantera 3.2
-  wraps: setProfile(const string&, const vector<double>&, const vector<double>&)
 - name: setFlatProfile
 - name: setBounds
 - name: lowerBound
@@ -59,7 +55,6 @@ recipes:
 - name: temperature
 - name: spreadRate
 - name: massFraction
-- name: setTransport  # Deprecated in Cantera 3.2
 - name: transportModel
 - name: setTransportModel
 - name: enableSoret

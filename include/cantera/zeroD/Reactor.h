@@ -48,9 +48,6 @@ class Reactor : public ReactorBase
 public:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
     Reactor(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
-    //! TODO: Remove after %Cantera 3.2 -- all derived classes should use Solution-based
-    //! constructors.
-    using ReactorBase::ReactorBase; // inherit constructors
 
     string type() const override {
         return "Reactor";
@@ -243,10 +240,6 @@ public:
     virtual bool preconditionerSupported() const {return false;};
 
 protected:
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
-    //!     Solution object instead.
-    void setKinetics(Kinetics& kin) override;
-
     //! Return the index in the solution vector for this reactor of the species
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for

@@ -53,10 +53,6 @@ public:
         return m_coeff;
     }
 
-    void setPressureFunction(Func1* f) override {
-        throw NotImplementedError("MassFlowController::setPressureFunction");
-    }
-
     void setPressureFunction(shared_ptr<Func1> f) override {
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
@@ -96,21 +92,6 @@ public:
     }
 
     void setPrimary(shared_ptr<ConnectorNode> primary) override;
-
-    //! Set the primary mass flow controller.
-    //! @since New in %Cantera 3.0.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
-    //!     shared pointer.
-    void setPrimary(FlowDevice* primary) {
-        warn_deprecated("PressureController::setPrimary",
-                        "To be removed after %Cantera 3.2. Replaceable by version "
-                        "using shared pointer.");
-        m_primary = primary;
-    }
-
-    void setTimeFunction(Func1* g) override {
-        throw NotImplementedError("PressureController::setTimeFunction");
-    }
 
     void setTimeFunction(shared_ptr<Func1> f) override {
         throw NotImplementedError("PressureController::setTimeFunction");

@@ -28,22 +28,6 @@ Domain1D::~Domain1D()
     }
 }
 
-void Domain1D::setSolution(shared_ptr<Solution> sol)
-{
-    if (!sol || !(sol->thermo())) {
-        throw CanteraError("Domain1D::setSolution",
-            "Missing or incomplete Solution object.");
-    }
-    warn_deprecated("Domain1D::setSolution",
-        "After Cantera 3.2, a change of domain contents after instantiation "
-        "will be disabled.");
-    if (m_solution) {
-        m_solution->thermo()->removeSpeciesLock();
-    }
-    m_solution = sol;
-    m_solution->thermo()->addSpeciesLock();
-}
-
 string Domain1D::info(const vector<string>& keys, int rows, int width)
 {
     return toArray()->info(keys, rows, width);
@@ -277,22 +261,6 @@ void Domain1D::show(const double* x)
         }
     }
     writelog("\n");
-}
-
-void Domain1D::setProfile(const string& name, double* values, double* soln)
-{
-    warn_deprecated(
-        "Domain1D::setProfile", "To be removed after Cantera 3.2. Replaceable by "
-        "version using vector arguments.");
-    for (size_t n = 0; n < m_nv; n++) {
-        if (name == componentName(n)) {
-            for (size_t j = 0; j < m_points; j++) {
-                soln[index(n, j) + m_iloc] = values[j];
-            }
-            return;
-        }
-    }
-    throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
 void Domain1D::setRefineCriteria(double ratio, double slope, double curve, double prune)

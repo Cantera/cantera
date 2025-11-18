@@ -13,7 +13,6 @@ cantera._types.*
 cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys)__
 
 # Current output of stubtest --generate-allowlist
-cantera.Arrhenius.__init__
 cantera.ArrheniusRate.__init__
 cantera.BlowersMaselRate.__init__
 cantera.ChebyshevRate.__init__
@@ -55,7 +54,6 @@ cantera.composite.SolutionArray.reactions
 cantera.jacobians.SystemJacobian.__init__
 cantera.mixture.Mixture.__call__
 cantera.mixture.Mixture.__init__
-cantera.reaction.Arrhenius.__init__
 cantera.reaction.ArrheniusRate.__init__
 cantera.reaction.BlowersMaselRate.__init__
 cantera.reaction.ChebyshevRate.__init__

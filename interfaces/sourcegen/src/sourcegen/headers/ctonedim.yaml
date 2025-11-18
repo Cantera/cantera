@@ -9,10 +9,6 @@ parents: [OneDim, SteadyStateSystem]  # List of parent classes
 recipes:
 - name: newSim1D
   uses: domain
-- name: setValue  # deprecated
-- name: setProfile  # deprecated
-- name: setFlatProfile  # deprecated
-- name: setInitialGuess  # deprecated
 - name: show
 - name: setTimeStep
   wraps: setTimeStep(double, const vector<int>&)
@@ -27,8 +23,6 @@ recipes:
   wraps: _restore  # skips AnyMap return (not implemented in CLib)
 - name: writeStats
 - name: domainIndex
-- name: value  # deprecated
-- name: workValue  # deprecated
 - name: eval
   wraps: eval(double*, double*, double, int)
 - name: setMaxJacAge

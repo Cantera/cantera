@@ -223,7 +223,7 @@ void BandMatrix::leftMult(const double* const b, double* const prod) const
     }
 }
 
-int BandMatrix::factor()
+void BandMatrix::factor()
 {
     ludata = data;
 #if CT_USE_LAPACK
@@ -247,16 +247,15 @@ int BandMatrix::factor()
             "Factorization failed with DGBTRF error code {}.", m_info);
     }
     m_factored = true;
-    return m_info;
 }
 
-int BandMatrix::solve(const double* const b, double* const x)
+void BandMatrix::solve(const double* const b, double* const x)
 {
     copy(b, b + m_n, x);
-    return solve(x);
+    solve(x);
 }
 
-int BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
+void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
 {
     if (!m_factored) {
         factor();
@@ -268,6 +267,10 @@ int BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
               nSuperDiagonals(), nrhs, ludata.data(), ldim(),
               m_ipiv->data.data(), b, ldb, m_info);
+    if (m_info != 0) {
+        throw Cantera::CanteraError("BandMatrix::solve",
+            "Linear solve failed with DGBTRS error code {}.", m_info);
+    }
 #else
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
@@ -282,12 +285,6 @@ int BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     #endif
     m_info = 0;
 #endif
-
-    if (m_info != 0) {
-        throw Cantera::CanteraError("BandMatrix::solve",
-            "Linear solve failed with DGBTRS error code {}.", m_info);
-    }
-    return m_info;
 }
 
 ostream& operator<<(ostream& s, const BandMatrix& m)

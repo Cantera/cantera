@@ -48,9 +48,6 @@ struct SensitivityParameter
 class ReactorBase
 {
 public:
-    //! @deprecated After %Cantera 3.2, this constructor will become protected
-    explicit ReactorBase(const string& name="(none)");
-
     //! Instantiate a ReactorBase object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
@@ -90,13 +87,6 @@ public:
 
     //! Set the default name of a reactor. Returns `false` if it was previously set.
     bool setDefaultName(map<string, int>& counts);
-
-    //! Set the Solution specifying the ReactorBase content.
-    //! @param sol  Solution object to be set.
-    //! @since New in %Cantera 3.1.
-    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
-    //!              ReactorBase with Solution object.
-    void setSolution(shared_ptr<Solution> sol);
 
     //! Access the Solution object used to represent the contents of this reactor.
     //! @since New in %Cantera 3.2
@@ -138,14 +128,6 @@ public:
     }
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
-    //! @deprecated To be removed after %Cantera 3.2. Renamed to setChemistryEnabled().
-    void setChemistry(bool cflag = true) {
-        warn_deprecated("ReactorBase::setChemistry",
-            "To be removed after Cantera 3.2. Renamed to setChemistryEnabled.");
-        setChemistryEnabled(cflag);
-    }
-
-    //! Enable or disable changes in reactor composition due to chemical reactions.
     //! @since New in %Cantera 3.2.
     virtual void setChemistryEnabled(bool cflag = true) {
         throw NotImplementedError("ReactorBase::setChemistryEnabled",
@@ -157,14 +139,6 @@ public:
     virtual bool energyEnabled() const {
         throw NotImplementedError("ReactorBase::energyEnabled",
             "Not implemented for reactor type '{}'.", type());
-    }
-
-    //! Set the energy equation on or off.
-    //! @deprecated To be removed after %Cantera 3.2. Renamed to setEnergyEnabled().
-    void setEnergy(int eflag = 1) {
-        warn_deprecated("ReactorBase::setEnergy",
-            "To be removed after Cantera 3.2. Renamed to setEnergyEnabled.");
-        setEnergyEnabled(eflag > 0);
     }
 
     //! Set the energy equation on or off.
@@ -218,13 +192,6 @@ public:
     //!     reactors to the newReactorSurface factory function.
     virtual void addSurface(ReactorSurface* surf);
 
-    //! Add a ReactorSurface object to a Reactor object.
-    //! @attention This method should generally not be called directly by users.
-    //!     Reactor and ReactorSurface objects should be connected by providing adjacent
-    //!     reactors to the newReactorSurface factory function.
-    //! @deprecated  Unused. To be removed after %Cantera 3.2.
-    void addSurface(shared_ptr<ReactorBase> surf);
-
     //! Return a reference to the *n*-th ReactorSurface connected to this reactor.
     ReactorSurface* surface(size_t n);
 
@@ -250,32 +217,6 @@ public:
     //! This method is the inverse of restoreState() and will trigger integrator
     //! reinitialization.
     virtual void syncState();
-
-    //! return a reference to the contents.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by
-    //!     ReactorBase->phase()->thermo().
-    ThermoPhase& contents() {
-        warn_deprecated("ReactorBase::contents", "To be removed after Cantera 3.2. "
-            "Replaceable by ReactorBase->phase()->thermo().");
-        if (!m_thermo) {
-            throw CanteraError("ReactorBase::contents",
-                               "Reactor contents not defined.");
-        }
-        return *m_thermo;
-    }
-
-    //! return a reference to the contents.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by
-    //!     ReactorBase->phase()->thermo().
-    const ThermoPhase& contents() const {
-        warn_deprecated("ReactorBase::contents", "To be removed after Cantera 3.2. "
-            "Replaceable by ReactorBase->phase()->thermo().");
-        if (!m_thermo) {
-            throw CanteraError("ReactorBase::contents",
-                               "Reactor contents not defined.");
-        }
-        return *m_thermo;
-    }
 
     //! Return the residence time (s) of the contents of this reactor, based
     //! on the outlet mass flow rates and the mass of the reactor contents.
@@ -313,14 +254,6 @@ public:
     //! Returns the current enthalpy (J/kg) of the reactor's contents.
     double enthalpy_mass() const {
         return m_enthalpy;
-    }
-
-    //! Returns the current internal energy (J/kg) of the reactor's contents.
-    //! @deprecated  To be removed after %Cantera 3.2.
-    double intEnergy_mass() const {
-        warn_deprecated("ReactorBase::intEnergy_mass",
-                        "To be removed after Cantera 3.2.");
-        return m_intEnergy;
     }
 
     //! Returns the current pressure (Pa) of the reactor.
@@ -370,21 +303,7 @@ public:
     }
 
 protected:
-    //! Specify the mixture contained in the reactor. Note that a pointer to
-    //! this substance is stored, and as the integration proceeds, the state of
-    //! the substance is modified.
-    //! @since New in %Cantera 3.1.
-    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
-    //!              ReactorBase with Solution object.
-    virtual void setThermo(ThermoPhase& thermo);
-
-    //! Specify the kinetics manager for the reactor. Called by setSolution().
-    //! @since New in %Cantera 3.1.
-    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
-    //!              ReactorBase with Solution object.
-    virtual void setKinetics(Kinetics& kin) {
-        throw NotImplementedError("ReactorBase::setKinetics");
-    }
+    explicit ReactorBase(const string& name="(none)");
 
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;
@@ -393,10 +312,6 @@ protected:
     double m_vol = 0.0; //!< Current volume of the reactor [m^3]
     double m_mass = 0.0; //!< Current mass of the reactor [kg]
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
-
-    //! Current internal energy of the reactor [J/kg]
-    //! @deprecated  To be removed after %Cantera 3.2
-    double m_intEnergy = 0.0;
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
     vector<double> m_state;
     vector<FlowDevice*> m_inlet, m_outlet;

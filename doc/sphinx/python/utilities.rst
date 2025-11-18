@@ -59,10 +59,8 @@ EigenSparseDirectJacobian
 Global Functions
 ----------------
 
-.. autofunction:: add_directory
 .. autofunction:: add_data_directory
 .. autofunction:: get_data_directories
-.. autofunction:: import_phases
 .. autofunction:: appdelete
 .. autofunction:: use_sparse
 
@@ -72,7 +70,6 @@ Global Functions
 .. autofunction:: use_legacy_rate_constants
 .. autofunction:: debug_mode_enabled
 .. autofunction:: print_stack_trace_on_segfault
-.. autofunction:: add_module_directory
 
 .. autofunction:: extension(name: str)
 

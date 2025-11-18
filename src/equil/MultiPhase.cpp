@@ -182,15 +182,6 @@ size_t MultiPhase::checkPhaseIndex(size_t m) const
     throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases());
 }
 
-void MultiPhase::checkPhaseArraySize(size_t mm) const
-{
-    warn_deprecated("MultiPhase::checkPhaseArraySize",
-        "To be removed after Cantera 3.2. Unused.");
-    if (nPhases() > mm) {
-        throw ArraySizeError("MultiPhase::checkPhaseIndex", mm, nPhases());
-    }
-}
-
 double MultiPhase::speciesMoles(size_t k) const
 {
     size_t ip = m_spphase[k];
@@ -722,15 +713,6 @@ size_t MultiPhase::checkElementIndex(size_t m) const
     throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel);
 }
 
-void MultiPhase::checkElementArraySize(size_t mm) const
-{
-    warn_deprecated("MultiPhase::checkElementArraySize",
-        "To be removed after Cantera 3.2. Only used by legacy CLib.");
-    if (m_nel > mm) {
-        throw ArraySizeError("MultiPhase::checkElementArraySize", mm, m_nel);
-    }
-}
-
 string MultiPhase::elementName(size_t m) const
 {
     if (m < m_nel) {
@@ -758,15 +740,6 @@ size_t MultiPhase::checkSpeciesIndex(size_t k) const
         return k;
     }
     throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp);
-}
-
-void MultiPhase::checkSpeciesArraySize(size_t kk) const
-{
-    warn_deprecated("MultiPhase::checkSpeciesArraySize",
-        "To be removed after Cantera 3.2. Only used by legacy CLib.");
-    if (m_nsp > kk) {
-        throw ArraySizeError("MultiPhase::checkSpeciesArraySize", kk, m_nsp);
-    }
 }
 
 string MultiPhase::speciesName(size_t k) const

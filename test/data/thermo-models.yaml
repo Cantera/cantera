@@ -221,19 +221,6 @@ phases:
   species: [{ISSP-species: all}]
   state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
 
-- name: Li7Si3(s)
-  species: [{lattice-species: [Li7Si3(s)]}]
-  thermo: fixed-stoichiometry
-- name: Li7Si3-interstitial
-  species: [{lattice-species: [Li(i), V(i)]}]
-  thermo: lattice
-  site-density: 1.046344e-2 gmol/cm^3
-  state: {T: 725 K, P: 10 atm, X: {Li(i): 0.01, V(i): 0.99}}
-- name: Li7Si3_and_interstitials
-  thermo: compound-lattice
-  composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
-  state: {T: 725 K, P: 10 atm}
-
 - name: Metal
   thermo: electron-cloud
   species: ["electron"]
@@ -811,32 +798,3 @@ ISSP-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 0.1
-
-
-lattice-species:
-- name: Li7Si3(s)
-  composition: {Li: 7, Si: 3}
-  thermo:
-    model: Shomate
-    temperature-ranges: [250, 700, 2700]
-    data:
-    - [295.73961, -6.753295, -44.538551, 29.738846, -1.022387, -348.88919, 554.35647]
-    - [250.51429, 51.125155, -28.341244, 6.242135, 1.346861, -328.46578, 498.84106]
-  equation-of-state:
-    model: constant-volume
-    density: 1.39 g/cm^3
-- name: Li(i)
-  composition: {Li: 1}
-  thermo:
-    model: constant-cp
-    T0: 298.15
-    s0: 20 J/mol/K
-    cp0: 20 J/mol/K
-  equation-of-state:
-    model: constant-volume
-    molar-volume: 0.2
-- name: V(i)
-  composition: {}
-  thermo:
-    model: constant-cp
-    h0: 89.8 J/mol

@@ -103,13 +103,6 @@ public:
         throw NotImplementedError("SystemJacobian::solve");
     };
 
-    //! Perform preconditioner specific post-reactor setup operations such as factorize.
-    //! @deprecated To be removed after %Cantera 3.2. Use updatePreconditioner() and
-    //!     factorize() instead.
-    virtual void setup() {
-        throw NotImplementedError("SystemJacobian::setup");
-    };
-
     //! Reset parameters as needed
     virtual void reset() {
         throw NotImplementedError("SystemJacobian::reset");
@@ -223,15 +216,6 @@ protected:
 
     //! For iterative solvers, side of the system to apply the preconditioner on
     string m_precon_side = "none";
-};
-
-//! @deprecated To be removed after %Cantera 3.2. Renamed to SystemJacobian.
-class PreconditionerBase : public SystemJacobian
-{
-    PreconditionerBase() {
-        warn_deprecated("PreconditionerBase::PreconditionerBase",
-            "To be removed after Cantera 3.2. Renamed to SystemJacobian.");
-    }
 };
 
 }

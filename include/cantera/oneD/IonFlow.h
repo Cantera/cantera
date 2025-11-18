@@ -29,15 +29,6 @@ class IonFlow : public Flow1D
 {
 public:
     //! Create a new IonFlow domain.
-    //! @param ph  Object representing the gas phase. This object will be used
-    //!     to evaluate all thermodynamic, kinetic, and transport properties.
-    //! @param nsp  Number of species.
-    //! @param points  Initial number of grid points
-    //! @deprecated To be removed after %Cantera 3.2. Use constructor using Solution
-    //!     instead.
-    IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
-
-    //! Create a new IonFlow domain.
     //! @param phase  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
@@ -52,23 +43,12 @@ private:
 public:
     string domainType() const override;
 
-    size_t getSolvingStage() const override {
-        warn_deprecated("IonFlow::getSolvingStage", "To be removed after Cantera 3.2. "
-            " Use doElectricField() instead.");
-        return (m_do_electric_field) ? 2 : 1;
-    }
-    void setSolvingStage(const size_t stage) override;
-
     void resize(size_t components, size_t points) override;
     bool componentActive(size_t n) const override;
 
-    void solveElectricField(size_t j=npos) override;
-    void fixElectricField(size_t j=npos) override;
-    bool doElectricField(size_t j=npos) const override {
-        if (j != npos) {
-            warn_deprecated("IonFlow::doElectricField", "Argument to be removed after "
-                "Cantera 3.2.");
-        }
+    void solveElectricField() override;
+    void fixElectricField() override;
+    bool doElectricField() const override {
         return m_do_electric_field;
     }
 

@@ -76,15 +76,6 @@ public:
     //! specific enthalpy
     double enthalpy_mass();
 
-    //! Install a flow device between two reactors.
-    /*!
-     * @param in Upstream reactor.
-     * @param out Downstream reactor.
-     * @deprecated To be removed after %Cantera 3.2. Reactors should be provided to
-     *      constructor instead.
-     */
-    bool install(ReactorBase& in, ReactorBase& out);
-
     virtual bool ready() {
         return (m_in != 0 && m_out != 0);
     }
@@ -114,13 +105,6 @@ public:
      */
     double evalPressureFunction();
 
-    //! Set a function of pressure that is used in determining the
-    //! mass flow rate through the device. The evaluation of mass flow
-    //! depends on the derived flow device class.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
-    //!     shared pointer.
-    virtual void setPressureFunction(Func1* f);
-
     //! Set a function of pressure to modify the pressure response.
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
@@ -138,13 +122,6 @@ public:
      * @since New in %Cantera 3.0.
      */
     double evalTimeFunction();
-
-    //! Set a function of time that is used in determining
-    //! the mass flow rate through the device. The evaluation of mass flow
-    //! depends on the derived flow device class.
-    //! @deprecated  To be removed after %Cantera 3.2. Replaceable by version using
-    //!     shared pointer.
-    virtual void setTimeFunction(Func1* g);
 
     //! Set a function of time to modulate the mass flow rate.
     //! Set a function of time that is used in determining

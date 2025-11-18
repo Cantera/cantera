@@ -10,9 +10,6 @@
 #include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/math/tools/roots.hpp>
-
-namespace bmt = boost::math::tools;
 
 namespace Cantera
 {
@@ -556,54 +553,6 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested,
         return -1.0;
     }
     return mmw / molarVolLast;
-}
-
-double PengRobinson::densSpinodalLiquid() const
-{
-    warn_deprecated("PengRobinson::densSpinodalLiquid",
-                    "To be removed after Cantera 3.1.");
-    double Vroot[3];
-    double T = temperature();
-    int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);
-    if (nsol != 3) {
-        return critDensity();
-    }
-
-    auto resid = [this, T](double v) {
-        double pp;
-        return dpdVCalc(T, v, pp);
-    };
-
-    boost::uintmax_t maxiter = 100;
-    auto [lower, upper] = bmt::toms748_solve(
-        resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
-
-    double mmw = meanMolecularWeight();
-    return mmw / (0.5 * (lower + upper));
-}
-
-double PengRobinson::densSpinodalGas() const
-{
-    warn_deprecated("PengRobinson::densSpinodalGas",
-                    "To be removed after Cantera 3.1.");
-    double Vroot[3];
-    double T = temperature();
-    int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);
-    if (nsol != 3) {
-        return critDensity();
-    }
-
-    auto resid = [this, T](double v) {
-        double pp;
-        return dpdVCalc(T, v, pp);
-    };
-
-    boost::uintmax_t maxiter = 100;
-    auto [lower, upper] = bmt::toms748_solve(
-        resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
-
-    double mmw = meanMolecularWeight();
-    return mmw / (0.5 * (lower + upper));
 }
 
 double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const

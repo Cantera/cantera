@@ -126,18 +126,6 @@ double OneDim::weightedNorm(const double* step) const
     return sqrt(sum / size());
 }
 
-MultiJac& OneDim::jacobian()
-{
-    warn_deprecated("OneDim::jacobian",
-                    "Replaced by linearSolver(). To be removed after Cantera 3.2.");
-    auto multijac = dynamic_pointer_cast<MultiJac>(m_jac);
-    if (multijac) {
-        return *multijac;
-    } else {
-        throw CanteraError("OneDim::jacobian", "Active Jacobian is not a MultiJac");
-    }
-}
-
 void OneDim::writeStats(int printTime)
 {
     saveStats();

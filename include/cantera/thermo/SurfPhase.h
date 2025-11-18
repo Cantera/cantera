@@ -264,7 +264,6 @@ public:
         m_press = p;
     }
 
-    void getPureGibbs(double* g) const override;
     void getGibbs_RT_ref(double* grt) const override;
     void getEnthalpy_RT_ref(double* hrt) const override;
     void getEntropy_R_ref(double* er) const override;

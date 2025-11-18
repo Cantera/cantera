@@ -485,9 +485,7 @@ cdef class FalloffRate(ReactionRate):
             return ArrheniusRate.wrap(rate_ptr)
 
         def __set__(self, rate):
-            if isinstance(rate, Arrhenius):
-                self.falloff.setLowRate(deref((<Arrhenius>rate).base))
-            elif isinstance(rate, ArrheniusRate):
+            if isinstance(rate, ArrheniusRate):
                 self.falloff.setLowRate(
                     deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
             else:
@@ -504,9 +502,7 @@ cdef class FalloffRate(ReactionRate):
             return ArrheniusRate.wrap(rate_ptr)
 
         def __set__(self, rate):
-            if isinstance(rate, Arrhenius):
-                self.falloff.setHighRate(deref((<Arrhenius>rate).base))
-            elif isinstance(rate, ArrheniusRate):
+            if isinstance(rate, ArrheniusRate):
                 self.falloff.setHighRate(
                     deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
             else:
@@ -679,10 +675,7 @@ cdef class PlogRate(ReactionRate):
             cdef pair[double, CxxArrheniusRate] item
             for p, rate in rates:
                 item.first = p
-                if isinstance(rate, Arrhenius):
-                    item.second = deref((<Arrhenius>rate).base)
-                elif isinstance(rate, ArrheniusRate):
-                    item.second = deref(<CxxArrheniusRate*>(<ArrheniusRate>rate).rate)
+                item.second = deref(<CxxArrheniusRate*>(<ArrheniusRate>rate).rate)
                 ratemap.insert(item)
 
             self._rate.reset(new CxxPlogRate(ratemap))
@@ -1455,12 +1448,6 @@ cdef class Reaction:
                 _rate = ReactionRate.from_dict(args)
             else:
                 _rate = ReactionRate.from_dict(rate)
-        elif isinstance(rate, Arrhenius):
-            _rate = ArrheniusRate(
-                A=rate.pre_exponential_factor,
-                b=rate.temperature_exponent,
-                Ea=rate.activation_energy
-            )
         elif callable(rate):
             _rate = CustomRate(rate)
         else:
@@ -1679,9 +1666,6 @@ cdef class Reaction:
         def __set__(self, rate):
             if isinstance(rate, ReactionRate):
                 self._rate = rate
-            elif isinstance(rate, Arrhenius):
-                self._rate = ArrheniusRate(rate.pre_exponential_factor,
-                    rate.temperature_exponent, rate.activation_energy)
             elif callable(rate):
                 self._rate = CustomRate(rate)
             else:
@@ -1787,58 +1771,3 @@ cdef class Reaction:
         if self.reaction.usesThirdBody():
             return ThirdBody.wrap(self.reaction.thirdBody()).name
         return None
-
-
-cdef class Arrhenius:
-    r"""
-    A reaction rate coefficient which depends on temperature only and follows
-    the modified Arrhenius form:
-
-    .. math::
-
-        k_f = A T^b \exp(-\tfrac{E}{RT})
-
-    where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
-    and ``E`` is the `activation_energy`.
-
-    .. deprecated:: 3.2
-
-        To be removed after Cantera 3.2. Use class `ArrheniusRate` instead.
-    """
-    def __cinit__(self, A=0, b=0, E=0):
-        warnings.warn("class Arrhenius: To be removed after Cantera 3.2. Replace with "
-            "'ArrheniusRate'", DeprecationWarning)
-        self.base = new CxxArrheniusRate(A, b, E)
-
-    def __dealloc__(self):
-        del self.base
-
-    property pre_exponential_factor:
-        """
-        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
-        powers depending on the reaction order.
-        """
-        def __get__(self):
-            return self.base.preExponentialFactor()
-
-    property temperature_exponent:
-        """
-        The temperature exponent ``b``.
-        """
-        def __get__(self):
-            return self.base.temperatureExponent()
-
-    property activation_energy:
-        """
-        The activation energy ``E`` [J/kmol].
-        """
-        def __get__(self):
-            return self.base.activationEnergy()
-
-    def __repr__(self):
-        return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
-            self.pre_exponential_factor, self.temperature_exponent,
-            self.activation_energy)
-
-    def __call__(self, float T):
-        return self.base.evalRate(np.log(T), 1/T)

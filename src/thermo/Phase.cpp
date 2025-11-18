@@ -40,32 +40,12 @@ size_t Phase::checkElementIndex(size_t m) const
     throw IndexError("Phase::checkElementIndex", "elements", m, m_mm);
 }
 
-void Phase::checkElementArraySize(size_t mm) const
-{
-    warn_deprecated("Phase::checkElementArraySize",
-        "To be removed after Cantera 3.2. Only used by legacy CLib.");
-    if (m_mm > mm) {
-        throw ArraySizeError("Phase::checkElementArraySize", mm, m_mm);
-    }
-}
-
 string Phase::elementName(size_t m) const
 {
     if (m < m_mm) {
         return m_elementNames[m];
     }
     throw IndexError("Phase::elementName", "element", m, m_mm);
-}
-
-size_t Phase::elementIndex(const string& name) const
-{
-    size_t ix = elementIndex(name, false);
-    if (ix == npos) {
-        warn_deprecated("Phase::elementIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning npos to throwing an exception "
-            "after Cantera 3.2.");
-    }
-    return ix;
 }
 
 size_t Phase::elementIndex(const string& elementName, bool raise) const
@@ -144,17 +124,6 @@ size_t Phase::findSpeciesLower(const string& name) const
     return loc;
 }
 
-size_t Phase::speciesIndex(const string& name) const
-{
-    size_t ix = speciesIndex(name, false);
-    if (ix == npos) {
-        warn_deprecated("Phase::speciesIndex", "'raise' argument not specified; "
-            "Default behavior will change from returning npos to throwing an exception "
-            "after Cantera 3.2.");
-    }
-    return ix;
-}
-
 size_t Phase::speciesIndex(const string& name, bool raise) const
 {
     size_t loc = npos;
@@ -190,15 +159,6 @@ size_t Phase::checkSpeciesIndex(size_t k) const
         return k;
     }
     throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk);
-}
-
-void Phase::checkSpeciesArraySize(size_t kk) const
-{
-    warn_deprecated("Phase::checkSpeciesArraySize",
-        "To be removed after Cantera 3.2. Only used by legacy CLib.");
-    if (m_kk > kk) {
-        throw ArraySizeError("Phase::checkSpeciesArraySize", kk, m_kk);
-    }
 }
 
 map<string, size_t> Phase::nativeState() const

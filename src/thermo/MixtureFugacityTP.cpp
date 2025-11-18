@@ -89,18 +89,6 @@ void MixtureFugacityTP::getGibbs_RT(double* grt) const
     }
 }
 
-void MixtureFugacityTP::getPureGibbs(double* g) const
-{
-    warn_deprecated("MixtureFugacityTP::getPureGibbs",
-        "To be removed after Cantera 3.2. Use getStandardChemPotentials instead.");
-
-    scale(m_g0_RT.begin(), m_g0_RT.end(), g, RT());
-    double tmp = log(pressure() / refPressure()) * RT();
-    for (size_t k = 0; k < m_kk; k++) {
-        g[k] += tmp;
-    }
-}
-
 void MixtureFugacityTP::getIntEnergy_RT(double* urt) const
 {
     copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
@@ -507,16 +495,6 @@ int MixtureFugacityTP::phaseState(bool checkState) const
         }
     }
     return state;
-}
-
-double MixtureFugacityTP::densSpinodalLiquid() const
-{
-    throw NotImplementedError("MixtureFugacityTP::densSpinodalLiquid");
-}
-
-double MixtureFugacityTP::densSpinodalGas() const
-{
-    throw NotImplementedError("MixtureFugacityTP::densSpinodalGas");
 }
 
 double MixtureFugacityTP::satPressure(double TKelvin)

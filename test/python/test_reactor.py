@@ -1392,8 +1392,7 @@ class TestConstPressureReactor:
 
     reactorClass = ct.ConstPressureReactor
 
-    def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False,
-                        use_surf_install=False):
+    def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
         gas_def = """
         phases:
         - name: gas
@@ -1421,9 +1420,8 @@ class TestConstPressureReactor:
         self.gas1.TPX = T0, P0, X0
         self.gas2.TPX = T0, P0, X0
 
-        clone_surf = not use_surf_install
-        self.r1 = ct.IdealGasReactor(self.gas1, clone=clone_surf)
-        self.r2 = self.reactorClass(self.gas2, clone=clone_surf)
+        self.r1 = ct.IdealGasReactor(self.gas1)
+        self.r2 = self.reactorClass(self.gas2)
 
         self.r1.volume = 0.2
         self.r2.volume = 0.2
@@ -1449,21 +1447,10 @@ class TestConstPressureReactor:
             C = np.zeros(self.interface1.n_species)
             C[0] = 0.3
             C[4] = 0.7
-            if use_surf_install:
-                self.surf1 = ct.ReactorSurface(self.interface1, A=0.2, clone=clone_surf)
-                self.surf2 = ct.ReactorSurface(self.interface2, A=0.2, clone=clone_surf)
-                self.surf1.coverages = C
-                self.surf2.coverages = C
-                with pytest.deprecated_call():
-                    self.surf1.install(self.r1)
-                    self.surf2.install(self.r2)
-            else:
-                self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2,
-                                               clone=True)
-                self.surf2 = ct.ReactorSurface(self.interface2, r=[self.r2], A=0.2,
-                                               clone=True)
-                self.surf1.coverages = C
-                self.surf2.coverages = C
+            self.surf1 = ct.ReactorSurface(self.interface1, r=self.r1, A=0.2)
+            self.surf2 = ct.ReactorSurface(self.interface2, r=[self.r2], A=0.2)
+            self.surf1.coverages = C
+            self.surf2.coverages = C
 
         self.net1 = ct.ReactorNet([self.r1])
         self.net2 = ct.ReactorNet([self.r2])
@@ -1523,12 +1510,6 @@ class TestConstPressureReactor:
 
     def test_with_surface_reactions(self):
         self.create_reactors(add_surf=True)
-        self.net1.atol = self.net2.atol = 1e-18
-        self.net1.rtol = self.net2.rtol = 1e-9
-        self.integrate(surf=True)
-
-    def test_surf_install_deprecated(self, allow_deprecated):
-        self.create_reactors(add_surf=True, use_surf_install=True)
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)

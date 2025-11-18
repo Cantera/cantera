@@ -48,7 +48,7 @@ public:
     /*!
      * We flip m_factored boolean to indicate that the matrix is now A-1.
      */
-    virtual int factor() = 0;
+    virtual void factor() = 0;
 
     //! Factors the A matrix using the QR algorithm, overwriting A
     /*!
@@ -109,9 +109,8 @@ public:
      * @param nrhs Number of right-hand sides to solve, default 1
      * @param ldb  Leading dimension of the right-hand side array. Defaults to
      *              nRows()
-     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
-    virtual int solve(double* b, size_t nrhs=1, size_t ldb=0) = 0;
+    virtual void solve(double* b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
     virtual bool factored() const {

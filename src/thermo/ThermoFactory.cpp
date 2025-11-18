@@ -28,8 +28,6 @@
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/LatticeSolidPhase.h"
-#include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
@@ -66,10 +64,6 @@ ThermoFactory::ThermoFactory()
     addDeprecatedAlias("fixed-stoichiometry", "StoichSubstance");
     reg("pure-fluid", []() { return new PureFluidPhase(); });
     addDeprecatedAlias("pure-fluid", "PureFluid");
-    reg("compound-lattice", []() { return new LatticeSolidPhase(); });
-    addDeprecatedAlias("compound-lattice", "LatticeSolid");
-    reg("lattice", []() { return new LatticePhase(); });
-    addDeprecatedAlias("lattice", "Lattice");
     reg("HMW-electrolyte", []() { return new HMWSoln(); });
     addDeprecatedAlias("HMW-electrolyte", "HMW");
     addDeprecatedAlias("HMW-electrolyte", "HMWSoln");

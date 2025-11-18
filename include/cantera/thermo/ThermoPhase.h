@@ -62,8 +62,6 @@ namespace Cantera
  * - StoichSubstance
  * - SurfPhase
  * - EdgePhase
- * - LatticePhase
- * - LatticeSolidPhase
  * - PureFluidPhase
  * - IdealSolidSolnPhase
  * - VPStandardStateTP
@@ -944,20 +942,6 @@ public:
      */
     virtual void getGibbs_RT(double* grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT",
-                                  "Not implemented for phase type '{}'", type());
-    }
-
-    //! Get the Gibbs functions for the standard state of the species at the
-    //! current *T* and *P* of the solution
-    /*!
-     * Units are Joules/kmol
-     * @param gpure  Output vector of standard state Gibbs free energies.
-     *               Length: m_kk.
-     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
-     *     instead.
-     */
-    virtual void getPureGibbs(double* gpure) const {
-        throw NotImplementedError("ThermoPhase::getPureGibbs",
                                   "Not implemented for phase type '{}'", type());
     }
 

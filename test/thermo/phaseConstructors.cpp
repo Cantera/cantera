@@ -12,9 +12,7 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
-#include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/PDSS_HKFT.h"
@@ -349,52 +347,6 @@ TEST(MargulesVPSSTP, fromScratch)
     EXPECT_NEAR(p.density(), 2041.9831422315356, 1e-9);
     EXPECT_NEAR(p.gibbs_mass(), -9683614.0890585743, 1e-5);
     EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-9);
-}
-
-TEST(LatticeSolidPhase, fromScratch)
-{
-    suppress_deprecation_warnings();
-    auto base = make_shared<StoichSubstance>();
-    base->setName("Li7Si3(S)");
-    auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
-    sLi7Si3->input["equation-of-state"]["model"] = "constant-volume";
-    sLi7Si3->input["equation-of-state"]["density"] = 1390.0;
-    base->addSpecies(sLi7Si3);
-    base->initThermo();
-
-    auto interstital = make_shared<LatticePhase>();
-    interstital->setName("Li7Si3_Interstitial");
-    auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
-    auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
-    sLii->input["equation-of-state"]["molar-volume"] = 0.2;
-    sLii->input["equation-of-state"]["model"] = "constant-volume";
-    interstital->setSiteDensity(10.46344);
-    interstital->addSpecies(sLii);
-    interstital->addSpecies(sVac);
-    interstital->initThermo();
-    interstital->setMoleFractionsByName("Li(i):0.01 V(i):0.99");
-
-    LatticeSolidPhase p;
-    p.addLattice(base);
-    p.addLattice(interstital);
-    p.setLatticeStoichiometry(parseCompString("Li7Si3(S):1.0 Li7Si3_Interstitial:1.0"));
-    p.initThermo();
-    p.setState_TP(725, 10 * OneAtm);
-
-    // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(p.enthalpy_mass(), -2077955.0584538165, 1e-6);
-    double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.095564748201438857, 0.2, 0.095570863884152812};
-    vector<double> mu(p.nSpecies());
-    vector<double> vol(p.nSpecies());
-    p.getChemPotentials(mu.data());
-    p.getPartialMolarVolumes(vol.data());
-
-    for (size_t k = 0; k < p.nSpecies(); k++) {
-        EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
-        EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
-    }
-    make_deprecation_warnings_fatal();
 }
 
 TEST(IdealSolidSolnPhase, fromScratch)

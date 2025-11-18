@@ -9,7 +9,6 @@
 #define CT_ONEDIM_H
 
 #include "Domain1D.h"
-#include "MultiJac.h"
 #include "cantera/numerics/SystemJacobian.h"
 #include "cantera/numerics/SteadyStateSystem.h"
 
@@ -35,13 +34,6 @@ public:
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
 
-    //! @deprecated To be removed after %Cantera 3.2. Use linearSolver() instead.
-    shared_ptr<SystemJacobian> getJacobian() {
-        warn_deprecated("OneDim::getJacobian",
-                        "To be removed after Cantera 3.2. Use linearSolver() instead.");
-        return m_jac;
-    }
-
     //! Compute the weighted norm of a step vector
     //!
     //! The weighted norm of a step vector @f$ \Delta x @f$ is defined as
@@ -63,11 +55,6 @@ public:
     //! across all domains and @f$ J_d @f$ is the number of grid points in domain
     //! @f$ d @f$.
     double weightedNorm(const double* step) const override;
-
-    //! Return a reference to the Jacobian evaluator of an OneDim object.
-    //! @deprecated To be removed after %Cantera 3.2. Superseded by linearSolver()
-    //! @ingroup derivGroup
-    MultiJac& jacobian();
 
     //! Number of domains.
     size_t nDomains() const {

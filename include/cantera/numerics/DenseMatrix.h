@@ -36,23 +36,6 @@ namespace Cantera
  * The dense matrix class adds matrix operations onto the Array2D class. These
  * matrix operations are carried out by the appropriate BLAS and LAPACK routines
  *
- * @deprecated After %Cantera 3.2, all errors will be handled by throwing exceptions.
- *     The #m_useReturnErrorCode and #m_printLevel member variables will be removed,
- *     and the `solve` and `invert` methods will be changed to return `void`.
- *
- * Error handling from BLAS and LAPACK are handled via the following
- * formulation. Depending on a variable, a singular matrix or other terminal
- * error condition from LAPACK is handled by either throwing an exception or
- * by returning the error code condition to the calling routine.
- *
- * The int variable, m_useReturnErrorCode, determines which method is used. The
- * default value of zero means that an exception is thrown. A value of 1 means
- * that a return code is used.
- *
- * Reporting of these LAPACK error conditions is handled by the class variable
- * m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
- * the error condition is reported to Cantera's log file.
- *
  * @ingroup matrices
  */
 class DenseMatrix : public Array2D
@@ -134,30 +117,6 @@ protected:
 
     //! Vector of column pointers
     vector<double*> m_colPts;
-
-public:
-    //! Error Handling Flag
-    /*!
-     * The default is to set this to 0. In this case, if a factorization is
-     * requested and can't be achieved, a CESingularMatrix exception is
-     * triggered. No return code is used, because an exception is thrown. If
-     * this is set to 1, then an exception is not thrown. Routines return with
-     * an error code, that is up to the calling routine to handle correctly.
-     * Negative return codes always throw an exception.
-     *
-     * @deprecated To be removed after %Cantera 3.2. Errors always throw exceptions.
-     */
-    int m_useReturnErrorCode = 0;
-
-    //! Print Level
-    /*!
-     * Printing is done to the log file using the routine writelogf().
-     *
-     * Level of printing that is carried out. Only error conditions are printed
-     * out, if this value is nonzero.
-     * @deprecated To be removed after %Cantera 3.2. Errors always throw exceptions.
-     */
-    int m_printLevel = 0;
 };
 
 
@@ -179,17 +138,15 @@ public:
  * @param b    RHS(s) to be solved.
  * @param nrhs Number of right hand sides to solve
  * @param ldb  Leading dimension of b, if nrhs > 1
- * @deprecated After %Cantera 3.2, the return type will be `void`.
  */
-int solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
+void solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
 
 //! Solve Ax = b for multiple right-hand-side vectors.
 /*!
  * @param A   Dense matrix to be factored
  * @param b   Dense matrix of RHS's. Each column is a RHS
- * @deprecated After %Cantera 3.2, the return type will be `void`.
  */
-int solve(DenseMatrix& A, DenseMatrix& b);
+void solve(DenseMatrix& A, DenseMatrix& b);
 
 //! Multiply @c A*b and return the result in @c prod. Uses BLAS routine DGEMV.
 /*!
@@ -220,9 +177,8 @@ void increment(const DenseMatrix& A, const double* const b, double* const prod);
  *  @param A   Invert the matrix A and store it back in place
  *  @param nn  Size of A. This defaults to -1, which means that the number of
  *             rows is used as the default size of n
- *  @deprecated After %Cantera 3.2, the return type will be `void`.
  */
-int invert(DenseMatrix& A, size_t nn=npos);
+void invert(DenseMatrix& A, size_t nn=npos);
 
 }
 

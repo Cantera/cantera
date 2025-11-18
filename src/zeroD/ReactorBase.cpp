@@ -17,30 +17,9 @@ ReactorBase::ReactorBase(const string& name) : m_name(name)
 {
 }
 
-// TODO: After Cantera 3.2, this method can be replaced by delegating to
-// ReactorBase::ReactorBase(sol, true, name)
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+    : ReactorBase(sol, true, name)
 {
-    warn_deprecated("ReactorBase::ReactorBase", "`clone` argument not specified; "
-        "Default behavior will change from `clone=False` to `clone=True` after "
-        "Cantera 3.2.");
-    if (!sol || !(sol->thermo())) {
-        throw CanteraError("ReactorBase::ReactorBase",
-                           "Missing or incomplete Solution object.");
-    }
-    m_solution = sol->clone({}, true, false);
-    m_solution->thermo()->addSpeciesLock();
-    m_thermo = m_solution->thermo().get();
-    m_nsp = m_thermo->nSpecies();
-    m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
-    m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
-    try {
-        m_intEnergy = m_thermo->intEnergy_mass();
-    } catch (NotImplementedError&) {
-        // some ThermoPhase objects do not implement intEnergy_mass()
-    }
 }
 
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& name)
@@ -61,11 +40,6 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& nam
     m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
     m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
-    try {
-        m_intEnergy = m_thermo->intEnergy_mass();
-    } catch (NotImplementedError&) {
-        // some ThermoPhase objects do not implement intEnergy_mass()
-    }
 }
 
 
@@ -87,45 +61,6 @@ bool ReactorBase::setDefaultName(map<string, int>& counts)
     }
     counts[type()]++;
     return true;
-}
-
-void ReactorBase::setSolution(shared_ptr<Solution> sol)
-{
-    warn_deprecated("ReactorBase::setSolution",
-        "After Cantera 3.2, a change of reactor contents after instantiation "
-        "will be disabled.");
-    if (!sol || !(sol->thermo())) {
-        throw CanteraError("ReactorBase::setSolution",
-            "Missing or incomplete Solution object.");
-    }
-    if (m_solution) {
-        m_solution->thermo()->removeSpeciesLock();
-    }
-    m_solution = sol;
-    m_solution->thermo()->addSpeciesLock();
-    setThermo(*m_solution->thermo());
-    try {
-        setKinetics(*m_solution->kinetics());
-    } catch (NotImplementedError&) {
-        // kinetics not used (example: Reservoir)
-    }
-}
-
-void ReactorBase::setThermo(ThermoPhase& thermo)
-{
-    warn_deprecated("ReactorBase::setThermo",
-        "After Cantera 3.2, a change of reactor contents after instantiation "
-        "will be disabled.");
-    m_thermo = &thermo;
-    m_nsp = m_thermo->nSpecies();
-    m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
-    m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
-    try {
-        m_intEnergy = m_thermo->intEnergy_mass();
-    } catch (NotImplementedError&) {
-        // some ThermoPhase objects do not implement intEnergy_mass()
-    }
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)
@@ -157,20 +92,7 @@ void ReactorBase::addSurface(ReactorSurface* surf)
 {
     if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
         m_surfaces.push_back(surf);
-        surf->setReactor(this);
     }
-}
-
-void ReactorBase::addSurface(shared_ptr<ReactorBase> surf)
-{
-    warn_deprecated("ReactorBase::addSurface(shared_ptr<ReactorBase>)",
-                    "To be removed after Cantear 3.2. Use alternate constructor.");
-    auto r = std::dynamic_pointer_cast<ReactorSurface>(surf);
-    if (!r) {
-        throw CanteraError("ReactorBase::addSurface",
-                           "Invalid reactor type '{}'.", surf->type());
-    }
-    addSurface(r.get());
 }
 
 ReactorSurface* ReactorBase::surface(size_t n)
@@ -189,11 +111,6 @@ void ReactorBase::syncState()
 {
     m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass();
-    try {
-        m_intEnergy = m_thermo->intEnergy_mass();
-    } catch (NotImplementedError&) {
-        m_intEnergy = NAN;
-    }
     m_pressure = m_thermo->pressure();
     m_mass = m_thermo->density() * m_vol;
     if (m_net) {

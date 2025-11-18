@@ -22,9 +22,7 @@ recipes:
 - name: deviceCoefficient  # New in Cantera 3.2
 - name: setDeviceCoefficient  # New in Cantera 3.2
 - name: setPressureFunction
-  wraps: setPressureFunction(shared_ptr<Func1>)  # alternative is deprecated
 - name: setTimeFunction
-  wraps: setTimeFunction(shared_ptr<Func1>)  # alternative is deprecated
 # Wall
 - name: expansionRate
 - name: heatRate
@@ -33,10 +31,8 @@ recipes:
 - name: setThermalResistance
 - name: setHeatTransferCoeff
 - name: setHeatFlux
-  wraps: setHeatFlux(shared_ptr<Func1>)  # alternative is deprecated
 - name: setExpansionRateCoeff
 - name: setVelocity
-  wraps: setVelocity(shared_ptr<Func1>)  # alternative is deprecated
 - name: setEmissivity
 # service functions
 - name: del

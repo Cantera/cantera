@@ -10,7 +10,7 @@ from typing import (
     TypeVar,
 )
 
-from typing_extensions import NotRequired, deprecated
+from typing_extensions import NotRequired
 
 from ._types import Array, ArrayLike
 from ._utils import AnyMap
@@ -462,16 +462,3 @@ class Reaction:
     def third_body(self) -> ThirdBody | None: ...
     @property
     def third_body_name(self) -> str | None: ...
-
-@deprecated(
-    "class Arrhenius: To be removed after Cantera 3.2. Replace with 'ArrheniusRate'"
-)
-class Arrhenius:
-    def __init__(self, A: float = 0, b: float = 0, E: float = 0) -> None: ...
-    @property
-    def pre_exponential_factor(self) -> float: ...
-    @property
-    def temperature_exponent(self) -> float: ...
-    @property
-    def activation_energy(self) -> float: ...
-    def __call__(self, T: float) -> float: ...

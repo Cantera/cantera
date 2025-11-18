@@ -1622,13 +1622,6 @@ class Testctml2yaml:
         ctmlPhase, yamlPhase = self.checkConversion("pdss_hkft")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_lattice_solid(self):
-        self.convert("Li7Si3_ls")
-        ctmlPhase, yamlPhase = self.checkConversion("Li7Si3_ls",
-                                                    name="Li7Si3_and_Interstitials(S)")
-        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
-
     def test_margules(self):
         self.convert("LiKCl_liquid")
         ctmlPhase, yamlPhase = self.checkConversion("LiKCl_liquid")

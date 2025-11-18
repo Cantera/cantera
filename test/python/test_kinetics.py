@@ -1318,7 +1318,6 @@ class TestElementaryReaction:
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
-    @pytest.mark.usefixtures("allow_deprecated")  # for class Arrhenius
     def test_modify_elementary(self, gas):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = gas.TPX
@@ -1336,21 +1335,12 @@ class TestElementaryReaction:
         gas.modify_reaction(2, R)
         assert A2*T**b2*np.exp(-Ta2/T) == approx(gas.forward_rate_constants[2])
 
-        A3 = 1.9 * A1
-        b3 = b1 + 0.3
-        Ta3 = Ta1 * 2.2
-        R.rate = ct.Arrhenius(A3, b3, Ta3 * ct.gas_constant)
-        gas.modify_reaction(2, R)
-        assert A3*T**b3*np.exp(-Ta3/T) == approx(gas.forward_rate_constants[2])
-
 class TestFalloffReaction:
 
-    @pytest.mark.usefixtures("allow_deprecated")
     def test_negative_A_falloff(self):
-        # TODO: After Cantera 3.2, replace Arrhenius with ArrheniusRate
         species = ct.Species.list_from_file("gri30.yaml")
-        low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
-        high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
+        low_rate = ct.ArrheniusRate(2.16e13, -0.23, 0)
+        high_rate = ct.ArrheniusRate(-8.16e12, -0.5, 0)
 
         with pytest.raises(ct.CanteraError, match='pre-exponential'):
             ct.LindemannRate(low_rate, high_rate, ())

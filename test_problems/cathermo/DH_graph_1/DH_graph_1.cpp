@@ -15,12 +15,10 @@ int main(int argc, char** argv)
 {
     int retn = 0;
     size_t i;
-    string fName = "DH_graph_1.log";
-    fileLog* fl = new fileLog(fName);
     try {
         string phaseName = (argc > 1) ? argv[1] : "NaCl_electrolyte";
         string iFile = (argc > 2) ? argv[2] : "DH_NaCl.yaml";
-        setLogger(fl);
+        setLogger(make_unique<fileLog>("DH_graph_1.log"));
 
         DebyeHuckel* DH = new DebyeHuckel(iFile, phaseName);
 
@@ -76,7 +74,6 @@ int main(int argc, char** argv)
 
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
-        delete fl;
         return -1;
     }
 }

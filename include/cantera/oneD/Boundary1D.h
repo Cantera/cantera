@@ -380,8 +380,6 @@ public:
         return "reacting-surface";
     }
 
-    void setKinetics(shared_ptr<Kinetics> kin) override;
-
     //! Set whether to solve the equations for the surface species coverages
     void enableCoverageEquations(bool docov) {
         m_enabled = docov;

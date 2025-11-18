@@ -38,7 +38,6 @@ from .units import Units
 #     "SingleSpecies",
 #     "none",
 #     "binary-solution-tabulated",
-#     "compound-lattice",
 #     "coverage-dependent-surface",
 #     "edge",
 #     "electron-cloud",
@@ -49,7 +48,6 @@ from .units import Units
 #     "ideal-solution-VPSS",
 #     "ideal-surface",
 #     "liquid-water-IAPWS95",
-#     "lattice",
 #     "plasma",
 #     "pure-fluid",
 # ]

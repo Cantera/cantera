@@ -63,30 +63,6 @@ calculations. The headers and their functions are:
 `reactionpaths.h`
 : Reaction path diagrams.
 
-`thermo.h`
-: Base thermodynamic classes and functions for creating {ct}`ThermoPhase` objects from
-  input files.
-  :::{deprecated} 3.2
-  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
-  Cantera 3.3.
-  :::
-
-`kinetics.h`
-: Base kinetics classes and functions for creating {ct}`Kinetics` objects from input
-  files.
-  :::{deprecated} 3.2
-  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
-  Cantera 3.3.
-  :::
-
-`transport.h`
-: Base transport property classes and functions for creating {ct}`Transport` objects
-  from input files.
-  :::{deprecated} 3.2
-  Superseded by `core.h` in Cantera 3.0, deprecated in Cantera 3.2, and to be removed in
-  Cantera 3.3.
-  :::
-
 ### Creating a `Solution` object from an input file
 
 Here, {ct}`newSolution` imports all information held by a YAML input file into a Cantera

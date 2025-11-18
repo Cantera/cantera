@@ -172,18 +172,6 @@ public:
      */
     void getGibbs_RT(double* grt) const override;
 
-    //! Get the pure Gibbs free energies of each species. Species are assumed to
-    //! be in their standard states.
-    /*!
-     * This is the same as getStandardChemPotentials().
-     *
-     * @param[out] gpure   Array of standard state Gibbs free energies. length =
-     *     m_kk. units are J/kmol.
-     * @deprecated  To be removed after %Cantera 3.2. Use getStandardChemPotentials()
-     *     instead.
-     */
-    void getPureGibbs(double* gpure) const override;
-
     //! Returns the vector of nondimensional internal Energies of the standard
     //! state at the current temperature and pressure of the solution for each
     //! species.
@@ -419,23 +407,6 @@ public:
      */
     int phaseState(bool checkState = false) const;
 
-    //! Return the value of the density at the liquid spinodal point (on the
-    //! liquid side) for the current temperature.
-    /*!
-     * @returns the density with units of kg m-3
-     * @deprecated To be removed after %Cantera 3.1.
-     */
-    virtual double densSpinodalLiquid() const;
-
-    //! Return the value of the density at the gas spinodal point (on the gas
-    //! side) for the current temperature.
-    /*!
-     * @returns the density with units of kg m-3
-     * @deprecated To be removed after %Cantera 3.1.
-     */
-    virtual double densSpinodalGas() const;
-
-public:
     //! Calculate the saturation pressure at the current mixture content for the
     //! given temperature
     /*!

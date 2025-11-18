@@ -15,14 +15,6 @@
 namespace Cantera
 {
 
-IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
-    Flow1D(ph, nsp, points)
-{
-    warn_deprecated("IonFlow::IonFlow(ThermoPhase*, size_t, size_t)",
-        "To be removed after Cantera 3.2. Use constructor using Solution instead.");
-    _init(ph, nsp, points);
-}
-
 void IonFlow::_init(ThermoPhase* ph, size_t nsp, size_t points)
 {
     // make a local copy of species charge
@@ -191,22 +183,6 @@ void IonFlow::electricFieldMethod(const double* x, size_t j0, size_t j1)
     }
 }
 
-void IonFlow::setSolvingStage(const size_t stage)
-{
-    warn_deprecated("IonFlow::setSolvingStage", "To be removed after Cantera 3.2. ",
-        "Use solveElectricField() or fixElectricField() instead");
-    if (stage == 1) {
-        m_do_electric_field = false;
-    } else if (stage == 2) {
-        m_do_electric_field = true;
-    } else {
-        throw CanteraError("IonFlow::setSolvingStage",
-                    "solution stage must be set to: "
-                    "1) frozenIonMethod, "
-                    "2) electricFieldEqnMethod");
-    }
-}
-
 //! Evaluate the electric field equation residual
 void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax)
@@ -251,12 +227,8 @@ void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
-void IonFlow::solveElectricField(size_t j)
+void IonFlow::solveElectricField()
 {
-    if (j != npos) {
-        warn_deprecated("IonFlow::solveElectricField", "Argument to be removed after "
-            "Cantera 3.2.");
-    }
     if (!m_do_electric_field) {
         needJacUpdate();
     }
@@ -267,12 +239,8 @@ void IonFlow::solveElectricField(size_t j)
     m_do_electric_field = true;
 }
 
-void IonFlow::fixElectricField(size_t j)
+void IonFlow::fixElectricField()
 {
-    if (j != npos) {
-        warn_deprecated("IonFlow::fixElectricField", "Argument to be removed after "
-            "Cantera 3.2.");
-    }
     if (m_do_electric_field) {
         needJacUpdate();
     }

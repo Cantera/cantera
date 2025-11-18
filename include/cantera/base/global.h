@@ -68,11 +68,6 @@ class AnyMap;
 string findInputFile(const string& name);
 
 //! @copydoc Application::addDataDirectory
-//! @deprecated Deprecated in %Cantera 3.2 and to be removed thereafter. Renamed to
-//!     addDataDirectory().
-void addDirectory(const string& dir);
-
-//! @copydoc Application::addDataDirectory
 void addDataDirectory(const string& dir);
 
 //! @copydoc Application::getDataDirectories
@@ -311,12 +306,6 @@ void use_legacy_rate_constants(bool legacy=true);
 bool legacy_rate_constants_used();
 
 // @} End of globalSettings group
-
-//! @copydoc Application::setLogger(Logger*)
-//! @deprecated To be removed after %Cantera 3.2. Replaced by version taking
-//!     `unique_ptr`.
-//! @ingroup logGroup
-void setLogger(Logger* logwriter);
 
 //! @copydoc Application::setLogger(unique_ptr<Logger>)
 //! @since Changed in %Cantera 3.2 to take `unique_ptr` instead of bare pointer.

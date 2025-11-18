@@ -30,13 +30,6 @@ private:
 //! Create a SystemJacobian object of the specified type
 shared_ptr<SystemJacobian> newSystemJacobian(const string& type);
 
-//! @deprecated To be removed after %Cantera 3.2. Renamed to newSystemJacobian()
-inline shared_ptr<SystemJacobian> newPreconditioner(const string& type) {
-    warn_deprecated("newPreconditioner",
-                    "To be removed after Cantera 3.2. Renamed to newSystemJacobian");
-    return newSystemJacobian(type);
-}
-
 }
 
 #endif

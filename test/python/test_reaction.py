@@ -648,15 +648,13 @@ class TestPlogRate(ReactionRateTests):
             assert rate.temperature_exponent == approx(other[index]["b"])
             assert rate.activation_energy == approx(other[index]["Ea"])
 
-    # TODO: After Cantera 3.2, replace Arrhenius with ArrheniusRate
-    @pytest.mark.usefixtures("allow_deprecated")
     def test_set_rates(self):
         # test setter for property rates
         other = [
             {"P": 100., "A": 1.2124e+16, "b": -1., "Ea": 45491376.8},
             {"P": 10000., "A": 4.9108e+31, "b": -2., "Ea": 103649395.2},
             {"P": 1000000., "A": 1.2866e+47, "b": -3., "Ea": 166508556.0}]
-        rate = ct.PlogRate([(o["P"], ct.Arrhenius(o["A"], o["b"], o["Ea"]))
+        rate = ct.PlogRate([(o["P"], ct.ArrheniusRate(o["A"], o["b"], o["Ea"]))
                             for o in other])
         rates = rate.rates
         assert len(rates) == len(other)

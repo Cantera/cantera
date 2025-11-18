@@ -14,31 +14,13 @@ WallBase::WallBase(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
                    const string& name) : ConnectorNode(r0, r1, name)
 {
     if (!m_nodes.first || !m_nodes.second) {
-        warn_deprecated("FlowDevice::FlowDevice",
-            "After Cantera 3.2, Reactors must be provided to a FlowDevice "
-            "constructor.");
-        return;
+        throw CanteraError("WallBase::WallBase",
+            "Reactors must be provided to WallBase constructor.");
     }
     m_left = r0.get();
     m_right = r1.get();
     m_left->addWall(*this, 0);
     m_right->addWall(*this, 1);
-}
-
-bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
-{
-    warn_deprecated("WallBase::install",
-        "To be removed after Cantera 3.2. Reactors should be provided to constructor "
-        "instead.");
-    // check if wall is already installed
-    if (m_left || m_right) {
-        return false;
-    }
-    m_left =  &rleft;
-    m_right = &rright;
-    m_left->addWall(*this, 0);
-    m_right->addWall(*this, 1);
-    return true;
 }
 
 void WallBase::setArea(double a) {

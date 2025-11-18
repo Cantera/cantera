@@ -98,7 +98,6 @@ public:
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    void getActivityConcentrations(double* const conc) override;
     void getFwdRateConstants(double* kfwd) override;
     void getRevRateConstants(double* krev, bool doIrreversible=false) override;
 
