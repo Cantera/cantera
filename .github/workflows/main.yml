@@ -101,10 +101,10 @@ jobs:
         python3 -m pip install ruamel.yaml scons${{ matrix.scons }} \
           numpy${{ matrix.numpy }}  cython${{ matrix.cython }} pandas pytest \
           pytest-github-actions-annotate-failures pytest-xdist pint graphviz Jinja2
-    - name: Build Cantera with legacy CLib
+    - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-        system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS clib_legacy=y
+        system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Build Tests
       run:
         python3 `which scons` -j4 build-tests --debug=time
@@ -114,13 +114,6 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Rebuild Cantera with generated CLib
-      run: |
-        python3 `which scons` build  clib_legacy=n -j4
-      if: matrix.python-version == '3.11'
-    - name: Run googletests for generated CLib
-      run: scons test-clib --debug=time
-      if: matrix.python-version == '3.11'
     - name: Run install command
       run: python3 `which scons` install prefix=tmp_install
     - name: Upload shared library
@@ -239,9 +232,9 @@ jobs:
       run: python -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python -m pip install -r requirements.txt
-    - name: Build Cantera with legacy CLib
+    - name: Build Cantera
       run: scons build env_vars=all -j3 debug=n --debug=time
-        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }} clib_legacy=y
+        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
     - name: Build Tests
       run: scons -j3 build-tests --debug=time
     - name: Run compiled tests
@@ -250,11 +243,6 @@ jobs:
       run: |
         export DYLD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
-    - name: Rebuild Cantera with generated CLib
-      run: |
-        scons build clib_legacy=n -j3
-    - name: Run googletests for generated CLib
-      run: scons test-clib --debug=time
     - name: Upload shared library
       uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.12'
@@ -846,10 +834,10 @@ jobs:
           fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen openblas
         post-cleanup: none
         init-shell: powershell
-    - name: Build Cantera with legacy CLib
+    - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
-        --debug=time clib_legacy=y -j4 blas_lapack_libs=openblas
+        --debug=time -j4 blas_lapack_libs=openblas
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -881,13 +869,6 @@ jobs:
         if (-not (Test-Path ch4_ion-test.yaml)) { exit 1 }
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
-    - name: Rebuild Cantera with generated CLib
-      run: |
-        scons build clib_legacy=n -j4
-      if: matrix.python-version == '3.11'
-    - name: Run googletests for generated CLib
-      run: scons test-clib --debug=time
-      if: matrix.python-version == '3.11'
     - name: Upload shared library
       uses: actions/upload-artifact@v5
       if: matrix.python-version == '3.11'

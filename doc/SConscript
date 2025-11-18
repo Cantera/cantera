@@ -21,9 +21,6 @@ if localenv['doxygen_docs'] or localenv['sphinx_docs']:
         "@WARN_IF_DOC_ERROR@": "YES",
         "@WARN_IF_INCOMPLETE_DOC@": "YES",
     }
-    if env["clib_legacy"]:
-        vars["@INCLUDE@"] = ""
-        vars["@ENABLED_SECTIONS@"] = ""
     env.Substfile(
         "#build/doc/Doxyfile_html", "#doc/doxygen/Doxyfile.in", SUBST_DICT=vars)
 
@@ -93,14 +90,6 @@ if localenv['sphinx_docs']:
         env.Depends(sphinxdocs,
                     localenv.Command(f"#build/doc/samples/fortran/{fort_file.name}",
                                      fort_file, Copy("$TARGET", "$SOURCE")))
-
-    # Gather clib sample files
-    clib_legacy_files = Glob("#samples/clib_legacy/*.c")
-    clib_legacy_files.append(File("#samples/clib_legacy/README.rst"))
-    for clib_file in clib_legacy_files:
-        env.Depends(sphinxdocs,
-                    localenv.Command(f"#build/doc/samples/clib_legacy/{clib_file.name}",
-                                     clib_file, Copy("$TARGET", "$SOURCE")))
 
     # Gather generated CLib sample files
     clib_files = Glob("#samples/clib/*.c")

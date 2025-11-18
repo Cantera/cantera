@@ -72,12 +72,6 @@ an introduction to the Cantera Python interface.
 :text-align: center
 ```
 
-```{grid-item-card} C (legacy)
-:link: clib_legacy/index
-:link-type: doc
-:text-align: center
-```
-
 ```{grid-item-card} Matlab
 :link: matlab/index
 :link-type: doc
@@ -120,7 +114,6 @@ an introduction to the Cantera Python interface.
 python/index
 cxx/index
 clib/index
-clib_legacy/index
 matlab/index
 fortran/index
 dotnet/index

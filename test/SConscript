@@ -10,8 +10,8 @@ from buildutils import logger, test_results, multi_glob
 Import('env','build','install')
 localenv = env.Clone()
 
-localenv.Prepend(CPPPATH=['#include'],
-                 LIBPATH='#build/lib')
+localenv.Prepend(CPPPATH=["#include", "#interfaces/clib/include"],
+                 LIBPATH="#build/lib")
 localenv.Append(LIBS=localenv['cantera_shared_libs'],
                 CCFLAGS=env['warning_flags'])
 
@@ -23,9 +23,6 @@ if env['googletest'] == 'submodule':
                               '#ext/googletest/googlemock/include'])
 if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
-
-if not env["clib_legacy"]:
-    localenv.Prepend(CPPPATH=["#interfaces/clib/include"])
 
 # Turn off optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
@@ -211,10 +208,7 @@ def addPythonTest(testname, subset):
 
 
 # Instantiate tests
-if localenv["clib_legacy"]:
-    addTestProgram("clib_legacy", "clib")
-else:
-    addTestProgram("clib", "clib")
+addTestProgram("clib", "clib")
 addTestProgram('equil', 'equil')
 addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')
