@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from pytest import approx
 import re
+import textwrap
 pd = pytest.importorskip("pandas")
 
 import cantera as ct
@@ -10,6 +11,41 @@ from .utilities import yaml
 from .utilities import (
     compareProfiles
 )
+
+
+def _radlib_available():
+    gas = ct.Solution("h2o2.yaml")
+    try:
+        flow = ct.FreeFlow(gas)
+    except ct.CanteraError as err:
+        if "RadLib support" in str(err):
+            return False
+        raise
+    try:
+        flow.set_radiation_models("RadLib.PlanckMean")
+    except ct.CanteraError as err:
+        if "RadLib support" in str(err):
+            return False
+        raise
+    return True
+
+
+_HAS_RADLIB = _radlib_available()
+
+
+@pytest.fixture
+def write_radiation_config(tmp_path):
+    added = {"done": False}
+
+    def _write(text):
+        path = tmp_path / "radiation-parameters.yaml"
+        path.write_text(textwrap.dedent(text))
+        if not added["done"]:
+            ct.add_directory(str(tmp_path))
+            added["done"] = True
+        return path
+
+    return _write
 
 
 class TestOnedim:
@@ -167,6 +203,106 @@ class TestOnedim:
         for cls in ct.FlameBase.__subclasses__():
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
+
+
+class TestRadLibOptions:
+
+    def setup_method(self):
+        self.gas = ct.Solution("h2o2.yaml")
+        self.flow = ct.FreeFlow(self.gas)
+
+    @pytest.mark.skipif(_HAS_RADLIB, reason="RadLib-enabled builds should not raise")
+    def test_radlib_model_requires_support(self):
+        with pytest.raises(ct.CanteraError, match="RadLib support"):
+            self.flow.set_radiation_models("RadLib.PlanckMean")
+
+    @pytest.mark.skipif(_HAS_RADLIB, reason="RadLib-enabled builds should not raise")
+    def test_set_radlib_options_requires_support(self):
+        with pytest.raises(ct.CanteraError, match="RadLib support"):
+            self.flow.set_radlib_options(1e-6, 25, 1500.0, ct.one_atm)
+
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_radlib_options_roundtrip(self):
+        self.flow.P = 2 * ct.one_atm
+        self.flow.set_radlib_options(5e-6, 33, 1400.0, 5e5)
+        opts = self.flow.radlib_options
+        assert opts["fvsoot"] == approx(5e-6)
+        assert opts["nGray"] == 33
+        assert opts["Tref"] == approx(1400.0)
+        assert opts["Pref"] == approx(5e5)
+
+        self.flow.set_radlib_options(2e-6, 12, 1800.0, 0.0)
+        opts = self.flow.radlib_options
+        assert opts["Pref"] == approx(self.flow.P)
+
+        self.flow.set_radiation_models("RadLib.RCSLW")
+        opts_after = self.flow.radlib_options
+        assert opts_after["nGray"] == 12
+        assert opts_after["fvsoot"] == approx(2e-6)
+
+
+class TestRadiationModels:
+
+    def test_radlib_options_from_yaml(self, write_radiation_config):
+        write_radiation_config("""
+        Radiation:
+          property: TabularPlanckMean
+          solver: OpticallyThin
+          radlib:
+            fvsoot: 2.5e-6
+            nGray: 18
+            Tref: 1600.0
+            Pref: 345000.0
+        """)
+        gas = ct.Solution("h2o2.yaml")
+        flow = ct.FreeFlow(gas)
+        opts = flow.radlib_options
+        assert opts["fvsoot"] == approx(2.5e-6)
+        assert opts["nGray"] == 18
+        assert opts["Tref"] == approx(1600.0)
+        assert opts["Pref"] == approx(345000.0)
+
+        flow.set_radlib_options(1.2e-6, 22, 1800.0, 0.0)
+        updated = flow.radlib_options
+        assert updated["fvsoot"] == approx(1.2e-6)
+        assert updated["nGray"] == 22
+        assert updated["Tref"] == approx(1800.0)
+        assert updated["Pref"] == approx(flow.P)
+
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_switch_between_radlib_models(self, write_radiation_config):
+        write_radiation_config("""
+        Radiation:
+          property: RadLib.WSGG
+          solver: OpticallyThin
+          radlib:
+            fvsoot: 4.0e-6
+            nGray: 27
+            Tref: 1450.0
+            Pref: 210000.0
+        """)
+        gas = ct.Solution("h2o2.yaml")
+        flow = ct.FreeFlow(gas)
+        opts = flow.radlib_options
+        assert opts["fvsoot"] == approx(4.0e-6)
+        assert opts["nGray"] == 27
+        assert opts["Tref"] == approx(1450.0)
+        assert opts["Pref"] == approx(210000.0)
+
+        flow.set_radlib_options(3.3e-6, 12, 1750.0, 420000.0)
+        flow.set_radiation_models("RadLib.WSGG")
+        opts_after = flow.radlib_options
+        assert opts_after["fvsoot"] == approx(3.3e-6)
+        assert opts_after["nGray"] == 12
+        assert opts_after["Tref"] == approx(1750.0)
+        assert opts_after["Pref"] == approx(420000.0)
+
+        flow.set_radiation_models("RadLib.RCSLW")
+        opts_final = flow.radlib_options
+        assert opts_final["nGray"] == 12
+        assert opts_final["fvsoot"] == approx(3.3e-6)
+        assert opts_final["Tref"] == approx(1750.0)
+        assert opts_final["Pref"] == approx(420000.0)
 
 def check_component_order(fname: str, group: str):
     with fname.open("r", encoding="utf-8") as fid:
@@ -1020,6 +1156,9 @@ class TestDiffusionFlame:
         pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_mixture_averaged
         pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_auto
         pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_mixture_averaged_rad
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_planck_reference
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_wsgg_reference
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_rcslw_reference
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
     """
@@ -1186,8 +1325,29 @@ class TestDiffusionFlame:
         assert self.sim.T[0] == approx(self.sim.fuel_inlet.T, rel=1e-4)
         assert mdot[-1] == approx(-self.sim.oxidizer_inlet.mdot, rel=1e-4)
 
-    def test_mixture_averaged_rad(self, request, test_data_path):
-        referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
+    def _run_radiation_reference(self, request, test_data_path,
+            write_radiation_config, referenceFile, propertyModel,
+            radlib_block=None, radiation_config=None):
+        if write_radiation_config is not None:
+            if radiation_config:
+                config = textwrap.dedent(radiation_config)
+            else:
+                config = f"""
+                Radiation:
+                  property: {propertyModel}
+                  solver: OpticallyThin
+                  emissivity:
+                    left: 0.25
+                    right: 0.15
+                """
+                if radlib_block:
+                    config += textwrap.dedent(radlib_block)
+            write_radiation_config(config)
+        else:
+            # When no config is supplied, rely on default behavior (no YAML)
+            assert radlib_block is None
+            assert radiation_config is None
+
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
 
@@ -1199,7 +1359,6 @@ class TestDiffusionFlame:
         assert not self.sim.radiation_enabled
         self.sim.radiation_enabled = True
         assert self.sim.radiation_enabled
-        self.sim.flame.boundary_emissivities = 0.25, 0.15
 
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
@@ -1216,16 +1375,34 @@ class TestDiffusionFlame:
         if saveReference == 'diffusion':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(test_data_path / referenceFile, data,
+            referencePath = test_data_path / referenceFile
+            if not referencePath.exists():
+                pytest.skip(f"Reference file '{referenceFile}' not found. "
+                            "Run pytest --save-reference=diffusion ... to create it.")
+            bad = compareProfiles(referencePath, data,
                                   rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
-        filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
+        filename = self.test_work_path / referenceFile
         filename.unlink(missing_ok=True)
         self.sim.save(filename, basis="mole") # check output
         assert filename.is_file()
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         assert 'radiativeheatloss' in csv_data.dtype.names
+
+    def test_mixture_averaged_rad(self, request, test_data_path, write_radiation_config):
+        self._run_radiation_reference(request, test_data_path,
+            write_radiation_config,
+            referenceFile="DiffusionFlameTest-h2-mix-rad.csv",
+            propertyModel="TabularPlanckMean",
+            radiation_config="""
+            Radiation:
+              property: TabularPlanckMean
+              solver: OpticallyThin
+              emissivity:
+                left: 0.25
+                right: 0.15
+            """)
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -1323,6 +1500,64 @@ class TestDiffusionFlame:
         assert radial_lambda[0] == arr.L[0]
         assert radial_lambda[0] == arr.Lambda[0]
         assert getattr(arr, "radial-pressure-gradient")[0] == radial_lambda[0]
+
+
+class TestDiffusionFlameRadiation(TestDiffusionFlame):
+    """
+    Note: to re-create the reference file:
+    (1) Set PYTHONPATH to build/python.
+    (2) Go into test/python directory and run:
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_planck_reference
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_wsgg_reference
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlameRadiation::test_radlib_rcslw_reference
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
+    """
+
+    @pytest.mark.slow_test
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_radlib_planck_reference(self, request, test_data_path,
+                                     write_radiation_config):
+        self._run_radiation_reference(request, test_data_path,
+            write_radiation_config, "DiffusionFlameTest-h2-radlib-planck.csv",
+            "RadLib.PlanckMean",
+            """
+              radlib:
+                fvsoot: 2.0e-6
+                nGray: 20
+                Tref: 1500.0
+                Pref: 101325.0
+            """)
+
+    @pytest.mark.slow_test
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_radlib_wsgg_reference(self, request, test_data_path,
+                                   write_radiation_config):
+        self._run_radiation_reference(request, test_data_path,
+            write_radiation_config, "DiffusionFlameTest-h2-radlib-wsgg.csv",
+            "RadLib.WSGG",
+            """
+              radlib:
+                fvsoot: 3.0e-6
+                nGray: 24
+                Tref: 1600.0
+                Pref: 150000.0
+            """)
+
+    @pytest.mark.slow_test
+    @pytest.mark.skipif(not _HAS_RADLIB, reason="RadLib support not enabled")
+    def test_radlib_rcslw_reference(self, request, test_data_path,
+                                    write_radiation_config):
+        self._run_radiation_reference(request, test_data_path,
+            write_radiation_config, "DiffusionFlameTest-h2-radlib-rcslw.csv",
+            "RadLib.RCSLW",
+            """
+              radlib:
+                fvsoot: 1.5e-6
+                nGray: 18
+                Tref: 1700.0
+                Pref: 250000.0
+            """)
 
     def test_restore_lambda_yaml(self):
         self.run_restore_diffusionflame("flame_lambda.yaml")

@@ -8,10 +8,12 @@
 
 #include "Domain1D.h"
 #include "OneDim.h"
+#include "Radiation1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+
 
 namespace Cantera
 {
@@ -154,6 +156,9 @@ public:
     //! Mach number, the pressure is very nearly constant throughout the flow.
     void setPressure(double p) {
         m_press = p;
+        if (m_radiation) {
+            m_radiation->setPressure(p);
+        }
     }
 
     //! The current pressure [Pa].
@@ -324,6 +329,33 @@ public:
         return m_qdotRadiation[j];
     }
 
+    //! Reconfigure the radiation property / solver models.
+    void setRadiationModels(const std::string& propertyModel,
+                            const std::string& solverModel);
+
+    //! Configure RadLib-specific parameters used when RadLib radiation models are selected.
+    void setRadLibOptions(double fvsoot, int nGray, double Tref, double Pref);
+
+    //! Current RadLib soot volume fraction setting.
+    double radlibFvSoot() const {
+        return m_radlibOptions.fvsoot;
+    }
+
+    //! Current number of gray gases for RadLib RCSLW.
+    int radlibNGray() const {
+        return m_radlibOptions.nGray;
+    }
+
+    //! Current RadLib reference temperature.
+    double radlibTref() const {
+        return m_radlibOptions.Tref;
+    }
+
+    //! Current RadLib reference pressure.
+    double radlibPref() const {
+        return m_radlibOptions.Pref;
+    }
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
@@ -334,12 +366,12 @@ public:
 
     //! Return emissivity at left boundary
     double leftEmissivity() const {
-        return m_epsilon_left;
+        return m_radiation->leftEmissivity();
     }
 
     //! Return emissivity at right boundary
     double rightEmissivity() const {
-        return m_epsilon_right;
+        return m_radiation->rightEmissivity();
     }
 
     //! Specify that the the temperature should be held fixed at point `j`.
@@ -536,22 +568,13 @@ protected:
     //! to be updated are defined.
     virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
 
-    /**
-     * Computes the radiative heat loss vector over points jmin to jmax and stores
-     * the data in the qdotRadiation variable.
-     *
-     * The simple radiation model used was established by Liu and Rogg
-     * @cite liu1991. This model considers the radiation of CO2 and H2O.
-     *
-     * This model uses the optically thin limit and the gray-gas approximation to
-     * simply calculate a volume specified heat flux out of the Planck absorption
-     * coefficients, the boundary emissivities and the temperature. Polynomial lines
-     * calculate the species Planck coefficients for H2O and CO2. The data for the
-     * lines are taken from the RADCAL program @cite RADCAL.
-     * The coefficients for the polynomials are taken from
-     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
-     */
-    void computeRadiation(double* x, size_t jmin, size_t jmax);
+    //! Compute the radiative heat loss at each grid point
+    void computeRadiation(double*, size_t, size_t);
+
+#ifdef CT_ENABLE_RADLIB
+    std::unique_ptr<RadiationPropertyCalculator> buildRadLibProps(
+        const std::string& propertyModel) const;
+#endif
 
     //! @}
 
@@ -980,6 +1003,18 @@ protected:
     //! radiative heat loss.
     double m_epsilon_right = 0.0;
 
+    //! Radiation object used for calculating radiative heat loss
+    std::unique_ptr<Radiation1D> m_radiation;
+
+    struct RadLibOptions {
+        double fvsoot = 0.0;
+        int nGray = 25;
+        double Tref = 1500.0;
+        double Pref = OneAtm;
+    };
+
+    RadLibOptions m_radlibOptions;
+
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
     vector<size_t> m_kRadiating;
@@ -1084,5 +1119,4 @@ private:
 };
 
 }
-
 #endif

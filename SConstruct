@@ -458,6 +458,23 @@ config_options = [
            directories to 'extra_inc_dirs' and 'extra_lib_dirs'.""",
         "default", ("default", "y", "n")),
     EnumOption(
+        "system_radlib",
+        """Select whether to use the RadLib radiation library from a system installation
+           ('y'), from a Git submodule ('n'), or to decide automatically ('default').
+           If using a system installation that is not on default include/lib paths, set
+           'radlib_include' and/or 'radlib_libdir'.""",
+        "default", ("default", "y", "n")),
+    PathOption(
+        "radlib_include",
+        """The directory where the RadLib header files are installed. Not needed if the
+           headers are installed in a standard location, for example, '/usr/include'.""",
+        "", PathVariable.PathAccept),
+    PathOption(
+        "radlib_libdir",
+        """The directory where the RadLib libraries are installed. Not needed if the
+           libraries are installed in a standard location, for example, '/usr/lib'.""",
+        "", PathVariable.PathAccept),
+    EnumOption(
         "system_sundials",
         """Select whether to use SUNDIALS from a system installation ('y'), from
            a Git submodule ('n'), or to decide automatically ('default').
@@ -708,6 +725,18 @@ config_options = [
         "verbose_tests",
         "If enabled, verbose test output will be shown.",
         False),
+    EnumOption(
+        "system_radlib",
+        """Select whether to use RadLib from a system installation ('y'), from a Git
+       submodule ('n'), or decide automatically ('default'). Specifying
+       'radlib_include' or 'radlib_libdir' changes the default to 'y'.""",
+    "default", ("default", "y", "n")),
+    PathOption(
+        "radlib_include",
+        """Directory containing RadLib headers (e.g., 'rad_planck_mean.h').""", "", PathVariable.PathAccept),
+    PathOption(
+        "radlib_libdir",
+        """Directory containing RadLib library (e.g., 'libradlib.so' / 'radlib.lib').""", "", PathVariable.PathAccept),
 ]
 
 config = Configuration()
@@ -1289,6 +1318,7 @@ if env['system_yamlcpp'] in ('n', 'default'):
     if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
         checkout_submodule("yaml-cpp", "ext/yaml-cpp")
 
+
 # Check for googletest and checkout submodule if needed
 if env['googletest'] in ('system', 'default'):
     has_gtest = conf.CheckCXXHeader('gtest/gtest.h', '""')
@@ -1340,6 +1370,48 @@ _, eigen_lib_version = run_preprocessor(
 )
 env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip().replace(" ", ".")
 logger.info(f"Found Eigen version {env['EIGEN_LIB_VERSION']}")
+
+# --- RadLib detection ------------------------------------------------------
+if env["radlib_include"] and env["system_radlib"] in ("y", "default"):
+    env["radlib_include"] = make_relative_path_absolute(env["radlib_include"])
+    add_system_include(env, env["radlib_include"])
+    env["system_radlib"] = "y"
+
+if env["radlib_libdir"] and env["system_radlib"] in ("y", "default"):
+    env["radlib_libdir"] = make_relative_path_absolute(env["radlib_libdir"])
+    env.Append(LIBPATH=[env["radlib_libdir"]])
+    if env["use_rpath_linkage"]:
+        env.Append(RPATH=[env["radlib_libdir"]])
+    env["system_radlib"] = "y"
+
+have_system_radlib = False
+if env["system_radlib"] in ("y", "default"):
+    # Try to link against system RadLib
+    if conf.CheckLibWithHeader("radlib", "rad_planck_mean.h", "C++"):
+        have_system_radlib = True
+        env["system_radlib"] = True
+        logger.info("Using system installation of RadLib.")
+    elif env["system_radlib"] == "y":
+        config_error("Expected system installation of RadLib, but it was not found.")
+    else:
+        env["system_radlib"] = "default"
+
+if env["system_radlib"] in ("n", "default") and not have_system_radlib:
+    env["system_radlib"] = False
+    # Ensure submodule is present
+    if not os.path.exists("ext/radlib"):
+        checkout_submodule("RadLib", "ext/radlib")
+    # Build RadLib from the submodule in build/ext/SConscript
+    logger.info("Using private (submodule) RadLib.")
+
+if env["system_radlib"] is True or env["system_radlib"] is False:
+    # Enable RadLib feature flag in config.h (set later via cdefine)
+    env['ct_enable_radlib'] = True
+if env["system_radlib"] is True:
+    env["external_libs"].append("radlib")
+
+# ----- End Radlib ----
+
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
@@ -1843,6 +1915,8 @@ cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
+cdefine('CT_USE_SYSTEM_RADLIB', 'system_radlib')
+cdefine('CT_ENABLE_RADLIB', 'ct_enable_radlib')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',

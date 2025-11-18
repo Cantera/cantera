@@ -23,3 +23,6 @@
 	path = data/example_data
 	url = https://github.com/cantera/cantera-example-data
 	shallow = true
+[submodule "ext/radlib"]
+	path = ext/radlib
+	url = https://github.com/BYUignite/radlib

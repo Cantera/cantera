@@ -790,6 +790,62 @@ cdef class FlowBase(Domain1D):
             y.push_back(t)
         self.flow.setFixedTempProfile(x, y)
 
+    def set_radiation_models(self, property_model, solver_model="OpticallyThin"):
+        """
+        Set radiation property and solver models for this flow domain.
+
+        Parameters
+        ----------
+        property_model : str
+            Name of the property calculator model. Examples include
+            "TabularPlanckMean", "RadLib.PlanckMean", "RadLib.WSGG", "RadLib.RCSLW".
+        solver_model : str, optional
+            Name of the radiation solver model. Defaults to "OpticallyThin".
+        """
+        self.flow.setRadiationModels(stringify(property_model), stringify(solver_model))
+
+    def set_radlib_options(self, fvsoot=None, ngray=None, Tref=None, Pref=None):
+        """
+        Set RadLib-specific parameters used when RadLib radiation models are selected.
+
+        Parameters
+        ----------
+        fvsoot : float, optional
+            Spatially uniform soot volume fraction (default: current setting).
+        ngray : int, optional
+            Number of gray gases for the RadLib RCSLW model (default: current setting).
+        Tref : float, optional
+            Reference temperature in kelvin for RadLib RCSLW (default: current setting).
+        Pref : float, optional
+            Reference pressure in pascal for RadLib RCSLW. If not provided or <= 0, the
+            flow-domain pressure is used.
+        """
+        cdef double fv = self.flow.radlibFvSoot()
+        cdef int ng = self.flow.radlibNGray()
+        cdef double tref = self.flow.radlibTref()
+        cdef double pref = self.flow.radlibPref()
+        if fvsoot is not None:
+            fv = float(fvsoot)
+        if ngray is not None:
+            ng = int(ngray)
+        if Tref is not None:
+            tref = float(Tref)
+        if Pref is not None:
+            pref = float(Pref)
+        self.flow.setRadLibOptions(fv, ng, tref, pref)
+
+    @property
+    def radlib_options(self):
+        """
+        Return the current RadLib parameter settings as a dictionary.
+        """
+        return {
+            "fvsoot": self.flow.radlibFvSoot(),
+            "nGray": self.flow.radlibNGray(),
+            "Tref": self.flow.radlibTref(),
+            "Pref": self.flow.radlibPref(),
+        }
+
     def get_settings3(self):
         """
         Temporary method returning new behavior of settings getter.
