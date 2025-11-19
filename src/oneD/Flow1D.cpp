@@ -29,21 +29,11 @@ const map<string, size_t> componentMap = {
 
 } // end unnamed namespace
 
-void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
+Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
+    : Domain1D(phase->thermo()->nSpecies()+c_offset_Y, points)
+    , m_nsp(phase->thermo()->nSpecies())
+    , m_thermo(phase->thermo().get())
 {
-    m_points = points;
-
-    if (ph == 0) {
-        return; // used to create a dummy object
-    }
-    m_thermo = ph;
-
-    size_t nsp2 = m_thermo->nSpecies();
-    if (nsp2 != m_nsp) {
-        m_nsp = nsp2;
-        Domain1D::resize(m_nsp+c_offset_Y, points);
-    }
-
     // make a local copy of the species molecular weight vector
     m_wt = m_thermo->molecularWeights();
 
@@ -96,13 +86,6 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
     m_kRadiating.resize(2, npos);
     m_kRadiating[0] = m_thermo->speciesIndex("CO2", false);
     m_kRadiating[1] = m_thermo->speciesIndex("H2O", false);
-}
-
-Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
-    : Domain1D(phase->thermo()->nSpecies()+c_offset_Y, points)
-    , m_nsp(phase->thermo()->nSpecies())
-{
-    _init(phase->thermo().get(), phase->thermo()->nSpecies(), points);
 
     m_solution = phase;
     m_solution->thermo()->addSpeciesLock();

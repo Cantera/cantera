@@ -35,12 +35,6 @@ public:
     //! @param points  initial number of grid points
     IonFlow(shared_ptr<Solution> phase, const string& id="", size_t points = 1);
 
-private:
-    //! Initialize arrays.
-    //! @todo Consolidate once legacy constructors are removed after %Cantera 3.2.
-    void _init(ThermoPhase* ph, size_t nsp, size_t points);
-
-public:
     string domainType() const override;
 
     void resize(size_t components, size_t points) override;
