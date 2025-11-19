@@ -258,7 +258,7 @@ void GasTransport::getMixDiffCoeffsMass(double* const d)
     }
 }
 
-void GasTransport::init(ThermoPhase* thermo, int mode)
+void GasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();

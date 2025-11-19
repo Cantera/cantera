@@ -133,7 +133,7 @@ protected:
      * @param  gastr  Pointer to the underlying Transport model for transport in
      *     the gas phase.
      */
-    void initialize(ThermoPhase* phase, Transport* gastr);
+    void initialize(shared_ptr<ThermoPhase> phase, Transport* gastr);
 
 private:
     //! Update temperature-dependent quantities within the object

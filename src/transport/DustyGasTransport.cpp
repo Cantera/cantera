@@ -14,7 +14,7 @@
 namespace Cantera
 {
 
-void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
+void DustyGasTransport::initialize(shared_ptr<ThermoPhase> phase, Transport* gastr)
 {
     Transport::init(phase);
     // constant mixture attributes

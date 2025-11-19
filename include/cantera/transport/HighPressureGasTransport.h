@@ -159,7 +159,7 @@ public:
         return "high-pressure";
     }
 
-    void init(ThermoPhase* thermo, int mode=0) override;
+    void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 
     /**
      * Returns the mixture high-pressure thermal conductivity [W/m/K]
@@ -834,7 +834,7 @@ public:
         return "high-pressure-Chung";
     }
 
-    void init(ThermoPhase* thermo, int mode=0) override;
+    void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 
     /**
      * Returns the high-pressure mixture viscosity [Pa·s] using the Chung method.

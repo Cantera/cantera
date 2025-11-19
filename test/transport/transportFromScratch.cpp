@@ -67,7 +67,7 @@ TEST_F(TransportFromScratch, binaryDiffCoeffs)
 {
     auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     size_t K = ref->nSpecies();
     Array2D bdiffRef(3,3);
@@ -88,7 +88,7 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
 {
     auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     size_t K = ref->nSpecies();
     vector<double> Dref(3);
@@ -107,7 +107,7 @@ TEST_F(TransportFromScratch, viscosity)
 {
     auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
@@ -121,7 +121,7 @@ TEST_F(TransportFromScratch, thermalConductivityMix)
 {
     auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
@@ -136,7 +136,7 @@ TEST_F(TransportFromScratch, multiDiffCoeffs)
 {
     auto trRef = newTransport(ref, "multicomponent");
     MultiTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     size_t K = ref->nSpecies();
     Array2D Dref(3,3);
@@ -157,7 +157,7 @@ TEST_F(TransportFromScratch, thermalConductivityMulti)
 {
     auto trRef = newTransport(ref, "multicomponent");
     MultiTransport trTest;
-    trTest.init(test.get());
+    trTest.init(test);
 
     for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
