@@ -296,6 +296,7 @@ class species:
 
         self.transport = None if transport == "None" else transport
         self.standard_state = standardState
+        self.molar_density = None  # used to transfer data from 'lattice' entry
 
         self.rk_pure = {}
         self.rk_binary = {}
@@ -342,6 +343,12 @@ class species:
             out['equation-of-state'] = {
                 'model': 'constant-volume',
                 'molar-volume': applyUnits(node.standard_state.molar_volume)
+            }
+
+        elif node.molar_density:
+            out['equation-of-state'] = {
+                'model': 'constant-volume',
+                'molar-density': applyUnits(node.molar_density)
             }
 
         if node.transport:
@@ -1089,6 +1096,9 @@ class phase:
         # add this phase to the global phase list
         _phases.append(self)
 
+    def modify_species(self, local_species):
+        pass
+
     @classmethod
     def to_yaml(cls, representer, node):
         out = BlockMap()
@@ -1429,7 +1439,7 @@ class lattice(phase):
                  options=(), site_density=None):
         phase.__init__(self, name, elements, species, note, 'none',
                        initial_state, options)
-        self.thermo_model = 'lattice'
+        self.thermo_model = 'ideal-condensed'
         self.site_density = site_density
 
         if name == '':
@@ -1439,6 +1449,21 @@ class lattice(phase):
         if site_density is None:
             raise InputError('sublattice '+name
                             +' site density must be specified')
+
+    def modify_species(self, local_species):
+        """
+        Handle removal of "lattice" phase type in Cantera 3.2.0 by replacing with the
+        "ideal-condensed" phase type and setting the molar density of all species
+        in the phase to the site density of the lattice.
+        """
+        for section, phase_species in self.species:
+            if section != "species":
+                _printerr("WARNING: Converting sublattice species from"
+                    " different input files ({}) is not supported.".format(section))
+            else:
+                for S in local_species:
+                    if S.name in phase_species:
+                        S.molar_density = self.site_density
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1630,6 +1655,9 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
         elif line.strip():
             description.append(line[1:].rstrip())
     description = textwrap.dedent("\n".join(description).strip("\n"))
+
+    for phase in _phases:
+        phase.modify_species(_species)
 
     # write the YAML file
     emitter = yaml.YAML()
