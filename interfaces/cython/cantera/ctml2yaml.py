@@ -395,7 +395,7 @@ class Phase:
         "StoichSubstance": "fixed-stoichiometry",
         "PureFluid": "pure-fluid",
         "LatticeSolid": "compound-lattice",
-        "Lattice": "lattice",
+        "Lattice": "ideal-condensed",
         "HMW": "HMW-electrolyte",
         "HMWSoln": "HMW-electrolyte",
         "IdealSolidSolution": "ideal-condensed",
@@ -556,7 +556,7 @@ class Phase:
             self.attribs["activity-data"] = self.debye_huckel(
                 species, activity_coefficients, species_data
             )
-        elif phase_thermo_model == "StoichSubstance":
+        elif phase_thermo_model in ("StoichSubstance", "Lattice"):
             self.move_density_to_species(species, phase_thermo, species_data)
         elif phase_thermo_model == "RedlichKwongMFTP":
             activity_coefficients = phase_thermo.find("activityCoefficients")
@@ -1079,6 +1079,9 @@ class Phase:
         if den_node is None:
             den_node = phase_thermo.find("molarVolume")
             const_prop = "molar-volume"
+        if den_node is None:  # handles "lattice" phase
+            den_node = phase_thermo.find("site_density")
+            const_prop = "molar-density"
         if den_node is None:
             raise MissingXMLNode(
                 "Thermo node is missing 'density', 'molarDensity', or 'molarVolume' "

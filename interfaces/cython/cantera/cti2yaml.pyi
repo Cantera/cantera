@@ -85,6 +85,7 @@ class species:
     comment: str
     transport: gas_transport | None
     standard_state: constantIncompressible | None
+    molar_density: float | tuple[float, str] | None
     rk_pure: _RkPure
     rk_binary: _RkBinary
     density: float | str | None
@@ -387,7 +388,6 @@ _PhaseOptions: TypeAlias = Literal[
 class phase:
     name: str
     elements: str
-    species: list[tuple[str, CommentedSeq]]
     reactions: list[list[str]]
     thermo_model: str | None
     kinetics: _OldKineticsModel | None
@@ -408,6 +408,9 @@ class phase:
     @classmethod
     def to_yaml(cls, representer: SafeRepresenter, node: phase) -> MappingNode: ...
     def get_yaml(self, out: CommentedMap) -> None: ...
+    def modify_species(self, local_species: Sequence[species]) -> None: ...
+    # listed last to avoid namespace collision with `species` class
+    species: list[tuple[str, CommentedSeq]]
 
 class ideal_gas(phase):
     def __init__(
