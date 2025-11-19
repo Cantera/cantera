@@ -413,19 +413,6 @@ public:
      * This routine sets up a transport manager. It calculates the collision
      * integrals and populates species-dependent data structures.
      *
-     * @param thermo  Pointer to the ThermoPhase object
-     * @param mode    Chemkin compatible mode or not. This alters the
-     *                 specification of the collision integrals. defaults to no.
-     * @deprecated To be removed after %Cantera 3.2. Use version that takes
-     *     `shared_ptr<ThermoPhase>`.
-     */
-    virtual void init(ThermoPhase* thermo, int mode=0) {}
-
-    //! Initialize a transport manager
-    /*!
-     * This routine sets up a transport manager. It calculates the collision
-     * integrals and populates species-dependent data structures.
-     *
      * @param thermo  ThermoPhase object determining conditions for which to compute
      *     transport properties.
      * @param mode  Chemkin compatible mode or not. This alters the
@@ -450,7 +437,7 @@ public:
 
 protected:
     //! pointer to the object representing the phase
-    ThermoPhase* m_thermo;
+    shared_ptr<ThermoPhase> m_thermo;
 
     //! Number of species in the phase
     size_t m_nsp = 0;

@@ -31,7 +31,7 @@ const double Hij[6][7] = {
 namespace Cantera
 {
 
-void WaterTransport::init(ThermoPhase* thermo, int mode)
+void WaterTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     m_thermo = thermo;
 }

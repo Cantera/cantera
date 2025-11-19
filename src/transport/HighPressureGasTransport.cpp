@@ -340,7 +340,7 @@ void HighPressureGasTransportBase::getMixDiffCoeffsMass(double* const d)
 
 // HighPressureGasTransport Implementation
 // ---------------------------------------
-void HighPressureGasTransport::init(ThermoPhase* thermo, int mode)
+void HighPressureGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     MixTransport::init(thermo, mode);
     initializeCriticalProperties();
@@ -773,7 +773,7 @@ double HighPressureGasTransport::polarityCorrectionFactor(double mu_r, double Tr
 
 // ChungHighPressureGasTransport Implementation
 // --------------------------------------------
-void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode)
+void ChungHighPressureGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     MixTransport::init(thermo, mode);
     initializeCriticalProperties();

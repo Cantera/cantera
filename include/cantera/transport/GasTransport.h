@@ -139,7 +139,7 @@ public:
                                         double* bstar_coeffs,
                                         double* cstar_coeffs, bool actualT) override;
 
-    void init(ThermoPhase* thermo, int mode=0) override;
+    void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 
     bool CKMode() const override {
         return m_mode == CK_Mode;

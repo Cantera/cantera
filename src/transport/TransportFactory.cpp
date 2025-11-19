@@ -67,7 +67,7 @@ void TransportFactory::deleteFactory()
 }
 
 Transport* TransportFactory::newTransport(const string& transportModel,
-                                          ThermoPhase* phase)
+                                          shared_ptr<ThermoPhase> phase)
 {
     if (transportModel != "DustyGas" && canonicalize(transportModel) == "none") {
         return create(transportModel);
@@ -97,7 +97,7 @@ Transport* TransportFactory::newTransport(const string& transportModel,
     return tr;
 }
 
-Transport* TransportFactory::newTransport(ThermoPhase* phase)
+Transport* TransportFactory::newTransport(shared_ptr<ThermoPhase> phase)
 {
     string transportModel = "none";
     AnyMap& input = phase->input();
@@ -111,9 +111,9 @@ shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo, const string&
 {
     Transport* tr;
     if (model == "default") {
-        tr = TransportFactory::factory()->newTransport(thermo.get());
+        tr = TransportFactory::factory()->newTransport(thermo);
     } else {
-        tr = TransportFactory::factory()->newTransport(model, thermo.get());
+        tr = TransportFactory::factory()->newTransport(model, thermo);
     }
     return shared_ptr<Transport>(tr);
 }

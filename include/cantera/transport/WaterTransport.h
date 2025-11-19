@@ -56,7 +56,7 @@ public:
      */
     double thermalConductivity() override;
 
-    void init(ThermoPhase* thermo, int mode=0) override;
+    void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 };
 }
 #endif

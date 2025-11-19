@@ -11,8 +11,8 @@ class TransportPolynomialsTest : public testing::Test
 public:
     TransportPolynomialsTest() {
         phase = newThermo("h2o2.yaml", "");
-        tran.init(phase.get(), 0);
-        ck_tran.init(phase.get(), CK_Mode);
+        tran.init(phase, 0);
+        ck_tran.init(phase, CK_Mode);
     }
 
     void check_viscosity_poly(const string& speciek,
@@ -32,7 +32,7 @@ public:
     void check_cond_poly(const string& speciek,
                          const vector<double>& cond_coeff_expected, int cmode) {
         MixTransport tran;
-        tran.init(phase.get(), cmode);
+        tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {

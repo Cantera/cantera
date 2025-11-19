@@ -34,7 +34,7 @@ double Frot(double tr, double sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-void MultiTransport::init(ThermoPhase* thermo, int mode)
+void MultiTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     GasTransport::init(thermo, mode);
 

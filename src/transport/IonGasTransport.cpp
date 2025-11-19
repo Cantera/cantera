@@ -14,7 +14,7 @@
 namespace Cantera
 {
 
-void IonGasTransport::init(ThermoPhase* thermo, int mode)
+void IonGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();
