@@ -60,7 +60,7 @@ class _EquivRatioFraction(TypedDict, Generic[_T], total=False):
     diluent: _T
 
 # Generic representing a valid "phase" input
-_P = TypeVar("_P", bound=_SolutionBase)
+_P = TypeVar("_P", bound=_SolutionBase, covariant=True)
 
 class Solution(Transport, Kinetics, ThermoPhase): ...
 class Interface(InterfaceKinetics, InterfacePhase): ...
