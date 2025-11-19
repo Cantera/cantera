@@ -176,7 +176,7 @@ public:
         for (n = 0; n < np; n++) {
             f << z(n) << ", ";
             for (m = 0; m < nc; m++) {
-                f << m_sim->value(1, m, n);
+                f << (*m_state)[index(m, n)];
                 if (m != nc - 1) {
                     f << ", ";
                 }
@@ -238,8 +238,8 @@ protected:
      * @param j Grid point number.
      */
     double cdif2(const double* x, int n, int j) const {
-        double c1 = value(x,n,j) - value(x,n,j-1);
-        double c2 = value(x,n,j+1) - value(x,n,j);
+        double c1 = x[index(n,j)] - x[index(n,j-1)];
+        double c2 = x[index(n,j+1)] - x[index(n,j)];
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/
                (z(j+1) - z(j-1));
     }
@@ -268,7 +268,7 @@ protected:
      * and point j + 1.
      */
     double rightFirstDeriv(const double* x, int n, int j) const {
-        return (value(x,n,j+1) - value(x,n,j))/(z(j+1) - z(j));
+        return (x[index(n,j+1)] - x[index(n,j)])/(z(j+1) - z(j));
     }
 
     /**
@@ -278,7 +278,7 @@ protected:
      */
 
     double leftFirstDeriv(const double* x, int n, int j) const {
-        return (value(x,n,j) - value(x,n,j-1))/(z(j) - z(j-1));
+        return (x[index(n,j)] - x[index(n,j-1)])/(z(j) - z(j-1));
     }
 
     /**
@@ -289,7 +289,7 @@ protected:
      * @param j Grid point number.
      */
     double centralFirstDeriv(const double* x, int n, int j) const {
-        double c1 = value(x,n,j+1) - value(x,n,j-1);
+        double c1 = x[index(n,j+1)] - x[index(n,j-1)];
         return c1/(z(j+1) - z(j-1));
     }
 
