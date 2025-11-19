@@ -98,7 +98,7 @@ public:
             } else {
                 rsd[index(0,j)] = leftFirstDeriv(x,0,j) - u(x,j);
                 rsd[index(1,j)] = cdif2(x,1,j) + 0.5*zeta(x,j)*centralFirstDeriv(x,1,j)
-                                  - rdt*(value(x,1,j) - prevSoln(1,j));
+                                  - rdt*(x[index(1,j)] - prevSoln(1,j));
                 diag[index(1,j)] = 1;
             }
         }
@@ -107,10 +107,10 @@ public:
 private:
     // for convenience only. Note that the compiler will inline these.
     double zeta(double* x, int j) {
-        return value(x,0,j);
+        return x[index(0,j)];
     }
     double u(double* x, int j) {
-        return value(x,1,j);
+        return x[index(1,j)];
     }
 };
 
