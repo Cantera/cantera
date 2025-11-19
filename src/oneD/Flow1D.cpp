@@ -1300,19 +1300,19 @@ void Flow1D::setSolvingStage(const size_t stage)
 void Flow1D::solveElectricField(size_t j)
 {
     throw NotImplementedError("Flow1D::solveElectricField",
-        "Not used by '{}' objects.", type());
+        "Not used by '{}' objects.", domainType());
 }
 
 void Flow1D::fixElectricField(size_t j)
 {
     throw NotImplementedError("Flow1D::fixElectricField",
-        "Not used by '{}' objects.", type());
+        "Not used by '{}' objects.", domainType());
 }
 
 bool Flow1D::doElectricField(size_t j) const
 {
     throw NotImplementedError("Flow1D::doElectricField",
-        "Not used by '{}' objects.", type());
+        "Not used by '{}' objects.", domainType());
 }
 
 void Flow1D::setBoundaryEmissivities(double e_left, double e_right)

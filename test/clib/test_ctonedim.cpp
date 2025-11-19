@@ -31,9 +31,9 @@ TEST(ctonedim, freeflow)
     domain_setID(flow, "flow");
     ASSERT_NEAR(flow_pressure(flow), P, 1e-5);
 
-    int32_t buflen = domain_type(flow, 0, 0);
+    int32_t buflen = domain_domainType(flow, 0, 0);
     vector<char> buf(buflen);
-    domain_type(flow, buflen, buf.data());
+    domain_domainType(flow, buflen, buf.data());
     string domType(buf.data());
     ASSERT_EQ(domType, "free-flow");
 }
@@ -44,9 +44,9 @@ TEST(ctonedim, inlet)
     int32_t inlet = domain_newBoundary1D("inlet", sol, "");
     ASSERT_GE(inlet, 0);
 
-    int32_t buflen = domain_type(inlet, 0, 0);
+    int32_t buflen = domain_domainType(inlet, 0, 0);
     vector<char> buf(buflen);
-    domain_type(inlet, buflen, buf.data());
+    domain_domainType(inlet, buflen, buf.data());
     string domType(buf.data());
     ASSERT_EQ(domType, "inlet");
 }
@@ -57,9 +57,9 @@ TEST(ctonedim, outlet)
     int32_t outlet = domain_newBoundary1D("outlet", sol, "");
     ASSERT_GE(outlet, 0);
 
-    int32_t buflen = domain_type(outlet, 0, 0);
+    int32_t buflen = domain_domainType(outlet, 0, 0);
     vector<char> buf(buflen);
-    domain_type(outlet, buflen, buf.data());
+    domain_domainType(outlet, buflen, buf.data());
     string domType(buf.data());
     ASSERT_EQ(domType, "outlet");
 }
@@ -70,9 +70,9 @@ TEST(ctonedim, reacting_surface)
     int32_t surf = domain_newBoundary1D("reacting-surface", interface, "");
     ASSERT_GE(surf, 0);
 
-    int32_t buflen = domain_type(surf, 0, 0);
+    int32_t buflen = domain_domainType(surf, 0, 0);
     vector<char> buf(buflen);
-    domain_type(surf, buflen, buf.data());
+    domain_domainType(surf, buflen, buf.data());
     string domType(buf.data());
     ASSERT_EQ(domType, "reacting-surface");
 }
