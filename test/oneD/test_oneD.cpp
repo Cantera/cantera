@@ -101,11 +101,11 @@ TEST(onedim, flame_types)
     auto sol = newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
 
     auto free = newDomain<Flow1D>("free-flow", sol, "flow");
-    ASSERT_EQ(free->type(), "free-flow");
+    ASSERT_EQ(free->domainType(), "free-flow");
     auto symm = newDomain<Flow1D>("axisymmetric-flow", sol, "flow");
-    ASSERT_EQ(symm->type(), "axisymmetric-flow");
+    ASSERT_EQ(symm->domainType(), "axisymmetric-flow");
     auto burner = newDomain<Flow1D>("unstrained-flow", sol, "flow");
-    ASSERT_EQ(burner->type(), "unstrained-flow");
+    ASSERT_EQ(burner->domainType(), "unstrained-flow");
 
     ASSERT_THROW(burner->componentName(200), IndexError);
     ASSERT_THROW(burner->componentIndex("spam"), CanteraError);
@@ -117,11 +117,11 @@ TEST(onedim, ion_flame_types)
     ASSERT_EQ(sol->transport()->transportModel(), "ionized-gas");
 
     auto free = newDomain<IonFlow>("free-flow", sol, "flow");
-    ASSERT_EQ(free->type(), "free-ion-flow");
+    ASSERT_EQ(free->domainType(), "free-ion-flow");
     auto symm = newDomain<IonFlow>("axisymmetric-flow", sol, "flow");
-    ASSERT_EQ(symm->type(), "axisymmetric-ion-flow");
+    ASSERT_EQ(symm->domainType(), "axisymmetric-ion-flow");
     auto burner = newDomain<IonFlow>("unstrained-flow", sol, "flow");
-    ASSERT_EQ(burner->type(), "unstrained-ion-flow");
+    ASSERT_EQ(burner->domainType(), "unstrained-ion-flow");
 }
 
 int main(int argc, char** argv)

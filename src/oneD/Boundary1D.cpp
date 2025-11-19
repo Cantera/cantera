@@ -47,7 +47,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
-                "domains, not '{}' domains.", r.type());
+                "domains, not '{}' domains.", r.domainType());
         }
     }
 
@@ -68,7 +68,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
-                "domains, not '{}' domains.", r.type());
+                "domains, not '{}' domains.", r.domainType());
         }
     }
 }

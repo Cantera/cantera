@@ -338,7 +338,7 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 void Sim1D::show()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).type() != "empty") {
+        if (domain(n).domainType() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
             domain(n).show(m_state->data() + start(n));
