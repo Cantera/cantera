@@ -55,12 +55,6 @@ public:
 
     ~Flow1D();
 
-private:
-    //! Initialize arrays.
-    //! @todo Consolidate once legacy constructors are removed after %Cantera 3.2.
-    void _init(ThermoPhase* ph, size_t nsp, size_t points);
-
-public:
     string domainType() const override;
 
     //! @name Problem Specification

@@ -15,7 +15,8 @@
 namespace Cantera
 {
 
-void IonFlow::_init(ThermoPhase* ph, size_t nsp, size_t points)
+IonFlow::IonFlow(shared_ptr<Solution> phase, const string& id, size_t points)
+    : Flow1D(phase, id, points)
 {
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
@@ -49,12 +50,7 @@ void IonFlow::_init(ThermoPhase* ph, size_t nsp, size_t points)
 
     m_refiner->setActive(c_offset_E, false);
     m_mobility.resize(m_nsp*m_points);
-}
 
-IonFlow::IonFlow(shared_ptr<Solution> phase, const string& id, size_t points)
-    : Flow1D(phase, id, points)
-{
-    _init(phase->thermo().get(), phase->thermo()->nSpecies(), points);
     m_solution = phase;
     m_solution->thermo()->addSpeciesLock();
     m_id = id;
