@@ -1473,8 +1473,8 @@ cdef class Sim1D:
         """
         self.sim.setRightControlPoint(T)
 
-    def save(self, filename='soln.yaml', name='solution', description=None, *,
-             overwrite=False, compression=0, basis=None):
+    def save(self, filename='soln.yaml', name='solution', description=None,
+             loglevel=None, *, overwrite=False, compression=0, basis=None):
         """
         Save current simulation data to a data file (CSV, YAML or HDF).
 
@@ -1510,11 +1510,17 @@ cdef class Sim1D:
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
+
+        .. versionchanged:: 3.0
+            Argument loglevel is no longer supported
         """
+        if loglevel is not None:
+            warnings.warn("Sim1D.save: Argument 'loglevel' is deprecated and will be "
+                "ignored.", DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), overwrite, compression, stringify(basis))
 
-    def restore(self, filename='soln.yaml', name='solution'):
+    def restore(self, filename='soln.yaml', name='solution', loglevel=None):
         """Retrieve data and settings from a previously saved simulation.
 
         This method restores a simulation object from YAML or HDF data previously saved
@@ -1532,7 +1538,13 @@ cdef class Sim1D:
             Dictionary containing header information
 
         >>> s.restore(filename='save.yaml', name='energy_off')
+
+        .. versionchanged:: 3.0
+            Implemented return value for meta data; loglevel is no longer supported
         """
+        if loglevel is not None:
+            warnings.warn("Sim1D.restore: Argument 'loglevel' is deprecated and will be"
+                 " ignored.", DeprecationWarning)
         cdef CxxAnyMap header
         header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True

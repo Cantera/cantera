@@ -153,11 +153,10 @@ void ReactorNet::initialize()
                 shared += fmt::format("'{}', ", reactors[i]);
             }
             shared += fmt::format("'{}'", reactors.back());
-            warn_user("ReactorNet::initialize", "The following reactors / reactor"
-                " surfaces are using the same Solution object: {}. Use independent"
-                " Solution objects or set the 'clone' argument to 'true' when creating"
-                " the Reactor or ReactorSurface objects. Shared Solution objects within"
-                " a single ReactorNet will be an error after Cantera 3.2.", shared);
+            throw CanteraError("ReactorNet::initialize", "The following reactors /"
+                " reactor surfaces are using the same Solution object: {}. Use"
+                " independent Solution objects or set the 'clone' argument to 'true'"
+                " when creating the Reactor or ReactorSurface objects.", shared);
         }
     }
 

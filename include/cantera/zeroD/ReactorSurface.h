@@ -50,12 +50,12 @@ public:
 
     //! Accessor for the SurfPhase object
     SurfPhase* thermo() {
-        return m_surf;
+        return m_surf.get();
     }
 
     //! Accessor for the InterfaceKinetics object
     Kinetics* kinetics() {
-        return m_kinetics;
+        return m_kinetics.get();
     }
 
     void addInlet(FlowDevice& inlet) override {
@@ -118,8 +118,8 @@ public:
 protected:
     double m_area = 1.0;
 
-    SurfPhase* m_surf = nullptr;
-    Kinetics* m_kinetics = nullptr;
+    shared_ptr<SurfPhase> m_surf;
+    shared_ptr<Kinetics> m_kinetics;
     vector<ReactorBase*> m_reactors;
     vector<double> m_cov;
 };
