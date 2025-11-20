@@ -40,10 +40,10 @@ ar = ct.Solution('air.yaml')
 ar.TPX = 1000.0, 20.0 * ct.one_atm, "AR:1"
 
 # create a reactor to represent the side of the cylinder filled with argon
-r1 = ct.IdealGasReactor(ar, name="Argon partition", clone=True)
+r1 = ct.IdealGasReactor(ar, name="Argon partition")
 
 # create a reservoir for the environment, and fill it with air.
-env = ct.Reservoir(ct.Solution('air.yaml'), name="Environment", clone=True)
+env = ct.Reservoir(ct.Solution('air.yaml'), name="Environment")
 
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
 gas = ct.Solution('gri30.yaml')
@@ -51,7 +51,7 @@ gas.TP = 500.0, 0.2 * ct.one_atm
 gas.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:1, N2:3.76')
 
 # create a reactor for the methane/air side
-r2 = ct.IdealGasReactor(gas, name="Reacting partition", clone=True)
+r2 = ct.IdealGasReactor(gas, name="Reacting partition")
 
 # Now couple the reactors by defining common walls that may move (a piston) or
 # conduct heat

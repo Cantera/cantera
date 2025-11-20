@@ -15,22 +15,15 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase phase, *args, name="(none)", clone=None,
+    def __cinit__(self, _SolutionBase phase, *args, name="(none)", clone=True,
                   **kwargs):
-        if clone is None:
-            clone = False  # TODO: change as indicated after Cantera 3.2
-            warnings.warn("ReactorBase.__init__: After Cantera 3.2, the default value "
-                "of the `clone` argument will be `True`, resulting in an independent "
-                "copy of the `phase` being created for use by this reactor. Add the "
-                "`clone=False` argument to retain the old behavior of sharing "
-                "`Solution` objects.", DeprecationWarning)
         if self.reactor_type != "ReactorSurface":
             self._rbase = newReactorBase(stringify(self.reactor_type),
                                         phase._base, clone, stringify(name))
             self.rbase = self._rbase.get()
 
     def __init__(self, _SolutionBase phase=None, *args,
-                 clone=None, name="(none)", volume=None, node_attr=None):
+                 clone=True, name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -207,7 +200,7 @@ cdef class Reactor(ReactorBase):
         self.reactor = <CxxReactor*>(self.rbase)
 
     def __init__(self, phase, *,
-                 clone=None, name="(none)", energy='on', group_name="", **kwargs):
+                 clone=True, name="(none)", energy='on', group_name="", **kwargs):
         """
         :param phase:
             A `Solution` object representing the Reactor contents
@@ -236,9 +229,11 @@ cdef class Reactor(ReactorBase):
 
         .. versionchanged:: 3.2
            Added the ``clone`` parameter with the default value ``None`` indicating that
-           contents will not be cloned. After Cantera 3.2, this default will change to
-           be ``True``. Specify ``False`` to retain the old behavior and suppress a
-           deprecation warning.
+           contents will not be cloned. Explicitly specifying ``False`` suppresses a
+           warning.
+
+        .. versionchanged:: 3.3
+           Changed the default value of the ``clone`` to ``True``.
 
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
@@ -804,16 +799,14 @@ cdef class ReactorSurface(ReactorBase):
        Handle surfaces that are adjacent to multiple reactors.
 
        Added the ``clone`` parameter with the default value ``None`` indicating that
-       contents will not be cloned. After Cantera 3.2, this default will change to
-       be ``True``. Specify ``False`` to retain the old behavior and suppress a
-       deprecation warning.
+       contents will not be cloned. Specifying ``False`` suppresses a warning.
 
+    .. versionchanged:: 3.3
+       Changed the default value of the ``clone`` to ``True``.
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, _SolutionBase phase, r=None, clone=None, name="(none)", **kwargs):
-        if clone is None:
-            clone = False # TODO: change default to True after Cantera 3.2
+    def __cinit__(self, _SolutionBase phase, r, clone=True, name="(none)", **kwargs):
         cdef ReactorBase adj
         cdef vector[shared_ptr[CxxReactorBase]] cxx_adj
         if isinstance(r, ReactorBase):
@@ -827,12 +820,6 @@ cdef class ReactorSurface(ReactorBase):
                 adj = <Reactor>ri
                 adj._surfaces.append(self)
                 cxx_adj.push_back(adj._rbase)
-        elif r is None:
-            warnings.warn("ReactorSurface.__init__: After Cantera 3.2, the list of "
-                "adjacent reactors `r` will be a required constructor argument and the "
-                "install method will be removed.",
-                DeprecationWarning)
-            self._reactors = []
         else:
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
@@ -841,7 +828,7 @@ cdef class ReactorSurface(ReactorBase):
         self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, phase=None, r=None, *, clone=None,
+    def __init__(self, phase=None, r=None, *, clone=True,
                  name="(none)", A=None, node_attr=None):
         super().__init__(phase, name=name)
 

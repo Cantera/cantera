@@ -19,7 +19,10 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
                                const string& name)
     : ReactorBase(name)
 {
-    // TODO: After Cantera 3.2, raise an exception of 'reactors' is empty
+    if (reactors.empty()) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Surface requires at least one adjacent reactor.");
+    }
     vector<shared_ptr<Solution>> adjacent;
     for (auto R : reactors) {
         adjacent.push_back(R->phase());
@@ -32,7 +35,8 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         m_solution = soln;
     }
     m_solution->thermo()->addSpeciesLock();
-    if (!std::dynamic_pointer_cast<SurfPhase>(soln->thermo())) {
+    m_surf = std::dynamic_pointer_cast<SurfPhase>(m_solution->thermo());
+    if (!m_surf) {
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Solution object must have a SurfPhase object as the thermo manager.");
     }
@@ -44,10 +48,8 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Kinetics manager must be an InterfaceKinetics object.");
     }
-    // todo: move all member variables to use shared pointers after Cantera 3.2
-    m_kinetics = m_solution->kinetics().get();
-    m_thermo = m_solution->thermo().get();
-    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
+    m_kinetics = m_solution->kinetics();
+    m_thermo = m_surf.get();
     m_cov.resize(m_surf->nSpecies());
     m_surf->getCoverages(m_cov.data());
 }
@@ -86,13 +88,6 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::restoreState()
 {
-    if (m_reactors.empty()) {
-        // TODO: Remove this check after Cantera 3.2, since it will no longer be
-        // possible to create the ReactorSurface without specifying the adjacent
-        // reactors in the constructor.
-        throw CanteraError("ReactorSurface::syncState",
-                           "Surface is not installed on any Reactor");
-    }
     m_surf->setTemperature(m_reactors[0]->temperature());
     m_surf->setCoveragesNoNorm(m_cov.data());
 }

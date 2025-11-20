@@ -41,12 +41,12 @@ D = 5.08e-2  # diameter of the tube [m]
 Ac = np.pi * D**2 / 4  # cross section of the tube [m]
 u0 = 11.53  # m/s initial velocity of the flow
 
-reactor = ct.FlowReactor(gas, clone=True)
+reactor = ct.FlowReactor(gas)
 reactor.area = Ac
 reactor.mass_flow_rate = gas.density * u0 * Ac
 reactor.energy_enabled = False
 
-rsurf = ct.ReactorSurface(gas_si_n_interface, reactor, clone=True)
+rsurf = ct.ReactorSurface(gas_si_n_interface, reactor)
 net = ct.ReactorNet([reactor])
 soln = ct.SolutionArray(gas, extra=['x', 'speed', 'surf_coverages', 'N_dep', 'Si_dep'])
 kN = gas_si_n_interface.kinetics_species_index('N(D)')

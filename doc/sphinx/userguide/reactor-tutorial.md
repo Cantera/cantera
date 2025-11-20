@@ -32,7 +32,7 @@ gas = ct.Solution("gri30.yaml")
 gas.TPX = 1000.0, ct.one_atm, "H2:2,O2:1,N2:4"
 
 # create a reactor containing the gas
-reac = ct.IdealGasReactor(gas, clone=True)
+reac = ct.IdealGasReactor(gas)
 
 # Add the reactor to a new ReactorNet simulator
 sim = ct.ReactorNet([reac])
@@ -152,7 +152,7 @@ follows:
 import cantera as ct
 gas = ct.Solution("gri30.yaml")
 gas.TPX = 1000.0, ct.one_atm, "H2:2,O2:1,N2:4"
-reac = ct.IdealGasMoleReactor(gas, clone=True)  # Supports preconditioning
+reac = ct.IdealGasMoleReactor(gas)  # Supports preconditioning
 sim = ct.ReactorNet([reac])
 precon = ct.AdaptivePreconditioner()  # Create the preconditioner
 sim.preconditioner = precon  # Add it to the network

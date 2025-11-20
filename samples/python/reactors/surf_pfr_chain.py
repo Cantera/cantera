@@ -75,20 +75,20 @@ print('    distance       X_CH4        X_H2        X_CO')
 
 # create a new reactor
 gas.TDY = TDY
-r = ct.IdealGasReactor(gas, energy='off', clone=True)
+r = ct.IdealGasReactor(gas, energy='off')
 r.volume = rvol
 
 # create a reservoir to represent the reactor immediately upstream. Note
 # that the gas object is set already to the state of the upstream reactor
-upstream = ct.Reservoir(gas, name='upstream', clone=True)
+upstream = ct.Reservoir(gas, name='upstream')
 
 # create a reservoir for the reactor to exhaust into. The composition of
 # this reservoir is irrelevant.
-downstream = ct.Reservoir(gas, name='downstream', clone=True)
+downstream = ct.Reservoir(gas, name='downstream')
 
 # Add the reacting surface to the reactor. The area is set to the desired
 # catalyst area in the reactor.
-rsurf = ct.ReactorSurface(surf, r, A=cat_area, clone=True)
+rsurf = ct.ReactorSurface(surf, r, A=cat_area)
 
 # The mass flow rate into the reactor will be fixed by using a
 # MassFlowController object.
