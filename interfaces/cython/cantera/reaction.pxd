@@ -54,18 +54,13 @@ cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
         CxxArrheniusRate(double, double, double)
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(CxxArrheniusRate&) except +translate_exception
-        double evalRate(double, double)
 
-    cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel" (CxxArrheniusBase):
-        CxxBlowersMasel(double, double, double, double)
-        double evalRate(double, double)
+    cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxArrheniusRate):
+        CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxBlowersMaselRate(double, double, double, double)
         double bondEnergy()
         double deltaH()
         void setDeltaH(double)
-
-    cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxBlowersMasel):
-        CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
-        CxxBlowersMaselRate(double, double, double, double)
 
 
 cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
@@ -120,7 +115,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string reactantString()
         string productString()
         string equation()
-        void setEquation(const string&) except +translate_exception
         string type()
         CxxAnyMap parameters(cbool) except +translate_exception
         cbool usesThirdBody()
@@ -240,12 +234,12 @@ cdef extern from "cantera/kinetics/InterfaceRate.h" namespace "Cantera":
         CxxStickingArrheniusRate(CxxAnyMap) except +translate_exception
         CxxStickingArrheniusRate(double, double, double)
 
-    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxInterfaceRateBase):
+    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMaselRate, CxxInterfaceRateBase):
         CxxInterfaceBlowersMaselRate()
         CxxInterfaceBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxInterfaceBlowersMaselRate(double, double, double, double)
 
-    cdef cppclass CxxStickingBlowersMaselRate "Cantera::StickingBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
+    cdef cppclass CxxStickingBlowersMaselRate "Cantera::StickingBlowersMaselRate" (CxxReactionRate, CxxBlowersMaselRate, CxxStickingCoverage):
         CxxStickingBlowersMaselRate()
         CxxStickingBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxStickingBlowersMaselRate(double, double, double, double)

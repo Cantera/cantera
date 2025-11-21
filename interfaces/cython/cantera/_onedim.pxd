@@ -32,10 +32,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double value(string&) except +translate_exception
         void setValue(string&, double) except +translate_exception
         vector[double] values(string&) except +translate_exception
-        void getValues(string&, vector[double]&) except +translate_exception
         void setValues(string&, vector[double]&) except +translate_exception
         vector[double] residuals(string&) except +translate_exception
-        void getResiduals(string&, vector[double]&) except +translate_exception
         void setProfile(string&, vector[double]&, vector[double]&) except +translate_exception
         void setFlatProfile(string&, double) except +translate_exception
         void setBounds(size_t, double, double)
