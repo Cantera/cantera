@@ -9,13 +9,12 @@ from .solutionbase cimport *
 
 cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
-        CxxTransport(CxxThermoPhase*)
+        CxxTransport()
         string transportModel()
         cbool CKMode() except +translate_exception
         double viscosity() except +translate_exception
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
-        void getSpeciesViscosities(double*) except +translate_exception
         void getCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC) except +translate_exception
         void setCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC, cbool flag) except +translate_exception
         CxxAnyMap fittingErrors()

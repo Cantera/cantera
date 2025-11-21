@@ -40,7 +40,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string phaseOfMatter() except +translate_exception
-        void getSpeciesParameters(string, CxxAnyMap&) except +translate_exception
         CxxAnyMap& input()
         string report(cbool, double) except +translate_exception
         cbool hasPhaseTransition()
@@ -53,7 +52,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double minTemp() except +translate_exception
         double maxTemp() except +translate_exception
         double refPressure() except +translate_exception
-        cbool getElementPotentials(double*) except +translate_exception
         void equilibrate(string, string, double, int, int, int, int) except +translate_exception
         size_t stateSize()
         void saveState(size_t, double*) except +translate_exception
@@ -95,7 +93,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         size_t checkSpeciesIndex(size_t) except +translate_exception
         string speciesName(size_t) except +translate_exception
         double nAtoms(size_t, size_t) except +translate_exception
-        void getAtoms(size_t, double*) except +translate_exception
         cbool caseSensitiveSpecies()
         void setCaseSensitiveSpecies(cbool)
         void addSpeciesAlias(string, string) except +translate_exception
@@ -116,10 +113,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setMoleFractionsByName(string) except +translate_exception
         void setMoleFractionsByName(Composition&) except +translate_exception
         void setMoleFractions_NoNorm(double*) except +translate_exception
-        void getMoleFractions(double*) except +translate_exception
         Composition getMoleFractionsByName(double)
-        double moleFraction(size_t) except +translate_exception
-        double moleFraction(string) except +translate_exception
 
         double concentration(size_t) except +translate_exception
         double elementalMassFraction(size_t) except +translate_exception

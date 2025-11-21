@@ -25,10 +25,7 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass PyFuncInfo:
         PyFuncInfo()
         PyObject* func()
-        void setFunc(PyObject*)
-        PyObject* exceptionType()
         void setExceptionType(PyObject*)
-        PyObject* exceptionValue()
         void setExceptionValue(PyObject*)
 
 

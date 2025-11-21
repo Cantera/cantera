@@ -21,11 +21,6 @@ cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxKinetics] newKinetics (string) except +translate_exception
 
 
-cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
-    cdef cppclass CxxTransport "Cantera::Transport"
-    cdef shared_ptr[CxxTransport] newTransport(shared_ptr[CxxThermoPhase], string) except +translate_exception
-
-
 cdef extern from "cantera/base/Interface.h" namespace "Cantera":
     cdef shared_ptr[CxxSolution] newInterface(
         string, string, vector[string]) except +translate_exception
@@ -71,7 +66,6 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         void resize(int) except +translate_exception
         vector[long int] apiShape() except +translate_exception
         void setApiShape(vector[long int]&) except +translate_exception
-        int apiNdim()
         string info(vector[string]&, int, int) except +translate_exception
         CxxAnyMap meta()
         void setMeta(CxxAnyMap&)

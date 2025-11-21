@@ -37,7 +37,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase() except +translate_exception
         string type()
-        void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         shared_ptr[CxxSolution] phase()
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
@@ -46,7 +45,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setName(string)
         void setInitialVolume(double)
         void addSensitivityReaction(size_t) except +translate_exception
-        size_t nSensParams()
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor() except +translate_exception
@@ -60,7 +58,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
-        void addSurface(CxxReactorSurface*) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
 
@@ -113,7 +110,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
-        void syncCoverages(int)
         double expansionRate() except +translate_exception
         double vdot(double) except +translate_exception
         double heatRate() except +translate_exception
@@ -169,7 +165,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactor&) except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void solveSteady(int) except +translate_exception
