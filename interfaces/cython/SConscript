@@ -1,6 +1,7 @@
 """Cython-based Python Module"""
 import re
 from pathlib import Path
+from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 
 from buildutils import (get_command_output, which, multi_glob,
@@ -86,8 +87,8 @@ build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
 if parse_version(localenv["py_version_short"]) >= env["python_max_version"]:
     build_cmd += " --ignore-requires-python"
 
-# Setuptools 75.3.1 and later always lowercase the package name
-if localenv["setuptools_version"] >= parse_version("75.3.1"):
+# Newer setuptools versions always lowercase the package name
+if localenv["setuptools_version"] in SpecifierSet("~=75.3.1,>=75.8.1"):
     pkg_name = "cantera"
 else:
     pkg_name = "Cantera"
