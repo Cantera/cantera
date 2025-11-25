@@ -11,7 +11,6 @@
 namespace Cantera
 {
 
-class VCS_SPECIES_THERMO;
 class vcs_VolPhase;
 
 //! Properties of a single species.
@@ -25,9 +24,6 @@ public:
 
     //! Name of the species
     string SpName;
-
-    //! Pointer to the thermo structure for this species
-    VCS_SPECIES_THERMO* SpeciesThermo = nullptr;
 
     //! Molecular Weight of the species (gm/mol)
     double WtSpecies = 0.0;

@@ -7,7 +7,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
@@ -3406,7 +3405,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     std::swap(m_actCoeffSpecies_old[k1], m_actCoeffSpecies_old[k2]);
     std::swap(m_wtSpecies[k1], m_wtSpecies[k2]);
     std::swap(m_chargeSpecies[k1], m_chargeSpecies[k2]);
-    std::swap(m_speciesThermoList[k1], m_speciesThermoList[k2]);
     std::swap(m_PMVolumeSpecies[k1], m_PMVolumeSpecies[k2]);
 
     for (size_t j = 0; j < m_nelem; ++j) {

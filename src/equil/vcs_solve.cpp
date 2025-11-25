@@ -10,7 +10,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
@@ -52,11 +51,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_totalVol(mphase->volume()),
     m_Faraday_dim(Faraday / (m_temperature * GasConstant))
 {
-    m_speciesThermoList.resize(m_nsp);
-    for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        m_speciesThermoList[kspec] = make_unique<VCS_SPECIES_THERMO>();
-    }
-
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (m_nsp <= 0) {
         plogf("%s Number of species is nonpositive\n", ser);
@@ -142,8 +136,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         m_timing_print_lvl = 0;
     }
 
-    VCS_SPECIES_THERMO* ts_ptr = 0;
-
     // Loop over the phases, transferring pertinent information
     int kT = 0;
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
@@ -153,7 +145,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
         // Query Cantera for the equation of state type of the current phase.
         string eos = tPhase->type();
-        bool gasPhase = (eos == "ideal-gas");
 
         // Find out the number of species in the phase
         size_t nSpPhase = tPhase->nSpecies();
@@ -163,12 +154,10 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // Call the basic vcs_VolPhase creation routine.
         // Properties set here:
         //    ->PhaseNum = phase number in the thermo problem
-        //    ->GasPhase = Boolean indicating whether it is a gas phase
         //    ->NumSpecies = number of species in the phase
         //    ->PhaseName  = Name of the phase
         vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
         VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str());
-        VolPhase->m_gasPhase = gasPhase;
 
         // Tell the vcs_VolPhase pointer about cantera
         VolPhase->setPtrThermoPhase(tPhase);
@@ -243,14 +232,10 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             //      VolPhase->IndSpecies[]
             addOnePhaseSpecies(VolPhase, k, kT);
 
-            // Get a pointer to the thermo object
-            ts_ptr = m_speciesThermoList[kT].get();
-
             // Fill in the vcs_SpeciesProperty structure
             vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
             sProp->NumElements = m_nelem;
             sProp->SpName = mphase->speciesName(kT);
-            sProp->SpeciesThermo = ts_ptr;
             sProp->WtSpecies = tPhase->molecularWeight(k);
             sProp->FormulaMatrixCol.resize(m_nelem, 0.0);
             for (size_t e = 0; e < m_nelem; e++) {
@@ -259,65 +244,10 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             sProp->Charge = tPhase->charge(k);
             sProp->SurfaceSpecies = false;
             sProp->VolPM = 0.0;
-
-            // Transfer the thermo specification of the species
-            //              vsolve->SpeciesThermo[]
-
-            // Add lookback connectivity into the thermo object first
-            ts_ptr->IndexPhase = iphase;
-            ts_ptr->IndexSpeciesPhase = k;
-            ts_ptr->OwningPhase = VolPhase;
-
-            // get a reference to the Cantera species thermo.
-            MultiSpeciesThermo& sp = tPhase->speciesThermo();
-
-            int spType = sp.reportType(k);
-            if (spType == SIMPLE) {
-                double c[4];
-                double minTemp, maxTemp, refPressure;
-                sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
-                ts_ptr->SS0_Model = VCS_SS0_CONSTANT;
-                ts_ptr->SS0_T0 = c[0];
-                ts_ptr->SS0_H0 = c[1];
-                ts_ptr->SS0_S0 = c[2];
-                ts_ptr->SS0_Cp0 = c[3];
-                if (gasPhase) {
-                    ts_ptr->SSStar_Model = VCS_SSSTAR_IDEAL_GAS;
-                    ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
-                } else {
-                    ts_ptr->SSStar_Model = VCS_SSSTAR_CONSTANT;
-                    ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
-                }
-            } else {
-                if (m_printLvl > 2) {
-                    plogf("vcs_Cantera_convert: Species Type %d not known \n",
-                          spType);
-                }
-                ts_ptr->SS0_Model = VCS_SS0_NOTHANDLED;
-                ts_ptr->SSStar_Model = VCS_SSSTAR_NOTHANDLED;
-            }
-
-            // Transfer the Volume Information -> NEEDS WORK
-            if (gasPhase) {
-                ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
-                ts_ptr->SSStar_Vol0 = 82.05 * 273.15 / 1.0;
-            } else {
-                ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
-                ts_ptr->SSStar_Vol0 = 0.0;
-            }
             kT++;
         }
 
         VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &m_molNumSpecies_old[0]);
-
-        // Now, calculate a sample naught Gibbs free energy calculation
-        // at the specified temperature.
-        for (size_t k = 0; k < nSpPhase; k++) {
-            vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
-            ts_ptr = sProp->SpeciesThermo;
-            ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ GasConstant;
-            ts_ptr->SS0_TSave = m_temperature;
-        }
     }
 
     // Transfer initial element abundances based on the species mole numbers
