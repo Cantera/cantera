@@ -10,7 +10,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/base/clockWC.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -37,8 +36,6 @@ void printProgress(const vector<string>& spName, const vector<double>& soln,
 }
 
 } // anonymous namespace
-
-int vcs_timing_print_lvl = 1;
 
 VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_printLvl(printLvl),
@@ -131,10 +128,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     // counters kept within vcs
     m_VCount = new VCS_COUNTERS();
     vcs_counters_init(1);
-
-    if (vcs_timing_print_lvl == 0) {
-        m_timing_print_lvl = 0;
-    }
 
     // Loop over the phases, transferring pertinent information
     int kT = 0;
@@ -396,7 +389,6 @@ VCS_SOLVE::~VCS_SOLVE()
 
 int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
 {
-    clockWC tickTock;
 
     // This function is called to copy the public data and the current
     // problem specification into the current object's data structure.
@@ -430,11 +422,8 @@ int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
 
     vcs_prob_update();
 
-    // Report on the time if requested to do so
-    double te = tickTock.secondsWC();
-    m_VCount->T_Time_vcs += te;
     if (ipr > 0 || ip1 > 0) {
-        vcs_TCounters_report(m_timing_print_lvl);
+        vcs_TCounters_report();
     }
 
     // FILL IN
@@ -2007,18 +1996,9 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     // TABLE OF SOLUTION COUNTERS
     plogf("\n");
-    plogf("\nCounters:         Iterations          Time (seconds)\n");
-    if (m_timing_print_lvl > 0) {
-        plogf("    vcs_basopt:   %5d             %11.5E\n",
-              m_VCount->Basis_Opts, m_VCount->Time_basopt);
-        plogf("    vcs_TP:       %5d             %11.5E\n",
-              m_VCount->Its, m_VCount->Time_vcs_TP);
-    } else {
-        plogf("    vcs_basopt:   %5d             %11s\n",
-              m_VCount->Basis_Opts,"    NA     ");
-        plogf("    vcs_TP:       %5d             %11s\n",
-              m_VCount->Its,"    NA     ");
-    }
+    plogf("\nCounters:         Iterations\n");
+    plogf("    vcs_basopt:   %5d\n", m_VCount->Basis_Opts);
+    plogf("    vcs_TP:       %5d\n", m_VCount->Its);
     writeline('-', 80);
     writeline('-', 80);
 
@@ -2452,7 +2432,6 @@ int VCS_SOLVE::vcs_inest_TP()
 {
     const char* pprefix = "   --- vcs_inest: ";
     int retn = 0;
-    clockWC tickTock;
     if (m_doEstimateEquil > 0) {
         // Calculate the elemental abundances
         vcs_elab();
@@ -2539,8 +2518,6 @@ int VCS_SOLVE::vcs_inest_TP()
                               &m_tPhaseMoles_old[0]));
     }
 
-    // Record time
-    m_VCount->T_Time_inest += tickTock.secondsWC();
     m_VCount->T_Calls_Inest++;
     return retn;
 }
@@ -3114,44 +3091,22 @@ void VCS_SOLVE::vcs_counters_init(int ifunc)
 {
     m_VCount->Its = 0;
     m_VCount->Basis_Opts = 0;
-    m_VCount->Time_vcs_TP = 0.0;
-    m_VCount->Time_basopt = 0.0;
     if (ifunc) {
         m_VCount->T_Its = 0;
         m_VCount->T_Basis_Opts = 0;
         m_VCount->T_Calls_Inest = 0;
         m_VCount->T_Calls_vcs_TP = 0;
-        m_VCount->T_Time_vcs_TP = 0.0;
-        m_VCount->T_Time_basopt = 0.0;
-        m_VCount->T_Time_inest = 0.0;
-        m_VCount->T_Time_vcs = 0.0;
     }
 }
 
-void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
+void VCS_SOLVE::vcs_TCounters_report()
 {
-    plogf("\nTCounters:   Num_Calls   Total_Its       Total_Time (seconds)\n");
-    if (timing_print_lvl > 0) {
-        plogf("    vcs_basopt:   %5d      %5d         %11.5E\n",
-              m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts,
-              m_VCount->T_Time_basopt);
-        plogf("    vcs_TP:       %5d      %5d         %11.5E\n",
-              m_VCount->T_Calls_vcs_TP, m_VCount->T_Its,
-              m_VCount->T_Time_vcs_TP);
-        plogf("    vcs_inest:    %5d                    %11.5E\n",
-              m_VCount->T_Calls_Inest, m_VCount->T_Time_inest);
-        plogf("    vcs_TotalTime:                         %11.5E\n",
-              m_VCount->T_Time_vcs);
-    } else {
-        plogf("    vcs_basopt:   %5d      %5d         %11s\n",
-              m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts,"    NA     ");
-        plogf("    vcs_TP:       %5d      %5d         %11s\n",
-              m_VCount->T_Calls_vcs_TP, m_VCount->T_Its,"    NA     ");
-        plogf("    vcs_inest:    %5d                    %11s\n",
-              m_VCount->T_Calls_Inest, "    NA     ");
-        plogf("    vcs_TotalTime:                         %11s\n",
-              "    NA     ");
-    }
+    plogf("\nTCounters:   Num_Calls   Total_Its\n");
+    plogf("    vcs_basopt:   %5d      %5d\n",
+          m_VCount->T_Basis_Opts, m_VCount->T_Basis_Opts);
+    plogf("    vcs_TP:       %5d      %5d\n",
+          m_VCount->T_Calls_vcs_TP, m_VCount->T_Its);
+    plogf("    vcs_inest:    %5d\n", m_VCount->T_Calls_Inest);
 }
 
 void VCS_SOLVE::prob_report(int print_lvl)
@@ -3314,10 +3269,6 @@ size_t VCS_SOLVE::addElement(const char* elNameNew, int elType, int elactive)
     m_elementMapIndex.push_back(0);
     m_elementName.push_back(elNameNew);
     return m_nelem - 1;
-}
-
-void VCS_SOLVE::disableTiming() {
-    vcs_timing_print_lvl = 0;
 }
 
 }

@@ -8,7 +8,6 @@
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
@@ -406,7 +405,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
                                         int maxsteps, int loglevel)
 {
     int maxit = maxsteps;
-    clockWC tickTock;
     m_printLvl = printLvl;
     m_vsolve.m_printLvl = printLvl;
     m_vsolve.m_doEstimateEquil = estimateEquil;
@@ -432,7 +430,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
     }
     int iSuccess = m_vsolve.vcs(ipr, ip1, maxit);
 
-    double te = tickTock.secondsWC();
     if (printLvl > 0) {
         vector<double> mu(m_mix->nSpecies());
         m_mix->getChemPotentials(mu.data());
@@ -472,9 +469,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
         }
         plogf("------------------------------------------"
               "-------------------\n");
-        if (printLvl > 2 && m_vsolve.m_timing_print_lvl > 0) {
-            plogf("Total time = %12.6e seconds\n", te);
-        }
     }
     return iSuccess;
 }

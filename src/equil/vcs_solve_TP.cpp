@@ -9,7 +9,6 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/DenseMatrix.h"
 
@@ -65,7 +64,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     }
     // Initialize and set up all counters
     vcs_counters_init(0);
-    clockWC ticktock;
 
     // temporary space for usage in this routine and in subroutines
     m_sm.assign(m_nelem * m_nelem, 0.0);
@@ -267,14 +265,10 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         solveFail = 1;
     }
 
-    // Calculate counters
-    double tsecond = ticktock.secondsWC();
-    m_VCount->Time_vcs_TP = tsecond;
-    m_VCount->T_Time_vcs_TP += m_VCount->Time_vcs_TP;
+    // Update counters
     m_VCount->T_Calls_vcs_TP++;
     m_VCount->T_Its += m_VCount->Its;
     m_VCount->T_Basis_Opts += m_VCount->Basis_Opts;
-    m_VCount->T_Time_basopt += m_VCount->Time_basopt;
 
     // Return a Flag indicating whether convergence occurred
     return solveFail;
@@ -2011,7 +2005,6 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t juse = npos;
     size_t jlose = npos;
     DenseMatrix C;
-    clockWC tickTock;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
@@ -2482,8 +2475,6 @@ L_END_LOOP:
 
 L_CLEANUP:
     ;
-    double tsecond = tickTock.secondsWC();
-    m_VCount->Time_basopt += tsecond;
     m_VCount->Basis_Opts++;
     return VCS_SUCCESS;
 }
