@@ -413,23 +413,10 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
     m_UpToDate_G0 = false;
 }
 
-void vcs_VolPhase::setState_T(const double temp)
-{
-    setState_TP(temp, Pres_);
-}
-
 void vcs_VolPhase::_updateVolStar() const
 {
     TP_ptr->getStandardVolumes(&StarMolarVol[0]);
     m_UpToDate_VolStar = true;
-}
-
-double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
-{
-    if (!m_UpToDate_VolStar) {
-        _updateVolStar();
-    }
-    return StarMolarVol[kspec];
 }
 
 double vcs_VolPhase::_updateVolPM() const
@@ -551,11 +538,6 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     } else {
         m_isIdealSoln = TP_ptr->isIdeal();
     }
-}
-
-const ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
-{
-    return TP_ptr;
 }
 
 double vcs_VolPhase::totalMoles() const
