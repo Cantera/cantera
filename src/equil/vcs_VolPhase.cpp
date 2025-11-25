@@ -30,11 +30,9 @@ vcs_VolPhase::~vcs_VolPhase()
 }
 
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
-                          const size_t numElem, const char* const phaseName,
-                          const double molesInert)
+                          const size_t numElem, const char* const phaseName)
 {
     AssertThrowMsg(nspecies > 0, "vcs_VolPhase::resize", "nspecies Error");
-    setTotalMolesInert(molesInert);
     m_phi = 0.0;
     m_phiVarIndex = npos;
 
@@ -227,14 +225,6 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
     }
     double fractotal = 1.0;
     v_totalMoles = totalMoles;
-    if (m_totalMolesInert > 0.0) {
-        if (m_totalMolesInert > v_totalMoles) {
-            throw CanteraError("vcs_VolPhase::setMolesFractionsState",
-                 "inerts greater than total: {} {}",
-                 v_totalMoles, m_totalMolesInert);
-        }
-        fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
-    }
     double sum = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         Xmol_[k] = moleFractions[k];
@@ -255,7 +245,7 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
                                    const double* molesSpeciesVCS)
 {
-    v_totalMoles = m_totalMolesInert;
+    v_totalMoles = 0.0;
 
     if (molesSpeciesVCS == 0) {
         AssertThrowMsg(m_owningSolverObject, "vcs_VolPhase::setMolesFromVCS",
@@ -317,9 +307,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         }
     }
     _updateMoleFractionDependencies();
-    if (m_totalMolesInert > 0.0) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    }
 
     // If stateCalc is old and the total moles is positive, then we have a valid
     // state. If the phase went away, it would be a valid starting point for
@@ -454,15 +441,6 @@ double vcs_VolPhase::_updateVolPM() const
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
     }
     m_totalVol *= v_totalMoles;
-
-    if (m_totalMolesInert > 0.0) {
-        if (m_gasPhase) {
-            double volI = m_totalMolesInert * GasConstant * Temp_ / Pres_;
-            m_totalVol += volI;
-        } else {
-            throw CanteraError("vcs_VolPhase::_updateVolPM", "unknown situation");
-        }
-    }
     m_UpToDate_VolPM = true;
     return m_totalVol;
 }
@@ -610,21 +588,13 @@ const vector<double>& vcs_VolPhase::creationMoleNumbers(
 void vcs_VolPhase::setTotalMoles(const double totalMols)
 {
     v_totalMoles = totalMols;
-    if (m_totalMolesInert > 0.0) {
+    if (m_singleSpecies && (m_phiVarIndex == 0)) {
         m_existence = VCS_PHASE_EXIST_ALWAYS;
-        AssertThrowMsg(totalMols >= m_totalMolesInert,
-                       "vcs_VolPhase::setTotalMoles",
-                       "totalMoles less than inert moles: {} {}",
-                       totalMols, m_totalMolesInert);
     } else {
-        if (m_singleSpecies && (m_phiVarIndex == 0)) {
-            m_existence = VCS_PHASE_EXIST_ALWAYS;
+        if (totalMols > 0.0) {
+            m_existence = VCS_PHASE_EXIST_YES;
         } else {
-            if (totalMols > 0.0) {
-                m_existence = VCS_PHASE_EXIST_YES;
-            } else {
-                m_existence = VCS_PHASE_EXIST_NO;
-            }
+            m_existence = VCS_PHASE_EXIST_NO;
         }
     }
 }
@@ -679,11 +649,9 @@ void vcs_VolPhase::setExistence(const int existence)
             throw CanteraError("vcs_VolPhase::setExistence",
                                "setting false existence for phase with moles");
         }
-    } else if (m_totalMolesInert == 0.0) {
-        if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
-            throw CanteraError("vcs_VolPhase::setExistence",
-                    "setting true existence for phase with no moles");
-        }
+    } else if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
+        throw CanteraError("vcs_VolPhase::setExistence",
+                "setting true existence for phase with no moles");
     }
     if (m_singleSpecies && m_phiVarIndex == 0 && (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE)) {
         throw CanteraError("vcs_VolPhase::setExistence",
@@ -704,36 +672,6 @@ void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
     if (spGlobalIndex >= m_numElemConstraints) {
         creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
     }
-}
-
-void vcs_VolPhase::setTotalMolesInert(const double tMolesInert)
-{
-    if (m_totalMolesInert != tMolesInert) {
-        m_UpToDate = false;
-        m_UpToDate_AC = false;
-        m_UpToDate_VolStar = false;
-        m_UpToDate_VolPM = false;
-        m_UpToDate_GStar = false;
-        m_UpToDate_G0 = false;
-        v_totalMoles += (tMolesInert - m_totalMolesInert);
-        m_totalMolesInert = tMolesInert;
-    }
-    if (m_totalMolesInert > 0.0) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    } else if (m_singleSpecies && (m_phiVarIndex == 0)) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    } else {
-        if (v_totalMoles > 0.0) {
-            m_existence = VCS_PHASE_EXIST_YES;
-        } else {
-            m_existence = VCS_PHASE_EXIST_NO;
-        }
-    }
-}
-
-double vcs_VolPhase::totalMolesInert() const
-{
-    return m_totalMolesInert;
 }
 
 size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const

@@ -717,17 +717,12 @@ public:
 
     //! Calculate the total dimensionless Gibbs free energy
     /*!
-     * Inert species are handled as if they had a standard free energy of
-     * zero. Note, for this algorithm this function should be monotonically
-     * decreasing.
+     * Note, for this algorithm this function should be monotonically decreasing.
      */
     double vcs_Total_Gibbs(double* w, double* fe, double* tPhMoles);
 
     //! Calculate the total dimensionless Gibbs free energy of a single phase
     /*!
-     * Inert species are handled as if they had a standard free energy of
-     * zero and if they obeyed ideal solution/gas theory.
-     *
      * @param iphase   ID of the phase
      * @param w        Species mole number vector for all species
      * @param fe       vector of partial molar free energies of all of the
@@ -1233,8 +1228,7 @@ public:
 
     //! Total number of kmoles in all phases
     /*!
-     * This number includes the inerts.
-     *            -> Don't use this except for scaling purposes
+     * Don't use this except for scaling purposes
      */
     double m_totalMolNum = 0.0;
 
@@ -1272,13 +1266,6 @@ public:
 
     //! Pressure
     double m_pressurePA;
-
-    //! Total kmoles of inert to add to each phase
-    /*!
-     * TPhInertMoles[iph] = Total kmoles of inert to add to each phase
-     * length = number of phases
-     */
-    vector<double> TPhInertMoles;
 
     //! Tolerance requirement for major species
     double m_tolmaj= 1e-8;

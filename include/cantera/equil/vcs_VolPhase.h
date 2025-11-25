@@ -91,11 +91,9 @@ public:
      * @param numSpecies  Number of species in the phase
      * @param numElem     Number of elements in the phase
      * @param phaseName   String name for the phase
-     * @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
     void resize(const size_t phaseNum, const size_t numSpecies,
-                const size_t numElem, const char* const phaseName,
-                const double molesInert = 0.0);
+                const size_t numElem, const char* const phaseName);
 
     void elemResize(const size_t numElemConstraints);
 
@@ -363,10 +361,9 @@ public:
      *   that an alternate method is used to calculate the total phase
      *   concentrations.
      * - VCS_PHASE_EXIST_YES = 2 : Does exist currently
-     * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
-     *   which can't exist in any other phase. Or, the phase exists always
-     *   because it consists of a single species, which is identified with the
-     *   voltage, for example, it's an electron metal phase.
+     * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it consists of a single
+     *   species that is identified with the voltage, for example, it's an electron
+     *   metal phase.
      */
     int exists() const;
 
@@ -399,16 +396,6 @@ public:
      * @param spGlobalIndex  Global species index (across all phases)
      */
     void setSpGlobalIndexVCS(const size_t spIndex, const size_t spGlobalIndex);
-
-    //! Sets the total moles of inert in the phase
-    /*!
-     * @param tMolesInert Value of the total kmols of inert species in the
-     *     phase.
-     */
-    void setTotalMolesInert(const double tMolesInert);
-
-    //! Returns the value of the total kmol of inert in the phase
-    double totalMolesInert() const;
 
     //! Returns the global index of the local element index for the phase
     size_t elemGlobalIndex(const size_t e) const;
@@ -626,9 +613,6 @@ public:
     string PhaseName;
 
 private:
-    //!  Total moles of inert in the phase
-    double m_totalMolesInert = 0.0;
-
     //! Boolean indicating whether the phase is an ideal solution
     //! and therefore its molar-based activity coefficients are
     //! uniformly equal to one.

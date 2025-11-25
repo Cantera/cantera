@@ -94,7 +94,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_deltaPhaseMoles.resize(m_numPhases, 0.0);
     m_TmpPhase.resize(m_numPhases, 0.0);
     m_TmpPhase2.resize(m_numPhases, 0.0);
-    TPhInertMoles.resize(m_numPhases, 0.0);
 
     // ind[] is an index variable that keep track of solution vector rotations.
     m_speciesMapIndex.resize(m_nsp, 0);
@@ -166,10 +165,9 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         //    ->PhaseNum = phase number in the thermo problem
         //    ->GasPhase = Boolean indicating whether it is a gas phase
         //    ->NumSpecies = number of species in the phase
-        //    ->TMolesInert = Inerts in the phase = 0.0 for cantera
         //    ->PhaseName  = Name of the phase
         vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-        VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str(), 0.0);
+        VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str());
         VolPhase->m_gasPhase = gasPhase;
 
         // Tell the vcs_VolPhase pointer about cantera
@@ -360,15 +358,14 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
-        plogf("  TMolesInert       Tmoles(kmol)\n");
+        plogf("  PhaseName      PhaseNum SingSpec   EqnState        NumSpec     "
+              "Tmoles(kmol)\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
+            plogf("%16s %8d %8d %16s %8d ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase, VolPhase->eos_name(),
-                  VolPhase->nSpecies(), VolPhase->totalMolesInert());
+                  VolPhase->eos_name(), VolPhase->nSpecies());
             plogf("%16e\n", VolPhase->totalMoles());
         }
 
@@ -378,12 +375,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         writeline('=', 20);
         writeline('=', 80);
         plogf("\n");
-    }
-
-    // TPhInertMoles[] -> must be copied over here
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
-        TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
     // m_speciesIndexVector[] is an index variable that keep track of solution
@@ -1841,8 +1832,6 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
 
 int VCS_SOLVE::vcs_report(int iconv)
 {
-    bool inertYes = false;
-
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
     vector<pair<double, size_t>> x_order;
     for (size_t i = 0; i < m_nsp; i++) {
@@ -1906,19 +1895,6 @@ int VCS_SOLVE::vcs_report(int iconv)
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
         plogf("\n");
-    }
-    for (size_t i = 0; i < m_numPhases; i++) {
-        if (TPhInertMoles[i] > 0.0) {
-            inertYes = true;
-            if (i == 0) {
-                plogf(" Inert Gas Species        ");
-            } else {
-                plogf(" Inert Species in phase %16s ",
-                      m_VolPhaseList[i]->PhaseName);
-            }
-            plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i],
-                  TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
-        }
     }
     if (m_numSpeciesRdc != m_nsp) {
         plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
@@ -2030,15 +2006,10 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     // GLOBAL SATISFACTION INFORMATION
 
-    // Calculate the total dimensionless Gibbs Free Energy. Inert species are
-    // handled as if they had a standard free energy of zero
+    // Calculate the total dimensionless Gibbs Free Energy.
     double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
                                &m_tPhaseMoles_old[0]);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
-    if (inertYes) {
-        plogf("\t\t(Inert species have standard free energy of zero)\n");
-    }
-
     plogf("\nElemental Abundances (kmol): ");
     plogf("         Actual                    Target         Type      ElActive\n");
     for (size_t i = 0; i < m_nelem; ++i) {
@@ -2786,17 +2757,6 @@ double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
 {
     double g = 0.0;
 
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
-        if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
-            g += TPhInertMoles[iph] *
-                 log(TPhInertMoles[iph] / tPhMoles[iph]);
-            if (Vphase->m_gasPhase) {
-                g += TPhInertMoles[iph] * log(m_pressurePA/(1.01325E5));
-            }
-        }
-    }
-
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             g += molesSp[kspec] * chemPot[kspec];
@@ -2810,23 +2770,11 @@ double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
                                  const double* const fe)
 {
     double g = 0.0;
-    double phaseMols = 0.0;
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
         if (m_phaseID[kspec] == iphase && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             g += w[kspec] * fe[kspec];
-            phaseMols += w[kspec];
         }
     }
-
-    if (TPhInertMoles[iphase] > 0.0) {
-        phaseMols += TPhInertMoles[iphase];
-        g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
-        if (Vphase->m_gasPhase) {
-            g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
-        }
-    }
-
     return g;
 }
 
@@ -2900,15 +2848,14 @@ void VCS_SOLVE::vcs_prob_specifyFully()
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
-        plogf("  TMolesInert       Tmoles(kmol)\n");
+        plogf("  PhaseName      PhaseNum SingSpec   EqnState        NumSpec     "
+              "Tmoles(kmol)\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
+            plogf("%16s %8d %8d %16s %8d ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase, VolPhase->eos_name(),
-                  VolPhase->nSpecies(), VolPhase->totalMolesInert());
+                  VolPhase->eos_name(), VolPhase->nSpecies());
             plogf("%16e\n", VolPhase->totalMoles());
         }
 
@@ -2995,9 +2942,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     vcs_tmoles();
 
     // m_tPhaseMoles_new[] will consist of just the component moles
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        m_tPhaseMoles_new[iph] = TPhInertMoles[iph] + 1.0E-20;
-    }
+    m_tPhaseMoles_new.assign(m_numPhases, 1.0e-20);
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
             m_tPhaseMoles_new[m_phaseID[kspec]] += m_molNumSpecies_old[kspec];
@@ -3205,10 +3150,7 @@ void VCS_SOLVE::vcs_SSPhase()
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         Vphase->m_singleSpecies = false;
-        if (TPhInertMoles[iph] > 0.0) {
-            Vphase->setExistence(2);
-        }
-        if (numPhSpecies[iph] <= 1 && TPhInertMoles[iph] == 0.0) {
+        if (numPhSpecies[iph] <= 1) {
             Vphase->m_singleSpecies = true;
         }
     }
@@ -3325,16 +3267,15 @@ void VCS_SOLVE::prob_report(int print_lvl)
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec  GasPhase   "
-              " EqnState    NumSpec");
-        plogf("  TMolesInert      TKmoles\n");
+        plogf("  PhaseName      PhaseNum SingSpec   EqnState        NumSpec     "
+              "Tmoles(kmol)\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
-                  Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
-            plogf("%16s %8d %16e ", Vphase->eos_name(),
-                  Vphase->nSpecies(), Vphase->totalMolesInert());
+            plogf("%16s %8d %8d ", Vphase->PhaseName,
+                  Vphase->VP_ID_, Vphase->m_singleSpecies);
+            plogf("%16s %8d ", Vphase->eos_name(),
+                  Vphase->nSpecies());
             if (m_doEstimateEquil >= 0) {
                 plogf("%16e\n", Vphase->totalMoles());
             } else {
