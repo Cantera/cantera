@@ -30,7 +30,6 @@ namespace Cantera
 {
 
 class vcs_VolPhase;
-class VCS_SPECIES_THERMO;
 class VCS_COUNTERS;
 class MultiPhase;
 
@@ -1439,14 +1438,6 @@ public:
     vector<double> m_chargeSpecies;
 
     vector<vector<size_t>> phasePopProblemLists_;
-
-    //! Vector of pointers to thermo structures which identify the model
-    //! and parameters for evaluating the thermodynamic functions for that
-    //! particular species.
-    /*!
-     * SpeciesThermo[k] pointer to the thermo information for the kth species
-     */
-    vector<unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
 
     //! Choice of Hessians
     /*!

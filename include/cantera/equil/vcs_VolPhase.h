@@ -526,13 +526,6 @@ public:
     //! If true, this phase consists of a single species
     bool m_singleSpecies = true;
 
-    //! If true, this phase is a gas-phase like phase
-    /*!
-     * A RTlog(p/1atm) term is added onto the chemical potential for inert
-     * species if this is true.
-     */
-    bool m_gasPhase = false;
-
     //! Type of the equation of state
     /*!
      * The known types are listed at the top of this file.
