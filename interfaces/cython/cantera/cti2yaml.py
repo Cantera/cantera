@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -13,13 +11,15 @@ accepts either the name of the CTI input file or a string containing the CTI
 content.
 """
 
+from __future__ import annotations
+
 import sys
 import re
 import pathlib
 import textwrap
 from collections import OrderedDict
 from collections.abc import Sequence
-from typing import Any, Literal, TypeAlias, TypedDict
+from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, overload
 from email.utils import formatdate
 import argparse
 import numpy as np
@@ -29,7 +29,7 @@ from ruamel import yaml
 yaml_version: tuple[int, int, int] = yaml.version_info
 # We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
 # available in the Ubuntu 22.04 repositories.
-yaml_min_version: tuple[int, int, int] = (0, 17, 16)
+yaml_min_version = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
         "The minimum supported version of ruamel.yaml is 0.17.16. If you "
@@ -87,6 +87,12 @@ def represent_float(self: Any, data: float) -> Any:
 yaml.RoundTripRepresenter.add_representer(float, represent_float)  # type: ignore[attr-defined]
 
 
+@overload
+def applyUnits(value: str) -> str: ...
+@overload
+def applyUnits(value: tuple[float, str]) -> str: ...
+@overload
+def applyUnits(value: float) -> float: ...  # Covers both float and int
 def applyUnits(
     value: float | int | str | tuple[float, str]
 ) -> float | str:
@@ -132,26 +138,26 @@ _newNames = {
 }
 
 # constants that can be used in .cti files
-OneAtm: float = 1.01325e5
-OneBar: float = 1.0e5
+OneAtm = 1.01325e5
+OneBar = 1.0e5
 # Conversion from eV to J/kmol (electron charge * Avogadro constant)
-eV: float = 9.64853364595687e7
+eV = 9.64853364595687e7
 # Electron Mass in kg
-ElectronMass: float = 9.10938291e-31
+ElectronMass = 9.10938291e-31
 
 # default units
-_ulen: str = 'm'
-_umol: str = 'kmol'
-_umass: str = 'kg'
-_utime: str = 's'
-_ue: str = 'J/kmol'
-_uenergy: str = 'J'
-_upres: str = 'Pa'
+_ulen = 'm'
+_umol = 'kmol'
+_umass = 'kg'
+_utime = 's'
+_ue = 'J/kmol'
+_uenergy = 'J'
+_upres = 'Pa'
 
 # default std state pressure
-_pref: float = OneAtm
+_pref = OneAtm
 
-_name: str = 'noname'
+_name = 'noname'
 
 # these lists store top-level entries
 _elements: list[element] = []
@@ -220,10 +226,8 @@ def units(length: str = '', quantity: str = '', mass: str = '', time: str = '',
     if pressure: _upres = pressure
 
 
-def get_composition(
-    atoms: dict[str, float] | str
-) -> dict[str, float] | OrderedDict[str, float | int]:
-    if isinstance(atoms, dict): return atoms
+def get_composition(atoms: str) -> OrderedDict[str, float | int]:
+    """Parse composition string like 'H:2 O:1' into OrderedDict."""
     a = atoms.replace(",", " ").replace(": ", ":")
     toks = a.split()
     d: OrderedDict[str, float | int] = OrderedDict()
@@ -280,7 +284,7 @@ class element:
 class species:
     """A constituent of a phase or interface."""
     name: str
-    atoms: dict[str, float] | OrderedDict[str, float | int]
+    atoms: OrderedDict[str, float | int]
     size: float
     comment: str
     thermo: 'thermo'
@@ -766,7 +770,7 @@ class reaction:
     and mass-action kinetics.
     """
     equation: str
-    order: dict[str, float] | OrderedDict[str, float]
+    order: OrderedDict[str, float | int]
     number: int
     id: str
     options: Sequence[str]
@@ -845,7 +849,7 @@ class three_body_reaction(reaction):
     A three-body reaction.
     """
     type: Literal['three-body']
-    efficiencies: dict[str, float] | OrderedDict[str, float]
+    efficiencies: OrderedDict[str, float | int]
 
     def __init__(
         self,
@@ -887,7 +891,7 @@ class falloff_base(reaction):
     k_low: Arrhenius
     k_high: Arrhenius
     falloff: Troe | SRI | Lindemann | None
-    efficiencies: dict[str, float] | OrderedDict[str, float]
+    efficiencies: OrderedDict[str, float | int]
 
     def __init__(
         self,
@@ -1572,10 +1576,7 @@ class liquid_vapor(phase):
     equations of state. The substance_flag parameter selects the fluid. See
     liquidvapor.cti and liquidvapor.py for the usage of this entry type.
     """
-    pure_fluids: dict[int, str]
-    substance_flag: int
-
-    pure_fluids = {
+    pure_fluids: ClassVar[dict[int, str]] = {
         0: 'water',
         1: 'nitrogen',
         2: 'methane',
@@ -1585,6 +1586,7 @@ class liquid_vapor(phase):
         7: 'carbon-dioxide',
         8: 'heptane'
     }
+    substance_flag: int
 
     def __init__(
         self,
