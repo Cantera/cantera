@@ -273,17 +273,16 @@ Chemical Potentials of the Species: (dimensionless)
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-Counters:         Iterations          Time (seconds)
-    vcs_basopt:       2                 NA     
-    vcs_TP:          18                 NA     
+Counters:         Iterations
+    vcs_basopt:       2
+    vcs_TP:          18
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-TCounters:   Num_Calls   Total_Its       Total_Time (seconds)
-    vcs_basopt:       2          2             NA     
-    vcs_TP:           1         18             NA     
-    vcs_inest:        1                        NA     
-    vcs_TotalTime:                             NA     
+TCounters:   Num_Calls   Total_Its
+    vcs_basopt:       2          2
+    vcs_TP:           1         18
+    vcs_inest:        1
 
  Results from vcs:
 

@@ -17,14 +17,6 @@ namespace Cantera
  */
 #define plogf writelogf
 
-//! Global hook for turning on and off time printing.
-/*!
- * Default is to allow printing. But, you can assign this to zero globally to
- * turn off all time printing. This is helpful for test suite purposes where you
- * are interested in differences in text files.
- */
-extern int vcs_timing_print_lvl;
-
 //! Class to keep track of time and iterations
 /*!
  * class keeps all of the counters together.
@@ -52,24 +44,6 @@ public:
 
     //! Current number of calls to vcs_TP
     int T_Calls_vcs_TP;
-
-    //! Current time spent in vcs_TP
-    double T_Time_vcs_TP;
-
-    //! Current time spent in vcs_TP
-    double Time_vcs_TP;
-
-    //! Total Time spent in basopt
-    double T_Time_basopt;
-
-    //! Current Time spent in basopt
-    double Time_basopt;
-
-    //! Time spent in initial estimator
-    double T_Time_inest;
-
-    //! Time spent in the vcs suite of programs
-    double T_Time_vcs;
 };
 
 //! Definition of the function pointer for the root finder

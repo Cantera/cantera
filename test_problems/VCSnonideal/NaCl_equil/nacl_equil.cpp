@@ -29,7 +29,6 @@ int main(int argc, char** argv)
     int numFail = 0;
     int printLvl = 1;
     string inputFile = "HMW_NaCl.yaml";
-    VCS_SOLVE::disableTiming();
 
     /*
      * Process the command line arguments

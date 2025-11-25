@@ -923,8 +923,7 @@ private:
 
     //! Initialize the internal counters
     /*!
-     * Initialize the internal counters containing the subroutine call
-     * values and times spent in the subroutines.
+     * Initialize the internal counters tracking subroutine calls.
      *
      *  ifunc = 0     Initialize only those counters appropriate for the top of
      *                vcs_solve_TP().
@@ -932,12 +931,8 @@ private:
      */
     void vcs_counters_init(int ifunc);
 
-    //! Create a report on the plog file containing timing and its information
-    /*!
-     * @param timing_print_lvl If 0, just report the iteration count. If larger
-     *     than zero, report the timing information
-     */
-    void vcs_TCounters_report(int timing_print_lvl = 1);
+    //! Create a report on the plog file containing iteration counters
+    void vcs_TCounters_report();
 
     void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
 
@@ -1475,17 +1470,6 @@ public:
      *     * 10 Additionally Hessian matrix is printed out
      */
     int m_debug_print_lvl = 0;
-
-    //! printing level of timing information
-    /*!
-     *  * 1 allowing printing of timing
-     *  * 0 do not allow printing of timing -> everything is printed as a NA.
-     */
-    int m_timing_print_lvl = 1;
-
-    //! Disable printing of timing information. Used to generate consistent
-    //! output for tests.
-    static void disableTiming();
 
     friend class vcs_phaseStabilitySolve;
 };
