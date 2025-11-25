@@ -416,8 +416,6 @@ public:
     void vcs_deltag(const int L, const bool doDeleted, const int vcsState,
                     const bool alterZeroedPhases = true);
 
-    void vcs_printDeltaG(const int stateCalc);
-
     //!  Swaps the indices for all of the global data for two species, k1
     //!  and k2.
     /*!
@@ -1027,8 +1025,6 @@ public:
      * @returns the index number of the new element
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);
-
-    void reportCSV(const string& reportFile);
 
     //!  Total number of species in the problems
     size_t m_nsp;

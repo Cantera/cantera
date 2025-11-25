@@ -197,16 +197,6 @@ public:
      */
     double G0_calc_one(size_t kspec) const;
 
-    //! Molar volume calculation for standard state of one species
-    /*!
-     * Calculate the molar volume for the standard states. The results are held
-     * internally within the object.
-     *
-     * @param kspec Species number (within the phase)
-     * @return molar volume of the kspec species's standard state (m**3/kmol)
-     */
-    double VolStar_calc_one(size_t kspec) const;
-
     //! Fill in the partial molar volume vector for VCS
     /*!
      * This routine will calculate the partial molar volumes for the current
@@ -239,12 +229,6 @@ public:
      */
     void setState_TP(const double temperature_Kelvin, const double pressure_PA);
 
-    //! Sets the temperature in this object and underlying ThermoPhase objects
-    /*!
-     * @param temperature_Kelvin    (Kelvin)
-     */
-    void setState_T(const double temperature_Kelvin);
-
     //! Downloads the ln ActCoeff Jacobian into the VCS version of the
     //! ln ActCoeff Jacobian.
     /**
@@ -268,12 +252,6 @@ public:
      *               to this phase.
      */
     void setPtrThermoPhase(ThermoPhase* tp_ptr);
-
-    //! Return a const ThermoPhase pointer corresponding to this phase
-    /*!
-     *  @return pointer to the ThermoPhase.
-     */
-    const ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
     double totalMoles() const;
