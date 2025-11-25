@@ -19,7 +19,7 @@ import pathlib
 import textwrap
 from collections import OrderedDict
 from collections.abc import Sequence
-from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, overload
+from typing import Any, ClassVar, Final, Literal, TypeAlias, TypedDict, overload
 from email.utils import formatdate
 import argparse
 import numpy as np
@@ -386,16 +386,18 @@ class species:
             }
 
         if node.rk_pure:
-            a = node.rk_pure['a']
-            if isinstance(a, (tuple, list)):
-                a_processed: Any = FlowList([applyUnits(ai) for ai in a])
-            else:
-                a_processed = applyUnits(a)
-            out['equation-of-state'] = {
-                'model': 'Redlich-Kwong',
-                'a': a_processed,
-                'b': applyUnits(node.rk_pure['b'])
-            }
+            a = node.rk_pure.get('a')
+            b = node.rk_pure.get('b')
+            if a is not None and b is not None:
+                if isinstance(a, (tuple, list)):
+                    a_processed: Any = FlowList([applyUnits(ai) for ai in a])
+                else:
+                    a_processed = applyUnits(a)
+                out['equation-of-state'] = {
+                    'model': 'Redlich-Kwong',
+                    'a': a_processed,
+                    'b': applyUnits(b)
+                }
 
         if node.rk_binary:
             rkbin = BlockMap()
@@ -429,7 +431,6 @@ class species:
 
 class thermo:
     """Base class for species thermodynamic properties."""
-    model: str
     pref: float | None
 
     @classmethod
@@ -447,7 +448,7 @@ class thermo:
 
 class NASA(thermo):
     """The 7-coefficient NASA polynomial parameterization."""
-    model: Literal['NASA7']
+    model: Final = 'NASA7'
     T_range: Sequence[float]
     pref: float | None
     coeffs: Sequence[float]
@@ -480,7 +481,7 @@ class NASA(thermo):
 
 class NASA9(thermo):
     """NASA9 polynomial parameterization for a single temperature region."""
-    model: Literal['NASA9']
+    model: Final = 'NASA9'
     T_range: Sequence[float]
     pref: float | None
     coeffs: Sequence[float]
@@ -530,7 +531,7 @@ class MultiPolyThermo(thermo):
 
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
-    model: Literal['Shomate']
+    model: Final = 'Shomate'
     T_range: Sequence[float]
     pref: float | None
     coeffs: Sequence[float]
@@ -557,8 +558,8 @@ class Shomate(thermo):
 
 class const_cp(thermo):
     """Constant specific heat."""
-    model: Literal['constant-cp']
-    pref: None
+    model: Final = 'constant-cp'
+    pref: Final[None] = None
     t0: float | None
     h0: float | None
     s0: float | None
@@ -775,7 +776,6 @@ class reaction:
     id: str
     options: Sequence[str]
     kf: Arrhenius
-    type: str = 'elementary'
 
     def __init__(
         self,
@@ -848,7 +848,6 @@ class three_body_reaction(reaction):
     """
     A three-body reaction.
     """
-    type: Literal['three-body']
     efficiencies: OrderedDict[str, float | int]
 
     def __init__(
@@ -924,7 +923,7 @@ class falloff_base(reaction):
 
 class falloff_reaction(falloff_base):
     """ A gas-phase falloff reaction. """
-    type: Literal['falloff']
+    type: Final = 'falloff'
 
     def __init__(
         self,
@@ -965,7 +964,7 @@ class falloff_reaction(falloff_base):
 
 class chemically_activated_reaction(falloff_base):
     """ A gas-phase, chemically activated reaction. """
-    type: Literal['chemically-activated']
+    type: Final = 'chemically-activated'
 
     def __init__(
         self,
@@ -1011,7 +1010,7 @@ class pdep_arrhenius(reaction):
     expressions at different pressures.
     """
     arrhenius: tuple[Sequence[float], ...]
-    type: Literal['pressure-dependent-Arrhenius']
+    type: Final = 'pressure-dependent-Arrhenius'
 
     def __init__(self, equation: str, *args: Sequence[float], **kwargs: Any) -> None:
         """
@@ -1044,7 +1043,7 @@ class chebyshev_reaction(reaction):
     Pressure-dependent rate calculated in terms of a bivariate Chebyshev
     polynomial.
     """
-    type: Literal['Chebyshev']
+    type: Final = 'Chebyshev'
     Pmin: tuple[float, str]
     Pmax: tuple[float, str]
     Tmin: float
@@ -1104,7 +1103,7 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    type: Literal['surface', 'edge'] = 'surface'
+    type: Final = 'surface'
     sticking: bool
     beta: float | None
     rate_coeff_type: Literal['', 'exchangecurrentdensity']
@@ -1149,8 +1148,9 @@ class surface_reaction(reaction):
         if self.sticking:
             del out['rate-constant']
             out.insert(1, 'sticking-coefficient', self.kf)
-            if hasattr(self.kf, 'motz_wise') and self.kf.motz_wise is not None:
-                out['Motz-Wise'] = self.kf.motz_wise
+            motz_wise = getattr(self.kf, 'motz_wise', None)
+            if motz_wise is not None:
+                out['Motz-Wise'] = motz_wise
         if self.rate_coeff_type == 'exchangecurrentdensity':
             out['exchange-current-density-formulation'] = True
 
@@ -1163,7 +1163,7 @@ class surface_reaction(reaction):
 
 
 class edge_reaction(surface_reaction):
-    type: Literal['edge']
+    type: Final = 'edge'
 
     def __init__(
         self,
@@ -2030,6 +2030,7 @@ def convert(
     elif filename is not None and text is not None:
         raise ValueError("Only one of filename or text should be specified")
 
+    base = "<string>"  # Default when text is provided
     if filename is not None:
         filename = pathlib.Path(filename).expanduser()
         base = filename.name
@@ -2247,7 +2248,8 @@ def main() -> None:
 
     # Do full validation by importing the resulting mechanism
     try:
-        from cantera import Solution, Interface  # type: ignore[import-not-found]
+        # Note: import-not-found needed in standalone mode, attr-defined needed in package mode
+        from cantera import Solution, Interface  # type: ignore[import-not-found,attr-defined]
     except ImportError:
         print("WARNING: Unable to import Cantera Python module. "
             "Output mechanism has not been validated")
