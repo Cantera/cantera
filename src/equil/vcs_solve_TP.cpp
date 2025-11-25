@@ -89,13 +89,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("%5d PHASES\n", m_numPhases);
         plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa ");
         plogf(" TEMPERATURE%19.3f K\n", m_temperature);
-        vcs_VolPhase* Vphase = m_VolPhaseList[0].get();
-        if (Vphase->nSpecies() > 0) {
-            plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
-        }
-        if (m_numPhases > 1) {
-            plogf(" PHASE2 INERTS%17.3f\n", TPhInertMoles[1]);
-        }
         plogf("\n ELEMENTAL ABUNDANCES             CORRECT");
         plogf("          FROM ESTIMATE           Type\n\n");
         for (size_t i = 0; i < m_nelem; ++i) {
@@ -2745,11 +2738,6 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
 
     // Might as well recalculate the phase mole vector and compare to the stored
     // one. They should be correct.
-    double* tPhInertMoles = &TPhInertMoles[0];
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        tlogMoles[iph] = tPhInertMoles[iph];
-
-    }
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             size_t iph = m_phaseID[kspec];
@@ -2945,7 +2933,7 @@ double VCS_SOLVE::l2normdg(double dgLocal[]) const
 double VCS_SOLVE::vcs_tmoles()
 {
     for (size_t i = 0; i < m_numPhases; i++) {
-        m_tPhaseMoles_old[i] = TPhInertMoles[i];
+        m_tPhaseMoles_old[i] = 0.0;
     }
     for (size_t i = 0; i < m_nsp; i++) {
         if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
@@ -2969,7 +2957,7 @@ double VCS_SOLVE::vcs_tmoles()
 void VCS_SOLVE::check_tmoles() const
 {
     for (size_t i = 0; i < m_numPhases; i++) {
-        double m_tPhaseMoles_old_a = TPhInertMoles[i];
+        double m_tPhaseMoles_old_a = 0.0;
 
         for (size_t k = 0; k < m_nsp; k++) {
             if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_MOLNUM && m_phaseID[k] == i) {
