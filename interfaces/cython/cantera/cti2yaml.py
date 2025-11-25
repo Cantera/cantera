@@ -72,7 +72,7 @@ def float2string(data: float) -> str:
     else:
         return np.format_float_scientific(data, trim='0')
 
-def represent_float(self: Any, data: float) -> str:
+def represent_float(self: Any, data: float) -> Any:
     if data != data:
         value = '.nan'
     elif data == self.inf_value:
@@ -84,13 +84,15 @@ def represent_float(self: Any, data: float) -> str:
 
     return self.represent_scalar(u'tag:yaml.org,2002:float', value)
 
-yaml.RoundTripRepresenter.add_representer(float, represent_float)
+yaml.RoundTripRepresenter.add_representer(float, represent_float)  # type: ignore[attr-defined]
 
 
 def applyUnits(
-    value: float | int | tuple[float, str]
+    value: float | int | str | tuple[float, str]
 ) -> float | str:
-    if isinstance(value, (float, int)):
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, (float, int)):
         return value
     else:
         units = value[1]
@@ -220,11 +222,11 @@ def units(length: str = '', quantity: str = '', mass: str = '', time: str = '',
 
 def get_composition(
     atoms: dict[str, float] | str
-) -> dict[str, float] | OrderedDict[str, float]:
+) -> dict[str, float] | OrderedDict[str, float | int]:
     if isinstance(atoms, dict): return atoms
     a = atoms.replace(",", " ").replace(": ", ":")
     toks = a.split()
-    d = OrderedDict()
+    d: OrderedDict[str, float | int] = OrderedDict()
     for t in toks:
         b = t.split(':')
         try:
@@ -278,7 +280,7 @@ class element:
 class species:
     """A constituent of a phase or interface."""
     name: str
-    atoms: OrderedDict[str, float]
+    atoms: dict[str, float] | OrderedDict[str, float | int]
     size: float
     comment: str
     thermo: 'thermo'
@@ -287,13 +289,14 @@ class species:
     rk_pure: _RkPure
     rk_binary: _RkBinary
     density: float | str | None
+    molar_density: float | str | None
 
     def __init__(
         self,
         name: str,
         atoms: str = '',
         note: str = '',
-        thermo: 'thermo | Sequence[thermo] | None' = None,
+        thermo: 'thermo | Sequence[thermo] | None' = None,  # type: ignore[valid-type]
         transport: 'gas_transport | None' = None,
         charge: float | None = None,
         size: float = 1.0,
@@ -350,11 +353,11 @@ class species:
         elif isinstance(thermo, (NASA, NASA9, Shomate)):
             self.thermo = MultiPolyThermo([thermo])
         elif thermo is not None:
-            self.thermo = thermo
+            self.thermo = thermo  # type: ignore[assignment]
         else:
             self.thermo = const_cp()
 
-        self.transport = None if transport == "None" else transport
+        self.transport = None if transport is None else transport
         self.standard_state = standardState
         self.molar_density = None  # used to transfer data from 'lattice' entry
 
@@ -381,12 +384,12 @@ class species:
         if node.rk_pure:
             a = node.rk_pure['a']
             if isinstance(a, (tuple, list)):
-                a = FlowList([applyUnits(ai) for ai in a])
+                a_processed: Any = FlowList([applyUnits(ai) for ai in a])
             else:
-                a = applyUnits(a)
+                a_processed = applyUnits(a)
             out['equation-of-state'] = {
                 'model': 'Redlich-Kwong',
-                'a': a,
+                'a': a_processed,
                 'b': applyUnits(node.rk_pure['b'])
             }
 
@@ -414,8 +417,8 @@ class species:
         if node.transport:
             out['transport'] = node.transport
         if node.comment:
-            comment = node.comment.split("\n")
-            comment = " ".join(c.strip() for c in comment)
+            comment_lines = node.comment.split("\n")
+            comment = " ".join(c.strip() for c in comment_lines)
             out['note'] = comment
         return representer.represent_dict(out)
 
@@ -506,14 +509,14 @@ class MultiPolyThermo(thermo):
     data: list[Sequence[float]]
 
     def __init__(self, regions: Sequence[thermo]) -> None:
-        regions = sorted(regions, key=lambda r: r.T_range[0])
-        self.pref = regions[0].pref
-        self.Tranges = [regions[0].T_range[0]]
+        regions = sorted(regions, key=lambda r: r.T_range[0])  # type: ignore[attr-defined]
+        self.pref = regions[0].pref  # type: ignore[assignment]
+        self.Tranges = [regions[0].T_range[0]]  # type: ignore[attr-defined]
         self.model = regions[0].model
         self.data = []
         for r in regions:
-            self.Tranges.append(r.T_range[1])
-            self.data.append(r.coeffs)
+            self.Tranges.append(r.T_range[1])  # type: ignore[attr-defined]
+            self.data.append(r.coeffs)  # type: ignore[attr-defined]
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
@@ -613,7 +616,7 @@ class gas_transport:
     dipole: float
     polarizability: float
     rot_relax: float
-    acentric_factor: float
+    acentric_factor: float | None
     disp_coeff: float
     quad_polar: float
 
@@ -722,10 +725,10 @@ class Arrhenius:
 
         if coverage:
             if isinstance(coverage[0], str):
-                self.coverage = [coverage]
+                self.coverage = [coverage]  # type: ignore[list-item]
             else:
-                self.coverage = coverage
-            for cov in self.coverage:
+                self.coverage = coverage  # type: ignore[assignment]
+            for cov in self.coverage:  # type: ignore[union-attr]
                 if len(cov) != 4:
                     raise InputError("Incorrect number of coverage parameters")
         else:
@@ -802,7 +805,7 @@ class reaction:
         self.number = len(_reactions['reactions']) + 1
         self.id = id
         self.options = [options] if isinstance(options, str) else options
-        self.kf = Arrhenius(*kf) if isinstance(kf, (list, tuple)) else kf
+        self.kf = Arrhenius(*kf) if isinstance(kf, (list, tuple)) else kf  # type: ignore[assignment]
         self.type = 'elementary'
         _reactions['reactions'].append(self)
 
@@ -896,9 +899,9 @@ class falloff_base(reaction):
         id: str,
         options: str | Sequence[str]
     ) -> None:
-        super().__init__(equation, None, id, '', options)
-        self.k_low = Arrhenius(*klow) if isinstance(klow, (list, tuple)) else klow
-        self.k_high = Arrhenius(*khigh) if isinstance(khigh, (list, tuple)) else khigh
+        super().__init__(equation, None, id, '', options)  # type: ignore[arg-type]
+        self.k_low = Arrhenius(*klow) if isinstance(klow, (list, tuple)) else klow  # type: ignore[assignment]
+        self.k_high = Arrhenius(*khigh) if isinstance(khigh, (list, tuple)) else khigh  # type: ignore[assignment]
         self.falloff = falloff
         self.efficiencies = get_composition(efficiencies)
 
@@ -1017,7 +1020,7 @@ class pdep_arrhenius(reaction):
             ``id``, ``order``, and ``options`` may be specified as keyword
             arguments, with the same meanings as for class `reaction`.
         """
-        super().__init__(equation, None, **kwargs)
+        super().__init__(equation, None, **kwargs)  # type: ignore[arg-type]
         self.arrhenius = args
         self.type = 'pressure-dependent-Arrhenius'
 
@@ -1075,7 +1078,7 @@ class chebyshev_reaction(reaction):
         """
         # Remove deprecated '(+M)' third body notation
         equation = re.sub(r" *\( *\+ *M *\)", "", equation)
-        super().__init__(equation, None, **kwargs)
+        super().__init__(equation, None, **kwargs)  # type: ignore[arg-type]
         self.type = 'Chebyshev'
         self.Pmin = Pmin
         self.Pmax = Pmax
@@ -1142,7 +1145,7 @@ class surface_reaction(reaction):
         if self.sticking:
             del out['rate-constant']
             out.insert(1, 'sticking-coefficient', self.kf)
-            if self.kf.motz_wise is not None:
+            if hasattr(self.kf, 'motz_wise') and self.kf.motz_wise is not None:
                 out['Motz-Wise'] = self.kf.motz_wise
         if self.rate_coeff_type == 'exchangecurrentdensity':
             out['exchange-current-density-formulation'] = True
@@ -1248,7 +1251,7 @@ class phase:
     """Base class for phases of matter."""
     name: str
     elements: str
-    species: list[tuple[str, yaml.comments.CommentedSeq]]
+    species: list[tuple[str, str | yaml.comments.CommentedSeq]]
     reactions: list[list[str]]
     thermo_model: str | None
     kinetics: _OldKineticsModel | None
@@ -1324,9 +1327,12 @@ class phase:
             if foundColon and not allLocal:
                 icolon = sp.find(':')
                 datasrc = sp[:icolon].strip()
-                spnames = sp[icolon+1:].strip()
-                if spnames != 'all':
-                    spnames = FlowList(spnames.split())
+                spnames_str = sp[icolon+1:].strip()
+                spnames: str | yaml.comments.CommentedSeq
+                if spnames_str != 'all':
+                    spnames = FlowList(spnames_str.split())
+                else:
+                    spnames = spnames_str
                 self.species.append((datasrc + '.yaml/species', spnames))
 
             else:
@@ -1362,7 +1368,7 @@ class phase:
         # add this phase to the global phase list
         _phases.append(self)
 
-    def modify_species(self, local_species: list[species]) -> None:
+    def modify_species(self, local_species: list[species]) -> None:  # type: ignore[valid-type]
         pass
 
     @classmethod
@@ -1490,7 +1496,7 @@ class stoichiometric_solid(phase):
     to have constant density. Therefore the rates of reactions involving these
     phases do not contain any concentration terms for the (one) species in the
     phase, since the concentration is always the same."""
-    density: float
+    density: float | None
 
     def __init__(
         self,
@@ -1517,6 +1523,7 @@ class stoichiometric_solid(phase):
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
+        assert self.density is not None  # Checked in __init__
         for section, names in self.species:
             if section != 'species':
                 out['density'] = applyUnits(self.density)
@@ -1605,7 +1612,7 @@ class liquid_vapor(phase):
 
 
 class pureFluidParameters:
-    species: str
+    species: str | None
     a_coeff: Sequence[float] | float
     b_coeff: float
 
@@ -1632,6 +1639,8 @@ class crossFluidParameters:
         a_coeff: Sequence[float] | float = (),
         b_coeff: Sequence[float] | float = ()
     ) -> None:
+        if species is None:
+            raise ValueError("species parameter is required for crossFluidParameters")
         self.species1, self.species2 = species.split(' ')
         self.a_coeff = a_coeff
         self.b_coeff = b_coeff
@@ -1641,7 +1650,7 @@ class RedlichKwongMFTP(phase):
     """
     A multi-component fluid model for non-ideal gas fluids.
     """
-    activity_coefficients: Sequence[pureFluidParameters | crossFluidParameters]
+    activity_coefficients: Sequence[pureFluidParameters | crossFluidParameters] | None
 
     def __init__(
         self,
@@ -1650,7 +1659,7 @@ class RedlichKwongMFTP(phase):
         species: str | Sequence[str] = '',
         note: str = '',
         reactions: str | Sequence[str] = 'none',
-        kinetics: Literal['GasKinetics'] = 'GasKinetics',
+        kinetics: Literal['GasKinetics'] | Literal['None'] = 'GasKinetics',
         initial_state: state | None = None,
         activity_coefficients: (
             Sequence[pureFluidParameters | crossFluidParameters] | None
@@ -1673,16 +1682,18 @@ class RedlichKwongMFTP(phase):
                 _printerr("WARNING: Converting Redlich-Kwong species from"
                     " different input files ({}) is not supported.".format(section))
 
-        spdict = {sp.name: sp for sp in _species}
-        for params in self.activity_coefficients:
-            if isinstance(params, pureFluidParameters):
-                sp = spdict[params.species]
-                sp.rk_pure = {'a': params.a_coeff, 'b': params.b_coeff}
-            elif isinstance(params, crossFluidParameters):
-                sp1 = spdict[params.species1]
-                sp1.rk_binary[params.species2] = params.a_coeff
-                sp2 = spdict[params.species2]
-                sp2.rk_binary[params.species1] = params.a_coeff
+        if self.activity_coefficients is not None:
+            spdict = {sp.name: sp for sp in _species}
+            for params in self.activity_coefficients:
+                if isinstance(params, pureFluidParameters):
+                    if params.species is not None:
+                        sp = spdict[params.species]
+                        sp.rk_pure = {'a': params.a_coeff, 'b': params.b_coeff}  # type: ignore[typeddict-item]
+                elif isinstance(params, crossFluidParameters):
+                    sp1 = spdict[params.species1]
+                    sp1.rk_binary[params.species2] = params.a_coeff  # type: ignore[assignment]
+                    sp2 = spdict[params.species2]
+                    sp2.rk_binary[params.species1] = params.a_coeff  # type: ignore[assignment]
 
 
 class constantIncompressible:
@@ -1699,7 +1710,7 @@ class constantIncompressible:
 
 class IdealSolidSolution(phase):
     """An IdealSolidSolution phase."""
-    standard_concentration: _OldConcentrationBasis
+    standard_concentration: _OldConcentrationBasis | None
 
     def __init__(
         self,
@@ -1722,6 +1733,7 @@ class IdealSolidSolution(phase):
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
+        assert self.standard_concentration is not None  # Checked in __init__
         out['standard-concentration-basis'] = _newNames[self.standard_concentration]
 
 
@@ -1752,8 +1764,8 @@ class table:
 
 class BinarySolutionTabulatedThermo(IdealSolidSolution):
     """A BinarySolutionTabulatedThermo phase."""
-    tabulated_species: str
-    tabulated_thermo: table
+    tabulated_species: str | None
+    tabulated_thermo: table | None
 
     def __init__(
         self,
@@ -1795,6 +1807,8 @@ class BinarySolutionTabulatedThermo(IdealSolidSolution):
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
+        assert self.tabulated_species is not None  # Checked in __init__
+        assert self.tabulated_thermo is not None  # Checked in __init__
         out['tabulated-species'] = self.tabulated_species
         energy_units, quantity_units = self.tabulated_thermo.h[1].split('/')
         tabThermo = BlockMap()
@@ -1807,7 +1821,7 @@ class BinarySolutionTabulatedThermo(IdealSolidSolution):
         out['tabulated-thermo'] = tabThermo
 
 class lattice(phase):
-    site_density: float
+    site_density: float | None
 
     def __init__(
         self,
@@ -1851,6 +1865,7 @@ class lattice(phase):
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
+        assert self.site_density is not None  # Checked in __init__
         out['site-density'] = applyUnits(self.site_density)
 
 class ideal_interface(phase):
@@ -1893,7 +1908,10 @@ class ideal_interface(phase):
         self.kinetics = None if kinetics == "None" else kinetics
         self.transport = None if transport == "None" else transport
         self.site_density = site_density
-        self.adjacent_phases = phases.split()
+        if isinstance(phases, str):
+            self.adjacent_phases = phases.split()
+        else:
+            self.adjacent_phases = list(phases)
 
     def get_yaml(self, out: yaml.comments.CommentedMap) -> None:
         super().get_yaml(out)
@@ -1991,7 +2009,7 @@ def convert(
     output_name: pathlib.Path | str | None = None,
     text: str | None = None,
     encoding: str = "latin-1"
-) -> tuple[int, int, list[ideal_interface], pathlib.Path]:
+) -> tuple[int, int, list[str], pathlib.Path]:
     # Reset global state, in case cti2yaml is being used as a module and convert
     # is being called multiple times.
     units('m', 'kmol', 'kg', 's', 'J/kmol', 'J', 'Pa')
@@ -2018,14 +2036,17 @@ def convert(
 
     if output_name is None and _name != 'noname':
         output_name = pathlib.Path(_name + '.yaml')
-    else:
+    elif output_name is not None:
         output_name = pathlib.Path(output_name)
+    else:
+        output_name = pathlib.Path('output.yaml')  # Fallback
 
     try:
         if filename is not None:
             text = filename.read_text(encoding=encoding)
         else:
             filename = "<string>"
+        assert text is not None  # Either loaded from file or passed as parameter
         code = compile(text, str(filename), "exec")
         exec(code)
     except FileNotFoundError as err:
@@ -2034,21 +2055,25 @@ def convert(
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        text = text.split('\n')
+        assert text is not None  # Must be set at this point
+        text_lines = text.split('\n')
+        lineno = err.lineno or 0
+        offset = err.offset or 0
         _printerr('{} in "{}" on line {}:\n'.format(
-            err.__class__.__name__, err.filename, err.lineno))
+            err.__class__.__name__, err.filename, lineno))
         _printerr('|  Line |')
-        for i in range(max(err.lineno-6, 0),
-                       min(err.lineno+3, len(text))):
-            _printerr('| {: 5d} |'.format(i+1), text[i].rstrip())
-            if i == err.lineno-1:
-                _printerr(' '* (err.offset+9) + '^')
+        for i in range(max(lineno-6, 0),
+                       min(lineno+3, len(text_lines))):
+            _printerr('| {: 5d} |'.format(i+1), text_lines[i].rstrip())
+            if i == lineno-1:
+                _printerr(' '* (offset+9) + '^')
         _printerr()
         sys.exit(3)
     except Exception as err:
         import traceback
 
-        text = text.split('\n')
+        assert text is not None  # Must be set at this point
+        text_lines = text.split('\n')
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
         if tb[-1][0] == filename:
@@ -2059,29 +2084,30 @@ def convert(
             _printerr('\n| Line |')
 
             for i in range(max(lineno-6, 0),
-                           min(lineno+3, len(text))):
+                           min(lineno+3, len(text_lines))):
                 if i == lineno-1:
-                    _printerr('> {: 4d} >'.format(i+1), text[i].rstrip())
+                    _printerr('> {: 4d} >'.format(i+1), text_lines[i].rstrip())
                 else:
-                    _printerr('| {: 4d} |'.format(i+1), text[i].rstrip())
+                    _printerr('| {: 4d} |'.format(i+1), text_lines[i].rstrip())
         else:
             # Error in cti2yaml or elsewhere
             traceback.print_exc()
         sys.exit(4)
 
     # get file description from header block
-    description = []
+    description_lines: list[str] = []
     for phase in _phases:
         phase.modify_species(_species)
 
+    assert text is not None  # Must be set at this point
     for line in text.splitlines():
         # only consider comments in the initial contiguous comment block
         # comments start with '#'; there may be empty leading lines
-        if description and not line.startswith("#"):
+        if description_lines and not line.startswith("#"):
             break
         elif line.strip():
-            description.append(line[1:].rstrip())
-    description = textwrap.dedent("\n".join(description).strip("\n"))
+            description_lines.append(line[1:].rstrip())
+    description = textwrap.dedent("\n".join(description_lines).strip("\n"))
 
     # write the YAML file
     emitter = yaml.YAML()
@@ -2219,7 +2245,7 @@ def main() -> None:
 
     # Do full validation by importing the resulting mechanism
     try:
-        from cantera import Solution, Interface
+        from cantera import Solution, Interface  # type: ignore[import-not-found]
     except ImportError:
         print("WARNING: Unable to import Cantera Python module. "
             "Output mechanism has not been validated")
