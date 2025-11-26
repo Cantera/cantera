@@ -51,31 +51,11 @@ public:
 
     ~VCS_SOLVE();
 
-    //! Solve an equilibrium problem
-    /*!
-     * This is the main interface routine to the equilibrium solver
-     *
-     * @param ipr Printing of results
-     *     ipr = 1 -> Print problem statement and final results to
-     *                standard output
-     *           0 -> don't report on anything
-     * @param ip1 Printing of intermediate results
-     *     IP1 = 1 -> Print intermediate results.
-     * @param maxit  Maximum number of iterations for the algorithm
-     * @return nonzero value: failure to solve the problem at hand. zero :
-     *       success
-     */
-    int vcs(int ipr, int ip1, int maxit);
-
     //! Main routine that solves for equilibrium at constant T and P using a
     //! variant of the VCS method
     /*!
-     * This is the main routine that solves for equilibrium at constant T and P
-     * using a variant of the VCS method. Nonideal phases can be accommodated as
-     * well.
-     *
-     * Any number of single-species phases and multi-species phases can be
-     * handled by the present version.
+     * Any number of single-species phases and multi-species phases, including non-ideal
+     * phases, can be handled by the present version.
      *
      * @param print_lvl     1 -> Print results to standard output;
      *                      0 -> don't report on anything
@@ -91,7 +71,7 @@ public:
      *     * -1 = Maximum number of iterations is exceeded. Convergence was
      *       not found.
      */
-    int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
+    int solve_TP(int print_lvl, int printDetails, int maxit);
 
     /**
      * We make decisions on the initial mole number, and major-minor status
@@ -144,19 +124,6 @@ public:
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
     void vcs_basopt(const bool doJustComponents, double test);
-
-    //!  Choose a species to test for the next component
-    /*!
-     * We make the choice based on testing (molNum[i] * spSize[i]) for its
-     * maximum value. Preference for single species phases is also made.
-     *
-     * @param molNum  Mole number vector
-     * @param j       index into molNum[] that indicates where the search will
-     *     start from Previous successful components are swapped into the front
-     *     of molNum[].
-     * @param n       Length of molNum[]
-     */
-    size_t vcs_basisOptMax(const double* const molNum, const size_t j, const size_t n);
 
     //! Evaluate the species category for the indicated species
     /*!
@@ -423,33 +390,6 @@ public:
      * @param iph Phase id of the deleted phase
      */
     double vcs_phaseStabilityTest(const size_t iph);
-
-    //! Solve an equilibrium problem at a particular fixed temperature
-    //! and pressure
-    /*!
-     * The actual problem statement is assumed to be in the structure already.
-     * This is a wrapper around the solve_TP() function. In this wrapper, we
-     * calculate the standard state Gibbs free energies of the species
-     * and we decide whether to we need to use the initial guess algorithm.
-     *
-     * @param ipr = 1 -> Print results to standard output;
-     *              0 -> don't report on anything
-     * @param ip1 = 1 -> Print intermediate results;
-     *              0 -> Dont print any intermediate results
-     * @param maxit  Maximum number of iterations for the algorithm
-     * @param T    Value of the Temperature (Kelvin)
-     * @param pres Value of the Pressure
-     * @returns an integer representing the success of the algorithm
-     * * 0 = Equilibrium Achieved
-     * * 1 = Range space error encountered. The element abundance criteria are
-     *   only partially satisfied. Specifically, the first NC= (number of
-     *   components) conditions are satisfied. However, the full NE (number of
-     *   elements) conditions are not satisfied. The equilibrium condition is
-     *   returned.
-     * * -1 = Maximum number of iterations is exceeded. Convergence was not
-     *   found.
-     */
-    int vcs_TP(int ipr, int ip1, int maxit, double T, double pres);
 
     /**
      * Evaluate the standard state free energies at the current temperature

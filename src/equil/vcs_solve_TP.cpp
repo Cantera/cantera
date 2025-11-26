@@ -44,13 +44,48 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
     }
 }
 
-int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
+int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
 {
+    // This function is called to copy the public data and the current
+    // problem specification into the current object's data structure.
+    vcs_prob_specifyFully();
+
+    prob_report(m_printLvl);
+
+    // Prep the problem data
+    //    - adjust the identity of any phases
+    //    - determine the number of components in the problem
+    int retn = vcs_prep(printDetails);
+    if (retn != 0) {
+        plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
+              retn);
+        return retn;
+    }
+
+    // Once we have defined the global internal data structure defining the
+    // problem, then we go ahead and solve the problem.
+    m_Faraday_dim = Faraday / (m_temperature * GasConstant);
+
+    // Evaluate the standard state free energies
+    // at the current temperatures and pressures.
+    int iconv = vcs_evalSS_TP(print_lvl, printDetails, m_temperature, m_pressurePA);
+
+    // Prep the fe field
+    vcs_fePrep_TP();
+
+    // Decide whether we need an initial estimate of the solution If so, go get
+    // one. If not, then
+    if (m_doEstimateEquil) {
+        int retn = vcs_inest_TP();
+        if (retn != VCS_SUCCESS) {
+            plogf("vcs_inest_TP returned a failure flag\n");
+        }
+    }
+
     int stage = MAIN;
     bool allMinorZeroedSpecies = false;
     size_t it1 = 0;
     size_t iti;
-    int rangeErrorFound = 0;
     bool giveUpOnElemAbund = false;
     int finalElemAbundAttempts = 0;
     bool uptodate_minors = true;
@@ -64,8 +99,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     }
     // Initialize and set up all counters
     vcs_counters_init(0);
-
-    int solveFail = false;
 
     // Evaluate the elemental composition
     vcs_elab();
@@ -156,7 +189,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             // Clean up and exit code even though we haven't converged.
             //     -> we have run out of iterations!
             if (m_VCount->Its > maxit) {
-                return -1;
+                iconv = -1;
             }
             solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
                            forceComponentCalc, stage, printDetails > 0, ANOTE);
@@ -164,12 +197,12 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         } else if (stage == EQUILIB_CHECK) {
             // EQUILIBRIUM CHECK FOR MAJOR SPECIES
             solve_tp_equilib_check(allMinorZeroedSpecies, uptodate_minors,
-                                   giveUpOnElemAbund, solveFail, iti, it1,
+                                   giveUpOnElemAbund, iconv, iti, it1,
                                    maxit, stage, lec);
         } else if (stage == ELEM_ABUND_CHECK) {
             // CORRECT ELEMENTAL ABUNDANCES
             solve_tp_elem_abund_check(iti, stage, lec, giveUpOnElemAbund,
-                                      finalElemAbundAttempts, rangeErrorFound);
+                                      finalElemAbundAttempts, iconv);
         } else if (stage == RECHECK_DELETED) {
             // RECHECK DELETED SPECIES
             //
@@ -250,18 +283,31 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             }
         }
     }
-    // Return an error code if a Range Space Error is thought to have occurred.
-    if (rangeErrorFound) {
-        solveFail = 1;
-    }
 
     // Update counters
     m_VCount->T_Calls_vcs_TP++;
     m_VCount->T_Its += m_VCount->Its;
     m_VCount->T_Basis_Opts += m_VCount->Basis_Opts;
 
+    // If requested to print anything out, go ahead and do so;
+    if (print_lvl > 0) {
+        vcs_report(iconv);
+    }
+
+    vcs_prob_update();
+
+    if (print_lvl > 0 || printDetails > 0) {
+        vcs_TCounters_report();
+    }
+
+    // FILL IN
+    if (iconv < 0) {
+        plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
+    } else if (iconv == 1) {
+        plogf("WARNING: RANGE SPACE ERROR encountered\n");
+    }
     // Return a Flag indicating whether convergence occurred
-    return solveFail;
+    return iconv;
 }
 
 void VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
@@ -2049,7 +2095,40 @@ void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
             // the largest remaining species. Return its identity in K. The
             // first search criteria is always the largest positive magnitude of
             // the mole number.
-            k = vcs_basisOptMax(m_aw.data(), jr, m_nsp);
+            if (m_spSize[jr] <= 0.0) {
+                throw CanteraError("VCS_SOLVE::vcs_basopt", "spSize is nonpositive");
+            }
+            k = jr;
+            // The factors of 1.01 and 1.001 are placed in this routine for a purpose.
+            // The purpose is to ensure that roundoff errors don't influence major
+            // decisions. This means that the optimized and non-optimized versions of
+            // the code remain close to each other.
+            double big = m_aw[jr] * m_spSize[jr] * 1.01;
+            for (size_t i = jr + 1; i < m_nsp; ++i) {
+                if (m_spSize[i] <= 0.0) {
+                    throw CanteraError("VCS_SOLVE::vcs_basopt", "spSize is nonpositive");
+                }
+                bool doSwap = false;
+                if (m_SSPhase[jr]) {
+                    doSwap = (m_aw[i] * m_spSize[i]) > big;
+                    if (!m_SSPhase[i] && doSwap) {
+                        doSwap = m_aw[i] > (m_aw[k] * 1.001);
+                    }
+                } else {
+                    if (m_SSPhase[i]) {
+                        doSwap = (m_aw[i] * m_spSize[i]) > big;
+                        if (!doSwap) {
+                            doSwap = m_aw[i] > (m_aw[k] * 1.001);
+                        }
+                    } else {
+                        doSwap = (m_aw[i] * m_spSize[i]) > big;
+                    }
+                }
+                if (doSwap) {
+                    k = i;
+                    big = m_aw[i] * m_spSize[i] * 1.01;
+                }
+            }
 
             // The fun really starts when you have run out of species that have
             // a significant concentration. It becomes extremely important to
@@ -2452,57 +2531,6 @@ void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
         }
     }
     m_VCount->Basis_Opts++;
-}
-
-size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
-                                  const size_t n)
-{
-    // The factors of 1.01 and 1.001 are placed in this routine for a purpose.
-    // The purpose is to ensure that roundoff errors don't influence major
-    // decisions. This means that the optimized and non-optimized versions of
-    // the code remain close to each other.
-    //
-    // (we try to avoid the logic:   a = b
-    //                               if (a > b) { do this }
-    //                               else       { do something else }
-    // because roundoff error makes a difference in the inequality evaluation)
-    //
-    // Mole numbers are frequently equal to each other in equilibrium problems
-    // due to constraints. Swaps are only done if there are a 1% difference in
-    // the mole numbers. Of course this logic isn't foolproof.
-    size_t largest = j;
-    double big = molNum[j] * m_spSize[j] * 1.01;
-    if (m_spSize[j] <= 0.0) {
-        throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
-                           "spSize is nonpositive");
-    }
-    for (size_t i = j + 1; i < n; ++i) {
-        if (m_spSize[i] <= 0.0) {
-            throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
-                               "spSize is nonpositive");
-        }
-        bool doSwap = false;
-        if (m_SSPhase[j]) {
-            doSwap = (molNum[i] * m_spSize[i]) > big;
-            if (!m_SSPhase[i] && doSwap) {
-                doSwap = molNum[i] > (molNum[largest] * 1.001);
-            }
-        } else {
-            if (m_SSPhase[i]) {
-                doSwap = (molNum[i] * m_spSize[i]) > big;
-                if (!doSwap) {
-                    doSwap = molNum[i] > (molNum[largest] * 1.001);
-                }
-            } else {
-                doSwap = (molNum[i] * m_spSize[i]) > big;
-            }
-        }
-        if (doSwap) {
-            largest = i;
-            big = molNum[i] * m_spSize[i] * 1.01;
-        }
-    }
-    return largest;
 }
 
 int VCS_SOLVE::vcs_species_type(const size_t kspec) const

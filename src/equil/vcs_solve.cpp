@@ -382,54 +382,6 @@ VCS_SOLVE::~VCS_SOLVE()
     vcs_delete_memory();
 }
 
-int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
-{
-
-    // This function is called to copy the public data and the current
-    // problem specification into the current object's data structure.
-    vcs_prob_specifyFully();
-
-    prob_report(m_printLvl);
-
-    // Prep the problem data
-    //    - adjust the identity of any phases
-    //    - determine the number of components in the problem
-    int retn = vcs_prep(ip1);
-    if (retn != 0) {
-        plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
-              retn);
-        return retn;
-    }
-
-    // Once we have defined the global internal data structure defining the
-    // problem, then we go ahead and solve the problem.
-    //
-    // (right now, all we do is solve fixed T, P problems. Methods for other
-    // problem types will go in at this level. For example, solving for
-    // fixed T, V problems will involve a 2x2 Newton's method, using loops
-    // over vcs_TP() to calculate the residual and Jacobian)
-    int iconv = vcs_TP(ipr, ip1, maxit, m_temperature, m_pressurePA);
-
-    // If requested to print anything out, go ahead and do so;
-    if (ipr > 0) {
-        vcs_report(iconv);
-    }
-
-    vcs_prob_update();
-
-    if (ipr > 0 || ip1 > 0) {
-        vcs_TCounters_report();
-    }
-
-    // FILL IN
-    if (iconv < 0) {
-        plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
-    } else if (iconv == 1) {
-        plogf("WARNING: RANGE SPACE ERROR encountered\n");
-    }
-    return iconv;
-}
-
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop].get();
@@ -1299,38 +1251,6 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
     }
     return funcPhaseStability;
-}
-
-int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)
-{
-    // Store the temperature and pressure in the private global variables
-    m_temperature = T_arg;
-    m_pressurePA = pres_arg;
-    m_Faraday_dim = Faraday / (m_temperature * GasConstant);
-
-    // Evaluate the standard state free energies
-    // at the current temperatures and pressures.
-    int iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
-
-    // Prep the fe field
-    vcs_fePrep_TP();
-
-    // Decide whether we need an initial estimate of the solution If so, go get
-    // one. If not, then
-    if (m_doEstimateEquil) {
-        int retn = vcs_inest_TP();
-        if (retn != VCS_SUCCESS) {
-            plogf("vcs_inest_TP returned a failure flag\n");
-        }
-    }
-
-    // Solve the problem at a fixed Temperature and Pressure (all information
-    // concerning Temperature and Pressure has already been derived. The free
-    // energies are now in dimensionless form.)
-    iconv = vcs_solve_TP(ipr, ip1, maxit);
-
-    // Return the convergence success flag.
-    return iconv;
 }
 
 int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)

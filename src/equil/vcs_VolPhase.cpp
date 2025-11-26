@@ -19,6 +19,10 @@ namespace Cantera
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_owningSolverObject(owningSolverObject)
 {
+    if (!m_owningSolverObject) {
+        throw CanteraError("vcs_VolPhase::vcs_VolPhase",
+                           "owningSolverObject must not be null");
+    }
 }
 
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
@@ -227,8 +231,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
     v_totalMoles = 0.0;
 
     if (molesSpeciesVCS == 0) {
-        AssertThrowMsg(m_owningSolverObject, "vcs_VolPhase::setMolesFromVCS",
-                       "shouldn't be here");
         if (stateCalc == VCS_STATECALC_OLD) {
             molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_old[0];
         } else if (stateCalc == VCS_STATECALC_NEW) {
@@ -236,16 +238,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         } else {
             throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
         }
-    } else if (m_owningSolverObject) {
-        // if (stateCalc == VCS_STATECALC_OLD) {
-        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
-        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-        //     }
-        // } else if (stateCalc == VCS_STATECALC_NEW) {
-        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_new[0]) {
-        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-        //     }
-        // }
     }
 
     for (size_t k = 0; k < m_numSpecies; k++) {
@@ -319,7 +311,7 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
 
 void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
 {
-    if ((!m_UpToDate || vcsStateStatus != m_vcsStateStatus) && m_owningSolverObject &&
+    if ((!m_UpToDate || vcsStateStatus != m_vcsStateStatus) &&
         (vcsStateStatus == VCS_STATECALC_OLD || vcsStateStatus == VCS_STATECALC_NEW)) {
         setMolesFromVCS(vcsStateStatus);
     }
