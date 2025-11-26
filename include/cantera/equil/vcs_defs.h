@@ -16,8 +16,6 @@ namespace Cantera
  */
 //! @{
 #define VCS_SUCCESS 0
-#define VCS_NOMEMORY 1
-#define VCS_FAILED_CONVERGENCE -1
 #define VCS_SHOULDNT_BE_HERE -2
 #define VCS_PUB_BAD -3
 #define VCS_THERMO_OUTOFRANGE -4

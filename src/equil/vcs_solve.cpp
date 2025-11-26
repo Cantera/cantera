@@ -231,6 +231,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &m_molNumSpecies_old[0]);
     }
 
+    // Work arrays used by vcs_basopt
+    m_sm.assign(m_nelem * m_nelem, 0.0);
+    m_ss.assign(m_nelem, 0.0);
+    m_sa.assign(m_nelem, 0.0);
+    m_aw.assign(m_nsp, 0.0);
+    m_wx.assign(m_nelem, 0.0);
+
     // Transfer initial element abundances based on the species mole numbers
     for (size_t j = 0; j < m_nelem; j++) {
         for (size_t kspec = 0; kspec < m_nsp; kspec++) {
@@ -1441,24 +1448,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
 
     // NC = number of components is in the vcs.h common block. This call to
     // BASOPT doesn't calculate the stoichiometric reaction matrix.
-    vector<double> awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
-    double* aw = &awSpace[0];
-    if (aw == NULL) {
-        plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");
-        return VCS_NOMEMORY;
-    }
-    double* sa = aw + m_nsp;
-    double* sm = sa + m_nelem;
-    double* ss = sm + m_nelem * m_nelem;
-    bool conv;
-    retn = vcs_basopt(true, aw, sa, sm, ss, test, &conv);
-    if (retn != VCS_SUCCESS) {
-        plogf("vcs_prep_oneTime:");
-        plogf(" Determination of number of components failed: %d\n",
-              retn);
-        plogf("          Global Bailout!\n");
-        return retn;
-    }
+    vcs_basopt(true, test);
 
     if (m_nsp >= m_numComponents) {
         m_numRxnTot = m_numRxnRdc = m_nsp - m_numComponents;
@@ -1470,12 +1460,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     }
 
     // The elements might need to be rearranged.
-    awSpace.resize(m_nelem + (m_nelem + 2)*m_nelem, 0.0);
-    aw = &awSpace[0];
-    sa = aw + m_nelem;
-    sm = sa + m_nelem;
-    ss = sm + m_nelem * m_nelem;
-    retn = vcs_elem_rearrange(aw, sa, sm, ss);
+    retn = vcs_elem_rearrange();
     if (retn != VCS_SUCCESS) {
         plogf("vcs_prep_oneTime:");
         plogf(" Determination of element reordering failed: %d\n",
@@ -1517,9 +1502,12 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     return VCS_SUCCESS;
 }
 
-int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
-                                  double* const sm, double* const ss)
+int VCS_SOLVE::vcs_elem_rearrange()
 {
+    vector<double> awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
+    vector<double> aw(m_nelem), sa(m_nelem), ss(m_nelem);
+    vector<double> sm(m_nelem*m_nelem);
+
     size_t ncomponents = m_numComponents;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
@@ -2517,7 +2505,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int retn;
     int iter = 0;
     bool abundancesOK = true;
-    bool usedZeroedSpecies;
     vector<double> sm(m_nelem * m_nelem, 0.0);
     vector<double> ss(m_nelem, 0.0);
     vector<double> sa(m_nelem, 0.0);
@@ -2554,11 +2541,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         // Now find the optimized basis that spans the stoichiometric
         // coefficient matrix, based on the current composition,
         // m_molNumSpecies_old[] We also calculate sc[][], the reaction matrix.
-        retn = vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
-                          test, &usedZeroedSpecies);
-        if (retn != VCS_SUCCESS) {
-            return retn;
-        }
+        vcs_basopt(false, test);
 
         if (m_debug_print_lvl >= 2) {
             plogf("iteration %d\n", iter);
@@ -2821,10 +2804,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         }
     }
 
-    // Now find the optimized basis that spans the stoichiometric coefficient
-    // matrix
-    bool conv;
-    vcs_basopt(false, aw, sa, sm, ss, test, &conv);
+    // Now find the optimized basis that spans the stoichiometric coefficient matrix
+    vcs_basopt(false, test);
 
     // CALCULATE TOTAL MOLES, CHEMICAL POTENTIALS OF BASIS
 
