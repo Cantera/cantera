@@ -125,20 +125,8 @@ public:
      *
      * @param[in] doJustComponents  If true, the #m_stoichCoeffRxnMatrix and
      *                              #m_deltaMolNumPhase are not calculated.
-     * @param[in] aw     Vector of mole fractions which will be used to
-     *                   construct an optimal basis from.
-     * @param[in] sa     Gram-Schmidt orthog work space (nc in length) sa[j]
-     * @param[in] ss     Gram-Schmidt orthog work space (nc in length) ss[j]
-     * @param[in] sm     QR matrix work space (nc*ne in length)         sm[i+j*ne]
      * @param[in] test   This is a small negative number dependent upon whether
      *                   an estimate is supplied or not.
-     * @param[out] usedZeroedSpecies  If true, then a species with a zero
-     *                                concentration was used as a component.
-     *                                The problem may be converged. Or, the
-     *                                problem may have a range space error and
-     *                                may not have a proper solution.
-     * @returns VCS_SUCCESS if everything went ok. Returns
-     *     VCS_FAILED_CONVERGENCE if there is a problem.
      *
      * ### Internal Variables calculated by this routine:
      *
@@ -155,8 +143,7 @@ public:
      * - `m_phaseParticipation(iphase,irxn)`: This is 1 if the phase, iphase,
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
-    int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
-                   double ss[], double test, bool* const usedZeroedSpecies);
+    void vcs_basopt(const bool doJustComponents, double test);
 
     //!  Choose a species to test for the next component
     /*!
@@ -560,15 +547,8 @@ public:
      * constraints which span the range space of the Component Formula matrix,
      * and assigns them as the first nc components in the formula matrix. This
      * guarantees that vcs_basopt[] has a nonsingular matrix to invert.
-     *
-     * Other Variables
-     *  @param aw   Mole fraction work space        (ne in length)
-     *  @param sa   Gram-Schmidt orthog work space (ne in length)
-     *  @param sm   QR matrix work space (ne*ne in length)
-     *  @param ss   Gram-Schmidt orthog work space (ne in length)
      */
-    int vcs_elem_rearrange(double* const aw, double* const sa,
-                           double* const sm, double* const ss);
+    int vcs_elem_rearrange();
 
     //! Swaps the indices for all of the global data for two elements, ipos
     //! and jpos.
@@ -947,7 +927,7 @@ private:
     void vcs_updateMolNumVolPhases(const int stateCalc);
 
     // Helper functions used internally by vcs_solve_TP
-    int solve_tp_component_calc(bool& allMinorZeroedSpecies);
+    void solve_tp_component_calc(bool& allMinorZeroedSpecies);
     void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
                         bool& allMinorZeroedSpecies, int& forceComponentCalc,
                         int& stage, bool printDetails, char* ANOTE);
@@ -960,11 +940,10 @@ private:
                                    int& finalElemAbundAttempts,
                                    int& rangeErrorFound);
 
-    // data used by vcs_solve_TP and it's helper functions
-    vector<double> m_sm;
-    vector<double> m_ss;
-    vector<double> m_sa;
-    vector<double> m_aw;
+    vector<double> m_sm; //!< QR matrix work space used in vcs_basopt()
+    vector<double> m_ss; //!< Gram-Schmidt work space used in vcs_basopt()
+    vector<double> m_sa; //!< Gram-Schmidt work space used in vcs_basopt()
+    vector<double> m_aw; //!< work array of mole fractions used in vcs_basopt()
     vector<double> m_wx;
 
 public:

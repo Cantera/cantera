@@ -65,13 +65,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     // Initialize and set up all counters
     vcs_counters_init(0);
 
-    // temporary space for usage in this routine and in subroutines
-    m_sm.assign(m_nelem * m_nelem, 0.0);
-    m_ss.assign(m_nelem, 0.0);
-    m_sa.assign(m_nelem, 0.0);
-    m_aw.assign(m_nsp, 0.0);
-    m_wx.assign(m_nelem, 0.0);
-
     int solveFail = false;
 
     // Evaluate the elemental composition
@@ -154,10 +147,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         if (stage == MAIN) {
             // DETERMINE BASIS SPECIES, EVALUATE STOICHIOMETRY
             if (forceComponentCalc) {
-                int retn = solve_tp_component_calc(allMinorZeroedSpecies);
-                if (retn != VCS_SUCCESS) {
-                    return retn;
-                }
+                solve_tp_component_calc(allMinorZeroedSpecies);
                 it1 = 1;
                 forceComponentCalc = 0;
                 iti = 0;
@@ -274,15 +264,10 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     return solveFail;
 }
 
-int VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
+void VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
 {
     double test = -1.0e-10;
-    bool usedZeroedSpecies;
-    int retn = vcs_basopt(false, &m_aw[0], &m_sa[0], &m_sm[0], &m_ss[0],
-                          test, &usedZeroedSpecies);
-    if (retn != VCS_SUCCESS) {
-        return retn;
-    }
+    vcs_basopt(false, test);
 
     // Update the phase objects with the contents of the soln vector
     vcs_updateVP(VCS_STATECALC_OLD);
@@ -303,7 +288,6 @@ int VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
     } else {
         debuglog("   --- Element Abundance check passed\n", m_debug_print_lvl >= 2);
     }
-    return retn;
 }
 
 void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
@@ -1028,14 +1012,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     // decreased, then we will update all the component basis calculation, and
     // therefore all of the thermo functions just to be safe.
     if (justDeletedMultiPhase) {
-        bool usedZeroedSpecies;
         double test = -1.0e-10;
-        int retn = vcs_basopt(false, &m_aw[0], &m_sa[0], &m_sm[0], &m_ss[0],
-                              test, &usedZeroedSpecies);
-        if (retn != VCS_SUCCESS) {
-            throw CanteraError("VCS_SOLVE::solve_tp_inner",
-                               "BASOPT returned with an error condition");
-        }
+        vcs_basopt(false, test);
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
         vcs_deltag(0, true, VCS_STATECALC_OLD);
@@ -1998,8 +1976,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
     return true;
 }
 
-int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
-                          double ss[], double test, bool* const usedZeroedSpecies)
+void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
 {
     size_t k;
     size_t juse = npos;
@@ -2046,17 +2023,16 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     // species.
     size_t ncTrial = std::min(m_nelem, m_nsp);
     m_numComponents = ncTrial;
-    *usedZeroedSpecies = false;
     vector<int> ipiv(ncTrial);
 
     // Use a temporary work array for the mole numbers, aw[]
     std::copy(m_molNumSpecies_old.begin(),
-              m_molNumSpecies_old.begin() + m_nsp, aw);
+              m_molNumSpecies_old.begin() + m_nsp, m_aw.begin());
 
     // Take out the Voltage unknowns from consideration
     for (k = 0; k < m_nsp; k++) {
         if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            aw[k] = test;
+            m_aw[k] = test;
         }
     }
 
@@ -2073,7 +2049,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             // the largest remaining species. Return its identity in K. The
             // first search criteria is always the largest positive magnitude of
             // the mole number.
-            k = vcs_basisOptMax(aw, jr, m_nsp);
+            k = vcs_basisOptMax(m_aw.data(), jr, m_nsp);
 
             // The fun really starts when you have run out of species that have
             // a significant concentration. It becomes extremely important to
@@ -2112,15 +2088,14 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             // Note, if there is electronic charge and the electron species, you
             // should probably pick the electron as a component, if it linearly
             // independent. The algorithm below will do this automagically.
-            if ((aw[k] != test) && aw[k] < VCS_DELETE_MINORSPECIES_CUTOFF) {
-                *usedZeroedSpecies = true;
+            if ((m_aw[k] != test) && m_aw[k] < VCS_DELETE_MINORSPECIES_CUTOFF) {
                 double maxConcPossKspec = 0.0;
                 double maxConcPoss = 0.0;
                 size_t kfound = npos;
                 int minNonZeroes = 100000;
                 int nonZeroesKspec = 0;
                 for (size_t kspec = ncTrial; kspec < m_nsp; kspec++) {
-                    if (aw[kspec] >= 0.0 && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                    if (m_aw[kspec] >= 0.0 && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         maxConcPossKspec = 1.0E10;
                         nonZeroesKspec = 0;
                         for (size_t j = 0; j < m_nelem; ++j) {
@@ -2153,7 +2128,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                     double gmin = 0.0;
                     kfound = k;
                     for (size_t kspec = ncTrial; kspec < m_nsp; kspec++) {
-                        if (aw[kspec] >= 0.0) {
+                        if (m_aw[kspec] >= 0.0) {
                             size_t irxn = kspec - ncTrial;
                             if (m_deltaGRxn_new[irxn] < gmin) {
                                 gmin = m_deltaGRxn_new[irxn];
@@ -2165,7 +2140,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 k = kfound;
             }
 
-            if (aw[k] == test) {
+            if (m_aw[k] == test) {
                 exhausted = true;
                 m_numComponents = jr;
                 ncTrial = m_numComponents;
@@ -2188,7 +2163,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 
             // Assign a small negative number to the component that we have just
             // found, in order to take it out of further consideration.
-            aw[k] = test;
+            m_aw[k] = test;
 
             // CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES
             //
@@ -2196,37 +2171,37 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             // QR factorization of a matrix without row pivoting.
             size_t jl = jr;
             for (size_t j = 0; j < m_nelem; ++j) {
-                sm[j + jr*m_nelem] = m_formulaMatrix(k,j);
+                m_sm[j + jr*m_nelem] = m_formulaMatrix(k,j);
             }
             if (jl > 0) {
                 // Compute the coefficients of JA column of the the upper
                 // triangular R matrix, SS(J) = R_J_JR this is slightly
                 // different than Dalquist) R_JA_JA = 1
                 for (size_t j = 0; j < jl; ++j) {
-                    ss[j] = 0.0;
+                    m_ss[j] = 0.0;
                     for (size_t i = 0; i < m_nelem; ++i) {
-                        ss[j] += sm[i + jr*m_nelem] * sm[i + j*m_nelem];
+                        m_ss[j] += m_sm[i + jr*m_nelem] * m_sm[i + j*m_nelem];
                     }
-                    ss[j] /= sa[j];
+                    m_ss[j] /= m_sa[j];
                 }
                 // Now make the new column, (*,JR), orthogonal to the previous
                 // columns
                 for (size_t j = 0; j < jl; ++j) {
                     for (size_t i = 0; i < m_nelem; ++i) {
-                        sm[i + jr*m_nelem] -= ss[j] * sm[i + j*m_nelem];
+                        m_sm[i + jr*m_nelem] -= m_ss[j] * m_sm[i + j*m_nelem];
                     }
                 }
             }
 
             // Find the new length of the new column in Q. It will be used in
             // the denominator in future row calcs.
-            sa[jr] = 0.0;
+            m_sa[jr] = 0.0;
             for (size_t ml = 0; ml < m_nelem; ++ml) {
-                sa[jr] += pow(sm[ml + jr*m_nelem], 2);
+                m_sa[jr] += pow(m_sm[ml + jr*m_nelem], 2);
             }
 
             // IF NORM OF NEW ROW .LT. 1E-3 REJECT
-            if (sa[jr] > 1.0e-6) {
+            if (m_sa[jr] > 1.0e-6) {
               break;
             }
         }
@@ -2253,7 +2228,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 plogf(" as component %3d\n", jr);
             }
             vcs_switch_pos(false, jr, k);
-            std::swap(aw[jr], aw[k]);
+            std::swap(m_aw[jr], m_aw[k]);
         } else if (m_debug_print_lvl >= 2) {
             plogf("   ---   %-12.12s", m_speciesName[k]);
             if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -2269,7 +2244,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 
     if (doJustComponents) {
         m_VCount->Basis_Opts++;
-        return VCS_SUCCESS;
+        return;
     }
 
     // EVALUATE THE STOICHIOMETRY
@@ -2343,17 +2318,17 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 k = m_indexRxnToSpecies[i];
                 for (size_t j = 0; j < ncTrial; ++j) {
                     if (j == jlose) {
-                        aw[j] = - m_formulaMatrix(k,juse);
+                        m_aw[j] = - m_formulaMatrix(k,juse);
                     } else {
-                        aw[j] = - m_formulaMatrix(k,j);
+                        m_aw[j] = - m_formulaMatrix(k,j);
                     }
                 }
             }
 
-            solve(C, aw, 1, m_nelem);
+            solve(C, m_aw.data(), 1, m_nelem);
             size_t i = k - ncTrial;
             for (size_t j = 0; j < ncTrial; j++) {
-                m_stoichCoeffRxnMatrix(j,i) = aw[j];
+                m_stoichCoeffRxnMatrix(j,i) = m_aw[j];
             }
         }
     }
@@ -2476,9 +2451,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
         }
     }
-
     m_VCount->Basis_Opts++;
-    return VCS_SUCCESS;
 }
 
 size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
