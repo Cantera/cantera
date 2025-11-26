@@ -426,7 +426,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
     } else {
         ip1 = 0;
     }
-    int iSuccess = m_vsolve.vcs(ipr, ip1, maxit);
+    int iSuccess = m_vsolve.solve_TP(ipr, ip1, maxit);
 
     if (printLvl > 0) {
         vector<double> mu(m_mix->nSpecies());
