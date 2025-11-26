@@ -226,10 +226,16 @@ class TestEquil_GasCarbon:
     def inject_fixtures(self, test_data_path):
         self.test_data_path = test_data_path
 
-    def solve(self, solver, **kwargs):
+    @pytest.mark.parametrize("solver,P,ref_file,estimate_equil", [
+        ('gibbs', ct.one_atm, "gas-carbon-equil.csv", 0),
+        ('vcs', ct.one_atm, "gas-carbon-equil.csv", 0),
+        ('vcs', ct.one_atm, "gas-carbon-equil.csv", -1),
+        ('gibbs', 5 * ct.one_atm, "gas-carbon-equil-5atm.csv", 0),
+        ('vcs', 5 * ct.one_atm, "gas-carbon-equil-5atm.csv", 0),
+    ])
+    def test_equilibrate(self, solver, P, ref_file, estimate_equil):
         n_points = 12
         T = 300
-        P = 101325
         data = np.zeros((n_points, 2+self.n_species))
         phi = np.linspace(0.3, 3.5, n_points)
         for i in range(n_points):
@@ -240,22 +246,12 @@ class TestEquil_GasCarbon:
             mix.P = P
 
             # equilibrate the mixture adiabatically at constant P
-            mix.equilibrate('HP', solver=solver, max_steps=1000, **kwargs)
+            mix.equilibrate('HP', solver=solver, max_steps=1000,
+                            estimate_equil=estimate_equil)
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
-        compare(data, self.test_data_path / "gas-carbon-equil.csv")
-
-    @pytest.mark.slow_test
-    def test_gibbs(self):
-        self.solve('gibbs')
-
-    @pytest.mark.slow_test
-    def test_vcs(self):
-        self.solve('vcs')
-
-    def test_vcs_est(self):
-        self.solve('vcs', estimate_equil=-1)
+        compare(data, self.test_data_path / ref_file, rtol=1e-7)
 
 
 class Test_IdealSolidSolnPhase_Equil:
