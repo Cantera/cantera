@@ -21,13 +21,6 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
 {
 }
 
-vcs_VolPhase::~vcs_VolPhase()
-{
-    for (size_t k = 0; k < m_numSpecies; k++) {
-        delete ListSpeciesPtr[k];
-    }
-}
-
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
                           const size_t numElem, const char* const phaseName)
 {
@@ -65,19 +58,6 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     }
 
     IndSpecies.resize(nspecies, npos);
-
-    if (ListSpeciesPtr.size() >= m_numSpecies) {
-        for (size_t i = 0; i < m_numSpecies; i++) {
-            if (ListSpeciesPtr[i]) {
-                delete ListSpeciesPtr[i];
-                ListSpeciesPtr[i] = 0;
-            }
-        }
-    }
-    ListSpeciesPtr.resize(nspecies, 0);
-    for (size_t i = 0; i < nspecies; i++) {
-        ListSpeciesPtr[i] = new vcs_SpeciesProperties(phaseNum, i, this);
-    }
 
     Xmol_.resize(nspecies, 0.0);
     creationMoleNumbers_.resize(nspecies, 0.0);
@@ -611,11 +591,6 @@ void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
     if (m_singleSpecies && m_phiVarIndex == 0) {
         m_existence = VCS_PHASE_EXIST_ALWAYS;
     }
-}
-
-vcs_SpeciesProperties* vcs_VolPhase::speciesProperty(const size_t kindex)
-{
-    return ListSpeciesPtr[kindex];
 }
 
 int vcs_VolPhase::exists() const

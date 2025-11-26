@@ -9,7 +9,6 @@
 #ifndef VCS_VOLPHASE_H
 #define VCS_VOLPHASE_H
 
-#include "vcs_SpeciesProperties.h"
 #include "vcs_defs.h"
 #include "cantera/base/Array.h"
 
@@ -34,7 +33,6 @@ class ThermoPhase;
 #define VCS_EOS_UNK_CANTERA -1
 
 struct VCS_SPECIES;
-class vcs_SpeciesProperties;
 class VCS_SOLVE;
 
 //!  Phase information and Phase calculations for vcs.
@@ -82,7 +80,7 @@ public:
 
     vcs_VolPhase(const vcs_VolPhase& b) = delete;
     vcs_VolPhase& operator=(const vcs_VolPhase& b) = delete;
-    ~vcs_VolPhase();
+    ~vcs_VolPhase() = default;
 
     //! The resize() function fills in all of the initial information if it
     //! is not given in the constructor.
@@ -326,8 +324,6 @@ public:
      *
      * @param kindex kth species index.
      */
-    vcs_SpeciesProperties* speciesProperty(const size_t kindex);
-
     //! int indicating whether the phase exists or not
     /*!
      * returns the m_existence int for the phase
@@ -627,8 +623,6 @@ private:
     /*!
      * The index into this vector is the species index within the phase.
      */
-    vector<vcs_SpeciesProperties*> ListSpeciesPtr;
-
     /**
      *  If we are using Cantera, this is the pointer to the ThermoPhase
      *  object. If not, this is null.

@@ -225,18 +225,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             //      VolPhase->IndSpecies[]
             addOnePhaseSpecies(VolPhase, k, kT);
 
-            // Fill in the vcs_SpeciesProperty structure
-            vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
-            sProp->NumElements = m_nelem;
-            sProp->SpName = mphase->speciesName(kT);
-            sProp->WtSpecies = tPhase->molecularWeight(k);
-            sProp->FormulaMatrixCol.resize(m_nelem, 0.0);
-            for (size_t e = 0; e < m_nelem; e++) {
-                sProp->FormulaMatrixCol[e] = m_formulaMatrix(kT,e);
-            }
-            sProp->Charge = tPhase->charge(k);
-            sProp->SurfaceSpecies = false;
-            sProp->VolPM = 0.0;
             kT++;
         }
 
@@ -1402,14 +1390,9 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     }
 
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
-        size_t pID = m_phaseID[kspec];
-        size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
-        vcs_VolPhase* vPhase = m_VolPhaseList[pID].get();
-        vcs_SpeciesProperties* spProp = vPhase->speciesProperty(spPhIndex);
         double sz = 0.0;
-        size_t eSize = spProp->FormulaMatrixCol.size();
-        for (size_t e = 0; e < eSize; e++) {
-            sz += fabs(spProp->FormulaMatrixCol[e]);
+        for (size_t e = 0; e < m_nelem; e++) {
+            sz += fabs(m_formulaMatrix(kspec, e));
         }
         if (sz > 0.0) {
             m_spSize[kspec] = sz;
