@@ -19,7 +19,6 @@ namespace {
 enum stages {MAIN, EQUILIB_CHECK, ELEM_ABUND_CHECK,
              RECHECK_DELETED, RETURN_A, RETURN_B};
 
-const int anote_size = 128;
 }
 
 namespace Cantera
@@ -91,7 +90,6 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
     bool uptodate_minors = true;
     int forceComponentCalc = 1;
 
-    char ANOTE[anote_size];
     // Set the debug print lvl to the same as the print lvl.
     m_debug_print_lvl = printDetails;
     if (printDetails > 0 && print_lvl == 0) {
@@ -191,8 +189,8 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
             if (m_VCount->Its > maxit) {
                 iconv = -1;
             }
-            solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
-                           forceComponentCalc, stage, printDetails > 0, ANOTE);
+    solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
+                   forceComponentCalc, stage, printDetails > 0);
             lec = false;
         } else if (stage == EQUILIB_CHECK) {
             // EQUILIBRIUM CHECK FOR MAJOR SPECIES
@@ -340,7 +338,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                                bool& uptodate_minors,
                                bool& allMinorZeroedSpecies,
                                int& forceComponentCalc,
-                               int& stage, bool printDetails, char* ANOTE)
+                               int& stage, bool printDetails)
 {
     if (iti == 0) {
         // SET INITIAL VALUES FOR ITERATION
@@ -479,22 +477,19 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             } else {
                 plogf("- Major Components Calculation:\n");
             }
-            plogf("   --- Species     IC    ");
-            plogf("  KMoles   Tent_KMoles  Rxn_Adj   |    Comment \n");
+            plogf("   --- Species     IC      KMoles   Tent_KMoles  Rxn_Adj\n");
         }
         for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             size_t kspec = m_indexRxnToSpecies[irxn];
             double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             size_t iph = m_phaseID[kspec];
             vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
-            ANOTE[0] = '\0';
             double dx;
 
             if (iphasePop != npos) {
                 if (iph == iphasePop) {
                     dx = m_deltaMolNumSpecies[kspec];
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
-                    snprintf(ANOTE, anote_size, "Phase pop");
                 } else {
                     dx = 0.0;
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
@@ -502,7 +497,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             } else if (m_speciesStatus[kspec] == VCS_SPECIES_INTERFACIALVOLTAGE) {
                 // VOLTAGE SPECIES
                 bool soldel_ret;
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
+                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
                 m_deltaMolNumSpecies[kspec] = dx;
             } else if (m_speciesStatus[kspec] < VCS_SPECIES_MINOR) {
                 // ZEROED OUT SPECIES
@@ -518,20 +513,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
                     m_deltaMolNumSpecies[kspec] = 0.0;
                     resurrect = false;
-                    snprintf(ANOTE, anote_size, "Species stays zeroed: DG = %11.4E",
-                             m_deltaGRxn_new[irxn]);
-                    if (m_deltaGRxn_new[irxn] < 0.0) {
-                        if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
-                            snprintf(ANOTE, anote_size,
-                                     "Species stays zeroed even though dg neg due to "
-                                     "STOICH/PHASEPOP constraint: DG = %11.4E",
-                                     m_deltaGRxn_new[irxn]);
-                        } else {
-                            snprintf(ANOTE, anote_size, "Species stays zeroed even"
-                                " though dg neg: DG = %11.4E, ds zeroed",
-                                m_deltaGRxn_new[irxn]);
-                        }
-                    }
                 } else {
                     for (size_t j = 0; j < m_nelem; ++j) {
                         int elType = m_elType[j];
@@ -540,9 +521,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                             if (atomComp > 0.0) {
                                 double maxPermissible = m_elemAbundancesGoal[j] / atomComp;
                                 if (maxPermissible < VCS_DELETE_MINORSPECIES_CUTOFF) {
-                                    snprintf(ANOTE, anote_size, "Species stays zeroed"
-                                        " even though dG neg, because of %s elemAbund",
-                                        m_elementName[j].c_str());
                                     resurrect = false;
                                     break;
                                 }
@@ -575,8 +553,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         dx = m_molNumSpecies_new[kspec] - m_molNumSpecies_old[kspec];
                     }
                     m_deltaMolNumSpecies[kspec] = dx;
-                    snprintf(ANOTE, anote_size, "Born:IC=-1 to IC=1:DG=%11.4E",
-                             m_deltaGRxn_new[irxn]);
                 } else {
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
                     m_deltaMolNumSpecies[kspec] = 0.0;
@@ -591,11 +567,10 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
                     m_deltaMolNumSpecies[kspec] = 0.0;
                     dx = 0.0;
-                    snprintf(ANOTE, anote_size, "minor species not considered");
                     if (m_debug_print_lvl >= 2) {
-                        plogf("   --- %-12s%3d% 11.4E %11.4E %11.4E | %s\n",
+                        plogf("   --- %-12s%3d% 11.4E %11.4E %11.4E\n",
                               m_speciesName[kspec], m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
-                              m_deltaMolNumSpecies[kspec], ANOTE);
+                              m_deltaMolNumSpecies[kspec]);
                     }
                     continue;
                 }
@@ -613,7 +588,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 // If soldel is true on return, then we branch to the section
                 // that deletes a species from the current set of active species.
                 bool soldel_ret;
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret, ANOTE);
+                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
                 m_deltaMolNumSpecies[kspec] = dx;
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
                 if (soldel_ret) {
@@ -645,7 +620,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 }
             } else {
                 // MAJOR SPECIES
-                snprintf(ANOTE, anote_size, "Normal Major Calc");
 
                 // Check for superconvergence of the formation reaction. Do
                 // nothing if it is superconverged. Skip to the end of the irxn
@@ -654,11 +628,10 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec];
                     m_deltaMolNumSpecies[kspec] = 0.0;
                     dx = 0.0;
-                    snprintf(ANOTE, anote_size, "major species is converged");
                     if (m_debug_print_lvl >= 2) {
-                        plogf("   --- %-12s %3d %11.4E %11.4E %11.4E | %s\n",
+                        plogf("   --- %-12s %3d %11.4E %11.4E %11.4E\n",
                               m_speciesName[kspec], m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
-                              m_deltaMolNumSpecies[kspec], ANOTE);
+                              m_deltaMolNumSpecies[kspec]);
                     }
                     continue;
                 }
@@ -675,8 +648,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 } else {
                     dx = 0.0;
                     m_deltaMolNumSpecies[kspec] = 0.0;
-                    snprintf(ANOTE, anote_size, "dx set to 0, DG flipped sign due to "
-                             "changed initial point");
                 }
 
                 //Form a tentative value of the new species moles
@@ -687,8 +658,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 // the outcome, we branch to sections below, or we restart the
                 // entire iteration.
                 if (m_molNumSpecies_new[kspec] <= 0.0) {
-                    snprintf(ANOTE, anote_size, "initial nonpos kmoles= %11.3E",
-                             m_molNumSpecies_new[kspec]);
                     // NON-POSITIVE MOLES OF MAJOR SPECIES
                     //
                     // We are here when a tentative value of a mole fraction
@@ -727,16 +696,11 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
                         if (m_molNumSpecies_new[kspec] > 0.0) {
                             m_deltaMolNumSpecies[kspec] = dx;
-                            snprintf(ANOTE, anote_size,
-                                     "zeroing SS phase created a neg component species "
-                                     "-> reducing step size instead");
                         } else {
                             // We are going to zero the single species phase.
                             // Set the existence flag
                             iph = m_phaseID[kspec];
                             Vphase = m_VolPhaseList[iph].get();
-                            snprintf(ANOTE, anote_size, "zeroing out SS phase: ");
-
                             // Change the base mole numbers for the iteration.
                             // We need to do this here, because we have decided
                             // to eliminate the phase in this special section
@@ -800,10 +764,10 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             // Branch point for returning
             if (m_debug_print_lvl >= 2) {
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
-                plogf("   --- %-12.12s%3d %11.4E %11.4E %11.4E | %s\n",
+                plogf("   --- %-12.12s%3d %11.4E %11.4E %11.4E\n",
                       m_speciesName[kspec], m_speciesStatus[kspec],
                       m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
-                      m_deltaMolNumSpecies[kspec], ANOTE);
+                      m_deltaMolNumSpecies[kspec]);
             }
 
             if (doPhaseDeleteIph != npos) {
@@ -1367,8 +1331,7 @@ void VCS_SOLVE::solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
     stage = EQUILIB_CHECK;
 }
 
-double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
-                                     char* ANOTE) const
+double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete) const
 {
     double w_kspec = m_molNumSpecies_old[kspec];
     double dg_irxn = m_deltaGRxn_old[irxn];
@@ -1380,9 +1343,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
             w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
         }
         dg_irxn = std::max(dg_irxn, -200.0);
-        if (ANOTE) {
-            snprintf(ANOTE, anote_size, "minor species alternative calc");
-        }
         if (dg_irxn >= 23.0) {
             double molNum_kspec_new = w_kspec * 1.0e-10;
             if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -1443,9 +1403,6 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
         // Voltage calculation
         // Need to check the sign -> This is good for electrons
         double dx = m_deltaGRxn_old[irxn]/ m_Faraday_dim;
-        if (ANOTE) {
-            snprintf(ANOTE, anote_size, "voltage species alternative calc");
-        }
         return dx;
     }
 }

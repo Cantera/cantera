@@ -778,10 +778,8 @@ private:
      * @param[out] do_delete:  BOOLEAN which if true on return, then we
      *                         branch to the section that deletes a species
      *                         from the current set of active species.
-     * @param[out] ANOTE  Buffer used for debug annotations
      */
-    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
-                              char* ANOTE=0) const;
+    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete) const;
 
     //! This routine optimizes the minimization of the total Gibbs free energy
     //! by making sure the slope of the following functional stays negative:
@@ -870,7 +868,7 @@ private:
     void solve_tp_component_calc(bool& allMinorZeroedSpecies);
     void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
                         bool& allMinorZeroedSpecies, int& forceComponentCalc,
-                        int& stage, bool printDetails, char* ANOTE);
+                        int& stage, bool printDetails);
     void solve_tp_equilib_check(bool& allMinorZeroedSpecies, bool& uptodate_minors,
                                 bool& giveUpOnElemAbund, int& solveFail,
                                 size_t& iti, size_t& it1, int maxit,
