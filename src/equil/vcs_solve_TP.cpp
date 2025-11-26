@@ -2065,6 +2065,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     // Top of a loop of some sort based on the index JR. JR is the current
     // number of component species found.
     while (jr < ncTrial) {
+        bool exhausted = false;
         // Top of another loop point based on finding a linearly independent
         // species
         while (true) {
@@ -2165,6 +2166,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
 
             if (aw[k] == test) {
+                exhausted = true;
                 m_numComponents = jr;
                 ncTrial = m_numComponents;
                 size_t numPreDeleted = m_numRxnTot - m_numRxnRdc;
@@ -2181,7 +2183,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                     plogf("   ---   Total number of components found = %3d (ne = %d)\n ",
                           ncTrial, m_nelem);
                 }
-                goto L_END_LOOP;
+                break;
             }
 
             // Assign a small negative number to the component that we have just
@@ -2229,6 +2231,10 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
         }
 
+        if (exhausted) {
+            break;
+        }
+
         // REARRANGE THE DATA
         if (jr != k) {
             if (m_debug_print_lvl >= 2) {
@@ -2257,15 +2263,13 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
             plogf("              as component %3d\n", jr);
         }
-// entry point from up above
-L_END_LOOP:
-        ;
         // If we haven't found enough components, go back and find some more.
         jr++;
     }
 
     if (doJustComponents) {
-        goto L_CLEANUP;
+        m_VCount->Basis_Opts++;
+        return VCS_SUCCESS;
     }
 
     // EVALUATE THE STOICHIOMETRY
@@ -2473,8 +2477,6 @@ L_END_LOOP:
         }
     }
 
-L_CLEANUP:
-    ;
     m_VCount->Basis_Opts++;
     return VCS_SUCCESS;
 }
