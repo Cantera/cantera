@@ -16,16 +16,7 @@ namespace Cantera
  */
 //! @{
 #define VCS_SUCCESS 0
-#define VCS_SHOULDNT_BE_HERE -2
-#define VCS_PUB_BAD -3
-#define VCS_THERMO_OUTOFRANGE -4
-#define VCS_FAILED_LOOKUP -5
-#define VCS_MP_FAIL -6
 //! @}
-
-//! Models for the standard state volume of each species
-#define VCS_SSVOL_IDEALGAS 0
-#define VCS_SSVOL_CONSTANT 1
 
 //! @name  Sizes of Phases and Cutoff Mole Numbers
 //!
@@ -34,46 +25,26 @@ namespace Cantera
 
 //! Cutoff relative mole fraction value, below which species are deleted from
 //! the equilibrium problem.
-#ifndef VCS_RELDELETE_SPECIES_CUTOFF
 #define VCS_RELDELETE_SPECIES_CUTOFF 1.0e-64
-#endif
 
 //! Cutoff relative mole number value, below which species are deleted from the
 //! equilibrium problem.
-#ifndef VCS_DELETE_MINORSPECIES_CUTOFF
 #define VCS_DELETE_MINORSPECIES_CUTOFF 1.0e-140
-#endif
 
 //! Relative value of multiphase species mole number for a multiphase species
 //! which is small.
-#ifndef VCS_SMALL_MULTIPHASE_SPECIES
 #define VCS_SMALL_MULTIPHASE_SPECIES 1.0e-25
-#endif
 
 //! Cutoff relative moles below which a phase is deleted
 //! from the equilibrium problem.
-#ifndef VCS_DELETE_PHASE_CUTOFF
 #define VCS_DELETE_PHASE_CUTOFF 1.0e-13
-#endif
-
-//! Relative mole number of species in a phase that is created We want this to
-//! be comfortably larger than the VCS_DELETE_PHASE_CUTOFF value so that the
-//! phase can have a chance to survive.
-#ifndef VCS_POP_PHASE_MOLENUM
-#define VCS_POP_PHASE_MOLENUM 1.0e-11
-#endif
-
 
 //! Cutoff moles below which a phase or species which comprises the bulk of an
 //! element's total concentration is deleted.
-#ifndef VCS_DELETE_ELEMENTABS_CUTOFF
 #define VCS_DELETE_ELEMENTABS_CUTOFF 1.0e-280
-#endif
 
 //! Maximum steps in the inner loop
-#ifndef VCS_MAXSTEPS
 #define VCS_MAXSTEPS 50000
-#endif
 
 //! @}
 
@@ -82,14 +53,6 @@ namespace Cantera
  * These defines are valid values for spStatus()
  */
 //! @{
-
-//! Species is a component which can never be nonzero because of a
-//! stoichiometric constraint
-/*!
- *  An example of this would be a species that contains Ni. But,
- *  the amount of Ni elements is exactly zero.
- */
-#define VCS_SPECIES_COMPONENT_STOICHZERO 3
 
 //! Species is a component which can be nonzero
 #define VCS_SPECIES_COMPONENT 2
@@ -107,13 +70,6 @@ namespace Cantera
  * significant concentration or it's a Stoich Phase
  */
 #define VCS_SPECIES_MINOR 0
-
-//! Species lies in a multicomponent phase, with a small phase concentration
-/*!
- * The species lies in a multicomponent phase that exists. It concentration is
- * currently very low, necessitating a different method of calculation.
- */
-#define VCS_SPECIES_SMALLMS -1
 
 //! Species lies in a multicomponent phase with concentration zero
 /*!
@@ -187,13 +143,6 @@ namespace Cantera
 //! Phase is a normal phase that currently exists
 #define VCS_PHASE_EXIST_YES 2
 
-//! Phase is a normal phase that exists in a small concentration
-/*!
- * Concentration is so small that it must be calculated using an alternate
- * method
- */
-#define VCS_PHASE_EXIST_MINORCONC 1
-
 //! Phase doesn't currently exist in the mixture
 #define VCS_PHASE_EXIST_NO 0
 
@@ -210,9 +159,6 @@ namespace Cantera
 //! equilibrium program.  These defines are used to assign each constraint to one
 //! category.
 //! @{
-
-//! An element constraint that is current turned off
-#define VCS_ELEM_TYPE_TURNEDOFF -1
 
 //! Normal element constraint consisting of positive coefficients for the
 //! formula matrix.
@@ -235,39 +181,6 @@ namespace Cantera
  */
 #define VCS_ELEM_TYPE_CHARGENEUTRALITY 2
 
-//! Constraint associated with maintaining a fixed lattice stoichiometry in the
-//! solids
-/*!
- * The constraint may have positive or negative values. The lattice 0 species
- * will have negative values while higher lattices will have positive values
- */
-#define VCS_ELEM_TYPE_LATTICERATIO 3
-
-//! Constraint associated with maintaining frozen kinetic equilibria in
-//! some functional groups within molecules
-/*!
- * We seek here to say that some functional groups or ionic states should be
- * treated as if they are separate elements given the time scale of the problem.
- * This will be abs positive constraint. We have not implemented any examples
- * yet. A requirement will be that we must be able to add and subtract these
- * constraints.
- */
-#define VCS_ELEM_TYPE_KINETICFROZEN 4
-
-//! Constraint associated with the maintenance of a surface phase
-/*!
- * We don't have any examples of this yet either. However, surfaces only exist
- * because they are interfaces between bulk layers. If we want to treat surfaces
- * within thermodynamic systems we must come up with a way to constrain their
- * total number.
- */
-#define VCS_ELEM_TYPE_SURFACECONSTRAINT 5
-//! Other constraint equations
-/*!
- * currently there are none
- */
-#define VCS_ELEM_TYPE_OTHERCONSTRAINT 6
-
 //! @}
 //! @name  Types of Species Unknowns in the problem
 //! @{
@@ -289,8 +202,6 @@ namespace Cantera
 //! These values determine where the results are stored within the VCS_SOLVE object.
 //! @{
 
-//! State Calculation is currently in an unknown state
-#define VCS_STATECALC_UNKNOWN -1
 //! State Calculation based on the old or base mole numbers
 #define VCS_STATECALC_OLD 0
 

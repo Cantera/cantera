@@ -245,9 +245,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
                 m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
             }
         }
-        if (m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10) {
-            m_elemAbundancesGoal[j] = 0.0;
-        }
     }
 
     // Printout the species information: PhaseID's and mole nums
@@ -522,30 +519,26 @@ size_t VCS_SOLVE::vcs_popPhaseID(vector<size_t> & phasePopPhaseIDs)
                           Vphase->PhaseName, existence, Fephase,
                           m_tPhaseMoles_old[iph], note.c_str());
                 }
-            } else {
+            } else if (vcs_popPhasePossible(iph)) {
                 // MultiSpecies Phase Stability Resolution
-                if (vcs_popPhasePossible(iph)) {
-                    Fephase = vcs_phaseStabilityTest(iph);
-                    if (Fephase > 0.0) {
-                        if (Fephase > FephaseMax) {
-                            iphasePop = iph;
-                            FephaseMax = Fephase;
-                        }
-                    } else {
-                        FephaseMax = std::max(FephaseMax, Fephase);
-                    }
-                    if (m_debug_print_lvl >= 2) {
-                        plogf("  ---    %18s %5d  %11.3g %11.3g\n",
-                              Vphase->PhaseName, existence, Fephase,
-                              m_tPhaseMoles_old[iph]);
+                Fephase = vcs_phaseStabilityTest(iph);
+                if (Fephase > 0.0) {
+                    if (Fephase > FephaseMax) {
+                        iphasePop = iph;
+                        FephaseMax = Fephase;
                     }
                 } else {
-                    if (m_debug_print_lvl >= 2) {
-                        plogf("  ---    %18s %5d   blocked  %11.3g\n",
-                              Vphase->PhaseName,
-                              existence, m_tPhaseMoles_old[iph]);
-                    }
+                    FephaseMax = std::max(FephaseMax, Fephase);
                 }
+                if (m_debug_print_lvl >= 2) {
+                    plogf("  ---    %18s %5d  %11.3g %11.3g\n",
+                            Vphase->PhaseName, existence, Fephase,
+                            m_tPhaseMoles_old[iph]);
+                }
+            } else if (m_debug_print_lvl >= 2) {
+                plogf("  ---    %18s %5d   blocked  %11.3g\n",
+                        Vphase->PhaseName,
+                        existence, m_tPhaseMoles_old[iph]);
             }
         }
     }
@@ -597,8 +590,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             }
         }
         if (s != 0.0) {
-            double s_old = s;
-            s = vcs_Hessian_diag_adj(irxn, s_old);
+            s = vcs_Hessian_diag_adj(irxn, s);
             m_deltaMolNumSpecies[kspec] = -m_deltaGRxn_new[irxn] / s;
         } else {
             // Ok, s is equal to zero. We can not apply a sophisticated theory
@@ -700,11 +692,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                 m_speciesStatus[kspec] = VCS_SPECIES_COMPONENT;
             } else {
                 m_deltaMolNumSpecies[kspec] = deltaMolNumPhase * X_est[k] * damp;
-                if (X_est[k] > 1.0E-3) {
-                    m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
-                } else {
-                    m_speciesStatus[kspec] = VCS_SPECIES_MINOR;
-                }
+                m_speciesStatus[kspec] = (X_est[k] > 1.0E-3) ? VCS_SPECIES_MAJOR
+                                                             : VCS_SPECIES_MINOR;
             }
         }
     }
@@ -801,12 +790,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 }
 
                 // Start of the regular processing
-                double s;
-                if (m_SSPhase[kspec]) {
-                    s = 0.0;
-                } else {
-                    s = 1.0 / m_molNumSpecies_old[kspec];
-                }
+                double s = (m_SSPhase[kspec]) ? 0.0 : 1.0 / m_molNumSpecies_old[kspec];
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     if (!m_SSPhase[j] && m_molNumSpecies_old[j] > 0.0) {
                         s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
@@ -1067,13 +1051,9 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             for (size_t i = 0; i < componentList.size(); i++) {
                 size_t kc = componentList[i];
                 size_t kc_spec = Vphase->spGlobalIndexVCS(kc);
-                if (X_est[kc] > VCS_DELETE_MINORSPECIES_CUTOFF) {
-                    feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
-                                                     + log(m_actCoeffSpecies_new[kc_spec] * X_est[kc]);
-                } else {
-                    feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
-                                                     + log(m_actCoeffSpecies_new[kc_spec] * VCS_DELETE_MINORSPECIES_CUTOFF);
-                }
+                double moleFrac = std::max(X_est[kc], VCS_DELETE_MINORSPECIES_CUTOFF);
+                feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
+                    + log(m_actCoeffSpecies_new[kc_spec] * moleFrac);
             }
 
             for (size_t i = 0; i < componentList.size(); i++) {
@@ -1261,9 +1241,8 @@ double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres,
     return VolTot;
 }
 
-int VCS_SOLVE::vcs_prep(int printLvl)
+void VCS_SOLVE::vcs_prep(int printLvl)
 {
-    int retn = VCS_SUCCESS;
     m_debug_print_lvl = printLvl;
 
     // Calculate the Single Species status of phases
@@ -1272,11 +1251,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
 
     // Set an initial estimate for the number of noncomponent species equal to
     // nspecies - nelements. This may be changed below
-    if (m_nelem > m_nsp) {
-        m_numRxnTot = 0;
-    } else {
-        m_numRxnTot = m_nsp - m_nelem;
-    }
+    m_numRxnTot = (m_nelem > m_nsp) ? 0 : m_nsp - m_nelem;
     m_numRxnRdc = m_numRxnTot;
     m_numSpeciesRdc = m_nsp;
     for (size_t i = 0; i < m_numRxnRdc; ++i) {
@@ -1288,11 +1263,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
         for (size_t e = 0; e < m_nelem; e++) {
             sz += fabs(m_formulaMatrix(kspec, e));
         }
-        if (sz > 0.0) {
-            m_spSize[kspec] = sz;
-        } else {
-            m_spSize[kspec] = 1.0;
-        }
+        m_spSize[kspec] = (sz > 0.0) ? sz : 1.0;
     }
 
     // DETERMINE THE NUMBER OF COMPONENTS
@@ -1321,7 +1292,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
         if (fabs(sum) < 1.0E-6) {
             modifiedSoln = true;
             double pres = (m_pressurePA <= 0.0) ? 1.01325E5 : m_pressurePA;
-            retn = vcs_evalSS_TP(0, 0, m_temperature, pres);
+            vcs_evalSS_TP(0, 0, m_temperature, pres);
             for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
                 if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
                     m_molNumSpecies_old[kspec] = - m_SSfeSpecies[kspec];
@@ -1347,14 +1318,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     }
 
     // The elements might need to be rearranged.
-    retn = vcs_elem_rearrange();
-    if (retn != VCS_SUCCESS) {
-        plogf("vcs_prep_oneTime:");
-        plogf(" Determination of element reordering failed: %d\n",
-              retn);
-        plogf("          Global Bailout!\n");
-        return retn;
-    }
+    vcs_elem_rearrange();
 
     // If we mucked up the solution unknowns because they were all
     // zero to start with, set them back to zero here
@@ -1382,14 +1346,12 @@ int VCS_SOLVE::vcs_prep(int printLvl)
         sum += m_mix->elementMoles(e);
     }
     if (sum < 1.0E-20) {
-        // Check to see if the current problem is well posed.
-        plogf("vcs has determined the problem is not well posed: Bailing\n");
-        return VCS_PUB_BAD;
+        throw CanteraError("VCS_SOLVE::vcs_prep", "The problem is not well posed"
+                           " because the total number of element moles is zero.");
     }
-    return VCS_SUCCESS;
 }
 
-int VCS_SOLVE::vcs_elem_rearrange()
+void VCS_SOLVE::vcs_elem_rearrange()
 {
     vector<double> awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
     vector<double> aw(m_nelem), sa(m_nelem), ss(m_nelem);
@@ -1505,7 +1467,6 @@ int VCS_SOLVE::vcs_elem_rearrange()
         // If we haven't found enough components, go back and find some more.
         jr++;
     }
-    return VCS_SUCCESS;
 }
 
 void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
@@ -1591,10 +1552,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 
 void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
 {
-    // Loop over all of the phases in the problem
-    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
-
+    for (auto& Vphase : m_VolPhaseList) {
         // We don't need to call single species phases;
         if (!Vphase->m_singleSpecies && !Vphase->isIdealSoln()) {
             // update the mole numbers
@@ -1607,7 +1565,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
     }
 }
 
-int VCS_SOLVE::vcs_report(int iconv)
+void VCS_SOLVE::vcs_report(int iconv)
 {
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
     vector<pair<double, size_t>> x_order;
@@ -1859,9 +1817,6 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("    vcs_TP:       %5d\n", m_VCount->Its);
     writeline('-', 80);
     writeline('-', 80);
-
-    // Return a successful completion flag
-    return VCS_SUCCESS;
 }
 
 void VCS_SOLVE::vcs_elab()
@@ -1878,11 +1833,7 @@ void VCS_SOLVE::vcs_elab()
 
 bool VCS_SOLVE::vcs_elabcheck(int ibound)
 {
-    size_t top = m_numComponents;
-    if (ibound) {
-        top = m_nelem;
-    }
-
+    size_t top = (ibound) ? m_nelem : m_numComponents;
     for (size_t i = 0; i < top; ++i) {
         // Require 12 digits of accuracy on non-zero constraints.
         if (m_elementActive[i] && fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > fabs(m_elemAbundancesGoal[i]) * 1.0e-12) {
@@ -1919,13 +1870,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                     }
                 }
             } else {
-                // For normal element balances, we require absolute compliance
-                // even for ridiculously small numbers.
-                if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
-                    return false;
-                } else {
-                    return false;
-                }
+                return false;
             }
         }
     }
@@ -2102,30 +2047,17 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     if (par < 1.0 && par > 0.0) {
         retn = 2;
         par *= 0.9999;
-        for (size_t i = 0; i < m_numComponents; ++i) {
-            double tmp = m_molNumSpecies_old[i] + par * x[i];
-            if (tmp > 0.0) {
-                m_molNumSpecies_old[i] = tmp;
-            } else {
-                if (m_SSPhase[i]) {
-                    m_molNumSpecies_old[i] = 0.0;
-                }  else {
-                    m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
-                }
-            }
-        }
     } else {
-        for (size_t i = 0; i < m_numComponents; ++i) {
-            double tmp = m_molNumSpecies_old[i] + x[i];
-            if (tmp > 0.0) {
-                m_molNumSpecies_old[i] = tmp;
-            } else {
-                if (m_SSPhase[i]) {
-                    m_molNumSpecies_old[i] = 0.0;
-                }  else {
-                    m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
-                }
-            }
+        par = 1.0;
+    }
+    for (size_t i = 0; i < m_numComponents; ++i) {
+        double tmp = m_molNumSpecies_old[i] + par * x[i];
+        if (tmp > 0.0) {
+            m_molNumSpecies_old[i] = tmp;
+        } else if (m_SSPhase[i]) {
+            m_molNumSpecies_old[i] = 0.0;
+        } else {
+            m_molNumSpecies_old[i] *= 0.0001;
         }
     }
 
@@ -2152,18 +2084,14 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                             goodSpec = false;
                             break;
                         }
-                    } else {
-                        if (saveDir > 0.0) {
-                            goodSpec = false;
-                            break;
-                        }
-                    }
-                    saveDir = dir;
-                } else {
-                    if (m_formulaMatrix(kspec,i) != 0.) {
+                    } else if (saveDir > 0.0) {
                         goodSpec = false;
                         break;
                     }
+                    saveDir = dir;
+                } else if (m_formulaMatrix(kspec,i) != 0.0) {
+                    goodSpec = false;
+                    break;
                 }
             }
             if (goodSpec) {
@@ -2388,8 +2316,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         plogf("   --- call setInitialMoles\n");
     }
 
-    double dxi_min = 1.0e10;
-    int retn;
     int iter = 0;
     bool abundancesOK = true;
     vector<double> sm(m_nelem * m_nelem, 0.0);
@@ -2415,12 +2341,8 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
-            retn = vcs_elcorr(&sm[0], &wx[0]);
-            if (retn >= 2) {
-                abundancesOK = false;
-            } else {
-                abundancesOK = true;
-            }
+            int retn = vcs_elcorr(&sm[0], &wx[0]);
+            abundancesOK = (retn < 2);
         } else {
             abundancesOK = true;
         }
@@ -2444,7 +2366,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             // dg_rt is the Delta_G / RT value for the reaction
             size_t ik = m_numComponents + irxn;
             double dg_rt = m_SSfeSpecies[ik];
-            dxi_min = 1.0e10;
+            double dxi_min = 1.0e10;
             const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             for (size_t jcomp = 0; jcomp < m_nelem; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
@@ -2503,13 +2425,12 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         plogf("   --- setInitialMoles end\n");
     }
-    retn = 0;
     if (!abundancesOK) {
-        retn = -1;
+        return -1;
     } else if (iter > 15) {
-        retn = 1;
+        return 1;
     }
-    return retn;
+    return 0;
 }
 
 double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
@@ -2560,19 +2481,13 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     m_Faraday_dim = Faraday / (m_temperature * GasConstant);
     m_totalVol = m_mix->volume();
 
-    vector<size_t> invSpecies(m_nsp);
-    for (size_t k = 0; k < m_nsp; k++) {
-        invSpecies[m_speciesMapIndex[k]] = k;
-    }
-
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        ThermoPhase* tPhase = &m_mix->phase(iphase);
         vcs_VolPhase* volPhase = m_VolPhaseList[iphase].get();
 
         volPhase->setState_TP(m_temperature, m_pressurePA);
 
         // Loop through each species in the current phase
-        size_t nSpPhase = tPhase->nSpecies();
+        size_t nSpPhase = m_mix->phase(iphase).nSpecies();
         if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
             volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
         } else if (volPhase->totalMoles() > 0.0) {
@@ -2631,11 +2546,7 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     // reactions. Note, it's possible that the number of elements is greater
     // than the number of species. In that case set the number of reactions to
     // zero.
-    if (m_nelem > m_nsp) {
-        m_numRxnTot = 0;
-    } else {
-        m_numRxnTot = m_nsp - m_nelem;
-    }
+    m_numRxnTot = (m_nelem > m_nsp) ? 0 : m_nsp - m_nelem;
     m_numRxnRdc = m_numRxnTot;
 }
 
@@ -2906,24 +2817,14 @@ void VCS_SOLVE::vcs_SSPhase()
     // earmarked as a multispecies phase. Treat that species as a single-species
     // phase
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
-        Vphase->m_singleSpecies = false;
-        if (numPhSpecies[iph] <= 1) {
-            Vphase->m_singleSpecies = true;
-        }
+        m_VolPhaseList[iph]->m_singleSpecies = (numPhSpecies[iph] <= 1);
     }
 
     // Fill in some useful arrays here that have to do with the static
     // information concerning the phase ID of species. SSPhase = Boolean
     // indicating whether a species is in a single species phase or not.
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        size_t iph = m_phaseID[kspec];
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
-        if (Vphase->m_singleSpecies) {
-            m_SSPhase[kspec] = true;
-        } else {
-            m_SSPhase[kspec] = false;
-        }
+        m_SSPhase[kspec] = m_VolPhaseList[m_phaseID[kspec]]->m_singleSpecies;
     }
 }
 

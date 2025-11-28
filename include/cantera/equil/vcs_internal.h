@@ -46,14 +46,6 @@ public:
     int T_Calls_vcs_TP;
 };
 
-//! Definition of the function pointer for the root finder
-/*!
- *  see vcsUtil_root1d for a definition of how to use this.
- */
-typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
-                              int varID, void* fptrPassthrough,
-                              int* err);
-
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles

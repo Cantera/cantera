@@ -138,9 +138,6 @@ public:
     /*!
      *  - #VCS_SPECIES_MAJOR: Major species
      *  - #VCS_SPECIES_MINOR: Minor species
-     *  - #VCS_SPECIES_SMALLMS: The species lies in a multicomponent phase
-     *    that exists. Its concentration is currently very low, necessitating
-     *    a different method of calculation.
      *  - #VCS_SPECIES_ZEROEDMS: The species lies in a multicomponent phase
      *    which currently doesn't exist. Its concentration is currently zero.
      *  - #VCS_SPECIES_ZEROEDSS: Species lies in a single-species phase which
@@ -455,13 +452,8 @@ public:
      *       abundances are zero, the algorithm will fail)
      *
      * @param printLvl Print level of the routine
-     * @return
-     *     VCS_SUCCESS = everything went OK;
-     *     VCS_PUB_BAD = There is an irreconcilable difference in the
-     *                   public data structure from when the problem was
-     *                   initially set up.
      */
-    int vcs_prep(int printLvl);
+    void vcs_prep(int printLvl);
 
     //! Rearrange the constraint equations represented by the Formula
     //! Matrix so that the operational ones are in the front
@@ -488,7 +480,7 @@ public:
      * and assigns them as the first nc components in the formula matrix. This
      * guarantees that vcs_basopt[] has a nonsingular matrix to invert.
      */
-    int vcs_elem_rearrange();
+    void vcs_elem_rearrange();
 
     //! Swaps the indices for all of the global data for two elements, ipos
     //! and jpos.
@@ -536,7 +528,7 @@ public:
      *    -   1 range space error
      *    -  -1 not converged
      */
-    int vcs_report(int iconv);
+    void vcs_report(int iconv);
 
     //! Computes the current elemental abundances vector
     /*!
@@ -851,8 +843,6 @@ private:
     void vcs_TCounters_report();
 
     void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
-
-    void vcs_setFlagsVolPhase(const size_t iph, const bool upToDate, const int stateCalc);
 
     //! Update all underlying vcs_VolPhase objects
     /*!
@@ -1273,9 +1263,6 @@ public:
      *  * 2 - #VCS_ELEM_TYPE_CHARGENEUTRALITY element dof that corresponds to
      *    a required charge neutrality constraint on the phase. The element
      *    abundance is always exactly zero.
-     *  * 3 - #VCS_ELEM_TYPE_OTHERCONSTRAINT Other constraint which may mean
-     *    that a species has neg 0 or pos value of that constraint (other than
-     *    charge)
      */
     vector<int> m_elType;
 
