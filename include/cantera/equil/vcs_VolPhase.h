@@ -331,9 +331,6 @@ public:
      * - VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *   higher level. This is used in phase stability boundary calculations
      * - VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     * - VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so low
-     *   that an alternate method is used to calculate the total phase
-     *   concentrations.
      * - VCS_PHASE_EXIST_YES = 2 : Does exist currently
      * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it consists of a single
      *   species that is identified with the voltage, for example, it's an electron
@@ -546,9 +543,6 @@ private:
      *   all species.
      * * 1  VCS_ELEM_TYPE_ELECTRONCHARGE element dof that corresponds to the
      *   charge DOF.
-     * * 2  VCS_ELEM_TYPE_OTHERCONSTRAINT Other constraint which may mean that
-     *   a species has neg 0 or pos value of that constraint (other than
-     *   charge)
      */
     vector<int> m_elementType;
 
@@ -590,9 +584,6 @@ private:
      * - VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *   higher level. This is used in phase stability boundary calculations
      * - VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     * - VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so
-     *   low that an alternate method is used to calculate the total phase
-     *   concentrations.
      * - VCS_PHASE_EXIST_YES = 2 : Does exist currently
      * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
      *   which can't exist in any other phase. Or, the phase exists always

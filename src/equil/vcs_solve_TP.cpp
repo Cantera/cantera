@@ -54,12 +54,7 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
     // Prep the problem data
     //    - adjust the identity of any phases
     //    - determine the number of components in the problem
-    int retn = vcs_prep(printDetails);
-    if (retn != 0) {
-        plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
-              retn);
-        return retn;
-    }
+    vcs_prep(printDetails);
 
     // Once we have defined the global internal data structure defining the
     // problem, then we go ahead and solve the problem.
@@ -1440,7 +1435,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
         m_molNumSpecies_old[kspec] += dx;
         size_t iph = m_phaseID[kspec];
         m_tPhaseMoles_old[iph] += dx;
-        vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
+        m_VolPhaseList[iph]->setMolesOutOfDate(VCS_STATECALC_OLD);
 
         for (size_t j = 0; j < m_numComponents; ++j) {
             double tmp = sc_irxn[j] * dx;
@@ -1448,7 +1443,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
                 iph = m_phaseID[j];
                 m_molNumSpecies_old[j] += tmp;
                 m_tPhaseMoles_old[iph] += tmp;
-                vcs_setFlagsVolPhase(iph, false, VCS_STATECALC_OLD);
+                m_VolPhaseList[iph]->setMolesOutOfDate(VCS_STATECALC_OLD);
                 m_molNumSpecies_old[j] = std::max(m_molNumSpecies_old[j], 0.0);
             }
         }
@@ -1890,24 +1885,21 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
 
 bool VCS_SOLVE::vcs_globStepDamp()
 {
-    double* dptr = &m_deltaGRxn_new[0];
-
     // CALCULATE SLOPE AT END OF THE STEP
     double s2 = 0.0;
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+            s2 += m_deltaGRxn_new[irxn] * m_deltaMolNumSpecies[kspec];
         }
     }
 
     // CALCULATE ORIGINAL SLOPE
     double s1 = 0.0;
-    dptr = &m_deltaGRxn_old[0];
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            s1 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+            s1 += m_deltaGRxn_old[irxn] * m_deltaMolNumSpecies[kspec];
         }
     }
 
@@ -1939,7 +1931,6 @@ bool VCS_SOLVE::vcs_globStepDamp()
         m_deltaGRxn_tmp = m_deltaGRxn_new;
     }
 
-    dptr = &m_molNumSpecies_new[0];
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
         m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] +
                                      al * m_deltaMolNumSpecies[kspec];
@@ -1964,12 +1955,11 @@ bool VCS_SOLVE::vcs_globStepDamp()
     // only if ITI NE 0
     vcs_deltag(0, false, VCS_STATECALC_NEW);
 
-    dptr = &m_deltaGRxn_new[0];
     s2 = 0.0;
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
+            s2 += m_deltaGRxn_new[irxn] * m_deltaMolNumSpecies[kspec];
         }
     }
 
@@ -3204,16 +3194,6 @@ void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc)
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             m_VolPhaseList[iph]->setMolesCurrent(stateCalc);
         }
-    }
-}
-
-void VCS_SOLVE::vcs_setFlagsVolPhase(const size_t iph, const bool upToDate,
-                                     const int stateCalc)
-{
-    if (!upToDate) {
-        m_VolPhaseList[iph]->setMolesOutOfDate(stateCalc);
-    } else {
-        m_VolPhaseList[iph]->setMolesCurrent(stateCalc);
     }
 }
 
