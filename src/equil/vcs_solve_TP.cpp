@@ -8,6 +8,7 @@
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
+#include "cantera/equil/MultiPhase.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/DenseMatrix.h"
@@ -65,15 +66,20 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
     int iconv = vcs_evalSS_TP(print_lvl, printDetails, m_temperature, m_pressurePA);
 
     // Prep the fe field
-    vcs_fePrep_TP();
+    for (size_t i = 0; i < m_nsp; ++i) {
+        // For single species phases, initialize the chemical potential with the
+        // value of the standard state chemical potential. This value doesn't
+        // change during the calculation
+        if (m_SSPhase[i]) {
+            m_feSpecies_old[i] = m_SSfeSpecies[i];
+            m_feSpecies_new[i] = m_SSfeSpecies[i];
+        }
+    }
 
     // Decide whether we need an initial estimate of the solution If so, go get
     // one. If not, then
     if (m_doEstimateEquil) {
-        int retn = vcs_inest_TP();
-        if (retn != VCS_SUCCESS) {
-            plogf("vcs_inest_TP returned a failure flag\n");
-        }
+        vcs_inest();
     }
 
     int stage = MAIN;
@@ -287,7 +293,15 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
         vcs_report(iconv);
     }
 
-    vcs_prob_update();
+    // Transfer the information back to the MultiPhase object. Note we don't
+    // just call setMoles, because some multispecies solution phases may be
+    // zeroed out, and that would cause a problem for that routine. Also, the
+    // mole fractions of such zeroed out phases actually contain information
+    // about likely reemergent states.
+    m_mix->uploadMoleFractionsFromPhases();
+    for (size_t ip = 0; ip < m_numPhases; ip++) {
+        m_mix->setPhaseMoles(ip, m_VolPhaseList[ip]->totalMoles());
+    }
 
     if (print_lvl > 0 || printDetails > 0) {
         vcs_TCounters_report();

@@ -400,31 +400,6 @@ public:
      */
     int vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres);
 
-    //! Initialize the chemical potential of single species phases
-    /*!
-     * For single species phases, initialize the chemical potential with the
-     * value of the standard state chemical potential. This value doesn't
-     * change during the calculation
-     */
-    void vcs_fePrep_TP();
-
-    //! Calculation of the total volume and the partial molar volumes
-    /*!
-     * This function calculates the partial molar volume for all species, kspec,
-     * in the thermo problem at the temperature TKelvin and pressure, Pres, pres
-     * is in atm. And, it calculates the total volume of the combined system.
-     *
-     * @param[in] tkelvin   Temperature in kelvin()
-     * @param[in] pres      Pressure in Pascal
-     * @param[in] w         w[] is the vector containing the current mole
-     *                      numbers in units of kmol.
-     * @param[out] volPM[]  For species in all phase, the entries are the
-     *                      partial molar volumes units of M**3 / kmol.
-     * @returns the total volume of the entire system in units of m**3.
-     */
-    double vcs_VolTotal(const double tkelvin, const double pres,
-                        const double w[], double volPM[]);
-
     //! This routine is mostly concerned with changing the private data to be
     //! consistent with what's needed for solution. It is called one time for
     //! each new problem structure definition.
@@ -560,13 +535,6 @@ public:
      */
     bool vcs_elabcheck(int ibound);
 
-    /**
-     * Computes the elemental abundances vector for a single phase,
-     * elemAbundPhase[], and returns it through the argument list. The mole
-     * numbers of species are taken from the current value in
-     * m_molNumSpecies_old[].
-     */
-    void vcs_elabPhase(size_t iphase, double* const elemAbundPhase);
 
     /**
      * This subroutine corrects for element abundances. At the end of the
@@ -602,15 +570,8 @@ public:
      */
     int vcs_elcorr(double aa[], double x[]);
 
-    //! Create an initial estimate of the solution to the thermodynamic
-    //! equilibrium problem.
-    /*!
-     * @return  value indicates success:
-     *   -    0: successful initial guess
-     *   -   -1: Unsuccessful initial guess; the elemental abundances aren't
-     *           satisfied.
-     */
-    int vcs_inest_TP();
+    //! Create an initial estimate of the solution to the equilibrium problem.
+    void vcs_inest();
 
     //! Estimate the initial mole numbers by constrained linear programming
     /*!
@@ -629,19 +590,6 @@ public:
      * Note, for this algorithm this function should be monotonically decreasing.
      */
     double vcs_Total_Gibbs(double* w, double* fe, double* tPhMoles);
-
-    //! Calculate the total dimensionless Gibbs free energy of a single phase
-    /*!
-     * @param iphase   ID of the phase
-     * @param w        Species mole number vector for all species
-     * @param fe       vector of partial molar free energies of all of the
-     *                 species
-     */
-    double vcs_GibbsPhase(size_t iphase, const double* const w,
-                          const double* const fe);
-
-    //! Transfer the results of the equilibrium calculation back from VCS_SOLVE
-    void vcs_prob_update();
 
     //! Fully specify the problem to be solved
     void vcs_prob_specifyFully();
@@ -805,29 +753,8 @@ private:
 
     void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
 
-    //! Estimate equilibrium compositions
-    /*!
-     * Algorithm covered in a section of Smith and Missen's Book @cite smith1982.
-     *
-     * Linear programming module is based on using dbolm.
-     *
-     * @param aw   aw[i[  Mole fraction work space        (ne in length)
-     * @param sa   sa[j] = Gram-Schmidt orthog work space (ne in length)
-     * @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
-     * @param ss   ss[j] = Gram-Schmidt orthog work space (ne in length)
-     * @param test This is a small negative number.
-     */
-    void vcs_inest(double* const aw, double* const sa, double* const sm,
-                   double* const ss, double test);
-
     //! Calculate the status of single species phases.
     void vcs_SSPhase();
-
-    //! Delete memory that isn't just resizable STL containers
-    /*!
-     * This gets called by the destructor or by InitSizes().
-     */
-    void vcs_delete_memory();
 
     //! Initialize the internal counters
     /*!
@@ -1340,9 +1267,6 @@ public:
      * based on Jacobian of the ln(ActCoeff) with respect to mole numbers
      */
     int m_useActCoeffJac = 0;
-
-    //! Total volume of all phases. Units are m^3
-    double m_totalVol;
 
     //! Partial molar volumes of the species
     /*!

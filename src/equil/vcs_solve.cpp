@@ -45,7 +45,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_numPhases(mphase->nPhases()),
     m_temperature(mphase->temperature()),
     m_pressurePA(mphase->pressure()),
-    m_totalVol(mphase->volume()),
     m_Faraday_dim(Faraday / (m_temperature * GasConstant))
 {
     string ser = "VCS_SOLVE: ERROR:\n\t";
@@ -376,7 +375,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
 VCS_SOLVE::~VCS_SOLVE()
 {
-    vcs_delete_memory();
+    delete m_VCount;
 }
 
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
@@ -1214,33 +1213,6 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
     return VCS_SUCCESS;
 }
 
-void VCS_SOLVE::vcs_fePrep_TP()
-{
-    for (size_t i = 0; i < m_nsp; ++i) {
-        // For single species phases, initialize the chemical potential with the
-        // value of the standard state chemical potential. This value doesn't
-        // change during the calculation
-        if (m_SSPhase[i]) {
-            m_feSpecies_old[i] = m_SSfeSpecies[i];
-            m_feSpecies_new[i] = m_SSfeSpecies[i];
-        }
-    }
-}
-
-double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres,
-                               const double w[], double volPM[])
-{
-    double VolTot = 0.0;
-    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
-        Vphase->setState_TP(tkelvin, pres);
-        Vphase->setMolesFromVCS(VCS_STATECALC_OLD, w);
-        double Volp = Vphase->sendToVCS_VolPM(volPM);
-        VolTot += Volp;
-    }
-    return VolTot;
-}
-
 void VCS_SOLVE::vcs_prep(int printLvl)
 {
     m_debug_print_lvl = printLvl;
@@ -1593,12 +1565,18 @@ void VCS_SOLVE::vcs_report(int iconv)
 
     // Calculate some quantities that may need updating
     vcs_tmoles();
-    m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
-                              &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
+    double totalVolume = 0.0;
+    for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
+        Vphase->setState_TP(m_temperature, m_pressurePA);
+        Vphase->setMolesFromVCS(VCS_STATECALC_OLD, m_molNumSpecies_old.data());
+        double Volp = Vphase->sendToVCS_VolPM(m_PMVolumeSpecies.data());
+        totalVolume += Volp;
+    }
 
     plogf("\t\tTemperature  = %15.2g Kelvin\n", m_temperature);
     plogf("\t\tPressure     = %15.5g Pa \n", m_pressurePA);
-    plogf("\t\ttotal Volume = %15.5g m**3\n", m_totalVol);
+    plogf("\t\ttotal Volume = %15.5g m**3\n", totalVolume);
 
     // TABLE OF SPECIES IN DECREASING MOLE NUMBERS
     plogf("\n\n");
@@ -1685,7 +1663,6 @@ void VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
 
     // TABLE OF PHASE INFORMATION
-    vector<double> gaPhase(m_nelem, 0.0);
     vector<double> gaTPhase(m_nelem, 0.0);
     double totalMoles = 0.0;
     double gibbsPhase = 0.0;
@@ -1719,13 +1696,25 @@ void VCS_SOLVE::vcs_report(int iconv)
             !vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
-        vcs_elabPhase(iphase, &gaPhase[0]);
-        for (size_t j = 0; j < m_nelem; j++) {
-            plogf(" %10.3g", gaPhase[j]);
-            gaTPhase[j] += gaPhase[j];
+        // Compute the elemental abundances for each element in this phase
+        for (size_t j = 0; j < m_nelem; ++j) {
+            double abundance_j = 0.0;
+            for (size_t i = 0; i < m_nsp; ++i) {
+                if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE
+                    && m_phaseID[i] == iphase)
+                {
+                    abundance_j += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
+                }
+            }
+            plogf(" %10.3g", abundance_j);
+            gaTPhase[j] += abundance_j;
         }
-        gibbsPhase = vcs_GibbsPhase(iphase, &m_molNumSpecies_old[0],
-                                    &m_feSpecies_old[0]);
+        gibbsPhase = 0.0;
+        for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
+            if (m_phaseID[kspec] == iphase && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                gibbsPhase += m_molNumSpecies_old[kspec] * m_feSpecies_old[kspec];
+            }
+        }
         gibbsTotal += gibbsPhase;
         plogf(" | %18.11E |\n", gibbsPhase);
     }
@@ -1875,18 +1864,6 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
         }
     }
     return true;
-}
-
-void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
-{
-    for (size_t j = 0; j < m_nelem; ++j) {
-        elemAbundPhase[j] = 0.0;
-        for (size_t i = 0; i < m_nsp; ++i) {
-            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseID[i] == iphase) {
-                elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
-            }
-        }
-    }
 }
 
 int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
@@ -2214,100 +2191,6 @@ L_CLEANUP:
     return retn;
 }
 
-int VCS_SOLVE::vcs_inest_TP()
-{
-    const char* pprefix = "   --- vcs_inest: ";
-    int retn = 0;
-    if (m_doEstimateEquil > 0) {
-        // Calculate the elemental abundances
-        vcs_elab();
-        if (vcs_elabcheck(0)) {
-            if (m_debug_print_lvl >= 2) {
-                plogf("%s Initial guess passed element abundances on input\n", pprefix);
-                plogf("%s m_doEstimateEquil = 1 so will use the input mole "
-                      "numbers as estimates\n", pprefix);
-            }
-            return retn;
-        } else if (m_debug_print_lvl >= 2) {
-            plogf("%s Initial guess failed element abundances on input\n", pprefix);
-            plogf("%s m_doEstimateEquil = 1 so will discard input "
-                  "mole numbers and find our own estimate\n", pprefix);
-        }
-    }
-
-    // temporary space for usage in this routine and in subroutines
-    vector<double> sm(m_nelem*m_nelem, 0.0);
-    vector<double> ss(m_nelem, 0.0);
-    vector<double> sa(m_nelem, 0.0);
-    vector<double> aw(m_nsp + m_nelem, 0.0);
-
-    // Go get the estimate of the solution
-    if (m_debug_print_lvl >= 2) {
-        plogf("%sGo find an initial estimate for the equilibrium problem\n",
-              pprefix);
-    }
-    double test = -1.0E20;
-    vcs_inest(&aw[0], &sa[0], &sm[0], &ss[0], test);
-
-    // Calculate the elemental abundances
-    vcs_elab();
-
-    // If we still fail to achieve the correct elemental abundances, try to fix
-    // the problem again by calling the main elemental abundances fixer routine,
-    // used in the main program. This attempts to tweak the mole numbers of the
-    // component species to satisfy the element abundance constraints.
-    //
-    // Note: We won't do this unless we have to since it involves inverting a
-    // matrix.
-    bool rangeCheck = vcs_elabcheck(1);
-    if (!vcs_elabcheck(0)) {
-        if (m_debug_print_lvl >= 2) {
-            plogf("%sInitial guess failed element abundances\n", pprefix);
-            plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
-        }
-        vcs_elcorr(&sm[0], &aw[0]);
-        rangeCheck = vcs_elabcheck(1);
-        if (!vcs_elabcheck(0)) {
-            plogf("%sInitial guess still fails element abundance equations\n",
-                  pprefix);
-            plogf("%s - Inability to ever satisfy element abundance "
-                  "constraints is probable\n", pprefix);
-            retn = -1;
-        } else {
-            if (m_debug_print_lvl >= 2) {
-                if (rangeCheck) {
-                    plogf("%sInitial guess now satisfies element abundances\n", pprefix);
-                } else {
-                    plogf("%sElement Abundances RANGE ERROR\n", pprefix);
-                    plogf("%s - Initial guess satisfies NC=%d element abundances, "
-                          "BUT not NE=%d element abundances\n", pprefix,
-                          m_numComponents, m_nelem);
-                }
-            }
-        }
-    } else {
-        if (m_debug_print_lvl >= 2) {
-            if (rangeCheck) {
-                plogf("%sInitial guess satisfies element abundances\n", pprefix);
-            } else {
-                plogf("%sElement Abundances RANGE ERROR\n", pprefix);
-                plogf("%s - Initial guess satisfies NC=%d element abundances, "
-                      "BUT not NE=%d element abundances\n", pprefix,
-                      m_numComponents, m_nelem);
-            }
-        }
-    }
-
-    if (m_debug_print_lvl >= 2) {
-        plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
-              vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_new[0],
-                              &m_tPhaseMoles_old[0]));
-    }
-
-    m_VCount->T_Calls_Inest++;
-    return retn;
-}
-
 int VCS_SOLVE::vcs_setMolesLinProg()
 {
     double test = -1.0E-10;
@@ -2447,31 +2330,6 @@ double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
     return g;
 }
 
-double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
-                                 const double* const fe)
-{
-    double g = 0.0;
-    for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-        if (m_phaseID[kspec] == iphase && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            g += w[kspec] * fe[kspec];
-        }
-    }
-    return g;
-}
-
-void VCS_SOLVE::vcs_prob_update()
-{
-    // Transfer the information back to the MultiPhase object. Note we don't
-    // just call setMoles, because some multispecies solution phases may be
-    // zeroed out, and that would cause a problem for that routine. Also, the
-    // mole fractions of such zeroed out phases actually contain information
-    // about likely reemergent states.
-    m_mix->uploadMoleFractionsFromPhases();
-    for (size_t ip = 0; ip < m_numPhases; ip++) {
-        m_mix->setPhaseMoles(ip, m_VolPhaseList[ip]->totalMoles());
-    }
-}
-
 void VCS_SOLVE::vcs_prob_specifyFully()
 {
     // Whether we have an estimate or not gets overwritten on
@@ -2479,7 +2337,6 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     m_temperature = m_mix->temperature();
     m_pressurePA = m_mix->pressure();
     m_Faraday_dim = Faraday / (m_temperature * GasConstant);
-    m_totalVol = m_mix->volume();
 
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         vcs_VolPhase* volPhase = m_VolPhaseList[iphase].get();
@@ -2550,10 +2407,38 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     m_numRxnRdc = m_numRxnTot;
 }
 
-void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
-                          double* const ss, double test)
+void VCS_SOLVE::vcs_inest()
 {
     const char* pprefix = "   --- vcs_inest: ";
+    if (m_doEstimateEquil > 0) {
+        // Calculate the elemental abundances
+        vcs_elab();
+        if (vcs_elabcheck(0)) {
+            if (m_debug_print_lvl >= 2) {
+                plogf("%s Initial guess passed element abundances on input\n", pprefix);
+                plogf("%s m_doEstimateEquil = 1 so will use the input mole "
+                      "numbers as estimates\n", pprefix);
+            }
+            return;
+        } else if (m_debug_print_lvl >= 2) {
+            plogf("%s Initial guess failed element abundances on input\n", pprefix);
+            plogf("%s m_doEstimateEquil = 1 so will discard input "
+                  "mole numbers and find our own estimate\n", pprefix);
+        }
+    }
+
+    // temporary space for usage in this routine and in subroutines
+    vector<double> sm(m_nelem*m_nelem, 0.0);
+    vector<double> ss(m_nelem, 0.0);
+    vector<double> sa(m_nelem, 0.0);
+    vector<double> aw(m_nsp + m_nelem, 0.0);
+
+    // Go get the estimate of the solution
+    if (m_debug_print_lvl >= 2) {
+        plogf("%sGo find an initial estimate for the equilibrium problem\n",
+              pprefix);
+    }
+    double test = -1.0E20;
     size_t nrxn = m_numRxnTot;
 
     // CALL ROUTINE TO SOLVE MAX(CC*molNum) SUCH THAT AX*molNum = BB AND
@@ -2804,6 +2689,61 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                 pprefix, m_speciesName[kspec], m_molNumSpecies_old[kspec]);
         }
     }
+
+    // Calculate the elemental abundances
+    vcs_elab();
+
+    // If we still fail to achieve the correct elemental abundances, try to fix
+    // the problem again by calling the main elemental abundances fixer routine,
+    // used in the main program. This attempts to tweak the mole numbers of the
+    // component species to satisfy the element abundance constraints.
+    //
+    // Note: We won't do this unless we have to since it involves inverting a
+    // matrix.
+    bool rangeCheck = vcs_elabcheck(1);
+    if (!vcs_elabcheck(0)) {
+        if (m_debug_print_lvl >= 2) {
+            plogf("%sInitial guess failed element abundances\n", pprefix);
+            plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
+        }
+        vcs_elcorr(&sm[0], &aw[0]);
+        rangeCheck = vcs_elabcheck(1);
+        if (!vcs_elabcheck(0)) {
+            throw CanteraError("VCS_SOLVE::vcs_inest",
+                "Initial guess still fails element abundance equations\n"
+                "Inability to ever satisfy element abundance constraints is probable");
+        } else {
+            if (m_debug_print_lvl >= 2) {
+                if (rangeCheck) {
+                    plogf("%sInitial guess now satisfies element abundances\n", pprefix);
+                } else {
+                    plogf("%sElement Abundances RANGE ERROR\n", pprefix);
+                    plogf("%s - Initial guess satisfies NC=%d element abundances, "
+                          "BUT not NE=%d element abundances\n", pprefix,
+                          m_numComponents, m_nelem);
+                }
+            }
+        }
+    } else {
+        if (m_debug_print_lvl >= 2) {
+            if (rangeCheck) {
+                plogf("%sInitial guess satisfies element abundances\n", pprefix);
+            } else {
+                plogf("%sElement Abundances RANGE ERROR\n", pprefix);
+                plogf("%s - Initial guess satisfies NC=%d element abundances, "
+                      "BUT not NE=%d element abundances\n", pprefix,
+                      m_numComponents, m_nelem);
+            }
+        }
+    }
+
+    if (m_debug_print_lvl >= 2) {
+        plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
+              vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_new[0],
+                              &m_tPhaseMoles_old[0]));
+    }
+
+    m_VCount->T_Calls_Inest++;
 }
 
 void VCS_SOLVE::vcs_SSPhase()
@@ -2826,17 +2766,6 @@ void VCS_SOLVE::vcs_SSPhase()
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         m_SSPhase[kspec] = m_VolPhaseList[m_phaseID[kspec]]->m_singleSpecies;
     }
-}
-
-void VCS_SOLVE::vcs_delete_memory()
-{
-    delete m_VCount;
-    m_VCount = 0;
-
-    m_nsp = 0;
-    m_nelem = 0;
-    m_numComponents = 0;
-
 }
 
 void VCS_SOLVE::vcs_counters_init(int ifunc)
