@@ -2044,6 +2044,27 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     // We have changed the total moles in each phase. Calculate them again
     vcs_tmoles();
 
+    // cleanup/logging function to be called before returning
+    auto finalize = [&]() {
+        vcs_tmoles();
+        double l2after = 0.0;
+        for (size_t i = 0; i < m_nelem; ++i) {
+            l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
+        }
+        l2after = sqrt(l2after/m_nelem);
+        if (m_debug_print_lvl >= 2) {
+            plogf("   ---    Elem_Abund:  Correct             Initial  "
+                "              Final\n");
+            for (size_t i = 0; i < m_nelem; ++i) {
+                plogf("   ---       ");
+                plogf("%-2.2s", m_elementName[i]);
+                plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);
+            }
+            plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",
+                l2before, l2after);
+        }
+    };
+
     // Try some ad hoc procedures for fixing the problem
     if (retn >= 2) {
         // First find a species whose adjustment is a win-win situation.
@@ -2092,15 +2113,16 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     vcs_reinsert_deleted(kspec);
                     m_molNumSpecies_old[m_numSpeciesRdc - 1] = xx;
                     vcs_elab();
-                    goto L_CLEANUP;
+                    finalize();
+                    return retn;
                 }
                 vcs_elab();
             }
         }
     }
     if (vcs_elabcheck(0)) {
-        retn = 1;
-        goto L_CLEANUP;
+        finalize();
+        return 1;
     }
 
     for (size_t i = 0; i < m_nelem; ++i) {
@@ -2123,8 +2145,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
     }
     if (vcs_elabcheck(1)) {
-        retn = 1;
-        goto L_CLEANUP;
+        finalize();
+        return 1;
     }
 
     // For electron charges element types, we try positive deltas in the species
@@ -2165,28 +2187,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
     }
     if (vcs_elabcheck(1)) {
-        retn = 1;
-        goto L_CLEANUP;
-    }
-
-L_CLEANUP:
-    ;
-    vcs_tmoles();
-    double l2after = 0.0;
-    for (size_t i = 0; i < m_nelem; ++i) {
-        l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
-    }
-    l2after = sqrt(l2after/m_nelem);
-    if (m_debug_print_lvl >= 2) {
-        plogf("   ---    Elem_Abund:  Correct             Initial  "
-              "              Final\n");
-        for (size_t i = 0; i < m_nelem; ++i) {
-            plogf("   ---       ");
-            plogf("%-2.2s", m_elementName[i]);
-            plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);
-        }
-        plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",
-              l2before, l2after);
+        finalize();
+        return 1;
     }
     return retn;
 }
