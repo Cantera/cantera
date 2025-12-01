@@ -16,74 +16,49 @@
 namespace Cantera
 {
 
-vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
-    m_owningSolverObject(owningSolverObject)
+vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject,
+                           ThermoPhase* thermoPhase, size_t phaseNum)
+    : m_owningSolverObject(owningSolverObject)
 {
     if (!m_owningSolverObject) {
         throw CanteraError("vcs_VolPhase::vcs_VolPhase",
                            "owningSolverObject must not be null");
     }
-}
+    if (!thermoPhase) {
+        throw CanteraError("vcs_VolPhase::vcs_VolPhase",
+                           "thermoPhase must not be null");
+    }
 
-void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
-                          const size_t numElem, const char* const phaseName)
-{
-    AssertThrowMsg(nspecies > 0, "vcs_VolPhase::resize", "nspecies Error");
-    m_phi = 0.0;
+    VP_ID_ = phaseNum;
+    PhaseName = thermoPhase->name().empty() ?
+        fmt::format("Phase_{}", VP_ID_) : thermoPhase->name();
+
+    m_numSpecies = thermoPhase->nSpecies();
+    AssertThrowMsg(m_numSpecies > 0, "vcs_VolPhase::vcs_VolPhase",
+        "nspecies Error");
+    m_singleSpecies = (m_numSpecies == 1);
     m_phiVarIndex = npos;
 
-    if (phaseNum == VP_ID_) {
-        if (strcmp(PhaseName.c_str(), phaseName)) {
-            throw CanteraError("vcs_VolPhase::resize",
-                               "Strings are different: " + PhaseName + " " +
-                               phaseName + " :unknown situation");
-        }
-    } else {
-        VP_ID_ = phaseNum;
-        if (!phaseName) {
-            PhaseName = fmt::format("Phase_{}", VP_ID_);
-        } else {
-            PhaseName = phaseName;
-        }
-    }
-    if (nspecies > 1) {
-        m_singleSpecies = false;
-    } else {
-        m_singleSpecies = true;
+    p_activityConvention = thermoPhase->activityConvention();
+
+    IndSpecies.assign(m_numSpecies, npos);
+    Xmol_.assign(m_numSpecies, 0.0);
+    creationMoleNumbers_.assign(m_numSpecies, 0.0);
+    creationGlobalRxnNumbers_.assign(m_numSpecies, npos);
+    for (size_t k = 0; k < m_numSpecies; k++) {
+        double defaultFrac = 1.0 / m_numSpecies;
+        Xmol_[k] = defaultFrac;
+        creationMoleNumbers_[k] = defaultFrac;
     }
 
-    if (m_numSpecies == nspecies && numElem == m_numElemConstraints) {
-        return;
-    }
+    SS0ChemicalPotential.assign(m_numSpecies, -1.0);
+    StarChemicalPotential.assign(m_numSpecies, -1.0);
+    StarMolarVol.assign(m_numSpecies, -1.0);
+    PartialMolarVol.assign(m_numSpecies, -1.0);
+    ActCoeff.assign(m_numSpecies, 1.0);
+    np_dLnActCoeffdMolNumber.resize(m_numSpecies, m_numSpecies, 0.0);
 
-    m_numSpecies = nspecies;
-    if (nspecies > 1) {
-        m_singleSpecies = false;
-    }
-
-    IndSpecies.resize(nspecies, npos);
-
-    Xmol_.resize(nspecies, 0.0);
-    creationMoleNumbers_.resize(nspecies, 0.0);
-    creationGlobalRxnNumbers_.resize(nspecies, npos);
-    for (size_t i = 0; i < nspecies; i++) {
-        Xmol_[i] = 1.0/nspecies;
-        creationMoleNumbers_[i] = 1.0/nspecies;
-        if (IndSpecies[i] >= m_numElemConstraints) {
-            creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
-        } else {
-            creationGlobalRxnNumbers_[i] = npos;
-        }
-    }
-
-    SS0ChemicalPotential.resize(nspecies, -1.0);
-    StarChemicalPotential.resize(nspecies, -1.0);
-    StarMolarVol.resize(nspecies, -1.0);
-    PartialMolarVol.resize(nspecies, -1.0);
-    ActCoeff.resize(nspecies, 1.0);
-    np_dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
-
-    m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
+    m_speciesUnknownType.assign(m_numSpecies, VCS_SPECIES_TYPE_MOLNUM);
     m_UpToDate = false;
     m_vcsStateStatus = VCS_STATECALC_OLD;
     m_UpToDate_AC = false;
@@ -92,7 +67,33 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     m_UpToDate_GStar = false;
     m_UpToDate_G0 = false;
 
-    elemResize(numElem);
+    TP_ptr = thermoPhase;
+    Temp_ = TP_ptr->temperature();
+    Pres_ = TP_ptr->pressure();
+    m_phi = TP_ptr->electricPotential();
+
+    transferElementsFM(TP_ptr);
+    setTotalMoles(0.0);
+
+    // Determine the global index for each of the elements in the phase
+    size_t neVP = nElemConstraints();
+    for (size_t eVP = 0; eVP < neVP; eVP++) {
+        string enVP = elementName(eVP);
+        size_t foundPos = m_owningSolverObject->elementIndex(enVP);
+        if (foundPos == npos) {
+            int elType = elementType(eVP);
+            int elactive = elementActive(eVP);
+            foundPos = m_owningSolverObject->addElement(enVP.c_str(), elType, elactive);
+        }
+        setElemGlobalIndex(eVP, foundPos);
+    }
+
+    setState_TP(Temp_, Pres_);
+    TP_ptr->getMoleFractions(&Xmol_[0]);
+    creationMoleNumbers_ = Xmol_;
+    _updateMoleFractionDependencies();
+
+    m_isIdealSoln = m_singleSpecies ? true : TP_ptr->isIdeal();
 }
 
 void vcs_VolPhase::elemResize(const size_t numElemConstraints)
@@ -481,34 +482,6 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
             size_t kglob = IndSpecies[k];
             np_LnACJac_VCS(kglob,jglob) = np_dLnActCoeffdMolNumber(k,j);
         }
-    }
-}
-
-void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
-{
-    TP_ptr = tp_ptr;
-    Temp_ = TP_ptr->temperature();
-    Pres_ = TP_ptr->pressure();
-    setState_TP(Temp_, Pres_);
-    m_phi = TP_ptr->electricPotential();
-    size_t nsp = TP_ptr->nSpecies();
-    size_t nelem = TP_ptr->nElements();
-    if (nsp != m_numSpecies) {
-        if (m_numSpecies != 0) {
-            warn_user("vcs_VolPhase::setPtrThermoPhase",
-                "Nsp != NVolSpeces: {} {}", nsp, m_numSpecies);
-        }
-        resize(VP_ID_, nsp, nelem, PhaseName.c_str());
-    }
-    TP_ptr->getMoleFractions(&Xmol_[0]);
-    creationMoleNumbers_ = Xmol_;
-    _updateMoleFractionDependencies();
-
-    // figure out ideal solution tag
-    if (nsp == 1) {
-        m_isIdealSoln = true;
-    } else {
-        m_isIdealSoln = TP_ptr->isIdeal();
     }
 }
 
