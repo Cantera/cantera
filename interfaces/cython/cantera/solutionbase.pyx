@@ -395,7 +395,7 @@ cdef class _SolutionBase:
         def __set__(self, species):
             if isinstance(species, (str, int)):
                 species = (species,)
-            self._selected_species.resize(len(species))
+            self._selected_species = np.ndarray(len(species), dtype=np.uint64)
             for i,spec in enumerate(species):
                 self._selected_species[i] = self.species_index(spec)
 
