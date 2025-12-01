@@ -164,20 +164,9 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         VolPhase->p_activityConvention = tPhase->activityConvention();
 
         // Assign the value of eqn of state. Handle conflicts here.
-        if (eos == "ideal-gas") {
-            VolPhase->m_eqnState = VCS_EOS_IDEAL_GAS;
-        } else if (eos == "fixed-stoichiometry") {
-            VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
-        } else if (eos == "ideal-condensed") {
-            VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
-        } else if (tPhase->nDim() != 3) {
+        if (tPhase->nDim() != 3) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                "Surface/edge phase not handled yet.");
-        } else {
-            if (m_printLvl > 1) {
-                writelog("Unknown Cantera EOS to VCSnonideal: '{}'\n", eos);
-            }
-            VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
         }
 
         // Transfer all of the element information from the ThermoPhase object

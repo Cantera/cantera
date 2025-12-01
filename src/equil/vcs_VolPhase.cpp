@@ -804,25 +804,6 @@ size_t vcs_VolPhase::nSpecies() const
 
 string vcs_VolPhase::eos_name() const
 {
-    switch (m_eqnState) {
-    case VCS_EOS_CONSTANT:
-        return "Constant";
-    case VCS_EOS_IDEAL_GAS:
-        return "Ideal Gas";
-    case VCS_EOS_STOICH_SUB:
-        return "Stoich Sub";
-    case VCS_EOS_IDEAL_SOLN:
-        return "Ideal Soln";
-    case VCS_EOS_DEBEYE_HUCKEL:
-        return "Debeye Huckel";
-    case VCS_EOS_REDLICH_KWONG:
-        return "Redlich_Kwong";
-    case VCS_EOS_REGULAR_SOLN:
-        return "Regular Soln";
-    default:
-        return fmt::format("UnkType: {:7d}", m_eqnState);
-        break;
-    }
+    return TP_ptr->type();
 }
-
 }

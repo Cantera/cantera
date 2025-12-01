@@ -1,5 +1,4 @@
 Trying VCS equilibrium solver
-Unknown Cantera EOS to VCSnonideal: 'HMW-electrolyte'
 
 ================================================================================
 ================ Cantera_to_vprob: START OF PROBLEM STATEMENT ====================
@@ -23,9 +22,9 @@ Unknown Cantera EOS to VCSnonideal: 'HMW-electrolyte'
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName      PhaseNum SingSpec   EqnState        NumSpec     Tmoles(kmol)
-NaCl_electrolyte        0        0 UnkType:      -1        5     2.000000e+00
-             air        1        0        Ideal Gas        7     4.000000e+00
-         NaCl(S)        2        1       Stoich Sub        1     5.000000e+00
+NaCl_electrolyte        0        0  HMW-electrolyte        5     2.000000e+00
+             air        1        0        ideal-gas        7     4.000000e+00
+         NaCl(S)        2        1 fixed-stoichiometry        1     5.000000e+00
 
 ================================================================================
 ================ Cantera_to_vprob: END OF PROBLEM STATEMENT ====================
@@ -55,9 +54,9 @@ NaCl_electrolyte        0        0 UnkType:      -1        5     2.000000e+00
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName      PhaseNum SingSpec   EqnState        NumSpec     Tmoles(kmol)
-NaCl_electrolyte        0        0 UnkType:      -1        5     2.000000e+00
-             air        1        0        Ideal Gas        7     4.000000e+00
-         NaCl(S)        2        1       Stoich Sub        1     5.000000e+00
+NaCl_electrolyte        0        0  HMW-electrolyte        5     2.000000e+00
+             air        1        0        ideal-gas        7     4.000000e+00
+         NaCl(S)        2        1 fixed-stoichiometry        1     5.000000e+00
 
 ================================================================================
 ==================== Cantera_to_vprob: END OF PROBLEM STATEMENT ====================
@@ -91,9 +90,9 @@ NaCl_electrolyte        0        0 UnkType:      -1        5     2.000000e+00
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName      PhaseNum SingSpec   EqnState        NumSpec     Tmoles(kmol)
-NaCl_electrolyte        0        0 UnkType:      -1        5    N/A
-             air        1        0        Ideal Gas        7    N/A
-         NaCl(S)        2        1       Stoich Sub        1    N/A
+NaCl_electrolyte        0        0  HMW-electrolyte        5    N/A
+             air        1        0        ideal-gas        7    N/A
+         NaCl(S)        2        1 fixed-stoichiometry        1    N/A
 
 Elemental Abundances:             Target_kmol    ElemType ElActive
                           O   2.000000000000E+00    0         1

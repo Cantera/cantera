@@ -16,23 +16,6 @@ namespace Cantera
 {
 
 class ThermoPhase;
-
-/*
- * DEFINITIONS FOR THE vcs_VolPhase structure
- *
- * Equation of State Types
- * - Permissible values for the EqnState variable in CPC_PHASE structure
- */
-#define VCS_EOS_CONSTANT 0
-#define VCS_EOS_IDEAL_GAS 1
-#define VCS_EOS_STOICH_SUB 5
-#define VCS_EOS_IDEAL_SOLN 22
-#define VCS_EOS_DEBEYE_HUCKEL 23
-#define VCS_EOS_REDLICH_KWONG 24
-#define VCS_EOS_REGULAR_SOLN 25
-#define VCS_EOS_UNK_CANTERA -1
-
-struct VCS_SPECIES;
 class VCS_SOLVE;
 
 //!  Phase information and Phase calculations for vcs.
@@ -496,12 +479,6 @@ public:
 
     //! If true, this phase consists of a single species
     bool m_singleSpecies = true;
-
-    //! Type of the equation of state
-    /*!
-     * The known types are listed at the top of this file.
-     */
-    int m_eqnState = VCS_EOS_CONSTANT;
 
     //! This is the element number for the charge neutrality condition of the
     //! phase
