@@ -817,21 +817,6 @@ public:
     void prob_report(int print_lvl);
 
     //! Add elements to the local element list
-    /*!
-     * This routine sorts through the elements defined in the vcs_VolPhase
-     * object. It then adds the new elements to the VCS_SOLVE object, and creates
-     * a global map, which is stored in the vcs_VolPhase object. Id and matching
-     * of elements is done strictly via the element name, with case not
-     * mattering.
-     *
-     * The routine also fills in the position of the element in the vcs_VolPhase
-     * object's ElGlobalIndex field.
-     *
-     * @param volPhase  Object containing the phase to be added. The elements in
-     *     this phase are parsed for addition to the global element list
-     */
-    void addPhaseElements(vcs_VolPhase* volPhase);
-
     //! This routines adds entries for the formula matrix for one species
     /*!
      * This routines adds entries for the formula matrix for this object for one
@@ -859,6 +844,9 @@ public:
      * @returns the index number of the new element
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);
+
+    //! Return the index of an element by name, or npos if not found
+    size_t elementIndex(const string& elementName) const;
 
     //!  Total number of species in the problems
     size_t m_nsp;

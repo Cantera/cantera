@@ -59,24 +59,12 @@ class VCS_SOLVE;
 class vcs_VolPhase
 {
 public:
-    vcs_VolPhase(VCS_SOLVE* owningSolverObject = 0);
+    vcs_VolPhase(VCS_SOLVE* owningSolverObject, ThermoPhase* thermoPhase,
+                 size_t phaseNum);
 
     vcs_VolPhase(const vcs_VolPhase& b) = delete;
     vcs_VolPhase& operator=(const vcs_VolPhase& b) = delete;
     ~vcs_VolPhase() = default;
-
-    //! The resize() function fills in all of the initial information if it
-    //! is not given in the constructor.
-    /*!
-     * @param phaseNum    index of the phase in the vcs problem
-     * @param numSpecies  Number of species in the phase
-     * @param numElem     Number of elements in the phase
-     * @param phaseName   String name for the phase
-     */
-    void resize(const size_t phaseNum, const size_t numSpecies,
-                const size_t numElem, const char* const phaseName);
-
-    void elemResize(const size_t numElemConstraints);
 
     //! Set the moles and/or mole fractions within the phase
     /*!
@@ -224,16 +212,6 @@ public:
      */
     void sendToVCS_LnActCoeffJac(Array2D& LnACJac_VCS);
 
-    //! Set the pointer for %Cantera's ThermoPhase parameter
-    /*!
-     * When we first initialize the ThermoPhase object, we read the state of the
-     * ThermoPhase into vcs_VolPhase object.
-     *
-     * @param tp_ptr Pointer to the ThermoPhase object corresponding
-     *               to this phase.
-     */
-    void setPtrThermoPhase(ThermoPhase* tp_ptr);
-
     //! Return the total moles in the phase
     double totalMoles() const;
 
@@ -265,6 +243,8 @@ public:
     void setMolesCurrent(int vcsStateStatus);
 
 private:
+    void elemResize(const size_t numElemConstraints);
+
     //! Set the mole fractions from a conventional mole fraction vector
     /*!
      * @param xmol Value of the mole fractions for the species in the phase.

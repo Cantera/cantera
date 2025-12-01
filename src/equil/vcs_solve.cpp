@@ -111,10 +111,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_chargeSpecies.resize(m_nsp, 0.0);
 
     // Phase Info
-    m_VolPhaseList.resize(m_numPhases);
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        m_VolPhaseList[iph] = make_unique<vcs_VolPhase>(this);
-    }
+    m_VolPhaseList.reserve(m_numPhases);
 
     // For Future expansion
     m_useActCoeffJac = true;
@@ -133,35 +130,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         // Get the ThermoPhase object - assume volume phase
         ThermoPhase* tPhase = &mphase->phase(iphase);
-        size_t nelem = tPhase->nElements();
-
-        // Query Cantera for the equation of state type of the current phase.
-        string eos = tPhase->type();
-
-        // Find out the number of species in the phase
-        size_t nSpPhase = tPhase->nSpecies();
-        // Find out the name of the phase
-        string phaseName = tPhase->name();
-
-        // Call the basic vcs_VolPhase creation routine.
-        // Properties set here:
-        //    ->PhaseNum = phase number in the thermo problem
-        //    ->NumSpecies = number of species in the phase
-        //    ->PhaseName  = Name of the phase
-        vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-        VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str());
-
-        // Tell the vcs_VolPhase pointer about cantera
-        VolPhase->setPtrThermoPhase(tPhase);
-        VolPhase->setTotalMoles(0.0);
-
-        // Set the electric potential of the volume phase from the
-        // ThermoPhase object's value.
-        VolPhase->setElectricPotential(tPhase->electricPotential());
-
-        // Query the ThermoPhase object to find out what convention
-        // it uses for the specification of activity and Standard State.
-        VolPhase->p_activityConvention = tPhase->activityConvention();
 
         // Assign the value of eqn of state. Handle conflicts here.
         if (tPhase->nDim() != 3) {
@@ -169,20 +137,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
                                "Surface/edge phase not handled yet.");
         }
 
-        // Transfer all of the element information from the ThermoPhase object
-        // to the vcs_VolPhase object. Also decide whether we need a new charge
-        // neutrality element in the phase to enforce a charge neutrality
-        // constraint. We also decide whether this is a single species phase
-        // with the voltage being the independent variable setting the chemical
-        // potential of the electrons.
-        VolPhase->transferElementsFM(tPhase);
-
-        // Combine the element information in the vcs_VolPhase
-        // object into the vprob object.
-        addPhaseElements(VolPhase);
+        m_VolPhaseList.emplace_back(
+            make_unique<vcs_VolPhase>(this, tPhase, iphase));
+        vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
         VolPhase->setState_TP(m_temperature, m_pressurePA);
 
         // Loop through each species in the current phase
+        size_t nSpPhase = tPhase->nSpecies();
         for (size_t k = 0; k < nSpPhase; k++) {
             // Obtain the molecular weight of the species from the
             // ThermoPhase object
@@ -2877,32 +2838,6 @@ void VCS_SOLVE::prob_report(int print_lvl)
     }
 }
 
-void VCS_SOLVE::addPhaseElements(vcs_VolPhase* volPhase)
-{
-    size_t neVP = volPhase->nElemConstraints();
-    // Loop through the elements in the vol phase object
-    for (size_t eVP = 0; eVP < neVP; eVP++) {
-        size_t foundPos = npos;
-        string enVP = volPhase->elementName(eVP);
-
-        // Search for matches with the existing elements. If found, then fill in
-        // the entry in the global mapping array.
-        for (size_t e = 0; e < m_nelem; e++) {
-            string en = m_elementName[e];
-            if (!strcmp(enVP.c_str(), en.c_str())) {
-                volPhase->setElemGlobalIndex(eVP, e);
-                foundPos = e;
-            }
-        }
-        if (foundPos == npos) {
-            int elType = volPhase->elementType(eVP);
-            int elactive = volPhase->elementActive(eVP);
-            size_t e = addElement(enVP.c_str(), elType, elactive);
-            volPhase->setElemGlobalIndex(eVP, e);
-        }
-    }
-}
-
 size_t VCS_SOLVE::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
 {
     if (kT > m_nsp) {
@@ -2941,6 +2876,16 @@ size_t VCS_SOLVE::addElement(const char* elNameNew, int elType, int elactive)
     m_elementMapIndex.push_back(0);
     m_elementName.push_back(elNameNew);
     return m_nelem - 1;
+}
+
+size_t VCS_SOLVE::elementIndex(const string& elementName) const
+{
+    for (size_t e = 0; e < m_nelem; e++) {
+        if (m_elementName[e] == elementName) {
+            return e;
+        }
+    }
+    return npos;
 }
 
 }
