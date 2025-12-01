@@ -69,7 +69,7 @@ jobs:
           architecture: 'arm64'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -212,7 +212,7 @@ jobs:
           #   python-version: '3.1x'  # sporadic failures: tracked in post-merge-tests
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -263,7 +263,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -306,7 +306,7 @@ jobs:
         LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      uses: matlab-actions/setup-matlab@b6c98f7926801316606ab9a0c4516b82e8271a2c # v2.6.1
     - name: Build MATLAB C++ Interface
       uses: matlab-actions/run-command@7102c36f8d9b02c376168901511f20260327693e # v2.3.0
       env:
@@ -389,7 +389,7 @@ jobs:
     steps:
       # Only need pyproject.toml for type checker settings
       - name: Checkout the repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -434,7 +434,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@f3c6b3f8a29686284ef7a7cf6dccb79a01d98444 # v5.4.18
+        uses: danielpalme/ReportGenerator-GitHub-Action@dcdfb6e704e87df6b2ed0cf123a6c9f69e364869 # v5.5.0
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -474,7 +474,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: Checkout the repository
         with:
           submodules: recursive
@@ -652,7 +652,7 @@ jobs:
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
       # folder, so no need to do a recursive checkout
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: Checkout the repository
         with:
           persist-credentials: false
@@ -750,7 +750,7 @@ jobs:
           extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: Checkout the repository
         with:
           submodules: recursive
@@ -819,7 +819,7 @@ jobs:
           extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -892,7 +892,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: Checkout the repository
         with:
           submodules: recursive
@@ -970,7 +970,7 @@ jobs:
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev \
         doxygen
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -1010,7 +1010,7 @@ jobs:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -1088,7 +1088,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -1204,7 +1204,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -1230,7 +1230,7 @@ jobs:
         python3 -m pip install --upgrade pip setuptools wheel build
         python3 -m pip install ruamel.yaml Jinja2
     - name: Download the Cantera shared library (Linux)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: libcantera_shared-${{ matrix.os }}.so
         path: build/lib
@@ -1244,7 +1244,7 @@ jobs:
         ln -s libcantera_shared.so.3.3.0 libcantera_shared.so.3
       if: runner.os == 'Linux'
     - name: Download the Cantera shared library (macOS)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: libcantera_shared-${{ matrix.os }}.dylib
         path: build/lib
@@ -1258,13 +1258,13 @@ jobs:
         ln -s libcantera_shared.3.3.0.dylib libcantera_shared.3.dylib
       if: runner.os == 'macOS'
     - name: Download the Cantera shared library (Windows)
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: cantera_shared-${{ matrix.os }}.dll
         path: build/lib
       if: runner.os == 'Windows'
     - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: doxygen-tree
         path: build/doc
@@ -1283,7 +1283,7 @@ jobs:
         echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       if: runner.os == 'Linux'
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@39293085af7de88b5775bbeee38e6946b6709873 # v2.6.0
+      uses: matlab-actions/setup-matlab@b6c98f7926801316606ab9a0c4516b82e8271a2c # v2.6.1
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
@@ -1298,6 +1298,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@a80b208946040c701ae65c1bce73ba7ec4810757 # v2.1.2
+      uses: matlab-actions/run-tests@720bb7ae1d98878f668e76490134b57b36d81e12 # v2.2.0
       with:
         select-by-folder: test/matlab
