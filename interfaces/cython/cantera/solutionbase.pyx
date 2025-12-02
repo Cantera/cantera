@@ -54,7 +54,7 @@ cdef class _SolutionBase:
         cxx_soln.get().setKinetics(newKinetics(stringify("none")))
         cxx_soln.get().setTransportModel(stringify("none"))
         _assign_Solution(self, cxx_soln, True)
-        self._selected_species = np.ndarray(0, dtype=np.uint64)
+        self._selected_species = np.ndarray(0, dtype=np.intp)
 
     def _cinit(self, infile="", name="", adjacent=(), origin=None, yaml=None,
                thermo=None, species=(), kinetics=None, reactions=(), **kwargs):
@@ -82,7 +82,7 @@ cdef class _SolutionBase:
             _assign_Solution(self, CxxNewSolution(), True)
             self._init_parts(thermo, species, kinetics, transport, adjacent, reactions)
 
-        self._selected_species = np.ndarray(0, dtype=np.uint64)
+        self._selected_species = np.ndarray(0, dtype=np.intp)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport) and kwargs.get("init", True):
@@ -395,9 +395,8 @@ cdef class _SolutionBase:
         def __set__(self, species):
             if isinstance(species, (str, int)):
                 species = (species,)
-            self._selected_species = np.ndarray(len(species), dtype=np.uint64)
-            for i,spec in enumerate(species):
-                self._selected_species[i] = self.species_index(spec)
+            selection = [self.species_index(spec) for spec in species]
+            self._selected_species = np.array(selection, dtype=np.intp)
 
     def __getstate__(self):
         """Save complete information of the current phase for pickling."""
@@ -480,7 +479,7 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
 
     cdef _SolutionBase soln = cls(init=False)
     _assign_Solution(soln, cxx_soln, True)
-    soln._selected_species = np.ndarray(0, dtype=np.uint64)
+    soln._selected_species = np.ndarray(0, dtype=np.intp)
 
     cdef InterfacePhase iface
     if isinstance(soln, Interface):
