@@ -669,7 +669,7 @@ cdef class FlowBase(Domain1D):
             array of temperature values
 
         >>> d.set_fixed_temp_profile(array([0.0, 0.5, 1.0]),
-        ...                          array([500.0, 1500.0, 2000.0])
+        ...                          array([500.0, 1500.0, 2000.0]))
         """
         cdef vector[double] x, y
         for p in pos:

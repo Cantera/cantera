@@ -16,7 +16,7 @@ namespace Cantera
 {
 
 IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
-    Flow1D(ph, nsp, 0, c_offset_Y, points)
+    Flow1D(ph, nsp, 0, 0, c_offset_Y, points) //CERFACS 0,0 are set here because it correspond to nsoot=0 and nfic = 0, that have been added in Flow1D  
 {
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {

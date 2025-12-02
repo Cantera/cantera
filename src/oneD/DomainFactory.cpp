@@ -40,10 +40,10 @@ DomainFactory::DomainFactory()
         return new ReactingSurf1D(solution, id);
     });
     reg("gas-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
-        return new Flow1D(solution, id, sections);
+        return new Flow1D(solution, id, sections, fictives);
     });
     reg("legacy-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
-        return new Flow1D(solution, id, sections);
+        return new Flow1D(solution, id, sections, fictives);
     });
     reg("ion-flow", [](shared_ptr<Solution> solution, const string& id, const size_t& sections = 0, const size_t& fictives = 0) {
         return new IonFlow(solution, id);

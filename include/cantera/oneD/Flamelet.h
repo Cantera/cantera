@@ -23,17 +23,17 @@ namespace Cantera
 class Flamelet : public Flow1D
 {
 public:
-    Flamelet(IdealGasPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Yflamelet, size_t points = 1);
+    Flamelet(IdealGasPhase* ph = 0, size_t nsp = 1, size_t nsoot = 0, size_t nfic = 0,  size_t neq = c_offset_Yflamelet, size_t points = 1);
 
     //! Delegating constructor
-    Flamelet(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t nsoot = 0, size_t neq = c_offset_Yflamelet, size_t points = 1);
+    Flamelet(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t nsoot = 0, size_t nfic = 0, size_t neq = c_offset_Yflamelet, size_t points = 1);
 
     //! Create a new flow domain.
     //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    Flamelet(shared_ptr<Solution> sol, const string& id="", size_t nsoot = 0, size_t neq = c_offset_Yflamelet, size_t points=1);
+    Flamelet(shared_ptr<Solution> sol, const string& id="", size_t nsoot = 0, size_t nfic = 0, size_t neq = c_offset_Yflamelet, size_t points=1);
 
     virtual ~Flamelet();
 
