@@ -105,6 +105,11 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t nsoot, size_t nfic, size_t ne
     //---------------------AVBP thickening initialisation------------
     AVBPReadInputChem();
 
+    if ( m_nsoot > 0 & m_nfic > 0 ){
+        throw CanteraError("Flow1D::Flow1D",
+            "Cannot use both fictive species and soot sections at the same time");
+    }
+
     // E. Lameloise
     //---------------------Soot computation initialisation-----------
     if (m_nsoot > 0){
