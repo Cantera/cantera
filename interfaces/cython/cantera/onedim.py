@@ -1250,6 +1250,9 @@ class FreeFlame(FlameBase):
             #: `FreeFlow` domain representing the flame
             self.flame = FreeFlow(gas, name='flame', sections=sections, fictives=fictives)
 
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
+
         if width is not None:
             if grid is not None:
                 raise ValueError("'grid' and 'width' arguments are mutually exclusive")
@@ -1447,6 +1450,10 @@ class BurnerFlame(FlameBase):
             # Create flame domain if not already instantiated by a child class
             #: `UnstrainedFlow` domain representing the flame
             self.flame = UnstrainedFlow(gas, name='flame', sections=sections, fictives=fictives)
+        
+        # Cannot used both fictive and soot at the same time
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
 
         if width is not None:
             if grid is not None:
@@ -1585,6 +1592,10 @@ class CounterflowDiffusionFlame(FlameBase):
 
         #: `AxisymmetricFlow` domain representing the flame
         self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
+
+        # Cannot used both fictive and soot at the same time
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
 
         if width is not None:
             if grid is not None:
@@ -1903,6 +1914,10 @@ class ImpingingJet(FlameBase):
         self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
         self.flame.set_axisymmetric_flow()
 
+        # Cannot used both fictive and soot at the same time
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
+
         if width is not None:
             if grid is not None:
                 raise ValueError("'grid' and 'width' arguments are mutually exclusive")
@@ -1993,6 +2008,10 @@ class CounterflowPremixedFlame(FlameBase):
 
         #: `AxisymmetricFlow` domain representing the flame
         self.flame = AxisymmetricFlow(gas, name='flame', sections=sections, fictives=fictives)
+
+        # Cannot used both fictive and soot at the same time
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
 
         if width is not None:
             if grid is not None:
@@ -2097,6 +2116,10 @@ class CounterflowTwinPremixedFlame(FlameBase):
 
         #The right boundary is a symmetry plane
         self.products = SymmetryPlane1D(name='products', phase=gas, sections=sections, fictives=fictives)
+
+        # Cannot used both fictive and soot at the same time
+        if sections and fictives:
+            raise ValueError("'sections' and 'fictives' arguments are mutually exclusive")
 
         if width is not None:
             if grid is not None:
