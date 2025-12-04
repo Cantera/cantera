@@ -15,6 +15,7 @@ enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 warn_unreachable = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+enable_incomplete_feature = "TypeForm"
 
 [[tool.mypy.overrides]]
 module = "graphviz.*"
