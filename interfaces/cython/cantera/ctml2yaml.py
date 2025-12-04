@@ -39,7 +39,7 @@ from ruamel.yaml.nodes import MappingNode, ScalarNode
 from ruamel.yaml.representer import RoundTripRepresenter, SafeRepresenter
 from typing_extensions import Required
 
-from ._types import literal_type_guard
+from ._types import TypeForm, literal_type_guard
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version: tuple[int, int, int] = yaml.version_info
@@ -1673,8 +1673,8 @@ class SpeciesThermo:
             if tag == "t0":
                 tag = "T0"
 
-            if literal_type_guard(tag, Literal["T0", "h0", "s0", "cp0"]):
-                thermo_attribs[tag] = get_float_or_quantity(node)  # type: ignore[literal-required]
+            if literal_type_guard(tag, TypeForm(Literal["T0", "h0", "s0", "cp0"])):
+                thermo_attribs[tag] = get_float_or_quantity(node)
 
         tmin = const_cp_node.get("Tmin")
         if tmin is not None and tmin != "100.0":
