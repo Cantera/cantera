@@ -4,8 +4,11 @@
 # This code to set the application registry has to come before any code that wants to
 # use the registry is imported. In particular, it has to come before any of our code
 # that uses units!
+from __future__ import annotations
 from pint import UnitRegistry, set_application_registry
-cantera_units_registry: UnitRegistry = UnitRegistry()
+
+cantera_units_registry: UnitRegistry[float] = UnitRegistry()  # type: ignore[type-arg]
+
 set_application_registry(cantera_units_registry)  # type: ignore[no-untyped-call]
 
 # Now we can import our code

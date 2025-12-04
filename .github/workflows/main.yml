@@ -451,9 +451,6 @@ jobs:
         run: |
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
             --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
-            --generate-allowlist cantera >> type_check/stubtest_allowlist.txt
-          stubtest --mypy-config-file interfaces/cython/pyproject.toml \
-            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
             --concise cantera | tee type_check/stubtest_concise.txt
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
             --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
