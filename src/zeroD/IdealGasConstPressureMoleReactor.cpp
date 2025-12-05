@@ -19,7 +19,6 @@ namespace Cantera
 
 void IdealGasConstPressureMoleReactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;
     // set the first component to the temperature
@@ -59,9 +58,6 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
-
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 

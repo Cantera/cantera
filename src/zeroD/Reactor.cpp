@@ -46,8 +46,6 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
 
 void Reactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
-
     // set the first component to the total mass
     m_mass = m_thermo->density() * m_vol;
     y[0] = m_mass;
@@ -81,7 +79,6 @@ void Reactor::initialize(double t0)
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
                 " for reactor '" + m_name + "'.");
     }
-    m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
     updateConnected(true);
@@ -175,7 +172,6 @@ void Reactor::updateConnected(bool updatePressure) {
     if (updatePressure) {
         m_pressure = m_thermo->pressure();
     }
-    m_thermo->saveState(m_state);
 
     // Update the mass flow rate of connected flow devices
     double time = 0.0;
@@ -201,7 +197,6 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     double* mdYdt = RHS + 3; // mass * dY/dt
 
     evalWalls(time);
-    m_thermo->restoreState(m_state);
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
 
@@ -573,10 +568,6 @@ void Reactor::resetSensitivity(double* params)
 
 void Reactor::setAdvanceLimits(const double *limits)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("Reactor::setAdvanceLimits",
-                           "Error: reactor is empty.");
-    }
     m_advancelimits.assign(limits, limits + m_nv);
 
     // resize to zero length if no limits are set
@@ -600,11 +591,6 @@ bool Reactor::getAdvanceLimits(double *limits) const
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
-
-    if (m_thermo == 0) {
-        throw CanteraError("Reactor::setAdvanceLimit",
-                           "Error: reactor is empty.");
-    }
     if (m_nv == 0) {
         if (m_net == 0) {
             throw CanteraError("Reactor::setAdvanceLimit",

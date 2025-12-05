@@ -883,6 +883,8 @@ void SteadyReactorSolver::evalJacobian(double* x0)
         }
         x0[j] = xsave;
     }
+    // Restore system to unperturbed state
+    m_net->updateState(x0);
 
     m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
     m_jac->incrementEvals();

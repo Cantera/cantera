@@ -160,7 +160,6 @@ void MoleReactor::setMassFromMoles(double* y)
 
 void MoleReactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
     // set the first component to the internal energy
     m_mass = m_thermo->density() * m_vol;
     y[0] = m_thermo->intEnergy_mass() * m_mass;
@@ -223,8 +222,6 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // moles per time
 
     evalWalls(time);
-    m_thermo->restoreState(m_state);
-
     evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
     // inverse molecular weights for conversion
     const vector<double>& imw = m_thermo->inverseMolecularWeights();

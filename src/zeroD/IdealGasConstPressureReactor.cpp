@@ -15,8 +15,6 @@ namespace Cantera
 
 void IdealGasConstPressureReactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
-
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
 
@@ -65,8 +63,6 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     mcpdTdt = 0.0;
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
 

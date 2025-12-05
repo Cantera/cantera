@@ -19,8 +19,6 @@ namespace Cantera
 
 void IdealGasMoleReactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
-
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;
 
@@ -125,9 +123,6 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
-
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 

@@ -17,7 +17,6 @@ namespace Cantera
 
 void ConstPressureMoleReactor::getState(double* y)
 {
-    m_thermo->restoreState(m_state);
     // set mass to be used in getMoles function
     m_mass = m_thermo->density() * m_vol;
     // set the first array element to enthalpy
@@ -56,8 +55,6 @@ void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
 
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
