@@ -17,10 +17,6 @@ namespace Cantera
 
 void ConstPressureMoleReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("ConstPressureMoleReactor::getState",
-                           "Error: reactor is empty.");
-    }
     m_thermo->restoreState(m_state);
     // set mass to be used in getMoles function
     m_mass = m_thermo->density() * m_vol;

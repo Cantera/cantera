@@ -19,10 +19,6 @@ namespace Cantera
 
 void IdealGasConstPressureMoleReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("IdealGasConstPressureMoleReactor::getState",
-                           "Error: reactor is empty.");
-    }
     m_thermo->restoreState(m_state);
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;

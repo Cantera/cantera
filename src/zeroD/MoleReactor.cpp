@@ -160,10 +160,6 @@ void MoleReactor::setMassFromMoles(double* y)
 
 void MoleReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("MoleReactor::getState",
-                           "Error: reactor is empty.");
-    }
     m_thermo->restoreState(m_state);
     // set the first component to the internal energy
     m_mass = m_thermo->density() * m_vol;
