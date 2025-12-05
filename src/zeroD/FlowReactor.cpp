@@ -19,9 +19,6 @@ namespace Cantera
 
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
-    if (m_thermo == nullptr) {
-        throw CanteraError("FlowReactor::getStateDae", "Error: reactor is empty.");
-    }
     m_thermo->restoreState(m_state);
     m_thermo->getMassFractions(y+m_offset_Y);
     const vector<double>& mw = m_thermo->molecularWeights();

@@ -16,10 +16,6 @@ namespace Cantera
 
 void ConstPressureReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("ConstPressureReactor::getState",
-                           "Error: reactor is empty.");
-    }
     m_thermo->restoreState(m_state);
 
     // set the first component to the total mass

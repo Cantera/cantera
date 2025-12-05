@@ -101,9 +101,6 @@ ReactorSurface* ReactorBase::surface(size_t n)
 }
 
 void ReactorBase::restoreState() {
-    if (!m_thermo) {
-        throw CanteraError("ReactorBase::restoreState", "No phase defined.");
-    }
     m_thermo->restoreState(m_state);
 }
 
