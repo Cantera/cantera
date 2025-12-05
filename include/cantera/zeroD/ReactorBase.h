@@ -8,6 +8,7 @@
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -25,6 +26,7 @@ class ReactorSurface;
 class Kinetics;
 class ThermoPhase;
 class Solution;
+class AnyMap;
 
 enum class SensParameterType {
     reaction,
@@ -95,6 +97,12 @@ public:
     //! Access the Solution object used to represent the contents of this reactor.
     //! @since New in %Cantera 3.2
     shared_ptr<const Solution> phase() const { return m_solution; }
+
+    //! Indicates whether the governing equations for this reactor are functions of time
+    //! or a spatial variable. All reactors in a network must have the same value.
+    virtual bool timeIsIndependent() const {
+        return true;
+    }
 
     //! @name Methods to set up a simulation
     //! @{
@@ -207,6 +215,138 @@ public:
         throw NotImplementedError("ReactorBase::initialize");
     }
 
+    //! Get the current state of the reactor.
+    /*!
+     *  @param[out] y state vector representing the initial state of the reactor
+     */
+    virtual void getState(double* y) {
+        throw NotImplementedError("ReactorBase::getState");
+    }
+
+    //! Get the current state and derivative vector of the reactor for a DAE solver
+    /*!
+     *  @param[out] y     state vector representing the initial state of the reactor
+     *  @param[out] ydot  state vector representing the initial derivatives of the
+     *                    reactor
+     */
+    virtual void getStateDae(double* y, double* ydot) {
+        throw NotImplementedError("ReactorBase::getStateDae(y, ydot)");
+    }
+
+    //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
+    //! @param[in] t time.
+    //! @param[out] LHS pointer to start of vector of left-hand side
+    //! coefficients for governing equations, length m_nv, default values 1
+    //! @param[out] RHS pointer to start of vector of right-hand side
+    //! coefficients for governing equations, length m_nv, default values 0
+    virtual void eval(double t, double* LHS, double* RHS) {
+        throw NotImplementedError("ReactorBase::eval");
+    }
+
+    /**
+     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[in] ydot rate of change of solution vector, length neq()
+     * @param[out] residual residuals vector, length neq()
+     */
+    virtual void evalDae(double t, double* y, double* ydot, double* residual) {
+        throw NotImplementedError("ReactorBase::evalDae");
+    }
+
+    //! Given a vector of length neq(), mark which variables should be
+    //! considered algebraic constraints
+    virtual void getConstraints(double* constraints) {
+        throw NotImplementedError("ReactorBase::getConstraints");
+    }
+
+    //! Get the indices of equations that are algebraic constraints when solving the
+    //! steady-state problem.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 3.2.
+    virtual vector<size_t> steadyConstraints() const {
+        throw NotImplementedError("ReactorBase::steadyConstraints");
+    }
+
+    //! Set the state of the reactor to correspond to the state vector *y*.
+    virtual void updateState(double* y) {
+        throw NotImplementedError("ReactorBase::updateState");
+    }
+
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k*.
+    virtual void addSensitivitySpeciesEnthalpy(size_t k) {
+        throw NotImplementedError("ReactorBase::addSensitivitySpeciesEnthalpy");
+    }
+
+    //! Return the index in the solution vector for this reactor of the
+    //! component named *nm*.
+    virtual size_t componentIndex(const string& nm) const {
+        throw NotImplementedError("ReactorBase::componentIndex");
+    }
+
+    //! Return the name of the solution component with index *i*.
+    //! @see componentIndex()
+    virtual string componentName(size_t k) {
+        throw NotImplementedError("ReactorBase::componentName");
+    }
+
+    //! Get the upper bound on the k-th component of the local state vector.
+    virtual double upperBound(size_t k) const {
+        throw NotImplementedError("ReactorBase::upperBound");
+    }
+
+    //! Get the lower bound on the k-th component of the local state vector.
+    virtual double lowerBound(size_t k) const {
+        throw NotImplementedError("ReactorBase::lowerBound");
+    }
+
+    //! Reset physically or mathematically problematic values, such as negative species
+    //! concentrations.
+    //! @param[inout] y  current state vector, to be updated; length neq()
+    virtual void resetBadValues(double* y) {
+        throw NotImplementedError("ReactorBase::resetBadValues");
+    }
+
+    //! Calculate the Jacobian of a specific reactor specialization.
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian() {
+        throw NotImplementedError("ReactorBase::jacobian");
+    }
+
+    //! Use this to set the kinetics objects derivative settings
+    virtual void setDerivativeSettings(AnyMap& settings) {
+        throw NotImplementedError("ReactorBase::setDerivativeSettings");
+    }
+
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    virtual void applySensitivity(double* params) {
+        throw NotImplementedError("ReactorBase::applySensitivity");
+    }
+
+    //! Reset the reaction rate multipliers
+    virtual void resetSensitivity(double* params) {
+        throw NotImplementedError("ReactorBase::resetSensitivity");
+    }
+
+    //! Return a false if preconditioning is not supported or true otherwise.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    //!
+    //! @since New in %Cantera 3.0
+    //!
+    virtual bool preconditionerSupported() const { return false; };
+
     //! @}
 
     //! Set the state of the Phase object associated with this reactor to the
@@ -280,6 +420,14 @@ public:
 
 protected:
     explicit ReactorBase(const string& name="(none)");
+
+    //! Return the index in the solution vector for this reactor of the species
+    //! named *nm*, in either the homogeneous phase or a surface phase, relative
+    //! to the start of the species terms. Used to implement componentIndex for
+    //! specific reactor implementations.
+    virtual size_t speciesIndex(const string& nm) const {
+        throw NotImplementedError("ReactorBase::speciesIndex");
+    }
 
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;
