@@ -34,7 +34,7 @@ jobs:
         name: [cython, eigen, libfmt, SUNDIALS, yaml-cpp, HighFive, SCons]
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -44,7 +44,7 @@ jobs:
       with:
         python-version: 3.13
     - name: Install uv
-      uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
       with:
         python-version: 3.13
         cache-dependency-glob: |
@@ -173,7 +173,7 @@ jobs:
         apt install -y --no-install-recommends git ca-certificates
         git config --global init.defaultBranch main
         git config --global --add safe.directory /__w/cantera/cantera
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -225,7 +225,7 @@ jobs:
         dnf install -y git
         git config --global init.defaultBranch main
         git config --global --add safe.directory /__w/cantera/cantera
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -267,7 +267,7 @@ jobs:
         os: ['ubuntu-22.04', 'ubuntu-24.04']
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
@@ -278,7 +278,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
     - name: Install uv
-      uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
       with:
         python-version: ${{ matrix.python-version }}
         enable-cache: true
@@ -321,13 +321,13 @@ jobs:
         os: ['macos-14', 'macos-15']
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
         persist-credentials: false
     - name: Setup uv
-      uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
       with:
         enable-cache: true
         cache-dependency-glob: |
@@ -383,7 +383,7 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       name: Checkout the repository
       with:
         submodules: recursive
