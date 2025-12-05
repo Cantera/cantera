@@ -19,7 +19,6 @@ namespace Cantera
 
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
-    m_thermo->restoreState(m_state);
     m_thermo->getMassFractions(y+m_offset_Y);
     const vector<double>& mw = m_thermo->molecularWeights();
 
@@ -152,7 +151,6 @@ void FlowReactor::getStateDae(double* y, double* ydot)
 void FlowReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
-    m_thermo->restoreState(m_state);
     // initialize state
     m_T = m_thermo->temperature();
     m_rho = m_thermo->density();
@@ -200,8 +198,6 @@ void FlowReactor::updateState(double* y)
 
     // update surface
     updateSurfaceState(y + m_nsp + m_offset_Y);
-
-    m_thermo->saveState(m_state);
 }
 
 void FlowReactor::setMassFlowRate(double mdot)
@@ -242,8 +238,6 @@ void FlowReactor::updateSurfaceState(double* y)
 
 void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
-    m_thermo->restoreState(m_state);
-
     evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
     const vector<double>& mw = m_thermo->molecularWeights();
     double sk_wk = 0;

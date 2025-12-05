@@ -37,7 +37,6 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& nam
     m_solution->thermo()->addSpeciesLock();
     m_thermo = m_solution->thermo().get();
     m_nsp = m_thermo->nSpecies();
-    m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
     m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
 }
@@ -101,12 +100,10 @@ ReactorSurface* ReactorBase::surface(size_t n)
 }
 
 void ReactorBase::restoreState() {
-    m_thermo->restoreState(m_state);
 }
 
 void ReactorBase::syncState()
 {
-    m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass();
     m_pressure = m_thermo->pressure();
     m_mass = m_thermo->density() * m_vol;
@@ -137,6 +134,26 @@ double ReactorBase::residenceTime()
         mout += m_outlet[i]->massFlowRate();
     }
     return mass()/mout;
+}
+
+double ReactorBase::density() const
+{
+    return m_thermo->density();
+}
+
+double ReactorBase::temperature() const
+{
+    return m_thermo->temperature();
+}
+
+const double* ReactorBase::massFractions() const
+{
+    return m_thermo->massFractions();
+}
+
+double ReactorBase::massFraction(size_t k) const
+{
+    return m_thermo->massFraction(k);
 }
 
 FlowDevice& ReactorBase::inlet(size_t n)
