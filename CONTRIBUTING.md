@@ -40,6 +40,7 @@ provide a starting point for contributing code to Cantera.
   prepare your contribution in a way that makes it efficient to review.
 
 ## Getting Credit for your Contributions
+
 * Configure Git with your name and e-mail address before making any commits
   * From a terminal, run:
     ```shell
@@ -92,3 +93,83 @@ The following pages describe the Git development workflows for some other projec
 may also find some helpful advice from these projects:
 * [Matplotlib](https://matplotlib.org/devdocs/devel/development_workflow.html)
 * [SciPy](https://docs.scipy.org/doc/scipy/dev/contributor/development_workflow.html)
+
+## Restrictions on Generative AI Usage
+
+We expect authentic engagement in our community.
+
+- Do not post output from Large Language Models or similar generative AI as comments on
+  GitHub or our User Group, as such comments tend to be formulaic and low content.
+- If you use generative AI tools as an aid in developing code or documentation changes,
+  you are required to disclose the use of AI and ensure that you fully understand the
+  proposed changes and can explain why they are the correct approach.
+
+Make sure you have added value based on your personal competency to your contributions.
+Just taking some input, feeding it to an AI and posting the result is not of value to
+the project. To preserve precious core developer capacity, we reserve the right to
+rigorously reject seemingly AI generated low-value contributions.
+(_adopted from
+[Matplotlib's AI Usage](https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage)
+guidelines_)
+
+## AI Disclosures and Authorship
+
+Cantera is distributed under a BSD-3-Clause license with contributions from
+California Institute of Technology, Sandia Corporation (with U.S. Government rights),
+and the Cantera Developers. Because this license requires clear attribution and
+provenance, contributors must follow the rules below when using generative AI tools.
+
+### **1. AI Use Disclosure**
+
+All pull requests must include a brief **AI Use Statement** in the PR description:
+
+- **No generative AI was used.** This contribution was written entirely without AI
+  assistance.
+- **Limited use of generative AI.**
+  Standard or boilerplate code snippets were generated with AI and manually reviewed;
+  all design, logic, and implementation decisions were made by the contributor.
+  Examples: IDE code-completions or brief LLM queries for common patterns.
+- **Extensive use of generative AI.**
+  Significant portions of code or documentation were generated with AI, including
+  logic and implementation decisions. All generated code and documentation were
+  reviewed and understood by the contributor. Examples: Output from agentic coding
+  tools and/or substantial refactoring by LLMs (web-based or local).
+
+**How to choose:**
+- **Limited:** AI helped with syntax, boilerplate, or standard patterns; you designed
+  the solution.
+- **Extensive:** AI suggested the approach, algorithm, or structure; you validated it
+  works.
+
+### **2. Authorship and Licensing Requirements**
+
+Contributors must ensure that:
+
+- They have the rights to license their contribution under the project’s BSD-3-Clause
+  terms.
+- They do **not knowingly** submit AI-generated content derived from copyrighted or
+  license-incompatible sources (examples: GPL code, proprietary libraries).
+- All required attribution and copyright notices for contributed material are preserved
+  as required under BSD-3-Clause.
+
+### **3. Provenance Awareness**
+
+As generative AI systems may emit material similar to third-party codebases,
+contributors must exercise caution. Contributors should exercise reasonable care in:
+
+- verifying that AI suggestions are sufficiently original,
+- avoiding verbatim snippets from incompatible licenses, and
+- ensuring that any third-party content incorporated intentionally follows proper
+  attribution and is license-compatible.
+
+### **4. Maintainer Review and Discretion**
+
+Maintainers may:
+
+- request clarification about the origin of AI-assisted code,
+- ask the contributor to manually rewrite suspect portions, or
+- reject contributions where provenance is unclear or license compatibility cannot be
+  reasonably established.
+
+These measures protect the integrity of the project’s licensing and long-term
+maintainability.
