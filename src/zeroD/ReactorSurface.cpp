@@ -50,8 +50,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     }
     m_kinetics = m_solution->kinetics();
     m_thermo = m_surf.get();
-    m_cov.resize(m_surf->nSpecies());
-    m_surf->getCoverages(m_cov.data());
+    m_nv = m_surf->nSpecies();
 }
 
 double ReactorSurface::area() const
@@ -66,38 +65,86 @@ void ReactorSurface::setArea(double a)
 
 void ReactorSurface::setCoverages(const double* cov)
 {
-    copy(cov, cov + m_cov.size(), m_cov.begin());
+    m_surf->setCoveragesNoNorm(cov);
 }
 
 void ReactorSurface::setCoverages(const Composition& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::setCoverages(const string& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::getCoverages(double* cov) const
 {
-    copy(m_cov.begin(), m_cov.end(), cov);
+    m_surf->getCoverages(cov);
 }
 
-void ReactorSurface::restoreState()
+void ReactorSurface::getState(double* y)
 {
-    m_surf->setTemperature(m_reactors[0]->temperature());
-    m_surf->setCoveragesNoNorm(m_cov.data());
+    m_surf->getCoverages(y);
 }
 
-void ReactorSurface::syncState()
+void ReactorSurface::initialize(double t0)
 {
-    warn_user("ReactorSurface::syncState", "Behavior changed in Cantera 3.2 for "
-        "consistency with ReactorBase. To set SurfPhase state from ReactorSurface "
-        "object, use restoreState().");
-    m_surf->getCoverages(m_cov.data());
+    m_sdot.resize(m_kinetics->nTotalSpecies(), 0.0);
+    // Sync the surface temperature and pressure to that of the first adjacent reactor
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+}
+
+void ReactorSurface::updateState(double* y)
+{
+    m_surf->setCoveragesNoNorm(y);
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+    m_kinetics->getNetProductionRates(m_sdot.data());
+}
+
+void ReactorSurface::eval(double t, double* LHS, double* RHS)
+{
+    size_t nsp = m_surf->nSpecies();
+    double rs0 = 1.0 / m_surf->siteDensity();
+    double sum = 0.0;
+    for (size_t k = 1; k < nsp; k++) {
+        RHS[k] = m_sdot[k] * rs0 * m_surf->size(k);
+        sum -= RHS[k];
+    }
+    RHS[0] = sum;
+}
+
+void ReactorSurface::applySensitivity(double* params)
+{
+    if (!params) {
+        return;
+    }
+    for (auto& p : m_sensParams) {
+        if (p.type == SensParameterType::reaction) {
+            p.value = m_kinetics->multiplier(p.local);
+            m_kinetics->setMultiplier(p.local, p.value*params[p.global]);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->modifyOneHf298SS(p.local, p.value + params[p.global]);
+        }
+    }
+    m_thermo->invalidateCache();
+    m_kinetics->invalidateCache();
+}
+
+void ReactorSurface::resetSensitivity(double* params)
+{
+    if (!params) {
+        return;
+    }
+    for (auto& p : m_sensParams) {
+        if (p.type == SensParameterType::reaction) {
+            m_kinetics->setMultiplier(p.local, p.value);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->resetHf298(p.local);
+        }
+    }
+    m_thermo->invalidateCache();
+    m_kinetics->invalidateCache();
 }
 
 void ReactorSurface::addSensitivityReaction(size_t rxn)
@@ -112,19 +159,14 @@ void ReactorSurface::addSensitivityReaction(size_t rxn)
         SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
 }
 
-void ReactorSurface::setSensitivityParameters(const double* params)
+size_t ReactorSurface::componentIndex(const string& nm) const
 {
-    for (auto& p : m_sensParams) {
-        p.value = m_kinetics->multiplier(p.local);
-        m_kinetics->setMultiplier(p.local, p.value*params[p.global]);
-    }
+    return m_surf->speciesIndex(nm);
 }
 
-void ReactorSurface::resetSensitivityParameters()
+string ReactorSurface::componentName(size_t k)
 {
-    for (auto& p : m_sensParams) {
-        m_kinetics->setMultiplier(p.local, p.value);
-    }
+    return m_surf->speciesName(k);
 }
 
 }

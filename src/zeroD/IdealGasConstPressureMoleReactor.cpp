@@ -25,8 +25,6 @@ void IdealGasConstPressureMoleReactor::getState(double* y)
     y[0] = m_thermo->temperature();
     // get moles of species in remaining state
     getMoles(y + m_sidx);
-    // set the remaining components to the surface species moles on the walls
-    getSurfaceInitialConditions(y + m_nsp + m_sidx);
 }
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
@@ -49,7 +47,6 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + m_sidx);
 }
 
 void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
@@ -58,15 +55,13 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
+    updateSurfaceProductionRates();
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
-
-    // evaluate reactor surfaces
-    evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
 
     // external heat transfer
     mcpdTdt += m_Qdot;
@@ -121,7 +116,10 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     size_t ssize = m_nv - m_sidx;
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
-    if (!m_surfaces.empty()) {
+
+    // @TODO: Update implementation to account for separation of ReactorSurface
+    //     evaluation and change in state vector order.
+    if (!m_surfaces.empty() && false) {
         vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
@@ -137,6 +135,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(ssize);
     // gas phase net production rates
     m_kin->getNetProductionRates(netProductionRates.data());
+    // TODO: handle surfaces phase contributions to the Jacobian
     // surface phase net production rates mapped to reactor gas phase
     for (auto &S: m_surfaces) {
         auto curr_kin = S->kinetics();
@@ -144,7 +143,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         curr_kin->getNetProductionRates(prod_rates.data());
         for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
             try {
-                size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
+                size_t row = m_thermo->speciesIndex(curr_kin->kineticsSpeciesName(i));
                 netProductionRates[row] += prod_rates[i];
             } catch (...) {
                 // species do not map
@@ -231,7 +230,7 @@ size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
         return 0;
     }
     try {
-        return speciesIndex(nm) + m_sidx;
+        return m_thermo->speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -242,20 +241,7 @@ string IdealGasConstPressureMoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "temperature";
     } else if (k >= m_sidx && k < neq()) {
-        k -= m_sidx;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - m_sidx);
     }
     throw IndexError("IdealGasConstPressureMoleReactor::componentName",
         "components", k, m_nv);

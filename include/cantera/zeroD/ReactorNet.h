@@ -187,7 +187,7 @@ public:
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
     Reactor& reactor(int n) {
-        return *m_reactors[n];
+        return *m_bulkReactors[n];
     }
 
     //! Returns `true` if verbose logging output is enabled.
@@ -392,7 +392,12 @@ protected:
     //! and deliberately not exposed in external interfaces.
     virtual int lastOrder() const;
 
-    vector<Reactor*> m_reactors;
+    vector<shared_ptr<ReactorBase>> m_reactors;
+    vector<Reactor*> m_bulkReactors;
+    vector<ReactorSurface*> m_surfaces;
+    set<ReactorBase*> m_reservoirs;
+    set<FlowDevice*> m_flowDevices;
+    set<WallBase*> m_walls;
     map<string, int> m_counts;  //!< Map used for default name generation
     unique_ptr<Integrator> m_integ;
 

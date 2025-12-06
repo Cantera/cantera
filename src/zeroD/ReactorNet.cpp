@@ -112,12 +112,12 @@ void ReactorNet::initialize()
                            "no reactors in network!");
     }
     // Names of Reactors and ReactorSurfaces using each Solution; should be only one
-    map<Solution*, vector<string>> solutions;
+    map<Solution*, set<string>> solutions;
     // Unique ReactorSurface objects. Can be attached to multiple Reactor objects
-    set<ReactorBase*> surfaces;
+    set<ReactorSurface*> surfaces;
     m_start.assign(1, 0);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        Reactor& r = *m_reactors[n];
+    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
+        Reactor& r = *m_bulkReactors[n];
         shared_ptr<Solution> bulk = r.phase();
         r.initialize(m_time);
         size_t nv = r.neq();
@@ -128,11 +128,11 @@ void ReactorNet::initialize()
             writelog("Reactor {:d}: {:d} variables.\n", n, nv);
             writelog("              {:d} sensitivity params.\n", r.nSensParams());
         }
-        if (r.type() == "FlowReactor" && m_reactors.size() > 1) {
+        if (r.type() == "FlowReactor" && m_bulkReactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
                                "FlowReactors must be used alone.");
         }
-        solutions[bulk.get()].push_back(r.name());
+        solutions[bulk.get()].insert(r.name());
         for (size_t i = 0; i < r.nSurfs(); i++) {
             if (r.surface(i)->phase()->adjacent(bulk->name()) != bulk) {
                 throw CanteraError("ReactorNet::initialize",
@@ -142,17 +142,50 @@ void ReactorNet::initialize()
             }
             surfaces.insert(r.surface(i));
         }
+        // Discover reservoirs, flow devices, and walls connected to this reactor
+        for (size_t i = 0; i < r.nInlets(); i++) {
+            auto& inlet = r.inlet(i);
+            m_flowDevices.insert(&inlet);
+            if (inlet.in().type() == "Reservoir") {
+                m_reservoirs.insert(&inlet.in());
+                inlet.in().setNetwork(this);
+            }
+        }
+        for (size_t i = 0; i < r.nOutlets(); i++) {
+            auto& outlet = r.outlet(i);
+            m_flowDevices.insert(&outlet);
+            if (outlet.out().type() == "Reservoir") {
+                m_reservoirs.insert(&outlet.out());
+                outlet.out().setNetwork(this);
+            }
+        }
+        for (size_t i = 0; i < r.nWalls(); i++) {
+            auto& wall = r.wall(i);
+            m_walls.insert(&wall);
+            if (wall.left().type() == "Reservoir") {
+                m_reservoirs.insert(&wall.left());
+            } else if (wall.right().type() == "Reservoir") {
+                m_reservoirs.insert(&wall.right());
+            }
+        }
     }
     for (auto surf : surfaces) {
-        solutions[surf->phase().get()].push_back(surf->name());
+        solutions[surf->phase().get()].insert(surf->name());
+        m_reactors.push_back(surf->shared_from_this());
+        surf->initialize(m_time);
+        m_nv += surf->neq();
+        m_start.push_back(m_nv);
+        solutions[surf->phase().get()].insert(surf->name());
     }
     for (auto& [soln, reactors] : solutions) {
         if (reactors.size() > 1) {
             string shared;
-            for (size_t i = 0; i < reactors.size() - 1; i++) {
-                shared += fmt::format("'{}', ", reactors[i]);
+            for (auto r : reactors) {
+                if (r != *reactors.begin()) {
+                    shared += ", ";
+                }
+                shared += fmt::format("'{}'", r);
             }
-            shared += fmt::format("'{}'", reactors.back());
             throw CanteraError("ReactorNet::initialize", "The following reactors /"
                 " reactor surfaces are using the same Solution object: {}. Use"
                 " independent Solution objects or set the 'clone' argument to 'true'"
@@ -189,6 +222,9 @@ void ReactorNet::reinitialize()
 {
     if (m_init) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
+        for (auto& reservoir : m_reservoirs) {
+            reservoir->updateConnected(true);
+        }
         m_integ->reinitialize(m_time, *this);
         if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
             checkPreconditionerSupported();
@@ -435,7 +471,7 @@ void ReactorNet::addReactor(shared_ptr<ReactorBase> reactor)
                            reactor->type());
     }
 
-    for (auto current : m_reactors) {
+    for (auto current : m_bulkReactors) {
         if (current->isOde() != r->isOde()) {
             throw CanteraError("ReactorNet::addReactor",
                 "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
@@ -449,7 +485,8 @@ void ReactorNet::addReactor(shared_ptr<ReactorBase> reactor)
     }
     m_timeIsIndependent = r->timeIsIndependent();
     r->setNetwork(this);
-    m_reactors.push_back(r.get());
+    m_bulkReactors.push_back(r.get());
+    m_reactors.push_back(r);
     if (!m_integ) {
         m_integ.reset(newIntegrator(r->isOde() ? "CVODE" : "IDA"));
         // use backward differencing, with a full Jacobian computed
@@ -609,16 +646,16 @@ void ReactorNet::setAdvanceLimits(const double *limits)
     if (!m_init) {
         initialize();
     }
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->setAdvanceLimits(limits + m_start[n]);
+    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
+        m_bulkReactors[n]->setAdvanceLimits(limits + m_start[n]);
     }
 }
 
 bool ReactorNet::hasAdvanceLimits() const
 {
     bool has_limit = false;
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        has_limit |= m_reactors[n]->hasAdvanceLimits();
+    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
+        has_limit |= m_bulkReactors[n]->hasAdvanceLimits();
     }
     return has_limit;
 }
@@ -626,8 +663,8 @@ bool ReactorNet::hasAdvanceLimits() const
 bool ReactorNet::getAdvanceLimits(double *limits) const
 {
     bool has_limit = false;
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        has_limit |= m_reactors[n]->getAdvanceLimits(limits + m_start[n]);
+    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
+        has_limit |= m_bulkReactors[n]->getAdvanceLimits(limits + m_start[n]);
     }
     return has_limit;
 }
@@ -673,7 +710,7 @@ double ReactorNet::upperBound(size_t i) const
 {
     size_t iTot = 0;
     size_t i0 = i;
-    for (auto r : m_reactors) {
+    for (auto r : m_bulkReactors) {
         if (i < r->neq()) {
             return r->upperBound(i);
         } else {
@@ -688,7 +725,7 @@ double ReactorNet::lowerBound(size_t i) const
 {
     size_t iTot = 0;
     size_t i0 = i;
-    for (auto r : m_reactors) {
+    for (auto r : m_bulkReactors) {
         if (i < r->neq()) {
             return r->lowerBound(i);
         } else {
@@ -723,8 +760,8 @@ size_t ReactorNet::registerSensitivityParameter(
 void ReactorNet::setDerivativeSettings(AnyMap& settings)
 {
     // Apply given settings to all reactors
-    for (size_t i = 0; i < m_reactors.size(); i++) {
-        m_reactors[i]->setDerivativeSettings(settings);
+    for (auto& R : m_bulkReactors) {
+        R->setDerivativeSettings(settings);
     }
 }
 
@@ -800,7 +837,7 @@ void ReactorNet::updatePreconditioner(double gamma)
 
 void ReactorNet::checkPreconditionerSupported() const {
     // check for non-mole-based reactors and throw an error otherwise
-    for (auto reactor : m_reactors) {
+    for (auto reactor : m_bulkReactors) {
         if (!reactor->preconditionerSupported()) {
             throw CanteraError("ReactorNet::checkPreconditionerSupported",
                 "Preconditioning is only supported for type *MoleReactor,\n"

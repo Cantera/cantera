@@ -80,20 +80,11 @@ public:
         return m_energy;
     }
 
-    //! Number of equations (state variables) for this reactor
-    size_t neq() {
-        if (!m_nv) {
-            initialize();
-        }
-        return m_nv;
-    }
-
     void getState(double* y) override;
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
     vector<size_t> steadyConstraints() const override;
     void updateState(double* y) override;
-    size_t nSensParams() const override;
     void addSensitivityReaction(size_t rxn) override;
     void addSensitivitySpeciesEnthalpy(size_t k) override;
 
@@ -142,55 +133,28 @@ public:
     void resetSensitivity(double* params) override;
 
 protected:
-    size_t speciesIndex(const string& nm) const override;
+    //! Update #m_sdot to reflect current production rates of bulk phase species due to
+    //! reactions on adjacent surfaces.
+    void updateSurfaceProductionRates();
 
     //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.
     //! @param t     the current time
     virtual void evalWalls(double t);
 
-    //! Evaluate terms related to surface reactions.
-    //! @param[out] LHS   Multiplicative factor on the left hand side of ODE for surface
-    //!                   species coverages
-    //! @param[out] RHS   Right hand side of ODE for surface species coverages
-    //! @param[out] sdot  array of production rates of bulk phase species on surfaces
-    //!                   [kmol/s]
-    virtual void evalSurfaces(double* LHS, double* RHS, double* sdot);
-
-    virtual void evalSurfaces(double* RHS, double* sdot);
-
-    //! Update the state of SurfPhase objects attached to this reactor
-    virtual void updateSurfaceState(double* y);
-
-    //! Update the state information needed by connected reactors, flow devices,
-    //! and reactor walls. Called from updateState().
-    //! @param updatePressure  Indicates whether to update #m_pressure. Should
-    //!     `true` for reactors where the pressure is a dependent property,
-    //!     calculated from the state, and `false` when the pressure is constant
-    //!     or an independent variable.
-    virtual void updateConnected(bool updatePressure);
-
-    //! Get initial conditions for SurfPhase objects attached to this reactor
-    virtual void getSurfaceInitialConditions(double* y);
-
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics* m_kin = nullptr;
 
     double m_vdot = 0.0; //!< net rate of volume change from moving walls [m^3/s]
-
     double m_Qdot = 0.0; //!< net heat transfer into the reactor, through walls [W]
-
-    vector<double> m_work;
-
-    //! Production rates of gas phase species on surfaces [kmol/s]
-    vector<double> m_sdot;
-
     vector<double> m_wdot; //!< Species net molar production rates
     vector<double> m_uk; //!< Species molar internal energies
+
+    //! Total production rate of bulk phase species on surfaces [kmol/s]
+    vector<double> m_sdot;
+
     bool m_chem = false;
     bool m_energy = true;
-    size_t m_nv = 0;
-    size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector<double> m_advancelimits; //!< Advance step limit
 
