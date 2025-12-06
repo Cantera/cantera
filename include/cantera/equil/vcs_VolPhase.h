@@ -9,7 +9,6 @@
 #ifndef VCS_VOLPHASE_H
 #define VCS_VOLPHASE_H
 
-#include "vcs_SpeciesProperties.h"
 #include "vcs_defs.h"
 #include "cantera/base/Array.h"
 
@@ -17,24 +16,6 @@ namespace Cantera
 {
 
 class ThermoPhase;
-
-/*
- * DEFINITIONS FOR THE vcs_VolPhase structure
- *
- * Equation of State Types
- * - Permissible values for the EqnState variable in CPC_PHASE structure
- */
-#define VCS_EOS_CONSTANT 0
-#define VCS_EOS_IDEAL_GAS 1
-#define VCS_EOS_STOICH_SUB 5
-#define VCS_EOS_IDEAL_SOLN 22
-#define VCS_EOS_DEBEYE_HUCKEL 23
-#define VCS_EOS_REDLICH_KWONG 24
-#define VCS_EOS_REGULAR_SOLN 25
-#define VCS_EOS_UNK_CANTERA -1
-
-struct VCS_SPECIES;
-class vcs_SpeciesProperties;
 class VCS_SOLVE;
 
 //!  Phase information and Phase calculations for vcs.
@@ -78,26 +59,12 @@ class VCS_SOLVE;
 class vcs_VolPhase
 {
 public:
-    vcs_VolPhase(VCS_SOLVE* owningSolverObject = 0);
+    vcs_VolPhase(VCS_SOLVE* owningSolverObject, ThermoPhase* thermoPhase,
+                 size_t phaseNum);
 
     vcs_VolPhase(const vcs_VolPhase& b) = delete;
     vcs_VolPhase& operator=(const vcs_VolPhase& b) = delete;
-    ~vcs_VolPhase();
-
-    //! The resize() function fills in all of the initial information if it
-    //! is not given in the constructor.
-    /*!
-     * @param phaseNum    index of the phase in the vcs problem
-     * @param numSpecies  Number of species in the phase
-     * @param numElem     Number of elements in the phase
-     * @param phaseName   String name for the phase
-     * @param molesInert  kmoles of inert in the phase (defaults to zero)
-     */
-    void resize(const size_t phaseNum, const size_t numSpecies,
-                const size_t numElem, const char* const phaseName,
-                const double molesInert = 0.0);
-
-    void elemResize(const size_t numElemConstraints);
+    ~vcs_VolPhase() = default;
 
     //! Set the moles and/or mole fractions within the phase
     /*!
@@ -199,16 +166,6 @@ public:
      */
     double G0_calc_one(size_t kspec) const;
 
-    //! Molar volume calculation for standard state of one species
-    /*!
-     * Calculate the molar volume for the standard states. The results are held
-     * internally within the object.
-     *
-     * @param kspec Species number (within the phase)
-     * @return molar volume of the kspec species's standard state (m**3/kmol)
-     */
-    double VolStar_calc_one(size_t kspec) const;
-
     //! Fill in the partial molar volume vector for VCS
     /*!
      * This routine will calculate the partial molar volumes for the current
@@ -241,12 +198,6 @@ public:
      */
     void setState_TP(const double temperature_Kelvin, const double pressure_PA);
 
-    //! Sets the temperature in this object and underlying ThermoPhase objects
-    /*!
-     * @param temperature_Kelvin    (Kelvin)
-     */
-    void setState_T(const double temperature_Kelvin);
-
     //! Downloads the ln ActCoeff Jacobian into the VCS version of the
     //! ln ActCoeff Jacobian.
     /**
@@ -260,22 +211,6 @@ public:
      *      k = id of the species activity coefficient
      */
     void sendToVCS_LnActCoeffJac(Array2D& LnACJac_VCS);
-
-    //! Set the pointer for %Cantera's ThermoPhase parameter
-    /*!
-     * When we first initialize the ThermoPhase object, we read the state of the
-     * ThermoPhase into vcs_VolPhase object.
-     *
-     * @param tp_ptr Pointer to the ThermoPhase object corresponding
-     *               to this phase.
-     */
-    void setPtrThermoPhase(ThermoPhase* tp_ptr);
-
-    //! Return a const ThermoPhase pointer corresponding to this phase
-    /*!
-     *  @return pointer to the ThermoPhase.
-     */
-    const ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
     double totalMoles() const;
@@ -308,6 +243,8 @@ public:
     void setMolesCurrent(int vcsStateStatus);
 
 private:
+    void elemResize(const size_t numElemConstraints);
+
     //! Set the mole fractions from a conventional mole fraction vector
     /*!
      * @param xmol Value of the mole fractions for the species in the phase.
@@ -350,8 +287,6 @@ public:
      *
      * @param kindex kth species index.
      */
-    vcs_SpeciesProperties* speciesProperty(const size_t kindex);
-
     //! int indicating whether the phase exists or not
     /*!
      * returns the m_existence int for the phase
@@ -359,14 +294,10 @@ public:
      * - VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *   higher level. This is used in phase stability boundary calculations
      * - VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     * - VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so low
-     *   that an alternate method is used to calculate the total phase
-     *   concentrations.
      * - VCS_PHASE_EXIST_YES = 2 : Does exist currently
-     * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
-     *   which can't exist in any other phase. Or, the phase exists always
-     *   because it consists of a single species, which is identified with the
-     *   voltage, for example, it's an electron metal phase.
+     * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it consists of a single
+     *   species that is identified with the voltage, for example, it's an electron
+     *   metal phase.
      */
     int exists() const;
 
@@ -399,16 +330,6 @@ public:
      * @param spGlobalIndex  Global species index (across all phases)
      */
     void setSpGlobalIndexVCS(const size_t spIndex, const size_t spGlobalIndex);
-
-    //! Sets the total moles of inert in the phase
-    /*!
-     * @param tMolesInert Value of the total kmols of inert species in the
-     *     phase.
-     */
-    void setTotalMolesInert(const double tMolesInert);
-
-    //! Returns the value of the total kmol of inert in the phase
-    double totalMolesInert() const;
 
     //! Returns the global index of the local element index for the phase
     size_t elemGlobalIndex(const size_t e) const;
@@ -539,19 +460,6 @@ public:
     //! If true, this phase consists of a single species
     bool m_singleSpecies = true;
 
-    //! If true, this phase is a gas-phase like phase
-    /*!
-     * A RTlog(p/1atm) term is added onto the chemical potential for inert
-     * species if this is true.
-     */
-    bool m_gasPhase = false;
-
-    //! Type of the equation of state
-    /*!
-     * The known types are listed at the top of this file.
-     */
-    int m_eqnState = VCS_EOS_CONSTANT;
-
     //! This is the element number for the charge neutrality condition of the
     //! phase
     /*!
@@ -592,9 +500,6 @@ private:
      *   all species.
      * * 1  VCS_ELEM_TYPE_ELECTRONCHARGE element dof that corresponds to the
      *   charge DOF.
-     * * 2  VCS_ELEM_TYPE_OTHERCONSTRAINT Other constraint which may mean that
-     *   a species has neg 0 or pos value of that constraint (other than
-     *   charge)
      */
     vector<int> m_elementType;
 
@@ -626,9 +531,6 @@ public:
     string PhaseName;
 
 private:
-    //!  Total moles of inert in the phase
-    double m_totalMolesInert = 0.0;
-
     //! Boolean indicating whether the phase is an ideal solution
     //! and therefore its molar-based activity coefficients are
     //! uniformly equal to one.
@@ -639,9 +541,6 @@ private:
      * - VCS_PHASE_EXIST_ZEROEDPHASE = -6: Set to not exist by fiat from a
      *   higher level. This is used in phase stability boundary calculations
      * - VCS_PHASE_EXIST_NO = 0:   Doesn't exist currently
-     * - VCS_PHASE_EXIST_MINORCONC = 1:  Exists, but the concentration is so
-     *   low that an alternate method is used to calculate the total phase
-     *   concentrations.
      * - VCS_PHASE_EXIST_YES = 2 : Does exist currently
      * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
      *   which can't exist in any other phase. Or, the phase exists always
@@ -672,8 +571,6 @@ private:
     /*!
      * The index into this vector is the species index within the phase.
      */
-    vector<vcs_SpeciesProperties*> ListSpeciesPtr;
-
     /**
      *  If we are using Cantera, this is the pointer to the ThermoPhase
      *  object. If not, this is null.

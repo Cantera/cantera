@@ -24,10 +24,10 @@ def compare(data, reference_file, rtol=1e-8, atol=1e-12):
         ref = np.genfromtxt(reference_file)
         assert data.shape == ref.shape
         for i in range(ref.shape[0]):
-            assert ref[i] == approx(data[i], rel=rtol, abs=atol)
+            assert ref[i] == approx(data[i], rel=rtol, abs=atol), f"Row {i}"
     else:
         # Generate the output file for the first time
-        warnings.warn('Generating test data file:' + Path(reference_file).resolve())
+        warnings.warn(f'Generating test data file: {Path(reference_file).resolve()}')
         np.savetxt(reference_file, data, fmt='%.10e')
 
 def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):

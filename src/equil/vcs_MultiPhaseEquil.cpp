@@ -8,14 +8,10 @@
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
-
-#include <cstdio>
 
 namespace Cantera
 {
@@ -407,7 +403,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
                                         int maxsteps, int loglevel)
 {
     int maxit = maxsteps;
-    clockWC tickTock;
     m_printLvl = printLvl;
     m_vsolve.m_printLvl = printLvl;
     m_vsolve.m_doEstimateEquil = estimateEquil;
@@ -431,9 +426,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
     } else {
         ip1 = 0;
     }
-    int iSuccess = m_vsolve.vcs(ipr, ip1, maxit);
+    int iSuccess = m_vsolve.solve_TP(ipr, ip1, maxit);
 
-    double te = tickTock.secondsWC();
     if (printLvl > 0) {
         vector<double> mu(m_mix->nSpecies());
         m_mix->getChemPotentials(mu.data());
@@ -473,131 +467,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
         }
         plogf("------------------------------------------"
               "-------------------\n");
-        if (printLvl > 2 && m_vsolve.m_timing_print_lvl > 0) {
-            plogf("Total time = %12.6e seconds\n", te);
-        }
     }
     return iSuccess;
-}
-
-void vcs_MultiPhaseEquil::reportCSV(const string& reportFile)
-{
-    size_t nphase = m_vsolve.m_numPhases;
-
-    FILE* FP = fopen(reportFile.c_str(), "w");
-    if (!FP) {
-        throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
-                           "Failure to open file");
-    }
-    vector<double> VolPM;
-    vector<double> activity;
-    vector<double> ac;
-    vector<double> mu;
-    vector<double> mu0;
-    vector<double> molalities;
-
-    double vol = 0.0;
-    for (size_t iphase = 0; iphase < nphase; iphase++) {
-        ThermoPhase& tref = m_mix->phase(iphase);
-        size_t nSpecies = tref.nSpecies();
-        VolPM.resize(nSpecies, 0.0);
-        tref.getPartialMolarVolumes(&VolPM[0]);
-        vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
-
-        double TMolesPhase = volP->totalMoles();
-        double VolPhaseVolumes = 0.0;
-        for (size_t k = 0; k < nSpecies; k++) {
-            VolPhaseVolumes += VolPM[k] * tref.moleFraction(k);
-        }
-        VolPhaseVolumes *= TMolesPhase;
-        vol += VolPhaseVolumes;
-    }
-
-    fprintf(FP,"--------------------- VCS_MULTIPHASE_EQUIL FINAL REPORT"
-            " -----------------------------\n");
-    fprintf(FP,"Temperature  = %11.5g kelvin\n", m_mix->temperature());
-    fprintf(FP,"Pressure     = %11.5g Pascal\n", m_mix->pressure());
-    fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
-    fprintf(FP,"Number Basis optimizations = %d\n", m_vsolve.m_VCount->Basis_Opts);
-    fprintf(FP,"Number VCS iterations = %d\n", m_vsolve.m_VCount->Its);
-
-    for (size_t iphase = 0; iphase < nphase; iphase++) {
-        ThermoPhase& tref = m_mix->phase(iphase);
-        string phaseName = tref.name();
-        vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
-        double TMolesPhase = volP->totalMoles();
-        size_t nSpecies = tref.nSpecies();
-        activity.resize(nSpecies, 0.0);
-        ac.resize(nSpecies, 0.0);
-        mu0.resize(nSpecies, 0.0);
-        mu.resize(nSpecies, 0.0);
-        VolPM.resize(nSpecies, 0.0);
-        molalities.resize(nSpecies, 0.0);
-        int actConvention = tref.activityConvention();
-        tref.getActivities(&activity[0]);
-        tref.getActivityCoefficients(&ac[0]);
-        tref.getStandardChemPotentials(&mu0[0]);
-        tref.getPartialMolarVolumes(&VolPM[0]);
-        tref.getChemPotentials(&mu[0]);
-        double VolPhaseVolumes = 0.0;
-        for (size_t k = 0; k < nSpecies; k++) {
-            VolPhaseVolumes += VolPM[k] * tref.moleFraction(k);
-        }
-        VolPhaseVolumes *= TMolesPhase;
-        vol += VolPhaseVolumes;
-
-        if (actConvention == 1) {
-            MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(&tref);
-            mTP->getMolalities(&molalities[0]);
-            tref.getChemPotentials(&mu[0]);
-
-            if (iphase == 0) {
-                fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
-                        "Molalities,  ActCoeff,   Activity,"
-                        "ChemPot_SS0,   ChemPot,   mole_num,       PMVol, Phase_Volume\n");
-
-                fprintf(FP,"            ,           ,      (kmol),            , "
-                        "          ,          ,           ,"
-                        "   (J/kmol),  (J/kmol),     (kmol), (m**3/kmol),     (m**3)\n");
-            }
-            for (size_t k = 0; k < nSpecies; k++) {
-                string sName = tref.speciesName(k);
-                fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e,"
-                        "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
-                        sName.c_str(),
-                        phaseName.c_str(), TMolesPhase,
-                        tref.moleFraction(k), molalities[k], ac[k], activity[k],
-                        mu0[k]*1.0E-6, mu[k]*1.0E-6,
-                        tref.moleFraction(k) * TMolesPhase,
-                        VolPM[k], VolPhaseVolumes);
-            }
-        } else {
-            if (iphase == 0) {
-                fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "
-                        "Molalities,   ActCoeff,    Activity,"
-                        "  ChemPotSS0,     ChemPot,   mole_num,       PMVol, Phase_Volume\n");
-
-                fprintf(FP,"            ,            ,      (kmol),            ,  "
-                        "          ,           ,            ,"
-                        "    (J/kmol),    (J/kmol),     (kmol), (m**3/kmol),       (m**3)\n");
-            }
-            for (size_t k = 0; k < nSpecies; k++) {
-                molalities[k] = 0.0;
-            }
-            for (size_t k = 0; k < nSpecies; k++) {
-                string sName = tref.speciesName(k);
-                fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e, "
-                        "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
-                        sName.c_str(),
-                        phaseName.c_str(), TMolesPhase,
-                        tref.moleFraction(k), molalities[k], ac[k],
-                        activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
-                        tref.moleFraction(k) * TMolesPhase,
-                        VolPM[k], VolPhaseVolumes);
-            }
-        }
-    }
-    fclose(FP);
 }
 
 }
