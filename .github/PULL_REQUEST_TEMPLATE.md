@@ -25,3 +25,16 @@ Closes #
 - [ ] Build passes (`scons build` & `scons test`) and unit tests address code coverage
 - [ ] Style & formatting of contributed code follows [contributing guidelines](https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md)
 - [ ] The pull request is ready for review
+
+**AI Statement (required)**
+
+- [ ] **No use of generative AI**
+  This contribution was written entirely without AI assistance.
+- [ ] **Limited use of generative AI (isolated code snippets only)**
+  Small, non-novel snippets (e.g., boilerplate) were generated with AI and manually
+  reviewed; all design, logic, and implementation decisions are original.
+- [ ] **Chat-assisted coding tools were used**
+  (e.g., GitHub Copilot, Codex, Claude Code, Cursor, Windsurf, or similar).
+  The contributor asserts that **all AI-assisted code was reviewed, verified for
+  correctness, and validated to ensure it does not contain proprietary or
+  license-incompatible material.**
