@@ -11,6 +11,9 @@ function unload()
                 "cleanUp failed (%s).", ME.message);
     end
 
+    % Clear the persistent cache even if cleanUp failed
+    clear getString getArray
+
     if ct.executionMode() == "inprocess"
         warning("ct.unload:UnloadFailed", ...
                 ("Unloading of `ctMatlab` library is not supported for " + ...
