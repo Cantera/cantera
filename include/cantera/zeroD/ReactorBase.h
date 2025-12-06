@@ -47,7 +47,7 @@ struct SensitivityParameter
  * defined.
  * @ingroup reactorGroup
  */
-class ReactorBase
+class ReactorBase : public std::enable_shared_from_this<ReactorBase>
 {
 public:
     //! Instantiate a ReactorBase object with Solution contents.
@@ -102,6 +102,11 @@ public:
     //! or a spatial variable. All reactors in a network must have the same value.
     virtual bool timeIsIndependent() const {
         return true;
+    }
+
+    //! Number of equations (state variables) for this reactor
+    size_t neq() {
+        return m_nv;
     }
 
     //! @name Methods to set up a simulation
@@ -358,6 +363,17 @@ public:
     //! reinitialization.
     virtual void syncState();
 
+    //! Update state information needed by connected reactors, flow devices, and walls.
+    //!
+    //! Called from updateState() for normal reactor types, and from
+    //! ReactorNet::updateState for Reservoir.
+    //!
+    //! @param updatePressure  Indicates whether to update #m_pressure. Should
+    //!     `true` for reactors where the pressure is a dependent property,
+    //!     calculated from the state, and `false` when the pressure is constant
+    //!     or an independent variable.
+    virtual void updateConnected(bool updatePressure);
+
     //! Return the residence time (s) of the contents of this reactor, based
     //! on the outlet mass flow rates and the mass of the reactor contents.
     double residenceTime();
@@ -421,14 +437,6 @@ public:
 protected:
     explicit ReactorBase(const string& name="(none)");
 
-    //! Return the index in the solution vector for this reactor of the species
-    //! named *nm*, in either the homogeneous phase or a surface phase, relative
-    //! to the start of the species terms. Used to implement componentIndex for
-    //! specific reactor implementations.
-    virtual size_t speciesIndex(const string& nm) const {
-        throw NotImplementedError("ReactorBase::speciesIndex");
-    }
-
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;
 
@@ -448,6 +456,7 @@ protected:
     vector<int> m_lr;
     string m_name;  //!< Reactor name.
     bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+    size_t m_nv = 0; //!< Number of state variables for this reactor
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;

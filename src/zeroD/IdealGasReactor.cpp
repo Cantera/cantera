@@ -27,10 +27,6 @@ void IdealGasReactor::getState(double* y)
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
     m_thermo->getMassFractions(y+3);
-
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 3);
 }
 
 void IdealGasReactor::initialize(double t0)
@@ -55,7 +51,6 @@ void IdealGasReactor::updateState(double* y)
     m_thermo->setMassFractions_NoNorm(y+3);
     m_thermo->setState_TD(y[2], m_mass / m_vol);
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + 3);
 }
 
 void IdealGasReactor::eval(double time, double* LHS, double* RHS)
@@ -65,6 +60,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     double* mdYdt = RHS + 3; // mass * dY/dt
 
     evalWalls(time);
+    updateSurfaceProductionRates();
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
@@ -73,7 +69,6 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
@@ -150,7 +145,7 @@ size_t IdealGasReactor::componentIndex(const string& nm) const
         return 2;
     }
     try {
-        return speciesIndex(nm) + 3;
+        return m_thermo->speciesIndex(nm) + 3;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasReactor::componentIndex",
             "Component '{}' not found", nm);

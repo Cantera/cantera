@@ -7,8 +7,11 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/Wall.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {
@@ -40,7 +43,6 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& nam
     m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
     m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
 }
-
 
 ReactorBase::~ReactorBase()
 {
@@ -104,11 +106,33 @@ void ReactorBase::restoreState() {
 
 void ReactorBase::syncState()
 {
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_mass = m_thermo->density() * m_vol;
     if (m_net) {
         m_net->setNeedsReinit();
+    }
+}
+
+void ReactorBase::updateConnected(bool updatePressure) {
+    // save parameters needed by other connected reactors
+    m_enthalpy = m_thermo->enthalpy_mass();
+    if (updatePressure) {
+        m_pressure = m_thermo->pressure();
+    }
+
+    // Update the mass flow rate of connected flow devices
+    double time = 0.0;
+    if (m_net != nullptr) {
+        time = (timeIsIndependent()) ? m_net->time() : m_net->distance();
+    }
+    for (size_t i = 0; i < m_outlet.size(); i++) {
+        m_outlet[i]->setSimTime(time);
+        m_outlet[i]->updateMassFlowRate(time);
+    }
+    for (size_t i = 0; i < m_inlet.size(); i++) {
+        m_inlet[i]->setSimTime(time);
+        m_inlet[i]->updateMassFlowRate(time);
+    }
+    for (size_t i = 0; i < m_wall.size(); i++) {
+        m_wall[i]->setSimTime(time);
     }
 }
 

@@ -140,8 +140,6 @@ public:
 
     string componentName(size_t k) override;
 
-    void updateSurfaceState(double* y) override;
-
 protected:
     //! Density [kg/m^3]. First component of the state vector.
     double m_rho = NAN;

@@ -23,10 +23,6 @@ void IdealGasConstPressureReactor::getState(double* y)
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
     m_thermo->getMassFractions(y+2);
-
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::initialize(double t0)
@@ -50,7 +46,6 @@ void IdealGasConstPressureReactor::updateState(double* y)
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
@@ -63,13 +58,11 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     mcpdTdt = 0.0;
 
     evalWalls(time);
+    updateSurfaceProductionRates();
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
-
-    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
-
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
 
     if (m_chem) {
@@ -140,7 +133,7 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + 2;
+        return m_thermo->speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);

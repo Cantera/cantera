@@ -42,7 +42,11 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void syncState() except +translate_exception
         double volume()
         string name()
-        void setName(string)
+        void setName(string) except +translate_exception
+        size_t neq()
+        size_t componentIndex(string&) except +translate_exception
+        string componentName(size_t) except +translate_exception
+        void getState(double*) except +translate_exception
         void setInitialVolume(double)
         void addSensitivityReaction(size_t) except +translate_exception
 
@@ -52,10 +56,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool chemistryEnabled()
         void setEnergyEnabled(cbool)
         cbool energyEnabled()
-        size_t componentIndex(string&) except +translate_exception
-        string componentName(size_t) except +translate_exception
-        size_t neq()
-        void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
@@ -80,10 +80,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     # reactor surface
 
-    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        string type()
-        string name()
-        void setName(string) except +translate_exception
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorBase):
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*) except +translate_exception

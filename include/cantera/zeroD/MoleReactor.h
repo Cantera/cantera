@@ -54,12 +54,6 @@ protected:
     //! @param y vector of moles of the system
     void setMassFromMoles(double* y);
 
-    void evalSurfaces(double* LHS, double* RHS, double* sdot) override;
-
-    void updateSurfaceState(double* y) override;
-
-    void getSurfaceInitialConditions(double* y) override;
-
     //! const value for the species start index
     const size_t m_sidx = 2;
 };

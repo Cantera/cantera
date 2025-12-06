@@ -90,30 +90,28 @@ public:
     //! number of surface species.
     void getCoverages(double* cov) const;
 
-    //! Set the coverages and temperature in the surface phase object to the
-    //! values for this surface. The temperature is set to match the bulk phase
-    //! of the attached Reactor.
-    //! @since  Prior to %Cantera 3.2, this operation was performed by syncState()
-    void restoreState() override;
+    const vector<double>& netProductionRates() const {
+        return m_sdot;
+    }
 
-    //! Set the coverages for this ReactorSurface based on the attached SurfPhase.
-    //! @since  Behavior changed in %Cantera 3.2 for consistency with
-    //!     ReactorBase::syncState(). Previously, this method performed the inverse
-    //!     operation of setting the ReactorSurface state based on the SurfPhase and
-    //!     attached Reactor.
-    void syncState() override;
+    void getState(double* y) override;
+    void initialize(double t0=0.0) override;
+    void updateState(double* y) override;
+    void eval(double t, double* LHS, double* RHS) override;
 
     void addSensitivityReaction(size_t rxn) override;
+    // void addSensitivitySpeciesEnthalpy(size_t k) override;
+    void applySensitivity(double* params) override;
+    void resetSensitivity(double* params) override;
 
-    //! Set reaction rate multipliers. `params` is the global vector of
-    //! sensitivity parameters. This function is called within
-    //! ReactorNet::eval() before the reaction rates are evaluated.
-    void setSensitivityParameters(const double* params);
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
 
-    //! Set reaction rate multipliers back to their initial values. This
-    //! function is called within ReactorNet::eval() after all rates have been
-    //! evaluated.
-    void resetSensitivityParameters();
+    // vector<size_t> steadyConstraints() const override;
+    // double upperBound(size_t k) const override;
+    // double lowerBound(size_t k) const override;
+    // void resetBadValues(double* y) override;
+    // void setDerivativeSettings(AnyMap& settings) override;
 
 protected:
     double m_area = 1.0;
@@ -121,7 +119,7 @@ protected:
     shared_ptr<SurfPhase> m_surf;
     shared_ptr<Kinetics> m_kinetics;
     vector<ReactorBase*> m_reactors;
-    vector<double> m_cov;
+    vector<double> m_sdot; //!< species production rates for all phases
 };
 
 }

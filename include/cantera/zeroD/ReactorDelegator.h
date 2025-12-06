@@ -63,18 +63,10 @@ public:
         : R(phase, clone, name)
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
-        install("syncState", m_syncState, [this]() { R::syncState(); });
         install("getState", m_getState,
             [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); });
         install("updateState", m_updateState,
             [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); });
-        install("updateSurfaceState", m_updateSurfaceState,
-            [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); });
-        install("getSurfaceInitialConditions", m_getSurfaceInitialConditions,
-            [this](std::array<size_t, 1> sizes, double* y) {
-                R::getSurfaceInitialConditions(y);
-            }
-        );
         install("updateConnected", m_updateConnected,
             [this](bool updatePressure) { R::updateConnected(updatePressure); });
         install("eval", m_eval,
@@ -83,17 +75,10 @@ public:
             }
         );
         install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
-        install("evalSurfaces", m_evalSurfaces,
-            [this](std::array<size_t, 3> sizes, double* LHS, double* RHS, double* sdot) {
-                R::evalSurfaces(LHS, RHS, sdot);
-            }
-        );
         install("componentName", m_componentName,
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
             [this](const string& nm) { return R::componentIndex(nm); });
-        install("speciesIndex", m_speciesIndex,
-            [this](const string& nm) { return R::speciesIndex(nm); });
     }
 
     // Overrides of Reactor methods
@@ -106,10 +91,6 @@ public:
         m_initialize(t0);
     }
 
-    void syncState() override {
-        m_syncState();
-    }
-
     void getState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_getState(sizes, y);
@@ -118,16 +99,6 @@ public:
     void updateState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_updateState(sizes, y);
-    }
-
-    void updateSurfaceState(double* y) override {
-        std::array<size_t, 1> sizes{R::m_nv_surf};
-        m_updateSurfaceState(sizes, y);
-    }
-
-    void getSurfaceInitialConditions(double* y) override {
-        std::array<size_t, 1> sizes{R::m_nv_surf};
-        m_getSurfaceInitialConditions(sizes, y);
     }
 
     void updateConnected(bool updatePressure) override {
@@ -143,21 +114,12 @@ public:
         m_evalWalls(t);
     }
 
-    void evalSurfaces(double* LHS, double* RHS, double* sdot) override {
-        std::array<size_t, 3> sizes{R::m_nv_surf, R::m_nv_surf, R::m_nsp};
-        m_evalSurfaces(sizes, LHS, RHS, sdot);
-    }
-
     string componentName(size_t k) override {
         return m_componentName(k);
     }
 
     size_t componentIndex(const string& nm) const override {
         return m_componentIndex(nm);
-    }
-
-    size_t speciesIndex(const string& nm) const override {
-        return m_speciesIndex(nm);
     }
 
     // Public access to protected Reactor variables needed by derived classes
@@ -192,18 +154,13 @@ public:
 
 private:
     function<void(double)> m_initialize;
-    function<void()> m_syncState;
     function<void(std::array<size_t, 1>, double*)> m_getState;
     function<void(std::array<size_t, 1>, double*)> m_updateState;
-    function<void(std::array<size_t, 1>, double*)> m_updateSurfaceState;
-    function<void(std::array<size_t, 1>, double*)> m_getSurfaceInitialConditions;
     function<void(bool)> m_updateConnected;
     function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
     function<void(double)> m_evalWalls;
-    function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
-    function<size_t(const string&)> m_speciesIndex;
 };
 
 }

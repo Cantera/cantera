@@ -25,9 +25,6 @@ void ConstPressureReactor::getState(double* y)
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
     m_thermo->getMassFractions(y+2);
 
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
 void ConstPressureReactor::initialize(double t0)
@@ -50,7 +47,6 @@ void ConstPressureReactor::updateState(double* y)
     }
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + 2);
 }
 
 void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
@@ -61,11 +57,10 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
     dmdt = 0.0;
 
     evalWalls(time);
+    updateSurfaceProductionRates();
 
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
-
-    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
@@ -130,7 +125,7 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + 2;
+        return m_thermo->speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("ConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -143,20 +138,7 @@ string ConstPressureReactor::componentName(size_t k) {
     } else if (k == 1) {
         return "enthalpy";
     } else if (k >= 2 && k < neq()) {
-        k -= 2;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - 2);
     }
     throw IndexError("ConstPressureReactor::componentName", "component", k, m_nv);
 }

@@ -47,6 +47,69 @@ cdef class ReactorBase:
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
+    def component_index(self, name):
+        """
+        Returns the index of the component named ``name`` in the system. This determines
+        the index of the component in the vector of sensitivity coefficients. ``name``
+        is either a species name or the name of a reactor state variable, for example
+        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
+        """
+        k = self.rbase.componentIndex(stringify(name))
+        if k == -1:
+            raise IndexError('No such component: {!r}'.format(name))
+        return k
+
+    def component_name(self, int i):
+        """
+        Returns the name of the component with index ``i`` within the array of
+        variables returned by `get_state`. This is the inverse of
+        `component_index`.
+        """
+        return pystr(self.rbase.componentName(i))
+
+    property n_vars:
+        """
+        The number of state variables in the reactor.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+        """
+        def __get__(self):
+            return self.rbase.neq()
+
+    def get_state(self):
+        """
+        Get the state vector of the reactor.
+
+        The order of the variables (that is, rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+        - 0  - mass
+        - 1  - volume
+        - 2  - internal energy or temperature
+        - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+
+        - 0  - mass
+        - 1  - enthalpy or temperature
+        - 2+ - mass fractions of the species
+
+        You can use the function `component_index` to determine the location of
+        a specific component from its name, or `component_name` to determine the
+        name from the index.
+        """
+        if not self.n_vars:
+            raise CanteraError('Reactor empty or network not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.rbase.getState(&y[0])
+        return y
+
     def syncState(self):
         """
         Set the state of the Reactor to match that of the associated
@@ -287,69 +350,6 @@ cdef class Reactor(ReactorBase):
         """
         self.reactor.addSensitivitySpeciesEnthalpy(self.phase.species_index(k))
 
-    def component_index(self, name):
-        """
-        Returns the index of the component named ``name`` in the system. This determines
-        the index of the component in the vector of sensitivity coefficients. ``name``
-        is either a species name or the name of a reactor state variable, for example
-        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
-        """
-        k = self.reactor.componentIndex(stringify(name))
-        if k == -1:
-            raise IndexError('No such component: {!r}'.format(name))
-        return k
-
-    def component_name(self, int i):
-        """
-        Returns the name of the component with index ``i`` within the array of
-        variables returned by `get_state`. This is the inverse of
-        `component_index`.
-        """
-        return pystr(self.reactor.componentName(i))
-
-    property n_vars:
-        """
-        The number of state variables in the reactor.
-        Equal to:
-
-        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
-        internal energy or temperature).
-
-        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
-        `n_species` + 2 (mass, enthalpy or temperature).
-        """
-        def __get__(self):
-            return self.reactor.neq()
-
-    def get_state(self):
-        """
-        Get the state vector of the reactor.
-
-        The order of the variables (that is, rows) is:
-
-        `Reactor` or `IdealGasReactor`:
-
-        - 0  - mass
-        - 1  - volume
-        - 2  - internal energy or temperature
-        - 3+ - mass fractions of the species
-
-        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
-
-        - 0  - mass
-        - 1  - enthalpy or temperature
-        - 2+ - mass fractions of the species
-
-        You can use the function `component_index` to determine the location of
-        a specific component from its name, or `component_name` to determine the
-        name from the index.
-        """
-        if not self.n_vars:
-            raise CanteraError('Reactor empty or network not initialized.')
-        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.reactor.getState(&y[0])
-        return y
-
     property jacobian:
         """
         Get the local, reactor-specific Jacobian or an approximation thereof
@@ -586,16 +586,6 @@ cdef class ExtensibleReactor(Reactor):
         Responsible for setting the state of the reactor object from the
         values in the state vector ``y`` (length `n_vars`)
 
-    ``update_surface_state(self, y : double[:]) -> None``
-        Responsible for setting the state of surface phases in this reactor
-        from the values in the state vector ``y``. The length of ``y`` is the
-        total number of surface species in all surfaces.
-
-    ``get_surface_initial_conditions(self, y : double[:]) -> None``
-        Responsible for populating the state vector ``y`` with the initial
-        state of each surface phase in this reactor. The length of ``y`` is the
-        total number of surface species in all surfaces.
-
     ``update_connected(self, update_pressure : bool) -> None``
         Responsible for storing properties which may be accessed by connected
         reactors, and for updating the mass flow rates of connected flow devices.
@@ -623,11 +613,6 @@ cdef class ExtensibleReactor(Reactor):
 
     ``component_index(name: string) -> int``
         Returns the index of the state vector component named ``name``
-
-    ``species_index(name : string) -> int``
-        Returns the index of the species named ``name``, in either the bulk
-        phase or a surface phase, relative to the start of the species terms in
-        the state vector.
     """
 
     reactor_type = "ExtensibleReactor"
@@ -637,15 +622,11 @@ cdef class ExtensibleReactor(Reactor):
         'sync_state': ('syncState', 'void()'),
         'get_state': ('getState', 'void(double*)'),
         'update_state': ('updateState', 'void(double*)'),
-        'update_surface_state': ('updateSurfaceState', 'void(double*)'),
-        'get_surface_initial_conditions': ('getSurfaceInitialConditions', 'void(double*)'),
         'update_connected': ('updateConnected', 'void(bool)'),
         'eval': ('eval', 'void(double, double*, double*)'),
         'eval_walls': ('evalWalls', 'void(double)'),
-        'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
-        'species_index': ('speciesIndex', 'size_t(string)')
     }
 
     def __cinit__(self, *args, **kwargs):

@@ -57,12 +57,10 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     }
 
     // set the initial coverages
-    getSurfaceInitialConditions(y + m_offset_Y + m_nsp);
+    updateSurfaceProductionRates();
 
     // reset ydot vector
     std::fill(ydot, ydot + m_nv, 0.0);
-    // calculate initial d(coverage)/dt values
-    evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
 
     // next, we must solve for the initial derivative values
     // a . ydot = b
@@ -195,9 +193,6 @@ void FlowReactor::updateState(double* y)
     double* mss = y + m_offset_Y;
     m_thermo->setMassFractions_NoNorm(mss);
     m_thermo->setState_TP(m_T, m_P);
-
-    // update surface
-    updateSurfaceState(y + m_nsp + m_offset_Y);
 }
 
 void FlowReactor::setMassFlowRate(double mdot)
@@ -223,22 +218,9 @@ double FlowReactor::surfaceAreaToVolumeRatio() const {
     return 2.0 / sqrt(m_area / Pi);
 }
 
-void FlowReactor::updateSurfaceState(double* y)
-{
-    size_t loc = 0;
-    for (auto& S : m_surfaces) {
-        // set the coverages without normalization to avoid over-constraining
-        // the system.
-        // note: the ReactorSurface class doesn't normalize when calling setCoverages
-        S->setCoverages(y+loc);
-        S->restoreState();
-        loc += S->thermo()->nSpecies();
-    }
-}
-
 void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
-    evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
+    updateSurfaceProductionRates();
     const vector<double>& mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
@@ -348,7 +330,7 @@ size_t FlowReactor::componentIndex(const string& nm) const
         return 3;
     }
     try {
-        return speciesIndex(nm) + m_offset_Y;
+        return m_thermo->speciesIndex(nm) + m_offset_Y;
     } catch (const CanteraError&) {
         throw CanteraError("FlowReactor::componentIndex",
             "Component '{}' not found", nm);

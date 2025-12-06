@@ -17,6 +17,7 @@ Requires: cantera >= 3.2
 import csv
 
 import cantera as ct
+ct.CanteraError.set_stack_trace_depth(10)
 
 # unit conversion factors to SI
 cm = 0.01
@@ -105,8 +106,8 @@ output_data = []
 
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
-    gas.TDY = r.phase.TDY
-    upstream.syncState()
+    upstream.phase.TDY = r.phase.TDY
+#    upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
     dist = n * rlen * 1.0e3  # distance in mm

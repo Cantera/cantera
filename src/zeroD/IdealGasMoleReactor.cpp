@@ -30,9 +30,6 @@ void IdealGasMoleReactor::getState(double* y)
 
     // get moles of species in remaining state
     getMoles(y + m_sidx);
-    // set the remaining components to the surface species moles on
-    // the walls
-    getSurfaceInitialConditions(y + m_nsp + m_sidx);
 }
 
 size_t IdealGasMoleReactor::componentIndex(const string& nm) const
@@ -44,7 +41,7 @@ size_t IdealGasMoleReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + m_sidx;
+        return m_thermo->speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasMoleReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -114,7 +111,6 @@ void IdealGasMoleReactor::updateState(double* y)
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TD(y[0], m_mass / m_vol);
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + m_sidx);
 }
 
 void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
@@ -123,15 +119,13 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
+    updateSurfaceProductionRates();
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
-
-    // evaluate surfaces
-    evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
 
     // external heat transfer and compression work
     mcvdTdt += - m_pressure * m_vdot + m_Qdot;
@@ -189,7 +183,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     size_t ssize = m_nv - m_sidx;
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
-    if (!m_surfaces.empty()) {
+
+    // @TODO: Update implementation to account for separation of ReactorSurface
+    //     evaluation and change in state vector order.
+    if (!m_surfaces.empty() && false) {
         vector<Eigen::Triplet<double>> species_trips;
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {

@@ -18,68 +18,10 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-void MoleReactor::getSurfaceInitialConditions(double* y)
-{
-    size_t loc = 0;
-    for (auto& S : m_surfaces) {
-        double area = S->area();
-        auto currPhase = S->thermo();
-        size_t tempLoc = currPhase->nSpecies();
-        double surfDensity = currPhase->siteDensity();
-        S->getCoverages(y + loc);
-        // convert coverages to moles
-        for (size_t i = 0; i < tempLoc; i++) {
-            y[i + loc] = y[i + loc] * area * surfDensity / currPhase->size(i);
-        }
-        loc += tempLoc;
-    }
-}
-
 void MoleReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
     m_nv -= 1; // moles gives the state one fewer variables
-}
-
-void MoleReactor::updateSurfaceState(double* y)
-{
-    size_t loc = 0;
-    vector<double> coverages(m_nv_surf, 0.0);
-    for (auto& S : m_surfaces) {
-        auto surf = S->thermo();
-        double invArea = 1/S->area();
-        double invSurfDensity = 1/surf->siteDensity();
-        size_t tempLoc = surf->nSpecies();
-        for (size_t i = 0; i < tempLoc; i++) {
-            coverages[i + loc] = y[i + loc] * invArea * surf->size(i) * invSurfDensity;
-        }
-        S->setCoverages(coverages.data()+loc);
-        loc += tempLoc;
-    }
-}
-
-void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
-{
-    fill(sdot, sdot + m_nsp, 0.0);
-    size_t loc = 0; // offset into ydot
-    for (auto S : m_surfaces) {
-        Kinetics* kin = S->kinetics();
-        SurfPhase* surf = S->thermo();
-        double wallarea = S->area();
-        size_t nk = surf->nSpecies();
-        S->restoreState();
-        kin->getNetProductionRates(&m_work[0]);
-        for (size_t k = 0; k < nk; k++) {
-            RHS[loc + k] = m_work[k] * wallarea / surf->size(k);
-        }
-        loc += nk;
-
-        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
-
-        for (size_t k = 0; k < m_nsp; k++) {
-            sdot[k] += m_work[bulkloc + k] * wallarea;
-        }
-    }
 }
 
 void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
@@ -167,9 +109,6 @@ void MoleReactor::getState(double* y)
     y[1] = m_vol;
     // set components y+2 ... y+K+2 to the moles of each species
     getMoles(y + m_sidx);
-    // set the remaining components to the surface species
-    // moles on walls
-    getSurfaceInitialConditions(y+m_nsp+m_sidx);
 }
 
 void MoleReactor::updateState(double* y)
@@ -214,7 +153,6 @@ void MoleReactor::updateState(double* y)
         m_thermo->setDensity(m_mass / m_vol);
     }
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + m_sidx);
 }
 
 void MoleReactor::eval(double time, double* LHS, double* RHS)
@@ -222,7 +160,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // moles per time
 
     evalWalls(time);
-    evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
+    updateSurfaceProductionRates();
     // inverse molecular weights for conversion
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
     // volume equation
@@ -283,7 +221,7 @@ size_t MoleReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + m_sidx;
+        return m_thermo->speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("MoleReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -296,20 +234,7 @@ string MoleReactor::componentName(size_t k) {
     } else if (k == 1) {
         return "volume";
     } else if (k >= m_sidx && k < neq()) {
-        k -= m_sidx;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - m_sidx);
     }
     throw IndexError("MoleReactor::componentName", "component", k, m_nv);
 }
