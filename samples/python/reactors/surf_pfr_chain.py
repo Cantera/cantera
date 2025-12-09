@@ -107,7 +107,6 @@ output_data = []
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
     upstream.phase.TDY = r.phase.TDY
-#    upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
     dist = n * rlen * 1.0e3  # distance in mm

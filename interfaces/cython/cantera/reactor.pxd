@@ -38,7 +38,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxReactorBase() except +translate_exception
         string type()
         shared_ptr[CxxSolution] phase()
-        void restoreState() except +translate_exception
         void syncState() except +translate_exception
         double volume()
         string name()
@@ -77,7 +76,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setKinetics(CxxKinetics*) except +translate_exception
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
-        void syncState()
 
     cdef cppclass CxxFlowReactorSurface "Cantera::FlowReactorSurface" (CxxReactorSurface):
         CxxFlowReactorSurface() except +translate_exception
@@ -215,8 +213,6 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setExpansionRate(double)
         double heatRate()
         void setHeatRate(double)
-        void restoreThermoState() except +translate_exception
-        void restoreSurfaceState(size_t) except +translate_exception
 
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr

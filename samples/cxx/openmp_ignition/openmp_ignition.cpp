@@ -66,7 +66,6 @@ void run()
 
         // Set up the problem
         gas->setState_TPX(T0[i], OneAtm, "CH4:0.5, O2:1.0, N2:3.76");
-        reactor.syncState();
         net.setInitialTime(0.0);
 
         // Integrate until we satisfy a crude estimate of the ignition delay
