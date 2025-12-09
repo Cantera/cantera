@@ -28,7 +28,6 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
 {
     size_t offset = m_nsp;
     for (auto& S : m_surfaces) {
-        S->restoreState();
         double A = S->area();
         auto kin = S->kinetics();
         size_t nk = S->thermo()->nSpecies();

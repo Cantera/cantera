@@ -933,7 +933,7 @@ class TestReactor:
         assert p1a == approx(p1b)
         assert p2a == approx(p2b)
 
-    def test_reinitialize(self):
+    def test_reinitialize(self, allow_deprecated):
         self.make_reactors(T1=300, T2=1000)
         self.add_wall(U=200, A=1.0)
         self.net.advance(1.0)
@@ -941,6 +941,7 @@ class TestReactor:
         T2a = self.r2.T
 
         self.r1.phase.TD = 300, None
+        # Deprecated; After Cantera 4.0, replace with net.reinitialize()
         self.r1.syncState()
 
         self.r2.phase.TD = 1000, None
@@ -955,6 +956,13 @@ class TestReactor:
         assert T1a == approx(T1b)
         assert T2a == approx(T2b)
 
+    # TODO: Remove after Cantera 4.0 when syncState is removed
+    def test_syncState_deprecated(self):
+        self.make_reactors(n_reactors=1)
+        self.net.advance(0.1)
+        with pytest.raises(ct.CanteraError):
+            self.r1.syncState()
+
     def test_reservoir_sync(self):
         self.make_reactors(T1=800, n_reactors=1)
         self.gas1.TP = 900, ct.one_atm
@@ -963,7 +971,6 @@ class TestReactor:
         self.net.advance(1.0)
         assert self.r1.T == approx(872.099, rel=1e-3)
         reservoir.phase.TP = 700, ct.one_atm
-        reservoir.syncState()
         self.net.reinitialize()
         self.net.advance(2.0)
         assert self.r1.T == approx(747.27, rel=1e-3)

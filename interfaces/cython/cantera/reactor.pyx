@@ -115,6 +115,11 @@ cdef class ReactorBase:
         Set the state of the Reactor to match that of the associated
         `ThermoPhase` object. After calling syncState(), call
         ReactorNet.reinitialize() before further integration.
+
+        .. deprecated:: 4.0
+           Manual synchronization of reactor state is no longer required. Call
+           `ReactorNet.reinitialize` directly to indicate a change in state that
+           requires integrator reinitialization.
         """
         self.rbase.syncState()
 
@@ -126,7 +131,6 @@ cdef class ReactorBase:
         .. versionchanged:: 3.2
            Renamed from ``thermo``.
         """
-        self.rbase.restoreState()
         return self._phase
 
     property volume:
@@ -517,10 +521,6 @@ cdef class ExtensibleReactor(Reactor):
 
         Called once before the start of time integration.
 
-    ``sync_state(self) -> None``
-        Responsible for setting the state of the reactor to correspond to the
-        state of the associated ThermoPhase object.
-
     ``get_state(self, y : double[:]) -> None``
         Responsible for populating the state vector ``y`` (length `n_vars`)
         with the initial state of the reactor.
@@ -562,7 +562,6 @@ cdef class ExtensibleReactor(Reactor):
 
     delegatable_methods = {
         'initialize': ('initialize', 'void(double)'),
-        'sync_state': ('syncState', 'void()'),
         'get_state': ('getState', 'void(double*)'),
         'update_state': ('updateState', 'void(double*)'),
         'update_connected': ('updateConnected', 'void(bool)'),
@@ -613,20 +612,6 @@ cdef class ExtensibleReactor(Reactor):
     @heat_rate.setter
     def heat_rate(self, qdot):
         self.accessor.setHeatRate(qdot)
-
-    def restore_thermo_state(self):
-        """
-        Set the state of the thermo object to correspond to the state of the
-        reactor.
-        """
-        self.accessor.restoreThermoState()
-
-    def restore_surface_state(self, n):
-        """
-        Set the state of the thermo object for surface ``n`` to correspond to the
-        state of that surface
-        """
-        self.accessor.restoreSurfaceState(n)
 
 
 cdef class ExtensibleIdealGasReactor(ExtensibleReactor):
@@ -774,7 +759,6 @@ cdef class ReactorSurface(ReactorBase):
         def __get__(self):
             if self._phase is None:
                 raise CanteraError('No kinetics manager present')
-            self.rbase.restoreState()
             return self._phase.coverages
         def __set__(self, coverages):
             if self._phase is None:
