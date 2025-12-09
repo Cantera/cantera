@@ -354,13 +354,10 @@ public:
 
     //! @}
 
-    //! Set the state of the Phase object associated with this reactor to the
-    //! reactor's current state.
-    virtual void restoreState();
-
     //! Set the state of the reactor to the associated ThermoPhase object.
-    //! This method is the inverse of restoreState() and will trigger integrator
-    //! reinitialization.
+    //! This method will trigger integrator reinitialization.
+    //! @deprecated To be removed after %Cantera 4.0. Use ReactorNet::reinitialize to
+    //!     indicate a change in state that requires integrator reinitialization.
     virtual void syncState();
 
     //! Update state information needed by connected reactors, flow devices, and walls.

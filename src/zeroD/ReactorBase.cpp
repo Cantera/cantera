@@ -101,11 +101,11 @@ ReactorSurface* ReactorBase::surface(size_t n)
     return m_surfaces[n];
 }
 
-void ReactorBase::restoreState() {
-}
-
 void ReactorBase::syncState()
 {
+    warn_deprecated("ReactorBase::syncState",
+        "To be removed after Cantera 4.0. Use ReactorNet::reinitialize to indicate "
+        "a change in state that requires integrator reinitialization.");
     if (m_net) {
         m_net->setNeedsReinit();
     }

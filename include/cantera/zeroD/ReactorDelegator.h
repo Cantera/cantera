@@ -44,13 +44,6 @@ public:
     //! by Reactor::eval, this method should be called in either a "replace" or "after"
     //! delegate for Reactor::evalWalls().
     virtual void setHeatRate(double q) = 0;
-
-    //! Set the state of the thermo object to correspond to the state of the reactor
-    virtual void restoreThermoState() = 0;
-
-    //! Set the state of the thermo object for surface *n* to correspond to the
-    //! state of that surface
-    virtual void restoreSurfaceState(size_t n) = 0;
 };
 
 //! Delegate methods of the Reactor class to external functions
@@ -142,14 +135,6 @@ public:
 
     void setHeatRate(double q) override {
         R::m_Qdot = q;
-    }
-
-    void restoreThermoState() override {
-        R::m_thermo->restoreState(R::m_state);
-    }
-
-    void restoreSurfaceState(size_t n) override {
-        R::m_surfaces.at(n)->syncState();
     }
 
 private:
