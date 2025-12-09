@@ -1807,7 +1807,6 @@ class TestFlowReactor:
         net.advance(x_now)
         assert net.solver_stats['steps'] == i
 
-    @pytest.mark.skip("FlowReactor with surfaces is temporarily broken")
     def test_catalytic_surface(self):
         # Regression test based roughly on surf_pfr.py
         T0 = 1073.15
@@ -1824,11 +1823,11 @@ class TestFlowReactor:
         porosity = 0.3
         velocity = 0.4 / 60
         mdot = velocity * gas.density * r.area * porosity
-        r.surface_area_to_volume_ratio = porosity * 1e5
         r.mass_flow_rate = mdot
         r.energy_enabled = False
 
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.FlowReactorSurface(surf, r)
+        rsurf.area = 1e5 * porosity * r.area
 
         sim = ct.ReactorNet([r])
         kCH4 = gas.species_index('CH4')
@@ -1853,7 +1852,6 @@ class TestFlowReactor:
         assert r.phase.density * r.area * r.speed == approx(mdot)
         assert sum(r.phase.Y) == approx(1.0)
 
-    @pytest.mark.skip("FlowReactor with surfaces is temporarily broken")
     def test_component_names(self):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
         gas = surf.adjacent['gas']
@@ -1863,12 +1861,19 @@ class TestFlowReactor:
         sim = ct.ReactorNet([r])
         sim.initialize()
 
-        assert r.n_vars == 4 + gas.n_species + surf.n_species
-        assert sim.n_vars == r.n_vars
+        assert r.n_vars == 4 + gas.n_species
+        assert rsurf.n_vars == surf.n_species
+        assert sim.n_vars == r.n_vars + rsurf.n_vars
 
         for i in range(r.n_vars):
             name = r.component_name(i)
             assert r.component_index(name) == i
+            assert name in sim.component_name(i)
+
+        for i in range(rsurf.n_vars):
+            name = rsurf.component_name(i)
+            assert rsurf.component_index(name) == i
+            assert name in sim.component_name(i + r.n_vars)
 
         with pytest.raises(ct.CanteraError, match="Component 'spam' not found"):
             r.component_index('spam')
@@ -1876,7 +1881,7 @@ class TestFlowReactor:
         with pytest.raises(ct.CanteraError, match="outside valid range"):
             r.component_name(200)
 
-@pytest.mark.skip("FlowReactor with surfaces is temporarily broken")
+
 class TestFlowReactor2:
     def import_phases(self):
         surf = ct.Interface('SiF4_NH3_mec.yaml', 'SI3N4')
@@ -1885,9 +1890,9 @@ class TestFlowReactor2:
     def make_reactors(self, gas, surf):
         r = ct.FlowReactor(gas)
         r.area = 1e-4
-        r.surface_area_to_volume_ratio = 5000
         r.mass_flow_rate = 0.02
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.FlowReactorSurface(surf, r)
+        rsurf.area = 5000 * r.area
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
 
@@ -2090,11 +2095,10 @@ class TestFlowReactor2:
 
         # Reset the reactor to the same initial state
         r.phase.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
-        surf.TP = 1700, 4000
+        rsurf.phase.TP = 1700, 4000
         r.mass_flow_rate = 0.01
-        r.syncState()
-
         sim.initial_time = 0.
+        sim.reinitialize()
         sim.advance(0.6)
         Ygas2 = r.phase.Y
         cov2 = rsurf.phase.coverages
@@ -2110,26 +2114,25 @@ class TestFlowReactor2:
         r, rsurf, sim = self.make_reactors(gas, surf)
 
         # With tight tolerances, some error test failures should be expected
-        r.inlet_surface_atol = 1e-14
-        r.inlet_surface_rtol = 1e-20
-        r.inlet_surface_max_error_failures = 1
+        rsurf.initial_atol = 1e-14
+        rsurf.initial_rtol = 1e-20
+        rsurf.initial_max_error_failures = 1
         with pytest.raises(ct.CanteraError, match="error test failed repeatedly"):
             sim.initialize()
 
         # With few steps allowed, won't be able to reach steady-state
-        r.inlet_surface_max_error_failures = 10
-        r.inlet_surface_max_steps = 200
+        rsurf.initial_max_error_failures = 10
+        rsurf.initial_max_steps = 200
         with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.initialize()
 
         # Relaxing the tolerances will allow the integrator to reach steady-state
         # in fewer timesteps
         surf.coverages = np.ones(surf.n_species)
-        r.inlet_surface_atol = 0.001
-        r.inlet_surface_rtol = 0.001
+        rsurf.initial_atol = 0.001
+        rsurf.initial_rtol = 0.001
         sim.initialize()
 
-@pytest.mark.skip("FlowReactor with surfaces is temporarily broken")
 def test_Si3N4_deposition_regression():
     # Regression test based on silicon nitride deposition example given in
     # 1D_pfr_surfchem.py with values published in Sandia Report SAND-96-8211
@@ -3144,14 +3147,18 @@ class TestExtensibleReactor:
             def __init__(self, gas, *args, **kwargs):
                 super().__init__(gas, *args, **kwargs)
 
-            def after_species_index(self, name):
+            def after_component_index(self, name):
                 # This will cause returned species indices to be higher by 5 than they
                 # would be otherwise
-                return 5
+                if name in self.phase.species_names:
+                    return 5
+                else:
+                    return 0
 
         r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
         assert r.component_index("H2") == 5 + 3 + self.gas.species_index("H2")
+        assert r.component_index("int_energy") == 2
 
     def test_RHS_LHS(self):
         # set initial state

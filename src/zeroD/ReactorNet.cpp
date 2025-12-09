@@ -116,6 +116,10 @@ void ReactorNet::initialize()
     // Unique ReactorSurface objects. Can be attached to multiple Reactor objects
     set<ReactorSurface*> surfaces;
     m_start.assign(1, 0);
+    m_flowDevices.clear();
+    m_walls.clear();
+    m_reservoirs.clear();
+    m_reactors.resize(m_bulkReactors.size()); // Surfaces will be re-added
     for (size_t n = 0; n < m_bulkReactors.size(); n++) {
         Reactor& r = *m_bulkReactors[n];
         shared_ptr<Solution> bulk = r.phase();
@@ -571,7 +575,7 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->applySensitivity(p);
-        m_reactors[n]->evalDae(t, y, ydot, residual);
+        m_reactors[n]->evalDae(t, y + m_start[n], ydot + m_start[n], residual + m_start[n]);
         m_reactors[n]->resetSensitivity(p);
     }
     checkFinite("ydot", ydot, m_nv);
@@ -678,8 +682,11 @@ void ReactorNet::getState(double* y)
 
 void ReactorNet::getStateDae(double* y, double* ydot)
 {
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getStateDae(y + m_start[n], ydot + m_start[n]);
+    // Iterate in reverse order so that surfaces will be handled first and up-to-date
+    // values of the surface production rates of bulk species will be available when
+    // bulk reactors are processed.
+    for (size_t n = m_reactors.size(); n != 0 ; n--) {
+        m_reactors[n-1]->getStateDae(y + m_start[n-1], ydot + m_start[n-1]);
     }
 }
 

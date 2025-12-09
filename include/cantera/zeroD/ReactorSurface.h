@@ -7,6 +7,7 @@
 #define CT_REACTOR_SURFACE_H
 
 #include "cantera/zeroD/ReactorBase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 namespace Cantera
 {
@@ -117,9 +118,101 @@ protected:
     double m_area = 1.0;
 
     shared_ptr<SurfPhase> m_surf;
-    shared_ptr<Kinetics> m_kinetics;
+    shared_ptr<InterfaceKinetics> m_kinetics;
     vector<ReactorBase*> m_reactors;
     vector<double> m_sdot; //!< species production rates for all phases
+};
+
+//! A surface in contact with a FlowReactor.
+//!
+//! May represent the reactor wall or a catalytic surface within the reactor.
+//! @ingroup reactorGroup
+class FlowReactorSurface : public ReactorSurface
+{
+public:
+    //! @copydoc ReactorSurface::ReactorSurface
+    FlowReactorSurface(shared_ptr<Solution> soln,
+                   const vector<shared_ptr<ReactorBase>>& reactors,
+                   bool clone,
+                   const string& name="(none)");
+
+    string type() const override {
+        return "FlowReactorSurface";
+    }
+
+    void evalDae(double t, double* y, double* ydot, double* residual) override;
+    void getStateDae(double* y, double* ydot) override;
+    void getConstraints(double* constraints) override;
+
+    //! Surface area per unit length [m]
+    //! @note If unspecified by the user, this will be calculated assuming the surface
+    //!     is the wall of a cylindrical reactor.
+    double area() const override;
+
+    //! Set the reactor surface area per unit length [m].
+    //!
+    //! If the surface is the wall of the reactor, then this is the perimeter of the
+    //! reactor. If the surface represents something like a catalyst monolith, this is
+    //! the inverse of the surface area to volume ratio.
+    void setArea(double A) override { m_area = A; }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double initialAtol() const {
+        return m_ss_atol;
+    }
+
+    //! Set the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    void setInitialAtol(double atol) {
+        m_ss_atol = atol;
+    }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double initialRtol() const {
+        return m_ss_rtol;
+    }
+
+    //! Set the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    void setInitialRtol(double rtol) {
+        m_ss_rtol = rtol;
+    }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double initialMaxSteps() const {
+        return m_max_ss_steps;
+    }
+
+    //! Set the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    void setInitialMaxSteps(int max_steps) {
+        m_max_ss_steps = max_steps;
+    }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double initialMaxErrorFailures() const {
+        return m_max_ss_error_fails;
+    }
+
+    //! Set the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    void setInitialMaxErrorFailures(int max_fails) {
+        m_max_ss_error_fails = max_fails;
+    }
+
+protected:
+    //! steady-state relative tolerance, used to determine initial surface coverages
+    double m_ss_rtol = 1e-7;
+    //! steady-state absolute tolerance, used to determine initial surface coverages
+    double m_ss_atol = 1e-14;
+    //! maximum number of steady-state coverage integrator-steps
+    int m_max_ss_steps = 20000;
+    //! maximum number of steady-state integrator error test failures
+    int m_max_ss_error_fails = 10;
 };
 
 }

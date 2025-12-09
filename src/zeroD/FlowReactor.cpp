@@ -23,7 +23,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     const vector<double>& mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
-    y[0] = m_rho;
+    y[0] = m_thermo->density();
 
     if (m_u < 0) {
         throw CanteraError("FlowReactor::getStateDae",
@@ -34,26 +34,13 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     y[1] = m_u;
 
     // set the third component to the initial pressure
-    y[2] = m_P;
+    y[2] = m_thermo->pressure();
 
     // set the fourth component to the initial temperature
-    y[3] = m_T;
+    y[3] = m_thermo->temperature();
 
     if (m_chem) {
         m_kin->getNetProductionRates(m_wdot.data()); // "omega dot"
-    }
-
-    // need to advance the reactor surface to steady state to get the initial
-    // coverages
-    for (auto m_surf : m_surfaces) {
-        m_surf->restoreState();
-        auto kin = static_cast<InterfaceKinetics*>(m_surf->kinetics());
-        kin->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
-                              m_max_ss_error_fails);
-        auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(0));
-        vector<double> cov(surf.nSpecies());
-        surf.getCoverages(cov.data());
-        m_surf->setCoverages(cov.data());
     }
 
     // set the initial coverages
@@ -74,11 +61,11 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     DenseMatrix a(m_offset_Y + m_nsp, m_offset_Y + m_nsp);
 
     // first row is the ideal gas equation, differentiated with respect to z
-    a(0, 0) = - GasConstant * m_T / m_thermo->meanMolecularWeight();
+    a(0, 0) = - GasConstant * m_thermo->temperature() / m_thermo->meanMolecularWeight();
     a(0, 2) = 1;
     a(0, 3) = - m_rho * GasConstant / m_thermo->meanMolecularWeight();
     for (size_t i = 0; i < m_nsp; ++i) {
-        a(0, m_offset_Y + i) = - m_rho * m_T / mw[i];
+        a(0, m_offset_Y + i) = - m_rho * m_thermo->temperature() / mw[i];
     }
 
     // initialize the second row from mass conservation equation (Kee 16.48)
@@ -103,9 +90,8 @@ void FlowReactor::getStateDae(double* y, double* ydot)
 
     // get (perim / Ac) * sum(sk' * wk), used multiple places
     double h_sk_wk = 0;
-    double hydraulic = surfaceAreaToVolumeRatio();
     for (size_t i = 0; i < m_nsp; ++i) {
-        h_sk_wk += hydraulic * m_sdot[i] * mw[i];
+        h_sk_wk += m_sdot[i] * mw[i] / m_area;
     }
 
     // RHS of ideal gas eq. is zero
@@ -129,7 +115,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         //              h_mass * Wk = h_mol
         m_thermo->getPartialMolarEnthalpies(m_hk.data());
         for (size_t i = 0; i < m_nsp; ++i) {
-            ydot[3] -= m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+            ydot[3] -= m_hk[i] * (m_wdot[i] + m_sdot[i] / m_area);
         }
     } else {
         ydot[3] = 0;
@@ -139,7 +125,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     // - Yk * (perim / Ac) * sum(sk' * Wk) + wk' * Wk + (perim / Ac) * sk' * Wk
     for (size_t i = 0; i < m_nsp; ++i) {
         ydot[m_offset_Y + i] = -y[m_offset_Y + i] * h_sk_wk +
-            mw[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+            mw[i] * (m_wdot[i] + m_sdot[i] / m_area);
     }
 
     // and solve
@@ -150,10 +136,7 @@ void FlowReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
     // initialize state
-    m_T = m_thermo->temperature();
     m_rho = m_thermo->density();
-    m_P = m_thermo->pressure();
-    m_T = m_thermo->temperature();
     // resize temporary arrays
     m_wdot.resize(m_nsp);
     m_hk.resize(m_nsp);
@@ -161,26 +144,6 @@ void FlowReactor::initialize(double t0)
     // i.e., density, velocity, pressure and temperature
     // plus the number of species in the gas phase
     m_nv = m_offset_Y + m_nsp;
-    if (m_surfaces.size()) {
-        size_t n_surf_species = 0;
-        size_t n_total_species = 0;
-        for (auto const &m_surf : m_surfaces) {
-            // finally, add the number of species the surface for the site-fraction
-            // equations
-            n_surf_species += m_surf->thermo()->nSpecies();
-            n_total_species += m_surf->kinetics()->nTotalSpecies();
-        }
-        m_nv += n_surf_species;
-        m_sdot_temp.resize(n_total_species);
-    }
-}
-
-void FlowReactor::syncState()
-{
-    Reactor::syncState();
-    m_rho = m_thermo->density();
-    m_P = m_thermo->pressure();
-    m_T = m_thermo->temperature();
 }
 
 void FlowReactor::updateState(double* y)
@@ -188,11 +151,8 @@ void FlowReactor::updateState(double* y)
     // Set the mass fractions and density of the mixture.
     m_rho = y[0];
     m_u = y[1];
-    m_P = y[2];
-    m_T = y[3];
-    double* mss = y + m_offset_Y;
-    m_thermo->setMassFractions_NoNorm(mss);
-    m_thermo->setState_TP(m_T, m_P);
+    m_thermo->setMassFractions_NoNorm(y + m_offset_Y);
+    m_thermo->setState_TP(y[3], y[2]);
 }
 
 void FlowReactor::setMassFlowRate(double mdot)
@@ -207,24 +167,13 @@ void FlowReactor::setArea(double area) {
     setMassFlowRate(mdot);
 }
 
-double FlowReactor::surfaceAreaToVolumeRatio() const {
-    if (m_sa_to_vol > 0) {
-        return m_sa_to_vol;
-    }
-
-    // assuming a cylinder, volume = Pi * r^2 * L, and perimeter = 2 * Pi * r * L
-    // where L is the length, and r is the radius of the reactor
-    // hence, perimeter / area = 2 * Pi * r * L / (Pi * L * r^2) = 2 / r
-    return 2.0 / sqrt(m_area / Pi);
-}
-
 void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
     updateSurfaceProductionRates();
     const vector<double>& mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
-        sk_wk = m_sdot[i] * mw[i];
+        sk_wk += m_sdot[i] * mw[i] / m_area;
     }
     m_thermo->getPartialMolarEnthalpies(m_hk.data());
     // get net production
@@ -243,13 +192,12 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
 
     //! use mass continuity for velocity residual
     //! Kee.'s Chemically Reacting Flow, Eq. 16.48
-    double hydraulic = surfaceAreaToVolumeRatio();
-    residual[1] = m_u * drhodz + m_rho * dudz - sk_wk * hydraulic;
+    residual[1] = m_u * drhodz + m_rho * dudz - sk_wk;
 
     //! Use conservation of momentum for pressure residual
     //! Kee.'s Chemically Reacting Flow, Eq. 16.62
     //! [NOTE: friction is neglected]
-    residual[2] = m_rho * m_u * dudz + m_u * hydraulic * sk_wk + dPdz;
+    residual[2] = m_rho * m_u * dudz + m_u * sk_wk + dPdz;
 
     //! use conservation of energy for temperature residual
     //! Kee.'s Chemically Reacting Flow, Eq. 16.58
@@ -262,7 +210,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
         double cp_mass = m_thermo->cp_mass();
         residual[3] = m_rho * m_u * cp_mass * dTdz;
         for (size_t i = 0; i < m_nsp; ++i) {
-            residual[3] += m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+            residual[3] += m_hk[i] * (m_wdot[i] + m_sdot[i] / m_area);
         }
     } else {
         residual[3] = dTdz;
@@ -273,49 +221,23 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     double dSumYdz = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         residual[i + m_offset_Y] = m_rho * m_u * ydot[i + m_offset_Y] +
-            y[i + m_offset_Y] * hydraulic * sk_wk -
-            mw[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+            y[i + m_offset_Y] * sk_wk -
+            mw[i] * (m_wdot[i] + m_sdot[i] / m_area);
             dSumYdz += ydot[i + m_offset_Y];
     }
     // Spread d/dz(sum(Y)) = 0 constraint across all species equations. `scale` is
     // defined to make the size of the error in sum(Y) comparable to the overall rtol.
-    double scale = 0.1 * m_rho * m_u / m_ss_rtol;
+    // TODO: find a better way to access a value of rtol.
+    double rtol = 1e-7;
+    double scale = 0.1 * m_rho * m_u / rtol;
     for (size_t i = 0; i < m_nsp; ++i) {
         residual[i + m_offset_Y] += scale * std::max(0.0, y[i + m_offset_Y]) * dSumYdz;
-    }
-
-    // surface algebraic constraints
-    if (m_surfaces.size()) {
-        size_t loc = m_offset_Y + m_nsp; // offset into residual vector
-        for (auto &m_surf : m_surfaces) {
-            Kinetics* kin = m_surf->kinetics();
-            size_t nk = m_surf->thermo()->nSpecies();
-            kin->getNetProductionRates(m_sdot_temp.data());
-            double sum = y[loc];
-            for (size_t i = 1; i < nk; ++i) {
-                //! net surface production rate residuals
-                //! Kee.'s Chemically Reacting Flow, Eq. 16.63
-                residual[loc + i] = m_sdot_temp[i];
-                //! next, evaluate the algebraic constraint to explicitly conserve
-                //! surface site fractions.
-                //! Kee.'s Chemically Reacting Flow, Eq. 16.64
-                sum += y[loc + i];
-            }
-            // set residual of the first species sum - 1 to ensure
-            // surface site conservation.
-            // Note: the first species is selected to be consistent with
-            // Reactor::evalSurfaces
-            residual[loc] = sum - 1.0;
-            loc += nk;
-        }
     }
 }
 
 void FlowReactor::getConstraints(double* constraints) {
     // mark all variables differential equations unless otherwise specified
     std::fill(constraints, constraints + m_nv, 1.0);
-    // the species coverages are algebraic constraints
-    std::fill(constraints + m_offset_Y + m_nsp, constraints + m_nv, 0.0);
 }
 
 size_t FlowReactor::componentIndex(const string& nm) const
@@ -348,20 +270,7 @@ string FlowReactor::componentName(size_t k)
     } else if (k == 3) {
         return "temperature";
     } else if (k >= 4 && k < neq()) {
-        k -= 4;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - 4);
     }
     throw IndexError("FlowReactor::componentName", "component", k, m_nv);
 }

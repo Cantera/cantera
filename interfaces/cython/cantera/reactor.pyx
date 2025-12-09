@@ -487,63 +487,6 @@ cdef class FlowReactor(Reactor):
         (<CxxFlowReactor*>self.reactor).setArea(area)
 
     @property
-    def inlet_surface_atol(self):
-        """
-        Get/Set the steady-state tolerances used to determine the initial surface
-        species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceAtol()
-
-    @inlet_surface_atol.setter
-    def inlet_surface_atol(self, atol):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
-
-    @property
-    def inlet_surface_rtol(self):
-        """
-        Get/Set the steady-state tolerances used to determine the initial surface
-        species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceRtol()
-
-    @inlet_surface_rtol.setter
-    def inlet_surface_rtol(self, rtol):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
-
-    @property
-    def inlet_surface_max_steps(self):
-        """
-        Get/Set the maximum number of integrator steps used to determine the initial
-        surface species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxSteps()
-
-    @inlet_surface_max_steps.setter
-    def inlet_surface_max_steps(self, nsteps):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
-
-    @property
-    def inlet_surface_max_error_failures(self):
-        """
-        Get/Set the maximum number of integrator error failures allowed when determining
-        the initial surface species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxErrorFailures()
-
-    @inlet_surface_max_error_failures.setter
-    def inlet_surface_max_error_failures(self, nsteps):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
-
-    @property
-    def surface_area_to_volume_ratio(self):
-        """Get/Set the surface area to volume ratio of the reactor [1/m]"""
-        return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
-
-    @surface_area_to_volume_ratio.setter
-    def surface_area_to_volume_ratio(self, sa_to_vol):
-        (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
-
-    @property
     def speed(self):
         """ Speed [m/s] of the flow in the reactor at the current position """
         return (<CxxFlowReactor*>self.reactor).speed()
@@ -912,6 +855,55 @@ cdef class ReactorSurface(ReactorBase):
         """
         return draw_surface(self, graph, graph_attr, node_attr, surface_edge_attr,
                             print_state, species, species_units)
+
+
+cdef class FlowReactorSurface(ReactorSurface):
+    @property
+    def initial_atol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialAtol()
+
+    @initial_atol.setter
+    def initial_atol(self, atol):
+        (<CxxFlowReactorSurface*>self.surface).setInitialAtol(atol)
+    @property
+    def initial_rtol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialRtol()
+
+    @initial_rtol.setter
+    def initial_rtol(self, rtol):
+        (<CxxFlowReactorSurface*>self.surface).setInitialRtol(rtol)
+
+    @property
+    def initial_max_steps(self):
+        """
+        Get/Set the maximum number of integrator steps used to determine the initial
+        surface species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialMaxSteps()
+
+    @initial_max_steps.setter
+    def initial_max_steps(self, nsteps):
+        (<CxxFlowReactorSurface*>self.surface).setInitialMaxSteps(nsteps)
+
+    @property
+    def initial_max_error_failures(self):
+        """
+        Get/Set the maximum number of integrator error failures allowed when determining
+        the initial surface species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialMaxErrorFailures()
+
+    @initial_max_error_failures.setter
+    def initial_max_error_failures(self, nsteps):
+        (<CxxFlowReactorSurface*>self.surface).setInitialMaxErrorFailures(nsteps)
 
 
 cdef class ConnectorNode:

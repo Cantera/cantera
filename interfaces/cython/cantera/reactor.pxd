@@ -67,16 +67,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double speed()
         void setArea(double) except +translate_exception
         double area() except +translate_exception
-        void setSurfaceAreaToVolumeRatio(double) except +translate_exception
-        double surfaceAreaToVolumeRatio() except +translate_exception
-        double inletSurfaceAtol()
-        void setInletSurfaceAtol(double) except +translate_exception
-        double inletSurfaceRtol()
-        void setInletSurfaceRtol(double) except +translate_exception
-        double inletSurfaceMaxSteps()
-        void setInletSurfaceMaxSteps(int) except +translate_exception
-        int inletSurfaceMaxErrorFailures()
-        void setInletSurfaceMaxErrorFailures(int) except +translate_exception
+
 
     # reactor surface
 
@@ -87,6 +78,19 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
+
+    cdef cppclass CxxFlowReactorSurface "Cantera::FlowReactorSurface" (CxxReactorSurface):
+        CxxFlowReactorSurface() except +translate_exception
+
+        double initialAtol()
+        void setInitialAtol(double) except +translate_exception
+        double initialRtol()
+        void setInitialRtol(double) except +translate_exception
+        double initialMaxSteps()
+        void setInitialMaxSteps(int) except +translate_exception
+        int initialMaxErrorFailures()
+        void setInitialMaxErrorFailures(int) except +translate_exception
+
 
     cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
         shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&, cbool, string) except +translate_exception
@@ -273,6 +277,9 @@ cdef class ExtensibleReactor(Reactor):
 cdef class ReactorSurface(ReactorBase):
     cdef CxxReactorSurface* surface
     cdef list _reactors
+
+cdef class FlowReactorSurface(ReactorSurface):
+    pass
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node

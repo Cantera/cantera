@@ -128,7 +128,17 @@ shared_ptr<Reservoir> newReservoir(
 shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
     const vector<shared_ptr<ReactorBase>>& reactors, bool clone, const string& name)
 {
-    return make_shared<ReactorSurface>(phase, reactors, clone, name);
+    if (reactors.empty()) {
+        throw CanteraError("newReactorSurface",
+            "At least one adjacent reactor must be specified.");
+    }
+    // TODO: Implement a proper ReactorSurface factory to allow for user-defined
+    // ReactorSurface types.
+    if (reactors[0]->type() == "FlowReactor") {
+        return make_shared<FlowReactorSurface>(phase, reactors, clone, name);
+    } else {
+        return make_shared<ReactorSurface>(phase, reactors, clone, name);
+    }
 }
 
 }

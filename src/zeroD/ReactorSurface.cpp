@@ -48,7 +48,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Kinetics manager must be an InterfaceKinetics object.");
     }
-    m_kinetics = m_solution->kinetics();
+    m_kinetics = dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
     m_thermo = m_surf.get();
     m_nv = m_surf->nSpecies();
 }
@@ -167,6 +167,54 @@ size_t ReactorSurface::componentIndex(const string& nm) const
 string ReactorSurface::componentName(size_t k)
 {
     return m_surf->speciesName(k);
+}
+
+// ------ FlowReactorSurface methods ------
+
+FlowReactorSurface::FlowReactorSurface(shared_ptr<Solution> soln,
+                                       const vector<shared_ptr<ReactorBase>>& reactors,
+                                       bool clone,
+                                       const string& name)
+    : ReactorSurface(soln, reactors, clone, name)
+{
+    m_area = -1.0; // default to perimeter of cylindrical reactor
+}
+
+double FlowReactorSurface::area() const {
+    if (m_area > 0) {
+        return m_area;
+    }
+
+    // Assuming a cylindrical cross section, P = 2 * pi * r and A = pi * r^2, so
+    // P(A) = 2 * sqrt(pi * A)
+    return 2.0 * sqrt(Pi * m_reactors[0]->area());
+}
+
+void FlowReactorSurface::evalDae(double t, double* y, double* ydot, double* residual)
+{
+    size_t nsp = m_surf->nSpecies();
+    double sum = y[0];
+    for (size_t k = 1; k < nsp; k++) {
+        residual[k] = m_sdot[k];
+        sum += y[k];
+    }
+    residual[0] = sum - 1.0;
+}
+
+void FlowReactorSurface::getStateDae(double* y, double* ydot)
+{
+    // Advance the surface to steady state to get consistent initial coverages
+    m_kinetics->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
+                                 m_max_ss_error_fails);
+    getCoverages(y);
+    // Update the values in m_sdot that are needed by the adjacent FlowReactor
+    updateState(y);
+}
+
+void FlowReactorSurface::getConstraints(double* constraints)
+{
+    // The species coverages are algebraic constraints
+    std::fill(constraints, constraints + m_nsp, 1.0);
 }
 
 }
