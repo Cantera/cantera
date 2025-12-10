@@ -11,6 +11,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 namespace Cantera
 {
@@ -69,6 +70,15 @@ void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
 
     // external heat transfer
     double dHdt = m_Qdot;
+
+    if (auto* plasma = dynamic_cast<PlasmaPhase*>(m_thermo)) {
+        const double qJ = plasma->jouleHeatingPower(); // σE^2 [W/m^3]
+        const double qElastic = plasma->elasticPowerLoss(); // elastic transfer [W/m^3]
+        const double q_total = (qJ + qElastic) * m_vol; // total power [W]
+        if (std::isfinite(q_total)) {
+            dHdt += q_total;
+        }
+    }
 
     for (size_t n = 0; n < m_nsp; n++) {
         // production in gas phase and from surfaces
