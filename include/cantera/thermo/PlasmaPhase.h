@@ -256,21 +256,13 @@ public:
      */
     double enthalpy_mole() const override;
 
-    double cp_mole() const override {
-        throw NotImplementedError("PlasmaPhase::cp_mole");
-    }
+    /* double cp_mole() const override;
 
-    double entropy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::entropy_mole");
-    }
+    double entropy_mole() const override;
 
-    double gibbs_mole() const override {
-        throw NotImplementedError("PlasmaPhase::gibbs_mole");
-    }
+    double gibbs_mole() const override;
 
-    double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
-    }
+    double intEnergy_mole() const override; */
 
     void getEntropy_R(double* sr) const override;
 
@@ -376,6 +368,26 @@ public:
      * electron energy loss coefficient (eV-m³/s).
      */
     double elasticPowerLoss();
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
+
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ sigma @f$ is the conductivity (S/m), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double jouleHeatingPower() const;
 
 protected:
     void updateThermo() const override;

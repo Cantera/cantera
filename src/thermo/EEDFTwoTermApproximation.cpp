@@ -115,7 +115,8 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
         if (err1 < m_rtol) {
             break;
         } else if (n == m_maxn - 1) {
-            throw CanteraError("WeaklyIonizedGas::converge", "Convergence failed");
+            throw CanteraError("WeaklyIonizedGas::converge", "Convergence failed; returning last iterate.\n");
+            return;
         }
     }
 }
