@@ -344,17 +344,9 @@ public:
      */
     double enthalpy_mole() const override;
 
-    double entropy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::entropy_mole");
-    }
-
-    double gibbs_mole() const override {
-        throw NotImplementedError("PlasmaPhase::gibbs_mole");
-    }
-
-    double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
-    }
+    // double entropy_mole() const override;
+    // double gibbs_mole() const override;
+    // double intEnergy_mole() const override;
 
     double cp_mole() const override;
     // double cp_mass() const; // Already defined in ThermoPhase
