@@ -15,11 +15,7 @@ loglevel = 0 # For clarity
 mech = 'BISETTI'
 P, T = 1e5, 300
 # Creating gas object
-#if cantera version is 2.5.0 or higher, use the following line instead
-if ct.__version__ >= '2.5.0':
-    gas = ct.Solution('./inputs/%s.yaml' % mech)
-else:
-    gas = ct.Solution('./inputs/%s.cti' % mech)
+gas = ct.Solution('./inputs/%s.yaml' % mech)
 
 phi = 2.0                                       # equivalence ratio
 fuel = {'C2H4': 1}                              # Ethylene composition
@@ -49,10 +45,7 @@ f.set_refine_criteria(ratio=2.0, slope=0.05, curve=0.05)
 
 print("Solving flame without fictive")
 f.solve(loglevel=1, refine_grid='refine')
-if ct.__version__ >= '2.5.0':
-    f.save('./RESULTS/%s.yaml' % mech,'without_fic',overwrite=True)
-else:
-    f.save('./RESULTS/%s.xml' % mech,'without_fic')
+f.save('./RESULTS/%s.yaml' % mech,'without_fic',overwrite=True)
 
 # For the purpose of showing the fictive species, we store the source term of the soot precursor.
 Omega_fic = np.zeros(f.flame.n_points,'d') 
@@ -82,10 +75,7 @@ f.add_fic(
 f.flame.set_fictive_source_term_profile('Yfic_0', grid, Omega_fic)
 print("Solving flame with fictive")
 f.solve(loglevel=1, refine_grid='disabled') # Grid refinement must be deactivated !
-if ct.__version__ >= '2.5.0':
-    f.save('./RESULTS/%s.yaml' % mech,'with_fic',overwrite=True)
-else:
-    f.save('./RESULTS/%s.xml' % mech,'with_fic')
+f.save('./RESULTS/%s.yaml' % mech,'with_fic',overwrite=True)
 
 # Retrieve data
 fictive_data  = f.fic_Y
