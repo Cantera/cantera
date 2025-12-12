@@ -115,7 +115,6 @@ void ReactorNet::initialize()
     map<Solution*, set<string>> solutions;
     // Unique ReactorSurface objects. Can be attached to multiple Reactor objects
     set<ReactorSurface*> surfaces;
-    m_start.assign(1, 0);
     m_flowDevices.clear();
     m_walls.clear();
     m_reservoirs.clear();
@@ -124,9 +123,9 @@ void ReactorNet::initialize()
         Reactor& r = *m_bulkReactors[n];
         shared_ptr<Solution> bulk = r.phase();
         r.initialize(m_time);
+        r.setOffset(m_nv);
         size_t nv = r.neq();
         m_nv += nv;
-        m_start.push_back(m_nv);
 
         if (m_verbose) {
             writelog("Reactor {:d}: {:d} variables.\n", n, nv);
@@ -177,8 +176,8 @@ void ReactorNet::initialize()
         solutions[surf->phase().get()].insert(surf->name());
         m_reactors.push_back(surf->shared_from_this());
         surf->initialize(m_time);
+        surf->setOffset(m_nv);
         m_nv += surf->neq();
-        m_start.push_back(m_nv);
         solutions[surf->phase().get()].insert(surf->name());
     }
     for (auto& [soln, reactors] : solutions) {
@@ -552,19 +551,14 @@ void ReactorNet::eval(double t, double* y, double* ydot, double* p)
     updateState(y);
     m_LHS.assign(m_nv, 1);
     m_RHS.assign(m_nv, 0);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->applySensitivity(p);
-        m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
-        size_t yEnd = 0;
-        if (n == m_reactors.size() - 1) {
-            yEnd = m_RHS.size();
-        } else {
-            yEnd = m_start[n + 1];
-        }
-        for (size_t i = m_start[n]; i < yEnd; i++) {
+    for (auto& R : m_reactors) {
+        size_t offset = R->offset();
+        R->applySensitivity(p);
+        R->eval(t, m_LHS.data() + offset, m_RHS.data() + offset);
+        for (size_t i = offset; i < offset + R->neq(); i++) {
             ydot[i] = m_RHS[i] / m_LHS[i];
         }
-        m_reactors[n]->resetSensitivity(p);
+        R->resetSensitivity(p);
     }
     checkFinite("ydot", ydot, m_nv);
 }
@@ -573,18 +567,19 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
 {
     m_time = t;
     updateState(y);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->applySensitivity(p);
-        m_reactors[n]->evalDae(t, y + m_start[n], ydot + m_start[n], residual + m_start[n]);
-        m_reactors[n]->resetSensitivity(p);
+    for (auto& R : m_reactors) {
+        size_t offset = R->offset();
+        R->applySensitivity(p);
+        R->evalDae(t, y + offset, ydot + offset, residual + offset);
+        R->resetSensitivity(p);
     }
     checkFinite("ydot", ydot, m_nv);
 }
 
 void ReactorNet::getConstraints(double* constraints)
 {
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getConstraints(constraints + m_start[n]);
+    for (auto& R : m_reactors) {
+        R->getConstraints(constraints + R->offset());
     }
 }
 
@@ -629,8 +624,8 @@ void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Arra
 void ReactorNet::updateState(double* y)
 {
     checkFinite("y", y, m_nv);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->updateState(y + m_start[n]);
+    for (auto& R : m_reactors) {
+        R->updateState(y + R->offset());
     }
 }
 
@@ -650,8 +645,8 @@ void ReactorNet::setAdvanceLimits(const double *limits)
     if (!m_init) {
         initialize();
     }
-    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
-        m_bulkReactors[n]->setAdvanceLimits(limits + m_start[n]);
+    for (auto& R : m_bulkReactors) {
+        R->setAdvanceLimits(limits + R->offset());
     }
 }
 
@@ -667,16 +662,16 @@ bool ReactorNet::hasAdvanceLimits() const
 bool ReactorNet::getAdvanceLimits(double *limits) const
 {
     bool has_limit = false;
-    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
-        has_limit |= m_bulkReactors[n]->getAdvanceLimits(limits + m_start[n]);
+    for (auto& R : m_bulkReactors) {
+        has_limit |= R->getAdvanceLimits(limits + R->offset());
     }
     return has_limit;
 }
 
 void ReactorNet::getState(double* y)
 {
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getState(y + m_start[n]);
+    for (auto& R : m_reactors) {
+        R->getState(y + R->offset());
     }
 }
 
@@ -685,8 +680,10 @@ void ReactorNet::getStateDae(double* y, double* ydot)
     // Iterate in reverse order so that surfaces will be handled first and up-to-date
     // values of the surface production rates of bulk species will be available when
     // bulk reactors are processed.
+    // TODO: Replace with view::reverse once Cantera requires C++20
     for (size_t n = m_reactors.size(); n != 0 ; n--) {
-        m_reactors[n-1]->getStateDae(y + m_start[n-1], ydot + m_start[n-1]);
+        auto& R = m_reactors[n-1];
+        R->getStateDae(y + R->offset(), ydot + R->offset());
     }
 }
 
@@ -695,7 +692,8 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     if (!m_init) {
         initialize();
     }
-    return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
+    return m_reactors[reactor]->offset()
+           + m_reactors[reactor]->componentIndex(component);
 }
 
 string ReactorNet::componentName(size_t i) const
@@ -744,9 +742,8 @@ double ReactorNet::lowerBound(size_t i) const
 }
 
 void ReactorNet::resetBadValues(double* y) {
-    size_t i = 0;
-    for (auto r : m_reactors) {
-        r->resetBadValues(y + m_start[i++]);
+    for (auto& R : m_reactors) {
+        R->resetBadValues(y + R->offset());
     }
 }
 
@@ -818,12 +815,12 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // update network with adjusted state
     updateState(yCopy.data());
     // Get jacobians and give elements to preconditioners
-    for (size_t i = 0; i < m_reactors.size(); i++) {
-        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian();
+    for (auto& R : m_reactors) {
+        Eigen::SparseMatrix<double> rJac = R->jacobian();
+        size_t offset = R->offset();
         for (int k=0; k<rJac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
-                precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
-                    it.value());
+                precon->setValue(it.row() + offset, it.col() + offset, it.value());
             }
         }
     }

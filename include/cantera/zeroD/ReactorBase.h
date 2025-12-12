@@ -421,6 +421,14 @@ public:
     //! Set the ReactorNet that this reactor belongs to.
     void setNetwork(ReactorNet* net);
 
+    //! Get the starting offset for this reactor's state variables within the global
+    //! state vector of the ReactorNet.
+    size_t offset() const { return m_offset; }
+
+    //! Set the starting offset for this reactor's state variables within the global
+    //! state vector of the ReactorNet.
+    void setOffset(size_t offset) { m_offset = offset; }
+
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     virtual void addSensitivityReaction(size_t rxn) {
         throw NotImplementedError("ReactorBase::addSensitivityReaction");
@@ -455,8 +463,8 @@ protected:
     bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
     size_t m_nv = 0; //!< Number of state variables for this reactor
 
-    //! The ReactorNet that this reactor is part of
-    ReactorNet* m_net = nullptr;
+    ReactorNet* m_net = nullptr; //!< The ReactorNet that this reactor is part of
+    size_t m_offset = 0; //!< Offset into global ReactorNet state vector
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
