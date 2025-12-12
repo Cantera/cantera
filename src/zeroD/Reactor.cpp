@@ -218,9 +218,7 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
         throw CanteraError("Reactor::finiteDifferenceJacobian",
                            "Reactor must be initialized first.");
     }
-    // clear former jacobian elements
-    m_jac_trips.clear();
-
+    vector<Eigen::Triplet<double>> trips;
     Eigen::ArrayXd yCurrent(m_nv);
     getState(yCurrent.data());
     double time = (m_net != nullptr) ? m_net->time() : 0.0;
@@ -251,16 +249,15 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
             double ydotPerturbed = rhsPerturbed[i] / lhsPerturbed[i];
             double ydotCurrent = rhsCurrent[i] / lhsCurrent[i];
             if (ydotCurrent != ydotPerturbed) {
-                m_jac_trips.emplace_back(
-                    static_cast<int>(i), static_cast<int>(j),
-                    (ydotPerturbed - ydotCurrent) / delta_y);
+                trips.emplace_back(static_cast<int>(i), static_cast<int>(j),
+                                   (ydotPerturbed - ydotCurrent) / delta_y);
             }
         }
     }
     updateState(yCurrent.data());
 
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+    jac.setFromTriplets(trips.begin(), trips.end());
     return jac;
 }
 

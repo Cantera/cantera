@@ -24,61 +24,6 @@ void MoleReactor::initialize(double t0)
     m_nv -= 1; // moles gives the state one fewer variables
 }
 
-void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
-{
-    size_t offset = m_nsp;
-    for (auto& S : m_surfaces) {
-        double A = S->area();
-        auto kin = S->kinetics();
-        size_t nk = S->thermo()->nSpecies();
-        // index of gas and surface phases to check if the species is in gas or surface
-        size_t spi = 0;
-        size_t gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
-            m_thermo->speciesName(0)));
-        // get surface jacobian in concentration units
-        Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddCi();
-        // loop through surface specific jacobian and add elements to triplets vector
-        // accordingly
-        for (int k=0; k<surfJac.outerSize(); ++k) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
-                size_t row = it.row();
-                size_t col = it.col();
-                auto& rowPhase = kin->speciesPhase(row);
-                auto& colPhase = kin->speciesPhase(col);
-                size_t rpi = kin->phaseIndex(rowPhase.name(), true);
-                size_t cpi = kin->phaseIndex(colPhase.name(), true);
-                // check if the reactor kinetics object contains both phases to avoid
-                // any solid phases which may be included then use phases to map surf
-                // kinetics indicies to reactor kinetic indices
-                if ((rpi == spi || rpi == gpi) && (cpi == spi || cpi == gpi) ) {
-                    // subtract start of phase
-                    row -= kin->kineticsSpeciesIndex(0, rpi);
-                    col -= kin->kineticsSpeciesIndex(0, cpi);
-                    // since the gas phase is the first phase in the reactor state
-                    // vector add the offset only if it is a surf species index to
-                    // both row and col
-                    row = (rpi != spi) ? row : row + offset;
-                    // determine appropriate scalar to account for dimensionality
-                    // gas phase species indices will be less than m_nsp
-                    // so use volume if that is the case or area otherwise
-                    double scalar = A;
-                    if (cpi == spi) {
-                        col += offset;
-                        scalar /= A;
-                    } else {
-                        scalar /= m_vol;
-                    }
-                    // push back scaled value triplet
-                    triplets.emplace_back(static_cast<int>(row), static_cast<int>(col),
-                                          scalar * it.value());
-                }
-            }
-        }
-        // add species in this surface to the offset
-        offset += nk;
-    }
-}
-
 void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles

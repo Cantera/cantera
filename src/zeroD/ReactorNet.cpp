@@ -122,8 +122,8 @@ void ReactorNet::initialize()
     for (size_t n = 0; n < m_bulkReactors.size(); n++) {
         Reactor& r = *m_bulkReactors[n];
         shared_ptr<Solution> bulk = r.phase();
-        r.initialize(m_time);
         r.setOffset(m_nv);
+        r.initialize(m_time);
         size_t nv = r.neq();
         m_nv += nv;
 
@@ -175,8 +175,8 @@ void ReactorNet::initialize()
     for (auto surf : surfaces) {
         solutions[surf->phase().get()].insert(surf->name());
         m_reactors.push_back(surf->shared_from_this());
-        surf->initialize(m_time);
         surf->setOffset(m_nv);
+        surf->initialize(m_time);
         m_nv += surf->neq();
         solutions[surf->phase().get()].insert(surf->name());
     }
@@ -801,7 +801,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // ensure state is up to date.
     updateState(y);
     // get the preconditioner
-    auto precon = m_integ->preconditioner();
+    auto precon = dynamic_pointer_cast<EigenSparseJacobian>(m_integ->preconditioner());
     // Reset preconditioner
     precon->reset();
     // Set gamma value for M =I - gamma*J
@@ -815,15 +815,11 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // update network with adjusted state
     updateState(yCopy.data());
     // Get jacobians and give elements to preconditioners
+    vector<Eigen::Triplet<double>> trips;
     for (auto& R : m_reactors) {
-        Eigen::SparseMatrix<double> rJac = R->jacobian();
-        size_t offset = R->offset();
-        for (int k=0; k<rJac.outerSize(); ++k) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
-                precon->setValue(it.row() + offset, it.col() + offset, it.value());
-            }
-        }
+        R->getJacobianElements(trips);
     }
+    precon->setFromTriplets(trips);
     // post reactor setup operations
     precon->updatePreconditioner();
 }
