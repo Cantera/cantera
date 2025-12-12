@@ -168,45 +168,26 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
+void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
 {
     if (m_nv == 0) {
         throw CanteraError("IdealGasMoleReactor::jacobian",
                            "Reactor must be initialized first.");
     }
-    // clear former jacobian elements
-    m_jac_trips.clear();
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
-    // species size that accounts for surface species
-    size_t ssize = m_nv - m_sidx;
-    // map derivatives from the surface chemistry jacobian
-    // to the reactor jacobian
 
-    // @TODO: Update implementation to account for separation of ReactorSurface
-    //     evaluation and change in state vector order.
-    if (!m_surfaces.empty() && false) {
-        vector<Eigen::Triplet<double>> species_trips;
-        for (int k = 0; k < dnk_dnj.outerSize(); k++) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-                species_trips.emplace_back(static_cast<int>(it.row()),
-                                           static_cast<int>(it.col()), it.value());
-            }
-        }
-        addSurfaceJacobian(species_trips);
-        dnk_dnj.resize(ssize, ssize);
-        dnk_dnj.setFromTriplets(species_trips.begin(), species_trips.end());
-    }
     // add species to species derivatives  elements to the jacobian
     // calculate ROP derivatives, excluding the terms -n_i / (V * N) dc_i/dn_j
     // as it substantially reduces matrix sparsity
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
-                static_cast<int>(it.col() + m_sidx), it.value());
+            trips.emplace_back(static_cast<int>(it.row() + m_offset + m_sidx),
+                static_cast<int>(it.col() + m_offset + m_sidx), it.value());
         }
     }
+
     // Temperature Derivatives
     if (m_energy) {
         // getting perturbed state for finite difference
@@ -231,13 +212,13 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
             double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
-            m_jac_trips.emplace_back(static_cast<int>(j), 0,
-                                     (ydotPerturbed - ydotCurrent) / deltaTemp);
+            trips.emplace_back(static_cast<int>(j + m_offset), m_offset,
+                               (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
-        Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(ssize);
-        Eigen::VectorXd internal_energy = Eigen::VectorXd::Zero(ssize);
-        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
+        Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(m_nsp);
+        Eigen::VectorXd internal_energy = Eigen::VectorXd::Zero(m_nsp);
+        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(m_nsp);
         // getting species data
         m_thermo->getPartialMolarIntEnergies(internal_energy.data());
         m_kin->getNetProductionRates(netProductionRates.data());
@@ -252,22 +233,18 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         // find the sum of n_i and cp_i
         double NCv = 0.0;
         double* moles = yCurrent.data() + m_sidx;
-        for (size_t i = 0; i < ssize; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             NCv += moles[i] * specificHeat[i];
         }
         // make denominator beforehand
         double denom = 1 / (NCv * NCv);
         Eigen::VectorXd uk_dnkdnj_sums = dnk_dnj.transpose() * internal_energy;
         // add derivatives to jacobian
-        for (size_t j = 0; j < ssize; j++) {
-            m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
+        for (size_t j = 0; j < m_nsp; j++) {
+            trips.emplace_back(m_offset, static_cast<int>(j + m_offset + m_sidx),
                 (specificHeat[j] * qdot - NCv * uk_dnkdnj_sums[j]) * denom);
         }
     }
-    // convert triplets to sparse matrix
-    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    return jac;
 }
 
 }

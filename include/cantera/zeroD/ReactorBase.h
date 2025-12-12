@@ -315,6 +315,17 @@ public:
         throw NotImplementedError("ReactorBase::resetBadValues");
     }
 
+    //! Get Jacobian elements for this reactor within the full reactor network.
+    //!
+    //! Indices within `trips` are global indices within the full reactor network. The
+    //! reactor is responsible for providing all elements of the Jacobian in the rows
+    //! corresponding to its state variables, that is, all derivatives of its state
+    //! variables with respect to all state variables in the network.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    virtual void getJacobianElements(vector<Eigen::Triplet<double>>& trips) {};
+
     //! Calculate the Jacobian of a specific reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
@@ -323,9 +334,7 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    virtual Eigen::SparseMatrix<double> jacobian() {
-        throw NotImplementedError("ReactorBase::jacobian");
-    }
+    virtual Eigen::SparseMatrix<double> jacobian();
 
     //! Use this to set the kinetics objects derivative settings
     virtual void setDerivativeSettings(AnyMap& settings) {
@@ -428,6 +437,11 @@ public:
     //! Set the starting offset for this reactor's state variables within the global
     //! state vector of the ReactorNet.
     void setOffset(size_t offset) { m_offset = offset; }
+
+    //! Offset of the first species in the local state vector
+    size_t speciesOffset() const {
+        return m_nv - m_nsp;
+    }
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     virtual void addSensitivityReaction(size_t rxn) {

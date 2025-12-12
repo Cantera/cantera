@@ -101,6 +101,18 @@ ReactorSurface* ReactorBase::surface(size_t n)
     return m_surfaces[n];
 }
 
+Eigen::SparseMatrix<double> ReactorBase::jacobian()
+{
+    vector<Eigen::Triplet<double>> trips;
+    getJacobianElements(trips);
+    for (auto& trip : trips) {
+        trip = Eigen::Triplet<double>(trip.row() - m_offset, trip.col() - m_offset, trip.value());
+    }
+    Eigen::SparseMatrix<double> J(m_nv, m_nv);
+    J.setFromTriplets(trips.begin(), trips.end());
+    return J;
+}
+
 void ReactorBase::syncState()
 {
     warn_deprecated("ReactorBase::syncState",

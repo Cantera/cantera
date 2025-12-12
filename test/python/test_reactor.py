@@ -1544,12 +1544,6 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.net2.initialize()
         assert self.net2.linear_solver_type == "GMRES"
 
-    def test_component_index(self):
-        pytest.skip("IdealGasConstPressureMoleReactor with surfaces temporarily broken")
-
-    def test_with_surface_reactions(self):
-        pytest.skip("IdealGasConstPressureMoleReactor with surfaces temporarily broken")
-
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
