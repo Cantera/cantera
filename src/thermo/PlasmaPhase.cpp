@@ -741,33 +741,33 @@ void PlasmaPhase::getStandardChemPotentials(double* muStar) const
     muStar[k] += log(pressure() / refPressure()) * RTe();
 }
 
-void PlasmaPhase::getEntropy_R(double* sr) const
-{
-    const vector<double>& _s = entropy_R_ref();
-    copy(_s.begin(), _s.end(), sr);
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            sr[k] -= tmp;
-        } else {
-            sr[k] -= log(electronPressure() / refPressure());
-        }
-    }
-}
+// void PlasmaPhase::getEntropy_R(double* sr) const
+// {
+//     const vector<double>& _s = entropy_R_ref();
+//     copy(_s.begin(), _s.end(), sr);
+//     double tmp = log(pressure() / refPressure());
+//     for (size_t k = 0; k < m_kk; k++) {
+//         if (k != m_electronSpeciesIndex) {
+//             sr[k] -= tmp;
+//         } else {
+//             sr[k] -= log(electronPressure() / refPressure());
+//         }
+//     }
+// }
 
-void PlasmaPhase::getGibbs_RT(double* grt) const
-{
-    const vector<double>& gibbsrt = gibbs_RT_ref();
-    copy(gibbsrt.begin(), gibbsrt.end(), grt);
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            grt[k] += tmp;
-        } else {
-            grt[k] += log(electronPressure() / refPressure());
-        }
-    }
-}
+// void PlasmaPhase::getGibbs_RT(double* grt) const
+// {
+//     const vector<double>& gibbsrt = gibbs_RT_ref();
+//     copy(gibbsrt.begin(), gibbsrt.end(), grt);
+//     double tmp = log(pressure() / refPressure());
+//     for (size_t k = 0; k < m_kk; k++) {
+//         if (k != m_electronSpeciesIndex) {
+//             grt[k] += tmp;
+//         } else {
+//             grt[k] += log(electronPressure() / refPressure());
+//         }
+//     }
+// }
 
 // ================================================================= //
 //       Thermodynamic Values for the Species Reference States       //

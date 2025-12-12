@@ -515,8 +515,8 @@ public:
     void getStandardChemPotentials(double* muStar) const override;
 
     // void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getGibbs_RT(double* grt) const override;
+    // void getEntropy_R(double* sr) const override;
+    // void getGibbs_RT(double* grt) const override;
     // void getIntEnergy_RT(double* urt) const override;
     // void getCp_R(double* cpr) const override;
     // void getStandardVolumes(double* vol) const override;
