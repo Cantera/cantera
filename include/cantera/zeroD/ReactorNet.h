@@ -412,9 +412,6 @@ protected:
     bool m_integrator_init = false; //!< True if integrator initialization is current
     size_t m_nv = 0;
 
-    //! m_start[n] is the starting point in the state vector for reactor n
-    vector<size_t> m_start;
-
     vector<double> m_atol;
     double m_rtol = 1.0e-9;
     double m_rtolsens = 1.0e-4;
