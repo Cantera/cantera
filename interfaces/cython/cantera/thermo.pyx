@@ -1828,6 +1828,86 @@ cdef class ThermoPhase(_SolutionBase):
         self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
                                                      &data_dist[0],
                                                      len(levels))
+    property cp_mole_e:
+        """
+        Molar heat capacity at constant pressure for electrons [J/kmol/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cp_mole_e()
+
+    property cp_mass_e:
+        """
+        Specific heat capacity at constant pressure for electrons [J/kg/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cp_mass_e()
+
+    property cv_mole_e:
+        """
+        Molar heat capacity at constant volume for electrons [J/kmol/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cv_mole_e()
+    
+    property cv_mass_e:
+        """
+        Specific heat capacity at constant volume for electrons [J/kg/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cv_mass_e()
+
+    property cp_mole_h:
+        """
+        Molar heat capacity at constant pressure for heavy species [J/kmol/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cp_mole_h()
+
+    property cp_mass_h:
+        """
+        Specific heat capacity at constant pressure for heavy species [J/kg/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cp_mass_h()
+    
+    property cv_mole_h:
+        """
+        Molar heat capacity at constant volume for heavy species [J/kmol/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cv_mole_h()
+
+    property cv_mass_h:
+        """
+        Specific heat capacity at constant volume for heavy species [J/kg/K].
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.cv_mass_h()
+    
+    def mean_temperature(self):
+        """
+        Get the mean temperature of the plasma [K]. This is a weighted average
+        of the electron and heavy species temperatures.
+        """
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.meanTemperature()
 
     def update_electron_energy_distribution(self):
         """
