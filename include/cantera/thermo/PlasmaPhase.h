@@ -418,7 +418,7 @@ public:
      * defined as a mole-fraction-weighted average of the electron and
      * heavy-species temperatures:
      * @f[
-     *      \bar{T} = \sum_{k \neq k_e} X_k T_g + X_{k_e} T_e
+     *      \overline{T} = \sum_{k \neq k_e} X_k T_g + X_{k_e} T_e
      *             = (1 - X_{k_e}) T_g + X_{k_e} T_e
      *             = T_g + X_{k_e} (T_e - T_g)
      * @f]
@@ -437,19 +437,23 @@ public:
      *        = \sum_{k \neq e} n_k k_B T_g + n_{e} k_B T_e
      *        = (n_{total} - n_{e}) k_B T_g + n_{e} k_B T_e
      *        = n_{total} (1 - X_e) k_B T_g + n_{total} X_e k_B T_e
-     *        = n_{total} k_B \bar{T}
+     *        = n_{total} k_B \overline{T}
      * @f]
-     * where @f$ \bar{T} @f$ is the mean temperature of the plasma phase,
+     * where @f$ \overline{T} @f$ is the mean temperature of the plasma phase,
      * defined in the `meanTemperature()` method.
-     * Here, @f$ n_k @f$ is the number density of species @f$ k @f$,
-     * @f$ n_{total} @f$ is the total number density of the phase,
+     * Here, @f$ n_k @f$ is the number density of species @f$ k @f$ [in 1/m³],
+     * @f$ n_{total} @f$ is the total number density of the phase [in 1/m³],
      * @f$ X_e @f$ is the mole fraction of electrons, @f$ T_g @f$ is the
-     * heavy-species (gas) temperature, @f$ T_e @f$ is the electron temperature,
-     * and @f$ k_B @f$ is the Boltzmann constant.
+     * heavy-species (gas) temperature [K], @f$ T_e @f$ is the electron temperature [K],
+     * and @f$ k_B @f$ is the Boltzmann constant [J/K].
      * 
      * The number density times Boltzmann constant can be expressed as
      * @f$ n_{total} k_B = C_{total} R @f$, where @f$ C_{total} @f$ is the
-     * total molar concentration of the phase and @f$ R @f$ is the gas constant.
+     * total molar concentration of the phase [in kmol/m³] and
+     * @f$ R @f$ is the gas constant [J/kmol/K], so that:
+     * @f[
+     *     P = C_{total} R \overline{T}.
+     * @f]
      */
     double pressure() const override;
 
@@ -467,16 +471,13 @@ public:
         setDensity(p * meanMolecularWeight() / (GasConstant * meanTemperature()));
     }
 
-    //! Return the Gas Constant multiplied by the current electron temperature
-    /*!
-     *  The units are Joules kmol-1
-     */
+    //! Return the Gas Constant multiplied by the current electron temperature [J/kmol].
     double RTe() const {
         return electronTemperature() * GasConstant;
     }
 
-    /**
-     * Electron pressure. Units: Pa.
+    //! Return the electron pressure [Pa]. 
+    /*
      * @f[P = n_{k_e} R T_e @f]
      */
     virtual double electronPressure() const {
@@ -492,7 +493,7 @@ public:
 
     void getChemPotentials(double* mu) const override;
     void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
+    // void getPartialMolarEntropies(double* sbar) const override;
     void getPartialMolarIntEnergies(double* ubar) const override;
     // void getPartialMolarCp(double* cpbar) const override;
     // void getPartialMolarVolumes(double* vbar) const override;
