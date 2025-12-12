@@ -157,9 +157,6 @@ protected:
     bool m_energy = true;
 
     vector<double> m_advancelimits; //!< Advance step limit
-
-    //! Vector of triplets representing the jacobian
-    vector<Eigen::Triplet<double>> m_jac_trips;
 };
 }
 

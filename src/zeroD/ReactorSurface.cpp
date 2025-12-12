@@ -171,6 +171,27 @@ string ReactorSurface::componentName(size_t k)
 
 // ------ MoleReactorSurface methods ------
 
+void MoleReactorSurface::initialize(double t0)
+{
+    ReactorSurface::initialize(t0);
+    m_cov_tmp.resize(m_nsp);
+    m_kin2net.resize(m_kinetics->nTotalSpecies(), -1);
+    m_kin2reactor.resize(m_kinetics->nTotalSpecies(), nullptr);
+
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_kin2net[k] = static_cast<int>(m_offset + k);
+    }
+    for (auto R : m_reactors) {
+        size_t nsp = R->phase()->thermo()->nSpecies();
+        size_t k0 = m_kinetics->speciesOffset(*R->phase()->thermo());
+        int offset = static_cast<int>(R->offset() + R->speciesOffset());
+        for (size_t k = 0; k < nsp; k++) {
+            m_kin2net[k + k0] = offset + k;
+            m_kin2reactor[k + k0] = R;
+        }
+    }
+}
+
 void MoleReactorSurface::getState(double* y)
 {
     m_surf->getCoverages(y);
@@ -182,7 +203,6 @@ void MoleReactorSurface::getState(double* y)
 
 void MoleReactorSurface::updateState(double* y)
 {
-    m_cov_tmp.resize(m_nsp);
     std::copy(y, y + m_nsp, m_cov_tmp.data());
     double totalSites = m_surf->siteDensity() * m_area;
     for (size_t k = 0; k < m_nsp; k++) {
@@ -197,6 +217,28 @@ void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         RHS[k] = m_sdot[k] * m_area / m_surf->size(k);
+    }
+}
+
+void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
+{
+    auto sdot_ddC = m_kinetics->netProductionRates_ddCi();
+    for (int k = 0; k < sdot_ddC.outerSize(); k++) {
+        int col = m_kin2net[k];
+        if (col == -1) {
+            continue;
+        }
+        double scale = 1.0;
+        // m_kin2reactor[k] == nullptr for surface species, where area/area scaling = 1
+        if (m_kin2reactor[k] != nullptr) {
+            scale = m_area / m_kin2reactor[k]->volume();
+        }
+        for (Eigen::SparseMatrix<double>::InnerIterator it(sdot_ddC, k); it; ++it) {
+            int row = m_kin2net[it.row()];
+            if (row != -1 && it.value() != 0.0) {
+                trips.emplace_back(row, col, it.value() * scale);
+            }
+        }
     }
 }
 

@@ -55,7 +55,7 @@ public:
     }
 
     //! Accessor for the InterfaceKinetics object
-    Kinetics* kinetics() {
+    InterfaceKinetics* kinetics() {
         return m_kinetics.get();
     }
 
@@ -123,16 +123,35 @@ protected:
     vector<double> m_sdot; //!< species production rates for all phases
 };
 
+//! A surface where the state variables are the total number of moles of each species.
+//!
+//! This class provides the approximate Jacobian elements for interactions between
+//! itself and the IdealGasMoleReactor and ConstPressureIdealGasMoleReactor classes
+//! needed to work with the AdaptivePreconditioner class.
+//!
+//! @ingroup reactorGroup
+//! @since  New in %Cantera 4.0.
 class MoleReactorSurface : public ReactorSurface
 {
 public:
     using ReactorSurface::ReactorSurface;
+    string type() const override { return "MoleReactorSurface"; }
+    void initialize(double t0=0.0) override;
     void getState(double* y) override;
     void updateState(double* y) override;
     void eval(double t, double* LHS, double* RHS) override;
+    void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
 
 protected:
+    //! Temporary storage for coverages
     vector<double> m_cov_tmp;
+
+    //! Mapping from InterfaceKinetics species index to ReactorNet state vector index
+    vector<Eigen::SparseMatrix<double>::StorageIndex> m_kin2net;
+
+    //! Mapping from InterfaceKinetics species index to the corresponding reactor.
+    //! Set to `nullptr` for surface species.
+    vector<ReactorBase*> m_kin2reactor;
 };
 
 //! A surface in contact with a FlowReactor.

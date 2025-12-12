@@ -23,6 +23,11 @@ public:
     void updatePreconditioner() override;
     void updateTransient(double rdt, int* mask) override;
 
+    //! Set all Jacobian elements. Replaces the existing elements.
+    void setFromTriplets(const vector<Eigen::Triplet<double>>& trips) {
+        m_jac_trips = trips;
+    }
+
     //! Return underlying Jacobian matrix
     //! @ingroup derivGroup
     Eigen::SparseMatrix<double> jacobian();
