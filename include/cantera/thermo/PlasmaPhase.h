@@ -376,7 +376,7 @@ public:
     double cp_mole_e() const;
     //! Return the constant-pressure specific heat capacity of electrons [J/kg/K].
     double cp_mass_e() const {
-        return cp_mole_e() / m_Me();
+        return cp_mole_e() / m_Me;
     };
     //! Return the constant-volume specific heat capacity of electrons [J/kmol/K].
     double cv_mole_e() const {
@@ -384,7 +384,7 @@ public:
     };
     //! Return the constant-volume specific heat capacity of electrons [J/kg/K].
     double cv_mass_e() const {
-        return cp_mass_e() - GasConstant / m_Me();
+        return cp_mass_e() - GasConstant / m_Me;
     };
 
     //! Return the constant-pressure specific heat capacity of heavy species [J/kmol/K].
