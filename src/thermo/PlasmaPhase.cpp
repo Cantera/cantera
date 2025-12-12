@@ -700,13 +700,13 @@ void PlasmaPhase::getPartialMolarEnthalpies(double* hbar) const
     hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
-void PlasmaPhase::getPartialMolarEntropies(double* sbar) const
-{
-    IdealGasPhase::getPartialMolarEntropies(sbar);
-    double logp = log(pressure());
-    double logpe = log(electronPressure());
-    sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
-}
+// void PlasmaPhase::getPartialMolarEntropies(double* sbar) const
+// {
+//     IdealGasPhase::getPartialMolarEntropies(sbar);
+//     double logp = log(pressure());
+//     double logpe = log(electronPressure());
+//     sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
+// }
 
 void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
 {
