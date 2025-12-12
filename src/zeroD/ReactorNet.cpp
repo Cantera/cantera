@@ -872,15 +872,11 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
 
     // loop through all connections and then set them found so calculations are not
     // repeated
-    for (auto r : m_reactors) {
-        // walls
-        for (const auto& wall : m_walls) {
-            wall->buildNetworkJacobian(jacVector);
-        }
-        // flow devices
-        for (const auto& flow_device : m_flow_devices) {
-            flow_device->buildNetworkJacobian(jacVector);
-        }
+    for (const auto& wall : m_walls) {
+        wall->buildNetworkJacobian(jacVector);
+    }
+    for (const auto& flow_device : m_flow_devices) {
+        flow_device->buildNetworkJacobian(jacVector);
     }
 }
 
