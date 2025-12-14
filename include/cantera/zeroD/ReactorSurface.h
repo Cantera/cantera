@@ -123,6 +123,18 @@ protected:
     vector<double> m_sdot; //!< species production rates for all phases
 };
 
+class MoleReactorSurface : public ReactorSurface
+{
+public:
+    using ReactorSurface::ReactorSurface;
+    void getState(double* y) override;
+    void updateState(double* y) override;
+    void eval(double t, double* LHS, double* RHS) override;
+
+protected:
+    vector<double> m_cov_tmp;
+};
+
 //! A surface in contact with a FlowReactor.
 //!
 //! May represent the reactor wall or a catalytic surface within the reactor.

@@ -50,7 +50,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     }
     m_kinetics = dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
     m_thermo = m_surf.get();
-    m_nv = m_surf->nSpecies();
+    m_nsp = m_nv = m_surf->nSpecies();
 }
 
 double ReactorSurface::area() const
@@ -167,6 +167,37 @@ size_t ReactorSurface::componentIndex(const string& nm) const
 string ReactorSurface::componentName(size_t k)
 {
     return m_surf->speciesName(k);
+}
+
+// ------ MoleReactorSurface methods ------
+
+void MoleReactorSurface::getState(double* y)
+{
+    m_surf->getCoverages(y);
+    double totalSites = m_surf->siteDensity() * m_area;
+    for (size_t k = 0; k < m_nsp; k++) {
+        y[k] *= totalSites / m_surf->size(k);
+    }
+}
+
+void MoleReactorSurface::updateState(double* y)
+{
+    m_cov_tmp.resize(m_nsp);
+    std::copy(y, y + m_nsp, m_cov_tmp.data());
+    double totalSites = m_surf->siteDensity() * m_area;
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_cov_tmp[k] *= m_surf->size(k) / totalSites;
+    }
+    m_surf->setCoveragesNoNorm(m_cov_tmp.data());
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+    m_kinetics->getNetProductionRates(m_sdot.data());
+}
+
+void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
+{
+    for (size_t k = 0; k < m_nsp; k++) {
+        RHS[k] = m_sdot[k] * m_area / m_surf->size(k);
+    }
 }
 
 // ------ FlowReactorSurface methods ------
