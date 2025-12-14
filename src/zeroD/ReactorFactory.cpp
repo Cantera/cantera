@@ -16,6 +16,9 @@
 #include "cantera/zeroD/ReactorDelegator.h"
 #include "cantera/zeroD/IdealGasConstPressureMoleReactor.h"
 
+#include <boost/algorithm/string.hpp>
+namespace ba = boost::algorithm;
+
 namespace Cantera
 {
 
@@ -136,6 +139,16 @@ shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
     // ReactorSurface types.
     if (reactors[0]->type() == "FlowReactor") {
         return make_shared<FlowReactorSurface>(phase, reactors, clone, name);
+    }
+    bool moleBased = false;
+    for (const auto& r : reactors) {
+        if (ba::contains(r->type(), "Mole")) {
+            moleBased = true;
+            break;
+        }
+    }
+    if (moleBased) {
+        return make_shared<MoleReactorSurface>(phase, reactors, clone, name);
     } else {
         return make_shared<ReactorSurface>(phase, reactors, clone, name);
     }
