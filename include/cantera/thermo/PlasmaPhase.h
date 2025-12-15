@@ -540,7 +540,104 @@ public:
     void getStandardVolumes_ref(double* vol) const override;
 
     //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Setting the State
+    //!
+    //! For a plasma phase, setting the state requires specifying both
+    //! the heavy-species (gas) temperature and the electron temperature.
+    //! @{
+    
+    //! Set the gas and electron temperature [K] and pressure [Pa].
+    /*!
+     * @param t    Temperature [K]
+     * @param p    Pressure [Pa]
+     */
+    void setState_TP(double t, double p) override;
 
+    //! Set the gas temperature [K], electron temperature [K], and pressure [Pa].
+    /*!
+     * @param Tg   Gas (heavy-species) temperature [K]
+     * @param Te   Electron temperature [K]
+     * @param p    Pressure [Pa]
+     */
+    virtual void setState_TgTeP(double Tg, double Te, double p);
+
+    //! Set the gas and electron temperature [K] and mass density [kg/m^3].
+    /*!
+     * @param t    Temperature [K]
+     * @param rho    Mass density [kg/m^3]
+     */
+    void setState_TD(double t, double rho) override;
+
+    //! Set the gas temperature [K], electron temperature [K], and mass density [kg/m^3].
+    /*!
+     * @param Tg   Gas (heavy-species) temperature [K]
+     * @param Te   Electron temperature [K]
+     * @param rho    Mass density [kg/m^3]
+     */
+    virtual void setState_TgTeD(double Tg, double Te, double rho);
+
+    // The following setState_XY methods are not implemented for PlasmaPhase,
+    // since both gas and electron temperatures are needed to fully specify
+    // the thermodynamic state.
+    void setState_HP(double h, double p, double tol=1e-9) override{
+        throw NotImplementedError("PlasmaPhase::setState_HP",
+            "Setting the state using enthalpy and pressure is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_UV(double u, double v, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_UV",
+            "Setting the state using internal energy and volume is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_SV(double s, double v, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_SV",
+            "Setting the state using entropy and volume is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_SP(double s, double p, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_SP",
+            "Setting the state using entropy and pressure is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_ST(double s, double t, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_ST",
+            "Setting the state using entropy and temperature is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_TV(double t, double v, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_TV",
+            "Setting the state using temperature and volume is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_PV(double p, double v, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_PV",
+            "Setting the state using pressure and volume is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_UP(double u, double p, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_UP",
+            "Setting the state using internal energy and pressure is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_VH(double v, double h, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_VH",
+            "Setting the state using volume and enthalpy is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_TH(double t, double h, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_TH",
+            "Setting the state using temperature and enthalpy is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+    void setState_SH(double s, double h, double tol=1e-9) override {
+        throw NotImplementedError("PlasmaPhase::setState_SH",
+            "Setting the state using entropy and enthalpy is not implemented "
+            "for plasma phases, since both gas and electron temperatures are needed.");
+    }
+
+    //! @}
 
 
 protected:
@@ -605,31 +702,31 @@ protected:
     //! Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyDist;
 
-    //! Index of electron species
+    //! Index of electron species.
     size_t m_electronSpeciesIndex = npos;
 
-    //! Electron temperature [K]
+    //! Electron temperature [K].
     double m_electronTemp;
 
-    //! Electron energy distribution type
+    //! Electron energy distribution type. Can be "isotropic", "discretized" or "Boltzmann-two-term".
     string m_distributionType = "isotropic";
 
-    //! Numerical quadrature method for electron energy distribution
+    //! Numerical quadrature method for electron energy distribution.
     string m_quadratureMethod = "simpson";
 
-    //! Flag of normalizing electron energy distribution
+    //! Flag of normalizing electron energy distribution.
     bool m_do_normalizeElectronEnergyDist = true;
 
-    //! Indices of inelastic collisions in m_crossSections
+    //! Indices of inelastic collisions in m_crossSections.
     vector<size_t> m_kInelastic;
 
-    //! Indices of elastic collisions in m_crossSections
+    //! Indices of elastic collisions in m_crossSections.
     vector<size_t> m_kElastic;
 
-    //! electric field [V/m]
+    //! electric field [V/m].
     double m_electricField = 0.0;
 
-    //! electric field freq [Hz]
+    //! electric field freq [Hz].
     double m_electricFieldFrequency = 0.0;
 
     //! Cross section data. m_crossSections[i][j], where i is the specific process,

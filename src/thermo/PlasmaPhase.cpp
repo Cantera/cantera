@@ -785,4 +785,97 @@ void PlasmaPhase::getStandardVolumes_ref(double* vol) const
     vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
+
+// ================================================================= //
+//                        Setting the State                          //
+// ================================================================= //
+
+void PlasmaPhase::setState_TP(double t, double p)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setTemperature(t);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(t);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TP",
+                "The electron temperature is not set equal to the gas temperature "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setPressure(p);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TgTeP(double Tg, double Te, double p)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setTemperature(Tg);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(Te);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TgTeP",
+                "The electron temperature cannot be set "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setPressure(p);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TD(double t, double rho)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setTemperature(t);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(t);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TD",
+                "The electron temperature is not set equal to the gas temperature "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setDensity(rho);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state.size(), state.data());
+    try {
+        setTemperature(Tg);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(Te);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TgTeD",
+                "The electron temperature cannot be set "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setDensity(rho);
+    } catch (std::exception&) {
+        restorePartialState(state.size(), state.data());
+        throw;
+    }
+}
+
 }
