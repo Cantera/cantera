@@ -93,14 +93,17 @@ public:
         nsp = phase->nSpecies();
         p = phase->pressure();
         T = phase->temperature();
-        Te = phase->electronTemperature();
-        RTe = Te * GasConstant;
-        RT = T * GasConstant;
+        // For now, assume that Te = T in all test cases.
+        Te = T;
         if (phase->type() == "plasma") {
+            phase->setElectronTemperature(Te);
+            phase->setState(state); // Reset state with the correct Te.
             ke = dynamic_cast<PlasmaPhase&>(*phase).electronSpeciesIndex();
         } else {
             ke = npos;
         }
+        RTe = Te * GasConstant;
+        RT = T * GasConstant;
     }
 
     ~TestConsistency() {
