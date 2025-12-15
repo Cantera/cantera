@@ -7,15 +7,22 @@ import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import pytest
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
+# Fictive species and soot cannot be activated at the same time 
+# Test error message for activation of fictive and soot at the same time
+gas_test = ct.Solution('./inputs/BISETTI.yaml') 
+with pytest.raises(ct.CanteraError, match="Cannot use both fictive species and soot sections at the same time"):
+    f_test = ct.FreeFlame(gas_test, width=0.02, sections=2, fictives=1)
+
 
 loglevel = 0 # For clarity
 
-# Setting the mechanism name
-mech = 'BISETTI'
-P, T = 1e5, 300
 # Creating gas object
-gas = ct.Solution('./inputs/%s.yaml' % mech)
+P, T = 1e5, 300
+gas = ct.Solution('./inputs/BISETTI.yaml')
 
 phi = 2.0                                       # equivalence ratio
 fuel = {'C2H4': 1}                              # Ethylene composition
@@ -45,7 +52,7 @@ f.set_refine_criteria(ratio=2.0, slope=0.05, curve=0.05)
 
 print("Solving flame without fictive")
 f.solve(loglevel=1, refine_grid='refine')
-f.save('./RESULTS/%s.yaml' % mech,'without_fic',overwrite=True)
+f.save('./RESULTS/BISETTI.yaml','without_fic',overwrite=True)
 
 # For the purpose of showing the fictive species, we store the source term of the soot precursor.
 Omega_fic = np.zeros(f.flame.n_points,'d') 
@@ -57,10 +64,7 @@ grid = f.flame.grid
 # ------------- Second, fictive species are declared and the previosu flame is restored -------------------- #
 f = ct.FreeFlame(gas,  width=0.02, fictives=1)
 
-if ct.__version__ >= '2.5.0':
-    f.restore('./RESULTS/%s.yaml' % mech, 'without_fic')
-else:
-    f.restore('./RESULTS/%s.xml' % mech, 'without_fic')
+f.restore('./RESULTS/BISETTI.yaml', 'without_fic')
 
 # Fictive species properties are set like this (remember the order !)
 # Note: the Schmidt of A2 is not the real one but sounds close..
@@ -75,7 +79,7 @@ f.add_fic(
 f.flame.set_fictive_source_term_profile('Yfic_0', grid, Omega_fic)
 print("Solving flame with fictive")
 f.solve(loglevel=1, refine_grid='disabled') # Grid refinement must be deactivated !
-f.save('./RESULTS/%s.yaml' % mech,'with_fic',overwrite=True)
+f.save('./RESULTS/BISETTI.yaml','with_fic',overwrite=True)
 
 # Retrieve data
 fictive_data  = f.fic_Y
