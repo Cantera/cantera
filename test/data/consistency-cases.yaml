@@ -154,6 +154,8 @@ plasma:
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
   - {T: 300, P: 1 atm, X: {E: 1.0}}
   - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}}
+  # In the test case below, set Te != T
+  - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}, Te: 10000}
 
 debye-huckel-dilute:
   setup:
