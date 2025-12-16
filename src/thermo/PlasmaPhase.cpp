@@ -674,12 +674,7 @@ double PlasmaPhase::meanTemperature() const
 }
 
 double PlasmaPhase::pressure() const {
-    double value = IdealGasPhase::pressure();
-    double T_g = temperature();
-    double T_e = electronTemperature();
-    double C_e = concentration(m_electronSpeciesIndex);
-    value += C_e * GasConstant * (T_e - T_g);
-    return value;
+    return GasConstant * meanTemperature() * density() / meanMolecularWeight();
 }
 
 // ================================================================= //
