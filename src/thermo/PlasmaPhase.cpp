@@ -790,6 +790,83 @@ void PlasmaPhase::getStandardVolumes_ref(double* vol) const
 //                        Setting the State                          //
 // ================================================================= //
 
+
+void PlasmaPhase::setState(const AnyMap& input_state)
+{
+    AnyMap state = input_state;
+
+    // Remap allowable synonyms.
+    if (state.hasKey("mass-fractions")) {
+        state["Y"] = state["mass-fractions"];
+        state.erase("mass-fractions");
+    }
+    if (state.hasKey("mole-fractions")) {
+        state["X"] = state["mole-fractions"];
+        state.erase("mole-fractions");
+    }
+    if (state.hasKey("gas-temperature")) {
+        state["T"] = state["gas-temperature"];
+    }
+    if (state.hasKey("Tg")) {
+        state["T"] = state["Tg"];
+    }
+    if (state.hasKey("electron-temperature")) {
+        state["Te"] = state["electron-temperature"];
+    }
+    if (state.hasKey("pressure")) {
+        state["P"] = state["pressure"];
+    }
+    if (state.hasKey("density")) {
+        state["D"] = state["density"];
+    }
+
+    // Set composition.
+    if (state.hasKey("X")) {
+        if (state["X"].is<string>()) {
+            setMoleFractionsByName(state["X"].asString());
+        } else {
+            setMoleFractionsByName(state["X"].asMap<double>());
+        }
+        state.erase("X");
+    } else if (state.hasKey("Y")) {
+        if (state["Y"].is<string>()) {
+            setMassFractionsByName(state["Y"].asString());
+        } else {
+            setMassFractionsByName(state["Y"].asMap<double>());
+        }
+        state.erase("Y");
+    }
+
+    // Set thermodynamic state using whichever property set is found
+    if (state.hasKey("T") && state.hasKey("Te") && state.hasKey("P")) {
+        setState_TgTeP(
+            state.convert("T", "K"),
+            state.convert("Te", "K"),
+            state.convert("P", "Pa")
+        );
+    } else if (state.hasKey("T") && state.hasKey("Te") && state.hasKey("D")) {
+        setState_TgTeD(
+            state.convert("T", "K"),
+            state.convert("Te", "K"),
+            state.convert("D", "kg/m^3")
+        );
+    } else if (state.hasKey("T") && state.hasKey("P")) {
+        setState_TP(
+            state.convert("T", "K"),
+            state.convert("P", "Pa")
+        );
+    } else if (state.hasKey("T") && state.hasKey("D")) {
+        setState_TD(
+            state.convert("T", "K"),
+            state.convert("D", "kg/m^3")
+        );
+    } else {
+        throw CanteraError("PlasmaPhase::setState",
+            "'state' did not specify a recognized set of properties.\n"
+            "Keys provided were: {}", input_state.keys_str());
+    }
+}
+
 void PlasmaPhase::setState_TP(double t, double p)
 {
     vector<double> state(partialStateSize());

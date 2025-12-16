@@ -547,6 +547,24 @@ public:
     //! For a plasma phase, setting the state requires specifying both
     //! the heavy-species (gas) temperature and the electron temperature.
     //! @{
+
+    //! Set the state using an AnyMap containing any combination of properties
+    //! supported by the thermodynamic model
+    /*!
+     * Accepted keys are:
+     * * `X` (mole fractions)
+     * * `Y` (mass fractions)
+     * * `T` or `Tg` or `gas-temperature` [K]
+     * * `Te` or `electron-temperature` [K]
+     * * `P` or `pressure` [Pa]
+     * * `D` or `density` [kg/m^3]
+     *
+     * Composition can be specified as either an AnyMap of species names to
+     * values or as a composition string. All other values can be given as
+     * floating point values in Cantera's default units, or as strings with the
+     * units specified, which will be converted using the Units class.
+     */
+    void setState(const AnyMap& state) override;
     
     //! Set the gas and electron temperature [K] and pressure [Pa].
     /*!
