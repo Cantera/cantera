@@ -148,6 +148,16 @@ plasma:
     phase: isotropic-electron-energy-plasma
     known-failures:
       c_eq_sqrt_dP_drho_const_s/.+: For now, `setState_SV` is not supported in PlasmaPhase.
+      cp_eq_dhdT/3: The differential methods are not yet implemented for two-temperature systems.
+      cv_eq_dudT/3: The differential methods are not yet implemented for two-temperature systems.
+      cp_eq_dsdT_const_p_times_T/3:
+        The differential methods are not yet implemented for two-temperature systems.
+      cv_eq_dsdT_const_v_times_T/3:
+        The differential methods are not yet implemented for two-temperature systems.
+      dSdv_const_T_eq_dPdT_const_V/3:
+        The differential methods are not yet implemented for two-temperature systems.
+      betaT_eq_minus_dmv_dP_const_T_div_mv/3:
+        The differential methods are not yet implemented for two-temperature systems.
   states:
   # In the test cases below, it is implicitly assumed that the electron temperature
   # equals the gas temperature.
