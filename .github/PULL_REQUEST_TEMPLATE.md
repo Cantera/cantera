@@ -35,7 +35,8 @@ Closes #
   reviewed and understood by the contributor. Examples: Output from agentic coding
   tools and/or substantial refactoring by LLMs (web-based or local).
 
-For additional information on Cantera's AI policy, see https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md -->
+For additional information on Cantera's AI policy, see
+https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md#restrictions-on-generative-ai-usage -->
 
 
 **Checklist**
