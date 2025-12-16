@@ -93,11 +93,9 @@ public:
         nsp = phase->nSpecies();
         p = phase->pressure();
         T = phase->temperature();
-        // For now, assume that Te = T in all test cases.
-        Te = T;
+        Te = phase->electronTemperature();
+
         if (phase->type() == "plasma") {
-            phase->setElectronTemperature(Te);
-            phase->setState(state); // Reset state with the correct Te.
             ke = dynamic_cast<PlasmaPhase&>(*phase).electronSpeciesIndex();
         } else {
             ke = npos;
@@ -162,7 +160,32 @@ TEST_P(TestConsistency, g_eq_h_minus_Ts) {
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(g, h - T * s, atol);
+    if (phase->type() == "plasma") {
+        // Whenever a temperature can be defined, the following relation holds:
+        //   g_k = h_k - T_k * s_k
+        // When multiplying by mole fraction and summing over all species, we get:
+        //   sum_k X_k * g_k = sum_k X_k * h_k - sum_k X_k * T_k * s_k
+        // The left side is simply g. The first term on the right side is h.
+        // The second term on the right side can be separated into electron and
+        // non-electron contributions (for a 2 temperature plasma model):
+        //   sum_k X_k * T_k * s_k = T * sum_{k!=e} X_k * s_k + Te * X_e * s_e
+        //                         = T * (s - X_e * s_e) + Te * X_e * s_e
+        //                         = T * s + X_e * s_e * (Te - T)
+        // Rearranging gives:
+        //   g = h - T * s - X_e * s_e * (Te - T)
+
+        // Get partial molar entropy of electron species.
+        vector<double> sk(nsp);
+        phase->getPartialMolarEntropies(sk.data());
+        double se = sk[ke];
+        // Get mole fraction of electron species.
+        double Xe = phase->moleFraction(ke);
+
+        EXPECT_NEAR(g, h - T * s - Xe * se * (Te - T), atol);
+    }
+    else {
+        EXPECT_NEAR(g, h - T * s, atol);
+    }
 }
 
 TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
@@ -176,9 +199,7 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        if (k != ke) {
-            EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
-        } // not applicable for electron
+        EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
     }
 }
 
@@ -195,7 +216,10 @@ TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
     for (size_t k = 0; k < nsp; k++) {
         if (k != ke) {
             EXPECT_NEAR(gk[k], hk[k] - T * sk[k], atol) << "k = " << k;
-        } // not applicable for electron
+        }
+        else {
+            EXPECT_NEAR(gk[k], hk[k] - Te * sk[k], atol) << "k = " << k;
+        }
     }
 }
 
@@ -497,7 +521,11 @@ TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(h0[k] * RT, u0[k] * RT + p * v0[k], atol) << "k = " << k;
+        if (k != ke) {
+            EXPECT_NEAR(h0[k] * RT, u0[k] * RT + p * v0[k], atol) << "k = " << k;
+        } else {
+            EXPECT_NEAR(h0[k] * RTe, u0[k] * RTe + p * v0[k], atol) << "k = " << k;
+        }
     }
 }
 
@@ -526,14 +554,27 @@ TEST_P(TestConsistency, cpk0_eq_dhk0dT)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
+    // Perturb temperature.
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
+    // For plasma phases, also perturb the electron temperature.
+    double Te = phase->electronTemperature();
+    double dTe = 1e-5 * Te;
+
     phase->setState_TP(T1 + dT, phase->pressure());
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(Te + dTe);
+    }
     phase->getEnthalpy_RT(h2.data());
     phase->getCp_R(cp2.data());
+
     for (size_t k = 0; k < nsp; k++) {
+        // Determine effective temperature and perturbation for species k.
+        double T_eff = (k == ke) ? Te : T1;
+        double dT_eff = (k == ke) ? dTe : dT;
+
         double cp_mid = 0.5 * (cp1[k] + cp2[k]) * GasConstant;
-        double cp_fd = (h2[k] * (T1 + dT) - h1[k] * T1) / dT * GasConstant;
+        double cp_fd = (h2[k] * (T_eff + dT_eff) - h1[k] * T_eff) / dT_eff * GasConstant;
         double tol = max({rtol_fd * std::abs(cp_mid), rtol_fd * std::abs(cp_fd), atol});
         EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k;
     }
@@ -682,16 +723,29 @@ TEST_P(TestConsistency, cpRef_eq_dhRefdT)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
+    // Perturb temperature.
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
+    // For plasma phases, also perturb the electron temperature.
+    double Te = phase->electronTemperature();
+    double dTe = 1e-5 * Te;
+    
     phase->setState_TP(T1 + dT, phase->pressure());
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(Te + dTe);
+    }
     phase->getEnthalpy_RT_ref(h2.data());
     phase->getCp_R_ref(cp2.data());
+
     for (size_t k = 0; k < nsp; k++) {
+        // Determine effective temperature and perturbation for species k.
+        double T_eff = (k == ke) ? Te : T1;
+        double dT_eff = (k == ke) ? dTe : dT;
+
         double cp_mid = 0.5 * (cp1[k] + cp2[k]) * GasConstant;
-        double cp_fd = (h2[k] * (T1 + dT) - h1[k] * T1) / dT * GasConstant;
+        double cp_fd = (h2[k] * (T_eff + dT_eff) - h1[k] * T_eff) / dT_eff * GasConstant;
         double tol = max({rtol_fd * std::abs(cp_mid), rtol_fd * std::abs(cp_fd), atol});
-        EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k;
+        EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k << "(ke = " << ke << ")";
     }
 }
 
