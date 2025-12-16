@@ -221,6 +221,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         double cv_mole_h()
         double cv_mass_h()
         double meanTemperature()
+        void setState_TgTeP(double, double, double) except +translate_exception
+        void setState_TgTeD(double, double, double) except +translate_exception
 
 
 cdef extern from "cantera/cython/thermo_utils.h":

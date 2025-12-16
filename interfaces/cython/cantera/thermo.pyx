@@ -1909,6 +1909,28 @@ cdef class ThermoPhase(_SolutionBase):
             raise ThermoModelMethodError(self.thermo_model)
         return self.plasma.meanTemperature()
 
+    property TgTeP:
+        """Get/Set gas temperature [K], electron temperature [K], and pressure [Pa]."""
+        def __get__(self):
+            return self.T, self.Te, self.P
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            Tg = values[0] if values[0] is not None else self.T
+            Te = values[1] if values[1] is not None else self.Te
+            P = values[2] if values[2] is not None else self.P
+            self.plasma.setState_TgTeP(Tg, Te, P)
+    
+    property TgTeD:
+        """Get/Set gas temperature [K], electron temperature [K], and density [kg/m^3]."""
+        def __get__(self):
+            return self.T, self.Te, self.density
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            Tg = values[0] if values[0] is not None else self.T
+            Te = values[1] if values[1] is not None else self.Te
+            D = values[2] if values[2] is not None else self.density
+            self.plasma.setState_TgTeD(Tg, Te, D * self._mass_factor())
+
     def update_electron_energy_distribution(self):
         """
         Update the electron energy distribution function to account for changes in
