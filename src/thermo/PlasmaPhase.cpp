@@ -602,6 +602,18 @@ double PlasmaPhase::elasticPowerLoss()
         concentration(m_electronSpeciesIndex) * rate;
 }
 
+
+// ================================================================= //
+//                Chemical Potentials and Activities                 //
+// ================================================================= //
+
+
+double PlasmaPhase::standardConcentration(size_t k) const
+{
+    return pressure() / (GasConstant * meanTemperature());
+}
+
+
 // ================================================================= //
 //           Molar Thermodynamic Properties of the Solution          //
 // ================================================================= //
@@ -714,6 +726,15 @@ void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
     ubar[k] = RTe() * (_h[k] - 1.0);
 }
 
+void PlasmaPhase::getPartialMolarVolumes(double* vbar) const
+{
+    double vol = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vbar[k] = vol;
+    }
+    vbar[m_electronSpeciesIndex] = RTe() / pressure();
+}
+
 // ================================================================= //
 //  Properties of the Standard State of the Species in the Solution  //
 // ================================================================= //
@@ -763,6 +784,15 @@ void PlasmaPhase::getStandardChemPotentials(double* muStar) const
 //         }
 //     }
 // }
+
+void PlasmaPhase::getStandardVolumes(double* vol) const
+{
+    double tmp = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vol[k] = tmp;
+    }
+    vol[m_electronSpeciesIndex] = RTe() / pressure();
+}
 
 // ================================================================= //
 //       Thermodynamic Values for the Species Reference States       //

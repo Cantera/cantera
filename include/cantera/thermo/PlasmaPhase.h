@@ -477,6 +477,39 @@ public:
                electronTemperature();
     }
 
+    double thermalExpansionCoeff() const override {
+        // Which temperature to use here?
+        throw NotImplementedError("PlasmaPhase::thermalExpansionCoeff");
+    }
+
+    double soundSpeed() const override {
+        // Which temperature to use here?
+        throw NotImplementedError("PlasmaPhase::soundSpeed");
+    }
+
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Chemical Potentials and Activities
+    //! @{
+
+    //! Returns the standard concentration @f$ C^0_k @f$, which is used to
+    //! normalize the generalized concentration.
+    /*!
+     * This is defined as the concentration by which the generalized
+     * concentration is normalized to produce the activity. Since the activity
+     * for an ideal gas mixture is simply the mole fraction, for an ideal gas
+     * @f$ C^0_k = P/\hat R T @f$.
+     * For a multi-temperature plasma phase, the mean temperature is used instead:
+     * @f[$ C^0_k = P/\hat R \overline{T} @f$.
+     *
+     * @param k Parameter indicating the species. The default
+     *          is to assume this refers to species 0.
+     * @return
+     *   Returns the standard Concentration in units of m3 kmol-1.
+     */
+    double standardConcentration(size_t k=0) const override;
+
     //! @}
     // ================================================================= //
     // ================================================================= //
@@ -486,9 +519,14 @@ public:
     void getChemPotentials(double* mu) const override;
     void getPartialMolarEnthalpies(double* hbar) const override;
     // void getPartialMolarEntropies(double* sbar) const override;
+
     void getPartialMolarIntEnergies(double* ubar) const override;
     // void getPartialMolarCp(double* cpbar) const override;
-    // void getPartialMolarVolumes(double* vbar) const override;
+
+    // Whenever a temperature can be defined, the following relation holds:
+    //   h_k = u_k + R * T_k = u_k + p * v_k
+    // Therefore, v_k = R * T_k / p
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! @}
     // ================================================================= //
@@ -512,7 +550,11 @@ public:
     // void getGibbs_RT(double* grt) const override;
     // void getIntEnergy_RT(double* urt) const override;
     // void getCp_R(double* cpr) const override;
-    // void getStandardVolumes(double* vol) const override;
+
+    // Whenever a temperature can be defined, the following relation holds:
+    //   h_k = u_k + R * T_k = u_k + p * v_k
+    // Therefore, v_k = R * T_k / p
+    void getStandardVolumes(double* vol) const override;
 
     //! @}
     // ================================================================= //
