@@ -575,7 +575,8 @@ double PlasmaPhase::elasticPowerLoss()
     const double q_elastic = Avogadro * Avogadro * ElectronCharge * concentration(m_electronSpeciesIndex) * rate;
 
     if (!std::isfinite(q_elastic)) {
-        return 0.0;
+        throw CanteraError("PlasmaPhase::elasticPowerLoss:",
+            "Non-finite elastic power loss");
     }
 
     return q_elastic;
@@ -742,15 +743,15 @@ double PlasmaPhase::jouleHeatingPower() const
 {
     // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
     const double mu_e = electronMobility();    // m^2 / (V·s)
-    if (!(mu_e > 0.0) || !std::isfinite(mu_e)) {
+    if (mu_e <= 0.0) {
         return 0.0;
     }
     const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
-    if (!(ne > 0.0) || !std::isfinite(ne)) {
+    if (ne <= 0.0) {
         return 0.0;
     }
     const double E  = electricField(); // V/m
-    if (!std::isfinite(E) || E == 0.0) {
+    if (E <= 0.0) {
         return 0.0;
     }
     const double sigma = ElectronCharge * ne * mu_e; // S/m
