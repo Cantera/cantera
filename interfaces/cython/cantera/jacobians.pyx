@@ -22,7 +22,7 @@ cdef class SystemJacobian:
 
     def _cinit(self, *args, **kwargs):
         self._base = newSystemJacobian(stringify(self._type))
-        self.set_cxx_object()
+        self.jac = self._base.get()
 
     @staticmethod
     cdef wrap(shared_ptr[CxxSystemJacobian] base):
@@ -45,11 +45,8 @@ cdef class SystemJacobian:
         cdef SystemJacobian jac
         jac = cls(init=False)
         jac._base = base
-        jac.set_cxx_object()
+        jac.jac = base.get()
         return jac
-
-    cdef set_cxx_object(self):
-        pass
 
     property side:
         """
@@ -58,11 +55,10 @@ cdef class SystemJacobian:
         by all solver types.
         """
         def __get__(self):
-            return pystr(self._base.get().preconditionerSide())
+            return pystr(self.jac.preconditionerSide())
 
         def __set__(self, side):
-            self._base.get().setPreconditionerSide(stringify(side))
-
+            self.jac.setPreconditionerSide(stringify(side))
 
 cdef class EigenSparseJacobian(SystemJacobian):
     """
@@ -72,18 +68,15 @@ cdef class EigenSparseJacobian(SystemJacobian):
 
     _type = "eigen-sparse"
 
-    cdef set_cxx_object(self):
-        self.sparse_jac = <CxxEigenSparseJacobian*>self._base.get()
-
     def print_contents(self):
-        self.sparse_jac.printPreconditioner()
+        (<CxxEigenSparseJacobian*>self.jac).printPreconditioner()
 
     property matrix:
         """
         Property to retrieve the latest internal preconditioner matrix.
         """
         def __get__(self):
-            cdef CxxSparseMatrix smat = self.sparse_jac.matrix()
+            cdef CxxSparseMatrix smat = (<CxxEigenSparseJacobian*>self.jac).matrix()
             return get_from_sparse(smat, smat.rows(), smat.cols())
 
     property jacobian:
@@ -91,7 +84,7 @@ cdef class EigenSparseJacobian(SystemJacobian):
         Property to retrieve the latest Jacobian.
         """
         def __get__(self):
-            cdef CxxSparseMatrix smat = self.sparse_jac.jacobian()
+            cdef CxxSparseMatrix smat = (<CxxEigenSparseJacobian*>self.jac).jacobian()
             return get_from_sparse(smat, smat.rows(), smat.cols())
 
 
@@ -107,9 +100,6 @@ cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
 cdef class AdaptivePreconditioner(EigenSparseJacobian):
     _type = "Adaptive"
     linear_solver_type = "GMRES"
-
-    cdef set_cxx_object(self):
-        self.adaptive = <CxxAdaptivePreconditioner*>self._base.get()
 
     property threshold:
         """
@@ -127,10 +117,10 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
         Default is 0.0.
         """
         def __get__(self):
-            return self.adaptive.threshold()
+            return (<CxxAdaptivePreconditioner*>self.jac).threshold()
 
         def __set__(self, val):
-            self.adaptive.setThreshold(val)
+            (<CxxAdaptivePreconditioner*>self.jac).setThreshold(val)
 
     property ilut_fill_factor:
         """
@@ -147,10 +137,10 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
         Default is the state size divided by 4.
         """
         def __set__(self, val):
-            self.adaptive.setIlutFillFactor(val)
+            (<CxxAdaptivePreconditioner*>self.jac).setIlutFillFactor(val)
 
         def __get__(self):
-            return self.adaptive.ilutFillFactor()
+            return (<CxxAdaptivePreconditioner*>self.jac).ilutFillFactor()
 
     property ilut_drop_tol:
         """
@@ -165,11 +155,10 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
         Default is 1e-10.
         """
         def __set__(self, val):
-            self.adaptive.setIlutDropTol(val)
+            (<CxxAdaptivePreconditioner*>self.jac).setIlutDropTol(val)
 
         def __get__(self):
-            return self.adaptive.ilutDropTol()
-
+            return (<CxxAdaptivePreconditioner*>self.jac).ilutDropTol()
 
 cdef class BandedJacobian(SystemJacobian):
     """
@@ -178,6 +167,3 @@ cdef class BandedJacobian(SystemJacobian):
     """
     _type = "banded-direct"
     linear_solver_type = "direct"
-
-    cdef set_cxx_object(self):
-        self.band_jac = <CxxMultiJac*>self._base.get()
