@@ -193,8 +193,9 @@ public:
 
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
+    //! when locked, pretend Te == T (single-temperature)
     double electronTemperature() const override {
-        return m_electronTemp;
+        return m_lockTeToT ? temperature() : m_electronTemp;
     }
 
     //! Return the Gas Constant multiplied by the current electron temperature
@@ -389,6 +390,15 @@ public:
      */
     double jouleHeatingPower() const;
 
+    //! Temporarily force Te == T during equilibrium solves
+    void setLockTeToT(bool v) {
+        m_lockTeToT = v;
+    }
+
+    bool lockTeToT() const {
+        return m_lockTeToT;
+    }
+
 protected:
     void updateThermo() const override;
 
@@ -550,6 +560,9 @@ private:
 
     //! Add a collision and record the target species
     void addCollision(shared_ptr<Reaction> collision);
+
+    //! Lock flag (default off)
+    bool m_lockTeToT = false;
 };
 
 }
