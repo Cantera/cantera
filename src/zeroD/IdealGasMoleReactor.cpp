@@ -110,6 +110,8 @@ void IdealGasMoleReactor::updateState(double* y)
     // set state
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TD(y[0], m_mass / m_vol);
+    m_thermo->getPartialMolarIntEnergies(m_uk.data());
+    m_TotalCv = m_mass * m_thermo->cv_mass();
     updateConnected(true);
 }
 
@@ -120,7 +122,6 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
@@ -162,7 +163,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
     RHS[1] = m_vdot;
     if (m_energy) {
-        LHS[0] = m_mass * m_thermo->cv_mass();
+        LHS[0] = m_TotalCv;
     } else {
         RHS[0] = 0;
     }
@@ -230,20 +231,22 @@ void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& tr
         }
         // scale net production rates by  volume to get molar rate
         double qdot = internal_energy.dot(netProductionRates);
-        // find the sum of n_i and cp_i
-        double NCv = 0.0;
-        double* moles = yCurrent.data() + m_sidx;
-        for (size_t i = 0; i < m_nsp; i++) {
-            NCv += moles[i] * specificHeat[i];
-        }
-        // make denominator beforehand
-        double denom = 1 / (NCv * NCv);
+        double denom = 1 / (m_TotalCv * m_TotalCv);
         Eigen::VectorXd uk_dnkdnj_sums = dnk_dnj.transpose() * internal_energy;
         // add derivatives to jacobian
         for (size_t j = 0; j < m_nsp; j++) {
             trips.emplace_back(m_offset, static_cast<int>(j + m_offset + m_sidx),
-                (specificHeat[j] * qdot - NCv * uk_dnkdnj_sums[j]) * denom);
+                (specificHeat[j] * qdot - m_TotalCv * uk_dnkdnj_sums[j]) * denom);
         }
+    }
+}
+
+void IdealGasMoleReactor::getJacobianScalingFactors(
+    double& f_species, double* f_energy)
+{
+    f_species = 1.0 / m_vol;
+    for (size_t k = 0; k < m_nsp; k++) {
+        f_energy[k] = - m_uk[k] / m_TotalCv;
     }
 }
 
