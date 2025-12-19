@@ -17,7 +17,7 @@ cdef class ReactorBase:
     reactor_type = "none"
     def __cinit__(self, _SolutionBase phase, *args, name="(none)", clone=True,
                   **kwargs):
-        if self.reactor_type != "ReactorSurface":
+        if not isinstance(self, ReactorSurface):
             self._rbase = newReactorBase(stringify(self.reactor_type),
                                         phase._base, clone, stringify(name))
             self.rbase = self._rbase.get()
@@ -545,12 +545,6 @@ cdef class ExtensibleReactor(Reactor):
         and the net rate of heat transfer `heat_rate` caused by walls connected
         to this reactor.
 
-    ``eval_surfaces(LHS : double[:], RHS : double[:], sdot : double[:]) -> None``
-        Responsible for calculating the ``LHS`` and ``RHS`` (length: total number of
-        surface species in all surfaces) of the ODEs for surface species coverages,
-        and the molar production rate of bulk phase species ``sdot`` (length: number
-        of bulk phase species).
-
     ``component_name(i : int) -> string``
         Returns the name of the state vector component with index ``i``
 
@@ -715,7 +709,8 @@ cdef class ReactorSurface(ReactorBase):
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, _SolutionBase phase, r, clone=True, name="(none)", **kwargs):
+    def __cinit__(self, _SolutionBase phase, r, *, clone=True, name="(none)",
+                  kind=None, **kwargs):
         cdef ReactorBase adj
         cdef vector[shared_ptr[CxxReactorBase]] cxx_adj
         if isinstance(r, ReactorBase):
@@ -733,11 +728,17 @@ cdef class ReactorSurface(ReactorBase):
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
 
-        self._rbase = CxxNewReactorSurface(phase._base, cxx_adj, clone, stringify(name))
+        if kind is not None:
+            self._rbase = CxxNewReactorSurface(stringify(kind), phase._base, cxx_adj,
+                                               clone, stringify(name))
+        else:
+            self._rbase = CxxNewReactorSurface(phase._base, cxx_adj, clone,
+                                               stringify(name))
+
         self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, phase=None, r=None, *, clone=True,
+    def __init__(self, phase=None, r=None, *, kind=None, clone=True,
                  name="(none)", A=None, node_attr=None):
         super().__init__(phase, name=name)
 
@@ -842,6 +843,8 @@ cdef class ReactorSurface(ReactorBase):
 
 
 cdef class FlowReactorSurface(ReactorSurface):
+    reactor_type = "FlowReactorSurface"
+
     @property
     def initial_atol(self):
         """

@@ -16,9 +16,6 @@
 #include "cantera/zeroD/ReactorDelegator.h"
 #include "cantera/zeroD/IdealGasConstPressureMoleReactor.h"
 
-#include <boost/algorithm/string.hpp>
-namespace ba = boost::algorithm;
-
 namespace Cantera
 {
 
@@ -97,6 +94,43 @@ void ReactorFactory::deleteFactory() {
     s_factory = 0;
 }
 
+// ---------- ReactorSurfaceFactory methods ----------
+
+ReactorSurfaceFactory* ReactorSurfaceFactory::s_factory = 0;
+std::mutex ReactorSurfaceFactory::s_mutex;
+
+ReactorSurfaceFactory* ReactorSurfaceFactory::factory() {
+    std::unique_lock<std::mutex> lock(s_mutex);
+    if (!s_factory) {
+        s_factory = new ReactorSurfaceFactory;
+    }
+    return s_factory;
+}
+
+void ReactorSurfaceFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(s_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
+ReactorSurfaceFactory::ReactorSurfaceFactory()
+{
+    reg("ReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new ReactorSurface(surf, reactors, clone, name); });
+    reg("MoleReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new MoleReactorSurface(surf, reactors, clone, name); });
+    reg("FlowReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new FlowReactorSurface(surf, reactors, clone, name); });
+}
+
+// ---------- free functions ----------
+
 shared_ptr<ReactorBase> newReactorBase(
     const string& model, shared_ptr<Solution> phase, bool clone, const string& name)
 {
@@ -135,23 +169,26 @@ shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
         throw CanteraError("newReactorSurface",
             "At least one adjacent reactor must be specified.");
     }
-    // TODO: Implement a proper ReactorSurface factory to allow for user-defined
-    // ReactorSurface types.
-    if (reactors[0]->type() == "FlowReactor") {
-        return make_shared<FlowReactorSurface>(phase, reactors, clone, name);
+    string model = "ReactorSurface";
+    if (std::dynamic_pointer_cast<FlowReactor>(reactors[0])) {
+        model = "FlowReactorSurface";
     }
-    bool moleBased = false;
     for (const auto& r : reactors) {
-        if (ba::contains(r->type(), "Mole")) {
-            moleBased = true;
+        if (std::dynamic_pointer_cast<MoleReactor>(r)) {
+            model = "MoleReactorSurface";
             break;
         }
     }
-    if (moleBased) {
-        return make_shared<MoleReactorSurface>(phase, reactors, clone, name);
-    } else {
-        return make_shared<ReactorSurface>(phase, reactors, clone, name);
-    }
+    return shared_ptr<ReactorSurface>(ReactorSurfaceFactory::factory()->create(
+        model, phase, reactors, clone, name));
+}
+
+shared_ptr<ReactorSurface> newReactorSurface(const string& model,
+    shared_ptr<Solution> phase, const vector<shared_ptr<ReactorBase>>& reactors,
+    bool clone, const string& name)
+{
+    return shared_ptr<ReactorSurface>(ReactorSurfaceFactory::factory()->create(
+        model, phase, reactors, clone, name));
 }
 
 }
