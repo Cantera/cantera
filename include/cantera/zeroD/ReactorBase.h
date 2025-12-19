@@ -443,6 +443,19 @@ public:
         return m_nv - m_nsp;
     }
 
+    //! Get scaling factors for the Jacobian matrix terms proportional to
+    //! @f$ d\dot{n}_k/dC_j @f$.
+    //!
+    //! Used to determine contribution of surface phases to the Jacobian.
+    //!
+    //! @param f_species  Scaling factor for derivatives appearing in the species
+    //!     equations. Equal to $1/V$.
+    //! @param f_energy  Scaling factor for each species term appearing in the energy
+    //!     equation.
+    virtual void getJacobianScalingFactors(double& f_species, double* f_energy) {
+        throw NotImplementedError("ReactorBase::getJacobianScalingFactors");
+    }
+
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     virtual void addSensitivityReaction(size_t rxn) {
         throw NotImplementedError("ReactorBase::addSensitivityReaction");
