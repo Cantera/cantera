@@ -801,7 +801,8 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // ensure state is up to date.
     updateState(y);
     // get the preconditioner
-    auto precon = dynamic_pointer_cast<EigenSparseJacobian>(m_integ->preconditioner());
+    auto precon = std::dynamic_pointer_cast<EigenSparseJacobian>(
+        m_integ->preconditioner());
     // Reset preconditioner
     precon->reset();
     // Set gamma value for M =I - gamma*J

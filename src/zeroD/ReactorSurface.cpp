@@ -48,7 +48,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Kinetics manager must be an InterfaceKinetics object.");
     }
-    m_kinetics = dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
+    m_kinetics = std::dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
     m_thermo = m_surf.get();
     m_nsp = m_nv = m_surf->nSpecies();
 }

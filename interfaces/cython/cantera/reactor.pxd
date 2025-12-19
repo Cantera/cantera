@@ -89,6 +89,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         int initialMaxErrorFailures()
         void setInitialMaxErrorFailures(int) except +translate_exception
 
+    cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
+        string, shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&,
+        cbool, string) except +translate_exception
 
     cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
         shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&, cbool, string) except +translate_exception
