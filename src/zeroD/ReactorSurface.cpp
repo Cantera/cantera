@@ -175,6 +175,8 @@ void MoleReactorSurface::initialize(double t0)
 {
     ReactorSurface::initialize(t0);
     m_cov_tmp.resize(m_nsp);
+    m_f_energy.resize(m_kinetics->nTotalSpecies(), 0.0);
+    m_f_species.resize(m_kinetics->nTotalSpecies(), 0.0);
     m_kin2net.resize(m_kinetics->nTotalSpecies(), -1);
     m_kin2reactor.resize(m_kinetics->nTotalSpecies(), nullptr);
 
@@ -223,20 +225,29 @@ void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
 void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
 {
     auto sdot_ddC = m_kinetics->netProductionRates_ddCi();
+    for (auto R : m_reactors) {
+        double f_species;
+        size_t nsp_R = R->phase()->thermo()->nSpecies();
+        size_t k0 = m_kinetics->speciesOffset(*R->phase()->thermo());
+        R->getJacobianScalingFactors(f_species, &m_f_energy[k0]);
+        std::fill(&m_f_species[k0], &m_f_species[k0 + nsp_R], m_area * f_species);
+    }
+    std::fill(&m_f_species[0], &m_f_species[m_nsp], 1.0); // surface species
     for (int k = 0; k < sdot_ddC.outerSize(); k++) {
         int col = m_kin2net[k];
         if (col == -1) {
             continue;
         }
-        double scale = 1.0;
-        // m_kin2reactor[k] == nullptr for surface species, where area/area scaling = 1
-        if (m_kin2reactor[k] != nullptr) {
-            scale = m_area / m_kin2reactor[k]->volume();
-        }
         for (Eigen::SparseMatrix<double>::InnerIterator it(sdot_ddC, k); it; ++it) {
             int row = m_kin2net[it.row()];
-            if (row != -1 && it.value() != 0.0) {
-                trips.emplace_back(row, col, it.value() * scale);
+            if (row == -1 || it.value() == 0.0) {
+                continue;
+            }
+            ReactorBase* R = m_kin2reactor[it.row()];
+            trips.emplace_back(row, col, it.value() * m_f_species[k]);
+            if (m_f_energy[it.row()] != 0.0) {
+                trips.emplace_back(R->offset(), col,
+                                   it.value() * m_f_energy[it.row()] * m_f_species[k]);
             }
         }
     }

@@ -146,12 +146,20 @@ protected:
     //! Temporary storage for coverages
     vector<double> m_cov_tmp;
 
-    //! Mapping from InterfaceKinetics species index to ReactorNet state vector index
+    //! Temporary storage for d(moles)/d(moles) scaling factor
+    vector<double> m_f_species;
+
+    //! Temporary storage for d(energy)/d(moles) scaling factors
+    vector<double> m_f_energy;
+
+    //! Mapping from InterfaceKinetics species index to ReactorNet state vector index.
+    //! Set to -1 for species not included in the reactor network state vector.
     vector<Eigen::SparseMatrix<double>::StorageIndex> m_kin2net;
 
     //! Mapping from InterfaceKinetics species index to the corresponding reactor.
     //! Set to `nullptr` for surface species.
     vector<ReactorBase*> m_kin2reactor;
+
 };
 
 //! A surface in contact with a FlowReactor.

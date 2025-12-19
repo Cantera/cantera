@@ -46,6 +46,8 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
+    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_TotalCp = m_mass * m_thermo->cp_mass();
     updateConnected(false);
 }
 
@@ -56,7 +58,6 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
@@ -95,7 +96,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     }
 
     if (m_energy) {
-        LHS[0] = m_mass * m_thermo->cp_mass();
+        LHS[0] = m_TotalCp;
     } else {
         RHS[0] = 0.0;
     }
@@ -169,19 +170,22 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
             netProductionRates[i] *= m_vol;
         }
         double qdot = enthalpy.dot(netProductionRates);
-        // find denominator ahead of time
-        double NCp = 0.0;
-        double* moles = yCurrent.data() + m_sidx;
-        for (size_t i = 0; i < m_nsp; i++) {
-            NCp += moles[i] * specificHeat[i];
-        }
-        double denom = 1 / (NCp * NCp);
+        double denom = 1 / (m_TotalCp * m_TotalCp);
         Eigen::VectorXd hk_dnkdnj_sums = dnk_dnj.transpose() * enthalpy;
         // Add derivatives to jac by spanning columns
         for (size_t j = 0; j < m_nsp; j++) {
             trips.emplace_back(m_offset, static_cast<int>(j + m_offset + m_sidx),
-                (specificHeat[j] * qdot - NCp * hk_dnkdnj_sums[j]) * denom);
+                (specificHeat[j] * qdot - m_TotalCp * hk_dnkdnj_sums[j]) * denom);
         }
+    }
+}
+
+void IdealGasConstPressureMoleReactor::getJacobianScalingFactors(
+    double& f_species, double* f_energy)
+{
+    f_species = 1.0 / m_vol;
+    for (size_t k = 0; k < m_nsp; k++) {
+        f_energy[k] = - m_hk[k] / m_TotalCp;
     }
 }
 
