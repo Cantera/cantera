@@ -3219,7 +3219,6 @@ class TestExtensibleReactor:
             assert U - U0 == approx((Qext + Qwall) * t)
             assert r1.heat_rate == approx(Qext + Qwall)
 
-    @pytest.mark.skip(reason="Extensible reactors with surfaces temporarily broken")
     def test_with_surface(self):
         phase_defs = """
             units: {length: cm, quantity: mol, activation-energy: J/mol}
@@ -3250,41 +3249,40 @@ class TestExtensibleReactor:
         kHs = surf.species_index("H(S)")
         kPts = surf.species_index("PT(S)")
         kH2 = gas.species_index("H2")
+        kH2_kin = surf.kinetics_species_index("H2")
         kO2 = gas.species_index("O2")
-        class SurfReactor(ct.ExtensibleIdealGasReactor):
-            def replace_eval_surfaces(self, LHS, RHS, sdot):
-                site_density = self.surfaces[0].phase.site_density
-                sdot[:] = 0.0
-                LHS[:] = 1.0
-                RHS[:] = 0.0
-                C = self.phase.concentrations
-                theta = self.surfaces[0].coverages
-
-                # Replace actual reactions with simple absorption of H2 -> H(S)
-                rop = 1e-4 * C[kH2] * theta[kPts]
-                RHS[kHs] = 2 * rop / site_density
-                RHS[kPts] = - 2 * rop / site_density
-                sdot[kH2] = - rop * self.surfaces[0].area
-
-            def replace_get_surface_initial_conditions(self, y):
+        class CustomSurface(ct.ExtensibleReactorSurface):
+            def replace_get_state(self, y):
                 y[:] = 0
                 y[kPts] = 1
 
-            def replace_update_surface_state(self, y):
+            def replace_update_state(self, y):
                 # this is the same thing the original method does
-                self.surfaces[0].coverages = y
+                self.phase.set_unnormalized_coverages(y)
 
-        r1 = SurfReactor(gas)
+                # Replace actual reactions with simple absorption of H2 -> H(S)
+                C = self.reactors[0].phase.concentrations
+                theta = self.phase.coverages
+                self.rop = 1e-4 * C[kH2] * theta[kPts]
+                self.surface_production_rates[:] = 0.0
+                self.surface_production_rates[kH2_kin] = - self.rop
+
+            def replace_eval(self, t, LHS, RHS):
+                site_density = self.phase.site_density
+                RHS[kHs] = 2 * self.rop / site_density
+                RHS[kPts] = - 2 * self.rop / site_density
+
+        r1 = ct.IdealGasReactor(gas)
         r1.volume = 1e-6 # 1 cm^3
         r1.energy_enabled = False
-        rsurf = ct.ReactorSurface(surf, r=r1, A=0.01)
+        rsurf = CustomSurface(surf, r=r1, A=0.01)
         net = ct.ReactorNet([r1])
 
         Hweight = ct.Element("H").weight
         total_sites = rsurf.area * surf.site_density
         def masses():
             mass_H = (r1.phase.elemental_mass_fraction("H") * r1.mass +
-                      total_sites * r1.surfaces[0].phase["H(s)"].X * Hweight)
+                      total_sites * rsurf.phase["H(S)"].X * Hweight)
             mass_O = r1.phase.elemental_mass_fraction("O") * r1.mass
             return mass_H, mass_O
 
@@ -3301,8 +3299,8 @@ class TestExtensibleReactor:
         assert r1.phase.P == approx(647.56016304)
         assert r1.phase.X[kH2] == approx(0.4784268406)
         assert r1.phase.X[kO2] == approx(0.5215731594)
-        assert r1.surfaces[0].phase.X[kHs] == approx(0.3665198138)
-        assert r1.surfaces[0].phase.X[kPts] == approx(0.6334801862)
+        assert rsurf.phase.X[kHs] == approx(0.3665198138)
+        assert rsurf.phase.X[kPts] == approx(0.6334801862)
 
     def test_interactions(self):
         # Reactors connected by a movable, H2-permeable surface

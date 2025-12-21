@@ -123,6 +123,14 @@ ReactorSurface
 ^^^^^^^^^^^^^^
 .. autoclass:: ReactorSurface(phase, r=None, clone=None, name="(none)", *, A=None)
 
+ExtensibleReactorSurface
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleReactorSurface(phase, r=None, clone=None, name="(none)", *, A=None)
+
+ExtensibleMoleReactorSurface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleMoleReactorSurface(phase, r=None, clone=None, name="(none)", *, A=None)
+
 Flow Controllers
 ----------------
 

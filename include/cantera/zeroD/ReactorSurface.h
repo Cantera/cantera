@@ -91,10 +91,6 @@ public:
     //! number of surface species.
     void getCoverages(double* cov) const;
 
-    const vector<double>& netProductionRates() const {
-        return m_sdot;
-    }
-
     void getState(double* y) override;
     void initialize(double t0=0.0) override;
     void updateState(double* y) override;
@@ -120,7 +116,6 @@ protected:
     shared_ptr<SurfPhase> m_surf;
     shared_ptr<InterfaceKinetics> m_kinetics;
     vector<ReactorBase*> m_reactors;
-    vector<double> m_sdot; //!< species production rates for all phases
 };
 
 //! A surface where the state variables are the total number of moles of each species.
