@@ -127,6 +127,18 @@ ReactorSurfaceFactory::ReactorSurfaceFactory()
         [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
            bool clone, const string& name)
         { return new FlowReactorSurface(surf, reactors, clone, name); });
+    reg("ExtensibleReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new ReactorDelegator<ReactorSurface>(surf, reactors, clone, name); });
+    reg("ExtensibleMoleReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new ReactorDelegator<MoleReactorSurface>(surf, reactors, clone, name); });
+    reg("ExtensibleFlowReactorSurface",
+        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+           bool clone, const string& name)
+        { return new ReactorDelegator<FlowReactorSurface>(surf, reactors, clone, name); });
 }
 
 // ---------- free functions ----------

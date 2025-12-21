@@ -140,7 +140,7 @@ protected:
     //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.
     //! @param t     the current time
-    virtual void evalWalls(double t);
+    void evalWalls(double t) override;
 
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics* m_kin = nullptr;

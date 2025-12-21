@@ -293,7 +293,7 @@ void Reactor::updateSurfaceProductionRates()
 {
     m_sdot.assign(m_nsp, 0.0);
     for (auto& S : m_surfaces) {
-        const auto& sdot = S->netProductionRates();
+        const auto& sdot = S->surfaceProductionRates();
         size_t offset = S->kinetics()->kineticsSpeciesIndex(m_thermo->speciesName(0));
         for (size_t k = 0; k < m_nsp; k++) {
             m_sdot[k] += sdot[offset + k] * S->area();

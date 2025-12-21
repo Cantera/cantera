@@ -44,6 +44,9 @@ public:
     //! by Reactor::eval, this method should be called in either a "replace" or "after"
     //! delegate for Reactor::evalWalls().
     virtual void setHeatRate(double q) = 0;
+
+    //! @copydoc ReactorBase::surfaceProductionRates
+    virtual vector<double>& surfaceProductionRates() = 0;
 };
 
 //! Delegate methods of the Reactor class to external functions
@@ -52,8 +55,9 @@ template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
-    ReactorDelegator(shared_ptr<Solution> phase, bool clone, const string& name="(none)")
-        : R(phase, clone, name)
+    template <class... Args>
+    ReactorDelegator(Args&&... args)
+        : R(std::forward<Args>(args)...)
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("getState", m_getState,
@@ -67,7 +71,9 @@ public:
                 R::eval(t, LHS, RHS);
             }
         );
-        install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
+        }
         install("componentName", m_componentName,
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
@@ -104,7 +110,11 @@ public:
     }
 
     void evalWalls(double t) override {
-        m_evalWalls(t);
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            m_evalWalls(t);
+        } else {
+            ReactorBase::evalWalls(t);
+        }
     }
 
     string componentName(size_t k) override {
@@ -122,19 +132,43 @@ public:
     }
 
     double expansionRate() const override {
-        return R::m_vdot;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            return R::m_vdot;
+        } else {
+            throw NotImplementedError("ReactorDelegator::expansionRate",
+                "Expansion rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     void setExpansionRate(double v) override {
-        R::m_vdot = v;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            R::m_vdot = v;
+        } else {
+            throw NotImplementedError("ReactorDelegator::setExpansionRate",
+                "Expansion rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     double heatRate() const override {
-        return R::m_Qdot;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            return R::m_Qdot;
+        } else {
+            throw NotImplementedError("ReactorDelegator::heatRate",
+                "Heat rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     void setHeatRate(double q) override {
-        R::m_Qdot = q;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            R::m_Qdot = q;
+        } else {
+            throw NotImplementedError("ReactorDelegator::setHeatRate",
+                "Heat rate is undefined for reactors of type '{}'.", type());
+        }
+    }
+
+    vector<double>& surfaceProductionRates() override {
+        return R::m_sdot;
     }
 
 private:

@@ -120,10 +120,6 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
     // double molarVol = m_thermo->molarVolume();
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            // gas phase species need the addition of  V / N * omega_dot
-            // if (static_cast<size_t>(it.row()) < m_nsp) {
-            //     it.valueRef() = it.value() + netProductionRates[it.row()] * molarVol;
-            // }
             trips.emplace_back(it.row() + offset, it.col() + offset, it.value());
         }
     }

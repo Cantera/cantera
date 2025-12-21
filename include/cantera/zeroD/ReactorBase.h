@@ -125,6 +125,12 @@ public:
             "Area is undefined for reactors of type '{}'.", type());
     }
 
+    //! Evaluate contributions from walls connected to this reactor
+    virtual void evalWalls(double t) {
+        throw NotImplementedError("ReactorBase::evalWalls",
+            "Wall evaluation is undefined for reactors of type '{}'.", type());
+    }
+
     //! Set an area associated with a reactor [m²].
     //! Examples: surface area of ReactorSurface or cross section area of FlowReactor.
     virtual void setArea(double a) {
@@ -211,6 +217,18 @@ public:
     //! Return the number of surfaces in a reactor
     virtual size_t nSurfs() const {
         return m_surfaces.size();
+    }
+
+    //! Production rates on surfaces.
+    //!
+    //! For bulk reactors, this contains the total production rates [kmol/s] of bulk
+    //! phase species due to reactions on all adjacent species.
+    //!
+    //! For surfaces, this contains the production rates [kmol/m²/s] of species on the
+    //! surface and all adjacent phases, in the order defined by the InterfaceKinetics
+    //! object.
+    const vector<double>& surfaceProductionRates() const {
+        return m_sdot;
     }
 
     /**
@@ -482,6 +500,7 @@ protected:
 
     vector<WallBase*> m_wall;
     vector<ReactorSurface*> m_surfaces;
+    vector<double> m_sdot; //!< species production rates on surfaces
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
