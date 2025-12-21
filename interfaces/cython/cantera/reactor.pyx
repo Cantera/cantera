@@ -567,6 +567,9 @@ cdef class ExtensibleReactor(Reactor):
 
     def __cinit__(self, *args, **kwargs):
         self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
+        cdef vector[double]* sdot = \
+            &dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        self.surface_production_rates = <double[:sdot.size()]> sdot.data()
 
     def __init__(self, *args, **kwargs):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
@@ -727,6 +730,9 @@ cdef class ReactorSurface(ReactorBase):
         else:
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
+
+        if kind is None and self.reactor_type != "ReactorSurface":
+            kind = self.reactor_type
 
         if kind is not None:
             self._rbase = CxxNewReactorSurface(stringify(kind), phase._base, cxx_adj,
@@ -891,6 +897,58 @@ cdef class FlowReactorSurface(ReactorSurface):
     @initial_max_error_failures.setter
     def initial_max_error_failures(self, nsteps):
         (<CxxFlowReactorSurface*>self.surface).setInitialMaxErrorFailures(nsteps)
+
+
+cdef class ExtensibleReactorSurface(ReactorSurface):
+    """
+    A base class for a reactor surface with delegated methods where the base
+    functionality corresponds to the `ReactorSurface` class.
+
+    Methods of the base class can be modified in the same way as in class
+    `ExtensibleReactor`. The methods that can be modified are::
+
+    - ``initialize(self, t0: double) -> None``
+    - ``get_state(self, y : double[:]) -> None``
+    - ``update_state(self, y : double[:]) -> None``
+    - ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
+    - ``component_name(i : int) -> string``
+    - ``component_index(name: string) -> int``
+    """
+
+    reactor_type = "ExtensibleReactorSurface"
+
+    delegatable_methods = {
+        'initialize': ('initialize', 'void(double)'),
+        'get_state': ('getState', 'void(double*)'),
+        'update_state': ('updateState', 'void(double*)'),
+        'eval': ('eval', 'void(double, double*, double*)'),
+        'component_name': ('componentName', 'string(size_t)'),
+        'component_index': ('componentIndex', 'size_t(string)'),
+    }
+
+    def __init__(self, *args, **kwargs):
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
+        cdef vector[double]* sdot = \
+            &dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        self.surface_production_rates = <double[:sdot.size()]> sdot.data()
+        super().__init__(*args, **kwargs)
+
+    property n_vars:
+        """
+        Get/Set the number of state variables in the reactor.
+        """
+        def __get__(self):
+            return self.reactor.neq()
+        def __set__(self, n):
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).setNEq(n)
+
+
+cdef class ExtensibleMoleReactorSurface(ExtensibleReactorSurface):
+    """
+    A variant of `ExtensibleReactorSurface` where the base behavior corresponds to the
+    :ct:`MoleReactorSurface` class.
+    """
+    reactor_type = "ExtensibleMoleReactorSurface"
 
 
 cdef class ConnectorNode:

@@ -216,6 +216,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setExpansionRate(double)
         double heatRate()
         void setHeatRate(double)
+        vector[double]& surfaceProductionRates()
 
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
@@ -272,6 +273,11 @@ cdef class FlowReactor(Reactor):
 cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
+    cdef public double[:] surface_production_rates
+    """
+    An array containing the total production rates [kmol/s] of bulk species on
+    surfaces. Updated from adjacent surfaces as part of ``Reactor.eval``.
+    """
 
 cdef class ReactorSurface(ReactorBase):
     cdef CxxReactorSurface* surface
@@ -279,6 +285,15 @@ cdef class ReactorSurface(ReactorBase):
 
 cdef class FlowReactorSurface(ReactorSurface):
     pass
+
+cdef class ExtensibleReactorSurface(ReactorSurface):
+    cdef public _delegates
+    cdef public double[:] surface_production_rates
+    """
+    An array containing the net production rates [kmol/m²/s] of surface and bulk species
+    on the surface, with the order corresponding to the `InterfaceKinetics` object.
+    Updated as part of ``ReactorSurface.update_state``.
+    """
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node

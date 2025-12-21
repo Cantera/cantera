@@ -51,6 +51,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     m_kinetics = std::dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
     m_thermo = m_surf.get();
     m_nsp = m_nv = m_surf->nSpecies();
+    m_sdot.resize(m_kinetics->nTotalSpecies(), 0.0);
 }
 
 double ReactorSurface::area() const
@@ -90,7 +91,6 @@ void ReactorSurface::getState(double* y)
 
 void ReactorSurface::initialize(double t0)
 {
-    m_sdot.resize(m_kinetics->nTotalSpecies(), 0.0);
     // Sync the surface temperature and pressure to that of the first adjacent reactor
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
 }
