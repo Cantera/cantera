@@ -736,13 +736,13 @@ jobs:
     strategy:
       matrix:
         include:
-        - sundials-ver: 5.8
-          fmt-ver: 9.1
         - sundials-ver: 6.4.1
-          fmt-ver: 10
+          fmt-ver: 9.1
         - sundials-ver: 6.6
           fmt-ver: 10
         - sundials-ver: 7.2
+          fmt-ver: 10
+        - sundials-ver: 7.5
           fmt-ver: 11
           extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
