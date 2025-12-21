@@ -1443,8 +1443,8 @@ if env['system_sundials'] in ("y", "default"):
 if env["system_sundials"] in ("n", "default"):
     if not os.path.exists('ext/sundials/include/cvodes/cvodes.h'):
         checkout_submodule("Sundials", "ext/sundials")
-    logger.info("Using private installation of Sundials version 5.3.")
-    env['sundials_version'] = '5.3'
+    logger.info("Using private installation of Sundials version 7.5.")
+    env['sundials_version'] = '7.5'
     env['has_sundials_lapack'] = int(env['use_lapack'])
     env["system_sundials"] = "n"
 
