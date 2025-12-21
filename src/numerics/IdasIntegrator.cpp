@@ -14,11 +14,7 @@ namespace {
 
 N_Vector newNVector(size_t N, Cantera::SundialsContext& context)
 {
-#if SUNDIALS_VERSION_MAJOR >= 6
     return N_VNew_Serial(static_cast<sd_size_t>(N), context.get());
-#else
-    return N_VNew_Serial(static_cast<sd_size_t>(N));
-#endif
 }
 
 } // end anonymous namespace
@@ -271,11 +267,7 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     }
 
     //! Create the IDA solver
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        m_ida_mem = IDACreate(m_sundials_ctx.get());
-    #else
-        m_ida_mem = IDACreate();
-    #endif
+    m_ida_mem = IDACreate(m_sundials_ctx.get());
     if (!m_ida_mem) {
         throw CanteraError("IdasIntegrator::initialize", "IDACreate failed.");
     }
@@ -345,42 +337,20 @@ void IdasIntegrator::applyOptions()
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-        #else
-            m_linsol_matrix = SUNDenseMatrix(N, N);
-        #endif
+        m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #if CT_SUNDIALS_USE_LAPACK
-            #if SUNDIALS_VERSION_MAJOR >= 6
-                m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
-                                                 m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
+            m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
+                                             m_sundials_ctx.get());
         #else
-            #if SUNDIALS_VERSION_MAJOR >= 6
-                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
-                                           m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
+            m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
+                                        m_sundials_ctx.get());
         #endif
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                               (SUNMatrix) m_linsol_matrix);
-        #else
-            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                  (SUNMatrix) m_linsol_matrix);
-        #endif
+        IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                           (SUNMatrix) m_linsol_matrix);
     } else if (m_type == "GMRES") {
         SUNLinSolFree((SUNLinearSolver) m_linsol);
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
-            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #else
-            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
-            IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
-        #endif
+        m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
+        IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
     } else {
         throw CanteraError("IdasIntegrator::applyOptions",
                            "unsupported linear solver flag '{}'", m_type);
@@ -420,21 +390,13 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
     m_sens_ok = false;
 
     N_Vector y = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
-    #else
-        m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
-    #endif
+    m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_yS[n]);
     }
     N_VDestroy_Serial(y);
     N_Vector ydot = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        m_ySdot = N_VCloneVectorArray(static_cast<int>(m_np), ydot);
-    #else
-        m_ySdot = N_VCloneVectorArray_Serial(static_cast<int>(m_np), ydot);
-    #endif
+    m_ySdot = N_VCloneVectorArray(static_cast<int>(m_np), ydot);
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_ySdot[n]);
     }

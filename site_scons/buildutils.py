@@ -1744,9 +1744,9 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
         "system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
     should_exit_with_error = conf.env["system_sundials"] == "y"
 
-    if sundials_ver < parse_version("5.0") or sundials_ver >= parse_version("8.0"):
+    if sundials_ver < parse_version("6.4") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
-            config_error(f"Sundials version must be >=5.0,<8.0. Found {sundials_ver}.")
+            config_error(f"Sundials version must be >=6.4,<8.0. Found {sundials_ver}.")
         return bundled_sundials
     elif sundials_ver > parse_version("7.5.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
@@ -1773,7 +1773,6 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
             return bundled_sundials
 
     cvode_checks = {
-        SpecifierSet(">=5.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
         SpecifierSet(">=6.0,<7.0"): (
             "SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]
         ),
@@ -1803,11 +1802,7 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
     logger.info(f"Using system installation of Sundials version {sundials_ver}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver < parse_version("5.5"):
-        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
-        has_sundials_lapack = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
-                '#include "sundials/sundials_config.h"', 'C++')
-    elif sundials_ver <= parse_version("6.6.0"):
+    if sundials_ver <= parse_version("6.6.0"):
         # In Sundials 5.5-6.6.0, two defines are included specific to the
         # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
         lapackband = conf.CheckDeclaration(

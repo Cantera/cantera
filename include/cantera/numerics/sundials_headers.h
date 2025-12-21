@@ -25,11 +25,6 @@
     #include "cvodes/cvodes_spils.h"
 #endif
 
-#if SUNDIALS_VERSION_MAJOR < 6
-    typedef realtype sunrealtype;
-    typedef booleantype sunbooleantype;
-#endif
-
 #define CV_SS 1
 #define IDA_SS 1
 #define CV_SV 2

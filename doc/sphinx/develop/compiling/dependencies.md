@@ -59,7 +59,7 @@ compiler is required only if you plan to build the Fortran module.
   - If SUNDIALS is not installed and you have checked out the Cantera source code using
     Git, SUNDIALS will be automatically downloaded and the necessary portions will be
     compiled and installed with Cantera.
-  - Known to work with versions >= 5.0 and \<= 7.2.
+  - Known to work with versions >= 6.4 and \<= 7.5.
   - To use SUNDIALS with Cantera on a Linux/Unix system, it must be compiled
     with the `-fPIC` flag. You can specify this flag when configuring SUNDIALS as
     `cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>`
