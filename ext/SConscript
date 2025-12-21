@@ -80,27 +80,41 @@ if env['system_sundials'] == 'n':
     )
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunmatrix',
-                   'sunlinsol', 'sunnonlinsol'):
+    for subdir in ('sundials', 'sundials/priv', 'nvector', 'cvodes', 'idas',
+                   'sunmatrix', 'sunlinsol', 'sunnonlinsol'):
         for header in multi_glob(env, 'sundials/include/'+subdir, 'h'):
             ext_copies.extend(
                 copyenv.Command(f"#include/cantera/ext/{subdir}/{header.name}",
                                 f"#ext/sundials/include/{subdir}/{header.name}",
                                 Copy("$TARGET", "$SOURCE"))
             )
+    ext_copies.extend(
+        copyenv.Command("#include/cantera/ext/sundials/sundials_export.h",
+                        "#ext/sundials_export.h",
+                        Copy("$TARGET", "$SOURCE"))
+    )
+    if env['use_lapack']:
+        ext_copies.extend(
+            copyenv.Command("#include/cantera/ext/sundials_lapack_defs.h",
+                            "#ext/sundials_lapack_defs.h",
+                            Copy("$TARGET", "$SOURCE"))
+        )
 
     # Compile Sundials source files. Skip files related to the Sundials Fortran
     # interface, which start with 'fsun'.
-    subdirs = ['sundials', 'nvector/serial', 'cvodes', 'idas', 'sunmatrix/band',
-               'sunmatrix/dense', 'sunmatrix/sparse', 'sunlinsol/dense',
-               'sunlinsol/band','sunlinsol/spgmr', 'sunnonlinsol/newton']
+    subdirs = ['sundials', 'sundials/sundatanode', 'nvector/serial', 'cvodes', 'idas',
+               'sunmatrix/band', 'sunmatrix/dense', 'sunmatrix/sparse',
+               'sunlinsol/dense', 'sunlinsol/band','sunlinsol/spgmr',
+               'sunnonlinsol/newton']
     if env['use_lapack']:
         subdirs.extend(('sunlinsol/lapackdense', 'sunlinsol/lapackband'))
 
     for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(
             [f for f in multi_glob(localenv, 'sundials/src/'+subdir, 'c')
-             if not f.name.startswith('fsun')]))
+             if not f.name.startswith('fsun')
+             and '_mpi_' not in f.name
+             and f.name not in ('sundials_profiler.c', 'sundials_xbraid.c')]))
 
 if not env['system_yamlcpp']:
     localenv = prep_default(env)
