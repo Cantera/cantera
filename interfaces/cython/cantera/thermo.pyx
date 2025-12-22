@@ -2185,17 +2185,6 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.s, self.v, self.Q
 
-# Helper methods for the implementation of properties of class Element.
-# @todo These can be inlined once Support for Cython 0.29 is dropped.
-def _element_symbols():
-    syms = elementSymbols()
-    return tuple(pystr(s) for s in syms)
-
-
-def _element_names():
-    names = elementNames()
-    return tuple(pystr(n) for n in names)
-
 
 class Element:
     """
@@ -2242,10 +2231,10 @@ class Element:
     num_elements_defined = numElementsDefined()
 
     #: A list of the symbols of all the elements (not isotopes) defined in Cantera
-    element_symbols = _element_symbols()
+    element_symbols = tuple(pystr(s) for s in elementSymbols())
 
     #: A list of the names of all the elements (not isotopes) defined in Cantera
-    element_names = _element_names()
+    element_names = tuple(pystr(n) for n in elementNames())
 
     def __init__(self, arg):
         if isinstance(arg, (str, bytes)):

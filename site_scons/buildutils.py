@@ -1352,9 +1352,8 @@ def setup_python_env(env):
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
 
-    if not env.get("require_numpy_1_7_API", True):
-        env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
-
+    # TODO: Remove after dropping support for Numpy 1.x
+    env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
 
     return env
 
@@ -1431,10 +1430,6 @@ def check_for_python(
             * ``"python_package"``: String with the value ``"y"`` or ``"n"`` to
               indicate whether or not the Python package will be built. This key will
               always be present.
-            * ``"require_numpy_1_7_API"``: Boolean indicating whether Cython will use
-              NumPy 1.7 API support. This is purely a compile-time constant and does not
-              affect which versions of NumPy Cantera supports. This key may or may not
-              be present in the return dictionary.
 
     Raises:
         config_error: If the user specifies that the Python package should be built but
@@ -1576,14 +1571,8 @@ def check_for_python(
         if exit_on_error:
             sys.exit(1)
         return {"python_package": "n"}
-    elif cython_version < parse_version("3.0.0"):
-        logger.info(
-            f"Using Cython version {cython_version} (uses legacy NumPy API)"
-        )
-        require_numpy_1_7_API = True
     else:
         logger.info(f"Using Cython version {cython_version}")
-        require_numpy_1_7_API = False
 
     if check_for_ruamel_yaml:
         ruamel_yaml_version = versions.get("ruamel.yaml")
@@ -1617,7 +1606,7 @@ def check_for_python(
         else:
             logger.info(f"Using pytest version {pytest_version}")
 
-    return {"python_package": "y", "require_numpy_1_7_API": require_numpy_1_7_API}
+    return {"python_package": "y"}
 
 
 def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:

@@ -106,7 +106,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [Cython](https://cython.org/)
 
-  - Required version >=0.29.31 to build the Python module.
+  - Required version >=3.0.8 to build the Python module.
 
 - [pip](https://pip.pypa.io/en/stable/installing/) (Python)
 
