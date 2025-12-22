@@ -39,7 +39,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [SCons](https://scons.org/tag/releases.html):
 
-  - Works with versions >= 4.0.0
+  - Works with versions >= 4.5.0
   - On Windows, more recent SCons versions are required to support each new version of
     the MSVC compiler.
 

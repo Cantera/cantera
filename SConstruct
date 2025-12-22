@@ -91,7 +91,7 @@ from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuratio
 
 # ensure that Python and SCons versions are sufficient for the build process
 EnsurePythonVersion(3, 10)
-EnsureSConsVersion(4, 0, 0)
+EnsureSConsVersion(4, 5, 0)
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -646,7 +646,7 @@ config_options = [
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.""",
-        {"mingw": False, "cl": False, "default": True}),
+        {"cl": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', that is, a fixed
@@ -937,10 +937,6 @@ if env["OS"] == "Windows":
     config.select("Windows")
 elif env["OS"] == "Darwin":
     config.select("macOS")
-
-# SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if "mingw" in env["toolchain"] :
-    config.select("mingw")
 
 config.select("default")
 config["python_cmd"].default = sys.executable
