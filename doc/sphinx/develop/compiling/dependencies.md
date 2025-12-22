@@ -75,7 +75,7 @@ compiler is required only if you plan to build the Fortran module.
   - If fmt (previously known as cppformat) is not installed and you have checked out the
     Cantera source code using Git, fmt will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
-  - Known to work with versions 8.0 through 11.0.
+  - Known to work with versions 9.1 through 12.0.
 
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
