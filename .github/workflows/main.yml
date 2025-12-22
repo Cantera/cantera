@@ -208,8 +208,6 @@ jobs:
           - macos-version: 'macos-15'
             python-version: '3.14'
             extra-build-args: cxx_flags='-std=c++20'
-          # - macos-version: 'macos-15-intel'
-          #   python-version: '3.1x'  # sporadic failures: tracked in post-merge-tests
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
