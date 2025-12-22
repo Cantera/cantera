@@ -610,7 +610,7 @@ double PlasmaPhase::enthalpy_mole() const {
     return value;
 }
 
-/* double PlasmaPhase::cp_mole() const
+double PlasmaPhase::cp_mole() const
 {
     return IdealGasPhase::cp_mole();
 }
@@ -640,7 +640,7 @@ double PlasmaPhase::entropy_mole() const
 double PlasmaPhase::gibbs_mole() const
 {
     return enthalpy_mole() - temperature() * entropy_mole();
-} */
+}
 
 void PlasmaPhase::getGibbs_ref(double* g) const
 {

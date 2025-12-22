@@ -257,13 +257,13 @@ public:
      */
     double enthalpy_mole() const override;
 
-    /* double cp_mole() const override;
+    double cp_mole() const override;
 
     double entropy_mole() const override;
 
     double gibbs_mole() const override;
 
-    double intEnergy_mole() const override; */
+    double intEnergy_mole() const override;
 
     void getEntropy_R(double* sr) const override;
 
