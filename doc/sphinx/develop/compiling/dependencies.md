@@ -45,7 +45,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [Python](https://python.org/downloads/):
 
-  - Works with versions >= 3.10.
+  - Works with versions >= 3.12.
 
 - [Boost](https://www.boost.org/releases/latest/)
 

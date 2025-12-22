@@ -167,7 +167,7 @@ are needed for paths specific to your computer.
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.14/site-packages"
                 }
             ],
             "externalConsole": false,
@@ -201,7 +201,7 @@ are needed for paths specific to your computer.
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.14/site-packages"
                 }
             ],
             "externalConsole": false,
@@ -237,7 +237,7 @@ extension for VS Code.
             "env": {
                 "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/lib",
                 "CANTERA_DATA": "${workspaceFolder}/data:${workspaceFolder}/test/data",
-                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.14/site-packages"
             },
         },
         {
@@ -253,7 +253,7 @@ extension for VS Code.
             "env": {
                 "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/lib",
                 "CANTERA_DATA": "${workspaceFolder}/data:${workspaceFolder}/test/data",
-                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.14/site-packages"
             },
         }
     ]
@@ -332,7 +332,7 @@ ctdev                 *  C:\Users\speth\mambaforge\envs\ctdev
 then use `C:/Users/speth/mambaforge/envs/ctdev` as `CONDAROOT`, replacing forward
 slashes with backslashes since the backslash is used as an escape character in JSON.
 
-You will also need to replace any instances of `python3.11` in the above to refer to
+You will also need to replace any instances of `python3.14` in the above to refer to
 the version of Python in your Conda environment.
 
 You can create additional configurations for any of the test executables that are part
