@@ -182,7 +182,7 @@ python_max_version = parse_version("3.15")
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
 cython_version_spec = SpecifierSet(">=3.0.8,!=3.1.2", prereleases=True)
-numpy_version_spec = SpecifierSet(">=1.26.0,<3", prereleases=True)
+numpy_version_spec = SpecifierSet(">=1.26.4,<3", prereleases=True)
 ruamel_version_spec = SpecifierSet(">=0.17.21,<1", prereleases=True)
 
 if "sdist" in COMMAND_LINE_TARGETS:
