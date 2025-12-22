@@ -153,8 +153,8 @@ above, both are used.
 ### Style Guide
 
 * Style generally follows [PEP8](https://www.python.org/dev/peps/pep-0008/)
-* The minimum Python version that Cantera supports is Python 3.10, so code should only
-  use features added in Python 3.10 or earlier
+* The minimum Python version that Cantera supports is Python 3.12, so code should only
+  use features added in Python 3.12 or earlier
 * Please use double quotes in all new Python code
 
 ### Sphinx comments

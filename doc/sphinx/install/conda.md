@@ -58,7 +58,7 @@ name: ct-env
 channels:
 - conda-forge
 dependencies:
-- python  # Cantera supports Python 3.10 and up
+- python  # Cantera supports Python 3.12 and up
 - cantera
 - ipython  # optional (needed for nicer interactive command line)
 - jupyter  # optional (needed for Jupyter Notebook)

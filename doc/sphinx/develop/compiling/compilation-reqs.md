@@ -113,7 +113,7 @@ compile Cantera on your operating system.
   channels:
   - conda-forge
   dependencies:
-  - python  # Cantera supports Python 3.10 and up
+  - python  # Cantera supports Python 3.12 and up
   - scons  # build system
   - boost-cpp  # C++ dependency
   - hdf5  # optional C++ dependency
@@ -415,7 +415,7 @@ Next: Download the Source Code
   - Python
 
     - <https://www.python.org/downloads/>
-    - Cantera supports Python 3.10 and higher
+    - Cantera supports Python 3.12 and higher
     - Be sure to choose the appropriate architecture for your system - either
       32-bit or 64-bit
     - When installing, make sure to choose the option to add to your `PATH`
