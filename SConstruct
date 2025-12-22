@@ -1235,7 +1235,7 @@ if env['system_fmt'] in ('y', 'default'):
     )
     if retcode and fmt_version_text:
         fmt_lib_version = split_version(fmt_version_text)
-        fmt_min_version = "8.0.0"
+        fmt_min_version = "9.1.0"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
