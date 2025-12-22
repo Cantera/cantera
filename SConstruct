@@ -181,8 +181,8 @@ python_max_version = parse_version("3.15")
 # The string is used to set python_requires in setup.cfg.in
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
-cython_version_spec = SpecifierSet(">=0.29.31,!=3.1.2", prereleases=True)
-numpy_version_spec = SpecifierSet(">=1.21.0,<3", prereleases=True)
+cython_version_spec = SpecifierSet(">=3.0.8,!=3.1.2", prereleases=True)
+numpy_version_spec = SpecifierSet(">=1.26.0,<3", prereleases=True)
 ruamel_version_spec = SpecifierSet(">=0.17.21,<1", prereleases=True)
 
 if "sdist" in COMMAND_LINE_TARGETS:
@@ -1655,8 +1655,6 @@ env["ct_pyscriptdir"] = "<not installed>"
 if env['python_package'] != 'n':
     python_config = check_for_python(env, COMMAND_LINE_TARGETS)
     env["python_package"] = python_config["python_package"]
-    if python_config["python_package"] == "y":
-        env["require_numpy_1_7_API"] = python_config["require_numpy_1_7_API"]
 
 if env["python_package"] == "y" and env["OS"] == "Darwin":
     # We need to know the macOS deployment target in advance to be able to determine

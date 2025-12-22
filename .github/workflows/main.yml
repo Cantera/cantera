@@ -40,7 +40,7 @@ jobs:
         os: ['ubuntu-24.04']
         architecture: ['x64']
         numpy: ['']
-        cython: ['!=3.1.2'] # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+        cython: ['']
         scons: ['']
         setuptools: ['']
         include:
@@ -48,7 +48,7 @@ jobs:
         - python-version: '3.12'
           os: 'ubuntu-22.04'
           numpy: "'<2.0'"
-          cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+          cython: ''
           scons: '==4.8.1'
           # Keep some test cases with older Cython versions
         - python-version: '3.12'
@@ -59,7 +59,7 @@ jobs:
         - python-version: '3.13'
           os: 'ubuntu-22.04'
           numpy: "'<2.2'"
-          cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+          cython: ''
         - python-version: '3.14'
           os: 'ubuntu-24.04-arm'
           architecture: 'arm64'
@@ -166,7 +166,7 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas pytest Jinja2
+      run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest Jinja2
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
@@ -213,7 +213,7 @@ jobs:
         persist-credentials: false
     - name: Write dependencies to a file for caching
       run: |
-        echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+        echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
@@ -277,7 +277,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas scipy pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
         pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
         Jinja2
     - name: Setup .NET Core SDK
@@ -499,7 +499,7 @@ jobs:
         # Pinned sphinx and pydata-sphinx-theme versions are for the Cantera 3.1.x
         # series. These versions can be relaxed on main branch afterwards.
         run: |
-          pip install ruamel.yaml scons numpy cython!=3.1.2 'sphinx>=7.3.7,<7.4' sphinx-gallery \
+          pip install ruamel.yaml scons numpy cython 'sphinx>=7.3.7,<7.4' sphinx-gallery \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             'pydata-sphinx-theme>=0.15.3,<0.16' sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
@@ -738,7 +738,7 @@ jobs:
           # use boost-cpp rather than boost from conda-forge
           create-args: >-
             python=${{ env.PYTHON_VERSION }} sundials=${{ matrix.sundials-ver }} scons
-            numpy ruamel.yaml cython!=3.1.2 boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
+            numpy ruamel.yaml cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
             pandas libgomp openblas pytest pytest-xdist highfive python-graphviz
             setuptools Jinja2 doxygen
           post-cleanup: none
@@ -802,7 +802,7 @@ jobs:
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
         # use boost-cpp rather than boost from conda-forge
         create-args: >-
-          python=${{ matrix.python-version }} scons numpy cython!=3.1.2 ruamel.yaml boost-cpp
+          python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
           fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen openblas
         post-cleanup: none
@@ -874,10 +874,11 @@ jobs:
           architecture: x64
           check-latest: true
       - name: Install Python dependencies
-        run: |
+        run:
           python -m pip install -U pip setuptools wheel
-          python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 \
-            pandas graphviz pytest pytest-xdist typing_extensions Jinja2 \
+
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython
+            pandas graphviz pytest pytest-xdist typing_extensions Jinja2
             pytest-github-actions-annotate-failures
       - name: Restore Boost cache
         uses: actions/cache@v4
@@ -956,7 +957,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2
     - name: Setup Intel oneAPI environment
       run: |
@@ -995,7 +996,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip setuptools wheel
-        python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
     - name: Restore Boost cache
       uses: actions/cache@v4
       id: cache-boost
