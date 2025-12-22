@@ -827,7 +827,6 @@ jobs:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
         # use boost-cpp rather than boost from conda-forge
-        # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
         create-args: >-
           python=${{ matrix.python-version }} scons numpy cython!=3.1.2 ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
@@ -903,7 +902,9 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures typing_extensions Jinja2
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 \
+            pandas graphviz pytest pytest-xdist typing_extensions Jinja2 \
+            pytest-github-actions-annotate-failures
       - name: Restore Boost cache
         uses: actions/cache@v4
         id: cache-boost
