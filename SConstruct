@@ -282,8 +282,8 @@ config_options = [
            options with spaces, for example, "cxx_flags='-g -Wextra -O3 -std=c++20'"
            """,
         {
-            "cl": "/EHsc /std:c++17 /utf-8",
-            "default": "-std=c++17"
+            "cl": "/EHsc /std:c++20 /utf-8",
+            "default": "-std=c++20"
         }),
     Option(
         "CC",

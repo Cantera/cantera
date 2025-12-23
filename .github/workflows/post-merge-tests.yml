@@ -264,7 +264,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.14']
-        os: ['ubuntu-22.04', 'ubuntu-24.04']
+        os: ['ubuntu-24.04']
       fail-fast: false
     steps:
     - uses: actions/checkout@v6

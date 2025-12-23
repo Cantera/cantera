@@ -84,7 +84,7 @@ this:
 ```python
 env = Environment()
 
-env.Append(CCFLAGS='-g -std=c++17',
+env.Append(CCFLAGS='-g -std=c++20',
            CPPPATH=['/usr/local/cantera/include'],
            LIBS=['cantera_shared'],
            LIBPATH=['/usr/local/cantera/lib'],
