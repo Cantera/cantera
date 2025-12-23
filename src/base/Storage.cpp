@@ -12,41 +12,15 @@
 
 #if CT_USE_HDF5
 
-#if CT_USE_SYSTEM_HIGHFIVE
-  #include <highfive/H5Attribute.hpp>
-  #include <highfive/H5DataSet.hpp>
-  #include <highfive/H5DataSpace.hpp>
-  #include <highfive/H5DataType.hpp>
-  #include <highfive/H5File.hpp>
-  #include <highfive/H5Group.hpp>
-#else
-  #include "cantera/ext/HighFive/H5Attribute.hpp"
-  #include "cantera/ext/HighFive/H5DataSet.hpp"
-  #include "cantera/ext/HighFive/H5DataSpace.hpp"
-  #include "cantera/ext/HighFive/H5DataType.hpp"
-  #include "cantera/ext/HighFive/H5File.hpp"
-  #include "cantera/ext/HighFive/H5Group.hpp"
-#endif
+#include <highfive/H5Attribute.hpp>
+#include <highfive/H5DataSet.hpp>
+#include <highfive/H5DataSpace.hpp>
+#include <highfive/H5DataType.hpp>
+#include <highfive/H5File.hpp>
+#include <highfive/H5Group.hpp>
 
 namespace h5 = HighFive;
-
-#ifdef CT_USE_HIGHFIVE_BOOLEAN
-// HighFive 2.7.1 introduces stable native boolean support
 typedef h5::details::Boolean H5Boolean;
-#else
-// Use custom Boolean definition mimicking h5py approach
-// HighFive <=2.6.2 lacks boolean support and HighFive 2.7.0 uses alternate definition
-enum class H5Boolean {
-    HighFiveFalse = 0,
-    HighFiveTrue = 1,
-};
-
-h5::EnumType<H5Boolean> create_enum_boolean() {
-    return {{"FALSE", H5Boolean::HighFiveFalse}, {"TRUE", H5Boolean::HighFiveTrue}};
-}
-
-HIGHFIVE_REGISTER_TYPE(H5Boolean, ::create_enum_boolean)
-#endif
 
 #endif
 

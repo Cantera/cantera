@@ -139,7 +139,7 @@ compiler is required only if you plan to build the Fortran module.
   - If HighFive is not installed and you have checked out the Cantera source code
     using Git, HighFive will be automatically downloaded and the necessary portions will
     be compiled as part of the Cantera build process.
-  - Version 2.5.0 or newer is required.
+  - HighFive version 2.10 or newer is required.
 
 - [Google Test](https://github.com/google/googletest)
 

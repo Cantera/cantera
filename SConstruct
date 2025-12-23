@@ -1493,11 +1493,11 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
         highfive_include = "<highfive/H5Version.hpp>"
         retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
         if retcode and h5_lib_version:
-            if parse_version(h5_lib_version) < parse_version("2.5"):
+            if parse_version(h5_lib_version) < parse_version("2.10"):
                 if env["system_highfive"] == "y":
                     config_error(
                         f"System HighFive version {h5_lib_version} is not "
-                        "supported; version 2.5 or higher is required.")
+                        "supported; version 2.10 or higher is required.")
                 logger.info(
                     f"System HighFive version {h5_lib_version} is not supported. "
                     "Using private installation instead.")
@@ -1532,10 +1532,6 @@ if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
     logger.info(f"Using private installation of HighFive library.")
 
 if env["use_hdf5"]:
-    if conf.CheckStatement("HighFive::details::Boolean::HighFiveTrue",
-                           f"#include {highfive_include}"):
-        env["highfive_boolean"] = True
-
     retcode, hdf_version = run_preprocessor(
         conf, ['"H5public.h"'], "H5_VERS_MAJOR H5_VERS_MINOR H5_VERS_RELEASE"
     )
@@ -1828,7 +1824,6 @@ cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine("CT_USE_HDF5", "use_hdf5")
 cdefine("CT_USE_SYSTEM_HIGHFIVE", "system_highfive")
-cdefine("CT_USE_HIGHFIVE_BOOLEAN", "highfive_boolean")
 cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
