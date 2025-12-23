@@ -38,8 +38,8 @@ it easier for others to understand your code in the context of Cantera as a whol
 * Class names use `InitialCapsNames`
 * Methods use `camelCaseNames`
 * Do not indent the contents of namespaces
-* Code should follow the C++17 standard, with minimum required compiler versions GCC
-  7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
+* Code may use features from the C++20 standard, with minimum required compiler versions
+  GCC 13.2, Clang 18.0, Visual Studio 2019 version 16.11 and Intel 2023.1.
 * Cantera moves frequently used C++ standard namespace types and functions into the
   declarative region, meaning that the `std` scope resolution can be omitted. This
   applies to the following: `string`, `vector`, `map`, `set`, `pair`, `shared_ptr`,

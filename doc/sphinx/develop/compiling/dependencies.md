@@ -6,34 +6,24 @@ use Cantera.
 
 ## Compilers
 
-You must have one of the following C++ compilers installed on your system. A Fortran
+You must have one of the following C++ compilers installed on your system. Cantera
+requires compiler versions that support features from the C++20 standard. A Fortran
 compiler is required only if you plan to build the Fortran module.
 
-- GNU compilers (C/C++/Fortran)
+- GCC (C/C++/Fortran): Works with versions >= 13.2.
 
-  - Known to work with versions 9.4 and 11.4. Expected to work with version >= 9.0.
+- Clang/LLVM (C/C++): Works with versions >= 18.0.
 
-- Clang/LLVM (C/C++)
+  - This includes the versions included in Xcode >= 15.3.
 
-  - Known to work with versions 10 and 12. Expected to work with version >= 5.0
-  - Works with the versions included in Xcode 13.0 and 14.3.1.
+- Intel OneAPI compilers (C/C++/Fortran): Works with versions >= 2023.1.
 
-- Intel compilers (C/C++/Fortran)
+- Microsoft compilers (C/C++): Works with Visual Studio 2019 versions >= 16.11
+  (MSVC runtime version 14.29) or any version of Visual Studio 2022.
 
-  - Known to work with the Intel OneAPI Compilers (version 2022.0.2).
-  - Some earlier versions of the Intel compiler (including the 2017 version) are
-    **NOT RECOMMENDED** because of a bug in the C compiler.
+- MinGW (C/C++/Fortran): Works with versions >= 13.0.
 
-- Microsoft compilers (C/C++)
-
-  - Known to work with Visual Studio 2019 (MSVC 14.2) and Visual Studio 2022
-    (MSVC 14.3).
-
-- MinGW (C/C++/Fortran)
-
-  - <http://mingw-w64.org/doku.php> (64-bit)
-  - <http://tdm-gcc.tdragon.net/> (64-bit)
-  - Known to work with Mingw-w64 12.2.
+  - See <https://www.mingw-w64.org/downloads/> for downloads.
 
 ## Other Required Software
 

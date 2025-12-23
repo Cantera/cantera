@@ -220,9 +220,9 @@ Next: Download the Source Code
 
 ### Ubuntu & Debian
 
-- Ubuntu 22.04 LTS (Focal Fossa) or newer
+- Ubuntu 24.04 LTS (Focal Fossa) or newer
 
-- Debian 12.0 (Bookworm) or newer
+- Debian 13.0 (Trixie) or newer
 
 - The following packages must be installed to build any of the Cantera modules using
   your choice of package manager:
@@ -249,7 +249,7 @@ Next: Download the Source Code
   cython3 python3-setuptools python3-wheel python3-numpy python3-ruamel.yaml python3-pytest
   ```
 
-  - Debian 12.0 (Bookworm) and Ubuntu 23.04 (Lunar Lobster) provide compatible Cython
+  - Debian 13.0 (Trixie) and Ubuntu 24.04 (Noble Numbat) provide compatible Cython
     versions. For older releases, install Cython using Pip.
 
 - In addition to the general packages, building the Fortran module also requires:

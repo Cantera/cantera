@@ -43,26 +43,31 @@ jobs:
         cython: ['']
         scons: ['']
         setuptools: ['']
+        save-wheel: [true]
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
-          os: 'ubuntu-22.04'
+          os: 'ubuntu-24.04'
           numpy: "'<2.0'"
           cython: ''
           scons: '==4.8.1'
+          save-wheel: false
           # Keep some test cases with older Cython versions
         - python-version: '3.12'
-          os: 'ubuntu-22.04'
+          os: 'ubuntu-24.04'
           cython: "==3.0.8" # System version for Ubuntu 24.04
           scons: '==4.5.2' # System version for Ubuntu 24.04
           setuptools: "==75.7.0" # latest version that leaves package name uppercase
+          save-wheel: false
         - python-version: '3.13'
-          os: 'ubuntu-22.04'
+          os: 'ubuntu-24.04'
           numpy: "'<2.2'"
           cython: ''
+          save-wheel: false
         - python-version: '3.14'
           os: 'ubuntu-24.04-arm'
           architecture: 'arm64'
+          save-wheel: false
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -142,10 +147,11 @@ jobs:
         retention-days: 2
         name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
         if-no-files-found: error
+      if: matrix.save-wheel == true
 
   clang-compiler:
     name: LLVM/Clang with Python 3.13
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v6
@@ -162,7 +168,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libomp-dev libomp5 \
-          libopenblas-openmp-dev libhdf5-dev doxygen graphviz
+          libopenblas-openmp-dev libhdf5-dev doxygen graphviz libeigen3-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -170,7 +176,7 @@ jobs:
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
-        CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        CXX=clang++-18 CC=clang-18 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j4 debug=n --debug=time logging=debug
         warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
@@ -198,12 +204,10 @@ jobs:
         include:
           - macos-version: 'macos-14'
             python-version: '3.12'
-            extra-build-args: cxx_flags='-std=c++20'
           - macos-version: 'macos-15'
             python-version: '3.13'
           - macos-version: 'macos-15'
             python-version: '3.14'
-            extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -607,10 +611,10 @@ jobs:
       matrix:
         # Keep some test cases with NumPy 1.x until we explicitly drop support
         include:
-        - os: "ubuntu-22.04"
+        - os: "ubuntu-24.04"
           python-version: "3.12"
           numpy: "==1.26.4"
-          libhdf5: "libhdf5-103"
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-24.04"
           python-version: "3.12"
           numpy: ""
@@ -619,10 +623,10 @@ jobs:
           python-version: "3.14"
           numpy: ""
           libhdf5: "libhdf5-103-1t64"
-        - os: "ubuntu-22.04"
+        - os: "ubuntu-24.04"
           python-version: "3.13"
           numpy: ""
-          libhdf5: "libhdf5-103"
+          libhdf5: "libhdf5-103-1t64"
       fail-fast: false
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
@@ -722,7 +726,6 @@ jobs:
           fmt-ver: 11
         - sundials-ver: 7.5
           fmt-ver: 12
-          extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
       - uses: actions/checkout@v6
@@ -787,7 +790,6 @@ jobs:
           fmt-ver: '11.0'
         - python-version: '3.14'
           fmt-ver: '12.0'
-          extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -1055,7 +1057,7 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, windows-2025, macos-14]
+        os: [ubuntu-24.04, windows-2022, windows-2025, macos-14]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]

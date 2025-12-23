@@ -29,7 +29,7 @@ permissions: {}
 jobs:
   build-packages:
     name: Trigger building packages from external repos
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up the job
         id: setup
