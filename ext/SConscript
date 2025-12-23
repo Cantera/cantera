@@ -148,7 +148,7 @@ if not env['system_eigen']:
 if not env["system_highfive"]:
     localenv = prep_default(env)
     license_files["HighFive"] = File("#ext/HighFive/LICENSE")
-    h = build(copyenv.Command('#include/cantera/ext/HighFive', '#ext/HighFive/include/highfive',
+    h = build(copyenv.Command('#include/cantera/ext/highfive', '#ext/HighFive/include/highfive',
                               Copy('$TARGET', '$SOURCE')))
     copyenv.Depends(copyenv['config_h_target'], h)
     ext_copies.extend(h)

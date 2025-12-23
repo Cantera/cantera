@@ -54,7 +54,6 @@ def do_configure_substitution(
         "CT_SUNDIALS_USE_LAPACK": "#cmakedefine01 CT_SUNDIALS_USE_LAPACK",
         "CT_USE_HDF5": "#define CT_USE_HDF5 1",
         "CT_USE_SYSTEM_HIGHFIVE": "#define CT_USE_SYSTEM_HIGHFIVE 1",
-        "CT_USE_HIGHFIVE_BOOLEAN": "#define CT_USE_HIGHFIVE_BOOLEAN 1",
     }
     configure_output = configure_template.format_map(configure_subst)
     return configure_output
