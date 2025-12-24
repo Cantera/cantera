@@ -10,7 +10,7 @@ cantera._types.*
 # cantera\.((_|\w)+\.)+__(?!init__$)[a-zA-Z0-9_]*__
 
 # Exclude specific dunder methods
-cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys)__
+cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys|conditional_annotations)__
 
 # Current output of stubtest --generate-allowlist
 cantera.Arrhenius.__init__
