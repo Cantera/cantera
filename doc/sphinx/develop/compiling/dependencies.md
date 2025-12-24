@@ -39,8 +39,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [Boost](https://www.boost.org/releases/latest/)
 
-  - Known to work with versions 1.71, 1.74, and 1.82; Expected to work with versions >=
-    1.70
+  - Expected to work with Boost versions >= 1.83.
   - Only the "header-only" portions of Boost are required. Cantera does not currently
     depend on any of the compiled Boost libraries.
 

@@ -1351,16 +1351,15 @@ env['HAS_OPENMP'] = conf.CheckLibWithHeader(
     ["iomp5", "omp", "gomp"], "omp.h", language="C++"
 )
 
+boost_version_spec = SpecifierSet(">=1.83")
 retcode, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
                  "'boost_inc_dir' to point to the boost headers.")
 else:
     env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().replace('"', "").split('_'))
-    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-        # or newer
-        config_error("Cantera requires Boost version 1.70 or newer.")
+    if env['BOOST_LIB_VERSION'] not in boost_version_spec:
+        config_error(f"Cantera requires Boost {boost_version_spec}.")
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
 
 # check BLAS/LAPACK installations
