@@ -44,7 +44,7 @@ jobs:
       with:
         python-version: 3.13
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+      uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
       with:
         python-version: 3.13
         cache-dependency-glob: |
@@ -278,7 +278,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+      uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
       with:
         python-version: ${{ matrix.python-version }}
         enable-cache: true
@@ -327,7 +327,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+      uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
       with:
         enable-cache: true
         cache-dependency-glob: |
