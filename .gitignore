@@ -54,3 +54,4 @@ environment.y*
 coverage/
 coverage.info
 .coverage
+type_check/

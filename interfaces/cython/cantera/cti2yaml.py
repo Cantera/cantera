@@ -29,7 +29,7 @@ from ruamel import yaml
 yaml_version: tuple[int, int, int] = yaml.version_info
 # We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
 # available in the Ubuntu 22.04 repositories.
-yaml_min_version = (0, 17, 16)
+yaml_min_version: Final[tuple[int, int, int]] = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
         "The minimum supported version of ruamel.yaml is 0.17.16. If you "
@@ -92,7 +92,9 @@ def applyUnits(value: str) -> str: ...
 @overload
 def applyUnits(value: tuple[float, str]) -> str: ...
 @overload
-def applyUnits(value: float) -> float: ...  # Covers both float and int
+def applyUnits(value: int) -> int: ...
+@overload
+def applyUnits(value: float) -> float: ...
 def applyUnits(
     value: float | int | str | tuple[float, str]
 ) -> float | str:
@@ -138,12 +140,12 @@ _newNames = {
 }
 
 # constants that can be used in .cti files
-OneAtm = 1.01325e5
-OneBar = 1.0e5
+OneAtm: Final[float] = 1.01325e5
+OneBar: Final[float] = 1.0e5
 # Conversion from eV to J/kmol (electron charge * Avogadro constant)
-eV = 9.64853364595687e7
+eV: Final[float] = 9.64853364595687e7
 # Electron Mass in kg
-ElectronMass = 9.10938291e-31
+ElectronMass: Final[float] = 9.10938291e-31
 
 # default units
 _ulen = 'm'
@@ -431,6 +433,7 @@ class species:
 
 class thermo:
     """Base class for species thermodynamic properties."""
+    model: str
     pref: float | None
 
     @classmethod
@@ -448,9 +451,8 @@ class thermo:
 
 class NASA(thermo):
     """The 7-coefficient NASA polynomial parameterization."""
-    model: Final = 'NASA7'
+    model: str = 'NASA7'
     T_range: Sequence[float]
-    pref: float | None
     coeffs: Sequence[float]
 
     def __init__(
@@ -471,7 +473,6 @@ class NASA(thermo):
             the default value is used, which is set by the ``standard_pressure``
             directive.
         """
-        self.model = 'NASA7'
         self.T_range = Trange
         self.pref = p0
         if len(coeffs) != 7:
@@ -481,12 +482,12 @@ class NASA(thermo):
 
 class NASA9(thermo):
     """NASA9 polynomial parameterization for a single temperature region."""
-    model: Final = 'NASA9'
+    model: str = 'NASA9'
     T_range: Sequence[float]
-    pref: float | None
     coeffs: Sequence[float]
 
-    def __init__(self, Trange: Sequence[float] = (0.0, 0.0), coeffs: Sequence[float] = (), p0: float | None = None) -> None:
+    def __init__(self, Trange: Sequence[float] = (0.0, 0.0),
+                 coeffs: Sequence[float] = (), p0: float | None = None) -> None:
         r"""
         :param Trange:
             The temperature range over which the parameterization is valid.
@@ -499,7 +500,6 @@ class NASA9(thermo):
             the default value is used, which is set by the ``standard_pressure``
             directive.
         """
-        self.model = 'NASA9'
         self.T_range = Trange
         self.pref = p0
         if len(coeffs) != 9:
@@ -508,9 +508,7 @@ class NASA9(thermo):
 
 
 class MultiPolyThermo(thermo):
-    pref: float
     Tranges: list[float]
-    model: str
     data: list[Sequence[float]]
 
     def __init__(self, regions: Sequence[thermo]) -> None:
@@ -531,12 +529,12 @@ class MultiPolyThermo(thermo):
 
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
-    model: Final = 'Shomate'
+    model: str = 'Shomate'
     T_range: Sequence[float]
-    pref: float | None
     coeffs: Sequence[float]
 
-    def __init__(self, Trange: Sequence[float] = (0.0, 0.0), coeffs: Sequence[float] = (), p0: float | None = None) -> None:
+    def __init__(self, Trange: Sequence[float] = (0.0, 0.0),
+                 coeffs: Sequence[float] = (), p0: float | None = None) -> None:
         r"""
         :param Trange:
             The temperature range over which the parameterization is valid.
@@ -548,7 +546,6 @@ class Shomate(thermo):
             The reference-state pressure, usually 1 atm or 1 bar. If omitted,
             the default value set by the ``standard_pressure`` directive is used.
         """
-        self.model = 'Shomate'
         self.T_range = Trange
         self.pref = p0
         if len(coeffs) != 7:
@@ -558,8 +555,7 @@ class Shomate(thermo):
 
 class const_cp(thermo):
     """Constant specific heat."""
-    model: Final = 'constant-cp'
-    pref: Final[None] = None
+    model: str = 'constant-cp'
     t0: float | None
     h0: float | None
     s0: float | None
@@ -586,7 +582,6 @@ class const_cp(thermo):
         :param s0:
             Reference-state molar entropy at temperature T0. Default: 0.0.
         """
-        self.model = 'constant-cp'
         self.pref = None
         self.t0 = t0
         self.h0 = h0
@@ -776,6 +771,7 @@ class reaction:
     id: str
     options: Sequence[str]
     kf: Arrhenius
+    type: str
 
     def __init__(
         self,
@@ -923,7 +919,7 @@ class falloff_base(reaction):
 
 class falloff_reaction(falloff_base):
     """ A gas-phase falloff reaction. """
-    type: Final = 'falloff'
+    type: str = 'falloff'
 
     def __init__(
         self,
@@ -964,7 +960,7 @@ class falloff_reaction(falloff_base):
 
 class chemically_activated_reaction(falloff_base):
     """ A gas-phase, chemically activated reaction. """
-    type: Final = 'chemically-activated'
+    type: str = 'chemically-activated'
 
     def __init__(
         self,
@@ -1010,7 +1006,7 @@ class pdep_arrhenius(reaction):
     expressions at different pressures.
     """
     arrhenius: tuple[Sequence[float], ...]
-    type: Final = 'pressure-dependent-Arrhenius'
+    type: str = 'pressure-dependent-Arrhenius'
 
     def __init__(self, equation: str, *args: Sequence[float], **kwargs: Any) -> None:
         """
@@ -1043,7 +1039,7 @@ class chebyshev_reaction(reaction):
     Pressure-dependent rate calculated in terms of a bivariate Chebyshev
     polynomial.
     """
-    type: Final = 'Chebyshev'
+    type: str = 'Chebyshev'
     Pmin: tuple[float, str]
     Pmax: tuple[float, str]
     Tmin: float
@@ -1103,7 +1099,7 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    type: Final = 'surface'
+    type: str = 'surface'
     sticking: bool
     beta: float | None
     rate_coeff_type: Literal['', 'exchangecurrentdensity']
@@ -1163,7 +1159,7 @@ class surface_reaction(reaction):
 
 
 class edge_reaction(surface_reaction):
-    type: Final = 'edge'
+    type: str = 'edge'
 
     def __init__(
         self,
