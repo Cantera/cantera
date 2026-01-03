@@ -110,20 +110,26 @@ def applyUnits(
 
 
 # Type aliases for old/new naming conventions
-_OldKineticsModel: TypeAlias = Literal[
-    "GasKinetics", "Interface", "Edge"
-]
-_KineticsModel: TypeAlias = Literal["gas", "surface", "edge"]
-_OldTransportModel: TypeAlias = Literal["Mix", "Multi", "Ion"]
-_TransportModel: TypeAlias = Literal[
-    "mixture-averaged", "multicomponent", "ionized-gas"
-]
-_OldConcentrationBasis: TypeAlias = Literal[
-    "molar_volume", "solvent_volume", "unity"
-]
-_ConcentrationBasis: TypeAlias = Literal[
-    "species-molar-volume", "solvent-molar-volume", "unity"
-]
+_OldKineticsModel: TypeAlias = (
+    Literal["GasKinetics"] | Literal["Interface"] | Literal["Edge"]
+)
+_KineticsModel: TypeAlias = (
+    Literal["gas"] | Literal["surface"] | Literal["edge"]
+)
+_OldTransportModel: TypeAlias = (
+    Literal["Mix"] | Literal["Multi"] | Literal["Ion"]
+)
+_TransportModel: TypeAlias = (
+    Literal["mixture-averaged"] | Literal["multicomponent"] |
+    Literal["ionized-gas"]
+)
+_OldConcentrationBasis: TypeAlias = (
+    Literal["molar_volume"] | Literal["solvent_volume"] | Literal["unity"]
+)
+_ConcentrationBasis: TypeAlias = (
+    Literal["species-molar-volume"] | Literal["solvent-molar-volume"] |
+    Literal["unity"]
+)
 
 
 # map of old CTI/XML names to the new YAML names
