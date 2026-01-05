@@ -20,16 +20,15 @@ namespace Cantera
 class ConstPressureMoleReactor : public MoleReactor
 {
 public:
-    using MoleReactor::MoleReactor; // inherit constructors
+    ConstPressureMoleReactor(shared_ptr<Solution> sol, const string& name="(none)");
+    ConstPressureMoleReactor(shared_ptr<Solution> sol, bool clone,
+                             const string& name="(none)");
 
     string type() const override {
         return "ConstPressureMoleReactor";
     };
 
     void getState(double* y) override;
-
-    void initialize(double t0=0.0) override;
-
     void eval(double t, double* LHS, double* RHS) override;
 
     vector<size_t> steadyConstraints() const override {

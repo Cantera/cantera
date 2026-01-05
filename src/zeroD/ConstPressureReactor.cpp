@@ -14,6 +14,19 @@
 namespace Cantera
 {
 
+ConstPressureReactor::ConstPressureReactor(shared_ptr<Solution> sol,
+                                           const string& name)
+    : ConstPressureReactor(sol, true, name)
+{
+}
+
+ConstPressureReactor::ConstPressureReactor(shared_ptr<Solution> sol, bool clone,
+                                           const string& name)
+    : Reactor(sol, clone, name)
+{
+    m_nv = 2 + m_nsp; // mass, enthalpy, and mass fractions of each species
+}
+
 void ConstPressureReactor::getState(double* y)
 {
     // set the first component to the total mass
@@ -25,12 +38,6 @@ void ConstPressureReactor::getState(double* y)
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
     m_thermo->getMassFractions(y+2);
 
-}
-
-void ConstPressureReactor::initialize(double t0)
-{
-    Reactor::initialize(t0);
-    m_nv -= 1; // Constant pressure reactor has one fewer state variable
 }
 
 void ConstPressureReactor::updateState(double* y)

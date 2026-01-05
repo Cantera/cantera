@@ -17,6 +17,21 @@
 namespace Cantera
 {
 
+FlowReactor::FlowReactor(shared_ptr<Solution> sol, const string& name)
+    : FlowReactor(sol, true, name)
+{
+}
+
+FlowReactor::FlowReactor(shared_ptr<Solution> sol, bool clone, const string& name)
+    : IdealGasReactor(sol, clone, name)
+{
+    m_nv = 4 + m_nsp; // rho, u, P, T, and species mass fractions
+    m_rho = m_thermo->density();
+    // resize temporary arrays
+    m_wdot.resize(m_nsp);
+    m_hk.resize(m_nsp);
+}
+
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
     m_thermo->getMassFractions(y+m_offset_Y);
@@ -130,20 +145,6 @@ void FlowReactor::getStateDae(double* y, double* ydot)
 
     // and solve
     solve(a, ydot, 1, 0);
-}
-
-void FlowReactor::initialize(double t0)
-{
-    Reactor::initialize(t0);
-    // initialize state
-    m_rho = m_thermo->density();
-    // resize temporary arrays
-    m_wdot.resize(m_nsp);
-    m_hk.resize(m_nsp);
-    // set number of variables to the number of non-species equations
-    // i.e., density, velocity, pressure and temperature
-    // plus the number of species in the gas phase
-    m_nv = m_offset_Y + m_nsp;
 }
 
 void FlowReactor::updateState(double* y)

@@ -501,6 +501,10 @@ cdef class ExtensibleReactor(Reactor):
     A base class for a reactor with delegated methods where the base
     functionality corresponds to the `Reactor` class.
 
+    The ``__init__`` method of the derived class should allocate and size any
+    internal variables and set the total number of state variables associated with this
+    reactor, `n_vars` (if it is different from the base class).
+
     The following methods of the C++ :ct:`Reactor` class can be modified by a
     Python class which inherits from this class. For each method, the name below
     should be prefixed with ``before_``, ``after_``, or ``replace_``, indicating
@@ -515,9 +519,8 @@ cdef class ExtensibleReactor(Reactor):
     from the supplied method and the base class method.
 
     ``initialize(self, t0: double) -> None``
-        Responsible for allocating and setting the sizes of any internal
-        variables, initializing attached walls, and setting the total number of
-        state variables associated with this reactor, `n_vars`.
+        Responsible for initialization that can only be performed after connecting the
+        elements of the reactor network, such as initializing attached walls.
 
         Called once before the start of time integration.
 

@@ -34,6 +34,8 @@ Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
     setChemistryEnabled(m_kin->nReactions() > 0);
     m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
     m_sdot.resize(m_nsp, 0.0);
+    m_wdot.resize(m_nsp, 0.0);
+    m_nv = 3 + m_nsp; // mass, volume, internal energy, and species mass fractions
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
@@ -63,15 +65,12 @@ void Reactor::initialize(double t0)
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
                 " for reactor '" + m_name + "'.");
     }
-    m_wdot.resize(m_nsp, 0.0);
     updateConnected(true);
 
     for (size_t n = 0; n < m_wall.size(); n++) {
         WallBase* W = m_wall[n];
         W->initialize();
     }
-
-    m_nv = m_nsp + 3;
 }
 
 void Reactor::updateState(double* y)
@@ -214,10 +213,6 @@ vector<size_t> Reactor::steadyConstraints() const
 
 Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
 {
-    if (m_nv == 0) {
-        throw CanteraError("Reactor::finiteDifferenceJacobian",
-                           "Reactor must be initialized first.");
-    }
     vector<Eigen::Triplet<double>> trips;
     Eigen::ArrayXd yCurrent(m_nv);
     getState(yCurrent.data());
@@ -429,18 +424,6 @@ bool Reactor::getAdvanceLimits(double *limits) const
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
-    if (m_nv == 0) {
-        if (m_net == 0) {
-            throw CanteraError("Reactor::setAdvanceLimit",
-                               "Cannot set limit on a reactor that is not "
-                               "assigned to a ReactorNet object.");
-        } else {
-            m_net->initialize();
-        }
-    } else if (k > m_nv) {
-        throw CanteraError("Reactor::setAdvanceLimit",
-                           "Index out of bounds.");
-    }
     m_advancelimits.resize(m_nv, -1.0);
     m_advancelimits[k] = limit;
 
