@@ -15,6 +15,19 @@
 namespace Cantera
 {
 
+ConstPressureMoleReactor::ConstPressureMoleReactor(shared_ptr<Solution> sol,
+                                                   const string& name)
+    : ConstPressureMoleReactor(sol, true, name)
+{
+}
+
+ConstPressureMoleReactor::ConstPressureMoleReactor(shared_ptr<Solution> sol, bool clone,
+                                                   const string& name)
+    : MoleReactor(sol, clone, name)
+{
+    m_nv = 1 + m_nsp; // enthalpy and moles of each species
+}
+
 void ConstPressureMoleReactor::getState(double* y)
 {
     // set mass to be used in getMoles function
@@ -23,12 +36,6 @@ void ConstPressureMoleReactor::getState(double* y)
     y[0] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
     // get moles of species in remaining state
     getMoles(y + m_sidx);
-}
-
-void ConstPressureMoleReactor::initialize(double t0)
-{
-    MoleReactor::initialize(t0);
-    m_nv -= 1; // const pressure system loses 1 more variable from MoleReactor
 }
 
 void ConstPressureMoleReactor::updateState(double* y)

@@ -16,7 +16,8 @@ namespace Cantera
 class FlowReactor : public IdealGasReactor
 {
 public:
-    using IdealGasReactor::IdealGasReactor; // inherit constructors
+    FlowReactor(shared_ptr<Solution> sol, const string& name="(none)");
+    FlowReactor(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
 
     string type() const override {
         return "FlowReactor";
@@ -36,7 +37,6 @@ public:
     }
 
     void getStateDae(double* y, double* ydot) override;
-    void initialize(double t0=0.0) override;
     void updateState(double* y) override;
 
     //! Not implemented; FlowReactor implements evalDae() instead.
