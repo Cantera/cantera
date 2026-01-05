@@ -3021,8 +3021,6 @@ class TestExtensibleReactor:
                 self.v_wall = 0
                 self.k_wall = 1e-5
                 self.neighbor = neighbor
-
-            def after_initialize(self, t0):
                 self.n_vars += 1
                 self.i_wall = self.n_vars - 1
 

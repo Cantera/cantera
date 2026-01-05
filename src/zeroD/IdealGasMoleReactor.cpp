@@ -171,10 +171,6 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
 void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
 {
-    if (m_nv == 0) {
-        throw CanteraError("IdealGasMoleReactor::jacobian",
-                           "Reactor must be initialized first.");
-    }
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();

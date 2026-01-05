@@ -31,8 +31,7 @@ class InertialWallReactor(ct.ExtensibleIdealGasReactor):
         self.k_wall = 1e-2  # proportionality constant, a_wall = k_wall * delta P
         self.neighbor = neighbor
 
-    def after_initialize(self, t0):
-        # The initialize function for the base Reactor class will have set
+        # The constructor for the base Reactor class will have set
         # n_vars to already include the volume, internal energy, mass, and mass
         # fractions of all the species. Increase this by one to account for
         # the added variable of the wall velocity.

@@ -18,10 +18,15 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-void MoleReactor::initialize(double t0)
+MoleReactor::MoleReactor(shared_ptr<Solution> sol, const string& name)
+    : MoleReactor(sol, true, name)
 {
-    Reactor::initialize(t0);
-    m_nv -= 1; // moles gives the state one fewer variables
+}
+
+MoleReactor::MoleReactor(shared_ptr<Solution> sol, bool clone, const string& name)
+    : Reactor(sol, clone, name)
+{
+    m_nv = 2 + m_nsp; // internal energy, volume, and moles of each species
 }
 
 void MoleReactor::getMoles(double* y)

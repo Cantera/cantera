@@ -20,20 +20,16 @@ namespace Cantera
 class MoleReactor : public Reactor
 {
 public:
-    using Reactor::Reactor; // inherit constructors
+    MoleReactor(shared_ptr<Solution> sol, const string& name="(none)");
+    MoleReactor(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
 
     string type() const override {
         return "MoleReactor";
     }
 
-    void initialize(double t0=0.0) override;
-
     void getState(double* y) override;
-
     void updateState(double* y) override;
-
     void eval(double t, double* LHS, double* RHS) override;
-
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
