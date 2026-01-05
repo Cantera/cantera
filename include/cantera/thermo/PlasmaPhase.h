@@ -193,8 +193,9 @@ public:
 
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
+    //! when locked, pretend Te == T (single-temperature)
     double electronTemperature() const override {
-        return m_electronTemp;
+        return m_lockTeToT ? temperature() : m_electronTemp;
     }
 
     //! Return the Gas Constant multiplied by the current electron temperature
@@ -256,21 +257,13 @@ public:
      */
     double enthalpy_mole() const override;
 
-    double cp_mole() const override {
-        throw NotImplementedError("PlasmaPhase::cp_mole");
-    }
+    double cp_mole() const override;
 
-    double entropy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::entropy_mole");
-    }
+    double entropy_mole() const override;
 
-    double gibbs_mole() const override {
-        throw NotImplementedError("PlasmaPhase::gibbs_mole");
-    }
+    double gibbs_mole() const override;
 
-    double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
-    }
+    double intEnergy_mole() const override;
 
     void getEntropy_R(double* sr) const override;
 
@@ -376,6 +369,35 @@ public:
      * electron energy loss coefficient (eV-m³/s).
      */
     double elasticPowerLoss();
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
+
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ sigma @f$ is the conductivity (S/m), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double jouleHeatingPower() const;
+
+    //! Temporarily force Te == T during equilibrium solves
+    void setLockTeToT(bool v) {
+        m_lockTeToT = v;
+    }
+
+    bool lockTeToT() const {
+        return m_lockTeToT;
+    }
 
 protected:
     void updateThermo() const override;
@@ -538,6 +560,9 @@ private:
 
     //! Add a collision and record the target species
     void addCollision(shared_ptr<Reaction> collision);
+
+    //! Lock flag (default off)
+    bool m_lockTeToT = false;
 };
 
 }
