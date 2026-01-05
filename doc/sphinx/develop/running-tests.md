@@ -3,6 +3,7 @@
 
 # Running Tests and Debugging
 
+(sec-using-build-dir)=
 ## Using Cantera from the Build Directory
 
 After compiling Cantera from source, it is convenient to use the Cantera Python module

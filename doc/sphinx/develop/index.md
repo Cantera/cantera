@@ -52,6 +52,7 @@ reactor-integration
 - [](vscode-tips)
 - [](writing-tests)
 - [](running-tests)
+- [](type-checking)
 - [](writing-examples)
 - [](doc-formatting)
 - [](continuous-integration)
@@ -65,6 +66,7 @@ style-guidelines
 vscode-tips
 writing-tests
 running-tests
+type-checking
 writing-examples
 doc-formatting
 continuous-integration

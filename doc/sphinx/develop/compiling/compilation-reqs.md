@@ -135,6 +135,7 @@ compile Cantera on your operating system.
   - doxygen  # needed for code generation and documentation
   - jinja2  # needed for code generation
   # - pandas  # optional (needed for pandas interface and some examples)
+  # - pandas-stubs  # optional (needed for type checking)
   # - scipy  # optional (needed for some examples)
   # - matplotlib  # optional (needed for plots and some examples)
   # - python-graphviz  # optional (needed for reaction path diagrams and some examples)
@@ -151,11 +152,14 @@ compile Cantera on your operating system.
   # - sphinxcontrib-bibtex  # optional (needed for documentation)
   # - sphinxcontrib-matlabdomain  # optional (needed for documentation)
   # - sphinxcontrib-doxylink  # optional (needed for documentation)
-  # - graphviz  # optional (needed for documentation)
+  # - graphviz  # optional (needed for documentation and type checking)
   # - texlive-core  # optional (needed for documentation)
   # - perl  # optional (needed for documentation)
   # - coolprop  # optional (needed for some examples)
-  # - pint  # optional (needed for some examples)
+  # - pint  # optional (needed for some examples and type checking)
+  # - lxml  # optional (needed for type checking)
+  # - mypy[reports]  # optional (needed for type checking)
+  # - pyright  # optional (needed for type checking)
   # - pip:  # optional (list of PyPI managed packages)
   #   - "git+https://github.com/Cantera/sphinx-tags.git@main"  # optional (needed for documentation)
   ```
