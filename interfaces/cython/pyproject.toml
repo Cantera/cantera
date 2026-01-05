@@ -12,6 +12,7 @@ warn_unused_configs = true
 warn_unused_ignores = false
 strict = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+disable_error_code = ["unused-ignore"]
 warn_unreachable = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
