@@ -567,8 +567,8 @@ cdef class ExtensibleReactor(Reactor):
 
     def __cinit__(self, *args, **kwargs):
         self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
-        cdef vector[double]* sdot = \
-            &dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        cdef span[double] sdot = \
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
         self.surface_production_rates = <double[:sdot.size()]> sdot.data()
 
     def __init__(self, *args, **kwargs):
@@ -928,8 +928,8 @@ cdef class ExtensibleReactorSurface(ReactorSurface):
 
     def __init__(self, *args, **kwargs):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
-        cdef vector[double]* sdot = \
-            &dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        cdef span[double] sdot = \
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
         self.surface_production_rates = <double[:sdot.size()]> sdot.data()
         super().__init__(*args, **kwargs)
 

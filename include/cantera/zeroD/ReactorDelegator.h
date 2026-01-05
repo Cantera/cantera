@@ -46,7 +46,7 @@ public:
     virtual void setHeatRate(double q) = 0;
 
     //! @copydoc ReactorBase::surfaceProductionRates
-    virtual vector<double>& surfaceProductionRates() = 0;
+    virtual span<double> surfaceProductionRates() = 0;
 };
 
 //! Delegate methods of the Reactor class to external functions
@@ -167,7 +167,7 @@ public:
         }
     }
 
-    vector<double>& surfaceProductionRates() override {
+    span<double> surfaceProductionRates() override {
         return R::m_sdot;
     }
 

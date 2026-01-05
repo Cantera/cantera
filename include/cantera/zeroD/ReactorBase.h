@@ -227,7 +227,7 @@ public:
     //! For surfaces, this contains the production rates [kmol/m²/s] of species on the
     //! surface and all adjacent phases, in the order defined by the InterfaceKinetics
     //! object.
-    const vector<double>& surfaceProductionRates() const {
+    span<const double> surfaceProductionRates() const {
         return m_sdot;
     }
 

@@ -216,7 +216,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setExpansionRate(double)
         double heatRate()
         void setHeatRate(double)
-        vector[double]& surfaceProductionRates()
+        span[double] surfaceProductionRates()
 
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
