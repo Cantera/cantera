@@ -3115,6 +3115,13 @@ class TestExtensibleReactor:
             r2.component_index("H2")
         assert r2.component_index("succeed") == 0
 
+        class DummyReactor3(ct.ExtensibleReactor):
+            def before_foobar(self, t):
+                pass
+
+        with pytest.raises(ValueError, match="'foobar' is not a delegatable method"):
+            DummyReactor3(self.gas)
+
     def test_delegate_throws(self):
         class TestException(Exception):
             pass
