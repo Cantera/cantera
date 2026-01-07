@@ -258,6 +258,15 @@ public:
 
     void eval(double t, double* y, double* ydot, double* p) override;
 
+    //! Evaluate the governing equations adapted for the steady-state solver.
+    //!
+    //! @param[in] y  Current state vector, length neq()
+    //! @param[out] residual  For differential variables, this is the time derivative;
+    //!     for algebraic variables, this is the residual of the governing equation.
+    //!
+    //! @since New in %Cantera 4.0.
+    void evalSteady(double* y, double* residual);
+
     //! eval coupling for IDA / DAEs
     void evalDae(double t, double* y, double* ydot, double* p,
                  double* residual) override;
@@ -467,10 +476,6 @@ private:
 
     //! Initial value of each state variable
     vector<double> m_initialState;
-
-    //! Indices of variables that are held constant in the time-stepping mode of the
-    //! steady-state solver.
-    vector<size_t> m_algebraic;
 };
 
 

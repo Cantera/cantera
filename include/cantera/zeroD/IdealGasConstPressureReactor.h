@@ -32,8 +32,9 @@ public:
 
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
     void updateState(double* y) override;
-    vector<size_t> steadyConstraints() const override;
+    vector<size_t> initializeSteady() override;
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass",
@@ -46,6 +47,12 @@ public:
 
 protected:
     vector<double> m_hk; //!< Species molar enthalpies
+
+     //! Initial mass [kg]; used for steady-state calculations
+    double m_initialMass;
+
+    //! Initial temperature [K]; used for steady-state calculations
+    double m_initialTemperature;
 };
 }
 

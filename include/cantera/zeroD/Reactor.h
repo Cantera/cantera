@@ -83,7 +83,8 @@ public:
     void getState(double* y) override;
     void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
-    vector<size_t> steadyConstraints() const override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    vector<size_t> initializeSteady() override;
     void updateState(double* y) override;
     void addSensitivityReaction(size_t rxn) override;
     void addSensitivitySpeciesEnthalpy(size_t k) override;
@@ -157,6 +158,9 @@ protected:
     bool m_energy = true;
 
     vector<double> m_advancelimits; //!< Advance step limit
+
+    //! Initial volume [m³]; used for steady-state calculations
+    double m_initialVolume;
 };
 }
 

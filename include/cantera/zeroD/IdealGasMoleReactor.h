@@ -30,13 +30,14 @@ public:
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    vector<size_t> steadyConstraints() const override;
+    vector<size_t> initializeSteady() override;
 
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
 
     void eval(double t, double* LHS, double* RHS) override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
 
     void updateState(double* y) override;
 
@@ -53,6 +54,12 @@ public:
 protected:
     vector<double> m_uk; //!< Species molar internal energies
     double m_TotalCv; //!< Total heat capacity (@f$ m c_v @f$) [J/K]
+
+     //! Initial volume [m³]; used for steady-state calculations
+    double m_initialVolume;
+
+     //! Initial temperature [K]; used for steady-state calculations
+    double m_initialTemperature;
 };
 
 }

@@ -183,6 +183,12 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+void Reactor::evalSteady(double time, double* LHS, double* RHS)
+{
+    eval(time, LHS, RHS);
+    RHS[1] = m_vol - m_initialVolume;
+}
+
 void Reactor::evalWalls(double t)
 {
     // time is currently unused
@@ -195,19 +201,20 @@ void Reactor::evalWalls(double t)
     }
 }
 
-vector<size_t> Reactor::steadyConstraints() const
+vector<size_t> Reactor::initializeSteady()
 {
     if (!energyEnabled()) {
-        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+        throw CanteraError("Reactor::initializeSteady", "Steady state solver cannot"
             " be used with {0} when energy equation is disabled."
             "\nConsider using IdealGas{0} instead.\n"
             "See https://github.com/Cantera/enhancements/issues/234", type());
     }
     if (nSurfs() != 0) {
-        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+        throw CanteraError("Reactor::initializeSteady", "Steady state solver cannot"
             " currently be used when reactor surfaces are present.\n"
             "See https://github.com/Cantera/enhancements/issues/234.");
     }
+    m_initialVolume = m_vol;
     return {1}; // volume
 }
 

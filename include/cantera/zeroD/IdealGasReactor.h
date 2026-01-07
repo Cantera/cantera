@@ -31,7 +31,8 @@ public:
     void initialize(double t0=0.0) override;
 
     void eval(double t, double* LHS, double* RHS) override;
-    vector<size_t> steadyConstraints() const override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    vector<size_t> initializeSteady() override;
     void updateState(double* y) override;
 
     //! Return the index in the solution vector for this reactor of the
@@ -45,6 +46,12 @@ public:
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies
+
+    //! Initial volume [m³]; used for steady-state calculations
+    double m_initialVolume;
+
+    //! Initial temperature [K]; used for steady-state calculations
+    double m_initialTemperature;
 };
 
 }

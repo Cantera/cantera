@@ -121,6 +121,11 @@ ReactorSurface* ReactorBase::surface(size_t n)
     return m_surfaces[n];
 }
 
+void ReactorBase::evalSteady(double t, double* LHS, double* RHS)
+{
+    eval(t, LHS, RHS);
+}
+
 Eigen::SparseMatrix<double> ReactorBase::jacobian()
 {
     vector<Eigen::Triplet<double>> trips;
