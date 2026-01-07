@@ -33,7 +33,8 @@ public:
 
     void getState(double* y) override;
     void eval(double t, double* LHS, double* RHS) override;
-    vector<size_t> steadyConstraints() const override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    vector<size_t> initializeSteady() override;
 
     void updateState(double* y) override;
 
@@ -46,6 +47,9 @@ public:
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
     void resetBadValues(double* y) override;
+
+protected:
+    double m_initialMass; //!< Initial mass [kg]; used for steady-state calculations
 };
 
 }

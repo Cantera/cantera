@@ -278,20 +278,36 @@ public:
         throw NotImplementedError("ReactorBase::evalDae");
     }
 
+    //! Evaluate the governing equations with modifications for the steady-state solver.
+    //!
+    //! This method calls the standard eval() method then modifies elements of `RHS`
+    //! that correspond to algebraic constraints.
+    //!
+    //! @since New in %Cantera 4.0.
+    virtual void evalSteady(double t, double* LHS, double* RHS) {
+        throw NotImplementedError("ReactorBase::evalSteady",
+            "Not implemented for reactor type '{}'.", type());
+    }
+
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
     virtual void getConstraints(double* constraints) {
         throw NotImplementedError("ReactorBase::getConstraints");
     }
 
-    //! Get the indices of equations that are algebraic constraints when solving the
+    //! Initialize the reactor before solving a steady-state problem.
+    //!
+    //! This method is responsible for storing the initial value for any algebraic
+    //! constraints and returning the indices of those constraints.
+    //!
+    //! @return Indices of equations that are algebraic constraints when solving the
     //! steady-state problem.
     //!
     //! @warning  This method is an experimental part of the %Cantera API and may be
     //!     changed or removed without notice.
-    //! @since New in %Cantera 3.2.
-    virtual vector<size_t> steadyConstraints() const {
-        throw NotImplementedError("ReactorBase::steadyConstraints");
+    //! @since New in %Cantera 3.2. Renamed from `steadyConstraints` in %Cantera 4.0.
+    virtual vector<size_t> initializeSteady() {
+        throw NotImplementedError("ReactorBase::initializeSteady");
     }
 
     //! Set the state of the reactor to correspond to the state vector *y*.
