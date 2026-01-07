@@ -77,6 +77,18 @@ public:
         throw NotImplementedError("ReactorSurface::addSurface");
     }
 
+    //! Get the number of Reactor and Reservoir objects adjacent to this surface
+    //! @since New in %Cantera 4.0.
+    size_t nAdjacent() const {
+        return m_reactors.size();
+    }
+
+    //! Access an adjacent Reactor or Reservoir
+    //! @since New in %Cantera 4.0.
+    shared_ptr<ReactorBase> adjacent(size_t n) {
+        return m_reactors.at(n);
+    }
+
     //! Set the surface coverages. Array `cov` has length equal to the number of
     //! surface species.
     void setCoverages(const double* cov);
@@ -115,7 +127,7 @@ protected:
 
     shared_ptr<SurfPhase> m_surf;
     shared_ptr<InterfaceKinetics> m_kinetics;
-    vector<ReactorBase*> m_reactors;
+    vector<shared_ptr<ReactorBase>> m_reactors;
 };
 
 //! A surface where the state variables are the total number of moles of each species.
@@ -173,6 +185,8 @@ public:
     string type() const override {
         return "FlowReactorSurface";
     }
+
+    bool timeIsIndependent() const override { return false; }
 
     void evalDae(double t, double* y, double* ydot, double* residual) override;
     void getStateDae(double* y, double* ydot) override;

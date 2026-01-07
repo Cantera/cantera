@@ -1586,7 +1586,7 @@ cdef class ReactorNet:
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection
         cdef vector[shared_ptr[CxxReactorBase]] cxx_reactors
-        cdef Reactor r
+        cdef ReactorBase r
         for r in reactors:
             self._reactors.append(r)
             cxx_reactors.push_back(r._rbase)

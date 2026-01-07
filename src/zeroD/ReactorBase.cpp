@@ -66,16 +66,31 @@ bool ReactorBase::setDefaultName(map<string, int>& counts)
 
 void ReactorBase::addInlet(FlowDevice& inlet)
 {
+    if (m_net) {
+        throw CanteraError("ReactorBase::addInlet",
+                           "Cannot add an inlet to reactor '{}' after it has been"
+                           " added to a ReactorNet.", m_name);
+    }
     m_inlet.push_back(&inlet);
 }
 
 void ReactorBase::addOutlet(FlowDevice& outlet)
 {
+    if (m_net) {
+        throw CanteraError("ReactorBase::addOutlet",
+                           "Cannot add an outlet to reactor '{}' after it has been"
+                           " added to a ReactorNet.", m_name);
+    }
     m_outlet.push_back(&outlet);
 }
 
 void ReactorBase::addWall(WallBase& w, int lr)
 {
+    if (m_net) {
+        throw CanteraError("ReactorBase::addWall",
+                           "Cannot add a wall to reactor '{}' after it has been"
+                           " added to a ReactorNet.", m_name);
+    }
     m_wall.push_back(&w);
     if (lr == 0) {
         m_lr.push_back(0);
@@ -91,6 +106,11 @@ WallBase& ReactorBase::wall(size_t n)
 
 void ReactorBase::addSurface(ReactorSurface* surf)
 {
+    if (m_net) {
+        throw CanteraError("ReactorBase::addSurface",
+                           "Cannot add a surface to reactor '{}' after it has been"
+                           " added to a ReactorNet.", m_name);
+    }
     if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
         m_surfaces.push_back(surf);
     }
@@ -160,6 +180,10 @@ ReactorNet& ReactorBase::network()
 
 void ReactorBase::setNetwork(ReactorNet* net)
 {
+    if (m_net) {
+        throw CanteraError("ReactorBase::setNetwork",
+                           "Reactor {} is already part of a ReactorNet", m_name);
+    }
     m_net = net;
 }
 

@@ -24,10 +24,11 @@ reac = ct.IdealGasReactor(gas, clone=False)
 sim = ct.ReactorNet([reac])
 ```
 
-The `__init__` method of the Python {py:class}`ReactorNet` class calls
-{ct}`ReactorNet::addReactor` for each {py:class}`Reactor` object provided in the list
-supplied. When the first {ct}`Reactor` is added to the network, the {ct}`ReactorNet`
-creates a new {ct}`Integrator` used to integrate the governing equations.
+The constructor for the {py:class}`ReactorNet` class builds the network from the
+provided list of {py:class}`Reactor` and {py:class}`ReactorSurface` objects and creates
+a new {ct}`Integrator` used to integrate the governing equations. If there are
+connections such as walls and mass flow controllers between different reactors, the
+adjacent reactors are automatically added to the reactor network.
 
 The {ct}`Integrator` class is Cantera's interface for ODE/DAE system integrators.
 {ct}`Integrator` is a [polymorphic base class](http://www.cplusplus.com/doc/tutorial/polymorphism/);
