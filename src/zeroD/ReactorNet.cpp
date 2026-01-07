@@ -7,6 +7,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/Reservoir.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
@@ -18,38 +19,155 @@
 #include "cantera/oneD/MultiNewton.h"
 
 #include <cstdio>
+#include <deque>
 
 namespace Cantera
 {
 
-ReactorNet::ReactorNet()
-{
-    suppressErrors(true);
-}
-
 ReactorNet::ReactorNet(shared_ptr<ReactorBase> reactor)
+    : ReactorNet(span<shared_ptr<ReactorBase>>{&reactor, 1})
 {
-    suppressErrors(true);
-    addReactor(reactor);
 }
 
-ReactorNet::ReactorNet(vector<shared_ptr<ReactorBase>>& reactors)
+ReactorNet::ReactorNet(span<shared_ptr<ReactorBase>> reactors)
 {
-    suppressErrors(true);
-    for (auto& reactor : reactors) {
-        addReactor(reactor);
+    if (reactors.empty()) {
+        throw CanteraError("ReactorNet::ReactorNet", "No reactors in network!");
     }
-}
 
-ReactorNet::~ReactorNet()
-{
+    suppressErrors(true);
+    bool isOde = true;
+
+    // Names of Reactors and ReactorSurfaces using each Solution; should be only one
+    // reactor per Solution.
+    map<Solution*, set<string>> solutions;
+
+    // All ReactorBase objects connected to this network, starting with the ones
+    // explicitly included.
+    std::deque<shared_ptr<ReactorBase>> reactorQueue(reactors.begin(), reactors.end());
+    std::set<shared_ptr<ReactorBase>> visited;
+
+    while (!reactorQueue.empty()) {
+        auto R = reactorQueue.front();
+        reactorQueue.pop_front();
+
+        if (visited.find(R) != visited.end()) {
+            continue;
+        }
+        visited.insert(R);
+
+        if (auto bulk = std::dynamic_pointer_cast<Reactor>(R)) {
+            m_bulkReactors.push_back(bulk);
+            m_reactors.push_back(R);
+        } else if (auto surf = std::dynamic_pointer_cast<ReactorSurface>(R)) {
+            m_surfaces.push_back(surf);
+            m_reactors.push_back(R);
+            for (size_t i = 0; i < surf->nAdjacent(); i++) {
+                reactorQueue.push_back(surf->adjacent(i));
+            }
+        } else if (auto res = std::dynamic_pointer_cast<Reservoir>(R)) {
+            m_reservoirs.push_back(res);
+        }
+
+        // Discover reservoirs, flow devices, and walls connected to this reactor
+        for (size_t i = 0; i < R->nInlets(); i++) {
+            auto& inlet = R->inlet(i);
+            m_flowDevices.insert(&inlet);
+            reactorQueue.push_back(inlet.in().shared_from_this());
+        }
+        for (size_t i = 0; i < R->nOutlets(); i++) {
+            auto& outlet = R->outlet(i);
+            m_flowDevices.insert(&outlet);
+            reactorQueue.push_back(outlet.out().shared_from_this());
+        }
+        for (size_t i = 0; i < R->nWalls(); i++) {
+            auto& wall = R->wall(i);
+            m_walls.insert(&wall);
+            reactorQueue.push_back(wall.left().shared_from_this());
+            reactorQueue.push_back(wall.right().shared_from_this());
+        }
+
+        auto phase = R->phase();
+        for (size_t i = 0; i < R->nSurfs(); i++) {
+            if (R->surface(i)->phase()->adjacent(phase->name()) != phase) {
+                throw CanteraError("ReactorNet::initialize",
+                    "Bulk phase '{}' used by interface '{}' must be the same object\n"
+                    "as the contents of the adjacent reactor '{}'.",
+                    phase->name(), R->surface(i)->name(), R->name());
+            }
+            reactorQueue.push_back(R->surface(i)->shared_from_this());
+        }
+        R->setNetwork(this);
+        updateNames(*R);
+        solutions[phase.get()].insert(R->name());
+    }
+
+    for (auto& R : m_bulkReactors) {
+        if (R->type() == "FlowReactor" && m_bulkReactors.size() > 1) {
+            throw CanteraError("ReactorNet::initialize",
+                               "FlowReactors must be used alone.");
+        }
+        m_timeIsIndependent = R->timeIsIndependent();
+        R->initialize(m_time);
+        isOde = R->isOde();
+        R->setOffset(m_nv);
+        size_t nv = R->neq();
+        m_nv += nv;
+
+        for (auto current : m_bulkReactors) {
+            if (current->isOde() != R->isOde()) {
+                throw CanteraError("ReactorNet::ReactorNet",
+                    "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
+                    current->type(), R->type());
+            }
+            if (current->timeIsIndependent() != R->timeIsIndependent()) {
+                throw CanteraError("ReactorNet::ReactorNet",
+                    "Cannot mix Reactor types using time and space as independent variables"
+                    "\n({} and {})", current->type(), R->type());
+            }
+        }
+    }
+
+    for (auto surf : m_surfaces) {
+        surf->setOffset(m_nv);
+        surf->initialize(m_time);
+        m_nv += surf->neq();
+        solutions[surf->phase().get()].insert(surf->name());
+    }
+
+    for (auto& [soln, reactors] : solutions) {
+        if (reactors.size() > 1) {
+            string shared;
+            for (auto r : reactors) {
+                if (r != *reactors.begin()) {
+                    shared += ", ";
+                }
+                shared += fmt::format("'{}'", r);
+            }
+            throw CanteraError("ReactorNet::initialize", "The following reactors /"
+                " reactor surfaces are using the same Solution object: {}. Use"
+                " independent Solution objects or set the 'clone' argument to 'true'"
+                " when creating the Reactor or ReactorSurface objects.", shared);
+        }
+    }
+
+    m_ydot.resize(m_nv, 0.0);
+    m_yest.resize(m_nv, 0.0);
+    m_advancelimits.resize(m_nv, -1.0);
+    m_atol.resize(m_nv);
+
+    m_integ.reset(newIntegrator(isOde ? "CVODE" : "IDA"));
+    // use backward differencing, with a full Jacobian computed
+    // numerically, and use a Newton linear iterator
+    m_integ->setMethod(BDF_Method);
+    m_integ->setLinearSolverType("DENSE");
 }
 
 void ReactorNet::setInitialTime(double time)
 {
     m_time = time;
     m_initial_time = time;
-    m_integrator_init = false;
+    m_needIntegratorInit = true;
 }
 
 void ReactorNet::setMaxTimeStep(double maxstep)
@@ -71,7 +189,7 @@ void ReactorNet::setTolerances(double rtol, double atol)
     if (atol >= 0.0) {
         m_atols = atol;
     }
-    m_init = false;
+    m_needIntegratorInit = true;
 }
 
 void ReactorNet::setSensitivityTolerances(double rtol, double atol)
@@ -82,7 +200,7 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
     if (atol >= 0.0) {
         m_atolsens = atol;
     }
-    m_init = false;
+    m_needIntegratorInit = true;
 }
 
 double ReactorNet::time() {
@@ -105,101 +223,12 @@ double ReactorNet::distance() {
 
 void ReactorNet::initialize()
 {
-    m_nv = 0;
-    debuglog("Initializing reactor network.\n", m_verbose);
-    if (m_reactors.empty()) {
-        throw CanteraError("ReactorNet::initialize",
-                           "no reactors in network!");
+    if (m_integratorInitialized) {
+        if (m_needIntegratorInit) {
+            reinitialize();
+        }
+        return;
     }
-    // Names of Reactors and ReactorSurfaces using each Solution; should be only one
-    map<Solution*, set<string>> solutions;
-    // Unique ReactorSurface objects. Can be attached to multiple Reactor objects
-    set<ReactorSurface*> surfaces;
-    m_flowDevices.clear();
-    m_walls.clear();
-    m_reservoirs.clear();
-    m_reactors.resize(m_bulkReactors.size()); // Surfaces will be re-added
-    for (size_t n = 0; n < m_bulkReactors.size(); n++) {
-        Reactor& r = *m_bulkReactors[n];
-        shared_ptr<Solution> bulk = r.phase();
-        r.setOffset(m_nv);
-        r.initialize(m_time);
-        size_t nv = r.neq();
-        m_nv += nv;
-
-        if (m_verbose) {
-            writelog("Reactor {:d}: {:d} variables.\n", n, nv);
-            writelog("              {:d} sensitivity params.\n", r.nSensParams());
-        }
-        if (r.type() == "FlowReactor" && m_bulkReactors.size() > 1) {
-            throw CanteraError("ReactorNet::initialize",
-                               "FlowReactors must be used alone.");
-        }
-        solutions[bulk.get()].insert(r.name());
-        for (size_t i = 0; i < r.nSurfs(); i++) {
-            if (r.surface(i)->phase()->adjacent(bulk->name()) != bulk) {
-                throw CanteraError("ReactorNet::initialize",
-                    "Bulk phase '{}' used by interface '{}' must be the same object\n"
-                    "as the contents of the adjacent reactor '{}'.",
-                    bulk->name(), r.surface(i)->name(), r.name());
-            }
-            surfaces.insert(r.surface(i));
-        }
-        // Discover reservoirs, flow devices, and walls connected to this reactor
-        for (size_t i = 0; i < r.nInlets(); i++) {
-            auto& inlet = r.inlet(i);
-            m_flowDevices.insert(&inlet);
-            if (inlet.in().type() == "Reservoir") {
-                m_reservoirs.insert(&inlet.in());
-                inlet.in().setNetwork(this);
-            }
-        }
-        for (size_t i = 0; i < r.nOutlets(); i++) {
-            auto& outlet = r.outlet(i);
-            m_flowDevices.insert(&outlet);
-            if (outlet.out().type() == "Reservoir") {
-                m_reservoirs.insert(&outlet.out());
-                outlet.out().setNetwork(this);
-            }
-        }
-        for (size_t i = 0; i < r.nWalls(); i++) {
-            auto& wall = r.wall(i);
-            m_walls.insert(&wall);
-            if (wall.left().type() == "Reservoir") {
-                m_reservoirs.insert(&wall.left());
-            } else if (wall.right().type() == "Reservoir") {
-                m_reservoirs.insert(&wall.right());
-            }
-        }
-    }
-    for (auto surf : surfaces) {
-        solutions[surf->phase().get()].insert(surf->name());
-        m_reactors.push_back(surf->shared_from_this());
-        surf->setOffset(m_nv);
-        surf->initialize(m_time);
-        m_nv += surf->neq();
-        solutions[surf->phase().get()].insert(surf->name());
-    }
-    for (auto& [soln, reactors] : solutions) {
-        if (reactors.size() > 1) {
-            string shared;
-            for (auto r : reactors) {
-                if (r != *reactors.begin()) {
-                    shared += ", ";
-                }
-                shared += fmt::format("'{}'", r);
-            }
-            throw CanteraError("ReactorNet::initialize", "The following reactors /"
-                " reactor surfaces are using the same Solution object: {}. Use"
-                " independent Solution objects or set the 'clone' argument to 'true'"
-                " when creating the Reactor or ReactorSurface objects.", shared);
-        }
-    }
-
-    m_ydot.resize(m_nv,0.0);
-    m_yest.resize(m_nv,0.0);
-    m_advancelimits.resize(m_nv,-1.0);
-    m_atol.resize(neq());
     fill(m_atol.begin(), m_atol.end(), m_atols);
     m_integ->setTolerances(m_rtol, neq(), m_atol.data());
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
@@ -209,6 +238,9 @@ void ReactorNet::initialize()
     if (m_precon) {
         m_integ->setPreconditioner(m_precon);
     }
+    for (auto& reactor : m_reactors) {
+        reactor->updateConnected(true);
+    }
     m_integ->initialize(m_time, *this);
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
@@ -217,22 +249,22 @@ void ReactorNet::initialize()
     if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
         checkPreconditionerSupported();
     }
-    m_integrator_init = true;
-    m_init = true;
+    m_needIntegratorInit = false;
+    m_integratorInitialized = true;
 }
 
 void ReactorNet::reinitialize()
 {
-    if (m_init) {
+    if (m_integratorInitialized) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
-        for (auto& reservoir : m_reservoirs) {
-            reservoir->updateConnected(true);
+        for (auto& reactor : m_reactors) {
+            reactor->updateConnected(true);
         }
         m_integ->reinitialize(m_time, *this);
         if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
             checkPreconditionerSupported();
         }
-        m_integrator_init = true;
+        m_needIntegratorInit = false;
     } else {
         initialize();
     }
@@ -241,13 +273,13 @@ void ReactorNet::reinitialize()
 void ReactorNet::setLinearSolverType(const string& linSolverType)
 {
     m_linearSolverType = linSolverType;
-    m_integrator_init = false;
+    m_needIntegratorInit = true;
 }
 
 void ReactorNet::setPreconditioner(shared_ptr<SystemJacobian> preconditioner)
 {
     m_precon = preconditioner;
-    m_integrator_init = false;
+    m_needIntegratorInit = true;
 }
 
 void ReactorNet::setMaxSteps(int nmax)
@@ -262,11 +294,7 @@ int ReactorNet::maxSteps()
 
 void ReactorNet::advance(double time)
 {
-    if (!m_init) {
-        initialize();
-    } else if (!m_integrator_init) {
-        reinitialize();
-    }
+    initialize();
     m_integ->integrate(time);
     m_time = m_integ->currentTime();
     updateState(m_integ->solution());
@@ -274,12 +302,7 @@ void ReactorNet::advance(double time)
 
 double ReactorNet::advance(double time, bool applylimit)
 {
-    if (!m_init) {
-        initialize();
-    } else if (!m_integrator_init) {
-        reinitialize();
-    }
-
+    initialize();
     if (!applylimit || !hasAdvanceLimits()) {
         // No limit enforcement requested; integrate to requested time
         advance(time);
@@ -355,11 +378,7 @@ double ReactorNet::advance(double time, bool applylimit)
 
 double ReactorNet::step()
 {
-    if (!m_init) {
-        initialize();
-    } else if (!m_integrator_init) {
-        reinitialize();
-    }
+    initialize();
     m_time = m_integ->step(m_time + 1.0);
     updateState(m_integ->solution());
     return m_time;
@@ -367,11 +386,7 @@ double ReactorNet::step()
 
 void ReactorNet::solveSteady(int loglevel)
 {
-    if (!m_init) {
-        initialize();
-    } else if (!m_integrator_init) {
-        reinitialize();
-    }
+    initialize();
     vector<double> y(neq());
     getState(y.data());
     SteadyReactorSolver solver(this, y.data());
@@ -383,11 +398,7 @@ void ReactorNet::solveSteady(int loglevel)
 
 Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
 {
-    if (!m_init) {
-        initialize();
-    } else if (!m_integrator_init) {
-        reinitialize();
-    }
+    initialize();
     vector<double> y0(neq());
     vector<double> y1(neq());
     getState(y0.data());
@@ -401,10 +412,7 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
 
 void ReactorNet::getEstimate(double time, int k, double* yest)
 {
-    if (!m_init) {
-        initialize();
-    }
-    // initialize
+    initialize();
     double* cvode_dky = m_integ->solution();
     for (size_t j = 0; j < m_nv; j++) {
         yest[j] = cvode_dky[j];
@@ -465,42 +473,7 @@ void ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
     gout[0] = g;
 }
 
-void ReactorNet::addReactor(shared_ptr<ReactorBase> reactor)
-{
-    auto r = std::dynamic_pointer_cast<Reactor>(reactor);
-    if (!r) {
-        throw CanteraError("ReactorNet::addReactor",
-                           "Reactor with type '{}' cannot be added to network.",
-                           reactor->type());
-    }
-
-    for (auto current : m_bulkReactors) {
-        if (current->isOde() != r->isOde()) {
-            throw CanteraError("ReactorNet::addReactor",
-                "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
-                current->type(), r->type());
-        }
-        if (current->timeIsIndependent() != r->timeIsIndependent()) {
-            throw CanteraError("ReactorNet::addReactor",
-                "Cannot mix Reactor types using time and space as independent variables"
-                "\n({} and {})", current->type(), r->type());
-        }
-    }
-    m_timeIsIndependent = r->timeIsIndependent();
-    r->setNetwork(this);
-    m_bulkReactors.push_back(r.get());
-    m_reactors.push_back(r);
-    if (!m_integ) {
-        m_integ.reset(newIntegrator(r->isOde() ? "CVODE" : "IDA"));
-        // use backward differencing, with a full Jacobian computed
-        // numerically, and use a Newton linear iterator
-        m_integ->setMethod(BDF_Method);
-        m_integ->setLinearSolverType("DENSE");
-    }
-    updateNames(*r);
-}
-
-void ReactorNet::updateNames(Reactor& r)
+void ReactorNet::updateNames(ReactorBase& r)
 {
     // ensure that reactors and components have reproducible names
     r.setDefaultName(m_counts);
@@ -585,9 +558,7 @@ void ReactorNet::getConstraints(double* constraints)
 
 double ReactorNet::sensitivity(size_t k, size_t p)
 {
-    if (!m_init) {
-        initialize();
-    }
+    initialize();
     if (p >= m_sens_params.size()) {
         throw IndexError("ReactorNet::sensitivity",
                          "m_sens_params", p, m_sens_params.size());
@@ -631,9 +602,7 @@ void ReactorNet::updateState(double* y)
 
 void ReactorNet::getDerivative(int k, double* dky)
 {
-    if (!m_init) {
-        initialize();
-    }
+    initialize();
     double* cvode_dky = m_integ->derivative(m_time, k);
     for (size_t j = 0; j < m_nv; j++) {
         dky[j] = cvode_dky[j];
@@ -642,9 +611,7 @@ void ReactorNet::getDerivative(int k, double* dky)
 
 void ReactorNet::setAdvanceLimits(const double *limits)
 {
-    if (!m_init) {
-        initialize();
-    }
+    initialize();
     for (auto& R : m_bulkReactors) {
         R->setAdvanceLimits(limits + R->offset());
     }
@@ -689,9 +656,7 @@ void ReactorNet::getStateDae(double* y, double* ydot)
 
 size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
 {
-    if (!m_init) {
-        initialize();
-    }
+    initialize();
     return m_reactors[reactor]->offset()
            + m_reactors[reactor]->componentIndex(component);
 }
@@ -750,7 +715,7 @@ void ReactorNet::resetBadValues(double* y) {
 size_t ReactorNet::registerSensitivityParameter(
     const string& name, double value, double scale)
 {
-    if (m_integrator_init) {
+    if (m_integratorInitialized) {
         throw CanteraError("ReactorNet::registerSensitivityParameter",
                            "Sensitivity parameters cannot be added after the"
                            "integrator has been initialized.");

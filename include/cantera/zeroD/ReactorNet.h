@@ -29,14 +29,12 @@ class SystemJacobian;
 class ReactorNet : public FuncEval
 {
 public:
-    ReactorNet();
     //! Create reactor network containing single reactor.
     //! @since New in %Cantera 3.2.
     ReactorNet(shared_ptr<ReactorBase> reactor);
     //! Create reactor network from multiple reactors.
     //! @since New in %Cantera 3.2.
-    ReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
-    ~ReactorNet() override;
+    ReactorNet(span<shared_ptr<ReactorBase>> reactors);
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
@@ -329,7 +327,7 @@ public:
     //! Called to trigger integrator reinitialization before further
     //! integration.
     void setNeedsReinit() {
-        m_integrator_init = false;
+        m_needIntegratorInit = true;
     }
 
     //! Set the maximum number of internal integration steps the
@@ -370,17 +368,13 @@ public:
     void evalRootFunctions(double t, const double* y, double* gout) override;
 
 protected:
-    //! Add the reactor *r* to this reactor network.
-    //! @since  Changed in %Cantera 3.2. Previous version used a reference.
-    void addReactor(shared_ptr<ReactorBase> reactor);
-
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
     void updatePreconditioner(double gamma) override;
 
     //! Create reproducible names for reactors and walls/connectors.
-    void updateNames(Reactor& r);
+    void updateNames(ReactorBase& r);
 
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
@@ -393,9 +387,9 @@ protected:
     virtual int lastOrder() const;
 
     vector<shared_ptr<ReactorBase>> m_reactors;
-    vector<Reactor*> m_bulkReactors;
-    vector<ReactorSurface*> m_surfaces;
-    set<ReactorBase*> m_reservoirs;
+    vector<shared_ptr<Reactor>> m_bulkReactors;
+    vector<shared_ptr<ReactorBase>> m_surfaces;
+    vector<shared_ptr<ReactorBase>> m_reservoirs;
     set<FlowDevice*> m_flowDevices;
     set<WallBase*> m_walls;
     map<string, int> m_counts;  //!< Map used for default name generation
@@ -408,8 +402,8 @@ protected:
     //! The initial value of the independent variable in the system.
     double m_initial_time = 0.0;
 
-    bool m_init = false;
-    bool m_integrator_init = false; //!< True if integrator initialization is current
+    bool m_integratorInitialized = false; //!< True if the integrator has been initialized at least once
+    bool m_needIntegratorInit = true; //!< True if integrator needs to be (re)initialized
     size_t m_nv = 0;
 
     vector<double> m_atol;

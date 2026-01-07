@@ -243,7 +243,8 @@ public:
      *  @param[out] y state vector representing the initial state of the reactor
      */
     virtual void getState(double* y) {
-        throw NotImplementedError("ReactorBase::getState");
+        throw NotImplementedError("ReactorBase::getState",
+            "Not implemented for reactor type '{}'.", type());
     }
 
     //! Get the current state and derivative vector of the reactor for a DAE solver

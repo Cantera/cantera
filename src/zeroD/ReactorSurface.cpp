@@ -26,7 +26,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     vector<shared_ptr<Solution>> adjacent;
     for (auto R : reactors) {
         adjacent.push_back(R->phase());
-        m_reactors.push_back(R.get());
+        m_reactors.push_back(R);
         R->addSurface(this);
     }
     if (clone) {
@@ -189,7 +189,7 @@ void MoleReactorSurface::initialize(double t0)
         int offset = static_cast<int>(R->offset() + R->speciesOffset());
         for (size_t k = 0; k < nsp; k++) {
             m_kin2net[k + k0] = offset + k;
-            m_kin2reactor[k + k0] = R;
+            m_kin2reactor[k + k0] = R.get();
         }
     }
 }
