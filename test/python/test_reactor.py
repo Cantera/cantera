@@ -26,21 +26,17 @@ class TestReactor:
     reactorClass = ct.Reactor
 
     def make_reactors(self, clone=True, n_reactors=2,
-                      T1=300, P1=101325, X1='O2:1.0',
-                      T2=300, P2=101325, X2='O2:1.0'):
+                      T1=300, P1=ct.one_atm, X1='O2:1.0',
+                      T2=300, P2=ct.one_atm, X2='O2:1.0'):
 
         self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
         self.r1 = self.reactorClass(self.gas1, clone=clone)
 
-        if n_reactors == 1:
-            self.net = ct.ReactorNet([self.r1])
-        else:
+        if n_reactors == 2:
             self.gas1.TPX = T2, P2, X2
             # Second reactor must use cloned Solution
             self.r2 = self.reactorClass(self.gas1, clone=True)
-            self.net = ct.ReactorNet([self.r1, self.r2])
-        assert self.net.initial_time == 0.
 
     def add_wall(self, **kwargs):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
@@ -48,9 +44,10 @@ class TestReactor:
 
     def test_verbose(self):
         self.make_reactors(clone=False, n_reactors=1)
-        assert not self.net.verbose
-        self.net.verbose = True
-        assert self.net.verbose
+        net = ct.ReactorNet([self.r1])
+        assert not net.verbose
+        net.verbose = True
+        assert net.verbose
 
     def test_volume(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
@@ -62,6 +59,7 @@ class TestReactor:
 
     def test_names(self):
         self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
 
         pattern = re.compile(r'(\d+)')
         digits1 = pattern.search(self.r1.name).group(0)
@@ -78,37 +76,41 @@ class TestReactor:
 
     def test_component_index(self):
         self.make_reactors(n_reactors=1)
-        self.net.step()
+        net = ct.ReactorNet([self.r1])
+        net.step()
 
-        N0 = self.net.n_vars - self.gas1.n_species
+        N0 = net.n_vars - self.gas1.n_species
         for i, name in enumerate(self.gas1.species_names):
             assert i + N0 == self.r1.component_index(name)
 
     def test_component_names(self):
         self.make_reactors(n_reactors=2)
-        self.net.initialize()
-        N = self.net.n_vars // 2
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.initialize()
+        N = net.n_vars // 2
         for i in range(N):
             assert self.r1.component_index(self.r1.component_name(i)) ==  i
-            assert (self.net.component_name(i)
+            assert (net.component_name(i)
                     == '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
-            assert (self.net.component_name(N+i)
+            assert (net.component_name(N+i)
                     == '{}: {}'.format(self.r2.name, self.r2.component_name(i)))
 
     def test_independent_variable(self):
         self.make_reactors(clone=False, n_reactors=1)
+        net = ct.ReactorNet([self.r1])
 
         with pytest.raises(ct.CanteraError, match="independent variable"):
-            self.net.distance
+            net.distance
 
-        assert self.net.time == 0.0
+        assert net.time == 0.0
 
     def test_disjoint(self):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000
 
         self.make_reactors(T1=T1, T2=T2, P1=P1, P2=P2)
-        self.net.advance(1.0)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1.0)
 
         # Nothing should change from the initial condition
         assert T1 == approx(self.r1.phase.T)
@@ -120,23 +122,25 @@ class TestReactor:
         T1, P1 = 300, 101325
 
         self.make_reactors(n_reactors=1, T1=T1, P1=P1)
-        self.net.advance(1.0)
+        net = ct.ReactorNet([self.r1])
+        net.advance(1.0)
 
         # compare cvode derivative to numerical derivative
-        dydt = self.net.get_derivative(1)
-        dt = -self.net.time
-        dy = -self.net.get_state()
-        self.net.step()
-        dt += self.net.time
-        dy += self.net.get_state()
-        for i in range(self.net.n_vars):
+        dydt = net.get_derivative(1)
+        dt = -net.time
+        dy = -net.get_state()
+        net.step()
+        dt += net.time
+        dy += net.get_state()
+        for i in range(net.n_vars):
             assert dydt[i] == approx(dy[i]/dt)
 
     def test_finite_difference_jacobian(self):
         self.make_reactors(n_reactors=1, T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
+        net = ct.ReactorNet([self.r1])
         kH2 = self.gas1.species_index("H2")
         while self.r1.phase.X[kH2] > 0.3:
-            self.net.step()
+            net.step()
 
         J = self.r1.finite_difference_jacobian
         assert J.shape == (self.r1.n_vars, self.r1.n_vars)
@@ -172,39 +176,40 @@ class TestReactor:
 
     def test_timestepping(self):
         self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
 
         tStart = 0.3
         tEnd = 10.0
         dt_max = 0.07
         t = tStart
 
-        self.net.max_time_step = dt_max
-        assert self.net.max_time_step == dt_max
-        self.net.initial_time = tStart
-        assert self.net.initial_time == tStart
-        assert self.net.time == approx(tStart)
-
+        net.max_time_step = dt_max
+        assert net.max_time_step == dt_max
+        net.initial_time = tStart
+        assert net.initial_time == tStart
+        assert net.time == approx(tStart)
         while t < tEnd:
             tPrev = t
-            t = self.net.step()
+            t = net.step()
             assert t - tPrev <= 1.0001 * dt_max
-            assert t == approx(self.net.time)
+            assert t == approx(net.time)
 
     def test_maxsteps(self):
         self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
 
         # set the up a case where we can't take
         # enough time-steps to reach the endtime
         max_steps = 10
         max_step_size = 1e-07
-        self.net.initial_time = 0.
-        self.net.max_time_step = max_step_size
-        self.net.max_steps = max_steps
+        net.initial_time = 0.
+        net.max_time_step = max_step_size
+        net.max_steps = max_steps
         with pytest.raises(
                 ct.CanteraError, match='Maximum number of timesteps'):
-            self.net.advance(1e-04)
-        assert self.net.time <= max_steps * max_step_size
-        assert self.net.max_steps == max_steps
+            net.advance(1e-04)
+        assert net.time <= max_steps * max_step_size
+        assert net.max_steps == max_steps
 
     def test_wall_type1(self):
         self.make_reactors(P1=101325, P2=300000)
@@ -244,9 +249,10 @@ class TestReactor:
         assert self.r1.walls[0] == self.w
         assert self.r2.walls[0] == self.w
 
-        self.net.advance(1.0)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1.0)
 
-        assert self.net.time == approx(1.0)
+        assert net.time == approx(1.0)
         assert self.r1.phase.P == approx(self.r2.phase.P)
         assert self.r1.T != approx(self.r2.T)
 
@@ -256,18 +262,19 @@ class TestReactor:
             T0 = 1100
             X0 = 'H2:1.0, O2:0.5, AR:8.0'
             self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
-            self.net.rtol = rtol
-            self.net.atol = atol
+            net = ct.ReactorNet([self.r1])
+            net.rtol = rtol
+            net.atol = atol
 
-            assert self.net.rtol == rtol
-            assert self.net.atol == atol
+            assert net.rtol == rtol
+            assert net.atol == atol
 
             tEnd = 1.0
             nSteps = 0
             t = 0
 
             while t < tEnd:
-                t = self.net.step()
+                t = net.step()
                 nSteps += 1
 
             return nSteps
@@ -283,22 +290,22 @@ class TestReactor:
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        net = ct.ReactorNet([self.r1])
 
         limit_H2 = .01
-        ix = self.net.global_component_index('H2', 0)
+        ix = net.global_component_index('H2', 0)
         self.r1.set_advance_limit('H2', limit_H2)
-        assert self.net.advance_limits[ix] == limit_H2
+        assert net.advance_limits[ix] == limit_H2
 
         self.r1.set_advance_limit('H2', None)
-        assert self.net.advance_limits[ix] == -1.
+        assert net.advance_limits[ix] == -1.
 
         self.r1.set_advance_limit('H2', limit_H2)
-        self.net.advance_limits = None
-        assert self.net.advance_limits[ix] == -1.
-
+        net.advance_limits = None
+        assert net.advance_limits[ix] == -1.
         self.r1.set_advance_limit('H2', limit_H2)
-        self.net.advance_limits = 0 * self.net.advance_limits - 1.
-        assert self.net.advance_limits[ix] == -1.
+        net.advance_limits = 0 * net.advance_limits - 1.
+        assert net.advance_limits[ix] == -1.
 
     def test_advance_with_limits(self):
         def integrate(limit_H2 = None, apply=True):
@@ -306,11 +313,11 @@ class TestReactor:
             T0 = 1100
             X0 = 'H2:1.0, O2:0.5, AR:8.0'
             self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+            net = ct.ReactorNet([self.r1])
             if limit_H2 is not None:
                 self.r1.set_advance_limit('H2', limit_H2)
-                ix = self.net.global_component_index('H2', 0)
-                assert self.net.advance_limits[ix] == limit_H2
-
+                ix = net.global_component_index('H2', 0)
+                assert net.advance_limits[ix] == limit_H2
             tEnd = 0.1
             tStep = 7e-4
             nSteps = 0
@@ -318,7 +325,7 @@ class TestReactor:
 
             t = tStep
             while t < tEnd:
-                t_curr = self.net.advance(t, apply_limit=apply)
+                t_curr = net.advance(t, apply_limit=apply)
                 nSteps += 1
                 if t_curr < t:
                     nEvents += 1
@@ -350,20 +357,21 @@ class TestReactor:
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        net = ct.ReactorNet([self.r1])
 
         comp = 'H2'
         limit = 1e-3
         target = 5e-2
-        self.net.initialize()
-        baseline = np.copy(self.net.get_state())
+        net.initialize()
+        baseline = np.copy(net.get_state())
         self.r1.set_advance_limit(comp, limit)
-        ix = self.net.global_component_index(comp, 0)
+        ix = net.global_component_index(comp, 0)
 
-        reached = self.net.advance(target, apply_limit=True)
+        reached = net.advance(target, apply_limit=True)
 
-        assert reached == approx(self.net.time)
-        assert self.net.time < target
-        delta = abs(self.net.get_state()[ix] - baseline[ix])
+        assert reached == approx(net.time)
+        assert net.time < target
+        delta = abs(net.get_state()[ix] - baseline[ix])
         assert delta == approx(limit, rel=0.1, abs=1e-10)
 
     def test_advance_limit_logging(self, capsys):
@@ -378,10 +386,11 @@ class TestReactor:
         target = 5e-2
 
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
-        self.net.verbose = True
+        net = ct.ReactorNet([self.r1])
+        net.verbose = True
         self.r1.set_advance_limit('H2', limit)
         capsys.readouterr()
-        self.net.advance(target, apply_limit=True)
+        net.advance(target, apply_limit=True)
         out = capsys.readouterr().out
         assert "Advance limit triggered" in out
         assert "y_start" in out
@@ -390,10 +399,11 @@ class TestReactor:
         assert "limit =" in out
 
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
-        self.net.verbose = True
+        net = ct.ReactorNet([self.r1])
+        net.verbose = True
         self.r1.set_advance_limit('H2', limit)
         capsys.readouterr()
-        self.net.advance(target, apply_limit=False)
+        net.advance(target, apply_limit=False)
         out = capsys.readouterr().out
         assert "Advance limit triggered" not in out
 
@@ -404,13 +414,16 @@ class TestReactor:
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
         self.r1.set_advance_limit('H2', 1e-3)
-        self.net.max_time_step = 1e-6
-        self.net.max_steps = 1
+        net = ct.ReactorNet([self.r1])
+        net.max_time_step = 1e-6
+        net.max_steps = 1
         with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
-            self.net.advance(1e-2, apply_limit=True)
+            net.advance(1e-2, apply_limit=True)
+
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
         self.r1.set_advance_limit('H2', 1e-3)
-        self.net.advance(1e-2, apply_limit=True)
+        net = ct.ReactorNet([self.r1])
+        net.advance(1e-2, apply_limit=True)
 
     def test_multicomponent_advance_limits(self):
         """Most restrictive component determines which limit triggers first"""
@@ -418,33 +431,35 @@ class TestReactor:
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        net = ct.ReactorNet([self.r1])
         limits = {'H2': 3e-5, 'O2': 2e-3}
-        self.net.initialize()
-        base = np.copy(self.net.get_state())
+        net.initialize()
+        base = np.copy(net.get_state())
         for comp, lim in limits.items():
             self.r1.set_advance_limit(comp, lim)
-        h2_ix = self.net.global_component_index('H2', 0)
-        o2_ix = self.net.global_component_index('O2', 0)
-        t_hit_h2 = self.net.advance(5e-2, apply_limit=True)
-        assert t_hit_h2 == approx(self.net.time)
-        delta_h2 = abs(self.net.get_state()[h2_ix] - base[h2_ix])
-        delta_o2 = abs(self.net.get_state()[o2_ix] - base[o2_ix])
+        h2_ix = net.global_component_index('H2', 0)
+        o2_ix = net.global_component_index('O2', 0)
+        t_hit_h2 = net.advance(5e-2, apply_limit=True)
+        assert t_hit_h2 == approx(net.time)
+        delta_h2 = abs(net.get_state()[h2_ix] - base[h2_ix])
+        delta_o2 = abs(net.get_state()[o2_ix] - base[o2_ix])
         assert delta_h2 >= 0.8 * limits['H2']
         assert delta_o2 < 0.2 * limits['O2']
-        base = np.copy(self.net.get_state())
+        base = np.copy(net.get_state())
         self.r1.set_advance_limit('H2', None)
-        t_hit_o2 = self.net.advance(t_hit_h2 + 5e-2, apply_limit=True)
-        assert t_hit_o2 == approx(self.net.time)
-        delta_o2 = abs(self.net.get_state()[o2_ix] - base[o2_ix])
+        t_hit_o2 = net.advance(t_hit_h2 + 5e-2, apply_limit=True)
+        assert t_hit_o2 == approx(net.time)
+        delta_o2 = abs(net.get_state()[o2_ix] - base[o2_ix])
         assert delta_o2 >= 0.8 * limits['O2']
 
     def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time
         self.make_reactors(T1=300, T2=1000)
         self.add_wall(U=500, A=1.0)
+        net = ct.ReactorNet([self.r1, self.r2])
 
-        self.net.advance(10.0)
-        assert self.net.time == approx(10.0)
+        net.advance(10.0)
+        assert net.time == approx(10.0)
         assert self.r1.T == approx(self.r2.T, rel=5e-7)
         assert self.r1.phase.P != approx(self.r2.phase.P)
 
@@ -456,16 +471,18 @@ class TestReactor:
 
     def test_advance_reverse(self):
         self.make_reactors(n_reactors=1)
-        self.net.advance(0.1)
+        net = ct.ReactorNet([self.r1])
+        net.advance(0.1)
         with pytest.raises(ct.CanteraError, match="backwards in time"):
-            self.net.advance(0.09)
+            net.advance(0.09)
 
     def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant
         self.make_reactors(T1=300, T2=1000)
         self.add_wall(U=200, A=1.0)
+        net = ct.ReactorNet([self.r1, self.r2])
 
-        self.net.advance(1.0)
+        net.advance(1.0)
         T1a = self.r1.T
         T2a = self.r2.T
 
@@ -473,10 +490,11 @@ class TestReactor:
         self.r1.volume = 0.25
         self.r2.volume = 0.25
         w = self.add_wall(U=100, A=0.5)
+        net = ct.ReactorNet([self.r1, self.r2])
 
         assert (w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T)
                 == approx(w.heat_rate))
-        self.net.advance(1.0)
+        net.advance(1.0)
         assert (w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T)
                 == approx(w.heat_rate))
         T1b = self.r1.T
@@ -493,8 +511,9 @@ class TestReactor:
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
         self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+        net = ct.ReactorNet([self.r1])
 
-        self.net.advance(1.0)
+        net.advance(1.0)
 
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = T0, P0, X0
@@ -539,14 +558,14 @@ class TestReactor:
         self.r2.volume = V2
 
         self.add_wall(A=A)
-
         v = ct.Tabulated1([0.0, 1.0, 2.0], [0.0, 1.0, 0.0])
-
         self.w.velocity = v
-        self.net.advance(1.0)
+
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1.0)
         assert self.w.velocity == approx(v(1.0))
         assert self.w.expansion_rate == approx(1.0 * A, rel=1e-7)
-        self.net.advance(2.0)
+        net.advance(2.0)
         assert self.w.expansion_rate == approx(0.0, rel=1e-7)
 
         assert self.r1.volume == approx(V1 + 1.0 * A, rel=1e-7)
@@ -556,7 +575,8 @@ class TestReactor:
         self.make_reactors(T1=500)
         self.r1.energy_enabled = False
         self.add_wall(A=1.0, U=2500)
-        self.net.advance(11.0)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(11.0)
 
         assert self.r1.T == approx(500)
         assert self.r2.T == approx(500)
@@ -565,7 +585,8 @@ class TestReactor:
         self.make_reactors(T1=1000, n_reactors=1, X1='H2:2.0,O2:1.0')
         self.r1.chemistry_enabled = False
 
-        self.net.advance(11.0)
+        net = ct.ReactorNet([self.r1])
+        net.advance(11.0)
 
         assert self.r1.T == approx(1000)
         assert self.r1.phase.X[self.r1.phase.species_index('H2')] == approx(2.0/3.0)
@@ -586,7 +607,8 @@ class TestReactor:
         self.w.heat_flux = hfunc
         Q = 0.3 * 60000
 
-        self.net.advance(1.1)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1.1)
         assert self.w.heat_flux == hfunc(1.1)
         U1b = self.r1.volume * self.r1.density * self.r1.phase.u
         U2b = self.r2.volume * self.r2.density * self.r2.phase.u
@@ -630,19 +652,20 @@ class TestReactor:
         ma = self.r1.volume * self.r1.density
         Ya = self.r1.Y
 
-        self.net.rtol = 1e-11
-        self.net.max_time_step = 0.05
+        net = ct.ReactorNet([self.r1])
+        net.rtol = 1e-11
+        net.max_time_step = 0.05
 
-        self.net.advance(0.1)
+        net.advance(0.1)
         assert mfc.mass_flow_rate == approx(0.)
-        self.net.advance(0.3)
+        net.advance(0.3)
         assert mfc.mass_flow_rate == approx(0.04)
-        self.net.advance(1.0)
+        net.advance(1.0)
         assert mfc.mass_flow_rate == approx(0.08)
-        self.net.advance(1.2)
+        net.advance(1.2)
         assert mfc.mass_flow_rate == approx(0.)
 
-        self.net.advance(2.5)
+        net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
         Yb = self.r1.Y
@@ -665,15 +688,15 @@ class TestReactor:
         mfc = ct.MassFlowController(self.r1, self.r2)
         mfc.mass_flow_rate = lambda t: eggs
 
+
         with pytest.raises(Exception, match='eggs'):
-            self.net.step()
+            net = ct.ReactorNet([self.r1, self.r2])
 
         with pytest.raises(NotImplementedError):
             mfc.pressure_function = lambda p: p**2
 
     def test_valve1(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
-        self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
         valve.valve_coeff = k
@@ -682,7 +705,10 @@ class TestReactor:
         assert valve.valve_coeff == k
         assert self.r1.energy_enabled
         assert self.r2.energy_enabled
-        self.net.initialize()
+
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-12
+        net.initialize()
         assert (self.r1.phase.P - self.r2.phase.P) * k == approx(
                 valve.mass_flow_rate)
 
@@ -691,7 +717,7 @@ class TestReactor:
         Y1a = self.r1.phase.Y
         Y2a = self.r2.phase.Y
 
-        self.net.advance(0.1)
+        net.advance(0.1)
 
         m1b = self.r1.phase.density * self.r1.volume
         m2b = self.r2.phase.density * self.r2.volume
@@ -709,7 +735,6 @@ class TestReactor:
         # (constant T) we can compare with an analytical solution for
         # the mass of each reactor as a function of time
         self.make_reactors(P1=10*ct.one_atm)
-        self.net.rtol = 1e-11
         self.r1.energy_enabled = False
         self.r2.energy_enabled = False
         valve = ct.Valve(self.r1, self.r2)
@@ -729,8 +754,11 @@ class TestReactor:
         A = k * P1a * (1 + m2a/m1a)
         B = k * (P1a/m1a + P2a/m2a)
 
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-11
+
         for t in np.linspace(1e-5, 0.5):
-            self.net.advance(t)
+            net.advance(t)
             m1 = self.r1.phase.density * self.r1.volume
             m2 = self.r2.phase.density * self.r2.volume
             assert m2 == approx((m2a - A/B) * np.exp(-B * t) + A/B)
@@ -742,8 +770,6 @@ class TestReactor:
         # and flow rate.
         self.make_reactors(P1=10*ct.one_atm, X1='AR:0.5, O2:0.5',
                            X2='O2:1.0')
-        self.net.rtol = 1e-12
-        self.net.atol = 1e-20
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
         valve.pressure_function = mdot
@@ -758,9 +784,13 @@ class TestReactor:
         mO2 = speciesMass(kO2)
         mAr = speciesMass(kAr)
 
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-12
+        net.atol = 1e-20
+
         t = 0
         while t < 1.0:
-            t = self.net.step()
+            t = net.step()
             p1 = self.r1.phase.P
             p2 = self.r2.phase.P
             assert mdot(p1-p2) == approx(valve.mass_flow_rate)
@@ -771,7 +801,6 @@ class TestReactor:
     def test_valve_timing(self):
         # test timed valve
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
-        self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
         valve.valve_coeff = k
@@ -779,19 +808,23 @@ class TestReactor:
 
         delta_p = lambda: self.r1.phase.P - self.r2.phase.P
         mdot = lambda: valve.valve_coeff * (self.r1.phase.P - self.r2.phase.P)
-        self.net.initialize()
+
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-12
+        net.initialize()
+
         assert valve.time_function == 0.0
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == 0.0
-        self.net.advance(0.01)
+        net.advance(0.01)
         assert valve.time_function == 0.0
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == 0.0
-        self.net.advance(0.01 + 1e-9)
+        net.advance(0.01 + 1e-9)
         assert valve.time_function == 1.0
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == approx(mdot())
-        self.net.advance(0.02)
+        net.advance(0.02)
         assert valve.time_function == 1.0
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == approx(mdot())
@@ -800,7 +833,7 @@ class TestReactor:
         self.make_reactors()
         res = ct.Reservoir(self.gas1)
         v = ct.Valve(self.r1, res)
-        ct.ReactorNet([self.r1])  # assigns default names
+        net = ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
         assert res.name.startswith(f"{res.type}_")  # default name
         assert v.type == "Valve"
@@ -812,7 +845,7 @@ class TestReactor:
         self.make_reactors()
         res = ct.Reservoir(self.gas1)
         ct.Valve(res, self.r1)
-        ct.ReactorNet([self.r1])  # assigns default names
+        net = ct.ReactorNet([self.r1])  # assigns default names
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
         assert res.name.startswith(f"{res.type}_")  # default name
 
@@ -837,9 +870,10 @@ class TestReactor:
         pc.device_coefficient = 1e-5
         assert pc.pressure_coeff == 1e-5
 
+        net = ct.ReactorNet([self.r1])
         t = 0
         while t < 1.0:
-            t = self.net.step()
+            t = net.step()
             assert mdot(t) == approx(mfc.mass_flow_rate)
             dP = self.r1.phase.P - outlet_reservoir.phase.P
             assert mdot(t) + 1e-5 * dP == approx(pc.mass_flow_rate)
@@ -863,9 +897,10 @@ class TestReactor:
         pc.pressure_function = pfunc
         assert pc.pressure_coeff == 1.
 
+        net = ct.ReactorNet([self.r1])
         t = 0
         while t < 1.0:
-            t = self.net.step()
+            t = net.step()
             assert mdot(t) == approx(mfc.mass_flow_rate)
             dP = self.r1.phase.P - outlet_reservoir.phase.P
             assert mdot(t) + pfunc(dP) == approx(pc.mass_flow_rate)
@@ -902,30 +937,32 @@ class TestReactor:
 
     def test_set_initial_time(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
-        self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         pfunc_a = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
         valve.pressure_function = pfunc_a
 
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-12
         t0 = 0.0
         tf = t0 + 0.5
-        self.net.advance(tf)
-        assert self.net.time == approx(tf)
+        net.advance(tf)
+        assert net.time == approx(tf)
         p1a = self.r1.phase.P
         p2a = self.r2.phase.P
         assert valve.pressure_function == approx(pfunc_a(p1a - p2a))
 
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
-        self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
         pfunc_b = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
         valve.pressure_function = pfunc_b
 
         t0 = 0.2
-        self.net.initial_time = t0
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.rtol = 1e-12
+        net.initial_time = t0
         tf = t0 + 0.5
-        self.net.advance(tf)
-        assert self.net.time == approx(tf)
+        net.advance(tf)
+        assert net.time == approx(tf)
         p1b = self.r1.phase.P
         p2b = self.r2.phase.P
         assert valve.pressure_function == approx(pfunc_b(p1b - p2b))
@@ -936,7 +973,8 @@ class TestReactor:
     def test_reinitialize(self, allow_deprecated):
         self.make_reactors(T1=300, T2=1000)
         self.add_wall(U=200, A=1.0)
-        self.net.advance(1.0)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1.0)
         T1a = self.r1.T
         T2a = self.r2.T
 
@@ -949,7 +987,7 @@ class TestReactor:
 
         assert self.r1.T == approx(300)
         assert self.r2.T == approx(1000)
-        self.net.advance(2.0)
+        net.advance(2.0)
         T1b = self.r1.T
         T2b = self.r2.T
 
@@ -959,7 +997,8 @@ class TestReactor:
     # TODO: Remove after Cantera 4.0 when syncState is removed
     def test_syncState_deprecated(self):
         self.make_reactors(n_reactors=1)
-        self.net.advance(0.1)
+        net = ct.ReactorNet([self.r1])
+        net.advance(0.1)
         with pytest.raises(ct.CanteraError):
             self.r1.syncState()
 
@@ -968,32 +1007,59 @@ class TestReactor:
         self.gas1.TP = 900, ct.one_atm
         reservoir = ct.Reservoir(self.gas1)
         wall = ct.Wall(self.r1, reservoir, U=500)
-        self.net.advance(1.0)
+        net = ct.ReactorNet([self.r1])
+        net.advance(1.0)
         assert self.r1.T == approx(872.099, rel=1e-3)
         reservoir.phase.TP = 700, ct.one_atm
-        self.net.reinitialize()
-        self.net.advance(2.0)
+        net.reinitialize()
+        net.advance(2.0)
         assert self.r1.T == approx(747.27, rel=1e-3)
+
+    def test_invalid_modification(self):
+        self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
+        with pytest.raises(ct.CanteraError, match="Cannot add a wall"):
+            ct.Wall(self.r1, self.r2, A=2.0)
+
+        res = ct.Reservoir(self.gas1)
+        with pytest.raises(ct.CanteraError, match="Cannot add an inlet"):
+            ct.MassFlowController(res, self.r2, mdot=0.1)
+
+        with pytest.raises(ct.CanteraError, match="Cannot add an outlet"):
+            ct.MassFlowController(self.r2, res, mdot=0.1)
+
+    def test_invalid_multiple_networks(self):
+        self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
+        with pytest.raises(ct.CanteraError, match="already part of a ReactorNet"):
+            net2 = ct.ReactorNet([self.r2])
+
+    def test_invalid_empty_network(self):
+        with pytest.raises(ct.CanteraError, match="No reactors in network"):
+            net = ct.ReactorNet([])
 
     def test_unpicklable(self):
         self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
         import pickle
         with pytest.raises(NotImplementedError):
             pickle.dumps(self.r1)
         with pytest.raises(NotImplementedError):
-            pickle.dumps(self.net)
+            pickle.dumps(net)
 
     def test_uncopyable(self):
         self.make_reactors()
+        net = ct.ReactorNet([self.r1, self.r2])
         import copy
         with pytest.raises(NotImplementedError):
             copy.copy(self.r1)
         with pytest.raises(NotImplementedError):
-            copy.copy(self.net)
+            copy.copy(net)
 
     def test_invalid_property(self):
         self.make_reactors()
-        for x in (self.r1, self.net):
+        net = ct.ReactorNet([self.r1, self.r2])
+        for x in (self.r1, net):
             with pytest.raises(AttributeError):
                 x.foobar = 300
             with pytest.raises(AttributeError):
@@ -1007,11 +1073,12 @@ class TestReactor:
 
     def test_preconditioner_unsupported(self):
         self.make_reactors()
-        self.net.preconditioner = ct.AdaptivePreconditioner()
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.preconditioner = ct.AdaptivePreconditioner()
         # initialize should throw an error because the mass fraction
         # reactors do not support preconditioning
         with pytest.raises(ct.CanteraError):
-            self.net.initialize()
+            net.initialize()
 
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_reactor(self):
@@ -1069,8 +1136,9 @@ class TestReactor:
         self.make_reactors()
         self.r1.name = 'Reactor'
         self.r2.name = 'Reactor'
+        net = ct.ReactorNet([self.r1, self.r2])
         with pytest.raises(AssertionError, match="unique names"):
-            self.net.draw()
+            net.draw()
 
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_grouped_reactors(self):
@@ -1079,7 +1147,8 @@ class TestReactor:
         self.r2.name = "Reactor 2"
         self.r1.group_name = "Group 1"
         self.r2.group_name = "Group 2"
-        graph = self.net.draw()
+        net = ct.ReactorNet([self.r1, self.r2])
+        graph = net.draw()
         expected = ['\tsubgraph "cluster_Group 1" {\n',
                     '\t\t"Reactor 1"\n',
                     '\t\tlabel="Group 1"\n',
@@ -1142,7 +1211,8 @@ class TestReactor:
                                     edge_attr={'xlabel': 'MFC'}, name="MFC")
         ct.PressureController(self.r1, outlet_reservoir, primary=mfc, name="PC")
         mfc.edge_attr.update({'color': 'purple'})
-        self.net.advance_to_steady_state()
+        net = ct.ReactorNet([self.r1])
+        net.advance_to_steady_state()
         graph = mfc.draw(node_attr={'style': 'filled'},
                          edge_attr={'style': 'dotted', 'color': 'blue'})
         expected = [('\tInlet -> Reactor [label="MFC\\nṁ = 2 kg/s" color=blue '
@@ -1167,10 +1237,11 @@ class TestReactor:
         ct.PressureController(self.r1, outlet, primary=mfc_hot1, name='pc_h1')
         ct.PressureController(self.r1, outlet, primary=mfc_hot2, name='pc_h2')
         ct.PressureController(self.r2, outlet, primary=mfc_cold, name='pc_c')
-        self.net.advance_to_steady_state()
-        graph = self.net.draw(mass_flow_attr={'color': 'green'},
-                              heat_flow_attr={'color': 'orange'},
-                              print_state=True)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance_to_steady_state()
+        graph = net.draw(mass_flow_attr={'color': 'green'},
+                         heat_flow_attr={'color': 'orange'},
+                         print_state=True)
         expected = {
             '\tRC [label="{RC|{T (K)\\n202.18|P (bar)\\n1.013}}" shape=Mrecord]\n',
             '\tOut [label="{Out|{T (K)\\n200.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
@@ -1419,16 +1490,17 @@ class TestConstPressureReactor:
         self.r2.volume = 0.2
 
         resGas.TP = T0 - 300, P0
-        env = ct.Reservoir(resGas)
+        env1 = ct.Reservoir(resGas)
+        env2 = ct.Reservoir(resGas)
 
         U = 300 if add_Q else 0
 
-        self.w1 = ct.Wall(self.r1, env, K=1e3, A=0.1, U=U)
-        self.w2 = ct.Wall(self.r2, env, A=0.1, U=U)
+        self.w1 = ct.Wall(self.r1, env1, K=1e3, A=0.1, U=U)
+        self.w2 = ct.Wall(self.r2, env2, A=0.1, U=U)
 
         if add_mdot:
-            mfc1 = ct.MassFlowController(env, self.r1, mdot=0.05)
-            mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
+            mfc1 = ct.MassFlowController(env1, self.r1, mdot=0.05)
+            mfc2 = ct.MassFlowController(env2, self.r2, mdot=0.05)
 
         if add_surf:
             self.interface1 = ct.Interface('diamond.yaml', 'diamond_100',
@@ -1471,10 +1543,17 @@ class TestConstPressureReactor:
 
     def test_component_names(self):
         self.create_reactors(add_surf=True)
-        for i in range(self.net1.n_vars):
+        for i in range(self.r1.n_vars):
             assert self.r1.component_index(self.r1.component_name(i)) == i
             assert self.net1.component_name(i) == '{}: {}'.format(self.r1.name,
                                                                   self.r1.component_name(i))
+
+        offset = self.r1.n_vars
+        for i in range(self.surf1.n_vars):
+            assert self.surf1.component_index(self.surf1.component_name(i)) == i
+            name = f'{self.surf1.name}: {self.surf1.component_name(i)}'
+            assert self.net1.component_name(i + offset) == name
+
 
     def integrate(self, surf=False):
         for t in np.arange(0.5, 50, 1.0):
@@ -1504,6 +1583,11 @@ class TestConstPressureReactor:
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
+
+    def test_invalid_modification(self):
+        self.create_reactors(add_surf=True)
+        with pytest.raises(ct.CanteraError, match="Cannot add a surface"):
+            ct.ReactorSurface(self.interface1, self.r2, A=0.2)
 
     def test_preconditioner_unsupported(self):
         self.create_reactors()
@@ -1919,8 +2003,13 @@ class TestFlowReactor2:
         surf, gas = self.import_phases()
         r1 = ct.FlowReactor(gas)
         r2 = ct.IdealGasReactor(gas)
-        with pytest.raises(ct.CanteraError, match="Cannot mix Reactor types"):
+        with pytest.raises(ct.CanteraError, match="FlowReactors must be used alone"):
             ct.ReactorNet([r1, r2])
+
+        r1 = ct.FlowReactor(gas)
+        r2 = ct.IdealGasReactor(gas)
+        with pytest.raises(ct.CanteraError, match="Cannot mix Reactor types"):
+            ct.ReactorNet([r2, r1])
 
     def test_unrecoverable_integrator_errors(self):
         surf, gas = self.import_phases()
@@ -2223,17 +2312,17 @@ class TestSurfaceKinetics:
         self.r2 = ct.IdealGasReactor(self.gas)
         self.r2.volume = 0.01
 
-        self.net = ct.ReactorNet([self.r1, self.r2])
-
     def test_coverages(self):
         self.make_reactors()
+
         surf1 = ct.ReactorSurface(self.interface, self.r1)
 
         surf1.coverages = {'c6HH':0.3, 'c6HM':0.7}
         assert surf1.coverages[0] == approx(0.3)
         assert surf1.coverages[1] == approx(0.0)
         assert surf1.coverages[4] == approx(0.7)
-        self.net.advance(1e-5)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1e-5)
         C_left = surf1.coverages
 
         self.make_reactors()
@@ -2241,7 +2330,8 @@ class TestSurfaceKinetics:
         surf2.coverages = 'c6HH:0.3, c6HM:0.7'
         assert surf2.coverages[0] == approx(0.3)
         assert surf2.coverages[4] == approx(0.7)
-        self.net.advance(1e-5)
+        net = ct.ReactorNet([self.r1, self.r2])
+        net.advance(1e-5)
         C_right = surf2.coverages
 
         assert sum(C_left) == approx(1.0)
@@ -2263,12 +2353,14 @@ class TestSurfaceKinetics:
 
         surf1.coverages = C
         assert surf1.coverages == approx(C)
+
+        net = ct.ReactorNet([self.r1, self.r2])
         data = []
         test_file = self.test_work_path / "test_coverages_regression1.csv"
         reference_file = test_data_path / "WallKinetics-coverages-regression1.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
-            self.net.advance(t)
+            net.advance(t)
             data.append([t, self.r1.T, self.r1.phase.P, self.r1.mass] +
                         list(self.r1.phase.X) + list(surf1.coverages))
         np.savetxt(test_file, data, delimiter=',')
@@ -2288,12 +2380,14 @@ class TestSurfaceKinetics:
 
         surf.coverages = C
         assert surf.coverages == approx(C)
+
+        net = ct.ReactorNet([self.r1, self.r2])
         data = []
         test_file = self.test_work_path / "test_coverages_regression2.csv"
         reference_file = test_data_path / "WallKinetics-coverages-regression2.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
-            self.net.advance(t)
+            net.advance(t)
             data.append([t, self.r1.T, self.r1.phase.P, self.r1.mass] +
                         list(self.r1.phase.X) + list(surf.coverages))
         np.savetxt(test_file, data, delimiter=',')
@@ -2330,19 +2424,17 @@ class TestSurfaceKinetics:
         gas = ct.Solution("h2o2.yaml")
         r = ct.Reactor(gas, clone=False)
         rsurf = ct.ReactorSurface(surf, r, clone=False)
-        net = ct.ReactorNet([r])
         with pytest.raises(ct.CanteraError,
                            match="does not have an adjacent phase named 'ohmech'"):
-            net.initialize()
+            net = ct.ReactorNet([r])
 
     def test_mismatched_bulk(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         gas = ct.Solution("ptcombust.yaml", "gas")
         r = ct.Reactor(gas, clone=False)
         rsurf = ct.ReactorSurface(surf, [r], clone=False)
-        net = ct.ReactorNet([r])
         with pytest.raises(ct.CanteraError, match="must be the same object"):
-            net.initialize()
+            net = ct.ReactorNet([r])
 
 
 class TestReactorSensitivities:
@@ -2372,17 +2464,16 @@ class TestReactorSensitivities:
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
         r2 = ct.IdealGasReactor(gas2)
 
+        surf = ct.ReactorSurface(interface, r1, A=1.5)
+        C = np.zeros(interface.n_species)
+        C[0] = 0.3
+        C[4] = 0.7
+        surf.coverages = C
+
         net = ct.ReactorNet([r1, r2])
         net.atol_sensitivity = 1e-10
         net.rtol_sensitivity = 1e-8
 
-        surf = ct.ReactorSurface(interface, r1, A=1.5)
-
-        C = np.zeros(interface.n_species)
-        C[0] = 0.3
-        C[4] = 0.7
-
-        surf.coverages = C
         surf.add_sensitivity_reaction(2)
         r2.add_sensitivity_reaction(18)
 
@@ -2655,9 +2746,8 @@ def test_solution_reuse():
 
     r1 = ct.Reactor(gas, clone=False)
     r2 = ct.ConstPressureReactor(gas, clone=False)
-    net = ct.ReactorNet([r1, r2])
     with pytest.raises(ct.CanteraError, match="using the same Solution object"):
-        net.initialize()
+        net = ct.ReactorNet([r1, r2])
 
 
 def test_interface_reuse():
@@ -2665,9 +2755,8 @@ def test_interface_reuse():
     r1 = ct.Reactor(surf.adjacent["gas"], clone=False)
     rsurf1 = ct.ReactorSurface(surf, r1, clone=False)
     rsurf2 = ct.ReactorSurface(surf, r1, clone=False)
-    net = ct.ReactorNet([r1])
     with pytest.raises(ct.CanteraError, match="using the same Solution object"):
-        net.initialize()
+        net = ct.ReactorNet([r1])
 
 
 class TestCombustor:

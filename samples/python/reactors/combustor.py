@@ -57,6 +57,8 @@ exhaust = ct.Reservoir(gas)
 def mdot(t):
     return combustor.mass / residence_time
 
+residence_time = 0.1  # starting residence time
+
 inlet_mfc = ct.MassFlowController(inlet, combustor, mdot=mdot)
 
 # %%
@@ -75,7 +77,6 @@ sim = ct.ReactorNet([combustor])
 
 states = ct.SolutionArray(gas, extra=['tres'])
 
-residence_time = 0.1  # starting residence time
 while combustor.T > 500:
     sim.initial_time = 0.0  # reset the integrator
     sim.solve_steady()
