@@ -170,6 +170,61 @@ class TestReactor:
             if name in constant:
                 assert all(J[i, species_start:] == 0), (i, name)
 
+    def test_network_finite_difference_jacobian(self):
+        self.make_reactors(T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
+        k1H2 = self.gas1.species_index("H2")
+        k2H2 = self.gas1.species_index("H2")
+        while self.r1.phase.X[k1H2] > 0.3 or self.r2.phase.X[k2H2] > 0.3:
+            self.net.step()
+
+        J = self.net.finite_difference_jacobian
+        assert J.shape == (self.net.n_vars, self.net.n_vars)
+
+        # state variables that should be constant, depending on reactor type
+        constant = {"mass", "volume", "int_energy", "enthalpy", "pressure"}
+        variable = {"temperature"}
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i,:] == 0), (i, name)
+            elif name in variable:
+                assert any(J[i,:] != 0)
+            # check in second reactor
+            name = self.r2.component_name(i)
+            if name in constant:
+                assert all(J[i + self.r1.n_vars,:] == 0), (i, name)
+            elif name in variable:
+                assert any(J[i + self.r1.n_vars,:] != 0)
+
+        # Disabling energy equation should zero these terms
+        self.r1.energy_enabled = False
+        self.r2.energy_enabled = False
+        J = self.net.finite_difference_jacobian
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name == "temperature":
+                assert all(J[i,:] == 0)
+            name = self.r2.component_name(i)
+            if name == "temperature":
+                assert all(J[i + self.r1.n_vars,:] == 0)
+
+        # Disabling species equations should zero these terms
+        self.r1.energy_enabled = True
+        self.r1.chemistry_enabled = False
+        self.r2.energy_enabled = True
+        self.r2.chemistry_enabled = False
+        J = self.net.finite_difference_jacobian
+        constant = set(self.r1.phase.species_names + self.r2.phase.species_names)
+        r1_species_start = self.r1.component_index(self.r1.phase.species_name(0))
+        r2_species_start = self.r2.component_index(self.r2.phase.species_name(0))
+        for i in range(self.r1.n_vars):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i, r1_species_start:] == 0), (i, name)
+            name = self.r2.component_name(i)
+            if name in constant:
+                assert all(J[i + self.r1.n_vars, (r2_species_start + self.r1.n_vars):] == 0), (i, name)
+
     def test_timestepping(self):
         self.make_reactors()
 
@@ -1530,7 +1585,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.precon = ct.AdaptivePreconditioner()
         self.net2.preconditioner = self.precon
         self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True,
-            "skip-coverage-dependence":True}
+            "skip-coverage-dependence":True, "skip-flow-devices": True}
 
     def test_get_solver_type(self):
         self.create_reactors()
@@ -1538,10 +1593,69 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.net2.initialize()
         assert self.net2.linear_solver_type == "GMRES"
 
+    def test_mass_flow_jacobian(self):
+        self.create_reactors(add_mdot=True)
+        # reset derivative settings
+        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True,
+            "skip-coverage-dependence":True, "skip-flow-devices": False}
+
+        with pytest.raises(NotImplementedError, match="MassFlowController::buildReactorJacobian"):
+            J = self.net2.jacobian
+
+        with pytest.raises(NotImplementedError, match="MassFlowController::buildReactorJacobian"):
+            J = self.r2.jacobian
+
+    @pytest.mark.xfail
+    def test_heat_transfer_network(self):
+        # create first reactor
+        gas1 = ct.Solution("h2o2.yaml", "ohmech")
+        gas1.TPX = 600, ct.one_atm, "O2:1.0"
+        r1 = self.reactorClass(gas1)
+
+        # create second reactor
+        gas2 = ct.Solution("h2o2.yaml", "ohmech")
+        gas2.TPX = 300, ct.one_atm, "O2:1.0"
+        r2 = ct.reactorClass(gas2)
+
+        # create wall
+        U = 2.
+        A = 3.0
+        w = ct.Wall(r1, r2, U=U, A=A)
+        net = ct.ReactorNet([r1,])
+        jac = net.jacobian
+        fd_jac = net.finite_difference_jacobian
+        for i in range(jac.shape[0]):
+            for j in range(jac.shape[1]):
+                assert np.isclose(jac[i, j], fd_jac[i, j])
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
     test_preconditioner_unsupported = None
+
+    @pytest.mark.xfail
+    def test_heat_transfer_network(self):
+        # create first reactor
+        gas1 = ct.Solution("h2o2.yaml", "ohmech")
+        gas1.TPX = 600, ct.one_atm, "O2:1.0"
+        r1 = self.reactorClass(gas1)
+
+        # create second reactor
+        gas2 = ct.Solution("h2o2.yaml", "ohmech")
+        gas2.TPX = 300, ct.one_atm, "O2:1.0"
+        r2 = self.reactorClass(gas2)
+
+        # create wall
+        U = 2.0
+        A = 3.0
+        w = ct.Wall(r1, r2, U=U, A=A)
+        net = ct.ReactorNet([r1, r2])
+        jac = net.jacobian
+        fd_jac = net.finite_difference_jacobian
+        # check for values
+        for i in range(jac.shape[0]):
+            for j in range(jac.shape[1]):
+                assert np.isclose(jac[i, j], fd_jac[i, j])
+
 
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor
@@ -3356,6 +3470,109 @@ class TestExtensibleReactor:
         assert r1.phase.P == approx(151561.15, rel=1e-6)
         assert r1.phase["H2"].Y[0] == approx(0.13765976, rel=1e-6)
         assert r2.phase["O2"].Y[0] == approx(0.94617029, rel=1e-6)
+
+    def test_after_jacobian(self):
+        class AfterJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+            def __init__(self, *args, neighbor, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.v_wall = 0
+                self.k_wall = 1e-5
+                self.neighbor = neighbor
+
+            def after_initialize(self, t0):
+                self.n_vars += 1
+                self.i_wall = self.n_vars - 1
+
+            def after_get_state(self, y):
+                y[self.i_wall] = self.v_wall
+
+            def after_update_state(self, y):
+                self.v_wall = y[self.i_wall]
+                self.walls[0].velocity = self.v_wall
+
+            def after_eval(self, t, LHS, RHS):
+                # Extra equation is d(v_wall)/dt = k * delta P
+                a = self.k_wall * (self.phase.P - self.neighbor.phase.P)
+                RHS[self.i_wall] = a
+
+            def before_component_index(self, name):
+                if name == 'v_wall':
+                    return self.i_wall
+
+            def before_component_name(self, i):
+                if i == self.i_wall:
+                    return 'v_wall'
+
+            def after_build_jacobian(self, jac_vector):
+                jac_vector.append((self.i_wall, self.i_wall, 1e20))
+
+        self.gas.TP = 300, ct.one_atm
+        res = ct.Reservoir(self.gas)
+        self.gas.TP = 300, 2 * ct.one_atm
+        r = AfterJacobianReactor(self.gas, neighbor=res)
+        w = ct.Wall(r, res)
+        net = ct.ReactorNet([r])
+        precon = ct.AdaptivePreconditioner()
+        net.preconditioner = precon
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert jac[r.i_wall, r.i_wall] == 1e20
+        pmat = precon.matrix
+        assert pmat[r.i_wall, r.i_wall] == (1 - precon.gamma * 1e20)
+
+    def test_before_jacobian(self):
+        class BeforeJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+
+            def before_build_jacobian(self, jac_vector):
+                jac_vector.append((0, 0, 1e10))
+
+        self.gas.TP = 300, ct.one_atm
+        r = BeforeJacobianReactor(self.gas)
+        net = ct.ReactorNet([r])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert jac[0, 0] == 1e10
+
+    def test_replace_jacobian(self):
+        class ReplaceJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+
+            def replace_build_jacobian(self, jac_vector):
+                jac_vector.append((0, 0, 0))
+
+        self.gas.TP = 300, ct.one_atm
+        r = ReplaceJacobianReactor(self.gas)
+        net = ct.ReactorNet([r])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert np.sum(jac) == 0
+
+    def test_replace_with_default_eval(self):
+        class ReplaceEvalReactor(ct.ExtensibleIdealGasConstPressureMoleReactor):
+
+            def replace_eval(self, t, LHS, RHS):
+                self.default_eval(t, LHS, RHS)
+
+        # setup thermo object
+        gas = ct.Solution("h2o2.yaml", "ohmech")
+        gas.set_equivalence_ratio(0.5, "H2:1.0", "O2:1.0")
+        gas.equilibrate("HP")
+        # replacement reactor
+        r = ReplaceEvalReactor(gas)
+        r.volume = 1.0
+        # default reactor
+        rstd = ct.IdealGasConstPressureMoleReactor(gas)
+        rstd.volume = r.volume
+        # network of both reactors
+        net = ct.ReactorNet([r, rstd])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.advance_to_steady_state()
+        # reactors should have the same solution because the default is used
+        assert r.get_state() == approx(rstd.get_state())
 
 
 class TestSteadySolver:

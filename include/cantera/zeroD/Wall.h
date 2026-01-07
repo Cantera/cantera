@@ -9,6 +9,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "ConnectorNode.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -83,6 +84,30 @@ public:
      */
     void setSimTime(double time) {
         m_time = time;
+    }
+
+    //! Build the Jacobian terms specific to the flow device for the given connected
+    //! reactor.
+    //! @param r a pointer to the calling reactor
+    //! @param jacVector a vector of triplets to be added to the reactor Jacobian
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    virtual void buildReactorJacobian(ReactorBase* r,
+        vector<Eigen::Triplet<double>>& jacVector) {
+        throw NotImplementedError("WallBase::buildReactorJacobian");
+    }
+
+    //! Build the Jacobian cross-reactor terms specific to the flow device for the
+    //! network.
+    //! @param jacVector a vector of triplets to be added to the network Jacobian
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
+        throw NotImplementedError("WallBase::buildNetworkJacobian");
     }
 
 protected:
@@ -199,6 +224,12 @@ public:
     double getExpansionRateCoeff() const {
         return m_k;
     }
+
+    void buildReactorJacobian(ReactorBase* r,
+        vector<Eigen::Triplet<double>>& jacVector) override;
+
+    void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector)
+        override;
 
 protected:
 
