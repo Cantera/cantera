@@ -85,14 +85,16 @@ double IdealGasMoleReactor::lowerBound(size_t k) const {
     }
 }
 
-vector<size_t> IdealGasMoleReactor::steadyConstraints() const
+vector<size_t> IdealGasMoleReactor::initializeSteady()
 {
     if (nSurfs() != 0) {
-        throw CanteraError("IdealGasMoleReactor::steadyConstraints",
+        throw CanteraError("IdealGasMoleReactor::initializeSteady",
             "Steady state solver cannot currently be used with IdealGasMoleReactor"
             " when reactor surfaces are present.\n"
             "See https://github.com/Cantera/enhancements/issues/234");
     }
+    m_initialVolume = m_vol;
+    m_initialTemperature = m_thermo->temperature();
     if (energyEnabled()) {
         return {1}; // volume
     } else {
@@ -171,6 +173,15 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     } else {
         RHS[0] = 0;
     }
+}
+
+void IdealGasMoleReactor::evalSteady(double t, double* LHS, double* RHS)
+{
+    eval(t, LHS, RHS);
+    if (!energyEnabled()) {
+        RHS[0] = m_thermo->temperature() - m_initialTemperature;
+    }
+    RHS[1] = m_vol - m_initialVolume;
 }
 
 void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& trips)

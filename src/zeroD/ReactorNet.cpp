@@ -535,6 +535,21 @@ void ReactorNet::eval(double t, double* y, double* ydot, double* p)
     checkFinite("ydot", ydot, m_nv);
 }
 
+void ReactorNet::evalSteady(double* y, double* residual)
+{
+    updateState(y);
+    m_LHS.assign(m_nv, 1);
+    m_RHS.assign(m_nv, 0);
+    for (auto& R : m_reactors) {
+        size_t offset = R->offset();
+        R->evalSteady(m_time, m_LHS.data() + offset, m_RHS.data() + offset);
+        for (size_t i = offset; i < offset + R->neq(); i++) {
+            residual[i] = m_RHS[i] / m_LHS[i];
+        }
+    }
+    checkFinite("residual", residual, m_nv);
+}
+
 void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* residual)
 {
     m_time = t;
@@ -824,13 +839,12 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     size_t start = 0;
     for (size_t i = 0; i < net->nReactors(); i++) {
         auto& R = net->reactor(i);
-        for (auto& m : R.steadyConstraints()) {
-            m_algebraic.push_back(start + m);
+        R.updateState(x0 + start);
+        auto algebraic = R.initializeSteady();
+        for (auto& m : algebraic) {
+            m_mask[start + m] = 0;
         }
         start += R.neq();
-    }
-    for (auto& n : m_algebraic) {
-        m_mask[n] = 0;
     }
 }
 
@@ -840,13 +854,9 @@ void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
         rdt = m_rdt;
     }
     vector<double> xv(x, x + size());
-    m_net->eval(0.0, x, r, nullptr);
+    m_net->evalSteady(x, r);
     for (size_t i = 0; i < size(); i++) {
-        r[i] -= (x[i] - m_initialState[i]) * rdt;
-    }
-    // Hold algebraic constraints fixed
-    for (auto& n : m_algebraic) {
-        r[n] = x[n] - m_initialState[n];
+        r[i] -= (x[i] - m_initialState[i]) * rdt * m_mask[i];
     }
 }
 
