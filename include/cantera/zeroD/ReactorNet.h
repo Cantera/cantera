@@ -155,7 +155,6 @@ public:
     //!   IdealGasConstPressureMoleReactor classes.
     //! - Only ideal gas reactor types can be used for when the energy equation is
     //!   disabled (fixed temperature simulations).
-    //! - Reacting surfaces are not yet supported.
     //!
     //! @param loglevel  Print information about solver progress to aid in understanding
     //!     cases where the solver fails to converge. Higher levels are more verbose.
@@ -171,7 +170,7 @@ public:
     //!     - 7: Print current residual vector after different solver stages
     //!
     //! @see SteadyStateSystem, MultiNewton
-    //! @since New in %Cantera 3.2.
+    //! @since New in %Cantera 3.2. Support for reacting surfaces added in %Cantera 4.0.
     void solveSteady(int loglevel=0);
 
     //! Get the Jacobian used by the steady-state solver.
@@ -184,8 +183,8 @@ public:
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
-    Reactor& reactor(int n) {
-        return *m_bulkReactors[n];
+    ReactorBase& reactor(int n) {
+        return *m_reactors[n];
     }
 
     //! Returns `true` if verbose logging output is enabled.

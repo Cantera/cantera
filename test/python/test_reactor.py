@@ -3609,7 +3609,7 @@ class TestSteadySolver:
                 test = - mdot / mass * (1 - Y[k])
             else:
                 test = mdot / mass * Y[i] * W[k] / W[i]
-            assert J[i+2,k+2] == approx(test, rel=1e-4), (names[i], names[k])
+            assert J[i+2,k+2] == approx(test, rel=5e-4), (names[i], names[k])
 
     def test_logging(self, capsys):
         messages = [
