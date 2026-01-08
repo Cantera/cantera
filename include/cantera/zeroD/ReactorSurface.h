@@ -105,8 +105,10 @@ public:
 
     void getState(double* y) override;
     void initialize(double t0=0.0) override;
+    vector<size_t> initializeSteady() override;
     void updateState(double* y) override;
     void eval(double t, double* LHS, double* RHS) override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
 
     void addSensitivityReaction(size_t rxn) override;
     // void addSensitivitySpeciesEnthalpy(size_t k) override;
@@ -116,10 +118,9 @@ public:
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
 
-    // vector<size_t> steadyConstraints() const override;
-    // double upperBound(size_t k) const override;
-    // double lowerBound(size_t k) const override;
-    // void resetBadValues(double* y) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
+    void resetBadValues(double* y) override;
     // void setDerivativeSettings(AnyMap& settings) override;
 
 protected:

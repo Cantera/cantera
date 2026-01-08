@@ -95,6 +95,11 @@ void ReactorSurface::initialize(double t0)
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
 }
 
+vector<size_t> ReactorSurface::initializeSteady()
+{
+    return {0}; // sum of coverages constraint
+}
+
 void ReactorSurface::updateState(double* y)
 {
     m_surf->setCoveragesNoNorm(y);
@@ -112,6 +117,18 @@ void ReactorSurface::eval(double t, double* LHS, double* RHS)
         sum -= RHS[k];
     }
     RHS[0] = sum;
+}
+
+void ReactorSurface::evalSteady(double t, double* LHS, double* RHS)
+{
+    eval(t, LHS, RHS);
+    vector<double> cov(m_nsp);
+    m_surf->getCoverages(cov.data());
+    double sum = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        sum += cov[k];
+    }
+    RHS[0] = 1.0 - sum;
 }
 
 void ReactorSurface::applySensitivity(double* params)
@@ -167,6 +184,25 @@ size_t ReactorSurface::componentIndex(const string& nm) const
 string ReactorSurface::componentName(size_t k)
 {
     return m_surf->speciesName(k);
+}
+
+double ReactorSurface::upperBound(size_t k) const
+{
+    return 1.0;
+}
+
+double ReactorSurface::lowerBound(size_t k) const
+{
+    return -Tiny;
+}
+
+void ReactorSurface::resetBadValues(double* y)
+{
+    for (size_t k = 0; k < m_nsp; k++) {
+        y[k] = std::max(y[k], 0.0);
+    }
+    m_surf->setCoverages(y);
+    m_surf->getCoverages(y);
 }
 
 // ------ MoleReactorSurface methods ------

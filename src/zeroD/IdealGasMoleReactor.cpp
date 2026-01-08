@@ -87,12 +87,6 @@ double IdealGasMoleReactor::lowerBound(size_t k) const {
 
 vector<size_t> IdealGasMoleReactor::initializeSteady()
 {
-    if (nSurfs() != 0) {
-        throw CanteraError("IdealGasMoleReactor::initializeSteady",
-            "Steady state solver cannot currently be used with IdealGasMoleReactor"
-            " when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
-    }
     m_initialVolume = m_vol;
     m_initialTemperature = m_thermo->temperature();
     if (energyEnabled()) {
