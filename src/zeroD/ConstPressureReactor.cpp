@@ -125,12 +125,6 @@ void ConstPressureReactor::evalSteady(double t, double* LHS, double* RHS)
 
 vector<size_t> ConstPressureReactor::initializeSteady()
 {
-    if (nSurfs() != 0) {
-        throw CanteraError("ConstPressureReactor::initializeSteady",
-            "Steady state solver cannot currently be used with ConstPressureReactor"
-            " when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
-    }
     m_initialMass = m_mass;
     return {0}; // mass
 }

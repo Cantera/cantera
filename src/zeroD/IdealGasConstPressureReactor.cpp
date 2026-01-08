@@ -125,12 +125,6 @@ void IdealGasConstPressureReactor::evalSteady(double t, double* LHS, double* RHS
 
 vector<size_t> IdealGasConstPressureReactor::initializeSteady()
 {
-    if (nSurfs() != 0) {
-        throw CanteraError("IdealGasConstPressureReactor::initializeSteady",
-            "Steady state solver cannot currently be used with "
-            " IdealGasConstPressureReactor when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
-    }
     m_initialMass = m_mass;
     m_initialTemperature = m_thermo->temperature();
     if (energyEnabled()) {

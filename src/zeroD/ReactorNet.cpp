@@ -694,7 +694,7 @@ double ReactorNet::upperBound(size_t i) const
 {
     size_t iTot = 0;
     size_t i0 = i;
-    for (auto r : m_bulkReactors) {
+    for (auto r : m_reactors) {
         if (i < r->neq()) {
             return r->upperBound(i);
         } else {
@@ -709,7 +709,7 @@ double ReactorNet::lowerBound(size_t i) const
 {
     size_t iTot = 0;
     size_t i0 = i;
-    for (auto r : m_bulkReactors) {
+    for (auto r : m_reactors) {
         if (i < r->neq()) {
             return r->lowerBound(i);
         } else {
@@ -835,6 +835,8 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     SteadyStateSystem::resize();
     m_initialState.assign(x0, x0 + m_size);
     setInitialGuess(x0);
+    setJacobianPerturbation(m_jacobianRelPerturb, 1000 * m_net->atol(),
+                            m_jacobianThreshold);
     m_mask.assign(m_size, 1);
     size_t start = 0;
     for (size_t i = 0; i < net->nReactors(); i++) {
@@ -908,7 +910,7 @@ double SteadyReactorSolver::weightedNorm(const double* step) const
     double sum = 0.0;
     const double* x = m_state->data();
     for (size_t i = 0; i < size(); i++) {
-        double ewt = m_net->rtol()*x[i] + m_net->atol();
+        double ewt = m_net->rtol()*fabs(x[i]) + m_net->atol();
         double f = step[i] / ewt;
         sum += f*f;
     }

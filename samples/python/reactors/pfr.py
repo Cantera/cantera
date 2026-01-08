@@ -112,7 +112,7 @@ m = ct.MassFlowController(upstream, r2, mdot=mass_flow_rate2)
 # We need an outlet to the downstream reservoir. This will determine the
 # pressure in the reactor. The value of K will only affect the transient
 # pressure difference.
-v = ct.PressureController(r2, downstream, primary=m, K=1e-5)
+v = ct.PressureController(r2, downstream, primary=m, K=1e-12)
 
 sim2 = ct.ReactorNet([r2])
 sim2.max_time_step = 1e4
@@ -129,7 +129,7 @@ for n in range(n_steps):
     upstream.phase.TDY = r2.phase.TDY
     # integrate the reactor forward in time until steady state is reached
     sim2.reinitialize()
-    sim2.advance_to_steady_state()
+    sim2.solve_steady()
     # compute velocity and transform into time
     u2[n] = mass_flow_rate2 / area / r2.phase.density
     t_r2[n] = r2.mass / mass_flow_rate2  # residence time in this reactor
