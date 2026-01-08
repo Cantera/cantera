@@ -46,7 +46,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t componentIndex(string&) except +translate_exception
         string componentName(size_t) except +translate_exception
         void getState(double*) except +translate_exception
-        void setInitialVolume(double)
+        void setInitialVolume(double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
