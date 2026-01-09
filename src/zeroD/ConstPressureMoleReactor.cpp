@@ -106,6 +106,18 @@ void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+void ConstPressureMoleReactor::evalSteady(double t, double* LHS, double* RHS)
+{
+    eval(t, LHS, RHS);
+    RHS[1] = m_mass - m_initialMass;
+}
+
+vector<size_t> ConstPressureMoleReactor::initializeSteady()
+{
+    m_initialMass = m_mass;
+    return {1};
+}
+
 size_t ConstPressureMoleReactor::componentIndex(const string& nm) const
 {
     if (nm == "enthalpy") {
