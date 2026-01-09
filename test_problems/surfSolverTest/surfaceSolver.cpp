@@ -157,11 +157,10 @@ int main(int argc, char** argv)
 
         ofstream ofile("results.txt");
 
-        iKin_ptr->setIOFlag(ioflag);
         /*
          *  Solve the Equation system
          */
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
 
         /*
          * Download the source terms for the rate equations
@@ -192,7 +191,7 @@ int main(int argc, char** argv)
         gasTP->setMoleFractions(x);
         gasTP->setPressure(pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
@@ -210,8 +209,10 @@ int main(int argc, char** argv)
         double temp = surfPhaseTP->temperature();
         temp += 95;
         surfPhaseTP->setState_TP(temp, pres);
+        gasTP->setState_TP(temp, pres);
+        bulkPhaseTP->setState_TP(temp, pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
@@ -227,7 +228,7 @@ int main(int argc, char** argv)
         /****************************************************************************/
         surfPhaseTP->setState_TP(temp, pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);

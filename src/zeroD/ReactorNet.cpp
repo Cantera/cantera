@@ -24,6 +24,10 @@
 namespace Cantera
 {
 
+ReactorNet::~ReactorNet()
+{
+}
+
 ReactorNet::ReactorNet(shared_ptr<ReactorBase> reactor)
     : ReactorNet(span<shared_ptr<ReactorBase>>{&reactor, 1})
 {

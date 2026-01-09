@@ -6,7 +6,10 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/zeroD/ReactorNet.h"
+#include "cantera/zeroD/ReactorFactory.h"
+#include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/Reservoir.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
@@ -14,6 +17,8 @@
 namespace Cantera
 {
 
+// Constructor / destructor definitions required due to forward-declared unique_ptr
+// members.
 InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
@@ -471,14 +476,6 @@ void InterfaceKinetics::setMultiplier(size_t i, double f)
     m_ROP_ok = false;
 }
 
-void InterfaceKinetics::setIOFlag(int ioFlag)
-{
-    m_ioFlag = ioFlag;
-    if (m_integrator) {
-        m_integrator->setIOFlag(ioFlag);
-    }
-}
-
 void InterfaceKinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
     Kinetics::addThermo(thermo);
@@ -510,34 +507,72 @@ void InterfaceKinetics::resizeSpecies()
     m_phi.resize(nPhases(), 0.0);
 }
 
+void InterfaceKinetics::buildNetwork()
+{
+    for (auto& phase : m_thermo) {
+        if (!phase->root()) {
+            throw CanteraError("InterfaceKinetics::buildNetwork",
+                "Phase '{}' is not attached to a Solution.", phase->name());
+        }
+    }
+    vector<shared_ptr<ReactorBase>> reservoirs;
+    for (size_t i = 1; i < nPhases(); i++) {
+        auto r = newReservoir(thermo(i).root(), false);
+        reservoirs.push_back(r);
+    }
+    auto rsurf = newReactorSurface(thermo(0).root(), reservoirs, false);
+    m_integrator = new ReactorNet(rsurf);
+}
+
 void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
         double maxStepSize, size_t maxSteps, size_t maxErrTestFails)
 {
-    if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k{this};
-        m_integrator = new ImplicitSurfChem(k);
+    // Stash the state of adjacent phases, and set their T and P to match the surface
+    vector<vector<double>> savedStates(nPhases());
+    for (size_t i = 1; i < nPhases(); i++) {
+        savedStates[i].resize(thermo(i).partialStateSize());
+        thermo(i).savePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
+
+    if (!m_integrator) {
+        buildNetwork();
+    }
+
     m_integrator->setTolerances(rtol, atol);
-    m_integrator->setMaxStepSize(maxStepSize);
+    m_integrator->setMaxTimeStep(maxStepSize);
     m_integrator->setMaxSteps(maxSteps);
     m_integrator->setMaxErrTestFails(maxErrTestFails);
-    m_integrator->integrate(0.0, tstep);
-    delete m_integrator;
-    m_integrator = 0;
+    m_integrator->setInitialTime(0.0);
+    m_integrator->advance(tstep);
+
+    // Restore adjacent phases to their original states
+    for (size_t i = 1; i < nPhases(); i++) {
+        thermo(i).restorePartialState(savedStates[i].size(), savedStates[i].data());
+    }
 }
 
-void InterfaceKinetics::solvePseudoSteadyStateProblem(
-    int ifuncOverride, double timeScaleOverride)
+void InterfaceKinetics::solvePseudoSteadyStateProblem(int loglevel)
 {
-    // create our own solver object
-    if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k{this};
-        m_integrator = new ImplicitSurfChem(k);
-        m_integrator->initialize();
+    // Stash the state of adjacent phases, and set their T and P to match the surface
+    vector<vector<double>> savedStates(nPhases());
+    for (size_t i = 1; i < nPhases(); i++) {
+        savedStates[i].resize(thermo(i).partialStateSize());
+        thermo(i).savePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
-    m_integrator->setIOFlag(m_ioFlag);
-    // New direct method to go here
-    m_integrator->solvePseudoSteadyStateProblem(ifuncOverride, timeScaleOverride);
+
+    if (!m_integrator) {
+        buildNetwork();
+    }
+
+    m_integrator->setVerbose(loglevel != 0);
+    m_integrator->solveSteady(loglevel);
+
+    // Restore adjacent phases to their original states
+    for (size_t i = 1; i < nPhases(); i++) {
+        thermo(i).restorePartialState(savedStates[i].size(), savedStates[i].data());
+    }
 }
 
 void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
