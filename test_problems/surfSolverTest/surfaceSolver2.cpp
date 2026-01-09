@@ -187,8 +187,7 @@ int main(int argc, char** argv)
         // Initialize it and call the pseudo steadystate capability.
         ImplicitSurfChem* surfaceProb = new ImplicitSurfChem(vecKinPtrs);
         surfaceProb->initialize();
-        surfaceProb->setIOFlag(ioflag);
-        surfaceProb->solvePseudoSteadyStateProblem();
+        surfaceProb->solvePseudoSteadyStateProblem(ioflag);
 
         /*
          * Download the source terms for the rate equations
@@ -225,7 +224,7 @@ int main(int argc, char** argv)
         gasTP->setMoleFractions(x);
         gasTP->setPressure(pres);
 
-        surfaceProb->solvePseudoSteadyStateProblem();
+        surfaceProb->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
         iKin2_ptr->getNetProductionRates(src2);
 
@@ -243,7 +242,7 @@ int main(int argc, char** argv)
         temp += 95;
         surfPhaseTP->setState_TP(temp, pres);
 
-        surfaceProb->solvePseudoSteadyStateProblem();
+        surfaceProb->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
         iKin2_ptr->getNetProductionRates(src2);
 
@@ -257,7 +256,7 @@ int main(int argc, char** argv)
         /****************************************************************************/
         gasTP->setState_TP(temp, pres);
 
-        surfaceProb->solvePseudoSteadyStateProblem();
+        surfaceProb->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
         iKin2_ptr->getNetProductionRates(src2);
 

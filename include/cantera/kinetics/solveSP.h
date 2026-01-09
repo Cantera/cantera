@@ -61,6 +61,8 @@ const int BULK_ETCH = 2;
 namespace Cantera
 {
 
+class ImplicitSurfChem;
+
 //! @addtogroup surfSolverGroup
 //! @{
 

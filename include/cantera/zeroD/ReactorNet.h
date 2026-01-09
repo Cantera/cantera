@@ -37,6 +37,7 @@ public:
     ReactorNet(span<shared_ptr<ReactorBase>> reactors);
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
+    ~ReactorNet();
 
     //! @name Methods to set up a simulation
     //! @{

@@ -41,10 +41,6 @@ P = ct.one_atm  # One atm in Pa
 anode_gas_X = 'H2:0.97, H2O:0.03'
 cathode_gas_X = 'O2:1.0, H2O:0.001'
 
-# time to integrate coverage eqs. to steady state in
-# 'advance_coverages'. This should be more than enough time.
-tss = 50.0
-
 sigma = 2.0  # electrolyte conductivity [Siemens / m]
 ethick = 5.0e-5  # electrolyte thickness [m]
 TPB_length_per_area = 1.0e7  # TPB length per unit area [1/m]
@@ -173,7 +169,7 @@ for p in phases:
 # complex model is required. But as long as the thermal chemistry is fast
 # relative to charge transfer, this should be an OK approximation.
 for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
-    s.advance_coverages(tss)
+    s.advance_coverages_to_steady_state()
     show_coverages(s)
 
 # %%
