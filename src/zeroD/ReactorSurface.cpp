@@ -258,6 +258,33 @@ void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
     }
 }
 
+void MoleReactorSurface::evalSteady(double t, double* LHS, double* RHS)
+{
+    eval(t, LHS, RHS);
+    double cov_sum = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        cov_sum += m_cov_tmp[k];
+    }
+    RHS[0] = 1.0 - cov_sum;
+}
+
+double MoleReactorSurface::upperBound(size_t k) const
+{
+    return BigNumber;
+}
+
+double MoleReactorSurface::lowerBound(size_t k) const
+{
+    return -Tiny;
+}
+
+void MoleReactorSurface::resetBadValues(double* y)
+{
+    for (size_t k = 0; k < m_nsp; k++) {
+        y[k] = std::max(y[k], 0.0);
+    }
+}
+
 void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
 {
     auto sdot_ddC = m_kinetics->netProductionRates_ddCi();

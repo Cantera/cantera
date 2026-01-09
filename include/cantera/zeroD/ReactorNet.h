@@ -151,8 +151,6 @@ public:
     //! - The mass of constant pressure reactor types (such as ConstPressureReactor and
     //!   IdealGasConstPressureReactor) must be constant; if flow devices are used,
     //!   inlet and outlet flows must be balanced.
-    //! - The solver is currently not compatible with the ConstPressureMoleReactor or
-    //!   IdealGasConstPressureMoleReactor classes.
     //! - Only ideal gas reactor types can be used for when the energy equation is
     //!   disabled (fixed temperature simulations).
     //!

@@ -3498,16 +3498,10 @@ class TestSteadySolver:
         ct.MassFlowController(r, downstream, mdot=160)
         net = ct.ReactorNet([r])
 
-        if "Mole" not in reactor_class.__name__:
-            net.solve_steady()
+        net.solve_steady()
 
-            assert r.mass == approx(m0)
-            assert r.phase.T == approx(2407.35011)
-        else:
-            # Expected to raise until https://github.com/Cantera/enhancements/issues/234
-            # is implemented
-            with pytest.raises(ct.CanteraError, match="See https://github.com"):
-                net.solve_steady()
+        assert r.mass == approx(m0)
+        assert r.phase.T == approx(2407.35011)
 
     @pytest.mark.parametrize("reactor_class",
         [ct.IdealGasReactor, ct.IdealGasMoleReactor])
@@ -3555,8 +3549,6 @@ class TestSteadySolver:
         [ct.ConstPressureReactor, ct.IdealGasConstPressureReactor,
          ct.ConstPressureMoleReactor, ct.IdealGasConstPressureMoleReactor])
     def test_steady_surface_disabled(self, reactor_class):
-        # This case demonstrated in this test should work after
-        # https://github.com/Cantera/enhancements/issues/234 is implemented
         surf = ct.Interface("methane_pox_on_pt.yaml", "Pt_surf")
         gas = surf.adjacent["gas"]
         gas.set_equivalence_ratio(0.22, "CH4:1.0", "O2:1.0, AR:3.76")
@@ -3566,19 +3558,17 @@ class TestSteadySolver:
         gas.equilibrate("HP")
         downstream = ct.Reservoir(gas)
         r = reactor_class(gas, volume=1e-2)
-        ct.ReactorSurface(surf, r, A=0.1)
+        rsurf = ct.ReactorSurface(surf, r, A=0.1)
         mdot = 0.2
         inlet = ct.MassFlowController(upstream, r, mdot=mdot)
         ct.MassFlowController(r, downstream, mdot=mdot)
         net = ct.ReactorNet([r])
-
-        with pytest.raises(ct.CanteraError, match="See https://github.com"):
-            net.solve_steady()
+        net.solve_steady()
 
         # Regression values based on net.advance_to_steady_state():
-        # assert r.phase.T == approx(983.7363377)
-        # assert r.phase.coverages[0] == approx(0.387425501)
-        # assert sum(r.phase.coverages) == approx(1.0)
+        assert r.phase.T == approx(983.7363377)
+        assert rsurf.phase.coverages[0] == approx(0.387425501)
+        assert sum(rsurf.phase.coverages) == approx(1.0)
 
     def test_jacobian(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
