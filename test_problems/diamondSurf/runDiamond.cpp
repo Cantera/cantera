@@ -15,22 +15,23 @@ int main(int argc, char** argv)
     int i, k;
 
     try {
-        auto gas = newThermo("diamond.yaml", "gas");
+        CanteraError::setStackTraceDepth(20);
+        auto iface = newInterface("diamond.yaml", "diamond_100");
+        auto gas = iface->adjacent("gas")->thermo();
         size_t nsp = gas->nSpecies();
         cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
-        auto diamond = newThermo("diamond.yaml", "diamond");
+        auto diamond = iface->adjacent("diamond")->thermo();
         size_t nsp_diamond = diamond->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
-        auto diamond100 = newThermo("diamond.yaml", "diamond_100");
+        auto diamond100 = iface->thermo();
         size_t nsp_d100 = diamond100->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({diamond100, gas, diamond}, "diamond.yaml");
-        InterfaceKinetics& ikin = dynamic_cast<InterfaceKinetics&>(*kin);
-        size_t nr = kin->nReactions();
+        auto ikin = iface->kinetics();
+        size_t nr = ikin->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
         double x[20];
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
         x[0] = 1.0;
         diamond100->setState_TP(1200., p);
 
-        ikin.advanceCoverages(100.);
+        ikin->advanceCoverages(100.);
 
         // Throw some asserts in here to test that they compile
         AssertTrace(p == p);
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
         for (i = 0; i < 20; i++) {
             src[i] = 0.0;
         }
-        kin->getNetProductionRates(src);
+        ikin->getNetProductionRates(src);
         double sum = 0.0;
         double naH = 0.0;
         for (k = 0; k < 13; k++) {

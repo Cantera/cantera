@@ -943,11 +943,11 @@ cdef class InterfaceKinetics(Kinetics):
         (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(
             dt, rtol, atol, max_step_size, max_steps, max_error_test_failures)
 
-    def advance_coverages_to_steady_state(self):
+    def advance_coverages_to_steady_state(self, loglevel=0):
         """
         This method advances the surface coverages to steady state.
         """
-        (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem()
+        (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem(loglevel)
 
     def phase_index(self, phase):
         """

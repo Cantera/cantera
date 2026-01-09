@@ -63,10 +63,10 @@ surf_phase.TP = tsurf, p
 gas = surf_phase.adjacent["gas"]
 gas.TPX = tinlet, p, comp1
 
-# integrate the coverage equations in time for 1 s, holding the gas
-# composition fixed to generate a good starting estimate for the coverages.
+# integrate the coverage equations holding the gas composition fixed to generate a good
+# starting estimate for the coverages.
 surf_phase.coverages = {'PT(S)': 0.5, 'O(S)':0.5}
-surf_phase.advance_coverages(1.0)
+surf_phase.advance_coverages_to_steady_state()
 
 # create the object that simulates the stagnation flow, and specify an initial
 # grid

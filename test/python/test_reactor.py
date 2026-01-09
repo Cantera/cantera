@@ -3063,6 +3063,7 @@ def setup_advance_converages_data(request):
     interface_phase = 'Pt_surf'
     request.cls.surf = ct.Interface(mechanism_file, interface_phase)
     request.cls.gas = request.cls.surf.adjacent["gas"]
+    request.cls.gas.equilibrate("HP") # get an interesting gas composition
 
 @pytest.mark.usefixtures('setup_advance_converages_data')
 class TestAdvanceCoverages:
@@ -3094,6 +3095,19 @@ class TestAdvanceCoverages:
         # check that the solutions are similar, but not identical
         assert cov == approx(self.surf.coverages)
         assert any(cov != self.surf.coverages)
+
+    def test_steady_state(self):
+        self.surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        self.gas.TP = self.surf.TP
+        self.surf.advance_coverages(100.0)
+        cov_time = self.surf.coverages
+
+        # Solution should be independent of initial surface coverages
+        self.surf.coverages = 'CO(S):0.2, PT(S):0.3, H(S):0.5'
+        self.surf.advance_coverages_to_steady_state()
+        cov_steady = self.surf.coverages
+
+        assert cov_time == approx(cov_steady, rel=1e-8, abs=1e-12)
 
 
 @pytest.fixture(scope='function')
