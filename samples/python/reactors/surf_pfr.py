@@ -52,14 +52,16 @@ mass_flow_rate = velocity * gas.density * area * porosity
 # create a new reactor
 r = ct.FlowReactor(gas)
 r.area = area
-r.surface_area_to_volume_ratio = cat_area_per_vol * porosity
 r.mass_flow_rate = mass_flow_rate
 r.energy_enabled = False
 
 # Add the reacting surface to the reactor
-rsurf = ct.ReactorSurface(surf, r)
+rsurf = ct.FlowReactorSurface(surf, r)
+#r.surface_area_to_volume_ratio = cat_area_per_vol * porosity
+rsurf.area = cat_area_per_vol * porosity * area
 
 sim = ct.ReactorNet([r])
+sim.verbose = True
 
 output_data = []
 n = 0

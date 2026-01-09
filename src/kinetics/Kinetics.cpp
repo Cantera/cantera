@@ -319,6 +319,17 @@ size_t Kinetics::kineticsSpeciesIndex(const string& nm, bool raise) const
     return npos;
 }
 
+size_t Kinetics::speciesOffset(const ThermoPhase& phase) const
+{
+    for (size_t n = 0; n < m_thermo.size(); n++) {
+        if (&phase == m_thermo[n].get()) {
+            return m_start[n];
+        }
+    }
+    throw CanteraError("Kinetics::speciesOffset",
+        "Phase '{}' not found in Kinetics object", phase.name());
+}
+
 ThermoPhase& Kinetics::speciesPhase(const string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {

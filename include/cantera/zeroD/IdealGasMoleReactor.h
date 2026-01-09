@@ -45,12 +45,14 @@ public:
     //! Neglects derivatives with respect to mole fractions that would generate a
     //! fully-dense Jacobian. Currently, also neglects terms related to interactions
     //! between reactors, for example via inlets and outlets.
-    Eigen::SparseMatrix<double> jacobian() override;
+    void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
+    void getJacobianScalingFactors(double& f_species, double* f_energy) override;
 
     bool preconditionerSupported() const override {return true;};
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies
+    double m_TotalCv; //!< Total heat capacity (@f$ m c_v @f$) [J/K]
 };
 
 }

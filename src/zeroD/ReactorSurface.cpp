@@ -48,10 +48,10 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Kinetics manager must be an InterfaceKinetics object.");
     }
-    m_kinetics = m_solution->kinetics();
+    m_kinetics = std::dynamic_pointer_cast<InterfaceKinetics>(m_solution->kinetics());
     m_thermo = m_surf.get();
-    m_cov.resize(m_surf->nSpecies());
-    m_surf->getCoverages(m_cov.data());
+    m_nsp = m_nv = m_surf->nSpecies();
+    m_sdot.resize(m_kinetics->nTotalSpecies(), 0.0);
 }
 
 double ReactorSurface::area() const
@@ -66,38 +66,85 @@ void ReactorSurface::setArea(double a)
 
 void ReactorSurface::setCoverages(const double* cov)
 {
-    copy(cov, cov + m_cov.size(), m_cov.begin());
+    m_surf->setCoveragesNoNorm(cov);
 }
 
 void ReactorSurface::setCoverages(const Composition& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::setCoverages(const string& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::getCoverages(double* cov) const
 {
-    copy(m_cov.begin(), m_cov.end(), cov);
+    m_surf->getCoverages(cov);
 }
 
-void ReactorSurface::restoreState()
+void ReactorSurface::getState(double* y)
 {
-    m_surf->setTemperature(m_reactors[0]->temperature());
-    m_surf->setCoveragesNoNorm(m_cov.data());
+    m_surf->getCoverages(y);
 }
 
-void ReactorSurface::syncState()
+void ReactorSurface::initialize(double t0)
 {
-    warn_user("ReactorSurface::syncState", "Behavior changed in Cantera 3.2 for "
-        "consistency with ReactorBase. To set SurfPhase state from ReactorSurface "
-        "object, use restoreState().");
-    m_surf->getCoverages(m_cov.data());
+    // Sync the surface temperature and pressure to that of the first adjacent reactor
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+}
+
+void ReactorSurface::updateState(double* y)
+{
+    m_surf->setCoveragesNoNorm(y);
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+    m_kinetics->getNetProductionRates(m_sdot.data());
+}
+
+void ReactorSurface::eval(double t, double* LHS, double* RHS)
+{
+    size_t nsp = m_surf->nSpecies();
+    double rs0 = 1.0 / m_surf->siteDensity();
+    double sum = 0.0;
+    for (size_t k = 1; k < nsp; k++) {
+        RHS[k] = m_sdot[k] * rs0 * m_surf->size(k);
+        sum -= RHS[k];
+    }
+    RHS[0] = sum;
+}
+
+void ReactorSurface::applySensitivity(double* params)
+{
+    if (!params) {
+        return;
+    }
+    for (auto& p : m_sensParams) {
+        if (p.type == SensParameterType::reaction) {
+            p.value = m_kinetics->multiplier(p.local);
+            m_kinetics->setMultiplier(p.local, p.value*params[p.global]);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->modifyOneHf298SS(p.local, p.value + params[p.global]);
+        }
+    }
+    m_thermo->invalidateCache();
+    m_kinetics->invalidateCache();
+}
+
+void ReactorSurface::resetSensitivity(double* params)
+{
+    if (!params) {
+        return;
+    }
+    for (auto& p : m_sensParams) {
+        if (p.type == SensParameterType::reaction) {
+            m_kinetics->setMultiplier(p.local, p.value);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->resetHf298(p.local);
+        }
+    }
+    m_thermo->invalidateCache();
+    m_kinetics->invalidateCache();
 }
 
 void ReactorSurface::addSensitivityReaction(size_t rxn)
@@ -112,19 +159,146 @@ void ReactorSurface::addSensitivityReaction(size_t rxn)
         SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
 }
 
-void ReactorSurface::setSensitivityParameters(const double* params)
+size_t ReactorSurface::componentIndex(const string& nm) const
 {
-    for (auto& p : m_sensParams) {
-        p.value = m_kinetics->multiplier(p.local);
-        m_kinetics->setMultiplier(p.local, p.value*params[p.global]);
+    return m_surf->speciesIndex(nm);
+}
+
+string ReactorSurface::componentName(size_t k)
+{
+    return m_surf->speciesName(k);
+}
+
+// ------ MoleReactorSurface methods ------
+
+void MoleReactorSurface::initialize(double t0)
+{
+    ReactorSurface::initialize(t0);
+    m_cov_tmp.resize(m_nsp);
+    m_f_energy.resize(m_kinetics->nTotalSpecies(), 0.0);
+    m_f_species.resize(m_kinetics->nTotalSpecies(), 0.0);
+    m_kin2net.resize(m_kinetics->nTotalSpecies(), -1);
+    m_kin2reactor.resize(m_kinetics->nTotalSpecies(), nullptr);
+
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_kin2net[k] = static_cast<int>(m_offset + k);
+    }
+    for (auto R : m_reactors) {
+        size_t nsp = R->phase()->thermo()->nSpecies();
+        size_t k0 = m_kinetics->speciesOffset(*R->phase()->thermo());
+        int offset = static_cast<int>(R->offset() + R->speciesOffset());
+        for (size_t k = 0; k < nsp; k++) {
+            m_kin2net[k + k0] = offset + k;
+            m_kin2reactor[k + k0] = R;
+        }
     }
 }
 
-void ReactorSurface::resetSensitivityParameters()
+void MoleReactorSurface::getState(double* y)
 {
-    for (auto& p : m_sensParams) {
-        m_kinetics->setMultiplier(p.local, p.value);
+    m_surf->getCoverages(y);
+    double totalSites = m_surf->siteDensity() * m_area;
+    for (size_t k = 0; k < m_nsp; k++) {
+        y[k] *= totalSites / m_surf->size(k);
     }
+}
+
+void MoleReactorSurface::updateState(double* y)
+{
+    std::copy(y, y + m_nsp, m_cov_tmp.data());
+    double totalSites = m_surf->siteDensity() * m_area;
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_cov_tmp[k] *= m_surf->size(k) / totalSites;
+    }
+    m_surf->setCoveragesNoNorm(m_cov_tmp.data());
+    m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
+    m_kinetics->getNetProductionRates(m_sdot.data());
+}
+
+void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
+{
+    for (size_t k = 0; k < m_nsp; k++) {
+        RHS[k] = m_sdot[k] * m_area / m_surf->size(k);
+    }
+}
+
+void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& trips)
+{
+    auto sdot_ddC = m_kinetics->netProductionRates_ddCi();
+    for (auto R : m_reactors) {
+        double f_species;
+        size_t nsp_R = R->phase()->thermo()->nSpecies();
+        size_t k0 = m_kinetics->speciesOffset(*R->phase()->thermo());
+        R->getJacobianScalingFactors(f_species, &m_f_energy[k0]);
+        std::fill(&m_f_species[k0], &m_f_species[k0 + nsp_R], m_area * f_species);
+    }
+    std::fill(&m_f_species[0], &m_f_species[m_nsp], 1.0); // surface species
+    for (int k = 0; k < sdot_ddC.outerSize(); k++) {
+        int col = m_kin2net[k];
+        if (col == -1) {
+            continue;
+        }
+        for (Eigen::SparseMatrix<double>::InnerIterator it(sdot_ddC, k); it; ++it) {
+            int row = m_kin2net[it.row()];
+            if (row == -1 || it.value() == 0.0) {
+                continue;
+            }
+            ReactorBase* R = m_kin2reactor[it.row()];
+            trips.emplace_back(row, col, it.value() * m_f_species[k]);
+            if (m_f_energy[it.row()] != 0.0) {
+                trips.emplace_back(R->offset(), col,
+                                   it.value() * m_f_energy[it.row()] * m_f_species[k]);
+            }
+        }
+    }
+}
+
+// ------ FlowReactorSurface methods ------
+
+FlowReactorSurface::FlowReactorSurface(shared_ptr<Solution> soln,
+                                       const vector<shared_ptr<ReactorBase>>& reactors,
+                                       bool clone,
+                                       const string& name)
+    : ReactorSurface(soln, reactors, clone, name)
+{
+    m_area = -1.0; // default to perimeter of cylindrical reactor
+}
+
+double FlowReactorSurface::area() const {
+    if (m_area > 0) {
+        return m_area;
+    }
+
+    // Assuming a cylindrical cross section, P = 2 * pi * r and A = pi * r^2, so
+    // P(A) = 2 * sqrt(pi * A)
+    return 2.0 * sqrt(Pi * m_reactors[0]->area());
+}
+
+void FlowReactorSurface::evalDae(double t, double* y, double* ydot, double* residual)
+{
+    size_t nsp = m_surf->nSpecies();
+    double sum = y[0];
+    for (size_t k = 1; k < nsp; k++) {
+        residual[k] = m_sdot[k];
+        sum += y[k];
+    }
+    residual[0] = sum - 1.0;
+}
+
+void FlowReactorSurface::getStateDae(double* y, double* ydot)
+{
+    // Advance the surface to steady state to get consistent initial coverages
+    m_kinetics->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
+                                 m_max_ss_error_fails);
+    getCoverages(y);
+    // Update the values in m_sdot that are needed by the adjacent FlowReactor
+    updateState(y);
+}
+
+void FlowReactorSurface::getConstraints(double* constraints)
+{
+    // The species coverages are algebraic constraints
+    std::fill(constraints, constraints + m_nsp, 1.0);
 }
 
 }

@@ -933,7 +933,7 @@ class TestReactor:
         assert p1a == approx(p1b)
         assert p2a == approx(p2b)
 
-    def test_reinitialize(self):
+    def test_reinitialize(self, allow_deprecated):
         self.make_reactors(T1=300, T2=1000)
         self.add_wall(U=200, A=1.0)
         self.net.advance(1.0)
@@ -941,6 +941,7 @@ class TestReactor:
         T2a = self.r2.T
 
         self.r1.phase.TD = 300, None
+        # Deprecated; After Cantera 4.0, replace with net.reinitialize()
         self.r1.syncState()
 
         self.r2.phase.TD = 1000, None
@@ -963,7 +964,6 @@ class TestReactor:
         self.net.advance(1.0)
         assert self.r1.T == approx(872.099, rel=1e-3)
         reservoir.phase.TP = 700, ct.one_atm
-        reservoir.syncState()
         self.net.reinitialize()
         self.net.advance(2.0)
         assert self.r1.T == approx(747.27, rel=1e-3)
@@ -1452,16 +1452,15 @@ class TestConstPressureReactor:
 
     def test_component_index(self):
         self.create_reactors(add_surf=True)
-        for (gas,net,iface,r) in ((self.gas1, self.net1, self.interface1, self.r1),
-                                  (self.gas2, self.net2, self.interface2, self.r2)):
+        for (gas,net,iface,r,s) in ((self.gas1, self.net1, self.interface1, self.r1, self.surf1),
+                                  (self.gas2, self.net2, self.interface2, self.r2, self.surf2)):
             net.step()
 
             N0 = net.n_vars - gas.n_species - iface.n_species
-            N1 = net.n_vars - iface.n_species
             for i, name in enumerate(gas.species_names):
                 assert i + N0 == r.component_index(name)
             for i, name in enumerate(iface.species_names):
-                assert i + N1 == r.component_index(name)
+                assert i  == s.component_index(name)
 
     def test_component_names(self):
         self.create_reactors(add_surf=True)
@@ -1818,11 +1817,11 @@ class TestFlowReactor:
         porosity = 0.3
         velocity = 0.4 / 60
         mdot = velocity * gas.density * r.area * porosity
-        r.surface_area_to_volume_ratio = porosity * 1e5
         r.mass_flow_rate = mdot
         r.energy_enabled = False
 
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.FlowReactorSurface(surf, r)
+        rsurf.area = 1e5 * porosity * r.area
 
         sim = ct.ReactorNet([r])
         kCH4 = gas.species_index('CH4')
@@ -1856,18 +1855,26 @@ class TestFlowReactor:
         sim = ct.ReactorNet([r])
         sim.initialize()
 
-        assert r.n_vars == 4 + gas.n_species + surf.n_species
-        assert sim.n_vars == r.n_vars
+        assert r.n_vars == 4 + gas.n_species
+        assert rsurf.n_vars == surf.n_species
+        assert sim.n_vars == r.n_vars + rsurf.n_vars
 
         for i in range(r.n_vars):
             name = r.component_name(i)
             assert r.component_index(name) == i
+            assert name in sim.component_name(i)
+
+        for i in range(rsurf.n_vars):
+            name = rsurf.component_name(i)
+            assert rsurf.component_index(name) == i
+            assert name in sim.component_name(i + r.n_vars)
 
         with pytest.raises(ct.CanteraError, match="Component 'spam' not found"):
             r.component_index('spam')
 
         with pytest.raises(ct.CanteraError, match="outside valid range"):
             r.component_name(200)
+
 
 class TestFlowReactor2:
     def import_phases(self):
@@ -1877,9 +1884,9 @@ class TestFlowReactor2:
     def make_reactors(self, gas, surf):
         r = ct.FlowReactor(gas)
         r.area = 1e-4
-        r.surface_area_to_volume_ratio = 5000
         r.mass_flow_rate = 0.02
-        rsurf = ct.ReactorSurface(surf, r)
+        rsurf = ct.FlowReactorSurface(surf, r)
+        rsurf.area = 5000 * r.area
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
 
@@ -2082,11 +2089,10 @@ class TestFlowReactor2:
 
         # Reset the reactor to the same initial state
         r.phase.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
-        surf.TP = 1700, 4000
+        rsurf.phase.TP = 1700, 4000
         r.mass_flow_rate = 0.01
-        r.syncState()
-
         sim.initial_time = 0.
+        sim.reinitialize()
         sim.advance(0.6)
         Ygas2 = r.phase.Y
         cov2 = rsurf.phase.coverages
@@ -2102,25 +2108,24 @@ class TestFlowReactor2:
         r, rsurf, sim = self.make_reactors(gas, surf)
 
         # With tight tolerances, some error test failures should be expected
-        r.inlet_surface_atol = 1e-14
-        r.inlet_surface_rtol = 1e-20
-        r.inlet_surface_max_error_failures = 1
+        rsurf.initial_atol = 1e-14
+        rsurf.initial_rtol = 1e-20
+        rsurf.initial_max_error_failures = 1
         with pytest.raises(ct.CanteraError, match="error test failed repeatedly"):
             sim.initialize()
 
         # With few steps allowed, won't be able to reach steady-state
-        r.inlet_surface_max_error_failures = 10
-        r.inlet_surface_max_steps = 200
+        rsurf.initial_max_error_failures = 10
+        rsurf.initial_max_steps = 200
         with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.initialize()
 
         # Relaxing the tolerances will allow the integrator to reach steady-state
         # in fewer timesteps
         surf.coverages = np.ones(surf.n_species)
-        r.inlet_surface_atol = 0.001
-        r.inlet_surface_rtol = 0.001
+        rsurf.initial_atol = 0.001
+        rsurf.initial_rtol = 0.001
         sim.initialize()
-
 
 def test_Si3N4_deposition_regression():
     # Regression test based on silicon nitride deposition example given in
@@ -2384,7 +2389,7 @@ class TestReactorSensitivities:
             Ns = r1.component_index(gas1.species_name(0))
 
             # Index of first variable corresponding to r2
-            K2 = Ns + gas1.n_species + interface.n_species
+            K2 = Ns + gas1.n_species
 
             # Constant volume should generate zero sensitivity coefficient
             assert S[1,:] == approx(np.zeros(2))
@@ -3009,8 +3014,6 @@ class TestExtensibleReactor:
                 self.v_wall = 0
                 self.k_wall = 1e-5
                 self.neighbor = neighbor
-
-            def after_initialize(self, t0):
                 self.n_vars += 1
                 self.i_wall = self.n_vars - 1
 
@@ -3105,6 +3108,13 @@ class TestExtensibleReactor:
             r2.component_index("H2")
         assert r2.component_index("succeed") == 0
 
+        class DummyReactor3(ct.ExtensibleReactor):
+            def before_foobar(self, t):
+                pass
+
+        with pytest.raises(ValueError, match="'foobar' is not a delegatable method"):
+            DummyReactor3(self.gas)
+
     def test_delegate_throws(self):
         class TestException(Exception):
             pass
@@ -3135,23 +3145,19 @@ class TestExtensibleReactor:
         class DummyReactor(ct.ExtensibleReactor):
             def __init__(self, gas, *args, **kwargs):
                 super().__init__(gas, *args, **kwargs)
-                self.sync_calls = 0
 
-            def after_species_index(self, name):
+            def after_component_index(self, name):
                 # This will cause returned species indices to be higher by 5 than they
                 # would be otherwise
-                return 5
-
-            def before_sync_state(self):
-                self.sync_calls += 1
+                if name in self.phase.species_names:
+                    return 5
+                else:
+                    return 0
 
         r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
         assert r.component_index("H2") == 5 + 3 + self.gas.species_index("H2")
-        r.syncState()
-        net.advance(1)
-        r.syncState()
-        assert r.sync_calls == 2
+        assert r.component_index("int_energy") == 2
 
     def test_RHS_LHS(self):
         # set initial state
@@ -3241,41 +3247,40 @@ class TestExtensibleReactor:
         kHs = surf.species_index("H(S)")
         kPts = surf.species_index("PT(S)")
         kH2 = gas.species_index("H2")
+        kH2_kin = surf.kinetics_species_index("H2")
         kO2 = gas.species_index("O2")
-        class SurfReactor(ct.ExtensibleIdealGasReactor):
-            def replace_eval_surfaces(self, LHS, RHS, sdot):
-                site_density = self.surfaces[0].phase.site_density
-                sdot[:] = 0.0
-                LHS[:] = 1.0
-                RHS[:] = 0.0
-                C = self.phase.concentrations
-                theta = self.surfaces[0].coverages
-
-                # Replace actual reactions with simple absorption of H2 -> H(S)
-                rop = 1e-4 * C[kH2] * theta[kPts]
-                RHS[kHs] = 2 * rop / site_density
-                RHS[kPts] = - 2 * rop / site_density
-                sdot[kH2] = - rop * self.surfaces[0].area
-
-            def replace_get_surface_initial_conditions(self, y):
+        class CustomSurface(ct.ExtensibleReactorSurface):
+            def replace_get_state(self, y):
                 y[:] = 0
                 y[kPts] = 1
 
-            def replace_update_surface_state(self, y):
+            def replace_update_state(self, y):
                 # this is the same thing the original method does
-                self.surfaces[0].coverages = y
+                self.phase.set_unnormalized_coverages(y)
 
-        r1 = SurfReactor(gas)
+                # Replace actual reactions with simple absorption of H2 -> H(S)
+                C = self.reactors[0].phase.concentrations
+                theta = self.phase.coverages
+                self.rop = 1e-4 * C[kH2] * theta[kPts]
+                self.surface_production_rates[:] = 0.0
+                self.surface_production_rates[kH2_kin] = - self.rop
+
+            def replace_eval(self, t, LHS, RHS):
+                site_density = self.phase.site_density
+                RHS[kHs] = 2 * self.rop / site_density
+                RHS[kPts] = - 2 * self.rop / site_density
+
+        r1 = ct.IdealGasReactor(gas)
         r1.volume = 1e-6 # 1 cm^3
         r1.energy_enabled = False
-        rsurf = ct.ReactorSurface(surf, r=r1, A=0.01)
+        rsurf = CustomSurface(surf, r=r1, A=0.01)
         net = ct.ReactorNet([r1])
 
         Hweight = ct.Element("H").weight
         total_sites = rsurf.area * surf.site_density
         def masses():
             mass_H = (r1.phase.elemental_mass_fraction("H") * r1.mass +
-                      total_sites * r1.surfaces[0].phase["H(s)"].X * Hweight)
+                      total_sites * rsurf.phase["H(S)"].X * Hweight)
             mass_O = r1.phase.elemental_mass_fraction("O") * r1.mass
             return mass_H, mass_O
 
@@ -3292,8 +3297,8 @@ class TestExtensibleReactor:
         assert r1.phase.P == approx(647.56016304)
         assert r1.phase.X[kH2] == approx(0.4784268406)
         assert r1.phase.X[kO2] == approx(0.5215731594)
-        assert r1.surfaces[0].phase.X[kHs] == approx(0.3665198138)
-        assert r1.surfaces[0].phase.X[kPts] == approx(0.6334801862)
+        assert rsurf.phase.X[kHs] == approx(0.3665198138)
+        assert rsurf.phase.X[kPts] == approx(0.6334801862)
 
     def test_interactions(self):
         # Reactors connected by a movable, H2-permeable surface

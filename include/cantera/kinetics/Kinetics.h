@@ -274,6 +274,8 @@ public:
         return m_start[n] + k;
     }
 
+    size_t speciesOffset(const ThermoPhase& phase) const;
+
     //! Return the name of the kth species in the kinetics manager.
     /*!
      * k is an integer from 0 to ktot - 1, where ktot is the number of
