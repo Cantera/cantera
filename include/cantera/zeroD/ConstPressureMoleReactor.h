@@ -30,12 +30,8 @@ public:
 
     void getState(double* y) override;
     void eval(double t, double* LHS, double* RHS) override;
-
-    vector<size_t> initializeSteady() override {
-        throw CanteraError("ConstPressureMoleReactor::initializeSteady",
-            "ConstPressureMoleReactor is not currently compatible with the steady-state"
-            " solver.\nSee https://github.com/Cantera/enhancements/issues/234");
-    }
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    vector<size_t> initializeSteady() override;
 
     void updateState(double* y) override;
 
@@ -47,6 +43,7 @@ public:
 
 protected:
     const size_t m_sidx = 1;
+    double m_initialMass; //!< Initial mass [kg]; used for steady-state calculations
 };
 
 }

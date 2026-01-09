@@ -148,6 +148,10 @@ public:
     void getState(double* y) override;
     void updateState(double* y) override;
     void eval(double t, double* LHS, double* RHS) override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    double upperBound(size_t k) const override;
+    double lowerBound(size_t k) const override;
+    void resetBadValues(double* y) override;
     void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
 
 protected:
