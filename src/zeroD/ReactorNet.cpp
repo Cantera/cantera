@@ -161,6 +161,7 @@ ReactorNet::ReactorNet(span<shared_ptr<ReactorBase>> reactors)
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setLinearSolverType("DENSE");
+    setTolerances(-1.0, -1.0);
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -189,7 +190,8 @@ void ReactorNet::setTolerances(double rtol, double atol)
     if (atol >= 0.0) {
         m_atols = atol;
     }
-    m_needIntegratorInit = true;
+    fill(m_atol.begin(), m_atol.end(), m_atols);
+    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
 }
 
 void ReactorNet::setSensitivityTolerances(double rtol, double atol)
@@ -200,7 +202,7 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
     if (atol >= 0.0) {
         m_atolsens = atol;
     }
-    m_needIntegratorInit = true;
+    m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
 }
 
 double ReactorNet::time() {
@@ -229,9 +231,6 @@ void ReactorNet::initialize()
         }
         return;
     }
-    fill(m_atol.begin(), m_atol.end(), m_atols);
-    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
-    m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     if (!m_linearSolverType.empty()) {
         m_integ->setLinearSolverType(m_linearSolverType);
     }

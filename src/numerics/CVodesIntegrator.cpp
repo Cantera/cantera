@@ -160,6 +160,10 @@ void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
         NV_Ith_S(m_abstol, i) = abstol[i];
     }
     m_reltol = reltol;
+    if (m_cvode_mem) {
+        int flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
+        checkError(flag, "setTolerances", "CVodeSVtolerances");
+    }
 }
 
 void CVodesIntegrator::setTolerances(double reltol, double abstol)
@@ -167,12 +171,26 @@ void CVodesIntegrator::setTolerances(double reltol, double abstol)
     m_itol = CV_SS;
     m_reltol = reltol;
     m_abstols = abstol;
+    if (m_cvode_mem) {
+        int flag = CVodeSStolerances(m_cvode_mem, m_reltol, m_abstols);
+        checkError(flag, "setTolerances", "CVodeSStolerances");
+    }
 }
 
 void CVodesIntegrator::setSensitivityTolerances(double reltol, double abstol)
 {
     m_reltolsens = reltol;
     m_abstolsens = abstol;
+    if (m_cvode_mem && m_yS) {
+        vector<double> atol(m_np);
+        for (size_t n = 0; n < m_np; n++) {
+            // This scaling factor is tuned so that reaction and species enthalpy
+            // sensitivities can be computed simultaneously with the same abstol.
+            atol[n] = m_abstolsens / m_func->m_paramScales[n];
+        }
+        int flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
+        checkError(flag, "setSensitivityTolerances", "CVodeSensSStolerances");
+    }
 }
 
 void CVodesIntegrator::setMethod(MethodType t)
@@ -255,15 +273,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     int flag = CVodeSensInit(m_cvode_mem, static_cast<int>(m_np),
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
     checkError(flag, "sensInit", "CVodeSensInit");
-
-    vector<double> atol(m_np);
-    for (size_t n = 0; n < m_np; n++) {
-        // This scaling factor is tuned so that reaction and species enthalpy
-        // sensitivities can be computed simultaneously with the same abstol.
-        atol[n] = m_abstolsens / func.m_paramScales[n];
-    }
-    flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
-    checkError(flag, "sensInit", "CVodeSensSStolerances");
+    setSensitivityTolerances(m_reltolsens, m_abstolsens);
 }
 
 void CVodesIntegrator::initialize(double t0, FuncEval& func)
