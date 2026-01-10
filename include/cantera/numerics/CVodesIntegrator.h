@@ -20,8 +20,7 @@ namespace Cantera
 /**
  * Wrapper class for 'cvodes' integrator from LLNL.
  *
- * See FuncEval.h. Classes that use CVodesIntegrator:
- * ImplicitSurfChem, ReactorNet
+ * See FuncEval.h. Classes that use CVodesIntegrator: ReactorNet
  */
 class CVodesIntegrator : public Integrator
 {
