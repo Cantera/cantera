@@ -208,11 +208,13 @@ int MultiNewton::solve(span<const double> x0, span<double> x1,
     double s1=1.e30;
 
     copy(x0.begin(), x0.end(), m_x.begin());
+    m_lastIterations = 0;
 
     double rdt = r.rdt();
     int nJacReeval = 0;
     auto jac = r.linearSolver();
     while (true) {
+        m_lastIterations++;
         // Check whether the Jacobian should be re-evaluated.
         if (jac->age() > m_maxAge) {
             if (loglevel > 1) {

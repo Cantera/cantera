@@ -1430,6 +1430,14 @@ cdef class Sim1D:
         """
         self.sim.setTimeStepFactor(tfactor)
 
+    def set_time_step_regrid(self, max_tries=10):
+        """
+        Set the maximum number of regrid attempts after a time step failure.
+
+        Setting ``max_tries`` to zero disables regrid-on-timestep-failure retries.
+        """
+        self.sim.setTimeStepRegridMax(max_tries)
+
     def set_min_time_step(self, tsmin):
         """ Set the minimum time step. """
         self.sim.setMinTimeStep(tsmin)
