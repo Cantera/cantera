@@ -34,7 +34,7 @@ FlowReactor::FlowReactor(shared_ptr<Solution> sol, bool clone, const string& nam
 
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
-    m_thermo->getMassFractions(y+m_offset_Y);
+    m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
     const vector<double>& mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
@@ -152,7 +152,7 @@ void FlowReactor::updateState(double* y)
     // Set the mass fractions and density of the mixture.
     m_rho = y[0];
     m_u = y[1];
-    m_thermo->setMassFractions_NoNorm(y + m_offset_Y);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + m_offset_Y, m_nsp));
     m_thermo->setState_TP(y[3], y[2]);
 }
 

@@ -267,12 +267,12 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     m_thermo->restoreState(nsp+2, state1);
     double p1 = m_thermo->pressure();
     double t1 = state1[0];
-    m_thermo->getMoleFractions(x1);
+    m_thermo->getMoleFractions(span<double>(x1, nsp));
 
     m_thermo->restoreState(nsp+2, state2);
     double p2 = m_thermo->pressure();
     double t2 = state2[0];
-    m_thermo->getMoleFractions(x2);
+    m_thermo->getMoleFractions(span<double>(x2, nsp));
 
     double p = 0.5*(p1 + p2);
     double t = 0.5*(state1[0] + state2[0]);
@@ -281,7 +281,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
         x3[n] = 0.5*(x1[n] + x2[n]);
     }
     m_thermo->setState_TPX(t, p, x3);
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     // update the binary diffusion coefficients if necessary
     update_T();
@@ -405,7 +405,7 @@ void MultiTransport::update_T()
 void MultiTransport::update_C()
 {
     // Update the local mole fraction array
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     for (size_t k = 0; k < m_nsp; k++) {
         // add an offset to avoid a pure species condition

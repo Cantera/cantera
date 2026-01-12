@@ -38,3 +38,5 @@ par_type_crosswalk:
   double*: double*
   vector<double>: double*
   string: char*
+  span<double>: double*
+  span<const double>: const double*

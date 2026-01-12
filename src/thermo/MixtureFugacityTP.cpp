@@ -242,7 +242,7 @@ void MixtureFugacityTP::setPressure(double p)
 void MixtureFugacityTP::compositionChanged()
 {
     Phase::compositionChanged();
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
     updateMixingExpressions();
 }
 

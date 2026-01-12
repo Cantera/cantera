@@ -150,8 +150,8 @@ TEST_P(TestConsistency, h_eq_u_plus_Pv) {
     if (phase->type() == "plasma" && ke != npos) {
         // Two-temperature identity for PlasmaPhase:
         // h = u + p*v + X_e * R * (Te - T)
-        std::vector<double> X(nsp);
-        phase->getMoleFractions(X.data());
+        vector<double> X(nsp);
+        phase->getMoleFractions(X);
         double Xe = X[ke];
         EXPECT_NEAR(h, u + p * v + Xe * (RTe - RT), atol);
     } else {
@@ -591,7 +591,7 @@ TEST_P(TestConsistency, activity_coeffs) {
     try {
         phase->getActivities(a.data());
         phase->getActivityCoefficients(gamma.data());
-        phase->getMoleFractions(X.data());
+        phase->getMoleFractions(X);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }

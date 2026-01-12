@@ -24,9 +24,7 @@ int main(int argc, char** argv)
 
         size_t nsp = DH->nSpecies();
         double acMol[100];
-        double mf[100];
         double moll[100];
-        DH->getMoleFractions(mf);
         string sName;
 
         DH->setState_TP(298.15, 1.01325E5);

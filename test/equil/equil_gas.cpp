@@ -151,7 +151,7 @@ public:
         double mu_N = mu[gas.speciesIndex("N")];
         double mu_Ar = mu[gas.speciesIndex("AR")];
 
-        gas.getMoleFractions(&X[0]);
+        gas.getMoleFractions(X);
         for (size_t k = 0; k < gas.nSpecies(); k++) {
             if (X[k] < 1e-15) {
                 continue;

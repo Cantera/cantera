@@ -13,6 +13,7 @@
 #include "cantera/thermo/Elements.h"
 #include "cantera/base/ValueCache.h"
 
+
 namespace Cantera
 {
 
@@ -452,27 +453,27 @@ public:
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
-    //!          length greater than or equal to the number of species.
-    void getMoleFractions(double* const x) const;
+    //!          size greater than or equal to the number of species.
+    void getMoleFractions(span<double> x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
     //! Internally, the Phase object will normalize this vector before storing
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
-    //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const double* const x);
+    //! have a size greater than or equal to the number of species, m_kk.
+    virtual void setMoleFractions(span<const double> x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param x  Input vector of mole fractions. Length is m_kk.
-    virtual void setMoleFractions_NoNorm(const double* const x);
+    virtual void setMoleFractions_NoNorm(span<const double> x);
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(double* const y) const;
+    void getMassFractions(span<double> y) const;
 
     //! Return a const pointer to the mass fraction array
     const double* massFractions() const {
@@ -484,14 +485,14 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const double* const y);
+    virtual void setMassFractions(span<const double> y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param y  Input vector of mass fractions. Length is m_kk.
-    virtual void setMassFractions_NoNorm(const double* const y);
+    virtual void setMassFractions_NoNorm(span<const double> y);
 
     //! Get the species concentrations (kmol/m^3).
     /*!

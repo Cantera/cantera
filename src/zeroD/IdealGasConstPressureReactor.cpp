@@ -22,7 +22,7 @@ void IdealGasConstPressureReactor::getState(double* y)
     y[1] = m_thermo->temperature();
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(y+2);
+    m_thermo->getMassFractions(span<double>(y + 2, m_nsp));
 }
 
 void IdealGasConstPressureReactor::initialize(double t0)
@@ -43,7 +43,7 @@ void IdealGasConstPressureReactor::updateState(double* y)
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(y+2);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + 2, m_nsp));
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);

@@ -89,7 +89,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject,
     }
 
     setState_TP(Temp_, Pres_);
-    TP_ptr->getMoleFractions(&Xmol_[0]);
+    TP_ptr->getMoleFractions(Xmol_);
     creationMoleNumbers_ = Xmol_;
     _updateMoleFractionDependencies();
 
@@ -165,7 +165,8 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
     if (TP_ptr) {
-        TP_ptr->setMoleFractions(&Xmol_[m_MFStartIndex]);
+        TP_ptr->setMoleFractions(span<const double>(
+            &Xmol_[m_MFStartIndex], m_numSpecies));
         TP_ptr->setPressure(Pres_);
     }
     if (!m_isIdealSoln) {

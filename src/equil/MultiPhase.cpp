@@ -169,7 +169,8 @@ ThermoPhase& MultiPhase::phase(size_t n)
         init();
     }
     m_phase[n]->setTemperature(m_temp);
-    m_phase[n]->setMoleFractions_NoNorm(&m_moleFractions[m_spstart[n]]);
+    m_phase[n]->setMoleFractions_NoNorm(
+        span<const double>(&m_moleFractions[m_spstart[n]], m_phase[n]->nSpecies()));
     m_phase[n]->setPressure(m_press);
     return *m_phase[n];
 }
@@ -395,9 +396,9 @@ void MultiPhase::setMoles(const double* n)
         if (nsp > 1) {
             if (phasemoles > 0.0) {
                 p->setState_TPX(m_temp, m_press, n + loc);
-                p->getMoleFractions(&m_moleFractions[loc]);
+                p->getMoleFractions(span<double>(&m_moleFractions[loc], nsp));
             } else {
-                p->getMoleFractions(&m_moleFractions[loc]);
+                p->getMoleFractions(span<double>(&m_moleFractions[loc], nsp));
             }
         } else {
             m_moleFractions[loc] = 1.0;
@@ -836,7 +837,7 @@ void MultiPhase::uploadMoleFractionsFromPhases()
     size_t loc = 0;
     for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
-        p->getMoleFractions(m_moleFractions.data() + loc);
+        p->getMoleFractions(span<double>(m_moleFractions.data() + loc, p->nSpecies()));
         loc += p->nSpecies();
     }
     calcElemAbundances();
