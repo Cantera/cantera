@@ -192,8 +192,8 @@ void Flow1D::resetBadValues(double* xg)
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
         double* Y = x + m_nv*j + c_offset_Y;
-        m_thermo->setMassFractions(Y);
-        m_thermo->getMassFractions(Y);
+        m_thermo->setMassFractions(span<const double>(Y, m_nsp));
+        m_thermo->getMassFractions(span<double>(Y, m_nsp));
     }
 }
 
@@ -225,7 +225,7 @@ void Flow1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
         T(x,j) = m_thermo->temperature();
-        m_thermo->getMassFractions(&Y(x, 0, j));
+        m_thermo->getMassFractions(span<double>(&Y(x, 0, j), m_nsp));
         m_rho[j] = m_thermo->density();
     }
 }
@@ -233,7 +233,7 @@ void Flow1D::_getInitialSoln(double* x)
 void Flow1D::setGas(const double* x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
-    const double* yy = x + m_nv*j + c_offset_Y;
+    span<const double> yy(x + m_nv*j + c_offset_Y, m_nsp);
     m_thermo->setMassFractions_NoNorm(yy);
     m_thermo->setPressure(m_press);
 }
@@ -246,7 +246,7 @@ void Flow1D::setGasAtMidpoint(const double* x, size_t j)
     for (size_t k = 0; k < m_nsp; k++) {
         m_ybar[k] = 0.5*(yy_j[k] + yy_j_plus1[k]);
     }
-    m_thermo->setMassFractions_NoNorm(m_ybar.data());
+    m_thermo->setMassFractions_NoNorm(m_ybar);
     m_thermo->setPressure(m_press);
 }
 
@@ -930,7 +930,8 @@ void Flow1D::updateState(size_t loc)
             "Domain does not have associated Solution object.");
     }
     const double* soln = m_state->data() + m_iloc + m_nv * loc;
-    m_solution->thermo()->setMassFractions_NoNorm(soln + c_offset_Y);
+    m_solution->thermo()->setMassFractions_NoNorm(
+        span<const double>(soln + c_offset_Y, m_nsp));
     m_solution->thermo()->setState_TP(*(soln + c_offset_T), m_press);
 }
 

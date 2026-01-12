@@ -406,10 +406,10 @@ TEST_F(GasTransportTest, getFluxes_multi)
     s_thermo->setState_TPX(T2, P0,
         "H2:0.25, H:0.0001, H2O:0.17, CO:0.15, CO2:0.05, NO:0.001, N2: 0.38");
     s_thermo->saveState(state2);
-    s_thermo->getMoleFractions(X2.data());
+    s_thermo->getMoleFractions(X2);
     s_thermo->setState_TPX(T3, P0, "H2:0.27, H2O:0.18, CO:0.13, CO2:0.04, N2: 0.38");
     s_thermo->saveState(state3);
-    s_thermo->getMoleFractions(X3.data());
+    s_thermo->getMoleFractions(X3);
     double grad_T = (T3 - T2) / dist;
     for (size_t k = 0; k < nsp; k++) {
         X1[k] = 0.5 * (X2[k] + X3[k]);

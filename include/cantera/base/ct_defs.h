@@ -21,6 +21,7 @@
 // STL includes
 #include <cstdlib>
 #include <vector>
+#include <span>
 #include <map>
 #include <set>
 #include <string>
@@ -45,6 +46,7 @@ using std::map;
 using std::set;
 using std::function;
 using std::pair;
+using std::span;
 
 /**
  * @defgroup physConstants Physical Constants

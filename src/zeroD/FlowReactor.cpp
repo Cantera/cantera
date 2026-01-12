@@ -23,7 +23,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         throw CanteraError("FlowReactor::getStateDae", "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
-    m_thermo->getMassFractions(y+m_offset_Y);
+    m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
     const vector<double>& mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
@@ -197,8 +197,7 @@ void FlowReactor::updateState(double* y)
     m_u = y[1];
     m_P = y[2];
     m_T = y[3];
-    double* mss = y + m_offset_Y;
-    m_thermo->setMassFractions_NoNorm(mss);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + m_offset_Y, m_nsp));
     m_thermo->setState_TP(m_T, m_P);
 
     // update surface

@@ -377,8 +377,8 @@ public:
 
         vector<double> Y1(kk), Y2(kk), h1(kk), h2(kk), s1(kk), s2(kk);
         vector<double> mu1(kk), mu2(kk), v1(kk), v2(kk), a1(kk), a2(kk);
-        original->getMassFractions(Y1.data());
-        duplicate->getMassFractions(Y2.data());
+        original->getMassFractions(Y1);
+        duplicate->getMassFractions(Y2);
         original->getPartialMolarEnthalpies(h1.data());
         duplicate->getPartialMolarEnthalpies(h2.data());
         original->getPartialMolarEntropies(s1.data());

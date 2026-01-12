@@ -59,7 +59,7 @@ void calc_potentials()
             }
         }
 
-        electrodebulk->setMoleFractions(&xv[0]);
+        electrodebulk->setMoleFractions(xv);
         electrodebulk->setTemperature(Tk);
         electrodebulk->getChemPotentials(spvals.data());
 

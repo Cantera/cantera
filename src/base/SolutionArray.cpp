@@ -863,7 +863,8 @@ void SolutionArray::normalize() {
         size_t offset = nativeState["Y"];
         for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
-            phase->setMassFractions(m_data->data() + m_loc * m_stride + offset);
+            auto* data = m_data->data() + m_loc * m_stride + offset;
+            phase->setMassFractions(span<const double>(data, phase->nSpecies()));
             m_sol->thermo()->saveState(out);
             setState(loc, out);
         }
@@ -871,7 +872,8 @@ void SolutionArray::normalize() {
         size_t offset = nativeState["X"];
         for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
-            phase->setMoleFractions(m_data->data() + m_loc * m_stride + offset);
+            auto* data = m_data->data() + m_loc * m_stride + offset;
+            phase->setMoleFractions(span<const double>(data, phase->nSpecies()));
             m_sol->thermo()->saveState(out);
             setState(loc, out);
         }
@@ -1115,9 +1117,9 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         }
         setLoc(row);
         if (mole) {
-            m_sol->thermo()->getMoleFractions(buf.data());
+            m_sol->thermo()->getMoleFractions(buf);
         } else {
-            m_sol->thermo()->getMassFractions(buf.data());
+            m_sol->thermo()->getMassFractions(buf);
         }
 
         size_t idx = 0;
@@ -1285,7 +1287,7 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         if (surf) {
             surf->getCoverages(&values[0]);
         } else {
-            phase->getMassFractions(&values[0]);
+            phase->getMassFractions(values);
         }
         AnyMap items;
         for (size_t k = 0; k < nSpecies; k++) {
@@ -1773,7 +1775,7 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setState_TP(T[i], P[i]);
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }
@@ -1786,7 +1788,7 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setState_TD(T[i], D[i]);
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }
@@ -1799,7 +1801,7 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "Y", m_dataSize, nSpecies);
         vector<vector<double>> Y = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMassFractions_NoNorm(Y[i].data());
+            m_sol->thermo()->setMassFractions_NoNorm(Y[i]);
             m_sol->thermo()->setState_TP(T[i], P[i]);
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }
@@ -1811,7 +1813,7 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setTemperature(T[i]);
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }

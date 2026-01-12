@@ -676,7 +676,7 @@ void MultiPhaseEquil::reportCSV(const string& reportFile)
         ThermoPhase& tref = m_mix->phase(iphase);
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
-        tref.getMoleFractions(&mf[istart]);
+        tref.getMoleFractions(span<double>(&mf[istart], tref.nSpecies()));
         tref.getPartialMolarVolumes(VolPM.data());
 
         double TMolesPhase = phaseMoles(iphase);
@@ -697,7 +697,7 @@ void MultiPhaseEquil::reportCSV(const string& reportFile)
         size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         ThermoPhase* tp = &tref;
-        tp->getMoleFractions(&mf[istart]);
+        tp->getMoleFractions(span<double>(&mf[istart], tp->nSpecies()));
         string phaseName = tref.name();
         double TMolesPhase = phaseMoles(iphase);
         size_t nSpecies = tref.nSpecies();

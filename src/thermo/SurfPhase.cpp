@@ -219,7 +219,7 @@ void SurfPhase::setCoverages(const double* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = theta[k] / (sum * size(k));
     }
-    setMoleFractions(m_work.data());
+    setMoleFractions(m_work);
 }
 
 void SurfPhase::setCoveragesNoNorm(const double* theta)
@@ -237,14 +237,14 @@ void SurfPhase::setCoveragesNoNorm(const double* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = theta[k] * sum2 / (sum * size(k));
     }
-    setMoleFractions_NoNorm(m_work.data());
+    setMoleFractions_NoNorm(m_work);
 }
 
 void SurfPhase::getCoverages(double* theta) const
 {
     double sum_X = 0.0;
     double sum_X_s = 0.0;
-    getMoleFractions(theta);
+    getMoleFractions(span<double>(theta, m_kk));
     for (size_t k = 0; k < m_kk; k++) {
         sum_X += theta[k];
         sum_X_s += theta[k] * size(k);
@@ -291,7 +291,7 @@ void SurfPhase::setState(const AnyMap& state) {
 void SurfPhase::compositionChanged()
 {
     ThermoPhase::compositionChanged();
-    getMoleFractions(m_work.data());
+    getMoleFractions(m_work);
     double q = 0;
     double sumX = 0;
     for (size_t k = 0; k < m_kk; k++) {

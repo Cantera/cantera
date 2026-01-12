@@ -312,7 +312,7 @@ class HeaderGenerator:
             what = par.p_type
             par_key = what.removeprefix("const ").removesuffix(" const").rstrip("&")
             if par_key in self._config.par_type_crosswalk:
-                if "vector<" in par_key:
+                if "vector<" in par_key or "span<" in par_key:
                     params.append(
                         Param("int32_t", f"{par.name}Len",
                               f"Length of vector reserved for {par.name}.", "in"))
@@ -348,6 +348,7 @@ class HeaderGenerator:
                         Param(ret_type, par.name, description.strip(), par.direction))
             else:
                 msg = f"Failed crosswalk for argument type {par_key!r}."
+                msg += " Known types: " + ", ".join(self._config.par_type_crosswalk.keys())
                 _LOGGER.critical(msg)
                 sys.exit(1)
         return params

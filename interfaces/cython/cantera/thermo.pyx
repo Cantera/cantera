@@ -8,6 +8,7 @@ import numpy as np
 cimport numpy as np
 
 from .speciesthermo cimport *
+from .ctcxx cimport span
 from .kinetics cimport CxxKinetics
 from .transport cimport *
 from ._utils cimport *
@@ -1124,7 +1125,7 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(Y), self.n_species))
-        self.thermo.setMassFractions_NoNorm(&data[0])
+        self.thermo.setMassFractions_NoNorm(span[double](&data[0], data.size))
 
     def set_unnormalized_mole_fractions(self, X):
         """
@@ -1138,7 +1139,7 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise ValueError("Array has incorrect length."
                 " Got {}, expected {}.".format(len(X), self.n_species))
-        self.thermo.setMoleFractions_NoNorm(&data[0])
+        self.thermo.setMoleFractions_NoNorm(span[double](&data[0], data.size))
 
     def mass_fraction_dict(self, double threshold=0.0):
         """

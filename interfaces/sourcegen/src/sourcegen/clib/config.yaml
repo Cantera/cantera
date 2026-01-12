@@ -36,6 +36,8 @@ par_type_crosswalk:
   double: double
   double*: double*
   vector<double>: double*
+  span<double>: double*
+  span<const double>: const double*
   string: char*
 
 # Cabinets with associated preambles (headers)

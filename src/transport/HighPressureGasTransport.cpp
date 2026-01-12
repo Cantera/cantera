@@ -136,13 +136,13 @@ void HighPressureGasTransportBase::initializeCriticalProperties()
     m_Zcrit.resize(nSpecies);
 
     vector<double> molefracs(nSpecies);
-    m_thermo->getMoleFractions(&molefracs[0]);
+    m_thermo->getMoleFractions(molefracs);
 
     vector<double> mf_temp(nSpecies, 0.0);
 
     for (size_t i = 0; i < nSpecies; ++i) {
         mf_temp[i] = 1.0;
-        m_thermo->setMoleFractions(&mf_temp[0]);
+        m_thermo->setMoleFractions(mf_temp);
 
         if (m_thermo->critTemperature() > 1e4) {
             throw CanteraError(
@@ -161,7 +161,7 @@ void HighPressureGasTransportBase::initializeCriticalProperties()
     }
 
     // Restore actual mole fractions
-    m_thermo->setMoleFractions(&molefracs[0]);
+    m_thermo->setMoleFractions(molefracs);
 }
 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
@@ -351,7 +351,7 @@ double HighPressureGasTransport::thermalConductivity()
 {
     update_T();
     vector<double> molefracs(m_nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
+    m_thermo->getMoleFractions(molefracs);
     vector<double> cp_0_R(m_nsp);
     m_thermo->getCp_R_ref(&cp_0_R[0]); // Cp/R
 
@@ -594,7 +594,7 @@ void HighPressureGasTransport::computeMixtureParameters()
     double P_vap_mix = m_thermo->satPressure(tKelvin);
     size_t nsp = m_thermo->nSpecies();
     vector<double> molefracs(nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
+    m_thermo->getMoleFractions(molefracs);
 
     double x_H = molefracs[0]; // Holds the mole fraction of the heaviest species
     for (size_t i = 0; i < m_nsp; i++) {
@@ -945,7 +945,7 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
     m_mu_r_mix = 0.0;
 
     vector<double> molefracs(m_nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
+    m_thermo->getMoleFractions(molefracs);
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j <m_nsp; j++){
             double sigma_ij = sqrt(m_sigma_i[i]*m_sigma_i[j]); // Equation 9-5.33

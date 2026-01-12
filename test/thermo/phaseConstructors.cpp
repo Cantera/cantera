@@ -441,7 +441,7 @@ TEST(HMWSoln, fromScratch)
     size_t N = p.nSpecies();
     vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
     p.getMolalityActivityCoefficients(acMol.data());
-    p.getMoleFractions(mf.data());
+    p.getMoleFractions(mf);
     p.getActivities(activities.data());
     p.getMolalities(moll.data());
     p.getStandardChemPotentials(mu0.data());

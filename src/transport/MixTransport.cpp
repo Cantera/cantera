@@ -167,7 +167,7 @@ void MixTransport::update_C()
     // before use, and update the local mole fractions.
     m_visc_ok = false;
     m_condmix_ok = false;
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     // add an offset to avoid a pure species condition
     for (size_t k = 0; k < m_nsp; k++) {

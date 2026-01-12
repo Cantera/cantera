@@ -59,7 +59,7 @@ double MolalityVPSSTP::moleFSolventMin() const
 
 void MolalityVPSSTP::calcMolalities() const
 {
-    getMoleFractions(m_molalities.data());
+    getMoleFractions(m_molalities);
     double xmolSolvent = std::max(m_molalities[0], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
@@ -95,7 +95,7 @@ void MolalityVPSSTP::setMolalities(const double* const molal)
             m_molalities[k] *= tmp;
         }
     }
-    setMoleFractions(m_molalities.data());
+    setMoleFractions(m_molalities);
 
     // Essentially we don't trust the input: We calculate the molalities from
     // the mole fractions that we just obtained.
@@ -109,7 +109,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
 
     // Get a vector of mole fractions
     vector<double> mf(m_kk, 0.0);
-    getMoleFractions(mf.data());
+    getMoleFractions(mf);
     double xmolSmin = std::max(mf[0], m_xmolSolventMIN);
     for (size_t k = 0; k < m_kk; k++) {
         double mol_k = getValue(mMap, speciesName(k), 0.0);
@@ -163,7 +163,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
     for (size_t k = 0; k < m_kk; k++) {
         mf[k] *= sum;
     }
-    setMoleFractions(mf.data());
+    setMoleFractions(mf);
 
     // After we formally set the mole fractions, we calculate the molalities
     // again and store it in this object.
@@ -376,7 +376,7 @@ string MolalityVPSSTP::report(bool show_thermo, double threshold) const
         vector<double> muss(m_kk);
         vector<double> acMolal(m_kk);
         vector<double> actMolal(m_kk);
-        getMoleFractions(&x[0]);
+        getMoleFractions(x);
         getMolalities(&molal[0]);
         getChemPotentials(&mu[0]);
         getStandardChemPotentials(&muss[0]);

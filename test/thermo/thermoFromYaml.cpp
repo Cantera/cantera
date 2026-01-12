@@ -236,7 +236,7 @@ TEST(ThermoFromYaml, HMWSoln)
     size_t N = thermo->nSpecies();
     auto HMW = dynamic_cast<MolalityVPSSTP*>(thermo.get());
     vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
-    thermo->getMoleFractions(mf.data());
+    thermo->getMoleFractions(mf);
     HMW->getMolalities(moll.data());
     HMW->getMolalityActivityCoefficients(acMol.data());
     thermo->getActivities(activities.data());
@@ -351,7 +351,7 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     size_t N = thermo->nSpecies();
     vector<double> X_k(N);
     vector<double> h_k(N);
-    thermo->getMoleFractions(X_k.data());
+    thermo->getMoleFractions(X_k);
     thermo->getPartialMolarEnthalpies(h_k.data());
     for (size_t k = 0; k < N; k++) {
         h_avg += X_k[k]*h_k[k];

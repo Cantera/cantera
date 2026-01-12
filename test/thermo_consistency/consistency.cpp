@@ -581,7 +581,7 @@ TEST_P(TestConsistency, activity_coeffs) {
     try {
         phase->getActivities(a.data());
         phase->getActivityCoefficients(gamma.data());
-        phase->getMoleFractions(X.data());
+        phase->getMoleFractions(X);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }

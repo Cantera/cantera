@@ -15,7 +15,7 @@ void pAtable(HMWSoln* HMW)
     double moll[100];
 
     HMW->getMolalityActivityCoefficients(acMol);
-    HMW->getMoleFractions(mf);
+    HMW->getMoleFractions(span<double>(mf, nsp));
     HMW->getActivities(activities);
     HMW->getMolalities(moll);
     string sName;

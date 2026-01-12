@@ -43,7 +43,7 @@ int main(int argc, char** argv)
             moll[i] = 0.0;
         }
 
-        HMW->getMoleFractions(mf);
+        HMW->getMoleFractions(span<double>(mf, nsp));
         string sName;
 
         TemperatureTable TTable(29, true, 293.15, 10., 0, 0);
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
         double Xmol[30];
-        HMW->getMoleFractions(Xmol);
+        HMW->getMoleFractions(span<double>(Xmol, nsp));
 
         printf("Fixed Concentration of the System:\n");
 

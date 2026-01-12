@@ -95,7 +95,7 @@ Inlet1D::Inlet1D(shared_ptr<Solution> phase, const string& id)
     m_press = thermo->pressure();
     m_nsp = thermo->nSpecies();
     m_yin.resize(m_nsp);
-    thermo->getMassFractions(m_yin.data());
+    thermo->getMassFractions(m_yin);
 }
 
 //! set spreading rate
@@ -135,7 +135,7 @@ void Inlet1D::setMoleFractions(const string& xin)
     if (m_solution) {
         auto thermo = m_solution->thermo();
         thermo->setMoleFractionsByName(xin);
-        thermo->getMassFractions(m_yin.data());
+        thermo->getMassFractions(m_yin);
         needJacUpdate();
     } else {
         m_xstr = xin;
@@ -146,8 +146,8 @@ void Inlet1D::setMoleFractions(const double* xin)
 {
     if (m_solution) {
         auto thermo = m_solution->thermo();
-        thermo->setMoleFractions(xin);
-        thermo->getMassFractions(m_yin.data());
+        thermo->setMoleFractions(span<const double>(xin, m_nsp));
+        thermo->getMassFractions(m_yin);
         needJacUpdate();
     }
 }
@@ -319,7 +319,7 @@ void Inlet1D::fromArray(const shared_ptr<SolutionArray>& arr)
         auto aux = arr->getAuxiliary(0);
         m_mdot = thermo->density() * aux.at("velocity").as<double>();
     }
-    thermo->getMassFractions(m_yin.data());
+    thermo->getMassFractions(m_yin);
 }
 
 // ------------- Empty1D -------------
@@ -467,7 +467,7 @@ void OutletRes1D::setMoleFractions(const string& xres)
     m_xstr = xres;
     if (m_flow) {
         m_flow->phase().setMoleFractionsByName(xres);
-        m_flow->phase().getMassFractions(m_yres.data());
+        m_flow->phase().getMassFractions(m_yres);
         needJacUpdate();
     }
 }
@@ -475,8 +475,8 @@ void OutletRes1D::setMoleFractions(const string& xres)
 void OutletRes1D::setMoleFractions(const double* xres)
 {
     if (m_flow) {
-        m_flow->phase().setMoleFractions(xres);
-        m_flow->phase().getMassFractions(m_yres.data());
+        m_flow->phase().setMoleFractions(span<const double>(xres, m_nsp));
+        m_flow->phase().getMassFractions(m_yres);
         needJacUpdate();
     }
 }

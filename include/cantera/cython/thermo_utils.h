@@ -7,12 +7,29 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "wrappers.h"
 
+using Cantera::span;
+
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 
-THERMO_1D(getMassFractions)
-THERMO_1D(setMassFractions)
-THERMO_1D(getMoleFractions)
-THERMO_1D(setMoleFractions)
+inline void thermo_getMassFractions(Cantera::ThermoPhase* object, double* data)
+{
+    object->getMassFractions(span<double>(data, object->nSpecies()));
+}
+
+inline void thermo_setMassFractions(Cantera::ThermoPhase* object, double* data)
+{
+    object->setMassFractions(span<const double>(data, object->nSpecies()));
+}
+
+inline void thermo_getMoleFractions(Cantera::ThermoPhase* object, double* data)
+{
+    object->getMoleFractions(span<double>(data, object->nSpecies()));
+}
+
+inline void thermo_setMoleFractions(Cantera::ThermoPhase* object, double* data)
+{
+    object->setMoleFractions(span<const double>(data, object->nSpecies()));
+}
 THERMO_1D(getConcentrations)
 THERMO_1D(setConcentrations)
 

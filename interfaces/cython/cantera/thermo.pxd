@@ -105,14 +105,14 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # composition
         void setMassFractionsByName(string) except +translate_exception
         void setMassFractionsByName(Composition&) except +translate_exception
-        void setMassFractions_NoNorm(double*) except +translate_exception
+        void setMassFractions_NoNorm(span[double]) except +translate_exception
         Composition getMassFractionsByName(double)
         double massFraction(size_t) except +translate_exception
         double massFraction(string) except +translate_exception
 
         void setMoleFractionsByName(string) except +translate_exception
         void setMoleFractionsByName(Composition&) except +translate_exception
-        void setMoleFractions_NoNorm(double*) except +translate_exception
+        void setMoleFractions_NoNorm(span[double]) except +translate_exception
         Composition getMoleFractionsByName(double)
 
         double concentration(size_t) except +translate_exception

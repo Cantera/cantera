@@ -24,7 +24,7 @@ namespace Cantera
 void GibbsExcessVPSSTP::compositionChanged()
 {
     Phase::compositionChanged();
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
 }
 
 // ------------ Mechanical Properties ------------------------------
@@ -65,7 +65,7 @@ double GibbsExcessVPSSTP::logStandardConc(size_t k) const
 void GibbsExcessVPSSTP::getActivities(double* ac) const
 {
     getActivityCoefficients(ac);
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] *= moleFractions_[k];
     }

@@ -32,7 +32,7 @@ void DustyGasTransport::initialize(shared_ptr<ThermoPhase> phase, Transport* gas
     m_dk.resize(m_nsp, 0.0);
 
     m_x.resize(m_nsp, 0.0);
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // set flags all false
     m_knudsen_ok = false;
@@ -187,7 +187,7 @@ void DustyGasTransport::updateTransport_T()
 
 void DustyGasTransport::updateTransport_C()
 {
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)
