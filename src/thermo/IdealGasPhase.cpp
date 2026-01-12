@@ -250,7 +250,7 @@ void IdealGasPhase::setToEquilState(const double* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setMoleFractions(m_pp.data());
+    setMoleFractions(m_pp);
     setPressure(pres);
 }
 

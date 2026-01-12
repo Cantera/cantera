@@ -76,7 +76,7 @@ public:
         // the following variables are defined for clear and convenient access
         // to these vectors:
         double temperature = y[0];
-        double *massFracs = &y[1];
+        span<double> massFracs(y + 1, m_nSpecies);
         double *dTdt = &ydot[0];
         double *dYdt = &ydot[1];
 
@@ -132,7 +132,7 @@ public:
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
         // system temperature, and Y_k is the mass fraction of species k.
         y[0] = m_gas->temperature();
-        m_gas->getMassFractions(&y[1]);
+        m_gas->getMassFractions(span<double>(y + 1, m_nSpecies));
     }
 
 private:

@@ -213,6 +213,7 @@ clib-array-getter: |-
       {{ render_lines(after) | indent(4) }}
       return {{ buffer[1] }};
       {% else %}
+      {{ render_lines(before) | indent(4) }}
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
       {% endif %}

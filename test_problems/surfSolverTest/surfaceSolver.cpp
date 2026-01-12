@@ -22,7 +22,7 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     double C[MSSIZE];
     oooo.precision(3);
     string gasPhaseName = gasTP->name();
-    gasTP->getMoleFractions(x);
+    gasTP->getMoleFractions(span<double>(x, gasTP->nSpecies()));
     gasTP->getConcentrations(C);
     double Temp = gasTP->temperature();
     double p = gasTP->pressure();
@@ -55,7 +55,7 @@ void printBulk(ostream& oooo,
     double C[MSSIZE];
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->name();
-    bulkPhaseTP->getMoleFractions(x);
+    bulkPhaseTP->getMoleFractions(span<double>(x, bulkPhaseTP->nSpecies()));
     bulkPhaseTP->getConcentrations(C);
     size_t iPhase = iKin_ptr->phaseIndex(bulkParticlePhaseName);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
@@ -99,7 +99,7 @@ void printSurf(ostream& oooo,
 {
     double x[MSSIZE];
     string surfParticlePhaseName = surfPhaseTP->name();
-    surfPhaseTP->getMoleFractions(x);
+    surfPhaseTP->getMoleFractions(span<double>(x, surfPhaseTP->nSpecies()));
     size_t iPhase = iKin_ptr->phaseIndex(surfParticlePhaseName);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
     oooo << "Surface Phase:  " << surfParticlePhaseName
@@ -184,11 +184,11 @@ int main(int argc, char** argv)
          * -> note that the states are set in the input file too
          */
         double pres = gasTP->pressure();
-        gasTP->getMoleFractions(x);
+        gasTP->getMoleFractions(span<double>(x, gasTP->nSpecies()));
         double tmp = 0.3 * std::min(x[0], x[1]);
         x[0] += tmp;
         x[1] -= tmp;
-        gasTP->setMoleFractions(x);
+        gasTP->setMoleFractions(span<const double>(x, gasTP->nSpecies()));
         gasTP->setPressure(pres);
 
         iKin_ptr->solvePseudoSteadyStateProblem(ioflag);

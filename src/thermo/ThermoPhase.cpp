@@ -119,7 +119,7 @@ void ThermoPhase::getElectrochemPotentials(double* mu) const
 
 void ThermoPhase::setState_TPX(double t, double p, const double* x)
 {
-    setMoleFractions(x);
+    setMoleFractions(span<const double>(x, nSpecies()));
     setState_TP(t,p);
 }
 
@@ -137,7 +137,7 @@ void ThermoPhase::setState_TPX(double t, double p, const string& x)
 
 void ThermoPhase::setState_TPY(double t, double p, const double* y)
 {
-    setMassFractions(y);
+    setMassFractions(span<const double>(y, nSpecies()));
     setState_TP(t,p);
 }
 
@@ -821,7 +821,7 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
         y[k] = phi * fuelComp[k]/sum_f + AFR_st * oxComp[k]/sum_o;
     }
 
-    setMassFractions(y.data());
+    setMassFractions(y);
     setPressure(p);
 }
 
@@ -952,7 +952,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
         y[k] = mixFrac * fuelComp[k]/sum_yf + (1.0-mixFrac) * oxComp[k]/sum_yo;
     }
 
-    setMassFractions_NoNorm(y.data());
+    setMassFractions_NoNorm(y);
     setPressure(p);
 }
 
@@ -1293,7 +1293,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
     vector<double> ActCoeff_Base(m_kk);
     getActivityCoefficients(ActCoeff_Base.data());
     vector<double> Xmol_Base(m_kk);
-    getMoleFractions(Xmol_Base.data());
+    getMoleFractions(Xmol_Base);
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     vector<double> ActCoeff(m_kk);
@@ -1320,7 +1320,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
         // Go get new values for the activity coefficients.
-        setMoleFractions(Xmol.data());
+        setMoleFractions(Xmol);
         setPressure(pres);
         getActivityCoefficients(ActCoeff.data());
 
@@ -1334,7 +1334,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-    setMoleFractions(Xmol_Base.data());
+    setMoleFractions(Xmol_Base);
     setPressure(pres);
 }
 
@@ -1424,8 +1424,8 @@ string ThermoPhase::report(bool show_thermo, double threshold) const
         vector<double> x(m_kk);
         vector<double> y(m_kk);
         vector<double> mu(m_kk);
-        getMoleFractions(&x[0]);
-        getMassFractions(&y[0]);
+        getMoleFractions(x);
+        getMassFractions(y);
         getChemPotentials(&mu[0]);
         int nMinor = 0;
         double xMinor = 0.0;

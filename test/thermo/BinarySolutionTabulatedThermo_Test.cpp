@@ -16,7 +16,7 @@ public:
         vector<double> moleFracs(2);
         moleFracs[0] = x;
         moleFracs[1] = 1-x;
-        test_phase->setMoleFractions(&moleFracs[0]);
+        test_phase->setMoleFractions(moleFracs);
     }
 
     shared_ptr<ThermoPhase> test_phase;

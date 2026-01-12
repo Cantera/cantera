@@ -21,7 +21,7 @@ void saveSoln(int i, double time, const G& gas, A& soln)
     soln(1,i) = gas.temperature();
     soln(2,i) = gas.density();
     soln(3,i) = gas.pressure();
-    gas.getMoleFractions(&soln(4,i));
+    gas.getMoleFractions(std::span<double>(&soln(4,i), gas.nSpecies()));
 }
 
 template<class G, class A>

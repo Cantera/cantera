@@ -213,10 +213,10 @@ public:
     //! @{
 
     //! Mass fractions are fixed, with Y[0] = 1.0.
-    void setMassFractions(const double* const y) override {};
+    void setMassFractions(span<const double> y) override {};
 
     //! Mole fractions are fixed, with x[0] = 1.0.
-    void setMoleFractions(const double* const x) override {};
+    void setMoleFractions(span<const double> x) override {};
 
     //! @}
 

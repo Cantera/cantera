@@ -66,7 +66,7 @@ double HMWSoln::relative_enthalpy() const
 double HMWSoln::relative_molal_enthalpy() const
 {
     double L = relative_enthalpy();
-    getMoleFractions(m_workS.data());
+    getMoleFractions(m_workS);
     double xanion = 0.0;
     size_t kcation = npos;
     double xcation = 0.0;
@@ -613,7 +613,7 @@ void HMWSoln::initThermo()
     // Lastly calculate the charge balance and then add stuff until the charges
     // compensate
     vector<double> mf(m_kk, 0.0);
-    getMoleFractions(mf.data());
+    getMoleFractions(mf);
     bool notDone = true;
 
     while (notDone) {
@@ -668,7 +668,7 @@ void HMWSoln::initThermo()
                     }
                 }
             }
-            setMoleFractions(mf.data());
+            setMoleFractions(mf);
         } else {
             notDone = false;
         }
@@ -1356,7 +1356,7 @@ void HMWSoln::calcMolalitiesCropped() const
 
     if (cropMethod == 1) {
         double* molF = m_gamma_tmp.data();
-        getMoleFractions(molF);
+        getMoleFractions(span<double>(molF, m_kk));
         double xmolSolvent = molF[0];
         if (xmolSolvent >= MC_X_o_cutoff_) {
             return;
@@ -3908,7 +3908,7 @@ void HMWSoln::printCoeffs() const
 
     // Update the coefficients wrt Temperature. Calculate the derivatives as well
     s_updatePitzer_CoeffWRTemp(2);
-    getMoleFractions(moleF.data());
+    getMoleFractions(moleF);
 
     writelog("Index  Name                  MoleF   MolalityCropped  Charge\n");
     for (size_t k = 0; k < m_kk; k++) {

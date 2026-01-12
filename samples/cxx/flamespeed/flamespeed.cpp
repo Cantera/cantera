@@ -38,16 +38,16 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         gas->setEquivalenceRatio(phi, "CH4", "O2:0.21,N2:0.79");
         gas->setState_TP(temp, pressure);
-        gas->getMoleFractions(x.data());
+        gas->getMoleFractions(x);
 
         double rho_in = gas->density();
 
         vector<double> yin(nsp);
-        gas->getMassFractions(&yin[0]);
+        gas->getMassFractions(yin);
 
         gas->equilibrate("HP");
         vector<double> yout(nsp);
-        gas->getMassFractions(&yout[0]);
+        gas->getMassFractions(yout);
         double rho_out = gas->density();
         double Tad = gas->temperature();
         print("phi = {}, Tad = {}\n", phi, Tad);

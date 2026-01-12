@@ -253,12 +253,12 @@ extern "C" {
 
     void gotmolefractions_(double* x)
     {
-        _gas->getMoleFractions(x);
+        _gas->getMoleFractions(span<double>(x, _gas->nSpecies()));
     }
 
     void gotmassfractions_(double* y)
     {
-        _gas->getMassFractions(y);
+        _gas->getMassFractions(span<double>(y, _gas->nSpecies()));
     }
 
     void equilibrate_(char* opt, ftnlen lenopt)

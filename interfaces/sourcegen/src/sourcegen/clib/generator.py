@@ -253,6 +253,10 @@ class CLibSourceGenerator(SourceGenerator):
                         after.append(
                             f"std::copy({c_name}_.begin(), {c_name}_.end(), {c_name});")
                     args.append(f"{c_name}_")
+                elif "span<" in cxx_type:
+                    # Example: span<double> par_(par, par + parLen);
+                    before.append(f"{cxx_type} {c_name}_({c_name}, {c_prev});")
+                    args.append(f"{c_name}_")
                 elif "*" in cxx_type:
                     # Can be passed directly; example: double *const
                     args.append(c_name)

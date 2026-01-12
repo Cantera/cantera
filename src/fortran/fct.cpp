@@ -212,7 +212,8 @@ extern "C" {
     status_t phase_getmolefractions_(const integer* n, double* x)
     {
         try {
-            _fph(n)->getMoleFractions(x);
+            auto* phase = _fph(n);
+            phase->getMoleFractions(span<double>(x, phase->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -233,7 +234,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            p->getMassFractions(y);
+            p->getMassFractions(span<double>(y, p->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -254,9 +255,9 @@ extern "C" {
         try {
             ThermoPhase* p = _fph(n);
             if (*norm) {
-                p->setMoleFractions(x);
+                p->setMoleFractions(span<const double>(x, p->nSpecies()));
             } else {
-                p->setMoleFractions_NoNorm(x);
+                p->setMoleFractions_NoNorm(span<const double>(x, p->nSpecies()));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -280,9 +281,9 @@ extern "C" {
         try {
             ThermoPhase* p = _fph(n);
             if (*norm) {
-                p->setMassFractions(y);
+                p->setMassFractions(span<const double>(y, p->nSpecies()));
             } else {
-                p->setMassFractions_NoNorm(y);
+                p->setMassFractions_NoNorm(span<const double>(y, p->nSpecies()));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);

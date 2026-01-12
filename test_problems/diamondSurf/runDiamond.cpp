@@ -34,10 +34,7 @@ int main(int argc, char** argv)
         size_t nr = ikin->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[20];
-        for (i = 0; i < 20; i++) {
-            x[i] = 0.0;
-        }
+        vector<double> x(nsp);
         x[0] = 0.0010;
         x[1] = 0.9888;
         x[2] = 0.0002;
@@ -46,9 +43,7 @@ int main(int argc, char** argv)
 
         gas->setState_TPX(1200., p, x);
 
-        for (i = 0; i < 20; i++) {
-            x[i] = 0.0;
-        }
+        x.assign(nsp_d100, 0.0);
         size_t i0 = diamond100->speciesIndex("c6H*");
         x[i0] = 0.1;
         size_t i1 = diamond100->speciesIndex("c6HH");
@@ -56,9 +51,7 @@ int main(int argc, char** argv)
         diamond100->setMoleFractions(x);
         diamond100->setTemperature(1200.);
 
-        for (i = 0; i < 20; i++) {
-            x[i] = 0.0;
-        }
+        x.assign(nsp_d100, 0.0);
         x[0] = 1.0;
         diamond100->setState_TP(1200., p);
 
@@ -67,7 +60,7 @@ int main(int argc, char** argv)
         // Throw some asserts in here to test that they compile
         AssertTrace(p == p);
         AssertThrow(p == p, "main");
-        AssertThrowMsg(i == 20, "main", "are you kidding");
+        AssertThrowMsg(p == p, "main", "are you kidding");
 
         double src[20];
         for (i = 0; i < 20; i++) {

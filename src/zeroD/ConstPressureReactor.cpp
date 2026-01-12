@@ -36,7 +36,7 @@ void ConstPressureReactor::getState(double* y)
     y[1] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(y+2);
+    m_thermo->getMassFractions(span<double>(y + 2, m_nsp));
 
 }
 
@@ -46,7 +46,7 @@ void ConstPressureReactor::updateState(double* y)
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(y+2);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + 2, m_nsp));
     if (m_energy) {
         m_thermo->setState_HP(y[1]/m_mass, m_pressure);
     } else {
