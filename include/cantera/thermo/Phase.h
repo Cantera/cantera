@@ -319,44 +319,30 @@ public:
     //! Save the current thermodynamic state of the phase, excluding composition.
     //! The default implementation corresponds to the default implementation of
     //! nativeState().
-    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
     //! @param[out] state  Array of state variables, in the order defined by
-    //!     nativeState().
+    //!     nativeState(). Size must be >= partialStateSize().
     //! @since New in %Cantera 3.2
-    virtual void savePartialState(size_t lenstate, double* state) const;
+    virtual void savePartialState(span<double> state) const;
 
     //! Set the internal thermodynamic state of the phase, excluding composition.
     //! The default implementation corresponds to the default implementation of
     //! nativeState().
-    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
     //! @param[in] state  Array of state variables, in the order defined by
-    //!     nativeState().
+    //!     nativeState(). Size must be >= partialStateSize().
     //! @since New in %Cantera 3.2
-    virtual void restorePartialState(size_t lenstate, const double* state);
+    virtual void restorePartialState(span<const double> state);
 
     //! Return size of vector defining internal state of the phase.
     //! Used by saveState() and restoreState().
     virtual size_t stateSize() const;
 
-    //! Save the current internal state of the phase.
-    //! Write to vector 'state' the current internal state.
-    //!     @param state output vector. Will be resized to stateSize().
-    void saveState(vector<double>& state) const;
-
     //! Write to array 'state' the current internal state.
-    //!     @param lenstate length of the state array. Must be >= stateSize()
-    //!     @param state    output vector. Must be of length stateSizes() or
-    //!                     greater.
-    virtual void saveState(size_t lenstate, double* state) const;
-
-    //! Restore a state saved on a previous call to saveState.
-    //!     @param state State vector containing the previously saved state.
-    void restoreState(const vector<double>& state);
+    //!     @param state output vector. Size must be >= stateSize().
+    virtual void saveState(span<double> state) const;
 
     //! Restore the state of the phase from a previously saved state vector.
-    //!     @param lenstate   Length of the state vector
-    //!     @param state      Vector of state conditions.
-    virtual void restoreState(size_t lenstate, const double* state);
+    //!     @param state Vector of state conditions.
+    virtual void restoreState(span<const double> state);
 
     //! @name Set Thermodynamic State
     //!

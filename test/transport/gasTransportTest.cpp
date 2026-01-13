@@ -400,7 +400,8 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
 TEST_F(GasTransportTest, getFluxes_multi)
 {
     vector<double> fluxS(nsp), fluxMass(nsp), fluxMole(nsp);
-    vector<double> state2, state3;
+    vector<double> state2(s_thermo->stateSize());
+    vector<double> state3(s_thermo->stateSize());
     vector<double> X1(nsp), X2(nsp), X3(nsp), grad_X(nsp);
 
     s_thermo->setState_TPX(T2, P0,

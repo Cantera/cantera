@@ -34,10 +34,10 @@ int main(int argc, char** argv)
             printf("\n");
         }
 
-        vector<double> state1;
+        vector<double> state1(g->stateSize());
         g->saveState(state1);
         g->setState_TP(T, 1.2 * OneAtm);
-        vector<double> state2;
+        vector<double> state2(g->stateSize());
         g->saveState(state2);
         double delta = 0.001;
         vector<double> fluxes;

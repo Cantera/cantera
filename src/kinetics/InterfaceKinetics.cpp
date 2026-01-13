@@ -531,7 +531,7 @@ void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
     vector<vector<double>> savedStates(nPhases());
     for (size_t i = 1; i < nPhases(); i++) {
         savedStates[i].resize(thermo(i).partialStateSize());
-        thermo(i).savePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).savePartialState(savedStates[i]);
         thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
 
@@ -548,7 +548,7 @@ void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
 
     // Restore adjacent phases to their original states
     for (size_t i = 1; i < nPhases(); i++) {
-        thermo(i).restorePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).restorePartialState(savedStates[i]);
     }
 }
 
@@ -558,7 +558,7 @@ void InterfaceKinetics::solvePseudoSteadyStateProblem(int loglevel)
     vector<vector<double>> savedStates(nPhases());
     for (size_t i = 1; i < nPhases(); i++) {
         savedStates[i].resize(thermo(i).partialStateSize());
-        thermo(i).savePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).savePartialState(savedStates[i]);
         thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
 
@@ -571,7 +571,7 @@ void InterfaceKinetics::solvePseudoSteadyStateProblem(int loglevel)
 
     // Restore adjacent phases to their original states
     for (size_t i = 1; i < nPhases(); i++) {
-        thermo(i).restorePartialState(savedStates[i].size(), savedStates[i].data());
+        thermo(i).restorePartialState(savedStates[i]);
     }
 }
 

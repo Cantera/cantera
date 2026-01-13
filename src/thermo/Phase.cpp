@@ -222,10 +222,10 @@ vector<string> Phase::partialStates() const
     }
 }
 
-void Phase::savePartialState(size_t lenstate, double* state) const
+void Phase::savePartialState(span<double> state) const
 {
-    if (lenstate < partialStateSize()) {
-        throw ArraySizeError("Phase::savePartialState", lenstate, partialStateSize());
+    if (state.size() < partialStateSize()) {
+        throw ArraySizeError("Phase::savePartialState", state.size(), partialStateSize());
     }
 
     auto native = nativeState();
@@ -237,10 +237,10 @@ void Phase::savePartialState(size_t lenstate, double* state) const
     }
 }
 
-void Phase::restorePartialState(size_t lenstate, const double* state)
+void Phase::restorePartialState(span<const double> state)
 {
-    if (lenstate < partialStateSize()) {
-        throw ArraySizeError("Phase::restorePartialState", lenstate, partialStateSize());
+    if (state.size() < partialStateSize()) {
+        throw ArraySizeError("Phase::restorePartialState", state.size(), partialStateSize());
     }
 
     auto native = nativeState();
@@ -260,46 +260,35 @@ size_t Phase::stateSize() const {
     }
 }
 
-void Phase::saveState(vector<double>& state) const
+void Phase::saveState(span<double> state) const
 {
-    state.resize(stateSize());
-    saveState(state.size(), &state[0]);
-}
-
-void Phase::saveState(size_t lenstate, double* state) const
-{
-    if (lenstate < stateSize()) {
-        throw ArraySizeError("Phase::saveState", lenstate, stateSize());
+    if (state.size() < stateSize()) {
+        throw ArraySizeError("Phase::saveState", state.size(), stateSize());
     }
-    savePartialState(lenstate, state);
+    savePartialState(state);
     auto native = nativeState();
     if (native.count("X")) {
-        getMoleFractions(span<double>(state + native["X"], nSpecies()));
+        getMoleFractions(state.subspan(native["X"], nSpecies()));
     } else if (native.count("Y")) {
-        getMassFractions(span<double>(state + native["Y"], nSpecies()));
+        getMassFractions(state.subspan(native["Y"], nSpecies()));
     }
 }
 
-void Phase::restoreState(const vector<double>& state)
-{
-    restoreState(state.size(),&state[0]);
-}
-
-void Phase::restoreState(size_t lenstate, const double* state)
+void Phase::restoreState(span<const double> state)
 {
     size_t ls = stateSize();
-    if (lenstate < ls) {
+    if (state.size() < ls) {
         throw ArraySizeError("Phase::restoreState",
-                             lenstate, ls);
+                             state.size(), ls);
     }
-    restorePartialState(lenstate, state);
+    restorePartialState(state);
 
     auto native = nativeState();
 
     if (native.count("X")) {
-        setMoleFractions_NoNorm(span<const double>(state + native["X"], nSpecies()));
+        setMoleFractions_NoNorm(state.subspan(native["X"], nSpecies()));
     } else if (native.count("Y")) {
-        setMassFractions_NoNorm(span<const double>(state + native["Y"], nSpecies()));
+        setMassFractions_NoNorm(state.subspan(native["Y"], nSpecies()));
     }
     compositionChanged();
 }
@@ -407,12 +396,12 @@ void Phase::setMassFractionsByName(const string& y)
 void Phase::setState_TD(double t, double rho)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         setDensity(rho);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
