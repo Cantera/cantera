@@ -768,8 +768,8 @@ double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
+        moleFractionsToMassFractions(span<const double>(fuelComp, m_kk), fuel);
+        moleFractionsToMassFractions(span<const double>(oxComp, m_kk), ox);
         fuelComp = fuel.data();
         oxComp = ox.data();
     }
@@ -805,8 +805,8 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
+        moleFractionsToMassFractions(span<const double>(fuelComp, m_kk), fuel);
+        moleFractionsToMassFractions(span<const double>(oxComp, m_kk), ox);
         fuelComp = fuel.data();
         oxComp = ox.data();
     }
@@ -890,8 +890,8 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
+        moleFractionsToMassFractions(span<const double>(fuelComp, m_kk), fuel);
+        moleFractionsToMassFractions(span<const double>(oxComp, m_kk), ox);
         fuelComp = fuel.data();
         oxComp = ox.data();
     }
@@ -930,8 +930,8 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
+        moleFractionsToMassFractions(span<const double>(fuelComp, m_kk), fuel);
+        moleFractionsToMassFractions(span<const double>(oxComp, m_kk), ox);
         fuelComp = fuel.data();
         oxComp = ox.data();
     }
@@ -982,8 +982,8 @@ double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
+        moleFractionsToMassFractions(span<const double>(fuelComp, m_kk), fuel);
+        moleFractionsToMassFractions(span<const double>(oxComp, m_kk), ox);
         fuelComp = fuel.data();
         oxComp = ox.data();
     }

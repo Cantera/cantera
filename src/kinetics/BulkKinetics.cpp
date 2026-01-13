@@ -478,7 +478,7 @@ void BulkKinetics::updateROP()
     if (!last.validate(T, rho, statenum)) {
         // Update terms dependent on species concentrations and temperature
         thermo().getActivityConcentrations(m_act_conc.data());
-        thermo().getConcentrations(m_phys_conc.data());
+        thermo().getConcentrations(m_phys_conc);
         double ctot = thermo().molarDensity();
 
         // Third-body objects interacting with MultiRate evaluator

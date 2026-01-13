@@ -44,7 +44,7 @@ void ConstPressureMoleReactor::updateState(double* y)
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
     setMassFromMoles(y + m_sidx);
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     if (m_energy) {
         m_thermo->setState_HP(y[0] / m_mass, m_pressure);
     } else {

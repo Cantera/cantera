@@ -67,7 +67,7 @@ void MoleReactor::updateState(double* y)
     // of surface species on each wall.
     setMassFromMoles(y + m_sidx);
     m_vol = y[1];
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     if (m_energy) {
         double U = y[0];
         // Residual function: error in internal energy as a function of T
