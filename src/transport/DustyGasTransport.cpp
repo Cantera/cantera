@@ -25,7 +25,8 @@ void DustyGasTransport::initialize(shared_ptr<ThermoPhase> phase, Transport* gas
     }
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.assign(m_thermo->molecularWeights().begin(),
+                m_thermo->molecularWeights().end());
 
     m_multidiff.resize(m_nsp, m_nsp);
     m_d.resize(m_nsp, m_nsp);

@@ -35,7 +35,8 @@ Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
     , m_thermo(phase->thermo().get())
 {
     // make a local copy of the species molecular weight vector
-    m_wt = m_thermo->molecularWeights();
+    m_wt.assign(m_thermo->molecularWeights().begin(),
+                m_thermo->molecularWeights().end());
 
     // set pressure based on associated thermo object
     setPressure(m_thermo->pressure());

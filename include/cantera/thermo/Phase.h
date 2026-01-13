@@ -202,7 +202,7 @@ public:
     int changeElementType(int m, int elem_type);
 
     //! Return a read-only reference to the vector of atomic weights.
-    const vector<double>& atomicWeights() const;
+    span<const double> atomicWeights() const;
 
     //! Number of elements.
     size_t nElements() const;
@@ -392,11 +392,11 @@ public:
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
-    const vector<double>& molecularWeights() const;
+    span<const double> molecularWeights() const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kmol / kg
-    const vector<double>& inverseMolecularWeights() const;
+    span<const double> inverseMolecularWeights() const;
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
@@ -461,9 +461,9 @@ public:
     //!     @param[out] y Array of mass fractions, length nSpecies()
     void getMassFractions(span<double> y) const;
 
-    //! Return a const pointer to the mass fraction array
-    const double* massFractions() const {
-        return &m_y[0];
+    //! Return a view of the mass fraction array
+    span<const double> massFractions() const {
+        return m_y;
     }
 
     //! Set the mass fractions to the specified values and normalize them.

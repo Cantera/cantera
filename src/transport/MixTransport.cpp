@@ -59,7 +59,7 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
         updateViscosity_T();
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
 
     vector<double>& a = m_spwork;
 
@@ -130,8 +130,8 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
     update_T();
     update_C();
     getMixDiffCoeffs(m_spwork.data());
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto y = m_thermo->massFractions();
     double rhon = m_thermo->molarDensity();
     vector<double> sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {

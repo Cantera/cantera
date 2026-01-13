@@ -133,7 +133,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     m_thermo->restoreState(m_state);
 
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

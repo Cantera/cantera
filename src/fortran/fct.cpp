@@ -306,7 +306,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            const vector<double>& wt = p->atomicWeights();
+            auto wt = p->atomicWeights();
             copy(wt.begin(), wt.end(), atw);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -318,7 +318,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            const vector<double>& wt = p->molecularWeights();
+            auto wt = p->molecularWeights();
             copy(wt.begin(), wt.end(), mw);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

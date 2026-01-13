@@ -76,7 +76,7 @@ double Phase::entropyElement298(size_t m) const
     return m_entropy298[checkElementIndex(m)];
 }
 
-const vector<double>& Phase::atomicWeights() const
+span<const double> Phase::atomicWeights() const
 {
     return m_atomicWeights;
 }
@@ -414,16 +414,16 @@ double Phase::molecularWeight(size_t k) const
 
 void Phase::getMolecularWeights(double* weights) const
 {
-    const vector<double>& mw = molecularWeights();
+    auto mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
-const vector<double>& Phase::molecularWeights() const
+span<const double> Phase::molecularWeights() const
 {
     return m_molwts;
 }
 
-const vector<double>& Phase::inverseMolecularWeights() const
+span<const double> Phase::inverseMolecularWeights() const
 {
     return m_rmolwts;
 }
@@ -768,7 +768,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
     }
 
     size_t ne = nElements();
-    const vector<double>& aw = atomicWeights();
+    auto aw = atomicWeights();
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E", false);
         if (eindex != npos) {

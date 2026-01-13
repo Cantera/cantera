@@ -72,7 +72,7 @@ void printBulk(ostream& oooo,
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
     double Wsum = 0.0;
-    const vector<double>& molecW = bulkPhaseTP->molecularWeights();
+    auto molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, iPhase);

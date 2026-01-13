@@ -71,8 +71,8 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
 
     m_thermo->restoreState(m_state);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
