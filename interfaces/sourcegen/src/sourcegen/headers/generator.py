@@ -82,7 +82,7 @@ class HeaderGenerator:
                 return obj_handle + cxx_member.arglist.params, cxx_member
 
             # Signature may skip C++ default parameters
-            args_short = Func.from_str(wraps).arglist
+            args_short = Func.from_str(wraps, has_names=False).arglist
             if len(args_short) < len(cxx_member.arglist):
                 cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
                 cxx_member = Func(cxx_member.ret_type, cxx_member.name,
@@ -252,6 +252,7 @@ class HeaderGenerator:
     def _ret_crosswalk(
             self, what: str, derived: list[str]) -> tuple[Param, list[Param]]:
         """Crosswalk for return type."""
+        orig_what = what
         what = what.removeprefix("virtual ")
         ret_key = what.removeprefix("const ").removesuffix(" const").rstrip("&")
         if ret_key in self._config.ret_type_crosswalk:
@@ -299,7 +300,8 @@ class HeaderGenerator:
                 f"Handle to stored {handle} object or -1 for exception handling.")
             return returns, []
 
-        msg = f"Failed crosswalk for return type {what!r}."
+        msg = f"Failed crosswalk for return type {orig_what!r}."
+        msg += "\nKnown types: " + ", ".join(self._config.ret_type_crosswalk.keys())
         _LOGGER.critical(msg)
         sys.exit(1)
 

@@ -238,7 +238,7 @@ class TagFileParser:
     def cxx_member(self, func_string: str, setter: bool = False) -> Func | Param:
         """Generate annotated C++ function/variable specification."""
         details = tag_lookup(self._xml_path, self.tag_info(func_string))
-        ret_param = Param.from_xml(details.type)
+        ret_param = Param.from_xml(details.type, has_name=False)
 
         if details.kind == "variable":
             direction = "in" if setter else "out"

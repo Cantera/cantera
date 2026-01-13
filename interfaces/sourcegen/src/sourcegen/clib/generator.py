@@ -161,7 +161,7 @@ class CLibSourceGenerator(SourceGenerator):
             after = f"copyString(out, {c_args[-1].name}, {c_args[-2].name});"
         elif "shared_ptr" in cxx_type:
             cxx_rbase = self._shared_object(cxx_type)
-        elif "vector" in cxx_type:
+        elif "vector" in cxx_type or "span" in cxx_type:
             buffer = [
                 f"{cxx_type} out",
                 "int(out.size())",
@@ -396,6 +396,8 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "getter":
             ret_type = c_func.wraps.ret_type
             if "void" in ret_type or "vector" in ret_type:
+                template = loader.from_string(self._templates["clib-array-getter"])
+            elif "span" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
             elif "size_t" in ret_type:
                 template = loader.from_string(self._templates["clib-size-getter"])
