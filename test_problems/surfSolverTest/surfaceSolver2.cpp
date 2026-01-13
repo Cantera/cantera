@@ -26,7 +26,7 @@ void printGas(ostream& oooo, shared_ptr<ThermoPhase> gasTP,
     oooo.precision(3);
     string gasPhaseName = "gas";
     gasTP->getMoleFractions(span<double>(x, gasTP->nSpecies()));
-    gasTP->getConcentrations(C);
+    gasTP->getConcentrations(span<double>(C, gasTP->nSpecies()));
     double Temp = gasTP->temperature();
     double p = gasTP->pressure();
     oooo << "Gas Temperature = " << Temp << endl;
@@ -61,7 +61,7 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(span<double>(x, bulkPhaseTP->nSpecies()));
-    bulkPhaseTP->getConcentrations(C);
+    bulkPhaseTP->getConcentrations(span<double>(C, bulkPhaseTP->nSpecies()));
     size_t nBulk = iKin_ptr->phaseIndex(bulkParticlePhaseName);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nBulk);
     double dens = bulkPhaseTP->density();

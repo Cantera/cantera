@@ -115,7 +115,7 @@ int solveSP::solveSurfProb(int ifunc, double time_scale, double TKelvin,
     // CSoln, and in an separate vector CSolnInit.
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
-        m_ptrsSurfPhase[n]->getConcentrations(m_numEqn1.data());
+        m_ptrsSurfPhase[n]->getConcentrations(m_numEqn1);
         for (size_t k = 0; k < m_nSpeciesSurfPhase[n]; k++) {
             m_CSolnSP[loc] = m_numEqn1[k];
             loc++;

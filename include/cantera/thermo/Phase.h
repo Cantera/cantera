@@ -388,7 +388,7 @@ public:
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
-    void getMolecularWeights(double* weights) const;
+    void getMolecularWeights(span<double> weights) const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
@@ -400,7 +400,7 @@ public:
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
-    void getCharges(double* charges) const;
+    void getCharges(span<double> charges) const;
 
     //! @name Composition
     //! @{
@@ -486,7 +486,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    virtual void getConcentrations(double* const c) const;
+    virtual void getConcentrations(span<double> c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -507,14 +507,14 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const double* const conc);
+    virtual void setConcentrations(span<const double> conc);
 
     //! Set the concentrations without ignoring negative concentrations
-    virtual void setConcentrationsNoNorm(const double* const conc);
+    virtual void setConcentrationsNoNorm(span<const double> conc);
     //! @}
 
     //! Set the state of the object with moles in [kmol]
-    virtual void setMolesNoTruncate(const double* const N);
+    virtual void setMolesNoTruncate(span<const double> N);
 
     //! Elemental mass fraction of element m
     /*!
@@ -669,10 +669,8 @@ public:
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
-    double mean_X(const double* const Q) const;
+    double mean_X(span<const double> Q) const;
 
-    //! @copydoc Phase::mean_X(const double* const Q) const
-    double mean_X(const vector<double>& Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
     double meanMolecularWeight() const {
@@ -823,12 +821,12 @@ public:
     //! Converts a mixture composition from mole fractions to mass fractions
     //!     @param[in] Y mixture composition in mass fractions (length m_kk)
     //!     @param[out] X mixture composition in mole fractions (length m_kk)
-    void massFractionsToMoleFractions(const double* Y, double* X) const;
+    void massFractionsToMoleFractions(span<const double> Y, span<double> X) const;
 
     //! Converts a mixture composition from mass fractions to mole fractions
     //!     @param[in] X mixture composition in mole fractions (length m_kk)
     //!     @param[out] Y mixture composition in mass fractions (length m_kk)
-    void moleFractionsToMassFractions(const double* X, double* Y) const;
+    void moleFractionsToMassFractions(span<const double> X, span<double> Y) const;
 
 protected:
     //! Ensure that phase is compressible.

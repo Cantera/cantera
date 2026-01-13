@@ -30,11 +30,25 @@ inline void thermo_setMoleFractions(Cantera::ThermoPhase* object, double* data)
 {
     object->setMoleFractions(span<const double>(data, object->nSpecies()));
 }
-THERMO_1D(getConcentrations)
-THERMO_1D(setConcentrations)
+inline void thermo_getConcentrations(Cantera::ThermoPhase* object, double* data)
+{
+    object->getConcentrations(span<double>(data, object->nSpecies()));
+}
 
-THERMO_1D(getMolecularWeights)
-THERMO_1D(getCharges)
+inline void thermo_setConcentrations(Cantera::ThermoPhase* object, double* data)
+{
+    object->setConcentrations(span<const double>(data, object->nSpecies()));
+}
+
+inline void thermo_getMolecularWeights(Cantera::ThermoPhase* object, double* data)
+{
+    object->getMolecularWeights(span<double>(data, object->nSpecies()));
+}
+
+inline void thermo_getCharges(Cantera::ThermoPhase* object, double* data)
+{
+    object->getCharges(span<double>(data, object->nSpecies()));
+}
 THERMO_1D(getChemPotentials)
 THERMO_1D(getElectrochemPotentials)
 THERMO_1D(getPartialMolarEnthalpies)

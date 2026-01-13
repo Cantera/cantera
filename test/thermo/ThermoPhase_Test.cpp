@@ -105,14 +105,14 @@ TEST_F(TestThermoMethods, setConcentrations)
         ctot += C0[k];
     }
 
-    thermo->setConcentrations(C0.data());
+    thermo->setConcentrations(C0);
     EXPECT_NEAR(thermo->molarDensity(), ctot, 1e-7 * ctot);
     EXPECT_DOUBLE_EQ(thermo->moleFraction(2), 0.0);
 
     for (size_t k = 0; k < thermo->nSpecies(); k++) {
         C0[k] *= 1.5;
     }
-    thermo->setConcentrationsNoNorm(C0.data());
+    thermo->setConcentrationsNoNorm(C0);
     EXPECT_NEAR(thermo->molarDensity(), 1.5 * ctot, 1e-7 * ctot);
     EXPECT_NEAR(thermo->moleFraction(2), -1e-8 / ctot, 1e-16);
 }

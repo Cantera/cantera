@@ -80,7 +80,7 @@ void IonGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
-    m_thermo->getMolecularWeights(m_mw.data());
+    m_thermo->getMolecularWeights(m_mw);
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);

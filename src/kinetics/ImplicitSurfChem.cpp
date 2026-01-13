@@ -255,12 +255,14 @@ void ImplicitSurfChem::getConcSpecies(double* const vecConcSpecies) const
     for (size_t ip = 0; ip < m_surf.size(); ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
-        TP_ptr->getConcentrations(vecConcSpecies + kstart);
+        TP_ptr->getConcentrations(span<double>(vecConcSpecies + kstart,
+                                               TP_ptr->nSpecies()));
     }
     kstart = m_nv;
     for (size_t ip = 0; ip < m_bulkPhases.size(); ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
-        TP_ptr->getConcentrations(vecConcSpecies + kstart);
+        TP_ptr->getConcentrations(span<double>(vecConcSpecies + kstart,
+                                               TP_ptr->nSpecies()));
         kstart += TP_ptr->nSpecies();
     }
 }
@@ -271,12 +273,14 @@ void ImplicitSurfChem::setConcSpecies(const double* const vecConcSpecies)
     for (size_t ip = 0; ip < m_surf.size(); ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
-        TP_ptr->setConcentrations(vecConcSpecies + kstart);
+        TP_ptr->setConcentrations(span<const double>(vecConcSpecies + kstart,
+                                                     TP_ptr->nSpecies()));
     }
     kstart = m_nv;
     for (size_t ip = 0; ip < m_bulkPhases.size(); ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
-        TP_ptr->setConcentrations(vecConcSpecies + kstart);
+        TP_ptr->setConcentrations(span<const double>(vecConcSpecies + kstart,
+                                                     TP_ptr->nSpecies()));
         kstart += TP_ptr->nSpecies();
     }
 }

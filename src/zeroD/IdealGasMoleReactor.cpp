@@ -117,7 +117,7 @@ void IdealGasMoleReactor::updateState(double* y)
     setMassFromMoles(y + m_sidx);
     m_vol = y[1];
     // set state
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     m_thermo->setState_TD(y[0], m_mass / m_vol);
     updateConnected(true);
     updateSurfaceState(y + m_nsp + m_sidx);

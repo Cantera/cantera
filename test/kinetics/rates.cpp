@@ -63,7 +63,7 @@ TEST_F(FracCoeffTest, RatesOfProgress)
     vector<double> kf(kin->nReactions(), 0.0);
     vector<double> conc(therm->nSpecies(), 0.0);
     vector<double> ropf(kin->nReactions(), 0.0);
-    therm->getConcentrations(&conc[0]);
+    therm->getConcentrations(conc);
     kin->getFwdRateConstants(&kf[0]);
     kin->getFwdRatesOfProgress(&ropf[0]);
 

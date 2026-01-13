@@ -439,7 +439,7 @@ public:
      *           the phase.
      */
     void getActivityConcentrations(double* c) const override {
-        getConcentrations(c);
+        getConcentrations(span<double>(c, nSpecies()));
     }
 
     //! Returns the standard concentration @f$ C^0_k @f$, which is used to
