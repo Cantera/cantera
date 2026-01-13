@@ -265,3 +265,22 @@ The **sourcegen** utility uses a logging module to provide feedback. Add the ver
      existing crosswalks.
   1. Add new crosswalks to `config.yaml`, which may require updates of templates as
      well as the CLib source generator source code itself.
+
+## Debugging
+
+To run **sourcegen** in the VS Code debugger, the following configuration can be added
+to `.vscode/launch.json`:
+
+```json
+{
+    "name": "sourcegen CLib",
+    "type": "debugpy",
+    "request": "launch",
+    "module": "sourcegen",
+    "console": "integratedTerminal",
+    "args": ["--api=clib", "--verbose", "--output=interfaces/clib"],
+    "env": {
+        "PYTHONPATH": "${workspaceRoot}/interfaces/sourcegen"
+    },
+},
+```
