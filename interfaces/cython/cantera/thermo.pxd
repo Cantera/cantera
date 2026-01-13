@@ -7,6 +7,8 @@
 from .ctcxx cimport *
 from .solutionbase cimport *
 
+ctypedef const double const_double
+
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType"
     cdef cppclass CxxTransportData "Cantera::TransportData"
@@ -216,37 +218,38 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
 
 cdef extern from "cantera/cython/thermo_utils.h":
     # ThermoPhase composition
-    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getMassFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setMassFractions(CxxThermoPhase*, span[const_double]) except +translate_exception
+    cdef void thermo_getMoleFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, span[const_double]) except +translate_exception
+    cdef void thermo_getConcentrations(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setConcentrations(CxxThermoPhase*, span[const_double]) except +translate_exception
 
     # ThermoPhase partial molar properties
-    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getChemPotentials(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, span[double]) except +translate_exception
 
     # ThermoPhase partial non-dimensional properties
-    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getCp_R(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getActivities(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getActivityCoefficients(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getEnthalpy_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getEntropy_R(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getIntEnergy_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getGibbs_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getCp_R(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getActivities(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getActivityCoefficients(CxxThermoPhase*, span[double]) except +translate_exception
 
     # other ThermoPhase methods
-    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getCharges(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getMolecularWeights(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getCharges(CxxThermoPhase*, span[double]) except +translate_exception
 
 
-ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception
+ctypedef void (*thermoMethod1d)(CxxThermoPhase*, span[double]) except +translate_exception
+ctypedef void (*thermoMethod1d_const)(CxxThermoPhase*, span[const_double]) except +translate_exception
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     vector[string] elementSymbols()
@@ -274,7 +277,7 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int element_index(self, element) except *
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
-    cdef void _setArray1(self, thermoMethod1d method, values) except *
+    cdef void _setArray1(self, thermoMethod1d_const method, values) except *
     cdef CxxPlasmaPhase* plasma
     cdef public object _enable_plasma
 

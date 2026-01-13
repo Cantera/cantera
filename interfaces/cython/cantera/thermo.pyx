@@ -613,14 +613,16 @@ cdef class ThermoPhase(_SolutionBase):
 
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
         cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-        method(self.thermo, &data[0])
+        cdef span[double] view = span[double](<double*>&data[0], <size_t>self.n_species)
+        method(self.thermo, view)
         if self._selected_species.size:
             return data[self._selected_species]
         else:
             return data
 
-    cdef void _setArray1(self, thermoMethod1d method, values) except *:
+    cdef void _setArray1(self, thermoMethod1d_const method, values) except *:
         cdef np.ndarray[np.double_t, ndim=1] data
+        cdef span[const_double] view
 
         values = np.squeeze(values)
         if values.ndim == 0:
@@ -637,7 +639,8 @@ cdef class ThermoPhase(_SolutionBase):
             if len(self._selected_species):
                 msg += ' or {}'.format(len(self._selected_species))
             raise ValueError('Array has incorrect length. ' + msg + '.')
-        method(self.thermo, &data[0])
+        view = span[const_double](<const double*>&data[0], <size_t>self.n_species)
+        method(self.thermo, view)
 
     property molecular_weights:
         """Array of species molecular weights (molar masses) [kg/kmol]."""

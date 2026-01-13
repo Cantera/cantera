@@ -5,50 +5,29 @@
 #define CT_PY_THERMO_UTILS_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "wrappers.h"
-
 using Cantera::span;
 
-#define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
+#define THERMO_1D(FUNC_NAME) \
+    inline void thermo_ ## FUNC_NAME(Cantera::ThermoPhase* object, span<double> data) \
+    { object->FUNC_NAME(data.data()); }
 
-inline void thermo_getMassFractions(Cantera::ThermoPhase* object, double* data)
-{
-    object->getMassFractions(span<double>(data, object->nSpecies()));
-}
+#define THERMO_1D_SPAN(FUNC_NAME) \
+    inline void thermo_ ## FUNC_NAME(Cantera::ThermoPhase* object, span<double> data) \
+    { object->FUNC_NAME(data); }
 
-inline void thermo_setMassFractions(Cantera::ThermoPhase* object, double* data)
-{
-    object->setMassFractions(span<const double>(data, object->nSpecies()));
-}
+#define THERMO_1D_SPAN_CONST(FUNC_NAME) \
+    inline void thermo_ ## FUNC_NAME(Cantera::ThermoPhase* object, span<const double> data) \
+    { object->FUNC_NAME(data); }
 
-inline void thermo_getMoleFractions(Cantera::ThermoPhase* object, double* data)
-{
-    object->getMoleFractions(span<double>(data, object->nSpecies()));
-}
+THERMO_1D_SPAN(getMassFractions)
+THERMO_1D_SPAN_CONST(setMassFractions)
+THERMO_1D_SPAN(getMoleFractions)
+THERMO_1D_SPAN_CONST(setMoleFractions)
+THERMO_1D_SPAN(getConcentrations)
+THERMO_1D_SPAN_CONST(setConcentrations)
+THERMO_1D_SPAN(getMolecularWeights)
+THERMO_1D_SPAN(getCharges)
 
-inline void thermo_setMoleFractions(Cantera::ThermoPhase* object, double* data)
-{
-    object->setMoleFractions(span<const double>(data, object->nSpecies()));
-}
-inline void thermo_getConcentrations(Cantera::ThermoPhase* object, double* data)
-{
-    object->getConcentrations(span<double>(data, object->nSpecies()));
-}
-
-inline void thermo_setConcentrations(Cantera::ThermoPhase* object, double* data)
-{
-    object->setConcentrations(span<const double>(data, object->nSpecies()));
-}
-
-inline void thermo_getMolecularWeights(Cantera::ThermoPhase* object, double* data)
-{
-    object->getMolecularWeights(span<double>(data, object->nSpecies()));
-}
-
-inline void thermo_getCharges(Cantera::ThermoPhase* object, double* data)
-{
-    object->getCharges(span<double>(data, object->nSpecies()));
-}
 THERMO_1D(getChemPotentials)
 THERMO_1D(getElectrochemPotentials)
 THERMO_1D(getPartialMolarEnthalpies)
