@@ -24,6 +24,8 @@ ret_type_crosswalk:
   double*: double*
   const double*: double*
   vector<double>: double*
+  span<double>: double*
+  span<const double>: const double*
 
 # Parameter type crosswalks
 par_type_crosswalk:
