@@ -1350,12 +1350,12 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.state_size)
-            self.thermo.saveState(len(state), &state[0])
+            self.thermo.saveState(span[double](&state[0], len(state)))
             return state
 
         def __set__(self, state):
             cdef np.ndarray[np.double_t, ndim=1] cstate = np.asarray(state)
-            self.thermo.restoreState(len(state), &cstate[0])
+            self.thermo.restoreState(span[double](&cstate[0], len(cstate)))
 
     property TD:
         """Get/Set temperature [K] and density [kg/m³ or kmol/m³]."""

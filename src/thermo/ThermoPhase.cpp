@@ -136,12 +136,12 @@ void ThermoPhase::setState_TPY(double t, double p, const string& y)
 void ThermoPhase::setState_TP(double t, double p)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         setPressure(p);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -149,11 +149,11 @@ void ThermoPhase::setState_TP(double t, double p)
 void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_HPorUV(Htarget, p, rtol, false);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -162,11 +162,11 @@ void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
     assertCompressible("setState_UV");
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_HPorUV(u, v, rtol, true);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -482,11 +482,11 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
 void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_SPorSV(Starget, p, rtol, false);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -495,11 +495,11 @@ void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
     assertCompressible("setState_SV");
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_SPorSV(Starget, v, rtol, true);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -1212,7 +1212,7 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
                               int estimate_equil, int log_level)
 {
     if (solver == "auto" || solver == "element_potential") {
-        vector<double> initial_state;
+        vector<double> initial_state(stateSize());
         saveState(initial_state);
         debuglog("Trying ChemEquil solver\n", log_level);
         try {

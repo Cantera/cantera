@@ -54,8 +54,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double refPressure() except +translate_exception
         void equilibrate(string, string, double, int, int, int, int) except +translate_exception
         size_t stateSize()
-        void saveState(size_t, double*) except +translate_exception
-        void restoreState(size_t, double*) except +translate_exception
+        void saveState(span[double]) except +translate_exception
+        void restoreState(span[double]) except +translate_exception
         CxxUnits standardConcentrationUnits() except +translate_exception
 
         # initialization

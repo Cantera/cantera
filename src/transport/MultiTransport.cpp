@@ -264,12 +264,12 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     double* x2 = m_spwork2.data();
     double* x3 = m_spwork3.data();
     size_t nsp = m_thermo->nSpecies();
-    m_thermo->restoreState(nsp+2, state1);
+    m_thermo->restoreState(span<const double>(state1, nsp + 2));
     double p1 = m_thermo->pressure();
     double t1 = state1[0];
     m_thermo->getMoleFractions(span<double>(x1, nsp));
 
-    m_thermo->restoreState(nsp+2, state2);
+    m_thermo->restoreState(span<const double>(state2, nsp + 2));
     double p2 = m_thermo->pressure();
     double t2 = state2[0];
     m_thermo->getMoleFractions(span<double>(x2, nsp));

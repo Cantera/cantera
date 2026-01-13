@@ -792,7 +792,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize)
     m_sphase->setState_TP(m_temp, m_sphase->pressure());
     m_sphase->setCoverages(soln);
     vector<double> data(m_sphase->stateSize());
-    m_sphase->saveState(data.size(), &data[0]);
+    m_sphase->saveState(data);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);
     arr->setState(0, data);

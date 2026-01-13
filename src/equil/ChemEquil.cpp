@@ -304,7 +304,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     int fail = 0;
     bool tempFixed = true;
     int XY = _equilflag(XYstr);
-    vector<double> state;
+    vector<double> state(s.stateSize());
     s.saveState(state);
     m_loglevel = loglevel;
 
@@ -830,7 +830,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
 {
     // Before we do anything, we will save the state of the solution. Then, if
     // things go drastically wrong, we will restore the saved state.
-    vector<double> state;
+    vector<double> state(s.stateSize());
     s.saveState(state);
     bool modifiedMatrix = false;
     size_t neq = m_mm+1;
