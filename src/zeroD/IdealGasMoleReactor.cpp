@@ -13,7 +13,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 #include <limits>
-#include "cantera/thermo/PlasmaPhase.h"
 
 namespace Cantera
 {
@@ -60,10 +59,10 @@ string IdealGasMoleReactor::componentName(size_t k)
 
 void IdealGasMoleReactor::initialize(double t0)
 {
-    /* if (m_thermo->type() != "ideal-gas") {
+    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
         throw CanteraError("IdealGasMoleReactor::initialize",
                            "Incompatible phase type '{}' provided", m_thermo->type());
-    } */
+    }
     MoleReactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
 }
@@ -132,10 +131,9 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     // external heat transfer and compression work
     mcvdTdt += - m_pressure * m_vdot + m_Qdot;
 
-    if (auto* plasma = dynamic_cast<PlasmaPhase*>(m_thermo)) {
-        const double qJ = plasma->jouleHeatingPower(); // σE^2 [W/m^3]
-        const double qElastic = plasma->elasticPowerLoss(); // elastic transfer [W/m^3]
-        const double q_total = (qJ + qElastic) * m_vol; // total power [W]
+    if (m_energy) {
+        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
+        const double q_total = q_intrinsic * m_vol;              // [W]
         if (std::isfinite(q_total)) {
             mcvdTdt += q_total;
         }
