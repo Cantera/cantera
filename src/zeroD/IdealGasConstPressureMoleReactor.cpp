@@ -43,7 +43,7 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
     setMassFromMoles(y + m_sidx);
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
     m_thermo->getPartialMolarEnthalpies(m_hk.data());

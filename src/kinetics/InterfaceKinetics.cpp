@@ -108,7 +108,7 @@ void InterfaceKinetics::_update_rates_C()
         tp.getActivityConcentrations(m_actConc.data() + m_start[n]);
 
         // Get regular concentrations too
-        tp.getConcentrations(m_conc.data() + m_start[n]);
+        tp.getConcentrations(span<double>(m_conc.data() + m_start[n], tp.nSpecies()));
     }
     m_ROP_ok = false;
 }
@@ -622,7 +622,7 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     vector<double> netProdRates(m_kk, 0.0);
     double dotProduct = 0.0;
 
-    thermo(iphase).getCharges(charges.data());
+    thermo(iphase).getCharges(charges);
     getNetProductionRates(netProdRates.data());
 
     for (size_t k = 0; k < thermo(iphase).nSpecies(); k++)

@@ -112,7 +112,7 @@ void SurfPhase::getChemPotentials(double* mu) const
 
 void SurfPhase::getActivityConcentrations(double* c) const
 {
-    getConcentrations(c);
+    getConcentrations(span<double>(c, m_kk));
 }
 
 double SurfPhase::standardConcentration(size_t k) const
