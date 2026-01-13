@@ -191,7 +191,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
         getThermalDiffCoeffs(m_spwork.data());
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
     double rho = m_thermo->density();
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -295,7 +295,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
         getThermalDiffCoeffs(m_spwork.data());
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
     double rho = m_thermo->density();
     for (size_t i = 0; i < m_nsp; i++) {
         double sum = 0.0;

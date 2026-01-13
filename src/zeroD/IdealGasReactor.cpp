@@ -62,8 +62,8 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
     updateSurfaceProductionRates();
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

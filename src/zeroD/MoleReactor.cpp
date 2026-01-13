@@ -32,8 +32,8 @@ MoleReactor::MoleReactor(shared_ptr<Solution> sol, bool clone, const string& nam
 void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles
-    const double* Y = m_thermo->massFractions();
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    auto Y = m_thermo->massFractions();
+    auto imw = m_thermo->inverseMolecularWeights();
     for (size_t i = 0; i < m_nsp; i++) {
         y[i] = m_mass * imw[i] * Y[i];
     }
@@ -41,7 +41,7 @@ void MoleReactor::getMoles(double* y)
 
 void MoleReactor::setMassFromMoles(double* y)
 {
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     // calculate mass from moles
     m_mass = 0;
     for (size_t i = 0; i < m_nsp; i++) {
@@ -111,7 +111,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
     updateSurfaceProductionRates();
     // inverse molecular weights for conversion
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    auto imw = m_thermo->inverseMolecularWeights();
     // volume equation
     RHS[1] = m_vdot;
 

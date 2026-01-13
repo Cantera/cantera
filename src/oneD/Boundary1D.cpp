@@ -563,7 +563,7 @@ void OutletRes1D::fromArray(const shared_ptr<SolutionArray>& arr)
     auto thermo = arr->thermo();
     m_temp = thermo->temperature();
     auto Y = thermo->massFractions();
-    std::copy(Y, Y + m_nsp, &m_yres[0]);
+    m_yres.assign(Y.begin(), Y.end());
 }
 
 // -------- Surf1D --------
@@ -743,7 +743,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        const vector<double>& mwleft = m_phase_left->molecularWeights();
+        auto mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T

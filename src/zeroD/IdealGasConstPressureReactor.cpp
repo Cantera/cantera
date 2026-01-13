@@ -60,8 +60,8 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
