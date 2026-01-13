@@ -127,8 +127,8 @@ void Reactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     // mass added to gas phase from surface reactions
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());

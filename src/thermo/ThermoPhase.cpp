@@ -844,8 +844,8 @@ void ThermoPhase::setEquivalenceRatio(double phi, const Composition& fuelComp,
 
 double ThermoPhase::equivalenceRatio() const
 {
-    double o2_required = o2Required(massFractions());
-    double o2_present  = o2Present(massFractions());
+    double o2_required = o2Required(massFractions().data());
+    double o2_present  = o2Present(massFractions().data());
 
     if (o2_present == 0.0) { // pure fuel
         return std::numeric_limits<double>::infinity();
@@ -992,7 +992,8 @@ double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp
     {
         double o2_required_fuel = o2Required(fuelComp) - o2Present(fuelComp);
         double o2_required_ox   = o2Required(oxComp) - o2Present(oxComp);
-        double o2_required_mix  = o2Required(massFractions()) - o2Present(massFractions());
+        double o2_required_mix = o2Required(massFractions().data())
+            - o2Present(massFractions().data());
 
         if (o2_required_fuel < 0.0 || o2_required_ox > 0.0) {
             throw CanteraError("ThermoPhase::mixtureFraction",
@@ -1032,7 +1033,7 @@ double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp
         size_t m = elementIndex(element, true);
         double Z_m_fuel = elementalFraction(m, fuelComp)/sum_yf;
         double Z_m_ox   = elementalFraction(m, oxComp)/sum_yo;
-        double Z_m_mix  = elementalFraction(m, massFractions());
+        double Z_m_mix  = elementalFraction(m, massFractions().data());
 
         if (Z_m_fuel == Z_m_ox) {
             throw CanteraError("ThermoPhase::mixtureFraction",

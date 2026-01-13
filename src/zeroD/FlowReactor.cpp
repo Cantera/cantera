@@ -35,7 +35,7 @@ FlowReactor::FlowReactor(shared_ptr<Solution> sol, bool clone, const string& nam
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
     m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
     y[0] = m_thermo->density();
@@ -171,7 +171,7 @@ void FlowReactor::setArea(double area) {
 void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
     updateSurfaceProductionRates();
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         sk_wk += m_sdot[i] * mw[i] / m_area;
