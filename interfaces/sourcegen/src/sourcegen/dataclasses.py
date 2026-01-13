@@ -61,19 +61,19 @@ class Param:
     base: str = ""  #: Base (optional). Only used if param represents a member variable
 
     @classmethod
-    def from_str(cls: Self, param: str, doc: str = "") -> Self:
+    def from_str(cls: Self, param: str, has_name: bool, doc: str = "") -> Self:
         """Generate Param from parameter string."""
         param = param.strip()
         default = None
         if "=" in param:
             param, _, default = param.partition("=")
-        parts = param.strip().rsplit(" ", 1)
-        if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
-            return cls(*parts, doc, "", default)
+        if has_name:  # 'param' includes both type and name
+            p_type, name = param.strip().rsplit(" ", 1)
+            return cls(p_type, name, doc, "", default)
         return cls(param)
 
     @classmethod
-    def from_xml(cls: Self, param: str) -> Self:
+    def from_xml(cls: Self, param: str, has_name: bool) -> Self:
         """
         Generate Param from XML string.
 
@@ -81,7 +81,7 @@ class Param:
         """
         for rep in [(" &", "& "), ("< ", "<"), (" >", ">"), (" *", "* ")]:
             param = param.replace(*rep)
-        return cls.from_str(param.strip())
+        return cls.from_str(param.strip(), has_name=has_name)
 
     @classmethod
     def to_const(cls: Self, pp: Self) -> Self:
@@ -124,12 +124,12 @@ class ArgList:
         return arglist, spec
 
     @classmethod
-    def from_str(cls: Self, arglist: str) -> Self:
+    def from_str(cls: Self, arglist: str, has_names: bool) -> Self:
         """Generate ArgList from string argument list."""
         arglist, spec = cls._split_arglist(arglist)
         if not arglist:
             return cls([], spec)
-        return cls([Param.from_str(arg) for arg in arglist.split(",")], spec)
+        return cls([Param.from_str(arg, has_names) for arg in arglist.split(",")], spec)
 
     @classmethod
     def from_xml(cls: Self, arglist: str) -> Self:
@@ -137,7 +137,8 @@ class ArgList:
         arglist, spec = cls._split_arglist(arglist)
         if not arglist:
             return cls([], spec)
-        return cls([Param.from_xml(arg) for arg in arglist.split(",")], spec)
+        return cls([Param.from_xml(arg, has_name=True) for arg in arglist.split(",")],
+                   spec)
 
     def __len__(self) -> int:
         return len(self.params)
@@ -189,12 +190,12 @@ class Func:
     deprecated: str | None = None  #: Deprecation message (if applicable)
 
     @classmethod
-    def from_str(cls: Self, func: str, brief: str = "") -> Self:
+    def from_str(cls: Self, func: str, has_names: bool, brief: str = "") -> Self:
         """Generate Func from declaration string of a function declaration."""
         func = func.split("\n")[-1].rstrip(";").strip()
         # match all characters before an opening parenthesis "(" or end of line
         name = re.findall(r".*?(?=\(|$)", func)[0]
-        arglist = ArgList.from_str(func.replace(name, "").strip())
+        arglist = ArgList.from_str(func.replace(name, "").strip(), has_names)
         r_type = ""
         if " " in name:
             r_type, name = name.rsplit(" ", 1)
@@ -211,16 +212,17 @@ class Func:
     @classmethod
     def from_recipe(cls: Self, recipe: Recipe) -> Self:
         """Generate annotated Func from recipe."""
-        func = Func.from_str(recipe.declaration)
+        func = Func.from_str(recipe.declaration, has_names=True)
 
-        uses = [Func.from_str(uu) for uu in recipe.uses]
+        uses = [Func.from_str(uu, has_names=False) for uu in recipe.uses]
 
         doc_args = []
         for arg in func.arglist:
             if arg.name not in recipe.parameters:
                 msg = f"Recipe does not specify doc-string for parameter {arg.name!r}."
                 raise KeyError(msg)
-            doc_args.append(Param.from_str(arg.long_str(), recipe.parameters[arg.name]))
+            doc_args.append(Param.from_str(arg.long_str(), has_name=True,
+                                           doc=recipe.parameters[arg.name]))
 
         return cls(func.ret_type, func.name, ArgList(doc_args), recipe.brief,
                    recipe.code, recipe.returns, "", uses)
