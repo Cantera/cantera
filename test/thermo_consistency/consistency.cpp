@@ -147,7 +147,17 @@ TEST_P(TestConsistency, h_eq_u_plus_Pv) {
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(h, u + p * v, atol);
+    if (phase->type() == "plasma" && ke != npos) {
+        // Two-temperature identity for PlasmaPhase:
+        // h = u + p*v + X_e * R * (Te - T)
+        std::vector<double> X(nsp);
+        phase->getMoleFractions(X.data());
+        double Xe = X[ke];
+        EXPECT_NEAR(h, u + p * v + Xe * (RTe - RT), atol);
+    } else {
+        // Standard single-temperature identity
+        EXPECT_NEAR(h, u + p * v, atol);
+    }
 }
 
 TEST_P(TestConsistency, g_eq_h_minus_Ts) {

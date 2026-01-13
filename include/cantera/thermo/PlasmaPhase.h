@@ -256,21 +256,48 @@ public:
      */
     double enthalpy_mole() const override;
 
-    double cp_mole() const override {
-        throw NotImplementedError("PlasmaPhase::cp_mole");
-    }
+    //! Return the molar entropy. Units: J/kmol/K.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    * \hat s(T,T_e,p,X)
+    * = \sum_{k\neq k_e} X_k\left[\hat s_k^0(T) - R\ln\left(\frac{X_k p}{p^0}\right)\right]
+    * + X_{k_e}\left[\hat s_{k_e}^0(T_e) - R\ln\left(\frac{X_{k_e} p_e}{p^0}\right)\right],
+    * @f]
+    * where heavy-species properties are evaluated at @f$T@f$, electron properties at
+    * @f$T_e@f$, and the electron mixing term uses the electron pressure
+    * @f$p_e = n_{k_e} R T_e@f$.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double entropy_mole() const override;
 
-    double entropy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::entropy_mole");
-    }
+    //! Return the molar Gibbs free energy. Units: J/kmol.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    *   \hat g(T, T_e, p, X) = \sum_k X_k \mu_k(T_k, p_k, X),
+    * @f]
+    * where heavy species use the gas temperature @f$T@f$ and bulk pressure,
+    * while the electron chemical potential uses @f$T_e@f$ and
+    * @f$p_e = n_{k_e} R T_e@f$.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double gibbs_mole() const override;
 
-    double gibbs_mole() const override {
-        throw NotImplementedError("PlasmaPhase::gibbs_mole");
-    }
-
-    double intEnergy_mole() const override {
-        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
-    }
+    //! Return the molar internal energy. Units: J/kmol.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    *   \hat u(T,T_e) = \sum_{k \neq k_e} X_k \hat u^0_k(T) + X_{k_e} \hat u^0_{k_e}(T_e),
+    * @f]
+    * where @f$\hat u^0_k(T) = \hat h^0_k(T) - R T@f$ for heavy species and
+    * @f$\hat u^0_{k_e}(T_e) = \hat h^0_{k_e}(T_e) - R T_e@f$ for electrons.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double intEnergy_mole() const override;
 
     void getEntropy_R(double* sr) const override;
 
@@ -376,6 +403,35 @@ public:
      * electron energy loss coefficient (eV-m³/s).
      */
     double elasticPowerLoss();
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
+
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ sigma @f$ is the conductivity (S/m), defined by:
+     *   @f[
+     *     sigma = e * n_e * mu_e
+     *   @f]
+     * and @f$ E @f$ is the electric field strength (V/m).
+     */
+    double jouleHeatingPower() const;
+
+    void beginEquilibrate() override;
+
+    void endEquilibrate() override;
+
+    double intrinsicHeating() override;
 
 protected:
     void updateThermo() const override;
@@ -538,6 +594,15 @@ private:
 
     //! Add a collision and record the target species
     void addCollision(shared_ptr<Reaction> collision);
+
+    //! Saved electron temperature during an equilibrium solve
+    double m_electronTempEquil = 0.0;
+
+    //! Lock flag (default off)
+    bool m_inEquilibrate = false;
+
+    //! Work array
+    mutable std::vector<double> m_work;
 };
 
 }

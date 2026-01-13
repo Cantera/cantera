@@ -131,6 +131,29 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     updateElectronEnergyDistribution();
 }
 
+void PlasmaPhase::beginEquilibrate()
+{
+    ThermoPhase::beginEquilibrate();
+
+    if (!m_inEquilibrate) {
+        m_inEquilibrate = true;
+        // Remember current Te and lock Te -> T for the duration
+        m_electronTempEquil = electronTemperature();
+        setElectronTemperature(temperature());
+    }
+}
+
+void PlasmaPhase::endEquilibrate()
+{
+    if (m_inEquilibrate) {
+        // Restore Te to the pre-equilibrate value
+        setElectronTemperature(m_electronTempEquil);
+        m_inEquilibrate = false;
+    }
+
+    ThermoPhase::endEquilibrate();
+}
+
 void PlasmaPhase::setMeanElectronEnergy(double energy) {
     m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
     updateElectronEnergyDistribution();
@@ -556,6 +579,13 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 
 double PlasmaPhase::elasticPowerLoss()
 {
+    // If the electron energy distribution hasn't been initialized, skip elastic power loss.
+    if (m_electronEnergyDist.size() != m_nPoints
+        || m_electronEnergyDistDiff.size() != m_nPoints) {
+        throw CanteraError("PlasmaPhase::elasticPowerLoss:",
+            "EEDF not initialized");
+    }
+
     updateElasticElectronEnergyLossCoefficients();
     // The elastic power loss includes the contributions from inelastic
     // collisions (inelastic recoil effects).
@@ -564,9 +594,15 @@ double PlasmaPhase::elasticPowerLoss()
         rate += concentration(m_targetSpeciesIndices[i]) *
                 m_elasticElectronEnergyLossCoefficients[i];
     }
+    const double q_elastic = Avogadro * Avogadro * ElectronCharge *
+                concentration(m_electronSpeciesIndex) * rate;
 
-    return Avogadro * Avogadro * ElectronCharge *
-        concentration(m_electronSpeciesIndex) * rate;
+    if (!std::isfinite(q_elastic)) {
+        throw CanteraError("PlasmaPhase::elasticPowerLoss:",
+            "Non-finite elastic power loss");
+    }
+
+    return q_elastic;
 }
 
 void PlasmaPhase::updateThermo() const
@@ -595,6 +631,39 @@ double PlasmaPhase::enthalpy_mole() const {
              moleFraction(m_electronSpeciesIndex) *
              m_h0_RT[m_electronSpeciesIndex];
     return value;
+}
+
+double PlasmaPhase::intEnergy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarIntEnergies(m_work.data());
+    double u = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        u += moleFraction(k) * m_work[k];
+    }
+    return u;
+}
+
+double PlasmaPhase::entropy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarEntropies(m_work.data());
+    double s = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        s += moleFraction(k) * m_work[k];
+    }
+    return s;
+}
+
+double PlasmaPhase::gibbs_mole() const
+{
+    m_work.resize(m_kk);
+    getChemPotentials(m_work.data());
+    double g = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        g += moleFraction(k) * m_work[k];
+    }
+    return g;
 }
 
 void PlasmaPhase::getGibbs_ref(double* g) const
@@ -676,5 +745,57 @@ void PlasmaPhase::getGibbs_RT(double* grt) const
         }
     }
 }
+
+double PlasmaPhase::electronMobility() const
+{
+    // Only implemented when using the Boltzmann two-term EEDF
+    if (m_distributionType == "Boltzmann-two-term") {
+        return m_eedfSolver->getElectronMobility();
+    } else {
+        throw NotImplementedError("PlasmaPhase::electronMobility",
+            "Electron mobility is only available for 'Boltzmann-two-term' "
+            "electron energy distributions.");
+    }
+}
+
+
+double PlasmaPhase::jouleHeatingPower() const
+{
+    // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
+    const double mu_e = electronMobility();    // m^2 / (V·s)
+    if (mu_e <= 0.0) {
+        return 0.0;
+    }
+    const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
+    if (ne <= 0.0) {
+        return 0.0;
+    }
+    const double E  = electricField(); // V/m
+    if (E <= 0.0) {
+        return 0.0;
+    }
+    const double sigma = ElectronCharge * ne * mu_e; // S/m
+    return sigma * E * E; // W/m^3
+}
+
+double PlasmaPhase::intrinsicHeating()
+{
+    // Joule heating: sigma * E^2 [W/m^3]
+    const double qJ = jouleHeatingPower();
+
+    // Elastic + inelastic recoil power loss [W/m^3]
+    double qElastic = 0.0;
+    try {
+        qElastic = elasticPowerLoss();
+    } catch (CanteraError&) {
+        // If the EEDF is not initialized or elastic power loss is invalid
+        // treat the intrinsic heating as purely Joule.
+        qElastic = 0.0;
+    }
+
+    const double q = qJ + qElastic;
+    return std::isfinite(q) ? q : 0.0;
+}
+
 
 }

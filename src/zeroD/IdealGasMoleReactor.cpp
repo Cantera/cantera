@@ -13,6 +13,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 #include <limits>
+#include "cantera/thermo/PlasmaPhase.h"
 
 namespace Cantera
 {
@@ -68,7 +69,7 @@ string IdealGasMoleReactor::componentName(size_t k)
 
 void IdealGasMoleReactor::initialize(double t0)
 {
-    if (m_thermo->type() != "ideal-gas") {
+    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
         throw CanteraError("IdealGasMoleReactor::initialize",
                            "Incompatible phase type '{}' provided", m_thermo->type());
     }
@@ -144,6 +145,14 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
     // external heat transfer and compression work
     mcvdTdt += - m_pressure * m_vdot + m_Qdot;
+
+    if (m_energy) {
+        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
+        const double q_total = q_intrinsic * m_vol;              // [W]
+        if (std::isfinite(q_total)) {
+            mcvdTdt += q_total;
+        }
+    }
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions

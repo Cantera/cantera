@@ -11,6 +11,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/utilities.h"
 #include <boost/math/tools/roots.hpp>
+#include "cantera/thermo/PlasmaPhase.h"
 
 using namespace std;
 namespace bmt = boost::math::tools;
@@ -245,6 +246,11 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     // @f]
     if (m_energy) {
         RHS[0] = - m_thermo->pressure() * m_vdot + m_Qdot;
+        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
+        const double q_total = q_intrinsic * m_vol;              // [W]
+        if (std::isfinite(q_total)) {
+            RHS[0] += q_total;
+        }
     } else {
         RHS[0] = 0.0;
     }

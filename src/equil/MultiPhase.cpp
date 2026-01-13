@@ -472,6 +472,30 @@ double MultiPhase::volume() const
     return sum;
 }
 
+namespace {
+
+struct EquilPhaseGuard
+{
+    explicit EquilPhaseGuard(MultiPhase& mix) : m_mix(mix)
+    {
+        for (size_t ip = 0; ip < m_mix.nPhases(); ++ip) {
+            m_mix.phase(ip).beginEquilibrate();
+        }
+    }
+
+    ~EquilPhaseGuard()
+    {
+        for (size_t ip = 0; ip < m_mix.nPhases(); ++ip) {
+            m_mix.phase(ip).endEquilibrate();
+        }
+    }
+
+private:
+    MultiPhase& m_mix;
+};
+
+} // namespace
+
 double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
                                                int maxiter, int loglevel)
 {
@@ -643,6 +667,7 @@ void MultiPhase::equilibrate(const string& XY, const string& solver,
     double initial_T = m_temp;
     double initial_P = m_press;
     int ixy = _equilflag(XY.c_str());
+    EquilPhaseGuard phase_guard(*this);
     if (solver == "auto" || solver == "vcs") {
         try {
             debuglog("Trying VCS equilibrium solver\n", log_level);
