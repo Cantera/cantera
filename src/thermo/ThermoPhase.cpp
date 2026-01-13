@@ -40,6 +40,26 @@ shared_ptr<ThermoPhase> ThermoPhase::clone() const
     return newThermo(phase, root);
 }
 
+namespace {
+
+struct PhaseEquilGuard
+{
+    explicit PhaseEquilGuard(ThermoPhase& phase) : m_phase(phase)
+    {
+        m_phase.beginEquilibrate();
+    }
+
+    ~PhaseEquilGuard()
+    {
+        m_phase.endEquilibrate();
+    }
+
+private:
+    ThermoPhase& m_phase;
+};
+
+} // namespace
+
 void ThermoPhase::resetHf298(size_t k) {
     if (k != npos) {
         m_spthermo.resetHf298(k);
@@ -1216,6 +1236,7 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
         saveState(initial_state);
         debuglog("Trying ChemEquil solver\n", log_level);
         try {
+            PhaseEquilGuard guard(*this);
             ChemEquil E;
             E.options.maxIterations = max_steps;
             E.options.relTolerance = rtol;
