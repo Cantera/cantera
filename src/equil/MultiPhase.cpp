@@ -14,7 +14,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
-#include "cantera/thermo/PlasmaPhase.h"
 
 using namespace std;
 
@@ -473,28 +472,29 @@ double MultiPhase::volume() const
     return sum;
 }
 
-struct TeLockGuard {
-    std::vector<std::pair<PlasmaPhase*, double>> items;
-    explicit TeLockGuard(MultiPhase& mix) {
-        for (size_t ip = 0; ip < mix.nPhases(); ++ip) {
-            ThermoPhase& th = mix.phase(ip);
-            if (auto* p = dynamic_cast<PlasmaPhase*>(&th)) {
-                // Remember current Te, then lock Te->T for the solve
-                double Te0 = p->electronTemperature();
-                p->setLockTeToT(true);
-                p->setElectronTemperature(p->temperature());
-                items.emplace_back(p, Te0);
-            }
+namespace {
+
+struct EquilPhaseGuard
+{
+    explicit EquilPhaseGuard(MultiPhase& mix) : m_mix(mix)
+    {
+        for (size_t ip = 0; ip < m_mix.nPhases(); ++ip) {
+            m_mix.phase(ip).beginEquilibrate();
         }
     }
-    ~TeLockGuard() {
-        for (auto& it : items) {
-            it.first->setLockTeToT(false);
-            it.first->setElectronTemperature(it.second);
+
+    ~EquilPhaseGuard()
+    {
+        for (size_t ip = 0; ip < m_mix.nPhases(); ++ip) {
+            m_mix.phase(ip).endEquilibrate();
         }
     }
+
+private:
+    MultiPhase& m_mix;
 };
 
+} // namespace
 
 double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
                                                int maxiter, int loglevel)
@@ -510,7 +510,6 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
         MultiPhaseEquil e(this);
         return e.equilibrate(XY, err, maxsteps, loglevel);
     } else if (XY == HP) {
-        TeLockGuard te_guard(*this); // force single-T for plasma during HP
         double h0 = enthalpy();
         double Tlow = 0.5*m_Tmin; // lower bound on T
         double Thigh = 2.0*m_Tmax; // upper bound on T
@@ -587,7 +586,6 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
         throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == SP) {
-        TeLockGuard te_guard(*this); // also single-T during SP
         double s0 = entropy();
         double Tlow = 1.0; // lower bound on T
         double Thigh = 1.0e6; // upper bound on T
@@ -669,6 +667,7 @@ void MultiPhase::equilibrate(const string& XY, const string& solver,
     double initial_T = m_temp;
     double initial_P = m_press;
     int ixy = _equilflag(XY.c_str());
+    EquilPhaseGuard phase_guard(*this);
     if (solver == "auto" || solver == "vcs") {
         try {
             debuglog("Trying VCS equilibrium solver\n", log_level);

@@ -240,17 +240,7 @@ TEST_P(TestConsistency, g_eq_sum_gk_Xk)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    if (phase->type() == "plasma") {
-        // PlasmaPhase is a two-temperature, non-equilibrium model. The mixture Gibbs
-        // free energy is defined via g = h - T*s using the gas temperature T, while
-        // the electron chemical potential is defined using Te and pe. As a result,
-        // the single-temperature identity g = sum_k X_k * mu_k is not enforced for
-        // PlasmaPhase, so this particular consistency check is skipped.
-        GTEST_SKIP() << "PlasmaPhase: g = sum_k X_k * mu_k identity not enforced";
-    } else {
-        // Standard single-temperature identity
-        EXPECT_NEAR(g, phase->mean_X(gk), atol);
-    }
+    EXPECT_NEAR(g, phase->mean_X(gk), atol);
 }
 
 TEST_P(TestConsistency, s_eq_sum_sk_Xk)

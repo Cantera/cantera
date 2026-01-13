@@ -131,6 +131,29 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     updateElectronEnergyDistribution();
 }
 
+void PlasmaPhase::beginEquilibrate()
+{
+    ThermoPhase::beginEquilibrate();
+
+    if (!m_inEquilibrate) {
+        m_inEquilibrate = true;
+        // Remember current Te and lock Te -> T for the duration
+        m_electronTempEquil = electronTemperature();
+        setElectronTemperature(temperature());
+    }
+}
+
+void PlasmaPhase::endEquilibrate()
+{
+    if (m_inEquilibrate) {
+        // Restore Te to the pre-equilibrate value
+        setElectronTemperature(m_electronTempEquil);
+        m_inEquilibrate = false;
+    }
+
+    ThermoPhase::endEquilibrate();
+}
+
 void PlasmaPhase::setMeanElectronEnergy(double energy) {
     m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
     updateElectronEnergyDistribution();
@@ -559,9 +582,8 @@ double PlasmaPhase::elasticPowerLoss()
     // If the electron energy distribution hasn't been initialized, skip elastic power loss.
     if (m_electronEnergyDist.size() != m_nPoints
         || m_electronEnergyDistDiff.size() != m_nPoints) {
-        writelog("PlasmaPhase::elasticPowerLoss: "
-             "EEDF not initialized, returning 0.\n");
-        return 0.0;
+        throw CanteraError("PlasmaPhase::elasticPowerLoss:",
+            "EEDF not initialized");
     }
 
     updateElasticElectronEnergyLossCoefficients();
@@ -572,7 +594,8 @@ double PlasmaPhase::elasticPowerLoss()
         rate += concentration(m_targetSpeciesIndices[i]) *
                 m_elasticElectronEnergyLossCoefficients[i];
     }
-    const double q_elastic = Avogadro * Avogadro * ElectronCharge * concentration(m_electronSpeciesIndex) * rate;
+    const double q_elastic = Avogadro * Avogadro * ElectronCharge *
+                concentration(m_electronSpeciesIndex) * rate;
 
     if (!std::isfinite(q_elastic)) {
         throw CanteraError("PlasmaPhase::elasticPowerLoss:",
@@ -610,36 +633,37 @@ double PlasmaPhase::enthalpy_mole() const {
     return value;
 }
 
-double PlasmaPhase::cp_mole() const
-{
-    return IdealGasPhase::cp_mole();
-}
-
 double PlasmaPhase::intEnergy_mole() const
 {
-    std::vector<double> ubar(m_kk);
-    getPartialMolarIntEnergies(ubar.data());
+    m_work.resize(m_kk);
+    getPartialMolarIntEnergies(m_work.data());
     double u = 0.0;
     for (size_t k = 0; k < m_kk; ++k) {
-        u += moleFraction(k) * ubar[k];
+        u += moleFraction(k) * m_work[k];
     }
     return u;
 }
 
 double PlasmaPhase::entropy_mole() const
 {
-    std::vector<double> sbar(m_kk);
-    getPartialMolarEntropies(sbar.data());
+    m_work.resize(m_kk);
+    getPartialMolarEntropies(m_work.data());
     double s = 0.0;
     for (size_t k = 0; k < m_kk; ++k) {
-        s += moleFraction(k) * sbar[k];
+        s += moleFraction(k) * m_work[k];
     }
     return s;
 }
 
 double PlasmaPhase::gibbs_mole() const
 {
-    return enthalpy_mole() - temperature() * entropy_mole();
+    m_work.resize(m_kk);
+    getChemPotentials(m_work.data());
+    double g = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        g += moleFraction(k) * m_work[k];
+    }
+    return g;
 }
 
 void PlasmaPhase::getGibbs_ref(double* g) const
@@ -726,10 +750,6 @@ double PlasmaPhase::electronMobility() const
 {
     // Only implemented when using the Boltzmann two-term EEDF
     if (m_distributionType == "Boltzmann-two-term") {
-        if (!m_eedfSolver) {
-            throw CanteraError("PlasmaPhase::electronMobility",
-                "EEDF solver is not initialized.");
-        }
         return m_eedfSolver->getElectronMobility();
     } else {
         throw NotImplementedError("PlasmaPhase::electronMobility",
@@ -756,6 +776,25 @@ double PlasmaPhase::jouleHeatingPower() const
     }
     const double sigma = ElectronCharge * ne * mu_e; // S/m
     return sigma * E * E; // W/m^3
+}
+
+double PlasmaPhase::intrinsicHeating()
+{
+    // Joule heating: sigma * E^2 [W/m^3]
+    const double qJ = jouleHeatingPower();
+
+    // Elastic + inelastic recoil power loss [W/m^3]
+    double qElastic = 0.0;
+    try {
+        qElastic = elasticPowerLoss();
+    } catch (CanteraError&) {
+        // If the EEDF is not initialized or elastic power loss is invalid
+        // treat the intrinsic heating as purely Joule.
+        qElastic = 0.0;
+    }
+
+    const double q = qJ + qElastic;
+    return std::isfinite(q) ? q : 0.0;
 }
 
 
