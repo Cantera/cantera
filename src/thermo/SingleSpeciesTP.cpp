@@ -167,7 +167,7 @@ void SingleSpeciesTP::_updateThermo() const
 {
     double tnow = temperature();
     if (m_tlast != tnow) {
-        m_spthermo.update(tnow, &m_cp0_R, &m_h0_RT, &m_s0_R);
+        m_spthermo.update_single(0, tnow, m_cp0_R, m_h0_RT, m_s0_R);
         m_tlast = tnow;
     }
 }

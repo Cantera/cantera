@@ -56,7 +56,7 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
     double tnow = temperature();
     if (x_changed || m_tlast != tnow) {
         // Update the thermodynamic functions of the reference state.
-        m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
+        m_spthermo.update(tnow, m_cp0_R, m_h0_RT, m_s0_R);
         double rrt = 1.0 / RT();
         m_h0_RT[m_kk_tab] += m_h0_tab * rrt;
         m_s0_R[m_kk_tab] += m_s0_tab / GasConstant;

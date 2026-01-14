@@ -30,7 +30,7 @@ namespace Cantera
 {
 
 shared_ptr<Species> make_species(const string& name,
-     const string& composition, const double* nasa_coeffs)
+     const string& composition, span<const double> nasa_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<NasaPoly2>(200, 3500, 101325, nasa_coeffs);
@@ -38,7 +38,7 @@ shared_ptr<Species> make_species(const string& name,
 }
 
 shared_ptr<Species> make_shomate_species(const string& name,
-     const string& composition, const double* shomate_coeffs)
+     const string& composition, span<const double> shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly>(200, 3500, 101325, shomate_coeffs);
@@ -46,7 +46,7 @@ shared_ptr<Species> make_shomate_species(const string& name,
 }
 
 shared_ptr<Species> make_shomate2_species(const string& name,
-     const string& composition, const double* shomate_coeffs)
+     const string& composition, span<const double> shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, shomate_coeffs);

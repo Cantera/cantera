@@ -55,7 +55,7 @@ public:
      *                     the standard state for species n. Contains 4 parameters
      *                     in the order of setParameters() arguments.
      */
-    ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
+    ConstCpPoly(double tlow, double thigh, double pref, span<const double> coeffs);
 
     /**
      * Set ConstCpPoly parameters.
@@ -77,20 +77,20 @@ public:
      *  - m_t[0] = tt;
      *
      */
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override;
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override;
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override;
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override;
 
     size_t nCoeffs() const override { return 4; }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override;
+                          double& pref, span<double> coeffs) const override;
 
     void getParameters(AnyMap& thermo) const override;
 
-    double reportHf298(double* const h298=nullptr) const override;
+    double reportHf298(span<double> h298={}) const override;
     void modifyOneHf298(const size_t k, const double Hf298New) override;
     void resetHf298() override;
 

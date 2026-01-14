@@ -40,7 +40,7 @@ void PureFluidPhase::initThermo()
     p = 0.001 * p;
     m_sub->Set(tpx::PropertyPair::TP, T0, p);
 
-    m_spthermo.update_single(0, T0, &cp0_R, &h0_RT, &s0_R);
+    m_spthermo.update_single(0, T0, cp0_R, h0_RT, s0_R);
     double s_R = s0_R - log(p/refPressure());
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
