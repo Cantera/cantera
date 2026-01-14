@@ -242,7 +242,7 @@ public:
      * @param c  Pointer to array of doubles of length m_kk, which on exit
      *           will contain the generalized concentrations.
      */
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     /**
      * The standard concentration @f$ C^0_k @f$ used to normalize the
@@ -260,7 +260,7 @@ public:
     /*!
      * @param ac output vector of activity coefficients. Length: m_kk
      */
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
     /**
      * Get the species chemical potentials. Units: J/kmol.
@@ -278,7 +278,7 @@ public:
      *
      * @param mu  Output vector of chemical potentials.
      */
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -301,7 +301,7 @@ public:
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
      */
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
     /**
      * Returns an array of partial molar entropies of the species in the
@@ -320,7 +320,7 @@ public:
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.
      */
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
     /**
      * Returns an array of partial molar Heat Capacities at constant pressure of
@@ -329,7 +329,7 @@ public:
      *
      * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
      */
-    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
 
     /**
      * returns an array of partial molar volumes of the species
@@ -340,7 +340,7 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -359,7 +359,7 @@ public:
      * @param mu0   Output vector of standard state chemical potentials.
      *              Length: m_kk.
      */
-    void getStandardChemPotentials(double* mu0) const override;
+    void getStandardChemPotentials(span<double> mu0) const override;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
     //! state species at the current *T* and *P* of the solution.
@@ -375,7 +375,7 @@ public:
      * @param hrt Vector of length m_kk, which on return hrt[k] will contain the
      *            nondimensional standard state enthalpy of species k.
      */
-    void getEnthalpy_RT(double* hrt) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
 
     //! Get the nondimensional Entropies for the species standard states at the
     //! current T and P of the solution.
@@ -386,7 +386,7 @@ public:
      * @param sr Vector of length m_kk, which on return sr[k] will contain the
      *           nondimensional standard state entropy for species k.
      */
-    void getEntropy_R(double* sr) const override;
+    void getEntropy_R(span<double> sr) const override;
 
     /**
      * Get the nondimensional Gibbs function for the species standard states at
@@ -402,9 +402,9 @@ public:
      * @param grt Vector of length m_kk, which on return sr[k] will contain the
      *           nondimensional standard state Gibbs function for species k.
      */
-    void getGibbs_RT(double* grt) const override;
+    void getGibbs_RT(span<double> grt) const override;
 
-    void getIntEnergy_RT(double* urt) const override;
+    void getIntEnergy_RT(span<double> urt) const override;
 
     /**
      * Get the nondimensional heat capacity at constant pressure function for
@@ -419,20 +419,20 @@ public:
      * @param cpr Vector of length m_kk, which on return cpr[k] will contain the
      *           nondimensional constant pressure heat capacity for species k.
      */
-    void getCp_R(double* cpr) const override;
+    void getCp_R(span<double> cpr) const override;
 
-    void getStandardVolumes(double* vol) const override;
+    void getStandardVolumes(span<double> vol) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getIntEnergy_RT_ref(double* urt) const override;
-    void getCp_R_ref(double* cprt) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getIntEnergy_RT_ref(span<double> urt) const override;
+    void getCp_R_ref(span<double> cprt) const override;
 
     /**
      * Returns a reference to the vector of nondimensional enthalpies of the
@@ -480,7 +480,7 @@ public:
     void initThermo() override;
     void getParameters(AnyMap& phaseNode) const override;
     void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
-    void setToEquilState(const double* mu_RT) override;
+    void setToEquilState(span<const double> mu_RT) override;
 
     //! Set the form for the standard and generalized concentrations
     /*!
@@ -515,7 +515,7 @@ public:
      * @param smv  output vector containing species molar volumes.
      *             Length: m_kk.
      */
-    void getSpeciesMolarVolumes(double* smv) const;
+    void getSpeciesMolarVolumes(span<double> smv) const;
 
     //! @}
 

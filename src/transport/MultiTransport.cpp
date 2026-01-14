@@ -260,19 +260,19 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
 void MultiTransport::getMassFluxes(const double* state1, const double* state2,
                                    double delta, double* fluxes)
 {
-    double* x1 = m_spwork1.data();
-    double* x2 = m_spwork2.data();
-    double* x3 = m_spwork3.data();
+    span<double> x1(m_spwork1);
+    span<double> x2(m_spwork2);
+    span<double> x3(m_spwork3);
     size_t nsp = m_thermo->nSpecies();
     m_thermo->restoreState(span<const double>(state1, nsp + 2));
     double p1 = m_thermo->pressure();
     double t1 = state1[0];
-    m_thermo->getMoleFractions(span<double>(x1, nsp));
+    m_thermo->getMoleFractions(x1);
 
     m_thermo->restoreState(span<const double>(state2, nsp + 2));
     double p2 = m_thermo->pressure();
     double t2 = state2[0];
-    m_thermo->getMoleFractions(span<double>(x2, nsp));
+    m_thermo->getMoleFractions(x2);
 
     double p = 0.5*(p1 + p2);
     double t = 0.5*(state1[0] + state2[0]);
@@ -470,7 +470,7 @@ void MultiTransport::updateThermal_T()
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */
     vector<double> cp(m_thermo->nSpecies());
-    m_thermo->getCp_R_ref(&cp[0]);
+    m_thermo->getCp_R_ref(cp);
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;
     }

@@ -52,7 +52,7 @@ class Kinetics;
  * Class Phase contains a number of utility functions that will set the state
  * of the phase in its entirety, by first setting the composition, and then
  * temperature and pressure. An example of this is the function
- * Phase::setState_TPY(double t, double p, const double* y).
+ * Phase::setState_TPY(double t, double p, span<const double> y).
  *
  * For bulk (3-dimensional) phases, the mass density has units of kg/m^3, and the molar
  * density and concentrations have units of kmol/m^3, and the units listed in the

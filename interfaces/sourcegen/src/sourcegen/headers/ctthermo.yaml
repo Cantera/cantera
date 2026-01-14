@@ -100,11 +100,11 @@ recipes:
 - name: getPartialMolarCp
 - name: getPartialMolarVolumes
 - name: setState_TPX  # New in Cantera 3.2
-  wraps: setState_TPX(double, double, const double*)
+  wraps: setState_TPX(double, double, span<const double>)
 - name: setState_TPX_byName  # New in Cantera 3.2
   wraps: setState_TPX(double, double, const string&)
 - name: setState_TPY  # New in Cantera 3.2
-  wraps: setState_TPY(double, double, const double*)
+  wraps: setState_TPY(double, double, span<const double>)
 - name: setState_TPY_byName  # New in Cantera 3.2
   wraps: setState_TPY(double, double, const string&)
 - name: setState_TP  # Renamed in Cantera 3.2 (previously set_TP)

@@ -30,7 +30,7 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     if (changed || rho != density || mf != m_state_mf_number) {
         density = rho;
         m_state_mf_number = mf;
-        phase.getPartialMolarEnthalpies(partialMolarEnthalpies.data());
+        phase.getPartialMolarEnthalpies(partialMolarEnthalpies);
         changed = true;
     }
     return changed;

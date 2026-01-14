@@ -27,7 +27,7 @@ void thermo_demo(const string& file, const string& phase)
     // chemical potentials of the species
     size_t numSpecies = gas->nSpecies();
     vector<double> mu(numSpecies);
-    gas->getChemPotentials(mu.data());
+    gas->getChemPotentials(mu);
     for (size_t n = 0; n < numSpecies; n++) {
         std::cout << gas->speciesName(n) << " " << mu[n] << std::endl;
     }

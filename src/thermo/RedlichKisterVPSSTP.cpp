@@ -24,7 +24,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile, const string& 
 
 // - Activities, Standard States, Activity Concentrations -----------
 
-void RedlichKisterVPSSTP::getLnActivityCoefficients(double* lnac) const
+void RedlichKisterVPSSTP::getLnActivityCoefficients(span<double> lnac) const
 {
     // Update the activity coefficients
     s_update_lnActCoeff();
@@ -36,7 +36,7 @@ void RedlichKisterVPSSTP::getLnActivityCoefficients(double* lnac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void RedlichKisterVPSSTP::getChemPotentials(double* mu) const
+void RedlichKisterVPSSTP::getChemPotentials(span<double> mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -55,7 +55,7 @@ double RedlichKisterVPSSTP::cv_mole() const
     return cp_mole();
 }
 
-void RedlichKisterVPSSTP::getPartialMolarEnthalpies(double* hbar) const
+void RedlichKisterVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -74,7 +74,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarCp(double* cpbar) const
+void RedlichKisterVPSSTP::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     // dimensionalize it.
@@ -83,7 +83,7 @@ void RedlichKisterVPSSTP::getPartialMolarCp(double* cpbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarEntropies(double* sbar) const
+void RedlichKisterVPSSTP::getPartialMolarEntropies(span<double> sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -104,7 +104,7 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarVolumes(double* vbar) const
+void RedlichKisterVPSSTP::getPartialMolarVolumes(span<double> vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -249,7 +249,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdT(double* dlnActCoeffdT) const
+void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -376,8 +376,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, const double* const dXds,
-        double* dlnActCoeffds) const
+void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, span<const double> const dXds,
+        span<double> dlnActCoeffds) const
 {
     s_update_dlnActCoeff_dT();
     s_update_dlnActCoeff_dX_();
@@ -389,7 +389,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, const double* cons
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
+void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dX_();
     for (size_t j = 0; j < m_kk; j++) {
@@ -400,7 +400,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) 
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
+void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -408,7 +408,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) 
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoeffdlnN)
+void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dX_();
     double* data =  & dlnActCoeffdlnN_(0,0);

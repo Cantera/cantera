@@ -320,40 +320,40 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const string& name,
     }
 }
 
-void CoverageDependentSurfPhase::getGibbs_RT_ref(double* grt) const
+void CoverageDependentSurfPhase::getGibbs_RT_ref(span<double> grt) const
 {
     SurfPhase::_updateThermo();
-    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
+    scale(m_mu0.begin(), m_mu0.end(), grt.begin(), 1.0/RT());
 }
 
-void CoverageDependentSurfPhase::getEnthalpy_RT_ref(double* hrt) const
+void CoverageDependentSurfPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
     SurfPhase::_updateThermo();
-    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
+    scale(m_h0.begin(), m_h0.end(), hrt.begin(), 1.0/RT());
 }
 
-void CoverageDependentSurfPhase::getEntropy_R_ref(double* sr) const
+void CoverageDependentSurfPhase::getEntropy_R_ref(span<double> sr) const
 {
     SurfPhase::_updateThermo();
-    scale(m_s0.begin(), m_s0.end(), sr, 1.0/GasConstant);
+    scale(m_s0.begin(), m_s0.end(), sr.begin(), 1.0/GasConstant);
 }
 
-void CoverageDependentSurfPhase::getCp_R_ref(double* cpr) const
+void CoverageDependentSurfPhase::getCp_R_ref(span<double> cpr) const
 {
     SurfPhase::_updateThermo();
-    scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
+    scale(m_cp0.begin(), m_cp0.end(), cpr.begin(), 1.0/GasConstant);
 }
 
-void CoverageDependentSurfPhase::getEnthalpy_RT(double* hrt) const
+void CoverageDependentSurfPhase::getEnthalpy_RT(span<double> hrt) const
 {
     _updateTotalThermo();
-    scale(m_enthalpy.begin(), m_enthalpy.end(), hrt, 1.0/RT());
+    scale(m_enthalpy.begin(), m_enthalpy.end(), hrt.begin(), 1.0/RT());
 }
 
-void CoverageDependentSurfPhase::getEntropy_R(double* sr) const
+void CoverageDependentSurfPhase::getEntropy_R(span<double> sr) const
 {
     _updateTotalThermo();
-    scale(m_entropy.begin(), m_entropy.end(), sr, 1.0/GasConstant);
+    scale(m_entropy.begin(), m_entropy.end(), sr.begin(), 1.0/GasConstant);
     if (m_theta_ref != 1.0) {
         double tmp = -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
@@ -362,16 +362,16 @@ void CoverageDependentSurfPhase::getEntropy_R(double* sr) const
     }
 }
 
-void CoverageDependentSurfPhase::getCp_R(double* cpr) const
+void CoverageDependentSurfPhase::getCp_R(span<double> cpr) const
 {
     _updateTotalThermo();
-    scale(m_heatcapacity.begin(), m_heatcapacity.end(), cpr, 1.0/GasConstant);
+    scale(m_heatcapacity.begin(), m_heatcapacity.end(), cpr.begin(), 1.0/GasConstant);
 }
 
-void CoverageDependentSurfPhase::getGibbs_RT(double* grt) const
+void CoverageDependentSurfPhase::getGibbs_RT(span<double> grt) const
 {
     _updateTotalThermo();
-    scale(m_chempot.begin(), m_chempot.end(), grt, 1.0/RT());
+    scale(m_chempot.begin(), m_chempot.end(), grt.begin(), 1.0/RT());
     if (m_theta_ref != 1.0) {
         double tmp = -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
@@ -380,10 +380,10 @@ void CoverageDependentSurfPhase::getGibbs_RT(double* grt) const
     }
 }
 
-void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
+void CoverageDependentSurfPhase::getStandardChemPotentials(span<double> mu0) const
 {
     _updateTotalThermo();
-    copy(m_chempot.begin(), m_chempot.end(), mu0);
+    copy(m_chempot.begin(), m_chempot.end(), mu0.begin());
     if (m_theta_ref != 1.0) {
         double tmp = RT() * -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
@@ -392,31 +392,31 @@ void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
     }
 }
 
-void CoverageDependentSurfPhase::getPartialMolarEnthalpies(double* hbar) const
+void CoverageDependentSurfPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
     _updateTotalThermo();
-    copy(m_enthalpy.begin(), m_enthalpy.end(), hbar);
+    copy(m_enthalpy.begin(), m_enthalpy.end(), hbar.begin());
 }
 
-void CoverageDependentSurfPhase::getPartialMolarEntropies(double* sbar) const
+void CoverageDependentSurfPhase::getPartialMolarEntropies(span<double> sbar) const
 {
     _updateTotalThermo();
-    copy(m_entropy.begin(), m_entropy.end(), sbar);
+    copy(m_entropy.begin(), m_entropy.end(), sbar.begin());
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= GasConstant * log(std::max(m_cov[k], SmallNumber) / m_theta_ref);
     }
 }
 
-void CoverageDependentSurfPhase::getPartialMolarCp(double* cpbar) const
+void CoverageDependentSurfPhase::getPartialMolarCp(span<double> cpbar) const
 {
     _updateTotalThermo();
-    copy(m_heatcapacity.begin(), m_heatcapacity.end(), cpbar);
+    copy(m_heatcapacity.begin(), m_heatcapacity.end(), cpbar.begin());
 }
 
-void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
+void CoverageDependentSurfPhase::getChemPotentials(span<double> mu) const
 {
     _updateTotalThermo();
-    copy(m_chempot.begin(), m_chempot.end(), mu);
+    copy(m_chempot.begin(), m_chempot.end(), mu.begin());
     for (size_t k = 0; k < m_kk; k++) {
         mu[k] += RT() * log(std::max(m_cov[k], SmallNumber) / m_theta_ref);
     }

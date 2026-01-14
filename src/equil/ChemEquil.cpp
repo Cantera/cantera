@@ -130,7 +130,7 @@ void ChemEquil::setToEquilState(ThermoPhase& s,
     // Call the phase-specific method to set the phase to the
     // equilibrium state with the specified species chemical
     // potentials.
-    s.setToEquilState(m_mu_RT.data());
+    s.setToEquilState(m_mu_RT);
     update(s);
 }
 
@@ -232,7 +232,7 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector<double>& lambda_
     ElemRearrange(m_nComponents, elMolesGoal, &mp,
                   m_orderVectorSpecies, m_orderVectorElements);
 
-    s.getChemPotentials(mu_RT.data());
+    s.getChemPotentials(mu_RT);
     scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(),
           1.0/(GasConstant* s.temperature()));
 
@@ -801,7 +801,7 @@ double ChemEquil::calcEmoles(ThermoPhase& s, vector<double>& x, const double& n_
     vector<double> actCoeff(m_kk, 1.0);
     s.setMoleFractions(Xmol_i_calc);
     s.setPressure(pressureConst);
-    s.getActivityCoefficients(actCoeff.data());
+    s.getActivityCoefficients(actCoeff);
 
     for (size_t k = 0; k < m_kk; k++) {
         double tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
@@ -852,7 +852,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
 
     // Get the nondimensional Gibbs functions for the species at their standard
     // states of solution at the current T and P of the solution.
-    s.getGibbs_RT(m_muSS_RT.data());
+    s.getGibbs_RT(m_muSS_RT);
 
     vector<double> eMolesCalc(m_mm, 0.0);
     vector<double> eMolesFix(m_mm, 0.0);
@@ -876,7 +876,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
     double nAtomsMax = 1.0;
     s.setMoleFractions(Xmol_i_calc);
     s.setPressure(pressureConst);
-    s.getActivityCoefficients(actCoeff.data());
+    s.getActivityCoefficients(actCoeff);
     for (size_t k = 0; k < m_kk; k++) {
         double tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
         double sum2 = 0.0;

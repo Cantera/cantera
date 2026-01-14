@@ -14,7 +14,7 @@ class GasTransportTest : public testing::Test
 public:
     GasTransportTest() {
         nsp = s_thermo->nSpecies();
-        s_thermo->setState_TPX(T0, P0, X0.data());
+        s_thermo->setState_TPX(T0, P0, X0);
     }
 
     static void SetUpTestCase() {
@@ -294,7 +294,7 @@ TEST_F(GasTransportTest, getSpeciesFluxes_mix)
 
     auto [grad_T, grad_X] = SetUpFluxes();
     Array2D fluxes(nsp, 2, 0.0);
-    s_thermo->setState_TPX(T1, P0, X0.data());
+    s_thermo->setState_TPX(T1, P0, X0);
     s_mix->getSpeciesFluxes(2, grad_T.data(), nsp, &grad_X(0, 0), nsp, &fluxes(0, 0));
 
     double netFlux0 = 0.0, netFlux1 = 0.0;
@@ -342,7 +342,7 @@ TEST_F(GasTransportTest, getSpeciesFluxes_multi)
 
     auto [grad_T, grad_X] = SetUpFluxes();
     Array2D fluxes(nsp, 2, 0.0);
-    s_thermo->setState_TPX(T1, P0, X0.data());
+    s_thermo->setState_TPX(T1, P0, X0);
     s_multi->getSpeciesFluxes(2, grad_T.data(), nsp, &grad_X(0, 0), nsp, &fluxes(0, 0));
 
     double netFlux0 = 0.0, netFlux1 = 0.0;
@@ -388,7 +388,7 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
     };
 
     Array2D multiDiff(nsp, nsp);
-    s_thermo->setState_TPX(T1, P0, X0.data());
+    s_thermo->setState_TPX(T1, P0, X0);
     s_multi->getMultiDiffCoeffs(nsp, &multiDiff(0,0));
     size_t kH2 = s_thermo->speciesIndex("H2");
     for (size_t k = 0; k < nsp; k++) {
@@ -417,7 +417,7 @@ TEST_F(GasTransportTest, getFluxes_multi)
         grad_X[k] = (X3[k] - X2[k]) / dist;
     }
 
-    s_thermo->setState_TPX(0.5 * (T2 + T3), P0, X1.data());
+    s_thermo->setState_TPX(0.5 * (T2 + T3), P0, X1);
     s_multi->getSpeciesFluxes(1, &grad_T, nsp, grad_X.data(), nsp, fluxS.data());
     s_multi->getMassFluxes(state2.data(), state3.data(), dist, fluxMass.data());
     s_multi->getMolarFluxes(state2.data(), state3.data(), dist, fluxMole.data());

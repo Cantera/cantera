@@ -113,13 +113,13 @@ void vcs_VolPhase::_updateActCoeff() const
         m_UpToDate_AC = true;
         return;
     }
-    TP_ptr->getActivityCoefficients(&ActCoeff[0]);
+    TP_ptr->getActivityCoefficients(ActCoeff);
     m_UpToDate_AC = true;
 }
 
 void vcs_VolPhase::_updateG0() const
 {
-    TP_ptr->getGibbs_ref(&SS0ChemicalPotential[0]);
+    TP_ptr->getGibbs_ref(SS0ChemicalPotential);
     m_UpToDate_G0 = true;
 }
 
@@ -133,7 +133,7 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateGStar() const
 {
-    TP_ptr->getStandardChemPotentials(&StarChemicalPotential[0]);
+    TP_ptr->getStandardChemPotentials(StarChemicalPotential);
     m_UpToDate_GStar = true;
 }
 
@@ -389,13 +389,13 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
 
 void vcs_VolPhase::_updateVolStar() const
 {
-    TP_ptr->getStandardVolumes(&StarMolarVol[0]);
+    TP_ptr->getStandardVolumes(StarMolarVol);
     m_UpToDate_VolStar = true;
 }
 
 double vcs_VolPhase::_updateVolPM() const
 {
-    TP_ptr->getPartialMolarVolumes(&PartialMolarVol[0]);
+    TP_ptr->getPartialMolarVolumes(PartialMolarVol);
     m_totalVol = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
@@ -419,7 +419,8 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     if (!TP_ptr) {
         return;
     }
-    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber(0,0));
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies,
+        span<double>(&np_dLnActCoeffdMolNumber(0, 0), m_numSpecies * m_numSpecies));
     for (size_t j = 0; j < m_numSpecies; j++) {
         double moles_j_base = phaseTotalMoles * Xmol_[j];
         double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber.ptrColumn(j);

@@ -57,7 +57,7 @@ void DebyeHuckel::calcDensity()
 
 // ------- Activities and Activity Concentrations
 
-void DebyeHuckel::getActivityConcentrations(double* c) const
+void DebyeHuckel::getActivityConcentrations(span<double> c) const
 {
     double c_solvent = standardConcentration();
     getActivities(c);
@@ -72,7 +72,7 @@ double DebyeHuckel::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-void DebyeHuckel::getActivities(double* ac) const
+void DebyeHuckel::getActivities(span<double> ac) const
 {
     _updateStandardStateThermo();
 
@@ -86,12 +86,12 @@ void DebyeHuckel::getActivities(double* ac) const
     ac[0] = exp(m_lnActCoeffMolal[0]) * xmolSolvent;
 }
 
-void DebyeHuckel::getMolalityActivityCoefficients(double* acMolality) const
+void DebyeHuckel::getMolalityActivityCoefficients(span<double> acMolality) const
 {
     _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
-    copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality);
+    copy(m_lnActCoeffMolal.begin(), m_lnActCoeffMolal.end(), acMolality.begin());
     for (size_t k = 0; k < m_kk; k++) {
         acMolality[k] = exp(acMolality[k]);
     }
@@ -99,7 +99,7 @@ void DebyeHuckel::getMolalityActivityCoefficients(double* acMolality) const
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void DebyeHuckel::getChemPotentials(double* mu) const
+void DebyeHuckel::getChemPotentials(span<double> mu) const
 {
     double xx;
 
@@ -119,7 +119,7 @@ void DebyeHuckel::getChemPotentials(double* mu) const
     mu[0] += RT() * (log(xx) + m_lnActCoeffMolal[0]);
 }
 
-void DebyeHuckel::getPartialMolarEnthalpies(double* hbar) const
+void DebyeHuckel::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -144,7 +144,7 @@ void DebyeHuckel::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void DebyeHuckel::getPartialMolarEntropies(double* sbar) const
+void DebyeHuckel::getPartialMolarEntropies(span<double> sbar) const
 {
     // Get the standard state entropies at the temperature and pressure of the
     // solution.
@@ -182,7 +182,7 @@ void DebyeHuckel::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void DebyeHuckel::getPartialMolarVolumes(double* vbar) const
+void DebyeHuckel::getPartialMolarVolumes(span<double> vbar) const
 {
     getStandardVolumes(vbar);
 
@@ -194,7 +194,7 @@ void DebyeHuckel::getPartialMolarVolumes(double* vbar) const
     }
 }
 
-void DebyeHuckel::getPartialMolarCp(double* cpbar) const
+void DebyeHuckel::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {

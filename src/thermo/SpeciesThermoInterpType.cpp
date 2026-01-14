@@ -20,15 +20,15 @@ SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
 {
 }
 
-void SpeciesThermoInterpType::updateProperties(const double* tempPoly,
-        double* cp_R, double* h_RT, double* s_R) const
+void SpeciesThermoInterpType::updateProperties(span<const double> tempPoly,
+        double& cp_R, double& h_RT, double& s_R) const
 {
     double T = tempPoly[0];
     updatePropertiesTemp(T, cp_R, h_RT, s_R);
 }
 
 void SpeciesThermoInterpType::updatePropertiesTemp(const double temp,
-        double* cp_R, double* h_RT, double* s_R) const
+        double& cp_R, double& h_RT, double& s_R) const
 {
     throw NotImplementedError("SpeciesThermoInterpType::updatePropertiesTemp");
 }
@@ -40,7 +40,7 @@ size_t SpeciesThermoInterpType::nCoeffs() const
 
 void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
         double& minTemp, double& maxTemp, double& refPressure,
-        double* const coeffs) const
+        span<double> coeffs) const
 {
     throw NotImplementedError("SpeciesThermoInterpType::reportParameters");
 }
@@ -62,7 +62,7 @@ void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
     }
 }
 
-double SpeciesThermoInterpType::reportHf298(double* const h298) const
+double SpeciesThermoInterpType::reportHf298(span<double> h298) const
 {
     throw NotImplementedError("SpeciesThermoInterpType::reportHf298");
 }

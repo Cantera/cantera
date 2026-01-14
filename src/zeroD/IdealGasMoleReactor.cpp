@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 #include <limits>
 
 namespace Cantera
@@ -132,7 +133,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
     m_thermo->restoreState(m_state);
 
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
+    m_thermo->getPartialMolarIntEnergies(m_uk);
     auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
@@ -251,9 +252,9 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         Eigen::VectorXd internal_energy = Eigen::VectorXd::Zero(ssize);
         Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
         // getting species data
-        m_thermo->getPartialMolarIntEnergies(internal_energy.data());
+        m_thermo->getPartialMolarIntEnergies(asSpan(internal_energy));
         m_kin->getNetProductionRates(netProductionRates.data());
-        m_thermo->getPartialMolarCp(specificHeat.data());
+        m_thermo->getPartialMolarCp(asSpan(specificHeat));
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < m_nsp; i++) {
             specificHeat[i] -= GasConstant;

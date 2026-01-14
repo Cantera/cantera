@@ -114,11 +114,11 @@ double PengRobinson::pressure() const
 
 double PengRobinson::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS.data());
+    getStandardVolumes(m_workS);
     return 1.0 / m_workS[k];
 }
 
-void PengRobinson::getActivityCoefficients(double* ac) const
+void PengRobinson::getActivityCoefficients(span<double> ac) const
 {
     double mv = molarVolume();
     double vpb2 = mv + (1 + Sqrt2) * m_b;
@@ -151,7 +151,7 @@ void PengRobinson::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void PengRobinson::getChemPotentials(double* mu) const
+void PengRobinson::getChemPotentials(span<double> mu) const
 {
     getGibbs_ref(mu);
     double RT_ = RT();
@@ -186,11 +186,11 @@ void PengRobinson::getChemPotentials(double* mu) const
     }
 }
 
-void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
+void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
-    scale(hbar, hbar+m_kk, hbar, RT());
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
     vector<double> tmp;
     tmp.resize(m_kk,0.0);
 
@@ -236,34 +236,34 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void PengRobinson::getPartialMolarEntropies(double* sbar) const
+void PengRobinson::getPartialMolarEntropies(span<double> sbar) const
 {
     // Using the identity : (hk - T*sk) = gk
     double T = temperature();
     getPartialMolarEnthalpies(sbar);
-    getChemPotentials(m_workS.data());
+    getChemPotentials(m_workS);
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] = (sbar[k] - m_workS[k])/T;
     }
 }
 
-void PengRobinson::getPartialMolarIntEnergies(double* ubar) const
+void PengRobinson::getPartialMolarIntEnergies(span<double> ubar) const
 {
     // u_i = h_i - p*v_i
     double p = pressure();
     getPartialMolarEnthalpies(ubar);
-    getPartialMolarVolumes(m_workS.data());
+    getPartialMolarVolumes(m_workS);
     for (size_t k = 0; k < m_kk; k++) {
         ubar[k] = ubar[k] - p*m_workS[k];
     }
 }
 
-void PengRobinson::getPartialMolarCp(double* cpbar) const
+void PengRobinson::getPartialMolarCp(span<double> cpbar) const
 {
     throw NotImplementedError("PengRobinson::getPartialMolarCp");
 }
 
-void PengRobinson::getPartialMolarVolumes(double* vbar) const
+void PengRobinson::getPartialMolarVolumes(span<double> vbar) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;

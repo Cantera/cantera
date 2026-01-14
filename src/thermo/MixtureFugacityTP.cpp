@@ -57,52 +57,52 @@ double MixtureFugacityTP::entropy_mole() const
 
 // ----- Thermodynamic Values for the Species Standard States States ----
 
-void MixtureFugacityTP::getStandardChemPotentials(double* g) const
+void MixtureFugacityTP::getStandardChemPotentials(span<double> g) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), g);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), g.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         g[k] = RT() * (g[k] + tmp);
     }
 }
 
-void MixtureFugacityTP::getEnthalpy_RT(double* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT(span<double> hrt) const
 {
     getEnthalpy_RT_ref(hrt);
 }
 
-void MixtureFugacityTP::getEntropy_R(double* sr) const
+void MixtureFugacityTP::getEntropy_R(span<double> sr) const
 {
-    copy(m_s0_R.begin(), m_s0_R.end(), sr);
+    copy(m_s0_R.begin(), m_s0_R.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
 }
 
-void MixtureFugacityTP::getGibbs_RT(double* grt) const
+void MixtureFugacityTP::getGibbs_RT(span<double> grt) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
 }
 
-void MixtureFugacityTP::getIntEnergy_RT(double* urt) const
+void MixtureFugacityTP::getIntEnergy_RT(span<double> urt) const
 {
-    copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
+    copy(m_h0_RT.begin(), m_h0_RT.end(), urt.begin());
     for (size_t i = 0; i < m_kk; i++) {
         urt[i] -= 1.0;
     }
 }
 
-void MixtureFugacityTP::getCp_R(double* cpr) const
+void MixtureFugacityTP::getCp_R(span<double> cpr) const
 {
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
+    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
-void MixtureFugacityTP::getStandardVolumes(double* vol) const
+void MixtureFugacityTP::getStandardVolumes(span<double> vol) const
 {
     for (size_t i = 0; i < m_kk; i++) {
         vol[i] = RT() / pressure();
@@ -111,20 +111,20 @@ void MixtureFugacityTP::getStandardVolumes(double* vol) const
 
 // ----- Thermodynamic Values for the Species Reference States ----
 
-void MixtureFugacityTP::getEnthalpy_RT_ref(double* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
-    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt.begin());
 }
 
-void MixtureFugacityTP::getGibbs_RT_ref(double* grt) const
+void MixtureFugacityTP::getGibbs_RT_ref(span<double> grt) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
 }
 
-void MixtureFugacityTP::getGibbs_ref(double* g) const
+void MixtureFugacityTP::getGibbs_ref(span<double> g) const
 {
     const vector<double>& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), g, RT());
+    scale(gibbsrt.begin(), gibbsrt.end(), g.begin(), RT());
 }
 
 const vector<double>& MixtureFugacityTP::gibbs_RT_ref() const
@@ -132,17 +132,17 @@ const vector<double>& MixtureFugacityTP::gibbs_RT_ref() const
     return m_g0_RT;
 }
 
-void MixtureFugacityTP::getEntropy_R_ref(double* er) const
+void MixtureFugacityTP::getEntropy_R_ref(span<double> er) const
 {
-    copy(m_s0_R.begin(), m_s0_R.end(), er);
+    copy(m_s0_R.begin(), m_s0_R.end(), er.begin());
 }
 
-void MixtureFugacityTP::getCp_R_ref(double* cpr) const
+void MixtureFugacityTP::getCp_R_ref(span<double> cpr) const
 {
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
+    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
-void MixtureFugacityTP::getStandardVolumes_ref(double* vol) const
+void MixtureFugacityTP::getStandardVolumes_ref(span<double> vol) const
 {
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
@@ -246,7 +246,7 @@ void MixtureFugacityTP::compositionChanged()
     updateMixingExpressions();
 }
 
-void MixtureFugacityTP::getActivityConcentrations(double* c) const
+void MixtureFugacityTP::getActivityConcentrations(span<double> c) const
 {
     getActivityCoefficients(c);
     double p_RT = pressure() / RT();

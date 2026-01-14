@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 #include <limits>
 
 namespace Cantera
@@ -66,7 +67,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
 
     m_thermo->restoreState(m_state);
 
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
+    m_thermo->getPartialMolarEnthalpies(m_hk);
     auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
@@ -206,8 +207,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(ssize);
         Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
         // gas phase
-        m_thermo->getPartialMolarCp(specificHeat.data());
-        m_thermo->getPartialMolarEnthalpies(enthalpy.data());
+        m_thermo->getPartialMolarCp(asSpan(specificHeat));
+        m_thermo->getPartialMolarEnthalpies(asSpan(enthalpy));
         // scale production rates by the volume for gas species
         for (size_t i = 0; i < m_nsp; i++) {
             netProductionRates[i] *= m_vol;

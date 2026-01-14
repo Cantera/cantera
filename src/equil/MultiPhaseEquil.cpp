@@ -677,7 +677,7 @@ void MultiPhaseEquil::reportCSV(const string& reportFile)
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getMoleFractions(span<double>(&mf[istart], tref.nSpecies()));
-        tref.getPartialMolarVolumes(VolPM.data());
+        tref.getPartialMolarVolumes(VolPM);
 
         double TMolesPhase = phaseMoles(iphase);
         double VolPhaseVolumes = 0.0;
@@ -708,11 +708,11 @@ void MultiPhaseEquil::reportCSV(const string& reportFile)
         VolPM.resize(nSpecies, 0.0);
         molalities.resize(nSpecies, 0.0);
         int actConvention = tp->activityConvention();
-        tp->getActivities(activity.data());
-        tp->getActivityCoefficients(ac.data());
-        tp->getStandardChemPotentials(mu0.data());
-        tp->getPartialMolarVolumes(VolPM.data());
-        tp->getChemPotentials(mu.data());
+        tp->getActivities(activity);
+        tp->getActivityCoefficients(ac);
+        tp->getStandardChemPotentials(mu0);
+        tp->getPartialMolarVolumes(VolPM);
+        tp->getChemPotentials(mu);
         double VolPhaseVolumes = 0.0;
         for (size_t k = 0; k < nSpecies; k++) {
             VolPhaseVolumes += VolPM[k] * mf[istart + k];
@@ -721,8 +721,8 @@ void MultiPhaseEquil::reportCSV(const string& reportFile)
         vol += VolPhaseVolumes;
         if (actConvention == 1) {
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(tp);
-            mTP->getMolalities(molalities.data());
-            tp->getChemPotentials(mu.data());
+            mTP->getMolalities(molalities);
+            tp->getChemPotentials(mu);
 
             if (iphase == 0) {
                 fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "

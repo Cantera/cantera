@@ -68,13 +68,13 @@ public:
     //! recalculated unless the temperature or pressure changes.
     //! @{
 
-    void getStandardChemPotentials(double* mu) const override;
-    void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getGibbs_RT(double* grt) const override;
-    void getIntEnergy_RT(double* urt) const override;
-    void getCp_R(double* cpr) const override;
-    void getStandardVolumes(double* vol) const override;
+    void getStandardChemPotentials(span<double> mu) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getGibbs_RT(span<double> grt) const override;
+    void getIntEnergy_RT(span<double> urt) const override;
+    void getCp_R(span<double> cpr) const override;
+    void getStandardVolumes(span<double> vol) const override;
     virtual const vector<double>& getStandardVolumes() const;
     //! @}
 
@@ -188,12 +188,12 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getCp_R_ref(double* cprt) const override;
-    void getStandardVolumes_ref(double* vol) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getCp_R_ref(span<double> cprt) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
     //! @name Initialization Methods - For Internal use

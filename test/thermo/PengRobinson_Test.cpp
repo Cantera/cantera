@@ -52,7 +52,7 @@ TEST_F(PengRobinson_Test, chem_potentials)
     for(int i=0; i < numSteps; ++i)
     {
         set_r(xmin + i*dx);
-        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getChemPotentials(chemPotentials);
         EXPECT_NEAR(expected_result[i], chemPotentials[0], 1.e-6);
     }
 }

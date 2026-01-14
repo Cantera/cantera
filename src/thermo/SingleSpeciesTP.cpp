@@ -20,21 +20,21 @@ namespace Cantera
 double SingleSpeciesTP::enthalpy_mole() const
 {
     double hbar;
-    getPartialMolarEnthalpies(&hbar);
+    getPartialMolarEnthalpies(span<double>(&hbar, 1));
     return hbar;
 }
 
 double SingleSpeciesTP::intEnergy_mole() const
 {
     double ubar;
-    getPartialMolarIntEnergies(&ubar);
+    getPartialMolarIntEnergies(span<double>(&ubar, 1));
     return ubar;
 }
 
 double SingleSpeciesTP::entropy_mole() const
 {
     double sbar;
-    getPartialMolarEntropies(&sbar);
+    getPartialMolarEntropies(span<double>(&sbar, 1));
     return sbar;
 }
 
@@ -44,7 +44,7 @@ double SingleSpeciesTP::gibbs_mole() const
 
     // Get the chemical potential of the first species. This is the same as the
     // partial molar Gibbs free energy.
-    getChemPotentials(&gbar);
+    getChemPotentials(span<double>(&gbar, 1));
     return gbar;
 }
 
@@ -54,7 +54,7 @@ double SingleSpeciesTP::cp_mole() const
 
     // Really should have a partial molar heat capacity function in ThermoPhase.
     // However, the standard state heat capacity will do fine here for now.
-    getCp_R(&cpbar);
+    getCp_R(span<double>(&cpbar, 1));
     cpbar *= GasConstant;
     return cpbar;
 }
@@ -81,74 +81,74 @@ double SingleSpeciesTP::cv_mole() const
 
 // ----------- Partial Molar Properties of the Solution -----------------
 
-void SingleSpeciesTP::getChemPotentials(double* mu) const
+void SingleSpeciesTP::getChemPotentials(span<double> mu) const
 {
     getStandardChemPotentials(mu);
 }
 
-void SingleSpeciesTP::getPartialMolarEnthalpies(double* hbar) const
+void SingleSpeciesTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     getEnthalpy_RT(hbar);
     hbar[0] *= RT();
 }
 
-void SingleSpeciesTP::getPartialMolarIntEnergies(double* ubar) const
+void SingleSpeciesTP::getPartialMolarIntEnergies(span<double> ubar) const
 {
     getIntEnergy_RT(ubar);
     ubar[0] *= RT();
 }
 
-void SingleSpeciesTP::getPartialMolarEntropies(double* sbar) const
+void SingleSpeciesTP::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R(sbar);
     sbar[0] *= GasConstant;
 }
 
-void SingleSpeciesTP::getPartialMolarCp(double* cpbar) const
+void SingleSpeciesTP::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     cpbar[0] *= GasConstant;
 }
 
-void SingleSpeciesTP::getPartialMolarVolumes(double* vbar) const
+void SingleSpeciesTP::getPartialMolarVolumes(span<double> vbar) const
 {
     vbar[0] = molecularWeight(0) / density();
 }
 
 // Properties of the Standard State of the Species in the Solution
 
-void SingleSpeciesTP::getStandardVolumes(double* vbar) const
+void SingleSpeciesTP::getStandardVolumes(span<double> vbar) const
 {
     vbar[0] = molecularWeight(0) / density();
 }
 
 // ---- Thermodynamic Values for the Species Reference States -------
 
-void SingleSpeciesTP::getEnthalpy_RT_ref(double* hrt) const
+void SingleSpeciesTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
     _updateThermo();
     hrt[0] = m_h0_RT;
 }
 
-void SingleSpeciesTP::getGibbs_RT_ref(double* grt) const
+void SingleSpeciesTP::getGibbs_RT_ref(span<double> grt) const
 {
     _updateThermo();
     grt[0] = m_h0_RT - m_s0_R;
 }
 
-void SingleSpeciesTP::getGibbs_ref(double* g) const
+void SingleSpeciesTP::getGibbs_ref(span<double> g) const
 {
     getGibbs_RT_ref(g);
     g[0] *= RT();
 }
 
-void SingleSpeciesTP::getEntropy_R_ref(double* er) const
+void SingleSpeciesTP::getEntropy_R_ref(span<double> er) const
 {
     _updateThermo();
     er[0] = m_s0_R;
 }
 
-void SingleSpeciesTP::getCp_R_ref(double* cpr) const
+void SingleSpeciesTP::getCp_R_ref(span<double> cpr) const
 {
     _updateThermo();
     cpr[0] = m_cp0_R;

@@ -1780,8 +1780,8 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         for (size_t i = 0; i < m_dataSize; i++) {
             m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setState_TP(T[i], P[i]);
-    m_sol->thermo()->saveState(
-        span<double>(m_data->data() + i * m_stride, nState));
+            m_sol->thermo()->saveState(
+                span<double>(m_data->data() + i * m_stride, nState));
         }
     } else if (mode == "TDX") {
         AnyValue data;
@@ -2010,8 +2010,9 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
             const size_t offset_Y = nativeState.find("Y")->second;
             for (size_t i = 0; i < m_dataSize; i++) {
                 double T = (*m_data)[offset_T + i * m_stride];
-                m_sol->thermo()->setState_TPY(
-                    T, P, m_data->data() + offset_Y + i * m_stride);
+                span<double> Y(m_data->data() + offset_Y + i * m_stride,
+                               m_sol->thermo()->nSpecies());
+                m_sol->thermo()->setState_TPY(T, P, Y);
                 (*m_data)[offset_D + i * m_stride] = m_sol->thermo()->density();
             }
         } else if (missingProps.size()) {

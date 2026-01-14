@@ -7,8 +7,6 @@
 from .ctcxx cimport *
 from .solutionbase cimport *
 
-ctypedef const double const_double
-
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType"
     cdef cppclass CxxTransportData "Cantera::TransportData"
@@ -166,12 +164,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_Psat(double P, double x) except +translate_exception
         void setState_TPQ(double T, double P, double Q) except +translate_exception
 
-        void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
-        double mixtureFraction(const double* fuelComp, const double* oxComp, ThermoBasis basis, string element) except +translate_exception
-        void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
-        double equivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        void setMixtureFraction(double mixFrac, span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
+        double mixtureFraction(span[double] fuelComp, span[double] oxComp, ThermoBasis basis, string element) except +translate_exception
+        void setEquivalenceRatio(double phi, span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
+        double equivalenceRatio(span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
         double equivalenceRatio() except +translate_exception
-        double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        double stoichAirFuelRatio(span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
 
         CxxAnyMap getAuxiliaryData() except +translate_exception
 
@@ -219,11 +217,11 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
 cdef extern from "cantera/cython/thermo_utils.h":
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, span[double]) except +translate_exception
-    cdef void thermo_setMassFractions(CxxThermoPhase*, span[const_double]) except +translate_exception
+    cdef void thermo_setMassFractions(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getMoleFractions(CxxThermoPhase*, span[double]) except +translate_exception
-    cdef void thermo_setMoleFractions(CxxThermoPhase*, span[const_double]) except +translate_exception
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getConcentrations(CxxThermoPhase*, span[double]) except +translate_exception
-    cdef void thermo_setConcentrations(CxxThermoPhase*, span[const_double]) except +translate_exception
+    cdef void thermo_setConcentrations(CxxThermoPhase*, span[double]) except +translate_exception
 
     # ThermoPhase partial molar properties
     cdef void thermo_getChemPotentials(CxxThermoPhase*, span[double]) except +translate_exception
@@ -249,7 +247,6 @@ cdef extern from "cantera/cython/thermo_utils.h":
 
 
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, span[double]) except +translate_exception
-ctypedef void (*thermoMethod1d_const)(CxxThermoPhase*, span[const_double]) except +translate_exception
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     vector[string] elementSymbols()
@@ -277,7 +274,7 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int element_index(self, element) except *
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
-    cdef void _setArray1(self, thermoMethod1d_const method, values) except *
+    cdef void _setArray1(self, thermoMethod1d method, values) except *
     cdef CxxPlasmaPhase* plasma
     cdef public object _enable_plasma
 

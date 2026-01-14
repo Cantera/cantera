@@ -109,7 +109,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     for (int i = 0; i < numSteps; ++i)
     {
         set_defect_X(xmin + i*dx);
-        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getChemPotentials(chemPotentials);
         EXPECT_NEAR(expected_result[i], chemPotentials[0], 1.e-6);
     }
 }
@@ -139,7 +139,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);
-        test_phase->getPartialMolarEntropies(&partialMolarEntropies[0]);
+        test_phase->getPartialMolarEntropies(partialMolarEntropies);
         EXPECT_NEAR(expected_result[i], partialMolarEntropies[0], 1.e-6);
     }
 }
@@ -195,7 +195,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarVolumes)
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);
-        test_phase->getPartialMolarVolumes(&partialMolarVolumes[0]);
+        test_phase->getPartialMolarVolumes(partialMolarVolumes);
         EXPECT_NEAR(expected_result[i], partialMolarVolumes[0], 1.e-8);
     }
 }

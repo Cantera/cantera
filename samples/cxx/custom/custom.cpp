@@ -89,7 +89,7 @@ public:
         /* ----------------------- GET REQ'D PROPERTIES ----------------------- */
         double rho = m_gas->density();
         double cp = m_gas->cp_mass();
-        m_gas->getPartialMolarEnthalpies(&m_hbar[0]);
+        m_gas->getPartialMolarEnthalpies(m_hbar);
         m_kinetics->getNetProductionRates(&m_wdot[0]);
 
         /* -------------------------- ENERGY EQUATION ------------------------- */

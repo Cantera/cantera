@@ -61,13 +61,13 @@ void calc_potentials()
 
         electrodebulk->setMoleFractions(xv);
         electrodebulk->setTemperature(Tk);
-        electrodebulk->getChemPotentials(spvals.data());
+        electrodebulk->getChemPotentials(spvals);
 
         // Calculate the open circuit potential
         double Uref = (spvals[1] - spvals[0])/Faraday;
 
-        electrodebulk->getdlnActCoeffdlnX_diag(dlnActCoeffdlnX_diag.data());
-        electrodebulk->getActivityCoefficients(actCoeff.data());
+        electrodebulk->getdlnActCoeffdlnX_diag(dlnActCoeffdlnX_diag);
+        electrodebulk->getActivityCoefficients(actCoeff);
 
         fout << fmt::format("{}, {}, {}, {}, {}, {}, {}, {}\n",
             xv[0], spvals[0], spvals[1], Uref, actCoeff[0],

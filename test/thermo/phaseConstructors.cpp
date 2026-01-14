@@ -314,8 +314,8 @@ TEST(DebyeHuckel, fromScratch)
     EXPECT_NEAR(p.entropy_mass(), 4.01292e3, 2e-2);
     vector<double> actcoeff(p.nSpecies());
     vector<double> mu_ss(p.nSpecies());
-    p.getMolalityActivityCoefficients(actcoeff.data());
-    p.getStandardChemPotentials(mu_ss.data());
+    p.getMolalityActivityCoefficients(actcoeff);
+    p.getStandardChemPotentials(mu_ss);
     double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
     double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0.0,
         -2.26855e+08, -4.3292e+08};
@@ -440,11 +440,11 @@ TEST(HMWSoln, fromScratch)
 
     size_t N = p.nSpecies();
     vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
-    p.getMolalityActivityCoefficients(acMol.data());
+    p.getMolalityActivityCoefficients(acMol);
     p.getMoleFractions(mf);
-    p.getActivities(activities.data());
-    p.getMolalities(moll.data());
-    p.getStandardChemPotentials(mu0.data());
+    p.getActivities(activities);
+    p.getMolalities(moll);
+    p.getStandardChemPotentials(mu0);
 
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
@@ -524,11 +524,11 @@ TEST(HMWSoln, fromScratch_HKFT)
 
     size_t N = p.nSpecies();
     vector<double> mv(N), h(N), mu(N), ac(N), acoeff(N);
-    p.getPartialMolarVolumes(mv.data());
-    p.getPartialMolarEnthalpies(h.data());
-    p.getChemPotentials(mu.data());
-    p.getActivities(ac.data());
-    p.getActivityCoefficients(acoeff.data());
+    p.getPartialMolarVolumes(mv);
+    p.getPartialMolarEnthalpies(h);
+    p.getChemPotentials(mu);
+    p.getActivities(ac);
+    p.getActivityCoefficients(acoeff);
 
     double mvRef[] = {0.01815196, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
 

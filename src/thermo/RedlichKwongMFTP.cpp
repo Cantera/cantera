@@ -125,11 +125,11 @@ double RedlichKwongMFTP::pressure() const
 
 double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS.data());
+    getStandardVolumes(m_workS);
     return 1.0 / m_workS[k];
 }
 
-void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
+void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
     double mv = molarVolume();
     double sqt = sqrt(temperature());
@@ -161,7 +161,7 @@ void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void RedlichKwongMFTP::getChemPotentials(double* mu) const
+void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 {
     getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
@@ -195,11 +195,11 @@ void RedlichKwongMFTP::getChemPotentials(double* mu) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
+void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
-    scale(hbar, hbar+m_kk, hbar, RT());
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
 
     // We calculate dpdni_
     double TKelvin = temperature();
@@ -240,10 +240,10 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
+void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R_ref(sbar);
-    scale(sbar, sbar+m_kk, sbar, GasConstant);
+    scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -285,16 +285,16 @@ void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
     }
 
     pressureDerivatives();
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getPartialMolarVolumes(m_partialMolarVolumes);
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarIntEnergies(double* ubar) const
+void RedlichKwongMFTP::getPartialMolarIntEnergies(span<double> ubar) const
 {
     // u_k = h_k - P * v_k
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getPartialMolarVolumes(m_partialMolarVolumes);
     getPartialMolarEnthalpies(ubar);
     double p = pressure();
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -302,7 +302,7 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies(double* ubar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarVolumes(double* vbar) const
+void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;

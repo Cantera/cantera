@@ -70,8 +70,10 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
-            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
-            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            ph.getPartialMolarEnthalpies(
+                span<double>(partialMolarEnthalpies).subspan(start, ph.nSpecies()));
+            ph.getStandardChemPotentials(
+                span<double>(standardChemPotentials).subspan(start, ph.nSpecies()));
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 // only used for exchange current density formulation

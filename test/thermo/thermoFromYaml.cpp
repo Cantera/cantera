@@ -142,7 +142,7 @@ TEST(ThermoFromYaml, IdealMolalSoln)
     size_t N = thermo->nSpecies();
     vector<double> mv(N);
     double mvRef[] = {1.5, 1.3, 0.1, 0.1};
-    thermo->getPartialMolarVolumes(mv.data());
+    thermo->getPartialMolarVolumes(mv);
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 1e-8) << k;
     }
@@ -161,8 +161,8 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
     vector<double> actcoeff(thermo->nSpecies());
     vector<double> mu_ss(thermo->nSpecies());
     auto& molphase = dynamic_cast<MolalityVPSSTP&>(*thermo);
-    molphase.getMolalityActivityCoefficients(actcoeff.data());
-    thermo->getStandardChemPotentials(mu_ss.data());
+    molphase.getMolalityActivityCoefficients(actcoeff);
+    thermo->getStandardChemPotentials(mu_ss);
     double act_ref[] = {0.849231, 1.18392, 0.990068, 1.69245, 1.09349, 1.0};
     double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0.0,
         -2.26855e+08, -4.3292e+08};
@@ -185,8 +185,8 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
     vector<double> actcoeff(thermo->nSpecies());
     vector<double> mu_ss(thermo->nSpecies());
     auto& molphase = dynamic_cast<MolalityVPSSTP&>(*thermo);
-    molphase.getMolalityActivityCoefficients(actcoeff.data());
-    thermo->getStandardChemPotentials(mu_ss.data());
+    molphase.getMolalityActivityCoefficients(actcoeff);
+    thermo->getStandardChemPotentials(mu_ss);
     double act_ref[] = {0.959912, 1.16955, 1.16955, 2.40275, 0.681552, 1.0};
     double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0,
         -2.26855e+08, -4.3292e+08};
@@ -218,14 +218,14 @@ TEST(ThermoFromYaml, RedlichKister)
     vector<double> dlnActCoeffdx(2);
     thermo->setState_TP(298.15, OneAtm);
     thermo->setMoleFractionsByName("Li(C6): 0.6375, V(C6): 0.3625");
-    thermo->getChemPotentials(chemPotentials.data());
-    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
+    thermo->getChemPotentials(chemPotentials);
+    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx);
     EXPECT_NEAR(chemPotentials[0], -1.2618554573674981e+007, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], 0.200612, 1e-6);
 
     thermo->setMoleFractionsByName("Li(C6): 0.8625, V(C6): 0.1375");
-    thermo->getChemPotentials(chemPotentials.data());
-    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
+    thermo->getChemPotentials(chemPotentials);
+    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx);
     EXPECT_NEAR(chemPotentials[0], -1.179299486233677e+07, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], -0.309379, 1e-6);
 }
@@ -237,10 +237,10 @@ TEST(ThermoFromYaml, HMWSoln)
     auto HMW = dynamic_cast<MolalityVPSSTP*>(thermo.get());
     vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
     thermo->getMoleFractions(mf);
-    HMW->getMolalities(moll.data());
-    HMW->getMolalityActivityCoefficients(acMol.data());
-    thermo->getActivities(activities.data());
-    thermo->getStandardChemPotentials(mu0.data());
+    HMW->getMolalities(moll);
+    HMW->getMolalityActivityCoefficients(acMol);
+    thermo->getActivities(activities);
+    thermo->getStandardChemPotentials(mu0);
 
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
@@ -270,9 +270,9 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
     // Regression test based on HMWSoln.fromScratch_HKFT
     size_t N = thermo->nSpecies();
     vector<double> mv(N), h(N), acoeff(N);
-    thermo->getPartialMolarVolumes(mv.data());
-    thermo->getPartialMolarEnthalpies(h.data());
-    thermo->getActivityCoefficients(acoeff.data());
+    thermo->getPartialMolarVolumes(mv);
+    thermo->getPartialMolarEnthalpies(h);
+    thermo->getActivityCoefficients(acoeff);
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
         EXPECT_NEAR(h[k], hRef[k], 2e0);
@@ -352,7 +352,7 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     vector<double> X_k(N);
     vector<double> h_k(N);
     thermo->getMoleFractions(X_k);
-    thermo->getPartialMolarEnthalpies(h_k.data());
+    thermo->getPartialMolarEnthalpies(h_k);
     for (size_t k = 0; k < N; k++) {
         h_avg += X_k[k]*h_k[k];
     }
@@ -360,7 +360,7 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
 
     // Now test the pressure dependence, by repeating at 2 atm:
     thermo->setState_TP(298, 2*OneAtm);
-    thermo->getPartialMolarEnthalpies(h_k.data());
+    thermo->getPartialMolarEnthalpies(h_k);
     h_avg = 0;
     for (size_t k = 0; k < N; k++) {
         h_avg += X_k[k]*h_k[k];
