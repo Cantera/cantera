@@ -194,10 +194,6 @@ CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                comparisons=[('results_blessed.txt', 'results.txt')],
                artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
-CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
-               comparisons=[('results2_blessed.txt', 'results2.txt')],
-               artifacts=['results2.txt'],
-               extensions=['^surfaceSolver2.cpp'])
 CompileAndTest('VCS-NaCl', 'VCSnonideal/NaCl_equil',
                'nacl_equil', 'good_out.txt',
                options='-d 3',

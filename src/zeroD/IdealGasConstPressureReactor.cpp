@@ -15,12 +15,6 @@ namespace Cantera
 
 void IdealGasConstPressureReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("IdealGasConstPressureReactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
-
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
 
@@ -29,10 +23,6 @@ void IdealGasConstPressureReactor::getState(double* y)
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
     m_thermo->getMassFractions(y+2);
-
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::initialize(double t0)
@@ -56,7 +46,6 @@ void IdealGasConstPressureReactor::updateState(double* y)
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
@@ -69,15 +58,11 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     mcpdTdt = 0.0;
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
+    updateSurfaceProductionRates();
     const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
-
-    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
-
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
 
     if (m_chem) {
@@ -124,14 +109,19 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-vector<size_t> IdealGasConstPressureReactor::steadyConstraints() const
+void IdealGasConstPressureReactor::evalSteady(double t, double* LHS, double* RHS)
 {
-    if (nSurfs() != 0) {
-        throw CanteraError("IdealGasConstPressureReactor::steadyConstraints",
-            "Steady state solver cannot currently be used with "
-            " IdealGasConstPressureReactor when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
+    eval(0.0, LHS, RHS);
+    RHS[0] = m_mass - m_initialMass;
+    if (!energyEnabled()) {
+        RHS[1] = m_thermo->temperature() - m_initialTemperature;
     }
+}
+
+vector<size_t> IdealGasConstPressureReactor::initializeSteady()
+{
+    m_initialMass = m_mass;
+    m_initialTemperature = m_thermo->temperature();
     if (energyEnabled()) {
         return {0}; // mass
     } else {
@@ -148,7 +138,7 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + 2;
+        return m_thermo->speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);

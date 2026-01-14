@@ -5,7 +5,6 @@ classdef ctTestFlowDevice < ctTestCase
         gas2
         r1
         r2
-        net
     end
 
     properties (SetAccess = protected)
@@ -38,16 +37,11 @@ classdef ctTestFlowDevice < ctTestCase
                 self.gas2 = self.gas1;
             end
 
-            if arg.nr == 1
-                self.net = ct.zeroD.ReactorNet(self.r1);
-            elseif arg.nr >= 2
+            if arg.nr >= 2
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = ct.zeroD.Reactor(self.gas2);
                 self.r2.energyEnabled = true;
-                self.net = ct.zeroD.ReactorNet({self.r1, self.r2});
             end
-
-            self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
         end
 
     end
@@ -61,7 +55,7 @@ classdef ctTestFlowDevice < ctTestCase
         function testMFCType(self)
             self.makeReactors('nr', 2);
             mfc = ct.zeroD.MassFlowController(self.r1, self.r2);
-            n1 = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
 
             self.verifyEqual(mfc.type, 'MassFlowController');
             self.verifyTrue(startsWith(mfc.name, 'MassFlowController_'));
@@ -75,11 +69,12 @@ classdef ctTestFlowDevice < ctTestCase
 
         function testValve1(self)
             self.makeReactors('P1', ct.OneAtm, 'X1', 'AR:1.0', 'X2', 'O2:1.0');
-            self.net.rtol = 1e-12;
             valve = ct.zeroD.Valve(self.r1, self.r2);
             k = 2e-5;
             valve.valveCoeff = k;
-            self.net.time = 0;
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.rtol = 1e-12;
+            net.time = 0;
 
             % Skipped until Reactor.inlets and Reactor.outlets are implemented
             % self.verifyEqual(self.r1.outlets, self.r2.inlets);
@@ -97,7 +92,7 @@ classdef ctTestFlowDevice < ctTestCase
             Y1a = self.r1.phase.Y;
             Y2a = self.r2.phase.Y;
 
-            self.net.advance(0.1);
+            net.advance(0.1);
 
             m1b = self.r1.D * self.r1.V;
             m2b = self.r2.D * self.r2.V;
@@ -114,13 +109,14 @@ classdef ctTestFlowDevice < ctTestCase
 
         function testValve2(self)
             self.makeReactors('P1', ct.OneAtm);
-            self.net.rtol = 1e-11;
+            net.rtol = 1e-11;
             self.r1.energyEnabled = false;
             self.r2.energyEnabled = false;
             valve = ct.zeroD.Valve(self.r1, self.r2);
             k = 2e-5;
             valve.valveCoeff = k;
-            self.net.time = 0;
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.time = 0;
 
             % Skipped until Valve.valveCoeff getter is implemented
             % self.verifyEqual(valve.ValveCoeff, k);
@@ -137,7 +133,7 @@ classdef ctTestFlowDevice < ctTestCase
             B = k * (P1a / m1a + P2a / m2a);
 
             for t = linspace(1e-5, 0.5)
-                self.net.advance(t);
+                net.advance(t);
                 m1 = self.r1.D * self.r1.V;
                 m2 = self.r2.D * self.r2.V;
 
@@ -160,7 +156,7 @@ classdef ctTestFlowDevice < ctTestCase
             self.makeReactors();
             res = ct.zeroD.Reservoir(self.gas1);
             v = ct.zeroD.Valve(self.r1, res);
-            n1 = ct.zeroD.ReactorNet(self.r1);
+            net = ct.zeroD.ReactorNet(self.r1);
 
             self.verifyTrue(startsWith(self.r1.name, sprintf('%s_', self.r1.type)));
             self.verifyTrue(startsWith(res.name, sprintf('%s_', res.type)));
@@ -174,7 +170,7 @@ classdef ctTestFlowDevice < ctTestCase
             self.makeReactors();
             res = ct.zeroD.Reservoir(self.gas1);
             v = ct.zeroD.Valve(res, self.r1);
-            n1 = ct.zeroD.ReactorNet(self.r1);
+            net = ct.zeroD.ReactorNet(self.r1);
 
             self.verifyTrue(startsWith(self.r1.name, sprintf('%s_', self.r1.type)));
             self.verifyTrue(startsWith(res.name, sprintf('%s_', res.type)));

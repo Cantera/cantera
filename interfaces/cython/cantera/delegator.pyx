@@ -274,7 +274,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     cdef string cxx_name
     cdef string cxx_when
     obj._delegates = []
+    valid_names = set()
     for name, options in obj.delegatable_methods.items():
+        valid_names.add(name)
         if len(options) == 3:
             # Delegate with pre-selected mode, without using prefix on method name
             when = options[2]
@@ -374,6 +376,14 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         # from being deleted, while still being eventually reachable by the garbage
         # collector
         obj._delegates.append(method)
+
+    # Check for methods on the base object that have no matching delegate
+    for name in dir(obj):
+        if (name.startswith("before_") or name.startswith("after_") or
+            name.startswith("replace_")):
+            base_name = name.split("_", 1)[1]
+            if base_name not in valid_names:
+                raise ValueError(f"'{base_name}' is not a delegatable method")
 
     return 0
 

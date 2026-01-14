@@ -50,7 +50,8 @@ with open('diamond.csv', 'w', newline='') as f:
     for n in range(20):
         x[ih] /= 1.4
         g.TPX = t, p, x
-        d.advance_coverages(10.0)  # integrate the coverages to steady state
+        d.TP = t, p
+        d.advance_coverages_to_steady_state()
         carbon_dot = d.net_production_rates[iC]
         mdot = mw * carbon_dot
         rate = mdot / dbulk.density

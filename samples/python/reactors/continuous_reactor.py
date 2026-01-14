@@ -117,7 +117,7 @@ pressure_regulator = ct.PressureController(
     upstream=stirred_reactor,
     downstream=exhaust,
     primary=mass_flow_controller,
-    K=1e-3,
+    K=1e-6,
 )
 
 reactor_network = ct.ReactorNet([stirred_reactor])
@@ -219,28 +219,14 @@ temp_dependence = ct.SolutionArray(gas)
 reactor_X = inlet_X
 
 for reactor_temperature in T:
-    gas.TPX = reactor_temperature, reactor_pressure, inlet_X
-    fuel_air_mixture_tank = ct.Reservoir(gas)
-
     # Use composition from the previous iteration to speed up convergence
-    gas.TPX = reactor_temperature, reactor_pressure, reactor_X
-    stirred_reactor = ct.IdealGasReactor(gas, energy="off", volume=reactor_volume)
-    fuel_air_mixture_tank = ct.Reservoir(gas)
-    stirred_reactor = ct.IdealGasReactor(gas, energy="off", volume=reactor_volume)
-    mass_flow_controller = ct.MassFlowController(
-        upstream=fuel_air_mixture_tank,
-        downstream=stirred_reactor,
-        mdot=lambda t: stirred_reactor.mass / residence_time,
-    )
-    pressure_regulator = ct.PressureController(
-        upstream=stirred_reactor, downstream=exhaust, primary=mass_flow_controller,
-        K=1e-3,
-    )
-    reactor_network = ct.ReactorNet([stirred_reactor])
+    fuel_air_mixture_tank.phase.TPX = reactor_temperature, reactor_pressure, inlet_X
+    stirred_reactor.phase.TPX = reactor_temperature, reactor_pressure, reactor_X
 
     # Re-run the isothermal simulations
     tic = time.time()
     counter = 0
+    reactor_network.initial_time = 0.0
     while reactor_network.time < max_simulation_time:
         reactor_network.step()
         counter += 1

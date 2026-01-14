@@ -19,19 +19,12 @@ namespace Cantera
 
 void IdealGasConstPressureMoleReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("IdealGasConstPressureMoleReactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;
     // set the first component to the temperature
     y[0] = m_thermo->temperature();
     // get moles of species in remaining state
     getMoles(y + m_sidx);
-    // set the remaining components to the surface species moles on the walls
-    getSurfaceInitialConditions(y + m_nsp + m_sidx);
 }
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
@@ -53,8 +46,9 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
+    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_TotalCp = m_mass * m_thermo->cp_mass();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + m_sidx);
 }
 
 void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
@@ -63,18 +57,12 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
-
-    m_thermo->restoreState(m_state);
-
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
+    updateSurfaceProductionRates();
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
-
-    // evaluate reactor surfaces
-    evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
 
     // external heat transfer
     mcpdTdt += m_Qdot;
@@ -108,71 +96,30 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     }
 
     if (m_energy) {
-        LHS[0] = m_mass * m_thermo->cp_mass();
+        LHS[0] = m_TotalCp;
     } else {
         RHS[0] = 0.0;
     }
 }
 
-Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
+void IdealGasConstPressureMoleReactor::getJacobianElements(
+    vector<Eigen::Triplet<double>>& trips)
 {
-    if (m_nv == 0) {
-        throw CanteraError("IdealGasConstPressureMoleReactor::jacobian",
-                           "Reactor must be initialized first.");
-    }
-    // clear former jacobian elements
-    m_jac_trips.clear();
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
-    // species size that accounts for surface species
-    size_t ssize = m_nv - m_sidx;
-    // map derivatives from the surface chemistry jacobian
-    // to the reactor jacobian
-    if (!m_surfaces.empty()) {
-        vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
-        for (int k = 0; k < dnk_dnj.outerSize(); k++) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-                species_trips.emplace_back(static_cast<int>(it.row()),
-                                           static_cast<int>(it.col()), it.value());
-            }
-        }
-        addSurfaceJacobian(species_trips);
-        dnk_dnj.resize(ssize, ssize);
-        dnk_dnj.setFromTriplets(species_trips.begin(), species_trips.end());
-    }
-    // get net production rates
-    Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(ssize);
-    // gas phase net production rates
-    m_kin->getNetProductionRates(netProductionRates.data());
-    // surface phase net production rates mapped to reactor gas phase
-    for (auto &S: m_surfaces) {
-        auto curr_kin = S->kinetics();
-        vector<double> prod_rates(curr_kin->nTotalSpecies());
-        curr_kin->getNetProductionRates(prod_rates.data());
-        for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
-            try {
-                size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
-                netProductionRates[row] += prod_rates[i];
-            } catch (...) {
-                // species do not map
-            }
-        }
-    }
-    double molarVol = m_thermo->molarVolume();
+
     // add species to species derivatives  elements to the jacobian
     // calculate ROP derivatives, excluding the terms -n_i / (V * N) dc_i/dn_j
     // as it substantially reduces matrix sparsity
+    size_t offset = static_cast<int>(m_offset + m_sidx);
+    // double molarVol = m_thermo->molarVolume();
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            // gas phase species need the addition of  V / N * omega_dot
-            if (static_cast<size_t>(it.row()) < m_nsp) {
-                it.valueRef() = it.value() + netProductionRates[it.row()] * molarVol;
-            }
-            m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
-                static_cast<int>(it.col() + m_sidx), it.value());
+            trips.emplace_back(it.row() + offset, it.col() + offset, it.value());
         }
     }
+
     // Temperature Derivatives
     if (m_energy) {
         // getting perturbed state for finite difference
@@ -198,39 +145,40 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
             double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
-            m_jac_trips.emplace_back(static_cast<int>(j), 0,
+            trips.emplace_back(static_cast<int>(j + m_offset), static_cast<int>(m_offset),
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
         // allocate vectors for whole system
-        Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(ssize);
-        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
+        Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(m_nsp);
+        Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(m_nsp);
+        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(m_nsp);
         // gas phase
         m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarEnthalpies(enthalpy.data());
+        m_kin->getNetProductionRates(netProductionRates.data());
         // scale production rates by the volume for gas species
         for (size_t i = 0; i < m_nsp; i++) {
             netProductionRates[i] *= m_vol;
         }
         double qdot = enthalpy.dot(netProductionRates);
-        // find denominator ahead of time
-        double NCp = 0.0;
-        double* moles = yCurrent.data() + m_sidx;
-        for (size_t i = 0; i < ssize; i++) {
-            NCp += moles[i] * specificHeat[i];
-        }
-        double denom = 1 / (NCp * NCp);
+        double denom = 1 / (m_TotalCp * m_TotalCp);
         Eigen::VectorXd hk_dnkdnj_sums = dnk_dnj.transpose() * enthalpy;
         // Add derivatives to jac by spanning columns
-        for (size_t j = 0; j < ssize; j++) {
-            m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
-                (specificHeat[j] * qdot - NCp * hk_dnkdnj_sums[j]) * denom);
+        for (size_t j = 0; j < m_nsp; j++) {
+            trips.emplace_back(m_offset, static_cast<int>(j + m_offset + m_sidx),
+                (specificHeat[j] * qdot - m_TotalCp * hk_dnkdnj_sums[j]) * denom);
         }
     }
-    // convert triplets to sparse matrix
-    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    return jac;
+}
+
+void IdealGasConstPressureMoleReactor::getJacobianScalingFactors(
+    double& f_species, double* f_energy)
+{
+    f_species = 1.0 / m_vol;
+    for (size_t k = 0; k < m_nsp; k++) {
+        f_energy[k] = - m_hk[k] / m_TotalCp;
+    }
 }
 
 size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
@@ -239,7 +187,7 @@ size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
         return 0;
     }
     try {
-        return speciesIndex(nm) + m_sidx;
+        return m_thermo->speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -250,20 +198,7 @@ string IdealGasConstPressureMoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "temperature";
     } else if (k >= m_sidx && k < neq()) {
-        k -= m_sidx;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - m_sidx);
     }
     throw IndexError("IdealGasConstPressureMoleReactor::componentName",
         "components", k, m_nv);

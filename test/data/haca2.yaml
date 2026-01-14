@@ -22,7 +22,7 @@ phases:
   species:
   - gri30.yaml/species: [H, N2, CH3, CH4, C2H2, H2, OH, H2O, CO, O2]
   state:
-    T: 1100.0
+    T: 1400.0
     P: 1.01325e+05
     X: {H: 0.01, N2: 0.8899, H2: 0.04, CH4: 0.01, C2H2: 0.01, OH: 1.0e-04,
       H2O: 0.04, O2: 1.0e-03}
@@ -30,6 +30,9 @@ phases:
   thermo: fixed-stoichiometry
   elements: [C]
   species: [CB-CB3]
+  state:
+    T: 1400.0
+    P: 1.01325e+05
 - name: soot_interface
   thermo: ideal-surface
   adjacent-phases: [gas, soot]

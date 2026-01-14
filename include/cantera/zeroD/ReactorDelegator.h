@@ -45,12 +45,8 @@ public:
     //! delegate for Reactor::evalWalls().
     virtual void setHeatRate(double q) = 0;
 
-    //! Set the state of the thermo object to correspond to the state of the reactor
-    virtual void restoreThermoState() = 0;
-
-    //! Set the state of the thermo object for surface *n* to correspond to the
-    //! state of that surface
-    virtual void restoreSurfaceState(size_t n) = 0;
+    //! @copydoc ReactorBase::surfaceProductionRates
+    virtual span<double> surfaceProductionRates() = 0;
 };
 
 //! Delegate methods of the Reactor class to external functions
@@ -59,22 +55,15 @@ template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
-    ReactorDelegator(shared_ptr<Solution> phase, bool clone, const string& name="(none)")
-        : R(phase, clone, name)
+    template <class... Args>
+    ReactorDelegator(Args&&... args)
+        : R(std::forward<Args>(args)...)
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
-        install("syncState", m_syncState, [this]() { R::syncState(); });
         install("getState", m_getState,
             [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); });
         install("updateState", m_updateState,
             [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); });
-        install("updateSurfaceState", m_updateSurfaceState,
-            [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); });
-        install("getSurfaceInitialConditions", m_getSurfaceInitialConditions,
-            [this](std::array<size_t, 1> sizes, double* y) {
-                R::getSurfaceInitialConditions(y);
-            }
-        );
         install("updateConnected", m_updateConnected,
             [this](bool updatePressure) { R::updateConnected(updatePressure); });
         install("eval", m_eval,
@@ -82,18 +71,13 @@ public:
                 R::eval(t, LHS, RHS);
             }
         );
-        install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
-        install("evalSurfaces", m_evalSurfaces,
-            [this](std::array<size_t, 3> sizes, double* LHS, double* RHS, double* sdot) {
-                R::evalSurfaces(LHS, RHS, sdot);
-            }
-        );
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
+        }
         install("componentName", m_componentName,
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
             [this](const string& nm) { return R::componentIndex(nm); });
-        install("speciesIndex", m_speciesIndex,
-            [this](const string& nm) { return R::speciesIndex(nm); });
     }
 
     // Overrides of Reactor methods
@@ -106,10 +90,6 @@ public:
         m_initialize(t0);
     }
 
-    void syncState() override {
-        m_syncState();
-    }
-
     void getState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_getState(sizes, y);
@@ -118,16 +98,6 @@ public:
     void updateState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_updateState(sizes, y);
-    }
-
-    void updateSurfaceState(double* y) override {
-        std::array<size_t, 1> sizes{R::m_nv_surf};
-        m_updateSurfaceState(sizes, y);
-    }
-
-    void getSurfaceInitialConditions(double* y) override {
-        std::array<size_t, 1> sizes{R::m_nv_surf};
-        m_getSurfaceInitialConditions(sizes, y);
     }
 
     void updateConnected(bool updatePressure) override {
@@ -140,12 +110,11 @@ public:
     }
 
     void evalWalls(double t) override {
-        m_evalWalls(t);
-    }
-
-    void evalSurfaces(double* LHS, double* RHS, double* sdot) override {
-        std::array<size_t, 3> sizes{R::m_nv_surf, R::m_nv_surf, R::m_nsp};
-        m_evalSurfaces(sizes, LHS, RHS, sdot);
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            m_evalWalls(t);
+        } else {
+            ReactorBase::evalWalls(t);
+        }
     }
 
     string componentName(size_t k) override {
@@ -156,10 +125,6 @@ public:
         return m_componentIndex(nm);
     }
 
-    size_t speciesIndex(const string& nm) const override {
-        return m_speciesIndex(nm);
-    }
-
     // Public access to protected Reactor variables needed by derived classes
 
     void setNEq(size_t n) override {
@@ -167,43 +132,54 @@ public:
     }
 
     double expansionRate() const override {
-        return R::m_vdot;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            return R::m_vdot;
+        } else {
+            throw NotImplementedError("ReactorDelegator::expansionRate",
+                "Expansion rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     void setExpansionRate(double v) override {
-        R::m_vdot = v;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            R::m_vdot = v;
+        } else {
+            throw NotImplementedError("ReactorDelegator::setExpansionRate",
+                "Expansion rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     double heatRate() const override {
-        return R::m_Qdot;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            return R::m_Qdot;
+        } else {
+            throw NotImplementedError("ReactorDelegator::heatRate",
+                "Heat rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
     void setHeatRate(double q) override {
-        R::m_Qdot = q;
+        if constexpr (std::is_base_of<Reactor, R>::value) {
+            R::m_Qdot = q;
+        } else {
+            throw NotImplementedError("ReactorDelegator::setHeatRate",
+                "Heat rate is undefined for reactors of type '{}'.", type());
+        }
     }
 
-    void restoreThermoState() override {
-        R::m_thermo->restoreState(R::m_state);
-    }
-
-    void restoreSurfaceState(size_t n) override {
-        R::m_surfaces.at(n)->syncState();
+    span<double> surfaceProductionRates() override {
+        return R::m_sdot;
     }
 
 private:
     function<void(double)> m_initialize;
-    function<void()> m_syncState;
     function<void(std::array<size_t, 1>, double*)> m_getState;
     function<void(std::array<size_t, 1>, double*)> m_updateState;
-    function<void(std::array<size_t, 1>, double*)> m_updateSurfaceState;
-    function<void(std::array<size_t, 1>, double*)> m_getSurfaceInitialConditions;
     function<void(bool)> m_updateConnected;
     function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
     function<void(double)> m_evalWalls;
-    function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
-    function<size_t(const string&)> m_speciesIndex;
 };
 
 }

@@ -18,124 +18,15 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-void MoleReactor::getSurfaceInitialConditions(double* y)
+MoleReactor::MoleReactor(shared_ptr<Solution> sol, const string& name)
+    : MoleReactor(sol, true, name)
 {
-    size_t loc = 0;
-    for (auto& S : m_surfaces) {
-        double area = S->area();
-        auto currPhase = S->thermo();
-        size_t tempLoc = currPhase->nSpecies();
-        double surfDensity = currPhase->siteDensity();
-        S->getCoverages(y + loc);
-        // convert coverages to moles
-        for (size_t i = 0; i < tempLoc; i++) {
-            y[i + loc] = y[i + loc] * area * surfDensity / currPhase->size(i);
-        }
-        loc += tempLoc;
-    }
 }
 
-void MoleReactor::initialize(double t0)
+MoleReactor::MoleReactor(shared_ptr<Solution> sol, bool clone, const string& name)
+    : Reactor(sol, clone, name)
 {
-    Reactor::initialize(t0);
-    m_nv -= 1; // moles gives the state one fewer variables
-}
-
-void MoleReactor::updateSurfaceState(double* y)
-{
-    size_t loc = 0;
-    vector<double> coverages(m_nv_surf, 0.0);
-    for (auto& S : m_surfaces) {
-        auto surf = S->thermo();
-        double invArea = 1/S->area();
-        double invSurfDensity = 1/surf->siteDensity();
-        size_t tempLoc = surf->nSpecies();
-        for (size_t i = 0; i < tempLoc; i++) {
-            coverages[i + loc] = y[i + loc] * invArea * surf->size(i) * invSurfDensity;
-        }
-        S->setCoverages(coverages.data()+loc);
-        loc += tempLoc;
-    }
-}
-
-void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
-{
-    fill(sdot, sdot + m_nsp, 0.0);
-    size_t loc = 0; // offset into ydot
-    for (auto S : m_surfaces) {
-        Kinetics* kin = S->kinetics();
-        SurfPhase* surf = S->thermo();
-        double wallarea = S->area();
-        size_t nk = surf->nSpecies();
-        S->restoreState();
-        kin->getNetProductionRates(&m_work[0]);
-        for (size_t k = 0; k < nk; k++) {
-            RHS[loc + k] = m_work[k] * wallarea / surf->size(k);
-        }
-        loc += nk;
-
-        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
-
-        for (size_t k = 0; k < m_nsp; k++) {
-            sdot[k] += m_work[bulkloc + k] * wallarea;
-        }
-    }
-}
-
-void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
-{
-    size_t offset = m_nsp;
-    for (auto& S : m_surfaces) {
-        S->restoreState();
-        double A = S->area();
-        auto kin = S->kinetics();
-        size_t nk = S->thermo()->nSpecies();
-        // index of gas and surface phases to check if the species is in gas or surface
-        size_t spi = 0;
-        size_t gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
-            m_thermo->speciesName(0)));
-        // get surface jacobian in concentration units
-        Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddCi();
-        // loop through surface specific jacobian and add elements to triplets vector
-        // accordingly
-        for (int k=0; k<surfJac.outerSize(); ++k) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
-                size_t row = it.row();
-                size_t col = it.col();
-                auto& rowPhase = kin->speciesPhase(row);
-                auto& colPhase = kin->speciesPhase(col);
-                size_t rpi = kin->phaseIndex(rowPhase.name(), true);
-                size_t cpi = kin->phaseIndex(colPhase.name(), true);
-                // check if the reactor kinetics object contains both phases to avoid
-                // any solid phases which may be included then use phases to map surf
-                // kinetics indicies to reactor kinetic indices
-                if ((rpi == spi || rpi == gpi) && (cpi == spi || cpi == gpi) ) {
-                    // subtract start of phase
-                    row -= kin->kineticsSpeciesIndex(0, rpi);
-                    col -= kin->kineticsSpeciesIndex(0, cpi);
-                    // since the gas phase is the first phase in the reactor state
-                    // vector add the offset only if it is a surf species index to
-                    // both row and col
-                    row = (rpi != spi) ? row : row + offset;
-                    // determine appropriate scalar to account for dimensionality
-                    // gas phase species indices will be less than m_nsp
-                    // so use volume if that is the case or area otherwise
-                    double scalar = A;
-                    if (cpi == spi) {
-                        col += offset;
-                        scalar /= A;
-                    } else {
-                        scalar /= m_vol;
-                    }
-                    // push back scaled value triplet
-                    triplets.emplace_back(static_cast<int>(row), static_cast<int>(col),
-                                          scalar * it.value());
-                }
-            }
-        }
-        // add species in this surface to the offset
-        offset += nk;
-    }
+    m_nv = 2 + m_nsp; // internal energy, volume, and moles of each species
 }
 
 void MoleReactor::getMoles(double* y)
@@ -160,11 +51,6 @@ void MoleReactor::setMassFromMoles(double* y)
 
 void MoleReactor::getState(double* y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("MoleReactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
     // set the first component to the internal energy
     m_mass = m_thermo->density() * m_vol;
     y[0] = m_thermo->intEnergy_mass() * m_mass;
@@ -172,9 +58,6 @@ void MoleReactor::getState(double* y)
     y[1] = m_vol;
     // set components y+2 ... y+K+2 to the moles of each species
     getMoles(y + m_sidx);
-    // set the remaining components to the surface species
-    // moles on walls
-    getSurfaceInitialConditions(y+m_nsp+m_sidx);
 }
 
 void MoleReactor::updateState(double* y)
@@ -219,7 +102,6 @@ void MoleReactor::updateState(double* y)
         m_thermo->setDensity(m_mass / m_vol);
     }
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + m_sidx);
 }
 
 void MoleReactor::eval(double time, double* LHS, double* RHS)
@@ -227,9 +109,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     double* dndt = RHS + m_sidx; // moles per time
 
     evalWalls(time);
-    m_thermo->restoreState(m_state);
-
-    evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
+    updateSurfaceProductionRates();
     // inverse molecular weights for conversion
     const vector<double>& imw = m_thermo->inverseMolecularWeights();
     // volume equation
@@ -290,7 +170,7 @@ size_t MoleReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + m_sidx;
+        return m_thermo->speciesIndex(nm) + m_sidx;
     } catch (const CanteraError&) {
         throw CanteraError("MoleReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -303,20 +183,7 @@ string MoleReactor::componentName(size_t k) {
     } else if (k == 1) {
         return "volume";
     } else if (k >= m_sidx && k < neq()) {
-        k -= m_sidx;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - m_sidx);
     }
     throw IndexError("MoleReactor::componentName", "component", k, m_nv);
 }

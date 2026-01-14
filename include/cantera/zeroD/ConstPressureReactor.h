@@ -23,17 +23,18 @@ namespace Cantera
 class ConstPressureReactor : public Reactor
 {
 public:
-    using Reactor::Reactor; // inherit constructors
+    ConstPressureReactor(shared_ptr<Solution> sol, const string& name="(none)");
+    ConstPressureReactor(shared_ptr<Solution> sol, bool clone,
+                         const string& name="(none)");
 
     string type() const override {
         return "ConstPressureReactor";
     }
 
     void getState(double* y) override;
-
-    void initialize(double t0=0.0) override;
     void eval(double t, double* LHS, double* RHS) override;
-    vector<size_t> steadyConstraints() const override;
+    void evalSteady(double t, double* LHS, double* RHS) override;
+    vector<size_t> initializeSteady() override;
 
     void updateState(double* y) override;
 
@@ -46,6 +47,9 @@ public:
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
     void resetBadValues(double* y) override;
+
+protected:
+    double m_initialMass; //!< Initial mass [kg]; used for steady-state calculations
 };
 
 }

@@ -2688,6 +2688,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         writelogendl();
     }
 
+    m_TmpPhase.assign(m_numPhases, 0.0);
     double* tlogMoles = &m_TmpPhase[0];
 
     // Might as well recalculate the phase mole vector and compare to the stored
