@@ -307,7 +307,7 @@ void SurfPhase::_updateThermo(bool force) const
 {
     double tnow = temperature();
     if (m_tlast != tnow || force) {
-        m_spthermo.update(tnow, m_cp0.data(), m_h0.data(), m_s0.data());
+        m_spthermo.update(tnow, m_cp0, m_h0, m_s0);
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_h0[k] *= GasConstant * tnow;

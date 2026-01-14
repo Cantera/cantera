@@ -20,7 +20,7 @@ Mu0Poly::Mu0Poly()
 {
 }
 
-Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
+Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, span<const double> coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
     m_numIntervals(0),
     m_H298(0.0)
@@ -99,11 +99,11 @@ void Mu0Poly::setParameters(double h0, const map<double, double>& T_mu)
     }
 }
 
-void Mu0Poly::updateProperties(const double* tt, double* cp_R,
-                               double* h_RT, double* s_R) const
+void Mu0Poly::updateProperties(span<const double> tt, double& cp_R,
+                               double& h_RT, double& s_R) const
 {
     size_t j = m_numIntervals;
-    double T = *tt;
+    double T = tt[0];
     for (size_t i = 0; i < m_numIntervals; i++) {
         double T2 = m_t0_int[i+1];
         if (T <=T2) {
@@ -113,17 +113,15 @@ void Mu0Poly::updateProperties(const double* tt, double* cp_R,
     }
     double T1 = m_t0_int[j];
     double cp_Rj = m_cp0_R_int[j];
-    *cp_R = cp_Rj;
-    *h_RT = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
-    *s_R = m_s0_R_int[j] + cp_Rj * (log(T/T1));
+    cp_R = cp_Rj;
+    h_RT = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
+    s_R = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
-void Mu0Poly::updatePropertiesTemp(const double T,
-                                   double* cp_R,
-                                   double* h_RT,
-                                   double* s_R) const
+void Mu0Poly::updatePropertiesTemp(const double T, double& cp_R,
+                                   double& h_RT, double& s_R) const
 {
-    updateProperties(&T, cp_R, h_RT, s_R);
+    updateProperties(span<const double>(&T, 1), cp_R, h_RT, s_R);
 }
 
 size_t Mu0Poly::nCoeffs() const
@@ -132,7 +130,7 @@ size_t Mu0Poly::nCoeffs() const
 }
 
 void Mu0Poly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                               double& pref, double* const coeffs) const
+                               double& pref, span<double> coeffs) const
 {
     n = 0;
     type = MU0_INTERP;

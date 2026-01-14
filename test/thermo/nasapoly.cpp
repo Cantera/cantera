@@ -41,8 +41,8 @@ protected:
         double cp_R1, h_RT1, s_R1;
         double cp_R2, h_RT2, s_R2;
         double T = 481.99;
-        p.updatePropertiesTemp(T, &cp_R1, &h_RT1, &s_R1);
-        q.updatePropertiesTemp(T, &cp_R2, &h_RT2, &s_R2);
+        p.updatePropertiesTemp(T, cp_R1, h_RT1, s_R1);
+        q.updatePropertiesTemp(T, cp_R2, h_RT2, s_R2);
         EXPECT_DOUBLE_EQ(cp_R1, cp_R2);
         EXPECT_DOUBLE_EQ(h_RT1, h_RT2);
         EXPECT_DOUBLE_EQ(s_R1, s_R2);
@@ -66,13 +66,13 @@ TEST_F(NasaPoly1Test, updateProperties)
     // Reference values calculated using CHEMKIN II
     // Expect agreement to single-precision tolerance
     set_tpow(298.15);
-    poly.updateProperties(&tpow_[0], &cp_R, &h_RT, &s_R);
+    poly.updateProperties(span<const double>(tpow_), cp_R, h_RT, s_R);
     EXPECT_NEAR(4.46633496, cp_R, 1e-7);
     EXPECT_NEAR(-158.739244, h_RT, 1e-5);
     EXPECT_NEAR(25.7125777, s_R, 1e-6);
 
     set_tpow(876.54);
-    poly.updateProperties(&tpow_[0], &cp_R, &h_RT, &s_R);
+    poly.updateProperties(span<const double>(tpow_), cp_R, h_RT, s_R);
     EXPECT_NEAR(6.33029000, cp_R, 1e-7);
     EXPECT_NEAR(-50.3179924, h_RT, 1e-5);
     EXPECT_NEAR(31.5401226, s_R, 1e-6);
@@ -85,8 +85,8 @@ TEST_F(NasaPoly1Test, updatePropertiesTemp)
     double T = 481.99;
 
     set_tpow(T);
-    poly.updatePropertiesTemp(T, &cp_R1, &h_RT1, &s_R1);
-    poly.updateProperties(&tpow_[0], &cp_R2, &h_RT2, &s_R2);
+    poly.updatePropertiesTemp(T, cp_R1, h_RT1, s_R1);
+    poly.updateProperties(span<const double>(tpow_), cp_R2, h_RT2, s_R2);
 
     EXPECT_DOUBLE_EQ(cp_R1, cp_R2);
     EXPECT_DOUBLE_EQ(h_RT1, h_RT2);
@@ -111,10 +111,10 @@ TEST(Nasa9Test, Nasa9Thermo) {
     double abstol = 1e-7;
 
     for (size_t i = 0; i < 15; i++) {
-        g.setState_TPX(T0 + i*dT, pres, &Xset[0]);
-        g.getEntropy_R(&S_R[0]);
-        g.getCp_R(&cp_R[0]);
-        g.getEnthalpy_RT(&H_RT[0]);
+        g.setState_TPX(T0 + i*dT, pres, Xset);
+        g.getEntropy_R(S_R);
+        g.getCp_R(cp_R);
+        g.getEnthalpy_RT(H_RT);
 
         EXPECT_NEAR(cp_R[0], cp_R[1], abstol);
         EXPECT_NEAR(cp_R[0], cp_R[2], abstol);

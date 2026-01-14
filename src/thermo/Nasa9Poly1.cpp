@@ -24,19 +24,19 @@ Nasa9Poly1::Nasa9Poly1()
 }
 
 Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
-                       const double* coeffs) :
+                       span<const double> coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
-    m_coeff(coeffs, coeffs + 9)
+    m_coeff(coeffs.begin(), coeffs.end())
 {
 }
 
-void Nasa9Poly1::setParameters(const vector<double> &coeffs)
+void Nasa9Poly1::setParameters(span<const double> coeffs)
 {
     if (coeffs.size() != 9) {
         throw CanteraError("Nasa9Poly1::setParameters", "Array must contain "
             "9 coefficients, but {} were given.", coeffs.size());
     }
-    m_coeff = coeffs;
+    m_coeff.assign(coeffs.begin(), coeffs.end());
 }
 
 int Nasa9Poly1::reportType() const
@@ -44,7 +44,7 @@ int Nasa9Poly1::reportType() const
     return NASA9;
 }
 
-void Nasa9Poly1::updateTemperaturePoly(double T, double* T_poly) const
+void Nasa9Poly1::updateTemperaturePoly(double T, span<double> T_poly) const
 {
     T_poly[0] = T;
     T_poly[1] = T * T;
@@ -55,8 +55,8 @@ void Nasa9Poly1::updateTemperaturePoly(double T, double* T_poly) const
     T_poly[6] = std::log(T);
 }
 
-void Nasa9Poly1::updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const
+void Nasa9Poly1::updateProperties(span<const double> tt, double& cp_R,
+                                  double& h_RT, double& s_R) const
 {
 
     double ct0 = m_coeff[0] * tt[5]; // a0 / (T^2)
@@ -74,13 +74,13 @@ void Nasa9Poly1::updateProperties(const double* tt, double* cp_R, double* h_RT,
                        + 1.0/3.0*ct5 + 0.25*ct6 + m_coeff[8];
 
     // return the computed properties for this species
-    *cp_R = cpdivR;
-    *h_RT = hdivRT;
-    *s_R = sdivR;
+    cp_R = cpdivR;
+    h_RT = hdivRT;
+    s_R = sdivR;
 }
 
-void Nasa9Poly1::updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                                      double* s_R) const
+void Nasa9Poly1::updatePropertiesTemp(const double temp, double& cp_R, double& h_RT,
+                                      double& s_R) const
 {
     double tPoly[7];
     updateTemperaturePoly(temp, tPoly);
@@ -88,7 +88,7 @@ void Nasa9Poly1::updatePropertiesTemp(const double temp, double* cp_R, double* h
 }
 
 void Nasa9Poly1::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const
+                                  double& pref, span<double> coeffs) const
 {
     n = 0;
     type = NASA9;

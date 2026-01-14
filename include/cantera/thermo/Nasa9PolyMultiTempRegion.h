@@ -66,7 +66,7 @@ public:
      *                where `zone` runs from zero to `nzones`-1.
      */
     Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref,
-                             const double* coeffs);
+                             span<const double> coeffs);
 
     //! Set the array of polynomial coefficients for each temperature region
     /*!
@@ -79,14 +79,14 @@ public:
     int reportType() const override;
 
     size_t temperaturePolySize() const override { return 7; }
-    void updateTemperaturePoly(double T, double* T_poly) const override;
+    void updateTemperaturePoly(double T, span<double> T_poly) const override;
 
     //! @copydoc Nasa9Poly1::updateProperties
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override;
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override;
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override;
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override;
 
     size_t nCoeffs() const override;
 
@@ -110,7 +110,7 @@ public:
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override;
+                          double& pref, span<double> coeffs) const override;
 
     void getParameters(AnyMap& thermo) const override;
 
