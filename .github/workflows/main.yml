@@ -690,7 +690,7 @@ jobs:
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
-          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
+          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 -u "$n" >> results.txt || exit 1; done' sh {} +
         env:
           # The pyparsing ignore setting is due to a new warning introduced in Matplotlib==3.6.0
           # Ignore NasaPoly2 warnings from n-hexane-NUIG-2015.yaml
