@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 #include <limits>
 
 namespace Cantera
@@ -46,7 +47,7 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
-    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_thermo->getPartialMolarEnthalpies(m_hk);
     m_TotalCp = m_mass * m_thermo->cp_mass();
     updateConnected(false);
 }
@@ -158,8 +159,8 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
         Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(m_nsp);
         Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(m_nsp);
         // gas phase
-        m_thermo->getPartialMolarCp(specificHeat.data());
-        m_thermo->getPartialMolarEnthalpies(enthalpy.data());
+        m_thermo->getPartialMolarCp(asSpan(specificHeat));
+        m_thermo->getPartialMolarEnthalpies(asSpan(enthalpy));
         m_kin->getNetProductionRates(netProductionRates.data());
         // scale production rates by the volume for gas species
         for (size_t i = 0; i < m_nsp; i++) {

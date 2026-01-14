@@ -130,7 +130,7 @@ extern "C" {
     void setstate_tpx_(double* T, double* P, double* X)
     {
         try {
-            _gas->setState_TPX(*T, *P, X);
+            _gas->setState_TPX(*T, *P, span<const double>(X, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -150,7 +150,7 @@ extern "C" {
     void setstate_tpy_(double* T, double* p, double* Y)
     {
         try {
-            _gas->setState_TPY(*T, *p, Y);
+            _gas->setState_TPY(*T, *p, span<const double>(Y, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }

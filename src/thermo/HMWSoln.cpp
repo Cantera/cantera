@@ -53,9 +53,9 @@ HMWSoln::HMWSoln(const string& inputFile, const string& id_) :
 
 double HMWSoln::relative_enthalpy() const
 {
-    getPartialMolarEnthalpies(m_workS.data());
+    getPartialMolarEnthalpies(m_workS);
     double hbar = mean_X(m_workS);
-    getEnthalpy_RT(m_gamma_tmp.data());
+    getEnthalpy_RT(m_gamma_tmp);
     for (size_t k = 0; k < m_kk; k++) {
         m_gamma_tmp[k] *= RT();
     }
@@ -129,7 +129,7 @@ void HMWSoln::calcDensity()
 
 // ------- Activities and Activity Concentrations
 
-void HMWSoln::getActivityConcentrations(double* c) const
+void HMWSoln::getActivityConcentrations(span<double> c) const
 {
     double cs_solvent = standardConcentration();
     getActivities(c);
@@ -144,7 +144,7 @@ void HMWSoln::getActivityConcentrations(double* c) const
 
 double HMWSoln::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS.data());
+    getStandardVolumes(m_workS);
     double mvSolvent = m_workS[0];
     if (k > 0) {
         return m_Mnaught / mvSolvent;
@@ -152,7 +152,7 @@ double HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-void HMWSoln::getActivities(double* ac) const
+void HMWSoln::getActivities(span<double> ac) const
 {
     updateStandardStateThermo();
 
@@ -168,12 +168,13 @@ void HMWSoln::getActivities(double* ac) const
     ac[0] = exp(m_lnActCoeffMolal_Scaled[0]) * xmolSolvent;
 }
 
-void HMWSoln::getUnscaledMolalityActivityCoefficients(double* acMolality) const
+void HMWSoln::getUnscaledMolalityActivityCoefficients(span<double> acMolality) const
 {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
-    std::copy(m_lnActCoeffMolal_Unscaled.begin(), m_lnActCoeffMolal_Unscaled.end(), acMolality);
+    std::copy(m_lnActCoeffMolal_Unscaled.begin(), m_lnActCoeffMolal_Unscaled.end(),
+              acMolality.begin());
     for (size_t k = 0; k < m_kk; k++) {
         acMolality[k] = exp(acMolality[k]);
     }
@@ -181,7 +182,7 @@ void HMWSoln::getUnscaledMolalityActivityCoefficients(double* acMolality) const
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void HMWSoln::getChemPotentials(double* mu) const
+void HMWSoln::getChemPotentials(span<double> mu) const
 {
     double xx;
 
@@ -201,7 +202,7 @@ void HMWSoln::getChemPotentials(double* mu) const
     mu[0] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[0]);
 }
 
-void HMWSoln::getPartialMolarEnthalpies(double* hbar) const
+void HMWSoln::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -220,7 +221,7 @@ void HMWSoln::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void HMWSoln::getPartialMolarEntropies(double* sbar) const
+void HMWSoln::getPartialMolarEntropies(span<double> sbar) const
 {
     // Get the standard state entropies at the temperature and pressure of the
     // solution.
@@ -255,7 +256,7 @@ void HMWSoln::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void HMWSoln::getPartialMolarVolumes(double* vbar) const
+void HMWSoln::getPartialMolarVolumes(span<double> vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -268,7 +269,7 @@ void HMWSoln::getPartialMolarVolumes(double* vbar) const
     }
 }
 
-void HMWSoln::getPartialMolarCp(double* cpbar) const
+void HMWSoln::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -3945,7 +3946,7 @@ void HMWSoln::printCoeffs() const
     }
 }
 
-void HMWSoln::applyphScale(double* acMolality) const
+void HMWSoln::applyphScale(span<double> acMolality) const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
         return;

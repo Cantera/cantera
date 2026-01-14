@@ -353,7 +353,7 @@ double HighPressureGasTransport::thermalConductivity()
     vector<double> molefracs(m_nsp);
     m_thermo->getMoleFractions(molefracs);
     vector<double> cp_0_R(m_nsp);
-    m_thermo->getCp_R_ref(&cp_0_R[0]); // Cp/R
+    m_thermo->getCp_R_ref(cp_0_R); // Cp/R
 
     // A model constant from the Euken correlation for polyatomic gases, described
     // below Equation 1 in ely-hanley1981 .
@@ -366,7 +366,7 @@ double HighPressureGasTransport::thermalConductivity()
     vector<double> h_i(m_nsp);
     vector<double> V_k(m_nsp);
 
-    m_thermo -> getPartialMolarVolumes(&V_k[0]);
+    m_thermo -> getPartialMolarVolumes(V_k);
     for (size_t i = 0; i < m_nsp; i++) {
         // Calculate variables for density-independent component, Equation 1,
         // the equation requires the pure-species viscosity estimate from

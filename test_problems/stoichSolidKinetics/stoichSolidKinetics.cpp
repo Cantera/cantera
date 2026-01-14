@@ -76,29 +76,29 @@ void testProblem()
         iKin.getDeltaGibbs(&work[0]);
         printValue("   deltaG        = ", work[0]);
 
-        gasTP->getChemPotentials(&work[0]);
+        gasTP->getChemPotentials(work);
         double mu_CO2 = work[igco2];
         printValue("   mu_CO2(g)     = ", mu_CO2);
 
-        cao_s->getGibbs_RT(&work[0]);
+        cao_s->getGibbs_RT(work);
         double mu_cao = work[0] * GasConstant * Temp;
         printValue("   mu_cao(s)     = ", mu_cao);
 
-        caco3_s->getChemPotentials(&work[0]);
+        caco3_s->getChemPotentials(work);
         double mu_caco3  = work[0];
         printValue("   mu_caco3      = ", mu_caco3);
 
         double deltaG_calc =  mu_CO2 +  mu_cao - mu_caco3;
         printValue("   deltaG_calc   = ", deltaG_calc);
 
-        gasTP->getActivities(&work[0]);
+        gasTP->getActivities(work);
         double act_CO2 = work[igco2];
         printValue("   act_CO2       = ", act_CO2);
 
-        cao_s->getActivities(&work[0]);
+        cao_s->getActivities(work);
         printValue("   act_cao(s)    = ", work[0]);
 
-        caco3_s->getActivities(&work[0]);
+        caco3_s->getActivities(work);
         printValue("   act_caco3(s)  = ", work[0]);
 
         cout << "*** Base problem assuming that all phases exist:" << endl;

@@ -196,9 +196,9 @@ void BinarySolutionTabulatedThermo::diff(const vector<double>& inputData,
     }
 }
 
-void BinarySolutionTabulatedThermo::getPartialMolarVolumes(double* vbar) const
+void BinarySolutionTabulatedThermo::getPartialMolarVolumes(span<double> vbar) const
 {
-    std::copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar);
+    std::copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar.begin());
 }
 
 void BinarySolutionTabulatedThermo::calcDensity()

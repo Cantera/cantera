@@ -99,21 +99,21 @@ public:
     void setTemperature(const double T) override;
     void setDensity(const double rho) override;
 
-    void getChemPotentials(double* mu) const override{
+    void getChemPotentials(span<double> mu) const override{
         mu[0] = gibbs_mole();
     }
 
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
-    void getPartialMolarIntEnergies(double* ubar) const override;
-    void getPartialMolarCp(double* cpbar) const override;
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     Units standardConcentrationUnits() const override;
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
     double standardConcentration(size_t k=0) const override;
 
-    void getActivities(double* a) const override;
+    void getActivities(span<double> a) const override;
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
@@ -129,10 +129,10 @@ public:
     //! activity of the fluid is always then defined to be equal to one.
     //! @{
 
-    void getStandardChemPotentials(double* mu) const override;
-    void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getGibbs_RT(double* grt) const override;
+    void getStandardChemPotentials(span<double> mu) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getGibbs_RT(span<double> grt) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -141,10 +141,10 @@ public:
     //! the reference pressure and current temperature of the fluid.
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
 
     //! @}
     //! @name Setting the State

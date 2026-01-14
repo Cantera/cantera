@@ -455,7 +455,7 @@ public:
     //! to be molality-based here.
     //! @{
 
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -480,7 +480,7 @@ public:
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
-    void getActivities(double* ac) const override;
+    void getActivities(span<double> ac) const override;
 
     //! Get the array of non-dimensional molality-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -493,7 +493,7 @@ public:
      * @param acMolality Vector of Molality-based activity coefficients
      *                   Length: m_kk
      */
-    void getMolalityActivityCoefficients(double* acMolality) const override;
+    void getMolalityActivityCoefficients(span<double> acMolality) const override;
 
     //! @}
     //! @name Partial Molar Properties of the Solution
@@ -512,7 +512,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -535,7 +535,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -565,9 +565,9 @@ public:
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
      */
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
-    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -585,7 +585,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
 

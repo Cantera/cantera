@@ -100,7 +100,7 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
                                        double* const fluxes)
 {
     // cbar will be the average concentration between the two points
-    double* const cbar = m_spwork.data();
+    span<double> cbar(m_spwork);
     double* const gradc = m_spwork2.data();
     const double t1 = state1[0];
     const double t2 = state2[0];
@@ -146,10 +146,10 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
         b = m_perm;
     }
     b *= gradp / m_gastran->viscosity();
-    scale(cbar, cbar + m_nsp, cbar, b);
+    scale(cbar.begin(), cbar.end(), cbar.begin(), b);
 
     // Multiply m_multidiff with cbar and add it to fluxes
-    increment(m_multidiff, cbar, fluxes);
+    increment(m_multidiff, cbar.data(), fluxes);
     scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
 }
 

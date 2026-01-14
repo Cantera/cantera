@@ -98,11 +98,11 @@ public:
      *
      * @param a   Output vector of activities. Length: 1.
      */
-    void getActivities(double* a) const override {
+    void getActivities(span<double> a) const override {
         a[0] = 1.0;
     }
 
-    void getActivityCoefficients(double* ac) const override {
+    void getActivityCoefficients(span<double> ac) const override {
         ac[0] = 1.0;
     }
 
@@ -123,7 +123,7 @@ public:
      * @param mu   On return, Contains the chemical potential of the single
      *             species and the phase. Units are J / kmol . Length = 1
      */
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
@@ -132,7 +132,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: 1. units are J/kmol.
      */
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
     //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
@@ -141,7 +141,7 @@ public:
      * @param ubar On return, Contains the internal energy of the single species
      *             and the phase. Units are J / kmol . Length = 1
      */
-    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
 
     //! Get the species partial molar entropy. Units: J/kmol K.
     /*!
@@ -150,7 +150,7 @@ public:
      * @param sbar On return, Contains the entropy of the single species and the
      *             phase. Units are J / kmol / K . Length = 1
      */
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
     //! Get the species partial molar Heat Capacities. Units: J/ kmol /K.
     /*!
@@ -159,7 +159,7 @@ public:
      * @param cpbar On return, Contains the heat capacity of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
      */
-    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
@@ -168,7 +168,7 @@ public:
      * @param vbar On return, Contains the molar volume of the single species
      *             and the phase. Units are m^3 / kmol. Length = 1
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -190,7 +190,7 @@ public:
      * @param vbar On output this contains the standard volume of the species
      *             and phase (m^3/kmol). Vector of length 1
      */
-    void getStandardVolumes(double* vbar) const override;
+    void getStandardVolumes(span<double> vbar) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference State
@@ -200,11 +200,11 @@ public:
     //! involve a specification of the equation of state.
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getCp_R_ref(double* cprt) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getCp_R_ref(span<double> cprt) const override;
 
     //! @}
     //! @name Setting the State

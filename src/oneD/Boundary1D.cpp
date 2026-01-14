@@ -157,7 +157,7 @@ void Inlet1D::updateState(size_t loc)
     if (m_flow) {
         m_press = m_flow->pressure();
     }
-    m_solution->thermo()->setState_TPY(m_temp, m_press, m_yin.data());
+    m_solution->thermo()->setState_TPY(m_temp, m_press, m_yin);
 }
 
 void Inlet1D::init()
@@ -294,7 +294,7 @@ shared_ptr<SolutionArray> Inlet1D::toArray(bool normalize)
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
     auto thermo = m_solution->thermo();
-    thermo->setState_TPY(m_temp, pressure, m_yin.data());
+    thermo->setState_TPY(m_temp, pressure, m_yin);
     vector<double> data(thermo->stateSize());
     thermo->saveState(data);
 
@@ -545,7 +545,7 @@ shared_ptr<SolutionArray> OutletRes1D::toArray(bool normalize)
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
     auto thermo = m_solution->thermo();
-    thermo->setState_TPY(m_temp, pressure, &m_yres[0]);
+    thermo->setState_TPY(m_temp, pressure, m_yres);
     vector<double> data(thermo->stateSize());
     thermo->saveState(data);
 

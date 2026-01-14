@@ -128,7 +128,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         //              h_mass = h_mole / Wk
         //       hence:
         //              h_mass * Wk = h_mol
-        m_thermo->getPartialMolarEnthalpies(m_hk.data());
+        m_thermo->getPartialMolarEnthalpies(m_hk);
         for (size_t i = 0; i < m_nsp; ++i) {
             ydot[3] -= m_hk[i] * (m_wdot[i] + m_sdot[i] / m_area);
         }
@@ -176,7 +176,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     for (size_t i = 0; i < m_nsp; ++i) {
         sk_wk += m_sdot[i] * mw[i] / m_area;
     }
-    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_thermo->getPartialMolarEnthalpies(m_hk);
     // get net production
     if (m_chem) {
         m_kin->getNetProductionRates(m_wdot.data());

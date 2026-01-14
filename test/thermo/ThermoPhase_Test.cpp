@@ -216,23 +216,23 @@ public:
         v_fuel[gas.speciesIndex("CH4")] = 10.0;
 
         if (oxidizer) {
-            gas.setState_TPX(300.0, 1e5, v_ox.data());
-            EXPECT_NEAR(gas.equivalenceRatio(v_fuel.data(), v_ox.data(), basis), phi, 1e-4);
+            gas.setState_TPX(300.0, 1e5, v_ox);
+            EXPECT_NEAR(gas.equivalenceRatio(v_fuel, v_ox, basis), phi, 1e-4);
             EXPECT_NEAR(gas.equivalenceRatio(), 0.0, 1e-4);
         } else {
-            gas.setState_TPX(300.0, 1e5, v_fuel.data());
-            ASSERT_EQ(gas.equivalenceRatio(v_fuel.data(), v_ox.data(), basis) > phi, true);
+            gas.setState_TPX(300.0, 1e5, v_fuel);
+            ASSERT_EQ(gas.equivalenceRatio(v_fuel, v_ox, basis) > phi, true);
             ASSERT_EQ(gas.equivalenceRatio() > phi, true);
         }
-        EXPECT_NEAR(gas.mixtureFraction(v_fuel.data(), v_ox.data(), basis, "Bilger"), mf, 1e-4);
-        EXPECT_NEAR(gas.mixtureFraction(v_fuel.data(), v_ox.data(), basis, "C"), mf, 1e-4);
+        EXPECT_NEAR(gas.mixtureFraction(v_fuel, v_ox, basis, "Bilger"), mf, 1e-4);
+        EXPECT_NEAR(gas.mixtureFraction(v_fuel, v_ox, basis, "C"), mf, 1e-4);
 
         double Ych4 = gas.massFraction(gas.speciesIndex("CH4"));
         gas.setState_TPX(300.0, 1e5, "N2:1");
-        gas.setMixtureFraction(mf, v_fuel.data(), v_ox.data(), basis);
+        gas.setMixtureFraction(mf, v_fuel, v_ox, basis);
         EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4")), Ych4, 1e-4);
         gas.setState_TPX(300.0, 1e5, "N2:1");
-        gas.setEquivalenceRatio(phi, v_fuel.data(), v_ox.data(), basis);
+        gas.setEquivalenceRatio(phi, v_fuel, v_ox, basis);
         EXPECT_NEAR(gas.massFraction(gas.speciesIndex("CH4")), Ych4, 1e-4);
     }
 

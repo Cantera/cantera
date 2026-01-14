@@ -101,7 +101,7 @@ TEST_F(FracCoeffTest, EquilibriumConstants)
     vector<double> mu0(therm->nSpecies(), 0.0);
 
     kin->getEquilibriumConstants(&Kc[0]);
-    therm->getGibbs_ref(&mu0[0]); // at pRef
+    therm->getGibbs_ref(mu0); // at pRef
 
     double deltaG0_0 = 1.4 * mu0[kH] + 0.6 * mu0[kOH] + 0.2 * mu0[kO2] - mu0[kH2O];
     double deltaG0_1 = mu0[kH2O] - 0.7 * mu0[kH2] - 0.6 * mu0[kOH] - 0.2 * mu0[kO2];

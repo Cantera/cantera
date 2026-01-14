@@ -22,7 +22,7 @@ MargulesVPSSTP::MargulesVPSSTP(const string& inputFile, const string& id_)
 
 // -- Activities, Standard States, Activity Concentrations -----------
 
-void MargulesVPSSTP::getLnActivityCoefficients(double* lnac) const
+void MargulesVPSSTP::getLnActivityCoefficients(span<double> lnac) const
 {
     // Update the activity coefficients
     s_update_lnActCoeff();
@@ -35,7 +35,7 @@ void MargulesVPSSTP::getLnActivityCoefficients(double* lnac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void MargulesVPSSTP::getChemPotentials(double* mu) const
+void MargulesVPSSTP::getChemPotentials(span<double> mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -54,7 +54,7 @@ double MargulesVPSSTP::cv_mole() const
     return cp_mole() - GasConstant;
 }
 
-void MargulesVPSSTP::getPartialMolarEnthalpies(double* hbar) const
+void MargulesVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -73,7 +73,7 @@ void MargulesVPSSTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void MargulesVPSSTP::getPartialMolarCp(double* cpbar) const
+void MargulesVPSSTP::getPartialMolarCp(span<double> cpbar) const
 {
     // Get the nondimensional standard state entropies
     getCp_R(cpbar);
@@ -93,7 +93,7 @@ void MargulesVPSSTP::getPartialMolarCp(double* cpbar) const
     }
 }
 
-void MargulesVPSSTP::getPartialMolarEntropies(double* sbar) const
+void MargulesVPSSTP::getPartialMolarEntropies(span<double> sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -115,7 +115,7 @@ void MargulesVPSSTP::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void MargulesVPSSTP::getPartialMolarVolumes(double* vbar) const
+void MargulesVPSSTP::getPartialMolarVolumes(span<double> vbar) const
 {
     double T = temperature();
 
@@ -277,7 +277,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
     }
 }
 
-void MargulesVPSSTP::getdlnActCoeffdT(double* dlnActCoeffdT) const
+void MargulesVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -293,8 +293,8 @@ void MargulesVPSSTP::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
     }
 }
 
-void MargulesVPSSTP::getdlnActCoeffds(const double dTds, const double* const dXds,
-                                       double* dlnActCoeffds) const
+void MargulesVPSSTP::getdlnActCoeffds(const double dTds, span<const double> const dXds,
+                                      span<double> dlnActCoeffds) const
 {
     double T = temperature();
     s_update_dlnActCoeff_dT();
@@ -413,7 +413,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     }
 }
 
-void MargulesVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
+void MargulesVPSSTP::getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -421,7 +421,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
     }
 }
 
-void MargulesVPSSTP::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
+void MargulesVPSSTP::getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -429,7 +429,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
     }
 }
 
-void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoeffdlnN)
+void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);

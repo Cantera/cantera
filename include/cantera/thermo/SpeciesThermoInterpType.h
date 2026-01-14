@@ -166,27 +166,26 @@ public:
 
     //! Given the temperature *T*, compute the terms of the temperature
     //! polynomial *T_poly*.
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    virtual void updateTemperaturePoly(double T, span<double> T_poly) const {
         T_poly[0] = T;
     }
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions
-     * of temperature needed by this parameterization, and three pointers to
-     * arrays where the computed property values should be written. This method
-     * updates only one value in each array.
+     * This method is called with an array view containing the functions of
+     * temperature needed by this parameterization, and three references where the
+     * computed property values should be written.
      *
      * The form and length of the Temperature Polynomial may vary depending on
      * the parameterization.
      *
-     * @param tt      vector of evaluated temperature functions
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
+     * @param[in] tt     vector of evaluated temperature functions
+     * @param[out] cp_R  Dimensionless heat capacity
+     * @param[out] h_RT  Dimensionless enthalpy
+     * @param[out] s_R   Dimensionless entropy
      */
-    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const;
+    virtual void updateProperties(span<const double> tt, double& cp_R,
+                                  double& h_RT, double& s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -194,15 +193,13 @@ public:
      * dimensional heat capacity at constant pressure, enthalpy, and entropy, at
      * the reference pressure, of the species.
      *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
+     * @param[in] temp     Temperature (Kelvin)
+     * @param[out] cp_R    Dimensionless heat capacity
+     * @param[out] h_RT    Dimensionless enthalpy
+     * @param[out] s_R     Dimensionless entropy
      */
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R,
-                                      double* h_RT,
-                                      double* s_R) const;
+    virtual void updatePropertiesTemp(const double temp, double& cp_R,
+                                      double& h_RT, double& s_R) const;
 
     //! This utility function returns the number of coefficients
     //! for a given type of species parameterization
@@ -223,7 +220,7 @@ public:
      */
     virtual void reportParameters(size_t& index, int& type, double& minTemp,
                                   double& maxTemp, double& refPressure,
-                                  double* const coeffs) const;
+                                  span<double> coeffs) const;
 
     //! Return the parameters of the species thermo object such that an
     //! identical species thermo object could be reconstructed using the
@@ -247,7 +244,7 @@ public:
      * @return the current value of the Heat of Formation at 298K and 1 bar for
      *               species m_speciesIndex.
      */
-    virtual double reportHf298(double* const h298 = 0) const;
+    virtual double reportHf298(span<double> h298={}) const;
 
     //! Modify the value of the 298 K Heat of Formation of one species in the
     //! phase (J kmol-1)

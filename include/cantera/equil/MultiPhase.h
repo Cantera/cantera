@@ -304,7 +304,7 @@ public:
      * @param mu Chemical potential vector. Length = num global species. Units
      *           = J/kmol.
      */
-    void getChemPotentials(double* mu) const;
+    void getChemPotentials(span<double> mu) const;
 
     //! Returns a vector of Valid chemical potentials.
     /*!

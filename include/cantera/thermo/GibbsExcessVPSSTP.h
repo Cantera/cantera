@@ -107,7 +107,7 @@ public:
     //! @{
 
     Units standardConcentrationUnits() const override;
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     /**
      * The standard concentration @f$ C^0_k @f$ used to normalize the
@@ -139,9 +139,9 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    void getActivities(double* ac) const override;
+    void getActivities(span<double> ac) const override;
 
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -151,11 +151,12 @@ public:
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const {
+    virtual void getdlnActCoeffdT(span<double> dlnActCoeffdT) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdT");
     }
 
-    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
+    void getdlnActCoeffdlnN(const size_t ld,
+                            span<double> const dlnActCoeffdlnN) override {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
                                   "nonzero and nonimplemented");
     }
@@ -176,7 +177,7 @@ public:
      * @param dlnActCoeffdlnX    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(double* dlnActCoeffdlnX) const {
+    virtual void getdlnActCoeffdlnX(span<double> dlnActCoeffdlnX) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnX");
     }
 
@@ -194,7 +195,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
     bool addSpecies(shared_ptr<Species> spec) override;

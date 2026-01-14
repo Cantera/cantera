@@ -67,7 +67,7 @@ int main()
             delg0 = (g - h298)/temp + GasConstant * log(oneBar/presLow);
             Cp0 = w->cp_mole();
             {
-                w->getCp_R(&Cp0_ss);
+                w->getCp_R(span<double>(&Cp0_ss, 1));
                 Cp0_ss *= GasConstant;
                 if (fabs(Cp0_ss - Cp0) > 1.0E-5) {
                     printf("Inconsistency!\n");
@@ -159,13 +159,13 @@ int main()
                 press = psat*1.002;
             }
             w->setState_TP(temp, press);
-            w->getPartialMolarEnthalpies(&h);
+            w->getPartialMolarEnthalpies(span<double>(&h, 1));
             delh0 = tvalue(h - h298l, 1.0E-6);
-            w->getChemPotentials(&g);
+            w->getChemPotentials(span<double>(&g, 1));
             delg0 = (g - h298l)/temp;
-            w->getPartialMolarCp(&Cp0);
-            w->getPartialMolarEntropies(&s);
-            w->getPartialMolarVolumes(&vol);
+            w->getPartialMolarCp(span<double>(&Cp0, 1));
+            w->getPartialMolarEntropies(span<double>(&s, 1));
+            w->getPartialMolarVolumes(span<double>(&vol, 1));
             printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
@@ -186,16 +186,16 @@ int main()
                 press = psat*1.002;
             }
             w->setState_TP(temp, press);
-            w->getEnthalpy_RT(&h);
+            w->getEnthalpy_RT(span<double>(&h, 1));
             h *= temp * GasConstant;
             delh0 = tvalue(h - h298l, 1.0E-6);
-            w->getStandardChemPotentials(&g);
+            w->getStandardChemPotentials(span<double>(&g, 1));
             delg0 = (g - h298l)/temp;
-            w->getCp_R(&Cp0);
+            w->getCp_R(span<double>(&Cp0, 1));
             Cp0 *= GasConstant;
-            w->getEntropy_R(&s);
+            w->getEntropy_R(span<double>(&s, 1));
             s *= GasConstant;
-            w->getStandardVolumes(&vol);
+            w->getStandardVolumes(span<double>(&vol, 1));
             printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
@@ -216,16 +216,16 @@ int main()
                 press = psat*1.002;
             }
             w->setState_TP(temp, press);
-            w->getEnthalpy_RT_ref(&h);
+            w->getEnthalpy_RT_ref(span<double>(&h, 1));
             h *= temp * GasConstant;
             delh0 = tvalue(h - h298l, 1.0E-6);
-            w->getGibbs_ref(&g);
+            w->getGibbs_ref(span<double>(&g, 1));
             delg0 = (g - h298l)/temp;
-            w->getCp_R_ref(&Cp0);
+            w->getCp_R_ref(span<double>(&Cp0, 1));
             Cp0 *= GasConstant;
-            w->getEntropy_R_ref(&s);
+            w->getEntropy_R_ref(span<double>(&s, 1));
             s *= GasConstant;
-            w->getStandardVolumes_ref(&vol);
+            w->getStandardVolumes_ref(span<double>(&vol, 1));
             printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
@@ -243,16 +243,16 @@ int main()
             double psat = w->satPressure(temp);
             double press = OneAtm;
             w->setState_TP(temp, press);
-            w->getEnthalpy_RT(&h);
+            w->getEnthalpy_RT(span<double>(&h, 1));
             h *= temp * GasConstant;
             delh0 = tvalue(h - h298l, 1.0E-6);
-            w->getStandardChemPotentials(&g);
+            w->getStandardChemPotentials(span<double>(&g, 1));
             delg0 = (g - h298l)/temp;
-            w->getCp_R(&Cp0);
+            w->getCp_R(span<double>(&Cp0, 1));
             Cp0 *= GasConstant;
-            w->getEntropy_R(&s);
+            w->getEntropy_R(span<double>(&s, 1));
             s *= GasConstant;
-            w->getStandardVolumes(&vol);
+            w->getStandardVolumes(span<double>(&vol, 1));
             printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,

@@ -53,7 +53,7 @@ TEST_F(RedlichKister_Test, chem_potentials)
     for(int i=0; i < 9; ++i)
     {
         set_r(xmin + i*dx);
-        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getChemPotentials(chemPotentials);
         EXPECT_NEAR(expected_chempot[i], chemPotentials[0], 1.e-6);
     }
 }
@@ -84,7 +84,7 @@ TEST_F(RedlichKister_Test, dlnActivities)
     {
         const double r = xmin + i*dx;
         set_r(r);
-        test_phase->getdlnActCoeffdlnX_diag(&dlnActCoeffdx[0]);
+        test_phase->getdlnActCoeffdlnX_diag(dlnActCoeffdx);
         EXPECT_NEAR(expected_result[i], dlnActCoeffdx[0], 1.e-6);
     }
 }
@@ -134,7 +134,7 @@ TEST_F(RedlichKister_Test, fromScratch)
     for(int i=0; i < 9; ++i)
     {
         set_r(xmin + i*(xmax-xmin)/(numSteps-1));
-        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getChemPotentials(chemPotentials);
         EXPECT_NEAR(expected_chempot[i], chemPotentials[0], 1.e-6);
     }
 }

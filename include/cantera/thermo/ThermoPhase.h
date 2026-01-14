@@ -536,7 +536,7 @@ public:
      * @see getPartialMolarEnthalpies()
      */
     virtual double enthalpy_mole() const {
-        getPartialMolarEnthalpies(m_workS.data());
+        getPartialMolarEnthalpies(m_workS);
         return mean_X(m_workS);
     }
 
@@ -554,7 +554,7 @@ public:
      * @see getPartialMolarEnthalpies()
      */
     virtual double entropy_mole() const {
-        getPartialMolarEntropies(m_workS.data());
+        getPartialMolarEntropies(m_workS);
         return mean_X(m_workS);
     }
 
@@ -567,7 +567,7 @@ public:
      * @see getChemPotentials()
      */
     virtual double gibbs_mole() const {
-        getChemPotentials(m_workS.data());
+        getChemPotentials(m_workS);
         return mean_X(m_workS);
     }
 
@@ -579,7 +579,7 @@ public:
      * @see getPartialMolarCp()
      */
     virtual double cp_mole() const {
-        getPartialMolarCp(m_workS.data());
+        getPartialMolarCp(m_workS);
         return mean_X(m_workS);
     }
 
@@ -735,7 +735,7 @@ public:
      *           upon the implementation of the reaction rate expressions within
      *           the phase.
      */
-    virtual void getActivityConcentrations(double* c) const {
+    virtual void getActivityConcentrations(span<double> c) const {
         throw NotImplementedError("ThermoPhase::getActivityConcentrations",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -780,14 +780,14 @@ public:
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(double* a) const;
+    virtual void getActivities(span<double> a) const;
 
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(double* ac) const {
+    virtual void getActivityCoefficients(span<double> ac) const {
         if (m_kk == 1) {
             ac[0] = 1.0;
         } else {
@@ -801,7 +801,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(double* lnac) const;
+    virtual void getLnActivityCoefficients(span<double> lnac) const;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -816,7 +816,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(double* mu) const {
+    virtual void getChemPotentials(span<double> mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -835,7 +835,7 @@ public:
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getElectrochemPotentials(double* mu) const;
+    void getElectrochemPotentials(span<double> mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -843,7 +843,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const {
+    virtual void getPartialMolarEnthalpies(span<double> hbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarEnthalpies",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -854,7 +854,7 @@ public:
      * @param sbar    Output vector of species partial molar entropies.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(double* sbar) const {
+    virtual void getPartialMolarEntropies(span<double> sbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarEntropies",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -865,7 +865,7 @@ public:
      * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarIntEnergies(double* ubar) const {
+    virtual void getPartialMolarIntEnergies(span<double> ubar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarIntEnergies",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -877,7 +877,7 @@ public:
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarCp(double* cpbar) const {
+    virtual void getPartialMolarCp(span<double> cpbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarCp",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -888,7 +888,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const {
+    virtual void getPartialMolarVolumes(span<double> vbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -907,7 +907,7 @@ public:
      * @param mu      Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    virtual void getStandardChemPotentials(double* mu) const {
+    virtual void getStandardChemPotentials(span<double> mu) const {
         throw NotImplementedError("ThermoPhase::getStandardChemPotentials",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -918,7 +918,7 @@ public:
      * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    virtual void getEnthalpy_RT(double* hrt) const {
+    virtual void getEnthalpy_RT(span<double> hrt) const {
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -929,7 +929,7 @@ public:
      * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    virtual void getEntropy_R(double* sr) const {
+    virtual void getEntropy_R(span<double> sr) const {
         throw NotImplementedError("ThermoPhase::getEntropy_R",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -940,7 +940,7 @@ public:
      * @param grt  Output vector of nondimensional standard state Gibbs free
      *             energies. Length: m_kk.
      */
-    virtual void getGibbs_RT(double* grt) const {
+    virtual void getGibbs_RT(span<double> grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -951,7 +951,7 @@ public:
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(double* urt) const {
+    virtual void getIntEnergy_RT(span<double> urt) const {
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -963,7 +963,7 @@ public:
      * @param cpr   Output vector of nondimensional standard state heat
      *              capacities. Length: m_kk.
      */
-    virtual void getCp_R(double* cpr) const {
+    virtual void getCp_R(span<double> cpr) const {
         throw NotImplementedError("ThermoPhase::getCp_R",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -976,7 +976,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(double* vol) const {
+    virtual void getStandardVolumes(span<double> vol) const {
         throw NotImplementedError("ThermoPhase::getStandardVolumes",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -992,7 +992,7 @@ public:
      * @param hrt     Output vector containing the nondimensional reference
      *                state enthalpies. Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(double* hrt) const {
+    virtual void getEnthalpy_RT_ref(span<double> hrt) const {
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1004,7 +1004,7 @@ public:
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(double* grt) const {
+    virtual void getGibbs_RT_ref(span<double> grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1016,7 +1016,7 @@ public:
      * @param g       Output vector containing the reference state
      *                Gibbs Free energies. Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(double* g) const {
+    virtual void getGibbs_ref(span<double> g) const {
         throw NotImplementedError("ThermoPhase::getGibbs_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1028,7 +1028,7 @@ public:
      * @param er      Output vector containing the nondimensional reference
      *                state entropies. Length: m_kk.
      */
-    virtual void getEntropy_R_ref(double* er) const {
+    virtual void getEntropy_R_ref(span<double> er) const {
         throw NotImplementedError("ThermoPhase::getEntropy_R_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1040,7 +1040,7 @@ public:
      * @param urt    Output vector of nondimensional reference state internal
      *               energies of the species. Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(double* urt) const {
+    virtual void getIntEnergy_RT_ref(span<double> urt) const {
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1053,7 +1053,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(double* cprt) const {
+    virtual void getCp_R_ref(span<double> cprt) const {
         throw NotImplementedError("ThermoPhase::getCp_R_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1066,7 +1066,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(double* vol) const {
+    virtual void getStandardVolumes_ref(span<double> vol) const {
         throw NotImplementedError("ThermoPhase::getStandardVolumes_ref",
                                   "Not implemented for phase type '{}'", type());
     }
@@ -1164,7 +1164,7 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    virtual void setState_TPX(double t, double p, const double* x);
+    virtual void setState_TPX(double t, double p, span<const double> x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -1202,7 +1202,7 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    virtual void setState_TPY(double t, double p, const double* y);
+    virtual void setState_TPY(double t, double p, span<const double> y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase
@@ -1473,8 +1473,9 @@ public:
      *                   Fuel and oxidizer composition are interpreted
      *                   as mole or mass fractions (default: molar)
      */
-    void setMixtureFraction(double mixFrac, const double* fuelComp,
-                            const double* oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, span<const double> fuelComp,
+                            span<const double> oxComp,
+                            ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
     void setMixtureFraction(double mixFrac, const string& fuelComp,
             const string& oxComp, ThermoBasis basis=ThermoBasis::molar);
@@ -1516,7 +1517,7 @@ public:
      *                   based on a single element (default: "Bilger")
      * @returns          mixture fraction (kg fuel / kg mixture)
      */
-    double mixtureFraction(const double* fuelComp, const double* oxComp,
+    double mixtureFraction(span<const double> fuelComp, span<const double> oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
                            const string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
@@ -1545,7 +1546,8 @@ public:
      *                   Fuel and oxidizer composition are interpreted
      *                   as mole or mass fractions (default: molar)
      */
-    void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp,
+    void setEquivalenceRatio(double phi, span<const double> fuelComp,
+                             span<const double> oxComp,
                              ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
     void setEquivalenceRatio(double phi, const string& fuelComp,
@@ -1582,7 +1584,7 @@ public:
      * @see mixtureFraction for the definition of the Bilger mixture fraction
      * @see equivalenceRatio() for the computation of @f$ \phi @f$ without arguments
      */
-    double equivalenceRatio(const double* fuelComp, const double* oxComp,
+    double equivalenceRatio(span<const double> fuelComp, span<const double> oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
     double equivalenceRatio(const string& fuelComp, const string& oxComp,
@@ -1637,7 +1639,7 @@ public:
      *                   as mole or mass fractions (default: molar)
      * @returns          Stoichiometric Air to Fuel Ratio (kg oxidizer / kg fuel)
      */
-    double stoichAirFuelRatio(const double* fuelComp, const double* oxComp,
+    double stoichAirFuelRatio(span<const double> fuelComp, span<const double> oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
     double stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
@@ -1689,7 +1691,7 @@ private:
      * @param y       array of (possibly non-normalized) mass fractions (length m_kk)
      * @returns       amount of required oxygen in kmol O / kg mixture
      */
-    double o2Required(const double* y) const;
+    double o2Required(span<const double> y) const;
 
     //! Helper function for computing the amount of oxygen
     //! available in the current mixture.
@@ -1697,7 +1699,7 @@ private:
      * @param y       array of (possibly non-normalized) mass fractions (length m_kk)
      * @returns       amount of O in kmol O / kg mixture
      */
-    double o2Present(const double* y) const;
+    double o2Present(span<const double> y) const;
 
 public:
     //! @name Chemical Equilibrium
@@ -1752,7 +1754,7 @@ public:
      * @param mu_RT Input vector of dimensionless chemical potentials
      *                  The length is equal to nSpecies().
      */
-    virtual void setToEquilState(const double* mu_RT) {
+    virtual void setToEquilState(span<const double> mu_RT) {
         throw NotImplementedError("ThermoPhase::setToEquilState");
     }
 
@@ -1959,8 +1961,8 @@ public:
      *                       m_kk units are 1/units(s). if s is a physical
      *                       coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
-                                  double* dlnActCoeffds) const {
+    virtual void getdlnActCoeffds(const double dTds, span<const double> dXds,
+                                  span<double> dlnActCoeffds) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffds");
     }
 
@@ -1979,7 +1981,7 @@ public:
      * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the log
      *     Activity Coefficients wrt the mole fractions. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const {
+    virtual void getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnX_diag");
     }
 
@@ -1999,7 +2001,7 @@ public:
      * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                                log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const {
+    virtual void getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnN_diag");
     }
 
@@ -2028,10 +2030,10 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN);
 
     virtual void getdlnActCoeffdlnN_numderiv(const size_t ld,
-                                             double* const dlnActCoeffdlnN);
+                                             span<double> dlnActCoeffdlnN);
 
     //! @}
     //! @name Printing

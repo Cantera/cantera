@@ -115,21 +115,21 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    void getChemPotentials(double* mu) const override;
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
-    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
     //! Calculate species-specific molar specific heats
     /*!
      *  This function is currently not implemented for Peng-Robinson phase.
      */
-    void getPartialMolarCp(double* cpbar) const override;
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
     //! Calculate species-specific critical temperature

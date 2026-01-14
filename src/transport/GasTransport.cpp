@@ -529,7 +529,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
             vector<double> cp_R_all(m_thermo->nSpecies());
-            m_thermo->getCp_R_ref(&cp_R_all[0]);
+            m_thermo->getCp_R_ref(cp_R_all);
             double cp_R = cp_R_all[k];
             tstar = Boltzmann * t / m_eps[k];
             double sqrt_T = sqrt(t);

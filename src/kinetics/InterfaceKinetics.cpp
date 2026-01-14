@@ -57,7 +57,8 @@ void InterfaceKinetics::_update_rates_T()
     if (T != m_temp || m_redo_rates) {
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
         for (size_t n = 0; n < nPhases(); n++) {
-            thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
+            thermo(n).getPartialMolarEnthalpies(
+                span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
         }
 
         // Use the stoichiometric manager to find deltaH for each reaction.
@@ -105,10 +106,11 @@ void InterfaceKinetics::_update_rates_C()
          * the vector m_conc. m_start[] are integer indices for that vector
          * denoting the start of the species for each phase.
          */
-        tp.getActivityConcentrations(m_actConc.data() + m_start[n]);
+        tp.getActivityConcentrations(
+            span<double>(m_actConc).subspan(m_start[n], tp.nSpecies()));
 
         // Get regular concentrations too
-        tp.getConcentrations(span<double>(m_conc.data() + m_start[n], tp.nSpecies()));
+        tp.getConcentrations(span<double>(m_conc).subspan(m_start[n], tp.nSpecies()));
     }
     m_ROP_ok = false;
 }
@@ -153,7 +155,8 @@ void InterfaceKinetics::updateMu0()
     //      once the old framework is removed
     size_t ik = 0;
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
+        thermo(n).getStandardChemPotentials(
+            span<double>(m_mu0).subspan(m_start[n], thermo(n).nSpecies()));
         for (size_t k = 0; k < thermo(n).nSpecies(); k++) {
             m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
             m_mu0_Kc[ik] -= thermo(0).RT() * thermo(n).logStandardConc(k);
@@ -288,7 +291,8 @@ void InterfaceKinetics::getDeltaGibbs(double* deltaG)
     // Get the chemical potentials of the species in the all of the phases used
     // in the kinetics mechanism
     for (size_t n = 0; n < nPhases(); n++) {
-        m_thermo[n]->getChemPotentials(m_mu.data() + m_start[n]);
+        m_thermo[n]->getChemPotentials(
+            span<double>(m_mu).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
@@ -304,7 +308,8 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(double* deltaM)
 {
     // Get the chemical potentials of the species
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getElectrochemPotentials(m_grt.data() + m_start[n]);
+        thermo(n).getElectrochemPotentials(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
@@ -315,7 +320,8 @@ void InterfaceKinetics::getDeltaEnthalpy(double* deltaH)
 {
     // Get the partial molar enthalpy of all species
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
+        thermo(n).getPartialMolarEnthalpies(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaH for each reaction.
@@ -326,7 +332,8 @@ void InterfaceKinetics::getDeltaEntropy(double* deltaS)
 {
     // Get the partial molar entropy of all species in all of the phases
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getPartialMolarEntropies(m_grt.data() + m_start[n]);
+        thermo(n).getPartialMolarEntropies(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaS for each reaction.
@@ -340,7 +347,8 @@ void InterfaceKinetics::getDeltaSSGibbs(double* deltaGSS)
     // chemical potentials of the pure species at the temperature and pressure
     // of the solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
+        thermo(n).getStandardChemPotentials(
+            span<double>(m_mu0).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
@@ -354,7 +362,8 @@ void InterfaceKinetics::getDeltaSSEnthalpy(double* deltaH)
     // enthalpies of the pure species at the temperature and pressure of the
     // solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getEnthalpy_RT(m_grt.data() + m_start[n]);
+        thermo(n).getEnthalpy_RT(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= thermo(0).RT();
@@ -370,7 +379,8 @@ void InterfaceKinetics::getDeltaSSEntropy(double* deltaS)
     // the entropies of the pure species at the temperature and pressure of the
     // solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getEntropy_R(m_grt.data() + m_start[n]);
+        thermo(n).getEntropy_R(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= GasConstant;

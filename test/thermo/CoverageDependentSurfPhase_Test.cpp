@@ -51,10 +51,10 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_enthalpies_RT)
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
         // Get CoverageDependentSurfPhase reference enthalpy method value
-        covdepsurf_phase->getEnthalpy_RT_ref(&enthalpies_RT_ref[0]);
+        covdepsurf_phase->getEnthalpy_RT_ref(enthalpies_RT_ref);
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference enthalpy method value
-        idealsurf_phase->getEnthalpy_RT_ref(&expected_result[0]);
+        idealsurf_phase->getEnthalpy_RT_ref(expected_result);
         for (size_t j = 0; j < 5; j++) {
             EXPECT_NEAR(enthalpies_RT_ref[j], expected_result[j], 1.e-6);
         }
@@ -71,10 +71,10 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_entropies_R)
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
         // Get CoverageDependentSurfPhase reference entropy method value
-        covdepsurf_phase->getEntropy_R_ref(&entropies_R_ref[0]);
+        covdepsurf_phase->getEntropy_R_ref(entropies_R_ref);
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference entropy method value
-        idealsurf_phase->getEntropy_R_ref(&expected_result[0]);
+        idealsurf_phase->getEntropy_R_ref(expected_result);
         for (size_t j = 0; j < 5; j++) {
             EXPECT_NEAR(entropies_R_ref[j], expected_result[j], 1.e-6);
         }
@@ -91,10 +91,10 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_cp_R)
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
         // Get CoverageDependentSurfPhase reference heat capacity method value
-        covdepsurf_phase->getCp_R_ref(&cps_R_ref[0]);
+        covdepsurf_phase->getCp_R_ref(cps_R_ref);
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference heat capacity method value
-        idealsurf_phase->getCp_R_ref(&expected_result[0]);
+        idealsurf_phase->getCp_R_ref(expected_result);
         for (size_t j = 0; j < 5; j++) {
             EXPECT_NEAR(cps_R_ref[j], expected_result[j], 1.e-6);
         }
@@ -111,10 +111,10 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_gibbs_RT)
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
         // Get CoverageDependentSurfPhase reference gibbs free energy method value
-        covdepsurf_phase->getGibbs_RT_ref(&gibbs_RT_ref[0]);
+        covdepsurf_phase->getGibbs_RT_ref(gibbs_RT_ref);
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference gibbs free energy method value
-        idealsurf_phase->getGibbs_RT_ref(&expected_result[0]);
+        idealsurf_phase->getGibbs_RT_ref(expected_result);
         for (size_t j = 0; j < 5; j++) {
             EXPECT_NEAR(gibbs_RT_ref[j], expected_result[j], 1.e-6);
         }
@@ -151,11 +151,11 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_enthalpies_RT)
     // Get CoverageDependentSurfPhase standard enthalpy method value
     covdepsurf_phase->setTemperature(test_Ts[5]);
     covdepsurf_phase->setCoverages(test_covs[0].data());
-    covdepsurf_phase->getEnthalpy_RT(&enthalpies_RT[0]);
+    covdepsurf_phase->getEnthalpy_RT(enthalpies_RT);
     // Externally calculating value by adding coverage-dependent terms
     // to SurfPhase standard enthalpy method value
     idealsurf_phase->setTemperature(test_Ts[5]);
-    idealsurf_phase->getEnthalpy_RT(&expected_result[0]);
+    idealsurf_phase->getEnthalpy_RT(expected_result);
     double RT = idealsurf_phase->RT();
     expected_result[1] += (h_slope * test_covs[0][1]) / RT;
     expected_result[1] += (h_low * 0.4) / RT;
@@ -199,11 +199,11 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_entropies_R)
     // Get CoverageDependentSurfPhase standard entropy method value
     covdepsurf_phase->setTemperature(test_Ts[3]);
     covdepsurf_phase->setCoverages(test_covs[0].data());
-    covdepsurf_phase->getEntropy_R(&entropies_R[0]);
+    covdepsurf_phase->getEntropy_R(entropies_R);
     // Externally calculate value by adding coverage-dependent terms
     // to SurfPhase standard entropy method value
     idealsurf_phase->setTemperature(test_Ts[3]);
-    idealsurf_phase->getEntropy_R(&expected_result[0]);
+    idealsurf_phase->getEntropy_R(expected_result);
     expected_result[1] += (s_slope * test_covs[0][1]) / GasConstant;
     expected_result[1] += (s_low * 0.4) / GasConstant;
     expected_result[1] += (s_high * (test_covs[0][2] - 0.4)) / GasConstant;
@@ -232,11 +232,11 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_cp_R)
     // Get CoverageDependentSurfPhase standard heat capacity method value
     covdepsurf_phase->setTemperature(test_Ts[4]);
     covdepsurf_phase->setCoverages(test_covs[0].data());
-    covdepsurf_phase->getCp_R(&cps_R[0]);
+    covdepsurf_phase->getCp_R(cps_R);
     // Externally calculating value by adding coverage-dependent terms
     // to SurfPhase standard heat capacity method value
     idealsurf_phase->setTemperature(test_Ts[4]);
-    idealsurf_phase->getCp_R(&expected_result[0]);
+    idealsurf_phase->getCp_R(expected_result);
     expected_result[1] += (cp_a * log(test_Ts[4]) + cp_b)
                            * test_covs[0][2] * test_covs[0][2] / GasConstant;
     EXPECT_NEAR(cps_R[1], expected_result[1], 1.e-6);

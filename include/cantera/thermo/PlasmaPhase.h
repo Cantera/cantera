@@ -299,23 +299,23 @@ public:
     */
     double intEnergy_mole() const override;
 
-    void getEntropy_R(double* sr) const override;
+    void getEntropy_R(span<double> sr) const override;
 
-    void getGibbs_RT(double* grt) const override;
+    void getGibbs_RT(span<double> grt) const override;
 
-    void getGibbs_ref(double* g) const override;
+    void getGibbs_ref(span<double> g) const override;
 
-    void getStandardVolumes_ref(double* vol) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
-    void getStandardChemPotentials(double* muStar) const override;
+    void getStandardChemPotentials(span<double> muStar) const override;
 
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
-    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
 
     void getParameters(AnyMap& phaseNode) const override;
 
