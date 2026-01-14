@@ -60,11 +60,11 @@ public:
      *                  coeffs]. This is the coefficient order used in the
      *                  standard NASA format.
      */
-    NasaPoly2(double tlow, double thigh, double pref, const double* coeffs) :
+    NasaPoly2(double tlow, double thigh, double pref, span<const double> coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
-        mnp_low(tlow, coeffs[0], pref, coeffs + 8),
-        mnp_high(coeffs[0], thigh, pref, coeffs + 1) {
+        mnp_low(tlow, coeffs[0], pref, coeffs.subspan(8, 7)),
+        mnp_high(coeffs[0], thigh, pref, coeffs.subspan(1, 7)) {
     }
 
     void setMinTemp(double Tmin) override {
@@ -89,7 +89,7 @@ public:
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high);
+    void setParameters(double Tmid, span<const double> low, span<const double> high);
 
     int reportType() const override {
         return NASA2;
@@ -97,13 +97,13 @@ public:
 
     size_t temperaturePolySize() const override { return 6; }
 
-    void updateTemperaturePoly(double T, double* T_poly) const override {
+    void updateTemperaturePoly(double T, span<double> T_poly) const override {
         mnp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! @copydoc NasaPoly1::updateProperties
-    void updateProperties(const double* tt,
-                          double* cp_R, double* h_RT, double* s_R) const override {
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override {
         if (tt[0] <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
@@ -111,8 +111,8 @@ public:
         }
     }
 
-    void updatePropertiesTemp(const double temp,
-                              double* cp_R, double* h_RT, double* s_R) const override {
+    void updatePropertiesTemp(const double temp, double& cp_R, double& h_RT,
+                              double& s_R) const override {
         if (temp <= m_midT) {
             mnp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -123,23 +123,23 @@ public:
     size_t nCoeffs() const override { return 15; }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override {
-        mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
-        mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
+                          double& pref, span<double> coeffs) const override {
+        mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs.subspan(1));
+        mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs.subspan(8));
         type = NASA2;
     }
 
     void getParameters(AnyMap& thermo) const override;
 
-    double reportHf298(double* const h298=nullptr) const override {
+    double reportHf298(span<double> h298={}) const override {
         double h;
         if (298.15 <= m_midT) {
-            h = mnp_low.reportHf298(0);
+            h = mnp_low.reportHf298();
         } else {
-            h = mnp_high.reportHf298(0);
+            h = mnp_high.reportHf298();
         }
-        if (h298) {
-            *h298 = h;
+        if (!h298.empty()) {
+            h298[0] = h;
         }
         return h;
     }
@@ -150,12 +150,12 @@ public:
     }
 
     void modifyOneHf298(const size_t k, const double Hf298New) override {
-        double h298now = reportHf298(0);
+        double h298now = reportHf298();
         double delH = Hf298New - h298now;
-        double h = mnp_low.reportHf298(0);
+        double h = mnp_low.reportHf298();
         double hnew = h + delH;
         mnp_low.modifyOneHf298(k, hnew);
-        h = mnp_high.reportHf298(0);
+        h = mnp_high.reportHf298();
         hnew = h + delH;
         mnp_high.modifyOneHf298(k, hnew);
     }

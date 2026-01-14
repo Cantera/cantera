@@ -617,7 +617,7 @@ void PlasmaPhase::updateThermo() const
     // properties were computed, recompute them.
     if (cached.state1 != tempNow || cached.state2 != electronTempNow) {
         m_spthermo.update_single(k, electronTemperature(),
-                &m_cp0_R[k], &m_h0_RT[k], &m_s0_R[k]);
+                m_cp0_R[k], m_h0_RT[k], m_s0_R[k]);
         cached.state1 = tempNow;
         cached.state2 = electronTempNow;
     }

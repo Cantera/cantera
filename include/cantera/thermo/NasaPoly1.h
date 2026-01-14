@@ -57,20 +57,20 @@ public:
      * @param coeffs  Vector of coefficients used to set the parameters for the
      *                standard state, in the order [a0,a1,a2,a3,a4,a5,a6]
      */
-    NasaPoly1(double tlow, double thigh, double pref, const double* coeffs)
+    NasaPoly1(double tlow, double thigh, double pref, span<const double> coeffs)
         : SpeciesThermoInterpType(tlow, thigh, pref)
-        , m_coeff(coeffs, coeffs+7)
+        , m_coeff(coeffs.begin(), coeffs.end())
     {
         m_coeff5_orig = m_coeff[5];
     }
 
     //! Set array of 7 polynomial coefficients
-    void setParameters(const vector<double>& coeffs) {
+    void setParameters(span<const double> coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("NasaPoly1::setParameters", "Array must contain "
                 "7 coefficients, but {} were given.", coeffs.size());
         }
-        m_coeff = coeffs;
+        m_coeff.assign(coeffs.begin(), coeffs.end());
         m_coeff5_orig = m_coeff[5];
     }
 
@@ -80,7 +80,7 @@ public:
 
     size_t temperaturePolySize() const override { return 6; }
 
-    void updateTemperaturePoly(double T, double* T_poly) const override {
+    void updateTemperaturePoly(double T, span<double> T_poly) const override {
         T_poly[0] = T;
         T_poly[1] = T * T;
         T_poly[2] = T_poly[1] * T;
@@ -100,8 +100,8 @@ public:
      *  tt[4] = 1.0/t;
      *  tt[5] = std::log(t);
      */
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override {
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override {
         double ct0 = m_coeff[0]; // a0
         double ct1 = m_coeff[1]*tt[0]; // a1 * T
         double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
@@ -116,26 +116,26 @@ public:
             +0.25*ct4 + m_coeff[6]; // last term is a6
 
         // return the computed properties for this species
-        *cp_R = cp;
-        *h_RT = h;
-        *s_R = s;
+        cp_R = cp;
+        h_RT = h;
+        s_R = s;
     }
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override {
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override {
+                          double& pref, span<double> coeffs) const override {
         n = 0;
         type = NASA1;
         tlow = m_lowT;
         thigh = m_highT;
         pref = m_Pref;
-        std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
+        std::copy(m_coeff.begin(), m_coeff.end(), coeffs.begin());
     }
 
     void getParameters(AnyMap& thermo) const override {
@@ -144,7 +144,7 @@ public:
         thermo["data"].asVector<vector<double>>().push_back(m_coeff);
     }
 
-    double reportHf298(double* const h298=nullptr) const override {
+    double reportHf298(span<double> h298={}) const override {
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
@@ -158,14 +158,14 @@ public:
                       + m_coeff[5]*tt[4]; // last t
 
         double h = h_RT * GasConstant * temp;
-        if (h298) {
-            *h298 = h;
+        if (!h298.empty()) {
+            h298[0] = h;
         }
         return h;
     }
 
     void modifyOneHf298(const size_t k, const double Hf298New) override {
-        double hcurr = reportHf298(0);
+        double hcurr = reportHf298();
         double delH = Hf298New - hcurr;
         m_coeff[5] += (delH) / GasConstant;
     }

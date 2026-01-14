@@ -20,7 +20,7 @@ ConstCpPoly::ConstCpPoly()
 }
 
 ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
-                         const double* coeffs) :
+                         span<const double> coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref)
 {
     setParameters(coeffs[0], coeffs[1], coeffs[2], coeffs[3]);
@@ -35,33 +35,29 @@ void ConstCpPoly::setParameters(double t0, double h0, double s0, double cp0)
     m_s0_R = s0 / GasConstant;
 }
 
-void ConstCpPoly::updateProperties(const double* tt,
-                                   double* cp_R,
-                                   double* h_RT,
-                                   double* s_R) const
+void ConstCpPoly::updateProperties(span<const double> tt, double& cp_R,
+                                   double& h_RT, double& s_R) const
 {
-    double t = *tt;
+    double t = tt[0];
     double logt = log(t);
     double rt = 1.0/t;
-    *cp_R = m_cp0_R;
-    *h_RT = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
-    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
+    cp_R = m_cp0_R;
+    h_RT = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
+    s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
-void ConstCpPoly::updatePropertiesTemp(const double temp,
-                                       double* cp_R,
-                                       double* h_RT,
-                                       double* s_R) const
+void ConstCpPoly::updatePropertiesTemp(const double temp, double& cp_R,
+                                       double& h_RT, double& s_R) const
 {
     double logt = log(temp);
     double rt = 1.0/temp;
-    *cp_R = m_cp0_R;
-    *h_RT = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
-    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
+    cp_R = m_cp0_R;
+    h_RT = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
+    s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
 void ConstCpPoly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                   double& pref, double* const coeffs) const
+                                   double& pref, span<double> coeffs) const
 {
     n = 0;
     type = CONSTANT_CP;
@@ -84,12 +80,12 @@ void ConstCpPoly::getParameters(AnyMap& thermo) const
     thermo["cp0"].setQuantity(m_cp0_R * GasConstant, "J/kmol/K");
 }
 
-double ConstCpPoly::reportHf298(double* const h298) const
+double ConstCpPoly::reportHf298(span<double> h298) const
 {
     double temp = 298.15;
     double h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
-    if (h298) {
-        *h298 = h;
+    if (!h298.empty()) {
+        h298[0] = h;
     }
     return h;
 }

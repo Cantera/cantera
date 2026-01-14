@@ -94,7 +94,7 @@ public:
      *            - coeffs[7] = @f$ \mu^o(T_3) @f$ (J/kmol)
      *            - ........
      */
-    Mu0Poly(double tlow, double thigh, double pref, const double* coeffs);
+    Mu0Poly(double tlow, double thigh, double pref, span<const double> coeffs);
 
     //! Set parameters for @f$ \mu^o(T) @f$
     /*!
@@ -118,16 +118,16 @@ public:
      * Temperature Polynomial:
      *     tt[0] = temp (Kelvin)
      */
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override;
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override;
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override;
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override;
 
     size_t nCoeffs() const override;
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override;
+                          double& pref, span<double> coeffs) const override;
 
     void getParameters(AnyMap& thermo) const override;
 

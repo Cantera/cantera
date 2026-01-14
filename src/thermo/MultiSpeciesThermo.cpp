@@ -82,8 +82,8 @@ void MultiSpeciesThermo::modifySpecies(size_t index,
     m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
 }
 
-void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,
-                                       double* h_RT, double* s_R) const
+void MultiSpeciesThermo::update_single(size_t k, double t, double& cp_R,
+                                       double& h_RT, double& s_R) const
 {
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     if (sp_ptr) {
@@ -91,16 +91,17 @@ void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,
     }
 }
 
-void MultiSpeciesThermo::update(double t, double* cp_R, double* h_RT, double* s_R) const
+void MultiSpeciesThermo::update(double t, span<double> cp_R, span<double> h_RT,
+                                span<double> s_R) const
 {
     auto iter = m_sp.begin();
     auto jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
         const vector<index_STIT>& species = iter->second;
-        double* tpoly = &jter->second[0];
+        span<double> tpoly(jter->second);
         species[0].second->updateTemperaturePoly(t, tpoly);
         for (auto& [i, spthermo] : species) {
-            spthermo->updateProperties(tpoly, cp_R+i, h_RT+i, s_R+i);
+            spthermo->updateProperties(tpoly, cp_R[i], h_RT[i], s_R[i]);
         }
     }
 }
@@ -114,14 +115,14 @@ int MultiSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-void MultiSpeciesThermo::reportParams(size_t index, int& type, double* const c,
+void MultiSpeciesThermo::reportParams(size_t index, int& type, span<double> c,
         double& minTemp_, double& maxTemp_, double& refPressure_) const
 {
     const SpeciesThermoInterpType* sp = provideSTIT(index);
     size_t n;
     if (sp) {
         sp->reportParameters(n, type, minTemp_, maxTemp_,
-                             refPressure_, c);
+                             refPressure_, c.first(sp->nCoeffs()));
     } else {
         type = -1;
     }
@@ -179,7 +180,7 @@ double MultiSpeciesThermo::reportOneHf298(const size_t k) const
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     double h = -1.0;
     if (sp_ptr) {
-        h = sp_ptr->reportHf298(0);
+        h = sp_ptr->reportHf298();
     }
     return h;
 }

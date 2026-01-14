@@ -71,7 +71,7 @@ public:
      *  See the class description for the polynomial representation of the
      *  thermo functions in terms of @f$ A, \dots, G @f$.
      */
-    ShomatePoly(double tlow, double thigh, double pref, const double* coeffs) :
+    ShomatePoly(double tlow, double thigh, double pref, span<const double> coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_coeff(7)
     {
@@ -83,7 +83,7 @@ public:
 
     //! Set array of 7 polynomial coefficients. Input values are assumed to be
     //! on a kJ/mol basis.
-    void setParameters(const vector<double>& coeffs) {
+    void setParameters(const span<const double> coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("ShomatePoly::setParameters", "Array must "
                 "contain 7 coefficients, but {} were given.", coeffs.size());
@@ -242,11 +242,11 @@ public:
      * @param coeffs  Vector of coefficients used to set the parameters for the
      *                standard state. [Tmid, 7 low-T coeffs, 7 high-T coeffs]
      */
-    ShomatePoly2(double tlow, double thigh, double pref, const double* coeffs) :
+    ShomatePoly2(double tlow, double thigh, double pref, span<const double> coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
-        msp_low(tlow, coeffs[0], pref, coeffs+1),
-        msp_high(coeffs[0], thigh, pref, coeffs+8)
+        msp_low(tlow, coeffs[0], pref, coeffs.subspan(1, 7)),
+        msp_high(coeffs[0], thigh, pref, coeffs.subspan(8, 7))
     {
     }
 
@@ -272,7 +272,7 @@ public:
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high) {
+    void setParameters(double Tmid, span<const double> low, span<const double> high) {
         m_midT = Tmid;
         msp_low.setMaxTemp(Tmid);
         msp_high.setMinTemp(Tmid);

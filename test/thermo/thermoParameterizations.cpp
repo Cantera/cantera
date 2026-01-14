@@ -126,11 +126,11 @@ TEST(Shomate, modifyOneHf298)
     double Htest = -400e6;
     S.modifyOneHf298(npos, Htest);
     double cp, h, s;
-    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    S.updatePropertiesTemp(298.15, cp, h, s);
     EXPECT_DOUBLE_EQ(Htest, h * 298.15 * GasConstant);
     EXPECT_DOUBLE_EQ(Htest, S.reportHf298());
     S.resetHf298();
-    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    S.updatePropertiesTemp(298.15, cp, h, s);
     EXPECT_DOUBLE_EQ(hf, h * 298.15 * GasConstant);
 }
 
@@ -147,7 +147,7 @@ TEST(SpeciesThermo, NasaPoly2FromYaml1) {
     double cp_R, h_RT, s_R;
     auto st = newSpeciesThermo(data);
     st->validate("NO2");
-    st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(300, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
     EXPECT_DOUBLE_EQ(cp_R, 4.47823303484);
     EXPECT_DOUBLE_EQ(h_RT, 13.735827875868003);
@@ -167,7 +167,7 @@ TEST(SpeciesThermo, NasaPoly2FromYaml2) {
     auto st = newSpeciesThermo(data);
     st->validate("NO2");
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
-    st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(300, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(st->maxTemp(), 1000);
     EXPECT_DOUBLE_EQ(cp_R, 4.47823303484);
     EXPECT_DOUBLE_EQ(h_RT, 13.735827875868003);
@@ -184,7 +184,7 @@ TEST(SpeciesThermo, Shomate2FromYaml1) {
     double cp_R, h_RT, s_R;
     auto st = newSpeciesThermo(data);
     st->validate("CO");
-    st->updatePropertiesTemp(1500, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(1500, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
     EXPECT_DOUBLE_EQ(cp_R, 4.2365020788908732);
     EXPECT_DOUBLE_EQ(h_RT, -5.747000804338211);
@@ -209,7 +209,7 @@ TEST(SpeciesThermo, Nasa9PolyFromYaml) {
     double cp_R, h_RT, s_R;
     auto st = newSpeciesThermo(data);
     EXPECT_DOUBLE_EQ(st->refPressure(), 1e5);
-    st->updatePropertiesTemp(2000, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(2000, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(cp_R, 4.326181187976);
     EXPECT_DOUBLE_EQ(h_RT, 3.3757914517886856);
     EXPECT_DOUBLE_EQ(s_R, 30.31743870437559);
@@ -226,7 +226,7 @@ TEST(SpeciesThermo, ConstCpPolyFromYaml) {
         "T-max: 2000 K\n");
     double cp_R, h_RT, s_R;
     auto st = newSpeciesThermo(data);
-    st->updatePropertiesTemp(1100, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(1100, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(cp_R * GasConst_cal_mol_K, 5.95);
     EXPECT_DOUBLE_EQ(h_RT * GasConst_cal_mol_K * 1100, 9.22e3 + 100 * 5.95);
     EXPECT_DOUBLE_EQ(s_R * GasConst_cal_mol_K, -3.02 + 5.95 * log(1100.0/1000.0));
@@ -243,7 +243,7 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
         " T-min: 273.15, T-max: 350 K}");
     auto st = newSpeciesThermo(data);
     double cp_R, h_RT, s_R;
-    st->updatePropertiesTemp(310, &cp_R, &h_RT, &s_R);
+    st->updatePropertiesTemp(310, cp_R, h_RT, s_R);
     EXPECT_DOUBLE_EQ(cp_R, -11226.315743743922);
     EXPECT_DOUBLE_EQ(h_RT, -774.43302435932878);
     EXPECT_DOUBLE_EQ(s_R, -433.36374417010006);
@@ -259,8 +259,8 @@ TEST(SpeciesThermo, NasaPoly2ToYaml) {
     auto duplicate = newSpeciesThermo(h2o_data2);
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {500, 900, 1300, 2100}) {
-        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
-        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        original->updatePropertiesTemp(T, cp1, h1, s1);
+        duplicate->updatePropertiesTemp(T, cp2, h2, s2);
         EXPECT_DOUBLE_EQ(cp1, cp2);
         EXPECT_DOUBLE_EQ(h1, h2);
         EXPECT_DOUBLE_EQ(s1, s2);
@@ -276,8 +276,8 @@ TEST(SpeciesThermo, ShomatePolyToYaml) {
     auto duplicate = newSpeciesThermo(co2_data2);
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {500, 900, 1300, 2100}) {
-        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
-        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        original->updatePropertiesTemp(T, cp1, h1, s1);
+        duplicate->updatePropertiesTemp(T, cp2, h2, s2);
         EXPECT_DOUBLE_EQ(cp1, cp2);
         EXPECT_DOUBLE_EQ(h1, h2);
         EXPECT_DOUBLE_EQ(s1, s2);
@@ -293,8 +293,8 @@ TEST(SpeciesThermo, ConstCpToYaml) {
     auto duplicate = newSpeciesThermo(h2o_data2);
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {300, 500, 900}) {
-        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
-        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        original->updatePropertiesTemp(T, cp1, h1, s1);
+        duplicate->updatePropertiesTemp(T, cp2, h2, s2);
         EXPECT_DOUBLE_EQ(cp1, cp2);
         EXPECT_DOUBLE_EQ(h1, h2);
         EXPECT_DOUBLE_EQ(s1, s2);
@@ -310,8 +310,8 @@ TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
     auto duplicate = newSpeciesThermo(AnyMap::fromYamlString(oh_data.toYamlString()));
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {274, 300, 330, 340}) {
-        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
-        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        original->updatePropertiesTemp(T, cp1, h1, s1);
+        duplicate->updatePropertiesTemp(T, cp2, h2, s2);
         EXPECT_DOUBLE_EQ(cp1, cp2) << T;
         EXPECT_DOUBLE_EQ(h1, h2) << T;
         EXPECT_DOUBLE_EQ(s1, s2) << T;
@@ -327,8 +327,8 @@ TEST(SpeciesThermo, Nasa9PolyToYaml) {
     auto duplicate = newSpeciesThermo(n2p_data2);
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {300, 900, 1500, 7000}) {
-        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
-        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        original->updatePropertiesTemp(T, cp1, h1, s1);
+        duplicate->updatePropertiesTemp(T, cp2, h2, s2);
         EXPECT_DOUBLE_EQ(cp1, cp2);
         EXPECT_DOUBLE_EQ(h1, h2);
         EXPECT_DOUBLE_EQ(s1, s2);
