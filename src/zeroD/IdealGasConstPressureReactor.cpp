@@ -64,7 +64,8 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     auto Y = m_thermo->massFractions();
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
+
+    m_thermo->getPartialMolarEnthalpies(m_hk);
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

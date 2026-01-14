@@ -4,6 +4,7 @@
 import numpy as np
 
 from .solutionbase cimport *
+from .ctcxx cimport span
 from .thermo cimport *
 from ._utils cimport *
 
@@ -284,7 +285,8 @@ cdef class Mixture:
         """The chemical potentials of all species [J/kmol]."""
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            self.mix.getChemPotentials(&data[0])
+            cdef span[double] view = span[double](&data[0], <size_t>self.n_species)
+            self.mix.getChemPotentials(view)
             return data
 
     def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=1000,

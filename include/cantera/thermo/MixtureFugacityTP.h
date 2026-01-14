@@ -134,7 +134,7 @@ public:
      * @param mu   Output vector of standard state chemical potentials.
      *             length = m_kk. units are J / kmol.
      */
-    void getStandardChemPotentials(double* mu) const override;
+    void getStandardChemPotentials(span<double> mu) const override;
 
     //! Get the nondimensional Enthalpy functions for the species at their
     //! standard states at the current *T* and *P* of the solution.
@@ -146,7 +146,7 @@ public:
     * @param hrt     Output vector of standard state enthalpies.
     *                length = m_kk. units are unitless.
     */
-    void getEnthalpy_RT(double* hrt) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
     //! state species at the current *T* and *P* of the solution.
@@ -158,7 +158,7 @@ public:
      * @param sr     Output vector of nondimensional standard state entropies.
      *               length = m_kk.
      */
-    void getEntropy_R(double* sr) const override;
+    void getEntropy_R(span<double> sr) const override;
 
     //! Get the nondimensional Gibbs functions for the species at their standard
     //! states of solution at the current T and P of the solution.
@@ -170,7 +170,7 @@ public:
      * @param grt    Output vector of nondimensional standard state Gibbs free
      *               energies. length = m_kk.
      */
-    void getGibbs_RT(double* grt) const override;
+    void getGibbs_RT(span<double> grt) const override;
 
     //! Returns the vector of nondimensional internal Energies of the standard
     //! state at the current temperature and pressure of the solution for each
@@ -187,7 +187,7 @@ public:
      * @param urt    Output vector of nondimensional standard state internal
      *               energies. length = m_kk.
      */
-    void getIntEnergy_RT(double* urt) const override;
+    void getIntEnergy_RT(span<double> urt) const override;
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
     //! standard state of the species at the current T and P.
@@ -200,7 +200,7 @@ public:
      *               Capacities at constant pressure for the standard state of
      *               the species. Length: m_kk.
      */
-    void getCp_R(double* cpr) const override;
+    void getCp_R(span<double> cpr) const override;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
@@ -214,7 +214,7 @@ public:
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    void getStandardVolumes(double* vol) const override;
+    void getStandardVolumes(span<double> vol) const override;
     //! @}
 
     //! Set the temperature of the phase
@@ -266,8 +266,8 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
 
 protected:
     //! Returns the vector of nondimensional Gibbs free energies of the
@@ -281,10 +281,10 @@ protected:
     const vector<double>& gibbs_RT_ref() const;
 
 public:
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getCp_R_ref(double* cprt) const override;
-    void getStandardVolumes_ref(double* vol) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getCp_R_ref(span<double> cprt) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
     //! @name Initialization Methods - For Internal use
@@ -425,7 +425,7 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     double satPressure(double TKelvin) override;
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
 protected:
     //! Calculate the pressure and the pressure derivative given the temperature

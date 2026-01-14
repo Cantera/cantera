@@ -508,7 +508,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getChemPotentials(murt);
+            thrm->getChemPotentials(span<double>(murt, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -606,7 +606,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getEnthalpy_RT(h_rt);
+            thrm->getEnthalpy_RT(span<double>(h_rt, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -616,7 +616,7 @@ extern "C" {
     status_t th_getgibbs_rt_(const integer* n, double* g_rt) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getGibbs_RT(g_rt);
+        thrm->getGibbs_RT(span<double>(g_rt, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }
@@ -627,7 +627,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getEntropy_R(s_r);
+            thrm->getEntropy_R(span<double>(s_r, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -638,7 +638,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getCp_R(cp_r);
+            thrm->getCp_R(span<double>(cp_r, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -649,7 +649,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getPartialMolarIntEnergies(ie);
+            thrm->getPartialMolarIntEnergies(span<double>(ie, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -659,7 +659,7 @@ extern "C" {
     status_t th_getpartialmolarenthalpies_(const integer* n, double* hbar) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getPartialMolarEnthalpies(hbar);
+        thrm->getPartialMolarEnthalpies(span<double>(hbar, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }
@@ -669,7 +669,7 @@ extern "C" {
     status_t th_getpartialmolarcp_(const integer* n, double* cpbar) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getPartialMolarCp(cpbar);
+        thrm->getPartialMolarCp(span<double>(cpbar, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }

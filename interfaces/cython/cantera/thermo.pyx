@@ -613,16 +613,15 @@ cdef class ThermoPhase(_SolutionBase):
 
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
         cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-        cdef span[double] view = span[double](<double*>&data[0], <size_t>self.n_species)
-        method(self.thermo, view)
+        method(self.thermo, span[double](&data[0], data.size))
         if self._selected_species.size:
             return data[self._selected_species]
         else:
             return data
 
-    cdef void _setArray1(self, thermoMethod1d_const method, values) except *:
+    cdef void _setArray1(self, thermoMethod1d method, values) except *:
         cdef np.ndarray[np.double_t, ndim=1] data
-        cdef span[const_double] view
+        cdef span[double] view
 
         values = np.squeeze(values)
         if values.ndim == 0:
@@ -639,8 +638,7 @@ cdef class ThermoPhase(_SolutionBase):
             if len(self._selected_species):
                 msg += ' or {}'.format(len(self._selected_species))
             raise ValueError('Array has incorrect length. ' + msg + '.')
-        view = span[const_double](<const double*>&data[0], <size_t>self.n_species)
-        method(self.thermo, view)
+        method(self.thermo, span[double](&data[0], data.size))
 
     property molecular_weights:
         """Array of species molecular weights (molar masses) [kg/kmol]."""
@@ -783,7 +781,9 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] ox_comp = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setEquivalenceRatio(phi, &fuel_comp[0], &ox_comp[0],
+        cdef span[double] fuel_view = span[double](&fuel_comp[0], fuel_comp.size)
+        cdef span[double] ox_view = span[double](&ox_comp[0], ox_comp.size)
+        self.thermo.setEquivalenceRatio(phi, fuel_view, ox_view,
                                         ThermoBasis.mass if basis == "mass"
                                                          else ThermoBasis.molar)
 
@@ -910,7 +910,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setMixtureFraction(mixture_fraction, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        self.thermo.setMixtureFraction(mixture_fraction, fuel_view, ox_view,
+            ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
     def equivalence_ratio(self, fuel=None, oxidizer=None, basis="mole",
                           include_species=None):
@@ -977,9 +980,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        phi = self.thermo.equivalenceRatio(&f[0], &o[0],
-                                           ThermoBasis.mass if basis=="mass"
-                                                            else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        phi = self.thermo.equivalenceRatio(fuel_view, ox_view,
+            ThermoBasis.mass if basis == "mass" else ThermoBasis.molar)
         if include_species is not None:
             self.TPY = T_orig, P_orig, Y_orig
         return phi
@@ -1044,7 +1048,12 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             e_name = self.element_name(self.element_index(element))
 
-        return self.thermo.mixtureFraction(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar, stringify(e_name))
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        return self.thermo.mixtureFraction(
+            fuel_view, ox_view,
+            ThermoBasis.mass if basis=='mass' else ThermoBasis.molar,
+            stringify(e_name))
 
     def stoich_air_fuel_ratio(self, fuel, oxidizer, basis='mole'):
         """
@@ -1073,7 +1082,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        return self.thermo.stoichAirFuelRatio(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        return self.thermo.stoichAirFuelRatio(fuel_view, ox_view,
+            ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
 
     def elemental_mass_fraction(self, m):
         r"""

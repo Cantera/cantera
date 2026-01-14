@@ -4,7 +4,8 @@
 #ifndef CT_EIGEN_DENSE_H
 #define CT_EIGEN_DENSE_H
 
-#include "cantera/base/config.h"
+#include "cantera/base/ct_defs.h"
+
 #if CT_USE_SYSTEM_EIGEN
     #if CT_USE_SYSTEM_EIGEN_PREFIXED
     #include <eigen3/Eigen/Dense>
@@ -29,6 +30,12 @@ typedef Eigen::Map<Eigen::RowVectorXd> MappedRowVector;
 typedef Eigen::Map<const Eigen::RowVectorXd> ConstMappedRowVector;
 
 //! @}
+
+//! Convenience wrapper for accessing Eigen VectorXd data as a span
+//! @todo Remove once %Cantera requires Eigen 5.0 or newer.
+inline span<double> asSpan(Eigen::VectorXd& v) {
+    return span<double>(v.data(), v.size());
+}
 
 }
 

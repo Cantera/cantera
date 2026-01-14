@@ -153,7 +153,7 @@ public:
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -184,16 +184,16 @@ public:
      * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    void getStandardChemPotentials(double* mu0) const override;
+    void getStandardChemPotentials(span<double> mu0) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getGibbs_RT(double* grt) const override;
-    void getCp_R(double* cpr) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getGibbs_RT(span<double> grt) const override;
+    void getCp_R(span<double> cpr) const override;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
     //! state species at the current *T* and *P* of the solution
@@ -207,7 +207,7 @@ public:
      * @param urt  output vector of nondimensional standard state
      *             internal energies of the species. Length: m_kk.
      */
-    void getIntEnergy_RT(double* urt) const override;
+    void getIntEnergy_RT(span<double> urt) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -220,7 +220,7 @@ public:
      * @param urt    Output vector of nondimensional reference state internal
      *               energies of the species. Length: m_kk
      */
-    void getIntEnergy_RT_ref(double* urt) const override;
+    void getIntEnergy_RT_ref(span<double> urt) const override;
     //! @}
 
     void initThermo() override;

@@ -234,13 +234,14 @@ double MultiPhase::phaseCharge(size_t p) const
     return Faraday*phasesum*m_moles[p];
 }
 
-void MultiPhase::getChemPotentials(double* mu) const
+void MultiPhase::getChemPotentials(span<double> mu) const
 {
     updatePhases();
     size_t loc = 0;
     for (size_t i = 0; i < nPhases(); i++) {
-        m_phase[i]->getChemPotentials(mu + loc);
-        loc += m_phase[i]->nSpecies();
+        size_t nsp = m_phase[i]->nSpecies();
+        m_phase[i]->getChemPotentials(mu.subspan(loc, nsp));
+        loc += nsp;
     }
 }
 
@@ -252,9 +253,11 @@ void MultiPhase::getValidChemPotentials(double not_mu, double* mu, bool standard
     for (size_t i = 0; i < nPhases(); i++) {
         if (tempOK(i) || m_phase[i]->nSpecies() > 1) {
             if (!standard) {
-                m_phase[i]->getChemPotentials(mu + loc);
+                m_phase[i]->getChemPotentials(
+                    span<double>(mu + loc, m_phase[i]->nSpecies()));
             } else {
-                m_phase[i]->getStandardChemPotentials(mu + loc);
+                m_phase[i]->getStandardChemPotentials(
+                    span<double>(mu + loc, m_phase[i]->nSpecies()));
             }
         } else {
             fill(mu + loc, mu + loc + m_phase[i]->nSpecies(), not_mu);
@@ -338,7 +341,7 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, const double* const x)
         init();
     }
     ThermoPhase* p = m_phase[n];
-    p->setState_TPX(m_temp, m_press, x);
+    p->setState_TPX(m_temp, m_press, span<const double>(x, p->nSpecies()));
     size_t istart = m_spstart[n];
     for (size_t k = 0; k < p->nSpecies(); k++) {
         m_moleFractions[istart+k] = x[k];
@@ -395,7 +398,7 @@ void MultiPhase::setMoles(const double* n)
         m_moles[ip] = phasemoles;
         if (nsp > 1) {
             if (phasemoles > 0.0) {
-                p->setState_TPX(m_temp, m_press, n + loc);
+                p->setState_TPX(m_temp, m_press, span<const double>(n + loc, nsp));
                 p->getMoleFractions(span<double>(&m_moleFractions[loc], nsp));
             } else {
                 p->getMoleFractions(span<double>(&m_moleFractions[loc], nsp));
@@ -847,8 +850,10 @@ void MultiPhase::updatePhases() const
 {
     size_t loc = 0;
     for (size_t p = 0; p < nPhases(); p++) {
-        m_phase[p]->setState_TPX(m_temp, m_press, m_moleFractions.data() + loc);
-        loc += m_phase[p]->nSpecies();
+        size_t nsp = m_phase[p]->nSpecies();
+        span<const double> X(m_moleFractions.data() + loc, nsp);
+        m_phase[p]->setState_TPX(m_temp, m_press, X);
+        loc += nsp;
         m_temp_OK[p] = true;
         if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {
             m_temp_OK[p] = false;

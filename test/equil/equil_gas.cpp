@@ -40,7 +40,7 @@ TEST_F(OverconstrainedEquil, ChemEquil)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -51,7 +51,7 @@ TEST_F(OverconstrainedEquil, VcsNonideal)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -62,7 +62,7 @@ TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -144,7 +144,7 @@ public:
         }
 
         vector<double> mu(gas.nSpecies());
-        gas.getChemPotentials(&mu[0]);
+        gas.getChemPotentials(mu);
         double mu_C = mu[gas.speciesIndex("C")];
         double mu_H = mu[gas.speciesIndex("H")];
         double mu_O = mu[gas.speciesIndex("O")];

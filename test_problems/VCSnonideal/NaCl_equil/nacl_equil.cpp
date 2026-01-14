@@ -87,7 +87,7 @@ int main(int argc, char** argv)
         vector<double> Xmol(kk, 0.0);
         size_t iH2OL = hmw->speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
-        hmw->setState_TPX(T, pres, Xmol.data());
+        hmw->setState_TPX(T, pres, Xmol);
 
         auto gas = newThermo("NaCl_gas.yaml");
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
         }
         size_t iN2 = gas->speciesIndex("N2");
         Xmol[iN2] = 1.0;
-        gas->setState_TPX(T, pres, Xmol.data());
+        gas->setState_TPX(T, pres, Xmol);
 
 
         auto ss = make_unique<StoichSubstance>("NaCl_Solid.yaml");

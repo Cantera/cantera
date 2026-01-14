@@ -61,7 +61,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
+    m_thermo->getPartialMolarIntEnergies(m_uk);
     auto mw = m_thermo->molecularWeights();
     auto Y = m_thermo->massFractions();
 
