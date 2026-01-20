@@ -1840,10 +1840,9 @@ cdef class ThermoPhase(_SolutionBase):
             np.ascontiguousarray(levels, dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] data_dist = \
             np.ascontiguousarray(distribution, dtype=np.double)
-
-        self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
-                                                     &data_dist[0],
-                                                     len(levels))
+        self.plasma.setDiscretizedElectronEnergyDist(
+            span[double](&data_levels[0], data_levels.size),
+            span[double](&data_dist[0], data_dist.size))
 
     def update_electron_energy_distribution(self):
         """
@@ -1871,14 +1870,14 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyLevels(&data[0])
+            self.plasma.getElectronEnergyLevels(span[double](&data[0], data.size))
             return data
         def __set__(self, levels):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(levels, dtype=np.double)
-            self.plasma.setElectronEnergyLevels(&data[0], len(levels))
+            self.plasma.setElectronEnergyLevels(span[double](&data[0], data.size))
 
     property electron_energy_distribution:
         """ Electron energy distribution """
@@ -1887,7 +1886,7 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyDistribution(&data[0])
+            self.plasma.getElectronEnergyDistribution(span[double](&data[0], data.size))
             return data
 
     property isotropic_shape_factor:
@@ -1994,7 +1993,7 @@ cdef class InterfacePhase(ThermoPhase):
         """Get/Set the fraction of sites covered by each species."""
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            self.surf.getCoverages(&data[0])
+            self.surf.getCoverages(span[double](&data[0], data.size))
             if self._selected_species.size:
                 return data[self._selected_species]
             else:
@@ -2010,7 +2009,7 @@ cdef class InterfacePhase(ThermoPhase):
                     " Got {}, expected {}".format(len(theta), self.n_species))
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
-            self.surf.setCoverages(&data[0])
+            self.surf.setCoverages(span[double](&data[0], data.size))
 
     def set_unnormalized_coverages(self, cov):
         """
@@ -2024,7 +2023,7 @@ cdef class InterfacePhase(ThermoPhase):
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(cov), self.n_species))
-        self.surf.setCoveragesNoNorm(&data[0])
+        self.surf.setCoveragesNoNorm(span[double](&data[0], data.size))
 
 
 cdef class PureFluid(ThermoPhase):

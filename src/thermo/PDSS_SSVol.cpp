@@ -18,14 +18,14 @@ PDSS_SSVol::PDSS_SSVol()
 {
 }
 
-void PDSS_SSVol::setVolumePolynomial(double* coeffs) {
+void PDSS_SSVol::setVolumePolynomial(span<const double> coeffs) {
     for (size_t i = 0; i < 4; i++) {
         TCoeff_[i] = coeffs[i];
     }
     volumeModel_ = SSVolume_Model::tpoly;
 }
 
-void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
+void PDSS_SSVol::setDensityPolynomial(span<const double> coeffs) {
     for (size_t i = 0; i < 4; i++) {
         TCoeff_[i] = coeffs[i];
     }
@@ -59,7 +59,7 @@ void PDSS_SSVol::initThermo()
         const string& model = m_input["model"].asString();
         auto& data = m_input["data"].asVector<AnyValue>(4);
         if (model == "density-temperature-polynomial") {
-            double coeffs[] {
+            std::array coeffs{
                 m_input.units().convert(data[0], "kg/m^3"),
                 m_input.units().convert(data[1], "kg/m^3/K"),
                 m_input.units().convert(data[2], "kg/m^3/K^2"),
@@ -67,7 +67,7 @@ void PDSS_SSVol::initThermo()
             };
             setDensityPolynomial(coeffs);
         } else if (model == "molar-volume-temperature-polynomial") {
-            double coeffs[] {
+            std::array coeffs{
                 m_input.units().convert(data[0], "m^3/kmol"),
                 m_input.units().convert(data[1], "m^3/kmol/K"),
                 m_input.units().convert(data[2], "m^3/kmol/K^2"),

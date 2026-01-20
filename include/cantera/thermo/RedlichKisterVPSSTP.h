@@ -331,7 +331,7 @@ public:
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
      *                         the log Activity Coefficients. length = m_kk
      */
-    void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
+    void getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const;
 
     void getdlnActCoeffdT(span<double> dlnActCoeffdT) const override;
 
@@ -350,13 +350,10 @@ public:
      * @param speciesA         name of the first species
      * @param speciesB         name of the second species
      * @param excess_enthalpy  coefficients of the excess enthalpy polynomial
-     * @param n_enthalpy       number of excess enthalpy polynomial coefficients
      * @param excess_entropy   coefficients of the excess entropy polynomial
-     * @param n_entropy        number of excess entropy polynomial coefficients
      */
     void addBinaryInteraction(const string& speciesA, const string& speciesB,
-        const double* excess_enthalpy, size_t n_enthalpy,
-        const double* excess_entropy, size_t n_entropy);
+        span<const double> excess_enthalpy, span<const double> excess_entropy);
 
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{

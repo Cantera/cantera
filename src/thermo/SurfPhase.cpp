@@ -189,7 +189,7 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
         m_logsize.push_back(log(spec->size));
         if (m_kk == 1) {
             vector<double> cov{1.0};
-            setCoverages(cov.data());
+            setCoverages({cov});
         }
     }
     return added;
@@ -206,7 +206,7 @@ void SurfPhase::setSiteDensity(double n0)
     compositionChanged(); // trigger update of density
 }
 
-void SurfPhase::setCoverages(const double* theta)
+void SurfPhase::setCoverages(span<const double> theta)
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -222,7 +222,7 @@ void SurfPhase::setCoverages(const double* theta)
     setMoleFractions(m_work);
 }
 
-void SurfPhase::setCoveragesNoNorm(const double* theta)
+void SurfPhase::setCoveragesNoNorm(span<const double> theta)
 {
     double sum = 0.0;
     double sum2 = 0.0;
@@ -240,11 +240,11 @@ void SurfPhase::setCoveragesNoNorm(const double* theta)
     setMoleFractions_NoNorm(m_work);
 }
 
-void SurfPhase::getCoverages(double* theta) const
+void SurfPhase::getCoverages(span<double> theta) const
 {
     double sum_X = 0.0;
     double sum_X_s = 0.0;
-    getMoleFractions(span<double>(theta, m_kk));
+    getMoleFractions(theta);
     for (size_t k = 0; k < m_kk; k++) {
         sum_X += theta[k];
         sum_X_s += theta[k] * size(k);
@@ -274,7 +274,7 @@ void SurfPhase::setCoveragesByName(const Composition& cov)
         throw CanteraError("SurfPhase::setCoveragesByName",
                            "Input coverages are all zero or negative");
     }
-    setCoverages(cv.data());
+    setCoverages(cv);
 }
 
 void SurfPhase::setState(const AnyMap& state) {

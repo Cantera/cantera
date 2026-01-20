@@ -319,7 +319,7 @@ public:
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
      *                         the log Activity Coefficients. length = m_kk
      */
-    void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
+    void getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const;
 
     void getdlnActCoeffdT(span<double> dlnActCoeffdT) const override;
 

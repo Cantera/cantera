@@ -89,7 +89,7 @@ void ImplicitSurfChem::getState(double* c)
 {
     size_t loc = 0;
     for (size_t n = 0; n < m_surf.size(); n++) {
-        m_surf[n]->getCoverages(c + loc);
+        m_surf[n]->getCoverages(span<double>(c + loc, m_nsp[n]));
         loc += m_nsp[n];
     }
 }
@@ -151,7 +151,7 @@ void ImplicitSurfChem::updateState(double* c)
 {
     size_t loc = 0;
     for (size_t n = 0; n < m_surf.size(); n++) {
-        m_surf[n]->setCoverages(c + loc);
+        m_surf[n]->setCoverages(span<const double>(c + loc, m_nsp[n]));
         loc += m_nsp[n];
     }
 }

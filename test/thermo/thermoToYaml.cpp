@@ -521,8 +521,8 @@ TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
     vector<double> origDist(origPlasma->nElectronEnergyLevels());
     vector<double> duplDist(duplPlasma->nElectronEnergyLevels());
-    origPlasma->getElectronEnergyLevels(origDist.data());
-    duplPlasma->getElectronEnergyLevels(duplDist.data());
+    origPlasma->getElectronEnergyLevels(origDist);
+    duplPlasma->getElectronEnergyLevels(duplDist);
     EXPECT_DOUBLE_EQ(origDist[2], duplDist[2]);
 }
 

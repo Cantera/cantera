@@ -62,7 +62,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
         changed = true;
     }
     if (changed || mf != m_state_mf_number) {
-        surf.getCoverages(coverages.data());
+        surf.getCoverages(coverages);
         for (size_t n = 0; n < coverages.size(); n++) {
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }

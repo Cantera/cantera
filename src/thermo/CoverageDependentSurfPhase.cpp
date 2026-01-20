@@ -455,7 +455,7 @@ void CoverageDependentSurfPhase::_updateCovDepThermo() const
             m_s_cov[k] = 0.0;
             m_cp_cov[k] = 0.0;
         }
-        getCoverages(m_cov.data());
+        getCoverages(m_cov);
 
         // For linear and polynomial model
         for (auto& item : m_PolynomialDependency) {

@@ -136,10 +136,10 @@ void PlasmaPhase::setMeanElectronEnergy(double energy) {
     updateElectronEnergyDistribution();
 }
 
-void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
+void PlasmaPhase::setElectronEnergyLevels(span<const double> levels)
 {
-    m_nPoints = length;
-    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels, length);
+    m_nPoints = levels.size();
+    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
     checkElectronEnergyLevels();
     electronEnergyLevelChanged();
     updateElectronEnergyDistribution();
@@ -193,16 +193,15 @@ void PlasmaPhase::checkElectronEnergyDistribution() const
     }
 }
 
-void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
-                                                const double* dist,
-                                                size_t length)
+void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
+                                                  span<const double> dist)
 {
     m_distributionType = "discretized";
-    m_nPoints = length;
+    m_nPoints = levels.size();
     m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels, length);
+        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
     m_electronEnergyDist =
-        Eigen::Map<const Eigen::ArrayXd>(dist, length);
+        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
     checkElectronEnergyLevels();
     if (m_do_normalizeElectronEnergyDist) {
         normalizeElectronEnergyDistribution();
@@ -281,7 +280,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             }
             if (eedf.hasKey("energy-levels")) {
                 auto levels = eedf["energy-levels"].asVector<double>();
-                setElectronEnergyLevels(levels.data(), levels.size());
+                setElectronEnergyLevels(levels);
             }
             setIsotropicElectronEnergyDistribution();
         } else if (m_distributionType == "discretized") {
@@ -298,8 +297,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             }
             auto levels = eedf["energy-levels"].asVector<double>();
             auto distribution = eedf["distribution"].asVector<double>(levels.size());
-            setDiscretizedElectronEnergyDist(levels.data(), distribution.data(),
-                                             levels.size());
+            setDiscretizedElectronEnergyDist(levels, distribution);
         }
     }
 

@@ -56,7 +56,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
                               m_max_ss_error_fails);
         auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(0));
         vector<double> cov(surf.nSpecies());
-        surf.getCoverages(cov.data());
+        surf.getCoverages(cov);
         m_surf->setCoverages(cov.data());
     }
 
