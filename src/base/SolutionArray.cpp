@@ -1288,7 +1288,7 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         auto nSpecies = phase->nSpecies();
         vector<double> values(nSpecies);
         if (surf) {
-            surf->getCoverages(&values[0]);
+            surf->getCoverages(values);
         } else {
             phase->getMassFractions(values);
         }

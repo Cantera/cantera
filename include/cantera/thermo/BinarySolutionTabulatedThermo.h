@@ -223,7 +223,7 @@ protected:
      *  @returns          Linear interpolation of tabulated data at the current
      *                    mole fraction x.
      */
-    double interpolate(const double x, const vector<double>& inputData) const;
+    double interpolate(const double x, span<const double> inputData) const;
 
     //! Numerical derivative of the molar volume table
     /*!
@@ -235,7 +235,7 @@ protected:
      *  @param  derivedData  Output vector of tabulated data that is numerically
      *                       derived with respect to the mole fraction.
      */
-    void diff(const vector<double>& inputData, vector<double>& derivedData) const;
+    void diff(span<const double> inputData, span<double> derivedData) const;
 
     //! Current tabulated species index
     size_t m_kk_tab = npos;

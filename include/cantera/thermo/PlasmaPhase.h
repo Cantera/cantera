@@ -108,13 +108,12 @@ public:
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
-    //! @param  length The length of the @c levels.
-    void setElectronEnergyLevels(const double* levels, size_t length);
+    void setElectronEnergyLevels(span<const double> levels);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
-    void getElectronEnergyLevels(double* levels) const {
-        Eigen::Map<Eigen::ArrayXd>(levels, m_nPoints) = m_electronEnergyLevels;
+    void getElectronEnergyLevels(span<double> levels) const {
+        Eigen::Map<Eigen::ArrayXd>(levels.data(), levels.size()) = m_electronEnergyLevels;
     }
 
     //! Set discretized electron energy distribution.
@@ -122,16 +121,14 @@ public:
     //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    //! @param  length The length of the vectors, which equals #m_nPoints.
-    void setDiscretizedElectronEnergyDist(const double* levels,
-                                          const double* distrb,
-                                          size_t length);
+    void setDiscretizedElectronEnergyDist(span<const double> levels,
+                                          span<const double> distrb);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    void getElectronEnergyDistribution(double* distrb) const {
-        Eigen::Map<Eigen::ArrayXd>(distrb, m_nPoints) = m_electronEnergyDist;
+    void getElectronEnergyDistribution(span<double> distrb) const {
+        Eigen::Map<Eigen::ArrayXd>(distrb.data(), distrb.size()) = m_electronEnergyDist;
     }
 
     //! Set the shape factor of isotropic electron energy distribution.

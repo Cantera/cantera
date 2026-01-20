@@ -6,6 +6,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 
+#include <array>
+
 namespace Cantera
 {
 
@@ -118,12 +120,12 @@ TEST_F(RedlichKister_Test, fromScratch)
     auto ssVC6 = make_unique<PDSS_ConstVol>();
     rk.installPDSS(1, std::move(ssVC6));
 
-    double hcoeffs[] = {-3.268E6, 3.955E6, -4.573E6, 6.147E6, -3.339E6, 1.117E7,
+    std::array hcoeffs {-3.268E6, 3.955E6, -4.573E6, 6.147E6, -3.339E6, 1.117E7,
                         2.997E5, -4.866E7, 1.362E5, 1.373E8, -2.129E7, -1.722E8,
                         3.956E7, 9.302E7, -3.280E7};
-    double scoeffs[] = {0.0};
+    std::array scoeffs {0.0};
 
-    rk.addBinaryInteraction("Li(C6)", "V(C6)", hcoeffs, 15, scoeffs, 1);
+    rk.addBinaryInteraction("Li(C6)", "V(C6)", hcoeffs, scoeffs);
     rk.initThermo();
     rk.setState_TPX(298.15, 101325, "Li(C6):0.6,V(C6):0.4");
 

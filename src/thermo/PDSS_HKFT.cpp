@@ -324,14 +324,14 @@ void PDSS_HKFT::setS0(double s0) {
     m_Entrop_tr_pr = m_units.convertFrom(s0, "J/kmol/K");
 }
 
-void PDSS_HKFT::set_a(double* a) {
+void PDSS_HKFT::set_a(span<const double> a) {
     m_a1 = m_units.convertFrom(a[0], "J/kmol/Pa");
     m_a2 = m_units.convertFrom(a[1], "J/kmol");
     m_a3 = m_units.convertFrom(a[2], "J*K/kmol/Pa");
     m_a4 = m_units.convertFrom(a[3], "J*K/kmol");
 }
 
-void PDSS_HKFT::set_c(double* c) {
+void PDSS_HKFT::set_c(span<const double> c) {
     m_c1 = m_units.convertFrom(c[0], "J/kmol/K");
     m_c2 = m_units.convertFrom(c[1], "J*K/kmol");
 }

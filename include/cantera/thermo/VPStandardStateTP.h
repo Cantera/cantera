@@ -75,7 +75,7 @@ public:
     void getIntEnergy_RT(span<double> urt) const override;
     void getCp_R(span<double> cpr) const override;
     void getStandardVolumes(span<double> vol) const override;
-    virtual const vector<double>& getStandardVolumes() const;
+    virtual span<const double> getStandardVolumes() const;
     //! @}
 
     //! Set the temperature of the phase

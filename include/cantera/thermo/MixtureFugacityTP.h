@@ -268,19 +268,6 @@ public:
 
     void getEnthalpy_RT_ref(span<double> hrt) const override;
     void getGibbs_RT_ref(span<double> grt) const override;
-
-protected:
-    //! Returns the vector of nondimensional Gibbs free energies of the
-    //! reference state at the current temperature of the solution and the
-    //! reference pressure for the species.
-    /*!
-     * @return  Output vector contains the nondimensional Gibbs free energies
-     *          of the reference state of the species
-     *          length = m_kk, units = dimensionless.
-     */
-    const vector<double>& gibbs_RT_ref() const;
-
-public:
     void getGibbs_ref(span<double> g) const override;
     void getEntropy_R_ref(span<double> er) const override;
     void getCp_R_ref(span<double> cprt) const override;

@@ -434,44 +434,6 @@ public:
     void getIntEnergy_RT_ref(span<double> urt) const override;
     void getCp_R_ref(span<double> cprt) const override;
 
-    /**
-     * Returns a reference to the vector of nondimensional enthalpies of the
-     * reference state at the current temperature. Real reason for its existence
-     * is that it also checks to see if a recalculation of the reference
-     * thermodynamics functions needs to be done.
-     */
-    const vector<double>& enthalpy_RT_ref() const;
-
-    /**
-     * Returns a reference to the vector of nondimensional enthalpies of the
-     * reference state at the current temperature. Real reason for its existence
-     * is that it also checks to see if a recalculation of the reference
-     * thermodynamics functions needs to be done.
-     */
-    const vector<double>& gibbs_RT_ref() const {
-        _updateThermo();
-        return m_g0_RT;
-    }
-
-    /**
-     * Returns a reference to the vector of nondimensional enthalpies of the
-     * reference state at the current temperature. Real reason for its existence
-     * is that it also checks to see if a recalculation of the reference
-     * thermodynamics functions needs to be done.
-     */
-    const vector<double>& entropy_R_ref() const;
-
-    /**
-     * Returns a reference to the vector of nondimensional enthalpies of the
-     * reference state at the current temperature. Real reason for its existence
-     * is that it also checks to see if a recalculation of the reference
-     * thermodynamics functions needs to be done.
-     */
-    const vector<double>& cp_R_ref() const {
-        _updateThermo();
-        return m_cp0_R;
-    }
-
     //! @}
     //! @name Utility Functions
     //! @{
@@ -521,6 +483,44 @@ public:
 
 protected:
     void compositionChanged() override;
+
+    /**
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
+     */
+    span<const double> enthalpy_RT_ref() const;
+
+    /**
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
+     */
+    span<const double> gibbs_RT_ref() const {
+        _updateThermo();
+        return m_g0_RT;
+    }
+
+    /**
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
+     */
+    span<const double> entropy_R_ref() const;
+
+    /**
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
+     */
+    span<const double> cp_R_ref() const {
+        _updateThermo();
+        return m_cp0_R;
+    }
 
     /**
      * The standard concentrations can have one of three different forms:

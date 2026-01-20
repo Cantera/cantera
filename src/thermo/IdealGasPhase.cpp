@@ -77,13 +77,13 @@ void IdealGasPhase::getChemPotentials(span<double> mu) const
 
 void IdealGasPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
-    const vector<double>& _h = enthalpy_RT_ref();
+    auto _h = enthalpy_RT_ref();
     scale(_h.begin(), _h.end(), hbar.begin(), RT());
 }
 
 void IdealGasPhase::getPartialMolarEntropies(span<double> sbar) const
 {
-    const vector<double>& _s = entropy_R_ref();
+    auto _s = entropy_R_ref();
     scale(_s.begin(), _s.end(), sbar.begin(), GasConstant);
     double logp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -94,7 +94,7 @@ void IdealGasPhase::getPartialMolarEntropies(span<double> sbar) const
 
 void IdealGasPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
-    const vector<double>& _h = enthalpy_RT_ref();
+    auto _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         ubar[k] = RT() * (_h[k] - 1.0);
     }
@@ -102,7 +102,7 @@ void IdealGasPhase::getPartialMolarIntEnergies(span<double> ubar) const
 
 void IdealGasPhase::getPartialMolarCp(span<double> cpbar) const
 {
-    const vector<double>& _cp = cp_R_ref();
+    auto _cp = cp_R_ref();
     scale(_cp.begin(), _cp.end(), cpbar.begin(), GasConstant);
 }
 
@@ -118,13 +118,13 @@ void IdealGasPhase::getPartialMolarVolumes(span<double> vbar) const
 
 void IdealGasPhase::getEnthalpy_RT(span<double> hrt) const
 {
-    const vector<double>& _h = enthalpy_RT_ref();
+    auto _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt.begin());
 }
 
 void IdealGasPhase::getEntropy_R(span<double> sr) const
 {
-    const vector<double>& _s = entropy_R_ref();
+    auto _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -134,7 +134,7 @@ void IdealGasPhase::getEntropy_R(span<double> sr) const
 
 void IdealGasPhase::getGibbs_RT(span<double> grt) const
 {
-    const vector<double>& gibbsrt = gibbs_RT_ref();
+    auto gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -149,7 +149,7 @@ void IdealGasPhase::getIntEnergy_RT(span<double> urt) const
 
 void IdealGasPhase::getCp_R(span<double> cpr) const
 {
-    const vector<double>& _cpr = cp_R_ref();
+    auto _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cpr.begin());
 }
 
@@ -165,31 +165,31 @@ void IdealGasPhase::getStandardVolumes(span<double> vol) const
 
 void IdealGasPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
-    const vector<double>& _h = enthalpy_RT_ref();
+    auto _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt.begin());
 }
 
 void IdealGasPhase::getGibbs_RT_ref(span<double> grt) const
 {
-    const vector<double>& gibbsrt = gibbs_RT_ref();
+    auto gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
 }
 
 void IdealGasPhase::getGibbs_ref(span<double> g) const
 {
-    const vector<double>& gibbsrt = gibbs_RT_ref();
+    auto gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g.begin(), RT());
 }
 
 void IdealGasPhase::getEntropy_R_ref(span<double> er) const
 {
-    const vector<double>& _s = entropy_R_ref();
+    auto _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), er.begin());
 }
 
 void IdealGasPhase::getIntEnergy_RT_ref(span<double> urt) const
 {
-    const vector<double>& _h = enthalpy_RT_ref();
+    auto _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - 1.0;
     }
@@ -197,7 +197,7 @@ void IdealGasPhase::getIntEnergy_RT_ref(span<double> urt) const
 
 void IdealGasPhase::getCp_R_ref(span<double> cprt) const
 {
-    const vector<double>& _cpr = cp_R_ref();
+    auto _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cprt.begin());
 }
 
@@ -228,7 +228,7 @@ bool IdealGasPhase::addSpecies(shared_ptr<Species> spec)
 
 void IdealGasPhase::setToEquilState(span<const double> mu_RT)
 {
-    const vector<double>& grt = gibbs_RT_ref();
+    auto grt = gibbs_RT_ref();
 
     // Within the method, we protect against inf results if the exponent is too
     // high.

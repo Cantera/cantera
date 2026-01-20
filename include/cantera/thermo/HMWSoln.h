@@ -1102,17 +1102,18 @@ public:
      */
 
     void setBinarySalt(const string& sp1, const string& sp2,
-        size_t nParams, double* beta0, double* beta1, double* beta2,
-        double* Cphi, double alpha1, double alpha2);
+        span<const double> beta0, span<const double> beta1,
+        span<const double> beta2, span<const double> Cphi, double alpha1,
+        double alpha2);
     void setTheta(const string& sp1, const string& sp2,
-        size_t nParams, double* theta);
+        span<const double> theta);
     void setPsi(const string& sp1, const string& sp2,
-        const string& sp3, size_t nParams, double* psi);
+        const string& sp3, span<const double> psi);
     void setLambda(const string& sp1, const string& sp2,
-        size_t nParams, double* lambda);
-    void setMunnn(const string& sp, size_t nParams, double* munnn);
+        span<const double> lambda);
+    void setMunnn(const string& sp, span<const double> munnn);
     void setZeta(const string& sp1, const string& sp2,
-        const string& sp3, size_t nParams, double* psi);
+        const string& sp3, span<const double> psi);
 
     void setPitzerTempModel(const string& model);
     void setPitzerRefTemperature(double Tref) {
@@ -2009,13 +2010,12 @@ private:
      *
      * @param z1 charge of the first molecule
      * @param z2 charge of the second molecule
-     * @param etheta return pointer containing etheta
-     * @param etheta_prime Return pointer containing etheta_prime.
+     * @param[out] etheta return value of etheta
+     * @param[out] etheta_prime return value of etheta_prime
      *
      * This routine uses the internal variables, elambda[] and elambda1[].
      */
-    void calc_thetas(int z1, int z2,
-                     double* etheta, double* etheta_prime) const;
+    void calc_thetas(int z1, int z2, double& etheta, double& etheta_prime) const;
 
     //! Set up a counter variable for keeping track of symmetric binary
     //! interactions amongst the solute species.

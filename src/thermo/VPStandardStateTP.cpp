@@ -81,7 +81,7 @@ void VPStandardStateTP::getStandardVolumes(span<double> vol) const
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol.begin());
 }
-const vector<double>& VPStandardStateTP::getStandardVolumes() const
+span<const double> VPStandardStateTP::getStandardVolumes() const
 {
     updateStandardStateThermo();
     return m_Vss;

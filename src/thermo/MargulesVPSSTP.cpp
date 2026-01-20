@@ -285,7 +285,7 @@ void MargulesVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
     }
 }
 
-void MargulesVPSSTP::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
+void MargulesVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
