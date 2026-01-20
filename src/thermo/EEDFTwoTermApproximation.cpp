@@ -223,7 +223,7 @@ vector<double> EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
     return g;
 }
 
-SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
+SparseMat EEDFTwoTermApproximation::matrix_P(span<const double> g, size_t k)
 {
     SparseTriplets tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -242,7 +242,7 @@ SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
     return P;
 }
 
-SparseMat EEDFTwoTermApproximation::matrix_Q(const vector<double>& g, size_t k)
+SparseMat EEDFTwoTermApproximation::matrix_Q(span<const double> g, size_t k)
 {
     SparseTriplets tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {

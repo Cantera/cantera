@@ -150,7 +150,7 @@ protected:
      * \epsilon \sigma_k exp[(\epsilon_i - \epsilon)g_i] d \epsilon
      * \f]
      */
-    Eigen::SparseMatrix<double> matrix_P(const vector<double>& g, size_t k);
+    Eigen::SparseMatrix<double> matrix_P(span<const double> g, size_t k);
 
     //! The matrix of scattering-in
     /**
@@ -169,7 +169,7 @@ protected:
      * \epsilon_2 = \min(\max(\epsilon_{i+1/2}+u_k, \epsilon_{j-1/2}),\epsilon_{j+1/2})
      * \f]
      */
-    Eigen::SparseMatrix<double> matrix_Q(const vector<double>& g, size_t k);
+    Eigen::SparseMatrix<double> matrix_Q(span<const double> g, size_t k);
 
     //! Matrix A (Ax = b) of the equation of EEDF, which is discretized by the exponential scheme
     //! of Scharfetter and Gummel,

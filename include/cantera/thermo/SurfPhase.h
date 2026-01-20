@@ -281,7 +281,7 @@ public:
      *
      * This routine normalizes the theta's to 1, before application
      */
-    void setCoverages(const double* theta);
+    void setCoverages(span<const double> theta);
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -293,7 +293,7 @@ public:
      * @param theta    This is the surface site fraction for the kth species in
      *                 the surface phase. This is a dimensionless quantity.
      */
-    void setCoveragesNoNorm(const double* theta);
+    void setCoveragesNoNorm(span<const double> theta);
 
     //! Set the coverages from a string of colon-separated name:value pairs.
     /*!
@@ -314,7 +314,7 @@ public:
      * @param theta Array theta must be at least as long as the number of
      *              species.
      */
-    void getCoverages(double* theta) const;
+    void getCoverages(span<double> theta) const;
 
     //! @copydoc ThermoPhase::setState
     /*!

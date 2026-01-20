@@ -31,7 +31,7 @@ void GibbsExcessVPSSTP::compositionChanged()
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    const vector<double>& vbar = getStandardVolumes();
+    auto vbar = getStandardVolumes();
     double vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFractions_[i];

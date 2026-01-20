@@ -503,6 +503,11 @@ public:
     void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
+
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void setToEquilState(span<const double> mu_RT) override;
+
+protected:
     //! @name NonVirtual Internal methods to Return References to Reference State Thermo
     //! @{
 
@@ -511,7 +516,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& enthalpy_RT_ref() const {
+    span<const double> enthalpy_RT_ref() const {
         updateThermo();
         return m_h0_RT;
     }
@@ -521,7 +526,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& gibbs_RT_ref() const {
+    span<const double> gibbs_RT_ref() const {
         updateThermo();
         return m_g0_RT;
     }
@@ -531,7 +536,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& entropy_R_ref() const {
+    span<const double> entropy_R_ref() const {
         updateThermo();
         return m_s0_R;
     }
@@ -541,17 +546,13 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& cp_R_ref() const {
+    span<const double> cp_R_ref() const {
         updateThermo();
         return m_cp0_R;
     }
 
     //! @}
 
-    bool addSpecies(shared_ptr<Species> spec) override;
-    void setToEquilState(span<const double> mu_RT) override;
-
-protected:
     //! Reference state pressure
     /*!
      *  Value of the reference state pressure in Pascals.

@@ -89,7 +89,7 @@ Units IdealSolnGasVPSS::standardConcentrationUnits() const
 
 void IdealSolnGasVPSS::getActivityConcentrations(span<double> c) const
 {
-    const vector<double>& vss = getStandardVolumes();
+    auto vss = getStandardVolumes();
     switch (m_formGC) {
     case 0:
         for (size_t k = 0; k < m_kk; k++) {
@@ -111,7 +111,7 @@ void IdealSolnGasVPSS::getActivityConcentrations(span<double> c) const
 
 double IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
-    const vector<double>& vss = getStandardVolumes();
+    auto vss = getStandardVolumes();
     switch (m_formGC) {
     case 0:
         return 1.0;

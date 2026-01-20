@@ -157,7 +157,7 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
 }
 
 double BinarySolutionTabulatedThermo::interpolate(const double x,
-                                                  const vector<double>& inputData) const
+                                                  span<const double> inputData) const
 {
     double c;
     // Check if x is out of bound
@@ -176,8 +176,8 @@ double BinarySolutionTabulatedThermo::interpolate(const double x,
     return c;
 }
 
-void BinarySolutionTabulatedThermo::diff(const vector<double>& inputData,
-                                         vector<double>& derivedData) const
+void BinarySolutionTabulatedThermo::diff(span<const double> inputData,
+                                         span<double> derivedData) const
 {
     if (inputData.size() > 1) {
         derivedData[0] = (inputData[1] - inputData[0]) /

@@ -120,9 +120,7 @@ void RedlichKisterVPSSTP::initThermo()
             auto& species = item["species"].asVector<string>(2);
             vector<double> h_excess = item.convertVector("excess-enthalpy", "J/kmol");
             vector<double> s_excess = item.convertVector("excess-entropy", "J/kmol/K");
-            addBinaryInteraction(species[0], species[1],
-                                 h_excess.data(), h_excess.size(),
-                                 s_excess.data(), s_excess.size());
+            addBinaryInteraction(species[0], species[1], h_excess, s_excess);
         }
     }
     initLengths();
@@ -257,7 +255,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
     }
 }
 
-void RedlichKisterVPSSTP::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
+void RedlichKisterVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -421,8 +419,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, span<double> dlnAc
 
 void RedlichKisterVPSSTP::addBinaryInteraction(
     const string& speciesA, const string& speciesB,
-    const double* excess_enthalpy, size_t n_enthalpy,
-    const double* excess_entropy, size_t n_entropy)
+    span<const double> excess_enthalpy, span<const double> excess_entropy)
 {
     size_t kA = speciesIndex(speciesA, true);
     size_t kB = speciesIndex(speciesB, true);
@@ -436,9 +433,9 @@ void RedlichKisterVPSSTP::addBinaryInteraction(
 
     m_pSpecies_A_ij.push_back(kA);
     m_pSpecies_B_ij.push_back(kB);
-    m_HE_m_ij.emplace_back(excess_enthalpy, excess_enthalpy + n_enthalpy);
-    m_SE_m_ij.emplace_back(excess_entropy, excess_entropy + n_entropy);
-    size_t N = max(n_enthalpy, n_entropy);
+    m_HE_m_ij.emplace_back(excess_enthalpy.begin(), excess_enthalpy.end());
+    m_SE_m_ij.emplace_back(excess_entropy.begin(), excess_entropy.end());
+    size_t N = max(excess_enthalpy.size(), excess_entropy.size());
     m_HE_m_ij.back().resize(N, 0.0);
     m_SE_m_ij.back().resize(N, 0.0);
     dlnActCoeff_dX_.resize(N, N, 0.0);

@@ -179,10 +179,10 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         CxxSurfPhase()
         double siteDensity()
         void setSiteDensity(double) except +translate_exception
-        void setCoverages(double*) except +translate_exception
+        void setCoverages(span[double]) except +translate_exception
         void setCoveragesByName(Composition&) except +translate_exception
-        void setCoveragesNoNorm(double*) except +translate_exception
-        void getCoverages(double*) except +translate_exception
+        void setCoveragesNoNorm(span[double]) except +translate_exception
+        void getCoverages(span[double]) except +translate_exception
 
 
 cdef extern from "cantera/thermo/PlasmaPhase.h":
@@ -191,10 +191,10 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void setElectronTemperature(double) except +translate_exception
         void setReducedElectricField(double) except +translate_exception
         void setElectricField(double) except +translate_exception
-        void setElectronEnergyLevels(double*, size_t) except +translate_exception
-        void getElectronEnergyLevels(double*)
-        void setDiscretizedElectronEnergyDist(double*, double*, size_t) except +translate_exception
-        void getElectronEnergyDistribution(double*)
+        void setElectronEnergyLevels(span[double]) except +translate_exception
+        void getElectronEnergyLevels(span[double])
+        void setDiscretizedElectronEnergyDist(span[double], span[double]) except +translate_exception
+        void getElectronEnergyDistribution(span[double])
         void setIsotropicShapeFactor(double) except +translate_exception
         void setElectronEnergyDistributionType(const string&) except +translate_exception
         string electronEnergyDistributionType()

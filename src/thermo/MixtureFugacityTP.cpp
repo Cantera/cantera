@@ -123,13 +123,7 @@ void MixtureFugacityTP::getGibbs_RT_ref(span<double> grt) const
 
 void MixtureFugacityTP::getGibbs_ref(span<double> g) const
 {
-    const vector<double>& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), g.begin(), RT());
-}
-
-const vector<double>& MixtureFugacityTP::gibbs_RT_ref() const
-{
-    return m_g0_RT;
+    scale(m_g0_RT.begin(), m_g0_RT.end(), g.begin(), RT());
 }
 
 void MixtureFugacityTP::getEntropy_R_ref(span<double> er) const

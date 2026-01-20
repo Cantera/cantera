@@ -88,7 +88,7 @@ TEST(ThermoFromYaml, SurfPhase)
     auto surf = std::dynamic_pointer_cast<SurfPhase>(thermo);
     EXPECT_DOUBLE_EQ(surf->siteDensity(), 2.7063e-8);
     vector<double> cov(surf->nSpecies());
-    surf->getCoverages(cov.data());
+    surf->getCoverages(cov);
     EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("Pt(s)")], 0.5);
     EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("H(s)")], 0.4);
 }

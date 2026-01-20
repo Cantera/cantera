@@ -23,7 +23,10 @@
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/base/stringUtils.h"
+
 #include <fstream>
+#include <array>
+
 #include "thermo_data.h"
 
 namespace Cantera
@@ -372,35 +375,35 @@ TEST(IdealSolidSolnPhase, fromScratch)
 }
 
 static void set_hmw_interactions(HMWSoln& p) {
-    double beta0_nacl[] = {0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
-    double beta1_nacl[] = {0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
-    double beta2_nacl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_nacl[] = {0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
-    p.setBinarySalt("Na+", "Cl-", 5, beta0_nacl, beta1_nacl, beta2_nacl,
+    std::array beta0_nacl{0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
+    std::array beta1_nacl{0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
+    std::array beta2_nacl{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_nacl{0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
+    p.setBinarySalt("Na+", "Cl-", beta0_nacl, beta1_nacl, beta2_nacl,
         cphi_nacl, 2.0, 0.0);
 
-    double beta0_hcl[] = {0.1775, 0.0, 0.0, 0.0, 0.0};
-    double beta1_hcl[] = {0.2945, 0.0, 0.0, 0.0, 0.0};
-    double beta2_hcl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_hcl[] = {0.0008, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("H+", "Cl-", 5, beta0_hcl, beta1_hcl, beta2_hcl,
+    std::array beta0_hcl{0.1775, 0.0, 0.0, 0.0, 0.0};
+    std::array beta1_hcl{0.2945, 0.0, 0.0, 0.0, 0.0};
+    std::array beta2_hcl{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_hcl{0.0008, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("H+", "Cl-", beta0_hcl, beta1_hcl, beta2_hcl,
         cphi_hcl, 2.0, 0.0);
 
-    double beta0_naoh[] = {0.0864, 0.0, 0.0, 0.0, 0.0};
-    double beta1_naoh[] = {0.253, 0.0, 0.0, 0.0, 0.0};
-    double beta2_naoh[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_naoh[] = {0.0044, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("Na+", "OH-", 5, beta0_naoh, beta1_naoh, beta2_naoh,
+    std::array beta0_naoh{0.0864, 0.0, 0.0, 0.0, 0.0};
+    std::array beta1_naoh{0.253, 0.0, 0.0, 0.0, 0.0};
+    std::array beta2_naoh{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_naoh{0.0044, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("Na+", "OH-", beta0_naoh, beta1_naoh, beta2_naoh,
         cphi_naoh, 2.0, 0.0);
 
-    double theta_cloh[] = {-0.05, 0.0, 0.0, 0.0, 0.0};
-    double psi_nacloh[] = {-0.006, 0.0, 0.0, 0.0, 0.0};
-    double theta_nah[] = {0.036, 0.0, 0.0, 0.0, 0.0};
-    double psi_clnah[] = {-0.004, 0.0, 0.0, 0.0, 0.0};
-    p.setTheta("Cl-", "OH-", 5, theta_cloh);
-    p.setPsi("Na+", "Cl-", "OH-", 5, psi_nacloh);
-    p.setTheta("Na+", "H+", 5, theta_nah);
-    p.setPsi("Cl-", "Na+", "H+", 5, psi_clnah);
+    std::array theta_cloh{-0.05, 0.0, 0.0, 0.0, 0.0};
+    std::array psi_nacloh{-0.006, 0.0, 0.0, 0.0, 0.0};
+    std::array theta_nah{0.036, 0.0, 0.0, 0.0, 0.0};
+    std::array psi_clnah{-0.004, 0.0, 0.0, 0.0, 0.0};
+    p.setTheta("Cl-", "OH-", theta_cloh);
+    p.setPsi("Na+", "Cl-", "OH-", psi_nacloh);
+    p.setTheta("Na+", "H+", theta_nah);
+    p.setPsi("Cl-", "Na+", "H+", psi_clnah);
 }
 
 TEST(HMWSoln, fromScratch)

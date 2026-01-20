@@ -677,8 +677,8 @@ void ReactingSurf1D::init()
 
 void ReactingSurf1D::resetBadValues(double* xg) {
     double* x = xg + loc();
-    m_sphase->setCoverages(x);
-    m_sphase->getCoverages(x);
+    m_sphase->setCoverages(span<const double>(x, m_nsp));
+    m_sphase->getCoverages(span<double>(x, m_nsp));
 }
 
 void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
@@ -700,7 +700,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
         sum += x[k];
     }
     m_sphase->setTemperature(m_temp);
-    m_sphase->setCoveragesNoNorm(m_work.data());
+    m_sphase->setCoveragesNoNorm(m_work);
 
     // set the left gas state to the adjacent point
 
@@ -790,7 +790,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize)
 
     // set state of surface phase
     m_sphase->setState_TP(m_temp, m_sphase->pressure());
-    m_sphase->setCoverages(soln);
+    m_sphase->setCoverages(span<const double>(soln, m_nsp));
     vector<double> data(m_sphase->stateSize());
     m_sphase->saveState(data);
 
@@ -820,7 +820,7 @@ void ReactingSurf1D::fromArray(const shared_ptr<SolutionArray>& arr)
             "Restoring of coverages requires surface phase");
     }
     m_temp = surf->temperature();
-    surf->getCoverages(soln);
+    surf->getCoverages(span<double>(soln, m_nsp));
     _finalize(soln);
 }
 

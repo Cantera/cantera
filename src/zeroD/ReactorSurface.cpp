@@ -66,7 +66,7 @@ void ReactorSurface::setArea(double a)
 
 void ReactorSurface::setCoverages(const double* cov)
 {
-    m_surf->setCoveragesNoNorm(cov);
+    m_surf->setCoveragesNoNorm(span<const double>(cov, m_nsp));
 }
 
 void ReactorSurface::setCoverages(const Composition& cov)
@@ -81,12 +81,12 @@ void ReactorSurface::setCoverages(const string& cov)
 
 void ReactorSurface::getCoverages(double* cov) const
 {
-    m_surf->getCoverages(cov);
+    m_surf->getCoverages(span<double>(cov, m_nsp));
 }
 
 void ReactorSurface::getState(double* y)
 {
-    m_surf->getCoverages(y);
+    m_surf->getCoverages(span<double>(y, m_nsp));
 }
 
 void ReactorSurface::initialize(double t0)
@@ -102,7 +102,7 @@ vector<size_t> ReactorSurface::initializeSteady()
 
 void ReactorSurface::updateState(double* y)
 {
-    m_surf->setCoveragesNoNorm(y);
+    m_surf->setCoveragesNoNorm(span<const double>(y, m_nsp));
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
     m_kinetics->getNetProductionRates(m_sdot.data());
 }
@@ -123,7 +123,7 @@ void ReactorSurface::evalSteady(double t, double* LHS, double* RHS)
 {
     eval(t, LHS, RHS);
     vector<double> cov(m_nsp);
-    m_surf->getCoverages(cov.data());
+    m_surf->getCoverages(cov);
     double sum = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += cov[k];
@@ -201,8 +201,8 @@ void ReactorSurface::resetBadValues(double* y)
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] = std::max(y[k], 0.0);
     }
-    m_surf->setCoverages(y);
-    m_surf->getCoverages(y);
+    m_surf->setCoverages(span<const double>(y, m_nsp));
+    m_surf->getCoverages(span<double>(y, m_nsp));
 }
 
 // ------ MoleReactorSurface methods ------
@@ -232,7 +232,7 @@ void MoleReactorSurface::initialize(double t0)
 
 void MoleReactorSurface::getState(double* y)
 {
-    m_surf->getCoverages(y);
+    m_surf->getCoverages(span<double>(y, m_nsp));
     double totalSites = m_surf->siteDensity() * m_area;
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] *= totalSites / m_surf->size(k);
@@ -246,7 +246,7 @@ void MoleReactorSurface::updateState(double* y)
     for (size_t k = 0; k < m_nsp; k++) {
         m_cov_tmp[k] *= m_surf->size(k) / totalSites;
     }
-    m_surf->setCoveragesNoNorm(m_cov_tmp.data());
+    m_surf->setCoveragesNoNorm(m_cov_tmp);
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
     m_kinetics->getNetProductionRates(m_sdot.data());
 }

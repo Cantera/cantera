@@ -86,11 +86,11 @@ public:
 
     //! Set "a" coefficients (array of 4 elements). Units of each coefficient
     //! are [J/kmol/Pa, J/kmol, J*K/kmol/Pa, J*K/kmol]
-    void set_a(double* a);
+    void set_a(span<const double> a);
 
     //! Set "c" coefficients (array of 2 elements). Units of each coefficient
     //! are [J/kmol/K, J*K/kmol]
-    void set_c(double* c);
+    void set_c(span<const double> c);
     void setOmega(double omega); //!< Set omega [J/kmol]
 
     void getParameters(AnyMap& eosNode) const override;
