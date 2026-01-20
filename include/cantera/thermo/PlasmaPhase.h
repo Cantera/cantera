@@ -419,9 +419,9 @@ public:
      *   @f[
      *     q_J = \sigma * E^2,
      *   @f]
-     * where @f$ sigma @f$ is the conductivity (S/m), defined by:
+     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
      *   @f[
-     *     sigma = e * n_e * mu_e
+     *     \sigma = e * n_e * \mu_e
      *   @f]
      * and @f$ E @f$ is the electric field strength (V/m).
      */
