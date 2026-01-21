@@ -88,11 +88,7 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
     double dHdt = m_Qdot;
 
     if (m_energy) {
-        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
-        const double q_total = q_intrinsic * m_vol;              // [W]
-        if (std::isfinite(q_total)) {
-            dHdt += q_total;
-        }
+        dHdt += m_thermo->intrinsicHeating() * m_vol;
     }
 
     // add terms for outlets

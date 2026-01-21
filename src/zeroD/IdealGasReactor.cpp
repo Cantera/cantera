@@ -76,11 +76,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     mcvdTdt += - m_pressure * m_vdot + m_Qdot;
 
     if (m_energy) {
-        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
-        const double q_total = q_intrinsic * m_vol;              // [W]
-        if (std::isfinite(q_total)) {
-            mcvdTdt += q_total;
-        }
+        mcvdTdt += m_thermo->intrinsicHeating() * m_vol;
     }
 
     for (size_t n = 0; n < m_nsp; n++) {

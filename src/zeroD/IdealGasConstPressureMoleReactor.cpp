@@ -68,11 +68,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     mcpdTdt += m_Qdot;
 
     if (m_energy) {
-        const double q_intrinsic = m_thermo->intrinsicHeating(); // [W/m^3]
-        const double q_total = q_intrinsic * m_vol;              // [W]
-        if (std::isfinite(q_total)) {
-            mcpdTdt += q_total;
-        }
+        mcpdTdt += m_thermo->intrinsicHeating() * m_vol;
     }
 
     for (size_t n = 0; n < m_nsp; n++) {
