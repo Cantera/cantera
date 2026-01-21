@@ -782,19 +782,13 @@ double PlasmaPhase::intrinsicHeating()
 {
     // Joule heating: sigma * E^2 [W/m^3]
     const double qJ = jouleHeatingPower();
+    checkFinite(qJ);
 
     // Elastic + inelastic recoil power loss [W/m^3]
-    double qElastic = 0.0;
-    try {
-        qElastic = elasticPowerLoss();
-    } catch (CanteraError&) {
-        // If the EEDF is not initialized or elastic power loss is invalid
-        // treat the intrinsic heating as purely Joule.
-        qElastic = 0.0;
-    }
+    double qElastic = elasticPowerLoss();
+    checkFinite(qElastic);
 
-    const double q = qJ + qElastic;
-    return std::isfinite(q) ? q : 0.0;
+    return qJ + qElastic;
 }
 
 
