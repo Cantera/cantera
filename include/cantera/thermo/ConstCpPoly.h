@@ -90,7 +90,7 @@ public:
 
     void getParameters(AnyMap& thermo) const override;
 
-    double reportHf298(span<double> h298={}) const override;
+    double reportHf298() const override;
     void modifyOneHf298(const size_t k, const double Hf298New) override;
     void resetHf298() override;
 
