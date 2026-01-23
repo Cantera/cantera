@@ -3,6 +3,7 @@
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 using namespace Cantera;
 
@@ -188,6 +189,32 @@ TEST(zerodim, test_individual_reactor_initialization)
     for (size_t i = 0; i < reactor1->neq(); i++) {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
+}
+
+TEST(zerodim, plasma_reactor_energy)
+{
+    auto sol = newSolution("methane-plasma-pavan-2023.yaml", "gri30-plasma", "none");
+    auto thermo = sol->thermo();
+    auto* plasma = dynamic_cast<PlasmaPhase*>(thermo.get());
+    ASSERT_NE(plasma, nullptr);
+    const double T0 = 300.0;
+    const double P0 = OneAtm;
+    thermo->setState_TPX(T0, P0, "N2:0.8, O2:0.2");
+    // Set up some non-trivial & arbitrary plasma parameters so that
+    // jouleHeatingPower() is exercised
+    plasma->setElectronTemperature(2.0 * T0);
+    plasma->setElectricField(1e5);
+    auto reactor = newReactor4("IdealGasReactor", sol, true, "plasma-reactor");
+    reactor->setEnergyEnabled(true);
+    reactor->setInitialVolume(1e-3);
+    ReactorNet net(reactor);
+    net.initialize();
+    // Advance a short time, this will call Reactor::eval, which
+    // includes the intrinsicHeating() term
+    const double t_end = 1e-4;
+    ASSERT_NO_THROW(net.advance(t_end));
+    EXPECT_TRUE(std::isfinite(reactor->temperature()));
+    EXPECT_GT(reactor->temperature(), 0.0);
 }
 
 TEST(MoleReactorTestSet, test_mole_reactor_get_state)
