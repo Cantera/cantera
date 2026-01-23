@@ -4,6 +4,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
@@ -329,6 +330,49 @@ TEST_F(PropertyPairs, VcsNonideal_TV) { check_TV("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_UV) { check_UV("element_potential"); }
 // TEST_F(PropertyPairs, MultiPhase_UV) { check_UV("gibbs"); } // not implemented
 TEST_F(PropertyPairs, VcsNonideal_UV) { check_UV("vcs"); }
+
+class PlasmaEquil : public testing::Test
+{
+public:
+    PlasmaEquil() {}
+    void setup(const string& infile = "methane-plasma-pavan-2023.yaml",
+               const string& phaseName = "gri30-plasma")
+    {
+        sol = newSolution(infile, phaseName, "none");
+        auto th = sol->thermo();
+        plasma = std::dynamic_pointer_cast<PlasmaPhase>(th);
+        ASSERT_TRUE(plasma) << "Failed to cast thermo to PlasmaPhase";
+    }
+    shared_ptr<Solution> sol;
+    shared_ptr<PlasmaPhase> plasma;
+};
+
+TEST_F(PlasmaEquil, ChemEquil_TP)
+{
+    setup();
+    auto& thermo = *plasma;
+    const double T = 1000.0;
+    const double P = OneAtm;
+    thermo.setState_TPX(T, P, "N2:0.8, O2:0.2");
+    // Set a distinct electron temperature so Te-lock behavior is exercised
+    thermo.setElectronEnergyDistributionType("isotropic");
+    plasma->setElectronTemperature(1.5 * T);
+    // setElectronTemperature updates the EEDF so Te may drift slightly
+    double Te0 = plasma->electronTemperature();
+    EXPECT_NEAR(Te0, 1.5 * T, 1e-2);
+    vector<double> Yelem(thermo.nElements());
+    for (size_t i = 0; i < thermo.nElements(); i++) {
+        Yelem[i] = thermo.elementalMassFraction(i);
+    }
+    thermo.equilibrate("TP", "element_potential");
+    EXPECT_NEAR(thermo.temperature(), T, 1e-6);
+    EXPECT_NEAR(thermo.pressure(), P, 1e-3);
+    for (size_t i = 0; i < thermo.nElements(); i++) {
+        EXPECT_NEAR(Yelem[i], thermo.elementalMassFraction(i), 1e-8);
+    }
+    // Electron temperature should have been restored by endEquilibrate
+    EXPECT_NEAR(plasma->electronTemperature(), Te0, 1e-6);
+}
 
 int main(int argc, char** argv)
 {
