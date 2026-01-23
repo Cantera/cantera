@@ -144,7 +144,7 @@ public:
         thermo["data"].asVector<vector<double>>().push_back(m_coeff);
     }
 
-    double reportHf298(span<double> h298={}) const override {
+    double reportHf298() const override {
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
@@ -157,11 +157,7 @@ public:
         double h_RT = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
                       + m_coeff[5]*tt[4]; // last t
 
-        double h = h_RT * GasConstant * temp;
-        if (!h298.empty()) {
-            h298[0] = h;
-        }
-        return h;
+        return h_RT * GasConstant * temp;
     }
 
     void modifyOneHf298(const size_t k, const double Hf298New) override {

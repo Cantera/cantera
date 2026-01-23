@@ -238,13 +238,9 @@ public:
      * the standard state of the species from its constituent elements in their
      * standard states at 298 K and 1 bar.
      *
-     * @param h298 If this is nonnull, the current value of the Heat of
-     *             Formation at 298K and 1 bar for species m_speciesIndex is
-     *             returned in h298[m_speciesIndex].
-     * @return the current value of the Heat of Formation at 298K and 1 bar for
-     *               species m_speciesIndex.
+     * @since Removed redundant output argument in %Cantera 4.0.
      */
-    virtual double reportHf298(span<double> h298={}) const;
+    virtual double reportHf298() const;
 
     //! Modify the value of the 298 K Heat of Formation of one species in the
     //! phase (J kmol-1)

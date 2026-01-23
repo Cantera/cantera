@@ -166,7 +166,7 @@ public:
         thermo["data"].asVector<vector<double>>().push_back(dimensioned_coeffs);
     }
 
-    double reportHf298(span<double> h298={}) const override {
+    double reportHf298() const override {
         double cp_R, h_RT, s_R;
         updatePropertiesTemp(298.15, cp_R, h_RT, s_R);
         return h_RT * GasConstant * 298.15;
@@ -329,17 +329,12 @@ public:
         msp_high.getParameters(thermo);
     }
 
-    double reportHf298(span<double> h298={}) const override {
-        double h;
+    double reportHf298() const override {
         if (298.15 <= m_midT) {
-            h = msp_low.reportHf298(h298);
+            return msp_low.reportHf298();
         } else {
-            h = msp_high.reportHf298(h298);
+            return msp_high.reportHf298();
         }
-        if (!h298.empty()) {
-            h298[0] = h;
-        }
-        return h;
     }
 
     void modifyOneHf298(const size_t k, const double Hf298New) override {

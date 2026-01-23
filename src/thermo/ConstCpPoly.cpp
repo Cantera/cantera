@@ -80,14 +80,10 @@ void ConstCpPoly::getParameters(AnyMap& thermo) const
     thermo["cp0"].setQuantity(m_cp0_R * GasConstant, "J/kmol/K");
 }
 
-double ConstCpPoly::reportHf298(span<double> h298) const
+double ConstCpPoly::reportHf298() const
 {
     double temp = 298.15;
-    double h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
-    if (!h298.empty()) {
-        h298[0] = h;
-    }
-    return h;
+    return GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
 }
 
 void ConstCpPoly::modifyOneHf298(const size_t k, const double Hf298New)

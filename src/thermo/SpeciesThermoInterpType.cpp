@@ -62,7 +62,7 @@ void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
     }
 }
 
-double SpeciesThermoInterpType::reportHf298(span<double> h298) const
+double SpeciesThermoInterpType::reportHf298() const
 {
     throw NotImplementedError("SpeciesThermoInterpType::reportHf298");
 }

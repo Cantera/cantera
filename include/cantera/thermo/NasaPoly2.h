@@ -131,17 +131,12 @@ public:
 
     void getParameters(AnyMap& thermo) const override;
 
-    double reportHf298(span<double> h298={}) const override {
-        double h;
+    double reportHf298() const override {
         if (298.15 <= m_midT) {
-            h = mnp_low.reportHf298();
+            return mnp_low.reportHf298();
         } else {
-            h = mnp_high.reportHf298();
+            return mnp_high.reportHf298();
         }
-        if (!h298.empty()) {
-            h298[0] = h;
-        }
-        return h;
     }
 
     void resetHf298() override {
