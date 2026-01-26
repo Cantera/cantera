@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sourcegen"
-version = "3.3.0a1"
+version = "4.0.0a1"
 license-files = ["../../License.txt"]
 description = "Source generator for creating Cantera interface code"
 authors = [{name = "Cantera Developers"}]
