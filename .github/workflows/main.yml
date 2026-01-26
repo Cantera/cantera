@@ -412,7 +412,7 @@ jobs:
           path: build/lib
       - name: Set up environment
         run: |
-          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.4
           echo "LD_LIBRARY_PATH=build/lib" >> $GITHUB_ENV
           mkdir -p type_check
       - name: Upgrade pip
@@ -670,7 +670,7 @@ jobs:
         # Skip examples for Python releases where pandas/pyarrow or CoolProp are not available
         run: |
           echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
-          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.4
           rm samples/python/reactors/1D_packed_bed.py
           if [ -e SKIP_PANDAS ]; then
             rm samples/python/kinetics/diamond_cvd.py
@@ -1215,8 +1215,8 @@ jobs:
       # MATLAB requires a specific library name: libcantera_shared.so.X
       # Recreating all symlinks to replicate status after build process
       run: |
-        ln -s libcantera_shared.so libcantera_shared.so.3.3.0
-        ln -s libcantera_shared.so.3.3.0 libcantera_shared.so.3
+        ln -s libcantera_shared.so libcantera_shared.so.4.0.0
+        ln -s libcantera_shared.so.4.0.0 libcantera_shared.so.4
       if: runner.os == 'Linux'
     - name: Download the Cantera shared library (macOS)
       uses: actions/download-artifact@v7
@@ -1229,8 +1229,8 @@ jobs:
       # MATLAB requires a specific library name: libcantera_shared.X.Y.Z.dylib
       # Recreating all symlinks to replicate status after build process
       run: |
-        ln -s libcantera_shared.dylib libcantera_shared.3.3.0.dylib
-        ln -s libcantera_shared.3.3.0.dylib libcantera_shared.3.dylib
+        ln -s libcantera_shared.dylib libcantera_shared.4.0.0.dylib
+        ln -s libcantera_shared.4.0.0.dylib libcantera_shared.4.dylib
       if: runner.os == 'macOS'
     - name: Download the Cantera shared library (Windows)
       uses: actions/download-artifact@v7
