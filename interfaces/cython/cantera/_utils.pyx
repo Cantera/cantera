@@ -5,6 +5,7 @@ import os
 import warnings
 from cpython.ref cimport PyObject
 from libcpp.utility cimport move
+from cython.operator cimport dereference
 import numbers as _numbers
 import importlib as _importlib
 from collections import namedtuple as _namedtuple
@@ -526,6 +527,10 @@ cdef vector[vector[string]] list2_string_to_anyvalue(data):
         for j, jtem in enumerate(item):
             v[i][j] = stringify(jtem)
     return v
+
+cdef CxxEigenTriplet get_triplet(row, col, val):
+    cdef CxxEigenTriplet* trip_ptr = new CxxEigenTriplet(row, col, val)
+    return dereference(trip_ptr)
 
 def _py_to_any_to_py(dd):
     # used for internal testing purposes only

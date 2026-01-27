@@ -2,6 +2,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
+import numpy as np
+from collections import defaultdict as _defaultdict
 import numbers as _numbers
 from cython.operator cimport dereference as deref
 import numpy as np
@@ -645,7 +647,8 @@ cdef class ExtensibleReactor(Reactor):
         'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
-        'species_index': ('speciesIndex', 'size_t(string)')
+        'species_index': ('speciesIndex', 'size_t(string)'),
+        'build_jacobian': ('buildJacobian', 'void(vector[CxxEigenTriplet]&)')
     }
 
     def __cinit__(self, *args, **kwargs):
@@ -703,6 +706,16 @@ cdef class ExtensibleReactor(Reactor):
         state of that surface
         """
         self.accessor.restoreSurfaceState(n)
+
+    def default_eval(self, time, LHS, RHS):
+        """
+        Evaluation of the base reactors `eval` function to be used in `replace`
+        functions and maintain original functionality.
+        """
+        assert len(LHS) == self.n_vars and len(RHS) == self.n_vars
+        cdef np.ndarray[np.double_t, ndim=1, mode="c"] rhs = np.frombuffer(RHS)
+        cdef np.ndarray[np.double_t, ndim=1, mode="c"] lhs = np.frombuffer(LHS)
+        self.accessor.defaultEval(time, &lhs[0], &rhs[0])
 
 
 cdef class ExtensibleIdealGasReactor(ExtensibleReactor):
@@ -2080,6 +2093,31 @@ cdef class ReactorNet:
         """
         def __set__(self, settings):
             self.net.setDerivativeSettings(py_to_anymap(settings))
+
+    property jacobian:
+        """
+        Get the system Jacobian or an approximation thereof.
+
+        **Warning**: Depending on the particular implementation, this may return an
+        approximate Jacobian intended only for use in forming a preconditioner for
+        iterative solvers, excluding terms that would generate a fully-dense Jacobian.
+
+        **Warning**: This method is an experimental part of the Cantera API and may be
+        changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.net.jacobian(), self.n_vars, self.n_vars)
+
+    property finite_difference_jacobian:
+        """
+        Get the system Jacobian, calculated using a finite difference method.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.net.finiteDifferenceJacobian(),
+                                   self.n_vars, self.n_vars)
 
     def draw(self, *, graph_attr=None, node_attr=None, edge_attr=None,
              heat_flow_attr=None, mass_flow_attr=None, moving_wall_edge_attr=None,

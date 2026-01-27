@@ -302,11 +302,34 @@ public:
         return m_sensParams.size();
     }
 
+    //! Calculate the derivative of T with respect to the ith species in the energy
+    //! conservation equation based on the reactor specific equation of state.
+    //! @param index index of the species the derivative is with respect too
+    //! @warning This function is an experimental part of the %Cantera API and may
+    //! be changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    virtual double temperature_ddni(size_t index) {
+        throw NotImplementedError("Reactor::temperature_ddni");
+    }
+
+    //! Return the index associated with energy of the system
+    virtual size_t energyIndex() const { return m_eidx; };
+
+    //! Return the offset between species and state variables
+    virtual size_t speciesOffset() const { return m_sidx; };
+
 protected:
     explicit ReactorBase(const string& name="(none)");
 
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;
+
+    //! species offset in the state vector
+    const size_t m_sidx = 3;
+
+    //! index of state variable associated with energy
+    const size_t m_eidx = 1;
 
     ThermoPhase* m_thermo = nullptr;
     double m_vol = 0.0; //!< Current volume of the reactor [m^3]

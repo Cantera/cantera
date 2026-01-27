@@ -10,6 +10,7 @@
 #include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ExtensionManager.h"
+#include "cantera/numerics/eigen_sparse.h"
 #include <array>
 #include <list>
 
@@ -227,6 +228,20 @@ public:
     }
 
     //! Set delegates for member functions with the signature
+    //! `void(vector<Eigen::Triplet<double>>&)`
+    void setDelegate(const string& name,
+                     const function<void(vector<Eigen::Triplet<double>>&)>& func,
+                     const string& when)
+    {
+        if (!m_funcs_v_vet.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function '{}' with signature "
+                "'void(vector<Eigen::Triplet<double>>&)'.", name);
+        }
+        *m_funcs_v_vet[name] = makeDelegate(func, when, *m_funcs_v_vet[name]);
+    }
+
+    //! Set delegates for member functions with the signature
     //! `void(double*, double*, double*)`
     void setDelegate(
         const string& name,
@@ -386,6 +401,16 @@ protected:
         m_funcs_v_dp_dp_dp[name] = &target;
     }
 
+    //! Install a function with the signature `void(vector<Eigen::Triplet<double>>&)`
+    //! as being delegatable
+    void install(const string& name,
+                 function<void(vector<Eigen::Triplet<double>>&)>& target,
+                 const function<void(vector<Eigen::Triplet<double>>&)>& base)
+    {
+        target = base;
+        m_funcs_v_vet[name] = &target;
+    }
+
     //! Install a function with the signature `double(void*)` as being delegatable
     void install(const string& name, function<double(void*)>& target,
                  const function<double(void*)>& func)
@@ -514,6 +539,7 @@ protected:
     //! - `sz` for `size_t`
     //! - `AM` for `AnyMap`
     //! - `US` for `UnitStack`
+    //! - `VET` for `vector<Eigen::Triplet<double>>`
     //! - prefix `c` for `const` arguments
     //! - suffix `r` for reference arguments
     //! - suffix `p` for pointer arguments
@@ -532,6 +558,7 @@ protected:
         function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
     map<string,
         function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
+    map<string, function<void(vector<Eigen::Triplet<double>>&)>*> m_funcs_v_vet;
 
     // Delegates with a return value
     map<string, function<double(void*)>> m_base_d_vp;
@@ -542,6 +569,7 @@ protected:
 
     map<string, function<size_t(const string&)>> m_base_sz_csr;
     map<string, function<size_t(const string&)>*> m_funcs_sz_csr;
+
     //! @}
 
     //! Handles to wrappers for the delegated object in external language interfaces.
