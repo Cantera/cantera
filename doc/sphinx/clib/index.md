@@ -4,17 +4,11 @@
 The CLib API is an experimental part of Cantera and may be changed without notice.
 ```
 
-Cantera has two C interfaces (CLib):
-
-- The [](../develop/clib-extensions).
-
-- The _legacy_ CLib is hand-coded and is not feature-complete.
-
-Both C interfaces consists of a set of libraries that are designed to encapsulate
-Cantera functionality and to make it available for use in languages and applications
-other than C++. Each library provides functions that are declared `extern "C"`. All
-Cantera objects are stored and referenced by integers - no pointers are passed to or
-from the calling application.
+The [](../develop/clib-extensions) consists of a set of libraries that are designed to
+encapsulate Cantera functionality and to make it available for use in languages and
+applications other than C++. Each library provides functions that are declared
+`extern "C"`. All Cantera objects are stored and referenced by integers - no pointers
+are passed to or from the calling application.
 
 ## Generated C Interface
 
