@@ -52,14 +52,14 @@ public:
     /*!
      *  @param model     String name for the transport manager
      *  @param thermo    ThermoPhase object
-     *  @since  Changed in %Cantera 3.3 to use `shared_ptr<ThermoPhase>` instead of raw
+     *  @since  Changed in %Cantera 4.0 to use `shared_ptr<ThermoPhase>` instead of raw
      *      pointer.
      */
     Transport* newTransport(const string& model, shared_ptr<ThermoPhase> thermo);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
-    //! @since  Changed in %Cantera 3.3 to use `shared_ptr<ThermoPhase>` instead of raw
+    //! @since  Changed in %Cantera 4.0 to use `shared_ptr<ThermoPhase>` instead of raw
     //!     pointer.
     Transport* newTransport(shared_ptr<ThermoPhase> thermo);
 private:

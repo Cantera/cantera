@@ -132,7 +132,7 @@ public:
      * @param name  String name of the global element.
      * @param raise  If `true`, raise exception if the specified element is not found;
      *      otherwise, return @ref npos.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified element is not found and
      *      `raise` is `true`.
@@ -196,7 +196,7 @@ public:
      * @param raise  If `true`, raise exception if the specified phase is not found.
      * @returns the index. A value of -1 means the phase isn't in the object.
      * @since Added the `raise` argument in %Cantera 3.2 and changed return type.
-     *      Changed the default value of `raise` to `true` in %Cantera 3.3.
+     *      Changed the default value of `raise` to `true` in %Cantera 4.0.
      * @exception Throws a CanteraError if the specified phase is not found and
      *      `raise` is `true`.
      */

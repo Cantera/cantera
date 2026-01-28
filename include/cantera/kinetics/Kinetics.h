@@ -204,7 +204,7 @@ public:
      * @param ph string name of the phase
      * @param raise  If `true`, raise exception if the specified phase is not defined
      *      in the Kinetics object.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified phase is not found and
      *      `raise` is `true`.
@@ -282,7 +282,7 @@ public:
      *
      * @param k species index
      * @exception Throws an IndexError if the specified species index is out of bounds
-     * @since  Starting in %Cantera 3.3, this method throws an exception if the
+     * @since  Starting in %Cantera 4.0, this method throws an exception if the
      *     species index is out of bounds instead of returning "<unknown>".
      */
     string kineticsSpeciesName(size_t k) const;
@@ -295,7 +295,7 @@ public:
      * @param nm  Name of the species.
      * @param raise  If `true`, raise exception if the specified species is not defined
      *      in the Kinetics object.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified species is not found and
      *      `raise` is `true`.
