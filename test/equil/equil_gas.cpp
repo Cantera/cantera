@@ -335,8 +335,8 @@ class PlasmaEquil : public testing::Test
 {
 public:
     PlasmaEquil() {}
-    void setup(const string& infile = "methane-plasma-pavan-2023.yaml",
-               const string& phaseName = "gri30-plasma")
+    void setup(const string& infile = "air-plasma.yaml",
+               const string& phaseName = "air-plasma-Phelps")
     {
         sol = newSolution(infile, phaseName, "none");
         auto th = sol->thermo();
@@ -351,9 +351,9 @@ TEST_F(PlasmaEquil, ChemEquil_TP)
 {
     setup();
     auto& thermo = *plasma;
-    const double T = 1000.0;
+    const double T = 1800.0;
     const double P = OneAtm;
-    thermo.setState_TPX(T, P, "N2:0.8, O2:0.2");
+    thermo.setState_TPX(T, P, "N2:0.8, O2:0.2, Electron:1E-11");
     // Set a distinct electron temperature so Te-lock behavior is exercised
     thermo.setElectronEnergyDistributionType("isotropic");
     plasma->setElectronTemperature(1.5 * T);
