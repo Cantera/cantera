@@ -152,7 +152,7 @@ public:
      * @param name Name of the element.
      * @param raise  If `true`, raise exception if the specified element is not found;
      *      otherwise, return @ref npos.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified element is not found and
      *      `raise` is `true`.
@@ -227,7 +227,7 @@ public:
      * @param raise  If `true`, raise exception if the specified species is not found;
      *      otherwise, return @ref npos.
      * @return The index of the species.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified species is not found and
      *      `raise` is `true`.

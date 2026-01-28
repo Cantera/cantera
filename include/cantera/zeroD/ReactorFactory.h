@@ -61,14 +61,14 @@ shared_ptr<ReactorBase> newReactorBase(
 //!     reactor is independent of the original Solution object and any Solution objects
 //!     used by other reactors in the network.
 //! @param name  Name of the reactor.
-//! @since  Starting in %Cantera 3.3, returns a `shared_ptr<Reactor>` instead of a
+//! @since  Starting in %Cantera 4.0, returns a `shared_ptr<Reactor>` instead of a
 //!     `shared_ptr<ReactorBase>`.
 shared_ptr<Reactor> newReactor(
     const string& model, shared_ptr<Solution> phase, bool clone=true,
     const string& name="(none)");
 
 //! @copydoc newReactor
-//! @deprecated Transitional method; to be removed after %Cantera 3.3.
+//! @deprecated Transitional method; to be removed after %Cantera 4.0.
 inline shared_ptr<Reactor> newReactor4(const string& model, shared_ptr<Solution> phase,
                                 bool clone=true, const string& name="(none)")
 {
