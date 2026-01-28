@@ -5,9 +5,12 @@
 #define CT_PY_THERMO_UTILS_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "wrappers.h"
 
-#define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
+using std::span;
+
+#define THERMO_1D(FUNC_NAME) \
+    inline void thermo_ ## FUNC_NAME(Cantera::ThermoPhase* object, span<double> data) \
+    { object->FUNC_NAME(data); }
 
 THERMO_1D(getMassFractions)
 THERMO_1D(setMassFractions)

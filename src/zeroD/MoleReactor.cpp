@@ -141,8 +141,8 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
 void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles
-    const double* Y = m_thermo->massFractions();
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    auto Y = m_thermo->massFractions();
+    auto imw = m_thermo->inverseMolecularWeights();
     for (size_t i = 0; i < m_nsp; i++) {
         y[i] = m_mass * imw[i] * Y[i];
     }
@@ -150,7 +150,7 @@ void MoleReactor::getMoles(double* y)
 
 void MoleReactor::setMassFromMoles(double* y)
 {
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     // calculate mass from moles
     m_mass = 0;
     for (size_t i = 0; i < m_nsp; i++) {
@@ -184,7 +184,7 @@ void MoleReactor::updateState(double* y)
     // of surface species on each wall.
     setMassFromMoles(y + m_sidx);
     m_vol = y[1];
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     if (m_energy) {
         double U = y[0];
         // Residual function: error in internal energy as a function of T
@@ -231,7 +231,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
 
     evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
     // inverse molecular weights for conversion
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    auto imw = m_thermo->inverseMolecularWeights();
     // volume equation
     RHS[1] = m_vdot;
 

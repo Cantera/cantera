@@ -31,9 +31,7 @@ int main(int argc, char** argv)
 
 
         size_t nsp = HMW->nSpecies();
-        double mf[100];
         double moll[100];
-        HMW->getMoleFractions(mf);
         string sName;
 
         TemperatureTable TTable(15, false, 273.15, 25., 0, 0);
@@ -60,7 +58,7 @@ int main(int argc, char** argv)
         moll[i1] = Is;
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
-        double Xmol[30];
+        vector<double> Xmol(nsp);
         HMW->getMoleFractions(Xmol);
         double meanMW = HMW->meanMolecularWeight();
 

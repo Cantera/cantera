@@ -19,7 +19,7 @@ public:
         vector<double> moleFracs(7);
         moleFracs[0] = r;
         moleFracs[2] = 1-r;
-        test_phase->setMoleFractions(&moleFracs[0]);
+        test_phase->setMoleFractions(moleFracs);
     }
 
     shared_ptr<ThermoPhase> test_phase;
@@ -52,7 +52,7 @@ TEST_F(RedlichKwongMFTP_Test, chem_potentials)
     for(int i=0; i < 9; ++i)
     {
         set_r(xmin + i*dx);
-        test_phase->getChemPotentials(&chemPotentials[0]);
+        test_phase->getChemPotentials(chemPotentials);
         EXPECT_NEAR(expected_result[i], chemPotentials[0], 1.e-6);
     }
 }

@@ -108,13 +108,12 @@ public:
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
-    //! @param  length The length of the @c levels.
-    void setElectronEnergyLevels(const double* levels, size_t length);
+    void setElectronEnergyLevels(span<const double> levels);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
-    void getElectronEnergyLevels(double* levels) const {
-        Eigen::Map<Eigen::ArrayXd>(levels, m_nPoints) = m_electronEnergyLevels;
+    void getElectronEnergyLevels(span<double> levels) const {
+        Eigen::Map<Eigen::ArrayXd>(levels.data(), levels.size()) = m_electronEnergyLevels;
     }
 
     //! Set discretized electron energy distribution.
@@ -122,16 +121,14 @@ public:
     //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    //! @param  length The length of the vectors, which equals #m_nPoints.
-    void setDiscretizedElectronEnergyDist(const double* levels,
-                                          const double* distrb,
-                                          size_t length);
+    void setDiscretizedElectronEnergyDist(span<const double> levels,
+                                          span<const double> distrb);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    void getElectronEnergyDistribution(double* distrb) const {
-        Eigen::Map<Eigen::ArrayXd>(distrb, m_nPoints) = m_electronEnergyDist;
+    void getElectronEnergyDistribution(span<double> distrb) const {
+        Eigen::Map<Eigen::ArrayXd>(distrb.data(), distrb.size()) = m_electronEnergyDist;
     }
 
     //! Set the shape factor of isotropic electron energy distribution.
@@ -272,23 +269,23 @@ public:
         throw NotImplementedError("PlasmaPhase::intEnergy_mole");
     }
 
-    void getEntropy_R(double* sr) const override;
+    void getEntropy_R(span<double> sr) const override;
 
-    void getGibbs_RT(double* grt) const override;
+    void getGibbs_RT(span<double> grt) const override;
 
-    void getGibbs_ref(double* g) const override;
+    void getGibbs_ref(span<double> g) const override;
 
-    void getStandardVolumes_ref(double* vol) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
-    void getStandardChemPotentials(double* muStar) const override;
+    void getStandardChemPotentials(span<double> muStar) const override;
 
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
-    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
 
     void getParameters(AnyMap& phaseNode) const override;
 

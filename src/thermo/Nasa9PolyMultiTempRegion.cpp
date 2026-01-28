@@ -52,14 +52,14 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
 }
 
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref,
-                                                   const double* coeffs)
+                                                   span<const double> coeffs)
     : SpeciesThermoInterpType(tlow, thigh, pref)
 {
     size_t regions = static_cast<size_t>(coeffs[0]);
 
     for (size_t i=0; i<regions; i++) {
         Nasa9Poly1* poly = new Nasa9Poly1(coeffs[11*i+1], coeffs[11*i+2],
-                                          pref, coeffs + 11*i + 3);
+                                          pref, coeffs.subspan(11*i + 3, 9));
         m_regionPts.emplace_back(poly);
     }
 
@@ -102,7 +102,7 @@ int Nasa9PolyMultiTempRegion::reportType() const
     return NASA9MULTITEMP;
 }
 
-void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) const
+void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, span<double> T_poly) const
 {
     T_poly[0] = T;
     T_poly[1] = T * T;
@@ -113,8 +113,8 @@ void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) c
     T_poly[6] = std::log(T);
 }
 
-void Nasa9PolyMultiTempRegion::updateProperties(const double* tt,
-        double* cp_R, double* h_RT, double* s_R) const
+void Nasa9PolyMultiTempRegion::updateProperties(span<const double> tt,
+        double& cp_R, double& h_RT, double& s_R) const
 {
     m_currRegion = 0;
     for (size_t i = 1; i < m_regionPts.size(); i++) {
@@ -128,7 +128,7 @@ void Nasa9PolyMultiTempRegion::updateProperties(const double* tt,
 }
 
 void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const double temp,
-        double* cp_R, double* h_RT, double* s_R) const
+        double& cp_R, double& h_RT, double& s_R) const
 {
     // Now find the region
     m_currRegion = 0;
@@ -148,7 +148,7 @@ size_t Nasa9PolyMultiTempRegion::nCoeffs() const
 }
 
 void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
-        double& tlow, double& thigh, double& pref, double* const coeffs) const
+        double& tlow, double& thigh, double& pref, span<double> coeffs) const
 {
     n = 0;
     type = NASA9MULTITEMP;
@@ -162,9 +162,8 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
     int type_tmp = 0;
     double pref_tmp = 0.0;
     for (size_t iReg = 0; iReg < m_regionPts.size(); iReg++) {
-        m_regionPts[iReg]->reportParameters(n_tmp, type_tmp,
-                                            coeffs[index], coeffs[index+1],
-                                            pref_tmp, ctmp);
+        m_regionPts[iReg]->reportParameters(
+            n_tmp, type_tmp, coeffs[index], coeffs[index+1], pref_tmp, ctmp);
         for (int i = 0; i < 9; i++) {
             coeffs[index+2+i] = ctmp[3+i];
         }

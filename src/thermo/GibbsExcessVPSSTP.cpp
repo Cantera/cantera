@@ -24,7 +24,7 @@ namespace Cantera
 void GibbsExcessVPSSTP::compositionChanged()
 {
     Phase::compositionChanged();
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
 }
 
 // ------------ Mechanical Properties ------------------------------
@@ -47,7 +47,7 @@ Units GibbsExcessVPSSTP::standardConcentrationUnits() const
     return Units(1.0); // dimensionless
 }
 
-void GibbsExcessVPSSTP::getActivityConcentrations(double* c) const
+void GibbsExcessVPSSTP::getActivityConcentrations(span<double> c) const
 {
     getActivities(c);
 }
@@ -62,16 +62,16 @@ double GibbsExcessVPSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void GibbsExcessVPSSTP::getActivities(double* ac) const
+void GibbsExcessVPSSTP::getActivities(span<double> ac) const
 {
     getActivityCoefficients(ac);
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] *= moleFractions_[k];
     }
 }
 
-void GibbsExcessVPSSTP::getActivityCoefficients(double* const ac) const
+void GibbsExcessVPSSTP::getActivityCoefficients(span<double> const ac) const
 {
     getLnActivityCoefficients(ac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -87,7 +87,7 @@ void GibbsExcessVPSSTP::getActivityCoefficients(double* const ac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void GibbsExcessVPSSTP::getPartialMolarVolumes(double* vbar) const
+void GibbsExcessVPSSTP::getPartialMolarVolumes(span<double> vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);

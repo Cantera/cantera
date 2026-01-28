@@ -68,7 +68,7 @@ protected:
 
 public:
     Units standardConcentrationUnits() const override;
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
@@ -84,18 +84,18 @@ public:
      */
     double standardConcentration(size_t k=0) const override;
 
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    void getChemPotentials(double* mu) const override;
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
-    void getPartialMolarIntEnergies(double* ubar) const override;
-    void getPartialMolarCp(double* cpbar) const override;
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
 public:
@@ -110,7 +110,7 @@ public:
     bool addSpecies(shared_ptr<Species> spec) override;
     void initThermo() override;
     void getParameters(AnyMap& phaseNode) const override;
-    void setToEquilState(const double* lambda_RT) override;
+    void setToEquilState(span<const double> lambda_RT) override;
 
     //! @}
 

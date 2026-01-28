@@ -6,6 +6,7 @@ import numpy as np
 
 from ._utils cimport *
 from .constants import gas_constant
+from .ctcxx cimport span
 
 # These match the definitions in speciesThermoTypes.h
 cdef int SPECIES_THERMO_CONSTANT_CP = 1
@@ -41,8 +42,9 @@ cdef class SpeciesThermo:
             raise ValueError("Coefficient array has incorrect length")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(
             coeffs, dtype=np.double)
+        cdef span[double] view = span[double](&data[0], <size_t>data.size)
         self._spthermo.reset(CxxNewSpeciesThermo(self.derived_type, T_low,
-                                                 T_high, P_ref, &data[0]))
+                                                 T_high, P_ref, view))
         self.spthermo = self._spthermo.get()
 
     cdef _assign(self, shared_ptr[CxxSpeciesThermo] other):
@@ -80,8 +82,9 @@ cdef class SpeciesThermo:
             cdef int thermo_type = 0
             cdef double T_low = 0, T_high = 0, P_ref = 0
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_coeffs)
+            cdef span[double] view = span[double](&data[0], <size_t>self.n_coeffs)
             self.spthermo.reportParameters(index, thermo_type, T_low,
-                                           T_high, P_ref, &data[0])
+                                           T_high, P_ref, view)
             return data
 
     def _check_n_coeffs(self, n):
@@ -119,20 +122,20 @@ cdef class SpeciesThermo:
         """
         Molar heat capacity at constant pressure [J/kmol/K] at temperature *T*.
         """
-        cdef double cp_r, h_rt, s_r
-        self.spthermo.updatePropertiesTemp(T, &cp_r, &h_rt, &s_r)
+        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return cp_r * gas_constant
 
     def h(self, T):
         """ Molar enthalpy [J/kmol] at temperature *T* """
-        cdef double cp_r, h_rt, s_r
-        self.spthermo.updatePropertiesTemp(T, &cp_r, &h_rt, &s_r)
+        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return h_rt * gas_constant * T
 
     def s(self, T):
         """ Molar entropy [J/kmol/K] at temperature *T* """
-        cdef double cp_r, h_rt, s_r
-        self.spthermo.updatePropertiesTemp(T, &cp_r, &h_rt, &s_r)
+        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return s_r * gas_constant
 
 

@@ -51,7 +51,7 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
     m_kinetics = m_solution->kinetics();
     m_thermo = m_surf.get();
     m_cov.resize(m_surf->nSpecies());
-    m_surf->getCoverages(m_cov.data());
+    m_surf->getCoverages(m_cov);
 }
 
 double ReactorSurface::area() const
@@ -72,13 +72,13 @@ void ReactorSurface::setCoverages(const double* cov)
 void ReactorSurface::setCoverages(const Composition& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
+    m_surf->getCoverages(m_cov);
 }
 
 void ReactorSurface::setCoverages(const string& cov)
 {
     m_surf->setCoveragesByName(cov);
-    m_surf->getCoverages(m_cov.data());
+    m_surf->getCoverages(m_cov);
 }
 
 void ReactorSurface::getCoverages(double* cov) const
@@ -89,7 +89,7 @@ void ReactorSurface::getCoverages(double* cov) const
 void ReactorSurface::restoreState()
 {
     m_surf->setTemperature(m_reactors[0]->temperature());
-    m_surf->setCoveragesNoNorm(m_cov.data());
+    m_surf->setCoveragesNoNorm(m_cov);
 }
 
 void ReactorSurface::syncState()
@@ -97,7 +97,7 @@ void ReactorSurface::syncState()
     warn_user("ReactorSurface::syncState", "Behavior changed in Cantera 3.2 for "
         "consistency with ReactorBase. To set SurfPhase state from ReactorSurface "
         "object, use restoreState().");
-    m_surf->getCoverages(m_cov.data());
+    m_surf->getCoverages(m_cov);
 }
 
 void ReactorSurface::addSensitivityReaction(size_t rxn)

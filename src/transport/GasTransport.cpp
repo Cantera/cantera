@@ -276,7 +276,8 @@ void GasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
     m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.resize(m_nsp);
+    m_thermo->getMolecularWeights(m_mw);
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -308,7 +309,7 @@ void GasTransport::setupCollisionParameters()
     m_disp.resize(m_nsp, 0.0);
     m_quad_polar.resize(m_nsp, 0.0);
 
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     getTransportData();
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -516,7 +517,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     double visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
     double T_save = m_thermo->temperature();
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         double tstar = Boltzmann * 298.0 / m_eps[k];
         // Scaling factor for temperature dependence of z_rot. [Kee2003] Eq.
@@ -528,7 +529,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
             vector<double> cp_R_all(m_thermo->nSpecies());
-            m_thermo->getCp_R_ref(&cp_R_all[0]);
+            m_thermo->getCp_R_ref(cp_R_all);
             double cp_R = cp_R_all[k];
             tstar = Boltzmann * t / m_eps[k];
             double sqrt_T = sqrt(t);

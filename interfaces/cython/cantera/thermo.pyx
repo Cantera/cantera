@@ -8,6 +8,7 @@ import numpy as np
 cimport numpy as np
 
 from .speciesthermo cimport *
+from .ctcxx cimport span
 from .kinetics cimport CxxKinetics
 from .transport cimport *
 from ._utils cimport *
@@ -612,7 +613,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cdef np.ndarray _getArray1(self, thermoMethod1d method):
         cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-        method(self.thermo, &data[0])
+        method(self.thermo, span[double](&data[0], data.size))
         if self._selected_species.size:
             return data[self._selected_species]
         else:
@@ -620,6 +621,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
         cdef np.ndarray[np.double_t, ndim=1] data
+        cdef span[double] view
 
         values = np.squeeze(values)
         if values.ndim == 0:
@@ -636,7 +638,7 @@ cdef class ThermoPhase(_SolutionBase):
             if len(self._selected_species):
                 msg += ' or {}'.format(len(self._selected_species))
             raise ValueError('Array has incorrect length. ' + msg + '.')
-        method(self.thermo, &data[0])
+        method(self.thermo, span[double](&data[0], data.size))
 
     property molecular_weights:
         """Array of species molecular weights (molar masses) [kg/kmol]."""
@@ -779,7 +781,9 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] ox_comp = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setEquivalenceRatio(phi, &fuel_comp[0], &ox_comp[0],
+        cdef span[double] fuel_view = span[double](&fuel_comp[0], fuel_comp.size)
+        cdef span[double] ox_view = span[double](&ox_comp[0], ox_comp.size)
+        self.thermo.setEquivalenceRatio(phi, fuel_view, ox_view,
                                         ThermoBasis.mass if basis == "mass"
                                                          else ThermoBasis.molar)
 
@@ -906,7 +910,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setMixtureFraction(mixture_fraction, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        self.thermo.setMixtureFraction(mixture_fraction, fuel_view, ox_view,
+            ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
     def equivalence_ratio(self, fuel=None, oxidizer=None, basis="mole",
                           include_species=None):
@@ -973,9 +980,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        phi = self.thermo.equivalenceRatio(&f[0], &o[0],
-                                           ThermoBasis.mass if basis=="mass"
-                                                            else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        phi = self.thermo.equivalenceRatio(fuel_view, ox_view,
+            ThermoBasis.mass if basis == "mass" else ThermoBasis.molar)
         if include_species is not None:
             self.TPY = T_orig, P_orig, Y_orig
         return phi
@@ -1040,7 +1048,12 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             e_name = self.element_name(self.element_index(element))
 
-        return self.thermo.mixtureFraction(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar, stringify(e_name))
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        return self.thermo.mixtureFraction(
+            fuel_view, ox_view,
+            ThermoBasis.mass if basis=='mass' else ThermoBasis.molar,
+            stringify(e_name))
 
     def stoich_air_fuel_ratio(self, fuel, oxidizer, basis='mole'):
         """
@@ -1069,7 +1082,10 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        return self.thermo.stoichAirFuelRatio(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
+        cdef span[double] fuel_view = span[double](&f[0], f.size)
+        cdef span[double] ox_view = span[double](&o[0], o.size)
+        return self.thermo.stoichAirFuelRatio(fuel_view, ox_view,
+            ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
 
     def elemental_mass_fraction(self, m):
         r"""
@@ -1124,7 +1140,7 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(Y), self.n_species))
-        self.thermo.setMassFractions_NoNorm(&data[0])
+        self.thermo.setMassFractions_NoNorm(span[double](&data[0], data.size))
 
     def set_unnormalized_mole_fractions(self, X):
         """
@@ -1138,7 +1154,7 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise ValueError("Array has incorrect length."
                 " Got {}, expected {}.".format(len(X), self.n_species))
-        self.thermo.setMoleFractions_NoNorm(&data[0])
+        self.thermo.setMoleFractions_NoNorm(span[double](&data[0], data.size))
 
     def mass_fraction_dict(self, double threshold=0.0):
         """
@@ -1349,12 +1365,12 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.state_size)
-            self.thermo.saveState(len(state), &state[0])
+            self.thermo.saveState(span[double](&state[0], len(state)))
             return state
 
         def __set__(self, state):
             cdef np.ndarray[np.double_t, ndim=1] cstate = np.asarray(state)
-            self.thermo.restoreState(len(state), &cstate[0])
+            self.thermo.restoreState(span[double](&cstate[0], len(cstate)))
 
     property TD:
         """Get/Set temperature [K] and density [kg/m³ or kmol/m³]."""
@@ -1824,10 +1840,9 @@ cdef class ThermoPhase(_SolutionBase):
             np.ascontiguousarray(levels, dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] data_dist = \
             np.ascontiguousarray(distribution, dtype=np.double)
-
-        self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
-                                                     &data_dist[0],
-                                                     len(levels))
+        self.plasma.setDiscretizedElectronEnergyDist(
+            span[double](&data_levels[0], data_levels.size),
+            span[double](&data_dist[0], data_dist.size))
 
     def update_electron_energy_distribution(self):
         """
@@ -1855,14 +1870,14 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyLevels(&data[0])
+            self.plasma.getElectronEnergyLevels(span[double](&data[0], data.size))
             return data
         def __set__(self, levels):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(levels, dtype=np.double)
-            self.plasma.setElectronEnergyLevels(&data[0], len(levels))
+            self.plasma.setElectronEnergyLevels(span[double](&data[0], data.size))
 
     property electron_energy_distribution:
         """ Electron energy distribution """
@@ -1871,7 +1886,7 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyDistribution(&data[0])
+            self.plasma.getElectronEnergyDistribution(span[double](&data[0], data.size))
             return data
 
     property isotropic_shape_factor:
@@ -1978,7 +1993,7 @@ cdef class InterfacePhase(ThermoPhase):
         """Get/Set the fraction of sites covered by each species."""
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            self.surf.getCoverages(&data[0])
+            self.surf.getCoverages(span[double](&data[0], data.size))
             if self._selected_species.size:
                 return data[self._selected_species]
             else:
@@ -1994,7 +2009,7 @@ cdef class InterfacePhase(ThermoPhase):
                     " Got {}, expected {}".format(len(theta), self.n_species))
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
-            self.surf.setCoverages(&data[0])
+            self.surf.setCoverages(span[double](&data[0], data.size))
 
     def set_unnormalized_coverages(self, cov):
         """
@@ -2008,7 +2023,7 @@ cdef class InterfacePhase(ThermoPhase):
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(cov), self.n_species))
-        self.surf.setCoveragesNoNorm(&data[0])
+        self.surf.setCoveragesNoNorm(span[double](&data[0], data.size))
 
 
 cdef class PureFluid(ThermoPhase):

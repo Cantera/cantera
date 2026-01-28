@@ -191,7 +191,7 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     /**
      * Overloads the calcDensity() method of IdealSolidSoln to also consider non-ideal

@@ -33,17 +33,14 @@ int main(int argc, char** argv)
         size_t nsp = HMW->nSpecies();
         double acMol[100];
         double act[100];
-        double mf[100];
         double moll[100];
 
         for (i = 0; i < 100; i++) {
             acMol[i] = 1.0;
             act[i] = 1.0;
-            mf[i] = 0.0;
             moll[i] = 0.0;
         }
 
-        HMW->getMoleFractions(mf);
         string sName;
         FILE* ff;
 

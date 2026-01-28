@@ -818,7 +818,8 @@ void SolutionArray::setLoc(int loc, bool restore)
     m_loc = static_cast<size_t>(m_active[loc_]);
     if (restore) {
         size_t nState = m_sol->thermo()->stateSize();
-        m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
+        m_sol->thermo()->restoreState(
+            span<const double>(m_data->data() + m_loc * m_stride, nState));
     }
 }
 
@@ -826,7 +827,8 @@ void SolutionArray::updateState(int loc)
 {
     setLoc(loc, false);
     size_t nState = m_sol->thermo()->stateSize();
-    m_sol->thermo()->saveState(nState, m_data->data() + m_loc * m_stride);
+    m_sol->thermo()->saveState(
+        span<double>(m_data->data() + m_loc * m_stride, nState));
 }
 
 vector<double> SolutionArray::getState(int loc)
@@ -848,7 +850,8 @@ void SolutionArray::setState(int loc, const vector<double>& state)
     }
     setLoc(loc, false);
     m_sol->thermo()->restoreState(state);
-    m_sol->thermo()->saveState(nState, m_data->data() + m_loc * m_stride);
+    m_sol->thermo()->saveState(
+        span<double>(m_data->data() + m_loc * m_stride, nState));
 }
 
 void SolutionArray::normalize() {
@@ -863,7 +866,8 @@ void SolutionArray::normalize() {
         size_t offset = nativeState["Y"];
         for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
-            phase->setMassFractions(m_data->data() + m_loc * m_stride + offset);
+            auto* data = m_data->data() + m_loc * m_stride + offset;
+            phase->setMassFractions(span<const double>(data, phase->nSpecies()));
             m_sol->thermo()->saveState(out);
             setState(loc, out);
         }
@@ -871,7 +875,8 @@ void SolutionArray::normalize() {
         size_t offset = nativeState["X"];
         for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
-            phase->setMoleFractions(m_data->data() + m_loc * m_stride + offset);
+            auto* data = m_data->data() + m_loc * m_stride + offset;
+            phase->setMoleFractions(span<const double>(data, phase->nSpecies()));
             m_sol->thermo()->saveState(out);
             setState(loc, out);
         }
@@ -1115,9 +1120,9 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         }
         setLoc(row);
         if (mole) {
-            m_sol->thermo()->getMoleFractions(buf.data());
+            m_sol->thermo()->getMoleFractions(buf);
         } else {
-            m_sol->thermo()->getMassFractions(buf.data());
+            m_sol->thermo()->getMassFractions(buf);
         }
 
         size_t idx = 0;
@@ -1283,9 +1288,9 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         auto nSpecies = phase->nSpecies();
         vector<double> values(nSpecies);
         if (surf) {
-            surf->getCoverages(&values[0]);
+            surf->getCoverages(values);
         } else {
-            phase->getMassFractions(&values[0]);
+            phase->getMassFractions(values);
         }
         AnyMap items;
         for (size_t k = 0; k < nSpecies; k++) {
@@ -1773,9 +1778,10 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setState_TP(T[i], P[i]);
-            m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
+            m_sol->thermo()->saveState(
+                span<double>(m_data->data() + i * m_stride, nState));
         }
     } else if (mode == "TDX") {
         AnyValue data;
@@ -1786,9 +1792,10 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setState_TD(T[i], D[i]);
-            m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
+            m_sol->thermo()->saveState(
+                span<double>(m_data->data() + i * m_stride, nState));
         }
     } else if (mode == "TPY") {
         AnyValue data;
@@ -1799,9 +1806,10 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "Y", m_dataSize, nSpecies);
         vector<vector<double>> Y = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMassFractions_NoNorm(Y[i].data());
+            m_sol->thermo()->setMassFractions_NoNorm(Y[i]);
             m_sol->thermo()->setState_TP(T[i], P[i]);
-            m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
+            m_sol->thermo()->saveState(
+                span<double>(m_data->data() + i * m_stride, nState));
         }
     } else if (mode == "legacySurf") {
         // erroneous TDX mode (should be TPX or TPY) - Sim1D (Cantera 2.5)
@@ -1811,9 +1819,10 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         data = file.readData(path, "X", m_dataSize, nSpecies);
         vector<vector<double>> X = std::move(data.asVector<vector<double>>());
         for (size_t i = 0; i < m_dataSize; i++) {
-            m_sol->thermo()->setMoleFractions_NoNorm(X[i].data());
+            m_sol->thermo()->setMoleFractions_NoNorm(X[i]);
             m_sol->thermo()->setTemperature(T[i]);
-            m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
+            m_sol->thermo()->saveState(
+                span<double>(m_data->data() + i * m_stride, nState));
         }
         warn_user("SolutionArray::readEntry",
             "Detected legacy HDF format with incomplete state information\nfor name "
@@ -1939,7 +1948,7 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
             throw NotImplementedError("SolutionArray::readEntry",
                 "Import of '{}' data is not supported.", mode);
         }
-        m_sol->thermo()->saveState(nState, m_data->data());
+        m_sol->thermo()->saveState(span<double>(m_data->data(), nState));
         auto props = _stateProperties(mode, true);
         exclude.insert(props.begin(), props.end());
     } else {
@@ -2001,8 +2010,9 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
             const size_t offset_Y = nativeState.find("Y")->second;
             for (size_t i = 0; i < m_dataSize; i++) {
                 double T = (*m_data)[offset_T + i * m_stride];
-                m_sol->thermo()->setState_TPY(
-                    T, P, m_data->data() + offset_Y + i * m_stride);
+                span<double> Y(m_data->data() + offset_Y + i * m_stride,
+                               m_sol->thermo()->nSpecies());
+                m_sol->thermo()->setState_TPY(T, P, Y);
                 (*m_data)[offset_D + i * m_stride] = m_sol->thermo()->density();
             }
         } else if (missingProps.size()) {

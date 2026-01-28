@@ -28,7 +28,7 @@ class AnyMap;
  *  @returns The pointer to the newly allocated SpeciesThermoInterpType object
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
-    double thigh, double pref, const double* coeffs);
+    double thigh, double pref, span<const double> coeffs);
 
 //! Create a new SpeciesThermoInterpType object given a string
 /*!
@@ -40,7 +40,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
  *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const string& type,
-    double tlow, double thigh, double pref, const double* coeffs);
+    double tlow, double thigh, double pref, span<const double> coeffs);
 
 //! Create a new SpeciesThermoInterpType object using the specified parameters
 /*!

@@ -25,8 +25,8 @@ void printGas(ostream& oooo, shared_ptr<ThermoPhase> gasTP,
     double C[MSSIZE];
     oooo.precision(3);
     string gasPhaseName = "gas";
-    gasTP->getMoleFractions(x);
-    gasTP->getConcentrations(C);
+    gasTP->getMoleFractions(span<double>(x, gasTP->nSpecies()));
+    gasTP->getConcentrations(span<double>(C, gasTP->nSpecies()));
     double Temp = gasTP->temperature();
     double p = gasTP->pressure();
     oooo << "Gas Temperature = " << Temp << endl;
@@ -60,8 +60,8 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
     double C[MSSIZE];
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->name();
-    bulkPhaseTP->getMoleFractions(x);
-    bulkPhaseTP->getConcentrations(C);
+    bulkPhaseTP->getMoleFractions(span<double>(x, bulkPhaseTP->nSpecies()));
+    bulkPhaseTP->getConcentrations(span<double>(C, bulkPhaseTP->nSpecies()));
     size_t nBulk = iKin_ptr->phaseIndex(bulkParticlePhaseName);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nBulk);
     double dens = bulkPhaseTP->density();
@@ -77,7 +77,7 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
     double Wsum = 0.0;
-    const vector<double>& molecW = bulkPhaseTP->molecularWeights();
+    auto molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, nBulk);
@@ -104,7 +104,7 @@ void printSurf(ostream& oooo, shared_ptr<ThermoPhase> surfPhaseTP,
     double x[MSSIZE];
     oooo.precision(3);
     string surfParticlePhaseName = surfPhaseTP->name();
-    surfPhaseTP->getMoleFractions(x);
+    surfPhaseTP->getMoleFractions(span<double>(x, surfPhaseTP->nSpecies()));
     size_t nSurf = iKin_ptr->phaseIndex(surfParticlePhaseName);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nSurf);
     oooo << "Surface Phase:  " << surfParticlePhaseName
@@ -218,11 +218,11 @@ int main(int argc, char** argv)
          * -> note that the states are set in the input file too
          */
         double pres = gasTP->pressure();
-        gasTP->getMoleFractions(x);
+        gasTP->getMoleFractions(span<double>(x, gasTP->nSpecies()));
         double tmp = 0.3 * std::min(x[0], x[1]);
         x[0] += tmp;
         x[1] -= tmp;
-        gasTP->setMoleFractions(x);
+        gasTP->setMoleFractions(span<const double>(x, gasTP->nSpecies()));
         gasTP->setPressure(pres);
 
         surfaceProb->solvePseudoSteadyStateProblem();

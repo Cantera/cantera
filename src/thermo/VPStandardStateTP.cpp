@@ -35,7 +35,7 @@ int VPStandardStateTP::standardStateConvention() const
 
 // ----- Thermodynamic Values for the Species Standard States States ----
 
-void VPStandardStateTP::getStandardChemPotentials(double* g) const
+void VPStandardStateTP::getStandardChemPotentials(span<double> g) const
 {
     getGibbs_RT(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -43,43 +43,43 @@ void VPStandardStateTP::getStandardChemPotentials(double* g) const
     }
 }
 
-void VPStandardStateTP::getEnthalpy_RT(double* hrt) const
+void VPStandardStateTP::getEnthalpy_RT(span<double> hrt) const
 {
     updateStandardStateThermo();
-    std::copy(m_hss_RT.begin(), m_hss_RT.end(), hrt);
+    std::copy(m_hss_RT.begin(), m_hss_RT.end(), hrt.begin());
 }
 
-void VPStandardStateTP::getEntropy_R(double* sr) const
+void VPStandardStateTP::getEntropy_R(span<double> sr) const
 {
     updateStandardStateThermo();
-    std::copy(m_sss_R.begin(), m_sss_R.end(), sr);
+    std::copy(m_sss_R.begin(), m_sss_R.end(), sr.begin());
 }
 
-void VPStandardStateTP::getGibbs_RT(double* grt) const
+void VPStandardStateTP::getGibbs_RT(span<double> grt) const
 {
     updateStandardStateThermo();
-    std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
+    std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt.begin());
 }
 
-void VPStandardStateTP::getIntEnergy_RT(double* urt) const
+void VPStandardStateTP::getIntEnergy_RT(span<double> urt) const
 {
     updateStandardStateThermo();
-    std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
+    std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt.begin());
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] -= m_Plast_ss / RT() * m_Vss[k];
     }
 }
 
-void VPStandardStateTP::getCp_R(double* cpr) const
+void VPStandardStateTP::getCp_R(span<double> cpr) const
 {
     updateStandardStateThermo();
-    std::copy(m_cpss_R.begin(), m_cpss_R.end(), cpr);
+    std::copy(m_cpss_R.begin(), m_cpss_R.end(), cpr.begin());
 }
 
-void VPStandardStateTP::getStandardVolumes(double* vol) const
+void VPStandardStateTP::getStandardVolumes(span<double> vol) const
 {
     updateStandardStateThermo();
-    std::copy(m_Vss.begin(), m_Vss.end(), vol);
+    std::copy(m_Vss.begin(), m_Vss.end(), vol.begin());
 }
 const vector<double>& VPStandardStateTP::getStandardVolumes() const
 {
@@ -89,41 +89,41 @@ const vector<double>& VPStandardStateTP::getStandardVolumes() const
 
 // ----- Thermodynamic Values for the Species Reference States ----
 
-void VPStandardStateTP::getEnthalpy_RT_ref(double* hrt) const
+void VPStandardStateTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
     updateStandardStateThermo();
-    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt.begin());
 }
 
-void VPStandardStateTP::getGibbs_RT_ref(double* grt) const
+void VPStandardStateTP::getGibbs_RT_ref(span<double> grt) const
 {
     updateStandardStateThermo();
-    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
 }
 
-void VPStandardStateTP::getGibbs_ref(double* g) const
+void VPStandardStateTP::getGibbs_ref(span<double> g) const
 {
     updateStandardStateThermo();
-    std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-    scale(g, g+m_kk, g, RT());
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), g.begin());
+    scale(g.begin(), g.end(), g.begin(), RT());
 }
 
-void VPStandardStateTP::getEntropy_R_ref(double* sr) const
+void VPStandardStateTP::getEntropy_R_ref(span<double> sr) const
 {
     updateStandardStateThermo();
-    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
+    std::copy(m_s0_R.begin(), m_s0_R.end(), sr.begin());
 }
 
-void VPStandardStateTP::getCp_R_ref(double* cpr) const
+void VPStandardStateTP::getCp_R_ref(span<double> cpr) const
 {
     updateStandardStateThermo();
-    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
+    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
-void VPStandardStateTP::getStandardVolumes_ref(double* vol) const
+void VPStandardStateTP::getStandardVolumes_ref(span<double> vol) const
 {
     updateStandardStateThermo();
-    std::copy(m_Vss.begin(), m_Vss.end(), vol);
+    std::copy(m_Vss.begin(), m_Vss.end(), vol.begin());
 }
 
 void VPStandardStateTP::initThermo()
@@ -186,7 +186,7 @@ void VPStandardStateTP::setPressure(double p)
 
 void VPStandardStateTP::calcDensity()
 {
-    getPartialMolarVolumes(m_workS.data());
+    getPartialMolarVolumes(m_workS);
     double dd = meanMolecularWeight() / mean_X(m_workS);
     Phase::assignDensity(dd);
 }

@@ -25,14 +25,15 @@ void DustyGasTransport::initialize(shared_ptr<ThermoPhase> phase, Transport* gas
     }
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.assign(m_thermo->molecularWeights().begin(),
+                m_thermo->molecularWeights().end());
 
     m_multidiff.resize(m_nsp, m_nsp);
     m_d.resize(m_nsp, m_nsp);
     m_dk.resize(m_nsp, 0.0);
 
     m_x.resize(m_nsp, 0.0);
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // set flags all false
     m_knudsen_ok = false;
@@ -99,7 +100,7 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
                                        double* const fluxes)
 {
     // cbar will be the average concentration between the two points
-    double* const cbar = m_spwork.data();
+    span<double> cbar(m_spwork);
     double* const gradc = m_spwork2.data();
     const double t1 = state1[0];
     const double t2 = state2[0];
@@ -145,10 +146,10 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
         b = m_perm;
     }
     b *= gradp / m_gastran->viscosity();
-    scale(cbar, cbar + m_nsp, cbar, b);
+    scale(cbar.begin(), cbar.end(), cbar.begin(), b);
 
     // Multiply m_multidiff with cbar and add it to fluxes
-    increment(m_multidiff, cbar, fluxes);
+    increment(m_multidiff, cbar.data(), fluxes);
     scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
 }
 
@@ -187,7 +188,7 @@ void DustyGasTransport::updateTransport_T()
 
 void DustyGasTransport::updateTransport_C()
 {
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)

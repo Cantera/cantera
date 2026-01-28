@@ -30,7 +30,7 @@ namespace Cantera
 {
 
 shared_ptr<Species> make_species(const string& name,
-     const string& composition, const double* nasa_coeffs)
+     const string& composition, span<const double> nasa_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<NasaPoly2>(200, 3500, 101325, nasa_coeffs);
@@ -38,7 +38,7 @@ shared_ptr<Species> make_species(const string& name,
 }
 
 shared_ptr<Species> make_shomate_species(const string& name,
-     const string& composition, const double* shomate_coeffs)
+     const string& composition, span<const double> shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly>(200, 3500, 101325, shomate_coeffs);
@@ -46,7 +46,7 @@ shared_ptr<Species> make_shomate_species(const string& name,
 }
 
 shared_ptr<Species> make_shomate2_species(const string& name,
-     const string& composition, const double* shomate_coeffs)
+     const string& composition, span<const double> shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, shomate_coeffs);
@@ -314,8 +314,8 @@ TEST(DebyeHuckel, fromScratch)
     EXPECT_NEAR(p.entropy_mass(), 4.01292e3, 2e-2);
     vector<double> actcoeff(p.nSpecies());
     vector<double> mu_ss(p.nSpecies());
-    p.getMolalityActivityCoefficients(actcoeff.data());
-    p.getStandardChemPotentials(mu_ss.data());
+    p.getMolalityActivityCoefficients(actcoeff);
+    p.getStandardChemPotentials(mu_ss);
     double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
     double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0.0,
         -2.26855e+08, -4.3292e+08};
@@ -372,35 +372,35 @@ TEST(IdealSolidSolnPhase, fromScratch)
 }
 
 static void set_hmw_interactions(HMWSoln& p) {
-    double beta0_nacl[] = {0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
-    double beta1_nacl[] = {0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
-    double beta2_nacl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_nacl[] = {0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
-    p.setBinarySalt("Na+", "Cl-", 5, beta0_nacl, beta1_nacl, beta2_nacl,
+    std::array beta0_nacl{0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
+    std::array beta1_nacl{0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
+    std::array beta2_nacl{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_nacl{0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
+    p.setBinarySalt("Na+", "Cl-", beta0_nacl, beta1_nacl, beta2_nacl,
         cphi_nacl, 2.0, 0.0);
 
-    double beta0_hcl[] = {0.1775, 0.0, 0.0, 0.0, 0.0};
-    double beta1_hcl[] = {0.2945, 0.0, 0.0, 0.0, 0.0};
-    double beta2_hcl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_hcl[] = {0.0008, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("H+", "Cl-", 5, beta0_hcl, beta1_hcl, beta2_hcl,
+    std::array beta0_hcl{0.1775, 0.0, 0.0, 0.0, 0.0};
+    std::array beta1_hcl{0.2945, 0.0, 0.0, 0.0, 0.0};
+    std::array beta2_hcl{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_hcl{0.0008, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("H+", "Cl-", beta0_hcl, beta1_hcl, beta2_hcl,
         cphi_hcl, 2.0, 0.0);
 
-    double beta0_naoh[] = {0.0864, 0.0, 0.0, 0.0, 0.0};
-    double beta1_naoh[] = {0.253, 0.0, 0.0, 0.0, 0.0};
-    double beta2_naoh[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_naoh[] = {0.0044, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("Na+", "OH-", 5, beta0_naoh, beta1_naoh, beta2_naoh,
+    std::array beta0_naoh{0.0864, 0.0, 0.0, 0.0, 0.0};
+    std::array beta1_naoh{0.253, 0.0, 0.0, 0.0, 0.0};
+    std::array beta2_naoh{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array cphi_naoh{0.0044, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("Na+", "OH-", beta0_naoh, beta1_naoh, beta2_naoh,
         cphi_naoh, 2.0, 0.0);
 
-    double theta_cloh[] = {-0.05, 0.0, 0.0, 0.0, 0.0};
-    double psi_nacloh[] = {-0.006, 0.0, 0.0, 0.0, 0.0};
-    double theta_nah[] = {0.036, 0.0, 0.0, 0.0, 0.0};
-    double psi_clnah[] = {-0.004, 0.0, 0.0, 0.0, 0.0};
-    p.setTheta("Cl-", "OH-", 5, theta_cloh);
-    p.setPsi("Na+", "Cl-", "OH-", 5, psi_nacloh);
-    p.setTheta("Na+", "H+", 5, theta_nah);
-    p.setPsi("Cl-", "Na+", "H+", 5, psi_clnah);
+    std::array theta_cloh{-0.05, 0.0, 0.0, 0.0, 0.0};
+    std::array psi_nacloh{-0.006, 0.0, 0.0, 0.0, 0.0};
+    std::array theta_nah{0.036, 0.0, 0.0, 0.0, 0.0};
+    std::array psi_clnah{-0.004, 0.0, 0.0, 0.0, 0.0};
+    p.setTheta("Cl-", "OH-", theta_cloh);
+    p.setPsi("Na+", "Cl-", "OH-", psi_nacloh);
+    p.setTheta("Na+", "H+", theta_nah);
+    p.setPsi("Cl-", "Na+", "H+", psi_clnah);
 }
 
 TEST(HMWSoln, fromScratch)
@@ -440,11 +440,11 @@ TEST(HMWSoln, fromScratch)
 
     size_t N = p.nSpecies();
     vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
-    p.getMolalityActivityCoefficients(acMol.data());
-    p.getMoleFractions(mf.data());
-    p.getActivities(activities.data());
-    p.getMolalities(moll.data());
-    p.getStandardChemPotentials(mu0.data());
+    p.getMolalityActivityCoefficients(acMol);
+    p.getMoleFractions(mf);
+    p.getActivities(activities);
+    p.getMolalities(moll);
+    p.getStandardChemPotentials(mu0);
 
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
@@ -524,11 +524,11 @@ TEST(HMWSoln, fromScratch_HKFT)
 
     size_t N = p.nSpecies();
     vector<double> mv(N), h(N), mu(N), ac(N), acoeff(N);
-    p.getPartialMolarVolumes(mv.data());
-    p.getPartialMolarEnthalpies(h.data());
-    p.getChemPotentials(mu.data());
-    p.getActivities(ac.data());
-    p.getActivityCoefficients(acoeff.data());
+    p.getPartialMolarVolumes(mv);
+    p.getPartialMolarEnthalpies(h);
+    p.getChemPotentials(mu);
+    p.getActivities(ac);
+    p.getActivityCoefficients(acoeff);
 
     double mvRef[] = {0.01815196, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
 

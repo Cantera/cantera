@@ -25,7 +25,7 @@ namespace Cantera
 {
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
-    double thigh, double pref, const double* coeffs)
+    double thigh, double pref, span<const double> coeffs)
 {
     switch (type) {
     case NASA1:
@@ -50,7 +50,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
 }
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const string& stype,
-    double tlow, double thigh, double pref, const double* coeffs)
+    double tlow, double thigh, double pref, span<const double> coeffs)
 {
     int itype = -1;
     string type = toLowerCopy(stype);

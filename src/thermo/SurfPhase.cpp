@@ -61,7 +61,7 @@ double SurfPhase::cv_mole() const
     return cp_mole();
 }
 
-void SurfPhase::getPartialMolarEnthalpies(double* hbar) const
+void SurfPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
     getEnthalpy_RT(hbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -69,17 +69,17 @@ void SurfPhase::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void SurfPhase::getPartialMolarEntropies(double* sbar) const
+void SurfPhase::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R(sbar);
-    getActivityConcentrations(m_work.data());
+    getActivityConcentrations(m_work);
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= log(std::max(m_work[k], SmallNumber)) - logStandardConc(k);
         sbar[k] *= GasConstant;
     }
 }
 
-void SurfPhase::getPartialMolarCp(double* cpbar) const
+void SurfPhase::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -89,28 +89,28 @@ void SurfPhase::getPartialMolarCp(double* cpbar) const
 
 // HKM 9/1/11  The partial molar volumes returned here are really partial molar areas.
 //             Partial molar volumes for this phase should actually be equal to zero.
-void SurfPhase::getPartialMolarVolumes(double* vbar) const
+void SurfPhase::getPartialMolarVolumes(span<double> vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-void SurfPhase::getStandardChemPotentials(double* mu0) const
+void SurfPhase::getStandardChemPotentials(span<double> mu0) const
 {
     _updateThermo();
-    copy(m_mu0.begin(), m_mu0.end(), mu0);
+    copy(m_mu0.begin(), m_mu0.end(), mu0.begin());
 }
 
-void SurfPhase::getChemPotentials(double* mu) const
+void SurfPhase::getChemPotentials(span<double> mu) const
 {
     _updateThermo();
-    copy(m_mu0.begin(), m_mu0.end(), mu);
-    getActivityConcentrations(m_work.data());
+    copy(m_mu0.begin(), m_mu0.end(), mu.begin());
+    getActivityConcentrations(m_work);
     for (size_t k = 0; k < m_kk; k++) {
         mu[k] += RT() * (log(std::max(m_work[k], SmallNumber)) - logStandardConc(k));
     }
 }
 
-void SurfPhase::getActivityConcentrations(double* c) const
+void SurfPhase::getActivityConcentrations(span<double> c) const
 {
     getConcentrations(c);
 }
@@ -125,53 +125,53 @@ double SurfPhase::logStandardConc(size_t k) const
     return m_logn0 - m_logsize[k];
 }
 
-void SurfPhase::getGibbs_RT(double* grt) const
+void SurfPhase::getGibbs_RT(span<double> grt) const
 {
     _updateThermo();
-    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
+    scale(m_mu0.begin(), m_mu0.end(), grt.begin(), 1.0/RT());
 }
 
-void SurfPhase::getEnthalpy_RT(double* hrt) const
+void SurfPhase::getEnthalpy_RT(span<double> hrt) const
 {
     _updateThermo();
-    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
+    scale(m_h0.begin(), m_h0.end(), hrt.begin(), 1.0/RT());
 }
 
-void SurfPhase::getEntropy_R(double* sr) const
+void SurfPhase::getEntropy_R(span<double> sr) const
 {
     _updateThermo();
-    scale(m_s0.begin(), m_s0.end(), sr, 1.0/GasConstant);
+    scale(m_s0.begin(), m_s0.end(), sr.begin(), 1.0/GasConstant);
 }
 
-void SurfPhase::getCp_R(double* cpr) const
+void SurfPhase::getCp_R(span<double> cpr) const
 {
     _updateThermo();
-    scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
+    scale(m_cp0.begin(), m_cp0.end(), cpr.begin(), 1.0/GasConstant);
 }
 
-void SurfPhase::getStandardVolumes(double* vol) const
+void SurfPhase::getStandardVolumes(span<double> vol) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = 0.0;
     }
 }
 
-void SurfPhase::getGibbs_RT_ref(double* grt) const
+void SurfPhase::getGibbs_RT_ref(span<double> grt) const
 {
     getGibbs_RT(grt);
 }
 
-void SurfPhase::getEnthalpy_RT_ref(double* hrt) const
+void SurfPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
     getEnthalpy_RT(hrt);
 }
 
-void SurfPhase::getEntropy_R_ref(double* sr) const
+void SurfPhase::getEntropy_R_ref(span<double> sr) const
 {
     getEntropy_R(sr);
 }
 
-void SurfPhase::getCp_R_ref(double* cprt) const
+void SurfPhase::getCp_R_ref(span<double> cprt) const
 {
     getCp_R(cprt);
 }
@@ -189,7 +189,7 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
         m_logsize.push_back(log(spec->size));
         if (m_kk == 1) {
             vector<double> cov{1.0};
-            setCoverages(cov.data());
+            setCoverages({cov});
         }
     }
     return added;
@@ -206,7 +206,7 @@ void SurfPhase::setSiteDensity(double n0)
     compositionChanged(); // trigger update of density
 }
 
-void SurfPhase::setCoverages(const double* theta)
+void SurfPhase::setCoverages(span<const double> theta)
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -219,10 +219,10 @@ void SurfPhase::setCoverages(const double* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = theta[k] / (sum * size(k));
     }
-    setMoleFractions(m_work.data());
+    setMoleFractions(m_work);
 }
 
-void SurfPhase::setCoveragesNoNorm(const double* theta)
+void SurfPhase::setCoveragesNoNorm(span<const double> theta)
 {
     double sum = 0.0;
     double sum2 = 0.0;
@@ -237,10 +237,10 @@ void SurfPhase::setCoveragesNoNorm(const double* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = theta[k] * sum2 / (sum * size(k));
     }
-    setMoleFractions_NoNorm(m_work.data());
+    setMoleFractions_NoNorm(m_work);
 }
 
-void SurfPhase::getCoverages(double* theta) const
+void SurfPhase::getCoverages(span<double> theta) const
 {
     double sum_X = 0.0;
     double sum_X_s = 0.0;
@@ -274,7 +274,7 @@ void SurfPhase::setCoveragesByName(const Composition& cov)
         throw CanteraError("SurfPhase::setCoveragesByName",
                            "Input coverages are all zero or negative");
     }
-    setCoverages(cv.data());
+    setCoverages(cv);
 }
 
 void SurfPhase::setState(const AnyMap& state) {
@@ -291,7 +291,7 @@ void SurfPhase::setState(const AnyMap& state) {
 void SurfPhase::compositionChanged()
 {
     ThermoPhase::compositionChanged();
-    getMoleFractions(m_work.data());
+    getMoleFractions(m_work);
     double q = 0;
     double sumX = 0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -307,7 +307,7 @@ void SurfPhase::_updateThermo(bool force) const
 {
     double tnow = temperature();
     if (m_tlast != tnow || force) {
-        m_spthermo.update(tnow, m_cp0.data(), m_h0.data(), m_s0.data());
+        m_spthermo.update(tnow, m_cp0, m_h0, m_s0);
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_h0[k] *= GasConstant * tnow;

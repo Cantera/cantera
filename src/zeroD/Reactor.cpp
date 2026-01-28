@@ -63,7 +63,7 @@ void Reactor::getState(double* y)
     y[2] = m_thermo->intEnergy_mass() * m_mass;
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(y+3);
+    m_thermo->getMassFractions(span<double>(y + 3, m_nsp));
 
     // set the remaining components to the surface species
     // coverages on the walls
@@ -123,7 +123,7 @@ void Reactor::updateState(double* y)
     // species, and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(y+3);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + 3, m_nsp));
 
     if (m_energy) {
         double U = y[2];
@@ -206,8 +206,8 @@ void Reactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
      // mass added to gas phase from surface reactions

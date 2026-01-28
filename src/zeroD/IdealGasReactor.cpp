@@ -32,7 +32,7 @@ void IdealGasReactor::getState(double* y)
     y[2] = m_thermo->temperature();
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(y+3);
+    m_thermo->getMassFractions(span<double>(y + 3, m_nsp));
 
     // set the remaining components to the surface species
     // coverages on the walls
@@ -58,7 +58,7 @@ void IdealGasReactor::updateState(double* y)
     // and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(y+3);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + 3, m_nsp));
     m_thermo->setState_TD(y[2], m_mass / m_vol);
     updateConnected(true);
     updateSurfaceState(y + m_nsp + 3);
@@ -72,9 +72,9 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    m_thermo->getPartialMolarIntEnergies(m_uk);
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

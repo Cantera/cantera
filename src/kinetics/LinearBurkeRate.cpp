@@ -29,7 +29,7 @@ bool LinearBurkeData::update(const ThermoPhase& phase, const Kinetics& kin)
         pressure = P;
         logP = std::log(P);
         mf_number = X;
-        phase.getMoleFractions(moleFractions.data());
+        phase.getMoleFractions(moleFractions);
         return true;
     }
     return false;

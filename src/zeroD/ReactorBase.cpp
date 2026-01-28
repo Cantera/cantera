@@ -37,6 +37,7 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, bool clone, const string& nam
     m_solution->thermo()->addSpeciesLock();
     m_thermo = m_solution->thermo().get();
     m_nsp = m_thermo->nSpecies();
+    m_state.resize(m_thermo->stateSize());
     m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
     m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions

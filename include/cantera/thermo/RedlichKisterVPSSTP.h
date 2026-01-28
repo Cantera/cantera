@@ -260,13 +260,13 @@ public:
     //! on temperature and pressure.
     //! @{
 
-    void getLnActivityCoefficients(double* lnac) const override;
+    void getLnActivityCoefficients(span<double> lnac) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -284,7 +284,7 @@ public:
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
      */
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -301,7 +301,7 @@ public:
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
      */
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
     //! Returns an array of partial molar heat capacities for the species in the
     //! mixture.
@@ -318,9 +318,9 @@ public:
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
      */
-    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
 
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
     //! Get the array of temperature second derivatives of the log activity
@@ -331,9 +331,9 @@ public:
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
      *                         the log Activity Coefficients. length = m_kk
      */
-    void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
+    void getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const;
 
-    void getdlnActCoeffdT(double* dlnActCoeffdT) const override;
+    void getdlnActCoeffdT(span<double> dlnActCoeffdT) const override;
 
     //! @name Initialization
     //!
@@ -350,22 +350,19 @@ public:
      * @param speciesA         name of the first species
      * @param speciesB         name of the second species
      * @param excess_enthalpy  coefficients of the excess enthalpy polynomial
-     * @param n_enthalpy       number of excess enthalpy polynomial coefficients
      * @param excess_entropy   coefficients of the excess entropy polynomial
-     * @param n_entropy        number of excess entropy polynomial coefficients
      */
     void addBinaryInteraction(const string& speciesA, const string& speciesB,
-        const double* excess_enthalpy, size_t n_enthalpy,
-        const double* excess_entropy, size_t n_entropy);
+        span<const double> excess_enthalpy, span<const double> excess_entropy);
 
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
-    void getdlnActCoeffds(const double dTds, const double* const dXds,
-                          double* dlnActCoeffds) const override;
-    void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const override;
-    void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const override;
-    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override;
+    void getdlnActCoeffds(const double dTds, span<const double> dXds,
+                          span<double> dlnActCoeffds) const override;
+    void getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const override;
+    void getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const override;
+    void getdlnActCoeffdlnN(const size_t ld, span<double> const dlnActCoeffdlnN) override;
     //! @}
 
 private:

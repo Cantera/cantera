@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 #include <limits>
 
 namespace Cantera
@@ -117,7 +118,7 @@ void IdealGasMoleReactor::updateState(double* y)
     setMassFromMoles(y + m_sidx);
     m_vol = y[1];
     // set state
-    m_thermo->setMolesNoTruncate(y + m_sidx);
+    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
     m_thermo->setState_TD(y[0], m_mass / m_vol);
     updateConnected(true);
     updateSurfaceState(y + m_nsp + m_sidx);
@@ -132,8 +133,8 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
     m_thermo->restoreState(m_state);
 
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector<double>& imw = m_thermo->inverseMolecularWeights();
+    m_thermo->getPartialMolarIntEnergies(m_uk);
+    auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -251,9 +252,9 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         Eigen::VectorXd internal_energy = Eigen::VectorXd::Zero(ssize);
         Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
         // getting species data
-        m_thermo->getPartialMolarIntEnergies(internal_energy.data());
+        m_thermo->getPartialMolarIntEnergies(asSpan(internal_energy));
         m_kin->getNetProductionRates(netProductionRates.data());
-        m_thermo->getPartialMolarCp(specificHeat.data());
+        m_thermo->getPartialMolarCp(asSpan(specificHeat));
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < m_nsp; i++) {
             specificHeat[i] -= GasConstant;

@@ -115,7 +115,7 @@ int solveSP::solveSurfProb(int ifunc, double time_scale, double TKelvin,
     // CSoln, and in an separate vector CSolnInit.
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
-        m_ptrsSurfPhase[n]->getConcentrations(m_numEqn1.data());
+        m_ptrsSurfPhase[n]->getConcentrations(m_numEqn1);
         for (size_t k = 0; k < m_nSpeciesSurfPhase[n]; k++) {
             m_CSolnSP[loc] = m_numEqn1[k];
             loc++;
@@ -278,7 +278,7 @@ void solveSP::updateState(const double* CSolnSP)
         for (size_t k = 0; k < X.size(); k++) {
             X[k] = CSolnSP[loc + k] / m_ptrsSurfPhase[n]->siteDensity();
         }
-        m_ptrsSurfPhase[n]->setMoleFractions_NoNorm(X.data());
+        m_ptrsSurfPhase[n]->setMoleFractions_NoNorm(X);
         loc += m_nSpeciesSurfPhase[n];
     }
 }
@@ -287,7 +287,9 @@ void solveSP::updateMFSolnSP(double* XMolSolnSP)
 {
     for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
         size_t keqnStart = m_eqnIndexStartSolnPhase[isp];
-        m_ptrsSurfPhase[isp]->getMoleFractions(XMolSolnSP + keqnStart);
+        m_ptrsSurfPhase[isp]->getMoleFractions(
+            span<double>(XMolSolnSP + keqnStart,
+                              m_ptrsSurfPhase[isp]->nSpecies()));
     }
 }
 
@@ -296,7 +298,8 @@ void solveSP::updateMFKinSpecies(double* XMolKinSpecies, int isp)
     InterfaceKinetics* kin = m_objects[isp];
     for (size_t iph = 0; iph < kin->nPhases(); iph++) {
         size_t ksi = kin->kineticsSpeciesIndex(0, iph);
-        kin->thermo(iph).getMoleFractions(XMolKinSpecies + ksi);
+        kin->thermo(iph).getMoleFractions(
+            span<double>(XMolKinSpecies + ksi, kin->thermo(iph).nSpecies()));
     }
 }
 

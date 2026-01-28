@@ -25,12 +25,12 @@ TEST(onedim, freeflame)
     gas->setState_TPX(T, P, X);
     double rho_in = gas->density();
     vector<double> yin(nsp);
-    gas->getMassFractions(&yin[0]);
+    gas->getMassFractions(yin);
 
     // product estimate
     gas->equilibrate("HP");
     vector<double> yout(nsp);
-    gas->getMassFractions(&yout[0]);
+    gas->getMassFractions(yout);
     double rho_out = gas->density();
     double Tad = gas->temperature();
 

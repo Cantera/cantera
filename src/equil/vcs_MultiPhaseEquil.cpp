@@ -430,7 +430,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil, int printLvl, double 
 
     if (printLvl > 0) {
         vector<double> mu(m_mix->nSpecies());
-        m_mix->getChemPotentials(mu.data());
+        m_mix->getChemPotentials(mu);
         plogf("\n Results from vcs:\n");
         if (iSuccess != 0) {
             plogf("\nVCS FAILED TO CONVERGE!\n");

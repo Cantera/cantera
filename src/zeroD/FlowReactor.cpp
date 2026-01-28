@@ -23,8 +23,8 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         throw CanteraError("FlowReactor::getStateDae", "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
-    m_thermo->getMassFractions(y+m_offset_Y);
-    const vector<double>& mw = m_thermo->molecularWeights();
+    m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
+    auto mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
     y[0] = m_rho;
@@ -56,7 +56,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
                               m_max_ss_error_fails);
         auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(0));
         vector<double> cov(surf.nSpecies());
-        surf.getCoverages(cov.data());
+        surf.getCoverages(cov);
         m_surf->setCoverages(cov.data());
     }
 
@@ -133,7 +133,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         //              h_mass = h_mole / Wk
         //       hence:
         //              h_mass * Wk = h_mol
-        m_thermo->getPartialMolarEnthalpies(m_hk.data());
+        m_thermo->getPartialMolarEnthalpies(m_hk);
         for (size_t i = 0; i < m_nsp; ++i) {
             ydot[3] -= m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
         }
@@ -197,8 +197,7 @@ void FlowReactor::updateState(double* y)
     m_u = y[1];
     m_P = y[2];
     m_T = y[3];
-    double* mss = y + m_offset_Y;
-    m_thermo->setMassFractions_NoNorm(mss);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + m_offset_Y, m_nsp));
     m_thermo->setState_TP(m_T, m_P);
 
     // update surface
@@ -248,12 +247,12 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     m_thermo->restoreState(m_state);
 
     evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         sk_wk = m_sdot[i] * mw[i];
     }
-    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_thermo->getPartialMolarEnthalpies(m_hk);
     // get net production
     if (m_chem) {
         m_kin->getNetProductionRates(m_wdot.data());
