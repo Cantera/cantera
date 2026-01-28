@@ -580,7 +580,6 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 
 double PlasmaPhase::elasticPowerLoss()
 {
-    // If the electron energy distribution hasn't been initialized, skip elastic power loss.
     if (m_electronEnergyDist.size() != m_nPoints
         || m_electronEnergyDistDiff.size() != m_nPoints) {
         throw CanteraError("PlasmaPhase::elasticPowerLoss:",
