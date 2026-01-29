@@ -23,6 +23,11 @@ CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CounterflowDiffusionFlame
 
+   .. note::
+      ``CounterflowDiffusionFlame.set_initial_guess`` accepts ``mode="linear"``
+      to initialize profiles by linearly interpolating inlet temperature and
+      composition.
+
 CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CounterflowPremixedFlame
