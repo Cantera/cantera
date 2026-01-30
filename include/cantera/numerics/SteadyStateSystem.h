@@ -72,6 +72,11 @@ public:
     //! x. On return, array r contains the steady-state residual values.
     double ssnorm(double* x, double* r);
 
+    //! Transient max norm (infinity norm) of the residual evaluated using solution
+    //! x and the current timestep (rdt). On return, array r contains the
+    //! transient residual values.
+    double tsnorm(double* x, double* r);
+
     //! Total solution vector length;
     size_t size() const {
         return m_size;
@@ -266,6 +271,9 @@ protected:
     //! @param[out] rsd  Storage for the residual, length size()
     void evalSSJacobian(double* x, double* rsd);
 
+    //! Determine the timestep growth factor after a successful step.
+    double timeStepIncreaseFactor(double* x_before, double* x_after);
+
     //! Array of number of steps to take after each unsuccessful steady-state solve
     //! before re-attempting the steady-state solution. For subsequent time stepping
     //! calls, the final value is reused. See setTimeStep().
@@ -325,6 +333,7 @@ protected:
     double m_jacobianRelPerturb = 1e-5;
     //! Absolute perturbation of each component in finite difference Jacobian
     double m_jacobianAbsPerturb = 1e-10;
+
 };
 
 }
