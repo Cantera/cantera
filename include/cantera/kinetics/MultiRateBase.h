@@ -42,11 +42,10 @@ public:
     //! @param rate  reaction rate object
     virtual bool replace(size_t rxn_index, ReactionRate& rate) = 0;
 
-    //! Update number of species and reactions
-    //! @param nSpecies  number of species
-    //! @param nReactions  number of reactions
-    //! @param nPhases  number of phases
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) = 0;
+    //! Update array sizes that depend on number of species, reactions or phases
+    //! @since Changed in %Cantera 4.0 to take a Kinetics object as argument instead of
+    //!     specific array sizes.
+    virtual void resize(Kinetics& kin) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
     //! @param kf  array of rate constants

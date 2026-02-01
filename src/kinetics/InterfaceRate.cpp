@@ -91,6 +91,16 @@ void InterfaceData::perturbTemperature(double deltaT)
     throw NotImplementedError("InterfaceData::perturbTemperature");
 }
 
+void InterfaceData::resize(Kinetics& kin) {
+    coverages.resize(kin.thermo().nSpecies(), 0.);
+    logCoverages.resize(kin.thermo().nSpecies(), 0.);
+    partialMolarEnthalpies.resize(kin.nTotalSpecies(), 0.);
+    electricPotentials.resize(kin.nPhases(), 0.);
+    standardChemPotentials.resize(kin.nTotalSpecies(), 0.);
+    standardConcentrations.resize(kin.nTotalSpecies(), 0.);
+    ready = true;
+}
+
 InterfaceRateBase::InterfaceRateBase()
     : m_siteDensity(NAN)
     , m_acov(0.)

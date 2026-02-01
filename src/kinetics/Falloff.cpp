@@ -78,6 +78,12 @@ void FalloffData::restore()
     m_perturbed = false;
 }
 
+void FalloffData::resize(Kinetics& kin) {
+    conc_3b.resize(kin.nReactions(), NAN);
+    m_conc_3b_buf.resize(kin.nReactions(), NAN);
+    ready = true;
+}
+
 FalloffRate::FalloffRate(const AnyMap& node, const UnitStack& rate_units)
     : FalloffRate()
 {
