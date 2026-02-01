@@ -1422,12 +1422,22 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
+     * @param tol   tolerance for the iterative solver for cubic EoS
+     * @param TGuess   guess for the temperature (K) used as start for the iterative solver for cubic EoS
      * @since New in %Cantera 3.0.
      */
-    virtual void setState_DP(double rho, double p) {
+    virtual void setState_DP(double rho, double p, double tol=1e-9, double Tguess=300) {
         throw NotImplementedError("ThermoPhase::setState_DP",
                                   "Not implemented for phase type '{}'", type());
     }
+    //! Set the solution branch to force the ThermoPhase to exist on one branch
+    //! or another
+    /*!
+     *  @param solnBranch  Branch that the solution is restricted to. the value
+     *       -1 means gas. The value -2 means unrestricted. Values of zero or
+     *       greater refer to species dominated condensed phases.
+     */
+    virtual void setForcedSolutionBranch(int solnBranch){};
 
     //! Set the state using an AnyMap containing any combination of properties
     //! supported by the thermodynamic model
