@@ -193,7 +193,7 @@ TEST(zerodim, test_individual_reactor_initialization)
 
 TEST(zerodim, plasma_reactor_energy)
 {
-    auto sol = newSolution("air-plasma.yaml", "air-plasma-Phelps", "none");
+    auto sol = newSolution("air-plasma.yaml", "air-plasma-default-ELs", "none");
     auto thermo = sol->thermo();
     auto* plasma = dynamic_cast<PlasmaPhase*>(thermo.get());
     ASSERT_NE(plasma, nullptr);
