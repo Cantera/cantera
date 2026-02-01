@@ -33,7 +33,7 @@ void InterfaceKinetics::resizeReactions()
     m_rbuf1.resize(nReactions());
 
     for (auto& rates : m_rateHandlers) {
-        rates->resize(nTotalSpecies(), nReactions(), nPhases());
+        rates->resize(*this);
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in InterfaceKinetics::_update_rates_T
         //      and running updateROP() is premature
@@ -433,7 +433,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     if (m_rateTypes.find(rtype) == m_rateTypes.end()) {
         m_rateTypes[rtype] = m_rateHandlers.size();
         m_rateHandlers.push_back(rate->newMultiRate());
-        m_rateHandlers.back()->resize(m_kk, nReactions(), nPhases());
+        m_rateHandlers.back()->resize(*this);
     }
 
     // Add reaction rate to evaluator

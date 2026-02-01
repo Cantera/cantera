@@ -36,6 +36,11 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     return changed;
 }
 
+void BlowersMaselData::resize(Kinetics& kin) {
+    partialMolarEnthalpies.resize(kin.nTotalSpecies(), 0.);
+    ready = true;
+}
+
 BlowersMaselRate::BlowersMaselRate()
 {
     m_Ea_str = "Ea0";

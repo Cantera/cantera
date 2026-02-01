@@ -23,11 +23,7 @@ struct BlowersMaselData : public ReactionData
     void update(double T) override;
     bool update(const ThermoPhase& phase, const Kinetics& kin) override;
     using ReactionData::update;
-
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        partialMolarEnthalpies.resize(nSpecies, 0.);
-        ready = true;
-    }
+    void resize(Kinetics& kin) override;
 
     bool ready = false; //!< boolean indicating whether vectors are accessible
     double density = NAN; //!< used to determine if updates are needed
