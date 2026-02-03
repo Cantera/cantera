@@ -1306,6 +1306,9 @@ class TestDiffusionFlame:
         sim.fuel_inlet.T = 300
         sim.oxidizer_inlet.T = 600
 
+        with pytest.raises(ct.CanteraError, match="Stoichiometric initial guess"):
+            sim.set_initial_guess()
+
         sim.set_initial_guess(mode="linear")
 
         zrel = (sim.grid - sim.grid[0]) / (sim.grid[-1] - sim.grid[0])
@@ -1320,6 +1323,9 @@ class TestDiffusionFlame:
         assert sim.Y[k_n2, -1] == approx(1.0)
         assert np.allclose(sim.Y[k_ar], 1.0 - zrel)
         assert np.allclose(sim.Y[k_n2], zrel)
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=False)
 
     def run_restore_diffusionflame(self, fname):
         gas = ct.Solution("h2o2.yaml")
