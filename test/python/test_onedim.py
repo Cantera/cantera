@@ -1306,6 +1306,9 @@ class TestDiffusionFlame:
         sim.fuel_inlet.T = 300
         sim.oxidizer_inlet.T = 600
 
+        with pytest.raises(ValueError, match="mode must be 'stoich' or 'linear'"):
+            sim.set_initial_guess(mode="bad-mode")
+
         with pytest.raises(ct.CanteraError, match="Stoichiometric initial guess"):
             sim.set_initial_guess()
 
