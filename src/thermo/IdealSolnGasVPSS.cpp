@@ -87,9 +87,10 @@ Units IdealSolnGasVPSS::standardConcentrationUnits() const
     }
 }
 
-void IdealSolnGasVPSS::getActivityConcentrations(double* c) const
+void IdealSolnGasVPSS::getActivityConcentrations(span<double> c) const
 {
-    const vector<double>& vss = getStandardVolumes();
+    checkArraySize("IdealSolnGasVPSS::getActivityConcentrations", c.size(), m_kk);
+    auto vss = getStandardVolumes();
     switch (m_formGC) {
     case 0:
         for (size_t k = 0; k < m_kk; k++) {
@@ -111,7 +112,7 @@ void IdealSolnGasVPSS::getActivityConcentrations(double* c) const
 
 double IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
-    const vector<double>& vss = getStandardVolumes();
+    auto vss = getStandardVolumes();
     switch (m_formGC) {
     case 0:
         return 1.0;
@@ -123,8 +124,9 @@ double IdealSolnGasVPSS::standardConcentration(size_t k) const
     return 0.0;
 }
 
-void IdealSolnGasVPSS::getActivityCoefficients(double* ac) const
+void IdealSolnGasVPSS::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("IdealSolnGasVPSS::getActivityCoefficients", ac.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
@@ -132,7 +134,7 @@ void IdealSolnGasVPSS::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void IdealSolnGasVPSS::getChemPotentials(double* mu) const
+void IdealSolnGasVPSS::getChemPotentials(span<double> mu) const
 {
     getStandardChemPotentials(mu);
     for (size_t k = 0; k < m_kk; k++) {
@@ -141,41 +143,42 @@ void IdealSolnGasVPSS::getChemPotentials(double* mu) const
     }
 }
 
-void IdealSolnGasVPSS::getPartialMolarEnthalpies(double* hbar) const
+void IdealSolnGasVPSS::getPartialMolarEnthalpies(span<double> hbar) const
 {
     getEnthalpy_RT(hbar);
-    scale(hbar, hbar+m_kk, hbar, RT());
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
 }
 
-void IdealSolnGasVPSS::getPartialMolarEntropies(double* sbar) const
+void IdealSolnGasVPSS::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R(sbar);
-    scale(sbar, sbar+m_kk, sbar, GasConstant);
+    scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += GasConstant * (- log(xx));
     }
 }
 
-void IdealSolnGasVPSS::getPartialMolarIntEnergies(double* ubar) const
+void IdealSolnGasVPSS::getPartialMolarIntEnergies(span<double> ubar) const
 {
     getIntEnergy_RT(ubar);
-    scale(ubar, ubar+m_kk, ubar, RT());
+    scale(ubar.begin(), ubar.end(), ubar.begin(), RT());
 }
 
-void IdealSolnGasVPSS::getPartialMolarCp(double* cpbar) const
+void IdealSolnGasVPSS::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
-    scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
+    scale(cpbar.begin(), cpbar.end(), cpbar.begin(), GasConstant);
 }
 
-void IdealSolnGasVPSS::getPartialMolarVolumes(double* vbar) const
+void IdealSolnGasVPSS::getPartialMolarVolumes(span<double> vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-void IdealSolnGasVPSS::setToEquilState(const double* mu_RT)
+void IdealSolnGasVPSS::setToEquilState(span<const double> mu_RT)
 {
+    checkArraySize("IdealSolnGasVPSS::setToEquilState", mu_RT.size(), m_kk);
     updateStandardStateThermo();
 
     // Within the method, we protect against inf results if the exponent is too
@@ -199,7 +202,7 @@ void IdealSolnGasVPSS::setToEquilState(const double* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setMoleFractions(m_pp.data());
+    setMoleFractions(m_pp);
     setPressure(pres);
 }
 

@@ -47,7 +47,7 @@ IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
 
 double IdealMolalSoln::intEnergy_mole() const
 {
-    getPartialMolarIntEnergies(m_workS.data());
+    getPartialMolarIntEnergies(m_workS);
     return mean_X(m_workS);
 }
 
@@ -75,7 +75,7 @@ Units IdealMolalSoln::standardConcentrationUnits() const
     }
 }
 
-void IdealMolalSoln::getActivityConcentrations(double* c) const
+void IdealMolalSoln::getActivityConcentrations(span<double> c) const
 {
     if (m_formGC != 1) {
         double c_solvent = standardConcentration();
@@ -108,8 +108,9 @@ double IdealMolalSoln::standardConcentration(size_t k) const
     }
 }
 
-void IdealMolalSoln::getActivities(double* ac) const
+void IdealMolalSoln::getActivities(span<double> ac) const
 {
+    checkArraySize("IdealMolalSoln::getActivities", ac.size(), m_kk);
     _updateStandardStateThermo();
 
     // Update the molality array, m_molalities(). This requires an update due to
@@ -137,8 +138,10 @@ void IdealMolalSoln::getActivities(double* ac) const
     }
 }
 
-void IdealMolalSoln::getMolalityActivityCoefficients(double* acMolality) const
+void IdealMolalSoln::getMolalityActivityCoefficients(span<double> acMolality) const
 {
+    checkArraySize("IdealMolalSoln::getMolalityActivityCoefficients",
+                   acMolality.size(), m_kk);
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
             acMolality[k] = 1.0;
@@ -150,7 +153,7 @@ void IdealMolalSoln::getMolalityActivityCoefficients(double* acMolality) const
         acMolality[0] = exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
     } else {
         s_updateIMS_lnMolalityActCoeff();
-        std::copy(IMS_lnActCoeffMolal_.begin(), IMS_lnActCoeffMolal_.end(), acMolality);
+        std::copy(IMS_lnActCoeffMolal_.begin(), IMS_lnActCoeffMolal_.end(), acMolality.begin());
         for (size_t k = 0; k < m_kk; k++) {
             acMolality[k] = exp(acMolality[k]);
         }
@@ -159,7 +162,7 @@ void IdealMolalSoln::getMolalityActivityCoefficients(double* acMolality) const
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void IdealMolalSoln::getChemPotentials(double* mu) const
+void IdealMolalSoln::getChemPotentials(span<double> mu) const
 {
     // First get the standard chemical potentials. This requires updates of
     // standard state as a function of T and P These are defined at unit
@@ -197,7 +200,7 @@ void IdealMolalSoln::getChemPotentials(double* mu) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarEnthalpies(double* hbar) const
+void IdealMolalSoln::getPartialMolarEnthalpies(span<double> hbar) const
 {
     getEnthalpy_RT(hbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -205,7 +208,7 @@ void IdealMolalSoln::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarIntEnergies(double* ubar) const
+void IdealMolalSoln::getPartialMolarIntEnergies(span<double> ubar) const
 {
     getIntEnergy_RT(ubar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -213,7 +216,7 @@ void IdealMolalSoln::getPartialMolarIntEnergies(double* ubar) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarEntropies(double* sbar) const
+void IdealMolalSoln::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R(sbar);
     calcMolalities();
@@ -242,12 +245,12 @@ void IdealMolalSoln::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarVolumes(double* vbar) const
+void IdealMolalSoln::getPartialMolarVolumes(span<double> vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-void IdealMolalSoln::getPartialMolarCp(double* cpbar) const
+void IdealMolalSoln::getPartialMolarCp(span<double> cpbar) const
 {
     // Get the nondimensional Gibbs standard state of the species at the T and P
     // of the solution.

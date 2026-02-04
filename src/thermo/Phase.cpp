@@ -76,7 +76,7 @@ double Phase::entropyElement298(size_t m) const
     return m_entropy298[checkElementIndex(m)];
 }
 
-const vector<double>& Phase::atomicWeights() const
+span<const double> Phase::atomicWeights() const
 {
     return m_atomicWeights;
 }
@@ -222,12 +222,9 @@ vector<string> Phase::partialStates() const
     }
 }
 
-void Phase::savePartialState(size_t lenstate, double* state) const
+void Phase::savePartialState(span<double> state) const
 {
-    if (lenstate < partialStateSize()) {
-        throw ArraySizeError("Phase::savePartialState", lenstate, partialStateSize());
-    }
-
+    checkArraySize("Phase::savePartialState", state.size(), partialStateSize());
     auto native = nativeState();
     state[native.at("T")] = temperature();
     if (isCompressible()) {
@@ -237,12 +234,9 @@ void Phase::savePartialState(size_t lenstate, double* state) const
     }
 }
 
-void Phase::restorePartialState(size_t lenstate, const double* state)
+void Phase::restorePartialState(span<const double> state)
 {
-    if (lenstate < partialStateSize()) {
-        throw ArraySizeError("Phase::restorePartialState", lenstate, partialStateSize());
-    }
-
+    checkArraySize("Phase::restorePartialState", state.size(), partialStateSize());
     auto native = nativeState();
     setTemperature(state[native.at("T")]);
     if (isCompressible()) {
@@ -260,52 +254,35 @@ size_t Phase::stateSize() const {
     }
 }
 
-void Phase::saveState(vector<double>& state) const
+void Phase::saveState(span<double> state) const
 {
-    state.resize(stateSize());
-    saveState(state.size(), &state[0]);
-}
-
-void Phase::saveState(size_t lenstate, double* state) const
-{
-    if (lenstate < stateSize()) {
-        throw ArraySizeError("Phase::saveState", lenstate, stateSize());
-    }
-    savePartialState(lenstate, state);
+    checkArraySize("Phase::saveState", state.size(), stateSize());
+    savePartialState(state);
     auto native = nativeState();
     if (native.count("X")) {
-        getMoleFractions(state + native["X"]);
+        getMoleFractions(state.subspan(native["X"], nSpecies()));
     } else if (native.count("Y")) {
-        getMassFractions(state + native["Y"]);
+        getMassFractions(state.subspan(native["Y"], nSpecies()));
     }
 }
 
-void Phase::restoreState(const vector<double>& state)
+void Phase::restoreState(span<const double> state)
 {
-    restoreState(state.size(),&state[0]);
-}
-
-void Phase::restoreState(size_t lenstate, const double* state)
-{
-    size_t ls = stateSize();
-    if (lenstate < ls) {
-        throw ArraySizeError("Phase::restoreState",
-                             lenstate, ls);
-    }
-    restorePartialState(lenstate, state);
-
+    checkArraySize("Phase::restoreState", state.size(), stateSize());
+    restorePartialState(state);
     auto native = nativeState();
 
     if (native.count("X")) {
-        setMoleFractions_NoNorm(state + native["X"]);
+        setMoleFractions_NoNorm(state.subspan(native["X"], nSpecies()));
     } else if (native.count("Y")) {
-        setMassFractions_NoNorm(state + native["Y"]);
+        setMassFractions_NoNorm(state.subspan(native["Y"], nSpecies()));
     }
     compositionChanged();
 }
 
-void Phase::setMoleFractions(const double* const x)
+void Phase::setMoleFractions(span<const double> x)
 {
+    checkArraySize("Phase::setMoleFractions", x.size(), m_kk);
     // Use m_y as a temporary work vector for the non-negative mole fractions
     double norm = 0.0;
     // sum is calculated below as the unnormalized molecular weight
@@ -336,10 +313,11 @@ void Phase::setMoleFractions(const double* const x)
     compositionChanged();
 }
 
-void Phase::setMoleFractions_NoNorm(const double* const x)
+void Phase::setMoleFractions_NoNorm(span<const double> x)
 {
-    m_mmw = dot(x, x + m_kk, m_molwts.begin());
-    scale(x, x + m_kk, m_ym.begin(), 1.0/m_mmw);
+    checkArraySize("Phase::setMoleFractions_NoNorm", x.size(), m_kk);
+    m_mmw = dot(x.begin(), x.begin() + m_kk, m_molwts.begin());
+    scale(x.begin(), x.begin() + m_kk, m_ym.begin(), 1.0/m_mmw);
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
     compositionChanged();
@@ -348,7 +326,7 @@ void Phase::setMoleFractions_NoNorm(const double* const x)
 void Phase::setMoleFractionsByName(const Composition& xMap)
 {
     vector<double> mf = getCompositionFromMap(xMap);
-    setMoleFractions(mf.data());
+    setMoleFractions(mf);
 }
 
 void Phase::setMoleFractionsByName(const string& x)
@@ -356,8 +334,9 @@ void Phase::setMoleFractionsByName(const string& x)
     setMoleFractionsByName(parseCompString(x));
 }
 
-void Phase::setMassFractions(const double* const y)
+void Phase::setMassFractions(span<const double> y)
 {
+    checkArraySize("Phase::setMassFractions", y.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
     }
@@ -370,10 +349,11 @@ void Phase::setMassFractions(const double* const y)
     compositionChanged();
 }
 
-void Phase::setMassFractions_NoNorm(const double* const y)
+void Phase::setMassFractions_NoNorm(span<const double> y)
 {
+    checkArraySize("Phase::setMassFractions_NoNorm", y.size(), m_kk);
     double sum = 0.0;
-    copy(y, y + m_kk, m_y.begin());
+    copy(y.begin(), y.begin() + m_kk, m_y.begin());
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),
               multiplies<double>());
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
@@ -384,7 +364,7 @@ void Phase::setMassFractions_NoNorm(const double* const y)
 void Phase::setMassFractionsByName(const Composition& yMap)
 {
     vector<double> mf = getCompositionFromMap(yMap);
-    setMassFractions(mf.data());
+    setMassFractions(mf);
 }
 
 void Phase::setMassFractionsByName(const string& y)
@@ -395,12 +375,12 @@ void Phase::setMassFractionsByName(const string& y)
 void Phase::setState_TD(double t, double rho)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         setDensity(rho);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -411,25 +391,27 @@ double Phase::molecularWeight(size_t k) const
     return m_molwts[k];
 }
 
-void Phase::getMolecularWeights(double* weights) const
+void Phase::getMolecularWeights(span<double> weights) const
 {
-    const vector<double>& mw = molecularWeights();
-    copy(mw.begin(), mw.end(), weights);
+    auto mw = molecularWeights();
+    checkArraySize("Phase::getMolecularWeights", weights.size(), mw.size());
+    copy(mw.begin(), mw.end(), weights.begin());
 }
 
-const vector<double>& Phase::molecularWeights() const
+span<const double> Phase::molecularWeights() const
 {
     return m_molwts;
 }
 
-const vector<double>& Phase::inverseMolecularWeights() const
+span<const double> Phase::inverseMolecularWeights() const
 {
     return m_rmolwts;
 }
 
-void Phase::getCharges(double* charges) const
+void Phase::getCharges(span<double> charges) const
 {
-    copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges);
+    checkArraySize("Phase::getCharges", charges.size(), m_speciesCharge.size());
+    copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges.begin());
 }
 
 Composition Phase::getMoleFractionsByName(double threshold) const
@@ -456,9 +438,10 @@ Composition Phase::getMassFractionsByName(double threshold) const
     return comp;
 }
 
-void Phase::getMoleFractions(double* const x) const
+void Phase::getMoleFractions(span<double> x) const
 {
-    scale(m_ym.begin(), m_ym.end(), x, m_mmw);
+    checkArraySize("Phase::getMoleFractions", x.size(), m_kk);
+    scale(m_ym.begin(), m_ym.end(), x.begin(), m_mmw);
 }
 
 double Phase::moleFraction(size_t k) const
@@ -493,9 +476,10 @@ double Phase::massFraction(const string& nameSpec) const
     }
 }
 
-void Phase::getMassFractions(double* const y) const
+void Phase::getMassFractions(span<double> y) const
 {
-    copy(m_y.begin(), m_y.end(), y);
+    checkArraySize("Phase::getMassFractions", y.size(), m_kk);
+    copy(m_y.begin(), m_y.end(), y.begin());
 }
 
 double Phase::concentration(const size_t k) const
@@ -504,14 +488,16 @@ double Phase::concentration(const size_t k) const
     return m_y[k] * m_dens * m_rmolwts[k];
 }
 
-void Phase::getConcentrations(double* const c) const
+void Phase::getConcentrations(span<double> c) const
 {
-    scale(m_ym.begin(), m_ym.end(), c, m_dens);
+    checkArraySize("Phase::getConcentrations", c.size(), m_kk);
+    scale(m_ym.begin(), m_ym.end(), c.begin(), m_dens);
 }
 
-void Phase::setConcentrations(const double* const conc)
+void Phase::setConcentrations(span<const double> conc)
 {
     assertCompressible("setConcentrations");
+    checkArraySize("Phase::setConcentrations", conc.size(), m_kk);
 
     // Use m_y as temporary storage for non-negative concentrations
     double sum = 0.0, norm = 0.0;
@@ -531,9 +517,10 @@ void Phase::setConcentrations(const double* const conc)
     compositionChanged();
 }
 
-void Phase::setConcentrationsNoNorm(const double* const conc)
+void Phase::setConcentrationsNoNorm(span<const double> conc)
 {
     assertCompressible("setConcentrationsNoNorm");
+    checkArraySize("Phase::setConcentrationsNoNorm", conc.size(), m_kk);
 
     double sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
@@ -550,13 +537,14 @@ void Phase::setConcentrationsNoNorm(const double* const conc)
     compositionChanged();
 }
 
-void Phase::setMolesNoTruncate(const double* const N)
+void Phase::setMolesNoTruncate(span<const double> N)
 {
+    checkArraySize("Phase::setMolesNoTruncate", N.size(), m_kk);
     // get total moles
-    copy(N, N + m_kk, m_ym.begin());
+    copy(N.begin(), N.begin() + m_kk, m_ym.begin());
     double totalMoles = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     // get total mass
-    copy(N, N + m_kk, m_y.begin());
+    copy(N.begin(), N.begin() + m_kk, m_y.begin());
     transform(m_y.begin(), m_y.end(), m_molwts.begin(), m_y.begin(), multiplies<double>());
     double totalMass = accumulate(m_y.begin(), m_y.end(), 0.0);
     // mean molecular weight
@@ -636,13 +624,9 @@ double Phase::chargeDensity() const
     return cdens * Faraday;
 }
 
-double Phase::mean_X(const double* const Q) const
+double Phase::mean_X(span<const double> Q) const
 {
-    return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
-}
-
-double Phase::mean_X(const vector<double>& Q) const
-{
+    checkArraySize("Phase::mean_X", Q.size(), m_kk);
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
@@ -761,7 +745,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
     }
 
     size_t ne = nElements();
-    const vector<double>& aw = atomicWeights();
+    auto aw = atomicWeights();
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E", false);
         if (eindex != npos) {
@@ -952,8 +936,10 @@ vector<double> Phase::getCompositionFromMap(const Composition& comp) const
     return X;
 }
 
-void Phase::massFractionsToMoleFractions(const double* Y, double* X) const
+void Phase::massFractionsToMoleFractions(span<const double> Y, span<double> X) const
 {
+    checkArraySize("Phase::massFractionsToMoleFractions", Y.size(), m_kk);
+    checkArraySize("Phase::massFractionsToMoleFractions", X.size(), m_kk);
     double rmmw = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         rmmw += Y[k]/m_molwts[k];
@@ -967,9 +953,11 @@ void Phase::massFractionsToMoleFractions(const double* Y, double* X) const
     }
 }
 
-void Phase::moleFractionsToMassFractions(const double* X, double* Y) const
+void Phase::moleFractionsToMassFractions(span<const double> X, span<double> Y) const
 {
-    double mmw = dot(X, X+m_kk, m_molwts.data());
+    checkArraySize("Phase::moleFractionsToMassFractions", X.size(), m_kk);
+    checkArraySize("Phase::moleFractionsToMassFractions", Y.size(), m_kk);
+    double mmw = dot(m_molwts.begin(), m_molwts.end(), X.begin());
     if (mmw == 0.0) {
         throw CanteraError("Phase::moleFractionsToMassFractions",
                            "no input composition given");

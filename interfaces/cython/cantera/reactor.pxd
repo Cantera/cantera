@@ -74,7 +74,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*) except +translate_exception
-        void setCoverages(double*)
+        void setCoverages(double*) except +translate_exception
         void setCoverages(Composition&) except +translate_exception
 
     cdef cppclass CxxFlowReactorSurface "Cantera::FlowReactorSurface" (CxxReactorSurface):

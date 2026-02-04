@@ -230,7 +230,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     vector<double> state(reactor.neq());
     // test get state
     const ThermoPhase& thermo = *reactor.phase()->thermo();
-    const vector<double>& imw = thermo.inverseMolecularWeights();
+    auto imw = thermo.inverseMolecularWeights();
     // prescribed state
     double mass = reactor.volume() * thermo.density();
     size_t H2I = reactor.componentIndex("H2")-1;

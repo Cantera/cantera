@@ -21,6 +21,7 @@
 // STL includes
 #include <cstdlib>
 #include <vector>
+#include <span>
 #include <map>
 #include <set>
 #include <string>

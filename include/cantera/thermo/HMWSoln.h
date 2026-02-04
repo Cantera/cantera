@@ -872,7 +872,7 @@ public:
      * @param c Array of generalized concentrations. The
      *          units are kmol m-3 for both the solvent and the solute species
      */
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -966,7 +966,7 @@ public:
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
-    void getActivities(double* ac) const override;
+    void getActivities(span<double> ac) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -985,7 +985,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getChemPotentials(double* mu) const override;
+    void getChemPotentials(span<double> mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -1008,7 +1008,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -1035,7 +1035,7 @@ public:
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
      */
-    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -1055,7 +1055,7 @@ public:
      * @param vbar   Output vector of species partial molar volumes.
      *               Length = m_kk. units are m^3/kmol.
      */
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! Return an array of partial molar heat capacities for the species in the
     //! mixture.  Units: J/kmol/K
@@ -1076,7 +1076,7 @@ public:
      * @param cpbar   Output vector of species partial molar heat capacities at
      *                constant pressure. Length = m_kk. units are J/kmol/K.
      */
-    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
 
 public:
     //! @}
@@ -1102,17 +1102,18 @@ public:
      */
 
     void setBinarySalt(const string& sp1, const string& sp2,
-        size_t nParams, double* beta0, double* beta1, double* beta2,
-        double* Cphi, double alpha1, double alpha2);
+        span<const double> beta0, span<const double> beta1,
+        span<const double> beta2, span<const double> Cphi, double alpha1,
+        double alpha2);
     void setTheta(const string& sp1, const string& sp2,
-        size_t nParams, double* theta);
+        span<const double> theta);
     void setPsi(const string& sp1, const string& sp2,
-        const string& sp3, size_t nParams, double* psi);
+        const string& sp3, span<const double> psi);
     void setLambda(const string& sp1, const string& sp2,
-        size_t nParams, double* lambda);
-    void setMunnn(const string& sp, size_t nParams, double* munnn);
+        span<const double> lambda);
+    void setMunnn(const string& sp, span<const double> munnn);
     void setZeta(const string& sp1, const string& sp2,
-        const string& sp3, size_t nParams, double* psi);
+        const string& sp3, span<const double> psi);
 
     void setPitzerTempModel(const string& model);
     void setPitzerRefTemperature(double Tref) {
@@ -1260,7 +1261,7 @@ public:
      * @param acMolality Output vector containing the molality based activity coefficients.
      *                   length: m_kk.
      */
-    void getUnscaledMolalityActivityCoefficients(double* acMolality) const override;
+    void getUnscaledMolalityActivityCoefficients(span<double> acMolality) const override;
 
 private:
     //! Apply the current phScale to a set of activity Coefficients
@@ -1898,7 +1899,7 @@ private:
      * @param acMolality input/Output vector containing the molality based
      *                   activity coefficients. length: m_kk.
      */
-    void applyphScale(double* acMolality) const override;
+    void applyphScale(span<double> acMolality) const override;
 
 private:
     /**
@@ -2009,13 +2010,12 @@ private:
      *
      * @param z1 charge of the first molecule
      * @param z2 charge of the second molecule
-     * @param etheta return pointer containing etheta
-     * @param etheta_prime Return pointer containing etheta_prime.
+     * @param[out] etheta return value of etheta
+     * @param[out] etheta_prime return value of etheta_prime
      *
      * This routine uses the internal variables, elambda[] and elambda1[].
      */
-    void calc_thetas(int z1, int z2,
-                     double* etheta, double* etheta_prime) const;
+    void calc_thetas(int z1, int z2, double& etheta, double& etheta_prime) const;
 
     //! Set up a counter variable for keeping track of symmetric binary
     //! interactions amongst the solute species.

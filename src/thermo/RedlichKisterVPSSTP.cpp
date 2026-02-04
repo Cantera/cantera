@@ -24,8 +24,9 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile, const string& 
 
 // - Activities, Standard States, Activity Concentrations -----------
 
-void RedlichKisterVPSSTP::getLnActivityCoefficients(double* lnac) const
+void RedlichKisterVPSSTP::getLnActivityCoefficients(span<double> lnac) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getLnActivityCoefficients", lnac.size(), m_kk);
     // Update the activity coefficients
     s_update_lnActCoeff();
 
@@ -36,7 +37,7 @@ void RedlichKisterVPSSTP::getLnActivityCoefficients(double* lnac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void RedlichKisterVPSSTP::getChemPotentials(double* mu) const
+void RedlichKisterVPSSTP::getChemPotentials(span<double> mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -55,7 +56,7 @@ double RedlichKisterVPSSTP::cv_mole() const
     return cp_mole();
 }
 
-void RedlichKisterVPSSTP::getPartialMolarEnthalpies(double* hbar) const
+void RedlichKisterVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -74,7 +75,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarCp(double* cpbar) const
+void RedlichKisterVPSSTP::getPartialMolarCp(span<double> cpbar) const
 {
     getCp_R(cpbar);
     // dimensionalize it.
@@ -83,7 +84,7 @@ void RedlichKisterVPSSTP::getPartialMolarCp(double* cpbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarEntropies(double* sbar) const
+void RedlichKisterVPSSTP::getPartialMolarEntropies(span<double> sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -104,7 +105,7 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void RedlichKisterVPSSTP::getPartialMolarVolumes(double* vbar) const
+void RedlichKisterVPSSTP::getPartialMolarVolumes(span<double> vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -120,9 +121,7 @@ void RedlichKisterVPSSTP::initThermo()
             auto& species = item["species"].asVector<string>(2);
             vector<double> h_excess = item.convertVector("excess-enthalpy", "J/kmol");
             vector<double> s_excess = item.convertVector("excess-entropy", "J/kmol/K");
-            addBinaryInteraction(species[0], species[1],
-                                 h_excess.data(), h_excess.size(),
-                                 s_excess.data(), s_excess.size());
+            addBinaryInteraction(species[0], species[1], h_excess, s_excess);
         }
     }
     initLengths();
@@ -249,16 +248,19 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdT(double* dlnActCoeffdT) const
+void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdT", dlnActCoeffdT.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
 
-void RedlichKisterVPSSTP::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
+void RedlichKisterVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getd2lnActCoeffdT2",
+                   d2lnActCoeffdT2.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
@@ -376,9 +378,11 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, const double* const dXds,
-        double* dlnActCoeffds) const
+void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, span<const double> const dXds,
+        span<double> dlnActCoeffds) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffds", dXds.size(), m_kk);
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffds", dlnActCoeffds.size(), m_kk);
     s_update_dlnActCoeff_dT();
     s_update_dlnActCoeff_dX_();
     for (size_t k = 0; k < m_kk; k++) {
@@ -389,8 +393,10 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, const double* cons
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
+void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag",
+                   dlnActCoeffdlnN_diag.size(), m_kk);
     s_update_dlnActCoeff_dX_();
     for (size_t j = 0; j < m_kk; j++) {
         dlnActCoeffdlnN_diag[j] = dlnActCoeff_dX_(j, j);
@@ -400,16 +406,20 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) 
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
+void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag",
+                   dlnActCoeffdlnX_diag.size(), m_kk);
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
 
-void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoeffdlnN)
+void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnN",
+                   dlnActCoeffdlnN.size(), ld * m_kk);
     s_update_dlnActCoeff_dX_();
     double* data =  & dlnActCoeffdlnN_(0,0);
     for (size_t k = 0; k < m_kk; k++) {
@@ -421,8 +431,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoef
 
 void RedlichKisterVPSSTP::addBinaryInteraction(
     const string& speciesA, const string& speciesB,
-    const double* excess_enthalpy, size_t n_enthalpy,
-    const double* excess_entropy, size_t n_entropy)
+    span<const double> excess_enthalpy, span<const double> excess_entropy)
 {
     size_t kA = speciesIndex(speciesA, true);
     size_t kB = speciesIndex(speciesB, true);
@@ -436,9 +445,9 @@ void RedlichKisterVPSSTP::addBinaryInteraction(
 
     m_pSpecies_A_ij.push_back(kA);
     m_pSpecies_B_ij.push_back(kB);
-    m_HE_m_ij.emplace_back(excess_enthalpy, excess_enthalpy + n_enthalpy);
-    m_SE_m_ij.emplace_back(excess_entropy, excess_entropy + n_entropy);
-    size_t N = max(n_enthalpy, n_entropy);
+    m_HE_m_ij.emplace_back(excess_enthalpy.begin(), excess_enthalpy.end());
+    m_SE_m_ij.emplace_back(excess_entropy.begin(), excess_entropy.end());
+    size_t N = max(excess_enthalpy.size(), excess_entropy.size());
     m_HE_m_ij.back().resize(N, 0.0);
     m_SE_m_ij.back().resize(N, 0.0);
     dlnActCoeff_dX_.resize(N, N, 0.0);

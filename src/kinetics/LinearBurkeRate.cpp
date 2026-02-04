@@ -29,7 +29,7 @@ bool LinearBurkeData::update(const ThermoPhase& phase, const Kinetics& kin)
         pressure = P;
         logP = std::log(P);
         mf_number = X;
-        phase.getMoleFractions(moleFractions.data());
+        phase.getMoleFractions(moleFractions);
         return true;
     }
     return false;
@@ -54,6 +54,13 @@ void LinearBurkeData::restore()
     update(temperature, m_pressure_buf);
     m_pressure_buf = -1.;
 }
+
+void LinearBurkeData::resize(Kinetics& kin)
+{
+    moleFractions.resize(kin.nTotalSpecies(), NAN);
+    ready = true;
+}
+
 
 LinearBurkeRate::LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units)
 {

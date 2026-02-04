@@ -51,8 +51,9 @@ Units StoichSubstance::standardConcentrationUnits() const
     return Units(1.0);
 }
 
-void StoichSubstance::getActivityConcentrations(double* c) const
+void StoichSubstance::getActivityConcentrations(span<double> c) const
 {
+    checkArraySize("StoichSubstance::getActivityConcentrations", c.size(), 1);
     c[0] = 1.0;
 }
 
@@ -68,46 +69,49 @@ double StoichSubstance::logStandardConc(size_t k) const
 
 // Properties of the Standard State of the Species in the Solution
 
-void StoichSubstance::getStandardChemPotentials(double* mu0) const
+void StoichSubstance::getStandardChemPotentials(span<double> mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= RT();
 }
 
-void StoichSubstance::getEnthalpy_RT(double* hrt) const
+void StoichSubstance::getEnthalpy_RT(span<double> hrt) const
 {
     getEnthalpy_RT_ref(hrt);
     double presCorrect = (m_press - m_p0) / molarDensity();
     hrt[0] += presCorrect / RT();
 }
 
-void StoichSubstance::getEntropy_R(double* sr) const
+void StoichSubstance::getEntropy_R(span<double> sr) const
 {
     getEntropy_R_ref(sr);
 }
 
-void StoichSubstance::getGibbs_RT(double* grt) const
+void StoichSubstance::getGibbs_RT(span<double> grt) const
 {
     getEnthalpy_RT(grt);
     grt[0] -= m_s0_R;
 }
 
-void StoichSubstance::getCp_R(double* cpr) const
+void StoichSubstance::getCp_R(span<double> cpr) const
 {
+    checkArraySize("StoichSubstance::getCp_R", cpr.size(), 1);
     _updateThermo();
     cpr[0] = m_cp0_R;
 }
 
-void StoichSubstance::getIntEnergy_RT(double* urt) const
+void StoichSubstance::getIntEnergy_RT(span<double> urt) const
 {
+    checkArraySize("StoichSubstance::getIntEnergy_RT", urt.size(), 1);
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Thermodynamic Values for the Species Reference States ----
 
-void StoichSubstance::getIntEnergy_RT_ref(double* urt) const
+void StoichSubstance::getIntEnergy_RT_ref(span<double> urt) const
 {
+    checkArraySize("StoichSubstance::getIntEnergy_RT_ref", urt.size(), 1);
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }

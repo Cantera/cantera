@@ -29,29 +29,14 @@ class AnyMap;
 struct InterfaceData : public BlowersMaselData
 {
     InterfaceData() = default;
-
     bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
-
     void update(double T) override;
-
     void update(double T, const vector<double>& values) override;
-
     using BlowersMaselData::update;
-
     virtual void perturbTemperature(double deltaT);
-
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        coverages.resize(nSpecies, 0.);
-        logCoverages.resize(nSpecies, 0.);
-        partialMolarEnthalpies.resize(nSpecies, 0.);
-        electricPotentials.resize(nPhases, 0.);
-        standardChemPotentials.resize(nSpecies, 0.);
-        standardConcentrations.resize(nSpecies, 0.);
-        ready = true;
-    }
+    void resize(Kinetics& kin) override;
 
     double sqrtT = NAN; //!< square root of temperature
-
     vector<double> coverages; //!< surface coverages
     vector<double> logCoverages; //!< logarithm of surface coverages
     vector<double> electricPotentials; //!< electric potentials of phases

@@ -78,7 +78,7 @@ Transport* TransportFactory::newTransport(const string& transportModel,
             "new '{}' object", transportModel);
     }
 
-    vector<double> state;
+    vector<double> state(phase->stateSize());
     Transport* tr = 0;
     phase->saveState(state);
 

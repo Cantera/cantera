@@ -22,7 +22,7 @@ void IdealGasConstPressureReactor::getState(double* y)
     y[1] = m_thermo->temperature();
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(y+2);
+    m_thermo->getMassFractions(span<double>(y + 2, m_nsp));
 }
 
 void IdealGasConstPressureReactor::initialize(double t0)
@@ -43,7 +43,7 @@ void IdealGasConstPressureReactor::updateState(double* y)
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(y+2);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + 2, m_nsp));
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
@@ -60,11 +60,12 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
-    m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
+
+    m_thermo->getPartialMolarEnthalpies(m_hk);
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

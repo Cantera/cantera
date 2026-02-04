@@ -62,7 +62,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
         changed = true;
     }
     if (changed || mf != m_state_mf_number) {
-        surf.getCoverages(coverages.data());
+        surf.getCoverages(coverages);
         for (size_t n = 0; n < coverages.size(); n++) {
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }
@@ -70,8 +70,10 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
-            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
-            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            ph.getPartialMolarEnthalpies(
+                span<double>(partialMolarEnthalpies).subspan(start, ph.nSpecies()));
+            ph.getStandardChemPotentials(
+                span<double>(standardChemPotentials).subspan(start, ph.nSpecies()));
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 // only used for exchange current density formulation
@@ -87,6 +89,16 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
 void InterfaceData::perturbTemperature(double deltaT)
 {
     throw NotImplementedError("InterfaceData::perturbTemperature");
+}
+
+void InterfaceData::resize(Kinetics& kin) {
+    coverages.resize(kin.thermo().nSpecies(), 0.);
+    logCoverages.resize(kin.thermo().nSpecies(), 0.);
+    partialMolarEnthalpies.resize(kin.nTotalSpecies(), 0.);
+    electricPotentials.resize(kin.nPhases(), 0.);
+    standardChemPotentials.resize(kin.nTotalSpecies(), 0.);
+    standardConcentrations.resize(kin.nTotalSpecies(), 0.);
+    ready = true;
 }
 
 InterfaceRateBase::InterfaceRateBase()

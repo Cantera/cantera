@@ -37,12 +37,7 @@ struct FalloffData : public ReactionData
     void perturbThirdBodies(double deltaM);
 
     void restore() override;
-
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        conc_3b.resize(nReactions, NAN);
-        m_conc_3b_buf.resize(nReactions, NAN);
-        ready = true;
-    }
+    void resize(Kinetics& kin) override;
 
     void invalidateCache() override {
         ReactionData::invalidateCache();

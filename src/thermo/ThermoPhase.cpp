@@ -92,7 +92,7 @@ double ThermoPhase::logStandardConc(size_t k) const
     return log(standardConcentration(k));
 }
 
-void ThermoPhase::getActivities(double* a) const
+void ThermoPhase::getActivities(span<double> a) const
 {
     getActivityConcentrations(a);
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -100,7 +100,7 @@ void ThermoPhase::getActivities(double* a) const
     }
 }
 
-void ThermoPhase::getLnActivityCoefficients(double* lnac) const
+void ThermoPhase::getLnActivityCoefficients(span<double> lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -108,7 +108,7 @@ void ThermoPhase::getLnActivityCoefficients(double* lnac) const
     }
 }
 
-void ThermoPhase::getElectrochemPotentials(double* mu) const
+void ThermoPhase::getElectrochemPotentials(span<double> mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
@@ -117,7 +117,7 @@ void ThermoPhase::getElectrochemPotentials(double* mu) const
     }
 }
 
-void ThermoPhase::setState_TPX(double t, double p, const double* x)
+void ThermoPhase::setState_TPX(double t, double p, span<const double> x)
 {
     setMoleFractions(x);
     setState_TP(t,p);
@@ -135,7 +135,7 @@ void ThermoPhase::setState_TPX(double t, double p, const string& x)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(double t, double p, const double* y)
+void ThermoPhase::setState_TPY(double t, double p, span<const double> y)
 {
     setMassFractions(y);
     setState_TP(t,p);
@@ -156,12 +156,12 @@ void ThermoPhase::setState_TPY(double t, double p, const string& y)
 void ThermoPhase::setState_TP(double t, double p)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         setPressure(p);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -169,11 +169,11 @@ void ThermoPhase::setState_TP(double t, double p)
 void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_HPorUV(Htarget, p, rtol, false);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -182,11 +182,11 @@ void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
     assertCompressible("setState_UV");
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_HPorUV(u, v, rtol, true);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -502,11 +502,11 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
 void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_SPorSV(Starget, p, rtol, false);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -515,11 +515,11 @@ void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
     assertCompressible("setState_SV");
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setState_SPorSV(Starget, v, rtol, true);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -697,8 +697,9 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
     }
 }
 
-double ThermoPhase::o2Required(const double* y) const
+double ThermoPhase::o2Required(span<const double> y) const
 {
+    checkArraySize("ThermoPhase::o2Required", y.size(), m_kk);
     // indices of fuel elements
     size_t iC = elementIndex("C", false);
     size_t iS = elementIndex("S", false);
@@ -726,8 +727,9 @@ double ThermoPhase::o2Required(const double* y) const
     return o2req/sum;
 }
 
-double ThermoPhase::o2Present(const double* y) const
+double ThermoPhase::o2Present(span<const double> y) const
 {
+    checkArraySize("ThermoPhase::o2Present", y.size(), m_kk);
     size_t iO = elementIndex("O", true);
     double o2pres = 0.0;
     double sum = 0.0;
@@ -748,7 +750,7 @@ double ThermoPhase::stoichAirFuelRatio(const Composition& fuelComp,
 {
     vector<double> fuel(getCompositionFromMap(fuelComp));
     vector<double> ox(getCompositionFromMap(oxComp));
-    return stoichAirFuelRatio(fuel.data(), ox.data(), basis);
+    return stoichAirFuelRatio(fuel, ox, basis);
 }
 
 double ThermoPhase::stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
@@ -760,18 +762,18 @@ double ThermoPhase::stoichAirFuelRatio(const string& fuelComp, const string& oxC
             basis);
 }
 
-double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
-                                          const double* oxComp,
-                                          ThermoBasis basis) const
+double ThermoPhase::stoichAirFuelRatio(span<const double> fuelComp,
+                                       span<const double> oxComp,
+                                       ThermoBasis basis) const
 {
     vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
-        fuelComp = fuel.data();
-        oxComp = ox.data();
+        moleFractionsToMassFractions(fuelComp, fuel);
+        moleFractionsToMassFractions(oxComp, ox);
+        fuelComp = fuel;
+        oxComp = ox;
     }
 
     double o2_required_fuel = o2Required(fuelComp) - o2Present(fuelComp);
@@ -791,8 +793,8 @@ double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
     return o2_required_fuel / (-o2_required_ox);
 }
 
-void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
-                                      const double* oxComp, ThermoBasis basis)
+void ThermoPhase::setEquivalenceRatio(double phi, span<const double> fuelComp,
+                                      span<const double> oxComp, ThermoBasis basis)
 {
     if (phi < 0.0) {
         throw CanteraError("ThermoPhase::setEquivalenceRatio",
@@ -805,23 +807,22 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
-        fuelComp = fuel.data();
-        oxComp = ox.data();
+        moleFractionsToMassFractions(fuelComp, fuel);
+        moleFractionsToMassFractions(oxComp, ox);
+        fuelComp = fuel;
+        oxComp = ox;
     }
 
     double AFR_st = stoichAirFuelRatio(fuelComp, oxComp, ThermoBasis::mass);
-
-    double sum_f = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
-    double sum_o = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+    double sum_f = std::accumulate(fuelComp.begin(), fuelComp.end(), 0.0);
+    double sum_o = std::accumulate(oxComp.begin(), oxComp.end(), 0.0);
 
     vector<double> y(m_kk);
     for (size_t k = 0; k != m_kk; ++k) {
         y[k] = phi * fuelComp[k]/sum_f + AFR_st * oxComp[k]/sum_o;
     }
 
-    setMassFractions(y.data());
+    setMassFractions(y);
     setPressure(p);
 }
 
@@ -839,13 +840,14 @@ void ThermoPhase::setEquivalenceRatio(double phi, const Composition& fuelComp,
 {
     vector<double> fuel = getCompositionFromMap(fuelComp);
     vector<double> ox = getCompositionFromMap(oxComp);
-    setEquivalenceRatio(phi, fuel.data(), ox.data(), basis);
+    setEquivalenceRatio(phi, fuel, ox, basis);
 }
 
 double ThermoPhase::equivalenceRatio() const
 {
-    double o2_required = o2Required(massFractions());
-    double o2_present  = o2Present(massFractions());
+    span<const double> y = massFractions();
+    double o2_required = o2Required(y);
+    double o2_present  = o2Present(y);
 
     if (o2_present == 0.0) { // pure fuel
         return std::numeric_limits<double>::infinity();
@@ -860,7 +862,7 @@ double ThermoPhase::equivalenceRatio(const Composition& fuelComp,
 {
     vector<double> fuel(getCompositionFromMap(fuelComp));
     vector<double> ox(getCompositionFromMap(oxComp));
-    return equivalenceRatio(fuel.data(), ox.data(), basis);
+    return equivalenceRatio(fuel, ox, basis);
 }
 
 double ThermoPhase::equivalenceRatio(const string& fuelComp, const string& oxComp,
@@ -872,9 +874,8 @@ double ThermoPhase::equivalenceRatio(const string& fuelComp, const string& oxCom
         basis);
 }
 
-double ThermoPhase::equivalenceRatio(const double* fuelComp,
-                                        const double* oxComp,
-                                        ThermoBasis basis) const
+double ThermoPhase::equivalenceRatio(span<const double> fuelComp,
+                                     span<const double> oxComp, ThermoBasis basis) const
 {
     double Z = mixtureFraction(fuelComp, oxComp, basis);
 
@@ -890,10 +891,10 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
-        fuelComp = fuel.data();
-        oxComp = ox.data();
+        moleFractionsToMassFractions(fuelComp, fuel);
+        moleFractionsToMassFractions(oxComp, ox);
+        fuelComp = fuel;
+        oxComp = ox;
     }
 
     double AFR_st = stoichAirFuelRatio(fuelComp, oxComp, ThermoBasis::mass);
@@ -906,7 +907,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const Composition& fuelComp
 {
     vector<double> fuel(getCompositionFromMap(fuelComp));
     vector<double> ox(getCompositionFromMap(oxComp));
-    setMixtureFraction(mixFrac, fuel.data(), ox.data(), basis);
+    setMixtureFraction(mixFrac, fuel, ox, basis);
 }
 
 void ThermoPhase::setMixtureFraction(double mixFrac, const string& fuelComp,
@@ -918,9 +919,11 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const string& fuelComp,
         basis);
 }
 
-void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
-                                       const double* oxComp, ThermoBasis basis)
+void ThermoPhase::setMixtureFraction(double mixFrac, span<const double> fuelComp,
+                                     span<const double> oxComp, ThermoBasis basis)
 {
+    checkArraySize("ThermoPhase::setMixtureFraction", fuelComp.size(), m_kk);
+    checkArraySize("ThermoPhase::setMixtureFraction", oxComp.size(), m_kk);
     if (mixFrac < 0.0 || mixFrac > 1.0) {
         throw CanteraError("ThermoPhase::setMixtureFraction",
                            "Mixture fraction must be between 0 and 1");
@@ -930,14 +933,14 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
-        fuelComp = fuel.data();
-        oxComp = ox.data();
+        moleFractionsToMassFractions(fuelComp, fuel);
+        moleFractionsToMassFractions(oxComp, ox);
+        fuelComp = fuel;
+        oxComp = ox;
     }
 
-    double sum_yf = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
-    double sum_yo = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+    double sum_yf = std::accumulate(fuelComp.begin(), fuelComp.end(), 0.0);
+    double sum_yo = std::accumulate(oxComp.begin(), oxComp.end(), 0.0);
 
     if (sum_yf == 0.0 || sum_yo == 0.0) {
         throw CanteraError("ThermoPhase::setMixtureFraction",
@@ -952,7 +955,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
         y[k] = mixFrac * fuelComp[k]/sum_yf + (1.0-mixFrac) * oxComp[k]/sum_yo;
     }
 
-    setMassFractions_NoNorm(y.data());
+    setMassFractions_NoNorm(y);
     setPressure(p);
 }
 
@@ -963,7 +966,7 @@ double ThermoPhase::mixtureFraction(const Composition& fuelComp,
 {
     vector<double> fuel(getCompositionFromMap(fuelComp));
     vector<double> ox(getCompositionFromMap(oxComp));
-    return mixtureFraction(fuel.data(), ox.data(), basis, element);
+    return mixtureFraction(fuel, ox, basis, element);
 }
 
 double ThermoPhase::mixtureFraction(const string& fuelComp, const string& oxComp,
@@ -975,24 +978,28 @@ double ThermoPhase::mixtureFraction(const string& fuelComp, const string& oxComp
             basis, element);
 }
 
-double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp,
+double ThermoPhase::mixtureFraction(span<const double> fuelComp,
+                                    span<const double> oxComp,
                                     ThermoBasis basis, const string& element) const
 {
+    checkArraySize("ThermoPhase::mixtureFraction", fuelComp.size(), m_kk);
+    checkArraySize("ThermoPhase::mixtureFraction", oxComp.size(), m_kk);
     vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
-        moleFractionsToMassFractions(fuelComp, fuel.data());
-        moleFractionsToMassFractions(oxComp, ox.data());
-        fuelComp = fuel.data();
-        oxComp = ox.data();
+        moleFractionsToMassFractions(fuelComp, fuel);
+        moleFractionsToMassFractions(oxComp, ox);
+        fuelComp = fuel;
+        oxComp = ox;
     }
 
     if (element == "Bilger") // compute the mixture fraction based on the Bilger mixture fraction
     {
         double o2_required_fuel = o2Required(fuelComp) - o2Present(fuelComp);
         double o2_required_ox   = o2Required(oxComp) - o2Present(oxComp);
-        double o2_required_mix  = o2Required(massFractions()) - o2Present(massFractions());
+        span<const double> y = massFractions();
+        double o2_required_mix = o2Required(y) - o2Present(y);
 
         if (o2_required_fuel < 0.0 || o2_required_ox > 0.0) {
             throw CanteraError("ThermoPhase::mixtureFraction",
@@ -1013,15 +1020,15 @@ double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp
         return std::min(std::max(Z, 0.0), 1.0);
     } else {
         // compute the mixture fraction from a single element
-        double sum_yf = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
-        double sum_yo = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+        double sum_yf = std::accumulate(fuelComp.begin(), fuelComp.end(), 0.0);
+        double sum_yo = std::accumulate(oxComp.begin(), oxComp.end(), 0.0);
 
         if (sum_yf == 0.0 || sum_yo == 0.0) {
             throw CanteraError("ThermoPhase::mixtureFraction",
                                "No fuel and/or oxidizer composition specified");
         }
 
-        auto elementalFraction = [this](size_t m, const double* y) {
+        auto elementalFraction = [this](size_t m, span<const double> y) {
             double Z_m = 0.0;
             for (size_t k = 0; k != m_kk; ++k) {
                 Z_m += y[k] / molecularWeight(k) * nAtoms(k, m);
@@ -1232,7 +1239,7 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
                               int estimate_equil, int log_level)
 {
     if (solver == "auto" || solver == "element_potential") {
-        vector<double> initial_state;
+        vector<double> initial_state(stateSize());
         saveState(initial_state);
         debuglog("Trying ChemEquil solver\n", log_level);
         try {
@@ -1273,8 +1280,9 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
     }
 }
 
-void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("ThermoPhase::getdlnActCoeffdlnN", dlnActCoeffdlnN.size(), ld*m_kk);
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
             dlnActCoeffdlnN[ld * k + m] = 0.0;
@@ -1284,16 +1292,18 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffd
 }
 
 void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
-                                              double* const dlnActCoeffdlnN)
+                                              span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("ThermoPhase::getdlnActCoeffdlnN_numderiv",
+                   dlnActCoeffdlnN.size(), ld*m_kk);
     double deltaMoles_j = 0.0;
     double pres = pressure();
 
     // Evaluate the current base activity coefficients if necessary
     vector<double> ActCoeff_Base(m_kk);
-    getActivityCoefficients(ActCoeff_Base.data());
+    getActivityCoefficients(ActCoeff_Base);
     vector<double> Xmol_Base(m_kk);
-    getMoleFractions(Xmol_Base.data());
+    getMoleFractions(Xmol_Base);
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     vector<double> ActCoeff(m_kk);
@@ -1320,12 +1330,12 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
         // Go get new values for the activity coefficients.
-        setMoleFractions(Xmol.data());
+        setMoleFractions(Xmol);
         setPressure(pres);
-        getActivityCoefficients(ActCoeff.data());
+        getActivityCoefficients(ActCoeff);
 
         // Calculate the column of the matrix
-        double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
+        span<double> lnActCoeffCol = dlnActCoeffdlnN.subspan(ld * j, m_kk);
         for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
                                ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
@@ -1334,7 +1344,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-    setMoleFractions(Xmol_Base.data());
+    setMoleFractions(Xmol_Base);
     setPressure(pres);
 }
 
@@ -1424,9 +1434,9 @@ string ThermoPhase::report(bool show_thermo, double threshold) const
         vector<double> x(m_kk);
         vector<double> y(m_kk);
         vector<double> mu(m_kk);
-        getMoleFractions(&x[0]);
-        getMassFractions(&y[0]);
-        getChemPotentials(&mu[0]);
+        getMoleFractions(x);
+        getMassFractions(y);
+        getChemPotentials(mu);
         int nMinor = 0;
         double xMinor = 0.0;
         double yMinor = 0.0;

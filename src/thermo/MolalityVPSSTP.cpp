@@ -59,7 +59,7 @@ double MolalityVPSSTP::moleFSolventMin() const
 
 void MolalityVPSSTP::calcMolalities() const
 {
-    getMoleFractions(m_molalities.data());
+    getMoleFractions(m_molalities);
     double xmolSolvent = std::max(m_molalities[0], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
@@ -67,16 +67,18 @@ void MolalityVPSSTP::calcMolalities() const
     }
 }
 
-void MolalityVPSSTP::getMolalities(double* const molal) const
+void MolalityVPSSTP::getMolalities(span<double> molal) const
 {
+    checkArraySize("MolalityVPSSTP::getMolalities", molal.size(), m_kk);
     calcMolalities();
     for (size_t k = 0; k < m_kk; k++) {
         molal[k] = m_molalities[k];
     }
 }
 
-void MolalityVPSSTP::setMolalities(const double* const molal)
+void MolalityVPSSTP::setMolalities(span<const double> molal)
 {
+    checkArraySize("MolalityVPSSTP::setMolalities", molal.size(), m_kk);
     double Lsum = 1.0 / m_Mnaught;
     for (size_t k = 1; k < m_kk; k++) {
         m_molalities[k] = molal[k];
@@ -95,7 +97,7 @@ void MolalityVPSSTP::setMolalities(const double* const molal)
             m_molalities[k] *= tmp;
         }
     }
-    setMoleFractions(m_molalities.data());
+    setMoleFractions(m_molalities);
 
     // Essentially we don't trust the input: We calculate the molalities from
     // the mole fractions that we just obtained.
@@ -109,7 +111,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
 
     // Get a vector of mole fractions
     vector<double> mf(m_kk, 0.0);
-    getMoleFractions(mf.data());
+    getMoleFractions(mf);
     double xmolSmin = std::max(mf[0], m_xmolSolventMIN);
     for (size_t k = 0; k < m_kk; k++) {
         double mol_k = getValue(mMap, speciesName(k), 0.0);
@@ -163,7 +165,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
     for (size_t k = 0; k < m_kk; k++) {
         mf[k] *= sum;
     }
-    setMoleFractions(mf.data());
+    setMoleFractions(mf);
 
     // After we formally set the mole fractions, we calculate the molalities
     // again and store it in this object.
@@ -183,7 +185,7 @@ int MolalityVPSSTP::activityConvention() const
     return cAC_CONVENTION_MOLALITY;
 }
 
-void MolalityVPSSTP::getActivityConcentrations(double* c) const
+void MolalityVPSSTP::getActivityConcentrations(span<double> c) const
 {
     throw NotImplementedError("MolalityVPSSTP::getActivityConcentrations");
 }
@@ -193,12 +195,12 @@ double MolalityVPSSTP::standardConcentration(size_t k) const
     throw NotImplementedError("MolalityVPSSTP::standardConcentration");
 }
 
-void MolalityVPSSTP::getActivities(double* ac) const
+void MolalityVPSSTP::getActivities(span<double> ac) const
 {
     throw NotImplementedError("MolalityVPSSTP::getActivities");
 }
 
-void MolalityVPSSTP::getActivityCoefficients(double* ac) const
+void MolalityVPSSTP::getActivityCoefficients(span<double> ac) const
 {
     getMolalityActivityCoefficients(ac);
     double xmolSolvent = std::max(moleFraction(0), m_xmolSolventMIN);
@@ -207,7 +209,7 @@ void MolalityVPSSTP::getActivityCoefficients(double* ac) const
     }
 }
 
-void MolalityVPSSTP::getMolalityActivityCoefficients(double* acMolality) const
+void MolalityVPSSTP::getMolalityActivityCoefficients(span<double> acMolality) const
 {
     getUnscaledMolalityActivityCoefficients(acMolality);
     applyphScale(acMolality);
@@ -217,7 +219,7 @@ double MolalityVPSSTP::osmoticCoefficient() const
 {
     // First, we calculate the activities all over again
     vector<double> act(m_kk);
-    getActivities(act.data());
+    getActivities(act);
 
     // Then, we calculate the sum of the solvent molalities
     double sum = 0;
@@ -231,7 +233,7 @@ double MolalityVPSSTP::osmoticCoefficient() const
     return oc;
 }
 
-void MolalityVPSSTP::setState_TPM(double t, double p, const double* const molalities)
+void MolalityVPSSTP::setState_TPM(double t, double p, span<const double> molalities)
 {
     setMolalities(molalities);
     setState_TP(t, p);
@@ -274,12 +276,12 @@ void MolalityVPSSTP::initThermo()
     m_indexCLM = findCLMIndex();
 }
 
-void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(double* acMolality) const
+void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(span<double> acMolality) const
 {
     throw NotImplementedError("MolalityVPSSTP::getUnscaledMolalityActivityCoefficients");
 }
 
-void MolalityVPSSTP::applyphScale(double* acMolality) const
+void MolalityVPSSTP::applyphScale(span<double> acMolality) const
 {
     throw NotImplementedError("MolalityVPSSTP::applyphScale");
 }
@@ -376,12 +378,12 @@ string MolalityVPSSTP::report(bool show_thermo, double threshold) const
         vector<double> muss(m_kk);
         vector<double> acMolal(m_kk);
         vector<double> actMolal(m_kk);
-        getMoleFractions(&x[0]);
-        getMolalities(&molal[0]);
-        getChemPotentials(&mu[0]);
-        getStandardChemPotentials(&muss[0]);
-        getMolalityActivityCoefficients(&acMolal[0]);
-        getActivities(&actMolal[0]);
+        getMoleFractions(x);
+        getMolalities(molal);
+        getChemPotentials(mu);
+        getStandardChemPotentials(muss);
+        getMolalityActivityCoefficients(acMolal);
+        getActivities(actMolal);
 
         size_t iHp = speciesIndex("H+", false);
         if (iHp != npos) {

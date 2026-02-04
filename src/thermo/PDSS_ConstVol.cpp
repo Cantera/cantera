@@ -67,7 +67,7 @@ void PDSS_ConstVol::setPressure(double p)
 void PDSS_ConstVol::setTemperature(double temp)
 {
     m_temp = temp;
-    m_spthermo->updatePropertiesTemp(temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
+    m_spthermo->updatePropertiesTemp(temp, m_cp0_R, m_h0_RT, m_s0_R);
     m_g0_RT = m_h0_RT - m_s0_R;
 
     double del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);

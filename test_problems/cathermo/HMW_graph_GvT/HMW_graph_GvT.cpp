@@ -32,16 +32,10 @@ int main(int argc, char** argv)
         auto solid = newThermo(nacl_s, id);
 
         size_t nsp = HMW->nSpecies();
-        double acMol[100];
-        double act[100];
-        double mf[100];
-        double moll[100];
-        for (i = 0; i < 100; i++) {
-            acMol[i] = 1.0;
-            act[i] = 1.0;
-            mf[i] = 0.0;
-            moll[i] = 0.0;
-        }
+        vector<double> acMol(nsp, 1.0);
+        vector<double> act(nsp, 1.0);
+        vector<double> mf(nsp, 0.0);
+        vector<double> moll(nsp, 0.0);
 
         HMW->getMoleFractions(mf);
         string sName;
@@ -72,7 +66,7 @@ int main(int argc, char** argv)
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
         double Xmol[30];
-        HMW->getMoleFractions(Xmol);
+        HMW->getMoleFractions(span<double>(Xmol, nsp));
 
         printf("Fixed Concentration of the System:\n");
 
@@ -84,7 +78,7 @@ int main(int argc, char** argv)
         /*
          * ThermoUnknowns
          */
-        double mu0_RT[20], mu[20];
+        vector<double> mu0_RT(nsp), mu(nsp);
         double mu0_NaCl, mu0_Naplus, mu0_Clminus, Delta_G0;
         double mu_NaCl, mu_Naplus, mu_Clminus, Delta_G;
         double molarGibbs0, molarGibbs;

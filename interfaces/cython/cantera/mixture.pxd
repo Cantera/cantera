@@ -42,7 +42,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double maxTemp() except +translate_exception
         double charge() except +translate_exception
         double phaseCharge(size_t) except +translate_exception
-        void getChemPotentials(double*) except +translate_exception
+        void getChemPotentials(span[double]) except +translate_exception
         double enthalpy() except +translate_exception
         double entropy() except +translate_exception
         double gibbs() except +translate_exception

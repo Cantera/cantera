@@ -71,7 +71,7 @@ public:
      *  See the class description for the polynomial representation of the
      *  thermo functions in terms of @f$ A, \dots, G @f$.
      */
-    ShomatePoly(double tlow, double thigh, double pref, const double* coeffs) :
+    ShomatePoly(double tlow, double thigh, double pref, span<const double> coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_coeff(7)
     {
@@ -83,7 +83,7 @@ public:
 
     //! Set array of 7 polynomial coefficients. Input values are assumed to be
     //! on a kJ/mol basis.
-    void setParameters(const vector<double>& coeffs) {
+    void setParameters(const span<const double> coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("ShomatePoly::setParameters", "Array must "
                 "contain 7 coefficients, but {} were given.", coeffs.size());
@@ -100,7 +100,7 @@ public:
 
     size_t temperaturePolySize() const override { return 6; }
 
-    void updateTemperaturePoly(double T, double* T_poly) const override {
+    void updateTemperaturePoly(double T, span<double> T_poly) const override {
         double tt = 1.e-3*T;
         T_poly[0] = tt;
         T_poly[1] = tt * tt;
@@ -122,8 +122,8 @@ public:
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
      */
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override {
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override {
         double A = m_coeff[0];
         double Bt = m_coeff[1]*tt[0];
         double Ct2 = m_coeff[2]*tt[1];
@@ -132,20 +132,20 @@ public:
         double Ftm1 = m_coeff[5]*tt[5];
         double G = m_coeff[6];
 
-        *cp_R = A + Bt + Ct2 + Dt3 + Etm2;
-        *h_RT = A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2 + Ftm1;
-        *s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
+        cp_R = A + Bt + Ct2 + Dt3 + Etm2;
+        h_RT = A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2 + Ftm1;
+        s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
     }
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override {
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override {
+                          double& pref, span<double> coeffs) const override {
         n = 0;
         type = SHOMATE;
         tlow = m_lowT;
@@ -166,9 +166,9 @@ public:
         thermo["data"].asVector<vector<double>>().push_back(dimensioned_coeffs);
     }
 
-    double reportHf298(double* const h298=nullptr) const override {
+    double reportHf298() const override {
         double cp_R, h_RT, s_R;
-        updatePropertiesTemp(298.15, &cp_R, &h_RT, &s_R);
+        updatePropertiesTemp(298.15, cp_R, h_RT, s_R);
         return h_RT * GasConstant * 298.15;
     }
 
@@ -242,11 +242,11 @@ public:
      * @param coeffs  Vector of coefficients used to set the parameters for the
      *                standard state. [Tmid, 7 low-T coeffs, 7 high-T coeffs]
      */
-    ShomatePoly2(double tlow, double thigh, double pref, const double* coeffs) :
+    ShomatePoly2(double tlow, double thigh, double pref, span<const double> coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
-        msp_low(tlow, coeffs[0], pref, coeffs+1),
-        msp_high(coeffs[0], thigh, pref, coeffs+8)
+        msp_low(tlow, coeffs[0], pref, coeffs.subspan(1, 7)),
+        msp_high(coeffs[0], thigh, pref, coeffs.subspan(8, 7))
     {
     }
 
@@ -272,7 +272,7 @@ public:
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high) {
+    void setParameters(double Tmid, span<const double> low, span<const double> high) {
         m_midT = Tmid;
         msp_low.setMaxTemp(Tmid);
         msp_high.setMinTemp(Tmid);
@@ -286,13 +286,13 @@ public:
 
     size_t temperaturePolySize() const override{ return 7; }
 
-    void updateTemperaturePoly(double T, double* T_poly) const override {
+    void updateTemperaturePoly(double T, span<double> T_poly) const override {
         msp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! @copydoc ShomatePoly::updateProperties
-    void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const override {
+    void updateProperties(span<const double> tt, double& cp_R, double& h_RT,
+                          double& s_R) const override {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
             msp_low.updateProperties(tt, cp_R, h_RT, s_R);
@@ -301,8 +301,8 @@ public:
         }
     }
 
-    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const override {
+    void updatePropertiesTemp(const double temp, double& cp_R,
+                              double& h_RT, double& s_R) const override {
         if (temp <= m_midT) {
             msp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -313,9 +313,9 @@ public:
     size_t nCoeffs() const override { return 15; }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const override {
-        msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
-        msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
+                          double& pref, span<double> coeffs) const override {
+        msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs.subspan(1));
+        msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs.subspan(8));
         type = SHOMATE2;
     }
 
@@ -329,26 +329,21 @@ public:
         msp_high.getParameters(thermo);
     }
 
-    double reportHf298(double* const h298=nullptr) const override {
-        double h;
+    double reportHf298() const override {
         if (298.15 <= m_midT) {
-            h = msp_low.reportHf298(h298);
+            return msp_low.reportHf298();
         } else {
-            h = msp_high.reportHf298(h298);
+            return msp_high.reportHf298();
         }
-        if (h298) {
-            *h298 = h;
-        }
-        return h;
     }
 
     void modifyOneHf298(const size_t k, const double Hf298New) override {
-        double h298now = reportHf298(0);
+        double h298now = reportHf298();
         double delH = Hf298New - h298now;
-        double h = msp_low.reportHf298(0);
+        double h = msp_low.reportHf298();
         double hnew = h + delH;
         msp_low.modifyOneHf298(k, hnew);
-        h = msp_high.reportHf298(0);
+        h = msp_high.reportHf298();
         hnew = h + delH;
         msp_high.modifyOneHf298(k, hnew);
     }

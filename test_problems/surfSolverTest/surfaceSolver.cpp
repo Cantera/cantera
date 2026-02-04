@@ -18,8 +18,8 @@ using namespace Cantera;
 
 void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
 {
-    double x[MSSIZE];
-    double C[MSSIZE];
+    vector<double> x(gasTP->nSpecies());
+    vector<double> C(gasTP->nSpecies());
     oooo.precision(3);
     string gasPhaseName = gasTP->name();
     gasTP->getMoleFractions(x);
@@ -51,8 +51,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
 void printBulk(ostream& oooo,
                ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
 {
-    double x[MSSIZE];
-    double C[MSSIZE];
+    vector<double> x(bulkPhaseTP->nSpecies());
+    vector<double> C(bulkPhaseTP->nSpecies());
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
@@ -72,7 +72,7 @@ void printBulk(ostream& oooo,
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
     double Wsum = 0.0;
-    const vector<double>& molecW = bulkPhaseTP->molecularWeights();
+    auto molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, iPhase);
@@ -97,7 +97,7 @@ void printBulk(ostream& oooo,
 void printSurf(ostream& oooo,
                ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
 {
-    double x[MSSIZE];
+    vector<double> x(surfPhaseTP->nSpecies());
     string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
     size_t iPhase = iKin_ptr->phaseIndex(surfParticlePhaseName);
@@ -153,7 +153,7 @@ int main(int argc, char** argv)
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[MSSIZE];
+        vector<double> x(nspGas);
 
         ofstream ofile("results.txt");
 

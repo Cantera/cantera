@@ -61,8 +61,8 @@ public:
         return false;
     }
 
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        m_shared.resize(nSpecies, nReactions, nPhases);
+    void resize(Kinetics& kin) override {
+        m_shared.resize(kin);
         m_shared.invalidateCache();
     }
 

@@ -54,8 +54,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double refPressure() except +translate_exception
         void equilibrate(string, string, double, int, int, int, int) except +translate_exception
         size_t stateSize()
-        void saveState(size_t, double*) except +translate_exception
-        void restoreState(size_t, double*) except +translate_exception
+        void saveState(span[double]) except +translate_exception
+        void restoreState(span[double]) except +translate_exception
         CxxUnits standardConcentrationUnits() except +translate_exception
 
         # initialization
@@ -105,14 +105,14 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # composition
         void setMassFractionsByName(string) except +translate_exception
         void setMassFractionsByName(Composition&) except +translate_exception
-        void setMassFractions_NoNorm(double*) except +translate_exception
+        void setMassFractions_NoNorm(span[double]) except +translate_exception
         Composition getMassFractionsByName(double)
         double massFraction(size_t) except +translate_exception
         double massFraction(string) except +translate_exception
 
         void setMoleFractionsByName(string) except +translate_exception
         void setMoleFractionsByName(Composition&) except +translate_exception
-        void setMoleFractions_NoNorm(double*) except +translate_exception
+        void setMoleFractions_NoNorm(span[double]) except +translate_exception
         Composition getMoleFractionsByName(double)
 
         double concentration(size_t) except +translate_exception
@@ -164,12 +164,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_Psat(double P, double x) except +translate_exception
         void setState_TPQ(double T, double P, double Q) except +translate_exception
 
-        void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
-        double mixtureFraction(const double* fuelComp, const double* oxComp, ThermoBasis basis, string element) except +translate_exception
-        void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
-        double equivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        void setMixtureFraction(double mixFrac, span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
+        double mixtureFraction(span[double] fuelComp, span[double] oxComp, ThermoBasis basis, string element) except +translate_exception
+        void setEquivalenceRatio(double phi, span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
+        double equivalenceRatio(span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
         double equivalenceRatio() except +translate_exception
-        double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        double stoichAirFuelRatio(span[double] fuelComp, span[double] oxComp, ThermoBasis basis) except +translate_exception
 
         CxxAnyMap getAuxiliaryData() except +translate_exception
 
@@ -179,10 +179,10 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         CxxSurfPhase()
         double siteDensity()
         void setSiteDensity(double) except +translate_exception
-        void setCoverages(double*) except +translate_exception
+        void setCoverages(span[double]) except +translate_exception
         void setCoveragesByName(Composition&) except +translate_exception
-        void setCoveragesNoNorm(double*) except +translate_exception
-        void getCoverages(double*) except +translate_exception
+        void setCoveragesNoNorm(span[double]) except +translate_exception
+        void getCoverages(span[double]) except +translate_exception
 
 
 cdef extern from "cantera/thermo/PlasmaPhase.h":
@@ -191,10 +191,10 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void setElectronTemperature(double) except +translate_exception
         void setReducedElectricField(double) except +translate_exception
         void setElectricField(double) except +translate_exception
-        void setElectronEnergyLevels(double*, size_t) except +translate_exception
-        void getElectronEnergyLevels(double*)
-        void setDiscretizedElectronEnergyDist(double*, double*, size_t) except +translate_exception
-        void getElectronEnergyDistribution(double*)
+        void setElectronEnergyLevels(span[double]) except +translate_exception
+        void getElectronEnergyLevels(span[double])
+        void setDiscretizedElectronEnergyDist(span[double], span[double]) except +translate_exception
+        void getElectronEnergyDistribution(span[double])
         void setIsotropicShapeFactor(double) except +translate_exception
         void setElectronEnergyDistributionType(const string&) except +translate_exception
         string electronEnergyDistributionType()
@@ -216,37 +216,37 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
 
 cdef extern from "cantera/cython/thermo_utils.h":
     # ThermoPhase composition
-    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getMassFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setMassFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getMoleFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getConcentrations(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_setConcentrations(CxxThermoPhase*, span[double]) except +translate_exception
 
     # ThermoPhase partial molar properties
-    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getChemPotentials(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, span[double]) except +translate_exception
 
     # ThermoPhase partial non-dimensional properties
-    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getCp_R(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getActivities(CxxThermoPhase*, double*) except +translate_exception
-    void thermo_getActivityCoefficients(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getEnthalpy_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getEntropy_R(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getIntEnergy_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getGibbs_RT(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getCp_R(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getActivities(CxxThermoPhase*, span[double]) except +translate_exception
+    void thermo_getActivityCoefficients(CxxThermoPhase*, span[double]) except +translate_exception
 
     # other ThermoPhase methods
-    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
-    cdef void thermo_getCharges(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getMolecularWeights(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getCharges(CxxThermoPhase*, span[double]) except +translate_exception
 
 
-ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception
+ctypedef void (*thermoMethod1d)(CxxThermoPhase*, span[double]) except +translate_exception
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     vector[string] elementSymbols()

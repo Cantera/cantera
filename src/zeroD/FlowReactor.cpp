@@ -34,8 +34,8 @@ FlowReactor::FlowReactor(shared_ptr<Solution> sol, bool clone, const string& nam
 
 void FlowReactor::getStateDae(double* y, double* ydot)
 {
-    m_thermo->getMassFractions(y+m_offset_Y);
-    const vector<double>& mw = m_thermo->molecularWeights();
+    m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
+    auto mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
     y[0] = m_thermo->density();
@@ -128,7 +128,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         //              h_mass = h_mole / Wk
         //       hence:
         //              h_mass * Wk = h_mol
-        m_thermo->getPartialMolarEnthalpies(m_hk.data());
+        m_thermo->getPartialMolarEnthalpies(m_hk);
         for (size_t i = 0; i < m_nsp; ++i) {
             ydot[3] -= m_hk[i] * (m_wdot[i] + m_sdot[i] / m_area);
         }
@@ -152,7 +152,7 @@ void FlowReactor::updateState(double* y)
     // Set the mass fractions and density of the mixture.
     m_rho = y[0];
     m_u = y[1];
-    m_thermo->setMassFractions_NoNorm(y + m_offset_Y);
+    m_thermo->setMassFractions_NoNorm(span<const double>(y + m_offset_Y, m_nsp));
     m_thermo->setState_TP(y[3], y[2]);
 }
 
@@ -171,12 +171,12 @@ void FlowReactor::setArea(double area) {
 void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
     updateSurfaceProductionRates();
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         sk_wk += m_sdot[i] * mw[i] / m_area;
     }
-    m_thermo->getPartialMolarEnthalpies(m_hk.data());
+    m_thermo->getPartialMolarEnthalpies(m_hk);
     // get net production
     if (m_chem) {
         m_kin->getNetProductionRates(m_wdot.data());

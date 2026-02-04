@@ -43,12 +43,7 @@ struct LinearBurkeData : public ReactionData
     void perturbPressure(double deltaP);
 
     void restore() override;
-
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override
-    {
-        moleFractions.resize(nSpecies, NAN);
-        ready = true;
-    }
+    virtual void resize(Kinetics& kin) override;
 
     void invalidateCache() override
     {

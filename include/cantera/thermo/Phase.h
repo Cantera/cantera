@@ -13,6 +13,7 @@
 #include "cantera/thermo/Elements.h"
 #include "cantera/base/ValueCache.h"
 
+
 namespace Cantera
 {
 
@@ -51,7 +52,7 @@ class Kinetics;
  * Class Phase contains a number of utility functions that will set the state
  * of the phase in its entirety, by first setting the composition, and then
  * temperature and pressure. An example of this is the function
- * Phase::setState_TPY(double t, double p, const double* y).
+ * Phase::setState_TPY(double t, double p, span<const double> y).
  *
  * For bulk (3-dimensional) phases, the mass density has units of kg/m^3, and the molar
  * density and concentrations have units of kmol/m^3, and the units listed in the
@@ -201,7 +202,7 @@ public:
     int changeElementType(int m, int elem_type);
 
     //! Return a read-only reference to the vector of atomic weights.
-    const vector<double>& atomicWeights() const;
+    span<const double> atomicWeights() const;
 
     //! Number of elements.
     size_t nElements() const;
@@ -318,44 +319,30 @@ public:
     //! Save the current thermodynamic state of the phase, excluding composition.
     //! The default implementation corresponds to the default implementation of
     //! nativeState().
-    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
     //! @param[out] state  Array of state variables, in the order defined by
-    //!     nativeState().
+    //!     nativeState(). Size must be >= partialStateSize().
     //! @since New in %Cantera 3.2
-    virtual void savePartialState(size_t lenstate, double* state) const;
+    virtual void savePartialState(span<double> state) const;
 
     //! Set the internal thermodynamic state of the phase, excluding composition.
     //! The default implementation corresponds to the default implementation of
     //! nativeState().
-    //! @param lenstate  Length of the state array. Must be >= partialStateSize().
     //! @param[in] state  Array of state variables, in the order defined by
-    //!     nativeState().
+    //!     nativeState(). Size must be >= partialStateSize().
     //! @since New in %Cantera 3.2
-    virtual void restorePartialState(size_t lenstate, const double* state);
+    virtual void restorePartialState(span<const double> state);
 
     //! Return size of vector defining internal state of the phase.
     //! Used by saveState() and restoreState().
     virtual size_t stateSize() const;
 
-    //! Save the current internal state of the phase.
-    //! Write to vector 'state' the current internal state.
-    //!     @param state output vector. Will be resized to stateSize().
-    void saveState(vector<double>& state) const;
-
     //! Write to array 'state' the current internal state.
-    //!     @param lenstate length of the state array. Must be >= stateSize()
-    //!     @param state    output vector. Must be of length stateSizes() or
-    //!                     greater.
-    virtual void saveState(size_t lenstate, double* state) const;
-
-    //! Restore a state saved on a previous call to saveState.
-    //!     @param state State vector containing the previously saved state.
-    void restoreState(const vector<double>& state);
+    //!     @param state output vector. Size must be >= stateSize().
+    virtual void saveState(span<double> state) const;
 
     //! Restore the state of the phase from a previously saved state vector.
-    //!     @param lenstate   Length of the state vector
-    //!     @param state      Vector of state conditions.
-    virtual void restoreState(size_t lenstate, const double* state);
+    //!     @param state Vector of state conditions.
+    virtual void restoreState(span<const double> state);
 
     //! @name Set Thermodynamic State
     //!
@@ -401,19 +388,19 @@ public:
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
-    void getMolecularWeights(double* weights) const;
+    void getMolecularWeights(span<double> weights) const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
-    const vector<double>& molecularWeights() const;
+    span<const double> molecularWeights() const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kmol / kg
-    const vector<double>& inverseMolecularWeights() const;
+    span<const double> inverseMolecularWeights() const;
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
-    void getCharges(double* charges) const;
+    void getCharges(span<double> charges) const;
 
     //! @name Composition
     //! @{
@@ -452,31 +439,31 @@ public:
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
-    //!          length greater than or equal to the number of species.
-    void getMoleFractions(double* const x) const;
+    //!          size greater than or equal to the number of species.
+    void getMoleFractions(span<double> x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
     //! Internally, the Phase object will normalize this vector before storing
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
-    //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const double* const x);
+    //! have a size greater than or equal to the number of species, m_kk.
+    virtual void setMoleFractions(span<const double> x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param x  Input vector of mole fractions. Length is m_kk.
-    virtual void setMoleFractions_NoNorm(const double* const x);
+    virtual void setMoleFractions_NoNorm(span<const double> x);
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(double* const y) const;
+    void getMassFractions(span<double> y) const;
 
-    //! Return a const pointer to the mass fraction array
-    const double* massFractions() const {
-        return &m_y[0];
+    //! Return a view of the mass fraction array
+    span<const double> massFractions() const {
+        return m_y;
     }
 
     //! Set the mass fractions to the specified values and normalize them.
@@ -484,14 +471,14 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const double* const y);
+    virtual void setMassFractions(span<const double> y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param y  Input vector of mass fractions. Length is m_kk.
-    virtual void setMassFractions_NoNorm(const double* const y);
+    virtual void setMassFractions_NoNorm(span<const double> y);
 
     //! Get the species concentrations (kmol/m^3).
     /*!
@@ -499,7 +486,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    virtual void getConcentrations(double* const c) const;
+    virtual void getConcentrations(span<double> c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -520,14 +507,14 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const double* const conc);
+    virtual void setConcentrations(span<const double> conc);
 
     //! Set the concentrations without ignoring negative concentrations
-    virtual void setConcentrationsNoNorm(const double* const conc);
+    virtual void setConcentrationsNoNorm(span<const double> conc);
     //! @}
 
     //! Set the state of the object with moles in [kmol]
-    virtual void setMolesNoTruncate(const double* const N);
+    virtual void setMolesNoTruncate(span<const double> N);
 
     //! Elemental mass fraction of element m
     /*!
@@ -682,10 +669,8 @@ public:
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
-    double mean_X(const double* const Q) const;
+    double mean_X(span<const double> Q) const;
 
-    //! @copydoc Phase::mean_X(const double* const Q) const
-    double mean_X(const vector<double>& Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
     double meanMolecularWeight() const {
@@ -836,12 +821,12 @@ public:
     //! Converts a mixture composition from mole fractions to mass fractions
     //!     @param[in] Y mixture composition in mass fractions (length m_kk)
     //!     @param[out] X mixture composition in mole fractions (length m_kk)
-    void massFractionsToMoleFractions(const double* Y, double* X) const;
+    void massFractionsToMoleFractions(span<const double> Y, span<double> X) const;
 
     //! Converts a mixture composition from mass fractions to mole fractions
     //!     @param[in] X mixture composition in mole fractions (length m_kk)
     //!     @param[out] Y mixture composition in mass fractions (length m_kk)
-    void moleFractionsToMassFractions(const double* X, double* Y) const;
+    void moleFractionsToMassFractions(span<const double> X, span<double> Y) const;
 
 protected:
     //! Ensure that phase is compressible.

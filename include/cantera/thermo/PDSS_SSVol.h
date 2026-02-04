@@ -145,12 +145,12 @@ public:
     //! Set polynomial coefficients for the standard state molar volume as a
     //! function of temperature. Cubic polynomial (4 coefficients). Leading
     //! coefficient is the constant (temperature-independent) term [m^3/kmol].
-    void setVolumePolynomial(double* coeffs);
+    void setVolumePolynomial(span<const double> coeffs);
 
     //! Set polynomial coefficients for the standard state density as a function
     //! of temperature. Cubic polynomial (4 coefficients). Leading coefficient
     //! is the constant (temperature-independent) term [kg/m^3].
-    void setDensityPolynomial(double* coeffs);
+    void setDensityPolynomial(span<const double> coeffs);
 
     void getParameters(AnyMap& eosNode) const override;
 

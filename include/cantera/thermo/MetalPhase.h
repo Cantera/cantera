@@ -59,36 +59,36 @@ public:
         return m_press;
     }
 
-    void getChemPotentials(double* mu) const override {
+    void getChemPotentials(span<double> mu) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu[n] = 0.0;
         }
     }
 
-    void getEnthalpy_RT(double* hrt) const override {
+    void getEnthalpy_RT(span<double> hrt) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             hrt[n] = 0.0;
         }
     }
 
-    void getEntropy_R(double* sr) const override {
+    void getEntropy_R(span<double> sr) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             sr[n] = 0.0;
         }
     }
 
-    void getStandardChemPotentials(double* mu0) const override {
+    void getStandardChemPotentials(span<double> mu0) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu0[n] = 0.0;
         }
     }
 
-    void getActivityConcentrations(double* c) const override {
+    void getActivityConcentrations(span<double> c) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             c[n] = 1.0;
         }
     }
-    void getPartialMolarEnthalpies(double *h) const override {
+    void getPartialMolarEnthalpies(span<double> h) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             h[n] = 0.0;
         }

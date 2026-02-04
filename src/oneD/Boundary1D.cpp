@@ -95,7 +95,7 @@ Inlet1D::Inlet1D(shared_ptr<Solution> phase, const string& id)
     m_press = thermo->pressure();
     m_nsp = thermo->nSpecies();
     m_yin.resize(m_nsp);
-    thermo->getMassFractions(m_yin.data());
+    thermo->getMassFractions(m_yin);
 }
 
 //! set spreading rate
@@ -135,7 +135,7 @@ void Inlet1D::setMoleFractions(const string& xin)
     if (m_solution) {
         auto thermo = m_solution->thermo();
         thermo->setMoleFractionsByName(xin);
-        thermo->getMassFractions(m_yin.data());
+        thermo->getMassFractions(m_yin);
         needJacUpdate();
     } else {
         m_xstr = xin;
@@ -146,8 +146,8 @@ void Inlet1D::setMoleFractions(const double* xin)
 {
     if (m_solution) {
         auto thermo = m_solution->thermo();
-        thermo->setMoleFractions(xin);
-        thermo->getMassFractions(m_yin.data());
+        thermo->setMoleFractions(span<const double>(xin, m_nsp));
+        thermo->getMassFractions(m_yin);
         needJacUpdate();
     }
 }
@@ -157,7 +157,7 @@ void Inlet1D::updateState(size_t loc)
     if (m_flow) {
         m_press = m_flow->pressure();
     }
-    m_solution->thermo()->setState_TPY(m_temp, m_press, m_yin.data());
+    m_solution->thermo()->setState_TPY(m_temp, m_press, m_yin);
 }
 
 void Inlet1D::init()
@@ -294,7 +294,7 @@ shared_ptr<SolutionArray> Inlet1D::toArray(bool normalize)
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
     auto thermo = m_solution->thermo();
-    thermo->setState_TPY(m_temp, pressure, m_yin.data());
+    thermo->setState_TPY(m_temp, pressure, m_yin);
     vector<double> data(thermo->stateSize());
     thermo->saveState(data);
 
@@ -319,7 +319,7 @@ void Inlet1D::fromArray(const shared_ptr<SolutionArray>& arr)
         auto aux = arr->getAuxiliary(0);
         m_mdot = thermo->density() * aux.at("velocity").as<double>();
     }
-    thermo->getMassFractions(m_yin.data());
+    thermo->getMassFractions(m_yin);
 }
 
 // ------------- Empty1D -------------
@@ -467,7 +467,7 @@ void OutletRes1D::setMoleFractions(const string& xres)
     m_xstr = xres;
     if (m_flow) {
         m_flow->phase().setMoleFractionsByName(xres);
-        m_flow->phase().getMassFractions(m_yres.data());
+        m_flow->phase().getMassFractions(m_yres);
         needJacUpdate();
     }
 }
@@ -475,8 +475,8 @@ void OutletRes1D::setMoleFractions(const string& xres)
 void OutletRes1D::setMoleFractions(const double* xres)
 {
     if (m_flow) {
-        m_flow->phase().setMoleFractions(xres);
-        m_flow->phase().getMassFractions(m_yres.data());
+        m_flow->phase().setMoleFractions(span<const double>(xres, m_nsp));
+        m_flow->phase().getMassFractions(m_yres);
         needJacUpdate();
     }
 }
@@ -545,7 +545,7 @@ shared_ptr<SolutionArray> OutletRes1D::toArray(bool normalize)
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
     auto thermo = m_solution->thermo();
-    thermo->setState_TPY(m_temp, pressure, &m_yres[0]);
+    thermo->setState_TPY(m_temp, pressure, m_yres);
     vector<double> data(thermo->stateSize());
     thermo->saveState(data);
 
@@ -563,7 +563,7 @@ void OutletRes1D::fromArray(const shared_ptr<SolutionArray>& arr)
     auto thermo = arr->thermo();
     m_temp = thermo->temperature();
     auto Y = thermo->massFractions();
-    std::copy(Y, Y + m_nsp, &m_yres[0]);
+    m_yres.assign(Y.begin(), Y.end());
 }
 
 // -------- Surf1D --------
@@ -677,8 +677,8 @@ void ReactingSurf1D::init()
 
 void ReactingSurf1D::resetBadValues(double* xg) {
     double* x = xg + loc();
-    m_sphase->setCoverages(x);
-    m_sphase->getCoverages(x);
+    m_sphase->setCoverages(span<const double>(x, m_nsp));
+    m_sphase->getCoverages(span<double>(x, m_nsp));
 }
 
 void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
@@ -700,7 +700,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
         sum += x[k];
     }
     m_sphase->setTemperature(m_temp);
-    m_sphase->setCoveragesNoNorm(m_work.data());
+    m_sphase->setCoveragesNoNorm(m_work);
 
     // set the left gas state to the adjacent point
 
@@ -743,7 +743,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        const vector<double>& mwleft = m_phase_left->molecularWeights();
+        auto mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
@@ -790,9 +790,9 @@ shared_ptr<SolutionArray> ReactingSurf1D::toArray(bool normalize)
 
     // set state of surface phase
     m_sphase->setState_TP(m_temp, m_sphase->pressure());
-    m_sphase->setCoverages(soln);
+    m_sphase->setCoverages(span<const double>(soln, m_nsp));
     vector<double> data(m_sphase->stateSize());
-    m_sphase->saveState(data.size(), &data[0]);
+    m_sphase->saveState(data);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);
     arr->setState(0, data);
@@ -820,7 +820,7 @@ void ReactingSurf1D::fromArray(const shared_ptr<SolutionArray>& arr)
             "Restoring of coverages requires surface phase");
     }
     m_temp = surf->temperature();
-    surf->getCoverages(soln);
+    surf->getCoverages(span<double>(soln, m_nsp));
     _finalize(soln);
 }
 

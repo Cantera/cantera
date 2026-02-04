@@ -404,7 +404,7 @@ public:
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
     void _getInitialSoln(double* x) override {
-        m_sphase->getCoverages(x);
+        m_sphase->getCoverages(span<double>(x, m_nsp));
     }
 
     void _finalize(const double* x) override {
