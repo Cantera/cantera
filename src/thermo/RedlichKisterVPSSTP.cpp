@@ -26,6 +26,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile, const string& 
 
 void RedlichKisterVPSSTP::getLnActivityCoefficients(span<double> lnac) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getLnActivityCoefficients", lnac.size(), m_kk);
     // Update the activity coefficients
     s_update_lnActCoeff();
 
@@ -249,6 +250,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 
 void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdT", dlnActCoeffdT.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
@@ -257,6 +259,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 
 void RedlichKisterVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getd2lnActCoeffdT2",
+                   d2lnActCoeffdT2.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
@@ -377,6 +381,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, span<const double> const dXds,
         span<double> dlnActCoeffds) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffds", dXds.size(), m_kk);
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffds", dlnActCoeffds.size(), m_kk);
     s_update_dlnActCoeff_dT();
     s_update_dlnActCoeff_dX_();
     for (size_t k = 0; k < m_kk; k++) {
@@ -389,6 +395,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const double dTds, span<const double>
 
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_diag) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag",
+                   dlnActCoeffdlnN_diag.size(), m_kk);
     s_update_dlnActCoeff_dX_();
     for (size_t j = 0; j < m_kk; j++) {
         dlnActCoeffdlnN_diag[j] = dlnActCoeff_dX_(j, j);
@@ -400,6 +408,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(span<double> dlnActCoeffdlnN_d
 
 void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_diag) const
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag",
+                   dlnActCoeffdlnX_diag.size(), m_kk);
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
@@ -408,6 +418,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(span<double> dlnActCoeffdlnX_d
 
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("RedlichKisterVPSSTP::getdlnActCoeffdlnN",
+                   dlnActCoeffdlnN.size(), ld * m_kk);
     s_update_dlnActCoeff_dX_();
     double* data =  & dlnActCoeffdlnN_(0,0);
     for (size_t k = 0; k < m_kk; k++) {

@@ -198,6 +198,8 @@ void BinarySolutionTabulatedThermo::diff(span<const double> inputData,
 
 void BinarySolutionTabulatedThermo::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("BinarySolutionTabulatedThermo::getPartialMolarVolumes",
+                   vbar.size(), m_kk);
     std::copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar.begin());
 }
 

@@ -163,6 +163,14 @@ private:
     size_t sz_, reqd_;
 };
 
+//! Wrapper for throwing ArraySizeError.
+//! Used to reduce boilerplate implementation and spurious lack of code coverage.
+inline void checkArraySize(const char* procedure, size_t available, size_t required)
+{
+    if (required > available) {
+        throw ArraySizeError(procedure, available, required);
+    }
+}
 
 //! An array index is out of range.
 /*!

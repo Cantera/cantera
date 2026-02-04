@@ -50,6 +50,7 @@ double IdealGasPhase::standardConcentration(size_t k) const
 
 void IdealGasPhase::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("IdealGasPhase::getActivityCoefficients", ac.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
@@ -77,12 +78,14 @@ void IdealGasPhase::getChemPotentials(span<double> mu) const
 
 void IdealGasPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    checkArraySize("IdealGasPhase::getPartialMolarEnthalpies", hbar.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     scale(_h.begin(), _h.end(), hbar.begin(), RT());
 }
 
 void IdealGasPhase::getPartialMolarEntropies(span<double> sbar) const
 {
+    checkArraySize("IdealGasPhase::getPartialMolarEntropies", sbar.size(), m_kk);
     auto _s = entropy_R_ref();
     scale(_s.begin(), _s.end(), sbar.begin(), GasConstant);
     double logp = log(pressure() / refPressure());
@@ -94,6 +97,7 @@ void IdealGasPhase::getPartialMolarEntropies(span<double> sbar) const
 
 void IdealGasPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
+    checkArraySize("IdealGasPhase::getPartialMolarIntEnergies", ubar.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         ubar[k] = RT() * (_h[k] - 1.0);
@@ -102,12 +106,14 @@ void IdealGasPhase::getPartialMolarIntEnergies(span<double> ubar) const
 
 void IdealGasPhase::getPartialMolarCp(span<double> cpbar) const
 {
+    checkArraySize("IdealGasPhase::getPartialMolarCp", cpbar.size(), m_kk);
     auto _cp = cp_R_ref();
     scale(_cp.begin(), _cp.end(), cpbar.begin(), GasConstant);
 }
 
 void IdealGasPhase::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("IdealGasPhase::getPartialMolarVolumes", vbar.size(), m_kk);
     double vol = 1.0 / molarDensity();
     for (size_t k = 0; k < m_kk; k++) {
         vbar[k] = vol;
@@ -118,12 +124,14 @@ void IdealGasPhase::getPartialMolarVolumes(span<double> vbar) const
 
 void IdealGasPhase::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("IdealGasPhase::getEnthalpy_RT", hrt.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt.begin());
 }
 
 void IdealGasPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("IdealGasPhase::getEntropy_R", sr.size(), m_kk);
     auto _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
@@ -134,6 +142,7 @@ void IdealGasPhase::getEntropy_R(span<double> sr) const
 
 void IdealGasPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("IdealGasPhase::getGibbs_RT", grt.size(), m_kk);
     auto gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
     double tmp = log(pressure() / refPressure());
@@ -149,12 +158,14 @@ void IdealGasPhase::getIntEnergy_RT(span<double> urt) const
 
 void IdealGasPhase::getCp_R(span<double> cpr) const
 {
+    checkArraySize("IdealGasPhase::getCp_R", cpr.size(), m_kk);
     auto _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cpr.begin());
 }
 
 void IdealGasPhase::getStandardVolumes(span<double> vol) const
 {
+    checkArraySize("IdealGasPhase::getStandardVolumes", vol.size(), m_kk);
     double tmp = 1.0 / molarDensity();
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = tmp;
@@ -165,30 +176,35 @@ void IdealGasPhase::getStandardVolumes(span<double> vol) const
 
 void IdealGasPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("IdealGasPhase::getEnthalpy_RT_ref", hrt.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     copy(_h.begin(), _h.end(), hrt.begin());
 }
 
 void IdealGasPhase::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("IdealGasPhase::getGibbs_RT_ref", grt.size(), m_kk);
     auto gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
 }
 
 void IdealGasPhase::getGibbs_ref(span<double> g) const
 {
+    checkArraySize("IdealGasPhase::getGibbs_ref", g.size(), m_kk);
     auto gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g.begin(), RT());
 }
 
 void IdealGasPhase::getEntropy_R_ref(span<double> er) const
 {
+    checkArraySize("IdealGasPhase::getEntropy_R_ref", er.size(), m_kk);
     auto _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), er.begin());
 }
 
 void IdealGasPhase::getIntEnergy_RT_ref(span<double> urt) const
 {
+    checkArraySize("IdealGasPhase::getIntEnergy_RT_ref", urt.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - 1.0;
@@ -197,12 +213,14 @@ void IdealGasPhase::getIntEnergy_RT_ref(span<double> urt) const
 
 void IdealGasPhase::getCp_R_ref(span<double> cprt) const
 {
+    checkArraySize("IdealGasPhase::getCp_R_ref", cprt.size(), m_kk);
     auto _cpr = cp_R_ref();
     copy(_cpr.begin(), _cpr.end(), cprt.begin());
 }
 
 void IdealGasPhase::getStandardVolumes_ref(span<double> vol) const
 {
+    checkArraySize("IdealGasPhase::getStandardVolumes_ref", vol.size(), m_kk);
     double tmp = RT() / m_p0;
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = tmp;

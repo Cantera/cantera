@@ -74,6 +74,7 @@ double DebyeHuckel::standardConcentration(size_t k) const
 
 void DebyeHuckel::getActivities(span<double> ac) const
 {
+    checkArraySize("DebyeHuckel::getActivities", ac.size(), m_kk);
     _updateStandardStateThermo();
 
     // Update the molality array, m_molalities(). This requires an update due to
@@ -88,6 +89,8 @@ void DebyeHuckel::getActivities(span<double> ac) const
 
 void DebyeHuckel::getMolalityActivityCoefficients(span<double> acMolality) const
 {
+    checkArraySize("DebyeHuckel::getMolalityActivityCoefficients",
+                   acMolality.size(), m_kk);
     _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();

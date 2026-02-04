@@ -110,6 +110,7 @@ double IdealMolalSoln::standardConcentration(size_t k) const
 
 void IdealMolalSoln::getActivities(span<double> ac) const
 {
+    checkArraySize("IdealMolalSoln::getActivities", ac.size(), m_kk);
     _updateStandardStateThermo();
 
     // Update the molality array, m_molalities(). This requires an update due to
@@ -139,6 +140,8 @@ void IdealMolalSoln::getActivities(span<double> ac) const
 
 void IdealMolalSoln::getMolalityActivityCoefficients(span<double> acMolality) const
 {
+    checkArraySize("IdealMolalSoln::getMolalityActivityCoefficients",
+                   acMolality.size(), m_kk);
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
             acMolality[k] = 1.0;

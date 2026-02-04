@@ -34,9 +34,9 @@ int main(int argc, char** argv)
         /*
          * ThermoUnknowns
          */
-        double mu0_RT[20], mu[20], cp_r[20];
-        double enth_RT[20];
-        double entrop_RT[20], intE_RT[20];
+        vector<double> mu0_RT(nsp), mu(nsp), cp_r(nsp);
+        vector<double> enth_RT(nsp);
+        vector<double> entrop_RT(nsp), intE_RT(nsp);
         double mu_NaCl, enth_NaCl, entrop_NaCl;
         double cp_NaCl;
         /*

@@ -15,7 +15,7 @@ public:
 
     //vary the composition of a co2-h2 mixture:
     void set_r(const double r) {
-        vector<double> moleFracs(7);
+        vector<double> moleFracs(test_phase->nSpecies());
         moleFracs[0] = r;
         moleFracs[2] = 1-r;
         test_phase->setMoleFractions(moleFracs);
@@ -48,7 +48,7 @@ TEST_F(PengRobinson_Test, chem_potentials)
     double xmax = 0.9;
     int numSteps = 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector<double> chemPotentials(7);
+    vector<double> chemPotentials(test_phase->nSpecies());
     for(int i=0; i < numSteps; ++i)
     {
         set_r(xmin + i*dx);

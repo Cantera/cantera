@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
         size_t n = issp.nSpecies();
 
-        double HiSS[20], muiSS[20],SiSS[20], CpiSS[20], VoliSS[20];
+        vector<double> HiSS(n), muiSS(n),SiSS(n), CpiSS(n), VoliSS(n);
         double RT = GasConstant * Tkelvin;
         issp.getStandardChemPotentials(muiSS);
         issp.getEnthalpy_RT(HiSS);
@@ -79,9 +79,7 @@ int main(int argc, char** argv)
                    HiSS[i], SiSS[i], CpiSS[i], VoliSS[i]);
         }
 
-
-
-        double HiPM[20], mui[20],SiPM[20], CpiPM[20], VoliPM[20];
+        vector<double> HiPM(n), mui(n),SiPM(n), CpiPM(n), VoliPM(n);
 
         issp.getChemPotentials(mui);
         issp.getPartialMolarEnthalpies(HiPM);

@@ -59,6 +59,7 @@ double MixtureFugacityTP::entropy_mole() const
 
 void MixtureFugacityTP::getStandardChemPotentials(span<double> g) const
 {
+    checkArraySize("MixtureFugacityTP::getStandardChemPotentials", g.size(), m_kk);
     copy(m_g0_RT.begin(), m_g0_RT.end(), g.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -73,6 +74,7 @@ void MixtureFugacityTP::getEnthalpy_RT(span<double> hrt) const
 
 void MixtureFugacityTP::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("MixtureFugacityTP::getEntropy_R", sr.size(), m_kk);
     copy(m_s0_R.begin(), m_s0_R.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -82,6 +84,7 @@ void MixtureFugacityTP::getEntropy_R(span<double> sr) const
 
 void MixtureFugacityTP::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("MixtureFugacityTP::getGibbs_RT", grt.size(), m_kk);
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -91,6 +94,7 @@ void MixtureFugacityTP::getGibbs_RT(span<double> grt) const
 
 void MixtureFugacityTP::getIntEnergy_RT(span<double> urt) const
 {
+    checkArraySize("MixtureFugacityTP::getIntEnergy_RT", urt.size(), m_kk);
     copy(m_h0_RT.begin(), m_h0_RT.end(), urt.begin());
     for (size_t i = 0; i < m_kk; i++) {
         urt[i] -= 1.0;
@@ -99,11 +103,13 @@ void MixtureFugacityTP::getIntEnergy_RT(span<double> urt) const
 
 void MixtureFugacityTP::getCp_R(span<double> cpr) const
 {
+    checkArraySize("MixtureFugacityTP::getCp_R", cpr.size(), m_kk);
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
 void MixtureFugacityTP::getStandardVolumes(span<double> vol) const
 {
+    checkArraySize("MixtureFugacityTP::getStandardVolumes", vol.size(), m_kk);
     for (size_t i = 0; i < m_kk; i++) {
         vol[i] = RT() / pressure();
     }
@@ -113,31 +119,37 @@ void MixtureFugacityTP::getStandardVolumes(span<double> vol) const
 
 void MixtureFugacityTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("MixtureFugacityTP::getEnthalpy_RT_ref", hrt.size(), m_kk);
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt.begin());
 }
 
 void MixtureFugacityTP::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("MixtureFugacityTP::getGibbs_RT_ref", grt.size(), m_kk);
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
 }
 
 void MixtureFugacityTP::getGibbs_ref(span<double> g) const
 {
+    checkArraySize("MixtureFugacityTP::getGibbs_ref", g.size(), m_kk);
     scale(m_g0_RT.begin(), m_g0_RT.end(), g.begin(), RT());
 }
 
 void MixtureFugacityTP::getEntropy_R_ref(span<double> er) const
 {
+    checkArraySize("MixtureFugacityTP::getEntropy_R_ref", er.size(), m_kk);
     copy(m_s0_R.begin(), m_s0_R.end(), er.begin());
 }
 
 void MixtureFugacityTP::getCp_R_ref(span<double> cpr) const
 {
+    checkArraySize("MixtureFugacityTP::getCp_R_ref", cpr.size(), m_kk);
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
 void MixtureFugacityTP::getStandardVolumes_ref(span<double> vol) const
 {
+    checkArraySize("MixtureFugacityTP::getStandardVolumes_ref", vol.size(), m_kk);
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
     }

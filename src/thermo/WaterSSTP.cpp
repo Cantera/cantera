@@ -79,21 +79,25 @@ void WaterSSTP::initThermo()
 
 void WaterSSTP::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("WaterSSTP::getEnthalpy_RT", hrt.size(), 1);
     hrt[0] = (m_sub.enthalpy_mass() * m_mw + EW_Offset) / RT();
 }
 
 void WaterSSTP::getIntEnergy_RT(span<double> ubar) const
 {
+    checkArraySize("WaterSSTP::getIntEnergy_RT", ubar.size(), 1);
     ubar[0] = (m_sub.intEnergy_mass() * m_mw + EW_Offset)/ RT();
 }
 
 void WaterSSTP::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("WaterSSTP::getEntropy_R", sr.size(), 1);
     sr[0] = (m_sub.entropy_mass() * m_mw + SW_Offset) / GasConstant;
 }
 
 void WaterSSTP::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("WaterSSTP::getGibbs_RT", grt.size(), 1);
     grt[0] = (m_sub.gibbs_mass() * m_mw + EW_Offset) / RT()
              - SW_Offset / GasConstant;
     if (!m_ready) {
@@ -103,6 +107,7 @@ void WaterSSTP::getGibbs_RT(span<double> grt) const
 
 void WaterSSTP::getStandardChemPotentials(span<double> gss) const
 {
+    checkArraySize("WaterSSTP::getStandardChemPotentials", gss.size(), 1);
     gss[0] = (m_sub.gibbs_mass() * m_mw + EW_Offset - SW_Offset*temperature());
     if (!m_ready) {
         throw CanteraError("waterSSTP::getStandardChemPotentials",
@@ -112,6 +117,7 @@ void WaterSSTP::getStandardChemPotentials(span<double> gss) const
 
 void WaterSSTP::getCp_R(span<double> cpr) const
 {
+    checkArraySize("WaterSSTP::getCp_R", cpr.size(), 1);
     cpr[0] = m_sub.cp_mass() * m_mw / GasConstant;
 }
 
@@ -122,6 +128,7 @@ double WaterSSTP::cv_mole() const
 
 void WaterSSTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("WaterSSTP::getEnthalpy_RT_ref", hrt.size(), 1);
     double p = pressure();
     double T = temperature();
     double dens = density();
@@ -141,6 +148,7 @@ void WaterSSTP::getEnthalpy_RT_ref(span<double> hrt) const
 
 void WaterSSTP::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("WaterSSTP::getGibbs_RT_ref", grt.size(), 1);
     double p = pressure();
     double T = temperature();
     double dens = density();
@@ -169,6 +177,7 @@ void WaterSSTP::getGibbs_ref(span<double> g) const
 
 void WaterSSTP::getEntropy_R_ref(span<double> sr) const
 {
+    checkArraySize("WaterSSTP::getEntropy_R_ref", sr.size(), 1);
     double p = pressure();
     double T = temperature();
     double dens = density();
@@ -191,6 +200,7 @@ void WaterSSTP::getEntropy_R_ref(span<double> sr) const
 
 void WaterSSTP::getCp_R_ref(span<double> cpr) const
 {
+    checkArraySize("WaterSSTP::getCp_R_ref", cpr.size(), 1);
     double p = pressure();
     double T = temperature();
     double dens = density();
@@ -211,6 +221,7 @@ void WaterSSTP::getCp_R_ref(span<double> cpr) const
 
 void WaterSSTP::getStandardVolumes_ref(span<double> vol) const
 {
+    checkArraySize("WaterSSTP::getStandardVolumes_ref", vol.size(), 1);
     double p = pressure();
     double T = temperature();
     double dens = density();

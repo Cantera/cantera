@@ -32,10 +32,7 @@ Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
 
 void Nasa9Poly1::setParameters(span<const double> coeffs)
 {
-    if (coeffs.size() != 9) {
-        throw CanteraError("Nasa9Poly1::setParameters", "Array must contain "
-            "9 coefficients, but {} were given.", coeffs.size());
-    }
+    checkArraySize("Nasa9Poly1::setParameters", coeffs.size(), 9);
     m_coeff.assign(coeffs.begin(), coeffs.end());
 }
 
@@ -90,6 +87,7 @@ void Nasa9Poly1::updatePropertiesTemp(const double temp, double& cp_R, double& h
 void Nasa9Poly1::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
                                   double& pref, span<double> coeffs) const
 {
+    checkArraySize("Nasa9Poly1::reportParameters", coeffs.size(), 12);
     n = 0;
     type = NASA9;
     tlow = m_lowT;
