@@ -53,6 +53,7 @@ Units StoichSubstance::standardConcentrationUnits() const
 
 void StoichSubstance::getActivityConcentrations(span<double> c) const
 {
+    checkArraySize("StoichSubstance::getActivityConcentrations", c.size(), 1);
     c[0] = 1.0;
 }
 
@@ -94,12 +95,14 @@ void StoichSubstance::getGibbs_RT(span<double> grt) const
 
 void StoichSubstance::getCp_R(span<double> cpr) const
 {
+    checkArraySize("StoichSubstance::getCp_R", cpr.size(), 1);
     _updateThermo();
     cpr[0] = m_cp0_R;
 }
 
 void StoichSubstance::getIntEnergy_RT(span<double> urt) const
 {
+    checkArraySize("StoichSubstance::getIntEnergy_RT", urt.size(), 1);
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
@@ -108,6 +111,7 @@ void StoichSubstance::getIntEnergy_RT(span<double> urt) const
 
 void StoichSubstance::getIntEnergy_RT_ref(span<double> urt) const
 {
+    checkArraySize("StoichSubstance::getIntEnergy_RT_ref", urt.size(), 1);
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }

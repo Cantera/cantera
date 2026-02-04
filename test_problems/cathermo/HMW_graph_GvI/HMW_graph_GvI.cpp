@@ -31,16 +31,9 @@ int main(int argc, char** argv)
         HMWSoln* HMW = new HMWSoln("HMW_NaCl.yaml", "NaCl_electrolyte_complex_shomate");
 
         size_t nsp = HMW->nSpecies();
-        double acMol[100];
-        double act[100];
-        double moll[100];
-
-        for (i = 0; i < 100; i++) {
-            acMol[i] = 1.0;
-            act[i] = 1.0;
-            moll[i] = 0.0;
-        }
-
+        vector<double> acMol(nsp, 1.0);
+        vector<double> act(nsp, 1.0);
+        vector<double> moll(nsp, 0.0);
         string sName;
         FILE* ff;
 

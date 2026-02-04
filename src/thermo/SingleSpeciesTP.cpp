@@ -112,6 +112,7 @@ void SingleSpeciesTP::getPartialMolarCp(span<double> cpbar) const
 
 void SingleSpeciesTP::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("SingleSpeciesTP::getPartialMolarVolumes", vbar.size(), 1);
     vbar[0] = molecularWeight(0) / density();
 }
 
@@ -119,6 +120,7 @@ void SingleSpeciesTP::getPartialMolarVolumes(span<double> vbar) const
 
 void SingleSpeciesTP::getStandardVolumes(span<double> vbar) const
 {
+    checkArraySize("SingleSpeciesTP::getStandardVolumes", vbar.size(), 1);
     vbar[0] = molecularWeight(0) / density();
 }
 
@@ -126,12 +128,14 @@ void SingleSpeciesTP::getStandardVolumes(span<double> vbar) const
 
 void SingleSpeciesTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("SingleSpeciesTP::getEnthalpy_RT_ref", hrt.size(), 1);
     _updateThermo();
     hrt[0] = m_h0_RT;
 }
 
 void SingleSpeciesTP::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("SingleSpeciesTP::getGibbs_RT_ref", grt.size(), 1);
     _updateThermo();
     grt[0] = m_h0_RT - m_s0_R;
 }
@@ -144,12 +148,14 @@ void SingleSpeciesTP::getGibbs_ref(span<double> g) const
 
 void SingleSpeciesTP::getEntropy_R_ref(span<double> er) const
 {
+    checkArraySize("SingleSpeciesTP::getEntropy_R_ref", er.size(), 1);
     _updateThermo();
     er[0] = m_s0_R;
 }
 
 void SingleSpeciesTP::getCp_R_ref(span<double> cpr) const
 {
+    checkArraySize("SingleSpeciesTP::getCp_R_ref", cpr.size(), 1);
     _updateThermo();
     cpr[0] = m_cp0_R;
 }

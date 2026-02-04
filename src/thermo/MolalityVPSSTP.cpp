@@ -69,6 +69,7 @@ void MolalityVPSSTP::calcMolalities() const
 
 void MolalityVPSSTP::getMolalities(span<double> molal) const
 {
+    checkArraySize("MolalityVPSSTP::getMolalities", molal.size(), m_kk);
     calcMolalities();
     for (size_t k = 0; k < m_kk; k++) {
         molal[k] = m_molalities[k];
@@ -77,6 +78,7 @@ void MolalityVPSSTP::getMolalities(span<double> molal) const
 
 void MolalityVPSSTP::setMolalities(span<const double> molal)
 {
+    checkArraySize("MolalityVPSSTP::setMolalities", molal.size(), m_kk);
     double Lsum = 1.0 / m_Mnaught;
     for (size_t k = 1; k < m_kk; k++) {
         m_molalities[k] = molal[k];

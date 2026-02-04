@@ -45,24 +45,28 @@ void VPStandardStateTP::getStandardChemPotentials(span<double> g) const
 
 void VPStandardStateTP::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("VPStandardStateTP::getEnthalpy_RT", hrt.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_hss_RT.begin(), m_hss_RT.end(), hrt.begin());
 }
 
 void VPStandardStateTP::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("VPStandardStateTP::getEntropy_R", sr.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_sss_R.begin(), m_sss_R.end(), sr.begin());
 }
 
 void VPStandardStateTP::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("VPStandardStateTP::getGibbs_RT", grt.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt.begin());
 }
 
 void VPStandardStateTP::getIntEnergy_RT(span<double> urt) const
 {
+    checkArraySize("VPStandardStateTP::getIntEnergy_RT", urt.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt.begin());
     for (size_t k = 0; k < m_kk; k++) {
@@ -72,12 +76,14 @@ void VPStandardStateTP::getIntEnergy_RT(span<double> urt) const
 
 void VPStandardStateTP::getCp_R(span<double> cpr) const
 {
+    checkArraySize("VPStandardStateTP::getCp_R", cpr.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_cpss_R.begin(), m_cpss_R.end(), cpr.begin());
 }
 
 void VPStandardStateTP::getStandardVolumes(span<double> vol) const
 {
+    checkArraySize("VPStandardStateTP::getStandardVolumes", vol.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol.begin());
 }
@@ -91,18 +97,21 @@ span<const double> VPStandardStateTP::getStandardVolumes() const
 
 void VPStandardStateTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("VPStandardStateTP::getEnthalpy_RT_ref", hrt.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt.begin());
 }
 
 void VPStandardStateTP::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("VPStandardStateTP::getGibbs_RT_ref", grt.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
 }
 
 void VPStandardStateTP::getGibbs_ref(span<double> g) const
 {
+    checkArraySize("VPStandardStateTP::getGibbs_ref", g.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_g0_RT.begin(), m_g0_RT.end(), g.begin());
     scale(g.begin(), g.end(), g.begin(), RT());
@@ -110,18 +119,21 @@ void VPStandardStateTP::getGibbs_ref(span<double> g) const
 
 void VPStandardStateTP::getEntropy_R_ref(span<double> sr) const
 {
+    checkArraySize("VPStandardStateTP::getEntropy_R_ref", sr.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_s0_R.begin(), m_s0_R.end(), sr.begin());
 }
 
 void VPStandardStateTP::getCp_R_ref(span<double> cpr) const
 {
+    checkArraySize("VPStandardStateTP::getCp_R_ref", cpr.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
 void VPStandardStateTP::getStandardVolumes_ref(span<double> vol) const
 {
+    checkArraySize("VPStandardStateTP::getStandardVolumes_ref", vol.size(), m_kk);
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol.begin());
 }

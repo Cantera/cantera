@@ -699,6 +699,7 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
 
 double ThermoPhase::o2Required(span<const double> y) const
 {
+    checkArraySize("ThermoPhase::o2Required", y.size(), m_kk);
     // indices of fuel elements
     size_t iC = elementIndex("C", false);
     size_t iS = elementIndex("S", false);
@@ -728,6 +729,7 @@ double ThermoPhase::o2Required(span<const double> y) const
 
 double ThermoPhase::o2Present(span<const double> y) const
 {
+    checkArraySize("ThermoPhase::o2Present", y.size(), m_kk);
     size_t iO = elementIndex("O", true);
     double o2pres = 0.0;
     double sum = 0.0;
@@ -920,6 +922,8 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const string& fuelComp,
 void ThermoPhase::setMixtureFraction(double mixFrac, span<const double> fuelComp,
                                      span<const double> oxComp, ThermoBasis basis)
 {
+    checkArraySize("ThermoPhase::setMixtureFraction", fuelComp.size(), m_kk);
+    checkArraySize("ThermoPhase::setMixtureFraction", oxComp.size(), m_kk);
     if (mixFrac < 0.0 || mixFrac > 1.0) {
         throw CanteraError("ThermoPhase::setMixtureFraction",
                            "Mixture fraction must be between 0 and 1");
@@ -978,6 +982,8 @@ double ThermoPhase::mixtureFraction(span<const double> fuelComp,
                                     span<const double> oxComp,
                                     ThermoBasis basis, const string& element) const
 {
+    checkArraySize("ThermoPhase::mixtureFraction", fuelComp.size(), m_kk);
+    checkArraySize("ThermoPhase::mixtureFraction", oxComp.size(), m_kk);
     vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
@@ -1276,6 +1282,7 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
 
 void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("ThermoPhase::getdlnActCoeffdlnN", dlnActCoeffdlnN.size(), ld*m_kk);
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
             dlnActCoeffdlnN[ld * k + m] = 0.0;
@@ -1287,6 +1294,8 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, span<double> dlnActCoeffdl
 void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
                                               span<double> dlnActCoeffdlnN)
 {
+    checkArraySize("ThermoPhase::getdlnActCoeffdlnN_numderiv",
+                   dlnActCoeffdlnN.size(), ld*m_kk);
     double deltaMoles_j = 0.0;
     double pres = pressure();
 

@@ -322,36 +322,42 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const string& name,
 
 void CoverageDependentSurfPhase::getGibbs_RT_ref(span<double> grt) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getGibbs_RT_ref", grt.size(), m_kk);
     SurfPhase::_updateThermo();
     scale(m_mu0.begin(), m_mu0.end(), grt.begin(), 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getEnthalpy_RT_ref", hrt.size(), m_kk);
     SurfPhase::_updateThermo();
     scale(m_h0.begin(), m_h0.end(), hrt.begin(), 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEntropy_R_ref(span<double> sr) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getEntropy_R_ref", sr.size(), m_kk);
     SurfPhase::_updateThermo();
     scale(m_s0.begin(), m_s0.end(), sr.begin(), 1.0/GasConstant);
 }
 
 void CoverageDependentSurfPhase::getCp_R_ref(span<double> cpr) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getCp_R_ref", cpr.size(), m_kk);
     SurfPhase::_updateThermo();
     scale(m_cp0.begin(), m_cp0.end(), cpr.begin(), 1.0/GasConstant);
 }
 
 void CoverageDependentSurfPhase::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getEnthalpy_RT", hrt.size(), m_kk);
     _updateTotalThermo();
     scale(m_enthalpy.begin(), m_enthalpy.end(), hrt.begin(), 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getEntropy_R", sr.size(), m_kk);
     _updateTotalThermo();
     scale(m_entropy.begin(), m_entropy.end(), sr.begin(), 1.0/GasConstant);
     if (m_theta_ref != 1.0) {
@@ -364,12 +370,14 @@ void CoverageDependentSurfPhase::getEntropy_R(span<double> sr) const
 
 void CoverageDependentSurfPhase::getCp_R(span<double> cpr) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getCp_R", cpr.size(), m_kk);
     _updateTotalThermo();
     scale(m_heatcapacity.begin(), m_heatcapacity.end(), cpr.begin(), 1.0/GasConstant);
 }
 
 void CoverageDependentSurfPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getGibbs_RT", grt.size(), m_kk);
     _updateTotalThermo();
     scale(m_chempot.begin(), m_chempot.end(), grt.begin(), 1.0/RT());
     if (m_theta_ref != 1.0) {
@@ -382,6 +390,8 @@ void CoverageDependentSurfPhase::getGibbs_RT(span<double> grt) const
 
 void CoverageDependentSurfPhase::getStandardChemPotentials(span<double> mu0) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getStandardChemPotentials",
+                   mu0.size(), m_kk);
     _updateTotalThermo();
     copy(m_chempot.begin(), m_chempot.end(), mu0.begin());
     if (m_theta_ref != 1.0) {
@@ -394,12 +404,16 @@ void CoverageDependentSurfPhase::getStandardChemPotentials(span<double> mu0) con
 
 void CoverageDependentSurfPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getPartialMolarEnthalpies",
+                   hbar.size(), m_kk);
     _updateTotalThermo();
     copy(m_enthalpy.begin(), m_enthalpy.end(), hbar.begin());
 }
 
 void CoverageDependentSurfPhase::getPartialMolarEntropies(span<double> sbar) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getPartialMolarEntropies",
+                   sbar.size(), m_kk);
     _updateTotalThermo();
     copy(m_entropy.begin(), m_entropy.end(), sbar.begin());
     for (size_t k = 0; k < m_kk; k++) {
@@ -409,12 +423,14 @@ void CoverageDependentSurfPhase::getPartialMolarEntropies(span<double> sbar) con
 
 void CoverageDependentSurfPhase::getPartialMolarCp(span<double> cpbar) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getPartialMolarCp", cpbar.size(), m_kk);
     _updateTotalThermo();
     copy(m_heatcapacity.begin(), m_heatcapacity.end(), cpbar.begin());
 }
 
 void CoverageDependentSurfPhase::getChemPotentials(span<double> mu) const
 {
+    checkArraySize("CoverageDependentSurfPhase::getChemPotentials", mu.size(), m_kk);
     _updateTotalThermo();
     copy(m_chempot.begin(), m_chempot.end(), mu.begin());
     for (size_t k = 0; k < m_kk; k++) {

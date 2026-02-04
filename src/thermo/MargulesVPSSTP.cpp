@@ -24,6 +24,7 @@ MargulesVPSSTP::MargulesVPSSTP(const string& inputFile, const string& id_)
 
 void MargulesVPSSTP::getLnActivityCoefficients(span<double> lnac) const
 {
+    checkArraySize("MargulesVPSSTP::getLnActivityCoefficients", lnac.size(), m_kk);
     // Update the activity coefficients
     s_update_lnActCoeff();
 
@@ -279,6 +280,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 
 void MargulesVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 {
+    checkArraySize("MargulesVPSSTP::getdlnActCoeffdT", dlnActCoeffdT.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
@@ -287,6 +289,7 @@ void MargulesVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
 
 void MargulesVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 {
+    checkArraySize("MargulesVPSSTP::getd2lnActCoeffdT2", d2lnActCoeffdT2.size(), m_kk);
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
@@ -296,6 +299,8 @@ void MargulesVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
 void MargulesVPSSTP::getdlnActCoeffds(const double dTds, span<const double> const dXds,
                                       span<double> dlnActCoeffds) const
 {
+    checkArraySize("MargulesVPSSTP::getdlnActCoeffds", dlnActCoeffds.size(), m_kk);
+    checkArraySize("MargulesVPSSTP::getdlnActCoeffds", dXds.size(), m_kk);
     double T = temperature();
     s_update_dlnActCoeff_dT();
     for (size_t iK = 0; iK < m_kk; iK++) {

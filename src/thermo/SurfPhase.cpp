@@ -96,12 +96,14 @@ void SurfPhase::getPartialMolarVolumes(span<double> vbar) const
 
 void SurfPhase::getStandardChemPotentials(span<double> mu0) const
 {
+    checkArraySize("SurfPhase::getStandardChemPotentials", mu0.size(), m_kk);
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu0.begin());
 }
 
 void SurfPhase::getChemPotentials(span<double> mu) const
 {
+    checkArraySize("SurfPhase::getChemPotentials", mu.size(), m_kk);
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu.begin());
     getActivityConcentrations(m_work);
@@ -127,30 +129,35 @@ double SurfPhase::logStandardConc(size_t k) const
 
 void SurfPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("SurfPhase::getGibbs_RT", grt.size(), m_kk);
     _updateThermo();
     scale(m_mu0.begin(), m_mu0.end(), grt.begin(), 1.0/RT());
 }
 
 void SurfPhase::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("SurfPhase::getEnthalpy_RT", hrt.size(), m_kk);
     _updateThermo();
     scale(m_h0.begin(), m_h0.end(), hrt.begin(), 1.0/RT());
 }
 
 void SurfPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("SurfPhase::getEntropy_R", sr.size(), m_kk);
     _updateThermo();
     scale(m_s0.begin(), m_s0.end(), sr.begin(), 1.0/GasConstant);
 }
 
 void SurfPhase::getCp_R(span<double> cpr) const
 {
+    checkArraySize("SurfPhase::getCp_R", cpr.size(), m_kk);
     _updateThermo();
     scale(m_cp0.begin(), m_cp0.end(), cpr.begin(), 1.0/GasConstant);
 }
 
 void SurfPhase::getStandardVolumes(span<double> vol) const
 {
+    checkArraySize("SurfPhase::getStandardVolumes", vol.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = 0.0;
     }
@@ -208,6 +215,7 @@ void SurfPhase::setSiteDensity(double n0)
 
 void SurfPhase::setCoverages(span<const double> theta)
 {
+    checkArraySize("SurfPhase::setCoverages", theta.size(), m_kk);
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         sum += theta[k] / size(k);
@@ -224,6 +232,7 @@ void SurfPhase::setCoverages(span<const double> theta)
 
 void SurfPhase::setCoveragesNoNorm(span<const double> theta)
 {
+    checkArraySize("SurfPhase::setCoveragesNoNorm", theta.size(), m_kk);
     double sum = 0.0;
     double sum2 = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -242,6 +251,7 @@ void SurfPhase::setCoveragesNoNorm(span<const double> theta)
 
 void SurfPhase::getCoverages(span<double> theta) const
 {
+    checkArraySize("SurfPhase::getCoverages", theta.size(), m_kk);
     double sum_X = 0.0;
     double sum_X_s = 0.0;
     getMoleFractions(theta);

@@ -154,6 +154,7 @@ double HMWSoln::standardConcentration(size_t k) const
 
 void HMWSoln::getActivities(span<double> ac) const
 {
+    checkArraySize("HMWSoln::getActivities", ac.size(), m_kk);
     updateStandardStateThermo();
 
     // Update the molality array, m_molalities(). This requires an update due to
@@ -170,6 +171,8 @@ void HMWSoln::getActivities(span<double> ac) const
 
 void HMWSoln::getUnscaledMolalityActivityCoefficients(span<double> acMolality) const
 {
+    checkArraySize("HMWSoln::getUnscaledMolalityActivityCoefficients",
+                   acMolality.size(), m_kk);
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
     s_update_lnMolalityActCoeff();
@@ -3952,6 +3955,7 @@ void HMWSoln::printCoeffs() const
 
 void HMWSoln::applyphScale(span<double> acMolality) const
 {
+    checkArraySize("HMWSoln::applyphScale", acMolality.size(), m_kk);
     if (m_pHScalingType == PHSCALE_PITZER) {
         return;
     }

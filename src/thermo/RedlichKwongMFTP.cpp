@@ -131,6 +131,7 @@ double RedlichKwongMFTP::standardConcentration(size_t k) const
 
 void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("RedlichKwongMFTP::getActivityCoefficients", ac.size(), m_kk);
     double mv = molarVolume();
     double sqt = sqrt(temperature());
     double vpb = mv + m_b_current;
@@ -304,6 +305,7 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies(span<double> ubar) const
 
 void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("RedlichKwongMFTP::getPartialMolarVolumes", vbar.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {

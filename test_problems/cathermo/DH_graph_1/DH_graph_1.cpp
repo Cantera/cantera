@@ -23,8 +23,8 @@ int main(int argc, char** argv)
         DebyeHuckel* DH = new DebyeHuckel(iFile, phaseName);
 
         size_t nsp = DH->nSpecies();
-        double acMol[100];
-        double moll[100];
+        vector<double> acMol(nsp);
+        vector<double> moll(nsp);
         string sName;
 
         DH->setState_TP(298.15, 1.01325E5);

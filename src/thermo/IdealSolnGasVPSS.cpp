@@ -89,6 +89,7 @@ Units IdealSolnGasVPSS::standardConcentrationUnits() const
 
 void IdealSolnGasVPSS::getActivityConcentrations(span<double> c) const
 {
+    checkArraySize("IdealSolnGasVPSS::getActivityConcentrations", c.size(), m_kk);
     auto vss = getStandardVolumes();
     switch (m_formGC) {
     case 0:
@@ -125,6 +126,7 @@ double IdealSolnGasVPSS::standardConcentration(size_t k) const
 
 void IdealSolnGasVPSS::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("IdealSolnGasVPSS::getActivityCoefficients", ac.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
@@ -176,6 +178,7 @@ void IdealSolnGasVPSS::getPartialMolarVolumes(span<double> vbar) const
 
 void IdealSolnGasVPSS::setToEquilState(span<const double> mu_RT)
 {
+    checkArraySize("IdealSolnGasVPSS::setToEquilState", mu_RT.size(), m_kk);
     updateStandardStateThermo();
 
     // Within the method, we protect against inf results if the exponent is too

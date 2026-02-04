@@ -23,6 +23,7 @@ ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
                          span<const double> coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref)
 {
+    checkArraySize("ConstCpPoly::ConstCpPoly", coeffs.size(), 4);
     setParameters(coeffs[0], coeffs[1], coeffs[2], coeffs[3]);
 }
 
@@ -59,6 +60,7 @@ void ConstCpPoly::updatePropertiesTemp(const double temp, double& cp_R,
 void ConstCpPoly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
                                    double& pref, span<double> coeffs) const
 {
+    checkArraySize("ConstCpPoly::reportParameters", coeffs.size(), 4);
     n = 0;
     type = CONSTANT_CP;
     tlow = m_lowT;

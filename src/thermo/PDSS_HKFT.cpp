@@ -325,6 +325,7 @@ void PDSS_HKFT::setS0(double s0) {
 }
 
 void PDSS_HKFT::set_a(span<const double> a) {
+    checkArraySize("PDSS_HKFT::set_a", a.size(), 4);
     m_a1 = m_units.convertFrom(a[0], "J/kmol/Pa");
     m_a2 = m_units.convertFrom(a[1], "J/kmol");
     m_a3 = m_units.convertFrom(a[2], "J*K/kmol/Pa");
@@ -332,6 +333,7 @@ void PDSS_HKFT::set_a(span<const double> a) {
 }
 
 void PDSS_HKFT::set_c(span<const double> c) {
+    checkArraySize("PDSS_HKFT::set_c", c.size(), 2);
     m_c1 = m_units.convertFrom(c[0], "J/kmol/K");
     m_c2 = m_units.convertFrom(c[1], "J*K/kmol");
 }

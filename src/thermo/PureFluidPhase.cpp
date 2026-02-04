@@ -163,26 +163,31 @@ tpx::Substance& PureFluidPhase::TPX_Substance()
 
 void PureFluidPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarEnthalpies", hbar.size(), 1);
     hbar[0] = enthalpy_mole();
 }
 
 void PureFluidPhase::getPartialMolarEntropies(span<double> sbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarEntropies", sbar.size(), 1);
     sbar[0] = entropy_mole();
 }
 
 void PureFluidPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarIntEnergies", ubar.size(), 1);
     ubar[0] = intEnergy_mole();
 }
 
 void PureFluidPhase::getPartialMolarCp(span<double> cpbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarCp", cpbar.size(), 1);
     cpbar[0] = cp_mole();
 }
 
 void PureFluidPhase::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarVolumes", vbar.size(), 1);
     vbar[0] = 1.0 / molarDensity();
 }
 
@@ -193,6 +198,7 @@ Units PureFluidPhase::standardConcentrationUnits() const
 
 void PureFluidPhase::getActivityConcentrations(span<double> c) const
 {
+    checkArraySize("PureFluidPhase::getActivityConcentrations", c.size(), 1);
     c[0] = 1.0;
 }
 
@@ -203,26 +209,31 @@ double PureFluidPhase::standardConcentration(size_t k) const
 
 void PureFluidPhase::getActivities(span<double> a) const
 {
+    checkArraySize("PureFluidPhase::getActivities", a.size(), 1);
     a[0] = 1.0;
 }
 
 void PureFluidPhase::getStandardChemPotentials(span<double> mu) const
 {
+    checkArraySize("PureFluidPhase::getStandardChemPotentials", mu.size(), 1);
     mu[0] = gibbs_mole();
 }
 
 void PureFluidPhase::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("PureFluidPhase::getEnthalpy_RT", hrt.size(), 1);
     hrt[0] = enthalpy_mole() / RT();
 }
 
 void PureFluidPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("PureFluidPhase::getEntropy_R", sr.size(), 1);
     sr[0] = entropy_mole() / GasConstant;
 }
 
 void PureFluidPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("PureFluidPhase::getGibbs_RT", grt.size(), 1);
     grt[0] = gibbs_mole() / RT();
 }
 

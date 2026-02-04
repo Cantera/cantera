@@ -120,6 +120,7 @@ double PengRobinson::standardConcentration(size_t k) const
 
 void PengRobinson::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("PengRobinson::getActivityCoefficients", ac.size(), m_kk);
     double mv = molarVolume();
     double vpb2 = mv + (1 + Sqrt2) * m_b;
     double vmb2 = mv + (1 - Sqrt2) * m_b;
@@ -265,6 +266,7 @@ void PengRobinson::getPartialMolarCp(span<double> cpbar) const
 
 void PengRobinson::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("PengRobinson::getPartialMolarVolumes", vbar.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {

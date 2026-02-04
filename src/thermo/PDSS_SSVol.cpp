@@ -20,6 +20,7 @@ PDSS_SSVol::PDSS_SSVol()
 }
 
 void PDSS_SSVol::setVolumePolynomial(span<const double> coeffs) {
+    checkArraySize("PDSS_SSVol::setVolumePolynomial", coeffs.size(), 4);
     for (size_t i = 0; i < 4; i++) {
         TCoeff_[i] = coeffs[i];
     }
@@ -27,6 +28,7 @@ void PDSS_SSVol::setVolumePolynomial(span<const double> coeffs) {
 }
 
 void PDSS_SSVol::setDensityPolynomial(span<const double> coeffs) {
+    checkArraySize("PDSS_SSVol::setDensityPolynomial", coeffs.size(), 4);
     for (size_t i = 0; i < 4; i++) {
         TCoeff_[i] = coeffs[i];
     }

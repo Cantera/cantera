@@ -692,6 +692,7 @@ void PlasmaPhase::getPartialMolarEntropies(span<double> sbar) const
 
 void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
+    checkArraySize("PlasmaPhase::getPartialMolarIntEnergies", ubar.size(), m_kk);
     auto _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         ubar[k] = RT() * (_h[k] - 1.0);
@@ -718,6 +719,7 @@ void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
 
 void PlasmaPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("PlasmaPhase::getEntropy_R", sr.size(), m_kk);
     auto _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
@@ -732,6 +734,7 @@ void PlasmaPhase::getEntropy_R(span<double> sr) const
 
 void PlasmaPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("PlasmaPhase::getGibbs_RT", grt.size(), m_kk);
     auto gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
     double tmp = log(pressure() / refPressure());

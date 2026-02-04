@@ -9,13 +9,13 @@ using namespace Cantera;
 void pAtable(HMWSoln* HMW)
 {
     size_t nsp = HMW->nSpecies();
-    double acMol[100];
-    double mf[100];
-    double activities[100];
-    double moll[100];
+    vector<double> acMol(nsp);
+    vector<double> mf(nsp);
+    vector<double> activities(nsp);
+    vector<double> moll(nsp);
 
     HMW->getMolalityActivityCoefficients(acMol);
-    HMW->getMoleFractions(span<double>(mf, nsp));
+    HMW->getMoleFractions(mf);
     HMW->getActivities(activities);
     HMW->getMolalities(moll);
     string sName;
@@ -39,8 +39,8 @@ int main(int argc, char** argv)
 
         size_t nsp = HMW->nSpecies();
 
-        double mu0[100];
-        double moll[100];
+        vector<double> mu0(nsp);
+        vector<double> moll(nsp);
         string sName;
 
         HMW->getMolalities(moll);
