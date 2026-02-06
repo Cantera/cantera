@@ -15,6 +15,7 @@
 #else
 #include "cantera/ext/Eigen/Dense"
 #endif
+#include <concepts>
 
 namespace Cantera
 {
@@ -31,10 +32,28 @@ typedef Eigen::Map<const Eigen::RowVectorXd> ConstMappedRowVector;
 
 //! @}
 
-//! Convenience wrapper for accessing Eigen VectorXd data as a span
+template<class Derived>
+concept EigenDenseDouble = std::same_as<typename Derived::Scalar, double>;
+
+// Require a 1D type with contiguous storage
+template<class Derived>
+concept EigenVectorLike = EigenDenseDouble<Derived>
+    && (Derived::IsVectorAtCompileTime == 1);
+
+//! Convenience wrapper for accessing Eigen vector/array/map data as a span
 //! @todo Remove once %Cantera requires Eigen 5.0 or newer.
-inline span<double> asSpan(Eigen::VectorXd& v) {
-    return span<double>(v.data(), v.size());
+template<EigenVectorLike Derived>
+inline span<double> asSpan(Eigen::DenseBase<Derived>& v)
+{
+    return span<double>(v.derived().data(), v.size());
+}
+
+//! Convenience wrapper for accessing Eigen vector/array/map data as a span
+//! @todo Remove once %Cantera requires Eigen 5.0 or newer.
+template<EigenVectorLike Derived>
+inline span<const double> asSpan(const Eigen::DenseBase<Derived>& v)
+{
+    return span<const double>(v.derived().data(), v.size());
 }
 
 }

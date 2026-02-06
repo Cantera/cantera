@@ -20,14 +20,14 @@ void InterfaceData::update(double T)
         "Missing state information: 'InterfaceData' requires species coverages.");
 }
 
-void InterfaceData::update(double T, const vector<double>& values)
+void InterfaceData::update(double T, span<const double> values)
 {
     warn_user("InterfaceData::update",
         "This method does not update the site density.");
     ReactionData::update(T);
     sqrtT = sqrt(T);
     if (coverages.size() == 0) {
-        coverages = values;
+        coverages.assign(values.begin(), values.end());
         logCoverages.resize(values.size());
     } else if (values.size() == coverages.size()) {
         std::copy(values.begin(), values.end(), coverages.begin());

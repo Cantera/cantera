@@ -122,7 +122,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     // external heat transfer and compression work
@@ -228,7 +228,7 @@ void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& tr
         Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(m_nsp);
         // getting species data
         m_thermo->getPartialMolarIntEnergies(asSpan(internal_energy));
-        m_kin->getNetProductionRates(netProductionRates.data());
+        m_kin->getNetProductionRates(asSpan(netProductionRates));
         m_thermo->getPartialMolarCp(asSpan(specificHeat));
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < m_nsp; i++) {

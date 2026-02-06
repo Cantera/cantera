@@ -809,7 +809,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getFwdRatesOfProgress(fwdROP);
+            k->getFwdRatesOfProgress(span<double>(fwdROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -820,7 +820,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getRevRatesOfProgress(revROP);
+            k->getRevRatesOfProgress(span<double>(revROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -840,7 +840,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getNetRatesOfProgress(netROP);
+            k->getNetRatesOfProgress(span<double>(netROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -851,7 +851,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getCreationRates(cdot);
+            k->getCreationRates(span<double>(cdot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -862,7 +862,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getDestructionRates(ddot);
+            k->getDestructionRates(span<double>(ddot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -873,7 +873,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getNetProductionRates(wdot);
+            k->getNetProductionRates(span<double>(wdot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -893,7 +893,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getEquilibriumConstants(kc);
+            k->getEquilibriumConstants(span<double>(kc, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

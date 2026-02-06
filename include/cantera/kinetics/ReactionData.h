@@ -61,7 +61,7 @@ struct ReactionData
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void update(double T, const vector<double>& extra) {
+    virtual void update(double T, span<const double> extra) {
         throw NotImplementedError("ReactionData::update",
             "ReactionData type does not use extra vector argument.");
     }

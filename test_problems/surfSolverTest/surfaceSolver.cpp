@@ -16,7 +16,8 @@ using namespace Cantera;
 
 #define MSSIZE 200
 
-void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
+void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr,
+              span<const double> src)
 {
     vector<double> x(gasTP->nSpecies());
     vector<double> C(gasTP->nSpecies());
@@ -48,8 +49,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     oooo << endl;
 }
 
-void printBulk(ostream& oooo,
-               ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printBulk(ostream& oooo, ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr,
+               span<const double> src)
 {
     vector<double> x(bulkPhaseTP->nSpecies());
     vector<double> C(bulkPhaseTP->nSpecies());
@@ -94,8 +95,8 @@ void printBulk(ostream& oooo,
     oooo << endl;
 }
 
-void printSurf(ostream& oooo,
-               ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr,
+               span<const double> src)
 {
     vector<double> x(surfPhaseTP->nSpecies());
     string surfParticlePhaseName = surfPhaseTP->name();
@@ -165,16 +166,16 @@ int main(int argc, char** argv)
         /*
          * Download the source terms for the rate equations
          */
-        double src[MSSIZE];
+        vector<double> src(iKin_ptr->nTotalSpecies());
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
         printBulk(cout, bulkPhaseTP, iKin_ptr, src);
-        printSurf(cout, surfPhaseTP, iKin_ptr, src) ;
+        printSurf(cout, surfPhaseTP, iKin_ptr, src);
 
         printGas(ofile, gasTP, iKin_ptr, src);
         printBulk(ofile, bulkPhaseTP, iKin_ptr, src);
-        printSurf(ofile, surfPhaseTP, iKin_ptr, src) ;
+        printSurf(ofile, surfPhaseTP, iKin_ptr, src);
         /*****************************************************************************/
         /*  Now Tweak the inputs and do a quick calculation */
         /****************************************************************************/

@@ -49,7 +49,7 @@ public:
 
     //! Evaluate all rate constants handled by the evaluator
     //! @param kf  array of rate constants
-    virtual void getRateConstants(double* kf) = 0;
+    virtual void getRateConstants(span<double> kf) = 0;
 
     //! For certain reaction types that do not follow mass action kinetics (for example,
     //! Butler-Volmer), calculate modifications to the forward and reverse rate
@@ -62,7 +62,7 @@ public:
     //!     is updated by the product StoichManagerN to determine the reverse rates of
     //!     progress.
     //! @since New in %Cantera 3.2
-    virtual void modifyRateConstants(double* kf, double* kr) = 0;
+    virtual void modifyRateConstants(span<double> kf, span<double> kr) = 0;
 
     //! Evaluate all rate constant temperature derivatives handled by the evaluator;
     //! which are multiplied with the array of rate-of-progress variables.
@@ -72,8 +72,7 @@ public:
     //!     contains rop on input, and d(rop)/dT on output
     //! @param kf  array of forward rate constants (numerical derivative only)
     //! @param deltaT  relative temperature perturbation (numerical derivative only)
-    virtual void processRateConstants_ddT(double* rop,
-                                          const double* kf,
+    virtual void processRateConstants_ddT(span<double> rop, span<const double> kf,
                                           double deltaT) = 0;
 
     //! Evaluate all rate constant pressure derivatives handled by the evaluator;
@@ -82,8 +81,7 @@ public:
     //!     contains rop on input, and d(rop)/dP on output
     //! @param kf  array of forward rate constants
     //! @param deltaP  relative pressure perturbation
-    virtual void processRateConstants_ddP(double* rop,
-                                          const double* kf,
+    virtual void processRateConstants_ddP(span<double> rop, span<const double> kf,
                                           double deltaP) = 0;
 
     //! Evaluate all rate constant third-body derivatives handled by the evaluator;
@@ -93,10 +91,8 @@ public:
     //! @param kf  array of forward rate constants
     //! @param deltaM  relative perturbation of third-body concentrations
     //! @param overwrite  if `true`, rop entries not affected by M are set to zero
-    virtual void processRateConstants_ddM(double* rop,
-                                          const double* kf,
-                                          double deltaM,
-                                          bool overwrite=true) = 0;
+    virtual void processRateConstants_ddM(span<double> rop, span<const double> kf,
+                                          double deltaM, bool overwrite=true) = 0;
 
     //! Update common reaction rate data based on temperature.
     //! Only used in conjunction with evalSingle and ReactionRate::eval
@@ -115,7 +111,7 @@ public:
     //! @param extra  extra vector parameter (depends on parameterization)
     //! @warning  This method is an experimental part of the %Cantera API and
     //!     may be changed or removed without notice.
-    virtual void update(double T, const vector<double>& extra) = 0;
+    virtual void update(double T, span<const double> extra) = 0;
 
     //! Update data common to reaction rates of a specific type.
     //! This update mechanism is used by Kinetics reaction rate evaluators.

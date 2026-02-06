@@ -42,35 +42,35 @@ public:
 
     //! @name Reaction rate constants, rates of progress, and thermodynamic properties
     //! @{
-    void getFwdRateConstants(double* kfwd) override;
-    void getEquilibriumConstants(double* kc) override;
-    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
+    void getFwdRateConstants(span<double> kfwd) override;
+    void getEquilibriumConstants(span<double> kc) override;
+    void getRevRateConstants(span<double> krev, bool doIrreversible=false) override;
 
-    void getDeltaGibbs(double* deltaG) override;
-    void getDeltaEnthalpy(double* deltaH) override;
-    void getDeltaEntropy(double* deltaS) override;
+    void getDeltaGibbs(span<double> deltaG) override;
+    void getDeltaEnthalpy(span<double> deltaH) override;
+    void getDeltaEntropy(span<double> deltaS) override;
 
-    void getDeltaSSGibbs(double* deltaG) override;
-    void getDeltaSSEnthalpy(double* deltaH) override;
-    void getDeltaSSEntropy(double* deltaS) override;
+    void getDeltaSSGibbs(span<double> deltaG) override;
+    void getDeltaSSEnthalpy(span<double> deltaH) override;
+    void getDeltaSSEntropy(span<double> deltaS) override;
     //! @}
 
     //! @name Derivatives of rate constants and rates of progress
     //! @{
     void getDerivativeSettings(AnyMap& settings) const override;
     void setDerivativeSettings(const AnyMap& settings) override;
-    void getFwdRateConstants_ddT(double* dkfwd) override;
-    void getFwdRatesOfProgress_ddT(double* drop) override;
-    void getRevRatesOfProgress_ddT(double* drop) override;
-    void getNetRatesOfProgress_ddT(double* drop) override;
-    void getFwdRateConstants_ddP(double* dkfwd) override;
-    void getFwdRatesOfProgress_ddP(double* drop) override;
-    void getRevRatesOfProgress_ddP(double* drop) override;
-    void getNetRatesOfProgress_ddP(double* drop) override;
-    void getFwdRateConstants_ddC(double* dkfwd) override;
-    void getFwdRatesOfProgress_ddC(double* drop) override;
-    void getRevRatesOfProgress_ddC(double* drop) override;
-    void getNetRatesOfProgress_ddC(double* drop) override;
+    void getFwdRateConstants_ddT(span<double> dkfwd) override;
+    void getFwdRatesOfProgress_ddT(span<double> drop) override;
+    void getRevRatesOfProgress_ddT(span<double> drop) override;
+    void getNetRatesOfProgress_ddT(span<double> drop) override;
+    void getFwdRateConstants_ddP(span<double> dkfwd) override;
+    void getFwdRatesOfProgress_ddP(span<double> drop) override;
+    void getRevRatesOfProgress_ddP(span<double> drop) override;
+    void getNetRatesOfProgress_ddP(span<double> drop) override;
+    void getFwdRateConstants_ddC(span<double> dkfwd) override;
+    void getFwdRatesOfProgress_ddC(span<double> drop) override;
+    void getRevRatesOfProgress_ddC(span<double> drop) override;
+    void getNetRatesOfProgress_ddC(span<double> drop) override;
     Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX() override;
     Eigen::SparseMatrix<double> revRatesOfProgress_ddX() override;
     Eigen::SparseMatrix<double> netRatesOfProgress_ddX() override;
@@ -84,7 +84,7 @@ public:
 
     void updateROP() override;
 
-    void getThirdBodyConcentrations(double* concm) override;
+    void getThirdBodyConcentrations(span<double> concm) override;
     const vector<double>& thirdBodyConcentrations() const override {
         return m_concm;
     }
@@ -100,35 +100,35 @@ protected:
     //! @{
 
     //! Multiply rate with third-body collider concentrations
-    void processThirdBodies(double* rop);
+    void processThirdBodies(span<double> rop);
 
     //! Multiply rate with inverse equilibrium constant
-    void applyEquilibriumConstants(double* rop);
+    void applyEquilibriumConstants(span<double> rop);
 
     //! Multiply rate with scaled temperature derivatives of the inverse
     //! equilibrium constant
     /*!
      *  This (scaled) derivative is handled by a finite difference.
      */
-    void applyEquilibriumConstants_ddT(double* drkcn);
+    void applyEquilibriumConstants_ddT(span<double> drkcn);
 
     //! Process temperature derivative
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
-    void process_ddT(const vector<double>& in, double* drop);
+    void process_ddT(const span<const double> in, span<double> drop);
 
     //! Process pressure derivative
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
-    void process_ddP(const vector<double>& in, double* drop);
+    void process_ddP(const span<const double> in, span<double> drop);
 
     //! Process concentration (molar density) derivative
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
     //! @param mass_action  boolean indicating whether law of mass action applies
-    void process_ddC(StoichManagerN& stoich, const vector<double>& in,
-                     double* drop, bool mass_action=true);
+    void process_ddC(StoichManagerN& stoich, span<const double> in,
+                     span<double> drop, bool mass_action=true);
 
     //! Process derivatives
     //! @param stoich  stoichiometry manager
@@ -137,7 +137,7 @@ protected:
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
     Eigen::SparseMatrix<double> calculateCompositionDerivatives(
-        StoichManagerN& stoich, const vector<double>& in, bool ddX=true);
+        StoichManagerN& stoich, span<const double> in, bool ddX=true);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output

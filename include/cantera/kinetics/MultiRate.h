@@ -66,13 +66,13 @@ public:
         m_shared.invalidateCache();
     }
 
-    void getRateConstants(double* kf) override {
+    void getRateConstants(span<double> kf) override {
         for (auto& [iRxn, rate] : m_rxn_rates) {
             kf[iRxn] = rate.evalFromStruct(m_shared);
         }
     }
 
-    void modifyRateConstants(double* kf, double* kr) override {
+    void modifyRateConstants(span<double> kf, span<double> kr) override {
         if constexpr (has_modifyRateConstants<RateType>::value) {
             for (auto& [iRxn, rate] : m_rxn_rates) {
                 rate.modifyRateConstants(m_shared, kf[iRxn], kr[iRxn]);
@@ -80,7 +80,8 @@ public:
         }
     }
 
-    void processRateConstants_ddT(double* rop, const double* kf, double deltaT) override
+    void processRateConstants_ddT(span<double> rop, span<const double> kf,
+                                  double deltaT) override
     {
         if constexpr (has_ddT<RateType>::value) {
             for (const auto& [iRxn, rate] : m_rxn_rates) {
@@ -106,7 +107,8 @@ public:
         }
     }
 
-    void processRateConstants_ddP(double* rop, const double* kf, double deltaP) override
+    void processRateConstants_ddP(span<double> rop, span<const double> kf,
+                                  double deltaP) override
     {
         if constexpr (has_ddP<DataType>::value) {
             double dPinv = 1. / (m_shared.pressure * deltaP);
@@ -130,8 +132,8 @@ public:
         }
     }
 
-    void processRateConstants_ddM(double* rop, const double* kf, double deltaM,
-                                  bool overwrite=true) override
+    void processRateConstants_ddM(span<double> rop, span<const double> kf,
+                                  double deltaM, bool overwrite=true) override
     {
         if constexpr (has_ddM<DataType>::value) {
             double dMinv = 1. / deltaM;
@@ -172,7 +174,7 @@ public:
         _update();
     }
 
-    void update(double T, const vector<double>& extra) override {
+    void update(double T, span<const double> extra) override {
         m_shared.update(T, extra);
         _update();
     }

@@ -718,7 +718,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
         m_flow_right->setGas(xg + rightloc, 0);
     }
 
-    m_kin->getNetProductionRates(m_work.data());
+    m_kin->getNetProductionRates(m_work);
     double rs0 = 1.0/m_sphase->siteDensity();
 
     if (m_enabled) {

@@ -372,111 +372,126 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
     return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
-void Kinetics::getFwdRatesOfProgress(double* fwdROP)
+void Kinetics::getFwdRatesOfProgress(span<double> fwdROP)
 {
+    checkArraySize("Kinetics::getFwdRatesOfProgress", fwdROP.size(), nReactions());
     updateROP();
-    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
+    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP.begin());
 }
 
-void Kinetics::getRevRatesOfProgress(double* revROP)
+void Kinetics::getRevRatesOfProgress(span<double> revROP)
 {
+    checkArraySize("Kinetics::getRevRatesOfProgress", revROP.size(), nReactions());
     updateROP();
-    std::copy(m_ropr.begin(), m_ropr.end(), revROP);
+    std::copy(m_ropr.begin(), m_ropr.end(), revROP.begin());
 }
 
-void Kinetics::getNetRatesOfProgress(double* netROP)
+void Kinetics::getNetRatesOfProgress(span<double> netROP)
 {
+    checkArraySize("Kinetics::getNetRatesOfProgress", netROP.size(), nReactions());
     updateROP();
-    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
+    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP.begin());
 }
 
-void Kinetics::getReactionDelta(const double* prop, double* deltaProp) const
+void Kinetics::getReactionDelta(span<const double> prop,
+                                span<double> deltaProp) const
 {
-    fill(deltaProp, deltaProp + nReactions(), 0.0);
+    checkArraySize("Kinetics::getReactionDelta", prop.size(), nTotalSpecies());
+    checkArraySize("Kinetics::getReactionDelta", deltaProp.size(), nReactions());
+    fill(deltaProp.begin(), deltaProp.end(), 0.0);
     // products add
     m_productStoich.incrementReactions(prop, deltaProp);
     // reactants subtract
     m_reactantStoich.decrementReactions(prop, deltaProp);
 }
 
-void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp) const
+void Kinetics::getRevReactionDelta(span<const double> prop,
+                                   span<double> deltaProp) const
 {
-    fill(deltaProp, deltaProp + nReactions(), 0.0);
+    checkArraySize("Kinetics::getRevReactionDelta", prop.size(), nTotalSpecies());
+    checkArraySize("Kinetics::getRevReactionDelta", deltaProp.size(), nReactions());
+    fill(deltaProp.begin(), deltaProp.end(), 0.0);
     // products add
     m_revProductStoich.incrementReactions(prop, deltaProp);
     // reactants subtract
     m_reactantStoich.decrementReactions(prop, deltaProp);
 }
 
-void Kinetics::getCreationRates(double* cdot)
+void Kinetics::getCreationRates(span<double> cdot)
 {
+    checkArraySize("Kinetics::getCreationRates", cdot.size(), nTotalSpecies());
     updateROP();
 
     // zero out the output array
-    fill(cdot, cdot + m_kk, 0.0);
+    fill(cdot.begin(), cdot.end(), 0.0);
 
     // the forward direction creates product species
-    m_productStoich.incrementSpecies(m_ropf.data(), cdot);
+    m_productStoich.incrementSpecies(m_ropf, cdot);
 
     // the reverse direction creates reactant species
-    m_reactantStoich.incrementSpecies(m_ropr.data(), cdot);
+    m_reactantStoich.incrementSpecies(m_ropr, cdot);
 }
 
-void Kinetics::getDestructionRates(double* ddot)
+void Kinetics::getDestructionRates(span<double> ddot)
 {
+    checkArraySize("Kinetics::getDestructionRates", ddot.size(), nTotalSpecies());
     updateROP();
 
-    fill(ddot, ddot + m_kk, 0.0);
+    fill(ddot.begin(), ddot.end(), 0.0);
     // the reverse direction destroys products in reversible reactions
-    m_revProductStoich.incrementSpecies(m_ropr.data(), ddot);
+    m_revProductStoich.incrementSpecies(m_ropr, ddot);
     // the forward direction destroys reactants
-    m_reactantStoich.incrementSpecies(m_ropf.data(), ddot);
+    m_reactantStoich.incrementSpecies(m_ropf, ddot);
 }
 
-void Kinetics::getNetProductionRates(double* net)
+void Kinetics::getNetProductionRates(span<double> net)
 {
+    checkArraySize("Kinetics::getNetProductionRates", net.size(), nTotalSpecies());
     updateROP();
 
-    fill(net, net + m_kk, 0.0);
+    fill(net.begin(), net.end(), 0.0);
     // products are created for positive net rate of progress
-    m_productStoich.incrementSpecies(m_ropnet.data(), net);
+    m_productStoich.incrementSpecies(m_ropnet, net);
     // reactants are destroyed for positive net rate of progress
-    m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
+    m_reactantStoich.decrementSpecies(m_ropnet, net);
 }
 
-void Kinetics::getCreationRates_ddT(double* dwdot)
+void Kinetics::getCreationRates_ddT(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getCreationRates_ddT", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    getFwdRatesOfProgress_ddT(buf.data());
+    getFwdRatesOfProgress_ddT(m_rbuf);
     out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    getRevRatesOfProgress_ddT(buf.data());
+    getRevRatesOfProgress_ddT(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-void Kinetics::getCreationRates_ddP(double* dwdot)
+void Kinetics::getCreationRates_ddP(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getCreationRates_ddP", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    getFwdRatesOfProgress_ddP(buf.data());
+    getFwdRatesOfProgress_ddP(m_rbuf);
     out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    getRevRatesOfProgress_ddP(buf.data());
+    getRevRatesOfProgress_ddP(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-void Kinetics::getCreationRates_ddC(double* dwdot)
+void Kinetics::getCreationRates_ddC(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getCreationRates_ddC", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    getFwdRatesOfProgress_ddC(buf.data());
+    getFwdRatesOfProgress_ddC(m_rbuf);
     out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    getRevRatesOfProgress_ddC(buf.data());
+    getRevRatesOfProgress_ddC(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
@@ -500,39 +515,42 @@ Eigen::SparseMatrix<double> Kinetics::creationRates_ddCi()
     return jac;
 }
 
-void Kinetics::getDestructionRates_ddT(double* dwdot)
+void Kinetics::getDestructionRates_ddT(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getDestructionRates_ddT", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    getRevRatesOfProgress_ddT(buf.data());
+    getRevRatesOfProgress_ddT(m_rbuf);
     out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    getFwdRatesOfProgress_ddT(buf.data());
+    getFwdRatesOfProgress_ddT(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-void Kinetics::getDestructionRates_ddP(double* dwdot)
+void Kinetics::getDestructionRates_ddP(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getDestructionRates_ddP", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    getRevRatesOfProgress_ddP(buf.data());
+    getRevRatesOfProgress_ddP(m_rbuf);
     out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    getFwdRatesOfProgress_ddP(buf.data());
+    getFwdRatesOfProgress_ddP(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-void Kinetics::getDestructionRates_ddC(double* dwdot)
+void Kinetics::getDestructionRates_ddC(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getDestructionRates_ddC", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    getRevRatesOfProgress_ddC(buf.data());
+    getRevRatesOfProgress_ddC(m_rbuf);
     out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    getFwdRatesOfProgress_ddC(buf.data());
+    getFwdRatesOfProgress_ddC(m_rbuf);
     out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
@@ -556,27 +574,30 @@ Eigen::SparseMatrix<double> Kinetics::destructionRates_ddCi()
     return jac;
 }
 
-void Kinetics::getNetProductionRates_ddT(double* dwdot)
+void Kinetics::getNetProductionRates_ddT(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getNetProductionRates_ddT", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
-    getNetRatesOfProgress_ddT(buf.data());
+    getNetRatesOfProgress_ddT(m_rbuf);
     out = m_stoichMatrix * buf;
 }
 
-void Kinetics::getNetProductionRates_ddP(double* dwdot)
+void Kinetics::getNetProductionRates_ddP(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getNetProductionRates_ddP", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
-    getNetRatesOfProgress_ddP(buf.data());
+    getNetRatesOfProgress_ddP(m_rbuf);
     out = m_stoichMatrix * buf;
 }
 
-void Kinetics::getNetProductionRates_ddC(double* dwdot)
+void Kinetics::getNetProductionRates_ddC(span<double> dwdot)
 {
-    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    checkArraySize("Kinetics::getNetProductionRates_ddC", dwdot.size(), nTotalSpecies());
+    Eigen::Map<Eigen::VectorXd> out(dwdot.data(), m_kk);
     Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
-    getNetRatesOfProgress_ddC(buf.data());
+    getNetRatesOfProgress_ddC(m_rbuf);
     out = m_stoichMatrix * buf;
 }
 

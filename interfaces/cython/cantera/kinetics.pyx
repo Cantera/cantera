@@ -8,6 +8,7 @@ import numpy as np
 
 from .reaction cimport *
 from ._utils cimport *
+from .ctcxx cimport span
 from . import _utils
 
 # NOTE: These cdef functions cannot be members of Kinetics because they would
@@ -17,7 +18,8 @@ cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     if kin.n_total_species == 0:
         return data
-    method(kin.kinetics, &data[0])
+    cdef span[double] view = span[double](&data[0], <size_t>data.size)
+    method(kin.kinetics, view)
     # @todo: Fix _selected_species to work with interface kinetics
     if kin._selected_species.size:
         return data[kin._selected_species]
@@ -28,7 +30,8 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_reactions)
     if kin.n_reactions == 0:
         return data
-    method(kin.kinetics, &data[0])
+    cdef span[double] view = span[double](&data[0], <size_t>data.size)
+    method(kin.kinetics, view)
     return data
 
 cdef np.ndarray get_dense(CxxSparseMatrix& smat):

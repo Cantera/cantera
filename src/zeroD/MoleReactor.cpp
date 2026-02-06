@@ -116,7 +116,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     RHS[1] = m_vdot;
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     // Energy equation.

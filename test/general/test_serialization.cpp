@@ -183,8 +183,8 @@ TEST(YamlWriter, reactions)
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
     vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
-    kin1->getFwdRateConstants(kf1.data());
-    kin2->getFwdRateConstants(kf2.data());
+    kin1->getFwdRateConstants(kf1);
+    kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
@@ -212,8 +212,8 @@ TEST(YamlWriter, reaction_units_from_Yaml)
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
     vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
-    kin1->getFwdRateConstants(kf1.data());
-    kin2->getFwdRateConstants(kf2.data());
+    kin1->getFwdRateConstants(kf1);
+    kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
@@ -239,8 +239,8 @@ TEST(YamlWriter, chebyshev_units_from_Yaml)
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
     vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
-    kin1->getFwdRateConstants(kf1.data());
-    kin2->getFwdRateConstants(kf2.data());
+    kin1->getFwdRateConstants(kf1);
+    kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
@@ -311,16 +311,16 @@ TEST(YamlWriter, Interface)
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
     vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
-    kin1->getFwdRateConstants(kf1.data());
-    kin2->getFwdRateConstants(kf2.data());
+    kin1->getFwdRateConstants(kf1);
+    kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
 
     vector<double> wdot1(kin1->nTotalSpecies());
     vector<double> wdot2(kin2->nTotalSpecies());
-    kin1->getNetProductionRates(wdot1.data());
-    kin2->getNetProductionRates(wdot2.data());
+    kin1->getNetProductionRates(wdot1);
+    kin2->getNetProductionRates(wdot2);
     for (size_t i = 0; i < kin1->nTotalSpecies(); i++) {
         EXPECT_NEAR(wdot1[i], wdot2[i], 1e-13 * fabs(wdot1[i])) << "for species i = " << i;
     }
@@ -348,16 +348,16 @@ TEST(YamlWriter, sofc)
 
     ASSERT_EQ(tpb_kin1->nReactions(), tpb_kin2->nReactions());
     vector<double> kf1(tpb_kin1->nReactions()), kf2(tpb_kin1->nReactions());
-    tpb_kin1->getFwdRateConstants(kf1.data());
-    tpb_kin2->getFwdRateConstants(kf2.data());
+    tpb_kin1->getFwdRateConstants(kf1);
+    tpb_kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < tpb_kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for tpb reaction i = " << i;
     }
 
     vector<double> wdot1(tpb_kin1->nTotalSpecies());
     vector<double> wdot2(tpb_kin2->nTotalSpecies());
-    tpb_kin1->getNetProductionRates(wdot1.data());
-    tpb_kin2->getNetProductionRates(wdot2.data());
+    tpb_kin1->getNetProductionRates(wdot1);
+    tpb_kin2->getNetProductionRates(wdot2);
     for (size_t i = 0; i < tpb_kin1->nTotalSpecies(); i++) {
         EXPECT_NEAR(wdot1[i], wdot2[i], 1e-13 * fabs(wdot1[i])) << "for species i = " << i;
     }
@@ -365,16 +365,16 @@ TEST(YamlWriter, sofc)
     ASSERT_EQ(ox_kin1->nReactions(), ox_kin2->nReactions());
     kf1.resize(ox_kin1->nReactions());
     kf2.resize(ox_kin1->nReactions());
-    ox_kin1->getFwdRateConstants(kf1.data());
-    ox_kin2->getFwdRateConstants(kf2.data());
+    ox_kin1->getFwdRateConstants(kf1);
+    ox_kin2->getFwdRateConstants(kf2);
     for (size_t i = 0; i < ox_kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for ox reaction i = " << i;
     }
 
     wdot1.resize(ox_kin1->nTotalSpecies());
     wdot2.resize(ox_kin2->nTotalSpecies());
-    ox_kin1->getNetProductionRates(wdot1.data());
-    ox_kin2->getNetProductionRates(wdot2.data());
+    ox_kin1->getNetProductionRates(wdot1);
+    ox_kin2->getNetProductionRates(wdot2);
     for (size_t i = 0; i < ox_kin1->nTotalSpecies(); i++) {
         EXPECT_NEAR(wdot1[i], wdot2[i], 1e-13 * fabs(wdot1[i])) << "for ox species i = " << i;
     }

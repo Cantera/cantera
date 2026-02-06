@@ -104,7 +104,7 @@ void ReactorSurface::updateState(double* y)
 {
     m_surf->setCoveragesNoNorm(span<const double>(y, m_nsp));
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
-    m_kinetics->getNetProductionRates(m_sdot.data());
+    m_kinetics->getNetProductionRates(m_sdot);
 }
 
 void ReactorSurface::eval(double t, double* LHS, double* RHS)
@@ -248,7 +248,7 @@ void MoleReactorSurface::updateState(double* y)
     }
     m_surf->setCoveragesNoNorm(m_cov_tmp);
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
-    m_kinetics->getNetProductionRates(m_sdot.data());
+    m_kinetics->getNetProductionRates(m_sdot);
 }
 
 void MoleReactorSurface::eval(double t, double* LHS, double* RHS)

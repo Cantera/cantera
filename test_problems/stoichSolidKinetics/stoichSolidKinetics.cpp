@@ -20,19 +20,19 @@ void printValue(const string& label, double value)
 void printRates(InterfaceKinetics& iKin)
 {
     vector<double> work(iKin.nReactions(), 0.0);
-    iKin.getNetRatesOfProgress(&work[0]);
+    iKin.getNetRatesOfProgress(work);
     printValue("ROP_net       = ", work[0]);
 
-    iKin.getFwdRatesOfProgress(&work[0]);
+    iKin.getFwdRatesOfProgress(work);
     printValue("ROP_forward   = ", work[0]);
 
-    iKin.getRevRatesOfProgress(&work[0]);
+    iKin.getRevRatesOfProgress(work);
     printValue("ROP_reverse   = ", work[0]);
 
-    iKin.getFwdRateConstants(&work[0]);
+    iKin.getFwdRateConstants(work);
     printValue("    kfwd      = ", work[0]);
 
-    iKin.getRevRateConstants(&work[0]);
+    iKin.getRevRateConstants(work);
     printValue("    krev      = ", work[0]);
 }
 
@@ -70,10 +70,10 @@ void testProblem()
          << "        CaCO3(s) =   CO2(g) +  CaO(s)  \n" << endl;
 
     for (int ktrials = 0; ktrials < 2; ktrials++) {
-        iKin.getDeltaSSGibbs(&work[0]);
+        iKin.getDeltaSSGibbs(work);
         printValue("   deltaGSS      = ", work[0]);
 
-        iKin.getDeltaGibbs(&work[0]);
+        iKin.getDeltaGibbs(work);
         printValue("   deltaG        = ", work[0]);
 
         gasTP->getChemPotentials(work);

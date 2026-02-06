@@ -467,7 +467,7 @@ protected:
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
             m_thermo->getPartialMolarEnthalpies(span<double>(&m_hk(0, j), m_nsp));
-            m_kin->getNetProductionRates(&m_wdot(0, j));
+            m_kin->getNetProductionRates(span<double>(&m_wdot(0, j), m_nsp));
         }
     }
 

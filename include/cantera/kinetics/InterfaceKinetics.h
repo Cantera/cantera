@@ -81,24 +81,24 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    void getEquilibriumConstants(double* kc) override;
+    void getEquilibriumConstants(span<double> kc) override;
 
-    void getDeltaGibbs(double* deltaG) override;
+    void getDeltaGibbs(span<double> deltaG) override;
 
-    void getDeltaElectrochemPotentials(double* deltaM) override;
-    void getDeltaEnthalpy(double* deltaH) override;
-    void getDeltaEntropy(double* deltaS) override;
+    void getDeltaElectrochemPotentials(span<double> deltaM) override;
+    void getDeltaEnthalpy(span<double> deltaH) override;
+    void getDeltaEntropy(span<double> deltaS) override;
 
-    void getDeltaSSGibbs(double* deltaG) override;
-    void getDeltaSSEnthalpy(double* deltaH) override;
-    void getDeltaSSEntropy(double* deltaS) override;
+    void getDeltaSSGibbs(span<double> deltaG) override;
+    void getDeltaSSEnthalpy(span<double> deltaH) override;
+    void getDeltaSSEntropy(span<double> deltaS) override;
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    void getFwdRateConstants(double* kfwd) override;
-    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
+    void getFwdRateConstants(span<double> kfwd) override;
+    void getRevRateConstants(span<double> krev, bool doIrreversible=false) override;
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -286,7 +286,7 @@ protected:
 
 
     //! Multiply rate with inverse equilibrium constant
-    void applyEquilibriumConstants(double* rop);
+    void applyEquilibriumConstants(span<double> rop);
 
     //! Process mole fraction derivative
     //! @param stoich  stoichiometry manager

@@ -286,7 +286,7 @@ public:
     /**
      *  @todo Add documentation.
      */
-    void findMajorPaths(double threshold, size_t lda, double* a);
+    void findMajorPaths(double threshold, size_t lda, span<double> a);
 
     //! Set name of the font used.
     void setFont(const string& font) {

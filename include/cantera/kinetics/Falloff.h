@@ -104,7 +104,7 @@ public:
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
-    virtual void updateTemp(double T, double* work) const {}
+    virtual void updateTemp(double T, span<double> work) const {}
 
     /**
      * The falloff function.
@@ -115,19 +115,19 @@ public:
      *             to updateTemp.
      * @returns the value of the falloff function @f$ F @f$ defined above
      */
-    virtual double F(double pr, const double* work) const {
+    virtual double F(double pr, span<const double> work) const {
         return 1.0;
     }
 
     //! Evaluate falloff function at current conditions
     double evalF(double T, double conc3b) {
-        updateTemp(T, m_work.data());
+        updateTemp(T, m_work);
         double logT = std::log(T);
         double recipT = 1. / T;
         m_rc_low = m_lowRate.evalRate(logT, recipT);
         m_rc_high = m_highRate.evalRate(logT, recipT);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
-        return F(pr, m_work.data());
+        return F(pr, m_work);
     }
 
     const string type() const override {
@@ -150,7 +150,7 @@ public:
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const FalloffData& shared_data) {
-        updateTemp(shared_data.temperature, m_work.data());
+        updateTemp(shared_data.temperature, m_work);
         m_rc_low = m_lowRate.evalRate(shared_data.logT, shared_data.recipT);
         m_rc_high = m_highRate.evalRate(shared_data.logT, shared_data.recipT);
         double thirdBodyConcentration;
@@ -164,12 +164,12 @@ public:
         // Apply falloff function
         if (m_chemicallyActivated) {
             // 1 / (1 + Pr) * F
-            pr = F(pr, m_work.data()) / (1.0 + pr);
+            pr = F(pr, m_work) / (1.0 + pr);
             return pr * m_rc_low;
         }
 
         // Pr / (1 + Pr) * F
-        pr *= F(pr, m_work.data()) / (1.0 + pr);
+        pr *= F(pr, m_work) / (1.0 + pr);
         return pr * m_rc_high;
     }
 
@@ -336,9 +336,9 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "Troe";
@@ -437,9 +437,9 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "SRI";
@@ -530,9 +530,9 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "Tsang";

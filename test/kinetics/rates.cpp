@@ -43,8 +43,8 @@ TEST_F(FracCoeffTest, RateConstants)
 {
     vector<double> kf(kin->nReactions(), 0.0);
     vector<double> kr(kin->nReactions(), 0.0);
-    kin->getFwdRateConstants(&kf[0]);
-    kin->getRevRateConstants(&kr[0]);
+    kin->getFwdRateConstants(kf);
+    kin->getRevRateConstants(kr);
 
     // sum of reaction orders is 1.0; kf has units of 1/s
     EXPECT_DOUBLE_EQ(1e13, kf[0]);
@@ -64,8 +64,8 @@ TEST_F(FracCoeffTest, RatesOfProgress)
     vector<double> conc(therm->nSpecies(), 0.0);
     vector<double> ropf(kin->nReactions(), 0.0);
     therm->getConcentrations(conc);
-    kin->getFwdRateConstants(&kf[0]);
-    kin->getFwdRatesOfProgress(&ropf[0]);
+    kin->getFwdRateConstants(kf);
+    kin->getFwdRatesOfProgress(ropf);
 
     EXPECT_DOUBLE_EQ(conc[kH2O]*kf[0], ropf[0]);
     EXPECT_DOUBLE_EQ(pow(conc[kH2], 0.8)*conc[kO2]*pow(conc[kOH],2)*kf[1],
@@ -77,9 +77,9 @@ TEST_F(FracCoeffTest, CreationDestructionRates)
     vector<double> ropf(kin->nReactions(), 0.0);
     vector<double> cdot(therm->nSpecies(), 0.0);
     vector<double> ddot(therm->nSpecies(), 0.0);
-    kin->getFwdRatesOfProgress(&ropf[0]);
-    kin->getCreationRates(&cdot[0]);
-    kin->getDestructionRates(&ddot[0]);
+    kin->getFwdRatesOfProgress(ropf);
+    kin->getCreationRates(cdot);
+    kin->getDestructionRates(ddot);
 
     EXPECT_DOUBLE_EQ(ropf[0], ddot[kH2O]);
     EXPECT_DOUBLE_EQ(1.4*ropf[0], cdot[kH]);
@@ -100,7 +100,7 @@ TEST_F(FracCoeffTest, EquilibriumConstants)
     vector<double> Kc(kin->nReactions(), 0.0);
     vector<double> mu0(therm->nSpecies(), 0.0);
 
-    kin->getEquilibriumConstants(&Kc[0]);
+    kin->getEquilibriumConstants(Kc);
     therm->getGibbs_ref(mu0); // at pRef
 
     double deltaG0_0 = 1.4 * mu0[kH] + 0.6 * mu0[kOH] + 0.2 * mu0[kO2] - mu0[kH2O];
@@ -131,7 +131,7 @@ public:
         ASSERT_EQ(12, (int) nSpec);
         ASSERT_EQ(12, (int) nRxn);
         vector<double> wdot(nSpec);
-        soln->kinetics()->getNetProductionRates(&wdot[0]);
+        soln->kinetics()->getNetProductionRates(wdot);
         for (size_t i = 0; i < nSpec; i++) {
             EXPECT_NEAR(wdot_ref[i], wdot[i], std::abs(wdot_ref[i])*2e-5 + 1e-9);
         }
@@ -141,8 +141,8 @@ public:
 
         vector<double> ropf(nRxn);
         vector<double> ropr(nRxn);
-        soln->kinetics()->getFwdRatesOfProgress(&ropf[0]);
-        soln->kinetics()->getRevRatesOfProgress(&ropr[0]);
+        soln->kinetics()->getFwdRatesOfProgress(ropf);
+        soln->kinetics()->getRevRatesOfProgress(ropr);
         for (size_t i = 0; i < nRxn; i++) {
             EXPECT_NEAR(ropf_ref[i], ropf[i], std::abs(ropf_ref[i])*2e-5 + 1e-9);
             EXPECT_NEAR(ropr_ref[i], ropr[i], std::abs(ropr_ref[i])*2e-5 + 1e-9);
@@ -167,7 +167,7 @@ TEST(InterfaceReaction, CoverageDependency) {
     iface->thermo()->setState_TP(T, 101325);
     iface->thermo()->setCoveragesByName("PT(S):0.7, H(S):0.3");
     vector<double> kf(iface->kinetics()->nReactions());
-    iface->kinetics()->getFwdRateConstants(&kf[0]);
+    iface->kinetics()->getFwdRateConstants(kf);
     EXPECT_NEAR(kf[0], 4.4579e7 * pow(T, 0.5), 1e-14*kf[0]);
     // Energies in XML file are converted from J/mol to J/kmol
     EXPECT_NEAR(kf[1], 3.7e20 * exp(-(67.4e6-6e6*0.3)/(GasConstant*T)), 1e-14*kf[1]);
@@ -186,7 +186,7 @@ TEST(LinearBurkeRate, RateCombinations)
     auto kf = [&](size_t iRxn, double T, double P, const string& X="P1:1.0") {
         thermo.setState_TPX(T, P, X);
         vector<double> rates(kin.nReactions());
-        kin.getFwdRateConstants(rates.data());
+        kin.getFwdRateConstants(rates);
         return rates[iRxn];
     };
 
