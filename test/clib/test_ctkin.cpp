@@ -43,7 +43,7 @@ TEST(ctkin, kinetics)
     vector<double> c_ropf(nr);
     kin_getFwdRatesOfProgress(kin, 325, c_ropf.data());
     vector<double> cpp_ropf(nr);
-    kinetics->getFwdRatesOfProgress(cpp_ropf.data());
+    kinetics->getFwdRatesOfProgress(cpp_ropf);
 
     for (size_t n = 0; n < nr; n++) {
         ASSERT_NEAR(cpp_ropf[n], c_ropf[n], 1e-6);

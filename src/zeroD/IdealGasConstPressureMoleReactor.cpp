@@ -62,7 +62,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     auto imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     // external heat transfer
@@ -161,7 +161,7 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
         // gas phase
         m_thermo->getPartialMolarCp(asSpan(specificHeat));
         m_thermo->getPartialMolarEnthalpies(asSpan(enthalpy));
-        m_kin->getNetProductionRates(netProductionRates.data());
+        m_kin->getNetProductionRates(asSpan(netProductionRates));
         // scale production rates by the volume for gas species
         for (size_t i = 0; i < m_nsp; i++) {
             netProductionRates[i] *= m_vol;

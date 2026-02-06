@@ -286,22 +286,22 @@ void TroeRate::getFalloffCoeffs(vector<double>& c) const
     c[2] = 1.0 / m_rt1;
 }
 
-void TroeRate::updateTemp(double T, double* work) const
+void TroeRate::updateTemp(double T, span<double> work) const
 {
     double Fcent = (1.0 - m_a) * exp(-T*m_rt3) + m_a * exp(-T*m_rt1);
     if (m_t2) {
         Fcent += exp(- m_t2 / T);
     }
-    *work = log10(std::max(Fcent, SmallNumber));
+    work[0] = log10(std::max(Fcent, SmallNumber));
 }
 
-double TroeRate::F(double pr, const double* work) const
+double TroeRate::F(double pr, span<const double> work) const
 {
     double lpr = log10(std::max(pr,SmallNumber));
-    double cc = -0.4 - 0.67 * (*work);
-    double nn = 0.75 - 1.27 * (*work);
+    double cc = -0.4 - 0.67 * work[0];
+    double nn = 0.75 - 1.27 * work[0];
     double f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
-    double lgf = (*work) / (1.0 + f1 * f1);
+    double lgf = work[0] / (1.0 + f1 * f1);
     return pow(10.0, lgf);
 }
 
@@ -394,20 +394,20 @@ void SriRate::getFalloffCoeffs(vector<double>& c) const
     c[2] = m_c;
 }
 
-void SriRate::updateTemp(double T, double* work) const
+void SriRate::updateTemp(double T, span<double> work) const
 {
-    *work = m_a * exp(- m_b / T);
+    work[0] = m_a * exp(- m_b / T);
     if (m_c != 0.0) {
-        *work += exp(- T/m_c);
+        work[0] += exp(- T/m_c);
     }
     work[1] = m_d * pow(T,m_e);
 }
 
-double SriRate::F(double pr, const double* work) const
+double SriRate::F(double pr, span<const double> work) const
 {
     double lpr = log10(std::max(pr,SmallNumber));
     double xx = 1.0/(1.0 + lpr*lpr);
-    return pow(*work, xx) * work[1];
+    return pow(work[0], xx) * work[1];
 }
 
 void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
@@ -488,19 +488,19 @@ void TsangRate::getFalloffCoeffs(vector<double>& c) const
     c[0] = m_a;
 }
 
-void TsangRate::updateTemp(double T, double* work) const
+void TsangRate::updateTemp(double T, span<double> work) const
 {
     double Fcent = m_a + (m_b * T);
-    *work = log10(std::max(Fcent, SmallNumber));
+    work[0] = log10(std::max(Fcent, SmallNumber));
 }
 
-double TsangRate::F(double pr, const double* work) const
+double TsangRate::F(double pr, span<const double> work) const
 {   //identical to TroeRate::F
     double lpr = log10(std::max(pr,SmallNumber));
-    double cc = -0.4 - 0.67 * (*work);
-    double nn = 0.75 - 1.27 * (*work);
+    double cc = -0.4 - 0.67 * work[0];
+    double nn = 0.75 - 1.27 * work[0];
     double f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
-    double lgf = (*work) / (1.0 + f1 * f1);
+    double lgf = work[0] / (1.0 + f1 * f1);
     return pow(10.0, lgf);
 }
 

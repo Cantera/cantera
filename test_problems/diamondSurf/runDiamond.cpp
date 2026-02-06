@@ -12,8 +12,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-    int i, k;
-
     try {
         CanteraError::setStackTraceDepth(20);
         auto iface = newInterface("diamond.yaml", "diamond_100");
@@ -62,14 +60,11 @@ int main(int argc, char** argv)
         AssertThrow(p == p, "main");
         AssertThrowMsg(p == p, "main", "are you kidding");
 
-        double src[20];
-        for (i = 0; i < 20; i++) {
-            src[i] = 0.0;
-        }
+        vector<double> src(ikin->nTotalSpecies());
         ikin->getNetProductionRates(src);
         double sum = 0.0;
         double naH = 0.0;
-        for (k = 0; k < 13; k++) {
+        for (size_t k = 0; k < 13; k++) {
             if (k < 4) {
                 naH = gas->nAtoms(k, 0);
             } else if (k == 4) {
@@ -91,7 +86,7 @@ int main(int argc, char** argv)
 
         diamond100->getMoleFractions(x);
         cout << "Coverages:" << endl;
-        for (k = 0; k < 8; k++) {
+        for (size_t k = 0; k < 8; k++) {
             cout << k << "   " << diamond100->speciesName(k)
                  << "   "
                  << x[k] << endl;

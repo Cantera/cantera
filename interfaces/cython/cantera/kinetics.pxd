@@ -84,59 +84,59 @@ cdef extern from "cantera/cython/kinetics_utils.h":
     cdef void CxxSparseCscData "sparseCscData" (CxxSparseMatrix, double*, int*, int*) except +translate_exception
 
     # Kinetics per-reaction properties
-    cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRatesOfProgress(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getRevRatesOfProgress(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetRatesOfProgress(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getFwdRateConstants_ddT(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getFwdRateConstants_ddP(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getFwdRateConstants_ddC(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRateConstants_ddT(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getFwdRateConstants_ddP(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getFwdRateConstants_ddC(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getFwdRatesOfProgress_ddT(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getRevRatesOfProgress_ddT(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetRatesOfProgress_ddT(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRatesOfProgress_ddT(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getRevRatesOfProgress_ddT(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetRatesOfProgress_ddT(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getFwdRatesOfProgress_ddP(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getRevRatesOfProgress_ddP(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetRatesOfProgress_ddP(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRatesOfProgress_ddP(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getRevRatesOfProgress_ddP(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetRatesOfProgress_ddP(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getFwdRatesOfProgress_ddC(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getRevRatesOfProgress_ddC(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetRatesOfProgress_ddC(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRatesOfProgress_ddC(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getRevRatesOfProgress_ddC(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetRatesOfProgress_ddC(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getEquilibriumConstants(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getFwdRateConstants(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getRevRateConstants(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getDeltaEnthalpy(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDeltaGibbs(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDeltaEntropy(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDeltaSSEnthalpy(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDeltaSSGibbs(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDeltaSSEntropy(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaEnthalpy(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDeltaGibbs(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDeltaEntropy(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDeltaSSEnthalpy(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDeltaSSGibbs(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDeltaSSEntropy(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getThirdBodyConcentrations(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getThirdBodyConcentrations(CxxKinetics*, span[double]) except +translate_exception
 
     # Kinetics per-species properties
-    cdef void kin_getCreationRates(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getCreationRates(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDestructionRates(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetProductionRates(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getCreationRates_ddT(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDestructionRates_ddT(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetProductionRates_ddT(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getCreationRates_ddT(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDestructionRates_ddT(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetProductionRates_ddT(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getCreationRates_ddP(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDestructionRates_ddP(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetProductionRates_ddP(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getCreationRates_ddP(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDestructionRates_ddP(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetProductionRates_ddP(CxxKinetics*, span[double]) except +translate_exception
 
-    cdef void kin_getCreationRates_ddC(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getDestructionRates_ddC(CxxKinetics*, double*) except +translate_exception
-    cdef void kin_getNetProductionRates_ddC(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getCreationRates_ddC(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getDestructionRates_ddC(CxxKinetics*, span[double]) except +translate_exception
+    cdef void kin_getNetProductionRates_ddC(CxxKinetics*, span[double]) except +translate_exception
 
 
 
-ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
+ctypedef void (*kineticsMethod1d)(CxxKinetics*, span[double]) except +translate_exception
 ctypedef CxxSparseMatrix (*kineticsMethodSparse)(CxxKinetics*) except +translate_exception
 
 cdef class Kinetics(_SolutionBase):

@@ -31,7 +31,7 @@ struct InterfaceData : public BlowersMaselData
     InterfaceData() = default;
     bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
     void update(double T) override;
-    void update(double T, const vector<double>& values) override;
+    void update(double T, span<const double> values) override;
     using BlowersMaselData::update;
     virtual void perturbTemperature(double deltaT);
     void resize(Kinetics& kin) override;

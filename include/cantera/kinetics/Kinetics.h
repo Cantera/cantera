@@ -93,8 +93,8 @@ class AnyMap;
 //! phase 'a', another bulk phase 'b', and the surface phase 'a:b' at the a/b
 //! interface. Phase 'a' contains 12 species, phase 'b' contains 3, and at the
 //! interface there are 5 adsorbed species defined in phase 'a:b'. Then methods
-//! like getNetProductionRates(double* net) will write and output array of
-//! length 20, beginning at the location pointed to by 'net'. The first 12
+//! like getNetProductionRates(span<double> net) will write and output array of
+//! length 20, beginning at the start of the span. The first 12
 //! values will be the net production rates for all 12 species of phase 'a'
 //! (even if some do not participate in the reactions), the next 3 will be for
 //! phase 'b', and finally the net production rates for the surface species will
@@ -347,7 +347,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress(double* fwdROP);
+    virtual void getFwdRatesOfProgress(span<double> fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -357,7 +357,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress(double* revROP);
+    virtual void getRevRatesOfProgress(span<double> revROP);
 
     /**
      * Net rates of progress. Return the net (forward - reverse) rates of
@@ -366,7 +366,7 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress(double* netROP);
+    virtual void getNetRatesOfProgress(span<double> netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
@@ -381,7 +381,7 @@ public:
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: nReactions().
      */
-    virtual void getEquilibriumConstants(double* kc) {
+    virtual void getEquilibriumConstants(span<double> kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");
     }
 
@@ -399,7 +399,8 @@ public:
      * @param property Input vector of property value. Length: #m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
-    virtual void getReactionDelta(const double* property, double* deltaProperty) const;
+    virtual void getReactionDelta(span<const double> property,
+                                  span<double> deltaProperty) const;
 
     /**
      * Given an array of species properties 'g', return in array 'dg' the
@@ -411,7 +412,7 @@ public:
      * primarily designed for use in calculating reverse rate coefficients
      * from thermochemistry for reversible reactions.
      */
-    virtual void getRevReactionDelta(const double* g, double* dg) const;
+    virtual void getRevReactionDelta(span<const double> g, span<double> dg) const;
 
     //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
@@ -423,7 +424,7 @@ public:
      * @param deltaG  Output vector of deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaGibbs(double* deltaG) {
+    virtual void getDeltaGibbs(span<double> deltaG) {
         throw NotImplementedError("Kinetics::getDeltaGibbs");
     }
 
@@ -438,7 +439,7 @@ public:
      * @param deltaM  Output vector of deltaM's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaElectrochemPotentials(double* deltaM) {
+    virtual void getDeltaElectrochemPotentials(span<double> deltaM) {
         throw NotImplementedError("Kinetics::getDeltaElectrochemPotentials");
     }
 
@@ -451,7 +452,7 @@ public:
      * @param deltaH  Output vector of deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEnthalpy(double* deltaH) {
+    virtual void getDeltaEnthalpy(span<double> deltaH) {
         throw NotImplementedError("Kinetics::getDeltaEnthalpy");
     }
 
@@ -464,7 +465,7 @@ public:
      * @param deltaS  Output vector of deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEntropy(double* deltaS) {
+    virtual void getDeltaEntropy(span<double> deltaS) {
         throw NotImplementedError("Kinetics::getDeltaEntropy");
     }
 
@@ -478,7 +479,7 @@ public:
      * @param deltaG  Output vector of ss deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSGibbs(double* deltaG) {
+    virtual void getDeltaSSGibbs(span<double> deltaG) {
         throw NotImplementedError("Kinetics::getDeltaSSGibbs");
     }
 
@@ -492,7 +493,7 @@ public:
      * @param deltaH  Output vector of ss deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEnthalpy(double* deltaH) {
+    virtual void getDeltaSSEnthalpy(span<double> deltaH) {
         throw NotImplementedError("Kinetics::getDeltaSSEnthalpy");
     }
 
@@ -506,7 +507,7 @@ public:
      * @param deltaS  Output vector of ss deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEntropy(double* deltaS) {
+    virtual void getDeltaSSEntropy(span<double> deltaS) {
         throw NotImplementedError("Kinetics::getDeltaSSEntropy");
     }
 
@@ -518,7 +519,7 @@ public:
      * @param concm  Output vector of effective third-body concentrations.
      *      Length: nReactions().
      */
-    virtual void getThirdBodyConcentrations(double* concm) {
+    virtual void getThirdBodyConcentrations(span<double> concm) {
         throw NotImplementedError("Kinetics::getThirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());
@@ -545,7 +546,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: #m_kk.
      */
-    virtual void getCreationRates(double* cdot);
+    virtual void getCreationRates(span<double> cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
@@ -554,7 +555,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: #m_kk.
      */
-    virtual void getDestructionRates(double* ddot);
+    virtual void getDestructionRates(span<double> ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -564,7 +565,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: #m_kk.
      */
-    virtual void getNetProductionRates(double* wdot);
+    virtual void getNetProductionRates(span<double> wdot);
 
     //! @}
 
@@ -714,7 +715,7 @@ public:
      * at constant pressure, molar concentration and mole fractions
      * @param[out] dkfwd  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getFwdRateConstants_ddT(double* dkfwd)
+    virtual void getFwdRateConstants_ddT(span<double> dkfwd)
     {
         throw NotImplementedError("Kinetics::getFwdRateConstants_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -725,7 +726,7 @@ public:
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dkfwd  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getFwdRateConstants_ddP(double* dkfwd)
+    virtual void getFwdRateConstants_ddP(span<double> dkfwd)
     {
         throw NotImplementedError("Kinetics::getFwdRateConstants_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -739,7 +740,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void getFwdRateConstants_ddC(double* dkfwd)
+    virtual void getFwdRateConstants_ddC(span<double> dkfwd)
     {
         throw NotImplementedError("Kinetics::getFwdRateConstants_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -750,7 +751,7 @@ public:
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress_ddT(double* drop)
+    virtual void getFwdRatesOfProgress_ddT(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -761,7 +762,7 @@ public:
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress_ddP(double* drop)
+    virtual void getFwdRatesOfProgress_ddP(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -775,7 +776,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void getFwdRatesOfProgress_ddC(double* drop)
+    virtual void getFwdRatesOfProgress_ddC(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -823,7 +824,7 @@ public:
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress_ddT(double* drop)
+    virtual void getRevRatesOfProgress_ddT(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -834,7 +835,7 @@ public:
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress_ddP(double* drop)
+    virtual void getRevRatesOfProgress_ddP(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -848,7 +849,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void getRevRatesOfProgress_ddC(double* drop)
+    virtual void getRevRatesOfProgress_ddC(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -896,7 +897,7 @@ public:
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress_ddT(double* drop)
+    virtual void getNetRatesOfProgress_ddT(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -907,7 +908,7 @@ public:
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress_ddP(double* drop)
+    virtual void getNetRatesOfProgress_ddP(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -921,7 +922,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void getNetRatesOfProgress_ddC(double* drop)
+    virtual void getNetRatesOfProgress_ddC(span<double> drop)
     {
         throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
@@ -969,14 +970,14 @@ public:
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getCreationRates_ddT(double* dwdot);
+    void getCreationRates_ddT(span<double> dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getCreationRates_ddP(double* dwdot);
+    void getCreationRates_ddP(span<double> dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to molar
@@ -986,7 +987,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    void getCreationRates_ddC(double* dwdot);
+    void getCreationRates_ddC(span<double> dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to species
@@ -1022,14 +1023,14 @@ public:
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getDestructionRates_ddT(double* dwdot);
+    void getDestructionRates_ddT(span<double> dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getDestructionRates_ddP(double* dwdot);
+    void getDestructionRates_ddP(span<double> dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to molar
@@ -1039,7 +1040,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    void getDestructionRates_ddC(double* dwdot);
+    void getDestructionRates_ddC(span<double> dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to species
@@ -1075,14 +1076,14 @@ public:
      * temperature at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getNetProductionRates_ddT(double* dwdot);
+    void getNetProductionRates_ddT(span<double> dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
-    void getNetProductionRates_ddP(double* dwdot);
+    void getNetProductionRates_ddP(span<double> dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to molar
@@ -1092,7 +1093,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    void getNetProductionRates_ddC(double* dwdot);
+    void getNetProductionRates_ddC(span<double> dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to species
@@ -1216,7 +1217,7 @@ public:
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
      */
-    virtual void getFwdRateConstants(double* kfwd) {
+    virtual void getFwdRateConstants(span<double> kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
@@ -1236,8 +1237,7 @@ public:
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
      */
-    virtual void getRevRateConstants(double* krev,
-                                     bool doIrreversible = false) {
+    virtual void getRevRateConstants(span<double> krev, bool doIrreversible = false) {
         throw NotImplementedError("Kinetics::getRevRateConstants");
     }
 

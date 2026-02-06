@@ -17,8 +17,8 @@ TEST(Solution, clone_idealgas)
     EXPECT_EQ(soln->kinetics()->nReactions(), dup->kinetics()->nReactions());
     EXPECT_EQ(soln->thermo()->name(), dup->thermo()->name());
     EXPECT_NEAR(soln->thermo()->enthalpy_mass(), dup->thermo()->enthalpy_mass(), 1e-5);
-    soln->kinetics()->getFwdRateConstants(kf1.data());
-    dup->kinetics()->getFwdRateConstants(kf2.data());
+    soln->kinetics()->getFwdRateConstants(kf1);
+    dup->kinetics()->getFwdRateConstants(kf2);
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-12*kf1[i]);
     }
@@ -26,7 +26,7 @@ TEST(Solution, clone_idealgas)
                 dup->transport()->thermalConductivity(), 1e-11);
     dup->thermo()->setState_TP(600, OneAtm);
     EXPECT_DOUBLE_EQ(soln->thermo()->temperature(), 400.0);
-    dup->kinetics()->getFwdRateConstants(kf2.data());
+    dup->kinetics()->getFwdRateConstants(kf2);
     EXPECT_GT(kf2[2], kf1[2]);
 }
 
@@ -41,14 +41,14 @@ TEST(Solution, clone_surf_complete)
     EXPECT_DOUBLE_EQ(soln2->adjacent("gas")->thermo()->pressure(), 3*OneAtm);
 
     vector<double> ropf1(nrxn), ropf2(nrxn);
-    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
-    soln2->kinetics()->getFwdRatesOfProgress(ropf2.data());
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1);
+    soln2->kinetics()->getFwdRatesOfProgress(ropf2);
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
         soln2->kinetics()->setMultiplier(i, 0.0);
     }
     // Original mixture should still have same (non-zero) rates
-    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1);
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
     }
@@ -70,14 +70,14 @@ TEST(Solution, clone_surf_manual)
     EXPECT_DOUBLE_EQ(soln2->adjacent("gas")->thermo()->pressure(), 3*OneAtm);
 
     vector<double> ropf1(nrxn), ropf2(nrxn);
-    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
-    soln2->kinetics()->getFwdRatesOfProgress(ropf2.data());
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1);
+    soln2->kinetics()->getFwdRatesOfProgress(ropf2);
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
         soln2->kinetics()->setMultiplier(i, 0.0);
     }
     // Original mixture should still have same (non-zero) rates
-    soln1->kinetics()->getFwdRatesOfProgress(ropf1.data());
+    soln1->kinetics()->getFwdRatesOfProgress(ropf1);
     for (size_t i = 0; i < nrxn; i++) {
         EXPECT_NEAR(ropf1[i], ropf2[i], 1e-12*ropf1[i]);
     }

@@ -81,9 +81,9 @@ void demoprog()
     // since the gas has been set to an equilibrium state, the forward
     // and reverse rates of progress should be equal for all
     // reversible reactions, and the net rates should be zero.
-    kin->getFwdRatesOfProgress(&qf[0]);
-    kin->getRevRatesOfProgress(&qr[0]);
-    kin->getNetRatesOfProgress(&q[0]);
+    kin->getFwdRatesOfProgress(qf);
+    kin->getRevRatesOfProgress(qr);
+    kin->getNetRatesOfProgress(q);
 
     writelog("\n\n");
     for (int i = 0; i < irxns; i++) {

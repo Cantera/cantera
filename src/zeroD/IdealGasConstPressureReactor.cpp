@@ -68,7 +68,7 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     m_thermo->getPartialMolarEnthalpies(m_hk);
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     // external heat transfer

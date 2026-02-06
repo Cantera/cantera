@@ -289,32 +289,32 @@ extern "C" {
 
     void getnetproductionrates_(double* wdot)
     {
-        _kin->getNetProductionRates(wdot);
+        _kin->getNetProductionRates(span<double>(wdot, _kin->nTotalSpecies()));
     }
 
     void getcreationrates_(double* cdot)
     {
-        _kin->getCreationRates(cdot);
+        _kin->getCreationRates(span<double>(cdot, _kin->nTotalSpecies()));
     }
 
     void getdestructionrates_(double* ddot)
     {
-        _kin->getDestructionRates(ddot);
+        _kin->getDestructionRates(span<double>(ddot, _kin->nTotalSpecies()));
     }
 
     void getnetratesofprogress_(double* q)
     {
-        _kin->getNetRatesOfProgress(q);
+        _kin->getNetRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     void getfwdratesofprogress_(double* q)
     {
-        _kin->getFwdRatesOfProgress(q);
+        _kin->getFwdRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     void getrevratesofprogress_(double* q)
     {
-        _kin->getRevRatesOfProgress(q);
+        _kin->getRevRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     //-------------------- transport properties --------------------

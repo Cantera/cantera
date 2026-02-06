@@ -66,7 +66,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     auto Y = m_thermo->massFractions();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());

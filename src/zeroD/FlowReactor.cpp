@@ -55,7 +55,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     y[3] = m_thermo->temperature();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(m_wdot.data()); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     // set the initial coverages
@@ -179,7 +179,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     m_thermo->getPartialMolarEnthalpies(m_hk);
     // get net production
     if (m_chem) {
-        m_kin->getNetProductionRates(m_wdot.data());
+        m_kin->getNetProductionRates(m_wdot);
     }
 
     // set dphi/dz variables

@@ -597,7 +597,7 @@ TEST(Reaction, PythonExtensibleRate)
     auto rate = R->rate();
     EXPECT_EQ(rate->type(), "square-rate");
     vector<double> kf(sol->kinetics()->nReactions());
-    sol->kinetics()->getFwdRateConstants(kf.data());
+    sol->kinetics()->getFwdRateConstants(kf);
     EXPECT_DOUBLE_EQ(kf[0], 3.14 * 300 * 300);
 }
 
@@ -710,8 +710,8 @@ TEST(Kinetics, ElectrochemFromYaml)
     auto kin = soln->kinetics();
     soln->adjacent("graphite")->thermo()->setElectricPotential(0.4);
     vector<double> ropf(kin->nReactions()), ropr(kin->nReactions());
-    kin->getFwdRatesOfProgress(ropf.data());
-    kin->getRevRatesOfProgress(ropr.data());
+    kin->getFwdRatesOfProgress(ropf);
+    kin->getRevRatesOfProgress(ropr);
 
     EXPECT_NEAR(ropf[0], 0.279762338, 1e-8);
     EXPECT_NEAR(ropr[0], 0.045559670, 1e-8);
@@ -835,10 +835,10 @@ public:
 
         vector<double> kf(kin->nReactions()), kr(kin->nReactions());
         vector<double> ropf(kin->nReactions()), ropr(kin->nReactions());
-        kin->getFwdRateConstants(kf.data());
-        kin->getRevRateConstants(kr.data());
-        kin->getFwdRatesOfProgress(ropf.data());
-        kin->getRevRatesOfProgress(ropr.data());
+        kin->getFwdRateConstants(kf);
+        kin->getRevRateConstants(kr);
+        kin->getFwdRatesOfProgress(ropf);
+        kin->getRevRatesOfProgress(ropr);
         EXPECT_NEAR(kf[iOld], kf[iNew], 1e-13 * kf[iOld]);
         EXPECT_NEAR(kr[iOld], kr[iNew], 1e-13 * kr[iOld]);
         EXPECT_NEAR(ropf[iOld], ropf[iNew], 1e-13 * ropf[iOld]);

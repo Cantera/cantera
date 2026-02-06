@@ -62,7 +62,7 @@ void InterfaceKinetics::_update_rates_T()
         }
 
         // Use the stoichiometric manager to find deltaH for each reaction.
-        getReactionDelta(m_grt.data(), m_dH.data());
+        getReactionDelta(m_grt, m_dH);
 
         m_temp = T;
         m_ROP_ok = false;
@@ -73,7 +73,7 @@ void InterfaceKinetics::_update_rates_T()
     for (auto& rates : m_rateHandlers) {
         bool changed = rates->update(thermo(0), *this);
         if (changed) {
-            rates->getRateConstants(m_rfn.data());
+            rates->getRateConstants(m_rfn);
             m_ROP_ok = false;
             m_redo_rates = true;
         }
@@ -129,7 +129,7 @@ void InterfaceKinetics::updateKc()
         double rrt = 1.0 / thermo(0).RT();
 
         // compute Delta mu^0 for all reversible reactions
-        getRevReactionDelta(m_mu0_Kc.data(), m_rkcn.data());
+        getRevReactionDelta(m_mu0_Kc, m_rkcn);
 
         for (size_t i = 0; i < m_revindex.size(); i++) {
             size_t irxn = m_revindex[i];
@@ -165,19 +165,20 @@ void InterfaceKinetics::updateMu0()
     }
 }
 
-void InterfaceKinetics::getEquilibriumConstants(double* kc)
+void InterfaceKinetics::getEquilibriumConstants(span<double> kc)
 {
     updateMu0();
     double rrt = 1.0 / thermo(0).RT();
-    std::fill(kc, kc + nReactions(), 0.0);
-    getReactionDelta(m_mu0_Kc.data(), kc);
+    std::fill(kc.begin(), kc.end(), 0.0);
+    getReactionDelta(m_mu0_Kc, kc);
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
     }
 }
 
-void InterfaceKinetics::getFwdRateConstants(double* kfwd)
+void InterfaceKinetics::getFwdRateConstants(span<double> kfwd)
 {
+    checkArraySize("InterfaceKinetics::getFwdRateConstants", kfwd.size(), nReactions());
     updateROP();
     for (size_t i = 0; i < nReactions(); i++) {
         // base rate coefficient multiplied by perturbation factor
@@ -185,11 +186,11 @@ void InterfaceKinetics::getFwdRateConstants(double* kfwd)
     }
 }
 
-void InterfaceKinetics::getRevRateConstants(double* krev, bool doIrreversible)
+void InterfaceKinetics::getRevRateConstants(span<double> krev, bool doIrreversible)
 {
     getFwdRateConstants(krev);
     if (doIrreversible) {
-        getEquilibriumConstants(m_ropnet.data());
+        getEquilibriumConstants(m_ropnet);
         for (size_t i = 0; i < nReactions(); i++) {
             krev[i] /= m_ropnet[i];
         }
@@ -221,16 +222,16 @@ void InterfaceKinetics::updateROP()
     }
 
     for (auto& rates : m_rateHandlers) {
-        rates->modifyRateConstants(m_ropf.data(), m_ropr.data());
+        rates->modifyRateConstants(m_ropf, m_ropr);
     }
 
     // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
-    m_reactantStoich.multiply(m_actConc.data(), m_ropf.data());
+    m_reactantStoich.multiply(m_actConc, m_ropf);
 
     // For reversible reactions, multiply ropr by the activity concentration
     // products
-    m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
+    m_revProductStoich.multiply(m_actConc, m_ropr);
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -286,7 +287,7 @@ void InterfaceKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void InterfaceKinetics::getDeltaGibbs(double* deltaG)
+void InterfaceKinetics::getDeltaGibbs(span<double> deltaG)
 {
     // Get the chemical potentials of the species in the all of the phases used
     // in the kinetics mechanism
@@ -296,15 +297,13 @@ void InterfaceKinetics::getDeltaGibbs(double* deltaG)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu.data(), m_rbuf.data());
-    if (deltaG != 0 && (m_rbuf.data() != deltaG)) {
-        for (size_t j = 0; j < nReactions(); ++j) {
-            deltaG[j] = m_rbuf[j];
-        }
+    getReactionDelta(m_mu, m_rbuf);
+    if (deltaG.data() != m_rbuf.data()) {
+        copy(m_rbuf.begin(), m_rbuf.end(), deltaG.begin());
     }
 }
 
-void InterfaceKinetics::getDeltaElectrochemPotentials(double* deltaM)
+void InterfaceKinetics::getDeltaElectrochemPotentials(span<double> deltaM)
 {
     // Get the chemical potentials of the species
     for (size_t n = 0; n < nPhases(); n++) {
@@ -313,10 +312,10 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(double* deltaM)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_grt.data(), deltaM);
+    getReactionDelta(m_grt, deltaM);
 }
 
-void InterfaceKinetics::getDeltaEnthalpy(double* deltaH)
+void InterfaceKinetics::getDeltaEnthalpy(span<double> deltaH)
 {
     // Get the partial molar enthalpy of all species
     for (size_t n = 0; n < nPhases(); n++) {
@@ -325,10 +324,10 @@ void InterfaceKinetics::getDeltaEnthalpy(double* deltaH)
     }
 
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_grt, deltaH);
 }
 
-void InterfaceKinetics::getDeltaEntropy(double* deltaS)
+void InterfaceKinetics::getDeltaEntropy(span<double> deltaS)
 {
     // Get the partial molar entropy of all species in all of the phases
     for (size_t n = 0; n < nPhases(); n++) {
@@ -337,10 +336,10 @@ void InterfaceKinetics::getDeltaEntropy(double* deltaS)
     }
 
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_grt, deltaS);
 }
 
-void InterfaceKinetics::getDeltaSSGibbs(double* deltaGSS)
+void InterfaceKinetics::getDeltaSSGibbs(span<double> deltaGSS)
 {
     // Get the standard state chemical potentials of the species. This is the
     // array of chemical potentials at unit activity We define these here as the
@@ -352,10 +351,10 @@ void InterfaceKinetics::getDeltaSSGibbs(double* deltaGSS)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu0.data(), deltaGSS);
+    getReactionDelta(m_mu0, deltaGSS);
 }
 
-void InterfaceKinetics::getDeltaSSEnthalpy(double* deltaH)
+void InterfaceKinetics::getDeltaSSEnthalpy(span<double> deltaH)
 {
     // Get the standard state enthalpies of the species. This is the array of
     // chemical potentials at unit activity We define these here as the
@@ -370,10 +369,10 @@ void InterfaceKinetics::getDeltaSSEnthalpy(double* deltaH)
     }
 
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_grt, deltaH);
 }
 
-void InterfaceKinetics::getDeltaSSEntropy(double* deltaS)
+void InterfaceKinetics::getDeltaSSEntropy(span<double> deltaS)
 {
     // Get the standard state entropy of the species. We define these here as
     // the entropies of the pure species at the temperature and pressure of the
@@ -387,7 +386,7 @@ void InterfaceKinetics::getDeltaSSEntropy(double* deltaS)
     }
 
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_grt, deltaS);
 }
 
 bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
@@ -633,7 +632,7 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     double dotProduct = 0.0;
 
     thermo(iphase).getCharges(charges);
-    getNetProductionRates(netProdRates.data());
+    getNetProductionRates(netProdRates);
 
     for (size_t k = 0; k < thermo(iphase).nSpecies(); k++)
     {
@@ -649,7 +648,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
 
@@ -659,8 +658,8 @@ Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddCi");
     // reverse reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
-    applyEquilibriumConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
+    applyEquilibriumConstants(rop_rates);
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
@@ -670,12 +669,12 @@ Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
     Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich,
         rop_rates);
 
     // reverse reaction rate coefficients
-    applyEquilibriumConstants(rop_rates.data());
+    applyEquilibriumConstants(rop_rates);
     return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
@@ -708,7 +707,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
     vector<double>& outV = m_rbuf1;
     // derivatives handled by StoichManagerN
     copy(in.begin(), in.end(), outV.begin());
-    return stoich.derivatives(m_actConc.data(), outV.data());
+    return stoich.derivatives(m_actConc, outV);
 }
 
 void InterfaceKinetics::assertDerivativesValid(const string& name)
@@ -720,7 +719,7 @@ void InterfaceKinetics::assertDerivativesValid(const string& name)
     }
 }
 
-void InterfaceKinetics::applyEquilibriumConstants(double* rop)
+void InterfaceKinetics::applyEquilibriumConstants(span<double> rop)
 {
     // For reverse rates computed from thermochemistry, multiply the forward
     // rate coefficients by the reciprocals of the equilibrium constants

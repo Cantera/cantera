@@ -136,23 +136,23 @@ public:
         m_ic0(ic0) {
     }
 
-    void incrementSpecies(const double* R, double* S) const {
+    void incrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] += R[m_rxn];
     }
 
-    void decrementSpecies(const double* R, double* S) const {
+    void decrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] -= R[m_rxn];
     }
 
-    void multiply(const double* S, double* R) const {
+    void multiply(span<const double> S, span<double> R) const {
         R[m_rxn] *= S[m_ic0];
     }
 
-    void incrementReaction(const double* S, double* R) const {
+    void incrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] += S[m_ic0];
     }
 
-    void decrementReaction(const double* S, double* R) const {
+    void decrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] -= S[m_ic0];
     }
 
@@ -161,14 +161,14 @@ public:
         m_jc0 = indices.at({m_rxn, m_ic0});
     }
 
-    void derivatives(const double* S, const double* R, vector<double>& jac) const
+    void derivatives(span<const double> S, span<const double> R,
+                     span<double> jac) const
     {
         jac[m_jc0] += R[m_rxn]; // index (m_ic0, m_rxn)
     }
 
 
-    void scale(const double* R, double* out, double factor) const
-    {
+    void scale(span<const double> R, span<double> out, double factor) const {
         out[m_rxn] = R[m_rxn] * factor;
     }
 
@@ -192,17 +192,17 @@ public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
 
-    void incrementSpecies(const double* R, double* S) const {
+    void incrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] += R[m_rxn];
         S[m_ic1] += R[m_rxn];
     }
 
-    void decrementSpecies(const double* R, double* S) const {
+    void decrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] -= R[m_rxn];
         S[m_ic1] -= R[m_rxn];
     }
 
-    void multiply(const double* S, double* R) const {
+    void multiply(span<const double> S, span<double> R) const {
         if (S[m_ic0] < 0 && S[m_ic1] < 0) {
             R[m_rxn] = 0;
         } else {
@@ -210,11 +210,11 @@ public:
         }
     }
 
-    void incrementReaction(const double* S, double* R) const {
+    void incrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] += S[m_ic0] + S[m_ic1];
     }
 
-    void decrementReaction(const double* S, double* R) const {
+    void decrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
@@ -224,7 +224,8 @@ public:
         m_jc1 = indices.at({m_rxn, m_ic1});
     }
 
-    void derivatives(const double* S, const double* R, vector<double>& jac) const
+    void derivatives(span<const double> S, span<const double> R,
+                     span<double> jac) const
     {
         if (S[m_ic1] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1]; // index (m_ic0, m_rxn)
@@ -234,7 +235,7 @@ public:
         }
     }
 
-    void scale(const double* R, double* out, double factor) const
+    void scale(span<const double> R, span<double> out, double factor) const
     {
         out[m_rxn] = 2 * R[m_rxn] * factor;
     }
@@ -260,19 +261,19 @@ public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
 
-    void incrementSpecies(const double* R, double* S) const {
+    void incrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] += R[m_rxn];
         S[m_ic1] += R[m_rxn];
         S[m_ic2] += R[m_rxn];
     }
 
-    void decrementSpecies(const double* R, double* S) const {
+    void decrementSpecies(span<const double> R, span<double> S) const {
         S[m_ic0] -= R[m_rxn];
         S[m_ic1] -= R[m_rxn];
         S[m_ic2] -= R[m_rxn];
     }
 
-    void multiply(const double* S, double* R) const {
+    void multiply(span<const double> S, span<double> R) const {
         if ((S[m_ic0] < 0 && (S[m_ic1] < 0 || S[m_ic2] < 0)) ||
             (S[m_ic1] < 0 && S[m_ic2] < 0)) {
             R[m_rxn] = 0;
@@ -281,11 +282,11 @@ public:
         }
     }
 
-    void incrementReaction(const double* S, double* R) const {
+    void incrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] += S[m_ic0] + S[m_ic1] + S[m_ic2];
     }
 
-    void decrementReaction(const double* S, double* R) const {
+    void decrementReaction(span<const double> S, span<double> R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
@@ -296,7 +297,8 @@ public:
         m_jc2 = indices.at({m_rxn, m_ic2});
     }
 
-    void derivatives(const double* S, const double* R, vector<double>& jac) const
+    void derivatives(span<const double> S, span<const double> R,
+                     span<double> jac) const
     {
         if (S[m_ic1] > 0 && S[m_ic2] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1] * S[m_ic2];; // index (m_ic0, m_rxn)
@@ -309,7 +311,7 @@ public:
         }
     }
 
-    void scale(const double* R, double* out, double factor) const
+    void scale(span<const double> R, span<double> out, double factor) const
     {
         out[m_rxn] = 3 * R[m_rxn] * factor;
     }
@@ -349,7 +351,7 @@ public:
         }
     }
 
-    void multiply(const double* input, double* output) const {
+    void multiply(span<const double> input, span<double> output) const {
         for (size_t n = 0; n < m_n; n++) {
             double order = m_order[n];
             if (order != 0.0) {
@@ -363,27 +365,27 @@ public:
         }
     }
 
-    void incrementSpecies(const double* input, double* output) const {
+    void incrementSpecies(span<const double> input, span<double> output) const {
         double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] += m_stoich[n]*x;
         }
     }
 
-    void decrementSpecies(const double* input, double* output) const {
+    void decrementSpecies(span<const double> input, span<double> output) const {
         double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] -= m_stoich[n]*x;
         }
     }
 
-    void incrementReaction(const double* input, double* output) const {
+    void incrementReaction(span<const double> input, span<double> output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] += m_stoich[n]*input[m_ic[n]];
         }
     }
 
-    void decrementReaction(const double* input, double* output) const {
+    void decrementReaction(span<const double> input, span<double> output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
         }
@@ -401,7 +403,8 @@ public:
         }
     }
 
-    void derivatives(const double* S, const double* R, vector<double>& jac) const
+    void derivatives(span<const double> S, span<const double> R,
+                     span<double> jac) const
     {
         for (size_t i = 0; i < m_n; i++) {
             // calculate derivative
@@ -426,7 +429,7 @@ public:
         }
     }
 
-    void scale(const double* R, double* out, double factor) const
+    void scale(span<const double> R, span<double> out, double factor) const
     {
         out[m_rxn] = m_sum_order * R[m_rxn] * factor;
     }
@@ -531,7 +534,7 @@ inline static void _resizeCoeffs(InputIter begin, InputIter end, Indices& ix)
 
 template<class InputIter, class Vec1, class Vec2, class Vec3>
 inline static void _derivatives(InputIter begin, InputIter end,
-                             const Vec1& S, const Vec2& R, Vec3& jac)
+                                const Vec1& S, const Vec2& R, Vec3& jac)
 {
     for (; begin != end; ++begin) {
         begin->derivatives(S, R, jac);
@@ -719,35 +722,35 @@ public:
         m_ready = false;
     }
 
-    void multiply(const double* input, double* output) const {
+    void multiply(span<const double> input, span<double> output) const {
         _multiply(m_c1_list.begin(), m_c1_list.end(), input, output);
         _multiply(m_c2_list.begin(), m_c2_list.end(), input, output);
         _multiply(m_c3_list.begin(), m_c3_list.end(), input, output);
         _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementSpecies(const double* input, double* output) const {
+    void incrementSpecies(span<const double> input, span<double> output) const {
         _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementSpecies(const double* input, double* output) const {
+    void decrementSpecies(span<const double> input, span<double> output) const {
         _decrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _decrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementReactions(const double* input, double* output) const {
+    void incrementReactions(span<const double> input, span<double> output) const {
         _incrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementReactions(const double* input, double* output) const {
+    void decrementReactions(span<const double> input, span<double> output) const {
         _decrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
@@ -777,7 +780,8 @@ public:
      *  @param conc    Species concentration.
      *  @param rates   Rates-of-progress.
      */
-    Eigen::SparseMatrix<double> derivatives(const double* conc, const double* rates)
+    Eigen::SparseMatrix<double> derivatives(span<const double> conc,
+                                            span<const double> rates)
     {
         // calculate derivative entries using known sparse storage order
         std::fill(m_values.begin(), m_values.end(), 0.);
@@ -792,7 +796,7 @@ public:
     }
 
     //! Scale input by reaction order and factor
-    void scale(const double* in, double* out, double factor) const
+    void scale(span<const double> in, span<double> out, double factor) const
     {
         _scale(m_c1_list.begin(), m_c1_list.end(), in, out, factor);
         _scale(m_c2_list.begin(), m_c2_list.end(), in, out, factor);

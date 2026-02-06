@@ -138,7 +138,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     RHS[1] = m_vdot;
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     for (size_t k = 0; k < m_nsp; k++) {
