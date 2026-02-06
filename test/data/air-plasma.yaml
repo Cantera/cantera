@@ -16,6 +16,15 @@ phases:
     energy-levels: [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0,
       24.0, 26.0, 28.0, 30.0, 32.0, 34.0, 36.0, 38.0, 40.0]
 
+- name: air-plasma-default-ELs
+  thermo: plasma
+  kinetics: gas
+  species:
+  - nasa_gas.yaml/species: [Electron, O2, N2, O2+, N2+, O, O2-]
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+
 reactions:
 - equation: O2 + Electron => Electron + Electron + O2+
   type: electron-collision-plasma

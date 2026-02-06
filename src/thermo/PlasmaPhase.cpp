@@ -60,6 +60,10 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "isotropic") {
         setIsotropicElectronEnergyDistribution();
     } else if (m_distributionType == "Boltzmann-two-term") {
+        if (!nCollisions()) {
+            // EEDF solver requires collision data; skip if none are defined.
+            return;
+        }
         auto ierr = m_eedfSolver->calculateDistributionFunction();
         if (ierr == 0) {
             auto y = m_eedfSolver->getEEDFEdge();
@@ -324,6 +328,11 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             auto distribution = eedf["distribution"].asVector<double>(levels.size());
             setDiscretizedElectronEnergyDist(levels.data(), distribution.data(),
                                              levels.size());
+        } else if (m_distributionType == "Boltzmann-two-term") {
+            if (eedf.hasKey("energy-levels")) {
+                auto levels = eedf["energy-levels"].asVector<double>();
+                setElectronEnergyLevels(levels.data(), levels.size());
+            }
         }
     }
 
