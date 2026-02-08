@@ -1,3 +1,5 @@
+project('yaml-cpp', 'cpp', version: '0.8.0')
+
 # Minimal yaml-cpp subproject build file
 # This is a simplified build for Cantera's bundled yaml-cpp
 

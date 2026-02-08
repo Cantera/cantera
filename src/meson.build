@@ -213,13 +213,13 @@ cantera_sources = [
 ]
 
 # Additional compile definitions for specific files
-application_cpp_args = ['-DCANTERA_DATA="' + datadir + '"']
+application_cpp_args = ['-DCANTERA_DATA="' + ct_datadir + '"']
 global_cpp_args = ['-DGIT_COMMIT="' + git_commit + '"']
 
 # Build application.cpp with special define
 application_lib = static_library('cantera_application',
   'base/application.cpp',
-  include_directories: cantera_include_dirs,
+  include_directories: [cantera_include_dirs, cantera_build_include],
   cpp_args: application_cpp_args,
   dependencies: [
     eigen_dep,
@@ -235,7 +235,7 @@ application_lib = static_library('cantera_application',
 # Build global.cpp with special define
 global_lib = static_library('cantera_global',
   'base/global.cpp',
-  include_directories: cantera_include_dirs,
+  include_directories: [cantera_include_dirs, cantera_build_include],
   cpp_args: global_cpp_args,
   dependencies: [
     eigen_dep,
@@ -276,7 +276,7 @@ endif
 # Build the shared library
 cantera_lib = shared_library('cantera',
   cantera_sources,
-  include_directories: cantera_include_dirs,
+  include_directories: [cantera_include_dirs, cantera_build_include],
   dependencies: cantera_deps,
   link_whole: [application_lib, global_lib],
   install: true,
@@ -293,7 +293,7 @@ install_subdir('include/cantera',
 # Declare dependency for use by other subprojects
 cantera_dep = declare_dependency(
   link_with: cantera_lib,
-  include_directories: cantera_include_dirs,
+  include_directories: [cantera_include_dirs, cantera_build_include],
   dependencies: cantera_deps,
 )
 

@@ -36,7 +36,7 @@ if cpp.get_id() == 'msvc'
   add_project_arguments('/D_SCL_SECURE_NO_WARNINGS', language: 'cpp')
   add_project_arguments('/D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
   add_project_arguments('/MD', language: 'cpp')
-else
+elif cpp.get_id() == 'clang'
   add_project_arguments('-fcolor-diagnostics', language: 'cpp')
 endif
 
@@ -112,12 +112,55 @@ else
   message('Using bundled yaml-cpp from ext/yaml-cpp')
   # Check if submodule is initialized
   yamlcpp_include_dir = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'include'
-  if not fs.is_dir(yamlcpp_include_dir)
+  yamlcpp_src_dir = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'src'
+  if not fs.is_dir(yamlcpp_include_dir) or not fs.is_dir(yamlcpp_src_dir)
     warning('yaml-cpp submodule not initialized. Run: git submodule update --init ext/yaml-cpp')
   endif
-  # Build yaml-cpp from submodule
-  yamlcpp_proj = subproject('yaml-cpp')
-  yamlcpp_dep = yamlcpp_proj.get_variable('yaml-cpp_dep')
+  
+  # Build yaml-cpp directly in main build
+  yamlcpp_sources = files(
+    'ext/yaml-cpp/src/binary.cpp',
+    'ext/yaml-cpp/src/convert.cpp',
+    'ext/yaml-cpp/src/depthguard.cpp',
+    'ext/yaml-cpp/src/directives.cpp',
+    'ext/yaml-cpp/src/emit.cpp',
+    'ext/yaml-cpp/src/emitfromevents.cpp',
+    'ext/yaml-cpp/src/emitter.cpp',
+    'ext/yaml-cpp/src/emitterstate.cpp',
+    'ext/yaml-cpp/src/emitterutils.cpp',
+    'ext/yaml-cpp/src/exceptions.cpp',
+    'ext/yaml-cpp/src/exp.cpp',
+    'ext/yaml-cpp/src/memory.cpp',
+    'ext/yaml-cpp/src/node.cpp',
+    'ext/yaml-cpp/src/node_data.cpp',
+    'ext/yaml-cpp/src/nodebuilder.cpp',
+    'ext/yaml-cpp/src/nodeevents.cpp',
+    'ext/yaml-cpp/src/null.cpp',
+    'ext/yaml-cpp/src/ostream_wrapper.cpp',
+    'ext/yaml-cpp/src/parse.cpp',
+    'ext/yaml-cpp/src/parser.cpp',
+    'ext/yaml-cpp/src/regex_yaml.cpp',
+    'ext/yaml-cpp/src/scanner.cpp',
+    'ext/yaml-cpp/src/scanscalar.cpp',
+    'ext/yaml-cpp/src/scantag.cpp',
+    'ext/yaml-cpp/src/scantoken.cpp',
+    'ext/yaml-cpp/src/simplekey.cpp',
+    'ext/yaml-cpp/src/singledocparser.cpp',
+    'ext/yaml-cpp/src/stream.cpp',
+    'ext/yaml-cpp/src/tag.cpp',
+  )
+  
+  yamlcpp_inc = include_directories('ext/yaml-cpp/include')
+  yamlcpp_lib = static_library('yaml-cpp-bundled',
+    yamlcpp_sources,
+    include_directories: yamlcpp_inc,
+    pic: true,
+  )
+  
+  yamlcpp_dep = declare_dependency(
+    link_with: yamlcpp_lib,
+    include_directories: yamlcpp_inc,
+  )
 endif
 
 # Boost dependency (header-only, required)
@@ -186,23 +229,23 @@ if git.found()
 endif
 
 # Data directory
-datadir = get_option('datadir')
-if datadir == ''
-  datadir = get_option('prefix') / 'share' / 'cantera' / 'data'
+ct_datadir = get_option('cantera_datadir')
+if ct_datadir == ''
+  ct_datadir = get_option('prefix') / 'share' / 'cantera' / 'data'
 endif
 
 # Generate config.h
 conf_data = configuration_data()
-conf_data.set_quoted('CANTERA_VERSION', meson.project_version())
-conf_data.set_quoted('CANTERA_SHORT_VERSION', cantera_short_version)
-conf_data.set10('CT_USE_SYSTEM_EIGEN', use_system_eigen)
-conf_data.set10('CT_USE_SYSTEM_EIGEN_PREFIXED', false)  # Assume unprefixed
-conf_data.set10('CT_USE_SYSTEM_FMT', use_system_fmt)
-conf_data.set10('CT_USE_SYSTEM_YAMLCPP', use_system_yamlcpp)
-conf_data.set10('CT_USE_LAPACK', use_lapack)
-conf_data.set10('CT_USE_HDF5', use_hdf5)
-conf_data.set10('CT_USE_SYSTEM_HIGHFIVE', use_system_highfive)
-conf_data.set10('CT_SUNDIALS_USE_LAPACK', false)  # Conservative default
+conf_data.set('CANTERA_VERSION', '#define CANTERA_VERSION "' + meson.project_version() + '"')
+conf_data.set('CANTERA_SHORT_VERSION', '#define CANTERA_SHORT_VERSION "' + cantera_short_version + '"')
+conf_data.set('CT_USE_SYSTEM_EIGEN', use_system_eigen ? '#define CT_USE_SYSTEM_EIGEN 1' : '/* #undef CT_USE_SYSTEM_EIGEN */')
+conf_data.set('CT_USE_SYSTEM_EIGEN_PREFIXED', '/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */')
+conf_data.set('CT_USE_SYSTEM_FMT', use_system_fmt ? '#define CT_USE_SYSTEM_FMT 1' : '/* #undef CT_USE_SYSTEM_FMT */')
+conf_data.set('CT_USE_SYSTEM_YAMLCPP', use_system_yamlcpp ? '#define CT_USE_SYSTEM_YAMLCPP 1' : '/* #undef CT_USE_SYSTEM_YAMLCPP */')
+conf_data.set('CT_USE_LAPACK', use_lapack ? '#define CT_USE_LAPACK 1' : '/* #undef CT_USE_LAPACK */')
+conf_data.set('CT_USE_HDF5', use_hdf5 ? '#define CT_USE_HDF5 1' : '/* #undef CT_USE_HDF5 */')
+conf_data.set('CT_USE_SYSTEM_HIGHFIVE', use_system_highfive ? '#define CT_USE_SYSTEM_HIGHFIVE 1' : '/* #undef CT_USE_SYSTEM_HIGHFIVE */')
+conf_data.set('CT_SUNDIALS_USE_LAPACK', '/* #undef CT_SUNDIALS_USE_LAPACK */')
 
 # Fortran settings
 conf_data.set('FTN_TRAILING_UNDERSCORE', '#define FTN_TRAILING_UNDERSCORE')
@@ -210,19 +253,24 @@ conf_data.set('LAPACK_FTN_STRING_LEN_AT_END', '#define LAPACK_FTN_STRING_LEN_AT_
 conf_data.set('LAPACK_FTN_TRAILING_UNDERSCORE', '#define LAPACK_FTN_TRAILING_UNDERSCORE')
 
 config_h = configure_file(
-  input: 'include/cantera/base/config.h.in',
+  input: 'include/cantera/base/config.h.meson.in',
   output: 'config.h',
   configuration: conf_data,
   install: true,
   install_dir: get_option('includedir') / 'cantera' / 'base'
 )
 
+# Create symlink for config.h in build directory so it's found at cantera/base/config.h
+meson.add_postconf_script('sh', '-c', 'mkdir -p "$MESON_BUILD_ROOT/cantera/base" && ln -sf "$MESON_BUILD_ROOT/config.h" "$MESON_BUILD_ROOT/cantera/base/config.h"'.replace('$MESON_BUILD_ROOT', meson.current_build_dir()))
+
 # Include directories
 cantera_include_dirs = include_directories(
   'include',
   'src',
-  '.'  # For generated config.h
 )
+
+# Build directory for generated files (contains config.h)
+cantera_build_include = include_directories('.')
 
 # Build the library
 subdir('src')
