@@ -53,8 +53,10 @@ The Meson build system is under development and currently builds most of the C++
 - **fmt** (>= 9.1.0): Uses system if available, otherwise ext/fmt (header-only mode)
 - **yaml-cpp** (>= 0.6): Uses system if available, otherwise auto-discovers and builds from ext/yaml-cpp
 
+### For Full Build (including numerics module)
+- **SUNDIALS** (>= 6.0): Required for ODE/DAE integration. Currently requires system installation (e.g., `libsundials-dev` on Ubuntu). Without SUNDIALS, builds ~60% of C++ library (all modules except numerics).
+
 ### Optional
-- **SUNDIALS** (>= 6.0): Required for ODE/DAE integration (not yet implemented)
 - **HDF5**: For HDF5 data file support
 - **BLAS/LAPACK**: For optimized linear algebra (falls back to Eigen)
 - **HighFive**: C++ wrapper for HDF5
