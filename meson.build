@@ -46,108 +46,23 @@ thread_dep = dependency('threads', required: true)
 # Math library (needed on some platforms)
 m_dep = cc.find_library('m', required: false)
 
-# SUNDIALS dependency with fallback to subproject
-sundials_dep = dependency('sundials_cvodes', version: '>=6.0', required: false)
-sundials_idas_dep = dependency('sundials_idas', required: false)
-sundials_nvecserial_dep = dependency('sundials_nvecserial', required: false)
+# SUNDIALS dependency - required system package
+sundials_cvodes_dep = dependency('sundials_cvodes', version: '>=6.0', required: true)
+sundials_idas_dep = dependency('sundials_idas', required: true)
+sundials_nvecserial_dep = dependency('sundials_nvecserial', required: true)
+message('Using system SUNDIALS')
 
-use_system_sundials = false
-if sundials_dep.found() and sundials_idas_dep.found() and sundials_nvecserial_dep.found()
-  use_system_sundials = true
-  message('Using system SUNDIALS')
-else
-  message('Using bundled SUNDIALS from ext/sundials')
-  # TODO: Build SUNDIALS from submodule
-  # For now, we'll add it as a subproject wrap
-  sundials_dep = dependency('', required: false)
-  sundials_idas_dep = dependency('', required: false)
-  sundials_nvecserial_dep = dependency('', required: false)
-endif
+# Eigen dependency (header-only) - required system package
+eigen_dep = dependency('eigen3', version: '>=3.4', required: true)
+message('Using system Eigen')
 
-# Eigen dependency (header-only)
-eigen_dep = dependency('eigen3', version: '>=3.4', required: false)
-use_system_eigen = false
-if eigen_dep.found()
-  use_system_eigen = true
-  message('Using system Eigen')
-else
-  message('Using bundled Eigen from ext/eigen')
-  # Check if submodule is initialized
-  eigen_include_dir = meson.current_source_dir() / 'ext' / 'eigen'
-  if not fs.is_dir(eigen_include_dir)
-    warning('Eigen submodule not initialized. Run: git submodule update --init ext/eigen')
-  endif
-  eigen_dep = declare_dependency(
-    include_directories: include_directories('ext/eigen')
-  )
-endif
+# fmt dependency - required system package
+fmt_dep = dependency('fmt', version: '>=9.1.0', required: true)
+message('Using system fmt')
 
-# fmt dependency with fallback
-fmt_dep = dependency('fmt', version: '>=9.1.0', required: false)
-use_system_fmt = false
-if fmt_dep.found()
-  use_system_fmt = true
-  message('Using system fmt')
-else
-  message('Using bundled fmt from ext/fmt')
-  # Check if submodule is initialized
-  fmt_include_dir = meson.current_source_dir() / 'ext' / 'fmt' / 'include'
-  if not fs.is_dir(fmt_include_dir)
-    warning('fmt submodule not initialized. Run: git submodule update --init ext/fmt')
-  endif
-  # Use header-only mode for bundled fmt
-  fmt_dep = declare_dependency(
-    include_directories: include_directories('ext/fmt/include'),
-    compile_args: ['-DFMT_HEADER_ONLY']
-  )
-endif
-
-# yaml-cpp dependency with fallback
-# Note: CMake integration has issues with Meson detecting source files correctly
-# when the subproject is a symlink. Using direct file specification instead.
-yamlcpp_dep = dependency('yaml-cpp', version: '>=0.6', required: false)
-use_system_yamlcpp = false
-if yamlcpp_dep.found()
-  use_system_yamlcpp = true
-  message('Using system yaml-cpp')
-else
-  message('Using bundled yaml-cpp from ext/yaml-cpp')
-  # Check if submodule is initialized
-  yamlcpp_cmake = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'CMakeLists.txt'
-  if not fs.exists(yamlcpp_cmake)
-    warning('yaml-cpp submodule not initialized. Run: git submodule update --init ext/yaml-cpp')
-  endif
-  
-  # Build yaml-cpp from discovered source files
-  yaml_cpp_src_dir = 'ext/yaml-cpp/src'
-  yaml_cpp_sources = run_command(
-    find_program('find'),
-    yaml_cpp_src_dir,
-    '-name', '*.cpp',
-    '-printf', '%P\n',
-    check: true,
-    capture: true
-  ).stdout().strip().split('\n')
-  
-  yaml_cpp_files = []
-  foreach f : yaml_cpp_sources
-    if f != ''
-      yaml_cpp_files += files(yaml_cpp_src_dir / f)
-    endif
-  endforeach
-  
-  yamlcpp_inc = include_directories('ext/yaml-cpp/include')
-  yamlcpp_lib = static_library('yaml-cpp-bundled',
-    yaml_cpp_files,
-    include_directories: yamlcpp_inc,
-    pic: true,
-  )
-  
-  yamlcpp_dep = declare_dependency(
-    link_with: yamlcpp_lib,
-    include_directories: yamlcpp_inc,
-  )
-endif
+# yaml-cpp dependency - required system package
+yamlcpp_dep = dependency('yaml-cpp', version: '>=0.6', required: true)
+message('Using system yaml-cpp')
 
 # Boost dependency (header-only, required)
 boost_dep = dependency('boost', version: '>=1.83', required: true,
@@ -164,18 +79,15 @@ else
 endif
 
 # HighFive dependency (header-only, optional)
+# Only use system package, no fallback to submodule
 highfive_dep = dependency('HighFive', required: false)
-use_system_highfive = false
-if highfive_dep.found()
-  use_system_highfive = true
+if highfive_dep.found() and use_hdf5
   message('Using system HighFive')
-elif use_hdf5
-  message('Using bundled HighFive from ext/HighFive')
-  highfive_dep = declare_dependency(
-    include_directories: include_directories('ext/HighFive/include')
-  )
 else
   highfive_dep = dependency('', required: false)
+  if use_hdf5
+    warning('HighFive not found. HDF5 support will be limited. Install HighFive package for full HDF5 support.')
+  endif
 endif
 
 # BLAS/LAPACK dependency (optional)
@@ -224,13 +136,14 @@ endif
 conf_data = configuration_data()
 conf_data.set('CANTERA_VERSION', '#define CANTERA_VERSION "' + meson.project_version() + '"')
 conf_data.set('CANTERA_SHORT_VERSION', '#define CANTERA_SHORT_VERSION "' + cantera_short_version + '"')
-conf_data.set('CT_USE_SYSTEM_EIGEN', use_system_eigen ? '#define CT_USE_SYSTEM_EIGEN 1' : '/* #undef CT_USE_SYSTEM_EIGEN */')
+# All dependencies are now system packages
+conf_data.set('CT_USE_SYSTEM_EIGEN', '#define CT_USE_SYSTEM_EIGEN 1')
 conf_data.set('CT_USE_SYSTEM_EIGEN_PREFIXED', '/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */')
-conf_data.set('CT_USE_SYSTEM_FMT', use_system_fmt ? '#define CT_USE_SYSTEM_FMT 1' : '/* #undef CT_USE_SYSTEM_FMT */')
-conf_data.set('CT_USE_SYSTEM_YAMLCPP', use_system_yamlcpp ? '#define CT_USE_SYSTEM_YAMLCPP 1' : '/* #undef CT_USE_SYSTEM_YAMLCPP */')
+conf_data.set('CT_USE_SYSTEM_FMT', '#define CT_USE_SYSTEM_FMT 1')
+conf_data.set('CT_USE_SYSTEM_YAMLCPP', '#define CT_USE_SYSTEM_YAMLCPP 1')
 conf_data.set('CT_USE_LAPACK', use_lapack ? '#define CT_USE_LAPACK 1' : '/* #undef CT_USE_LAPACK */')
 conf_data.set('CT_USE_HDF5', use_hdf5 ? '#define CT_USE_HDF5 1' : '/* #undef CT_USE_HDF5 */')
-conf_data.set('CT_USE_SYSTEM_HIGHFIVE', use_system_highfive ? '#define CT_USE_SYSTEM_HIGHFIVE 1' : '/* #undef CT_USE_SYSTEM_HIGHFIVE */')
+conf_data.set('CT_USE_SYSTEM_HIGHFIVE', highfive_dep.found() ? '#define CT_USE_SYSTEM_HIGHFIVE 1' : '/* #undef CT_USE_SYSTEM_HIGHFIVE */')
 conf_data.set('CT_SUNDIALS_USE_LAPACK', '/* #undef CT_SUNDIALS_USE_LAPACK */')
 
 # Fortran settings
@@ -265,11 +178,7 @@ subdir('src')
 summary({
   'Version': meson.project_version(),
   'Git commit': git_commit,
-  'System Eigen': use_system_eigen,
-  'System fmt': use_system_fmt,
-  'System yaml-cpp': use_system_yamlcpp,
-  'System SUNDIALS': use_system_sundials,
   'BLAS/LAPACK': use_lapack,
   'HDF5 support': use_hdf5,
-  'System HighFive': use_system_highfive,
+  'HighFive': highfive_dep.found(),
 }, section: 'Configuration')

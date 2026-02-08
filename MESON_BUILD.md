@@ -1,10 +1,10 @@
 # Meson Build System for Cantera
 
-This directory contains the initial Meson build configuration for Cantera's C++ library.
+This directory contains the Meson build configuration for Cantera's C++ library.
 
 ## Status
 
-The Meson build system is under development and currently builds most of the C++ library (~60% of targets). The build is blocked by the SUNDIALS dependency which needs to be added as a subproject or installed system-wide.
+The Meson build system builds the complete C++ library using system-installed dependencies only.
 
 ## Quick Start
 
@@ -13,53 +13,48 @@ The Meson build system is under development and currently builds most of the C++
 - Meson >= 1.0.0
 - Ninja build system
 - C++20 compatible compiler (GCC, Clang, or MSVC)
-- System dependencies:
-  - Eigen3 >= 3.4 (or will use ext/eigen submodule)
-  - Boost >= 1.83 (required, must be system-installed)
-  - Optional: HDF5, BLAS/LAPACK
+- System dependencies (all required):
+  - Eigen3 >= 3.4
+  - Boost >= 1.83
+  - fmt >= 9.1.0
+  - yaml-cpp >= 0.6
+  - SUNDIALS >= 6.0 (cvodes, idas, nvecserial)
+  - Optional: HDF5, BLAS/LAPACK, HighFive
 
 ### Building
 
-1. Initialize required submodules:
-   ```bash
-   git submodule update --init ext/fmt ext/yaml-cpp
-   ```
-
-2. Create a compatibility symlink for fmt (required for older fmt references):
-   ```bash
-   cd ext/fmt/include/fmt && ln -s ranges.h join.h
-   ```
-
-3. Configure the build:
+1. Configure the build:
    ```bash
    meson setup builddir
    ```
 
-4. Compile:
+2. Compile:
    ```bash
    meson compile -C builddir
    ```
 
-5. Install (optional):
+3. Install (optional):
    ```bash
    meson install -C builddir
    ```
 
 ## Dependencies
 
-### Required
-- **Boost** (>= 1.83): Header-only, must be system-installed
-- **Eigen3** (>= 3.4): Uses system if available, otherwise ext/eigen submodule
-- **fmt** (>= 9.1.0): Uses system if available, otherwise ext/fmt (header-only mode)
-- **yaml-cpp** (>= 0.6): Uses system if available, otherwise auto-discovers and builds from ext/yaml-cpp
+All dependencies must be installed as system packages. The Meson build does not support fallback to bundled libraries in ext/ submodules.
 
-### For Full Build (including numerics module)
-- **SUNDIALS** (>= 6.0): Required for ODE/DAE integration. Currently requires system installation (e.g., `libsundials-dev` on Ubuntu). Without SUNDIALS, builds ~60% of C++ library (all modules except numerics).
+### Required System Packages
 
-### Optional
+- **Boost** (>= 1.83): Header-only library
+- **Eigen3** (>= 3.4): Header-only library for linear algebra
+- **fmt** (>= 9.1.0): Formatting library
+- **yaml-cpp** (>= 0.6): YAML parser/emitter
+- **SUNDIALS** (>= 6.0): ODE/DAE solvers (cvodes, idas, nvecserial components required)
+
+### Optional System Packages
+
 - **HDF5**: For HDF5 data file support
-- **BLAS/LAPACK**: For optimized linear algebra (falls back to Eigen)
-- **HighFive**: C++ wrapper for HDF5
+- **BLAS/LAPACK**: For optimized linear algebra (falls back to Eigen if not available)
+- **HighFive**: C++ wrapper for HDF5 (required if HDF5 support is desired)
 
 ## Configuration Options
 
@@ -86,20 +81,31 @@ endforeach
 
 This eliminates the need to manually list individual source files.
 
-### Dependency Management
+### Installation
 
-Dependencies are tried in order:
-1. **System packages** (via pkg-config/CMake) 
-2. **Bundled sources** (from ext/ submodules with automatic file discovery)
+On Ubuntu/Debian:
+```bash
+sudo apt install meson ninja-build libboost-dev libeigen3-dev \
+  libfmt-dev libyaml-cpp-dev libsundials-dev
+```
 
-For yaml-cpp, Meson automatically discovers all source files from `ext/yaml-cpp/src` instead of using the CMake build (which has issues with symlinked subprojects).
+On macOS with Homebrew:
+```bash
+brew install meson ninja boost eigen fmt yaml-cpp sundials
+```
+
+On Fedora/RHEL:
+```bash
+sudo dnf install meson ninja-build boost-devel eigen3-devel \
+  fmt-devel yaml-cpp-devel sundials-devel
+```
 
 ## Known Limitations
 
-1. **SUNDIALS not yet supported**: The SUNDIALS dependency needs to be implemented as a Meson subproject or made available system-wide
-2. **No Python bindings**: Only C++ library is currently supported
-3. **No Fortran interface**: F90 interface not yet implemented
-4. **Limited testing**: Build system needs more testing across platforms
+1. **No Python bindings**: Only C++ library is currently supported
+2. **No Fortran interface**: F90 interface not yet implemented
+3. **Limited testing**: Build system needs more testing across platforms
+4. **System packages required**: No support for bundled ext/ submodules
 
 ## Comparison with SCons
 
@@ -107,17 +113,17 @@ The Meson build aims to eventually replace the SCons build system with these ben
 - Faster build times with better parallelization
 - Better IDE integration
 - Standard pkg-config support
-- Simpler dependency management
+- Simpler dependency management (system packages only)
 - Cross-compilation support
 - **Automatic source discovery** like SCons `multi_glob()`
 
 ## Contributing
 
-This is initial work to replace the SCons build system. Contributions are welcome to:
-- Add SUNDIALS subproject support
-- Improve dependency detection
+Contributions are welcome to:
+- Add Python bindings support
 - Add testing infrastructure
 - Port more configuration options from SCons
+- Test on more platforms
 
 ## Files
 
@@ -125,4 +131,3 @@ This is initial work to replace the SCons build system. Contributions are welcom
 - `meson_options.txt`: Build options
 - `src/meson.build`: C++ source compilation with automatic file discovery
 - `include/cantera/base/config.h.meson.in`: Configuration header template
-- `include/cantera/ext/`: Symlinks to submodule headers (fmt, yaml-cpp, Eigen)

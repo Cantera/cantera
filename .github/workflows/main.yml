@@ -201,7 +201,7 @@ jobs:
     - uses: actions/checkout@v6
       name: Checkout the repository
       with:
-        submodules: recursive
+        submodules: false
         persist-credentials: false
     - name: Setup Python
       uses: actions/setup-python@v6
@@ -213,12 +213,6 @@ jobs:
         sudo apt update
         sudo apt install -y meson ninja-build libboost-dev libeigen3-dev \
           libsundials-dev libhdf5-dev libfmt-dev libyaml-cpp-dev
-    - name: Initialize submodules for bundled dependencies
-      run: |
-        # Initialize fmt and yaml-cpp in case system versions are too old
-        git submodule update --init --depth=1 ext/fmt ext/yaml-cpp
-        # Create compatibility symlink for fmt
-        cd ext/fmt/include/fmt && ln -sf ranges.h join.h
     - name: Configure with Meson
       run: meson setup builddir
     - name: Compile with Meson
