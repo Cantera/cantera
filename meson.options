@@ -1,0 +1,5 @@
+option('datadir', 
+  type: 'string', 
+  value: '',
+  description: 'Directory for Cantera data files (default: prefix/share/cantera/data)'
+)
