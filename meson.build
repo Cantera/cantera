@@ -103,6 +103,8 @@ else
 endif
 
 # yaml-cpp dependency with fallback
+# Note: CMake integration has issues with Meson detecting source files correctly
+# when the subproject is a symlink. Using direct file specification instead.
 yamlcpp_dep = dependency('yaml-cpp', version: '>=0.6', required: false)
 use_system_yamlcpp = false
 if yamlcpp_dep.found()
@@ -111,48 +113,32 @@ if yamlcpp_dep.found()
 else
   message('Using bundled yaml-cpp from ext/yaml-cpp')
   # Check if submodule is initialized
-  yamlcpp_include_dir = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'include'
-  yamlcpp_src_dir = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'src'
-  if not fs.is_dir(yamlcpp_include_dir) or not fs.is_dir(yamlcpp_src_dir)
+  yamlcpp_cmake = meson.current_source_dir() / 'ext' / 'yaml-cpp' / 'CMakeLists.txt'
+  if not fs.exists(yamlcpp_cmake)
     warning('yaml-cpp submodule not initialized. Run: git submodule update --init ext/yaml-cpp')
   endif
   
-  # Build yaml-cpp directly in main build
-  yamlcpp_sources = files(
-    'ext/yaml-cpp/src/binary.cpp',
-    'ext/yaml-cpp/src/convert.cpp',
-    'ext/yaml-cpp/src/depthguard.cpp',
-    'ext/yaml-cpp/src/directives.cpp',
-    'ext/yaml-cpp/src/emit.cpp',
-    'ext/yaml-cpp/src/emitfromevents.cpp',
-    'ext/yaml-cpp/src/emitter.cpp',
-    'ext/yaml-cpp/src/emitterstate.cpp',
-    'ext/yaml-cpp/src/emitterutils.cpp',
-    'ext/yaml-cpp/src/exceptions.cpp',
-    'ext/yaml-cpp/src/exp.cpp',
-    'ext/yaml-cpp/src/memory.cpp',
-    'ext/yaml-cpp/src/node.cpp',
-    'ext/yaml-cpp/src/node_data.cpp',
-    'ext/yaml-cpp/src/nodebuilder.cpp',
-    'ext/yaml-cpp/src/nodeevents.cpp',
-    'ext/yaml-cpp/src/null.cpp',
-    'ext/yaml-cpp/src/ostream_wrapper.cpp',
-    'ext/yaml-cpp/src/parse.cpp',
-    'ext/yaml-cpp/src/parser.cpp',
-    'ext/yaml-cpp/src/regex_yaml.cpp',
-    'ext/yaml-cpp/src/scanner.cpp',
-    'ext/yaml-cpp/src/scanscalar.cpp',
-    'ext/yaml-cpp/src/scantag.cpp',
-    'ext/yaml-cpp/src/scantoken.cpp',
-    'ext/yaml-cpp/src/simplekey.cpp',
-    'ext/yaml-cpp/src/singledocparser.cpp',
-    'ext/yaml-cpp/src/stream.cpp',
-    'ext/yaml-cpp/src/tag.cpp',
-  )
+  # Build yaml-cpp from discovered source files
+  yaml_cpp_src_dir = 'ext/yaml-cpp/src'
+  yaml_cpp_sources = run_command(
+    find_program('find'),
+    yaml_cpp_src_dir,
+    '-name', '*.cpp',
+    '-printf', '%P\n',
+    check: true,
+    capture: true
+  ).stdout().strip().split('\n')
+  
+  yaml_cpp_files = []
+  foreach f : yaml_cpp_sources
+    if f != ''
+      yaml_cpp_files += files(yaml_cpp_src_dir / f)
+    endif
+  endforeach
   
   yamlcpp_inc = include_directories('ext/yaml-cpp/include')
   yamlcpp_lib = static_library('yaml-cpp-bundled',
-    yamlcpp_sources,
+    yaml_cpp_files,
     include_directories: yamlcpp_inc,
     pic: true,
   )

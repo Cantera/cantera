@@ -1,216 +1,98 @@
 # Source files for the Cantera library
-# Organized by subdirectory
+# Using run_command to automatically discover source files via find
 
-# Base module
-base_sources = files(
-  'base/AnyMap.cpp',
-  'base/Array.cpp',
-  'base/ExtensionManager.cpp',
-  'base/ExtensionManagerFactory.cpp',
-  'base/Interface.cpp',
-  'base/Solution.cpp',
-  'base/SolutionArray.cpp',
-  'base/Storage.cpp',
-  'base/Units.cpp',
-  'base/ValueCache.cpp',
-  'base/YamlWriter.cpp',
-  'base/application.cpp',
-  'base/checkFinite.cpp',
-  'base/clockWC.cpp',
-  'base/ctexceptions.cpp',
-  'base/global.cpp',
-  'base/stringUtils.cpp',
-)
+# Helper to get cpp files from a directory
+find_cpp = find_program('find')
 
-# Thermo module
-thermo_sources = files(
-  'thermo/BinarySolutionTabulatedThermo.cpp',
-  'thermo/ConstCpPoly.cpp',
-  'thermo/CoverageDependentSurfPhase.cpp',
-  'thermo/DebyeHuckel.cpp',
-  'thermo/EEDFTwoTermApproximation.cpp',
-  'thermo/Elements.cpp',
-  'thermo/GibbsExcessVPSSTP.cpp',
-  'thermo/HMWSoln.cpp',
-  'thermo/IdealGasPhase.cpp',
-  'thermo/IdealMolalSoln.cpp',
-  'thermo/IdealSolidSolnPhase.cpp',
-  'thermo/IdealSolnGasVPSS.cpp',
-  'thermo/MargulesVPSSTP.cpp',
-  'thermo/MixtureFugacityTP.cpp',
-  'thermo/MolalityVPSSTP.cpp',
-  'thermo/Mu0Poly.cpp',
-  'thermo/MultiSpeciesThermo.cpp',
-  'thermo/Nasa9Poly1.cpp',
-  'thermo/Nasa9PolyMultiTempRegion.cpp',
-  'thermo/NasaPoly2.cpp',
-  'thermo/PDSS.cpp',
-  'thermo/PDSSFactory.cpp',
-  'thermo/PDSS_ConstVol.cpp',
-  'thermo/PDSS_HKFT.cpp',
-  'thermo/PDSS_SSVol.cpp',
-  'thermo/PDSS_Water.cpp',
-  'thermo/PengRobinson.cpp',
-  'thermo/Phase.cpp',
-  'thermo/PlasmaPhase.cpp',
-  'thermo/PureFluidPhase.cpp',
-  'thermo/RedlichKisterVPSSTP.cpp',
-  'thermo/RedlichKwongMFTP.cpp',
-  'thermo/SingleSpeciesTP.cpp',
-  'thermo/Species.cpp',
-  'thermo/SpeciesThermoFactory.cpp',
-  'thermo/SpeciesThermoInterpType.cpp',
-  'thermo/StoichSubstance.cpp',
-  'thermo/SurfPhase.cpp',
-  'thermo/ThermoFactory.cpp',
-  'thermo/ThermoPhase.cpp',
-  'thermo/VPStandardStateTP.cpp',
-  'thermo/WaterProps.cpp',
-  'thermo/WaterPropsIAPWS.cpp',
-  'thermo/WaterPropsIAPWSphi.cpp',
-  'thermo/WaterSSTP.cpp',
-)
+# Gather all .cpp files from each module subdirectory
+base_files = run_command(find_cpp, 'base', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+base_sources = []
+foreach f : base_files
+  if f != ''
+    base_sources += files('base' / f)
+  endif
+endforeach
 
-# TPX module
-tpx_sources = files(
-  'tpx/CarbonDioxide.cpp',
-  'tpx/HFC134a.cpp',
-  'tpx/Heptane.cpp',
-  'tpx/Hydrogen.cpp',
-  'tpx/Methane.cpp',
-  'tpx/Nitrogen.cpp',
-  'tpx/Oxygen.cpp',
-  'tpx/Sub.cpp',
-  'tpx/Water.cpp',
-  'tpx/utils.cpp',
-)
+thermo_files = run_command(find_cpp, 'thermo', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+thermo_sources = []
+foreach f : thermo_files
+  if f != ''
+    thermo_sources += files('thermo' / f)
+  endif
+endforeach
 
-# Equilibrium module
-equil_sources = files(
-  'equil/BasisOptimize.cpp',
-  'equil/ChemEquil.cpp',
-  'equil/MultiPhase.cpp',
-  'equil/MultiPhaseEquil.cpp',
-  'equil/vcs_MultiPhaseEquil.cpp',
-  'equil/vcs_VolPhase.cpp',
-  'equil/vcs_solve.cpp',
-  'equil/vcs_solve_TP.cpp',
-  'equil/vcs_util.cpp',
-)
+tpx_files = run_command(find_cpp, 'tpx', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+tpx_sources = []
+foreach f : tpx_files
+  if f != ''
+    tpx_sources += files('tpx' / f)
+  endif
+endforeach
 
-# Numerics module
-numerics_sources = files(
-  'numerics/AdaptivePreconditioner.cpp',
-  'numerics/BandMatrix.cpp',
-  'numerics/CVodesIntegrator.cpp',
-  'numerics/DenseMatrix.cpp',
-  'numerics/EigenSparseDirectJacobian.cpp',
-  'numerics/EigenSparseJacobian.cpp',
-  'numerics/Func1.cpp',
-  'numerics/Func1Factory.cpp',
-  'numerics/FuncEval.cpp',
-  'numerics/IdasIntegrator.cpp',
-  'numerics/Integrators.cpp',
-  'numerics/SteadyStateSystem.cpp',
-  'numerics/SystemJacobianFactory.cpp',
-  'numerics/funcs.cpp',
-  'numerics/polyfit.cpp',
-)
+equil_files_cpp = run_command(find_cpp, 'equil', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+equil_files_c = run_command(find_cpp, 'equil', '-maxdepth', '1', '-name', '*.c', '-printf', '%f\n', check: false, capture: true).stdout().strip().split('\n')
+equil_sources = []
+foreach f : equil_files_cpp
+  if f != ''
+    equil_sources += files('equil' / f)
+  endif
+endforeach
+foreach f : equil_files_c
+  if f != ''
+    equil_sources += files('equil' / f)
+  endif
+endforeach
 
-# Kinetics module
-kinetics_sources = files(
-  'kinetics/Arrhenius.cpp',
-  'kinetics/BlowersMaselRate.cpp',
-  'kinetics/BulkKinetics.cpp',
-  'kinetics/ChebyshevRate.cpp',
-  'kinetics/Custom.cpp',
-  'kinetics/ElectronCollisionPlasmaRate.cpp',
-  'kinetics/Falloff.cpp',
-  'kinetics/Group.cpp',
-  'kinetics/InterfaceKinetics.cpp',
-  'kinetics/InterfaceRate.cpp',
-  'kinetics/Kinetics.cpp',
-  'kinetics/KineticsFactory.cpp',
-  'kinetics/LinearBurkeRate.cpp',
-  'kinetics/PlogRate.cpp',
-  'kinetics/Reaction.cpp',
-  'kinetics/ReactionPath.cpp',
-  'kinetics/ReactionRateDelegator.cpp',
-  'kinetics/ReactionRateFactory.cpp',
-  'kinetics/TwoTempPlasmaRate.cpp',
-)
+numerics_files = run_command(find_cpp, 'numerics', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+numerics_sources = []
+foreach f : numerics_files
+  if f != ''
+    numerics_sources += files('numerics' / f)
+  endif
+endforeach
 
-# Transport module
-transport_sources = files(
-  'transport/DustyGasTransport.cpp',
-  'transport/GasTransport.cpp',
-  'transport/HighPressureGasTransport.cpp',
-  'transport/IonGasTransport.cpp',
-  'transport/MMCollisionInt.cpp',
-  'transport/MixTransport.cpp',
-  'transport/MultiTransport.cpp',
-  'transport/Transport.cpp',
-  'transport/TransportData.cpp',
-  'transport/TransportFactory.cpp',
-  'transport/WaterTransport.cpp',
-)
+kinetics_files = run_command(find_cpp, 'kinetics', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+kinetics_sources = []
+foreach f : kinetics_files
+  if f != ''
+    kinetics_sources += files('kinetics' / f)
+  endif
+endforeach
 
-# OneD module
-oned_sources = files(
-  'oneD/Boundary1D.cpp',
-  'oneD/Domain1D.cpp',
-  'oneD/DomainFactory.cpp',
-  'oneD/Flow1D.cpp',
-  'oneD/IonFlow.cpp',
-  'oneD/MultiJac.cpp',
-  'oneD/MultiNewton.cpp',
-  'oneD/OneDim.cpp',
-  'oneD/Sim1D.cpp',
-  'oneD/refine.cpp',
-)
+transport_files = run_command(find_cpp, 'transport', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+transport_sources = []
+foreach f : transport_files
+  if f != ''
+    transport_sources += files('transport' / f)
+  endif
+endforeach
 
-# ZeroD module
-zerod_sources = files(
-  'zeroD/ConnectorFactory.cpp',
-  'zeroD/ConnectorNode.cpp',
-  'zeroD/ConstPressureMoleReactor.cpp',
-  'zeroD/ConstPressureReactor.cpp',
-  'zeroD/FlowDevice.cpp',
-  'zeroD/FlowReactor.cpp',
-  'zeroD/IdealGasConstPressureMoleReactor.cpp',
-  'zeroD/IdealGasConstPressureReactor.cpp',
-  'zeroD/IdealGasMoleReactor.cpp',
-  'zeroD/IdealGasReactor.cpp',
-  'zeroD/MoleReactor.cpp',
-  'zeroD/Reactor.cpp',
-  'zeroD/ReactorBase.cpp',
-  'zeroD/ReactorFactory.cpp',
-  'zeroD/ReactorNet.cpp',
-  'zeroD/ReactorSurface.cpp',
-  'zeroD/Wall.cpp',
-  'zeroD/flowControllers.cpp',
-)
+oned_files = run_command(find_cpp, 'oneD', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+oned_sources = []
+foreach f : oned_files
+  if f != ''
+    oned_sources += files('oneD' / f)
+  endif
+endforeach
 
-# Extensions module (minimal for now)
-extensions_sources = files(
-  'extensions/PythonExtensionManager.cpp',
-  'extensions/canteraShared.cpp',
-  'extensions/pythonShim.cpp',
-)
+zerod_files = run_command(find_cpp, 'zeroD', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+zerod_sources = []
+foreach f : zerod_files
+  if f != ''
+    zerod_sources += files('zeroD' / f)
+  endif
+endforeach
+
+extensions_files = run_command(find_cpp, 'extensions', '-maxdepth', '1', '-name', '*.cpp', '-printf', '%f\n', check: true, capture: true).stdout().strip().split('\n')
+extensions_sources = []
+foreach f : extensions_files
+  if f != ''
+    extensions_sources += files('extensions' / f)
+  endif
+endforeach
 
 # Combine all sources
-cantera_sources = [
-  base_sources,
-  thermo_sources,
-  tpx_sources,
-  equil_sources,
-  numerics_sources,
-  kinetics_sources,
-  transport_sources,
-  oned_sources,
-  zerod_sources,
-  extensions_sources,
-]
+cantera_sources = base_sources + thermo_sources + tpx_sources + equil_sources + numerics_sources + kinetics_sources + transport_sources + oned_sources + zerod_sources + extensions_sources
 
 # Additional compile definitions for specific files
 application_cpp_args = ['-DCANTERA_DATA="' + ct_datadir + '"']

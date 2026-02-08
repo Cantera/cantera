@@ -4,7 +4,7 @@ This directory contains the initial Meson build configuration for Cantera's C++ 
 
 ## Status
 
-The Meson build system is under development and currently builds most of the C++ library (117/192 targets). The build is blocked by the SUNDIALS dependency which needs to be added as a subproject or installed system-wide.
+The Meson build system is under development and currently builds most of the C++ library (~60% of targets). The build is blocked by the SUNDIALS dependency which needs to be added as a subproject or installed system-wide.
 
 ## Quick Start
 
@@ -51,7 +51,7 @@ The Meson build system is under development and currently builds most of the C++
 - **Boost** (>= 1.83): Header-only, must be system-installed
 - **Eigen3** (>= 3.4): Uses system if available, otherwise ext/eigen submodule
 - **fmt** (>= 9.1.0): Uses system if available, otherwise ext/fmt (header-only mode)
-- **yaml-cpp** (>= 0.6): Uses system if available, otherwise builds from ext/yaml-cpp
+- **yaml-cpp** (>= 0.6): Uses system if available, otherwise auto-discovers and builds from ext/yaml-cpp
 
 ### Optional
 - **SUNDIALS** (>= 6.0): Required for ODE/DAE integration (not yet implemented)
@@ -68,6 +68,30 @@ Example:
 meson setup builddir -Dcantera_datadir=/opt/cantera/data
 ```
 
+## Build Features
+
+### Automatic Source Discovery
+
+The Meson build automatically discovers source files using glob patterns, similar to how SCons uses `multi_glob()`:
+
+```meson
+# Automatically find all .cpp files in each module directory
+base_files = run_command(find, 'base', '-name', '*.cpp', ...)
+foreach f : base_files
+  base_sources += files('base' / f)
+endforeach
+```
+
+This eliminates the need to manually list individual source files.
+
+### Dependency Management
+
+Dependencies are tried in order:
+1. **System packages** (via pkg-config/CMake) 
+2. **Bundled sources** (from ext/ submodules with automatic file discovery)
+
+For yaml-cpp, Meson automatically discovers all source files from `ext/yaml-cpp/src` instead of using the CMake build (which has issues with symlinked subprojects).
+
 ## Known Limitations
 
 1. **SUNDIALS not yet supported**: The SUNDIALS dependency needs to be implemented as a Meson subproject or made available system-wide
@@ -83,6 +107,7 @@ The Meson build aims to eventually replace the SCons build system with these ben
 - Standard pkg-config support
 - Simpler dependency management
 - Cross-compilation support
+- **Automatic source discovery** like SCons `multi_glob()`
 
 ## Contributing
 
@@ -96,6 +121,6 @@ This is initial work to replace the SCons build system. Contributions are welcom
 
 - `meson.build`: Root build configuration
 - `meson_options.txt`: Build options
-- `src/meson.build`: C++ source compilation
+- `src/meson.build`: C++ source compilation with automatic file discovery
 - `include/cantera/base/config.h.meson.in`: Configuration header template
-- `subprojects/`: Fallback dependencies (currently only yaml-cpp)
+- `include/cantera/ext/`: Symlinks to submodule headers (fmt, yaml-cpp, Eigen)
