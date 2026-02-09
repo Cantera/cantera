@@ -263,20 +263,20 @@ public:
     void exclude(const string& aaname) {
         m_exclude.push_back(aaname);
     }
-    void include(vector<string>& names) {
+    void include(span<string> names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_include.push_back(names[i]);
         }
     }
-    void exclude(vector<string>& names) {
+    void exclude(span<string> names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_exclude.push_back(names[i]);
         }
     }
-    vector<string>& included() {
+    const span<const string> included() const {
         return m_include;
     }
-    vector<string>& excluded() {
+    const span<const string> excluded() const {
         return m_exclude;
     }
     vector<size_t> species();

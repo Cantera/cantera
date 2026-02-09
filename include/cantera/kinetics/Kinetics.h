@@ -529,10 +529,11 @@ public:
      * Provide direct access to current third-body concentration values.
      * @see getThirdBodyConcentrations.
      */
-    virtual const vector<double>& thirdBodyConcentrations() const {
+    virtual span<const double> thirdBodyConcentrations() const {
         throw NotImplementedError("Kinetics::thirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());
+        return {};
     }
 
     //! @}

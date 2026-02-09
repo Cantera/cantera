@@ -9,6 +9,8 @@ from .func1 cimport *
 from .delegator cimport CxxDelegator
 from libcpp.map cimport multimap
 
+# TODO: Drop after requiring Cython 3.1.0 or newer
+ctypedef const double const_double
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception
@@ -57,8 +59,8 @@ cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
 cdef extern from "cantera/kinetics/ElectronCollisionPlasmaRate.h" namespace "Cantera":
     cdef cppclass CxxElectronCollisionPlasmaRate "Cantera::ElectronCollisionPlasmaRate" (CxxReactionRate):
         CxxElectronCollisionPlasmaRate(CxxAnyMap) except +translate_exception
-        vector[double]& energyLevels()
-        vector[double]& crossSections()
+        span[const_double] energyLevels()
+        span[const_double] crossSections()
 
 cdef extern from "cantera/base/Array.h" namespace "Cantera":
     cdef cppclass CxxArray2D "Cantera::Array2D":
@@ -131,8 +133,9 @@ cdef extern from "cantera/kinetics/Falloff.h" namespace "Cantera":
         void setLowRate(CxxArrheniusRate&) except +translate_exception
         CxxArrheniusRate& highRate()
         void setHighRate(CxxArrheniusRate&) except +translate_exception
-        void getFalloffCoeffs(vector[double]&)
-        void setFalloffCoeffs(vector[double]&) except +translate_exception
+        void getFalloffCoeffs(span[double])
+        void setFalloffCoeffs(span[double]) except +translate_exception
+        size_t nParameters()
         double evalF(double, double) except +translate_exception
 
     cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):

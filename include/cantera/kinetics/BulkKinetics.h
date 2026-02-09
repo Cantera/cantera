@@ -85,7 +85,7 @@ public:
     void updateROP() override;
 
     void getThirdBodyConcentrations(span<double> concm) override;
-    const vector<double>& thirdBodyConcentrations() const override {
+    span<const double> thirdBodyConcentrations() const override {
         return m_concm;
     }
 

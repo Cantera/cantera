@@ -485,8 +485,8 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
-        auto& x = m_phase->collisionRate(k)->energyLevels();
-        auto& y = m_phase->collisionRate(k)->crossSections();
+        auto x = m_phase->collisionRate(k)->energyLevels();
+        auto y = m_phase->collisionRate(k)->crossSections();
 
         for (size_t i = 0; i < m_points; i++) {
             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
@@ -504,8 +504,8 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
     m_sigmaElastic.clear();
     m_sigmaElastic.resize(m_points, 0.0);
     for (size_t k : m_phase->kElastic()) {
-        auto& x = m_phase->collisionRate(k)->energyLevels();
-        auto& y = m_phase->collisionRate(k)->crossSections();
+        auto x = m_phase->collisionRate(k)->energyLevels();
+        auto y = m_phase->collisionRate(k)->crossSections();
         // Note:
         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
@@ -528,8 +528,8 @@ void EEDFTwoTermApproximation::setGridCache()
     m_i.resize(m_phase->nCollisions());
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
         auto& collision = m_phase->collisionRate(k);
-        auto& x = collision->energyLevels();
-        auto& y = collision->crossSections();
+        auto x = collision->energyLevels();
+        auto y = collision->crossSections();
         vector<double> eps1(m_points + 1);
         int shiftFactor = (collision->kind() == "ionization") ? 2 : 1;
 
@@ -580,7 +580,8 @@ void EEDFTwoTermApproximation::setGridCache()
         }
 
         // construct sigma_offset
-        auto x_offset = collision->energyLevels();
+        vector<double> x_offset(collision->energyLevels().begin(),
+                                collision->energyLevels().end());
         for (auto& element : x_offset) {
             element -= collision->threshold();
         }

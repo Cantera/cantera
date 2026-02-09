@@ -209,12 +209,12 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies) const
 }
 
 void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double m,
-                                              const vector<double>& e)
+                                              span<const double> e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
         m_ac.push_back(a);
-        m_ec.push_back(e);
+        m_ec.emplace_back(e.begin(), e.end());
         m_mc.push_back(m);
         m_indices.clear();
     } else {
@@ -223,7 +223,7 @@ void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double
     }
 }
 
-void InterfaceRateBase::setSpecies(const vector<string>& species)
+void InterfaceRateBase::setSpecies(span<const string> species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {

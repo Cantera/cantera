@@ -77,7 +77,8 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
 }
 
 void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
-    const vector<double>& sharedLevels) {
+    span<const double> sharedLevels)
+{
     m_crossSectionsInterpolated.clear();
     m_crossSectionsInterpolated.reserve(sharedLevels.size());
     for (double level : sharedLevels) {

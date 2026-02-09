@@ -749,8 +749,8 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
     s.getRevRatesOfProgress(m_ropr);
 
     // species explicitly included or excluded
-    vector<string>& in_nodes = r.included();
-    vector<string>& out_nodes = r.excluded();
+    auto in_nodes = r.included();
+    auto out_nodes = r.excluded();
 
     vector<int> status(s.nTotalSpecies(), 0);
     for (size_t ni = 0; ni < in_nodes.size(); ni++) {

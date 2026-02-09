@@ -293,8 +293,8 @@ protected:
     //! @param in  rate expression used for the derivative calculation
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
-    Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
-                                            const vector<double>& in);
+    Eigen::SparseMatrix<double> calculateCompositionDerivatives(
+        StoichManagerN& stoich, span<const double> in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output

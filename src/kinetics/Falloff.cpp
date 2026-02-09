@@ -48,7 +48,8 @@ bool FalloffData::update(const ThermoPhase& phase, const Kinetics& kin)
     if (rho_m != molar_density || mf != m_state_mf_number) {
         molar_density = rho_m;
         m_state_mf_number = mf;
-        conc_3b = kin.thirdBodyConcentrations();
+        auto concm = kin.thirdBodyConcentrations();
+        conc_3b.assign(concm.begin(), concm.end());
         changed = true;
     }
     return changed;
@@ -116,7 +117,7 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
     m_highRate = std::move(_high);
 }
 
-void FalloffRate::setFalloffCoeffs(const vector<double>& c)
+void FalloffRate::setFalloffCoeffs(span<const double> c)
 {
     if (c.size() != 0) {
         throw InputFileError("FalloffRate::setFalloffCoeffs", m_input,
@@ -124,11 +125,6 @@ void FalloffRate::setFalloffCoeffs(const vector<double>& c)
             c.size());
     }
     m_valid = true;
-}
-
-void FalloffRate::getFalloffCoeffs(vector<double>& c) const
-{
-    c.clear();
 }
 
 void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
@@ -213,7 +209,7 @@ LindemannRate::LindemannRate(const AnyMap& node, const UnitStack& rate_units)
 }
 
 LindemannRate::LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                             const vector<double>& c)
+                             span<const double> c)
     : LindemannRate()
 {
     m_lowRate = low;
@@ -228,7 +224,7 @@ TroeRate::TroeRate(const AnyMap& node, const UnitStack& rate_units)
 }
 
 TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                   const vector<double>& c)
+                   span<const double> c)
     : TroeRate()
 {
     m_lowRate = low;
@@ -236,7 +232,7 @@ TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
     setFalloffCoeffs(c);
 }
 
-void TroeRate::setFalloffCoeffs(const vector<double>& c)
+void TroeRate::setFalloffCoeffs(span<const double> c)
 {
     if (c.size() != 3 && c.size() != 4) {
         throw InputFileError("TroeRate::setFalloffCoeffs", m_input,
@@ -273,17 +269,13 @@ void TroeRate::setFalloffCoeffs(const vector<double>& c)
     m_valid = true;
 }
 
-void TroeRate::getFalloffCoeffs(vector<double>& c) const
+void TroeRate::getFalloffCoeffs(span<double> c) const
 {
-    if (std::abs(m_t2) < SmallNumber) {
-        c.resize(3);
-    } else {
-        c.resize(4, 0.);
-        c[3] = m_t2;
-    }
+    checkArraySize("TroeRate::getFalloffCoeffs", c.size(), nParameters());
     c[0] = m_a;
     c[1] = 1.0 / m_rt3;
     c[2] = 1.0 / m_rt1;
+    c[3] = m_t2;
 }
 
 void TroeRate::updateTemp(double T, span<double> work) const
@@ -350,7 +342,7 @@ SriRate::SriRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void SriRate::setFalloffCoeffs(const vector<double>& c)
+void SriRate::setFalloffCoeffs(span<const double> c)
 {
     if (c.size() != 3 && c.size() != 5) {
         throw InputFileError("SriRate::setFalloffCoeffs", m_input,
@@ -380,18 +372,14 @@ void SriRate::setFalloffCoeffs(const vector<double>& c)
     m_valid = true;
 }
 
-void SriRate::getFalloffCoeffs(vector<double>& c) const
+void SriRate::getFalloffCoeffs(span<double> c) const
 {
-    if (m_e < SmallNumber && std::abs(m_e - 1.) < SmallNumber) {
-        c.resize(3);
-    } else {
-        c.resize(5, 0.);
-        c[3] = m_d;
-        c[4] = m_e;
-    }
+    checkArraySize("SriRate::getFalloffCoeffs", c.size(), nParameters());
     c[0] = m_a;
     c[1] = m_b;
     c[2] = m_c;
+    c[3] = m_d;
+    c[4] = m_e;
 }
 
 void SriRate::updateTemp(double T, span<double> work) const
@@ -459,7 +447,7 @@ TsangRate::TsangRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void TsangRate::setFalloffCoeffs(const vector<double>& c)
+void TsangRate::setFalloffCoeffs(span<const double> c)
 {
     if (c.size() != 1 && c.size() != 2) {
         throw InputFileError("TsangRate::init", m_input,
@@ -477,15 +465,11 @@ void TsangRate::setFalloffCoeffs(const vector<double>& c)
     m_valid = true;
 }
 
-void TsangRate::getFalloffCoeffs(vector<double>& c) const
+void TsangRate::getFalloffCoeffs(span<double> c) const
 {
-    if (std::abs(m_b) < SmallNumber) {
-        c.resize(1);
-    } else {
-        c.resize(2, 0.);
-        c[1] = m_b;
-    }
+    checkArraySize("TsangRate::getFalloffCoeffs", c.size(), nParameters());
     c[0] = m_a;
+    c[1] = m_b;
 }
 
 void TsangRate::updateTemp(double T, span<double> work) const
