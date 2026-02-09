@@ -127,9 +127,6 @@ public:
 
     std::ostream& fmt(std::ostream& s, const vector<string>& esymbols) const;
 
-    friend std::ostream& operator<<(std::ostream& s,
-                                    const Group& g);
-
 private:
     vector<int> m_comp;
     int m_sign;
