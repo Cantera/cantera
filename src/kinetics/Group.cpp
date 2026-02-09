@@ -57,14 +57,4 @@ std::ostream& Group::fmt(std::ostream& s, const vector<string>& esymbols) const
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, const Group& g)
-{
-    if (g.valid()) {
-        s << g.m_comp;
-    } else {
-        s << "<none>";
-    }
-    return s;
-}
-
 }
