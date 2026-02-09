@@ -87,15 +87,17 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void setFalloffCoeffs(const vector<double>& c);
+    virtual void setFalloffCoeffs(span<const double> c);
 
     /**
      * Retrieve coefficients of the falloff parameterization.
      *
-     * @param c Vector of coefficients of the parameterization. The number and
-     *     meaning of these coefficients is subclass-dependent.
+     * @param c Vector of coefficients of the parameterization. The number (obtained
+     *     with the nParameters() method) and meaning of these coefficients is
+     *     subclass-dependent.
      */
-    virtual void getFalloffCoeffs(vector<double>& c) const;
+    virtual void getFalloffCoeffs(span<double> c) const {};
+
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
@@ -251,7 +253,7 @@ public:
     LindemannRate(const AnyMap& node, const UnitStack& rate_units={});
 
     LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                  const vector<double>& c);
+                  span<const double> c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override{
         return make_unique<MultiRate<LindemannRate, FalloffData>>();
@@ -315,7 +317,7 @@ public:
 
     TroeRate(const AnyMap& node, const UnitStack& rate_units={});
     TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
-             const vector<double>& c);
+             span<const double> c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<TroeRate, FalloffData>>();
@@ -326,9 +328,9 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -409,7 +411,7 @@ public:
 
     SriRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
+    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, span<const double> c)
         : SriRate()
     {
         m_lowRate = low;
@@ -427,9 +429,9 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -503,7 +505,7 @@ public:
 
     TsangRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
+    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, span<const double> c)
         : TsangRate()
     {
         m_lowRate = low;
@@ -520,9 +522,9 @@ public:
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!

@@ -702,7 +702,7 @@ void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
 }
 
 Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
-    StoichManagerN& stoich, const vector<double>& in)
+    StoichManagerN& stoich, span<const double> in)
 {
     vector<double>& outV = m_rbuf1;
     // derivatives handled by StoichManagerN

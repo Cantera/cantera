@@ -336,8 +336,8 @@ class C_AnyN
 public:
     C_AnyN() = default;
 
-    C_AnyN(size_t rxn, const vector<size_t>& ic,
-           const vector<double>& order_, const vector<double>& stoich_) :
+    C_AnyN(size_t rxn, span<const size_t> ic,
+           span<const double> order_, span<const double> stoich_) :
         m_n(ic.size()),
         m_rxn(rxn) {
         m_ic.resize(m_n);
@@ -646,13 +646,13 @@ public:
      * This function is the same as the add() function below. However, the order
      * of each species in the power list expression is set to one automatically.
      */
-    void add(size_t rxn, const vector<size_t>& k) {
+    void add(size_t rxn, span<const size_t> k) {
         vector<double> order(k.size(), 1.0);
         vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
 
-    void add(size_t rxn, const vector<size_t>& k, const vector<double>& order) {
+    void add(size_t rxn, span<const size_t> k, span<const double> order) {
         vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
@@ -673,8 +673,8 @@ public:
      *  @param stoich  This is used to handle fractional stoichiometric
      *     coefficients on the product side of irreversible reactions.
      */
-    void add(size_t rxn, const vector<size_t>& k, const vector<double>& order,
-             const vector<double>& stoich) {
+    void add(size_t rxn, span<const size_t> k, span<const double> order,
+             span<const double> stoich) {
         if (order.size() != k.size()) {
             throw CanteraError(
                 "StoichManagerN::add()", "size of order and species arrays differ");

@@ -194,22 +194,22 @@ public:
     }
 
     //! The value of #m_energyLevels [eV]
-    const vector<double>& energyLevels() const {
+    span<const double> energyLevels() const {
         return m_energyLevels;
     }
 
     //! The value of #m_crossSections [m2]
-    const vector<double>& crossSections() const {
+    span<const double> crossSections() const {
         return m_crossSections;
     }
 
     //! The value of #m_crossSectionsInterpolated [m2]
-    const vector<double>& crossSectionInterpolated() const {
+    span<const double> crossSectionInterpolated() const {
         return m_crossSectionsInterpolated;
     }
 
     //! Update the value of #m_crossSectionsInterpolated [m2]
-    void updateInterpolatedCrossSection(const vector<double>&);
+    void updateInterpolatedCrossSection(span<const double>);
 
 private:
     //! The name of the kind of electron collision

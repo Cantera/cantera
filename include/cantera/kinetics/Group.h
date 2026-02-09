@@ -24,12 +24,16 @@ public:
     Group(size_t n) : m_sign(0) {
         m_comp.resize(n,0);
     }
-    Group(const vector<int>& elnumbers) :
-        m_comp(elnumbers), m_sign(0) {
+    Group(span<const int> elnumbers)
+        : m_comp(elnumbers.begin()
+        , elnumbers.end())
+        , m_sign(0)
+    {
         validate();
     }
-    Group(const vector<size_t>& elnumbers) :
-        m_comp(elnumbers.size()), m_sign(0) {
+    Group(span<const size_t> elnumbers) :
+        m_comp(elnumbers.size()), m_sign(0)
+    {
         for (size_t i = 0; i < elnumbers.size(); i++) {
             m_comp[i] = int(elnumbers[i]);
         }
@@ -125,7 +129,7 @@ public:
         return m_comp[m];
     }
 
-    std::ostream& fmt(std::ostream& s, const vector<string>& esymbols) const;
+    std::ostream& fmt(std::ostream& s, span<const string> esymbols) const;
 
 private:
     vector<int> m_comp;

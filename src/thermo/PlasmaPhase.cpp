@@ -479,8 +479,10 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         m_kInelastic.push_back(i);
     }
 
-    m_energyLevels.push_back(rate.energyLevels());
-    m_crossSections.push_back(rate.crossSections());
+    auto levels = rate.energyLevels();
+    m_energyLevels.emplace_back(levels.begin(), levels.end());
+    auto sections = rate.crossSections();
+    m_crossSections.emplace_back(sections.begin(), sections.end());
     m_eedfSolver->setGridCache();
 }
 
