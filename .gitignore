@@ -54,3 +54,6 @@ environment.y*
 coverage/
 coverage.info
 .coverage
+# pixi environments
+.pixi/*
+!.pixi/config.toml
