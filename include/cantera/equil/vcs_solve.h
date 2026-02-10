@@ -493,7 +493,7 @@ public:
      *
      * NOTE: This routine needs to be regulated.
      */
-    void vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS);
+    void vcs_CalcLnActCoeffJac(span<const double> moleSpeciesVCS);
 
     //! Print out a report on the state of the equilibrium problem to
     //! standard output.
@@ -589,7 +589,8 @@ public:
     /*!
      * Note, for this algorithm this function should be monotonically decreasing.
      */
-    double vcs_Total_Gibbs(double* w, double* fe, double* tPhMoles);
+    double vcs_Total_Gibbs(span<const double> w, span<const double> fe,
+                           span<const double> tPhMoles);
 
     //! Fully specify the problem to be solved
     void vcs_prob_specifyFully();
@@ -646,14 +647,13 @@ private:
      * Make sure to conserve elements and keep track of the total kmoles in
      * all phases.
      *
-     * @param kspec The species index
-     * @param delta_ptr   pointer to the delta for the species. This may
-     *                     change during the calculation
+     * @param kspec  The species index
+     * @param delta  The delta for the species. This may change during the calculation.
      * @return
      *     1: succeeded without change of dx
      *     0: Had to adjust dx, perhaps to zero, in order to do the delta.
      */
-    int delta_species(const size_t kspec, double* const delta_ptr);
+    int delta_species(const size_t kspec, double& delta);
 
     //! Provide an estimate for the deleted species in phases that are not
     //! zeroed out
@@ -751,7 +751,8 @@ private:
      */
     double l2normdg(double dg[]) const;
 
-    void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
+    void checkDelta1(span<const double> ds, span<const double> delTPhMoles,
+                     size_t kspec);
 
     //! Calculate the status of single species phases.
     void vcs_SSPhase();

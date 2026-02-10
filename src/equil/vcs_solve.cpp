@@ -177,7 +177,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             kT++;
         }
 
-        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &m_molNumSpecies_old[0]);
+        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, m_molNumSpecies_old);
     }
 
     // Work arrays used by vcs_basopt
@@ -511,7 +511,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
     size_t irxn = kspec - m_numComponents;
-    vector<size_t> creationGlobalRxnNumbers;
+    vector<size_t> creationGlobalRxnNumbers(Vphase->nSpecies(), npos);
 
     // Calculate the initial moles of the phase being born.
     //   Here we set it to 10x of the value which would cause the phase to be
@@ -569,7 +569,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     } else {
         vector<double> fracDelta(Vphase->nSpecies());
         vector<double> X_est(Vphase->nSpecies());
-        fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+        auto storedDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+        copy(storedDelta.begin(), storedDelta.end(), fracDelta.begin());
 
         double sumFrac = 0.0;
         for (size_t k = 0; k < Vphase->nSpecies(); k++) {
@@ -671,7 +672,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
     // We update the matrix dlnActCoeffdmolNumber[][] at the top of the loop,
     // when necessary
     if (m_useActCoeffJac) {
-        vcs_CalcLnActCoeffJac(&m_molNumSpecies_old[0]);
+        vcs_CalcLnActCoeffJac(m_molNumSpecies_old);
     }
 
     // LOOP OVER THE FORMATION REACTIONS
@@ -913,11 +914,13 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     vector<double> feSpecies_Deficient = m_feSpecies_old;
 
     // get the activity coefficients
-    Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
+    Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, m_actCoeffSpecies_new);
 
     // Get the stored estimate for the composition of the phase if
     // it gets created
-    vector<double> fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+    vector<double> fracDelta_new(nsp, 0.0);
+    const auto& storedDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+    copy(storedDelta.begin(), storedDelta.end(), fracDelta_new.begin());
 
     vector<size_t> componentList;
     for (size_t k = 0; k < nsp; k++) {
@@ -990,10 +993,10 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
             // Feed the newly formed estimate of the mole fractions back into the
             // ThermoPhase object
-            Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
+            Vphase->setMoleFractionsState(0.0, X_est, VCS_STATECALC_PHASESTABILITY);
 
             // get the activity coefficients
-            Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
+            Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, m_actCoeffSpecies_new);
 
             // First calculate altered chemical potentials for component species
             // belonging to this phase.
@@ -1127,11 +1130,11 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
         if (converged) {
             // Save the final optimized stated back into the VolPhase object for later use
-            Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
+            Vphase->setMoleFractionsState(0.0, X_est, VCS_STATECALC_PHASESTABILITY);
 
             // Save fracDelta for later use to initialize the problem better
             // @todo  creationGlobalRxnNumbers needs to be calculated here and stored.
-            Vphase->setCreationMoleNumbers(&fracDelta_new[0], creationGlobalRxnNumbers);
+            Vphase->setCreationMoleNumbers(fracDelta_new, creationGlobalRxnNumbers);
         }
     } else {
         throw CanteraError("VCS_SOLVE::vcs_phaseStabilityTest", "not done yet");
@@ -1154,7 +1157,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vph = m_VolPhaseList[iph].get();
         vph->setState_TP(m_temperature, m_pressurePA);
-        vph->sendToVCS_GStar(&m_SSfeSpecies[0]);
+        vph->sendToVCS_GStar(m_SSfeSpecies);
     }
     for (size_t k = 0; k < m_nsp; k++) {
         m_SSfeSpecies[k] /= GasConstant * m_temperature;
@@ -1472,7 +1475,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
     return s;
 }
 
-void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
+void VCS_SOLVE::vcs_CalcLnActCoeffJac(span<const double> moleSpeciesVCS)
 {
     for (auto& Vphase : m_VolPhaseList) {
         // We don't need to call single species phases;
@@ -1519,8 +1522,8 @@ void VCS_SOLVE::vcs_report(int iconv)
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
         Vphase->setState_TP(m_temperature, m_pressurePA);
-        Vphase->setMolesFromVCS(VCS_STATECALC_OLD, m_molNumSpecies_old.data());
-        double Volp = Vphase->sendToVCS_VolPM(m_PMVolumeSpecies.data());
+        Vphase->setMolesFromVCS(VCS_STATECALC_OLD, m_molNumSpecies_old);
+        double Volp = Vphase->sendToVCS_VolPM(m_PMVolumeSpecies);
         totalVolume += Volp;
     }
 
@@ -1681,8 +1684,7 @@ void VCS_SOLVE::vcs_report(int iconv)
     // GLOBAL SATISFACTION INFORMATION
 
     // Calculate the total dimensionless Gibbs Free Energy.
-    double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
-                               &m_tPhaseMoles_old[0]);
+    double g = vcs_Total_Gibbs(m_molNumSpecies_old, m_feSpecies_old, m_tPhaseMoles_old);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
     plogf("\nElemental Abundances (kmol): ");
     plogf("         Actual                    Target         Type      ElActive\n");
@@ -2268,8 +2270,9 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     return 0;
 }
 
-double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
-                                  double* tPhMoles)
+double VCS_SOLVE::vcs_Total_Gibbs(span<const double> molesSp,
+                                  span<const double> chemPot,
+                                  span<const double> tPhMoles)
 {
     double g = 0.0;
 
@@ -2691,8 +2694,7 @@ void VCS_SOLVE::vcs_inest()
 
     if (m_debug_print_lvl >= 2) {
         plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
-              vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_new[0],
-                              &m_tPhaseMoles_old[0]));
+              vcs_Total_Gibbs(m_molNumSpecies_old, m_feSpecies_new, m_tPhaseMoles_old));
     }
 
     m_VCount->T_Calls_Inest++;

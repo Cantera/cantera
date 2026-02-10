@@ -27,7 +27,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
 
         double phaseMoles(size_t) except +translate_exception
         void setPhaseMoles(size_t, double) except +translate_exception
-        void setMoles(double*) except +translate_exception
+        void setMoles(span[double]) except +translate_exception
         void setMolesByName(string) except +translate_exception
 
         double speciesMoles(size_t) except +translate_exception

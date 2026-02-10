@@ -51,8 +51,9 @@ public:
         }
     }
 
-    void getStoichVector(size_t rxn, vector<double>& nu) {
-        nu.resize(m_nsp, 0.0);
+    void getStoichVector(size_t rxn, span<double> nu) {
+        checkArraySize("MultiPhaseEquil::getStoichVector", nu.size(), m_nsp);
+        fill(nu.begin(), nu.end(), 0.0);
         if (rxn > nFree()) {
             return;
         }
@@ -104,7 +105,7 @@ protected:
     //!     have length = nSpecies(), then the species will be considered as
     //!     candidates to be components in declaration order, beginning with
     //!     the first phase added.
-    void getComponents(const vector<size_t>& order);
+    void getComponents(span<const size_t> order);
 
     //! Estimate the initial mole numbers. This is done by running each
     //! reaction as far forward or backward as possible, subject to the
@@ -124,12 +125,12 @@ protected:
 
     //! Re-arrange a vector of species properties in sorted form
     //! (components first) into unsorted, sequential form.
-    void unsort(vector<double>& x);
+    void unsort(span<double> x);
 
-    void step(double omega, vector<double>& deltaN, int loglevel = 0);
+    void step(double omega, span<double> deltaN, int loglevel = 0);
 
     //! Compute the change in extent of reaction for each reaction.
-    double computeReactionSteps(vector<double>& dxi);
+    double computeReactionSteps(span<double> dxi);
 
     void updateMixMoles();
 

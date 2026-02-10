@@ -145,8 +145,9 @@ double vcs_VolPhase::GStar_calc_one(size_t kspec) const
     return StarChemicalPotential[kspec];
 }
 
-void vcs_VolPhase::setMoleFractions(const double* const xmol)
+void vcs_VolPhase::setMoleFractions(span<const double> xmol)
 {
+    checkArraySize("vcs_VolPhase::setMoleFractions", xmol.size(), m_numSpecies);
     double sum = -1.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         Xmol_[k] = xmol[k];
@@ -175,7 +176,7 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
     }
 }
 
-const vector<double> & vcs_VolPhase::moleFractions() const
+span<const double> vcs_VolPhase::moleFractions() const
 {
     return Xmol_;
 }
@@ -186,9 +187,10 @@ double vcs_VolPhase::moleFraction(size_t k) const
 }
 
 void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
-        const double* const moleFractions,
-        const int vcsStateStatus)
+        span<const double> moleFractions, const int vcsStateStatus)
 {
+    checkArraySize("vcs_VolPhase::setMoleFractionsState", moleFractions.size(),
+                   m_numSpecies);
     if (totalMoles != 0.0) {
         // There are other ways to set the mole fractions when VCS_STATECALC
         // is set to a normal settting.
@@ -228,15 +230,15 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 }
 
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
-                                   const double* molesSpeciesVCS)
+                                   span<const double> molesSpeciesVCS)
 {
     v_totalMoles = 0.0;
 
-    if (molesSpeciesVCS == 0) {
+    if (molesSpeciesVCS.empty()) {
         if (stateCalc == VCS_STATECALC_OLD) {
-            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_old[0];
+            molesSpeciesVCS = span<const double>(m_owningSolverObject->m_molNumSpecies_old);
         } else if (stateCalc == VCS_STATECALC_NEW) {
-            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_new[0];
+            molesSpeciesVCS = span<const double>(m_owningSolverObject->m_molNumSpecies_new);
         } else {
             throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
         }
@@ -294,8 +296,8 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
 }
 
 void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
-                                        const double* molesSpeciesVCS,
-                                        const double* const TPhMoles)
+                                        span<const double> molesSpeciesVCS,
+                                        span<const double> TPhMoles)
 {
     setMolesFromVCS(vcsStateStatus, molesSpeciesVCS);
 
@@ -319,8 +321,7 @@ void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
     }
 }
 
-void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
-                                      double* const AC)
+void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus, span<double> AC)
 {
     updateFromVCS_MoleNumbers(vcsStateStatus);
     if (!m_UpToDate_AC) {
@@ -332,7 +333,7 @@ void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
     }
 }
 
-double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
+double vcs_VolPhase::sendToVCS_VolPM(span<double> VolPM) const
 {
     if (!m_UpToDate_VolPM) {
         _updateVolPM();
@@ -344,7 +345,7 @@ double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
     return m_totalVol;
 }
 
-void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
+void vcs_VolPhase::sendToVCS_GStar(span<double> gstar) const
 {
     if (!m_UpToDate_GStar) {
         _updateGStar();
@@ -466,7 +467,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     // Go get base values for the activity coefficients. Note this calls
     // setState_TPX() again; Just wanted to make sure that cantera is in sync
     // with VolPhase after this call.
-    setMoleFractions(&Xmol_Base[0]);
+    setMoleFractions(Xmol_Base);
     _updateMoleFractionDependencies();
     _updateActCoeff();
 }
@@ -497,19 +498,23 @@ double vcs_VolPhase::molefraction(size_t k) const
     return Xmol_[k];
 }
 
-void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
-        const vector<size_t> &creationGlobalRxnNumbers)
+void vcs_VolPhase::setCreationMoleNumbers(span<const double> n_k,
+        span<const size_t> creationGlobalRxnNumbers)
 {
-    creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
+    checkArraySize("vcs_VolPhase::setCreationMoleNumbers", n_k.size(), m_numSpecies);
+    checkArraySize("vcs_VolPhase::setCreationMoleNumbers", creationGlobalRxnNumbers.size(), m_numSpecies);
+    creationMoleNumbers_.assign(n_k.begin(), n_k.end());
     for (size_t k = 0; k < m_numSpecies; k++) {
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
 }
 
-const vector<double>& vcs_VolPhase::creationMoleNumbers(
-        vector<size_t> &creationGlobalRxnNumbers) const
+span<const double> vcs_VolPhase::creationMoleNumbers(
+        span<size_t> creationGlobalRxnNumbers) const
 {
-    creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
+    checkArraySize("vcs_VolPhase::creationMoleNumbers", creationGlobalRxnNumbers.size(), m_numSpecies);
+    copy(creationGlobalRxnNumbers_.begin(), creationGlobalRxnNumbers_.end(),
+         creationGlobalRxnNumbers.begin());
     return creationMoleNumbers_;
 }
 

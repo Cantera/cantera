@@ -177,7 +177,7 @@ void MultiPhaseEquil::updateMixMoles()
     for (size_t k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = m_moles[k];
     }
-    m_mix->setMoles(m_work3.data());
+    m_mix->setMoles(m_work3);
 }
 
 void MultiPhaseEquil::finish()
@@ -186,13 +186,13 @@ void MultiPhaseEquil::finish()
     for (size_t k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = (m_moles[k] > 0.0 ? m_moles[k] : 0.0);
     }
-    m_mix->setMoles(m_work3.data());
+    m_mix->setMoles(m_work3);
 }
 
 int MultiPhaseEquil::setInitialMoles(int loglevel)
 {
     double not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, m_mu.data(), true);
+    m_mix->getValidChemPotentials(not_mu, m_mu, true);
     double dxi_min = 1.0e10;
     bool redo = true;
     int iter = 0;
@@ -246,7 +246,7 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     return 0;
 }
 
-void MultiPhaseEquil::getComponents(const vector<size_t>& order)
+void MultiPhaseEquil::getComponents(span<const size_t> order)
 {
     // if the input species array has the wrong size, ignore it
     // and consider the species for components in declaration order.
@@ -389,18 +389,23 @@ void MultiPhaseEquil::getComponents(const vector<size_t>& order)
     }
 }
 
-void MultiPhaseEquil::unsort(vector<double>& x)
+void MultiPhaseEquil::unsort(span<double> x)
 {
-    m_work2 = x;
+    checkArraySize("MultiPhaseEquil::unsort", x.size(), m_nsp);
+    m_work2.assign(x.begin(), x.end());
     for (size_t k = 0; k < m_nsp; k++) {
         x[m_order[k]] = m_work2[k];
     }
 }
 
-void MultiPhaseEquil::step(double omega, vector<double>& deltaN, int loglevel)
+void MultiPhaseEquil::step(double omega, span<double> deltaN, int loglevel)
 {
     if (omega < 0.0) {
         throw CanteraError("MultiPhaseEquil::step","negative omega");
+    }
+    if (deltaN.size() != m_nsp) {
+        throw CanteraError("MultiPhaseEquil::step",
+                           "Expected deltaN size {}, got {}", m_nsp, deltaN.size());
     }
 
     for (size_t ik = 0; ik < m_nel; ik++) {
@@ -488,7 +493,7 @@ double MultiPhaseEquil::stepComposition(int loglevel)
     // If it is positive, then we have overshot the minimum. In this case,
     // interpolate back.
     double not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, m_mu.data());
+    m_mix->getValidChemPotentials(not_mu, m_mu);
     double grad1 = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
         grad1 += m_work[k] * m_mu[m_species[k]];
@@ -505,14 +510,14 @@ double MultiPhaseEquil::stepComposition(int loglevel)
     return omega;
 }
 
-double MultiPhaseEquil::computeReactionSteps(vector<double>& dxi)
+double MultiPhaseEquil::computeReactionSteps(span<double> dxi)
 {
-    vector<double> nu;
+    checkArraySize("MultiPhaseEquil::computeReactionSteps", dxi.size(), nFree());
+    vector<double> nu(m_nsp, 0.0);
     double grad = 0.0;
-    dxi.resize(nFree());
     computeN();
     double not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, m_mu.data());
+    m_mix->getValidChemPotentials(not_mu, m_mu);
 
     for (size_t j = 0; j < nFree(); j++) {
         // get stoichiometric vector

@@ -16,9 +16,8 @@ int BasisOptimize_print_lvl = 0;
 static const double USEDBEFORE = -1;
 
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
-                     vector<size_t>& orderVectorSpecies,
-                     vector<size_t>& orderVectorElements,
-                     vector<double>& formRxnMatrix)
+                     span<size_t> orderVectorSpecies, span<size_t> orderVectorElements,
+                     span<double> formRxnMatrix)
 {
     // Get the total number of elements defined in the multiphase object
     size_t ne = mphase->nElements();
@@ -26,17 +25,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     // Get the total number of species in the multiphase object
     size_t nspecies = mphase->nSpecies();
 
-    // Perhaps, initialize the element ordering
-    if (orderVectorElements.size() < ne) {
-        orderVectorElements.resize(ne);
-        iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
-    }
-
-    // Perhaps, initialize the species ordering
-    if (orderVectorSpecies.size() != nspecies) {
-        orderVectorSpecies.resize(nspecies);
-        iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
-    }
+    checkArraySize("BasisOptimize: orderVectorElements", orderVectorElements.size(), ne);
+    checkArraySize("BasisOptimize: orderVectorSpecies", orderVectorSpecies.size(), nspecies);
+    checkArraySize("BasisOptimize: formRxnMatrix", formRxnMatrix.size(), nspecies * ne);
 
     if (BasisOptimize_print_lvl >= 1) {
         writelog("   ");
@@ -80,15 +71,13 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
     // Create an array of mole numbers
     vector<double> molNum(nspecies,0.0);
-    mphase->getMoles(molNum.data());
+    mphase->getMoles(molNum);
 
     // Other workspace
     DenseMatrix sm(ne, ne);
     vector<double> ss(ne, 0.0);
     vector<double> sa(ne, 0.0);
-    if (formRxnMatrix.size() < nspecies*ne) {
-        formRxnMatrix.resize(nspecies*ne, 0.0);
-    }
+    fill(formRxnMatrix.begin(), formRxnMatrix.end(), 0.0);
 
     // For debugging purposes keep an unmodified copy of the array.
     vector<double> molNumBase = molNum;
@@ -289,10 +278,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 } // basopt()
 
 
-void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
-                   MultiPhase* mphase,
-                   vector<size_t>& orderVectorSpecies,
-                   vector<size_t>& orderVectorElements)
+void ElemRearrange(size_t nComponents, span<const double> elementAbundances,
+                   MultiPhase* mphase, span<size_t> orderVectorSpecies,
+                   span<size_t> orderVectorElements)
 {
     size_t nelements = mphase->nElements();
     // Get the total number of species in the multiphase object
@@ -306,22 +294,10 @@ void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
         writelog("   ---    and to rearrange the element ordering once\n");
     }
 
-    // Perhaps, initialize the element ordering
-    if (orderVectorElements.size() < nelements) {
-        orderVectorElements.resize(nelements);
-        for (size_t j = 0; j < nelements; j++) {
-            orderVectorElements[j] = j;
-        }
-    }
-
-    // Perhaps, initialize the species ordering. However, this is dangerous, as
-    // this ordering is assumed to yield the component species for the problem
-    if (orderVectorSpecies.size() != nspecies) {
-        orderVectorSpecies.resize(nspecies);
-        for (size_t k = 0; k < nspecies; k++) {
-            orderVectorSpecies[k] = k;
-        }
-    }
+    checkArraySize("ElemRearrange: orderVectorElements",
+                   orderVectorElements.size(), nelements);
+    checkArraySize("ElemRearrange: orderVectorSpecies",
+                   orderVectorSpecies.size(), nspecies);
 
     // If the elementAbundances aren't input, just create a fake one based on
     // summing the column of the stoich matrix. This will force elements with
