@@ -368,8 +368,8 @@ public:
 
     //! Get a constant form of the Species Formula Matrix
     /*!
-     *  Returns a `double**` pointer such that `fm[e][f]` is the formula
-     *  matrix entry for element `e` for species `k`
+     * Returns a matrix `M` where `M(k, e)` is the entry for element `e` and
+     * species `k`.
      */
     const Array2D& getFormulaMatrix() const;
 
