@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import numpy as np
+cimport numpy as np
 
 from .solutionbase cimport *
 from .ctcxx cimport span
@@ -267,12 +268,9 @@ cdef class Mixture:
                 self.mix.setMolesByName(stringify(moles))
                 return
 
-            if len(moles) != self.n_species:
-                raise ValueError('mole array must be of length n_species')
-
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(moles, dtype=np.double)
-            self.mix.setMoles(&data[0])
+            self.mix.setMoles(span[double](&data[0], data.size))
 
     def element_moles(self, e):
         """

@@ -79,7 +79,7 @@ public:
      *   @param phases Vector of pointers to phases
      *   @param phaseMoles Vector of mole numbers in each phase (kmol)
      */
-    void addPhases(vector<ThermoPhase*>& phases, const vector<double>& phaseMoles);
+    void addPhases(span<ThermoPhase*> phases, span<const double> phaseMoles);
 
     //! Add all phases present in 'mix' to this mixture.
     /*!
@@ -174,7 +174,7 @@ public:
      *
      *    @param x  vector of mole fractions. Length = number of global species.
      */
-    void getMoleFractions(double* const x) const;
+    void getMoleFractions(span<double> x) const;
 
     //! Process phases and build atomic composition array.
     /*!
@@ -342,7 +342,7 @@ public:
      *                  potentials are returned instead of the composition-
      *                  dependent chemical potentials.
      */
-    void getValidChemPotentials(double not_mu, double* mu,
+    void getValidChemPotentials(double not_mu, span<double> mu,
                                 bool standard = false) const;
 
     //! Temperature [K].
@@ -403,7 +403,7 @@ public:
      * @param Moles  Vector of mole numbers of all the species in all the phases
      *               (kmol)
      */
-    void setState_TPMoles(const double T, const double Pres, const double* Moles);
+    void setState_TPMoles(const double T, const double Pres, span<const double> Moles);
 
     //! Pressure [Pa].
     double pressure() const {
@@ -475,7 +475,7 @@ public:
      * @param n    index of the phase
      * @param x    Vector of input mole fractions.
      */
-    void setPhaseMoleFractions(const size_t n, const double* const x);
+    void setPhaseMoleFractions(const size_t n, span<const double> x);
 
     //! Set the number of moles of species in the mixture
     /*!
@@ -500,7 +500,7 @@ public:
      * @param[out] molNum Vector of doubles of length nSpecies() containing the
      *               global mole numbers (kmol).
      */
-    void getMoles(double* molNum) const;
+    void getMoles(span<double> molNum) const;
 
     //! Sets all of the global species mole numbers
     /*!
@@ -510,7 +510,7 @@ public:
      * @param n    Vector of doubles of length nSpecies() containing the global
      *             mole numbers (kmol).
      */
-    void setMoles(const double* n);
+    void setMoles(span<const double> n);
 
     //! Adds moles of a certain species to the mixture
     /*!
@@ -525,7 +525,7 @@ public:
      * Length = number of elements in the MultiPhase object.
      * Index is the global element index. Units is in kmol.
      */
-    void getElemAbundances(double* elemAbundances) const;
+    void getElemAbundances(span<double> elemAbundances) const;
 
     //! Return true if the phase @e p has valid thermo data for the current
     //! temperature.
@@ -723,10 +723,9 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  *
  * @ingroup equilGroup
  */
-size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
-                     MultiPhase* mphase, vector<size_t>& orderVectorSpecies,
-                     vector<size_t>& orderVectorElements,
-                     vector<double>& formRxnMatrix);
+size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
+                     span<size_t> orderVectorSpecies, span<size_t> orderVectorElements,
+                     span<double> formRxnMatrix);
 
 //! Handles the potential rearrangement of the constraint equations
 //! represented by the Formula Matrix.
@@ -766,10 +765,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *
  * @ingroup equilGroup
  */
-void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
-                   MultiPhase* mphase,
-                   vector<size_t>& orderVectorSpecies,
-                   vector<size_t>& orderVectorElements);
+void ElemRearrange(size_t nComponents, span<const double> elementAbundances,
+                   MultiPhase* mphase, span<size_t> orderVectorSpecies,
+                   span<size_t> orderVectorElements);
 
 //! External int that is used to turn on debug printing for the
 //! BasisOptimize program.

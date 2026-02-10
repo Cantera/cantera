@@ -219,6 +219,8 @@ inline int translate_exception()
         PyErr_SetString(PyExc_IndexError, exn.what());
     } catch (const Cantera::NotImplementedError& exn) {
         PyErr_SetString(PyExc_NotImplementedError, exn.what());
+    } catch (const Cantera::ArraySizeError& exn) {
+        PyErr_SetString(PyExc_ValueError, exn.what());
     } catch (const Cantera::CanteraError& exn) {
         PyErr_SetString(pyCanteraError, exn.what());
     } catch (const std::exception& exn) {

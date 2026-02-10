@@ -51,7 +51,7 @@ public:
  * @param vec vector of doubles
  * @returns   the l2 norm of the vector
  */
-double vcs_l2norm(const vector<double>& vec);
+double vcs_l2norm(span<const double> vec);
 
 //! Returns a const char string representing the type of the species given by
 //! the first argument

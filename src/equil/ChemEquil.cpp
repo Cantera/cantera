@@ -113,8 +113,7 @@ void ChemEquil::initialize(ThermoPhase& s)
     }
 }
 
-void ChemEquil::setToEquilState(ThermoPhase& s,
-                                const vector<double>& lambda_RT, double t)
+void ChemEquil::setToEquilState(ThermoPhase& s, span<const double> lambda_RT, double t)
 {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
@@ -163,7 +162,7 @@ void ChemEquil::update(const ThermoPhase& s)
     }
 }
 
-int ChemEquil::setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal, int loglevel)
+int ChemEquil::setInitialMoles(ThermoPhase& s, span<double> elMoleGoal, int loglevel)
 {
     MultiPhase mp;
     mp.addPhase(&s, 1.0);
@@ -198,8 +197,8 @@ int ChemEquil::setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal, int l
     return 0;
 }
 
-int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector<double>& lambda_RT,
-        vector<double>& elMolesGoal, int loglevel)
+int ChemEquil::estimateElementPotentials(ThermoPhase& s, span<double> lambda_RT,
+        span<double> elMolesGoal, int loglevel)
 {
     vector<double> b(m_mm, -999.0);
     vector<double> mu_RT(m_kk, 0.0);
@@ -216,7 +215,7 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector<double>& lambda_
     mp.addPhase(&s, 1.0);
     mp.init();
     int usedZeroedSpecies = 0;
-    vector<double> formRxnMatrix;
+    vector<double> formRxnMatrix(mp.nSpecies() * mp.nElements());
     m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
                                   &mp, m_orderVectorSpecies,
                                   m_orderVectorElements, formRxnMatrix);
@@ -299,7 +298,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XY, int loglevel)
 }
 
 int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
-                           vector<double>& elMolesGoal, int loglevel)
+                           span<double> elMolesGoal, int loglevel)
 {
     int fail = 0;
     bool tempFixed = true;
@@ -671,9 +670,9 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 }
 
 
-int ChemEquil::dampStep(ThermoPhase& mix, vector<double>& oldx, double oldf,
-                        vector<double>& grad, vector<double>& step, vector<double>& x,
-                        double& f, vector<double>& elmols, double xval, double yval)
+int ChemEquil::dampStep(ThermoPhase& mix, span<double> oldx, double oldf,
+                        span<double> grad, span<double> step, span<double> x,
+                        double& f, span<double> elmols, double xval, double yval)
 {
     // Carry out a delta damping approach on the dimensionless element
     // potentials.
@@ -710,8 +709,8 @@ int ChemEquil::dampStep(ThermoPhase& mix, vector<double>& oldx, double oldf,
     return 1;
 }
 
-void ChemEquil::equilResidual(ThermoPhase& s, const vector<double>& x,
-                              const vector<double>& elmFracGoal, vector<double>& resid,
+void ChemEquil::equilResidual(ThermoPhase& s, span<const double> x,
+                              span<const double> elmFracGoal, span<double> resid,
                               double xval, double yval, int loglevel)
 {
     setToEquilState(s, x, exp(x[m_mm]));
@@ -756,9 +755,8 @@ void ChemEquil::equilResidual(ThermoPhase& s, const vector<double>& x,
     }
 }
 
-void ChemEquil::equilJacobian(ThermoPhase& s, vector<double>& x,
-                              const vector<double>& elmols, DenseMatrix& jac,
-                              double xval, double yval, int loglevel)
+void ChemEquil::equilJacobian(ThermoPhase& s, span<double> x, span<const double> elmols,
+                              DenseMatrix& jac, double xval, double yval, int loglevel)
 {
     vector<double>& r0 = m_jwork1;
     vector<double>& r1 = m_jwork2;
@@ -789,10 +787,9 @@ void ChemEquil::equilJacobian(ThermoPhase& s, vector<double>& x,
     m_doResPerturb = false;
 }
 
-double ChemEquil::calcEmoles(ThermoPhase& s, vector<double>& x, const double& n_t,
-                             const vector<double>& Xmol_i_calc,
-                             vector<double>& eMolesCalc, vector<double>& n_i_calc,
-                             double pressureConst)
+double ChemEquil::calcEmoles(ThermoPhase& s, span<double> x, const double& n_t,
+                             span<const double> Xmol_i_calc, span<double> eMolesCalc,
+                             span<double> n_i_calc, double pressureConst)
 {
     double n_t_calc = 0.0;
 
@@ -825,8 +822,7 @@ double ChemEquil::calcEmoles(ThermoPhase& s, vector<double>& x, const double& n_
     return n_t_calc;
 }
 
-int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
-                                   vector<double>& elMoles)
+int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, span<double> x, span<double> elMoles)
 {
     // Before we do anything, we will save the state of the solution. Then, if
     // things go drastically wrong, we will restore the saved state.
@@ -1294,7 +1290,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
 }
 
 
-void ChemEquil::adjustEloc(ThermoPhase& s, vector<double>& elMolesGoal)
+void ChemEquil::adjustEloc(ThermoPhase& s, span<double> elMolesGoal)
 {
     if (m_eloc == npos) {
         return;

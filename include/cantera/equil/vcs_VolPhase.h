@@ -72,7 +72,7 @@ public:
      * @param moleFracVec      Vector of input mole fractions
      * @param vcsStateStatus   Status flag for this update
      */
-    void setMoleFractionsState(const double molNum, const double* const moleFracVec,
+    void setMoleFractionsState(const double molNum, span<const double> moleFracVec,
                                const int vcsStateStatus);
 
     //! Set the moles within the phase
@@ -88,7 +88,7 @@ public:
      *     to gather the species into the local contiguous vector format.
      */
     void setMolesFromVCS(const int stateCalc,
-                         const double* molesSpeciesVCS = 0);
+                         span<const double> molesSpeciesVCS = {});
 
     //! Set the moles within the phase
     /*!
@@ -108,8 +108,8 @@ public:
      * @param TPhMoles  VCS's array containing the number of moles in each phase.
      */
     void setMolesFromVCSCheck(const int vcsStateStatus,
-                              const double* molesSpeciesVCS,
-                              const double* const TPhMoles);
+                              span<const double> molesSpeciesVCS,
+                              span<const double> TPhMoles);
 
     //! Update the moles within the phase, if necessary
     /*!
@@ -134,7 +134,7 @@ public:
      *     of the phases in a VCS problem. Only the entries for the current
      *     phase are filled in.
      */
-    void sendToVCS_ActCoeff(const int stateCalc, double* const AC);
+    void sendToVCS_ActCoeff(const int stateCalc, span<double> AC);
 
     //! set the electric potential of the phase
     /*!
@@ -176,7 +176,7 @@ public:
      *     all of the phases in a VCS problem. Only the entries for the current
      *     phase are filled in.
      */
-    double sendToVCS_VolPM(double* const VolPM) const;
+    double sendToVCS_VolPM(span<double> VolPM) const;
 
     //! Fill in the standard state Gibbs free energy vector for VCS
     /*!
@@ -188,7 +188,7 @@ public:
      *     species in all of the phases in a VCS problem. Only the entries for the
      *     current phase are filled in.
      */
-    void sendToVCS_GStar(double* const gstar) const;
+    void sendToVCS_GStar(span<double> gstar) const;
 
     //! Sets the temperature and pressure in this object and underlying
     //! ThermoPhase objects
@@ -250,11 +250,11 @@ private:
      * @param xmol Value of the mole fractions for the species in the phase.
      *             These are contiguous.
      */
-    void setMoleFractions(const double* const xmol);
+    void setMoleFractions(span<const double> xmol);
 
 public:
     //! Return a const reference to the mole fractions stored in the object.
-    const vector<double> & moleFractions() const;
+    span<const double> moleFractions() const;
 
     double moleFraction(size_t klocal) const;
 
@@ -263,13 +263,14 @@ public:
      * @param n_k Pointer to a vector of n_k's
      * @param creationGlobalRxnNumbers  Vector of global creation reaction numbers
      */
-    void setCreationMoleNumbers(const double* const n_k, const vector<size_t> &creationGlobalRxnNumbers);
+    void setCreationMoleNumbers(span<const double> n_k,
+                                span<const size_t> creationGlobalRxnNumbers);
 
     //! Return a const reference to the creationMoleNumbers stored in the object.
     /*!
      * @returns a const reference to the vector of creationMoleNumbers
      */
-    const vector<double> & creationMoleNumbers(vector<size_t> &creationGlobalRxnNumbers) const;
+    span<const double> creationMoleNumbers(span<size_t> creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;

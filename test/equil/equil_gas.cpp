@@ -9,6 +9,8 @@
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
 
+#include <numeric>
+
 using namespace Cantera;
 
 bool double_close(double expected, double actual, double tol)
@@ -93,11 +95,13 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    vector<size_t> orderVectorSpecies;
-    vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies(mphase.nSpecies());
+    vector<size_t> orderVectorElements(mphase.nElements());
+    std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
+    std::iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
 
     bool doFormMatrix = true;
-    vector<double> formRxnMatrix;
+    vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
@@ -112,11 +116,13 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    vector<size_t> orderVectorSpecies;
-    vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies(mphase.nSpecies());
+    vector<size_t> orderVectorElements(mphase.nElements());
+    std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
+    std::iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
 
     bool doFormMatrix = true;
-    vector<double> formRxnMatrix;
+    vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
