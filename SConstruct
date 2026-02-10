@@ -1000,7 +1000,10 @@ def get_processor_name():
     elif platform.system() == "Darwin":
         os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
         command ="sysctl -n machdep.cpu.brand_string"
-        return subprocess.check_output(command, shell=True).decode().strip()
+        try:
+            return subprocess.check_output(command, shell=True).decode().strip()
+        except subprocess.CalledProcessError:
+            return "<unknown processor>"
     elif platform.system() == "Linux":
         command = "lscpu || cat /proc/cpuinfo"
         all_info = subprocess.check_output(command, shell=True).decode().strip()
