@@ -27,23 +27,23 @@ public:
         return "MoleReactor";
     }
 
-    void getState(double* y) override;
-    void updateState(double* y) override;
-    void eval(double t, double* LHS, double* RHS) override;
+    void getState(span<double> y) override;
+    void updateState(span<const double> y) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    void resetBadValues(double* y) override;
+    void resetBadValues(span<double> y) override;
 
 protected:
     //! Get moles of the system from mass fractions stored by thermo object
     //! @param y vector for moles to be put into
-    void getMoles(double* y);
+    void getMoles(span<double> y);
 
     //! Set internal mass variable based on moles given
     //! @param y vector of moles of the system
-    void setMassFromMoles(double* y);
+    void setMassFromMoles(span<const double> y);
 
     //! const value for the species start index
     const size_t m_sidx = 2;

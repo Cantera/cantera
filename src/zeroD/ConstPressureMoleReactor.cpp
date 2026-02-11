@@ -28,23 +28,23 @@ ConstPressureMoleReactor::ConstPressureMoleReactor(shared_ptr<Solution> sol, boo
     m_nv = 1 + m_nsp; // enthalpy and moles of each species
 }
 
-void ConstPressureMoleReactor::getState(double* y)
+void ConstPressureMoleReactor::getState(span<double> y)
 {
     // set mass to be used in getMoles function
     m_mass = m_thermo->density() * m_vol;
     // set the first array element to enthalpy
     y[0] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
     // get moles of species in remaining state
-    getMoles(y + m_sidx);
+    getMoles(y.subspan(m_sidx));
 }
 
-void ConstPressureMoleReactor::updateState(double* y)
+void ConstPressureMoleReactor::updateState(span<const double> y)
 {
     // the components of y are: [0] the enthalpy, [1...K+1) are the
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
-    setMassFromMoles(y + m_sidx);
-    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
+    setMassFromMoles(y.subspan(m_sidx));
+    m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     if (m_energy) {
         m_thermo->setState_HP(y[0] / m_mass, m_pressure);
     } else {
@@ -54,9 +54,9 @@ void ConstPressureMoleReactor::updateState(double* y)
     updateConnected(false);
 }
 
-void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
+void ConstPressureMoleReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
-    double* dndt = RHS + m_sidx; // kmol per s
+    auto dndt = RHS.subspan(m_sidx); // kmol per s
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -106,7 +106,7 @@ void ConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void ConstPressureMoleReactor::evalSteady(double t, double* LHS, double* RHS)
+void ConstPressureMoleReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     RHS[1] = m_mass - m_initialMass;
@@ -157,7 +157,7 @@ double ConstPressureMoleReactor::lowerBound(size_t k) const {
     }
 }
 
-void ConstPressureMoleReactor::resetBadValues(double* y) {
+void ConstPressureMoleReactor::resetBadValues(span<double> y) {
     for (size_t k = m_sidx; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }

@@ -29,7 +29,7 @@ MoleReactor::MoleReactor(shared_ptr<Solution> sol, bool clone, const string& nam
     m_nv = 2 + m_nsp; // internal energy, volume, and moles of each species
 }
 
-void MoleReactor::getMoles(double* y)
+void MoleReactor::getMoles(span<double> y)
 {
     // Use inverse molecular weights to convert to moles
     auto Y = m_thermo->massFractions();
@@ -39,7 +39,7 @@ void MoleReactor::getMoles(double* y)
     }
 }
 
-void MoleReactor::setMassFromMoles(double* y)
+void MoleReactor::setMassFromMoles(span<const double> y)
 {
     auto mw = m_thermo->molecularWeights();
     // calculate mass from moles
@@ -49,7 +49,7 @@ void MoleReactor::setMassFromMoles(double* y)
     }
 }
 
-void MoleReactor::getState(double* y)
+void MoleReactor::getState(span<double> y)
 {
     // set the first component to the internal energy
     m_mass = m_thermo->density() * m_vol;
@@ -57,17 +57,17 @@ void MoleReactor::getState(double* y)
     // set the second component to the total volume
     y[1] = m_vol;
     // set components y+2 ... y+K+2 to the moles of each species
-    getMoles(y + m_sidx);
+    getMoles(y.subspan(m_sidx));
 }
 
-void MoleReactor::updateState(double* y)
+void MoleReactor::updateState(span<const double> y)
 {
     // The components of y are [0] total internal energy, [1] the total volume, and
     // [2...K+3] are the moles of each species, and [K+3...] are the moles
     // of surface species on each wall.
-    setMassFromMoles(y + m_sidx);
+    setMassFromMoles(y.subspan(m_sidx));
     m_vol = y[1];
-    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
+    m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     if (m_energy) {
         double U = y[0];
         // Residual function: error in internal energy as a function of T
@@ -104,9 +104,9 @@ void MoleReactor::updateState(double* y)
     updateConnected(true);
 }
 
-void MoleReactor::eval(double time, double* LHS, double* RHS)
+void MoleReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
-    double* dndt = RHS + m_sidx; // moles per time
+    auto dndt = RHS.subspan(m_sidx); // moles per time
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -206,7 +206,7 @@ double MoleReactor::lowerBound(size_t k) const {
     }
 }
 
-void MoleReactor::resetBadValues(double* y) {
+void MoleReactor::resetBadValues(span<double> y) {
     for (size_t k = m_sidx; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }

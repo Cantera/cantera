@@ -80,12 +80,12 @@ public:
         return m_energy;
     }
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
     void initialize(double t0=0.0) override;
-    void eval(double t, double* LHS, double* RHS) override;
-    void evalSteady(double t, double* LHS, double* RHS) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
     vector<size_t> initializeSteady() override;
-    void updateState(double* y) override;
+    void updateState(span<const double> y) override;
     void addSensitivityReaction(size_t rxn) override;
     void addSensitivitySpeciesEnthalpy(size_t k) override;
 
@@ -97,11 +97,11 @@ public:
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    void resetBadValues(double* y) override;
+    void resetBadValues(span<double> y) override;
 
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
-    void setAdvanceLimits(const double* limits);
+    void setAdvanceLimits(span<const double> limits);
 
     //! Check whether Reactor object uses advance limits
     //! @returns           True if at least one limit is set, False otherwise
@@ -112,7 +112,7 @@ public:
     //! Retrieve absolute step size limits during advance
     //! @param[out] limits array of step size limits with length neq
     //! @returns           True if at least one limit is set, False otherwise
-    bool getAdvanceLimits(double* limits) const;
+    bool getAdvanceLimits(span<double> limits) const;
 
     //! Set individual step size limit for component name *nm*
     //! @param nm component name
@@ -130,8 +130,8 @@ public:
 
     void setDerivativeSettings(AnyMap& settings) override;
 
-    void applySensitivity(double* params) override;
-    void resetSensitivity(double* params) override;
+    void applySensitivity(span<const double> params) override;
+    void resetSensitivity(span<const double> params) override;
 
 protected:
     //! Update #m_sdot to reflect current production rates of bulk phase species due to

@@ -13,6 +13,7 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 
 #include <boost/math/tools/roots.hpp>
 
@@ -43,7 +44,7 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
     m_kin->setDerivativeSettings(settings);
 }
 
-void Reactor::getState(double* y)
+void Reactor::getState(span<double> y)
 {
     // set the first component to the total mass
     m_mass = m_thermo->density() * m_vol;
@@ -56,7 +57,7 @@ void Reactor::getState(double* y)
     y[2] = m_thermo->intEnergy_mass() * m_mass;
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(span<double>(y + 3, m_nsp));
+    m_thermo->getMassFractions(y.subspan(3, m_nsp));
 }
 
 void Reactor::initialize(double t0)
@@ -73,14 +74,14 @@ void Reactor::initialize(double t0)
     }
 }
 
-void Reactor::updateState(double* y)
+void Reactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the total internal energy, [3...K+3] are the mass fractions of each
     // species, and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(span<const double>(y + 3, m_nsp));
+    m_thermo->setMassFractions_NoNorm(y.subspan(3, m_nsp));
 
     if (m_energy) {
         double U = y[2];
@@ -120,10 +121,10 @@ void Reactor::updateState(double* y)
     updateConnected(true);
 }
 
-void Reactor::eval(double time, double* LHS, double* RHS)
+void Reactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0];
-    double* mdYdt = RHS + 3; // mass * dY/dt
+    auto mdYdt = RHS.subspan(3); // mass * dY/dt
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -184,7 +185,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void Reactor::evalSteady(double time, double* LHS, double* RHS)
+void Reactor::evalSteady(double time, span<double> LHS, span<double> RHS)
 {
     eval(time, LHS, RHS);
     RHS[1] = m_vol - m_initialVolume;
@@ -218,7 +219,7 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
 {
     vector<Eigen::Triplet<double>> trips;
     Eigen::ArrayXd yCurrent(m_nv);
-    getState(yCurrent.data());
+    getState(asSpan(yCurrent));
     double time = (m_net != nullptr) ? m_net->time() : 0.0;
 
     Eigen::ArrayXd yPerturbed = yCurrent;
@@ -226,8 +227,8 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
     Eigen::ArrayXd rhsPerturbed(m_nv), rhsCurrent(m_nv);
     lhsCurrent = 1.0;
     rhsCurrent = 0.0;
-    updateState(yCurrent.data());
-    eval(time, lhsCurrent.data(), rhsCurrent.data());
+    updateState(asSpan(yCurrent));
+    eval(time, asSpan(lhsCurrent), asSpan(rhsCurrent));
 
     double rel_perturb = std::sqrt(std::numeric_limits<double>::epsilon());
     double atol = (m_net != nullptr) ? m_net->atol() : 1e-15;
@@ -237,10 +238,10 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
         double delta_y = std::max(std::abs(yCurrent[j]), 1000 * atol) * rel_perturb;
         yPerturbed[j] += delta_y;
 
-        updateState(yPerturbed.data());
+        updateState(asSpan(yPerturbed));
         lhsPerturbed = 1.0;
         rhsPerturbed = 0.0;
-        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
+        eval(time, asSpan(lhsPerturbed), asSpan(rhsPerturbed));
 
         // d ydot_i/dy_j
         for (size_t i = 0; i < m_nv; i++) {
@@ -252,7 +253,7 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
             }
         }
     }
-    updateState(yCurrent.data());
+    updateState(asSpan(yCurrent));
 
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(trips.begin(), trips.end());
@@ -359,15 +360,15 @@ double Reactor::lowerBound(size_t k) const {
     }
 }
 
-void Reactor::resetBadValues(double* y) {
+void Reactor::resetBadValues(span<double> y) {
     for (size_t k = 3; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }
 }
 
-void Reactor::applySensitivity(double* params)
+void Reactor::applySensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -384,9 +385,9 @@ void Reactor::applySensitivity(double* params)
     }
 }
 
-void Reactor::resetSensitivity(double* params)
+void Reactor::resetSensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -402,9 +403,9 @@ void Reactor::resetSensitivity(double* params)
     }
 }
 
-void Reactor::setAdvanceLimits(const double *limits)
+void Reactor::setAdvanceLimits(span<const double> limits)
 {
-    m_advancelimits.assign(limits, limits + m_nv);
+    m_advancelimits.assign(limits.begin(), limits.end());
 
     // resize to zero length if no limits are set
     if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
@@ -413,13 +414,13 @@ void Reactor::setAdvanceLimits(const double *limits)
     }
 }
 
-bool Reactor::getAdvanceLimits(double *limits) const
+bool Reactor::getAdvanceLimits(span<double> limits) const
 {
     bool has_limit = hasAdvanceLimits();
     if (has_limit) {
-        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits);
+        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits.begin());
     } else {
-        std::fill(limits, limits + m_nv, -1.0);
+        std::fill(limits.begin(), limits.end(), -1.0);
     }
     return has_limit;
 }

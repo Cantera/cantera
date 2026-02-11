@@ -108,7 +108,7 @@ cdef class ReactorBase:
         if not self.n_vars:
             raise CanteraError('Reactor empty or network not initialized.')
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.rbase.getState(&y[0])
+        self.rbase.getState(span[double](&y[0], y.size))
         return y
 
     def syncState(self):
@@ -783,7 +783,7 @@ cdef class ReactorSurface(ReactorBase):
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
-            self.surface.setCoverages(&data[0])
+            self.surface.setCoverages(span[double](&data[0], data.size))
 
     @property
     def reactor(self):

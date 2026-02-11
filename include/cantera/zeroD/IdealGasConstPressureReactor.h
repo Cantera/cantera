@@ -28,12 +28,12 @@ public:
         return "IdealGasConstPressureReactor";
     }
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
 
     void initialize(double t0=0.0) override;
-    void eval(double t, double* LHS, double* RHS) override;
-    void evalSteady(double t, double* LHS, double* RHS) override;
-    void updateState(double* y) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
+    void updateState(span<const double> y) override;
     vector<size_t> initializeSteady() override;
 
     //! Return the index in the solution vector for this reactor of the

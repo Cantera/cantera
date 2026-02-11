@@ -61,13 +61,18 @@ public:
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("getState", m_getState,
-            [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); });
+            [this](std::array<size_t, 1> sizes, span<double> y) {
+                R::getState(y);
+            });
         install("updateState", m_updateState,
-            [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); });
+            [this](std::array<size_t, 1> sizes, span<double> y) {
+                R::updateState(y);
+            });
         install("updateConnected", m_updateConnected,
             [this](bool updatePressure) { R::updateConnected(updatePressure); });
         install("eval", m_eval,
-            [this](std::array<size_t, 2> sizes, double t, double* LHS, double* RHS) {
+            [this](std::array<size_t, 2> sizes, double t, span<double> LHS,
+                   span<double> RHS) {
                 R::eval(t, LHS, RHS);
             }
         );
@@ -90,21 +95,21 @@ public:
         m_initialize(t0);
     }
 
-    void getState(double* y) override {
+    void getState(span<double> y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_getState(sizes, y);
     }
 
-    void updateState(double* y) override {
+    void updateState(span<const double> y) override {
         std::array<size_t, 1> sizes{R::neq()};
-        m_updateState(sizes, y);
+        m_updateState(sizes, span<double>(const_cast<double*>(y.data()), y.size()));
     }
 
     void updateConnected(bool updatePressure) override {
         m_updateConnected(updatePressure);
     }
 
-    void eval(double t, double* LHS, double* RHS) override {
+    void eval(double t, span<double> LHS, span<double> RHS) override {
         std::array<size_t, 2> sizes{R::neq(), R::neq()};
         m_eval(sizes, t, LHS, RHS);
     }
@@ -173,10 +178,10 @@ public:
 
 private:
     function<void(double)> m_initialize;
-    function<void(std::array<size_t, 1>, double*)> m_getState;
-    function<void(std::array<size_t, 1>, double*)> m_updateState;
+    function<void(std::array<size_t, 1>, span<double>)> m_getState;
+    function<void(std::array<size_t, 1>, span<double>)> m_updateState;
     function<void(bool)> m_updateConnected;
-    function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
+    function<void(std::array<size_t, 2>, double, span<double>, span<double>)> m_eval;
     function<void(double)> m_evalWalls;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;

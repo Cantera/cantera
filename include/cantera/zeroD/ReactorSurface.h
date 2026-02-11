@@ -91,7 +91,7 @@ public:
 
     //! Set the surface coverages. Array `cov` has length equal to the number of
     //! surface species.
-    void setCoverages(const double* cov);
+    void setCoverages(span<const double> cov);
 
     //! Set the surface coverages by name
     void setCoverages(const Composition& cov);
@@ -101,26 +101,26 @@ public:
 
     //! Get the surface coverages. Array `cov` should have length equal to the
     //! number of surface species.
-    void getCoverages(double* cov) const;
+    void getCoverages(span<double> cov) const;
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
     void initialize(double t0=0.0) override;
     vector<size_t> initializeSteady() override;
-    void updateState(double* y) override;
-    void eval(double t, double* LHS, double* RHS) override;
-    void evalSteady(double t, double* LHS, double* RHS) override;
+    void updateState(span<const double> y) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
 
     void addSensitivityReaction(size_t rxn) override;
     // void addSensitivitySpeciesEnthalpy(size_t k) override;
-    void applySensitivity(double* params) override;
-    void resetSensitivity(double* params) override;
+    void applySensitivity(span<const double> params) override;
+    void resetSensitivity(span<const double> params) override;
 
     size_t componentIndex(const string& nm) const override;
     string componentName(size_t k) override;
 
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    void resetBadValues(double* y) override;
+    void resetBadValues(span<double> y) override;
     // void setDerivativeSettings(AnyMap& settings) override;
 
 protected:
@@ -145,13 +145,13 @@ public:
     using ReactorSurface::ReactorSurface;
     string type() const override { return "MoleReactorSurface"; }
     void initialize(double t0=0.0) override;
-    void getState(double* y) override;
-    void updateState(double* y) override;
-    void eval(double t, double* LHS, double* RHS) override;
-    void evalSteady(double t, double* LHS, double* RHS) override;
+    void getState(span<double> y) override;
+    void updateState(span<const double> y) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    void resetBadValues(double* y) override;
+    void resetBadValues(span<double> y) override;
     void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
 
 protected:
@@ -193,9 +193,10 @@ public:
 
     bool timeIsIndependent() const override { return false; }
 
-    void evalDae(double t, double* y, double* ydot, double* residual) override;
-    void getStateDae(double* y, double* ydot) override;
-    void getConstraints(double* constraints) override;
+    void evalDae(double t, span<const double> y, span<const double> ydot,
+                 span<double> residual) override;
+    void getStateDae(span<double> y, span<double> ydot) override;
+    void getConstraints(span<double> constraints) override;
 
     //! Surface area per unit length [m]
     //! @note If unspecified by the user, this will be calculated assuming the surface

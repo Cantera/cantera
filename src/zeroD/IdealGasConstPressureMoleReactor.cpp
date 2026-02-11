@@ -18,14 +18,14 @@
 namespace Cantera
 {
 
-void IdealGasConstPressureMoleReactor::getState(double* y)
+void IdealGasConstPressureMoleReactor::getState(span<double> y)
 {
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;
     // set the first component to the temperature
     y[0] = m_thermo->temperature();
     // get moles of species in remaining state
-    getMoles(y + m_sidx);
+    getMoles(y.subspan(m_sidx));
 }
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
@@ -38,13 +38,13 @@ void IdealGasConstPressureMoleReactor::initialize(double t0)
     m_hk.resize(m_nsp, 0.0);
 }
 
-void IdealGasConstPressureMoleReactor::updateState(double* y)
+void IdealGasConstPressureMoleReactor::updateState(span<const double> y)
 {
     // the components of y are: [0] the temperature, [1...K+1) are the
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
-    setMassFromMoles(y + m_sidx);
-    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
+    setMassFromMoles(y.subspan(m_sidx));
+    m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     m_thermo->setState_TP(y[0], m_pressure);
     m_vol = m_mass / m_thermo->density();
     m_thermo->getPartialMolarEnthalpies(m_hk);
@@ -52,10 +52,11 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     updateConnected(false);
 }
 
-void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
+void IdealGasConstPressureMoleReactor::eval(double time, span<double> LHS,
+                                            span<double> RHS)
 {
     double& mcpdTdt = RHS[0]; // m * c_p * dT/dt
-    double* dndt = RHS + m_sidx; // kmol per s
+    auto dndt = RHS.subspan(m_sidx); // kmol per s
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -132,7 +133,7 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
             * std::sqrt(std::numeric_limits<double>::epsilon());
         // get current state
         vector<double> yCurrent(m_nv);
-        getState(yCurrent.data());
+        getState(yCurrent);
         // finite difference temperature derivatives
         vector<double> lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
         vector<double> rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
@@ -140,12 +141,12 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
         // perturb temperature
         yPerturbed[0] += deltaTemp;
         // getting perturbed state
-        updateState(yPerturbed.data());
+        updateState(yPerturbed);
         double time = (m_net != nullptr) ? m_net->time() : 0.0;
-        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
+        eval(time, lhsPerturbed, rhsPerturbed);
         // reset and get original state
-        updateState(yCurrent.data());
-        eval(time, lhsCurrent.data(), rhsCurrent.data());
+        updateState(yCurrent);
+        eval(time, lhsCurrent, rhsCurrent);
         // d ydot_j/dT
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
@@ -178,7 +179,7 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
 }
 
 void IdealGasConstPressureMoleReactor::getJacobianScalingFactors(
-    double& f_species, double* f_energy)
+    double& f_species, span<double> f_energy)
 {
     f_species = 1.0 / m_vol;
     for (size_t k = 0; k < m_nsp; k++) {

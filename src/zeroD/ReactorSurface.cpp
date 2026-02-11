@@ -64,9 +64,9 @@ void ReactorSurface::setArea(double a)
     m_area = a;
 }
 
-void ReactorSurface::setCoverages(const double* cov)
+void ReactorSurface::setCoverages(span<const double> cov)
 {
-    m_surf->setCoveragesNoNorm(span<const double>(cov, m_nsp));
+    m_surf->setCoveragesNoNorm(cov);
 }
 
 void ReactorSurface::setCoverages(const Composition& cov)
@@ -79,14 +79,14 @@ void ReactorSurface::setCoverages(const string& cov)
     m_surf->setCoveragesByName(cov);
 }
 
-void ReactorSurface::getCoverages(double* cov) const
+void ReactorSurface::getCoverages(span<double> cov) const
 {
-    m_surf->getCoverages(span<double>(cov, m_nsp));
+    m_surf->getCoverages(cov);
 }
 
-void ReactorSurface::getState(double* y)
+void ReactorSurface::getState(span<double> y)
 {
-    m_surf->getCoverages(span<double>(y, m_nsp));
+    m_surf->getCoverages(y);
 }
 
 void ReactorSurface::initialize(double t0)
@@ -100,14 +100,14 @@ vector<size_t> ReactorSurface::initializeSteady()
     return {0}; // sum of coverages constraint
 }
 
-void ReactorSurface::updateState(double* y)
+void ReactorSurface::updateState(span<const double> y)
 {
-    m_surf->setCoveragesNoNorm(span<const double>(y, m_nsp));
+    m_surf->setCoveragesNoNorm(y);
     m_thermo->setState_TP(m_reactors[0]->temperature(), m_reactors[0]->pressure());
     m_kinetics->getNetProductionRates(m_sdot);
 }
 
-void ReactorSurface::eval(double t, double* LHS, double* RHS)
+void ReactorSurface::eval(double t, span<double> LHS, span<double> RHS)
 {
     size_t nsp = m_surf->nSpecies();
     double rs0 = 1.0 / m_surf->siteDensity();
@@ -119,7 +119,7 @@ void ReactorSurface::eval(double t, double* LHS, double* RHS)
     RHS[0] = sum;
 }
 
-void ReactorSurface::evalSteady(double t, double* LHS, double* RHS)
+void ReactorSurface::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     vector<double> cov(m_nsp);
@@ -131,9 +131,9 @@ void ReactorSurface::evalSteady(double t, double* LHS, double* RHS)
     RHS[0] = 1.0 - sum;
 }
 
-void ReactorSurface::applySensitivity(double* params)
+void ReactorSurface::applySensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -148,9 +148,9 @@ void ReactorSurface::applySensitivity(double* params)
     m_kinetics->invalidateCache();
 }
 
-void ReactorSurface::resetSensitivity(double* params)
+void ReactorSurface::resetSensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -196,13 +196,13 @@ double ReactorSurface::lowerBound(size_t k) const
     return -Tiny;
 }
 
-void ReactorSurface::resetBadValues(double* y)
+void ReactorSurface::resetBadValues(span<double> y)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] = std::max(y[k], 0.0);
     }
-    m_surf->setCoverages(span<const double>(y, m_nsp));
-    m_surf->getCoverages(span<double>(y, m_nsp));
+    m_surf->setCoverages(y);
+    m_surf->getCoverages(y);
 }
 
 // ------ MoleReactorSurface methods ------
@@ -230,18 +230,18 @@ void MoleReactorSurface::initialize(double t0)
     }
 }
 
-void MoleReactorSurface::getState(double* y)
+void MoleReactorSurface::getState(span<double> y)
 {
-    m_surf->getCoverages(span<double>(y, m_nsp));
+    m_surf->getCoverages(y);
     double totalSites = m_surf->siteDensity() * m_area;
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] *= totalSites / m_surf->size(k);
     }
 }
 
-void MoleReactorSurface::updateState(double* y)
+void MoleReactorSurface::updateState(span<const double> y)
 {
-    std::copy(y, y + m_nsp, m_cov_tmp.data());
+    std::copy(y.begin(), y.end(), m_cov_tmp.begin());
     double totalSites = m_surf->siteDensity() * m_area;
     for (size_t k = 0; k < m_nsp; k++) {
         m_cov_tmp[k] *= m_surf->size(k) / totalSites;
@@ -251,14 +251,14 @@ void MoleReactorSurface::updateState(double* y)
     m_kinetics->getNetProductionRates(m_sdot);
 }
 
-void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
+void MoleReactorSurface::eval(double t, span<double> LHS, span<double> RHS)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         RHS[k] = m_sdot[k] * m_area / m_surf->size(k);
     }
 }
 
-void MoleReactorSurface::evalSteady(double t, double* LHS, double* RHS)
+void MoleReactorSurface::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     double cov_sum = 0.0;
@@ -278,7 +278,7 @@ double MoleReactorSurface::lowerBound(size_t k) const
     return -Tiny;
 }
 
-void MoleReactorSurface::resetBadValues(double* y)
+void MoleReactorSurface::resetBadValues(span<double> y)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] = std::max(y[k], 0.0);
@@ -292,7 +292,7 @@ void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& tri
         double f_species;
         size_t nsp_R = R->phase()->thermo()->nSpecies();
         size_t k0 = m_kinetics->speciesOffset(*R->phase()->thermo());
-        R->getJacobianScalingFactors(f_species, &m_f_energy[k0]);
+        R->getJacobianScalingFactors(f_species, span<double>(&m_f_energy[k0], nsp_R));
         std::fill(&m_f_species[k0], &m_f_species[k0 + nsp_R], m_area * f_species);
     }
     std::fill(&m_f_species[0], &m_f_species[m_nsp], 1.0); // surface species
@@ -337,7 +337,8 @@ double FlowReactorSurface::area() const {
     return 2.0 * sqrt(Pi * m_reactors[0]->area());
 }
 
-void FlowReactorSurface::evalDae(double t, double* y, double* ydot, double* residual)
+void FlowReactorSurface::evalDae(double t, span<const double> y,
+                                 span<const double> ydot, span<double> residual)
 {
     size_t nsp = m_surf->nSpecies();
     double sum = y[0];
@@ -348,7 +349,7 @@ void FlowReactorSurface::evalDae(double t, double* y, double* ydot, double* resi
     residual[0] = sum - 1.0;
 }
 
-void FlowReactorSurface::getStateDae(double* y, double* ydot)
+void FlowReactorSurface::getStateDae(span<double> y, span<double> ydot)
 {
     // Advance the surface to steady state to get consistent initial coverages
     m_kinetics->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
@@ -358,10 +359,10 @@ void FlowReactorSurface::getStateDae(double* y, double* ydot)
     updateState(y);
 }
 
-void FlowReactorSurface::getConstraints(double* constraints)
+void FlowReactorSurface::getConstraints(span<double> constraints)
 {
     // The species coverages are algebraic constraints
-    std::fill(constraints, constraints + m_nsp, 1.0);
+    std::fill(constraints.begin(), constraints.end(), 1.0);
 }
 
 }

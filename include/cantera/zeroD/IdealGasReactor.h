@@ -26,14 +26,14 @@ public:
         return "IdealGasReactor";
     }
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
 
     void initialize(double t0=0.0) override;
 
-    void eval(double t, double* LHS, double* RHS) override;
-    void evalSteady(double t, double* LHS, double* RHS) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
     vector<size_t> initializeSteady() override;
-    void updateState(double* y) override;
+    void updateState(span<const double> y) override;
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass",
