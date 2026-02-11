@@ -10,8 +10,6 @@
 #include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ExtensionManager.h"
-#include <array>
-#include <list>
 
 namespace Cantera
 {
@@ -25,18 +23,10 @@ namespace Cantera
  *
  * Delegates are specified as `std::function` objects that are responsible for
  * encapsulating the data specific to the target language and calling the
- * appropriate function in the target language. The `std::function` has a
- * modified function signature compared to the method that it is replacing or
- * augmenting:
- * - Methods with no return value and scalar arguments are treated the same
- * - Methods with a return value have that value as the first reference argument
- *   of their delegate function, and return an `int`. The delegate should return
- *   zero if it does not set the arguments value, and a non-zero value if it
- *   does.
- * - Methods with pointers to arrays as arguments have an additional argument
- *   introduced to indicate the length of each array argument. This argument
- *   occurs either first, or after the return value reference, and is a
- *   `std::array<size_t, N>` where N is the number of array arguments.
+ * appropriate function in the target language. For methods with a return value, the
+ * `std::function` has a modified signature where the return value is passed by
+ * reference as the first argument and the method returns an `int`. The delegate should
+ * return zero if it does not set the arguments value, and a non-zero value if it does.
  *
  * Delegated methods can be specified to either "replace" the original class's
  * method, or to run "before" or "after" the original method, using the `when`
@@ -86,11 +76,8 @@ namespace Cantera
  * Delegation of a member function (for example, `Reactor::eval`) is handled by several
  * elements:
  * - A `std::function` member variable to hold a delegate function, or its default
- *   implementation. This function type includes the additional `std::array` argument
- *   of array sizes for functions with array arguments.
+ *   implementation.
  * - An override of the member function whose implementation calls the stored delegate.
- *   For delegates that need an array of array sizes, this function first calculates the
- *   necessary values and passes them as an additional argument to the delegate.
  * - A call to `install` from the constructor of the derived delegator class, which
  *   takes the member function name, a reference to the `std::function` member variable
  *   described above, and a lambda function that implements the default behavior, that
@@ -187,7 +174,7 @@ public:
 
     //! Set delegates for member functions with the signature `void(span<double>)`
     void setDelegate(const string& name,
-                     const function<void(std::array<size_t, 1>, span<double>)>& func,
+                     const function<void(span<double>)>& func,
                      const string& when)
     {
         if (!m_funcs_v_dp.count(name)) {
@@ -201,7 +188,7 @@ public:
     //! `void(double, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array<size_t, 1>, double, span<double>)>& func,
+        const function<void(double, span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_d_dp.count(name)) {
@@ -216,8 +203,7 @@ public:
     //! `void(double, span<double>, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array <size_t, 2>, double, span<double>,
-                            span<double>)>& func,
+        const function<void(double, span<double>, span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_d_dp_dp.count(name)) {
@@ -232,8 +218,7 @@ public:
     //! `void(span<double>, span<double>, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array<size_t, 3>, span<double>, span<double>,
-                            span<double>)>& func,
+        const function<void(span<double>, span<double>, span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_dp_dp_dp.count(name)) {
@@ -353,8 +338,8 @@ protected:
 
     //! Install a function with the signature `void(span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 1>, span<double>)>& target,
-                 const function<void(std::array<size_t, 1>, span<double>)>& func)
+                 function<void(span<double>)>& target,
+                 const function<void(span<double>)>& func)
     {
         target = func;
         m_funcs_v_dp[name] = &target;
@@ -362,8 +347,8 @@ protected:
 
     //! Install a function with the signature `void(double, span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 1>, double, span<double>)>& target,
-                 const function<void(std::array<size_t, 1>, double, span<double>)>& func)
+                 function<void(double, span<double>)>& target,
+                 const function<void(double, span<double>)>& func)
     {
         target = func;
         m_funcs_v_d_dp[name] = &target;
@@ -372,10 +357,8 @@ protected:
     //! Install a function with the signature `void(double, span<double>, span<double>)`
     //! as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 2>, double, span<double>,
-                               span<double>)>& target,
-                 const function<void(std::array<size_t, 2>, double, span<double>,
-                               span<double>)>& func)
+                 function<void(double, span<double>, span<double>)>& target,
+                 const function<void(double, span<double>, span<double>)>& func)
     {
         target = func;
         m_funcs_v_d_dp_dp[name] = &target;
@@ -384,10 +367,8 @@ protected:
     //! Install a function with the signature
     //! `void(span<double>, span<double>, span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 3>, span<double>, span<double>,
-                               span<double>)>& target,
-                 const function<void(std::array<size_t, 3>, span<double>, span<double>,
-                               span<double>)>& base)
+                 function<void(span<double>, span<double>, span<double>)>& target,
+                 const function<void(span<double>, span<double>, span<double>)>& base)
     {
         target = base;
         m_funcs_v_dp_dp_dp[name] = &target;
@@ -502,6 +483,12 @@ protected:
         }
     }
 
+    //! Helper to remove const for cases where the delegated function signature uses
+    //! `span<const double>`.
+    span<double> stripConst(const span<const double>& s) {
+        return span<double>(const_cast<double*>(s.data()), s.size());
+    }
+
     //! @name Containers for delegates and base class implementations.
     //!
     //! Maps named `m_funcs_*` hold the current delegate. For functions with a return
@@ -523,7 +510,7 @@ protected:
     //! - `US` for `UnitStack`
     //! - prefix `c` for `const` arguments
     //! - suffix `r` for reference arguments
-    //! - suffix `p` for span arguments
+    //! - suffix `p` for span arguments (for example, `dp` for `span<double>`)
     //! @{
 
     // Delegates with no return value
@@ -533,14 +520,12 @@ protected:
     map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
     map<string, function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     map<string, function<void(const string&, void*)>*> m_funcs_v_csr_vp;
-    map<string, function<void(std::array<size_t, 1>, span<double>)>*> m_funcs_v_dp;
-    map<string, function<void(std::array<size_t, 1>, double, span<double>)>*> m_funcs_v_d_dp;
+    map<string, function<void(span<double>)>*> m_funcs_v_dp;
+    map<string, function<void(double, span<double>)>*> m_funcs_v_d_dp;
     map<string,
-        function<void(std::array<size_t, 2>, double, span<double>,
-                      span<double>)>*> m_funcs_v_d_dp_dp;
+        function<void(double, span<double>, span<double>)>*> m_funcs_v_d_dp_dp;
     map<string,
-        function<void(std::array<size_t, 3>, span<double>, span<double>,
-                      span<double>)>*> m_funcs_v_dp_dp_dp;
+        function<void(span<double>, span<double>, span<double>)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
     map<string, function<double(void*)>> m_base_d_vp;

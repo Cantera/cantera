@@ -61,18 +61,17 @@ public:
     {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("getState", m_getState,
-            [this](std::array<size_t, 1> sizes, span<double> y) {
+            [this](span<double> y) {
                 R::getState(y);
             });
         install("updateState", m_updateState,
-            [this](std::array<size_t, 1> sizes, span<double> y) {
+            [this](span<double> y) {
                 R::updateState(y);
             });
         install("updateConnected", m_updateConnected,
             [this](bool updatePressure) { R::updateConnected(updatePressure); });
         install("eval", m_eval,
-            [this](std::array<size_t, 2> sizes, double t, span<double> LHS,
-                   span<double> RHS) {
+            [this](double t, span<double> LHS, span<double> RHS) {
                 R::eval(t, LHS, RHS);
             }
         );
@@ -96,13 +95,13 @@ public:
     }
 
     void getState(span<double> y) override {
-        std::array<size_t, 1> sizes{R::neq()};
-        m_getState(sizes, y);
+        checkArraySize("ReactorDelegator::getState", y.size(), R::m_nv);
+        m_getState(y);
     }
 
     void updateState(span<const double> y) override {
-        std::array<size_t, 1> sizes{R::neq()};
-        m_updateState(sizes, span<double>(const_cast<double*>(y.data()), y.size()));
+        checkArraySize("ReactorDelegator::updateState", y.size(), R::m_nv);
+        m_updateState(stripConst(y));
     }
 
     void updateConnected(bool updatePressure) override {
@@ -110,8 +109,9 @@ public:
     }
 
     void eval(double t, span<double> LHS, span<double> RHS) override {
-        std::array<size_t, 2> sizes{R::neq(), R::neq()};
-        m_eval(sizes, t, LHS, RHS);
+        checkArraySize("ReactorDelegator::eval[LHS]", LHS.size(), R::m_nv);
+        checkArraySize("ReactorDelegator::eval[RHS]", RHS.size(), R::m_nv);
+        m_eval(t, LHS, RHS);
     }
 
     void evalWalls(double t) override {
@@ -178,10 +178,10 @@ public:
 
 private:
     function<void(double)> m_initialize;
-    function<void(std::array<size_t, 1>, span<double>)> m_getState;
-    function<void(std::array<size_t, 1>, span<double>)> m_updateState;
+    function<void(span<double>)> m_getState;
+    function<void(span<double>)> m_updateState;
     function<void(bool)> m_updateConnected;
-    function<void(std::array<size_t, 2>, double, span<double>, span<double>)> m_eval;
+    function<void(double, span<double>, span<double>)> m_eval;
     function<void(double)> m_evalWalls;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
