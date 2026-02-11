@@ -150,8 +150,7 @@ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(span<double>)
-cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes,
-                        span[double] arg) noexcept:
+cdef void callback_v_dp(PyFuncInfo& funcInfo, span[double] arg) noexcept:
     cdef double[:] view = <double[:arg.size()]>arg.data() if arg.size() else None
 
     try:
@@ -162,7 +161,7 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(double, span<double>)
-cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
+cdef void callback_v_d_dp(PyFuncInfo& funcInfo, double arg1,
                           span[double] arg2) noexcept:
     cdef double[:] view = <double[:arg2.size()]>arg2.data() if arg2.size() else None
 
@@ -174,7 +173,7 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(span<double>, span<double>, span<double>)
-cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo, size_array3 sizes,
+cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         span[double] arg1, span[double] arg2, span[double] arg3) noexcept:
     cdef double[:] view1 = <double[:arg1.size()]>arg1.data() if arg1.size() else None
     cdef double[:] view2 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
@@ -232,7 +231,7 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) n
     return -1
 
 # Wrapper for functions of type void(double, span<double>, span<double>)
-cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
+cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, double arg1,
                              span[double] arg2, span[double] arg3) noexcept:
     cdef double[:] view1 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
     cdef double[:] view2 = <double[:arg3.size()]>arg3.data() if arg3.size() else None

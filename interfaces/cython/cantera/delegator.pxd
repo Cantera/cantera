@@ -8,20 +8,6 @@ from .ctcxx cimport *
 from .func1 cimport *
 from .units cimport CxxUnitStack
 
-cdef extern from "<array>" namespace "std" nogil:
-    cdef cppclass size_array1 "std::array<size_t, 1>":
-        size_array1() except+
-        size_t& operator[](size_t)
-
-    cdef cppclass size_array2 "std::array<size_t, 2>":
-        size_array2() except+
-        size_t& operator[](size_t)
-
-    cdef cppclass size_array3 "std::array<size_t, 3>":
-        size_array3() except+
-        size_t& operator[](size_t)
-
-
 cdef extern from "cantera/extensions/PythonHandle.h" namespace "Cantera":
     cdef cppclass CxxExternalHandle "Cantera::ExternalHandle":
         pass
@@ -45,10 +31,10 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[void(CxxAnyMap&)], string&) except +translate_exception
         void setDelegate(string&, function[void(const CxxAnyMap&, const CxxUnitStack&)], string&) except +translate_exception
         void setDelegate(string&, function[void(const string&, void*)], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array1, span[double])], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array1, double, span[double])], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array2, double, span[double], span[double])], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array3, span[double], span[double], span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(double, span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(double, span[double], span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(span[double], span[double], span[double])], string&) except +translate_exception
         void setDelegate(string&, function[int(double&, void*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
@@ -65,14 +51,14 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject*, void(PyFuncInfo&, const CxxAnyMap&, const CxxUnitStack&))
     cdef function[void(const string&, void*)] pyOverride(
         PyObject*, void(PyFuncInfo&, const string&, void*))
-    cdef function[void(size_array1, span[double])] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array1, span[double]))
-    cdef function[void(size_array1, double, span[double])] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array1, double, span[double]))
-    cdef function[void(size_array2, double, span[double], span[double])] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array2, double, span[double], span[double]))
-    cdef function[void(size_array3, span[double], span[double], span[double])] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array3, span[double], span[double], span[double]))
+    cdef function[void(span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, span[double]))
+    cdef function[void(double, span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, double, span[double]))
+    cdef function[void(double, span[double], span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, double, span[double], span[double]))
+    cdef function[void(span[double], span[double], span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, span[double], span[double], span[double]))
     cdef function[int(double&, void*)] pyOverride(PyObject*, int(PyFuncInfo&, double&, void*))
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
     cdef function[int(size_t&, const string&)] pyOverride(
