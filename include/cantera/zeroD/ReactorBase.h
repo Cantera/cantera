@@ -242,7 +242,7 @@ public:
     /*!
      *  @param[out] y state vector representing the initial state of the reactor
      */
-    virtual void getState(double* y) {
+    virtual void getState(span<double> y) {
         throw NotImplementedError("ReactorBase::getState",
             "Not implemented for reactor type '{}'.", type());
     }
@@ -253,7 +253,7 @@ public:
      *  @param[out] ydot  state vector representing the initial derivatives of the
      *                    reactor
      */
-    virtual void getStateDae(double* y, double* ydot) {
+    virtual void getStateDae(span<double> y, span<double> ydot) {
         throw NotImplementedError("ReactorBase::getStateDae(y, ydot)");
     }
 
@@ -263,7 +263,7 @@ public:
     //! coefficients for governing equations, length m_nv, default values 1
     //! @param[out] RHS pointer to start of vector of right-hand side
     //! coefficients for governing equations, length m_nv, default values 0
-    virtual void eval(double t, double* LHS, double* RHS) {
+    virtual void eval(double t, span<double> LHS, span<double> RHS) {
         throw NotImplementedError("ReactorBase::eval");
     }
 
@@ -274,7 +274,8 @@ public:
      * @param[in] ydot rate of change of solution vector, length neq()
      * @param[out] residual residuals vector, length neq()
      */
-    virtual void evalDae(double t, double* y, double* ydot, double* residual) {
+    virtual void evalDae(double t, span<const double> y, span<const double> ydot,
+                         span<double> residual) {
         throw NotImplementedError("ReactorBase::evalDae");
     }
 
@@ -284,14 +285,14 @@ public:
     //! that correspond to algebraic constraints.
     //!
     //! @since New in %Cantera 4.0.
-    virtual void evalSteady(double t, double* LHS, double* RHS) {
+    virtual void evalSteady(double t, span<double> LHS, span<double> RHS) {
         throw NotImplementedError("ReactorBase::evalSteady",
             "Not implemented for reactor type '{}'.", type());
     }
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
-    virtual void getConstraints(double* constraints) {
+    virtual void getConstraints(span<double> constraints) {
         throw NotImplementedError("ReactorBase::getConstraints");
     }
 
@@ -311,7 +312,7 @@ public:
     }
 
     //! Set the state of the reactor to correspond to the state vector *y*.
-    virtual void updateState(double* y) {
+    virtual void updateState(span<const double> y) {
         throw NotImplementedError("ReactorBase::updateState");
     }
 
@@ -346,7 +347,7 @@ public:
     //! Reset physically or mathematically problematic values, such as negative species
     //! concentrations.
     //! @param[inout] y  current state vector, to be updated; length neq()
-    virtual void resetBadValues(double* y) {
+    virtual void resetBadValues(span<double> y) {
         throw NotImplementedError("ReactorBase::resetBadValues");
     }
 
@@ -378,12 +379,12 @@ public:
 
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
-    virtual void applySensitivity(double* params) {
+    virtual void applySensitivity(span<const double> params) {
         throw NotImplementedError("ReactorBase::applySensitivity");
     }
 
     //! Reset the reaction rate multipliers
-    virtual void resetSensitivity(double* params) {
+    virtual void resetSensitivity(span<const double> params) {
         throw NotImplementedError("ReactorBase::resetSensitivity");
     }
 
@@ -452,7 +453,7 @@ public:
     }
 
     //! Return the vector of species mass fractions.
-    const double* massFractions() const;
+    span<const double> massFractions() const;
 
     //! Return the mass fraction of the *k*-th species.
     double massFraction(size_t k) const;
@@ -487,7 +488,7 @@ public:
     //!     equations. Equal to $1/V$.
     //! @param f_energy  Scaling factor for each species term appearing in the energy
     //!     equation.
-    virtual void getJacobianScalingFactors(double& f_species, double* f_energy) {
+    virtual void getJacobianScalingFactors(double& f_species, span<double> f_energy) {
         throw NotImplementedError("ReactorBase::getJacobianScalingFactors");
     }
 

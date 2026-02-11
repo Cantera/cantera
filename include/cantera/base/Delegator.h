@@ -185,58 +185,61 @@ public:
         *m_funcs_v_csr_vp[name] = makeDelegate(func, when, *m_funcs_v_csr_vp[name]);
     }
 
-    //! Set delegates for member functions with the signature `void(double*)`
+    //! Set delegates for member functions with the signature `void(span<double>)`
     void setDelegate(const string& name,
-                     const function<void(std::array<size_t, 1>, double*)>& func,
+                     const function<void(std::array<size_t, 1>, span<double>)>& func,
                      const string& when)
     {
         if (!m_funcs_v_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
-                "for function named '{}' with signature 'void(double*)'.", name);
+                "for function named '{}' with signature 'void(span<double>)'.", name);
         }
         *m_funcs_v_dp[name] = makeDelegate(func, when, *m_funcs_v_dp[name]);
     }
 
-    //! Set delegates for member functions with the signature `void(double, double*)`
+    //! Set delegates for member functions with the signature
+    //! `void(double, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array<size_t, 1>, double, double*)>& func,
+        const function<void(std::array<size_t, 1>, double, span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_d_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
-                "for function named '{}' with signature 'void(double, double*)'.",
+                "for function named '{}' with signature 'void(double, span<double>)'.",
                 name);
         }
         *m_funcs_v_d_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp[name]);
     }
 
     //! Set delegates for member functions with the signature
-    //! `void(double, double*, double*)`
+    //! `void(double, span<double>, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array <size_t, 2>, double, double*, double*)>& func,
+        const function<void(std::array <size_t, 2>, double, span<double>,
+                            span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_d_dp_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
                 "for function named '{}' with signature "
-                "'void(double, double*, double*)'.", name);
+                "'void(double, span<double>, span<double>)'.", name);
         }
         *m_funcs_v_d_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp_dp[name]);
     }
 
     //! Set delegates for member functions with the signature
-    //! `void(double*, double*, double*)`
+    //! `void(span<double>, span<double>, span<double>)`
     void setDelegate(
         const string& name,
-        const function<void(std::array<size_t, 3>, double*, double*, double*)>& func,
+        const function<void(std::array<size_t, 3>, span<double>, span<double>,
+                            span<double>)>& func,
         const string& when)
     {
         if (!m_funcs_v_dp_dp_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
                 "for function named '{}' with signature "
-                "'void(double*, double*, double*)'.", name);
+                "'void(span<double>, span<double>, span<double>)'.", name);
         }
         *m_funcs_v_dp_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_dp_dp_dp[name]);
     }
@@ -348,39 +351,43 @@ protected:
         m_funcs_v_csr_vp[name] = &target;
     }
 
-    //! Install a function with the signature `void(double*)` as being delegatable
+    //! Install a function with the signature `void(span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 1>, double*)>& target,
-                 const function<void(std::array<size_t, 1>, double*)>& func)
+                 function<void(std::array<size_t, 1>, span<double>)>& target,
+                 const function<void(std::array<size_t, 1>, span<double>)>& func)
     {
         target = func;
         m_funcs_v_dp[name] = &target;
     }
 
-    //! Install a function with the signature `void(double, double*)` as being delegatable
+    //! Install a function with the signature `void(double, span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 1>, double, double*)>& target,
-                 const function<void(std::array<size_t, 1>, double, double*)>& func)
+                 function<void(std::array<size_t, 1>, double, span<double>)>& target,
+                 const function<void(std::array<size_t, 1>, double, span<double>)>& func)
     {
         target = func;
         m_funcs_v_d_dp[name] = &target;
     }
 
-    //! Install a function with the signature `void(double, double*, double*)` as being
-    //! delegatable
+    //! Install a function with the signature `void(double, span<double>, span<double>)`
+    //! as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 2>, double, double*, double*)>& target,
-                 const function<void(std::array<size_t, 2>, double, double*, double*)>& func)
+                 function<void(std::array<size_t, 2>, double, span<double>,
+                               span<double>)>& target,
+                 const function<void(std::array<size_t, 2>, double, span<double>,
+                               span<double>)>& func)
     {
         target = func;
         m_funcs_v_d_dp_dp[name] = &target;
     }
 
     //! Install a function with the signature
-    //! `void(double*, double*, double*)` as being delegatable
+    //! `void(span<double>, span<double>, span<double>)` as being delegatable
     void install(const string& name,
-                 function<void(std::array<size_t, 3>, double*, double*, double*)>& target,
-                 const function<void(std::array<size_t, 3>, double*, double*, double*)>& base)
+                 function<void(std::array<size_t, 3>, span<double>, span<double>,
+                               span<double>)>& target,
+                 const function<void(std::array<size_t, 3>, span<double>, span<double>,
+                               span<double>)>& base)
     {
         target = base;
         m_funcs_v_dp_dp_dp[name] = &target;
@@ -516,7 +523,7 @@ protected:
     //! - `US` for `UnitStack`
     //! - prefix `c` for `const` arguments
     //! - suffix `r` for reference arguments
-    //! - suffix `p` for pointer arguments
+    //! - suffix `p` for span arguments
     //! @{
 
     // Delegates with no return value
@@ -526,12 +533,14 @@ protected:
     map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
     map<string, function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     map<string, function<void(const string&, void*)>*> m_funcs_v_csr_vp;
-    map<string, function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
-    map<string, function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
+    map<string, function<void(std::array<size_t, 1>, span<double>)>*> m_funcs_v_dp;
+    map<string, function<void(std::array<size_t, 1>, double, span<double>)>*> m_funcs_v_d_dp;
     map<string,
-        function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
+        function<void(std::array<size_t, 2>, double, span<double>,
+                      span<double>)>*> m_funcs_v_d_dp_dp;
     map<string,
-        function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
+        function<void(std::array<size_t, 3>, span<double>, span<double>,
+                      span<double>)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
     map<string, function<double(void*)>> m_base_d_vp;

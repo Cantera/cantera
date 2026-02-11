@@ -32,9 +32,9 @@ FlowReactor::FlowReactor(shared_ptr<Solution> sol, bool clone, const string& nam
     m_hk.resize(m_nsp);
 }
 
-void FlowReactor::getStateDae(double* y, double* ydot)
+void FlowReactor::getStateDae(span<double> y, span<double> ydot)
 {
-    m_thermo->getMassFractions(span<double>(y + m_offset_Y, m_nsp));
+    m_thermo->getMassFractions(y.subspan(m_offset_Y, m_nsp));
     auto mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
@@ -62,7 +62,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     updateSurfaceProductionRates();
 
     // reset ydot vector
-    std::fill(ydot, ydot + m_nv, 0.0);
+    std::fill(ydot.begin(), ydot.end(), 0.0);
 
     // next, we must solve for the initial derivative values
     // a . ydot = b
@@ -144,15 +144,15 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     }
 
     // and solve
-    solve(a, ydot, 1, 0);
+    solve(a, ydot.data(), 1, 0);
 }
 
-void FlowReactor::updateState(double* y)
+void FlowReactor::updateState(span<const double> y)
 {
     // Set the mass fractions and density of the mixture.
     m_rho = y[0];
     m_u = y[1];
-    m_thermo->setMassFractions_NoNorm(span<const double>(y + m_offset_Y, m_nsp));
+    m_thermo->setMassFractions_NoNorm(y.subspan(m_offset_Y, m_nsp));
     m_thermo->setState_TP(y[3], y[2]);
 }
 
@@ -168,7 +168,8 @@ void FlowReactor::setArea(double area) {
     setMassFlowRate(mdot);
 }
 
-void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
+void FlowReactor::evalDae(double time, span<const double> y,
+                          span<const double> ydot, span<double> residual)
 {
     updateSurfaceProductionRates();
     auto mw = m_thermo->molecularWeights();
@@ -236,9 +237,9 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     }
 }
 
-void FlowReactor::getConstraints(double* constraints) {
+void FlowReactor::getConstraints(span<double> constraints) {
     // mark all variables differential equations unless otherwise specified
-    std::fill(constraints, constraints + m_nv, 1.0);
+    std::fill(constraints.begin(), constraints.end(), 1.0);
 }
 
 size_t FlowReactor::componentIndex(const string& nm) const

@@ -26,14 +26,14 @@ public:
         return "IdealGasConstPressureMoleReactor";
     };
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
 
     void initialize(double t0=0.0) override;
 
-    void eval(double t, double* LHS, double* RHS) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
 
-    void updateState(double* y) override;
-    void getJacobianScalingFactors(double& f_species, double* f_energy) override;
+    void updateState(span<const double> y) override;
+    void getJacobianScalingFactors(double& f_species, span<double> f_energy) override;
 
     //! Calculate an approximate Jacobian to accelerate preconditioned solvers
 

@@ -32,21 +32,22 @@ public:
     }
 
     //! Not implemented; FlowReactor implements getStateDae() instead.
-    void getState(double* y) override {
+    void getState(span<double> y) override {
         throw NotImplementedError("FlowReactor::getState");
     }
 
-    void getStateDae(double* y, double* ydot) override;
-    void updateState(double* y) override;
+    void getStateDae(span<double> y, span<double> ydot) override;
+    void updateState(span<const double> y) override;
 
     //! Not implemented; FlowReactor implements evalDae() instead.
-    void eval(double t, double* LHS, double* RHS) override {
+    void eval(double t, span<double> LHS, span<double> RHS) override {
         throw NotImplementedError("FlowReactor::eval");
     }
 
-    void evalDae(double t, double* y, double* ydot, double* residual) override;
+    void evalDae(double t, span<const double> y, span<const double> ydot,
+                 span<double> residual) override;
 
-    void getConstraints(double* constraints) override;
+    void getConstraints(span<double> constraints) override;
     vector<size_t> initializeSteady() override {
         throw CanteraError("FlowReactor::initializeSteady",
             "FlowReactor is not compatible with time-dependent steady-state solver.");

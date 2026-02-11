@@ -149,9 +149,10 @@ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double*)
-cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) noexcept:
-    cdef double[:] view = <double[:sizes[0]]>arg if sizes[0] else None
+# Wrapper for functions of type void(span<double>)
+cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes,
+                        span[double] arg) noexcept:
+    cdef double[:] view = <double[:arg.size()]>arg.data() if arg.size() else None
 
     try:
         (<object>funcInfo.func())(view)
@@ -160,10 +161,10 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) no
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double, double*)
+# Wrapper for functions of type void(double, span<double>)
 cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
-                          double* arg2) noexcept:
-    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+                          span[double] arg2) noexcept:
+    cdef double[:] view = <double[:arg2.size()]>arg2.data() if arg2.size() else None
 
     try:
         (<object>funcInfo.func())(arg1, view)
@@ -172,13 +173,12 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double*, double*, double*)
-cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
-        size_array3 sizes, double* arg1, double* arg2, double* arg3) noexcept:
-
-    cdef double[:] view1 = <double[:sizes[0]]>arg1 if sizes[0] else None
-    cdef double[:] view2 = <double[:sizes[1]]>arg2 if sizes[1] else None
-    cdef double[:] view3 = <double[:sizes[2]]>arg3 if sizes[2] else None
+# Wrapper for functions of type void(span<double>, span<double>, span<double>)
+cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo, size_array3 sizes,
+        span[double] arg1, span[double] arg2, span[double] arg3) noexcept:
+    cdef double[:] view1 = <double[:arg1.size()]>arg1.data() if arg1.size() else None
+    cdef double[:] view2 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
+    cdef double[:] view3 = <double[:arg3.size()]>arg3.data() if arg3.size() else None
     try:
         (<object>funcInfo.func())(view1, view2, view3)
     except BaseException as e:
@@ -231,11 +231,11 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) n
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
 
-# Wrapper for functions of type void(double, double*, double*)
+# Wrapper for functions of type void(double, span<double>, span<double>)
 cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
-                             double* arg2, double* arg3) noexcept:
-    cdef double[:] view1 = <double[:sizes[0]]>arg2 if sizes[0] else None
-    cdef double[:] view2 = <double[:sizes[1]]>arg3 if sizes[1] else None
+                             span[double] arg2, span[double] arg3) noexcept:
+    cdef double[:] view1 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
+    cdef double[:] view2 = <double[:arg3.size()]>arg3.data() if arg3.size() else None
 
     try:
         (<object>funcInfo.func())(arg1, view1, view2)

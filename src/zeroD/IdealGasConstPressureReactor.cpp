@@ -13,7 +13,7 @@
 namespace Cantera
 {
 
-void IdealGasConstPressureReactor::getState(double* y)
+void IdealGasConstPressureReactor::getState(span<double> y)
 {
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
@@ -22,7 +22,7 @@ void IdealGasConstPressureReactor::getState(double* y)
     y[1] = m_thermo->temperature();
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(span<double>(y + 2, m_nsp));
+    m_thermo->getMassFractions(y.subspan(2, m_nsp));
 }
 
 void IdealGasConstPressureReactor::initialize(double t0)
@@ -37,23 +37,23 @@ void IdealGasConstPressureReactor::initialize(double t0)
     m_hk.resize(m_nsp, 0.0);
 }
 
-void IdealGasConstPressureReactor::updateState(double* y)
+void IdealGasConstPressureReactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the temperature,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(span<const double>(y + 2, m_nsp));
+    m_thermo->setMassFractions_NoNorm(y.subspan(2, m_nsp));
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
 }
 
-void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
+void IdealGasConstPressureReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
     double& mcpdTdt = RHS[1]; // m * c_p * dT/dt
-    double* mdYdt = RHS + 2; // mass * dY/dt
+    auto mdYdt = RHS.subspan(2); // mass * dY/dt
 
     dmdt = 0.0;
     mcpdTdt = 0.0;
@@ -115,7 +115,8 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void IdealGasConstPressureReactor::evalSteady(double t, double* LHS, double* RHS)
+void IdealGasConstPressureReactor::evalSteady(double t, span<double> LHS,
+                                              span<double> RHS)
 {
     eval(0.0, LHS, RHS);
     RHS[0] = m_mass - m_initialMass;

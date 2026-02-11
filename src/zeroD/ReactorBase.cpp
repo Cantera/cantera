@@ -206,9 +206,9 @@ double ReactorBase::temperature() const
     return m_thermo->temperature();
 }
 
-const double* ReactorBase::massFractions() const
+span<const double> ReactorBase::massFractions() const
 {
-    return m_thermo->massFractions().data();
+    return m_thermo->massFractions();
 }
 
 double ReactorBase::massFraction(size_t k) const

@@ -18,7 +18,7 @@
 namespace Cantera
 {
 
-void IdealGasMoleReactor::getState(double* y)
+void IdealGasMoleReactor::getState(span<double> y)
 {
     // get mass for calculations
     m_mass = m_thermo->density() * m_vol;
@@ -30,7 +30,7 @@ void IdealGasMoleReactor::getState(double* y)
     y[1] = m_vol;
 
     // get moles of species in remaining state
-    getMoles(y + m_sidx);
+    getMoles(y.subspan(m_sidx));
 }
 
 size_t IdealGasMoleReactor::componentIndex(const string& nm) const
@@ -97,25 +97,25 @@ vector<size_t> IdealGasMoleReactor::initializeSteady()
     }
 }
 
-void IdealGasMoleReactor::updateState(double* y)
+void IdealGasMoleReactor::updateState(span<const double> y)
 {
     // the components of y are: [0] the temperature, [1] the volume, [2...K+1) are the
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
-    setMassFromMoles(y + m_sidx);
+    setMassFromMoles(y.subspan(m_sidx));
     m_vol = y[1];
     // set state
-    m_thermo->setMolesNoTruncate(span<const double>(y + m_sidx, m_nsp));
+    m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     m_thermo->setState_TD(y[0], m_mass / m_vol);
     m_thermo->getPartialMolarIntEnergies(m_uk);
     m_TotalCv = m_mass * m_thermo->cv_mass();
     updateConnected(true);
 }
 
-void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
+void IdealGasMoleReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& mcvdTdt = RHS[0]; // m * c_v * dT/dt
-    double* dndt = RHS + m_sidx; // kmol per s
+    auto dndt = RHS.subspan(m_sidx); // kmol per s
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -170,7 +170,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void IdealGasMoleReactor::evalSteady(double t, double* LHS, double* RHS)
+void IdealGasMoleReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     if (!energyEnabled()) {
@@ -204,17 +204,17 @@ void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& tr
         vector<double> lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
         vector<double> rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
         vector<double> yCurrent(m_nv);
-        getState(yCurrent.data());
+        getState(yCurrent);
         vector<double> yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
         // getting perturbed state
-        updateState(yPerturbed.data());
+        updateState(yPerturbed);
         double time = (m_net != nullptr) ? m_net->time() : 0.0;
-        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
+        eval(time, lhsPerturbed, rhsPerturbed);
         // reset and get original state
-        updateState(yCurrent.data());
-        eval(time, lhsCurrent.data(), rhsCurrent.data());
+        updateState(yCurrent);
+        eval(time, lhsCurrent, rhsCurrent);
         // d ydot_j/dT
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
@@ -248,7 +248,7 @@ void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& tr
 }
 
 void IdealGasMoleReactor::getJacobianScalingFactors(
-    double& f_species, double* f_energy)
+    double& f_species, span<double> f_energy)
 {
     f_species = 1.0 / m_vol;
     for (size_t k = 0; k < m_nsp; k++) {

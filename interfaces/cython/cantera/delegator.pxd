@@ -45,10 +45,10 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[void(CxxAnyMap&)], string&) except +translate_exception
         void setDelegate(string&, function[void(const CxxAnyMap&, const CxxUnitStack&)], string&) except +translate_exception
         void setDelegate(string&, function[void(const string&, void*)], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array1, double*)], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array1, double, double*)], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array2, double, double*, double*)], string&) except +translate_exception
-        void setDelegate(string&, function[void(size_array3, double*, double*, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array1, span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array1, double, span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array2, double, span[double], span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array3, span[double], span[double], span[double])], string&) except +translate_exception
         void setDelegate(string&, function[int(double&, void*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
@@ -65,14 +65,14 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject*, void(PyFuncInfo&, const CxxAnyMap&, const CxxUnitStack&))
     cdef function[void(const string&, void*)] pyOverride(
         PyObject*, void(PyFuncInfo&, const string&, void*))
-    cdef function[void(size_array1, double*)] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array1, double*))
-    cdef function[void(size_array1, double, double*)] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array1, double, double*))
-    cdef function[void(size_array2, double, double*, double*)] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array2, double, double*, double*))
-    cdef function[void(size_array3, double*, double*, double*)] pyOverride(
-        PyObject*, void(PyFuncInfo&, size_array3, double*, double*, double*))
+    cdef function[void(size_array1, span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array1, span[double]))
+    cdef function[void(size_array1, double, span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array1, double, span[double]))
+    cdef function[void(size_array2, double, span[double], span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array2, double, span[double], span[double]))
+    cdef function[void(size_array3, span[double], span[double], span[double])] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array3, span[double], span[double], span[double]))
     cdef function[int(double&, void*)] pyOverride(PyObject*, int(PyFuncInfo&, double&, void*))
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
     cdef function[int(size_t&, const string&)] pyOverride(

@@ -529,12 +529,13 @@ void ReactorNet::eval(double t, double* y, double* ydot, double* p)
     m_RHS.assign(m_nv, 0);
     for (auto& R : m_reactors) {
         size_t offset = R->offset();
-        R->applySensitivity(p);
-        R->eval(t, m_LHS.data() + offset, m_RHS.data() + offset);
+        R->applySensitivity(span<const double>(p, m_sens_params.size()));
+        R->eval(t, span<double>(m_LHS.data() + offset, R->neq()),
+                span<double>(m_RHS.data() + offset, R->neq()));
         for (size_t i = offset; i < offset + R->neq(); i++) {
             ydot[i] = m_RHS[i] / m_LHS[i];
         }
-        R->resetSensitivity(p);
+        R->resetSensitivity(span<const double>(p, m_sens_params.size()));
     }
     checkFinite("ydot", ydot, m_nv);
 }
@@ -546,7 +547,8 @@ void ReactorNet::evalSteady(double* y, double* residual)
     m_RHS.assign(m_nv, 0);
     for (auto& R : m_reactors) {
         size_t offset = R->offset();
-        R->evalSteady(m_time, m_LHS.data() + offset, m_RHS.data() + offset);
+        R->evalSteady(m_time, span<double>(m_LHS.data() + offset, R->neq()),
+                      span<double>(m_RHS.data() + offset, R->neq()));
         for (size_t i = offset; i < offset + R->neq(); i++) {
             residual[i] = m_RHS[i] / m_LHS[i];
         }
@@ -560,9 +562,11 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
     updateState(y);
     for (auto& R : m_reactors) {
         size_t offset = R->offset();
-        R->applySensitivity(p);
-        R->evalDae(t, y + offset, ydot + offset, residual + offset);
-        R->resetSensitivity(p);
+        R->applySensitivity(span<const double>(p, m_sens_params.size()));
+        R->evalDae(t, span<const double>(y + offset, R->neq()),
+                   span<const double>(ydot + offset, R->neq()),
+                   span<double>(residual + offset, R->neq()));
+        R->resetSensitivity(span<const double>(p, m_sens_params.size()));
     }
     checkFinite("ydot", ydot, m_nv);
 }
@@ -570,7 +574,7 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
 void ReactorNet::getConstraints(double* constraints)
 {
     for (auto& R : m_reactors) {
-        R->getConstraints(constraints + R->offset());
+        R->getConstraints(span<double>(constraints + R->offset(), R->neq()));
     }
 }
 
@@ -614,7 +618,7 @@ void ReactorNet::updateState(double* y)
 {
     checkFinite("y", y, m_nv);
     for (auto& R : m_reactors) {
-        R->updateState(y + R->offset());
+        R->updateState(span<const double>(y + R->offset(), R->neq()));
     }
 }
 
@@ -631,7 +635,7 @@ void ReactorNet::setAdvanceLimits(const double *limits)
 {
     initialize();
     for (auto& R : m_bulkReactors) {
-        R->setAdvanceLimits(limits + R->offset());
+        R->setAdvanceLimits(span<const double>(limits + R->offset(), R->neq()));
     }
 }
 
@@ -648,7 +652,7 @@ bool ReactorNet::getAdvanceLimits(double *limits) const
 {
     bool has_limit = false;
     for (auto& R : m_bulkReactors) {
-        has_limit |= R->getAdvanceLimits(limits + R->offset());
+        has_limit |= R->getAdvanceLimits(span<double>(limits + R->offset(), R->neq()));
     }
     return has_limit;
 }
@@ -656,7 +660,7 @@ bool ReactorNet::getAdvanceLimits(double *limits) const
 void ReactorNet::getState(double* y)
 {
     for (auto& R : m_reactors) {
-        R->getState(y + R->offset());
+        R->getState(span<double>(y + R->offset(), R->neq()));
     }
 }
 
@@ -668,7 +672,8 @@ void ReactorNet::getStateDae(double* y, double* ydot)
     // TODO: Replace with view::reverse once Cantera requires C++20
     for (size_t n = m_reactors.size(); n != 0 ; n--) {
         auto& R = m_reactors[n-1];
-        R->getStateDae(y + R->offset(), ydot + R->offset());
+        R->getStateDae(span<double>(y + R->offset(), R->neq()),
+                       span<double>(ydot + R->offset(), R->neq()));
     }
 }
 
@@ -726,7 +731,7 @@ double ReactorNet::lowerBound(size_t i) const
 
 void ReactorNet::resetBadValues(double* y) {
     for (auto& R : m_reactors) {
-        R->resetBadValues(y + R->offset());
+        R->resetBadValues(span<double>(y + R->offset(), R->neq()));
     }
 }
 
@@ -845,7 +850,7 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     size_t start = 0;
     for (size_t i = 0; i < net->nReactors(); i++) {
         auto& R = net->reactor(i);
-        R.updateState(x0 + start);
+        R.updateState(span<const double>(x0 + start, R.neq()));
         auto algebraic = R.initializeSteady();
         for (auto& m : algebraic) {
             m_mask[start + m] = 0;

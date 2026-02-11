@@ -27,7 +27,7 @@ ConstPressureReactor::ConstPressureReactor(shared_ptr<Solution> sol, bool clone,
     m_nv = 2 + m_nsp; // mass, enthalpy, and mass fractions of each species
 }
 
-void ConstPressureReactor::getState(double* y)
+void ConstPressureReactor::getState(span<double> y)
 {
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
@@ -36,17 +36,17 @@ void ConstPressureReactor::getState(double* y)
     y[1] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(span<double>(y + 2, m_nsp));
+    m_thermo->getMassFractions(y.subspan(2, m_nsp));
 
 }
 
-void ConstPressureReactor::updateState(double* y)
+void ConstPressureReactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total enthalpy,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(span<const double>(y + 2, m_nsp));
+    m_thermo->setMassFractions_NoNorm(y.subspan(2, m_nsp));
     if (m_energy) {
         m_thermo->setState_HP(y[1]/m_mass, m_pressure);
     } else {
@@ -56,10 +56,10 @@ void ConstPressureReactor::updateState(double* y)
     updateConnected(false);
 }
 
-void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
+void ConstPressureReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0];
-    double* mdYdt = RHS + 2; // mass * dY/dt
+    auto mdYdt = RHS.subspan(2); // mass * dY/dt
 
     dmdt = 0.0;
 
@@ -117,7 +117,7 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void ConstPressureReactor::evalSteady(double t, double* LHS, double* RHS)
+void ConstPressureReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     RHS[0] = m_mass - m_initialMass;
@@ -182,7 +182,7 @@ double ConstPressureReactor::lowerBound(size_t k) const {
     }
 }
 
-void ConstPressureReactor::resetBadValues(double* y) {
+void ConstPressureReactor::resetBadValues(span<double> y) {
     for (size_t k = 2; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }

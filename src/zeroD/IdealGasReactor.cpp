@@ -13,7 +13,7 @@
 namespace Cantera
 {
 
-void IdealGasReactor::getState(double* y)
+void IdealGasReactor::getState(span<double> y)
 {
     // set the first component to the total mass
     m_mass = m_thermo->density() * m_vol;
@@ -26,7 +26,7 @@ void IdealGasReactor::getState(double* y)
     y[2] = m_thermo->temperature();
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(span<double>(y + 3, m_nsp));
+    m_thermo->getMassFractions(y.subspan(3, m_nsp));
 }
 
 void IdealGasReactor::initialize(double t0)
@@ -41,23 +41,23 @@ void IdealGasReactor::initialize(double t0)
     m_uk.resize(m_nsp, 0.0);
 }
 
-void IdealGasReactor::updateState(double* y)
+void IdealGasReactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the temperature, [3...K+3] are the mass fractions of each species,
     // and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(span<const double>(y + 3, m_nsp));
+    m_thermo->setMassFractions_NoNorm(y.subspan(3, m_nsp));
     m_thermo->setState_TD(y[2], m_mass / m_vol);
     updateConnected(true);
 }
 
-void IdealGasReactor::eval(double time, double* LHS, double* RHS)
+void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
     double& mcvdTdt = RHS[2]; // m * c_v * dT/dt
-    double* mdYdt = RHS + 3; // mass * dY/dt
+    auto mdYdt = RHS.subspan(3); // mass * dY/dt
 
     evalWalls(time);
     updateSurfaceProductionRates();
@@ -122,7 +122,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-void IdealGasReactor::evalSteady(double t, double* LHS, double* RHS)
+void IdealGasReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
     eval(t, LHS, RHS);
     RHS[1] = m_vol - m_initialVolume;

@@ -45,7 +45,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t neq()
         size_t componentIndex(string&) except +translate_exception
         string componentName(size_t) except +translate_exception
-        void getState(double*) except +translate_exception
+        void getState(span[double]) except +translate_exception
         void setInitialVolume(double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
 
@@ -74,7 +74,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*) except +translate_exception
-        void setCoverages(double*) except +translate_exception
+        void setCoverages(span[double]) except +translate_exception
         void setCoverages(Composition&) except +translate_exception
 
     cdef cppclass CxxFlowReactorSurface "Cantera::FlowReactorSurface" (CxxReactorSurface):

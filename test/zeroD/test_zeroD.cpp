@@ -182,8 +182,8 @@ TEST(zerodim, test_individual_reactor_initialization)
     // get state of reactors
     vector<double> state1(reactor1->neq());
     vector<double> state2(reactor2->neq());
-    reactor1->getState(state1.data());
-    reactor2->getState(state2.data());
+    reactor1->getState(state1);
+    reactor2->getState(state2);
     // compare the reactors.
     EXPECT_EQ(reactor1->neq(), reactor2->neq());
     for (size_t i = 0; i < reactor1->neq(); i++) {
@@ -238,7 +238,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     double O2_Moles = imw[O2I] * 0.5 * mass;
     double  H2_Moles = imw[H2I] * 0.5 * mass;
     // test getState
-    reactor.getState(state.data());
+    reactor.getState(state);
     EXPECT_NEAR(state[reactor.componentIndex("H2")], H2_Moles, tol);
     EXPECT_NEAR(state[reactor.componentIndex("O2")], O2_Moles, tol);
     EXPECT_NEAR(reactor.volume(), 0.5, tol);
