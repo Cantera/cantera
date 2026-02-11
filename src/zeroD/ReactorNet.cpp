@@ -300,7 +300,7 @@ void ReactorNet::advance(double time)
     initialize();
     m_integ->integrate(time);
     m_time = m_integ->currentTime();
-    updateState(m_integ->solution());
+    updateState(span<const double>(m_integ->solution(), m_nv));
 }
 
 double ReactorNet::advance(double time, bool applylimit)
@@ -314,7 +314,7 @@ double ReactorNet::advance(double time, bool applylimit)
 
     // Enable root-based limit detection and set the base state to the current state
     m_ybase.assign(m_nv, 0.0);
-    getState(m_ybase.data());
+    getState(m_ybase);
     m_ybase_time = m_time;
     m_limit_check_active = true;
     m_integ->setRootFunctionCount(nRootFunctions());
@@ -333,7 +333,7 @@ double ReactorNet::advance(double time, bool applylimit)
 
     // Update reactor states to match the integrator solution at the time reached
     // (which may be earlier than 'time' if a limit was triggered)
-    updateState(m_integ->solution());
+    updateState(span<const double>(m_integ->solution(), m_nv));
 
     // Disable limit checking after this call
     m_limit_check_active = false;
@@ -346,7 +346,7 @@ double ReactorNet::advance(double time, bool applylimit)
         if (m_advancelimits.size() != m_nv) {
             m_advancelimits.assign(m_nv, -1.0);
         }
-        getAdvanceLimits(m_advancelimits.data());
+        getAdvanceLimits(m_advancelimits);
         double* ycurr = m_integ->solution();
         size_t jmax = npos;
         double max_ratio = -1.0;
@@ -383,7 +383,7 @@ double ReactorNet::step()
 {
     initialize();
     m_time = m_integ->step(m_time + 1.0);
-    updateState(m_integ->solution());
+    updateState(span<const double>(m_integ->solution(), m_nv));
     return m_time;
 }
 
@@ -391,12 +391,12 @@ void ReactorNet::solveSteady(int loglevel)
 {
     initialize();
     vector<double> y(neq());
-    getState(y.data());
+    getState(y);
     SteadyReactorSolver solver(this, y.data());
     solver.setMaxTimeStepCount(maxSteps());
     solver.solve(loglevel);
     solver.getState(y.data());
-    updateState(y.data());
+    updateState(y);
 }
 
 Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
@@ -404,7 +404,7 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
     initialize();
     vector<double> y0(neq());
     vector<double> y1(neq());
-    getState(y0.data());
+    getState(y0);
     SteadyReactorSolver solver(this, y0.data());
     solver.evalJacobian(y0.data());
     if (rdt) {
@@ -413,7 +413,7 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
     return std::dynamic_pointer_cast<EigenSparseJacobian>(solver.linearSolver())->jacobian();
 }
 
-void ReactorNet::getEstimate(double time, int k, double* yest)
+void ReactorNet::getEstimate(double time, int k, span<double> yest)
 {
     initialize();
     double* cvode_dky = m_integ->solution();
@@ -447,7 +447,7 @@ size_t ReactorNet::nRootFunctions() const
     return (m_limit_check_active && hasAdvanceLimits()) ? 1 : 0;
 }
 
-void ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
+void ReactorNet::evalRootFunctions(double t, span<const double> y, span<double> gout)
 {
     // Default: no root detected
     double g = 1.0;
@@ -457,7 +457,7 @@ void ReactorNet::evalRootFunctions(double t, const double* y, double* gout)
         if (m_advancelimits.size() != m_nv) {
             m_advancelimits.assign(m_nv, -1.0);
         }
-        getAdvanceLimits(m_advancelimits.data());
+        getAdvanceLimits(m_advancelimits);
 
         double max_ratio = 0.0;
         for (size_t i = 0; i < m_nv; i++) {
@@ -521,7 +521,8 @@ Integrator& ReactorNet::integrator() {
     return *m_integ;
 }
 
-void ReactorNet::eval(double t, double* y, double* ydot, double* p)
+void ReactorNet::eval(double t, span<const double> y, span<double> ydot,
+                      span<const double> p)
 {
     m_time = t;
     updateState(y);
@@ -529,18 +530,18 @@ void ReactorNet::eval(double t, double* y, double* ydot, double* p)
     m_RHS.assign(m_nv, 0);
     for (auto& R : m_reactors) {
         size_t offset = R->offset();
-        R->applySensitivity(span<const double>(p, m_sens_params.size()));
+        R->applySensitivity(p);
         R->eval(t, span<double>(m_LHS.data() + offset, R->neq()),
                 span<double>(m_RHS.data() + offset, R->neq()));
         for (size_t i = offset; i < offset + R->neq(); i++) {
             ydot[i] = m_RHS[i] / m_LHS[i];
         }
-        R->resetSensitivity(span<const double>(p, m_sens_params.size()));
+        R->resetSensitivity(p);
     }
-    checkFinite("ydot", ydot, m_nv);
+    checkFinite("ydot", ydot);
 }
 
-void ReactorNet::evalSteady(double* y, double* residual)
+void ReactorNet::evalSteady(span<const double> y, span<double> residual)
 {
     updateState(y);
     m_LHS.assign(m_nv, 1);
@@ -553,28 +554,29 @@ void ReactorNet::evalSteady(double* y, double* residual)
             residual[i] = m_RHS[i] / m_LHS[i];
         }
     }
-    checkFinite("residual", residual, m_nv);
+    checkFinite("residual", residual);
 }
 
-void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* residual)
+void ReactorNet::evalDae(double t, span<const double> y, span<const double> ydot,
+                         span<const double> p, span<double> residual)
 {
     m_time = t;
     updateState(y);
     for (auto& R : m_reactors) {
         size_t offset = R->offset();
-        R->applySensitivity(span<const double>(p, m_sens_params.size()));
-        R->evalDae(t, span<const double>(y + offset, R->neq()),
-                   span<const double>(ydot + offset, R->neq()),
-                   span<double>(residual + offset, R->neq()));
-        R->resetSensitivity(span<const double>(p, m_sens_params.size()));
+        R->applySensitivity(p);
+        R->evalDae(t, y.subspan(offset, R->neq()),
+                   ydot.subspan(offset, R->neq()),
+                   residual.subspan(offset, R->neq()));
+        R->resetSensitivity(p);
     }
-    checkFinite("ydot", ydot, m_nv);
+    checkFinite("ydot", ydot);
 }
 
-void ReactorNet::getConstraints(double* constraints)
+void ReactorNet::getConstraints(span<double> constraints)
 {
     for (auto& R : m_reactors) {
-        R->getConstraints(span<double>(constraints + R->offset(), R->neq()));
+        R->getConstraints(constraints.subspan(R->offset(), R->neq()));
     }
 }
 
@@ -592,7 +594,8 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     return m_integ->sensitivity(k, p) / denom;
 }
 
-void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Array2D* j)
+void ReactorNet::evalJacobian(double t, span<double> y, span<double> ydot,
+                              span<const double> p, Array2D* j)
 {
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);
@@ -604,7 +607,7 @@ void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Arra
         dy = y[n] - ysave;
 
         // calculate perturbed residual
-        eval(t, y, m_ydot.data(), p);
+        eval(t, y, m_ydot, p);
 
         // compute nth column of Jacobian
         for (size_t m = 0; m < m_nv; m++) {
@@ -614,15 +617,15 @@ void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Arra
     }
 }
 
-void ReactorNet::updateState(double* y)
+void ReactorNet::updateState(span<const double> y)
 {
-    checkFinite("y", y, m_nv);
+    checkFinite("y", y);
     for (auto& R : m_reactors) {
-        R->updateState(span<const double>(y + R->offset(), R->neq()));
+        R->updateState(y.subspan(R->offset(), R->neq()));
     }
 }
 
-void ReactorNet::getDerivative(int k, double* dky)
+void ReactorNet::getDerivative(int k, span<double> dky)
 {
     initialize();
     double* cvode_dky = m_integ->derivative(m_time, k);
@@ -631,11 +634,11 @@ void ReactorNet::getDerivative(int k, double* dky)
     }
 }
 
-void ReactorNet::setAdvanceLimits(const double *limits)
+void ReactorNet::setAdvanceLimits(span<const double> limits)
 {
     initialize();
     for (auto& R : m_bulkReactors) {
-        R->setAdvanceLimits(span<const double>(limits + R->offset(), R->neq()));
+        R->setAdvanceLimits(limits.subspan(R->offset(), R->neq()));
     }
 }
 
@@ -648,23 +651,23 @@ bool ReactorNet::hasAdvanceLimits() const
     return has_limit;
 }
 
-bool ReactorNet::getAdvanceLimits(double *limits) const
+bool ReactorNet::getAdvanceLimits(span<double> limits) const
 {
     bool has_limit = false;
     for (auto& R : m_bulkReactors) {
-        has_limit |= R->getAdvanceLimits(span<double>(limits + R->offset(), R->neq()));
+        has_limit |= R->getAdvanceLimits(limits.subspan(R->offset(), R->neq()));
     }
     return has_limit;
 }
 
-void ReactorNet::getState(double* y)
+void ReactorNet::getState(span<double> y)
 {
     for (auto& R : m_reactors) {
-        R->getState(span<double>(y + R->offset(), R->neq()));
+        R->getState(y.subspan(R->offset(), R->neq()));
     }
 }
 
-void ReactorNet::getStateDae(double* y, double* ydot)
+void ReactorNet::getStateDae(span<double> y, span<double> ydot)
 {
     // Iterate in reverse order so that surfaces will be handled first and up-to-date
     // values of the surface production rates of bulk species will be available when
@@ -672,8 +675,8 @@ void ReactorNet::getStateDae(double* y, double* ydot)
     // TODO: Replace with view::reverse once Cantera requires C++20
     for (size_t n = m_reactors.size(); n != 0 ; n--) {
         auto& R = m_reactors[n-1];
-        R->getStateDae(span<double>(y + R->offset(), R->neq()),
-                       span<double>(ydot + R->offset(), R->neq()));
+        R->getStateDae(y.subspan(R->offset(), R->neq()),
+                       ydot.subspan(R->offset(), R->neq()));
     }
 }
 
@@ -729,9 +732,9 @@ double ReactorNet::lowerBound(size_t i) const
     throw IndexError("ReactorNet::lowerBound", "lowerBound", i0, iTot);
 }
 
-void ReactorNet::resetBadValues(double* y) {
+void ReactorNet::resetBadValues(span<double> y) {
     for (auto& R : m_reactors) {
-        R->resetBadValues(span<double>(y + R->offset(), R->neq()));
+        R->resetBadValues(y.subspan(R->offset(), R->neq()));
     }
 }
 
@@ -775,16 +778,16 @@ string ReactorNet::linearSolverType() const
     }
 }
 
-void ReactorNet::preconditionerSolve(double* rhs, double* output)
+void ReactorNet::preconditionerSolve(span<const double> rhs, span<double> output)
 {
     if (!m_integ) {
         throw CanteraError("ReactorNet::preconditionerSolve",
                            "Must only be called after ReactorNet is initialized.");
     }
-    m_integ->preconditionerSolve(m_nv, rhs, output);
+    m_integ->preconditionerSolve(m_nv, const_cast<double*>(rhs.data()), output.data());
 }
 
-void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
+void ReactorNet::preconditionerSetup(double t, span<const double> y, double gamma)
 {
     // ensure state is up to date.
     updateState(y);
@@ -798,11 +801,11 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // Make a copy of state to adjust it for preconditioner
     vector<double> yCopy(m_nv);
     // Get state of reactor
-    getState(yCopy.data());
+    getState(yCopy);
     // transform state based on preconditioner rules
     precon->stateAdjustment(yCopy);
     // update network with adjusted state
-    updateState(yCopy.data());
+    updateState(yCopy);
     // Get jacobians and give elements to preconditioners
     vector<Eigen::Triplet<double>> trips;
     for (auto& R : m_reactors) {
@@ -865,7 +868,8 @@ void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
         rdt = m_rdt;
     }
     vector<double> xv(x, x + size());
-    m_net->evalSteady(x, r);
+    m_net->evalSteady(span<const double>(x, size()),
+                      span<double>(r, size()));
     for (size_t i = 0; i < size(); i++) {
         r[i] -= (x[i] - m_initialState[i]) * rdt * m_mask[i];
     }
@@ -907,7 +911,7 @@ void SteadyReactorSolver::evalJacobian(double* x0)
         x0[j] = xsave;
     }
     // Restore system to unperturbed state
-    m_net->updateState(x0);
+    m_net->updateState(span<const double>(x0, m_net->neq()));
 
     m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
     m_jac->incrementEvals();
@@ -943,7 +947,7 @@ double SteadyReactorSolver::lowerBound(size_t i) const
 
 void SteadyReactorSolver::resetBadValues(double* x)
 {
-    m_net->resetBadValues(x);
+    m_net->resetBadValues(span<double>(x, m_net->neq()));
 }
 
 void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,

@@ -36,7 +36,7 @@ extern "C" {
 static int ida_rhs(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
 {
     FuncEval* f = (FuncEval*) f_data;
-    return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
+    return f->evalDaeNoThrow(t, asSpan(y), asSpan(ydot), asSpan(r));
 }
 
 #if SUNDIALS_VERSION_MAJOR >= 7
@@ -257,10 +257,10 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     }
     m_constraints = newNVector(static_cast<sd_size_t>(m_neq), m_sundials_ctx);
     // set the constraints
-    func.getConstraints(NV_DATA_S(m_constraints));
+    func.getConstraints(asSpan(m_constraints));
 
     // get the initial conditions
-    func.getStateDae(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
+    func.getStateDae(asSpan(m_y), asSpan(m_ydot));
 
     if (m_ida_mem) {
         IDAFree(&m_ida_mem);
@@ -322,7 +322,7 @@ void IdasIntegrator::reinitialize(double t0, FuncEval& func)
     m_t0 = t0;
     m_time = t0;
     m_tInteg = t0;
-    func.getStateDae(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
+    func.getStateDae(asSpan(m_y), asSpan(m_ydot));
     m_func = &func;
     func.clearErrors();
 

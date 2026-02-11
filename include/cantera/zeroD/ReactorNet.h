@@ -204,7 +204,7 @@ public:
 
     //! Update the state of all the reactors in the network to correspond to
     //! the values in the solution vector *y*.
-    void updateState(double* y);
+    void updateState(span<const double> y);
 
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
@@ -242,8 +242,8 @@ public:
      *  @param[in] p sensitivity parameter vector (unused?)
      *  @param[out] j Jacobian matrix, size neq() by neq().
      */
-    void evalJacobian(double t, double* y,
-                      double* ydot, double* p, Array2D* j);
+    void evalJacobian(double t, span<double> y,
+                      span<double> ydot, span<const double> p, Array2D* j);
 
     // overloaded methods of class FuncEval
     size_t neq() const override {
@@ -254,7 +254,8 @@ public:
         return m_reactors.size();
     }
 
-    void eval(double t, double* y, double* ydot, double* p) override;
+    void eval(double t, span<const double> y, span<double> ydot,
+              span<const double> p) override;
 
     //! Evaluate the governing equations adapted for the steady-state solver.
     //!
@@ -263,19 +264,19 @@ public:
     //!     for algebraic variables, this is the residual of the governing equation.
     //!
     //! @since New in %Cantera 4.0.
-    void evalSteady(double* y, double* residual);
+    void evalSteady(span<const double> y, span<double> residual);
 
     //! eval coupling for IDA / DAEs
-    void evalDae(double t, double* y, double* ydot, double* p,
-                 double* residual) override;
+    void evalDae(double t, span<const double> y, span<const double> ydot,
+                 span<const double> p, span<double> residual) override;
 
-    void getState(double* y) override;
-    void getStateDae(double* y, double* ydot) override;
+    void getState(span<double> y) override;
+    void getStateDae(span<double> y, span<double> ydot) override;
 
     //! Return k-th derivative at the current state of the system
-    virtual void getDerivative(int k, double* dky);
+    virtual void getDerivative(int k, span<double> dky);
 
-    void getConstraints(double* constraints) override;
+    void getConstraints(span<double> constraints) override;
 
     size_t nparams() const override {
         return m_sens_params.size();
@@ -303,7 +304,7 @@ public:
     //! This method is used within solveSteady() if certain errors are encountered.
     //!
     //! @param[inout] y  current state vector, to be updated; length neq()
-    void resetBadValues(double* y);
+    void resetBadValues(span<double> y);
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -344,17 +345,17 @@ public:
     virtual void setMaxSteps(int nmax);
 
     //! Set absolute step size limits during advance
-    void setAdvanceLimits(const double* limits);
+    void setAdvanceLimits(span<const double> limits);
 
     //! Check whether ReactorNet object uses advance limits
     bool hasAdvanceLimits() const;
 
     //! Retrieve absolute step size limits during advance
-    bool getAdvanceLimits(double* limits) const;
+    bool getAdvanceLimits(span<double> limits) const;
 
-    void preconditionerSetup(double t, double* y, double gamma) override;
+    void preconditionerSetup(double t, span<const double> y, double gamma) override;
 
-    void preconditionerSolve(double* rhs, double* output) override;
+    void preconditionerSolve(span<const double> rhs, span<double> output) override;
 
     //! Get solver stats from integrator
     AnyMap solverStats() const;
@@ -372,7 +373,8 @@ public:
     //! When limits are active, this sets `gout[0]` to
     //! `1 - max_i(|y[i]-y_base[i]| / limit[i])` so a zero indicates a component has
     //! reached its limit; otherwise `gout[0]` is positive.
-    void evalRootFunctions(double t, const double* y, double* gout) override;
+    void evalRootFunctions(double t, span<const double> y,
+                           span<double> gout) override;
 
 protected:
     //! Check that preconditioning is supported by all reactors in the network
@@ -386,7 +388,7 @@ protected:
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual void getEstimate(double time, int k, double* yest);
+    virtual void getEstimate(double time, int k, span<double> yest);
 
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance

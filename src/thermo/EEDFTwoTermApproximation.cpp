@@ -107,7 +107,7 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
 
         Eigen::VectorXd f0_old = f0;
         f0 = iterate(f0_old, delta);
-        checkFinite("EEDFTwoTermApproximation::converge: f0", f0.data(), f0.size());
+        checkFinite("EEDFTwoTermApproximation::converge: f0", asSpan(f0));
 
         err0 = err1;
         Eigen::VectorXd Df0 = (f0_old - f0).cwiseAbs();
@@ -166,7 +166,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
         return f0;
     }
 
-    checkFinite("EEDFTwoTermApproximation::converge: f0", f1.data(), f1.size());
+    checkFinite("EEDFTwoTermApproximation::converge: f0", asSpan(f1));
     f1 /= norm(f1, m_gridCenter);
     return f1;
 }
@@ -371,7 +371,7 @@ double EEDFTwoTermApproximation::netProductionFrequency(const Eigen::VectorXd& f
                               m_X_targets[m_klocTargets[k]];
             Eigen::VectorXd s = PQ * f0;
             checkFinite("EEDFTwoTermApproximation::netProductionFrequency: s",
-                        s.data(), s.size());
+                        asSpan(s));
             nu += s.sum();
         }
     }
