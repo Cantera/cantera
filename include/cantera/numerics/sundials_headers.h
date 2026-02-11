@@ -1,6 +1,7 @@
 #ifndef CT_SUNDIALS_HEADERS
 #define CT_SUNDIALS_HEADERS
 
+#include "cantera/base/ct_defs.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
@@ -31,5 +32,16 @@
 #define IDA_SV 2
 
 typedef long int sd_size_t;
+
+namespace Cantera
+{
+
+//! Access a SUNDIALS `N_Vector` as a `span<double>`
+inline span<double> asSpan(N_Vector v)
+{
+    return span<double>(NV_DATA_S(v), NV_LENGTH_S(v));
+}
+
+}
 
 #endif

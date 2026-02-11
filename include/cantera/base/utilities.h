@@ -176,10 +176,9 @@ void checkFinite(const double tmp);
 /*!
  * Throws an exception if any element is NaN, +Inf, or -Inf
  * @param name    Name to be used in the exception message if the check fails
- * @param values  Array of *N* values to be checked
- * @param N       Number of elements in *values*
+ * @param values  Array of values to be checked
  */
-void checkFinite(const string& name, const double* values, size_t N);
+void checkFinite(const string& name, span<const double> values);
 
 //! Const accessor for a value in a map.
 /*

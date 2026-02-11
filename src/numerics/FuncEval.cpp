@@ -4,10 +4,10 @@
 namespace Cantera
 {
 
-int FuncEval::evalNoThrow(double t, double* y, double* ydot)
+int FuncEval::evalNoThrow(double t, span<const double> y, span<double> ydot)
 {
     try {
-        eval(t, y, ydot, m_sens_params.data());
+        eval(t, y, ydot, m_sens_params);
     } catch (CanteraError& err) {
         if (suppressErrors()) {
             m_errors.push_back(err.what());
@@ -36,10 +36,11 @@ int FuncEval::evalNoThrow(double t, double* y, double* ydot)
     return 0; // successful evaluation
 }
 
-int FuncEval::evalDaeNoThrow(double t, double* y, double* ydot, double* r)
+int FuncEval::evalDaeNoThrow(double t, span<const double> y, span<const double> ydot,
+                             span<double> r)
 {
     try {
-        evalDae(t, y, ydot, m_sens_params.data(), r);
+        evalDae(t, y, ydot, m_sens_params, r);
     } catch (CanteraError& err) {
         if (suppressErrors()) {
             m_errors.push_back(err.what());
@@ -77,7 +78,7 @@ string FuncEval::getErrors() const {
     return errs.str();
 }
 
-int FuncEval::preconditioner_setup_nothrow(double t, double* y, double gamma)
+int FuncEval::preconditioner_setup_nothrow(double t, span<const double> y, double gamma)
 {
     try {
         preconditionerSetup(t, y, gamma);
@@ -110,7 +111,7 @@ int FuncEval::preconditioner_setup_nothrow(double t, double* y, double gamma)
     return 0; // successful evaluation
 }
 
-int FuncEval::preconditioner_solve_nothrow(double* rhs, double* output)
+int FuncEval::preconditioner_solve_nothrow(span<const double> rhs, span<double> output)
 {
     try {
         preconditionerSolve(rhs, output); // perform preconditioner solve
@@ -143,7 +144,7 @@ int FuncEval::preconditioner_solve_nothrow(double* rhs, double* output)
     return 0; // successful evaluation
 }
 
-int FuncEval::evalRootFunctionsNoThrow(double t, const double* y, double* gout)
+int FuncEval::evalRootFunctionsNoThrow(double t, span<const double> y, span<double> gout)
 {
     try {
         evalRootFunctions(t, y, gout);

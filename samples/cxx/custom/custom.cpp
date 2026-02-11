@@ -68,7 +68,8 @@ public:
      *
      * note: sensitivity analysis isn't implemented in this example
      */
-    void eval(double t, double* y, double* ydot, double* p) override {
+    void eval(double t, span<const double> y, span<double> ydot,
+              span<const double> p) override {
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
         // system temperature, and Y_k is the mass fraction of species k.
         // similarly, the time derivative of the solution vector, *ydot*, is
@@ -76,7 +77,7 @@ public:
         // the following variables are defined for clear and convenient access
         // to these vectors:
         double temperature = y[0];
-        span<double> massFracs(y + 1, m_nSpecies);
+        auto massFracs = y.subspan(1, m_nSpecies);
         double *dTdt = &ydot[0];
         double *dYdt = &ydot[1];
 
@@ -128,11 +129,11 @@ public:
      *   - overridden from FuncEval, called by the integrator during initialization.
      * @param[out] y solution vector, length neq()
      */
-    void getState(double* y) override {
+    void getState(span<double> y) override {
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
         // system temperature, and Y_k is the mass fraction of species k.
         y[0] = m_gas->temperature();
-        m_gas->getMassFractions(span<double>(y + 1, m_nSpecies));
+        m_gas->getMassFractions(y.subspan(1, m_nSpecies));
     }
 
 private:

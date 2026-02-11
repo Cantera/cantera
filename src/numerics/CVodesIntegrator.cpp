@@ -35,7 +35,7 @@ extern "C" {
     static int cvodes_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->evalNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
+        return f->evalNoThrow(t, asSpan(y), asSpan(ydot));
     }
 
     #if SUNDIALS_VERSION_MAJOR >= 7
@@ -71,7 +71,7 @@ extern "C" {
         FuncEval* f = (FuncEval*) f_data;
         if (!jok) {
             *jcurPtr = true; // jacobian data was recomputed
-            return f->preconditioner_setup_nothrow(t, NV_DATA_S(y), gamma);
+            return f->preconditioner_setup_nothrow(t, asSpan(y), gamma);
         } else {
             f->updatePreconditioner(gamma); // updates preconditioner with new gamma
             *jcurPtr = false; // indicates that Jacobian data was not recomputed
@@ -84,7 +84,7 @@ extern "C" {
                                  int lr, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
+        return f->preconditioner_solve_nothrow(asSpan(r), asSpan(z));
     }
 
     /**
@@ -99,7 +99,8 @@ extern "C" {
     static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
-        return f->evalRootFunctionsNoThrow(t, NV_DATA_S(y), gout);
+        return f->evalRootFunctionsNoThrow(t, asSpan(y),
+                                           span<double>(gout, f->nRootFunctions()));
     }
 }
 
@@ -304,7 +305,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
                            "not enough absolute tolerance values specified.");
     }
 
-    func.getState(NV_DATA_S(m_y));
+    func.getState(asSpan(m_y));
 
     if (m_cvode_mem) {
         CVodeFree(&m_cvode_mem);
@@ -363,7 +364,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_t0 = t0;
     m_time = t0;
     m_tInteg = t0;
-    func.getState(NV_DATA_S(m_y));
+    func.getState(asSpan(m_y));
     m_func = &func;
     func.clearErrors();
     // reinitialize preconditioner if applied

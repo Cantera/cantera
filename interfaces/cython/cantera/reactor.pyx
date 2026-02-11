@@ -1958,7 +1958,7 @@ cdef class ReactorNet:
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.net.getState(&y[0])
+        self.net.getState(span[double](&y[0], y.size))
         return y
 
     def get_derivative(self, k):
@@ -1969,7 +1969,7 @@ cdef class ReactorNet:
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')
         cdef np.ndarray[np.double_t, ndim = 1] dky = np.zeros(self.n_vars)
-        self.net.getDerivative(k, & dky[0])
+        self.net.getDerivative(k, span[double](&dky[0], dky.size))
         return dky
 
     property advance_limits:
@@ -1981,7 +1981,7 @@ cdef class ReactorNet:
         """
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] limits = np.empty(self.n_vars)
-            self.net.getAdvanceLimits(&limits[0])
+            self.net.getAdvanceLimits(span[double](&limits[0], limits.size))
             return limits
 
         def __set__(self, limits):
@@ -1992,7 +1992,7 @@ cdef class ReactorNet:
 
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(limits, dtype=np.double)
-            self.net.setAdvanceLimits(&data[0])
+            self.net.setAdvanceLimits(span[double](&data[0], data.size))
 
     def advance_to_steady_state(self, int max_steps=10000,
                                 double residual_threshold=0., double atol=0.,
