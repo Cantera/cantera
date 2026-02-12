@@ -199,6 +199,54 @@ public:
         m_tfactor = tfactor;
     }
 
+    //! Set the default factor by which the time step is increased after a
+    //! successful step when the Jacobian is re-used.
+    //!
+    //! The default value is 1.5, matching historical behavior.
+    //! @param tfactor  factor time step is multiplied by after a successful step
+    void setTimeStepGrowthFactor(double tfactor) {
+        if (tfactor < 1.0) {
+            throw CanteraError("SteadyStateSystem::setTimeStepGrowthFactor",
+                "Time step growth factor must be >= 1.0. Got {}.", tfactor);
+        }
+        m_tstep_growth = tfactor;
+    }
+
+    //! Get the successful-step time step growth factor.
+    double timeStepGrowthFactor() const {
+        return m_tstep_growth;
+    }
+
+    //! Enable or disable adaptive time-step growth heuristics.
+    //!
+    //! If disabled, steady solvers use the fixed growth factor from
+    //! setTimeStepGrowthFactor(). Disabled by default.
+    void setAdaptiveTimeStepGrowth(bool enabled) {
+        m_adaptive_tstep_growth = enabled;
+    }
+
+    //! Get whether adaptive time-step growth heuristics are enabled.
+    bool adaptiveTimeStepGrowth() const {
+        return m_adaptive_tstep_growth;
+    }
+
+    //! Select which adaptive time-step growth heuristic is used.
+    //!
+    //! Supported values are 1-4.
+    void setTimeStepGrowthHeuristic(int heuristic) {
+        if (heuristic < 1 || heuristic > 4) {
+            throw CanteraError("SteadyStateSystem::setTimeStepGrowthHeuristic",
+                "Time step growth heuristic must be in the range [1, 4]. Got {}.",
+                heuristic);
+        }
+        m_tstep_growth_heuristic = heuristic;
+    }
+
+    //! Get the selected adaptive time-step growth heuristic.
+    int timeStepGrowthHeuristic() const {
+        return m_tstep_growth_heuristic;
+    }
+
     //! Set the maximum number of timeteps allowed before successful steady-state solve
     void setMaxTimeStepCount(int nmax) {
         m_nsteps_max = nmax;
@@ -275,6 +323,17 @@ protected:
 
     //! Factor time step is multiplied by if time stepping fails ( < 1 )
     double m_tfactor = 0.5;
+
+    //! Factor time step is multiplied by after successful steps when no new Jacobian
+    //! evaluation is needed.
+    double m_tstep_growth = 1.5;
+
+    //! If `true`, use residual- or iteration-based heuristics to gate time-step
+    //! growth; otherwise use the fixed growth factor.
+    bool m_adaptive_tstep_growth = false;
+
+    //! Selected adaptive growth heuristic (1-4). See timeStepIncreaseFactor().
+    int m_tstep_growth_heuristic = 2;
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 

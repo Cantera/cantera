@@ -139,6 +139,32 @@ class TestOnedim:
         assert rtol_ss == set((5e-3, 3e-4, 7e-7))
         assert rtol_ts == set((6e-3, 4e-4, 2e-7))
 
+    def test_time_step_growth_controls(self):
+        gas = ct.Solution("h2o2.yaml")
+        left = ct.Inlet1D(gas)
+        flame = ct.FreeFlow(gas)
+        right = ct.Outlet1D(gas)
+        sim = ct.Sim1D((left, flame, right))
+
+        assert sim.time_step_growth_factor() == approx(1.5)
+        assert not sim.adaptive_time_step_growth()
+        assert sim.time_step_growth_heuristic() == 2
+
+        sim.set_time_step_growth_factor(1.2)
+        assert sim.time_step_growth_factor() == approx(1.2)
+
+        sim.set_adaptive_time_step_growth(True)
+        assert sim.adaptive_time_step_growth()
+
+        sim.set_time_step_growth_heuristic(4)
+        assert sim.time_step_growth_heuristic() == 4
+
+        with pytest.raises(ct.CanteraError, match=">= 1.0"):
+            sim.set_time_step_growth_factor(0.9)
+
+        with pytest.raises(ct.CanteraError, match=r"\[1, 4\]"):
+            sim.set_time_step_growth_heuristic(5)
+
     def test_switch_transport(self):
         gas = ct.Solution('h2o2.yaml')
         gas.set_equivalence_ratio(0.9, 'H2', 'O2:0.21, N2:0.79')
