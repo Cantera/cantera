@@ -486,7 +486,7 @@ private:
  *      together.
  * @since New in %Cantera 3.2.
  */
-shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
+shared_ptr<ReactorNet> newReactorNet(span<shared_ptr<ReactorBase>> reactors);
 
 }
 

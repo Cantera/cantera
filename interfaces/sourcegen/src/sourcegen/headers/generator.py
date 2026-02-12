@@ -330,7 +330,7 @@ class HeaderGenerator:
                 handle = self._handle_crosswalk(
                     par_key, self._config.par_type_crosswalk, {})
                 par_key = par_key.replace(handle, "T")
-                if "vector<" in par_key:
+                if "vector<" in par_key or "span<" in par_key:
                     params.append(
                         Param("int32_t", f"{par.name}Len",
                               f"Length of array reserved for {par.name}.", "in"))

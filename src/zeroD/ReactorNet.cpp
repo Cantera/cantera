@@ -970,7 +970,7 @@ void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,
     }
 }
 
-shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors)
+shared_ptr<ReactorNet> newReactorNet(span<shared_ptr<ReactorBase>> reactors)
 {
     return make_shared<ReactorNet>(reactors);
 }

@@ -36,6 +36,7 @@ par_type_crosswalk:
   int*: int32_t*
   vector<int>: int32_t*
   vector<shared_ptr<T>>: int32_t*
+  span<shared_ptr<T>>: int32_t*
   double: double
   double*: double*
   vector<double>: double*
