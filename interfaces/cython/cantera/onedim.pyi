@@ -346,6 +346,7 @@ class BurnerFlame(FlameBase):
         self,
         data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
+        mode: Literal["stoich", "linear"] = "stoich",
     ) -> None: ...
     def solve(
         self,
