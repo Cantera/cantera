@@ -459,15 +459,16 @@ protected:
 class SteadyReactorSolver : public SteadyStateSystem
 {
 public:
-    SteadyReactorSolver(ReactorNet* net, double* x0);
-    void eval(double* x, double* r, double rdt=-1.0, int count=1) override;
-    void initTimeInteg(double dt, double* x) override;
-    void evalJacobian(double* x0) override;
-    double weightedNorm(const double* step) const override;
+    SteadyReactorSolver(ReactorNet* net, span<const double> x0);
+    void eval(span<const double> x, span<double> r,
+              double rdt=-1.0, int count=1) override;
+    void initTimeInteg(double dt, span<const double> x) override;
+    void evalJacobian(span<const double> x0) override;
+    double weightedNorm(span<const double> step) const override;
     string componentName(size_t i) const override;
     double upperBound(size_t i) const override;
     double lowerBound(size_t i) const override;
-    void resetBadValues(double* x) override;
+    void resetBadValues(span<double> x) override;
     void writeDebugInfo(const string& header_suffix, const string& message,
                         int loglevel, int attempt_counter) override;
 

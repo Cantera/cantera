@@ -24,6 +24,7 @@ ret_type_crosswalk:
   vector<double>: double*
   span<double>: double*
   span<const double>: const double*
+  span<const int>: const int32_t*
   string: char*
 
 # Parameter type crosswalks
@@ -41,6 +42,7 @@ par_type_crosswalk:
   vector<double>: double*
   span<double>: double*
   span<const double>: const double*
+  span<const int>: const int32_t*
   string: char*
 
 # Cabinets with associated preambles (headers)

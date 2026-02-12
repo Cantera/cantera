@@ -54,7 +54,7 @@ public:
     //! @f$ n @f$ in domain @f$ d @f$. @f$ N @f$ is the total number of state variables
     //! across all domains and @f$ J_d @f$ is the number of grid points in domain
     //! @f$ d @f$.
-    double weightedNorm(const double* step) const override;
+    double weightedNorm(span<const double> step) const override;
 
     //! Number of domains.
     size_t nDomains() const {
@@ -140,7 +140,7 @@ public:
         return m_pts;
     }
 
-    void initTimeInteg(double dt, double* x) override;
+    void initTimeInteg(double dt, span<const double> x) override;
     void setSteadyMode() override;
 
     /**
@@ -154,13 +154,16 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, double rdt=-1.0, int count=1);
+    void eval(size_t j, span<const double> x, span<double> r,
+              double rdt=-1.0, int count=1);
 
-    void eval(double* x, double* r, double rdt=-1.0, int count=1) override {
+    void eval(span<const double> x, span<double> r,
+              double rdt=-1.0, int count=1) override
+    {
         return eval(npos, x, r, rdt, count);
     }
 
-    void evalJacobian(double* x0) override;
+    void evalJacobian(span<const double> x0) override;
 
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
@@ -170,7 +173,7 @@ public:
     Domain1D* pointDomain(size_t i);
 
     void resize() override;
-    void resetBadValues(double* x) override;
+    void resetBadValues(span<double> x) override;
 
     //! Write statistics about the number of iterations and Jacobians at each
     //! grid level

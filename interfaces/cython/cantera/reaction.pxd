@@ -9,8 +9,6 @@ from .func1 cimport *
 from .delegator cimport CxxDelegator
 from libcpp.map cimport multimap
 
-# TODO: Drop after requiring Cython 3.1.0 or newer
-ctypedef const double const_double
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception

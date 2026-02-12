@@ -35,7 +35,8 @@ public:
     //! @param rdt  Reciprocal of the time step. if omitted, then the internally stored
     //!     value (accessible using the rdt() method) is used.
     //! @param count   Set to zero to omit this call from the statistics
-    virtual void eval(double* x, double* r, double rdt=-1.0, int count=1) = 0;
+    virtual void eval(span<const double> x, span<double> r,
+                      double rdt=-1.0, int count=1) = 0;
 
     //! Evaluates the Jacobian at x0 using finite differences.
     //!
@@ -44,7 +45,7 @@ public:
     //! finite differences to determine the corresponding column of the Jacobian.
     //!
     //! @param x0  State vector at which to evaluate the Jacobian
-    virtual void evalJacobian(double* x0) = 0;
+    virtual void evalJacobian(span<const double> x0) = 0;
 
     //! Compute the weighted norm of `step`.
     //!
@@ -55,10 +56,10 @@ public:
     //! tolerances. This makes the norm dimensionless and scaled appropriately, avoiding
     //! issues where some components dominate due to differences in their scales. See
     //! OneDim::weightedNorm() for a representative implementation.
-    virtual double weightedNorm(const double* step) const = 0;
+    virtual double weightedNorm(span<const double> step) const = 0;
 
     //! Set the initial guess. Should be called before solve().
-    void setInitialGuess(const double* x);
+    void setInitialGuess(span<const double> x);
 
     //! Solve the steady-state problem, taking internal timesteps as necessary until
     //! the Newton solver can converge for the steady problem.
@@ -66,11 +67,11 @@ public:
     void solve(int loglevel=0);
 
     //! Get the converged steady-state solution after calling solve().
-    void getState(double* x) const;
+    void getState(span<double> x) const;
 
     //! Steady-state max norm (infinity norm) of the residual evaluated using solution
     //! x. On return, array r contains the steady-state residual values.
-    double ssnorm(double* x, double* r);
+    double ssnorm(span<const double> x, span<double> r);
 
     //! Total solution vector length;
     size_t size() const {
@@ -136,7 +137,7 @@ public:
     }
 
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
-    virtual void initTimeInteg(double dt, double* x);
+    virtual void initTimeInteg(double dt, span<const double> x);
 
     //! Prepare to solve the steady-state problem. After invoking this method,
     //! subsequent calls to solve() will solve the steady-state problem. Sets the
@@ -158,10 +159,11 @@ public:
     //! @param r  solution vector after time stepping
     //! @param loglevel  controls amount of printed diagnostics
     //! @returns size of last timestep taken
-    double timeStep(int nsteps, double dt, double* x, double* r, int loglevel);
+    double timeStep(int nsteps, double dt, span<double> x, span<double> r,
+                    int loglevel);
 
     //! Reset values such as negative species concentrations
-    virtual void resetBadValues(double* x) {}
+    virtual void resetBadValues(span<double> x) {}
 
     //! @name Options
     //! @{
@@ -173,18 +175,7 @@ public:
     //! @param tsteps  A sequence of time step counts to take after subsequent failures
     //!     of the steady-state solver. The last value in `tsteps` will be used again
     //!     after further unsuccessful solution attempts.
-    void setTimeStep(double stepsize, size_t n, const int* tsteps);
-
-    //! Set the number of time steps to try when the steady Newton solver is
-    //! unsuccessful.
-    //! @param stepSize  Initial time step size [s]
-    //! @param tSteps  A sequence of time step counts to take after subsequent failures
-    //!     of the steady-state solver. The last value in `tsteps` will be used again
-    //!     after further unsuccessful solution attempts.
-    //! @since New in %Cantera 3.2
-    void setTimeStep(double stepSize, const vector<int>& tSteps) {
-        setTimeStep(stepSize, tSteps.size(), tSteps.data());
-    }
+    void setTimeStep(double stepsize, span<const int> tsteps);
 
     //! Set the minimum time step allowed during time stepping
     void setMinTimeStep(double tmin) {
@@ -263,8 +254,7 @@ public:
 protected:
     //! Evaluate the steady-state Jacobian, accessible via linearSolver()
     //! @param[in] x  Current state vector, length size()
-    //! @param[out] rsd  Storage for the residual, length size()
-    void evalSSJacobian(double* x, double* rsd);
+    void evalSSJacobian(span<const double> x);
 
     //! Array of number of steps to take after each unsuccessful steady-state solve
     //! before re-attempting the steady-state solution. For subsequent time stepping
