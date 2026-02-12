@@ -90,11 +90,12 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setInitialMaxErrorFailures(int) except +translate_exception
 
     cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
-        string, shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&,
+        string, shared_ptr[CxxSolution], span[shared_ptr[CxxReactorBase]],
         cbool, string) except +translate_exception
 
     cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
-        shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&, cbool, string) except +translate_exception
+        shared_ptr[CxxSolution], span[shared_ptr[CxxReactorBase]],
+        cbool, string) except +translate_exception
 
     # connectors
 
@@ -163,7 +164,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # reactor net
 
     cdef shared_ptr[CxxReactorNet] CxxNewReactorNet "newReactorNet" (
-        vector[shared_ptr[CxxReactorBase]]&) except +translate_exception
+        span[shared_ptr[CxxReactorBase]]) except +translate_exception
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()

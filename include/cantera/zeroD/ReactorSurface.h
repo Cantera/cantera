@@ -34,7 +34,7 @@ public:
     //! @since  Constructor signature including `reactors` and `clone` arguments
     //!     introduced in %Cantera 3.2.
     ReactorSurface(shared_ptr<Solution> soln,
-                   const vector<shared_ptr<ReactorBase>>& reactors,
+                   span<shared_ptr<ReactorBase>> reactors,
                    bool clone,
                    const string& name="(none)");
 
@@ -183,7 +183,7 @@ class FlowReactorSurface : public ReactorSurface
 public:
     //! @copydoc ReactorSurface::ReactorSurface
     FlowReactorSurface(shared_ptr<Solution> soln,
-                   const vector<shared_ptr<ReactorBase>>& reactors,
+                   span<shared_ptr<ReactorBase>> reactors,
                    bool clone,
                    const string& name="(none)");
 

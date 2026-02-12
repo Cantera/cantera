@@ -46,7 +46,7 @@ private:
 //! ```
 class ReactorSurfaceFactory : public Factory<ReactorSurface,
     shared_ptr<Solution> /* surface */,
-    const vector<shared_ptr<ReactorBase>>& /* adjacent reactors */,
+    span<shared_ptr<ReactorBase>> /* adjacent reactors */,
     bool /* clone */, const string& /* name */>
 {
 public:
@@ -125,7 +125,7 @@ shared_ptr<Reservoir> newReservoir(
 //! @param name  Name of the reactor surface.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorSurface> newReactorSurface(
-    shared_ptr<Solution> phase, const vector<shared_ptr<ReactorBase>>& reactors,
+    shared_ptr<Solution> phase, span<shared_ptr<ReactorBase>> reactors,
     bool clone=true, const string& name="(none)");
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
@@ -142,7 +142,7 @@ shared_ptr<ReactorSurface> newReactorSurface(
 //! @since  New in %Cantera 4.0.
 shared_ptr<ReactorSurface> newReactorSurface(
     const string& model, shared_ptr<Solution> phase,
-    const vector<shared_ptr<ReactorBase>>& reactors,
+    span<shared_ptr<ReactorBase>> reactors,
     bool clone=true, const string& name="(none)");
 
 //! @}

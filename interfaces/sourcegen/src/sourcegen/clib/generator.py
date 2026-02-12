@@ -225,8 +225,11 @@ class CLibSourceGenerator(SourceGenerator):
             if check_array:
                 # Need to handle crosswalked parameter with length information
                 c_prev = c_args[c_ix-1].name
-                if "vector<shared_ptr" in cxx_type:
+                if "vector<shared_ptr" in cxx_type or "span<shared_ptr" in cxx_type:
                     # Example: vector<shared_ptr<Domain1D>>
+                    if "span<" in cxx_type:
+                        # Generate a vector to pass to a function taking a span
+                        cxx_type = cxx_type.replace("span<", "vector<")
                     cxx_type = cxx_type.removeprefix("const ").rstrip("&")
                     cxx_base = cxx_type.rstrip(">").split("<")[-1]
                     bases.add(cxx_base)

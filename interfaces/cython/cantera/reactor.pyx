@@ -735,14 +735,17 @@ cdef class ReactorSurface(ReactorBase):
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
 
+        cdef span[shared_ptr[CxxReactorBase]] adj_span = \
+            span[shared_ptr[CxxReactorBase]](cxx_adj)
+
         if kind is None and self.reactor_type != "ReactorSurface":
             kind = self.reactor_type
 
         if kind is not None:
-            self._rbase = CxxNewReactorSurface(stringify(kind), phase._base, cxx_adj,
+            self._rbase = CxxNewReactorSurface(stringify(kind), phase._base, adj_span,
                                                clone, stringify(name))
         else:
-            self._rbase = CxxNewReactorSurface(phase._base, cxx_adj, clone,
+            self._rbase = CxxNewReactorSurface(phase._base, adj_span, clone,
                                                stringify(name))
 
         self.rbase = self._rbase.get()
@@ -1591,7 +1594,9 @@ cdef class ReactorNet:
         for r in reactors:
             self._reactors.append(r)
             cxx_reactors.push_back(r._rbase)
-        self._net = CxxNewReactorNet(cxx_reactors)
+        cdef span[shared_ptr[CxxReactorBase]] reactors_span = \
+            span[shared_ptr[CxxReactorBase]](cxx_reactors)
+        self._net = CxxNewReactorNet(reactors_span)
         self.net = self._net.get()
 
     def advance(self, double t, pybool apply_limit=True):

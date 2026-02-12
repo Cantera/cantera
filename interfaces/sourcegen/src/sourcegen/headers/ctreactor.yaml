@@ -14,9 +14,9 @@ recipes:
 - name: new
   wraps: newReactorBase
 - name: newSurface
-  wraps: newReactorSurface(shared_ptr<Solution>, const vector<shared_ptr<ReactorBase>>&, bool, const string&)
+  wraps: newReactorSurface(shared_ptr<Solution>, span<shared_ptr<ReactorBase>>, bool, const string&)
 - name: newSurfaceOfType
-  wraps: newReactorSurface(const string&, shared_ptr<Solution>, const vector<shared_ptr<ReactorBase>>&, bool, const string&)
+  wraps: newReactorSurface(const string&, shared_ptr<Solution>, span<shared_ptr<ReactorBase>>, bool, const string&)
 - name: type
 - name: name
 - name: setName

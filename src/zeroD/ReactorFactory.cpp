@@ -116,27 +116,27 @@ void ReactorSurfaceFactory::deleteFactory() {
 ReactorSurfaceFactory::ReactorSurfaceFactory()
 {
     reg("ReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new ReactorSurface(surf, reactors, clone, name); });
     reg("MoleReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new MoleReactorSurface(surf, reactors, clone, name); });
     reg("FlowReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new FlowReactorSurface(surf, reactors, clone, name); });
     reg("ExtensibleReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new ReactorDelegator<ReactorSurface>(surf, reactors, clone, name); });
     reg("ExtensibleMoleReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new ReactorDelegator<MoleReactorSurface>(surf, reactors, clone, name); });
     reg("ExtensibleFlowReactorSurface",
-        [](shared_ptr<Solution> surf, const vector<shared_ptr<ReactorBase>>& reactors,
+        [](shared_ptr<Solution> surf, span<shared_ptr<ReactorBase>> reactors,
            bool clone, const string& name)
         { return new ReactorDelegator<FlowReactorSurface>(surf, reactors, clone, name); });
 }
@@ -175,7 +175,7 @@ shared_ptr<Reservoir> newReservoir(
 }
 
 shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
-    const vector<shared_ptr<ReactorBase>>& reactors, bool clone, const string& name)
+    span<shared_ptr<ReactorBase>> reactors, bool clone, const string& name)
 {
     if (reactors.empty()) {
         throw CanteraError("newReactorSurface",
@@ -196,7 +196,7 @@ shared_ptr<ReactorSurface> newReactorSurface(shared_ptr<Solution> phase,
 }
 
 shared_ptr<ReactorSurface> newReactorSurface(const string& model,
-    shared_ptr<Solution> phase, const vector<shared_ptr<ReactorBase>>& reactors,
+    shared_ptr<Solution> phase, span<shared_ptr<ReactorBase>> reactors,
     bool clone, const string& name)
 {
     return shared_ptr<ReactorSurface>(ReactorSurfaceFactory::factory()->create(

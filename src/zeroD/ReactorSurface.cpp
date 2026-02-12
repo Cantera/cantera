@@ -14,7 +14,7 @@ namespace Cantera
 {
 
 ReactorSurface::ReactorSurface(shared_ptr<Solution> soln,
-                               const vector<shared_ptr<ReactorBase>>& reactors,
+                               span<shared_ptr<ReactorBase>> reactors,
                                bool clone,
                                const string& name)
     : ReactorBase(name)
@@ -319,7 +319,7 @@ void MoleReactorSurface::getJacobianElements(vector<Eigen::Triplet<double>>& tri
 // ------ FlowReactorSurface methods ------
 
 FlowReactorSurface::FlowReactorSurface(shared_ptr<Solution> soln,
-                                       const vector<shared_ptr<ReactorBase>>& reactors,
+                                       span<shared_ptr<ReactorBase>> reactors,
                                        bool clone,
                                        const string& name)
     : ReactorSurface(soln, reactors, clone, name)
