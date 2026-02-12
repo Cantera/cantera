@@ -1488,32 +1488,48 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.density, self.P
         def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
+            assert ((len(values) == 2) || (len(values) == 4)), 'incorrect number of values either 2 (DP) or 4 (D, P, tolerance, TGuess)'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+            if (len(values) == 2):
+                self.thermo.setState_DP(D*self._mass_factor(), P)
+            else:
+                tolerance = values[2] 
+                TGuess    = values[3]
+                self.thermo.setState_DP(D*self._mass_factor(), P,tolerance,TGuess)
 
     property DPX:
         """Get/Set density [kg/m³], pressure [Pa], and mole fractions."""
         def __get__(self):
             return self.density, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
+            assert ((len(values) == 3) || (len(values) == 5)), 'incorrect number of values either 3 (DPX) or 5 (D, P, X, tolerance, TGuess)'
+            if 
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+            if (len(values) == 3):
+                self.thermo.setState_DP(D*self._mass_factor(), P)
+            else:
+                tolerance = values[3] 
+                TGuess    = values[4]
+                self.thermo.setState_DP(D*self._mass_factor(), P,tolerance,TGuess)
 
     property DPY:
         """Get/Set density [kg/m³], pressure [Pa], and mass fractions."""
         def __get__(self):
             return self.density, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
+            assert ((len(values) == 3) || (len(values) == 5)), 'incorrect number of values either 3 (DPY) or 5 (D, P, Y, tolerance, TGuess)'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+            if (len(values) == 3):
+                self.thermo.setState_DP(D*self._mass_factor(), P)
+            else:
+                tolerance = values[3] 
+                TGuess    = values[4]
+                self.thermo.setState_DP(D*self._mass_factor(), P,tolerance,TGuess)
 
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
