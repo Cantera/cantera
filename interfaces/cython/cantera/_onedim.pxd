@@ -149,6 +149,12 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void getResidual(double, span[double]) except +translate_exception
         void setJacAge(int, int)
         void setTimeStepFactor(double)
+        void setTimeStepGrowthFactor(double) except +translate_exception
+        double timeStepGrowthFactor()
+        void setAdaptiveTimeStepGrowth(cbool)
+        cbool adaptiveTimeStepGrowth()
+        void setTimeStepGrowthHeuristic(int) except +translate_exception
+        int timeStepGrowthHeuristic()
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
         void setTimeStepRegridMax(int)
