@@ -206,11 +206,13 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
     double s1=1.e30;
 
     copy(x0, x0 + m_n, &m_x[0]);
+    m_lastIterations = 0;
 
     double rdt = r.rdt();
     int nJacReeval = 0;
     auto jac = r.linearSolver();
     while (true) {
+        m_lastIterations++;
         // Check whether the Jacobian should be re-evaluated.
         if (jac->age() > m_maxAge) {
             if (loglevel > 1) {

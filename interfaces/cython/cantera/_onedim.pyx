@@ -1420,10 +1420,61 @@ cdef class Sim1D:
 
     def set_time_step_factor(self, tfactor):
         """
-        Set the factor by which the time step will be increased after a
-        successful step, or decreased after an unsuccessful one.
+        Set the factor by which the time step will be decreased after an
+        unsuccessful step.
         """
         self.sim.setTimeStepFactor(tfactor)
+
+    def set_time_step_growth_factor(self, tfactor):
+        """
+        Set the factor by which the time step will be increased after a
+        successful step when the Jacobian is reused.
+
+        The default value is 1.5.
+        """
+        self.sim.setTimeStepGrowthFactor(tfactor)
+
+    def time_step_growth_factor(self):
+        """
+        Get the factor used to increase time step size after successful steps.
+        """
+        return self.sim.timeStepGrowthFactor()
+
+    def set_adaptive_time_step_growth(self, enabled=True):
+        """
+        Enable adaptive time-step growth heuristics.
+
+        Disabled by default to preserve legacy behavior.
+        """
+        self.sim.setAdaptiveTimeStepGrowth(enabled)
+
+    def adaptive_time_step_growth(self):
+        """
+        Get whether adaptive time-step growth heuristics are enabled.
+        """
+        return self.sim.adaptiveTimeStepGrowth()
+
+    def set_time_step_growth_heuristic(self, heuristic):
+        """
+        Select the adaptive time-step growth heuristic.
+
+        Supported values are integers from 1 to 4.
+        """
+        self.sim.setTimeStepGrowthHeuristic(heuristic)
+
+    def time_step_growth_heuristic(self):
+        """
+        Get the selected adaptive time-step growth heuristic.
+        """
+        return self.sim.timeStepGrowthHeuristic()
+
+    def set_time_step_regrid(self, max_tries=10):
+        """
+        Set the maximum number of regrid attempts after a time step failure.
+
+        Setting ``max_tries`` to zero disables regrid-on-timestep-failure retries.
+        """
+        self.sim.setTimeStepRegridMax(max_tries)
 
     def set_min_time_step(self, tsmin):
         """ Set the minimum time step. """
