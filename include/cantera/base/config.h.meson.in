@@ -1,0 +1,56 @@
+#ifndef CT_CONFIG_H
+#define CT_CONFIG_H
+
+//---------------------------- Version Flags ------------------//
+// Cantera version -> this will be a double-quoted string value
+@CANTERA_VERSION@
+
+// Just the major + minor version (that is, 2.2 instead of 2.2.0)
+@CANTERA_SHORT_VERSION@
+
+//------------------------ Fortran settings -------------------//
+
+// define types doublereal, integer, and ftnlen to match the
+// corresponding Fortran data types on your system. The defaults
+// are OK for most systems
+
+typedef double doublereal;   // Fortran double precision
+typedef int integer;      // Fortran integer
+typedef int ftnlen;       // Fortran hidden string length type
+
+// Fortran compilers pass character strings in argument lists by
+// adding a hidden argument with the length of the string. Some
+// compilers add the hidden length argument immediately after the
+// CHARACTER variable being passed, while others put all of the hidden
+// length arguments at the end of the argument list. Define this if
+// the lengths are at the end of the argument list. This is usually the
+// case for most unix Fortran compilers, but is (by default) false for
+// Visual Fortran under Windows.
+#define STRING_LEN_AT_END
+
+// Define this if Fortran adds a trailing underscore to names in object files.
+// For linux and most unix systems, this is the case.
+@FTN_TRAILING_UNDERSCORE@
+
+//-------- LAPACK / BLAS ---------
+
+@LAPACK_FTN_STRING_LEN_AT_END@
+@LAPACK_FTN_TRAILING_UNDERSCORE@
+@CT_USE_LAPACK@
+
+@CT_USE_SYSTEM_EIGEN@
+@CT_USE_SYSTEM_EIGEN_PREFIXED@
+@CT_USE_SYSTEM_FMT@
+@CT_USE_SYSTEM_YAMLCPP@
+
+//-------------- Optional Cantera Capabilities ----------------------
+
+// Enable Sundials to use an external BLAS/LAPACK library if it was
+// built to use this option
+@CT_SUNDIALS_USE_LAPACK@
+
+// Enable export/import of HDF data via C++ HighFive
+@CT_USE_HDF5@
+@CT_USE_SYSTEM_HIGHFIVE@
+
+#endif
