@@ -392,10 +392,10 @@ void ReactorNet::solveSteady(int loglevel)
     initialize();
     vector<double> y(neq());
     getState(y);
-    SteadyReactorSolver solver(this, y.data());
+    SteadyReactorSolver solver(this, y);
     solver.setMaxTimeStepCount(maxSteps());
     solver.solve(loglevel);
-    solver.getState(y.data());
+    solver.getState(y);
     updateState(y);
 }
 
@@ -405,8 +405,8 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
     vector<double> y0(neq());
     vector<double> y1(neq());
     getState(y0);
-    SteadyReactorSolver solver(this, y0.data());
-    solver.evalJacobian(y0.data());
+    SteadyReactorSolver solver(this, y0);
+    solver.evalJacobian(y0);
     if (rdt) {
         solver.linearSolver()->updateTransient(rdt, solver.transientMask().data());
     }
@@ -839,13 +839,13 @@ void ReactorNet::checkPreconditionerSupported() const {
     }
 }
 
-SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
+SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, span<const double> x0)
     : m_net(net)
 {
     m_size = m_net->neq();
     m_jac = newSystemJacobian("eigen-sparse-direct");
     SteadyStateSystem::resize();
-    m_initialState.assign(x0, x0 + m_size);
+    m_initialState.assign(x0.begin(), x0.end());
     setInitialGuess(x0);
     setJacobianPerturbation(m_jacobianRelPerturb, 1000 * m_net->atol(),
                             m_jacobianThreshold);
@@ -853,7 +853,7 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     size_t start = 0;
     for (size_t i = 0; i < net->nReactors(); i++) {
         auto& R = net->reactor(i);
-        R.updateState(span<const double>(x0 + start, R.neq()));
+        R.updateState(x0.subspan(start, R.neq()));
         auto algebraic = R.initializeSteady();
         for (auto& m : algebraic) {
             m_mask[start + m] = 0;
@@ -862,32 +862,32 @@ SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     }
 }
 
-void SteadyReactorSolver::eval(double* x, double* r, double rdt, int count)
+void SteadyReactorSolver::eval(span<const double> x, span<double> r,
+                               double rdt, int count)
 {
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
-    vector<double> xv(x, x + size());
-    m_net->evalSteady(span<const double>(x, size()),
-                      span<double>(r, size()));
+    m_net->evalSteady(x, r);
     for (size_t i = 0; i < size(); i++) {
         r[i] -= (x[i] - m_initialState[i]) * rdt * m_mask[i];
     }
 }
 
-void SteadyReactorSolver::initTimeInteg(double dt, double* x)
+void SteadyReactorSolver::initTimeInteg(double dt, span<const double> x)
 {
     SteadyStateSystem::initTimeInteg(dt, x);
-    m_initialState.assign(x, x + size());
+    m_initialState.assign(x.begin(), x.end());
 }
 
-void SteadyReactorSolver::evalJacobian(double* x0)
+void SteadyReactorSolver::evalJacobian(span<const double> x0)
 {
     m_jac->reset();
     clock_t t0 = clock();
     m_work1.resize(size());
     m_work2.resize(size());
-    eval(x0, m_work1.data(), 0.0, 0);
+    eval(x0, m_work1, 0.0, 0);
+    vector<double> perturbed(x0.begin(), x0.end());
     for (size_t j = 0; j < size(); j++) {
         // perturb x(n); preserve sign(x(n))
         double xsave = x0[j];
@@ -895,11 +895,11 @@ void SteadyReactorSolver::evalJacobian(double* x0)
         if (xsave < 0) {
             dx = -dx;
         }
-        x0[j] = xsave + dx;
-        double rdx = 1.0 / (x0[j] - xsave);
+        perturbed[j] = xsave + dx;
+        double rdx = 1.0 / (perturbed[j] - xsave);
 
         // calculate perturbed residual
-        eval(x0, m_work2.data(), 0.0, 0);
+        eval(perturbed, m_work2, 0.0, 0);
 
         // compute nth column of Jacobian
         for (size_t i = 0; i < size(); i++) {
@@ -908,17 +908,17 @@ void SteadyReactorSolver::evalJacobian(double* x0)
                 m_jac->setValue(i, j, delta * rdx);
             }
         }
-        x0[j] = xsave;
+        perturbed[j] = xsave;
     }
     // Restore system to unperturbed state
-    m_net->updateState(span<const double>(x0, m_net->neq()));
+    m_net->updateState(x0);
 
     m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
     m_jac->incrementEvals();
     m_jac->setAge(0);
 }
 
-double SteadyReactorSolver::weightedNorm(const double* step) const
+double SteadyReactorSolver::weightedNorm(span<const double> step) const
 {
     double sum = 0.0;
     const double* x = m_state->data();
@@ -945,9 +945,9 @@ double SteadyReactorSolver::lowerBound(size_t i) const
     return m_net->lowerBound(i);
 }
 
-void SteadyReactorSolver::resetBadValues(double* x)
+void SteadyReactorSolver::resetBadValues(span<double> x)
 {
-    m_net->resetBadValues(span<double>(x, m_net->neq()));
+    m_net->resetBadValues(x);
 }
 
 void SteadyReactorSolver::writeDebugInfo(const string& header_suffix,

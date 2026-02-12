@@ -16,12 +16,15 @@ from cpython cimport bool as pybool
 from cpython.ref cimport PyObject
 from cython.operator cimport dereference as deref, preincrement as inc
 
-ctypedef stdmap[string,double] Composition
-
 import numpy as np
 cimport numpy as np
 
-from libcpp.vector cimport vector
+ctypedef stdmap[string,double] Composition
+
+# TODO: Drop these after requiring Cython 3.1.0 or newer
+ctypedef const int const_int
+ctypedef const double const_double
+ctypedef const size_t const_size_t
 
 # See https://github.com/cython/cython/pull/6539
 # TODO: Replace once Cython >= 3.1.0 is required

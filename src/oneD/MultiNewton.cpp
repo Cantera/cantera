@@ -26,7 +26,8 @@ void MultiNewton::resize(size_t sz)
     m_stp1.resize(m_n);
 }
 
-void MultiNewton::step(double* x, double* step, SteadyStateSystem& r, int loglevel)
+void MultiNewton::step(span<const double> x, span<double> step,
+                       SteadyStateSystem& r, int loglevel)
 {
     r.eval(x, step);
     for (size_t n = 0; n < r.size(); n++) {
@@ -35,7 +36,7 @@ void MultiNewton::step(double* x, double* step, SteadyStateSystem& r, int loglev
 
     auto jac = r.linearSolver();
     try {
-        jac->solve(r.size(), step, step);
+        jac->solve(r.size(), step.data(), step.data());
     } catch (CanteraError&) {
         if (jac->info() > 0) {
             // Positive value for "info" indicates the row where factorization failed
@@ -48,8 +49,8 @@ void MultiNewton::step(double* x, double* step, SteadyStateSystem& r, int loglev
     }
 }
 
-double MultiNewton::boundStep(const double* x0, const double* step0, const SteadyStateSystem& r,
-                              int loglevel)
+double MultiNewton::boundStep(span<const double> x0, span<const double> step0,
+                              const SteadyStateSystem& r, int loglevel)
 {
     const static string separator = fmt::format("\n     {:=>71}", ""); // equals sign separator
     double fbound = 1.0;
@@ -99,11 +100,11 @@ double MultiNewton::boundStep(const double* x0, const double* step0, const Stead
     if (loglevel > 1 && wroteTitle) { // If a title was written, close up the table
         writelog(separator);
     }
-return fbound;
+    return fbound;
 }
 
-int MultiNewton::dampStep(const double* x0, const double* step0,
-                          double* x1, double* step1, double& s1,
+int MultiNewton::dampStep(span<const double> x0, span<const double> step0,
+                          span<double> x1, span<double> step1, double& s1,
                           SteadyStateSystem& r, int loglevel, bool writetitle)
 {
     // write header
@@ -163,7 +164,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
         s1 = r.weightedNorm(step1);
 
         if (loglevel > 0) {
-            double ss = r.ssnorm(x1,step1);
+            double ss = r.ssnorm(x1, step1);
             writelog("\n  {:<4d}  {:<9.3e}   {:<9.3e}   {:>6.3f}   {:>6.3f}   {:>6.3f}    {:<5d}  {:d}/{:d}",
                      m, alpha, fbound, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
@@ -192,12 +193,13 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
             return 1;
         }
     } else {
-            debuglog("\n  No damping coefficient found (max damping iterations reached)", loglevel);
+        debuglog("\n  No damping coefficient found (max damping iterations reached)", loglevel);
         return -2;
     }
 }
 
-int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int loglevel)
+int MultiNewton::solve(span<const double> x0, span<double> x1,
+                       SteadyStateSystem& r, int loglevel)
 {
     clock_t t0 = clock();
     int status = 0;
@@ -205,7 +207,7 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
     bool write_header = true;
     double s1=1.e30;
 
-    copy(x0, x0 + m_n, &m_x[0]);
+    copy(x0.begin(), x0.end(), m_x.begin());
 
     double rdt = r.rdt();
     int nJacReeval = 0;
@@ -220,7 +222,7 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
         }
 
         if (forceNewJac) {
-            r.evalJacobian(&m_x[0]);
+            r.evalJacobian(m_x);
             try {
                 jac->updateTransient(rdt, r.transientMask().data());
             } catch (CanteraError& err) {
@@ -241,19 +243,19 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
         }
 
         // compute the undamped Newton step
-        step(&m_x[0], &m_stp[0], r, loglevel-1);
+        step(m_x, m_stp, r, loglevel-1);
 
         // increment the Jacobian age
         jac->incrementAge();
 
         // damp the Newton step
-        status = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, loglevel-1, write_header);
+        status = dampStep(m_x, m_stp, x1, m_stp1, s1, r, loglevel-1, write_header);
         write_header = false;
 
         // Successful step, but not converged yet. Take the damped step, and try
         // again.
         if (status == 0) {
-            copy(x1, x1 + m_n, m_x.begin());
+            copy(x1.begin(), x1.end(), m_x.begin());
         } else if (status == 1) { // convergence
             if (rdt == 0) {
                 jac->setAge(0); // for efficient sensitivity analysis
@@ -284,7 +286,7 @@ int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int logleve
     }
 
     if (status < 0) { // Reset x1 to x0 if the solution failed
-        copy(m_x.begin(), m_x.end(), x1);
+        copy(m_x.begin(), m_x.end(), x1.begin());
     }
     m_elapsed += (clock() - t0)/(1.0*CLOCKS_PER_SEC);
     return status;

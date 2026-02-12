@@ -98,7 +98,7 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
     resize();
 }
 
-double OneDim::weightedNorm(const double* step) const
+double OneDim::weightedNorm(span<const double> step) const
 {
     double sum = 0.0;
     const double* x = m_state->data();
@@ -239,28 +239,29 @@ Domain1D* OneDim::pointDomain(size_t i)
     return 0;
 }
 
-void OneDim::eval(size_t j, double* x, double* r, double rdt, int count)
+void OneDim::eval(size_t j, span<const double> x, span<double> r, double rdt, int count)
 {
     clock_t t0 = clock();
     if (m_interrupt) {
         m_interrupt->eval(m_nevals);
     }
-    fill(r, r + m_size, 0.0);
+    fill(r.begin(), r.end(), 0.0);
     if (j == npos) {
         fill(m_mask.begin(), m_mask.end(), 0);
     }
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
+    double* xdata = const_cast<double*>(x.data());
 
     // iterate over the bulk domains first
     for (const auto& d : m_bulk) {
-        d->eval(j, x, r, m_mask.data(), rdt);
+        d->eval(j, xdata, r.data(), m_mask.data(), rdt);
     }
 
     // then over the connector domains
     for (const auto& d : m_connect) {
-        d->eval(j, x, r, m_mask.data(), rdt);
+        d->eval(j, xdata, r.data(), m_mask.data(), rdt);
     }
 
     // increment counter and time
@@ -271,13 +272,14 @@ void OneDim::eval(size_t j, double* x, double* r, double rdt, int count)
     }
 }
 
-void OneDim::evalJacobian(double* x0)
+void OneDim::evalJacobian(span<const double> x0)
 {
     m_jac->reset();
     clock_t t0 = clock();
     m_work1.resize(size());
     m_work2.resize(size());
-    eval(npos, x0, m_work1.data(), 0.0, 0);
+    eval(npos, x0, m_work1, 0.0, 0);
+    vector<double> perturbed(x0.begin(), x0.end());
     size_t ipt = 0;
     for (size_t j = 0; j < points(); j++) {
         size_t nv = nVars(j);
@@ -288,11 +290,11 @@ void OneDim::evalJacobian(double* x0)
             if (xsave < 0) {
                 dx = -dx;
             }
-            x0[ipt] = xsave + dx;
-            double rdx = 1.0 / (x0[ipt] - xsave);
+            perturbed[ipt] = xsave + dx;
+            double rdx = 1.0 / (perturbed[ipt] - xsave);
 
             // calculate perturbed residual
-            eval(j, x0, m_work2.data(), 0.0, 0);
+            eval(j, perturbed, m_work2, 0.0, 0);
 
             // compute nth column of Jacobian
             for (size_t i = j - 1; i != j+2; i++) {
@@ -307,7 +309,7 @@ void OneDim::evalJacobian(double* x0)
                     }
                 }
             }
-            x0[ipt] = xsave;
+            perturbed[ipt] = xsave;
             ipt++;
         }
     }
@@ -317,13 +319,13 @@ void OneDim::evalJacobian(double* x0)
     m_jac->setAge(0);
 }
 
-void OneDim::initTimeInteg(double dt, double* x)
+void OneDim::initTimeInteg(double dt, span<const double> x)
 {
     SteadyStateSystem::initTimeInteg(dt, x);
     // iterate over all domains, preparing each one to begin time stepping
     Domain1D* d = left();
     while (d) {
-        d->initTimeInteg(dt, x);
+        d->initTimeInteg(dt, x.data());
         d = d->right();
     }
 }
@@ -354,10 +356,10 @@ void OneDim::init()
     m_init = true;
 }
 
-void OneDim::resetBadValues(double* x)
+void OneDim::resetBadValues(span<double> x)
 {
     for (auto dom : m_dom) {
-        dom->resetBadValues(x);
+        dom->resetBadValues(x.data());
     }
 }
 

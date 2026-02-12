@@ -111,7 +111,7 @@ void Sim1D::saveResidual(const string& fname, const string& name,
                          const string& desc, bool overwrite, int compression)
 {
     vector<double> res(m_state->size(), -999);
-    OneDim::eval(npos, m_state->data(), &res[0], 0.0);
+    OneDim::eval(npos, *m_state, res, 0.0);
     // Temporarily put the residual into m_state, since this is the vector that the
     // save() function reads.
     vector<double> backup(*m_state);
@@ -765,7 +765,7 @@ size_t Sim1D::maxGridPoints(size_t dom)
 
 void Sim1D::evalSSJacobian()
 {
-    OneDim::evalSSJacobian(m_state->data(), m_xnew.data());
+    OneDim::evalSSJacobian(*m_state);
 }
 
 void Sim1D::solveAdjoint(const double* b, double* lambda)

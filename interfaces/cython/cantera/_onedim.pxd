@@ -118,7 +118,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
         void show() except +translate_exception
-        void setTimeStep(double, size_t, int*) except +translate_exception
+        void setTimeStep(double, span[int]) except +translate_exception
         void restoreTimeSteppingSolution() except +translate_exception
         void restoreSteadySolution() except +translate_exception
         void setMaxTimeStepCount(int)

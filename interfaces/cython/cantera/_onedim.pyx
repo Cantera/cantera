@@ -1088,7 +1088,7 @@ cdef class Sim1D:
         cdef vector[int] data
         for n in n_steps:
             data.push_back(n)
-        self.sim.setTimeStep(stepsize, data.size(), &data[0])
+        self.sim.setTimeStep(stepsize, span[int](data))
 
     property max_time_step_count:
         """

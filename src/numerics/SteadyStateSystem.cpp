@@ -22,16 +22,16 @@ SteadyStateSystem::~SteadyStateSystem()
 {
 }
 
-void SteadyStateSystem::setInitialGuess(const double* x)
+void SteadyStateSystem::setInitialGuess(span<const double> x)
 {
     clearDebugFile();
     m_attempt_counter = 0;
-    m_state->assign(x, x + size());
+    m_state->assign(x.begin(), x.end());
 }
 
-void SteadyStateSystem::getState(double* x) const
+void SteadyStateSystem::getState(span<double> x) const
 {
-    copy(m_xnew.begin(), m_xnew.end(), x);
+    copy(m_xnew.begin(), m_xnew.end(), x.begin());
 }
 
 void SteadyStateSystem::solve(int loglevel)
@@ -50,7 +50,7 @@ void SteadyStateSystem::solve(int loglevel)
         newton().setOptions(m_ss_jac_age);
         debuglog("\nAttempt Newton solution of steady-state problem.", loglevel);
         if (!m_jac_ok) {
-            evalJacobian(m_state->data());
+            evalJacobian(*m_state);
             try {
                 m_jac->updateTransient(m_rdt, m_mask.data());
                 m_jac_ok = true;
@@ -70,7 +70,7 @@ void SteadyStateSystem::solve(int loglevel)
         }
         int m = -1;
         if (m_jac_ok) {
-            m = newton().solve(m_state->data(), m_xnew.data(), *this, loglevel);
+            m = newton().solve(*m_state, m_xnew, *this, loglevel);
         }
         if (m == 1) {
             *m_state = m_xnew;
@@ -87,7 +87,7 @@ void SteadyStateSystem::solve(int loglevel)
                 writelog("\nAttempt {} timesteps.", nsteps);
             }
 
-            dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
+            dt = timeStep(nsteps, dt, *m_state, m_xnew, loglevel-1);
             m_xlast_ts = *m_state;
             writeDebugInfo("Timestepping", "After timestepping", loglevel,
                            m_attempt_counter);
@@ -95,7 +95,7 @@ void SteadyStateSystem::solve(int loglevel)
             // Repeat the last timestep's data for logging purposes
             if (loglevel == 1) {
                 writelog("\nFinal timestep info: dt= {:<10.4g} log(ss)= {:<10.4g}\n", dt,
-                         log10(ssnorm(m_state->data(), m_xnew.data())));
+                         log10(ssnorm(*m_state, m_xnew)));
             }
             istep++;
             if (istep >= m_steps.size()) {
@@ -108,7 +108,8 @@ void SteadyStateSystem::solve(int loglevel)
     }
 }
 
-double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, int loglevel)
+double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
+                                   span<double> r, int loglevel)
 {
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
@@ -132,7 +133,7 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, 
         }
 
         // set up for time stepping with stepsize dt
-        initTimeInteg(dt,x);
+        initTimeInteg(dt, x);
 
         int j0 = m_jac->nEvals(); // Store the current number of Jacobian evaluations
 
@@ -148,7 +149,7 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, 
             successiveFailures = 0;
             m_nsteps++;
             n += 1;
-            copy(r, r + m_size, x);
+            copy(r.begin(), r.end(), x.begin());
             // No Jacobian evaluations were performed, so a larger timestep can be used
             if (m_jac->nEvals() == j0) {
                 dt *= 1.5;
@@ -202,7 +203,7 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, 
     return dt;
 }
 
-double SteadyStateSystem::ssnorm(double* x, double* r)
+double SteadyStateSystem::ssnorm(span<const double> x, span<double> r)
 {
     eval(x, r, 0.0, 0);
     double ss = 0.0;
@@ -212,13 +213,10 @@ double SteadyStateSystem::ssnorm(double* x, double* r)
     return ss;
 }
 
-void SteadyStateSystem::setTimeStep(double stepsize, size_t n, const int* tsteps)
+void SteadyStateSystem::setTimeStep(double stepsize, span<const int> tsteps)
 {
     m_tstep = stepsize;
-    m_steps.resize(n);
-    for (size_t i = 0; i < n; i++) {
-        m_steps[i] = tsteps[i];
-    }
+    m_steps.assign(tsteps.begin(), tsteps.end());
 }
 
 void SteadyStateSystem::resize()
@@ -246,7 +244,7 @@ void SteadyStateSystem::setLinearSolver(shared_ptr<SystemJacobian> solver)
     m_jac_ok = false;
 }
 
-void SteadyStateSystem::evalSSJacobian(double* x, double* rsd)
+void SteadyStateSystem::evalSSJacobian(span<const double> x)
 {
     double rdt_save = m_rdt;
     m_jac_ok = false;
@@ -255,7 +253,7 @@ void SteadyStateSystem::evalSSJacobian(double* x, double* rsd)
     m_rdt = rdt_save;
 }
 
-void SteadyStateSystem::initTimeInteg(double dt, double* x)
+void SteadyStateSystem::initTimeInteg(double dt, span<const double> x)
 {
     double rdt_old = m_rdt;
     m_rdt = 1.0/dt;
