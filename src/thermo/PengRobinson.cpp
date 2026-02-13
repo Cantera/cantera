@@ -10,6 +10,7 @@
 #include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 namespace Cantera
 {
@@ -518,6 +519,39 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested,
 
     double volGuess = mmw / rhoGuess;
     m_NSolns = solveCubic(T, presPa, m_a, m_b, m_aAlpha_mix, m_Vroot);
+
+    // Ensure root ordering used for branch selection only contains physical roots.
+    // This avoids selecting negative-volume roots in mixed-parameter mechanisms.
+    double vmin = std::max(0.0, m_b * (1.0 + 1e-12));
+    vector<double> physicalRoots;
+    for (double root : m_Vroot) {
+        if (std::isfinite(root) && root > vmin) {
+            physicalRoots.push_back(root);
+        }
+    }
+    std::sort(physicalRoots.begin(), physicalRoots.end());
+    if (physicalRoots.empty()) {
+        return -1.0;
+    } else if (physicalRoots.size() == 1) {
+        // Preserve branch-request semantics for single-root states:
+        // return -2 when the requested phase is inconsistent with the
+        // single branch identified by solveCubic() sign convention.
+        if ((phaseRequested == FLUID_GAS && m_NSolns < 0)
+            || (phaseRequested >= FLUID_LIQUID_0 && m_NSolns > 0))
+        {
+            return -2.0;
+        }
+        // Otherwise, accept the physically admissible root directly.
+        return mmw / physicalRoots[0];
+    } else if (physicalRoots.size() == 2) {
+        m_Vroot[0] = physicalRoots[0];
+        m_Vroot[1] = 0.5 * (physicalRoots[0] + physicalRoots[1]);
+        m_Vroot[2] = physicalRoots[1];
+    } else {
+        m_Vroot[0] = physicalRoots[0];
+        m_Vroot[1] = physicalRoots[1];
+        m_Vroot[2] = physicalRoots[2];
+    }
 
     double molarVolLast = m_Vroot[0];
     if (m_NSolns >= 2) {

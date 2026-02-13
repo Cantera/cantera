@@ -841,6 +841,12 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     }
 
     double tmp;
+    auto physicalRoot = [b](double v) {
+        // For cubic EoS, physically admissible roots satisfy V > b and V > 0.
+        double vmin = std::max(0.0, b * (1.0 + 1e-12));
+        return std::isfinite(v) && v > vmin;
+    };
+
     // One real root -> have to determine whether gas or liquid is the root
     if (disc > 0.0) {
         double tmpD = sqrt(disc);
@@ -921,6 +927,11 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     // Find an accurate root, since there might be a heavy amount of roundoff error due to bad conditioning in this solver.
     double res, dresdV = 0.0;
     for (int i = 0; i < nSolnValues; i++) {
+        if (!physicalRoot(Vroot[i])) {
+            // Non-physical roots (for example, negative molar volume) are not
+            // used for state selection and should not trigger convergence errors.
+            continue;
+        }
         for (int n = 0; n < 20; n++) {
             res = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
             if (fabs(res) < 1.0E-14) { // accurate root is obtained
@@ -945,6 +956,11 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                                "root failed to converge for T = {}, p = {} with "
                                "V = {}", T, pres, Vroot[i]);
         }
+    }
+    if (nSolnValues == 1 && !physicalRoot(Vroot[0])) {
+        throw CanteraError("MixtureFugacityTP::solveCubic",
+                           "single real root is non-physical for T = {}, p = {} "
+                           "(V = {}, b = {})", T, pres, Vroot[0], b);
     }
 
     if (nSolnValues == 1) {

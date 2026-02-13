@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/PengRobinson.h"
+#include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 
@@ -177,6 +178,29 @@ TEST_F(PengRobinson_Test, CoolPropValidate)
         test_phase->setState_TP(temp, p);
         EXPECT_NEAR(test_phase->density(),rhoCoolProp[i],1.e-5);
     }
+}
+
+TEST_F(PengRobinson_Test, forcedGasBranchPreventsCrossing)
+{
+    auto mix = std::dynamic_pointer_cast<MixtureFugacityTP>(test_phase);
+    ASSERT_TRUE(mix);
+    set_r(1.0);
+
+    mix->setForcedSolutionBranch(FLUID_UNDEFINED);
+    test_phase->setState_TP(400.0, 1.0e6);
+    ASSERT_LT(mix->reportSolnBranchActual(), FLUID_LIQUID_0);
+
+    mix->setForcedSolutionBranch(FLUID_GAS);
+    try {
+        test_phase->setState_TP(240.0, 4.0e7);
+        FAIL() << "Expected forced gas branch to reject liquid-side state.";
+    } catch (CanteraError& err) {
+        EXPECT_NE(string(err.what()).find("wrong state"), string::npos);
+    }
+
+    mix->setForcedSolutionBranch(FLUID_UNDEFINED);
+    test_phase->setState_TP(240.0, 4.0e7);
+    EXPECT_GE(mix->reportSolnBranchActual(), FLUID_LIQUID_0);
 }
 
 TEST(PengRobinson, lookupSpeciesProperties)

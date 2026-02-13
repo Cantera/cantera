@@ -993,6 +993,86 @@ class TestThermoPhase:
 
         assert abs(gas.P - evaluated_pressure) < 1e-6
 
+    def _partial_lookup_peng_robinson_phase(self):
+        """
+        Build a mixed-parameter Peng-Robinson phase:
+        - CH4 / O2 use critical-property lookup
+        - all other species use ideal-like PR placeholders (a=b=0)
+        """
+        species = ct.Species.list_from_file("co2_PR_example.yaml")
+        phase_species = []
+        for sp in species:
+            data = dict(sp.input_data)
+            if data["name"] in {"CH4", "O2"}:
+                data.pop("equation-of-state", None)
+            else:
+                data["equation-of-state"] = {
+                    "model": "Peng-Robinson",
+                    "a": 0.0,
+                    "b": 0.0,
+                    "acentric-factor": 0.0,
+                }
+            phase_species.append(ct.Species.from_dict(data))
+
+        return ct.Solution(
+            thermo="Peng-Robinson",
+            kinetics="bulk",
+            species=phase_species,
+            reactions=[],
+            name="partial-lookup-pr",
+        )
+
+    @pytest.mark.parametrize(
+        "temperature,pressure,composition",
+        [
+            (
+                198.5,
+                6.0e7,
+                [
+                    0.13124237144841314,
+                    0.10978856515950584,
+                    0.13745471373026613,
+                    0.23651613973352531,
+                    0.25457002638236204,
+                    0.06814754884267295,
+                    0.062280634703254616,
+                ],
+            ),
+            (220.0, 6.0e7, [0.2, 0.08, 0.12, 0.2, 0.25, 0.1, 0.05]),
+            (260.0, 6.0e7, [0.1, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1]),
+            (240.0, 4.0e7, [0.12, 0.14, 0.14, 0.2, 0.22, 0.08, 0.1]),
+            (300.0, 2.0e7, [0.2, 0.1, 0.15, 0.2, 0.2, 0.1, 0.05]),
+        ],
+    )
+    def test_partial_lookup_pr_state_setting(self, temperature, pressure, composition):
+        gas = self._partial_lookup_peng_robinson_phase()
+        gas.TPX = temperature, pressure, np.array(composition)
+        assert np.isfinite(gas.density)
+        assert gas.density > 0.0
+        assert gas.P == approx(pressure)
+
+    @pytest.mark.parametrize("p", [2.0e7, 4.0e7, 6.0e7])
+    def test_partial_lookup_pr_high_pressure_equilibrate(self, p):
+        gas = self._partial_lookup_peng_robinson_phase()
+
+        fuel_temp = 255.0
+        oxidizer_temp = 142.0
+
+        gas.TPY = fuel_temp, p, "CH4:1.0"
+        yin_f = gas.Y
+        gas.TPY = oxidizer_temp, p, "O2:1.0"
+        yin_o = gas.Y
+        zst = 1.0 / (1.0 + gas.stoich_air_fuel_ratio(yin_f, yin_o, "mass"))
+        yst = zst * yin_f + (1.0 - zst) * yin_o
+
+        tbar = 0.5 * (fuel_temp + oxidizer_temp)
+        gas.TPY = tbar, p, yst
+        gas.equilibrate("HP")
+
+        assert np.isfinite(gas.T)
+        assert gas.T > tbar
+        assert gas.P == approx(p)
+
 
 @pytest.fixture(scope='function')
 def setup_thermo_tests(request):
