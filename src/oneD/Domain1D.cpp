@@ -204,19 +204,11 @@ void Domain1D::locate()
     }
 }
 
-void Domain1D::setupGrid(const vector<double>& grid)
+void Domain1D::setupGrid(span<const double> z)
 {
-    setupGrid(grid.size(), grid.data());
-}
-
-void Domain1D::setupGrid(size_t n, const double* z)
-{
-    if (n > 1) {
-        resize(m_nv, n);
-        for (size_t j = 0; j < m_points; j++) {
-            m_z[j] = z[j];
-        }
-    }
+    m_z.assign(z.begin(), z.end());
+    m_points = z.size();
+    m_slast.resize(m_nv * m_points, 0.0);
 }
 
 void Domain1D::setupUniformGrid(size_t points, double length, double start)
@@ -229,7 +221,7 @@ void Domain1D::setupUniformGrid(size_t points, double length, double start)
     setupGrid(grid);
 }
 
-void Domain1D::show(const double* x)
+void Domain1D::show(span<const double> x)
 {
     size_t nn = m_nv/5;
     for (size_t i = 0; i < nn; i++) {
@@ -273,7 +265,7 @@ vector<double> Domain1D::getRefineCriteria()
     return m_refiner->getCriteria();
 }
 
-void Domain1D::_getInitialSoln(double* x)
+void Domain1D::_getInitialSoln(span<double> x)
 {
     for (size_t j = 0; j < m_points; j++) {
         for (size_t n = 0; n < m_nv; n++) {

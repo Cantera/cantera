@@ -77,7 +77,8 @@ public:
     // Specify the residual function. This is where the ODE system and boundary
     // conditions are specified. The solver will attempt to find a solution
     // x so that rsd is zero.
-    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) override {
+    void eval(size_t jg, span<const double> x, span<double> rsd,
+              span<int> diag, double rdt) override {
         size_t jpt = jg - firstPoint();
         size_t jmin, jmax;
         if (jg == npos) {  // evaluate all points
@@ -106,10 +107,10 @@ public:
 
 private:
     // for convenience only. Note that the compiler will inline these.
-    double zeta(double* x, int j) {
+    double zeta(span<const double> x, int j) {
         return x[index(0,j)];
     }
-    double u(double* x, int j) {
+    double u(span<const double> x, int j) {
         return x[index(1,j)];
     }
 };

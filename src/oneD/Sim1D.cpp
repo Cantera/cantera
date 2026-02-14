@@ -30,7 +30,8 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     // domain-specific initialization of the solution vector.
     resize();
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_state->data() + start(n));
+        domain(n)._getInitialSoln(
+            span<double>(m_state->data() + start(n), domain(n).size()));
     }
 }
 
@@ -294,7 +295,8 @@ void Sim1D::show()
         if (domain(n).domainType() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).show(m_state->data() + start(n));
+            domain(n).show(
+                span<const double>(m_state->data() + start(n), domain(n).size()));
         }
     }
 }
@@ -317,21 +319,23 @@ void Sim1D::restoreSteadySolution()
     *m_state = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
         vector<double>& z = m_grid_last_ss[n];
-        domain(n).setupGrid(z.size(), z.data());
+        domain(n).setupGrid(z);
     }
 }
 
 void Sim1D::getInitialSoln()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_state->data() + start(n));
+        domain(n)._getInitialSoln(
+            span<double>(m_state->data() + start(n), domain(n).size()));
     }
 }
 
 void Sim1D::finalize()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._finalize(m_state->data() + start(n));
+        domain(n)._finalize(
+            span<const double>(m_state->data() + start(n), domain(n).size()));
     }
 }
 
@@ -377,8 +381,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
         // of the governing equations to update internal arrays in each domain that may
         // be used for data saved in output files.
         for (auto dom : m_dom) {
-            dom->eval(npos, m_state->data() + dom->loc(), m_xnew.data() + dom->loc(),
-                      m_mask.data());
+            span<const double> x(m_state->data() + dom->loc(), dom->size());
+            span<double> r(m_xnew.data() + dom->loc(), dom->size());
+            span<int> mask(m_mask.data() + dom->loc(), dom->size());
+            dom->eval(npos, x, r, mask);
         }
     }
 }
@@ -398,10 +404,12 @@ int Sim1D::refine(int loglevel)
         Refiner& r = d.refiner();
 
         // Save the old grid corresponding to the converged solution
-        m_grid_last_ss.push_back(d.grid());
+        auto grid = d.grid();
+        m_grid_last_ss.emplace_back(grid.begin(), grid.end());
 
         // determine where new points are needed
-        r.analyze(d.grid().size(), d.grid().data(), m_state->data() + start(n));
+        r.analyze(grid.size(), grid,
+                  span<const double>(m_state->data() + start(n), d.size()));
 
         if (loglevel > 0) {
             r.show();
@@ -458,7 +466,7 @@ int Sim1D::refine(int loglevel)
         Domain1D& d = domain(n);
         gridsize = dsize[n];
         if (gridsize != 0) {
-            d.setupGrid(gridsize, &znew[gridstart]);
+            d.setupGrid(span<const double>(znew.data() + gridstart, gridsize));
         }
         gridstart += gridsize;
     }
@@ -568,7 +576,7 @@ int Sim1D::setFixedTemperature(double t)
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         size_t gridsize = dsize[n];
-        d.setupGrid(gridsize, &znew[gridstart]);
+        d.setupGrid(span<const double>(znew.data() + gridstart, gridsize));
         gridstart += gridsize;
     }
 

@@ -60,9 +60,9 @@ public:
     //! @name Problem Specification
     //! @{
 
-    void setupGrid(size_t n, const double* z) override;
+    void setupGrid(span<const double> z) override;
 
-    void resetBadValues(double* xg) override;
+    void resetBadValues(span<double> x) override;
 
     //! Access the phase object used to compute thermodynamic properties for points in
     //! this domain.
@@ -132,9 +132,9 @@ public:
     }
 
     //! Write the initial solution estimate into array x.
-    void _getInitialSoln(double* x) override;
+    void _getInitialSoln(span<double> x) override;
 
-    void _finalize(const double* x) override;
+    void _finalize(span<const double> x) override;
 
     /**
      * Set fixed temperature profile.
@@ -144,10 +144,9 @@ public:
      * @param zfixed  Vector containing locations where profile is specified.
      * @param tfixed  Vector containing specified temperatures.
      */
-    void setFixedTempProfile(const vector<double>& zfixed,
-                             const vector<double>& tfixed) {
-        m_zfix = zfixed;
-        m_tfix = tfixed;
+    void setFixedTempProfile(span<const double> zfixed, span<const double> tfixed) {
+        m_zfix.assign(zfixed.begin(), zfixed.end());
+        m_tfix.assign(tfixed.begin(), tfixed.end());
     }
 
     /**
@@ -176,13 +175,13 @@ public:
     virtual bool componentActive(size_t n) const;
 
     void updateState(size_t loc) override;
-    void show(const double* x) override;
+    void show(span<const double> x) override;
 
-    void getValues(const string& component, vector<double>& values) const override;
-    void setValues(const string& component, const vector<double>& values) override;
-    void getResiduals(const string& component, vector<double>& values) const override;
-    void setProfile(const string& component,
-                    const vector<double>& pos, const vector<double>& values) override;
+    void getValues(const string& component, span<double> values) const override;
+    void setValues(const string& component, span<const double> values) override;
+    void getResiduals(const string& component, span<double> values) const override;
+    void setProfile(const string& component, span<const double> pos,
+                    span<const double> values) override;
     void setFlatProfile(const string& component, double value) override;
 
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
@@ -367,11 +366,11 @@ public:
     void resize(size_t components, size_t points) override;
 
     //! Set the gas object state to be consistent with the solution at point j.
-    void setGas(const double* x, size_t j);
+    void setGas(span<const double> x, size_t j);
 
     //! Set the gas state to be consistent with the solution at the midpoint
     //! between j and j + 1.
-    void setGasAtMidpoint(const double* x, size_t j);
+    void setGasAtMidpoint(span<const double> x, size_t j);
 
     //! Get the density [kg/m³] at point `j`
     double density(size_t j) const {
@@ -424,8 +423,8 @@ public:
      *      component has a time derivative (1) or not (0).
      *  @param[in] rdt  Reciprocal of the timestep (`rdt=0` implies steady-state.)
      */
-    void eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
-              integer* diagGlobal, double rdt) override;
+    void eval(size_t jGlobal, span<const double> xGlobal, span<double> rsdGlobal,
+              span<int> diagGlobal, double rdt) override;
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -460,7 +459,7 @@ protected:
      * * #m_hk (species specific enthalpies)
      * * #m_wdot (species production rates)
      */
-    void updateThermo(const double* x, size_t j0, size_t j1) {
+    void updateThermo(span<const double> x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
             setGas(x,j);
             m_rho[j] = m_thermo->density();
@@ -478,15 +477,16 @@ protected:
      * the viscosity at element `j`  is the viscosity evaluated at the midpoint
      * between `j` and `j + 1`.
      */
-    virtual void updateTransport(double* x, size_t j0, size_t j1);
+    virtual void updateTransport(span<const double> x, size_t j0, size_t j1);
 
     //! Update the diffusive mass fluxes.
-    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(span<const double> x, size_t j0, size_t j1);
 
     //! Update the properties (thermo, transport, and diffusion flux).
     //! This function is called in eval after the points which need
     //! to be updated are defined.
-    virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
+    virtual void updateProperties(size_t jg, span<const double> x,
+                                  size_t jmin, size_t jmax);
 
     /**
      * Computes the radiative heat loss vector over points jmin to jmax and stores
@@ -503,7 +503,7 @@ protected:
      * The coefficients for the polynomials are taken from
      * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
      */
-    void computeRadiation(double* x, size_t jmin, size_t jmax);
+    void computeRadiation(span<const double> x, size_t jmin, size_t jmax);
 
     //! @}
 
@@ -545,7 +545,7 @@ protected:
      * @param[in] jmin  The index for the starting point in the local domain grid.
      * @param[in] jmax  The index for the ending point in the local domain grid.
      */
-    virtual void evalContinuity(double* x, double* rsd, int* diag,
+    virtual void evalContinuity(span<const double> x, span<double> rsd, span<int> diag,
                                 double rdt, size_t jmin, size_t jmax);
 
     /**
@@ -563,7 +563,7 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalMomentum(double* x, double* rsd, int* diag,
+    virtual void evalMomentum(span<const double> x, span<double> rsd, span<int> diag,
                               double rdt, size_t jmin, size_t jmax);
 
     /**
@@ -582,7 +582,7 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalLambda(double* x, double* rsd, int* diag,
+    virtual void evalLambda(span<const double> x, span<double> rsd, span<int> diag,
                             double rdt, size_t jmin, size_t jmax);
 
     /**
@@ -602,7 +602,7 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalEnergy(double* x, double* rsd, int* diag,
+    virtual void evalEnergy(span<const double> x, span<double> rsd, span<int> diag,
                             double rdt, size_t jmin, size_t jmax);
 
     /**
@@ -618,7 +618,7 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalSpecies(double* x, double* rsd, int* diag,
+    virtual void evalSpecies(span<const double> x, span<double> rsd, span<int> diag,
                              double rdt, size_t jmin, size_t jmax);
 
     /**
@@ -630,8 +630,9 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalElectricField(double* x, double* rsd, int* diag,
-                                   double rdt, size_t jmin, size_t jmax);
+    virtual void evalElectricField(span<const double> x, span<double> rsd,
+                                   span<int> diag, double rdt, size_t jmin,
+                                   size_t jmax);
 
     //! @} End of Governing Equations
 
@@ -650,18 +651,18 @@ protected:
      *
      * For argument explanation, see evalContinuity().
      */
-    virtual void evalUo(double* x, double* rsd, int* diag,
+    virtual void evalUo(span<const double> x, span<double> rsd, span<int> diag,
                         double rdt, size_t jmin, size_t jmax);
 
     //! @name Solution components
     //! @{
 
     //! Get the temperature at point `j` from the local state vector `x`.
-    double T(const double* x, size_t j) const {
+    double T(span<const double> x, size_t j) const {
         return x[index(c_offset_T, j)];
     }
     //! Get the temperature at point `j` from the local state vector `x`.
-    double& T(double* x, size_t j) {
+    double& T(span<double> x, size_t j) {
         return x[index(c_offset_T, j)];
     }
 
@@ -671,18 +672,18 @@ protected:
     }
 
     //! Get the axial mass flux [kg/m²/s] at point `j` from the local state vector `x`.
-    double rho_u(const double* x, size_t j) const {
+    double rho_u(span<const double> x, size_t j) const {
         return m_rho[j]*x[index(c_offset_U, j)];
     }
 
     //! Get the axial velocity [m/s] at point `j` from the local state vector `x`.
-    double u(const double* x, size_t j) const {
+    double u(span<const double> x, size_t j) const {
         return x[index(c_offset_U, j)];
     }
 
     //! Get the spread rate (tangential velocity gradient) [1/s] at point `j` from the
     //! local state vector `x`.
-    double V(const double* x, size_t j) const {
+    double V(span<const double> x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
 
@@ -693,7 +694,7 @@ protected:
 
     //! Get the radial pressure gradient [N/m⁴] at point `j` from the local state vector
     //! `x`
-    double Lambda(const double* x, size_t j) const {
+    double Lambda(span<const double> x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 
@@ -701,20 +702,28 @@ protected:
     //! vector `x`.
     //!
     //! @see evalUo()
-    double Uo(const double* x, size_t j) const {
+    double Uo(span<const double> x, size_t j) const {
         return x[index(c_offset_Uo, j)];
     }
 
     //! Get the mass fraction of species `k` at point `j` from the local state vector
     //! `x`.
-    double Y(const double* x, size_t k, size_t j) const {
+    double Y(span<const double> x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
 
     //! Get the mass fraction of species `k` at point `j` from the local state vector
     //! `x`.
-    double& Y(double* x, size_t k, size_t j) {
+    double& Y(span<double> x, size_t k, size_t j) {
         return x[index(c_offset_Y + k, j)];
+    }
+
+    //! Get the array of mass fractions at point `j` from the local state vector `x`.
+    span<double> Y(span<double> x, size_t j) {
+        return span<double>(&x[index(c_offset_Y, j)], m_nsp);
+    }
+    span<const double> Y(span<const double> x, size_t j) {
+        return span<const double>(&x[index(c_offset_Y, j)], m_nsp);
     }
 
     //! Get the mass fraction of species `k` at point `j` from the previous time step.
@@ -724,7 +733,7 @@ protected:
 
     //! Get the mole fraction of species `k` at point `j` from the local state vector
     //! `x`.
-    double X(const double* x, size_t k, size_t j) const {
+    double X(span<const double> x, size_t k, size_t j) const {
         return m_wtm[j]*Y(x,k,j)/m_wt[k];
     }
 
@@ -762,7 +771,7 @@ protected:
      * @param[in] x  The local domain state vector.
      * @param[in] j  The grid point index at which the derivative is computed.
      */
-    double dVdz(const double* x, size_t j) const {
+    double dVdz(span<const double> x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
         return (V(x, jloc) - V(x, jloc-1))/m_dz[jloc-1];
     }
@@ -777,7 +786,7 @@ protected:
      * @param[in] k  The species index.
      * @param[in] j  The grid point index at which the derivative is computed.
      */
-    double dYdz(const double* x, size_t k, size_t j) const {
+    double dYdz(span<const double> x, size_t k, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
         return (Y(x, k, jloc) - Y(x, k, jloc-1))/m_dz[jloc-1];
     }
@@ -791,7 +800,7 @@ protected:
      * @param[in] x  The local domain state vector.
      * @param[in] j  The grid point index at which the derivative is computed.
      */
-    double dTdz(const double* x, size_t j) const {
+    double dTdz(span<const double> x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
         return (T(x, jloc) - T(x, jloc-1))/m_dz[jloc-1];
     }
@@ -819,7 +828,7 @@ protected:
      * @param[in] x  The local domain state vector.
      * @param[in] j  The grid point index at which the derivative is computed.
      */
-    double shear(const double* x, size_t j) const {
+    double shear(span<const double> x, size_t j) const {
         double A_left = m_visc[j-1]*(V(x, j) - V(x, j-1)) / (z(j) - z(j-1));
         double A_right = m_visc[j]*(V(x, j+1) - V(x, j)) / (z(j+1) - z(j));
         return 2.0*(A_right - A_left) / (z(j+1) - z(j-1));
@@ -834,7 +843,7 @@ protected:
      * @param[in] x  The local domain state vector.
      * @param[in] j  The grid point index at which the derivative is computed.
      */
-    double conduction(const double* x, size_t j) const {
+    double conduction(span<const double> x, size_t j) const {
         double A_left = m_tcon[j-1]*(T(x, j) - T(x, j-1)) / (z(j) - z(j-1));
         double A_right = m_tcon[j]*(T(x, j+1) - T(x, j)) / (z(j+1) - z(j));
         return -2.0*(A_right - A_left) / (z(j+1) - z(j-1));
@@ -862,7 +871,7 @@ protected:
      * @param[in] x  The local domain state vector.
      * @param[in] j  The index at which the derivative is computed.
      */
-    virtual void grad_hk(const double* x, size_t j);
+    virtual void grad_hk(span<const double> x, size_t j);
 
     //---------------------------------------------------------
     //             member data
