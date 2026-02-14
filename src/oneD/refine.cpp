@@ -40,7 +40,7 @@ void Refiner::setCriteria(double ratio, double slope, double curve, double prune
     m_prune = prune;
 }
 
-int Refiner::analyze(size_t n, const double* z, const double* x)
+int Refiner::analyze(size_t n, span<const double> z, span<const double> x)
 {
     if (n >= m_npmax) {
         throw CanteraError("Refiner::analyze", "max number of grid points reached ({}).", m_npmax);
@@ -208,7 +208,7 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
     return int(m_insertPts.size());
 }
 
-double Refiner::value(const double* x, size_t n, size_t j)
+double Refiner::value(span<const double> x, size_t n, size_t j)
 {
     return x[m_domain->index(n,j)];
 }

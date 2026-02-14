@@ -78,7 +78,7 @@ public:
     }
 
     //! Set the mole fractions by specifying an array.
-    virtual void setMoleFractions(const double* xin) {
+    virtual void setMoleFractions(span<const double> xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
@@ -107,7 +107,7 @@ public:
         return m_mdot;
     }
 
-    void setupGrid(size_t n, const double* z) override {}
+    void setupGrid(span<const double> z) override {}
 
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
@@ -160,21 +160,22 @@ public:
 
     void setTemperature(double T) override;
 
-    void show(const double* x) override;
+    void show(span<const double> x) override;
 
     size_t nSpecies() override {
         return m_nsp;
     }
 
     void setMoleFractions(const string& xin) override;
-    void setMoleFractions(const double* xin) override;
+    void setMoleFractions(span<const double> xin) override;
     double massFraction(size_t k) override {
         return m_yin[k];
     }
 
     void updateState(size_t loc) override;
     void init() override;
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
@@ -214,11 +215,12 @@ public:
         return "empty";
     }
 
-    void show(const double* x) override {}
+    void show(span<const double> x) override {}
 
     void init() override;
 
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
 
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
@@ -249,7 +251,8 @@ public:
 
     void init() override;
 
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
 
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
@@ -280,7 +283,8 @@ public:
 
     void init() override;
 
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
 
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
 };
@@ -305,20 +309,21 @@ public:
         return "outlet-reservoir";
     }
 
-    void show(const double* x) override {}
+    void show(span<const double> x) override {}
 
     size_t nSpecies() override {
         return m_nsp;
     }
 
     void setMoleFractions(const string& xin) override;
-    void setMoleFractions(const double* xin) override;
+    void setMoleFractions(span<const double> xin) override;
     double massFraction(size_t k) override {
         return m_yres[k];
     }
 
     void init() override;
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
@@ -355,10 +360,11 @@ public:
     }
 
     void init() override;
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
-    void show(const double* x) override;
+    void show(span<const double> x) override;
 };
 
 
@@ -395,23 +401,24 @@ public:
     size_t componentIndex(const string& name, bool checkAlias=true) const override;
 
     void init() override;
-    void resetBadValues(double* xg) override;
+    void resetBadValues(span<double> xg) override;
 
-    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    void eval(size_t jg, span<const double> xg, span<double> rg, span<int> diagg,
+              double rdt) override;
 
     double value(const string& component) const override;
     shared_ptr<SolutionArray> toArray(bool normalize=false) override;
     void fromArray(const shared_ptr<SolutionArray>& arr) override;
 
-    void _getInitialSoln(double* x) override {
-        m_sphase->getCoverages(span<double>(x, m_nsp));
+    void _getInitialSoln(span<double> x) override {
+        m_sphase->getCoverages(x);
     }
 
-    void _finalize(const double* x) override {
-        std::copy(x, x+m_nsp, m_fixed_cov.begin());
+    void _finalize(span<const double> x) override {
+        std::copy(x.begin(), x.end(), m_fixed_cov.begin());
     }
 
-    void show(const double* x) override;
+    void show(span<const double> x) override;
 
 protected:
     InterfaceKinetics* m_kin = nullptr; //!< surface kinetics mechanism

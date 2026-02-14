@@ -182,6 +182,10 @@ void OneDim::resize()
     m_componentInfo.clear();
     size_t lc = 0;
 
+    if (left()) {
+        left()->locate();
+    }
+
     // save the statistics for the last grid
     saveStats();
     m_pts = 0;
@@ -252,16 +256,15 @@ void OneDim::eval(size_t j, span<const double> x, span<double> r, double rdt, in
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
-    double* xdata = const_cast<double*>(x.data());
 
     // iterate over the bulk domains first
     for (const auto& d : m_bulk) {
-        d->eval(j, xdata, r.data(), m_mask.data(), rdt);
+        d->eval(j, x, r, m_mask, rdt);
     }
 
     // then over the connector domains
     for (const auto& d : m_connect) {
-        d->eval(j, xdata, r.data(), m_mask.data(), rdt);
+        d->eval(j, x, r, m_mask, rdt);
     }
 
     // increment counter and time
@@ -325,7 +328,7 @@ void OneDim::initTimeInteg(double dt, span<const double> x)
     // iterate over all domains, preparing each one to begin time stepping
     Domain1D* d = left();
     while (d) {
-        d->initTimeInteg(dt, x.data());
+        d->initTimeInteg(dt, x);
         d = d->right();
     }
 }
@@ -359,7 +362,7 @@ void OneDim::init()
 void OneDim::resetBadValues(span<double> x)
 {
     for (auto dom : m_dom) {
-        dom->resetBadValues(x.data());
+        dom->resetBadValues(x);
     }
 }
 

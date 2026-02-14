@@ -114,7 +114,7 @@ void Inlet1D::setTemperature(double T)
     }
 }
 
-void Inlet1D::show(const double* x)
+void Inlet1D::show(span<const double> x)
 {
     writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
     writelog("    Temperature: {:10.4g} K \n", m_temp);
@@ -142,11 +142,11 @@ void Inlet1D::setMoleFractions(const string& xin)
     }
 }
 
-void Inlet1D::setMoleFractions(const double* xin)
+void Inlet1D::setMoleFractions(span<const double> xin)
 {
     if (m_solution) {
         auto thermo = m_solution->thermo();
-        thermo->setMoleFractions(span<const double>(xin, m_nsp));
+        thermo->setMoleFractions(xin);
         thermo->getMassFractions(m_yin);
         needJacUpdate();
     }
@@ -197,8 +197,8 @@ void Inlet1D::init()
     }
 }
 
-void Inlet1D::eval(size_t jg, double* xg, double* rg,
-                   integer* diagg, double rdt)
+void Inlet1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                   span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -206,8 +206,8 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
 
     if (m_ilr == LeftInlet) {
         // Array elements corresponding to the first point of the flow domain
-        double* xb = xg + m_flow->loc();
-        double* rb = rg + m_flow->loc();
+        span<const double> xb = xg.subspan(m_flow->loc());
+        span<double> rb = rg.subspan(m_flow->loc());
 
         // The first flow residual is for u. This, however, is not modified by
         // the inlet, since this is set within the flow domain from the
@@ -257,8 +257,8 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
     } else {
         // right inlet (should only be used for counter-flow flames)
         // Array elements corresponding to the last point in the flow domain
-        double* rb = rg + loc() - m_flow->nComponents();
-        double* xb = xg + loc() - m_flow->nComponents();
+        span<double> rb = rg.subspan(loc() - m_flow->nComponents());
+        span<const double> xb = xg.subspan(loc() - m_flow->nComponents());
         size_t last_index = m_flow->nPoints() - 1;
 
         rb[c_offset_V] -= m_V0;
@@ -329,8 +329,8 @@ void Empty1D::init()
     _init(0);
 }
 
-void Empty1D::eval(size_t jg, double* xg, double* rg,
-     integer* diagg, double rdt)
+void Empty1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                   span<int> diagg, double rdt)
 {
 }
 
@@ -347,23 +347,18 @@ void Symm1D::init()
     _init(0);
 }
 
-void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
-                  double rdt)
+void Symm1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                  span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2< firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
 
-    // start of local part of global arrays
-    double* x = xg + loc();
-    double* r = rg + loc();
-    integer* diag = diagg + loc();
-
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
-        double* xb = x;
-        double* rb = r;
-        int* db = diag;
+        span<const double> xb = xg.subspan(loc(), nc);
+        span<double> rb = rg.subspan(loc(), nc);
+        span<int> db = diagg.subspan(loc(), nc);
         db[c_offset_V] = 0;
         db[c_offset_T] = 0;
         rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V + nc]; // zero dV/dz
@@ -374,14 +369,15 @@ void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
 
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        double* xb = x - nc;
-        double* rb = r - nc;
-        int* db = diag - nc;
+        span<const double> xb = xg.subspan(loc() - nc, nc);
+        span<const double> xb2 = xg.subspan(loc() - 2*nc, nc); // second point from the left
+        span<double> rb = rg.subspan(loc() - nc, nc);
+        span<int> db = diagg.subspan(loc() - nc, nc);
         db[c_offset_V] = 0;
         db[c_offset_T] = 0;
-        rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V - nc]; // zero dV/dz
+        rb[c_offset_V] = xb[c_offset_V] - xb2[c_offset_V]; // zero dV/dz
         if (m_flow_left->doEnergy(m_flow_left->nPoints() - 1)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero dT/dz
+            rb[c_offset_T] = xb[c_offset_T] - xb2[c_offset_T]; // zero dT/dz
         }
     }
 }
@@ -421,34 +417,30 @@ void Outlet1D::init()
     }
 }
 
-void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
-                    double rdt)
+void Outlet1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                    span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
 
-    // start of local part of global arrays
-    double* x = xg + loc();
-    double* r = rg + loc();
-    integer* diag = diagg + loc();
-
-    // flow is left-to-right
+    // flow is left-to-right; access values for the points to the left
     size_t nc = m_flow_left->nComponents();
-    double* xb = x - nc;
-    double* rb = r - nc;
-    int* db = diag - nc;
+    span<const double> xb = xg.subspan(loc() - nc, nc); // last point
+    span<const double> xb2 = xg.subspan(loc() - 2*nc, nc); // second-to-last point
+    span<double> rb = rg.subspan(loc() - nc, nc);
+    span<int> db = diagg.subspan(loc() - nc, nc);
 
     size_t last = m_flow_left->nPoints() - 1;
     if (m_flow_left->doEnergy(last)) {
-        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+        rb[c_offset_T] = xb[c_offset_T] - xb2[c_offset_T]; // zero T gradient
     } else {
         rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
     size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
     for (size_t k = c_offset_Y; k < nc; k++) {
         if (k != kSkip) {
-            rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
+            rb[k] = xb[k] - xb2[k]; // zero mass fraction gradient
             db[k] = 0;
         }
     }
@@ -472,10 +464,10 @@ void OutletRes1D::setMoleFractions(const string& xres)
     }
 }
 
-void OutletRes1D::setMoleFractions(const double* xres)
+void OutletRes1D::setMoleFractions(span<const double> xres)
 {
     if (m_flow) {
-        m_flow->phase().setMoleFractions(span<const double>(xres, m_nsp));
+        m_flow->phase().setMoleFractions(xres);
         m_flow->phase().getMassFractions(m_yres);
         needJacUpdate();
     }
@@ -504,26 +496,23 @@ void OutletRes1D::init()
     }
 }
 
-void OutletRes1D::eval(size_t jg, double* xg, double* rg,
-                       integer* diagg, double rdt)
+void OutletRes1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                       span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
 
-    // start of local part of global arrays
-    double* x = xg + loc();
-    double* r = rg + loc();
-    integer* diag = diagg + loc();
-
+    // flow is left-to-right; access values for the point to the left
     size_t nc = m_flow_left->nComponents();
-    double* xb = x - nc;
-    double* rb = r - nc;
-    int* db = diag - nc;
+    span<const double> xb = xg.subspan(loc() - nc, nc);
+    span<const double> xb2 = xg.subspan(loc() - 2*nc, nc); // second point from the left
+    span<double> rb = rg.subspan(loc() - nc, nc);
+    span<int> db = diagg.subspan(loc() - nc, nc);
 
     size_t last = m_flow_left->nPoints() - 1;
     if (m_flow_left->doEnergy(last)) {
-        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+        rb[c_offset_T] = xb[c_offset_T] - xb2[c_offset_T]; // zero T gradient
     } else {
         rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
@@ -573,27 +562,23 @@ void Surf1D::init()
     _init(0);
 }
 
-void Surf1D::eval(size_t jg, double* xg, double* rg,
-                  integer* diagg, double rdt)
+void Surf1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                  span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
 
-    // start of local part of global arrays
-    double* x = xg + loc();
-    double* r = rg + loc();
-
     if (m_flow_right) {
-        double* rb = r;
-        double* xb = x;
+        span<double> rb = rg.subspan(loc(), m_flow_right->nComponents());
+        span<const double> xb = xg.subspan(loc(), m_flow_right->nComponents());
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
 
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        double* rb = r - nc;
-        double* xb = x - nc;
+        span<double> rb = rg.subspan(loc() - nc, nc);
+        span<const double> xb = xg.subspan(loc() - nc, nc);
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
 }
@@ -613,7 +598,7 @@ void Surf1D::fromArray(const shared_ptr<SolutionArray>& arr)
     Boundary1D::setMeta(meta);
 }
 
-void Surf1D::show(const double* x)
+void Surf1D::show(span<const double> x)
 {
     writelog("    Temperature: {:10.4g} K \n\n", m_temp);
 }
@@ -675,23 +660,23 @@ void ReactingSurf1D::init()
     }
 }
 
-void ReactingSurf1D::resetBadValues(double* xg) {
-    double* x = xg + loc();
-    m_sphase->setCoverages(span<const double>(x, m_nsp));
-    m_sphase->getCoverages(span<double>(x, m_nsp));
+void ReactingSurf1D::resetBadValues(span<double> xg) {
+    span<double> x = xg.subspan(loc(), m_nsp);
+    m_sphase->setCoverages(x);
+    m_sphase->getCoverages(x);
 }
 
-void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
-                          integer* diagg, double rdt)
+void ReactingSurf1D::eval(size_t jg, span<const double> xg, span<double> rg,
+                          span<int> diagg, double rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
 
     // start of local part of global arrays
-    double* x = xg + loc();
-    double* r = rg + loc();
-    integer* diag = diagg + loc();
+    span<const double> x = xg.subspan(loc(), m_nsp);
+    span<double> r = rg.subspan(loc(), m_nsp);
+    span<int> diag = diagg.subspan(loc(), m_nsp);
 
     // set the coverages
     double sum = 0.0;
@@ -710,12 +695,12 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     if (m_flow_left) {
         leftloc = m_flow_left->loc();
         pnt = m_flow_left->nPoints() - 1;
-        m_flow_left->setGas(xg + leftloc, pnt);
+        m_flow_left->setGas(xg.subspan(leftloc, m_flow_left->size()), pnt);
     }
 
     if (m_flow_right) {
         rightloc = m_flow_right->loc();
-        m_flow_right->setGas(xg + rightloc, 0);
+        m_flow_right->setGas(xg.subspan(rightloc, m_flow_right->size()), 0);
     }
 
     m_kin->getNetProductionRates(m_work);
@@ -737,15 +722,15 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
 
     if (m_flow_right) {
-        double* rb = r + m_nsp;
-        double* xb = x + m_nsp;
+        span<double> rb = r.subspan(m_nsp, m_flow_right->nComponents());
+        span<const double> xb = x.subspan(m_nsp, m_flow_right->nComponents());
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
         auto mwleft = m_phase_left->molecularWeights();
-        double* rb = r - nc;
-        double* xb = x - nc;
+        span<double> rb = rg.subspan(loc() - nc, nc);
+        span<const double> xb = xg.subspan(loc() - nc, nc);
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
         size_t nSkip = m_flow_left->rightExcessSpecies();
         size_t l_offset = 0;
@@ -810,7 +795,7 @@ void ReactingSurf1D::fromArray(const shared_ptr<SolutionArray>& arr)
     }
     resize(nComponents(), arr->size());
     m_container->resize();
-    double* soln = m_state->data() + m_iloc;
+    span<double> soln(m_state->data() + m_iloc, m_nsp);
 
     Boundary1D::setMeta(arr->meta());
     arr->setLoc(0);
@@ -820,11 +805,11 @@ void ReactingSurf1D::fromArray(const shared_ptr<SolutionArray>& arr)
             "Restoring of coverages requires surface phase");
     }
     m_temp = surf->temperature();
-    surf->getCoverages(span<double>(soln, m_nsp));
+    surf->getCoverages(soln);
     _finalize(soln);
 }
 
-void ReactingSurf1D::show(const double* x)
+void ReactingSurf1D::show(span<const double> x)
 {
     writelog("    Temperature: {:10.4g} K \n", m_temp);
     writelog("    Coverages: \n");

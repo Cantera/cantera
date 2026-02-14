@@ -68,14 +68,14 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
             z[iz] = ((double)iz)*dz;
         }
 
-        flow->setupGrid(nz, &z[0]);
+        flow->setupGrid(z);
         flow->setSteadyTolerances(1e-5, 1e-11);
 
         //------- step 2: create the inlet  -----------------------
 
         auto inlet = newDomain<Inlet1D>("inlet", sol);
 
-        inlet->setMoleFractions(x.data());
+        inlet->setMoleFractions(x);
         double mdot = uin * rho_in;
         inlet->setMdot(mdot);
         inlet->setTemperature(temp);
