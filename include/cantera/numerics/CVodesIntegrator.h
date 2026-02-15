@@ -31,7 +31,7 @@ public:
      */
     CVodesIntegrator();
     ~CVodesIntegrator() override;
-    void setTolerances(double reltol, size_t n, double* abstol) override;
+    void setTolerances(double reltol, span<const double> abstol) override;
     void setTolerances(double reltol, double abstol) override;
     void setSensitivityTolerances(double reltol, double abstol) override;
     void initialize(double t0, FuncEval& func) override;
@@ -39,8 +39,8 @@ public:
     void integrate(double tout) override;
     double step(double tout) override;
     double& solution(size_t k) override;
-    double* solution() override;
-    double* derivative(double tout, int n) override;
+    span<double> solution() override;
+    span<double> derivative(double tout, int n) override;
     int lastOrder() const override;
     int nEquations() const  override{
         return static_cast<int>(m_neq);

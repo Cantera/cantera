@@ -31,7 +31,7 @@ public:
      */
     IdasIntegrator();
     ~IdasIntegrator() override;
-    void setTolerances(double reltol, size_t n, double* abstol) override;
+    void setTolerances(double reltol, span<const double> abstol) override;
     void setTolerances(double reltol, double abstol) override;
     void setSensitivityTolerances(double reltol, double abstol) override;
     void setLinearSolverType(const string& linearSolverType) override;
@@ -40,7 +40,7 @@ public:
     void integrate(double tout) override;
     double step(double tout) override;
     double& solution(size_t k) override;
-    double* solution() override;
+    span<double> solution() override;
     int nEquations() const override {
         return static_cast<int>(m_neq);
     }

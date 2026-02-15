@@ -272,7 +272,7 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     // test solve
     vector<double> output(testSize, 0);
     vector<double> rhs_vector(testSize, 10);
-    precon.solve(testSize, rhs_vector.data(), output.data());
+    precon.solve(rhs_vector, output);
     for (size_t i = 0; i < testSize; i++) {
         EXPECT_NEAR(rhs_vector[i], output[i], tol);
     }

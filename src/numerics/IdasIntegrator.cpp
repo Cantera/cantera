@@ -95,13 +95,14 @@ double& IdasIntegrator::solution(size_t k)
     return NV_Ith_S(m_y, k);
 }
 
-double* IdasIntegrator::solution()
+span<double> IdasIntegrator::solution()
 {
-    return NV_DATA_S(m_y);
+    return asSpan(m_y);
 }
 
-void IdasIntegrator::setTolerances(double reltol, size_t n, double* abstol)
+void IdasIntegrator::setTolerances(double reltol, span<const double> abstol)
 {
+    size_t n = abstol.size();
     m_itol = IDA_SV;
     if (n != m_nabs) {
         m_nabs = n;

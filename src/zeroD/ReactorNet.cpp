@@ -195,7 +195,7 @@ void ReactorNet::setTolerances(double rtol, double atol)
         m_atols = atol;
     }
     fill(m_atol.begin(), m_atol.end(), m_atols);
-    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
+    m_integ->setTolerances(m_rtol, m_atol);
 }
 
 void ReactorNet::setSensitivityTolerances(double rtol, double atol)
@@ -300,7 +300,7 @@ void ReactorNet::advance(double time)
     initialize();
     m_integ->integrate(time);
     m_time = m_integ->currentTime();
-    updateState(span<const double>(m_integ->solution(), m_nv));
+    updateState(m_integ->solution());
 }
 
 double ReactorNet::advance(double time, bool applylimit)
@@ -333,7 +333,7 @@ double ReactorNet::advance(double time, bool applylimit)
 
     // Update reactor states to match the integrator solution at the time reached
     // (which may be earlier than 'time' if a limit was triggered)
-    updateState(span<const double>(m_integ->solution(), m_nv));
+    updateState(m_integ->solution());
 
     // Disable limit checking after this call
     m_limit_check_active = false;
@@ -347,7 +347,7 @@ double ReactorNet::advance(double time, bool applylimit)
             m_advancelimits.assign(m_nv, -1.0);
         }
         getAdvanceLimits(m_advancelimits);
-        double* ycurr = m_integ->solution();
+        auto ycurr = m_integ->solution();
         size_t jmax = npos;
         double max_ratio = -1.0;
         double best_limit = 0.0;
@@ -383,7 +383,7 @@ double ReactorNet::step()
 {
     initialize();
     m_time = m_integ->step(m_time + 1.0);
-    updateState(span<const double>(m_integ->solution(), m_nv));
+    updateState(m_integ->solution());
     return m_time;
 }
 
@@ -416,10 +416,8 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
 void ReactorNet::getEstimate(double time, int k, span<double> yest)
 {
     initialize();
-    double* cvode_dky = m_integ->solution();
-    for (size_t j = 0; j < m_nv; j++) {
-        yest[j] = cvode_dky[j];
-    }
+    auto cvode_dky = m_integ->solution();
+    std::copy(cvode_dky.begin(), cvode_dky.end(), yest.begin());
 
     // Taylor expansion
     double factor = 1.;
@@ -628,10 +626,8 @@ void ReactorNet::updateState(span<const double> y)
 void ReactorNet::getDerivative(int k, span<double> dky)
 {
     initialize();
-    double* cvode_dky = m_integ->derivative(m_time, k);
-    for (size_t j = 0; j < m_nv; j++) {
-        dky[j] = cvode_dky[j];
-    }
+    auto cvode_dky = m_integ->derivative(m_time, k);
+    std::copy(cvode_dky.begin(), cvode_dky.end(), dky.begin());
 }
 
 void ReactorNet::setAdvanceLimits(span<const double> limits)

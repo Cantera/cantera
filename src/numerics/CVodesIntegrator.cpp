@@ -142,13 +142,14 @@ double& CVodesIntegrator::solution(size_t k)
     return NV_Ith_S(m_y, k);
 }
 
-double* CVodesIntegrator::solution()
+span<double> CVodesIntegrator::solution()
 {
-    return NV_DATA_S(m_y);
+    return asSpan(m_y);
 }
 
-void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
+void CVodesIntegrator::setTolerances(double reltol, span<const double> abstol)
 {
+    size_t n = abstol.size();
     m_itol = CV_SV;
     m_nabs = n;
     if (n != m_neq) {
@@ -547,11 +548,11 @@ double CVodesIntegrator::step(double tout)
     return m_time;
 }
 
-double* CVodesIntegrator::derivative(double tout, int n)
+span<double> CVodesIntegrator::derivative(double tout, int n)
 {
     int flag = CVodeGetDky(m_cvode_mem, tout, n, m_dky);
     checkError(flag, "derivative", "CVodeGetDky");
-    return NV_DATA_S(m_dky);
+    return asSpan(m_dky);
 }
 
 int CVodesIntegrator::lastOrder() const

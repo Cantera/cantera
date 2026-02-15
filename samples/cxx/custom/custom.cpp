@@ -200,7 +200,7 @@ int main() {
         // ODE system time-integration capability. a pointer to the resulting system state vector
         // is fetched in order to access the solution components.
         integrator->integrate(tnow);
-        double *solution = integrator->solution();
+        auto solution = integrator->solution();
 
         // output the current absolute time and solution state vector to the csv file. you can view
         // these results by opening the "custom_cxx.csv" file that appears in this program's directory
