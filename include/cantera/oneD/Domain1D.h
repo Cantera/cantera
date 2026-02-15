@@ -12,15 +12,18 @@
 namespace Cantera
 {
 
-class MultiJac;
-class OneDim;
-class Refiner;
 class AnyMap;
 class Kinetics;
-class Transport;
+class MultiJac;
 class Solution;
 class SolutionArray;
 class SystemJacobian;
+class Transport;
+
+namespace OneD
+{
+class OneDim;
+class Refiner;
 
 /**
  * Base class for one-dimensional domains.
@@ -771,6 +774,7 @@ protected:
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
 };
+}
 }
 
 #endif

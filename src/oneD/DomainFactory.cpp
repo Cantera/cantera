@@ -9,7 +9,7 @@
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/transport/Transport.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 DomainFactory* DomainFactory::s_factory = 0;

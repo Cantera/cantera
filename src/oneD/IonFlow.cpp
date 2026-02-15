@@ -12,7 +12,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 IonFlow::IonFlow(shared_ptr<Solution> phase, const string& id, size_t points)

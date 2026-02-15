@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 Sim1D::Sim1D(span<const shared_ptr<Domain1D>> domains) :

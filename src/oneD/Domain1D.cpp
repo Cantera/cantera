@@ -13,7 +13,7 @@
 #include "cantera/base/SolutionArray.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 Domain1D::Domain1D(size_t nv, size_t points, double time)
