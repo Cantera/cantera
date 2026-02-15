@@ -30,7 +30,7 @@ public:
     void setValue(size_t row, size_t col, double value) override;
     void initialize(size_t nVars) override;
     void setBandwidth(size_t bw) override;
-    void updateTransient(double rdt, integer* mask) override;
+    void updateTransient(double rdt, span<const int> mask) override;
     void factorize() override {
         m_mat.factor();
     }
@@ -43,12 +43,8 @@ public:
         return m_mat.value(i, j);
     }
 
-    void solve(const double* const b, double* const x) {
-        m_mat.solve(b, x);
-    }
-
-    void solve(const size_t stateSize, double* b, double* x) override {
-        m_mat.solve(b, x);
+    void solve(span<const double> b, span<double> x) override {
+        m_mat.solve(b.data(), x.data());
     }
 
     int info() const override {

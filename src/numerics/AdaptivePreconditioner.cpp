@@ -65,12 +65,11 @@ void AdaptivePreconditioner::prunePreconditioner()
     }
 }
 
-void AdaptivePreconditioner::solve(const size_t stateSize, double* rhs_vector, double*
-    output)
+void AdaptivePreconditioner::solve(span<const double> rhs_vector, span<double> output)
 {
     // creating vectors in the form of Ax=b
-    Eigen::Map<Eigen::VectorXd> bVector(rhs_vector, stateSize);
-    Eigen::Map<Eigen::VectorXd> xVector(output, stateSize);
+    Eigen::Map<const Eigen::VectorXd> bVector(rhs_vector.data(), rhs_vector.size());
+    Eigen::Map<Eigen::VectorXd> xVector(output.data(), output.size());
     // solve for xVector
     xVector = m_solver.solve(bVector);
     if (m_solver.info() != Eigen::Success) {

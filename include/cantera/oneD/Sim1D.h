@@ -213,8 +213,8 @@ public:
     using OneDim::eval;
 
     //! Evaluate the governing equations and return the vector of residuals
-    void getResidual(double rdt, double* resid) {
-        OneDim::eval(npos, *m_state, span<double>(resid, m_state->size()), rdt, 0);
+    void getResidual(double rdt, span<double> resid) {
+        OneDim::eval(npos, *m_state, resid, rdt, 0);
     }
 
     //! Refine the grid in all domains.
@@ -326,7 +326,7 @@ public:
      *         - \lambda^T \frac{\partial f}{\partial p}
      * @f]
      */
-    void solveAdjoint(const double* b, double* lambda);
+    void solveAdjoint(span<const double> b, span<double> lambda);
 
     void resize() override;
 

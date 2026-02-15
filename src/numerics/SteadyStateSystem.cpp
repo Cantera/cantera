@@ -52,7 +52,7 @@ void SteadyStateSystem::solve(int loglevel)
         if (!m_jac_ok) {
             evalJacobian(*m_state);
             try {
-                m_jac->updateTransient(m_rdt, m_mask.data());
+                m_jac->updateTransient(m_rdt, m_mask);
                 m_jac_ok = true;
             } catch (CanteraError& err) {
                 // Allow solver to continue after failure to factorize the steady-state
@@ -260,7 +260,7 @@ void SteadyStateSystem::initTimeInteg(double dt, span<const double> x)
 
     // if the stepsize has changed, then update the transient part of the Jacobian
     if (fabs(rdt_old - m_rdt) > Tiny) {
-        m_jac->updateTransient(m_rdt, m_mask.data());
+        m_jac->updateTransient(m_rdt, m_mask);
     }
 }
 
@@ -271,7 +271,7 @@ void SteadyStateSystem::setSteadyMode()
     }
 
     m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, m_mask.data());
+    m_jac->updateTransient(m_rdt, m_mask);
 }
 
 void SteadyStateSystem::setJacAge(int ss_age, int ts_age)

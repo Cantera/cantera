@@ -1625,7 +1625,8 @@ cdef class Sim1D:
         cdef np.ndarray[np.double_t, ndim=1] gg = \
                 np.ascontiguousarray(dgdx, dtype=np.double)
 
-        self.sim.solveAdjoint(&gg[0], &L[0])
+        self.sim.solveAdjoint(span[const_double](&gg[0], gg.size),
+                              span[double](&L[0], L.size))
 
         cdef np.ndarray[np.double_t, ndim=1] dgdp = np.empty(n_params)
         cdef np.ndarray[np.double_t, ndim=2] dfdp = np.empty((n_vars, n_params))
@@ -1637,12 +1638,12 @@ cdef class Sim1D:
             perturb(self, i, dp)
             if g:
                 gplus = g(self)
-            self.sim.getResidual(0, &fplus[0])
+            self.sim.getResidual(0, span[double](&fplus[0], fplus.size))
 
             perturb(self, i, -dp)
             if g:
                 gminus = g(self)
-            self.sim.getResidual(0, &fminus[0])
+            self.sim.getResidual(0, span[double](&fminus[0], fminus.size))
 
             perturb(self, i, 0)
             dgdp[i] = (gplus - gminus)/(2*dp)

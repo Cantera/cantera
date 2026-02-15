@@ -776,7 +776,7 @@ void Sim1D::evalSSJacobian()
     OneDim::evalSSJacobian(*m_state);
 }
 
-void Sim1D::solveAdjoint(const double* b, double* lambda)
+void Sim1D::solveAdjoint(span<const double> b, span<double> lambda)
 {
     for (auto& D : m_dom) {
         D->forceFullUpdate(true);
@@ -801,7 +801,7 @@ void Sim1D::solveAdjoint(const double* b, double* lambda)
         }
     }
 
-    Jt.solve(b, lambda);
+    Jt.solve(b.data(), lambda.data());
 }
 
 void Sim1D::resize()

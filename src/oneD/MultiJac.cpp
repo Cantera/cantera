@@ -35,7 +35,7 @@ void MultiJac::setValue(size_t row, size_t col, double value)
     }
 }
 
-void MultiJac::updateTransient(double rdt, integer* mask)
+void MultiJac::updateTransient(double rdt, span<const int> mask)
 {
     for (size_t n = 0; n < m_dim; n++) {
         m_mat.value(n,n) = m_ssdiag[n] - mask[n]*rdt;
