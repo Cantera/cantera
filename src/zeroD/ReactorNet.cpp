@@ -408,7 +408,7 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
     SteadyReactorSolver solver(this, y0);
     solver.evalJacobian(y0);
     if (rdt) {
-        solver.linearSolver()->updateTransient(rdt, solver.transientMask().data());
+        solver.linearSolver()->updateTransient(rdt, solver.transientMask());
     }
     return std::dynamic_pointer_cast<EigenSparseJacobian>(solver.linearSolver())->jacobian();
 }
@@ -784,7 +784,7 @@ void ReactorNet::preconditionerSolve(span<const double> rhs, span<double> output
         throw CanteraError("ReactorNet::preconditionerSolve",
                            "Must only be called after ReactorNet is initialized.");
     }
-    m_integ->preconditionerSolve(m_nv, const_cast<double*>(rhs.data()), output.data());
+    m_integ->preconditionerSolve(rhs, output);
 }
 
 void ReactorNet::preconditionerSetup(double t, span<const double> y, double gamma)

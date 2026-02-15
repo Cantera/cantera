@@ -120,12 +120,11 @@ public:
 
     //! Solve a linear system Ax=b where A is the preconditioner
     /*!
-     * @param[in] stateSize length of the rhs and output vectors
      * @param[in] rhs right hand side vector used in linear system
      * @param[out] output output vector for solution
      */
-    virtual void preconditionerSolve(size_t stateSize, double* rhs, double* output) {
-        m_preconditioner->solve(stateSize, rhs, output);
+    virtual void preconditionerSolve(span<const double> rhs, span<double> output) {
+        m_preconditioner->solve(rhs, output);
     }
 
     //! Return the side of the system on which the preconditioner is applied

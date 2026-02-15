@@ -36,7 +36,7 @@ void MultiNewton::step(span<const double> x, span<double> step,
 
     auto jac = r.linearSolver();
     try {
-        jac->solve(r.size(), step.data(), step.data());
+        jac->solve(step, step);
     } catch (CanteraError&) {
         if (jac->info() > 0) {
             // Positive value for "info" indicates the row where factorization failed
@@ -224,7 +224,7 @@ int MultiNewton::solve(span<const double> x0, span<double> x1,
         if (forceNewJac) {
             r.evalJacobian(m_x);
             try {
-                jac->updateTransient(rdt, r.transientMask().data());
+                jac->updateTransient(rdt, r.transientMask());
             } catch (CanteraError& err) {
                 // Allow solver to continue after failure to factorize the steady-state
                 // Jacobian by returning to time stepping mode

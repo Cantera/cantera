@@ -21,7 +21,7 @@ public:
     void reset() override;
     void setValue(size_t row, size_t col, double value) override;
     void updatePreconditioner() override;
-    void updateTransient(double rdt, int* mask) override;
+    void updateTransient(double rdt, span<const int> mask) override;
 
     //! Set all Jacobian elements. Replaces the existing elements.
     void setFromTriplets(const vector<Eigen::Triplet<double>>& trips) {
