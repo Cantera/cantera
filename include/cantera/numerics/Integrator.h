@@ -54,11 +54,9 @@ public:
     //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
-     * @param n      Number of equations
-     * @param abstol array of N absolute tolerance values
+     * @param abstol vector of absolute tolerance values, length nEquations().
      */
-    virtual void setTolerances(double reltol, size_t n,
-                               double* abstol) {
+    virtual void setTolerances(double reltol, span<const double> abstol) {
         warn("setTolerances");
     }
 
@@ -183,15 +181,15 @@ public:
     }
 
     //! The current value of the solution of the system of equations.
-    virtual double* solution() {
+    virtual span<double> solution() {
         warn("solution");
-        return 0;
+        return {};
     }
 
     //! n-th derivative of the output function at time tout.
-    virtual double* derivative(double tout, int n) {
+    virtual span<double> derivative(double tout, int n) {
         warn("derivative");
-        return 0;
+        return {};
     }
 
     //! Order used during the last solution step
