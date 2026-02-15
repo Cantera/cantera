@@ -53,11 +53,12 @@ for sample in samples:
             ]
         )
 
-    # TODO: Accelerate is only used if other BLAS/LAPACK are not used
     if env["OS"] == "Darwin":
+        # TODO: Accelerate is only used if other BLAS/LAPACK are not used
         cmake_extra.append("find_library(ACCELERATE_FRAMEWORK Accelerate)")
         localenv.Append(
-            LINKFLAGS=env.subst("${RPATHPREFIX}${ct_libdir}${RPATHSUFFIX}"))
+            LINKFLAGS=env.subst(
+                f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
 
     localenv.Append(LIBS=env['cantera_shared_libs'])
     localenv.Prepend(CPPPATH=['#include'])
