@@ -20,10 +20,9 @@ TEST(Polyfit, exact_fit)
 {
     vector<double> x{0, 0.3, 1.0, 1.5, 2.0, 2.5};
     vector<double> p(6);
-    vector<double> w(6, -1.0);
     for (int i = 0; i < 20; i++) {
         vector<double> y{-1.1*i, cos(i), pow(-1,i), 3.2/(i+1), 0.1*i*i, sin(i)};
-        polyfit(6, 5, x.data(), y.data(), w.data(), p.data());
+        polyfit(5, x, y, {}, p);
         for (size_t j = 0; j < 6; j++) {
             EXPECT_NEAR(polyval(p, x[j]), y[j], 1e-10);
         }
@@ -53,7 +52,7 @@ TEST(Polyfit, sequential)
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
         vector<double> p(N);
-        double rms = polyfit(7, i, x.data(), y.data(), nullptr, p.data());
+        double rms = polyfit(i, x, y, {}, p);
         EXPECT_LT(rms, rms_prev);
         rms_prev = rms;
         for (size_t j = 0; j < N; j++) {
@@ -86,7 +85,7 @@ TEST(Polyfit, weighted)
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
         vector<double> p(N);
-        double rms = polyfit(7, i, x.data(), y.data(), w.data(), p.data());
+        double rms = polyfit(i, x, y, w, p);
         EXPECT_LT(rms, rms_prev);
         rms_prev = rms;
         for (size_t j = 0; j < N; j++) {

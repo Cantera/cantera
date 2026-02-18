@@ -89,23 +89,23 @@ private:
     vector<vector<double>> m_bpoly;
     vector<vector<double>> m_cpoly;
 
-    static double delta[8];
-    static double tstar22[37];
+    static std::array<double, 8> delta;
+    static std::array<double, 37> tstar22;
 
     //! Table of omega22 values
-    static double omega22_table[37*8];
+    static std::array<double, 37*8> omega22_table;
 
     //! T* values (reduced temperature)
-    static double tstar[39];
+    static std::array<double, 39> tstar;
 
     //! astar table
-    static double astar_table[39*8];
+    static std::array<double, 39*8> astar_table;
 
     //! bstar table
-    static double bstar_table[39*8];
+    static std::array<double, 39*8> bstar_table;
 
     //! cstar table
-    static double cstar_table[39*8];
+    static std::array<double, 39*8> cstar_table;
 
     //! Log temp
     vector<double> m_logTemp;
