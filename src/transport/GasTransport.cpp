@@ -72,7 +72,7 @@ double GasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, m_molefracs.data(), m_spwork.data());
+    multiply(m_phi, m_molefracs, m_spwork);
 
     for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;

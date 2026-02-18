@@ -568,7 +568,7 @@ public:
      *
      *  Still need to check out when we do loops over nc vs. ne.
      */
-    int vcs_elcorr(double aa[], double x[]);
+    int vcs_elcorr(span<double> aa, span<double> x);
 
     //! Create an initial estimate of the solution to the equilibrium problem.
     void vcs_inest();
@@ -749,7 +749,7 @@ private:
      *
      * @param dg Vector of local delta G's.
      */
-    double l2normdg(double dg[]) const;
+    double l2normdg(span<const double> dg) const;
 
     void checkDelta1(span<const double> ds, span<const double> delTPhMoles,
                      size_t kspec);

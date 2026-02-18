@@ -235,7 +235,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     }
 
     // // Use LU factorization to calculate the reaction matrix
-    solve(sm, formRxnMatrix.data(), nNonComponents, ne);
+    solve(sm, formRxnMatrix, nNonComponents, ne);
 
     if (BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");

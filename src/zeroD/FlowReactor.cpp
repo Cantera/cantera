@@ -144,7 +144,7 @@ void FlowReactor::getStateDae(span<double> y, span<double> ydot)
     }
 
     // and solve
-    solve(a, ydot.data(), 1, 0);
+    solve(a, ydot, 1, 0);
 }
 
 void FlowReactor::updateState(span<const double> y)

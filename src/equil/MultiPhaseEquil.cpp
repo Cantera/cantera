@@ -131,7 +131,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // species has precisely zero moles.
     vector<double> dxi(nFree(), 1.0e-20);
     if (!dxi.empty()) {
-        multiply(m_N, dxi.data(), m_work.data());
+        multiply(m_N, dxi, m_work);
         unsort(m_work);
     }
 
@@ -434,7 +434,7 @@ double MultiPhaseEquil::stepComposition(int loglevel)
 
     // compute the mole fraction changes.
     if (nFree()) {
-        multiply(m_N, m_dxi.data(), m_work.data());
+        multiply(m_N, m_dxi, m_work);
     }
 
     // change to sequential form

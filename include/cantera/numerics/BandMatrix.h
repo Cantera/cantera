@@ -132,8 +132,8 @@ public:
     size_t ldim() const;
 
     //! Multiply A*b and write result to @c prod.
-    void mult(const double* b, double* prod) const override;
-    void leftMult(const double* const b, double* const prod) const override;
+    void mult(span<const double> b, span<double> prod) const override;
+    void leftMult(span<const double> b, span<double> prod) const override;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     //! The factorization is saved in ludata.
@@ -144,7 +144,7 @@ public:
      * @param b  INPUT RHS of the problem
      * @param x  OUTPUT solution to the problem
      */
-    void solve(const double* const b, double* const x);
+    void solve(span<const double> b, span<double> x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -153,7 +153,7 @@ public:
      * @param nrhs  Number of right hand sides to solve
      * @param ldb   Leading dimension of `b`. Default is nColumns()
      */
-    void solve(double* b, size_t nrhs=1, size_t ldb=0) override;
+    void solve(span<double> b, size_t nrhs=1, size_t ldb=0) override;
 
     void zero() override;
 
@@ -173,7 +173,7 @@ public:
     //! Returns the one norm of the matrix
     double oneNorm() const override;
 
-    //! Return a pointer to the top of column j
+    //! Return a writable span over column `j`.
     /*!
      * Column values are assumed to be contiguous in memory (LAPACK band matrix
      * structure)
@@ -184,27 +184,19 @@ public:
      *
      * AB(KL + KU + 1 + i - j,j) = A(i,j) for max(1, j - KU) <= i <= min(m, j + KL)
      *
-     * This routine returns the position of AB(1,j) (fortran-1 indexing) in the
-     * above format
+     * This routine returns a span starting at the position of AB(1,j)
+     * (fortran-1 indexing) in the above format.
      *
      * So to address the (i,j) position, you use the following indexing:
      *
-     *     double *colP_j = matrix.ptrColumn(j);
-     *     double a_i_j = colP_j[kl + ku + i - j];
+     *     auto col_j = matrix.col(j);
+     *     double a_i_j = col_j[kl + ku + i - j];
      *
      *  @param j   Value of the column
-     *  @returns a pointer to the top of the column
+     *  @returns   A span over the entire stored column
      */
-    double* ptrColumn(size_t j) override;
-
-    //! Return a vector of const pointers to the columns
-    /*!
-     * Note the value of the pointers are protected by their being const.
-     * However, the value of the matrix is open to being changed.
-     *
-     * @returns a vector of pointers to the top of the columns of the matrices.
-     */
-    double* const* colPts() override;
+    span<double> col(size_t j) override;
+    span<const double> col(size_t j) const override;
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!

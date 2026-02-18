@@ -197,8 +197,10 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-void BandMatrix::mult(const double* b, double* prod) const
+void BandMatrix::mult(span<const double> b, span<double> prod) const
 {
+    checkArraySize("BandMatrix::mult", b.size(), m_n);
+    checkArraySize("BandMatrix::mult", prod.size(), m_n);
     for (size_t m = 0; m < m_n; m++) {
         double sum = 0.0;
         size_t start = (m >= m_kl) ? m - m_kl : 0;
@@ -210,8 +212,10 @@ void BandMatrix::mult(const double* b, double* prod) const
     }
 }
 
-void BandMatrix::leftMult(const double* const b, double* const prod) const
+void BandMatrix::leftMult(span<const double> b, span<double> prod) const
 {
+    checkArraySize("BandMatrix::leftMult", b.size(), m_n);
+    checkArraySize("BandMatrix::leftMult", prod.size(), m_n);
     for (size_t n = 0; n < m_n; n++) {
         double sum = 0.0;
         size_t start = (n >= m_ku) ? n - m_ku : 0;
@@ -244,13 +248,15 @@ void BandMatrix::factor()
     m_factored = true;
 }
 
-void BandMatrix::solve(const double* const b, double* const x)
+void BandMatrix::solve(span<const double> b, span<double> x)
 {
-    copy(b, b + m_n, x);
+    checkArraySize("BandMatrix::solve", b.size(), m_n);
+    checkArraySize("BandMatrix::solve", x.size(), m_n);
+    copy(b.begin(), b.begin() + m_n, x.begin());
     solve(x);
 }
 
-void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
+void BandMatrix::solve(span<double> b, size_t nrhs, size_t ldb)
 {
     if (!m_factored) {
         factor();
@@ -258,10 +264,11 @@ void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     if (ldb == 0) {
         ldb = nColumns();
     }
+    checkArraySize("BandMatrix::solve", b.size(), nrhs * ldb);
 #if CT_USE_LAPACK
     ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
               nSuperDiagonals(), nrhs, ludata.data(), ldim(),
-              m_ipiv->data.data(), b, ldb, m_info);
+              m_ipiv->data.data(), b.data(), ldb, m_info);
     if (m_info != 0) {
         throw Cantera::CanteraError("BandMatrix::solve",
             "Linear solve failed with DGBTRS error code {}.", m_info);
@@ -272,7 +279,7 @@ void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     long int smu = nu + nl;
     double** a = m_lu_col_ptrs.data();
     SUNDlsMat_bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
-                        m_ipiv->data.data(), b);
+                        m_ipiv->data.data(), b.data());
     m_info = 0;
 #endif
 }
@@ -376,14 +383,14 @@ size_t BandMatrix::checkColumns(double& valueSmall) const
     return jSmall;
 }
 
-double* BandMatrix::ptrColumn(size_t j)
+span<double> BandMatrix::col(size_t j)
 {
-    return m_colPtrs[j];
+    return span<double>(m_colPtrs[j], ldim());
 }
 
-double* const* BandMatrix::colPts()
+span<const double> BandMatrix::col(size_t j) const
 {
-    return &m_colPtrs[0];
+    return span<const double>(m_colPtrs[j], ldim());
 }
 
 }

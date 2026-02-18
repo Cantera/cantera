@@ -57,7 +57,7 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
             a_coeff_vec(1, k + m_kk * j) = a1kj;
         }
     }
-    a_coeff_vec.getRow(0, a_vec_Curr_.data());
+    a_coeff_vec.getRow(0, a_vec_Curr_);
     b_vec_Curr_[k] = b;
 }
 

@@ -164,7 +164,7 @@ void MultiTransport::solveLMatrixEquation()
     // Solve it using GMRES or LU decomposition. The last solution in m_a should
     // provide a good starting guess, so convergence should be fast.
     m_a = m_b;
-    solve(m_Lmatrix, m_a.data());
+    solve(m_Lmatrix, m_a);
     m_lmatrix_soln_ok = true;
     m_molefracs_last = m_molefracs;
     // L matrix is overwritten with LU decomposition
@@ -234,7 +234,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
     }
 
     // solve the equations
-    solve(m_aa, fluxes.data(), ndim, ldf);
+    solve(m_aa, fluxes, ndim, ldf);
     double pp = pressure_ig();
 
     // multiply diffusion velocities by rho * V to create mass fluxes, and
@@ -329,7 +329,7 @@ void MultiTransport::getMassFluxes(span<const double> state1,
     fluxes[jmax] = 0.0;
 
     // Solve the equations
-    solve(m_aa, fluxes.data());
+    solve(m_aa, fluxes);
 
     double pp = pressure_ig();
     // multiply diffusion velocities by rho * Y_k to create

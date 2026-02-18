@@ -108,7 +108,7 @@ double IonGasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, m_molefracs.data(), m_spwork.data());
+    multiply(m_phi, m_molefracs, m_spwork);
 
     for (size_t k : m_kNeutral) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;

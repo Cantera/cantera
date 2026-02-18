@@ -56,7 +56,7 @@ public:
      * @param values Initial values of the array. Must be of length m*n, and
      *     stored in column-major order.
      */
-    Array2D(const size_t m, const size_t n, const double* values);
+    Array2D(const size_t m, const size_t n, span<const double> values);
 
     Array2D(const Array2D& y);
 
@@ -79,23 +79,14 @@ public:
      * @param c  This vector is the entries in the column to be added. It must
      *           have a length equal to m_nrows or greater.
      */
-    void appendColumn(const vector<double>& c);
-
-    //! Append a column to the existing matrix
-    /*!
-     * This operation will add a column onto the existing matrix.
-     *
-     * @param c  This vector of doubles is the entries in the column to be
-     *           added. It must have a length equal to m_nrows or greater.
-     */
-    void appendColumn(const double* const c);
+    void appendColumn(span<const double> c);
 
     //! Set the nth row to array rw
     /*!
      * @param  n   Index of the row to be changed
      * @param  rw  Vector for the row. Must have a length of m_ncols.
      */
-    void setRow(size_t n, const double* const rw);
+    void setRow(size_t n, span<const double> rw);
 
     //! Get the nth row and return it in a vector
     /*!
@@ -103,7 +94,7 @@ public:
      * @param rw   Return Vector for the operation. Must have a length of
      *             m_ncols.
      */
-    void getRow(size_t n, double* const rw);
+    void getRow(size_t n, span<double> rw) const;
 
     //! Set the values in column m to those in array col
     /*!
@@ -112,7 +103,7 @@ public:
      * @param m   Column to set
      * @param col pointer to a col vector. Vector must have a length of m_nrows.
      */
-    void setColumn(size_t m, double* const col);
+    void setColumn(size_t m, span<const double> col);
 
     //! Get the values in column m
     /*!
@@ -121,7 +112,7 @@ public:
      * @param m    Column to set
      * @param col  pointer to a col vector that will be returned
      */
-    void getColumn(size_t m, double* const col);
+    void getColumn(size_t m, span<double> col) const;
 
     //! Set all of the entries to zero
     void zero() {
@@ -194,24 +185,14 @@ public:
 
     void operator*=(double a);
 
-    //! Return a pointer to the top of column j, columns are contiguous
-    //! in memory
-    /*!
-     * @param j   Value of the column
-     * @returns a pointer to the top of the column
-     */
-    double* ptrColumn(size_t j) {
-        return &m_data[m_nrows*j];
+    //! Return a writable span over column `j`.
+    span<double> col(size_t j) {
+        return span<double>(m_data.data() + m_nrows * j, m_nrows);
     }
 
-    //! Return a const pointer to the top of column j, columns are contiguous
-    //! in memory
-    /*!
-     * @param j   Value of the column
-     * @returns a const pointer to the top of the column
-     */
-    const double* ptrColumn(size_t j) const {
-        return &m_data[m_nrows*j];
+    //! Return a read-only span over column `j`.
+    span<const double> col(size_t j) const {
+        return span<const double>(m_data.data() + m_nrows * j, m_nrows);
     }
 
 protected:

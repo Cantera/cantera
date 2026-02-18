@@ -44,7 +44,7 @@ public:
     }
 
     void solve(span<const double> b, span<double> x) override {
-        m_mat.solve(b.data(), x.data());
+        m_mat.solve(b, x);
     }
 
     int info() const override {
