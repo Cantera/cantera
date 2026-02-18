@@ -1531,11 +1531,11 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
             size_t n = m_kk*i + j;
             size_t counterIJ = m_CounterIJ[n];
 
-            const double* beta0MX_coeff = m_Beta0MX_ij_coeff.ptrColumn(counterIJ);
-            const double* beta1MX_coeff = m_Beta1MX_ij_coeff.ptrColumn(counterIJ);
-            const double* beta2MX_coeff = m_Beta2MX_ij_coeff.ptrColumn(counterIJ);
-            const double* CphiMX_coeff = m_CphiMX_ij_coeff.ptrColumn(counterIJ);
-            const double* Theta_coeff = m_Theta_ij_coeff.ptrColumn(counterIJ);
+            auto beta0MX_coeff = m_Beta0MX_ij_coeff.col(counterIJ);
+            auto beta1MX_coeff = m_Beta1MX_ij_coeff.col(counterIJ);
+            auto beta2MX_coeff = m_Beta2MX_ij_coeff.col(counterIJ);
+            auto CphiMX_coeff = m_CphiMX_ij_coeff.col(counterIJ);
+            auto Theta_coeff = m_Theta_ij_coeff.col(counterIJ);
 
             switch (m_formPitzerTemp) {
             case PITZER_TEMP_CONSTANT:
@@ -1644,7 +1644,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
         if (charge(i) == 0.0) {
             for (size_t j = 1; j < m_kk; j++) {
                 size_t n = i * m_kk + j;
-                const double* Lambda_coeff = m_Lambda_nj_coeff.ptrColumn(n);
+                auto Lambda_coeff = m_Lambda_nj_coeff.col(n);
                 switch (m_formPitzerTemp) {
                 case PITZER_TEMP_CONSTANT:
                     m_Lambda_nj(i,j) = Lambda_coeff[0];
@@ -1673,7 +1673,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                 }
 
                 if (j == i) {
-                    const double* Mu_coeff = m_Mu_nnn_coeff.ptrColumn(i);
+                    auto Mu_coeff = m_Mu_nnn_coeff.col(i);
                     switch (m_formPitzerTemp) {
                     case PITZER_TEMP_CONSTANT:
                         m_Mu_nnn[i] = Mu_coeff[0];
@@ -1709,7 +1709,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
                   size_t n = i * m_kk *m_kk + j * m_kk + k;
-                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  auto Psi_coeff = m_Psi_ijk_coeff.col(n);
                   m_Psi_ijk[n] = Psi_coeff[0];
               }
           }
@@ -1720,7 +1720,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
                   size_t n = i * m_kk *m_kk + j * m_kk + k;
-                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  auto Psi_coeff = m_Psi_ijk_coeff.col(n);
                   m_Psi_ijk[n] = Psi_coeff[0] + Psi_coeff[1]*tlin;
                   m_Psi_ijk_L[n] = Psi_coeff[1];
                   m_Psi_ijk_LL[n] = 0.0;
@@ -1733,7 +1733,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
                   size_t n = i * m_kk *m_kk + j * m_kk + k;
-                  const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
+                  auto Psi_coeff = m_Psi_ijk_coeff.col(n);
                   m_Psi_ijk[n] = Psi_coeff[0]
                                  + Psi_coeff[1]*tlin
                                  + Psi_coeff[2]*tquad

@@ -801,7 +801,7 @@ void Sim1D::solveAdjoint(span<const double> b, span<double> lambda)
         }
     }
 
-    Jt.solve(b.data(), lambda.data());
+    Jt.solve(b, lambda);
 }
 
 void Sim1D::resize()

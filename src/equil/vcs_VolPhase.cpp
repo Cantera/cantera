@@ -424,7 +424,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
         span<double>(&np_dLnActCoeffdMolNumber(0, 0), m_numSpecies * m_numSpecies));
     for (size_t j = 0; j < m_numSpecies; j++) {
         double moles_j_base = phaseTotalMoles * Xmol_[j];
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber.ptrColumn(j);
+        auto np_lnActCoeffCol = np_dLnActCoeffdMolNumber.col(j);
         if (moles_j_base < 1.0E-200) {
             moles_j_base = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
         }

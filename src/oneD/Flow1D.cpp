@@ -382,8 +382,7 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
 
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(
-                    span<double>(m_dthermal.ptrColumn(0) + j*m_nsp, m_nsp));
+                m_trans->getThermalDiffCoeffs(m_dthermal.col(j));
             }
         }
     } else { // mixture averaged transport
@@ -411,8 +410,7 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
             }
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(
-                    span<double>(m_dthermal.ptrColumn(0) + j*m_nsp, m_nsp));
+                m_trans->getThermalDiffCoeffs(m_dthermal.col(j));
             }
         }
     }

@@ -35,14 +35,14 @@ public:
      * @param b    Vector to do the rh multiplication
      * @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const double* b, double* prod) const = 0;
+    virtual void mult(span<const double> b, span<double> prod) const = 0;
 
     //! Multiply b*A and write result to prod.
     /*!
      * @param b    Vector to do the lh multiplication
      * @param prod OUTPUT vector to receive the result
      */
-    virtual void leftMult(const double* const b, double* const prod) const = 0;
+    virtual void leftMult(span<const double> b, span<double> prod) const = 0;
 
     //! Factors the A matrix, overwriting A.
     /*!
@@ -110,20 +110,18 @@ public:
      * @param ldb  Leading dimension of the right-hand side array. Defaults to
      *              nRows()
      */
-    virtual void solve(double* b, size_t nrhs=1, size_t ldb=0) = 0;
+    virtual void solve(span<double> b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
     virtual bool factored() const {
         return (m_factored != 0);
     }
 
-    //! Return a pointer to the top of column j, columns are assumed to be
-    //! contiguous in memory
-    /*!
-     * @param j   Value of the column
-     * @returns a pointer to the top of the column
-     */
-    virtual double* ptrColumn(size_t j) = 0;
+    //! Return a writable span over column `j`.
+    virtual span<double> col(size_t j) = 0;
+
+    //! Return a read-only span over column `j`.
+    virtual span<const double> col(size_t j) const = 0;
 
     //! Index into the (i,j) element
     /*!
@@ -140,15 +138,6 @@ public:
      * @returns an unchangeable reference to the matrix entry
      */
     virtual double operator()(size_t i, size_t j) const = 0;
-
-    //! Return a vector of const pointers to the columns
-    /*!
-     * Note the value of the pointers are protected by their being const.
-     * However, the value of the matrix is open to being changed.
-     *
-     * @returns a vector of pointers to the top of the columns of the matrices.
-     */
-    virtual double* const* colPts() = 0;
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!

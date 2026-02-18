@@ -1418,9 +1418,8 @@ private:
 
     //! Array of coefficients for Beta0, a variable in Pitzer's papers
     /*!
-     * Column index is counterIJ. m_Beta0MX_ij_coeff.ptrColumn(counterIJ) is a
-     * double* containing the vector of coefficients for the counterIJ
-     * interaction.
+     * Column index is counterIJ. m_Beta0MX_ij_coeff.col(counterIJ) is a
+     * `span` containing the coefficients for the counterIJ interaction.
      */
     mutable Array2D m_Beta0MX_ij_coeff;
 
@@ -1442,9 +1441,8 @@ private:
 
     //! Array of coefficients for Beta1, a variable in Pitzer's papers
     /*!
-     * Column index is counterIJ. m_Beta1MX_ij_coeff.ptrColumn(counterIJ) is a
-     * double* containing the vector of coefficients for the counterIJ
-     * interaction.
+     * Column index is counterIJ. m_Beta1MX_ij_coeff.col(counterIJ) is a
+     * `span` containing the vector of coefficients for the counterIJ interaction.
      */
     mutable Array2D m_Beta1MX_ij_coeff;
 
@@ -1466,8 +1464,8 @@ private:
 
     //! Array of coefficients for Beta2, a variable in Pitzer's papers
     /*!
-     * column index is counterIJ. m_Beta2MX_ij_coeff.ptrColumn(counterIJ) is a
-     *  double* containing the vector of coefficients for the counterIJ
+     * column index is counterIJ. m_Beta2MX_ij_coeff.col(counterIJ) is a
+     *  `span` containing the vector of coefficients for the counterIJ
      *  interaction. This was added for the YMP database version of the code
      *  since it contains temperature-dependent parameters for some 2-2
      *  electrolytes.
@@ -1508,8 +1506,8 @@ private:
     //! Array of coefficients for CphiMX, a parameter in the activity
     //! coefficient formulation
     /*!
-     *  Column index is counterIJ. m_CphiMX_ij_coeff.ptrColumn(counterIJ) is a
-     *  double* containing the vector of coefficients for the counterIJ
+     *  Column index is counterIJ. m_CphiMX_ij_coeff.col(counterIJ) is a
+     *  `span` containing the vector of coefficients for the counterIJ
      *  interaction.
      */
     mutable Array2D m_CphiMX_ij_coeff;
@@ -1542,8 +1540,8 @@ private:
      *  is symmetric. Column index is counterIJ. counterIJ where counterIJ =
      *  m_counterIJ[i][j] is used to access this array.
      *
-     *  m_Theta_ij_coeff.ptrColumn(counterIJ) is a double* containing
-     *  the vector of coefficients for the counterIJ interaction.
+     *  m_Theta_ij_coeff.col(counterIJ) is a `span` containing the vector of
+     *  coefficients for the counterIJ interaction.
      */
     Array2D m_Theta_ij_coeff;
 
@@ -1583,8 +1581,8 @@ private:
      * symmetric wrt cations, and the last two coordinates are symmetric wrt
      * anions.
      *
-     *  m_Psi_ijk_coeff.ptrColumn(n) is a double* containing the vector of
-     *  coefficients for the n interaction.
+     *  m_Psi_ijk_coeff.col(n) is a `span` containing the vector of coefficients
+     *  for the n interaction.
      */
     Array2D m_Psi_ijk_coeff;
 
@@ -1617,7 +1615,7 @@ private:
      *
      *      n = j + m_kk * i
      *
-     * m_Lambda_ij_coeff.ptrColumn(n) is a double* containing the vector of
+     * m_Lambda_nj_coeff.col(n) is a `span` containing the vector of
      * coefficients for the (i,j) interaction.
      */
     Array2D m_Lambda_nj_coeff;

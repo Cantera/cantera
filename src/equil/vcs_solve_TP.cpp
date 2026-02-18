@@ -332,7 +332,7 @@ void VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
     // EVALUATE THE ELELEMT ABUNDANCE CHECK
     if (! vcs_elabcheck(0)) {
         debuglog("   --- Element Abundance check failed\n", m_debug_print_lvl >= 2);
-        vcs_elcorr(&m_sm[0], &m_wx[0]);
+        vcs_elcorr(m_sm, m_wx);
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
         // Update the phase objects with the contents of the soln vector
@@ -490,7 +490,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         }
         for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             size_t kspec = m_indexRxnToSpecies[irxn];
-            double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+            auto sc_irxn = m_stoichCoeffRxnMatrix.col(irxn);
             size_t iph = m_phaseID[kspec];
             vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
             double dx;
@@ -906,8 +906,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             }
             writeline(' ', 26, false);
             plogf("Norms of Delta G():%14.6E%14.6E\n",
-                  l2normdg(&m_deltaGRxn_old[0]),
-                  l2normdg(&m_deltaGRxn_new[0]));
+                  l2normdg(m_deltaGRxn_old),
+                  l2normdg(m_deltaGRxn_new));
             plogf("   Total kmoles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
             if ((m_numPhases > 1) && (!m_VolPhaseList[1]->m_singleSpecies)) {
                 plogf("   Total kmoles of liquid = %15.7E\n", m_tPhaseMoles_old[1]);
@@ -960,8 +960,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         plogf("   ---");
         writeline(' ', 56, false);
         plogf("Norms of Delta G():%14.6E%14.6E\n",
-              l2normdg(&m_deltaGRxn_old[0]),
-              l2normdg(&m_deltaGRxn_new[0]));
+              l2normdg(m_deltaGRxn_old),
+              l2normdg(m_deltaGRxn_new));
 
         plogf("   ---           Phase_Name    KMoles(after update)\n");
         plogf("   ---   ");
@@ -1043,7 +1043,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     vcs_elab();
     if (! vcs_elabcheck(0)) {
         debuglog(" - failed -> redoing element abundances.\n", m_debug_print_lvl >= 2);
-        vcs_elcorr(&m_sm[0], &m_wx[0]);
+        vcs_elcorr(m_sm, m_wx);
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
         vcs_deltag(0, true, VCS_STATECALC_OLD);
@@ -1282,7 +1282,7 @@ void VCS_SOLVE::solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
     rangeErrorFound = 0;
     if (! vcs_elabcheck(1)) {
         bool ncBefore = vcs_elabcheck(0);
-        vcs_elcorr(&m_sm[0], &m_wx[0]);
+        vcs_elcorr(m_sm, m_wx);
         bool ncAfter = vcs_elabcheck(0);
         bool neAfter = vcs_elabcheck(1);
 
@@ -1421,7 +1421,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double& delta)
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
         // Attempt the given delta. If it doesn't work, try to see if a smaller one
         // would work,
-        double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+        auto sc_irxn = m_stoichCoeffRxnMatrix.col(irxn);
         for (size_t j = 0; j < m_numComponents; ++j) {
             if (m_molNumSpecies_old[j] > 0.0) {
                 double tmp = sc_irxn[j] * delta;
@@ -2320,7 +2320,7 @@ void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
     }
     // Solve the linear system to calculate the reaction matrix,
     // m_stoichCoeffRxnMatrix.
-    solve(C, m_stoichCoeffRxnMatrix.ptrColumn(0), m_numRxnTot, m_nelem);
+    solve(C, m_stoichCoeffRxnMatrix.data(), m_numRxnTot, m_nelem);
 
     // NOW, if we have interfacial voltage unknowns, what we did was just wrong
     // -> hopefully it didn't blow up. Redo the problem. Search for inactive E
@@ -2358,7 +2358,7 @@ void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
                 }
             }
 
-            solve(C, m_aw.data(), 1, m_nelem);
+            solve(C, m_aw, 1, m_nelem);
             size_t i = k - ncTrial;
             for (size_t j = 0; j < ncTrial; j++) {
                 m_stoichCoeffRxnMatrix(j,i) = m_aw[j];
@@ -2469,7 +2469,7 @@ void VCS_SOLVE::vcs_basopt(const bool doJustComponents, double test)
     // m_deltaMolNumPhase(iphase,irxn), and the phase participation array,
     // PhaseParticipation[irxn][iphase]
     for (size_t irxn = 0; irxn < m_numRxnTot; ++irxn) {
-        double* scrxn_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+        auto scrxn_ptr = m_stoichCoeffRxnMatrix.col(irxn);
         size_t kspec = m_indexRxnToSpecies[irxn];
         size_t iph = m_phaseID[kspec];
         m_deltaMolNumPhase(iph,irxn) = 1.0;
@@ -2786,11 +2786,12 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     }
 }
 
-double VCS_SOLVE::l2normdg(double dgLocal[]) const
+double VCS_SOLVE::l2normdg(span<const double> dgLocal) const
 {
     if (m_numRxnRdc <= 0) {
         return 0.0;
     }
+    checkArraySize("VCS_SOLVE::l2normdg", dgLocal.size(), m_numRxnRdc);
     double tmp = 0;
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
@@ -2970,7 +2971,7 @@ void VCS_SOLVE::vcs_deltag(const int L, const bool doDeleted,
             if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
                 int icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+                auto dtmp_ptr = m_stoichCoeffRxnMatrix.col(irxn);
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF && dtmp_ptr[kspec] < 0.0) {
@@ -2987,7 +2988,7 @@ void VCS_SOLVE::vcs_deltag(const int L, const bool doDeleted,
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             int icase = 0;
             deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-            double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+            auto dtmp_ptr = m_stoichCoeffRxnMatrix.col(irxn);
             for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
                 deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                 if (molNumSpecies[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&
@@ -3006,7 +3007,7 @@ void VCS_SOLVE::vcs_deltag(const int L, const bool doDeleted,
             if (m_speciesStatus[kspec] <= VCS_SPECIES_MINOR) {
                 int icase = 0;
                 deltaGRxn[irxn] = feSpecies[m_indexRxnToSpecies[irxn]];
-                double* dtmp_ptr = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+                auto dtmp_ptr = m_stoichCoeffRxnMatrix.col(irxn);
                 for (kspec = 0; kspec < m_numComponents; ++kspec) {
                     deltaGRxn[irxn] += dtmp_ptr[kspec] * feSpecies[kspec];
                     if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF &&

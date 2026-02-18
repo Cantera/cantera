@@ -258,7 +258,7 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, span<double> lambda_RT,
 
     int info = 0;
     try {
-        solve(aa, b.data());
+        solve(aa, b);
     } catch (CanteraError&) {
         info = -2;
     }
@@ -610,7 +610,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 
         // Solve the system
         try {
-            solve(jac, res_trial.data());
+            solve(jac, res_trial);
         } catch (CanteraError& err) {
             s.restoreState(state);
             throw CanteraError("ChemEquil::equilibrate",
@@ -1235,7 +1235,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, span<double> x, span<double> 
             }
 
             try {
-                solve(a1, resid.data());
+                solve(a1, resid);
             } catch (CanteraError& err) {
                 s.restoreState(state);
                 throw CanteraError("ChemEquil::estimateEP_Brinkley",

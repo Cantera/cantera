@@ -1450,7 +1450,7 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
     size_t kspec = m_indexRxnToSpecies[irxn];
     size_t kph = m_phaseID[kspec];
     double np_kspec = std::max(m_tPhaseMoles_old[kph], 1e-13);
-    double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+    auto sc_irxn = m_stoichCoeffRxnMatrix.col(irxn);
 
     // First the diagonal term of the Jacobian
     double s = m_np_dLnActCoeffdMolNum(kspec,kspec) / np_kspec;
@@ -1818,8 +1818,10 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
     return true;
 }
 
-int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
+int VCS_SOLVE::vcs_elcorr(span<double> aa, span<double> x)
 {
+    checkArraySize("VCS_SOLVE::vcs_elcorr[x]", x.size(), m_nelem);
+    checkArraySize("VCS_SOLVE::vcs_elcorr[aa]", aa.size(), m_nelem * m_nelem);
     int retn = 0;
 
     vector<double> ga_save(m_elemAbundances);
@@ -1962,7 +1964,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
     }
 
-    solve(A, x, 1, m_nelem);
+    solve(A, x.first(m_nelem), 1, m_nelem);
 
     // Now apply the new direction without creating negative species.
     double par = 0.5;
@@ -2178,7 +2180,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
-            int retn = vcs_elcorr(&sm[0], &wx[0]);
+            int retn = vcs_elcorr(sm, wx);
             abundancesOK = (retn < 2);
         } else {
             abundancesOK = true;
@@ -2204,7 +2206,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             size_t ik = m_numComponents + irxn;
             double dg_rt = m_SSfeSpecies[ik];
             double dxi_min = 1.0e10;
-            const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
+            auto sc_irxn = m_stoichCoeffRxnMatrix.col(irxn);
             for (size_t jcomp = 0; jcomp < m_nelem; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
             }
@@ -2661,7 +2663,7 @@ void VCS_SOLVE::vcs_inest()
             plogf("%sInitial guess failed element abundances\n", pprefix);
             plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
         }
-        vcs_elcorr(&sm[0], &aw[0]);
+        vcs_elcorr(sm, aw);
         rangeCheck = vcs_elabcheck(1);
         if (!vcs_elabcheck(0)) {
             throw CanteraError("VCS_SOLVE::vcs_inest",
