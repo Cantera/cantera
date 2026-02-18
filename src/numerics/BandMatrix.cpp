@@ -52,11 +52,9 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, double v)   :
     fill(data.begin(), data.end(), v);
     fill(ludata.begin(), ludata.end(), 0.0);
     m_ipiv->data.resize(m_n);
-    m_colPtrs.resize(n);
     m_lu_col_ptrs.resize(n);
     size_t ldab = (2*kl + ku + 1);
     for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
@@ -72,11 +70,9 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_info(y.m_info)
 {
     m_ipiv->data = y.m_ipiv->data;
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 *m_kl + m_ku + 1);
+    size_t ldab = (2*m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
@@ -93,11 +89,9 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     m_ipiv->data = y.m_ipiv->data;
     data = y.data;
     ludata = y.ludata;
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 * m_kl + m_ku + 1);
+    size_t ldab = (2*m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
     m_info = y.m_info;
@@ -111,15 +105,13 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, double v)
     m_ku = ku;
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
-    m_ipiv->data.resize(m_n);
-    fill(data.begin(), data.end(), v);
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 * m_kl + m_ku + 1);
-    for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
+    size_t ldab = (2*m_kl + m_ku + 1);
+    for (size_t j = 0; j < m_n; j++) {
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
+    m_ipiv->data.resize(m_n);
+    fill(data.begin(), data.end(), v);
     m_factored = false;
 }
 
@@ -381,16 +373,6 @@ size_t BandMatrix::checkColumns(double& valueSmall) const
         }
     }
     return jSmall;
-}
-
-span<double> BandMatrix::col(size_t j)
-{
-    return span<double>(m_colPtrs[j], ldim());
-}
-
-span<const double> BandMatrix::col(size_t j) const
-{
-    return span<const double>(m_colPtrs[j], ldim());
 }
 
 }

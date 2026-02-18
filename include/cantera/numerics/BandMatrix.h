@@ -173,31 +173,6 @@ public:
     //! Returns the one norm of the matrix
     double oneNorm() const override;
 
-    //! Return a writable span over column `j`.
-    /*!
-     * Column values are assumed to be contiguous in memory (LAPACK band matrix
-     * structure)
-     *
-     * On entry, the matrix A in band storage, in rows KL+1 to 2*KL+KU+1; rows 1
-     * to KL of the array need not be set. The j-th column of A is stored in the
-     * j-th column of the array AB as follows:
-     *
-     * AB(KL + KU + 1 + i - j,j) = A(i,j) for max(1, j - KU) <= i <= min(m, j + KL)
-     *
-     * This routine returns a span starting at the position of AB(1,j)
-     * (fortran-1 indexing) in the above format.
-     *
-     * So to address the (i,j) position, you use the following indexing:
-     *
-     *     auto col_j = matrix.col(j);
-     *     double a_i_j = col_j[kl + ku + i - j];
-     *
-     *  @param j   Value of the column
-     *  @returns   A span over the entire stored column
-     */
-    span<double> col(size_t j) override;
-    span<const double> col(size_t j) const override;
-
     //! Check to see if we have any zero rows in the Jacobian
     /*!
      * This utility routine checks to see if any rows are zero. The smallest row
@@ -227,6 +202,8 @@ protected:
 
     //! Factorized data
     vector<double> ludata;
+    //! Pointers into #ludata used by the SUNDIALS solver
+    vector<double*> m_lu_col_ptrs;
 
     //! Number of rows and columns of the matrix
     size_t m_n = 0;
@@ -245,15 +222,12 @@ protected:
     //! Pivot vector
     unique_ptr<PivData> m_ipiv;
 
-    //! Vector of column pointers
-    vector<double*> m_colPtrs;
-    vector<double*> m_lu_col_ptrs;
-
     //! Extra work array needed - size = n
     vector<int> iwork_;
 
     //! Extra dp work array needed - size = 3n
     vector<double> work_;
+
 
     int m_info = 0;
 };
