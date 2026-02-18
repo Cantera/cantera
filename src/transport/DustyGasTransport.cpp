@@ -50,7 +50,7 @@ void DustyGasTransport::updateBinaryDiffCoeffs()
     }
 
     // get the gaseous binary diffusion coefficients
-    m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
+    m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.data());
     double por2tort = m_porosity / m_tortuosity;
     for (size_t n = 0; n < m_nsp; n++) {
         for (size_t m = 0; m < m_nsp; m++) {
@@ -94,10 +94,9 @@ void DustyGasTransport::eval_H_matrix()
     }
 }
 
-void DustyGasTransport::getMolarFluxes(const double* const state1,
-                                       const double* const state2,
-                                       const double delta,
-                                       double* const fluxes)
+void DustyGasTransport::getMolarFluxes(span<const double> state1,
+                                       span<const double> state2,
+                                       const double delta, span<double> fluxes)
 {
     // cbar will be the average concentration between the two points
     span<double> cbar(m_spwork);
@@ -106,8 +105,8 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
     const double t2 = state2[0];
     const double rho1 = state1[1];
     const double rho2 = state2[1];
-    const double* const y1 = state1 + 2;
-    const double* const y2 = state2 + 2;
+    span<const double> y1 = state1.subspan(2, m_nsp);
+    span<const double> y2 = state2.subspan(2, m_nsp);
     double c1sum = 0.0, c2sum = 0.0;
 
     for (size_t k = 0; k < m_nsp; k++) {
@@ -129,7 +128,7 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
     updateMultiDiffCoeffs();
 
     // Multiply m_multidiff and gradc together and store the result in fluxes[]
-    multiply(m_multidiff, gradc, fluxes);
+    multiply(m_multidiff, gradc, fluxes.data());
     for (size_t k = 0; k < m_nsp; k++) {
         cbar[k] /= m_dk[k];
     }
@@ -149,8 +148,8 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
     scale(cbar.begin(), cbar.end(), cbar.begin(), b);
 
     // Multiply m_multidiff with cbar and add it to fluxes
-    increment(m_multidiff, cbar.data(), fluxes);
-    scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
+    increment(m_multidiff, cbar.data(), fluxes.data());
+    scale(fluxes.begin(), fluxes.end(), fluxes.begin(), -1.0);
 }
 
 void DustyGasTransport::updateMultiDiffCoeffs()
@@ -166,7 +165,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     invert(m_multidiff);
 }
 
-void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
+void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
 {
     updateMultiDiffCoeffs();
     for (size_t i = 0; i < m_nsp; i++) {

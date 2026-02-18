@@ -19,7 +19,7 @@ double MMCollisionInt::delta[8] = {0.0, 0.25, 0.50, 0.75, 1.0,
                                    1.5, 2.0, 2.5
                                   };
 
-double MMCollisionInt::quadInterp(double x0, double* x, double* y)
+double MMCollisionInt::quadInterp(double x0, span<const double> x, span<const double> y)
 {
     double dx21 = x[1] - x[0];
     double dx32 = x[2] - x[1];
@@ -236,21 +236,21 @@ void MMCollisionInt::init(double tstar_min, double tstar_max)
         m_logTemp[i] = log(tstar[i+1]);
         vector<double> c(DeltaDegree+1);
 
-        fitDelta(0, i, DeltaDegree, c.data());
+        fitDelta(0, i, DeltaDegree, c);
         m_o22poly.push_back(c);
 
-        fitDelta(1, i, DeltaDegree, c.data());
+        fitDelta(1, i, DeltaDegree, c);
         m_apoly.push_back(c);
 
-        fitDelta(2, i, DeltaDegree, c.data());
+        fitDelta(2, i, DeltaDegree, c);
         m_bpoly.push_back(c);
 
-        fitDelta(3, i, DeltaDegree, c.data());
+        fitDelta(3, i, DeltaDegree, c);
         m_cpoly.push_back(c);
     }
 }
 
-double MMCollisionInt::fitDelta(int table, int ntstar, int degree, double* c)
+double MMCollisionInt::fitDelta(int table, int ntstar, int degree, span<double> c)
 {
     vector<double> w(8);
     double* begin = 0;
@@ -271,7 +271,7 @@ double MMCollisionInt::fitDelta(int table, int ntstar, int degree, double* c)
         return 0.0;
     }
     w[0] = -1.0; // to activate weight values of unity
-    return polyfit(8, degree, delta, begin, w.data(), c);
+    return polyfit(8, degree, delta, begin, w.data(), c.data());
 }
 
 double MMCollisionInt::omega22(double ts, double deltastar)
@@ -296,7 +296,7 @@ double MMCollisionInt::omega22(double ts, double deltastar)
             values[i-i1] = poly6(deltastar, m_o22poly[i].data());
         }
     }
-    return quadInterp(log(ts), &m_logTemp[i1], values.data());
+    return quadInterp(log(ts), span<const double>(&m_logTemp[i1], 3), values);
 }
 
 double MMCollisionInt::astar(double ts, double deltastar)
@@ -319,7 +319,7 @@ double MMCollisionInt::astar(double ts, double deltastar)
             values[i-i1] = poly6(deltastar, m_apoly[i].data());
         }
     }
-    return quadInterp(log(ts), &m_logTemp[i1], values.data());
+    return quadInterp(log(ts), span<const double>(&m_logTemp[i1], 3), values);
 }
 
 double MMCollisionInt::bstar(double ts, double deltastar)
@@ -342,7 +342,7 @@ double MMCollisionInt::bstar(double ts, double deltastar)
             values[i-i1] = poly6(deltastar, m_bpoly[i].data());
         }
     }
-    return quadInterp(log(ts), &m_logTemp[i1], values.data());
+    return quadInterp(log(ts), span<const double>(&m_logTemp[i1], 3), values);
 }
 
 double MMCollisionInt::cstar(double ts, double deltastar)
@@ -365,15 +365,15 @@ double MMCollisionInt::cstar(double ts, double deltastar)
             values[i-i1] = poly6(deltastar, m_cpoly[i].data());
         }
     }
-    return quadInterp(log(ts), &m_logTemp[i1], values.data());
+    return quadInterp(log(ts), span<const double>(&m_logTemp[i1], 3), values);
 }
 
-void MMCollisionInt::fit_omega22(int degree, double deltastar, double* o22)
+void MMCollisionInt::fit_omega22(int degree, double deltastar, span<double> o22)
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);
     vector<double> w(n);
-    double* logT = &m_logTemp[m_nmin];
+    span<const double> logT(&m_logTemp[m_nmin], n);
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = omega22_table[8*(i + m_nmin)];
@@ -382,15 +382,16 @@ void MMCollisionInt::fit_omega22(int degree, double deltastar, double* o22)
         }
     }
     w[0]= -1.0;
-    polyfit(n, degree, logT, values.data(), w.data(), o22);
+    polyfit(n, degree, logT.data(), values.data(), w.data(), o22.data());
 }
 
-void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, double* c)
+void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
+                         span<double> b, span<double> c)
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);
     vector<double> w(n);
-    double* logT = &m_logTemp[m_nmin];
+    span<const double> logT(&m_logTemp[m_nmin], n);
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = astar_table[8*(i + m_nmin + 1)];
@@ -399,7 +400,7 @@ void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, dou
         }
     }
     w[0]= -1.0;
-    polyfit(n, degree, logT, values.data(), w.data(), a);
+    polyfit(n, degree, logT.data(), values.data(), w.data(), a.data());
 
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -409,7 +410,7 @@ void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, dou
         }
     }
     w[0]= -1.0;
-    polyfit(n, degree, logT, values.data(), w.data(), b);
+    polyfit(n, degree, logT.data(), values.data(), w.data(), b.data());
 
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -419,7 +420,7 @@ void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, dou
         }
     }
     w[0]= -1.0;
-    polyfit(n, degree, logT, values.data(), w.data(), c);
+    polyfit(n, degree, logT.data(), values.data(), w.data(), c.data());
 }
 
 } // namespace

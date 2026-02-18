@@ -65,7 +65,7 @@ void transport_example()
         output(0,i) = temp;
         output(1,i) = sol->transport()->viscosity();
         output(2,i) = sol->transport()->thermalConductivity();
-        sol->transport()->getMixDiffCoeffs(&output(3,i));
+        sol->transport()->getMixDiffCoeffs(span<double>(&output(3,i), nsp));
     }
 
     // Create a list of labels for the CSV output file
@@ -91,7 +91,7 @@ void transport_example()
         output(0,i) = temp;
         output(1,i) = sol->transport()->viscosity();
         output(2,i) = sol->transport()->thermalConductivity();
-        sol->transport()->getThermalDiffCoeffs(&output(3,i));
+        sol->transport()->getThermalDiffCoeffs(span<double>(&output(3,i), nsp));
     }
 
     // Save transport properties to a file

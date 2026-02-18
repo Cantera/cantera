@@ -139,7 +139,7 @@ double IonGasTransport::thermalConductivity()
 double IonGasTransport::electricalConductivity()
 {
     vector<double> mobi(m_nsp);
-    getMobilities(&mobi[0]);
+    getMobilities(mobi);
     double p = m_thermo->pressure();
     double sum = 0.0;
     for (size_t k : m_kIon) {
@@ -339,7 +339,7 @@ double IonGasTransport::omega11_n64(const double tstar, const double gamma)
     return om11;
 }
 
-void IonGasTransport::getMixDiffCoeffs(double* const d)
+void IonGasTransport::getMixDiffCoeffs(span<double> d)
 {
     update_T();
     update_C();
@@ -374,7 +374,7 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
     }
 }
 
-void IonGasTransport::getMobilities(double* const mobi)
+void IonGasTransport::getMobilities(span<double> mobi)
 {
     update_T();
     update_C();

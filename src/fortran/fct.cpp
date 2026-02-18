@@ -998,7 +998,8 @@ extern "C" {
     status_t trans_getthermaldiffcoeffs_(const integer* n, double* dt)
     {
         try {
-            _ftrans(n)->getThermalDiffCoeffs(dt);
+            auto tr = _ftrans(n);
+            tr->getThermalDiffCoeffs(span<double>(dt, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1008,7 +1009,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffs_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffs(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffs(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1018,7 +1020,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffsmass_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffsMass(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffsMass(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1028,7 +1031,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffsmole_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffsMole(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffsMole(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1038,7 +1042,8 @@ extern "C" {
     status_t trans_getbindiffcoeffs_(const integer* n, integer* ld, double* d)
     {
         try {
-            _ftrans(n)->getBinaryDiffCoeffs(*ld,d);
+            auto tr = _ftrans(n);
+            tr->getBinaryDiffCoeffs(*ld, span<double>(d, *ld * tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1048,7 +1053,8 @@ extern "C" {
     status_t trans_getmultidiffcoeffs_(const integer* n, integer* ld, double* d)
     {
         try {
-            _ftrans(n)->getMultiDiffCoeffs(*ld,d);
+            auto tr = _ftrans(n);
+            tr->getMultiDiffCoeffs(*ld, span<double>(d, *ld * tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -107,7 +107,7 @@ void demoprog()
 
     int nsp = gas->nSpecies();
     vector<double> diff(nsp);
-    tr->getMixDiffCoeffs(&diff[0]);
+    tr->getMixDiffCoeffs(diff);
     int k;
     writelog("\n\n{:20s}  {:21s}\n", "Species", "Diffusion Coefficient");
     for (k = 0; k < nsp; k++) {

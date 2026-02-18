@@ -96,7 +96,7 @@ void IonFlow::updateTransport(span<const double> x, size_t j0, size_t j1)
     Flow1D::updateTransport(x,j0,j1);
     for (size_t j = j0; j < j1; j++) {
         setGasAtMidpoint(x,j);
-        m_trans->getMobilities(&m_mobility[j*m_nsp]);
+        m_trans->getMobilities(span<double>(&m_mobility[j*m_nsp], m_nsp));
         if (m_import_electron_transport) {
             size_t k = m_kElectron;
             double tlog = log(m_thermo->temperature());
