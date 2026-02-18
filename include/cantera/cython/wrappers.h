@@ -15,21 +15,21 @@ inline void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double v
 
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
-    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, std::span<double> data) \
     { object->FUNC_NAME(data); }
 
 // function which takes a stride as the first argument and populates a 2D array
 #define ARRAY_FUNC2(PREFIX, CLASS_NAME, FUNC_NAME) \
-    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, std::span<double> data) \
     { object->FUNC_NAME(dim, data); }
 
 // Function which populates a 1D array, extra arguments
 #define ARRAY_POLY(PREFIX, CLASS_NAME, FUNC_NAME) \
-    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, std::span<double> data) \
     { object->FUNC_NAME(i, data); }
 
 #define ARRAY_POLY_BINARY(PREFIX, CLASS_NAME, FUNC_NAME) \
-    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, std::span<double> data) \
     { object->FUNC_NAME(i, j, data); }
 
 #endif

@@ -90,10 +90,10 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         shared_ptr[CxxSolution], int, CxxAnyMap&) except +translate_exception
 
 
-ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
-ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
-ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +translate_exception
-ctypedef void (*transportPolyMethod2i)(CxxTransport*, size_t, size_t, double*) except +translate_exception
+ctypedef void (*transportMethod1d)(CxxTransport*, span[double]) except +translate_exception
+ctypedef void (*transportMethod2d)(CxxTransport*, size_t, span[double]) except +translate_exception
+ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, span[double]) except +translate_exception
+ctypedef void (*transportPolyMethod2i)(CxxTransport*, size_t, size_t, span[double]) except +translate_exception
 
 cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
                       pybool reset_adjacent, pybool weak=?, pybool hold=?)

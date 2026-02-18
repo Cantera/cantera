@@ -20,9 +20,9 @@ public:
         size_t k = phase->speciesIndex(speciek);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
-            ck_tran.getViscosityPolynomial(k, &coeffs[0]);
+            ck_tran.getViscosityPolynomial(k, coeffs);
         } else {
-            tran.getViscosityPolynomial(k, &coeffs[0]);
+            tran.getViscosityPolynomial(k, coeffs);
         }
         for (size_t i = 0; i < visc_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], visc_coeff_expected[i], 1e-5);
@@ -36,9 +36,9 @@ public:
         size_t k = phase->speciesIndex(speciek);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
-            ck_tran.getConductivityPolynomial(k, &coeffs[0]);
+            ck_tran.getConductivityPolynomial(k, coeffs);
         } else {
-            tran.getConductivityPolynomial(k, &coeffs[0]);
+            tran.getConductivityPolynomial(k, coeffs);
         }
         for (size_t i = 0; i < cond_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], cond_coeff_expected[i], 1e-5);
@@ -51,9 +51,9 @@ public:
         size_t j = phase->speciesIndex(speciej);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
-            ck_tran.getBinDiffusivityPolynomial(k, j, &coeffs[0]);
+            ck_tran.getBinDiffusivityPolynomial(k, j, coeffs);
         } else {
-            tran.getBinDiffusivityPolynomial(k, j, &coeffs[0]);
+            tran.getBinDiffusivityPolynomial(k, j, coeffs);
         }
         for (size_t i = 0; i < bindiff_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], bindiff_coeff_expected[i], 1e-5);

@@ -372,7 +372,8 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
             double wtm = m_thermo->meanMolecularWeight();
             double rho = m_thermo->density();
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
+            m_trans->getMultiDiffCoeffs(m_nsp,
+                span<double>(&m_multidiff[mindex(0,0,j)], m_nsp * m_nsp));
 
             // Use m_diff as storage for the factor outside the summation
             for (size_t k = 0; k < m_nsp; k++) {
@@ -381,7 +382,8 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
 
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+                m_trans->getThermalDiffCoeffs(
+                    span<double>(m_dthermal.ptrColumn(0) + j*m_nsp, m_nsp));
             }
         }
     } else { // mixture averaged transport
@@ -390,9 +392,9 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
 
             if (m_fluxGradientBasis == ThermoBasis::molar) {
-                m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+                m_trans->getMixDiffCoeffs(span<double>(&m_diff[j*m_nsp], m_nsp));
             } else {
-                m_trans->getMixDiffCoeffsMass(&m_diff[j*m_nsp]);
+                m_trans->getMixDiffCoeffsMass(span<double>(&m_diff[j*m_nsp], m_nsp));
             }
 
             double rho = m_thermo->density();
@@ -409,7 +411,8 @@ void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
             }
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+                m_trans->getThermalDiffCoeffs(
+                    span<double>(m_dthermal.ptrColumn(0) + j*m_nsp, m_nsp));
             }
         }
     }

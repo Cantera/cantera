@@ -342,7 +342,7 @@ extern "C" {
     void getmixdiffcoeffs_(double* diff)
     {
         try {
-            _trans->getMixDiffCoeffs(diff);
+            _trans->getMixDiffCoeffs(span<double>(diff, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -351,7 +351,7 @@ extern "C" {
     void getthermaldiffcoeffs_(double* dt)
     {
         try {
-            _trans->getThermalDiffCoeffs(dt);
+            _trans->getThermalDiffCoeffs(span<double>(dt, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }

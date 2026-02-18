@@ -216,7 +216,7 @@ void HighPressureGasTransportBase::updateCorrectionFactors() {
     }
 }
 
-void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, double* const d)
+void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, span<double> d)
 {
     update_C();
     update_T();
@@ -241,7 +241,7 @@ void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, double* 
     }
 }
 
-void HighPressureGasTransportBase::getMixDiffCoeffs(double* const d)
+void HighPressureGasTransportBase::getMixDiffCoeffs(span<double> d)
 {
     update_T();
     update_C();
@@ -273,7 +273,7 @@ void HighPressureGasTransportBase::getMixDiffCoeffs(double* const d)
     }
 }
 
-void HighPressureGasTransportBase::getMixDiffCoeffsMole(double* const d)
+void HighPressureGasTransportBase::getMixDiffCoeffsMole(span<double> d)
 {
     update_T();
     update_C();
@@ -304,7 +304,7 @@ void HighPressureGasTransportBase::getMixDiffCoeffsMole(double* const d)
     }
 }
 
-void HighPressureGasTransportBase::getMixDiffCoeffsMass(double* const d)
+void HighPressureGasTransportBase::getMixDiffCoeffsMass(span<double> d)
 {
     update_T();
     update_C();

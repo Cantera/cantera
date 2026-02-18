@@ -42,7 +42,7 @@ public:
      *                be at least `ld` times the number of species in length.
      * @see GasTransport::fitDiffCoeffs()
      */
-    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
+    void getBinaryDiffCoeffs(const size_t ld, span<double> d) override;
 
     /**
      * Returns the mixture-averaged diffusion coefficients [m²/s].
@@ -54,7 +54,7 @@ public:
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
      *                for each species. length #m_nsp.
      */
-    void getMixDiffCoeffs(double* const d) override;
+    void getMixDiffCoeffs(span<double> d) override;
 
     /**
      *  Returns the mixture-averaged diffusion coefficients [m²/s].
@@ -66,7 +66,7 @@ public:
      * @param[out] d vector of mixture-averaged diffusion coefficients for
      *               each species, length #m_nsp.
      */
-    void getMixDiffCoeffsMole(double* const d) override;
+    void getMixDiffCoeffsMole(span<double> d) override;
 
     /**
      * Returns the mixture-averaged diffusion coefficients [m²/s].
@@ -78,7 +78,7 @@ public:
      * @param[out] d vector of mixture-averaged diffusion coefficients for
      *               each species, length #m_nsp.
      */
-    void getMixDiffCoeffsMass(double* const d) override;
+    void getMixDiffCoeffsMass(span<double> d) override;
 
     /**
      * Updates the matrix of species-pair Takahashi correction factors for use in

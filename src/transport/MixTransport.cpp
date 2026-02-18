@@ -20,9 +20,9 @@ void MixTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
     m_cond.resize(m_nsp);
 }
 
-void MixTransport::getMobilities(double* const mobil)
+void MixTransport::getMobilities(span<double> mobil)
 {
-    getMixDiffCoeffs(m_spwork.data());
+    getMixDiffCoeffs(m_spwork);
     double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -48,7 +48,7 @@ double MixTransport::thermalConductivity()
     return m_lambda;
 }
 
-void MixTransport::getThermalDiffCoeffs(double* const dt)
+void MixTransport::getThermalDiffCoeffs(span<double> dt)
 {
     update_T();
     update_C();
@@ -108,7 +108,7 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
     }
 
     vector<double>& Dm = m_spwork;
-    getMixDiffCoeffs(Dm.data());
+    getMixDiffCoeffs(Dm);
 
     double mmw = m_thermo->meanMolecularWeight();
     double norm = 0.;
@@ -123,13 +123,13 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
     }
 }
 
-void MixTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                                    size_t ldx, const double* const grad_X,
-                                    size_t ldf, double* const fluxes)
+void MixTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
+                                    size_t ldx, span<const double> grad_X,
+                                    size_t ldf, span<double> fluxes)
 {
     update_T();
     update_C();
-    getMixDiffCoeffs(m_spwork.data());
+    getMixDiffCoeffs(m_spwork);
     auto mw = m_thermo->molecularWeights();
     auto y = m_thermo->massFractions();
     double rhon = m_thermo->molarDensity();
