@@ -118,10 +118,14 @@ public:
     }
 
     //! Return a writable span over column `j`.
-    virtual span<double> col(size_t j) = 0;
+    virtual span<double> col(size_t j) {
+        throw NotImplementedError("GeneralMatrix::col");
+    };
 
     //! Return a read-only span over column `j`.
-    virtual span<const double> col(size_t j) const = 0;
+    virtual span<const double> col(size_t j) const {
+        throw NotImplementedError("GeneralMatrix::col");
+    };
 
     //! Index into the (i,j) element
     /*!
