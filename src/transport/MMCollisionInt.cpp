@@ -15,9 +15,8 @@ namespace Cantera
 {
 const int DeltaDegree = 6;
 
-double MMCollisionInt::delta[8] = {0.0, 0.25, 0.50, 0.75, 1.0,
-                                   1.5, 2.0, 2.5
-                                  };
+std::array<double, 8> MMCollisionInt::delta = {
+    0.0, 0.25, 0.50, 0.75, 1.0, 1.5, 2.0, 2.5};
 
 double MMCollisionInt::quadInterp(double x0, span<const double> x, span<const double> y)
 {
@@ -30,14 +29,14 @@ double MMCollisionInt::quadInterp(double x0, span<const double> x, span<const do
     return a*(x0 - x[0])*(x0 - x[1]) + (dy21/dx21)*(x0 - x[1]) + y[1];
 }
 
-double MMCollisionInt::tstar22[37] = {
+std::array<double, 37> MMCollisionInt::tstar22 = {
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
     1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0,
     5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0,
     18.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 75.0, 100.0
 };
 
-double MMCollisionInt::omega22_table[37*8] = {
+std::array<double, 37*8> MMCollisionInt::omega22_table = {
     4.1005, 4.266,  4.833,  5.742,  6.729,  8.624,  10.34,  11.89,
     3.2626, 3.305,  3.516,  3.914,  4.433,  5.57,   6.637,  7.618,
     2.8399, 2.836,  2.936,  3.168,  3.511,  4.329,  5.126,  5.874,
@@ -78,14 +77,14 @@ double MMCollisionInt::omega22_table[37*8] = {
 };
 
 // changed upper limit to 500 from 1.0e10  dgg 5/21/04
-double MMCollisionInt::tstar[39] = {
+std::array<double, 39> MMCollisionInt::tstar = {
     0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
     1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0,
     5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0,
     18.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 75.0, 100.0, 500.0
 };
 
-double MMCollisionInt::astar_table[39*8] = {
+std::array<double, 39*8> MMCollisionInt::astar_table = {
     1.0065, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840, 1.0840,
     1.0231, 1.0660, 1.0380, 1.0400, 1.0430, 1.0500, 1.0520, 1.0510,
     1.0424, 1.0450, 1.0480, 1.0520, 1.0560, 1.0650, 1.0660, 1.0640,
@@ -128,7 +127,7 @@ double MMCollisionInt::astar_table[39*8] = {
     1.14187
 };
 
-double MMCollisionInt::bstar_table[39*8] = {
+std::array<double, 39*8> MMCollisionInt::bstar_table = {
     1.1852, 1.2963, 1.2963, 1.2963, 1.2963, 1.2963,1.2963, 1.2963,
     1.1960,  1.216,  1.237,  1.269,  1.285,  1.290,  1.297,  1.294,
     1.2451,  1.257,  1.340,  1.389,  1.366,  1.327,  1.314,  1.278,
@@ -171,7 +170,7 @@ double MMCollisionInt::bstar_table[39*8] = {
     1.10185
 };
 
-double MMCollisionInt::cstar_table[39*8] = {
+std::array<double, 39*8> MMCollisionInt::cstar_table = {
     0.8889,  0.77778, 0.77778,0.77778,0.77778,0.77778,0.77778,0.77778,
     0.88575, 0.8988, 0.8378, 0.8029, 0.7876, 0.7805, 0.7799, 0.7801,
     0.87268, 0.8692,0.8647,0.8479,0.8237,0.7975,0.7881,0.7784,
@@ -252,26 +251,24 @@ void MMCollisionInt::init(double tstar_min, double tstar_max)
 
 double MMCollisionInt::fitDelta(int table, int ntstar, int degree, span<double> c)
 {
-    vector<double> w(8);
-    double* begin = 0;
+    span<const double> y;
     switch (table) {
     case 0:
-        begin = omega22_table + 8*ntstar;
+        y = span<const double>(omega22_table.data() + 8*ntstar, 8);
         break;
     case 1:
-        begin = astar_table + 8*(ntstar + 1);
+        y = span<const double>(astar_table.data() + 8*(ntstar + 1), 8);
         break;
     case 2:
-        begin = bstar_table + 8*(ntstar + 1);
+        y = span<const double>(bstar_table.data() + 8*(ntstar + 1), 8);
         break;
     case 3:
-        begin = cstar_table + 8*(ntstar + 1);
+        y = span<const double>(cstar_table.data() + 8*(ntstar + 1), 8);
         break;
     default:
         return 0.0;
     }
-    w[0] = -1.0; // to activate weight values of unity
-    return polyfit(8, degree, delta, begin, w.data(), c.data());
+    return polyfit(degree, delta, y, {}, c);
 }
 
 double MMCollisionInt::omega22(double ts, double deltastar)
@@ -372,7 +369,6 @@ void MMCollisionInt::fit_omega22(int degree, double deltastar, span<double> o22)
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);
-    vector<double> w(n);
     span<const double> logT(&m_logTemp[m_nmin], n);
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -381,8 +377,7 @@ void MMCollisionInt::fit_omega22(int degree, double deltastar, span<double> o22)
             values[i] = poly6(deltastar, m_o22poly[i+m_nmin].data());
         }
     }
-    w[0]= -1.0;
-    polyfit(n, degree, logT.data(), values.data(), w.data(), o22.data());
+    polyfit(degree, logT, values, {}, o22);
 }
 
 void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
@@ -390,7 +385,6 @@ void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);
-    vector<double> w(n);
     span<const double> logT(&m_logTemp[m_nmin], n);
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -399,8 +393,7 @@ void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
             values[i] = poly6(deltastar, m_apoly[i+m_nmin].data());
         }
     }
-    w[0]= -1.0;
-    polyfit(n, degree, logT.data(), values.data(), w.data(), a.data());
+    polyfit(degree, logT, values, {}, a);
 
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -409,8 +402,7 @@ void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
             values[i] = poly6(deltastar, m_bpoly[i+m_nmin].data());
         }
     }
-    w[0]= -1.0;
-    polyfit(n, degree, logT.data(), values.data(), w.data(), b.data());
+    polyfit(degree, logT, values, {}, b);
 
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -419,8 +411,7 @@ void MMCollisionInt::fit(int degree, double deltastar, span<double> a,
             values[i] = poly6(deltastar, m_cpoly[i+m_nmin].data());
         }
     }
-    w[0]= -1.0;
-    polyfit(n, degree, logT.data(), values.data(), w.data(), c.data());
+    polyfit(degree, logT, values, {}, c);
 }
 
 } // namespace

@@ -59,11 +59,9 @@ void IonGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
                          1200.0, 1500.0, 2000.0, 2500.0, 3000.0, 4000.0};
     const vector<double> om11_O2{120.0, 107.0, 98.1, 92.1, 83.0, 77.0,
                             72.6, 67.9, 62.7, 59.3, 56.7, 53.8};
-    vector<double> w(temp.size(),-1);
     int degree = 5;
     m_om11_O2.resize(degree + 1);
-    polyfit(temp.size(), degree, temp.data(), om11_O2.data(),
-            w.data(), m_om11_O2.data());
+    polyfit(degree, temp, om11_O2, {}, m_om11_O2);
     // set up Monchick and Mason parameters
     setupCollisionParameters();
     // set up n64 parameters
@@ -214,7 +212,7 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 diff[n] = diffcoeff/pow(t, 1.5);
                 w[n] = 1.0/(diff[n]*diff[n]);
             }
-            polyfit(np, degree, tlog.data(), diff.data(), w.data(), c.data());
+            polyfit(degree, tlog, diff, w, c);
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;

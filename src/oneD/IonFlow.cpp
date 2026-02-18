@@ -257,11 +257,10 @@ void IonFlow::setElectronTransport(span<const double> tfix, span<const double> d
     for (size_t i = 0; i < n; i++) {
         tlog.push_back(log(tfix[i]));
     }
-    vector<double> w(n, -1.0);
     m_diff_e_fix.resize(degree + 1);
     m_mobi_e_fix.resize(degree + 1);
-    polyfit(n, degree, tlog.data(), diff_e.data(), w.data(), m_diff_e_fix.data());
-    polyfit(n, degree, tlog.data(), mobi_e.data(), w.data(), m_mobi_e_fix.data());
+    polyfit(degree, tlog, diff_e, {}, m_diff_e_fix);
+    polyfit(degree, tlog, mobi_e, {}, m_mobi_e_fix);
 }
 
 }
