@@ -59,6 +59,7 @@ jobs:
           echo "test/data/*.inp -diff" >> .gitattributes
           echo "test/data/*.xml -diff" >> .gitattributes
           echo "test/data/*.cti -diff" >> .gitattributes
+          echo "test/data/*.dat -diff" >> .gitattributes
           echo "test_problems/**/*blessed* -diff" >> .gitattributes
 
           git config --global core.autocrlf false
