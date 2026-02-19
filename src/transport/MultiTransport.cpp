@@ -102,6 +102,7 @@ double MultiTransport::thermalConductivity()
 
 void MultiTransport::getThermalDiffCoeffs(span<double> dt)
 {
+    checkArraySize("MultiTransport::getThermalDiffCoeffs", dt.size(), m_nsp);
     solveLMatrixEquation();
     const double c = 1.6/GasConstant;
     for (size_t k = 0; k < m_nsp; k++) {
@@ -175,6 +176,15 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
                                       size_t ldx, span<const double> grad_X,
                                       size_t ldf, span<double> fluxes)
 {
+    if (ldx < m_nsp) {
+        throw CanteraError("MultiTransport::getSpeciesFluxes", "ldx is too small");
+    }
+    if (ldf < m_nsp) {
+        throw CanteraError("MultiTransport::getSpeciesFluxes", "ldf is too small");
+    }
+    checkArraySize("MultiTransport::getSpeciesFluxes: grad_T", grad_T.size(), ndim);
+    checkArraySize("MultiTransport::getSpeciesFluxes: grad_X", grad_X.size(), ldx * ndim);
+    checkArraySize("MultiTransport::getSpeciesFluxes: fluxes", fluxes.size(), ldf * ndim);
     // update the binary diffusion coefficients if necessary
     update_T();
     updateDiff_T();
@@ -262,6 +272,9 @@ void MultiTransport::getMassFluxes(span<const double> state1,
                                    span<const double> state2,
                                    double delta, span<double> fluxes)
 {
+    checkArraySize("MultiTransport::getMassFluxes: state1", state1.size(), m_nsp + 2);
+    checkArraySize("MultiTransport::getMassFluxes: state2", state2.size(), m_nsp + 2);
+    checkArraySize("MultiTransport::getMassFluxes: fluxes", fluxes.size(), m_nsp);
     span<double> x1(m_spwork1);
     span<double> x2(m_spwork2);
     span<double> x3(m_spwork3);
@@ -358,6 +371,10 @@ void MultiTransport::getMolarFluxes(span<const double> state1,
 
 void MultiTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
 {
+    if (ld < m_nsp) {
+        throw CanteraError("MultiTransport::getMultiDiffCoeffs", "ld is too small");
+    }
+    checkArraySize("MultiTransport::getMultiDiffCoeffs", d.size(), ld * m_nsp);
     double p = pressure_ig();
 
     // update the mole fractions

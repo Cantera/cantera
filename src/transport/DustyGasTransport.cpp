@@ -98,6 +98,9 @@ void DustyGasTransport::getMolarFluxes(span<const double> state1,
                                        span<const double> state2,
                                        const double delta, span<double> fluxes)
 {
+    checkArraySize("DustyGasTransport::getMolarFluxes: state1", state1.size(), m_nsp + 2);
+    checkArraySize("DustyGasTransport::getMolarFluxes: state2", state2.size(), m_nsp + 2);
+    checkArraySize("DustyGasTransport::getMolarFluxes: fluxes", fluxes.size(), m_nsp);
     // cbar will be the average concentration between the two points
     span<double> cbar(m_spwork);
     span<double> gradc(m_spwork2);
@@ -167,6 +170,10 @@ void DustyGasTransport::updateMultiDiffCoeffs()
 
 void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
 {
+    if (ld < m_nsp) {
+        throw CanteraError("DustyGasTransport::getMultiDiffCoeffs", "ld is too small");
+    }
+    checkArraySize("DustyGasTransport::getMultiDiffCoeffs", d.size(), ld * m_nsp);
     updateMultiDiffCoeffs();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
