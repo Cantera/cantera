@@ -280,12 +280,10 @@ public:
 
     //! Decision as to whether a phase pops back into existence
     /*!
-     * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
-     *         that will be popped this step.
      * @returns the phase id of the phase that pops back into existence. Returns
      *         -1 if there are no phases
      */
-    size_t vcs_popPhaseID(vector<size_t> &phasePopPhaseIDs);
+    size_t vcs_popPhaseID();
 
     //! Calculates the deltas of the reactions due to phases popping
     //! into existence
@@ -719,7 +717,7 @@ private:
      *                         branch to the section that deletes a species
      *                         from the current set of active species.
      */
-    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete) const;
+    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool& do_delete) const;
 
     //! This routine optimizes the minimization of the total Gibbs free energy
     //! by making sure the slope of the following functional stays negative:

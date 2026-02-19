@@ -769,10 +769,11 @@ void MixtureFugacityTP::calcCriticalConditions(double& pc, double& tc, double& v
 }
 
 int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
-                                  double aAlpha, double Vroot[3], double an,
+                                  double aAlpha, span<double> Vroot, double an,
                                   double bn, double cn, double dn, double tc, double vc) const
 {
-    fill_n(Vroot, 3, 0.0);
+    checkArraySize("MixtureFugacityTP::solveCubic: Vroot", Vroot.size(), 3);
+    fill(Vroot.begin(), Vroot.end(), 0.0);
     if (T <= 0.0) {
         throw CanteraError("MixtureFugacityTP::solveCubic",
             "negative temperature T = {}", T);

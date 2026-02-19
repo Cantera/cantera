@@ -654,7 +654,7 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  *
  * @ingroup equilGroup
  */
-size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
+size_t BasisOptimize(bool& usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      span<size_t> orderVectorSpecies, span<size_t> orderVectorElements,
                      span<double> formRxnMatrix);
 

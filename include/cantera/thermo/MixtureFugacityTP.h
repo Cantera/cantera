@@ -464,7 +464,7 @@ protected:
      * @returns the number of solutions found
      */
     int solveCubic(double T, double pres, double a, double b,
-                   double aAlpha, double Vroot[3], double an,
+                   double aAlpha, span<double> Vroot, double an,
                    double bn, double cn, double dn, double tc, double vc) const;
 
     //! @}

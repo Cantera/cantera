@@ -15,7 +15,7 @@ namespace Cantera
 int BasisOptimize_print_lvl = 0;
 static const double USEDBEFORE = -1;
 
-size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
+size_t BasisOptimize(bool& usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      span<size_t> orderVectorSpecies, span<size_t> orderVectorElements,
                      span<double> formRxnMatrix)
 {
@@ -67,7 +67,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     size_t nNonComponents = nspecies - nComponents;
 
     // Set this return variable to false
-    *usedZeroedSpecies = false;
+    usedZeroedSpecies = false;
 
     // Create an array of mole numbers
     vector<double> molNum(nspecies,0.0);
@@ -107,7 +107,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             }
 
             if (molNum[kk] == 0.0) {
-                *usedZeroedSpecies = true;
+                usedZeroedSpecies = true;
             }
             // If the largest molNum is negative, then we are done.
             if (molNum[kk] == USEDBEFORE) {

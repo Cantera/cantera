@@ -703,7 +703,7 @@ void PengRobinson::calcCriticalConditions(double& pc, double& tc, double& vc) co
 }
 
 int PengRobinson::solveCubic(double T, double pres, double a, double b, double aAlpha,
-                             double Vroot[3]) const
+                             span<double> Vroot) const
 {
     // Derive the coefficients of the cubic polynomial (in terms of molar volume v)
     double bsqr = b * b;

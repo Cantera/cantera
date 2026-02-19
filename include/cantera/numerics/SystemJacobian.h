@@ -61,8 +61,8 @@ public:
     //! Adjust the state vector based on the preconditioner, e.g., Adaptive
     //! preconditioning uses a strictly positive composition when preconditioning which
     //! is handled by this function
-    //! @param state a vector containing the state to be updated
-    virtual void stateAdjustment(vector<double>& state) {
+    //! @param state a mutable span containing the state to be updated
+    virtual void stateAdjustment(span<double> state) {
         throw NotImplementedError("SystemJacobian::stateAdjustment");
     }
 

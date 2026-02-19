@@ -189,7 +189,7 @@ public:
     void calcCriticalConditions(double& pc, double& tc, double& vc) const override;
 
     //! Prepare variables and call the function to solve the cubic equation of state
-    int solveCubic(double T, double pres, double a, double b, double Vroot[3]) const;
+    int solveCubic(double T, double pres, double a, double b, span<double> Vroot) const;
 
 protected:
     //! Form of the temperature parameterization

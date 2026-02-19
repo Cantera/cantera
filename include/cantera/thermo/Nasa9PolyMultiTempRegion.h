@@ -49,7 +49,7 @@ public:
      * Note, after the constructor, we will own the underlying Nasa9Poly1
      * objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*> &regionPts);
+    Nasa9PolyMultiTempRegion(span<Nasa9Poly1*> regionPts);
 
     //! Constructor with all input data
     /*!
