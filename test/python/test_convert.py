@@ -648,8 +648,16 @@ class Testck2yaml:
         assert surf.n_reactions ==  15
         assert surf.reaction(4).duplicate is True
 
+    def test_surface_mech4(self):
+        # A case with unusual formatting of the surface species section
+        output = self.convert('surface1-gas-noreac.inp', surface='surface1b.inp',
+                              output='surface1b-nogasreac')
+
+        surf = ct.Interface(output, 'PT_SURFACE')
+        assert surf.n_species == 6
+
     def test_missing_site_density(self):
-        with pytest.raises(ck2yaml.InputError, match="no site density"):
+        with pytest.raises(ck2yaml.InputError, match="Site density missing"):
             self.convert("surface1-gas.inp", surface="missing-site-density.inp")
         captured = self._capsys.readouterr()
 
@@ -658,6 +666,12 @@ class Testck2yaml:
             self.convert("surface1-gas.inp", surface="surface1-bad-option.inp")
         captured = self._capsys.readouterr()
         assert "Unrecognized token 'XYZ' on REACTIONS line" in captured.out
+
+    def test_bad_site_occupancy(self):
+        with pytest.raises(ck2yaml.InputError, match="Encountered site occupancy '4'"):
+            self.convert('surface2-gas.inp', thermo='surface2-thermo.dat',
+                         surface='surface-bad-occupancy.inp')
+        captured = self._capsys.readouterr()
 
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
