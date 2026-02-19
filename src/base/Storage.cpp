@@ -66,8 +66,7 @@ bool Storage::hasGroup(const string& id) const
 
 bool Storage::checkGroupRead(const string& id) const
 {
-    vector<string> tokens;
-    tokenizePath(id, tokens);
+    vector<string> tokens = tokenizePath(id);
     string grp = tokens[0];
     if (!hasGroup(grp)) {
         throw CanteraError("Storage::checkGroupRead",

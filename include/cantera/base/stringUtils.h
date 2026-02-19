@@ -101,9 +101,9 @@ double fpValueCheck(const string& val);
  * The separate tokens are returned in a string vector, v.
  *
  * @param oval   String to be broken up
- * @param v     Output vector of tokens.
+ * @returns      Vector of tokens.
  */
-void tokenizeString(const string& oval, vector<string>& v);
+vector<string> tokenizeString(const string& oval);
 
 //! This function separates a string up into tokens according to the location of
 //! path separators.
@@ -111,11 +111,11 @@ void tokenizeString(const string& oval, vector<string>& v);
  * The separate tokens are returned in a string vector, v.
  *
  * @param oval   String to be broken up
- * @param v     Output vector of tokens.
+ * @returns      Vector of tokens.
  *
  * @since New in %Cantera 3.0.
  */
-void tokenizePath(const string& oval, vector<string>& v);
+vector<string> tokenizePath(const string& oval);
 
 //! Copy the contents of a string into a char array of a given length
 /*!

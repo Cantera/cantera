@@ -182,23 +182,25 @@ double fpValueCheck(const string& val)
     return fpValue(str);
 }
 
-void tokenizeString(const string& in_val, vector<string>& v)
+vector<string> tokenizeString(const string& in_val)
 {
     string val = ba::trim_copy(in_val);
-    v.clear();
+    vector<string> v;
     if (val.empty()) {
         // In this case, prefer v to be empty instead of split's behavior of
         // returning a vector with one element that is the empty string.
-        return;
+        return v;
     }
     ba::split(v, val, ba::is_space(), ba::token_compress_on);
+    return v;
 }
 
-void tokenizePath(const string& in_val, vector<string>& v)
+vector<string> tokenizePath(const string& in_val)
 {
     string val = ba::trim_copy(in_val);
-    v.clear();
+    vector<string> v;
     ba::split(v, val, ba::is_any_of("/\\"), ba::token_compress_on);
+    return v;
 }
 
 size_t copyString(const string& source, char* dest, size_t length)

@@ -984,8 +984,7 @@ AnyMap& openField(AnyMap& root, const string& name)
     }
 
     // locate field based on 'name'
-    vector<string> tokens;
-    tokenizePath(name, tokens);
+    vector<string> tokens = tokenizePath(name);
     AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {
@@ -1409,8 +1408,7 @@ const AnyMap& locateField(const AnyMap& root, const string& name)
     }
 
     // locate field based on 'name'
-    vector<string> tokens;
-    tokenizePath(name, tokens);
+    vector<string> tokens = tokenizePath(name);
     const AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {

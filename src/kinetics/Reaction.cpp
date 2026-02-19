@@ -891,8 +891,7 @@ void parseReactionEquation(Reaction& R, const string& equation,
 {
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
-    vector<string> tokens;
-    tokenizeString(equation, tokens);
+    vector<string> tokens = tokenizeString(equation);
     tokens.push_back("+"); // makes parsing last species not a special case
 
     size_t last_used = npos; // index of last-used token
