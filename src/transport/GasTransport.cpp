@@ -156,6 +156,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, span<double> d)
     if (ld < m_nsp) {
         throw CanteraError("GasTransport::getBinaryDiffCoeffs", "ld is too small");
     }
+    checkArraySize("GasTransport::getBinaryDiffCoeffs", d.size(), ld * m_nsp);
     double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
@@ -166,6 +167,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, span<double> d)
 
 void GasTransport::getMixDiffCoeffs(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffs", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -197,6 +199,7 @@ void GasTransport::getMixDiffCoeffs(span<double> d)
 
 void GasTransport::getMixDiffCoeffsMole(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffsMole", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -227,6 +230,7 @@ void GasTransport::getMixDiffCoeffsMole(span<double> d)
 
 void GasTransport::getMixDiffCoeffsMass(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffsMass", d.size(), m_nsp);
     update_T();
     update_C();
 

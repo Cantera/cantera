@@ -46,6 +46,7 @@ public:
 
     //! Get the pure-species viscosities [Pa·s]
     void getSpeciesViscosities(span<double> visc) override {
+        checkArraySize("GasTransport::getSpeciesViscosities", visc.size(), m_nsp);
         update_T();
         updateViscosity_T();
         std::copy(m_visc.begin(), m_visc.end(), visc.begin());

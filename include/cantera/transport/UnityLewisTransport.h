@@ -53,6 +53,7 @@ public:
      * @param[out] d  Vector of diffusion coefficients for each species. length #m_nsp.
      */
     void getMixDiffCoeffs(span<double> d) override {
+        checkArraySize("UnityLewisTransport::getMixDiffCoeffs", d.size(), m_nsp);
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;
@@ -64,6 +65,7 @@ public:
      * @param[out] dt  Thermal diffusion coefficients all set to zero.
      */
     void getThermalDiffCoeffs(span<double> dt) override {
+        checkArraySize("UnityLewisTransport::getThermalDiffCoeffs", dt.size(), m_nsp);
         for (size_t k = 0; k < m_nsp; k++) {
             dt[k] = 0.0;
         }
@@ -87,6 +89,7 @@ public:
      * @param[out] d  Vector of diffusion coefficients for each species; length #m_nsp.
      */
     void getMixDiffCoeffsMass(span<double> d) override {
+        checkArraySize("UnityLewisTransport::getMixDiffCoeffsMass", d.size(), m_nsp);
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;

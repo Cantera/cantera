@@ -339,6 +339,7 @@ double IonGasTransport::omega11_n64(const double tstar, const double gamma)
 
 void IonGasTransport::getMixDiffCoeffs(span<double> d)
 {
+    checkArraySize("IonGasTransport::getMixDiffCoeffs", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -374,6 +375,7 @@ void IonGasTransport::getMixDiffCoeffs(span<double> d)
 
 void IonGasTransport::getMobilities(span<double> mobi)
 {
+    checkArraySize("IonGasTransport::getMobilities", mobi.size(), m_nsp);
     update_T();
     update_C();
 

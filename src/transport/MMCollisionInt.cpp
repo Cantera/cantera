@@ -20,6 +20,8 @@ std::array<double, 8> MMCollisionInt::delta = {
 
 double MMCollisionInt::quadInterp(double x0, span<const double> x, span<const double> y)
 {
+    checkArraySize("MMCollisionInt::quadInterp: x", x.size(), 3);
+    checkArraySize("MMCollisionInt::quadInterp: y", y.size(), 3);
     double dx21 = x[1] - x[0];
     double dx32 = x[2] - x[1];
     double dx31 = dx21 + dx32;

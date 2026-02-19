@@ -22,6 +22,7 @@ void MixTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
 
 void MixTransport::getMobilities(span<double> mobil)
 {
+    checkArraySize("MixTransport::getMobilities", mobil.size(), m_nsp);
     getMixDiffCoeffs(m_spwork);
     double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
@@ -50,6 +51,7 @@ double MixTransport::thermalConductivity()
 
 void MixTransport::getThermalDiffCoeffs(span<double> dt)
 {
+    checkArraySize("MixTransport::getThermalDiffCoeffs", dt.size(), m_nsp);
     update_T();
     update_C();
     if (!m_bindiff_ok) {
@@ -127,6 +129,15 @@ void MixTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
                                     size_t ldx, span<const double> grad_X,
                                     size_t ldf, span<double> fluxes)
 {
+    checkArraySize("MixTransport::getSpeciesFluxes: grad_T", grad_T.size(), ndim);
+    if (ldx < m_nsp) {
+        throw CanteraError("MixTransport::getSpeciesFluxes", "ldx is too small");
+    }
+    checkArraySize("MixTransport::getSpeciesFluxes: grad_X", grad_X.size(), ldx * ndim);
+    if (ldf < m_nsp) {
+        throw CanteraError("MixTransport::getSpeciesFluxes", "ldf is too small");
+    }
+    checkArraySize("MixTransport::getSpeciesFluxes: fluxes", fluxes.size(), ldf * ndim);
     update_T();
     update_C();
     getMixDiffCoeffs(m_spwork);

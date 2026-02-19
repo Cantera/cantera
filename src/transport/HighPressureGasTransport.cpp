@@ -218,6 +218,7 @@ void HighPressureGasTransportBase::updateCorrectionFactors() {
 
 void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, span<double> d)
 {
+    checkArraySize("HighPressureGasTransport::getBinaryDiffCoeffs", d.size(), ld * m_nsp);
     update_C();
     update_T();
     updateCorrectionFactors();
@@ -243,6 +244,7 @@ void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, span<dou
 
 void HighPressureGasTransportBase::getMixDiffCoeffs(span<double> d)
 {
+    checkArraySize("HighPressureGasTransport::getMixDiffCoeffs", d.size(), m_nsp);
     update_T();
     update_C();
     updateCorrectionFactors();
@@ -275,6 +277,7 @@ void HighPressureGasTransportBase::getMixDiffCoeffs(span<double> d)
 
 void HighPressureGasTransportBase::getMixDiffCoeffsMole(span<double> d)
 {
+    checkArraySize("HighPressureGasTransport::getMixDiffCoeffsMole", d.size(), m_nsp);
     update_T();
     update_C();
     updateCorrectionFactors();
@@ -306,6 +309,7 @@ void HighPressureGasTransportBase::getMixDiffCoeffsMole(span<double> d)
 
 void HighPressureGasTransportBase::getMixDiffCoeffsMass(span<double> d)
 {
+    checkArraySize("HighPressureGasTransport::getMixDiffCoeffsMass", d.size(), m_nsp);
     update_T();
     update_C();
     updateCorrectionFactors();
