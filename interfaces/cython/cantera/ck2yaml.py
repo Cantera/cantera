@@ -790,13 +790,14 @@ class Parser:
             if not symbol:
                 continue
             try:
-                # Convert to float first for cases where ``count`` is a string
-                # like "2.00".
-                count = int(float(count))
-                if count:
-                    composition[symbol.capitalize()] = count
+                count = int(count)
             except ValueError:
-                pass
+                try:
+                    count = float(count)
+                except ValueError:
+                    pass
+            if count:
+                composition[symbol.capitalize()] = count
         return composition
 
     @staticmethod
@@ -860,7 +861,11 @@ class Parser:
             comp = ' '.join(line.rstrip('&') for line in complines).split()
             composition = {}
             for i in range(0, len(comp), 2):
-                composition[comp[i].capitalize()] = int(comp[i+1])
+                try:
+                    value = int(comp[i+1])
+                except ValueError:
+                    value = float(comp[i+1])
+                composition[comp[i].capitalize()] = value
 
         # Non-standard extended elemental composition data may be located beyond
         # column 80 on the first line of the thermo entry
