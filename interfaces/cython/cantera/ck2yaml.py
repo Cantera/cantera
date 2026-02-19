@@ -1718,52 +1718,63 @@ class Parser:
         :param lines:
             A list of ``(line number, section name, line content, comment)`` tuples
         """
-        # First line contains optional parameters, followed by species declarations
-        tokens = lines[0,2].split() or ['']
-        self.current_range = [lines[0,0]] * 2
-        if tokens[0].startswith('/'):
-            surf_name = tokens[0].strip('/')
-            tokens = tokens[1:]
-        else:
-            surf_name = 'surface{}'.format(len(self.surfaces)+1)
-
+        surf_name = None
         site_density = None
-        for token in tokens[:]:
-            if token.upper().startswith('SDEN/'):
-                site_density = fortFloat(token.split('/')[1])
-                tokens.remove(token)
 
-        if site_density is None:
-            logger.error(self.entry("SITE section") +
-                         "SITE section defined with no site density")
-        self.surfaces.append(Surface(name=surf_name, site_density=site_density))
-        surf = self.surfaces[-1]
-
-        # Get the rest of the species declarations
-        for line in lines[1:]:
-            tokens.extend(line[2].split())
-
-        # List of species identifiers for surface species
-        for token in tokens:
-            if token.count('/') == 2:
-                # species occupies a specific number of sites
-                token, sites, _ = token.split('/')
-                sites = float(sites)
-            else:
-                sites = None
-            if token in self.species_dict:
-                species = self.species_dict[token]
-                if self.permissive:
-                    logger.warning("Ignoring redundant declaration for "
-                                   f"species '{species}'")
+        for lineno, _, line, _ in lines:
+            self.current_range = [lineno] * 2
+            tokens = line.replace('/', ' / ').split()
+            if surf_name is None:
+                if len(tokens) >= 2 and tokens[0] == '/' and tokens[2] == '/':
+                    surf_name = tokens[1]
+                    tokens = tokens[3:]
                 else:
-                    logger.error(f"Found multiple declarations for species "
-                        f"'{species}'. Run ck2yaml again with the\n'--permissive' "
-                        "option to ignore the extra declarations.")
-            else:
-                species = Species(label=token, sites=sites)
-                self.species_dict[token] = species
-                surf.species_list.append(species)
+                    surf_name = 'surface{}'.format(len(self.surfaces)+1)
+
+            if site_density is None and tokens:
+                if tokens[0].upper() == 'SDEN' and tokens[1] == tokens[3] == '/':
+                    site_density = fortFloat(tokens[2])
+                    tokens = tokens[4:]
+                else:
+                    self.current_range = [lines[0,0], lineno]
+                    logger.error(self.entry("SITE section") +
+                                 "Site density missing or incorrectly formatted")
+
+                self.surfaces.append(Surface(name=surf_name, site_density=site_density))
+                surf = self.surfaces[-1]
+
+            i = -1
+            while i < len(tokens) - 1:
+                i += 1
+                name = tokens[i]
+                sites = None
+                if name == '/':
+                    logger.error(self.entry("SITE section") + "Encountered site "
+                                 f"occupancy '{tokens[i+1]}' before a species name.")
+                    i += 2
+                    continue
+
+                if len(tokens) >= i+4 and tokens[i+1] == tokens[i+3] == '/':
+                    try:
+                        sites = fortFloat(tokens[i+2])
+                    except ValueError:
+                        logger.error(self.entry("SITE section") + "Unable to parse site"
+                            f" occupancy value '{tokens[i+2]}' for species '{name}'.")
+                    i += 3
+
+                if name in self.species_dict:
+                    species = self.species_dict[name]
+                    if self.permissive:
+                        logger.warning("Ignoring redundant declaration for "
+                                       f"species '{species}'")
+                    else:
+                        logger.error(f"Found multiple declarations for species "
+                            f"'{species}'. Run ck2yaml again with the\n'--permissive' "
+                            "option to ignore the extra declarations.")
+                else:
+                    species = Species(label=name, sites=sites)
+                    self.species_dict[name] = species
+                    surf.species_list.append(species)
 
     def parse_nasa9_section(self, lines):
         """

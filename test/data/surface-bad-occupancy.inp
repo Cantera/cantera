@@ -1,0 +1,9 @@
+SITE       SDEN/2.72E-9/
+_Pt_ H_Pt O2_Pt/3/ /4/H2O_Pt OH_Pt O_Pt
+END
+
+ REACTIONS      JOULES/MOLE      MWOFF
+ H2 + 2_Pt_  => 2H_Pt                        4.4579E+10  0.5   0.0
+					  FORD/_Pt_  1/
+ O2_Pt = O2 + 3 _Pt_                           3.70E+21  0.00    11500.0
+END
