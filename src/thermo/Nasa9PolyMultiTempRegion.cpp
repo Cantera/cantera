@@ -22,7 +22,7 @@
 namespace Cantera
 {
 
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts)
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(span<Nasa9Poly1*> regionPts)
 {
     // From now on, we own these pointers
     for (Nasa9Poly1* region : regionPts) {

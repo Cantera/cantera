@@ -22,7 +22,7 @@ using namespace std;
 namespace Cantera
 {
 
-Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
+Sim1D::Sim1D(span<const shared_ptr<Domain1D>> domains) :
     OneDim(domains),
     m_steady_callback(0)
 {

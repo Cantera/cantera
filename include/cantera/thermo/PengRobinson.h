@@ -242,7 +242,7 @@ public:
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
-                   double Vroot[3]) const;
+                   span<double> Vroot) const;
 protected:
     //! Value of @f$ b @f$ in the equation of state
     /*!

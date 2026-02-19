@@ -17,9 +17,9 @@ using namespace std;
 namespace Cantera
 {
 
-OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
+OneDim::OneDim(span<const shared_ptr<Domain1D>> domains)
 {
-    for (auto& dom : domains) {
+    for (const auto& dom : domains) {
         addDomain(dom);
     }
     init();

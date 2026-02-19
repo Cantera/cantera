@@ -401,8 +401,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     //
     // First step is a major branch in the algorithm. We first determine if a
     // phase pops into existence.
-    vector<size_t> phasePopPhaseIDs(0);
-    size_t iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
+    size_t iphasePop = vcs_popPhaseID();
     if (iphasePop != npos) {
         int soldel = vcs_popPhaseRxnStepSizes(iphasePop);
         if (soldel == 3) {
@@ -506,7 +505,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             } else if (m_speciesStatus[kspec] == VCS_SPECIES_INTERFACIALVOLTAGE) {
                 // VOLTAGE SPECIES
                 bool soldel_ret;
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
+                dx = vcs_minor_alt_calc(kspec, irxn, soldel_ret);
                 m_deltaMolNumSpecies[kspec] = dx;
             } else if (m_speciesStatus[kspec] < VCS_SPECIES_MINOR) {
                 // ZEROED OUT SPECIES
@@ -597,7 +596,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 // If soldel is true on return, then we branch to the section
                 // that deletes a species from the current set of active species.
                 bool soldel_ret;
-                dx = vcs_minor_alt_calc(kspec, irxn, &soldel_ret);
+                dx = vcs_minor_alt_calc(kspec, irxn, soldel_ret);
                 m_deltaMolNumSpecies[kspec] = dx;
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + dx;
                 if (soldel_ret) {
@@ -1336,13 +1335,13 @@ void VCS_SOLVE::solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
     stage = EQUILIB_CHECK;
 }
 
-double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete) const
+double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool& do_delete) const
 {
     double w_kspec = m_molNumSpecies_old[kspec];
     double dg_irxn = m_deltaGRxn_old[irxn];
     size_t iph = m_phaseID[kspec];
 
-    *do_delete = false;
+    do_delete = false;
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
         if (w_kspec <= 0.0) {
             w_kspec = VCS_DELETE_MINORSPECIES_CUTOFF;
@@ -1353,7 +1352,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete)
             if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
                 // delete the species from the current list of active species,
                 // because its concentration has gotten too small.
-                *do_delete = true;
+                do_delete = true;
                 return - w_kspec;
             }
             return molNum_kspec_new - w_kspec;
@@ -1399,7 +1398,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete)
         if ((molNum_kspec_new) < VCS_DELETE_MINORSPECIES_CUTOFF) {
             // delete the species from the current list of active species,
             // because its concentration has gotten too small.
-            *do_delete = true;
+            do_delete = true;
             return - w_kspec;
         }
         return molNum_kspec_new - w_kspec;

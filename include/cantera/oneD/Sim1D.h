@@ -35,7 +35,7 @@ public:
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
      */
-    Sim1D(vector<shared_ptr<Domain1D>>& domains);
+    Sim1D(span<const shared_ptr<Domain1D>> domains);
 
     //! @name Setting initial values
     //!

@@ -14,7 +14,7 @@ AdaptivePreconditioner::AdaptivePreconditioner()
     setPreconditionerSide("right");
 }
 
-void AdaptivePreconditioner::stateAdjustment(vector<double>& state) {
+void AdaptivePreconditioner::stateAdjustment(span<double> state) {
     // Only keep positive composition based on given tol
     for (size_t i = 0; i < state.size(); i++) {
         state[i] = std::max(state[i], m_atol);

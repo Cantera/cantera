@@ -214,9 +214,9 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, span<double> lambda_RT,
     MultiPhase mp;
     mp.addPhase(&s, 1.0);
     mp.init();
-    int usedZeroedSpecies = 0;
+    bool usedZeroedSpecies = false;
     vector<double> formRxnMatrix(mp.nSpecies() * mp.nElements());
-    m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
+    m_nComponents = BasisOptimize(usedZeroedSpecies, false,
                                   &mp, m_orderVectorSpecies,
                                   m_orderVectorElements, formRxnMatrix);
 

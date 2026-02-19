@@ -94,7 +94,7 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     MultiPhase mphase;
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
-    int usedZeroedSpecies = 0;
+    bool usedZeroedSpecies = false;
     vector<size_t> orderVectorSpecies(mphase.nSpecies());
     vector<size_t> orderVectorElements(mphase.nElements());
     std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
@@ -103,7 +103,7 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     bool doFormMatrix = true;
     vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
-    size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
+    size_t nc = BasisOptimize(usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
                               formRxnMatrix);
     ASSERT_EQ(1, (int) nc);
@@ -115,7 +115,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     MultiPhase mphase;
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
-    int usedZeroedSpecies = 0;
+    bool usedZeroedSpecies = false;
     vector<size_t> orderVectorSpecies(mphase.nSpecies());
     vector<size_t> orderVectorElements(mphase.nElements());
     std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
@@ -124,7 +124,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     bool doFormMatrix = true;
     vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
-    size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
+    size_t nc = BasisOptimize(usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
                               formRxnMatrix);
     ASSERT_EQ(1, (int) nc);

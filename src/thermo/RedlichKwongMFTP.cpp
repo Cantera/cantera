@@ -796,7 +796,8 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b, double Vroot[3]) const
+int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b,
+                                 span<double> Vroot) const
 {
 
     // Derive the coefficients of the cubic polynomial to solve.

@@ -417,7 +417,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-size_t VCS_SOLVE::vcs_popPhaseID(vector<size_t> & phasePopPhaseIDs)
+size_t VCS_SOLVE::vcs_popPhaseID()
 {
     size_t iphasePop = npos;
     double FephaseMax = -1.0E30;
@@ -491,11 +491,6 @@ size_t VCS_SOLVE::vcs_popPhaseID(vector<size_t> & phasePopPhaseIDs)
             }
         }
     }
-    phasePopPhaseIDs.resize(0);
-    if (iphasePop != npos) {
-        phasePopPhaseIDs.push_back(iphasePop);
-    }
-
     // Insert logic here to figure out if phase pops are linked together. Only
     // do one linked pop at a time.
     if (m_debug_print_lvl >= 2) {

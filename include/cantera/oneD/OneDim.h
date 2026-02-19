@@ -29,7 +29,7 @@ public:
     OneDim() = default;
 
     //! Construct a OneDim container for the domains in the list *domains*.
-    OneDim(vector<shared_ptr<Domain1D>>& domains);
+    OneDim(span<const shared_ptr<Domain1D>> domains);
 
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
