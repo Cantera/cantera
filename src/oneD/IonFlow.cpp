@@ -100,10 +100,10 @@ void IonFlow::updateTransport(span<const double> x, size_t j0, size_t j1)
         if (m_import_electron_transport) {
             size_t k = m_kElectron;
             double tlog = log(m_thermo->temperature());
-            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix.data());
+            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix);
             double rho = m_thermo->density();
             double wtm = m_thermo->meanMolecularWeight();
-            m_diff[k+m_nsp*j] = m_wt[k]*rho*poly5(tlog, m_diff_e_fix.data())/wtm;
+            m_diff[k+m_nsp*j] = m_wt[k]*rho*poly5(tlog, m_diff_e_fix)/wtm;
         }
     }
 }

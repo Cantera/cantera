@@ -434,13 +434,13 @@ void MultiTransport::updateThermal_T()
             double z = m_star_poly_uses_actualT[i][j] == 1 ? m_logt : m_logt - m_log_eps_k(i,j);
             int ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
-                m_astar(i,j) = poly6(z, m_astar_poly[ipoly].data());
-                m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly].data());
-                m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly].data());
+                m_astar(i,j) = poly6(z, m_astar_poly[ipoly]);
+                m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly]);
+                m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly]);
             } else {
-                m_astar(i,j) = poly8(z, m_astar_poly[ipoly].data());
-                m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly].data());
-                m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly].data());
+                m_astar(i,j) = poly8(z, m_astar_poly[ipoly]);
+                m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly]);
+                m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly]);
             }
             m_astar(j,i) = m_astar(i,j);
             m_bstar(j,i) = m_bstar(i,j);

@@ -257,7 +257,7 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
         if (m_lindep[iCov]) {
             m_ecov += m_ec[iCov][1] * shared_data.coverages[iKin];
         } else {
-            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov].data());
+            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov]);
         }
         m_mcov += m_mc[iCov] * shared_data.logCoverages[iKin];
     }

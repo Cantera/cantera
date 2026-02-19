@@ -204,7 +204,7 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                      j == m_thermo->speciesIndex("O2-", false)) &&
                     (k == m_thermo->speciesIndex("O2", false) ||
                      j == m_thermo->speciesIndex("O2", false))) {
-                       om11 = poly5(t, m_om11_O2.data()) / 1e20;
+                       om11 = poly5(t, m_om11_O2) / 1e20;
                 }
                 double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))
                     * pow(Boltzmann * t, 1.5) / om11;
@@ -219,7 +219,7 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 double t = exp(tlog[n]);
                 double pre = pow(t, 1.5);
                 val = pre * diff[n];
-                fit = pre * poly4(tlog[n], c.data());
+                fit = pre * poly4(tlog[n], c);
                 err = fit - val;
                 relerr = err/val;
                 mxerr = std::max(mxerr, fabs(err));

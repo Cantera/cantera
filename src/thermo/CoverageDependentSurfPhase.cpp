@@ -475,8 +475,8 @@ void CoverageDependentSurfPhase::_updateCovDepThermo() const
 
         // For linear and polynomial model
         for (auto& item : m_PolynomialDependency) {
-            m_h_cov[item.k] += poly4(m_cov[item.j], item.enthalpy_coeffs.data());
-            m_s_cov[item.k] += poly4(m_cov[item.j], item.entropy_coeffs.data());
+            m_h_cov[item.k] += poly4(m_cov[item.j], item.enthalpy_coeffs);
+            m_s_cov[item.k] += poly4(m_cov[item.j], item.entropy_coeffs);
         }
 
         // For piecewise-linear and interpolative model

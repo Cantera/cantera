@@ -589,11 +589,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spvisc[n]);
-                fit = exp(poly3(tlog[n], c.data()));
+                fit = exp(poly3(tlog[n], c));
             } else {
                 double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
-                fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
+                fit = sqrt_T * pow(poly4(tlog[n], c),2);
             }
             err = fit - val;
             relerr = err/val;
@@ -608,11 +608,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spcond[n]);
-                fit = exp(poly3(tlog[n], c2.data()));
+                fit = exp(poly3(tlog[n], c2));
             } else {
                 double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
-                fit = sqrt_T * poly4(tlog[n], c2.data());
+                fit = sqrt_T * poly4(tlog[n], c2);
             }
             err = fit - val;
             relerr = err/val;
@@ -679,12 +679,12 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 double val, fit;
                 if (m_mode == CK_Mode) {
                     val = exp(diff[n]);
-                    fit = exp(poly3(tlog[n], c.data()));
+                    fit = exp(poly3(tlog[n], c));
                 } else {
                     double t = exp(tlog[n]);
                     double pre = pow(t, 1.5);
                     val = pre * diff[n];
-                    fit = pre * poly4(tlog[n], c.data());
+                    fit = pre * poly4(tlog[n], c);
                 }
                 err = fit - val;
                 relerr = err/val;
