@@ -94,9 +94,9 @@ void MixTransport::getThermalDiffCoeffs(span<double> dt)
 
             double Cstar = 0.;
             if (m_mode == CK_Mode) {
-                Cstar = poly6(log_tstar, m_cstar_poly[ipoly].data());
+                Cstar = poly6(log_tstar, m_cstar_poly[ipoly]);
             } else {
-                Cstar = poly8(log_tstar, m_cstar_poly[ipoly].data());
+                Cstar = poly8(log_tstar, m_cstar_poly[ipoly]);
             }
 
             double dt_T = ((1.2*Cstar - 1.0)/(m_bdiff(k,j)*rp))

@@ -162,7 +162,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_enthalpies_RT)
     expected_result[1] += (h_high * (test_covs[0][2] - 0.4)) / RT;
     expected_result[1] += ((int_cp_tnow - int_cp_298)
                             * test_covs[0][2] * test_covs[0][2]) / RT;
-    expected_result[1] += poly4(test_covs[0][3], h_coeffs.data()) / RT;
+    expected_result[1] += poly4(test_covs[0][3], h_coeffs) / RT;
     expected_result[1] += h_int / RT;
     EXPECT_NEAR(enthalpies_RT[1], expected_result[1], 1.e-6);
 }
@@ -207,7 +207,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_entropies_R)
     expected_result[1] += (s_slope * test_covs[0][1]) / GasConstant;
     expected_result[1] += (s_low * 0.4) / GasConstant;
     expected_result[1] += (s_high * (test_covs[0][2] - 0.4)) / GasConstant;
-    expected_result[1] += poly4(test_covs[0][3], s_coeffs.data()) / GasConstant;
+    expected_result[1] += poly4(test_covs[0][3], s_coeffs) / GasConstant;
     expected_result[1] += s_int / GasConstant;
     expected_result[1] += 0.5 * (int_cp_T_tnow - int_cp_T_298)
                           * test_covs[0][2] * test_covs[0][2] / GasConstant;

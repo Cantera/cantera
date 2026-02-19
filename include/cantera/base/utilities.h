@@ -20,7 +20,9 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 #include <numeric>
+#include <iterator>
 
 namespace Cantera
 {
@@ -36,10 +38,16 @@ namespace Cantera
  * @param y   second reference to the templated class V
  * @return This class returns a hard-coded type, double.
  */
-template<class V>
-inline double dot4(const V& x, const V& y)
+template<class X, class Y>
+inline auto dot4(const X& x, const Y& y)
 {
-    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
+    auto x_ = span{std::data(x), std::size(x)};
+    auto y_ = span{std::data(y), std::size(y)};
+#ifndef NDEBUG
+    checkArraySize("dot4: x", x_.size(), 4);
+    checkArraySize("dot4: y", y_.size(), 4);
+#endif
+    return x_[0]*y_[0] + x_[1]*y_[1] + x_[2]*y_[2] + x_[3]*y_[3];
 }
 
 //! Templated Inner product of two vectors of length 5
@@ -51,11 +59,17 @@ inline double dot4(const V& x, const V& y)
  * @param y   second reference to the templated class V
  * @return This class returns a hard-coded type, double.
  */
-template<class V>
-inline double dot5(const V& x, const V& y)
+template<class X, class Y>
+inline auto dot5(const X& x, const Y& y)
 {
-    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
-           x[4]*y[4];
+    auto x_ = span{std::data(x), std::size(x)};
+    auto y_ = span{std::data(y), std::size(y)};
+#ifndef NDEBUG
+    checkArraySize("dot5: x", x_.size(), 5);
+    checkArraySize("dot5: y", y_.size(), 5);
+#endif
+    return x_[0]*y_[0] + x_[1]*y_[1] + x_[2]*y_[2] + x_[3]*y_[3] +
+           x_[4]*y_[4];
 }
 
 //! Function that calculates a templated inner product.
@@ -113,11 +127,15 @@ inline void scale(InputIter begin, InputIter end,
  * @param x   Value of the independent variable - First template parameter
  * @param c   Pointer to the polynomial - Second template parameter
  */
-template<class D, class R>
-R poly6(D x, R* c)
+template<class D, class C>
+auto poly6(D x, const C& c)
 {
-    return ((((((c[6]*x + c[5])*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    auto c_ = span{std::data(c), std::size(c)};
+#ifndef NDEBUG
+    checkArraySize("poly6: c", c_.size(), 7);
+#endif
+    return ((((((c_[6]*x + c_[5])*x + c_[4])*x + c_[3])*x +
+              c_[2])*x + c_[1])*x + c_[0]);
 }
 
 //! Templated evaluation of a polynomial of order 8
@@ -125,11 +143,15 @@ R poly6(D x, R* c)
  * @param x   Value of the independent variable - First template parameter
  * @param c   Pointer to the polynomial - Second template parameter
  */
-template<class D, class R>
-R poly8(D x, R* c)
+template<class D, class C>
+auto poly8(D x, const C& c)
 {
-    return ((((((((c[8]*x + c[7])*x + c[6])*x + c[5])*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    auto c_ = span{std::data(c), std::size(c)};
+#ifndef NDEBUG
+    checkArraySize("poly8: c", c_.size(), 9);
+#endif
+    return ((((((((c_[8]*x + c_[7])*x + c_[6])*x + c_[5])*x + c_[4])*x + c_[3])*x +
+              c_[2])*x + c_[1])*x + c_[0]);
 }
 
 //! Templated evaluation of a polynomial of order 5
@@ -137,11 +159,15 @@ R poly8(D x, R* c)
  * @param x   Value of the independent variable - First template parameter
  * @param c   Pointer to the polynomial - Second template parameter
  */
-template<class D, class R>
-R poly5(D x, R* c)
+template<class D, class C>
+auto poly5(D x, const C& c)
 {
-    return (((((c[5]*x + c[4])*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    auto c_ = span{std::data(c), std::size(c)};
+#ifndef NDEBUG
+    checkArraySize("poly5: c", c_.size(), 6);
+#endif
+    return (((((c_[5]*x + c_[4])*x + c_[3])*x +
+              c_[2])*x + c_[1])*x + c_[0]);
 }
 
 //! Evaluates a polynomial of order 4.
@@ -149,11 +175,15 @@ R poly5(D x, R* c)
  * @param x   Value of the independent variable.
  * @param c   Pointer to the polynomial coefficient array.
  */
-template<class D, class R>
-R poly4(D x, R* c)
+template<class D, class C>
+auto poly4(D x, const C& c)
 {
-    return ((((c[4]*x + c[3])*x +
-              c[2])*x + c[1])*x + c[0]);
+    auto c_ = span{std::data(c), std::size(c)};
+#ifndef NDEBUG
+    checkArraySize("poly4: c", c_.size(), 5);
+#endif
+    return ((((c_[4]*x + c_[3])*x +
+              c_[2])*x + c_[1])*x + c_[0]);
 }
 
 //! Templated evaluation of a polynomial of order 3
@@ -161,10 +191,14 @@ R poly4(D x, R* c)
  * @param x   Value of the independent variable - First template parameter
  * @param c   Pointer to the polynomial - Second template parameter
  */
-template<class D, class R>
-R poly3(D x, R* c)
+template<class D, class C>
+auto poly3(D x, const C& c)
 {
-    return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
+    auto c_ = span{std::data(c), std::size(c)};
+#ifndef NDEBUG
+    checkArraySize("poly3: c", c_.size(), 4);
+#endif
+    return (((c_[3]*x + c_[2])*x + c_[1])*x + c_[0]);
 }
 
 //! @}
