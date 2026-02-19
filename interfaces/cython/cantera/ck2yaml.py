@@ -1570,7 +1570,7 @@ class Parser:
             else:
                 comment = ''
 
-            lines.append((i, None, line, comment))
+            lines.append((i, None, line.rstrip(), comment.rstrip()))
 
         lines = np.array(lines, dtype=object)
 
