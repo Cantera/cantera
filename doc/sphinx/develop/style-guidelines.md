@@ -42,12 +42,16 @@ it easier for others to understand your code in the context of Cantera as a whol
   GCC 13.2, Clang 18.0, Visual Studio 2019 version 16.11 and Intel 2023.1.
 * Cantera moves frequently used C++ standard namespace types and functions into the
   declarative region, meaning that the `std` scope resolution can be omitted. This
-  applies to the following: `string`, `vector`, `map`, `set`, `pair`, `shared_ptr`,
-  `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use `string`
-  instead of `std::string`; a `using namespace std;` declaration is not required.
+  applies to the following: `string`, `vector`, `span`, `map`, `set`, `pair`,
+  `shared_ptr`, `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use
+  `string` instead of `std::string`; a `using namespace std;` declaration is not
+  required.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
   standard library containers, as well as `unique_ptr` and `shared_ptr` when dynamic
   allocation is required.
+* Methods which take array arguments should use `span<double>` or `span<const double>`
+  instead of bare pointers that do not provide size information, and instead of specific
+  types that require the user to use a particular container like `std::vector<double>&`.
 * Portions of Boost which are "header only" may be used. If possible, include Boost
   header files only within .cpp files rather than other header files to avoid
   unnecessary increases in compilation time. Boost should not be added to the public
