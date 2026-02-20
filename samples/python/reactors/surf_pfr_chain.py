@@ -105,7 +105,7 @@ output_data = []
 
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
-    gas.TDY = r.phase.TDY
+    upstream.phase.TDY = r.phase.TDY
     upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
