@@ -171,7 +171,6 @@ public:
     //! Set the number of time steps to try when the steady Newton solver is
     //! unsuccessful.
     //! @param stepsize  Initial time step size [s]
-    //! @param n  Length of `tsteps` array
     //! @param tsteps  A sequence of time step counts to take after subsequent failures
     //!     of the steady-state solver. The last value in `tsteps` will be used again
     //!     after further unsuccessful solution attempts.
