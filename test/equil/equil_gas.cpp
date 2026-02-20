@@ -72,7 +72,7 @@ TEST_F(OverconstrainedEquil, exceptions)
 {
     setup();
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
 
     ASSERT_THROW(mphase.elementName(200), IndexError);
@@ -92,7 +92,7 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
 {
     setup();
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
     vector<size_t> orderVectorSpecies(mphase.nSpecies());
@@ -113,7 +113,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
 {
     setup("O, H, C, N, Ar");
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
     vector<size_t> orderVectorSpecies(mphase.nSpecies());

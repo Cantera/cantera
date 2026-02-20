@@ -58,8 +58,7 @@ cdef class Mixture:
             phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
 
         for phase,moles in phases:
-            # Block species from being added to the phase as long as this object exists
-            self.mix.addPhase(phase.thermo, moles)
+            self.mix.addPhase(phase.base.thermo(), moles)
             self._phases.append(phase)
 
         self.mix.init()

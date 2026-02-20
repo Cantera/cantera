@@ -101,16 +101,16 @@ int main(int argc, char** argv)
         gas->setState_TPX(T, pres, Xmol);
 
 
-        auto ss = make_unique<StoichSubstance>("NaCl_Solid.yaml");
+        auto ss = make_shared<StoichSubstance>("NaCl_Solid.yaml");
         ss->setState_TP(T, pres);
 
 
         // Construct the multiphase object
         MultiPhase* mp = new MultiPhase();
 
-        mp->addPhase(hmw.get(), 2.0);
-        mp->addPhase(gas.get(), 4.0);
-        mp->addPhase(ss.get(), 5.0);
+        mp->addPhase(hmw, 2.0);
+        mp->addPhase(gas, 4.0);
+        mp->addPhase(ss, 5.0);
 
 
         try {

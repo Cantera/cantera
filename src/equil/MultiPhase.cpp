@@ -27,29 +27,7 @@ MultiPhase::~MultiPhase()
     }
 }
 
-void MultiPhase::addPhases(MultiPhase& mix)
-{
-    for (size_t n = 0; n < mix.nPhases(); n++) {
-        addPhase(mix.m_phase[n], mix.m_moles[n]);
-    }
-}
-
-void MultiPhase::addPhases(span<ThermoPhase*> phases, span<const double> phaseMoles)
-{
-    checkArraySize("MultiPhase::addPhases", phaseMoles.size(), phases.size());
-    for (size_t n = 0; n < phases.size(); n++) {
-        addPhase(phases[n], phaseMoles[n]);
-    }
-    init();
-}
-
 void MultiPhase::addPhase(shared_ptr<ThermoPhase> p, double moles)
-{
-    addPhase(p.get(), moles);
-    m_sharedPhase.back() = p;
-}
-
-void MultiPhase::addPhase(ThermoPhase* p, double moles)
 {
     if (m_init) {
         throw CanteraError("MultiPhase::addPhase",
@@ -61,9 +39,8 @@ void MultiPhase::addPhase(ThermoPhase* p, double moles)
             "compatible with MultiPhase equilibrium solver", p->name());
     }
 
-    // save the pointer to the phase object
-    m_phase.push_back(p);
-    m_sharedPhase.push_back(nullptr);
+    p->addSpeciesLock(); // lock species list
+    m_phase.push_back(p); // save the pointer to the phase object
 
     // store its number of moles
     m_moles.push_back(moles);
@@ -115,9 +92,6 @@ void MultiPhase::addPhase(ThermoPhase* p, double moles)
         m_Tmin = std::max(p->minTemp(), m_Tmin);
         m_Tmax = std::min(p->maxTemp(), m_Tmax);
     }
-
-    // lock species list
-    p->addSpeciesLock();
 }
 
 void MultiPhase::init()
@@ -137,7 +111,7 @@ void MultiPhase::init()
         size_t k = 0;
         // iterate over the phases
         for (size_t ip = 0; ip < nPhases(); ip++) {
-            ThermoPhase* p = m_phase[ip];
+            auto& p = m_phase[ip];
             size_t nsp = p->nSpecies();
             size_t mlocal = p->elementIndex(m_enames[m], false);
             for (size_t kp = 0; kp < nsp; kp++) {
@@ -340,7 +314,7 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, span<const double> x)
     if (!m_init) {
         init();
     }
-    ThermoPhase* p = m_phase[n];
+    auto& p = m_phase[n];
     p->setState_TPX(m_temp, m_press, x.subspan(0, p->nSpecies()));
     size_t istart = m_spstart[n];
     for (size_t k = 0; k < p->nSpecies(); k++) {
@@ -372,8 +346,7 @@ void MultiPhase::getMoles(span<double> molNum) const
     double* dtmp = molNum.data();
     for (size_t ip = 0; ip < nPhases(); ip++) {
         double phasemoles = m_moles[ip];
-        ThermoPhase* p = m_phase[ip];
-        size_t nsp = p->nSpecies();
+        size_t nsp = m_phase[ip]->nSpecies();
         for (size_t ik = 0; ik < nsp; ik++) {
             *(dtmp++) *= phasemoles;
         }
@@ -389,7 +362,7 @@ void MultiPhase::setMoles(span<const double> n)
     size_t loc = 0;
     size_t k = 0;
     for (size_t ip = 0; ip < nPhases(); ip++) {
-        ThermoPhase* p = m_phase[ip];
+        auto& p = m_phase[ip];
         size_t nsp = p->nSpecies();
         double phasemoles = 0.0;
         for (size_t ik = 0; ik < nsp; ik++) {
@@ -454,8 +427,7 @@ void MultiPhase::calcElemAbundances() const
         m_elemAbundances[eGlobal] = 0.0;
     }
     for (size_t ip = 0; ip < nPhases(); ip++) {
-        ThermoPhase* p = m_phase[ip];
-        size_t nspPhase = p->nSpecies();
+        size_t nspPhase = m_phase[ip]->nSpecies();
         double phasemoles = m_moles[ip];
         for (size_t ik = 0; ik < nspPhase; ik++) {
             size_t kGlobal = loc + ik;
@@ -842,7 +814,7 @@ void MultiPhase::uploadMoleFractionsFromPhases()
 {
     size_t loc = 0;
     for (size_t ip = 0; ip < nPhases(); ip++) {
-        ThermoPhase* p = m_phase[ip];
+        auto& p = m_phase[ip];
         p->getMoleFractions(span<double>(m_moleFractions.data() + loc, p->nSpecies()));
         loc += p->nSpecies();
     }

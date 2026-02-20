@@ -165,7 +165,9 @@ void ChemEquil::update(const ThermoPhase& s)
 int ChemEquil::setInitialMoles(ThermoPhase& s, span<double> elMoleGoal, int loglevel)
 {
     MultiPhase mp;
-    mp.addPhase(&s, 1.0);
+    // Create a non-owning shared_ptr, since ThermoPhase `s` is guaranteed to outlive
+    // the MultiPhase object.
+    mp.addPhase(shared_ptr<ThermoPhase>(&s, [](ThermoPhase*) {}), 1.0);
     mp.init();
     MultiPhaseEquil e(&mp, true, loglevel-1);
     e.setInitialMixMoles(loglevel-1);
@@ -212,7 +214,7 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, span<double> lambda_RT,
     s.getMoleFractions(xMF_est);
 
     MultiPhase mp;
-    mp.addPhase(&s, 1.0);
+    mp.addPhase(shared_ptr<ThermoPhase>(&s, [](ThermoPhase*) {}), 1.0);
     mp.init();
     int usedZeroedSpecies = 0;
     vector<double> formRxnMatrix(mp.nSpecies() * mp.nElements());

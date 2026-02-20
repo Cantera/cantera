@@ -1267,7 +1267,9 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
 
     if (solver == "auto" || solver == "vcs" || solver == "gibbs") {
         MultiPhase M;
-        M.addPhase(this, 1.0);
+        // Create a non-owning shared_ptr, since this ThermoPhase object is guaranteed
+        // to outlive the MultiPhase object.
+        M.addPhase(shared_ptr<ThermoPhase>(this, [](ThermoPhase*) {}), 1.0);
         M.init();
         M.equilibrate(XY, solver, rtol, max_steps, max_iter,
                       estimate_equil, log_level);
