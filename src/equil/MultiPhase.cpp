@@ -149,14 +149,6 @@ ThermoPhase& MultiPhase::phase(size_t n)
     return *m_phase[n];
 }
 
-size_t MultiPhase::checkPhaseIndex(size_t m) const
-{
-    if (m < nPhases()) {
-        return m;
-    }
-    throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases());
-}
-
 double MultiPhase::speciesMoles(size_t k) const
 {
     size_t ip = m_spphase[k];
@@ -382,33 +374,6 @@ void MultiPhase::setMoles(span<const double> n)
         }
         loc += nsp;
     }
-}
-
-void MultiPhase::addSpeciesMoles(const int indexS, const double addedMoles)
-{
-    vector<double> tmpMoles(m_nsp, 0.0);
-    getMoles(tmpMoles);
-    tmpMoles[indexS] += addedMoles;
-    tmpMoles[indexS] = std::max(tmpMoles[indexS], 0.0);
-    setMoles(tmpMoles);
-}
-
-void MultiPhase::setState_TP(const double T, const double Pres)
-{
-    if (!m_init) {
-        init();
-    }
-    m_temp = T;
-    m_press = Pres;
-    updatePhases();
-}
-
-void MultiPhase::setState_TPMoles(const double T, const double Pres,
-                                  span<const double> n)
-{
-    m_temp = T;
-    m_press = Pres;
-    setMoles(n);
 }
 
 void MultiPhase::getElemAbundances(span<double> elemAbundances) const
@@ -735,14 +700,6 @@ size_t MultiPhase::elementIndex(const string& name, bool raise) const
         return npos;
     }
     throw CanteraError("MultiPhase::elementIndex", "Element '{}' not found", name);
-}
-
-size_t MultiPhase::checkSpeciesIndex(size_t k) const
-{
-    if (k < m_nsp) {
-        return k;
-    }
-    throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp);
 }
 
 string MultiPhase::speciesName(size_t k) const

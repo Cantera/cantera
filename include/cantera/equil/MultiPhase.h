@@ -117,13 +117,6 @@ public:
         return m_nsp;
     }
 
-    //! Check that the specified species index is in range.
-    /*!
-     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
-     * @exception Throws an IndexError if k is greater than nSpecies()-1
-     */
-    size_t checkSpeciesIndex(size_t k) const;
-
     //! Name of species with global index @e kGlob
     /*!
      * @param kGlob   global species index
@@ -197,13 +190,6 @@ public:
      * @return   Reference to the ThermoPhase object for the phase
      */
     ThermoPhase& phase(size_t n);
-
-    //! Check that the specified phase index is in range
-    /*!
-     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
-     * @exception Throws an IndexError if m is greater than nPhases()-1
-     */
-    size_t checkPhaseIndex(size_t m) const;
 
     //! Returns the moles of global species @c k. units = kmol
     /*!
@@ -362,22 +348,6 @@ public:
      */
     void setTemperature(const double T);
 
-    //! Set the state of the underlying ThermoPhase objects in one call
-    /*!
-     * @param T      Temperature of the system (kelvin)
-     * @param Pres   pressure of the system (pascal)
-     */
-    void setState_TP(const double T, const double Pres);
-
-    //! Set the state of the underlying ThermoPhase objects in one call
-    /*!
-     * @param T      Temperature of the system (kelvin)
-     * @param Pres   pressure of the system (pascal)
-     * @param Moles  Vector of mole numbers of all the species in all the phases
-     *               (kmol)
-     */
-    void setState_TPMoles(const double T, const double Pres, span<const double> Moles);
-
     //! Pressure [Pa].
     double pressure() const {
         return m_press;
@@ -484,13 +454,6 @@ public:
      *             mole numbers (kmol).
      */
     void setMoles(span<const double> n);
-
-    //! Adds moles of a certain species to the mixture
-    /*!
-     * @param indexS      Index of the species in the MultiPhase object
-     * @param addedMoles  Value of the moles that are added to the species.
-     */
-    void addSpeciesMoles(const int indexS, const double addedMoles);
 
     //! Retrieves a vector of element abundances
     /*!
