@@ -67,9 +67,8 @@ public:
      *  method addPhase().
      */
     MultiPhase() = default;
-
-    //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
-    //! (that is, responsibility for destroying) the phase objects.
+    MultiPhase(const MultiPhase&) = delete;
+    MultiPhase& operator=(const MultiPhase&) = delete;
     virtual ~MultiPhase();
 
     //! Add a phase to the mixture.
