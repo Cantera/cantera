@@ -1319,6 +1319,35 @@ class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
 
 
+def test_MoleReactorSurface_site_occupancy():
+    # Test that MoleReactorSurface gives correct results for surfaces where the
+    # site occupancy varies for different species.
+    surf = ct.Interface('SiF4_NH3_mec.yaml')
+    gas = surf.adjacent['gas']
+    gas.TPX = 300, ct.one_atm, 'SiF4:0.5, NH3:0.5'
+    surf.TP = gas.TP
+    surf.coverages = 'HN_NH2(S):0.2, F2SINH(S):0.8'
+
+    res1 = ct.Reservoir(gas)
+    res2 = ct.Reservoir(gas)
+
+    rsurf1 = ct.ReactorSurface(surf, res1, kind="ReactorSurface")
+    rsurf2 = ct.ReactorSurface(surf, res2, kind="MoleReactorSurface")
+
+    net1 = ct.ReactorNet([rsurf1])
+    net2 = ct.ReactorNet([rsurf2])
+
+    net1.advance(0.1)
+    net2.advance(0.1)
+
+    assert sum(rsurf1.coverages) == approx(1.0)
+    assert sum(rsurf1.phase.X) == approx(1.0)
+    assert sum(rsurf2.coverages) == approx(1.0)
+    assert sum(rsurf2.phase.X) == approx(1.0)
+    assert rsurf1.coverages == approx(rsurf2.coverages)
+    assert rsurf2.phase.X == approx(rsurf1.phase.X)
+
+
 class TestWellStirredReactorIgnition:
     """ Ignition (or not) of a well-stirred reactor """
 
