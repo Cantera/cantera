@@ -700,7 +700,7 @@ jobs:
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
         # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
         # Increase figure limit to handle flame_speed_convergence_analysis.py.
-        # Skip examples for Python releases where pandas/pyarrow or CoolProp are not available
+        # Skip examples for Python releases where pandas/pyarrow or CoolProp are not available.
         run: |
           echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
@@ -725,9 +725,10 @@ jobs:
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
-          # The pyparsing ignore setting is due to a new warning introduced in Matplotlib==3.6.0
-          # Ignore NasaPoly2 warnings from n-hexane-NUIG-2015.yaml
-          PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:NasaPoly2:UserWarning:"
+          # Fail on warnings attributed to direct example usage while ignoring
+          # transitive dependency warnings.
+          # Ignore known Cantera NasaPoly2 warnings from n-hexane-NUIG-2015.yaml.
+          PYTHONWARNINGS: "ignore,error:::__main__,ignore:NasaPoly2:UserWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
         uses: actions/upload-artifact@v5
