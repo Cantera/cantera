@@ -254,7 +254,7 @@ void MoleReactorSurface::updateState(double* y)
 void MoleReactorSurface::eval(double t, double* LHS, double* RHS)
 {
     for (size_t k = 0; k < m_nsp; k++) {
-        RHS[k] = m_sdot[k] * m_area / m_surf->size(k);
+        RHS[k] = m_sdot[k] * m_area;
     }
 }
 
