@@ -9,7 +9,6 @@
 
 #include "cantera/thermo/PDSS_SSVol.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-#include <array>
 
 namespace Cantera
 {

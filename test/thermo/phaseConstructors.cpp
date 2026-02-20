@@ -25,7 +25,6 @@
 #include "cantera/base/stringUtils.h"
 
 #include <fstream>
-#include <array>
 
 #include "thermo_data.h"
 
