@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
-#include <span>
+#include <array>
 
 /**
  * Namespace for the Cantera kernel.

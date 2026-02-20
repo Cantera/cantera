@@ -6,8 +6,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 
-#include <array>
-
 namespace Cantera
 {
 
