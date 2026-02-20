@@ -72,22 +72,6 @@ public:
     //! (that is, responsibility for destroying) the phase objects.
     virtual ~MultiPhase();
 
-    //! Add a vector of phases to the mixture
-    /*!
-     * See the single addPhases command. This just does a bunch of phases
-     * at one time
-     *   @param phases Vector of pointers to phases
-     *   @param phaseMoles Vector of mole numbers in each phase (kmol)
-     */
-    void addPhases(span<ThermoPhase*> phases, span<const double> phaseMoles);
-
-    //! Add all phases present in 'mix' to this mixture.
-    /*!
-     *  @param mix  Add all of the phases in another MultiPhase
-     *              object to the current object.
-     */
-    void addPhases(MultiPhase& mix);
-
     //! Add a phase to the mixture.
     /*!
      *  This function must be called before the init() function is called,
@@ -98,16 +82,6 @@ public:
      *  @since New in %Cantera 3.2.
      */
     void addPhase(shared_ptr<ThermoPhase> p, double moles);
-
-    //! Add a phase to the mixture.
-    /*!
-     *  This function must be called before the init() function is called,
-     *  which serves to freeze the MultiPhase.
-     *
-     *  @param p pointer to the phase object
-     *  @param moles total number of moles of all species in this phase
-     */
-    void addPhase(ThermoPhase* p, double moles);
 
     //! Number of elements.
     size_t nElements() const {
@@ -588,13 +562,8 @@ private:
      */
     vector<double> m_moles;
 
-    //! Vector of the ThermoPhase pointers.
-    vector<ThermoPhase*> m_phase;
-
-    //! Vector of shared ThermoPhase pointers.
-    //! Contains valid phase entries if added by addPhase(shared_ptr<ThermoPhase>) and
-    //! null pointers if a phase is added via addPhase(ThermoPhase*).
-    vector<shared_ptr<ThermoPhase>> m_sharedPhase;
+    //! Vector of phase objects.
+    vector<shared_ptr<ThermoPhase>> m_phase;
 
     //! Global Stoichiometric Coefficient array
     /*!
