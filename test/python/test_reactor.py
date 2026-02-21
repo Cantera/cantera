@@ -1914,7 +1914,7 @@ class TestFlowReactor:
 
         stats = net.solver_stats
         assert stats['steps'] == i
-        assert 'err_tests_fails' in stats
+        assert 'err_test_fails' in stats
 
         # advancing to the current distance should be a no-op
         x_now = net.distance
