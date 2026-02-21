@@ -10,7 +10,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase"
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
         CxxMultiPhase()
-        void addPhase(CxxThermoPhase*, double) except +translate_exception
+        void addPhase(shared_ptr[CxxThermoPhase], double) except +translate_exception
         void init() except +translate_exception
         void updatePhases() except +translate_exception
 

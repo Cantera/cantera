@@ -7,6 +7,7 @@ from typing import (
     Any,
     Concatenate,
     Literal,
+    ParamSpec,
     TypeAlias,
     TypedDict,
     TypeGuard,
@@ -18,7 +19,13 @@ from typing import (
 import numpy as np
 from numpy.typing import ArrayLike as ArrayLike
 from numpy.typing import NDArray
-from typing_extensions import ParamSpec, TypeForm
+try:
+    # Requires typing_extensions >= 4.13, or possibly Python >= 3.15
+    from typing_extensions import TypeForm as TypeForm
+except ImportError:
+    # Wrong, but better than crashing with an ImportError at runtime
+    from typing_extensions import Type as TypeForm
+
 
 Array: TypeAlias = NDArray[np.float64]
 Index: TypeAlias = EllipsisType | int | slice | tuple[EllipsisType | int | slice, ...]
@@ -194,7 +201,7 @@ def add_args_to_signature(
     return lambda f: f
 
 
-def literal_type_guard(tag: str, literal: TypeForm[_T0]) -> TypeGuard[_T0]:  # type: ignore[valid-type]
+def literal_type_guard(tag: str, literal: TypeForm[_T0]) -> TypeGuard[_T0]:
     """Utility function for narrowing strings to specified literals.
 
     Typically used to check a string against the permissible keys of a

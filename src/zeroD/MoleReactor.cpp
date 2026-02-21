@@ -70,7 +70,7 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         S->restoreState();
         kin->getNetProductionRates(&m_work[0]);
         for (size_t k = 0; k < nk; k++) {
-            RHS[loc + k] = m_work[k] * wallarea / surf->size(k);
+            RHS[loc + k] = m_work[k] * wallarea;
         }
         loc += nk;
 
