@@ -177,25 +177,56 @@ void IdasIntegrator::setMaxErrTestFails(int n)
 
 AnyMap IdasIntegrator::solverStats() const
 {
+    // AnyMap to return stats
     AnyMap stats;
-    long int val;
-    int lastOrder;
 
-    int flag = IDAGetNumSteps(m_ida_mem, &val);
+    // long int linear solver stats provided by IDAS
+    long int steps = 0, stepSolveFails = 0, resEvals = 0, errTestFails = 0,
+             jacEvals = 0, linSetup = 0, linResEvals = 0, linIters = 0,
+             linConvFails = 0, precEvals = 0, precSolves = 0, jtSetupEvals = 0,
+             jTimesEvals = 0, nonlinIters = 0, nonlinConvFails = 0;
+    int lastOrder = 0;
+
+    int flag = IDAGetNumSteps(m_ida_mem, &steps);
     checkError(flag, "solverStats", "IDAGetNumSteps");
-    stats["steps"] = val;
-    IDAGetNumResEvals(m_ida_mem, &val);
-    stats["res_evals"] = val;
-    IDAGetNumLinSolvSetups(m_ida_mem, &val);
-    stats["lin_solve_setups"] = val;
-    IDAGetNumErrTestFails(m_ida_mem, &val);
-    stats["err_tests_fails"] = val;
+
+    // Remaining stats are best-effort; leave corresponding values at zero if the
+    // selected linear solver does not report a given counter.
+    IDAGetNumStepSolveFails(m_ida_mem, &stepSolveFails);
+    IDAGetNumResEvals(m_ida_mem, &resEvals);
+    IDAGetNumNonlinSolvIters(m_ida_mem, &nonlinIters);
+    IDAGetNumNonlinSolvConvFails(m_ida_mem, &nonlinConvFails);
+    IDAGetNumErrTestFails(m_ida_mem, &errTestFails);
     IDAGetLastOrder(m_ida_mem, &lastOrder);
+
+    IDAGetNumJacEvals(m_ida_mem, &jacEvals);
+    IDAGetNumLinResEvals(m_ida_mem, &linResEvals);
+    IDAGetNumLinSolvSetups(m_ida_mem, &linSetup);
+    IDAGetNumLinIters(m_ida_mem, &linIters);
+    IDAGetNumLinConvFails(m_ida_mem, &linConvFails);
+    IDAGetNumPrecEvals(m_ida_mem, &precEvals);
+    IDAGetNumPrecSolves(m_ida_mem, &precSolves);
+    IDAGetNumJTSetupEvals(m_ida_mem, &jtSetupEvals);
+    IDAGetNumJtimesEvals(m_ida_mem, &jTimesEvals);
+
+    stats["steps"] = steps;
+    stats["step_solve_fails"] = stepSolveFails;
+    stats["res_evals"] = resEvals;
+    stats["rhs_evals"] = resEvals;
+    stats["nonlinear_iters"] = nonlinIters;
+    stats["nonlinear_conv_fails"] = nonlinConvFails;
+    stats["err_test_fails"] = errTestFails;
     stats["last_order"] = lastOrder;
-    IDAGetNumNonlinSolvIters(m_ida_mem, &val);
-    stats["nonlinear_iters"] = val;
-    IDAGetNumNonlinSolvConvFails(m_ida_mem, &val);
-    stats["nonlinear_conv_fails"] = val;
+
+    stats["jac_evals"] = jacEvals;
+    stats["lin_solve_setups"] = linSetup;
+    stats["lin_rhs_evals"] = linResEvals;
+    stats["lin_iters"] = linIters;
+    stats["lin_conv_fails"] = linConvFails;
+    stats["prec_evals"] = precEvals;
+    stats["prec_solves"] = precSolves;
+    stats["jt_vec_setup_evals"] = jtSetupEvals;
+    stats["jt_vec_prod_evals"] = jTimesEvals;
     return stats;
 }
 
