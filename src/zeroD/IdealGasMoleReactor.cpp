@@ -60,12 +60,9 @@ string IdealGasMoleReactor::componentName(size_t k)
 
 void IdealGasMoleReactor::initialize(double t0)
 {
-    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
-        throw CanteraError("IdealGasMoleReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     MoleReactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
+    m_vk.resize(m_nsp, 0.0);
 }
 
 double IdealGasMoleReactor::upperBound(size_t k) const {
@@ -108,6 +105,12 @@ void IdealGasMoleReactor::updateState(span<const double> y)
     m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     m_thermo->setState_TD(y[0], m_mass / m_vol);
     m_thermo->getPartialMolarIntEnergies(m_uk);
+    m_thermo->getPartialMolarVolumes(m_vk);
+    m_P_int = m_thermo->internalPressure();
+    // Convert to partial molar internal energy at constant T and V
+    for (size_t n = 0; n < m_nsp; n++) {
+        m_uk[n] -= m_P_int * m_vk[n];
+    }
     m_TotalCv = m_mass * m_thermo->cv_mass();
     updateConnected(true);
 }
@@ -126,7 +129,7 @@ void IdealGasMoleReactor::eval(double time, span<double> LHS, span<double> RHS)
     }
 
     // external heat transfer and compression work
-    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
+    mcvdTdt += - (m_pressure + m_P_int) * m_vdot + m_Qdot;
 
     if (m_energy) {
         mcvdTdt += m_thermo->intrinsicHeating() * m_vol;

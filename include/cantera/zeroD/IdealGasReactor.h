@@ -46,6 +46,7 @@ public:
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies
+    vector<double> m_vk; //!< species partial molar volumes
 
     //! Initial volume [m³]; used for steady-state calculations
     double m_initialVolume;
