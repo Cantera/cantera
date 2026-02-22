@@ -53,7 +53,9 @@ public:
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies
+    vector<double> m_vk; //!< species partial molar volumes
     double m_TotalCv; //!< Total heat capacity (@f$ m c_v @f$) [J/K]
+    double m_P_int; //!< Internal pressure [Pa]
 
      //! Initial volume [m³]; used for steady-state calculations
     double m_initialVolume;
