@@ -1,0 +1,184 @@
+project('cantera', 'cpp', 'c',
+  version: '4.0.0',
+  license: 'BSD-3-Clause',
+  default_options: [
+    'cpp_std=c++20',
+    'c_std=c99',
+    'warning_level=2',
+    'buildtype=release',
+  ],
+  meson_version: '>=1.0.0'
+)
+
+# Import modules
+fs = import('fs')
+
+# Get version components
+version_parts = meson.project_version().split('.')
+version_major = version_parts[0]
+version_minor = version_parts[1]
+cantera_short_version = f'@version_major@.@version_minor@'
+
+# Compiler setup
+cc = meson.get_compiler('c')
+cpp = meson.get_compiler('cpp')
+
+# Platform-specific settings
+host_system = host_machine.system()
+is_windows = host_system == 'windows'
+is_darwin = host_system == 'darwin'
+
+# Additional compiler flags
+add_project_arguments('-DFMT_HEADER_ONLY', language: 'cpp')
+
+if cpp.get_id() == 'msvc'
+  add_project_arguments('/EHsc', '/utf-8', '/nologo', language: 'cpp')
+  add_project_arguments('/D_SCL_SECURE_NO_WARNINGS', language: 'cpp')
+  add_project_arguments('/D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
+  add_project_arguments('/MD', language: 'cpp')
+elif cpp.get_id() == 'clang'
+  add_project_arguments('-fcolor-diagnostics', language: 'cpp')
+endif
+
+# Thread support
+thread_dep = dependency('threads', required: true)
+
+# Math library (needed on some platforms)
+m_dep = cc.find_library('m', required: false)
+
+# SUNDIALS dependency - required system package
+sundials_cvodes_dep = dependency('sundials_cvodes', version: '>=6.0', required: true)
+sundials_idas_dep = dependency('sundials_idas', required: true)
+sundials_nvecserial_dep = dependency('sundials_nvecserial', required: true)
+message('Using system SUNDIALS')
+
+# Eigen dependency (header-only) - required system package
+eigen_dep = dependency('eigen3', version: '>=3.4', required: true)
+message('Using system Eigen')
+
+# fmt dependency - required system package
+fmt_dep = dependency('fmt', version: '>=9.1.0', required: true)
+message('Using system fmt')
+
+# yaml-cpp dependency - required system package
+yamlcpp_dep = dependency('yaml-cpp', version: '>=0.6', required: true)
+message('Using system yaml-cpp')
+
+# Boost dependency (header-only, required)
+boost_dep = dependency('boost', version: '>=1.83', required: true,
+  modules: []  # Header-only
+)
+
+# HDF5 dependency (optional)
+hdf5_dep = dependency('hdf5', required: false)
+use_hdf5 = hdf5_dep.found()
+if use_hdf5
+  message('HDF5 support enabled')
+else
+  message('HDF5 support disabled')
+endif
+
+# HighFive dependency (header-only, optional)
+# Only use system package, no fallback to submodule
+highfive_dep = dependency('HighFive', required: false)
+if highfive_dep.found() and use_hdf5
+  message('Using system HighFive')
+else
+  highfive_dep = dependency('', required: false)
+  if use_hdf5
+    warning('HighFive not found. HDF5 support will be limited. Install HighFive package for full HDF5 support.')
+  endif
+endif
+
+# BLAS/LAPACK dependency (optional)
+lapack_dep = dependency('lapack', required: false)
+blas_dep = dependency('blas', required: false)
+use_lapack = false
+
+if lapack_dep.found() and blas_dep.found()
+  use_lapack = true
+  message('Using system BLAS/LAPACK')
+elif is_darwin
+  # Try Accelerate framework on macOS
+  accelerate_dep = dependency('Accelerate', required: false)
+  if accelerate_dep.found()
+    lapack_dep = accelerate_dep
+    blas_dep = dependency('', required: false)
+    use_lapack = true
+    message('Using macOS Accelerate framework')
+  endif
+endif
+
+if not use_lapack
+  message('BLAS/LAPACK not found, will use Eigen for linear algebra')
+  lapack_dep = dependency('', required: false)
+  blas_dep = dependency('', required: false)
+endif
+
+# Git commit information
+git = find_program('git', required: false)
+git_commit = 'unknown'
+if git.found()
+  git_result = run_command(git, 'rev-parse', '--short', 'HEAD', 
+                           check: false, capture: true)
+  if git_result.returncode() == 0
+    git_commit = git_result.stdout().strip()
+  endif
+endif
+
+# Data directory
+ct_datadir = get_option('cantera_datadir')
+if ct_datadir == ''
+  ct_datadir = get_option('prefix') / 'share' / 'cantera' / 'data'
+endif
+
+# Generate config.h
+conf_data = configuration_data()
+conf_data.set('CANTERA_VERSION', '#define CANTERA_VERSION "' + meson.project_version() + '"')
+conf_data.set('CANTERA_SHORT_VERSION', '#define CANTERA_SHORT_VERSION "' + cantera_short_version + '"')
+# All dependencies are now system packages
+conf_data.set('CT_USE_SYSTEM_EIGEN', '#define CT_USE_SYSTEM_EIGEN 1')
+conf_data.set('CT_USE_SYSTEM_EIGEN_PREFIXED', '/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */')
+conf_data.set('CT_USE_SYSTEM_FMT', '#define CT_USE_SYSTEM_FMT 1')
+conf_data.set('CT_USE_SYSTEM_YAMLCPP', '#define CT_USE_SYSTEM_YAMLCPP 1')
+conf_data.set('CT_USE_LAPACK', use_lapack ? '#define CT_USE_LAPACK 1' : '/* #undef CT_USE_LAPACK */')
+conf_data.set('CT_USE_HDF5', use_hdf5 ? '#define CT_USE_HDF5 1' : '/* #undef CT_USE_HDF5 */')
+conf_data.set('CT_USE_SYSTEM_HIGHFIVE', highfive_dep.found() ? '#define CT_USE_SYSTEM_HIGHFIVE 1' : '/* #undef CT_USE_SYSTEM_HIGHFIVE */')
+conf_data.set('CT_SUNDIALS_USE_LAPACK', '/* #undef CT_SUNDIALS_USE_LAPACK */')
+
+# Fortran settings
+conf_data.set('FTN_TRAILING_UNDERSCORE', '#define FTN_TRAILING_UNDERSCORE')
+conf_data.set('LAPACK_FTN_STRING_LEN_AT_END', '#define LAPACK_FTN_STRING_LEN_AT_END')
+conf_data.set('LAPACK_FTN_TRAILING_UNDERSCORE', '#define LAPACK_FTN_TRAILING_UNDERSCORE')
+
+config_h = configure_file(
+  input: 'include/cantera/base/config.h.meson.in',
+  output: 'config.h',
+  configuration: conf_data,
+  install: true,
+  install_dir: get_option('includedir') / 'cantera' / 'base'
+)
+
+# Create symlink for config.h in build directory so it's found at cantera/base/config.h
+meson.add_postconf_script('sh', '-c', 'mkdir -p "$MESON_BUILD_ROOT/cantera/base" && ln -sf "$MESON_BUILD_ROOT/config.h" "$MESON_BUILD_ROOT/cantera/base/config.h"'.replace('$MESON_BUILD_ROOT', meson.current_build_dir()))
+
+# Include directories
+cantera_include_dirs = include_directories(
+  'include',
+  'src',
+)
+
+# Build directory for generated files (contains config.h)
+cantera_build_include = include_directories('.')
+
+# Build the library
+subdir('src')
+
+# Summary
+summary({
+  'Version': meson.project_version(),
+  'Git commit': git_commit,
+  'BLAS/LAPACK': use_lapack,
+  'HDF5 support': use_hdf5,
+  'HighFive': highfive_dep.found(),
+}, section: 'Configuration')

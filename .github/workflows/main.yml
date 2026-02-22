@@ -193,6 +193,50 @@ jobs:
     - name: Run sample demo
       run: python3 `which scons` test-clib-demo --debug=time
 
+  meson-build:
+    name: Meson build system test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v6
+      name: Checkout the repository
+      with:
+        submodules: false
+        persist-credentials: false
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+        architecture: x64
+    - name: Install Apt dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y meson ninja-build libboost-dev libeigen3-dev \
+          libsundials-dev libhdf5-dev libfmt-dev libyaml-cpp-dev
+    - name: Configure with Meson
+      run: meson setup builddir
+    - name: Compile with Meson
+      run: meson compile -C builddir
+    - name: Show build summary
+      run: |
+        echo "Meson build completed successfully!"
+        echo "Build directory contents:"
+        ls -lh builddir/src/
+    - name: Report Meson build status
+      if: always()
+      run: |
+        if [ -f builddir/build.ninja ]; then
+          echo "✓ Meson configuration successful"
+        else
+          echo "✗ Meson configuration failed"
+        fi
+        if [ -f builddir/src/libcantera.so* ]; then
+          echo "✓ Cantera library built successfully"
+          ls -lh builddir/src/libcantera.so*
+        else
+          echo "⚠ Cantera library not found (build may be partial)"
+        fi
+
   macos-multiple-pythons:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.macos-version }}
