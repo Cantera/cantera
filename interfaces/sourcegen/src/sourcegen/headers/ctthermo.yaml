@@ -94,6 +94,7 @@ recipes:
 - name: setElectricPotential
 - name: thermalExpansionCoeff
 - name: isothermalCompressibility
+- name: internalPressure
 - name: getPartialMolarEnthalpies
 - name: getPartialMolarEntropies
 - name: getPartialMolarIntEnergies

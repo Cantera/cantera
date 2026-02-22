@@ -646,6 +646,12 @@ double RedlichKwongMFTP::thermalExpansionCoeff() const
     return -dpdT_ / (molarVolume() * dpdV_);
 }
 
+double RedlichKwongMFTP::internalPressure() const
+{
+    pressureDerivatives();
+    return temperature() * dpdT_ - pressure();
+}
+
 double RedlichKwongMFTP::soundSpeed() const
 {
     pressureDerivatives();
