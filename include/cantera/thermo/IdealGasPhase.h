@@ -399,6 +399,15 @@ public:
         return 1.0 / temperature();
     }
 
+    //! Return the internal pressure. Units: Pa.
+    /*!
+     * For ideal gases, @f$ (\partial P/\partial T)_V = P/T @f$, so
+     * @f$ \pi_T = T(P/T) - P = 0 @f$.
+     */
+    double internalPressure() const override {
+        return 0.0;
+    }
+
     double soundSpeed() const override;
 
     //! @}

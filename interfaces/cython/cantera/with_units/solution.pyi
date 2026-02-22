@@ -185,6 +185,9 @@ class Solution:
     def thermal_expansion_coeff(self) -> _Quantity: ...
     @property
     @copy_doc
+    def internal_pressure(self) -> _Quantity: ...
+    @property
+    @copy_doc
     def cp(self) -> _Quantity: ...
     @property
     @copy_doc
@@ -465,6 +468,9 @@ class PureFluid:
     @property
     @copy_doc
     def thermal_expansion_coeff(self) -> _Quantity: ...
+    @property
+    @copy_doc
+    def internal_pressure(self) -> _Quantity: ...
     @property
     @copy_doc
     def cp(self) -> _Quantity: ...

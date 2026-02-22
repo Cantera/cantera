@@ -28,7 +28,8 @@ def get_property_definition_strings():
         "molecular_weights": '"kg/kmol"', "partial_molar_cp": '"J/kmol/K"',
         "partial_molar_enthalpies": '"J/kmol"', "partial_molar_entropies": '"J/kmol/K"',
         "partial_molar_int_energies": '"J/kmol"', "partial_molar_volumes": '"m**3/kmol"',
-        "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"'
+        "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"',
+        "internal_pressure": '"Pa"',
     }
 
     SYMBOL = {
@@ -46,7 +47,8 @@ def get_property_definition_strings():
         "sound_speed", "max_temp", "mean_molecular_weight", "min_temp", "molecular_weights",
         "partial_molar_cp", "partial_molar_enthalpies", "partial_molar_entropies",
         "partial_molar_int_energies", "partial_molar_volumes", "reference_pressure",
-        "thermal_expansion_coeff", "cp", "cv", "density", "h", "s", "g", "u", "v",
+        "thermal_expansion_coeff", "internal_pressure", "cp", "cv", "density", "h", "s",
+        "g", "u", "v",
     ]
 
     getter_template = Template(dedent("""

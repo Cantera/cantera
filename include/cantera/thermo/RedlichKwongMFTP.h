@@ -155,6 +155,7 @@ public:
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
+    double internalPressure() const override;
     double soundSpeed() const override;
 
     //! Calculate dpdV and dpdT at the current conditions
