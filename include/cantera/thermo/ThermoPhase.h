@@ -621,6 +621,26 @@ public:
                                   "Not implemented for phase type '{}'", type());
     }
 
+    //! Return the internal pressure [Pa].
+    /*!
+     * The internal pressure is defined as
+     * @f[
+     * \pi_T = \left.\frac{\partial U}{\partial V}\right|_T
+     *       = T \left.\frac{\partial p}{\partial T}\right|_V - p
+     * @f]
+     *
+     * It can also be written as
+     * @f[
+     * \pi_T = T \frac{\alpha}{\kappa_T} - P
+     * where @f$ \alpha @f$ is the volumetric thermal expansion coefficient and
+     * @f$ \kappa_T @f$ is the isothermal compressibility.
+     * @f]
+     */
+    virtual double internalPressure() const {
+        return temperature() * thermalExpansionCoeff() / isothermalCompressibility()
+               - pressure();
+    }
+
     //! Return the speed of sound. Units: m/s.
     /*!
      * The speed of sound is defined as

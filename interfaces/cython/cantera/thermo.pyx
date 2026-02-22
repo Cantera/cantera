@@ -1727,6 +1727,11 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.thermalExpansionCoeff()
 
+    property internal_pressure:
+        """Internal pressure [Pa]."""
+        def __get__(self):
+            return self.thermo.internalPressure()
+
     property sound_speed:
         """Speed of sound [m/s]."""
         def __get__(self):

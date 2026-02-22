@@ -517,7 +517,8 @@ class SolutionArray(SolutionArrayBase):
         'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
         'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
-        'thermal_expansion_coeff', 'sound_speed', 'electric_potential',
+        'thermal_expansion_coeff', 'internal_pressure', 'sound_speed',
+        'electric_potential',
         # From Kinetics
         'heat_release_rate',
         # From Transport

@@ -63,6 +63,16 @@ TEST_F(RedlichKwongMFTP_Test, standardConcentrations)
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
 }
 
+TEST_F(RedlichKwongMFTP_Test, internalPressure)
+{
+    set_r(0.75);
+    test_phase->setState_TP(400.0, 3e6);
+    double pi_t = test_phase->internalPressure();
+    double pi_t_ref = test_phase->temperature() * test_phase->thermalExpansionCoeff()
+        / test_phase->isothermalCompressibility() - test_phase->pressure();
+    EXPECT_NEAR(pi_t, pi_t_ref, 1e-10 * pi_t_ref);
+}
+
 TEST_F(RedlichKwongMFTP_Test, setTP)
 {
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars

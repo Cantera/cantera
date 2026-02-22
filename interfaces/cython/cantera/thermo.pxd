@@ -74,6 +74,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double molarVolume() except +translate_exception
         double isothermalCompressibility() except +translate_exception
         double thermalExpansionCoeff() except +translate_exception
+        double internalPressure() except +translate_exception
         double soundSpeed() except +translate_exception
         double electricPotential() except +translate_exception
         void setElectricPotential(double) except +translate_exception
