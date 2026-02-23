@@ -165,6 +165,7 @@ protected:
     //! Derivative settings
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;
+    bool m_jac_skip_nonideal;
     double m_jac_rtol_delta;
 
     bool m_ROP_ok = false;
