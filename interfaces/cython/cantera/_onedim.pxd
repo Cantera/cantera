@@ -157,7 +157,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         int timeStepGrowthHeuristic()
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
-        void setTimeStepRegridMax(int)
+        void setTimeStepRegridMax(int) except +translate_exception
         int timeStepRegridMax()
         void setMaxGridPoints(int, size_t) except +translate_exception
         size_t maxGridPoints(size_t) except +translate_exception

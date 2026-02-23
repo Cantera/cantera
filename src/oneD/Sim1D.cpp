@@ -355,8 +355,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 SteadyStateSystem::solve(loglevel);
             } catch (CanteraError& err) {
                 if (err.getMethod() == "SteadyStateSystem::timeStep" && retries < m_ts_regrid_max) {
-                    writelog("\nTime stepping failed; attempting to refine the grid and retry "
-                            "({}/{})...\n", retries+1, m_ts_regrid_max);
+                    if (loglevel > 0) {
+                        writelog("\nTime stepping failed; attempting to refine the grid and retry "
+                                "({}/{})...\n", retries+1, m_ts_regrid_max);
+                    }
                     new_points = refine(loglevel);
                     if (new_points > 0) {
                         retries++;
