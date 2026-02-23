@@ -346,7 +346,6 @@ class BurnerFlame(FlameBase):
         self,
         data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
-        mode: Literal["stoich", "linear"] = "stoich",
     ) -> None: ...
     def solve(
         self,
@@ -366,6 +365,7 @@ class CounterflowDiffusionFlame(FlameBase):
         self,
         data: SolutionArray[Solution] | DataFrame | str | Path | None = None,
         group: str | None = None,
+        mode: Literal["stoich", "linear"] = "stoich",
     ) -> None: ...
     def extinct(self) -> bool: ...
     def solve(
