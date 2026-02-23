@@ -851,10 +851,9 @@ class FullTests:
     @pytest.fixture(scope='function', autouse=True)
     def full_tests_data(self, gas, initial_conditions):
         """
-        Reset TPX and derivative settings before each test.
+        Reset TPX before each test.
         """
         gas.TPX = initial_conditions
-        gas.derivative_settings = {}  # Reset to defaults
 
     def rop_derivs(self, gas, mode, rtol_deltac=1e-9, atol_deltac=1e-20, ddX=True):
         # numerical derivative for rates-of-progress with respect to mole fractions
@@ -1078,6 +1077,21 @@ class TestFullHydrogenOxygen(FullTests):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
         gas.TPX = 300, 5 * ct.one_atm, "H2:1, O2:3"
         return gas
+
+
+class TestFullHydrogenOxygenRedlichKwong(FullTests):
+    # Use a loose tolerance because derivatives currently do not account for any
+    # non-ideal effects.
+    rtol = 2e-3
+
+    @pytest.fixture(scope='class')
+    def gas(self):
+        """Fixture to create and configure the gas phase."""
+        gas = ct.Solution("h2o2.yaml", "ohmech-RK", transport_model=None)
+        gas.derivative_settings = {"skip-nonideal": True}
+        gas.TPX = 500, 2 * ct.one_atm, "H2:1, O2:3"
+        return gas
+
 
 class TestFullGriMech(FullTests):
 
