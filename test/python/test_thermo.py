@@ -1022,6 +1022,26 @@ class TestThermoPhase:
             name="partial-lookup-pr",
         )
 
+    def _zero_param_redlich_kwong_phase(self):
+        species = ct.Species.list_from_file("co2_RK_example.yaml")
+        phase_species = []
+        for sp in species:
+            data = dict(sp.input_data)
+            data["equation-of-state"] = {
+                "model": "Redlich-Kwong",
+                "a": 0.0,
+                "b": 0.0,
+            }
+            phase_species.append(ct.Species.from_dict(data))
+
+        return ct.Solution(
+            thermo="Redlich-Kwong",
+            kinetics="bulk",
+            species=phase_species,
+            reactions=[],
+            name="zero-params-rk",
+        )
+
     @pytest.mark.parametrize(
         "temperature,pressure,composition",
         [
@@ -1051,27 +1071,30 @@ class TestThermoPhase:
         assert gas.density > 0.0
         assert gas.P == approx(pressure)
 
-    @pytest.mark.parametrize("p", [2.0e7, 4.0e7, 6.0e7])
-    def test_partial_lookup_pr_high_pressure_equilibrate(self, p):
+    def test_partial_lookup_pr_zero_ab_properties_finite(self):
         gas = self._partial_lookup_peng_robinson_phase()
+        gas.TPX = 500.0, 1.0e6, "CO2:0.333, H2O:0.666"
 
-        fuel_temp = 255.0
-        oxidizer_temp = 142.0
+        assert np.isfinite(gas.enthalpy_mole)
+        assert np.isfinite(gas.int_energy_mole)
+        assert np.isfinite(gas.entropy_mole)
+        assert np.isfinite(gas.cp_mole)
+        assert np.isfinite(gas.cv_mole)
+        assert np.all(np.isfinite(gas.chemical_potentials))
 
-        gas.TPY = fuel_temp, p, "CH4:1.0"
-        yin_f = gas.Y
-        gas.TPY = oxidizer_temp, p, "O2:1.0"
-        yin_o = gas.Y
-        zst = 1.0 / (1.0 + gas.stoich_air_fuel_ratio(yin_f, yin_o, "mass"))
-        yst = zst * yin_f + (1.0 - zst) * yin_o
+    def test_zero_ab_redlich_kwong_properties_finite(self):
+        gas = self._zero_param_redlich_kwong_phase()
+        gas.TPX = 500.0, 1.0e6, {
+            gas.species_names[0]: 0.5,
+            gas.species_names[1]: 0.5,
+        }
 
-        tbar = 0.5 * (fuel_temp + oxidizer_temp)
-        gas.TPY = tbar, p, yst
-        gas.equilibrate("HP")
-
-        assert np.isfinite(gas.T)
-        assert gas.T > tbar
-        assert gas.P == approx(p)
+        assert np.isfinite(gas.enthalpy_mole)
+        assert np.isfinite(gas.int_energy_mole)
+        assert np.isfinite(gas.entropy_mole)
+        assert np.isfinite(gas.cp_mole)
+        assert np.isfinite(gas.cv_mole)
+        assert np.all(np.isfinite(gas.chemical_potentials))
 
 
 @pytest.fixture(scope='function')

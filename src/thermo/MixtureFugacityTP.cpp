@@ -13,6 +13,8 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace Cantera
@@ -264,6 +266,60 @@ void MixtureFugacityTP::getActivityConcentrations(span<double> c) const
 double MixtureFugacityTP::z() const
 {
     return pressure() * meanMolecularWeight() / (density() * RT());
+}
+
+double MixtureFugacityTP::cp_mole_ideal() const
+{
+    return GasConstant * mean_X(m_cp0_R);
+}
+
+double MixtureFugacityTP::cv_mole_ideal() const
+{
+    return GasConstant * (mean_X(m_cp0_R) - 1.0);
+}
+
+double MixtureFugacityTP::standardConcentration_ideal(size_t k) const
+{
+    getStandardVolumes(m_workS);
+    return 1.0 / m_workS[k];
+}
+
+void MixtureFugacityTP::getActivityCoefficients_ideal(span<double> ac) const
+{
+    checkArraySize("MixtureFugacityTP::getActivityCoefficients_ideal", ac.size(), m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = 1.0;
+    }
+}
+
+void MixtureFugacityTP::getChemPotentials_ideal(span<double> mu) const
+{
+    checkArraySize("MixtureFugacityTP::getChemPotentials_ideal", mu.size(), m_kk);
+    double RT_ = RT();
+    getStandardChemPotentials(mu);
+    for (size_t k = 0; k < m_kk; k++) {
+        double xx = std::max(SmallNumber, moleFraction(k));
+        mu[k] += RT_ * log(xx);
+    }
+}
+
+void MixtureFugacityTP::getPartialMolarEnthalpies_ideal(span<double> hbar) const
+{
+    checkArraySize("MixtureFugacityTP::getPartialMolarEnthalpies_ideal", hbar.size(), m_kk);
+    getEnthalpy_RT_ref(hbar);
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
+}
+
+void MixtureFugacityTP::getPartialMolarEntropies_ideal(span<double> sbar) const
+{
+    checkArraySize("MixtureFugacityTP::getPartialMolarEntropies_ideal", sbar.size(), m_kk);
+    getEntropy_R_ref(sbar);
+    scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
+    double logPres = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        double xx = std::max(SmallNumber, moleFraction(k));
+        sbar[k] -= GasConstant * (log(xx) + logPres);
+    }
 }
 
 double MixtureFugacityTP::sresid() const

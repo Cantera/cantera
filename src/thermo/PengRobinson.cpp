@@ -15,6 +15,14 @@
 namespace Cantera
 {
 
+namespace
+{
+bool isIdealCubicLimit(double aMix, double bMix)
+{
+    return aMix == 0.0 && bMix == 0.0;
+}
+}
+
 const double PengRobinson::omega_a = 4.5723552892138218E-01;
 const double PengRobinson::omega_b = 7.77960739038885E-02;
 const double PengRobinson::omega_vc = 3.07401308698703833E-01;
@@ -84,6 +92,9 @@ void PengRobinson::setBinaryCoeffs(const string& species_i,
 double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return cp_mole_ideal();
+    }
     double T = temperature();
     double mv = molarVolume();
     double vpb = mv + (1 + Sqrt2) * m_b;
@@ -98,6 +109,9 @@ double PengRobinson::cp_mole() const
 double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return cv_mole_ideal();
+    }
     double T = temperature();
     calculatePressureDerivatives();
     return (cp_mole() + T * m_dpdT * m_dpdT / m_dpdV);
@@ -115,13 +129,16 @@ double PengRobinson::pressure() const
 
 double PengRobinson::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS);
-    return 1.0 / m_workS[k];
+    return standardConcentration_ideal(k);
 }
 
 void PengRobinson::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("PengRobinson::getActivityCoefficients", ac.size(), m_kk);
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getActivityCoefficients_ideal(ac);
+        return;
+    }
     double mv = molarVolume();
     double vpb2 = mv + (1 + Sqrt2) * m_b;
     double vmb2 = mv + (1 - Sqrt2) * m_b;
@@ -155,8 +172,13 @@ void PengRobinson::getActivityCoefficients(span<double> ac) const
 
 void PengRobinson::getChemPotentials(span<double> mu) const
 {
-    getGibbs_ref(mu);
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getChemPotentials_ideal(mu);
+        return;
+    }
     double RT_ = RT();
+
+    getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += RT_ * (log(xx));
@@ -190,6 +212,10 @@ void PengRobinson::getChemPotentials(span<double> mu) const
 
 void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getPartialMolarEnthalpies_ideal(hbar);
+        return;
+    }
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
@@ -240,6 +266,11 @@ void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
 
 void PengRobinson::getPartialMolarEntropies(span<double> sbar) const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getPartialMolarEntropies_ideal(sbar);
+        return;
+    }
+
     // Using the identity : (hk - T*sk) = gk
     double T = temperature();
     getPartialMolarEnthalpies(sbar);
@@ -445,6 +476,9 @@ void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode)
 
 double PengRobinson::sresid() const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double hh = m_b / molarV;
     double zz = z();
@@ -458,6 +492,9 @@ double PengRobinson::sresid() const
 
 double PengRobinson::hresid() const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double zz = z();
     double aAlpha_1 = daAlpha_dT();

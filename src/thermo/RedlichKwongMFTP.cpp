@@ -15,6 +15,14 @@
 namespace Cantera
 {
 
+namespace
+{
+bool isIdealCubicLimit(double aMix, double bMix)
+{
+    return aMix == 0.0 && bMix == 0.0;
+}
+}
+
 const double RedlichKwongMFTP::omega_a = 4.27480233540E-01;
 const double RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const double RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
@@ -86,6 +94,9 @@ void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& sp
 double RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return cp_mole_ideal();
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -102,6 +113,9 @@ double RedlichKwongMFTP::cp_mole() const
 double RedlichKwongMFTP::cv_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return cv_mole_ideal();
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -126,13 +140,16 @@ double RedlichKwongMFTP::pressure() const
 
 double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS);
-    return 1.0 / m_workS[k];
+    return standardConcentration_ideal(k);
 }
 
 void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("RedlichKwongMFTP::getActivityCoefficients", ac.size(), m_kk);
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getActivityCoefficients_ideal(ac);
+        return;
+    }
     double mv = molarVolume();
     double sqt = sqrt(temperature());
     double vpb = mv + m_b_current;
@@ -165,6 +182,11 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 
 void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getChemPotentials_ideal(mu);
+        return;
+    }
+
     getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -199,6 +221,10 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 
 void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getPartialMolarEnthalpies_ideal(hbar);
+        return;
+    }
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
@@ -244,6 +270,11 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 
 void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getPartialMolarEntropies_ideal(sbar);
+        return;
+    }
+
     getEntropy_R_ref(sbar);
     scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
     double TKelvin = temperature();
@@ -506,6 +537,9 @@ void RedlichKwongMFTP::getSpeciesParameters(const string& name,
 
 double RedlichKwongMFTP::sresid() const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
@@ -522,6 +556,9 @@ double RedlichKwongMFTP::sresid() const
 
 double RedlichKwongMFTP::hresid() const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
