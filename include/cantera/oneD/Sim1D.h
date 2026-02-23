@@ -338,8 +338,16 @@ public:
     }
 
     //! Set the maximum number of regrid attempts after a timestep failure.
-    //! Set to 0 to disable regrid-on-timestep-failure retries.
+    //!
+    //! This fallback is used during solve(loglevel, refine_grid=true). Set to `0`
+    //! to disable regrid-on-timestep-failure retries.
+    //!
+    //! @param nmax  Maximum retry attempts; must be >= 0.
     void setTimeStepRegridMax(int nmax) {
+        if (nmax < 0) {
+            throw CanteraError("Sim1D::setTimeStepRegridMax",
+                "Time step regrid retry count must be >= 0. Got {}.", nmax);
+        }
         m_ts_regrid_max = nmax;
     }
 
