@@ -990,10 +990,10 @@ class CounterflowDiffusionFlame(FlameBase):
 
         afr = self.gas.stoich_air_fuel_ratio(Yin_f, Yin_o, 'mass')
         zst = 1 / (1 + afr)
-        if not np.isfinite(zst) or zst <= 0.0 or zst >= 1.0:
+        if zst == 0.0 or zst == 1.0:
             raise CanteraError(
                 "Stoichiometric initial guess requires a reactive fuel/oxidizer "
-                "pair; use mode='linear'.")
+                "pair; use mode='linear' for other mixtures.")
         Yst = zst * Yin_f + (1.0 - zst) * Yin_o
 
         # get adiabatic flame temperature and composition
