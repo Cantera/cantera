@@ -6,6 +6,8 @@
 #ifndef CT_STEADYSTATESYSTEM_H
 #define CT_STEADYSTATESYSTEM_H
 
+#include <cmath>
+
 #include "cantera/base/ct_defs.h"
 #include "SystemJacobian.h"
 
@@ -199,15 +201,24 @@ public:
         m_tfactor = tfactor;
     }
 
-    //! Set the default factor by which the time step is increased after a
-    //! successful step when the Jacobian is re-used.
+    //! Set the growth factor used after successful timesteps when the Jacobian is
+    //! re-used.
+    //!
+    //! When adaptive growth is disabled (default), this fixed factor is applied after
+    //! each successful step that does not require a new Jacobian.
+    //!
+    //! When adaptive growth is enabled, this value is used as:
+    //! - the accepted growth factor for heuristics 1, 2, and 4; and
+    //! - the maximum allowed growth factor for heuristic 3.
     //!
     //! The default value is 1.5, matching historical behavior.
-    //! @param tfactor  factor time step is multiplied by after a successful step
+    //! @param tfactor  Finite growth factor applied to successful timesteps;
+    //!     must be >= 1.0.
     void setTimeStepGrowthFactor(double tfactor) {
-        if (tfactor < 1.0) {
+        if (!std::isfinite(tfactor) || tfactor < 1.0) {
             throw CanteraError("SteadyStateSystem::setTimeStepGrowthFactor",
-                "Time step growth factor must be >= 1.0. Got {}.", tfactor);
+                "Time step growth factor must be finite and >= 1.0. Got {}.",
+                tfactor);
         }
         m_tstep_growth = tfactor;
     }
@@ -219,8 +230,11 @@ public:
 
     //! Enable or disable adaptive time-step growth heuristics.
     //!
-    //! If disabled, steady solvers use the fixed growth factor from
-    //! setTimeStepGrowthFactor(). Disabled by default.
+    //! Adaptive heuristics are only applied after successful timesteps that reuse the
+    //! Jacobian. If disabled, the fixed growth factor from setTimeStepGrowthFactor()
+    //! is used directly. Disabled by default.
+    //!
+    //! @param enabled  Enable (`true`) or disable (`false`) adaptive growth heuristics.
     void setAdaptiveTimeStepGrowth(bool enabled) {
         m_adaptive_tstep_growth = enabled;
     }
@@ -230,9 +244,18 @@ public:
         return m_adaptive_tstep_growth;
     }
 
-    //! Select which adaptive time-step growth heuristic is used.
+    //! Select the adaptive time-step growth heuristic.
     //!
-    //! Supported values are 1-4.
+    //! Heuristic options:
+    //! - `1`: Increase only if the steady-state residual decreases
+    //!   (`ssnorm(x_after) < ssnorm(x_before)`).
+    //! - `2`: Increase only if the transient residual decreases
+    //!   (`tsnorm(x_after) < tsnorm(x_before)`). This is the default.
+    //! - `3`: Scale growth by residual improvement ratio based on transient residual:
+    //!   @f$ \min(m\_tstep\_growth, \max(1, (ts\_before/ts\_after)^{0.2})) @f$.
+    //! - `4`: Increase only if the most recent Newton solve used at most 3 iterations.
+    //!
+    //! @param heuristic  Integer in [1, 4].
     void setTimeStepGrowthHeuristic(int heuristic) {
         if (heuristic < 1 || heuristic > 4) {
             throw CanteraError("SteadyStateSystem::setTimeStepGrowthHeuristic",
@@ -242,7 +265,7 @@ public:
         m_tstep_growth_heuristic = heuristic;
     }
 
-    //! Get the selected adaptive time-step growth heuristic.
+    //! Get the selected adaptive time-step growth heuristic (`1`-`4`).
     int timeStepGrowthHeuristic() const {
         return m_tstep_growth_heuristic;
     }
@@ -309,6 +332,8 @@ protected:
     void evalSSJacobian(span<const double> x);
 
     //! Determine the timestep growth factor after a successful step.
+    //!
+    //! Called only when a successful step reuses the current Jacobian.
     double timeStepIncreaseFactor(span<const double> x_before,
                                   span<const double> x_after);
 
@@ -324,15 +349,19 @@ protected:
     //! Factor time step is multiplied by if time stepping fails ( < 1 )
     double m_tfactor = 0.5;
 
-    //! Factor time step is multiplied by after successful steps when no new Jacobian
-    //! evaluation is needed.
+    //! Growth factor for successful steps that reuse the Jacobian.
+    //!
+    //! Used directly when adaptive growth is disabled, and as the base / cap value
+    //! when adaptive growth is enabled.
     double m_tstep_growth = 1.5;
 
-    //! If `true`, use residual- or iteration-based heuristics to gate time-step
-    //! growth; otherwise use the fixed growth factor.
+    //! If `true`, use heuristic gating for successful-step growth; otherwise use the
+    //! fixed growth factor.
     bool m_adaptive_tstep_growth = false;
 
-    //! Selected adaptive growth heuristic (1-4). See timeStepIncreaseFactor().
+    //! Selected adaptive growth heuristic:
+    //! `1`: steady residual gate; `2`: transient residual gate;
+    //! `3`: residual-ratio scaling; `4`: Newton-iteration gate.
     int m_tstep_growth_heuristic = 2;
 
     shared_ptr<vector<double>> m_state; //!< Solution vector

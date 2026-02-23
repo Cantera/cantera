@@ -162,8 +162,23 @@ class TestOnedim:
         with pytest.raises(ct.CanteraError, match=">= 1.0"):
             sim.set_time_step_growth_factor(0.9)
 
+        with pytest.raises(ct.CanteraError, match="finite and >= 1.0"):
+            sim.set_time_step_growth_factor(float("inf"))
+
+        with pytest.raises(ct.CanteraError, match="finite and >= 1.0"):
+            sim.set_time_step_growth_factor(float("nan"))
+
         with pytest.raises(ct.CanteraError, match=r"\[1, 4\]"):
             sim.set_time_step_growth_heuristic(5)
+
+        assert sim.time_step_regrid() == 10
+        sim.set_time_step_regrid(3)
+        assert sim.time_step_regrid() == 3
+        sim.set_time_step_regrid(0)
+        assert sim.time_step_regrid() == 0
+
+        with pytest.raises(ct.CanteraError, match=">= 0"):
+            sim.set_time_step_regrid(-1)
 
     def test_switch_transport(self):
         gas = ct.Solution('h2o2.yaml')
