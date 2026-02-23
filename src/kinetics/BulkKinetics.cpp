@@ -259,6 +259,7 @@ void BulkKinetics::getDerivativeSettings(AnyMap& settings) const
 {
     settings["skip-third-bodies"] = m_jac_skip_third_bodies;
     settings["skip-falloff"] = m_jac_skip_falloff;
+    settings["skip-nonideal"] = m_jac_skip_nonideal;
     settings["rtol-delta"] = m_jac_rtol_delta;
 }
 
@@ -270,6 +271,9 @@ void BulkKinetics::setDerivativeSettings(const AnyMap& settings)
     }
     if (force || settings.hasKey("skip-falloff")) {
         m_jac_skip_falloff = settings.getBool("skip-falloff", false);
+    }
+    if (force || settings.hasKey("skip-nonideal")) {
+        m_jac_skip_nonideal = settings.getBool("skip-nonideal", false);
     }
     if (force || settings.hasKey("rtol-delta")) {
         m_jac_rtol_delta = settings.getDouble("rtol-delta", 1e-8);
@@ -693,7 +697,7 @@ Eigen::SparseMatrix<double> BulkKinetics::calculateCompositionDerivatives(
 
 void BulkKinetics::assertDerivativesValid(const string& name)
 {
-    if (!thermo().isIdeal()) {
+    if (!m_jac_skip_nonideal && !thermo().isIdeal()) {
         throw NotImplementedError(name,
             "Not supported for non-ideal ThermoPhase models.");
     }
