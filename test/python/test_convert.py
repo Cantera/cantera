@@ -1134,16 +1134,12 @@ class Testcti2yaml:
 
         return ctiPhase, yamlPhase
 
-    def checkThermo(self, ctiPhase, yamlPhase, temperatures, tol=1e-7, check_cp=True):
+    def checkThermo(self, ctiPhase, yamlPhase, temperatures, tol=1e-7):
         for T in temperatures:
             ctiPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            if check_cp:
-                cp_cti = ctiPhase.partial_molar_cp
-                cp_yaml = yamlPhase.partial_molar_cp
-            else:
-                with pytest.raises(NotImplementedError):
-                    yamlPhase.partial_molar_cp
+            cp_cti = ctiPhase.partial_molar_cp
+            cp_yaml = yamlPhase.partial_molar_cp
             h_cti = ctiPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_cti = ctiPhase.partial_molar_entropies
@@ -1151,8 +1147,7 @@ class Testcti2yaml:
             assert ctiPhase.density == approx(yamlPhase.density)
             for i in range(ctiPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                if check_cp:
-                    cp_cti[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert cp_cti[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
                 assert h_cti[i] == approx(h_yaml[i], rel=tol), 'h' + message
                 assert s_cti[i] == approx(s_yaml[i], rel=tol), 's' + message
 
@@ -1255,7 +1250,7 @@ class Testcti2yaml:
         ctiGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctiGas.TP = 300, P
-            self.checkThermo(ctiGas, yamlGas, [300, 400, 500], check_cp=False)
+            self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
 
     def test_diamond(self):
         self.convert("diamond")
@@ -1363,16 +1358,12 @@ class Testctml2yaml:
         return ctmlPhase, yamlPhase
 
     def checkThermo(self, ctmlPhase, yamlPhase, temperatures, pressure=ct.one_atm,
-                    tol=1e-7, check_cp=True):
+                    tol=1e-7):
         for T in temperatures:
             ctmlPhase.TP = T, pressure
             yamlPhase.TP = T, pressure
-            if check_cp:
-                cp_ctml = ctmlPhase.partial_molar_cp
-                cp_yaml = yamlPhase.partial_molar_cp
-            else:
-                with pytest.raises(NotImplementedError):
-                    yamlPhase.partial_molar_cp
+            cp_ctml = ctmlPhase.partial_molar_cp
+            cp_yaml = yamlPhase.partial_molar_cp
             h_ctml = ctmlPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_ctml = ctmlPhase.partial_molar_entropies
@@ -1380,8 +1371,7 @@ class Testctml2yaml:
             assert ctmlPhase.density == approx(yamlPhase.density)
             for i in range(ctmlPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
-                if check_cp:
-                    assert cp_ctml[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert cp_ctml[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
                 assert h_ctml[i] == approx(h_yaml[i], rel=tol), 'h' + message
                 assert s_ctml[i] == approx(s_yaml[i], rel=tol), 's' + message
 
@@ -1481,7 +1471,7 @@ class Testctml2yaml:
         ctmlGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctmlGas.TP = 300, P
-            self.checkThermo(ctmlGas, yamlGas, [300, 400, 500], check_cp=False)
+            self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
 
     def test_diamond(self):
         self.convert("diamond")

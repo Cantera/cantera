@@ -73,6 +73,56 @@ TEST_F(RedlichKwongMFTP_Test, internalPressure)
     EXPECT_NEAR(pi_t, pi_t_ref, 1e-10 * pi_t_ref);
 }
 
+TEST_F(RedlichKwongMFTP_Test, partialMolarIntEnergiesTVIdentity)
+{
+    set_r(0.73);
+    test_phase->setState_TP(450.0, 9e6);
+
+    size_t kk = test_phase->nSpecies();
+    vector<double> ubar(kk);
+    vector<double> utilde(kk);
+    vector<double> vbar(kk);
+    test_phase->getPartialMolarIntEnergies(ubar);
+    test_phase->getPartialMolarIntEnergies_TV(utilde);
+    test_phase->getPartialMolarVolumes(vbar);
+    double pi_t = test_phase->internalPressure();
+
+    for (size_t k = 0; k < kk; k++) {
+        double expected = ubar[k] - pi_t * vbar[k];
+        double atol = 1e-13 * std::max(1.0, std::abs(expected));
+        EXPECT_NEAR(utilde[k], expected, atol) << "k = " << k;
+    }
+}
+
+TEST_F(RedlichKwongMFTP_Test, partialMolarCvTVFiniteDifference)
+{
+    set_r(0.67);
+    test_phase->setState_TP(400.0, 7e6);
+
+    size_t kk = test_phase->nSpecies();
+    double T0 = test_phase->temperature();
+    double rho0 = test_phase->density();
+    double dT = 1e-4 * T0;
+
+    vector<double> cv_tilde(kk);
+    vector<double> uplus(kk);
+    vector<double> uminus(kk);
+
+    test_phase->getPartialMolarCv_TV(cv_tilde);
+
+    test_phase->setState_TD(T0 + dT, rho0);
+    test_phase->getPartialMolarIntEnergies_TV(uplus);
+
+    test_phase->setState_TD(T0 - dT, rho0);
+    test_phase->getPartialMolarIntEnergies_TV(uminus);
+
+    for (size_t k = 0; k < kk; k++) {
+        double cv_fd = (uplus[k] - uminus[k]) / (2.0 * dT);
+        double atol = 1e-8 * std::max(1.0, std::abs(cv_tilde[k]));
+        EXPECT_NEAR(cv_tilde[k], cv_fd, atol) << "k = " << k;
+    }
+}
+
 TEST_F(RedlichKwongMFTP_Test, setTP)
 {
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars

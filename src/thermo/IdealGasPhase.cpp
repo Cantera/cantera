@@ -104,11 +104,25 @@ void IdealGasPhase::getPartialMolarIntEnergies(span<double> ubar) const
     }
 }
 
+void IdealGasPhase::getPartialMolarIntEnergies_TV(span<double> utilde) const
+{
+    getPartialMolarIntEnergies(utilde);
+}
+
 void IdealGasPhase::getPartialMolarCp(span<double> cpbar) const
 {
     checkArraySize("IdealGasPhase::getPartialMolarCp", cpbar.size(), m_kk);
     auto _cp = cp_R_ref();
     scale(_cp.begin(), _cp.end(), cpbar.begin(), GasConstant);
+}
+
+void IdealGasPhase::getPartialMolarCv_TV(span<double> cvtilde) const
+{
+    checkArraySize("IdealGasPhase::getPartialMolarCv_TV", cvtilde.size(), m_kk);
+    auto _cp = cp_R_ref();
+    for (size_t k = 0; k < m_kk; k++) {
+        cvtilde[k] = GasConstant * (_cp[k] - 1.0);
+    }
 }
 
 void IdealGasPhase::getPartialMolarVolumes(span<double> vbar) const
