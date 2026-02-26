@@ -484,7 +484,9 @@ public:
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     void getPartialMolarEntropies(span<double> sbar) const override;
     void getPartialMolarIntEnergies(span<double> ubar) const override;
+    void getPartialMolarIntEnergies_TV(span<double> utilde) const override;
     void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarCv_TV(span<double> cvtilde) const override;
     void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}

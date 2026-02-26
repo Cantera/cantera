@@ -1638,6 +1638,16 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarIntEnergies)
 
+    property partial_molar_int_energies_TV:
+        r"""
+        Array of species `\tilde{u}_k = (\partial U/\partial n_k)_{T,V,n_{j\ne k}}`
+        values [J/kmol].
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarIntEnergies_TV)
+
     property chemical_potentials:
         """Array of species chemical potentials [J/kmol]."""
         def __get__(self):
@@ -1655,6 +1665,16 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             return self._getArray1(thermo_getPartialMolarCp)
+
+    property partial_molar_cv_TV:
+        r"""
+        Array of species `\tilde{c}_{v,k} = (\partial \tilde{u}_k/\partial T)_{V,n}`
+        values [J/kmol/K].
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getPartialMolarCv_TV)
 
     property partial_molar_volumes:
         """Array of species partial molar volumes [m³/kmol]."""

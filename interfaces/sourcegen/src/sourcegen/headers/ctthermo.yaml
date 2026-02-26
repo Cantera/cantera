@@ -98,7 +98,9 @@ recipes:
 - name: getPartialMolarEnthalpies
 - name: getPartialMolarEntropies
 - name: getPartialMolarIntEnergies
+- name: getPartialMolarIntEnergies_TV
 - name: getPartialMolarCp
+- name: getPartialMolarCv_TV
 - name: getPartialMolarVolumes
 - name: setState_TPX  # New in Cantera 3.2
   wraps: setState_TPX(double, double, span<const double>)

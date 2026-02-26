@@ -27,7 +27,8 @@ def get_property_definition_strings():
         "mean_molecular_weight": '"kg/kmol"', "min_temp": '"K"',
         "molecular_weights": '"kg/kmol"', "partial_molar_cp": '"J/kmol/K"',
         "partial_molar_enthalpies": '"J/kmol"', "partial_molar_entropies": '"J/kmol/K"',
-        "partial_molar_int_energies": '"J/kmol"', "partial_molar_volumes": '"m**3/kmol"',
+        "partial_molar_int_energies": '"J/kmol"', "partial_molar_int_energies_TV": '"J/kmol"',
+        "partial_molar_cv_TV": '"J/kmol/K"', "partial_molar_volumes": '"m**3/kmol"',
         "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"',
         "internal_pressure": '"Pa"',
     }
@@ -46,7 +47,8 @@ def get_property_definition_strings():
         "electric_potential", "electrochemical_potentials", "isothermal_compressibility",
         "sound_speed", "max_temp", "mean_molecular_weight", "min_temp", "molecular_weights",
         "partial_molar_cp", "partial_molar_enthalpies", "partial_molar_entropies",
-        "partial_molar_int_energies", "partial_molar_volumes", "reference_pressure",
+        "partial_molar_int_energies", "partial_molar_int_energies_TV",
+        "partial_molar_cv_TV", "partial_molar_volumes", "reference_pressure",
         "thermal_expansion_coeff", "internal_pressure", "cp", "cv", "density", "h", "s",
         "g", "u", "v",
     ]

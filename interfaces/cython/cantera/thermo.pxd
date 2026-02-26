@@ -230,7 +230,9 @@ cdef extern from "cantera/cython/thermo_utils.h":
     cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarIntEnergies_TV(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getPartialMolarCp(CxxThermoPhase*, span[double]) except +translate_exception
+    cdef void thermo_getPartialMolarCv_TV(CxxThermoPhase*, span[double]) except +translate_exception
     cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, span[double]) except +translate_exception
 
     # ThermoPhase partial non-dimensional properties

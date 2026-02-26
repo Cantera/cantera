@@ -526,8 +526,9 @@ FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
 # Add properties with values for each species
 for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
               'partial_molar_entropies', 'partial_molar_int_energies',
-              'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
-              'partial_molar_volumes', 'standard_enthalpies_RT',
+              'partial_molar_int_energies_TV', 'chemical_potentials',
+              'electrochemical_potentials', 'partial_molar_cp',
+              'partial_molar_cv_TV', 'partial_molar_volumes', 'standard_enthalpies_RT',
               'standard_entropies_R', 'standard_int_energies_RT',
               'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
               'destruction_rates', 'net_production_rates', 'creation_rates_ddC',
