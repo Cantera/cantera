@@ -12,7 +12,53 @@
 namespace Cantera
 {
 /**
- * Implementation of a multi-species Redlich-Kwong equation of state
+ * # Implementation of a multi-species Redlich-Kwong equation of state
+ *
+ * The equation of state is
+ * @f[
+ * P(T,v,\mathbf{X}) = \frac{RT}{v-b} - \frac{a}{\sqrt{T} v (v+b)}
+ * @f]
+ * with mole-fraction mixing rules
+ * @f[
+ * a = \sum_i \sum_j X_i X_j a_{ij}(T),\qquad
+ * b = \sum_i X_i b_i
+ * @f]
+ * and (in the present model) linear temperature dependence
+ * @f[
+ * a_{ij}(T)=a_{ij,0}+a_{ij,1}T.
+ * @f]
+ *
+ * ## Notation used in property derivations {#redlich-Kwong-notation}
+ *
+ * Several equation of state derivatives are used in calculating the thermodynamic
+ * properties of the mixture. These include:
+ * @f[
+ * P_T = \frac{R}{v-b}
+ *   - \frac{1}{\sqrt{T} v(v+b)}
+ *   \left(\frac{\partial a}{\partial T} - \frac{a}{2T}\right)
+ * @f]
+ * @f[
+ * P_v = -\frac{RT}{(v-b)^2} + \frac{a(2v+b)}{\sqrt{T} v^2(v+b)^2}
+ * @f]
+ * @f[
+ * v_T = -\frac{P_T}{P_v},\qquad
+ * v_{TT} = -\frac{P_{TT} + 2 P_{Tv} v_T + P_{vv} v_T^2}{P_v}.
+ * @f]
+ *
+ * where subscript notation such as @f$P_T@f$, @f$P_{Tv}@f$, and @f$v_{TT}@f$ denote
+ * partial derivatives with composition and the remaining state variable held fixed.
+ *
+ * The following shorthand is used in some property calculations:
+ * @f[
+ * A_k = \sum_i X_i a_{ki},\qquad
+ * A'_k = \sum_i X_i \frac{d a_{ki}}{dT},\qquad
+ * S_k = 2T A'_k - 3A_k
+ * @f]
+ * @f[
+ * F = T\frac{da}{dT} - \frac{3}{2}a,\qquad
+ * L = \ln \left(\frac{v+b}{v}\right),\qquad
+ * C = -\frac{L}{b} + \frac{1}{v+b}.
+ * @f]
  *
  * @ingroup thermoprops
  */
@@ -87,12 +133,167 @@ public:
     //! @{
 
     void getChemPotentials(span<double> mu) const override;
+
+    //! Return partial molar enthalpies @f$ \bar{h}_k @f$ (J/kmol).
+    /*!
+     * The partial molar enthalpies for the Redlich-Kwong equation of state are:
+     * @f[
+     * \bar{h}_k = h_k^\t{ref} + h^E_k
+     *   - \left(v - T \left.\frac{\partial v}{\partial T}\right|_{P,\mathbf{X}}\right)
+     * \left(\frac{\partial P}{\partial n_k}\right)_{T,V,n_j}
+     * @f]
+     * where the implementation starts from the ideal-gas reference values
+     * @f$ h_k^\t{ref}(T) @f$ and adds a constant volume departure term
+     * @f$ h^E_k @f$ and a final term to adjust to constant pressure.
+     *
+     * Here,
+     * @f[
+     * \left(\frac{\partial P}{\partial n_k}\right)_{T,V,n_j} =
+     *     \frac{RT}{v-b} + \frac{RT b_k}{(v-b)^2}
+     *     - \frac{2 A_k}{v(v+b) \sqrt{T}} + \frac{a b_k}{v(v+b)^2 \sqrt{T}},
+     * @f]
+     * and the intermediate departure term is
+     * @f[
+     * h^E_k = v\left(\frac{\partial P}{\partial n_k}\right)_{T,V,n_j}
+     *     - RT - \frac{b_k}{b^2\sqrt{T}} L F + \frac{1}{b\sqrt{T}} L S_k
+     *     + \frac{b_k}{(v+b)b\sqrt{T}} F
+     * @f]
+     * where
+     * @f[
+     * L = \ln \left(\frac{v+b}{v}\right),\quad
+     * F = T\left.\frac{\partial a}{\partial T}\right|_{\mathbf{X}} - \frac{3}{2}a,\quad
+     * S_k = 2T A'_k - 3A_k.
+     * @f]
+     */
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     void getPartialMolarEntropies(span<double> sbar) const override;
     void getPartialMolarIntEnergies(span<double> ubar) const override;
-    void getPartialMolarCp(span<double> cpbar) const override {
-        throw NotImplementedError("RedlichKwongMFTP::getPartialMolarCp");
-    }
+
+    //! Get the species molar internal energies associated with the derivatives
+    //! of total internal energy at constant-volume [J/kmol].
+    /*!
+     * This method computes
+     * @f[
+     * \tilde{u}_k = \frac{\partial U}{\partial n_k}\Bigg|_{T,V,n_{j\ne k}}
+     *     = u_k^\t{ref} + \frac{1}{b\sqrt{T}} \left(L S_k + b_k F C\right)
+     * @f]
+     * Where @f$ L, S_k, F, @f$ and @f$ C @f$ are defined in the
+     * [notation section](#redlich-Kwong-notation) and @f$ u_k^\t{ref} @f$ is the
+     * ideal-gas reference internal energy.
+     *
+     * For non-ideal phases like Redlich-Kwong, these are distinct from the
+     * partial molar internal energies
+     * @f$ \bar{u}_k = \left(\partial U/\partial n_k\right)_{T,P,n_{j\ne k}} @f$
+     * calculated by the getPartialMolarIntEnergies() method.
+     */
+    void getPartialMolarIntEnergies_TV(span<double> ubar) const override;
+
+    //! Get the partial molar heat capacities at constant pressure [J/kmol/K].
+    /*!
+     * The partial molar heat capacities at constant pressure are defined as
+     * @f[
+     * \bar{c}_{p,k} = \left(\partial \bar{h}_k / \partial T\right)_{P,\mathbf{X}}
+     * @f]
+     * Expanding this expression via the chain rule at constant pressure and composition
+     * gives:
+     * @f[
+     * \bar{c}_{p,k} = c_{p,k}^\t{ref}
+     * + \frac{d h^{E,v}_k}{dT}\Bigg|_{P,\mathbf{X}}
+     * + T v_{TT} \Pi_k
+     * - \left(v - T v_T\right)\frac{d\Pi_k}{dT}\Bigg|_{P,\mathbf{X}},
+     * @f]
+     * where
+     * @f[
+     * \Pi_k \equiv \left(\frac{\partial P}{\partial n_k}\right)_{T,V,n_j}
+     * @f]
+     * and @f$ v_T @f$ and @f$ v_{TT} @f$ are the partial derivatives of the molar
+     * volume as given in the [notation section](#redlich-Kwong-notation).
+     *
+     * The derivative of the intermediate departure term can be expanded as
+     * @f{eqnarray*}{
+     * \frac{d h^{E,v}_k}{dT}\Bigg|_{P,\mathbf{X}}
+     * &=& v_T \Pi_k + v \frac{d\Pi_k}{dT}\Bigg|_{P,\mathbf{X}} - R
+     * - \frac{b_k}{b^2}\frac{d}{dT}\left(\frac{L F}{\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}} \\
+     * &+& \frac{1}{b}\frac{d}{dT}\left(\frac{L S_k}{\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}}
+     * + \frac{b_k}{b}\frac{d}{dT}\left(\frac{F}{(v+b)\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}}.
+     * @f}
+     *
+     * The temperature derivatives appearing here are path derivatives at constant
+     * pressure and composition, and include both explicit temperature dependence and
+     * implicit dependence through @f$ v(T)\vert_{P,\mathbf{X}} @f$. These terms are
+     * computed as:
+     * @f[
+     * \frac{d}{dT}\left(\frac{L F}{\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}}
+     * = \frac{1}{\sqrt{T}}\left(L_T F + L F_T - \frac{L F}{2T}\right),
+     * \qquad
+     *
+     * @f]
+     * @f[
+     * \frac{d}{dT}\left(\frac{L S_k}{\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}}
+     * = \frac{1}{\sqrt{T}}\left(L_T S_k + L S_{k,T} - \frac{L S_k}{2T}\right),
+     * @f]
+     * @f[
+     * \frac{d}{dT}\left(\frac{F}{(v+b)\sqrt{T}}\right)\Bigg|_{P,\mathbf{X}}
+     * = \frac{F_T}{(v+b)\sqrt{T}}
+     * - \frac{F v_T}{(v+b)^2\sqrt{T}}
+     * - \frac{F}{2T(v+b)\sqrt{T}}
+     * @f]
+     * where
+     * @f[
+     * L_T \equiv \frac{dL}{dT}\Bigg|_{P,\mathbf{X}} = -\frac{b v_T}{v(v+b)},
+     * @f]
+     * @f[
+     * F_T \equiv \frac{dF}{dT}\Bigg|_{P,\mathbf{X}}
+     *     =-\frac{1}{2}\frac{\partial a}{\partial T}\Bigg|_{\mathbf{X}},\t{ and}
+     * @f]
+     * @f[
+     * S_{k,T} \equiv \frac{dS_k}{dT}\Bigg|_{P,\mathbf{X}} = -A'_k.
+     * @f]
+     */
+    void getPartialMolarCp(span<double> cpbar) const override;
+
+    //! Get the species molar heat capacities associated with the constant volume
+    //! partial molar internal energies [J/kmol/K].
+    /*!
+     * This method computes
+     * @f[
+     * \tilde{c}_{v,k}
+     *   = \left(\partial \tilde{u}_k/\partial T\right)_{V,\mathbf{n}}.
+     * @f]
+     * where @f$ \tilde{u}_k @f$ are the species molar internal energies computed at
+     * constant volume as in getPartialMolarIntEnergies_TV().
+     *
+     * Using the [previously-introduced notation](#redlich-Kwong-notation),
+     * @f[
+     * \tilde{u}_k = u_k^\t{ref}(T) + \frac{1}{b\sqrt{T}} \left(L S_k + b_k F C\right),
+     * @f]
+     * At constant volume and composition, @f$ L @f$ and @f$ C @f$ are constant and only
+     * @f$ F @f$ and @f$ S_k @f$ contribute temperature derivatives. Defining
+     * @f[
+     * \tilde{u}_k^E \equiv \frac{L S_k + b_k F C}{b\sqrt{T}},
+     * @f]
+     * Then
+     * @f[
+     * \tilde{c}_{v,k}
+     * = c_{v,k}^\t{ref}(T) + \frac{d\tilde{u}_k^E}{dT}\Bigg|_{V,\mathbf{n}}
+     * @f]
+     * where @f$ c_{v,k}^\t{ref} @f$ are the ideal gas specific heat capacities and
+     * @f[
+     * \frac{d\tilde{u}_k^E}{dT}\Bigg|_{V,\mathbf{n}} =
+     * \frac{1}{b\sqrt{T}} \left( L \frac{dS_k}{dT}\Bigg|_{\mathbf{X}}
+     *                            + b_k C \frac{dF}{dT}\Bigg|_{\mathbf{X}} \right)
+     * - \frac{\tilde{u}_k^E}{2T}.
+     * @f]
+     * For the temperature-dependent form @f$ a_{ij}(T)=a_{ij,0}+a_{ij,1}T @f$
+     * used here:
+     * @f[
+     * \frac{dA_k}{dT}\Bigg|_{\mathbf{X}} = A'_k,\qquad
+     * \frac{dS_k}{dT}\Bigg|_{\mathbf{X}} = -A'_k,\qquad
+     * \frac{dF}{dT}\Bigg|_{\mathbf{X}} = -\frac{1}{2}
+     *     \left.\frac{\partial a}{\partial T}\right|_{\mathbf{X}}.
+     * @f]
+     */
+    void getPartialMolarCv_TV(span<double> cvbar) const override;
     void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
@@ -233,6 +434,8 @@ protected:
 
     // Partial molar volumes of the species
     mutable vector<double> m_partialMolarVolumes;
+
+    mutable vector<double> m_dAkdT; //!< Temporary storage for dA_k/dT; length #m_kk.
 
     //! The derivative of the pressure wrt the volume
     /*!

@@ -33,7 +33,6 @@ void IdealGasReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
-    m_vk.resize(m_nsp, 0.0);
 }
 
 void IdealGasReactor::updateState(span<const double> y)
@@ -56,13 +55,7 @@ void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    m_thermo->getPartialMolarIntEnergies(m_uk);
-    m_thermo->getPartialMolarVolumes(m_vk);
-    double P_int = m_thermo->internalPressure();
-    // Convert to partial molar internal energy at constant T and V
-    for (size_t n = 0; n < m_nsp; n++) {
-        m_uk[n] -= P_int * m_vk[n];
-    }
+    m_thermo->getPartialMolarIntEnergies_TV(m_uk);
     auto mw = m_thermo->molecularWeights();
     auto Y = m_thermo->massFractions();
 
@@ -74,7 +67,7 @@ void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
-    mcvdTdt += - (m_pressure + P_int) * m_vdot + m_Qdot;
+    mcvdTdt += - (m_pressure + m_thermo->internalPressure()) * m_vdot + m_Qdot;
 
     if (m_energy) {
         mcvdTdt += m_thermo->intrinsicHeating() * m_vol;
