@@ -905,10 +905,7 @@ public:
      *
      * @since New in %Cantera 4.0.
      */
-    virtual void getPartialMolarIntEnergies_TV(span<double> utilde) const {
-        throw NotImplementedError("ThermoPhase::getPartialMolarIntEnergies_TV",
-                                  "Not implemented for phase type '{}'", type());
-    }
+    virtual void getPartialMolarIntEnergies_TV(span<double> utilde) const;
 
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K

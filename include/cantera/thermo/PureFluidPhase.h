@@ -117,6 +117,7 @@ public:
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
+    double internalPressure() const override;
 
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();

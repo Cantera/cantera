@@ -156,6 +156,11 @@ double PureFluidPhase::thermalExpansionCoeff() const
     return m_sub->thermalExpansionCoeff();
 }
 
+double PureFluidPhase::internalPressure() const
+{
+    return m_sub->internalPressure();
+}
+
 tpx::Substance& PureFluidPhase::TPX_Substance()
 {
     return *m_sub;

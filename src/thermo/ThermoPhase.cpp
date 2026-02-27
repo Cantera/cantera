@@ -117,6 +117,17 @@ void ThermoPhase::getElectrochemPotentials(span<double> mu) const
     }
 }
 
+void ThermoPhase::getPartialMolarIntEnergies_TV(span<double> ubar) const
+{
+    vector<double> vbar(m_kk);
+    getPartialMolarIntEnergies(ubar);
+    getPartialMolarVolumes(vbar);
+    double pi_t = internalPressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        ubar[k] -= pi_t * vbar[k];
+    }
+}
+
 void ThermoPhase::setState_TPX(double t, double p, span<const double> x)
 {
     setMoleFractions(x);
