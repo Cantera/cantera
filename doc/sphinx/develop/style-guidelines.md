@@ -160,6 +160,11 @@ above, both are used.
 * The minimum Python version that Cantera supports is Python 3.12, so code should only
   use features added in Python 3.12 or earlier
 * Please use double quotes in all new Python code
+* Type annotations are mandatory for any external interfaces:
+  * Utilize type annotations directly in all new pure Python code (`.py` files)
+  * For Cython code (`.pyx` files), add the annotations to the corresponding type stubs
+    (`.pyi` files)
+  * See [](sec-python-type-annotations) for more information
 
 ### Sphinx comments
 
