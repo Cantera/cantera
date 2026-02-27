@@ -10,9 +10,18 @@
 #include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 namespace Cantera
 {
+
+namespace
+{
+bool isIdealCubicLimit(double aMix, double bMix)
+{
+    return aMix == 0.0 && bMix == 0.0;
+}
+}
 
 const double RedlichKwongMFTP::omega_a = 4.27480233540E-01;
 const double RedlichKwongMFTP::omega_b = 8.66403499650E-02;
@@ -85,6 +94,9 @@ void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& sp
 double RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return cp_mole_ideal();
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -101,6 +113,9 @@ double RedlichKwongMFTP::cp_mole() const
 double RedlichKwongMFTP::cv_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return cv_mole_ideal();
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -125,13 +140,16 @@ double RedlichKwongMFTP::pressure() const
 
 double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS);
-    return 1.0 / m_workS[k];
+    return standardConcentration_ideal(k);
 }
 
 void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("RedlichKwongMFTP::getActivityCoefficients", ac.size(), m_kk);
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getActivityCoefficients_ideal(ac);
+        return;
+    }
     double mv = molarVolume();
     double sqt = sqrt(temperature());
     double vpb = mv + m_b_current;
@@ -164,6 +182,11 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 
 void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getChemPotentials_ideal(mu);
+        return;
+    }
+
     getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -198,6 +221,10 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 
 void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getPartialMolarEnthalpies_ideal(hbar);
+        return;
+    }
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
@@ -243,6 +270,11 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 
 void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        getPartialMolarEntropies_ideal(sbar);
+        return;
+    }
+
     getEntropy_R_ref(sbar);
     scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
     double TKelvin = temperature();
@@ -505,6 +537,9 @@ void RedlichKwongMFTP::getSpeciesParameters(const string& name,
 
 double RedlichKwongMFTP::sresid() const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
@@ -521,6 +556,9 @@ double RedlichKwongMFTP::sresid() const
 
 double RedlichKwongMFTP::hresid() const
 {
+    if (isIdealCubicLimit(m_a_current, m_b_current)) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
@@ -586,6 +624,38 @@ double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseReq
 
     double volguess = mmw / rhoguess;
     NSolns_ = solveCubic(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
+
+    // Ensure root ordering used for branch selection only contains physical roots.
+    double vmin = std::max(0.0, m_b_current * (1.0 + 1e-12));
+    vector<double> physicalRoots;
+    for (double root : Vroot_) {
+        if (std::isfinite(root) && root > vmin) {
+            physicalRoots.push_back(root);
+        }
+    }
+    std::sort(physicalRoots.begin(), physicalRoots.end());
+    if (physicalRoots.empty()) {
+        return -1.0;
+    } else if (physicalRoots.size() == 1) {
+        // Preserve branch-request semantics for single-root states:
+        // return -2 when the requested phase is inconsistent with the
+        // single branch identified by solveCubic() sign convention.
+        if ((phaseRequested == FLUID_GAS && NSolns_ < 0)
+            || (phaseRequested >= FLUID_LIQUID_0 && NSolns_ > 0))
+        {
+            return -2.0;
+        }
+        // Otherwise, accept the physically admissible root directly.
+        return mmw / physicalRoots[0];
+    } else if (physicalRoots.size() == 2) {
+        Vroot_[0] = physicalRoots[0];
+        Vroot_[1] = 0.5 * (physicalRoots[0] + physicalRoots[1]);
+        Vroot_[2] = physicalRoots[1];
+    } else {
+        Vroot_[0] = physicalRoots[0];
+        Vroot_[1] = physicalRoots[1];
+        Vroot_[2] = physicalRoots[2];
+    }
 
     double molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
