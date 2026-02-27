@@ -337,6 +337,25 @@ public:
         m_steady_callback = callback;
     }
 
+    //! Set the maximum number of regrid attempts after a timestep failure.
+    //!
+    //! This fallback is used during solve(loglevel, refine_grid=true). Set to `0`
+    //! to disable regrid-on-timestep-failure retries.
+    //!
+    //! @param nmax  Maximum retry attempts; must be >= 0.
+    void setTimeStepRegridMax(int nmax) {
+        if (nmax < 0) {
+            throw CanteraError("Sim1D::setTimeStepRegridMax",
+                "Time step regrid retry count must be >= 0. Got {}.", nmax);
+        }
+        m_ts_regrid_max = nmax;
+    }
+
+    //! Get the maximum number of regrid attempts after a timestep failure.
+    int timeStepRegridMax() const {
+        return m_ts_regrid_max;
+    }
+
 protected:
     //! the solution vector after the last successful steady-state solve (stored
     //! before grid refinement)
@@ -348,6 +367,9 @@ protected:
 
     //! User-supplied function called after a successful steady-state solve.
     Func1* m_steady_callback;
+
+    //! 0 disables regrid-on-timestep-failure retries
+    int m_ts_regrid_max = 10;
 
 private:
     //! Calls method _finalize in each domain.
