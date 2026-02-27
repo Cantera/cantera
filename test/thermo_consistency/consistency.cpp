@@ -189,6 +189,60 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
     }
 }
 
+TEST_P(TestConsistency, utilde_eq_uk_minus_piT_vk)
+{
+    vector<double> utilde(nsp), uk(nsp), vk(nsp);
+    double piT;
+    try {
+        phase->getPartialMolarIntEnergies_TV(utilde);
+        phase->getPartialMolarIntEnergies(uk);
+        phase->getPartialMolarVolumes(vk);
+        piT = phase->internalPressure();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    if (!std::isfinite(piT)) {
+        GTEST_SKIP() << "internalPressure is not finite at this state";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        if (k != ke) {
+            double expected = uk[k] - piT * vk[k];
+            double tol = max({atol, rtol_fd * abs(utilde[k]), rtol_fd * abs(expected)});
+            EXPECT_NEAR(utilde[k], expected, tol) << "k = " << k;
+        }
+    }
+}
+
+TEST_P(TestConsistency, piT_eq_dudv_const_T)
+{
+    if (!phase->isCompressible()) {
+        GTEST_SKIP() << "Undefined for incompressible phase";
+    }
+
+    double piT;
+    double T0 = phase->temperature();
+    double v0 = 1.0 / phase->density(); // specific volume [m^3/kg]
+    // Use a moderate perturbation to avoid cancellation in u(v) differences.
+    double dv = 1e-4 * v0;
+    double v1 = v0 - dv;
+    double v2 = v0 + dv;
+
+    try {
+        piT = phase->internalPressure();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    phase->setState_TD(T0, 1.0 / v1);
+    double u1 = phase->intEnergy_mass();
+    phase->setState_TD(T0, 1.0 / v2);
+    double u2 = phase->intEnergy_mass();
+
+    double piT_fd = (u2 - u1) / (v2 - v1);
+    double tol = max({rtol_fd * abs(piT), rtol_fd * abs(piT_fd), atol});
+    EXPECT_NEAR(piT_fd, piT, tol);
+}
+
 TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
 {
     vector<double> gk(nsp), hk(nsp), sk(nsp);

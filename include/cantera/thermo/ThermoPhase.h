@@ -901,10 +901,7 @@ public:
      * @f$ \bar{u}_k = \left(\partial U / \partial n_k\right)_{T,P,n_{j\ne k}} @f$.
      * which are defined at constant pressure.
      */
-    virtual void getPartialMolarIntEnergies_TV(span<double> ubar) const {
-        throw NotImplementedError("ThermoPhase::getPartialMolarIntEnergies_TV",
-                                  "Not implemented for phase type '{}'", type());
-    }
+    virtual void getPartialMolarIntEnergies_TV(span<double> ubar) const;
 
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K

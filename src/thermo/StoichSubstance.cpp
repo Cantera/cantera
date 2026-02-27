@@ -44,6 +44,13 @@ double StoichSubstance::thermalExpansionCoeff() const
     return 0.0;
 }
 
+double StoichSubstance::internalPressure() const
+{
+    // In the constant-volume, fixed-stoichiometry model, U is independent of V.
+    // The natural model-consistent choice for (dU/dV)_T is therefore zero.
+    return 0.0;
+}
+
 // ---- Chemical Potentials and Activities ----
 
 Units StoichSubstance::standardConcentrationUnits() const
