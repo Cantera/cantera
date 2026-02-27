@@ -128,6 +128,7 @@ public:
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
+    double internalPressure() const override;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations

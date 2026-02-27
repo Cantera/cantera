@@ -63,6 +63,14 @@ double IdealMolalSoln::thermalExpansionCoeff() const
     return 0.0;
 }
 
+double IdealMolalSoln::internalPressure() const
+{
+    // In this incompressible model, molar volume is constant and U has no
+    // explicit volume dependence, so the natural model-consistent choice for
+    // (dU/dV)_T is therefore zero.
+    return 0.0;
+}
+
 // ------- Activities and Activity Concentrations
 
 Units IdealMolalSoln::standardConcentrationUnits() const

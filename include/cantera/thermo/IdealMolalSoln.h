@@ -135,6 +135,7 @@ public:
      * with pressure or temperature.
      */
     double thermalExpansionCoeff() const override;
+    double internalPressure() const override;
 
     //! @}
     //! @name Activities and Activity Concentrations

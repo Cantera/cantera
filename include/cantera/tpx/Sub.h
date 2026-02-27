@@ -129,6 +129,10 @@ public:
 
     virtual double isothermalCompressibility();
 
+    //! Internal pressure [Pa], evaluated as
+    //! @f$ \pi_T = (\partial U / \partial V)_T @f$.
+    virtual double internalPressure();
+
     //! @}
     //! @name Saturation Properties
     //! @{
