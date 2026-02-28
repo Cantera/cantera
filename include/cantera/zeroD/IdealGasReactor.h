@@ -45,7 +45,7 @@ public:
     double lowerBound(size_t k) const override;
 
 protected:
-    vector<double> m_uk; //!< Species molar internal energies
+    vector<double> m_uk; //!< Species molar internal energies at constant T,V
 
     //! Initial volume [m³]; used for steady-state calculations
     double m_initialVolume;

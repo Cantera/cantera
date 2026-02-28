@@ -23,6 +23,7 @@ _DerivativeSettings = TypedDict(
         "rtol-delta": float,
         "skip-coverage-dependence": bool,
         "skip-electrochemistry": bool,
+        "skip-nonideal": bool,
     },
     total=False,
 )

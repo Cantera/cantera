@@ -31,12 +31,6 @@ void IdealGasReactor::getState(span<double> y)
 
 void IdealGasReactor::initialize(double t0)
 {
-    //! @todo: Add a method to ThermoPhase that indicates whether a given
-    //! subclass is compatible with this reactor model
-    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
-        throw CanteraError("IdealGasReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     Reactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
 }
@@ -61,7 +55,7 @@ void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
 
     evalWalls(time);
     updateSurfaceProductionRates();
-    m_thermo->getPartialMolarIntEnergies(m_uk);
+    m_thermo->getPartialMolarIntEnergies_TV(m_uk);
     auto mw = m_thermo->molecularWeights();
     auto Y = m_thermo->massFractions();
 
@@ -73,7 +67,7 @@ void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
-    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
+    mcvdTdt += - (m_pressure + m_thermo->internalPressure()) * m_vdot + m_Qdot;
 
     if (m_energy) {
         mcvdTdt += m_thermo->intrinsicHeating() * m_vol;

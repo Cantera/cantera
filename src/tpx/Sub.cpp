@@ -10,6 +10,7 @@
 #include "cantera/tpx/Sub.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
+#include <cmath>
 
 using namespace Cantera;
 
@@ -228,6 +229,25 @@ double Substance::isothermalCompressibility()
 
     Set(PropertyPair::TV, T, 1.0 / RhoSave);
     return -(v2 - v1) / (v0 * (P2 - P1));
+}
+
+double Substance::internalPressure()
+{
+    // Use the defining relation at constant temperature:
+    // pi_T = (dU/dV)|T
+    double Tsave = T;
+    double vsave = v();
+    double dv = std::max(1.e-8, 1.e-6 * std::abs(vsave));
+    double v1 = std::max(1.e-300, vsave - dv);
+    double v2 = vsave + dv;
+
+    Set(PropertyPair::TV, Tsave, v1);
+    double u1 = u();
+    Set(PropertyPair::TV, Tsave, v2);
+    double u2 = u();
+
+    Set(PropertyPair::TV, Tsave, vsave);
+    return (u2 - u1) / (v2 - v1);
 }
 
 double Substance::dPsdT()

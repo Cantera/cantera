@@ -399,6 +399,15 @@ public:
         return 1.0 / temperature();
     }
 
+    //! Return the internal pressure. Units: Pa.
+    /*!
+     * For ideal gases, @f$ (\partial P/\partial T)_V = P/T @f$, so
+     * @f$ \pi_T = T(P/T) - P = 0 @f$.
+     */
+    double internalPressure() const override {
+        return 0.0;
+    }
+
     double soundSpeed() const override;
 
     //! @}
@@ -475,7 +484,9 @@ public:
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     void getPartialMolarEntropies(span<double> sbar) const override;
     void getPartialMolarIntEnergies(span<double> ubar) const override;
+    void getPartialMolarIntEnergies_TV(span<double> ubar) const override;
     void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarCv_TV(span<double> cvbar) const override;
     void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}

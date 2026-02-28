@@ -621,6 +621,26 @@ public:
                                   "Not implemented for phase type '{}'", type());
     }
 
+    //! Return the internal pressure [Pa].
+    /*!
+     * The internal pressure is defined as
+     * @f[
+     * \pi_T = \left.\frac{\partial U}{\partial V}\right|_T
+     *       = T \left.\frac{\partial p}{\partial T}\right|_V - p
+     * @f]
+     *
+     * It can also be written as
+     * @f[
+     * \pi_T = T \frac{\alpha}{\kappa_T} - P
+     * where @f$ \alpha @f$ is the volumetric thermal expansion coefficient and
+     * @f$ \kappa_T @f$ is the isothermal compressibility.
+     * @f]
+     */
+    virtual double internalPressure() const {
+        return temperature() * thermalExpansionCoeff() / isothermalCompressibility()
+               - pressure();
+    }
+
     //! Return the speed of sound. Units: m/s.
     /*!
      * The speed of sound is defined as
@@ -870,6 +890,19 @@ public:
                                   "Not implemented for phase type '{}'", type());
     }
 
+    //! Return an array of partial molar internal energies at constant temperature
+    //! and volume [J/kmol].
+    /*!
+     * This returns the constant-volume species derivatives of the internal energy:
+     * @f[
+     * \tilde{u}_k = \left(\partial U / \partial n_k\right)_{T,V,n_{j\ne k}}.
+     * @f]
+     * These quantities are distinct from the partial molar internal energies
+     * @f$ \bar{u}_k = \left(\partial U / \partial n_k\right)_{T,P,n_{j\ne k}} @f$.
+     * which are defined at constant pressure.
+     */
+    virtual void getPartialMolarIntEnergies_TV(span<double> ubar) const;
+
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K
     /*!
@@ -879,6 +912,21 @@ public:
      */
     virtual void getPartialMolarCp(span<double> cpbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarCp",
+                                  "Not implemented for phase type '{}'", type());
+    }
+
+    //! Return an array of species molar heat capacities associated with the
+    //! constant-volume partial molar internal energies [J/kmol/K].
+    /*!
+     * This returns
+     * @f[
+     * \tilde{c}_{v,k} = \left(\partial \tilde{u}_k / \partial T\right)_{V,n}
+     * @f]
+     * for each species *k* where @f$ \tilde{u}_k @f$ are the constant-volume partial
+     * molar internal energies computed by getPartialMolarIntEnergies_TV().
+     */
+    virtual void getPartialMolarCv_TV(span<double> cvbar) const {
+        throw NotImplementedError("ThermoPhase::getPartialMolarCv_TV",
                                   "Not implemented for phase type '{}'", type());
     }
 

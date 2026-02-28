@@ -117,8 +117,10 @@ real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
 
 # Create a reactor object and add it to a reactor network
 # In this example, this will be the only reactor in the network
-r = ct.Reactor(real_gas, clone=False)
+# Note that the 'IdealGasMoleReactor' also supports non-ideal equations of state.
+r = ct.IdealGasMoleReactor(real_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
+reactor_network.preconditioner = ct.AdaptivePreconditioner()
 time_history_RG = ct.SolutionArray(real_gas, extra=['t'])
 
 # This is a starting estimate. If you do not get an ignition within this time,
@@ -154,8 +156,9 @@ ideal_gas.TP = reactor_temperature, reactor_pressure
 ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                 oxidizer={'o2': 1.0, 'n2': 3.76})
 
-r = ct.Reactor(ideal_gas, clone=False)
+r = ct.IdealGasMoleReactor(ideal_gas, clone=False)
 reactor_network = ct.ReactorNet([r])
+reactor_network.preconditioner = ct.AdaptivePreconditioner()
 time_history_IG = ct.SolutionArray(ideal_gas, extra=['t'])
 
 t0 = time.time()
@@ -231,8 +234,9 @@ for i, temperature in enumerate(T):
     real_gas.TP = reactor_temperature, reactor_pressure
     real_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                    oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(real_gas, clone=False)
+    r = ct.IdealGasMoleReactor(real_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
+    reactor_network.preconditioner = ct.AdaptivePreconditioner()
 
     # create an array of solution states
     time_history = ct.SolutionArray(real_gas, extra=['t'])
@@ -263,8 +267,9 @@ for i, temperature in enumerate(T):
     ideal_gas.TP = reactor_temperature, reactor_pressure
     ideal_gas.set_equivalence_ratio(phi=1.0, fuel='c12h26',
                                     oxidizer={'o2': 1.0, 'n2': 3.76})
-    r = ct.Reactor(ideal_gas, clone=False)
+    r = ct.IdealGasMoleReactor(ideal_gas, clone=False)
     reactor_network = ct.ReactorNet([r])
+    reactor_network.preconditioner = ct.AdaptivePreconditioner()
 
     # create an array of solution states
     time_history = ct.SolutionArray(ideal_gas, extra=['t'])

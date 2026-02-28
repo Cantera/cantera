@@ -60,10 +60,6 @@ string IdealGasMoleReactor::componentName(size_t k)
 
 void IdealGasMoleReactor::initialize(double t0)
 {
-    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
-        throw CanteraError("IdealGasMoleReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     MoleReactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
 }
@@ -107,7 +103,7 @@ void IdealGasMoleReactor::updateState(span<const double> y)
     // set state
     m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
     m_thermo->setState_TD(y[0], m_mass / m_vol);
-    m_thermo->getPartialMolarIntEnergies(m_uk);
+    m_thermo->getPartialMolarIntEnergies_TV(m_uk);
     m_TotalCv = m_mass * m_thermo->cv_mass();
     updateConnected(true);
 }
@@ -126,7 +122,7 @@ void IdealGasMoleReactor::eval(double time, span<double> LHS, span<double> RHS)
     }
 
     // external heat transfer and compression work
-    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
+    mcvdTdt += - (m_pressure + m_thermo->internalPressure()) * m_vdot + m_Qdot;
 
     if (m_energy) {
         mcvdTdt += m_thermo->intrinsicHeating() * m_vol;
@@ -229,10 +225,8 @@ void IdealGasMoleReactor::getJacobianElements(vector<Eigen::Triplet<double>>& tr
         // getting species data
         m_thermo->getPartialMolarIntEnergies(asSpan(internal_energy));
         m_kin->getNetProductionRates(asSpan(netProductionRates));
-        m_thermo->getPartialMolarCp(asSpan(specificHeat));
-        // convert Cp to Cv for ideal gas as Cp - Cv = R
+        m_thermo->getPartialMolarCv_TV(asSpan(specificHeat));
         for (size_t i = 0; i < m_nsp; i++) {
-            specificHeat[i] -= GasConstant;
             netProductionRates[i] *= m_vol;
         }
         // scale net production rates by  volume to get molar rate

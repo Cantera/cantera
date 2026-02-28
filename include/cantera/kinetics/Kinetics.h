@@ -674,6 +674,10 @@ public:
      *    concentrations are considered for the evaluation of Jacobians
      *  - `skip-falloff` (boolean): if `false` (default), third-body effects
      *    on rate constants are considered for the evaluation of derivatives.
+     *  - `skip-nonideal` (boolean): if `false` (default), derivatives are only
+     *    supported for ideal ThermoPhase models; if `true`, derivatives for
+     *    non-ideal phases are evaluated using idealized approximations that
+     *    neglect non-ideal contributions.
      *  - `rtol-delta` (double): relative tolerance used to perturb properties
      *    when calculating numerical derivatives. The default value is 1e-8.
      *
