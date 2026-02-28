@@ -200,6 +200,7 @@ protected:
      *  These are stored internally.
      */
     double daAlpha_dT() const;
+    double daAlpha_dT(double& temp) const;
 
     //! Calculate second derivative @f$ d^2(a \alpha)/dT^2 @f$
     /*!
@@ -208,6 +209,18 @@ protected:
     double d2aAlpha_dT2() const;
 
 public:
+    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
+    /*!
+     * Within %Cantera, the independent variable of the PR-EoS is the density and Temperature. Therefore, this function solves for
+     * the temperature that will yield the desired input pressure at the provided density.
+     * The composition is held constant during this process.
+     *
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
+     * @param tol   tolerance for the iterative solver 
+     * @param TGuess   guess for the temperature (K) used as start for the iterative solver 
+     */
+    void setState_DP(double rho, double p, double tol=1e-9, double Tguess=300) override;
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
@@ -226,7 +239,7 @@ public:
      *  the internal numbers based on the state of the object.
      */
     void updateMixingExpressions() override;
-
+    void updateMixingExpressions(double& temp,double& aCalc, double& bCalc, double& aAlphaCalc);
     //! Calculate the @f$ a @f$, @f$ b @f$, and @f$ \alpha @f$ parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
