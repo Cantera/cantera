@@ -403,21 +403,30 @@ protected:
 
     //! Value of b in the equation of state
     /*!
-     *  m_b is a function of the temperature and the mole fraction.
+     *  `m_bMix` is a function of the temperature and the mole fraction.
      */
-    double m_b_current = 0.0;
+    double m_bMix = 0.0;
 
     //! Value of a in the equation of state
     /*!
-     *  a_b is a function of the temperature and the mole fraction.
+     *  `m_aMix` is a function of the temperature and the mole fraction.
      */
-    double m_a_current = 0.0;
+    double m_aMix = 0.0;
 
-    Eigen::MatrixXd a_vec_Curr_;
-    Eigen::VectorXd b_vec_Curr_;
+    //! Current temperature-dependent value of @f$ a_{jk} @f$ for each species pair.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a;
 
-    Eigen::MatrixXd m_a_coeff_0;
-    Eigen::MatrixXd m_a_coeff_1;
+    //! Coefficients @f$ b_k @f$ for each species. Size #m_kk.
+    Eigen::VectorXd m_b;
+
+    //! Constant term in the expression for @f$ a_{jk} @f$ for each species pair.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a0;
+
+    //! Temperature coefficient in the expression for @f$ a_{jk} @f$.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a1;
 
     //! Explicitly-specified binary interaction parameters
     map<string, map<string, pair<double, double>>> m_binaryParameters;
