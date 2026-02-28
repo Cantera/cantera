@@ -12,7 +12,9 @@ It is defined by the state variables:
 - $T$, the temperature (in K)
 - $Y_k$, the mass fractions for each species (dimensionless)
 
-Equations 1-4 below are the governing equations for an ideal gas reactor.
+Equations 1-4 below are the governing equations for this reactor model. While the class
+name is historical, this formulation is now applicable to non-ideal equations of state
+as well.
 
 ## Mass Conservation
 
@@ -65,26 +67,55 @@ $$ (igr-species)
 
 ## Energy Equation
 
-In the case of the ideal gas control volume reactor model, the reactor temperature $T$
-is used instead of the total internal energy $U$ as a state variable. For an ideal gas,
-we can rewrite the total internal energy in terms of the mass fractions and temperature:
-
-$$  U = m \sum_k Y_k u_k(T)  $$
-
-and differentiate it with respect to time to obtain:
+In this reactor model, the reactor temperature $T$ is used as a state variable instead
+of the total internal energy $U$. For the mass-based form, write:
 
 $$
-\frac{dU}{dt} = u \frac{dm}{dt} + m c_v \frac{dT}{dt} + m \sum_k u_k \frac{dY_k}{dt}
+U = U(T, V, m_1, \ldots, m_K), \qquad m_k = mY_k
 $$
 
-Substituting this into the energy equation for the control volume reactor
-{eq}`cv-energy` yields an equation for the temperature:
+and apply the chain rule:
 
 $$
-m c_v \frac{dT}{dt} =& - p \frac{dV}{dt} + \dot{Q} + \sum_\t{in} \dot{m}_\t{in} \left( h_\t{in} - \sum_k u_k Y_{k,\t{in}} \right) \\
-    &- \frac{p V}{m} \sum_\t{out} \dot{m}_\t{out} - \sum_k \dot{m}_{k,\t{gen}} u_k
+\frac{dU}{dt} =
+    \frac{\partial U}{\partial T}\Bigg|_{V,m_k}\frac{dT}{dt}
+    + \frac{\partial U}{\partial V}\Bigg|_{T,m_k}\frac{dV}{dt}
+    + \sum_k \frac{\partial U}{\partial m_k}\Bigg|_{T,V,m_{j\ne k}}
+    \frac{dm_k}{dt}
+$$
+
+Here we can make the substitutions $(\partial U / \partial T)_{V,m_k} = m c_v$;
+$\pi_T \equiv (\partial U / \partial V)_{T,m_k}$ is the internal pressure (see
+; and
+$(\partial U / \partial m_k)_{T,V,m_{j\ne k}} = \tilde{u}_k /W_k $ where $\tilde{u}_k$
+are the partial molar internal energies at constant temperature and volume (see
+). This gives:
+
+$$
+\frac{dU}{dt} = m c_v \frac{dT}{dt} + \pi_T \frac{dV}{dt}
+    + \sum_k \frac{\tilde{u}_k}{W_k}\frac{dm_k}{dt}
+$$
+
+Substituting into the control-volume energy equation {eq}`cv-energy` gives:
+
+$$
+m c_v \frac{dT}{dt} =& -(p + \pi_T) \frac{dV}{dt} + \dot{Q}
+    - \sum_k \dot{m}_{k,\t{gen}} \frac{\tilde{u}_k}{W_k}
+    - \frac{p V}{m} \sum_\t{out} \dot{m}_\t{out} \\
+    &+ \sum_\t{in} \dot{m}_\t{in}
+       \left( h_\t{in} - \sum_k Y_{k,\t{in}} \frac{\tilde{u}_k}{W_k} \right)
 $$ (igr-energy)
 
 While this form of the energy equation is somewhat more complicated, it significantly
 reduces the cost of evaluating the system Jacobian, since the derivatives of the species
-equations are taken at constant temperature instead of constant internal energy.
+equations are taken at constant temperature instead of constant internal energy. It
+also eliminates the need to iteratively solve the equation of state to find $T$
+given $u$ and $v$.
+
+In the case of an ideal gas, $\pi_T = 0$ and $\tilde{u}_k$ are equal to the usual
+partial molar internal energies $\hat{u}_k$.
+
+```{seealso}
+- {ct}`ThermoPhase::internalPressure`
+- {ct}`ThermoPhase::getPartialMolarIntEnergies_TV`
+```
