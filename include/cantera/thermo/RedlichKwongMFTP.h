@@ -418,7 +418,7 @@ protected:
     Eigen::MatrixXd m_a;
 
     //! Coefficients @f$ b_k @f$ for each species. Size #m_kk.
-    Eigen::VectorXd m_b;
+    Eigen::ArrayXd m_b;
 
     //! Constant term in the expression for @f$ a_{jk} @f$ for each species pair.
     //! Size #m_kk by #m_kk.
@@ -440,13 +440,13 @@ protected:
     double Vroot_[3] = {0.0, 0.0, 0.0};
 
     //! @f$ A_k = \sum_i X_i a_{ki} @f$. Length #m_kk.
-    mutable Eigen::VectorXd m_Ak;
+    mutable Eigen::ArrayXd m_Ak;
 
     // Partial molar volumes of the species
     mutable vector<double> m_partialMolarVolumes;
 
     //! @f$ A'_k = dA_k/dT = \sum_i X_i a_{ki,1} @f$. Length #m_kk.
-    mutable Eigen::VectorXd m_dAkdT;
+    mutable Eigen::ArrayXd m_dAkdT;
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -467,7 +467,7 @@ protected:
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable Eigen::VectorXd m_dpdni;
+    mutable Eigen::ArrayXd m_dpdni;
 
 private:
     //! Omega constant for a -> value of a in terms of critical properties
