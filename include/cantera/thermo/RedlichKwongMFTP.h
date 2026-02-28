@@ -439,13 +439,14 @@ protected:
 
     double Vroot_[3] = {0.0, 0.0, 0.0};
 
-    //! Temporary storage - length = m_kk.
-    mutable Eigen::VectorXd m_pp;
+    //! @f$ A_k = \sum_i X_i a_{ki} @f$. Length #m_kk.
+    mutable Eigen::VectorXd m_Ak;
 
     // Partial molar volumes of the species
     mutable vector<double> m_partialMolarVolumes;
 
-    mutable Eigen::VectorXd m_dAkdT; //!< Temporary storage for dA_k/dT; length #m_kk.
+    //! @f$ A'_k = dA_k/dT = \sum_i X_i a_{ki,1} @f$. Length #m_kk.
+    mutable Eigen::VectorXd m_dAkdT;
 
     //! The derivative of the pressure wrt the volume
     /*!

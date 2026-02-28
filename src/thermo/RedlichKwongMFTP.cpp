@@ -130,15 +130,13 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
     double vpb = mv + m_bMix;
     double vmb = mv - m_bMix;
 
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
     double pres = pressure();
 
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = (- RT() * log(pres * mv / RT())
                  + RT() * log(mv / vmb)
                  + RT() * m_b[k] / vmb
-                 - 2.0 * m_pp[k] / (m_bMix * sqt) * log(vpb/mv)
+                 - 2.0 * m_Ak[k] / (m_bMix * sqt) * log(vpb/mv)
                  + m_aMix * m_b[k] / (m_bMix * m_bMix * sqt) * log(vpb/mv)
                  - m_aMix / (m_bMix * sqt) * (m_b[k]/vpb)
                 );
@@ -162,8 +160,6 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
     double sqt = sqrt(temperature());
     double vpb = mv + m_bMix;
     double vmb = mv - m_bMix;
-
-    m_pp = m_a * asVectorXd(moleFractions_);
     double pres = pressure();
     double refP = refPressure();
 
@@ -171,7 +167,7 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
         mu[k] += (RT() * log(pres/refP) - RT() * log(pres * mv / RT())
                   + RT() * log(mv / vmb)
                   + RT() * m_b[k] / vmb
-                  - 2.0 * m_pp[k] / (m_bMix * sqt) * log(vpb/mv)
+                  - 2.0 * m_Ak[k] / (m_bMix * sqt) * log(vpb/mv)
                   + m_aMix * m_b[k] / (m_bMix * m_bMix * sqt) * log(vpb/mv)
                   - m_aMix / (m_bMix * sqt) * (m_b[k]/vpb)
                  );
@@ -191,17 +187,15 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
     double vpb = mv + m_bMix;
     double vmb = mv - m_bMix;
     auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
     for (size_t k = 0; k < m_kk; k++) {
-        m_dpdni[k] = RT()/vmb + RT() * m_b[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
+        m_dpdni[k] = RT()/vmb + RT() * m_b[k] / (vmb * vmb) - 2.0 * m_Ak[k] / (sqt * mv * vpb)
                     + m_aMix * m_b[k]/(sqt * mv * vpb * vpb);
     }
     double dadt = da_dt();
     double fac = TKelvin * dadt - 3.0 * m_aMix / 2.0;
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = 2.0 * TKelvin * m_dAkdT[k] - 3.0 * m_pp[k];
+        m_workS[k] = 2.0 * TKelvin * m_dAkdT[k] - 3.0 * m_Ak[k];
     }
 
     pressureDerivatives();
@@ -228,12 +222,6 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
         double xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += GasConstant * (- log(xx));
     }
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
-    for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = m_dAkdT[k];
-    }
 
     double dadt = da_dt();
     double fac = dadt - m_aMix / (2.0 * TKelvin);
@@ -244,8 +232,8 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
                    + GasConstant
                    + GasConstant * log(mv/vmb)
                    + GasConstant * m_b[k]/vmb
-                   + m_pp[k]/(m_bMix * TKelvin * sqt) * log(vpb/mv)
-                   - 2.0 * m_workS[k]/(m_bMix * sqt) * log(vpb/mv)
+                   + m_Ak[k]/(m_bMix * TKelvin * sqt) * log(vpb/mv)
+                   - 2.0 * m_dAkdT[k]/(m_bMix * sqt) * log(vpb/mv)
                    + m_b[k] / (m_bMix * m_bMix * sqt) * log(vpb/mv) * fac
                    - 1.0 / (m_bMix * sqt) * m_b[k] / vpb * fac
                   );
@@ -289,11 +277,6 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies_TV(span<double> utilde) const
         return;
     }
 
-    // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
-
     double vpb = mv + b;
     double logv = log(vpb / mv);
     double F = T * dadt - 1.5 * a;
@@ -301,7 +284,7 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies_TV(span<double> utilde) const
     double pref = 1.0 / (b * sqt);
 
     for (size_t k = 0; k < m_kk; k++) {
-        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_pp[k];
+        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_Ak[k];
         double ures = pref * (logv * Sk + m_b[k] * F * C);
         utilde[k] += ures;
     }
@@ -347,11 +330,6 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
             / (sqt * v * v * v * vpb * vpb * vpb);
     double d2vdT2_P = -(pTT + 2.0 * pTV * dvdT_P + pVV * dvdT_P * dvdT_P) / pV;
 
-    // Species-dependent A_k and dA_k/dT
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
-
     double F = T * dadt - 1.5 * a;
     double dF_dT = -0.5 * dadt + T * d2adt2;
     double logvpv = log(vpb / v);
@@ -359,7 +337,7 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
 
     for (size_t k = 0; k < m_kk; k++) {
         double bk = m_b[k];
-        double Ak = m_pp[k];
+        double Ak = m_Ak[k];
         double dAk = m_dAkdT[k];
         double Sk = 2.0 * T * dAk - 3.0 * Ak;
         double dSk_dT = -dAk; // for linear a(T)
@@ -417,11 +395,6 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
         return;
     }
 
-    // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
-
     // Residual contribution for
     // \tilde{u}_k = (\partial U / \partial n_k)_{T,V,n_j}
     // with linear a(T): a_ij = a_ij,0 + a_ij,1 T
@@ -432,7 +405,7 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
     double pref = 1.0 / (b * sqt);
 
     for (size_t k = 0; k < m_kk; k++) {
-        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_pp[k];
+        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_Ak[k];
         double ures = pref * (logv * Sk + m_b[k] * F * C);
         double dresdT = pref * (-logv * m_dAkdT[k] - 0.5 * m_b[k] * dadt * C)
             - 0.5 * ures / T;
@@ -443,13 +416,6 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
 void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
 {
     checkArraySize("RedlichKwongMFTP::getPartialMolarVolumes", vbar.size(), m_kk);
-    auto x = asVectorXd(moleFractions_);
-    m_pp = m_a * x;
-    m_dAkdT = m_a1 * x;
-    for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = m_dAkdT[k];
-    }
-
     double sqt = sqrt(temperature());
     double mv = molarVolume();
     double vmb = mv - m_bMix;
@@ -457,7 +423,7 @@ void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
     for (size_t k = 0; k < m_kk; k++) {
         double num = (RT() + RT() * m_bMix/ vmb + RT() * m_b[k] / vmb
                           + RT() * m_bMix * m_b[k] /(vmb * vmb)
-                          - 2.0 * m_pp[k] / (sqt * vpb)
+                          - 2.0 * m_Ak[k] / (sqt * vpb)
                           + m_aMix * m_b[k] / (sqt * vpb * vpb)
                          );
         double denom = (pressure() + RT() * m_bMix/(vmb * vmb) - m_aMix / (sqt * vpb * vpb)
@@ -478,7 +444,7 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
         m_a0.conservativeResizeLike(Eigen::MatrixXd::Zero(m_kk, m_kk) * NAN);
         m_a1.conservativeResizeLike(Eigen::MatrixXd::Zero(m_kk, m_kk) * NAN);
 
-        m_pp.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
+        m_Ak.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
         m_dAkdT.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
         m_coeffSource.push_back(CoeffSource::EoS);
         m_partialMolarVolumes.push_back(0.0);
@@ -806,15 +772,15 @@ void RedlichKwongMFTP::pressureDerivatives() const
 void RedlichKwongMFTP::updateMixingExpressions()
 {
     double temp = temperature();
+    auto x = asVectorXd(moleFractions_);
     if (m_formTempParam == 1) {
         m_a = m_a0 + temp * m_a1;
+        m_dAkdT = m_a1 * x;
     }
 
-    auto x = asVectorXd(moleFractions_);
-    const auto& b_k = m_b;
-    m_bMix = 0.0;
-    m_bMix = b_k.dot(x);
-    m_aMix = x.dot(m_a * x);
+    m_bMix = m_b.dot(x);
+    m_Ak = m_a * x;
+    m_aMix = x.dot(m_Ak);
     if (isnan(m_bMix)) {
         // One or more species do not have specified coefficients.
         fmt::memory_buffer b;
