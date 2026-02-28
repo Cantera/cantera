@@ -7,7 +7,7 @@
 #define CT_REDLICHKWONGMFTP_H
 
 #include "MixtureFugacityTP.h"
-#include "cantera/base/Array.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -413,10 +413,11 @@ protected:
      */
     double m_a_current = 0.0;
 
-    vector<double> a_vec_Curr_;
-    vector<double> b_vec_Curr_;
+    Eigen::MatrixXd a_vec_Curr_;
+    Eigen::VectorXd b_vec_Curr_;
 
-    Array2D a_coeff_vec;
+    Eigen::MatrixXd m_a_coeff_0;
+    Eigen::MatrixXd m_a_coeff_1;
 
     //! Explicitly-specified binary interaction parameters
     map<string, map<string, pair<double, double>>> m_binaryParameters;
@@ -430,12 +431,12 @@ protected:
     double Vroot_[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
-    mutable vector<double> m_pp;
+    mutable Eigen::VectorXd m_pp;
 
     // Partial molar volumes of the species
     mutable vector<double> m_partialMolarVolumes;
 
-    mutable vector<double> m_dAkdT; //!< Temporary storage for dA_k/dT; length #m_kk.
+    mutable Eigen::VectorXd m_dAkdT; //!< Temporary storage for dA_k/dT; length #m_kk.
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -456,7 +457,7 @@ protected:
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable vector<double> dpdni_;
+    mutable Eigen::VectorXd m_dpdni;
 
 private:
     //! Omega constant for a -> value of a in terms of critical properties

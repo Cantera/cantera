@@ -32,9 +32,8 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
         m_formTempParam = 1; // expression is temperature-dependent
     }
 
-    size_t counter = k + m_kk * k;
-    a_coeff_vec(0, counter) = a0;
-    a_coeff_vec(1, counter) = a1;
+    m_a_coeff_0(k, k) = a0;
+    m_a_coeff_1(k, k) = a1;
 
     // standard mixing rule for cross-species interaction term
     for (size_t j = 0; j < m_kk; j++) {
@@ -42,22 +41,22 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
             continue;
         }
 
-        // a_coeff_vec(0) is initialized to NaN to mark uninitialized species
-        if (isnan(a_coeff_vec(0, j + m_kk * j))) {
+        // m_a_coeff_0 is initialized to NaN to mark uninitialized species
+        if (isnan(m_a_coeff_0(j, j))) {
             // The diagonal element of the jth species has not yet been defined.
             continue;
-        } else if (isnan(a_coeff_vec(0, j + m_kk * k))) {
+        } else if (isnan(m_a_coeff_0(j, k))) {
             // Only use the mixing rules if the off-diagonal element has not already been defined by a
             // user-specified crossFluidParameters entry:
-            double a0kj = sqrt(a_coeff_vec(0, j + m_kk * j) * a0);
-            double a1kj = sqrt(a_coeff_vec(1, j + m_kk * j) * a1);
-            a_coeff_vec(0, j + m_kk * k) = a0kj;
-            a_coeff_vec(1, j + m_kk * k) = a1kj;
-            a_coeff_vec(0, k + m_kk * j) = a0kj;
-            a_coeff_vec(1, k + m_kk * j) = a1kj;
+            double a0kj = sqrt(m_a_coeff_0(j, j) * a0);
+            double a1kj = sqrt(m_a_coeff_1(j, j) * a1);
+            m_a_coeff_0(j, k) = a0kj;
+            m_a_coeff_1(j, k) = a1kj;
+            m_a_coeff_0(k, j) = a0kj;
+            m_a_coeff_1(k, j) = a1kj;
         }
     }
-    a_coeff_vec.getRow(0, a_vec_Curr_);
+    a_vec_Curr_ = m_a_coeff_0;
     b_vec_Curr_[k] = b;
 }
 
@@ -73,11 +72,9 @@ void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& sp
 
     m_binaryParameters[species_i][species_j] = {a0, a1};
     m_binaryParameters[species_j][species_i] = {a0, a1};
-    size_t counter1 = ki + m_kk * kj;
-    size_t counter2 = kj + m_kk * ki;
-    a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
-    a_coeff_vec(1, counter1) = a_coeff_vec(1, counter2) = a1;
-    a_vec_Curr_[counter1] = a_vec_Curr_[counter2] = a0;
+    m_a_coeff_0(ki, kj) = m_a_coeff_0(kj, ki) = a0;
+    m_a_coeff_1(ki, kj) = m_a_coeff_1(kj, ki) = a1;
+    a_vec_Curr_(ki, kj) = a_vec_Curr_(kj, ki) = a0;
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
@@ -137,13 +134,8 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
     double vpb = mv + m_b_current;
     double vmb = mv - m_b_current;
 
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-        }
-    }
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
     double pres = pressure();
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -175,13 +167,7 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
     double vpb = mv + m_b_current;
     double vmb = mv - m_b_current;
 
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-        }
-    }
+    m_pp = a_vec_Curr_ * asVectorXd(moleFractions_);
     double pres = pressure();
     double refP = refPressure();
 
@@ -202,42 +188,34 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
 
-    // We calculate dpdni_
+    // We calculate m_dpdni
     double TKelvin = temperature();
     double mv = molarVolume();
     double sqt = sqrt(TKelvin);
     double vpb = mv + m_b_current;
     double vmb = mv - m_b_current;
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-        }
-    }
-    for (size_t k = 0; k < m_kk; k++) {
-        dpdni_[k] = RT()/vmb + RT() * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
+        m_dpdni[k] = RT()/vmb + RT() * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
                     + m_a_current * b_vec_Curr_[k]/(sqt * mv * vpb * vpb);
     }
     double dadt = da_dt();
     double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_workS[k] += 2.0 * moleFractions_[i] * TKelvin * a_coeff_vec(1,counter) - 3.0 * moleFractions_[i] * a_vec_Curr_[counter];
-        }
+        m_workS[k] = 2.0 * TKelvin * m_dAkdT[k] - 3.0 * m_pp[k];
     }
 
     pressureDerivatives();
     double fac2 = mv + TKelvin * dpdT_ / dpdV_;
     for (size_t k = 0; k < m_kk; k++) {
-        double hE_v = (mv * dpdni_[k] - RT() - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
+        double hE_v = (mv * m_dpdni[k] - RT() - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
                        + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_workS[k]
                        +  b_vec_Curr_[k] / vpb / (m_b_current * sqt) * fac);
         hbar[k] = hbar[k] + hE_v;
-        hbar[k] -= fac2 * dpdni_[k];
+        hbar[k] -= fac2 * m_dpdni[k];
     }
 }
 
@@ -254,19 +232,11 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
         double xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += GasConstant * (- log(xx));
     }
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-        }
-    }
-    for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_workS[k] += moleFractions_[i] * a_coeff_vec(1,counter);
-        }
+        m_workS[k] = m_dAkdT[k];
     }
 
     double dadt = da_dt();
@@ -324,15 +294,9 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies_TV(span<double> utilde) const
     }
 
     // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        m_dAkdT[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk * i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
-        }
-    }
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
 
     double vpb = mv + b;
     double logv = log(vpb / mv);
@@ -388,15 +352,9 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
     double d2vdT2_P = -(pTT + 2.0 * pTV * dvdT_P + pVV * dvdT_P * dvdT_P) / pV;
 
     // Species-dependent A_k and dA_k/dT
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        m_dAkdT[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk * i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
-        }
-    }
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
 
     double F = T * dadt - 1.5 * a;
     double dF_dT = -0.5 * dadt + T * d2adt2;
@@ -464,15 +422,9 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
     }
 
     // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        m_dAkdT[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk * i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
-        }
-    }
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
 
     // Residual contribution for
     // \tilde{u}_k = (\partial U / \partial n_k)_{T,V,n_j}
@@ -495,19 +447,11 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
 void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
 {
     checkArraySize("RedlichKwongMFTP::getPartialMolarVolumes", vbar.size(), m_kk);
+    auto x = asVectorXd(moleFractions_);
+    m_pp = a_vec_Curr_ * x;
+    m_dAkdT = m_a_coeff_1 * x;
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
-        }
-    }
-    for (size_t k = 0; k < m_kk; k++) {
-        m_workS[k] = 0.0;
-        for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_workS[k] += moleFractions_[i] * a_coeff_vec(1,counter);
-        }
+        m_workS[k] = m_dAkdT[k];
     }
 
     double sqt = sqrt(temperature());
@@ -530,18 +474,19 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
     if (added) {
-        a_vec_Curr_.resize(m_kk * m_kk, 0.0);
+        a_vec_Curr_.conservativeResizeLike(Eigen::MatrixXd::Zero(m_kk, m_kk));
 
         // Initialize a_vec and b_vec to NaN, to screen for species with
         //     pureFluidParameters which are undefined in the input file:
-        b_vec_Curr_.push_back(NAN);
-        a_coeff_vec.resize(2, m_kk * m_kk, NAN);
+        b_vec_Curr_.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk) * NAN);
+        m_a_coeff_0.conservativeResizeLike(Eigen::MatrixXd::Zero(m_kk, m_kk) * NAN);
+        m_a_coeff_1.conservativeResizeLike(Eigen::MatrixXd::Zero(m_kk, m_kk) * NAN);
 
-        m_pp.push_back(0.0);
-        m_dAkdT.push_back(0.0);
+        m_pp.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
+        m_dAkdT.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
         m_coeffSource.push_back(CoeffSource::EoS);
         m_partialMolarVolumes.push_back(0.0);
-        dpdni_.push_back(0.0);
+        m_dpdni.conservativeResizeLike(Eigen::VectorXd::Zero(m_kk));
     }
     return added;
 }
@@ -555,7 +500,7 @@ void RedlichKwongMFTP::initThermo()
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
         size_t k = speciesIndex(name, true);
-        if (!isnan(a_coeff_vec(0, k + m_kk * k))) {
+        if (!isnan(m_a_coeff_0(k, k))) {
             continue;
         }
         bool foundCoeffs = false;
@@ -654,20 +599,19 @@ void RedlichKwongMFTP::getSpeciesParameters(const string& name,
         auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
             "model", "Redlich-Kwong", true);
 
-        size_t counter = k + m_kk * k;
-        if (a_coeff_vec(1, counter) != 0.0) {
+        if (m_a_coeff_1(k, k) != 0.0) {
             vector<AnyValue> coeffs(2);
-            coeffs[0].setQuantity(a_coeff_vec(0, counter), "Pa*m^6/kmol^2*K^0.5");
-            coeffs[1].setQuantity(a_coeff_vec(1, counter), "Pa*m^6/kmol^2/K^0.5");
+            coeffs[0].setQuantity(m_a_coeff_0(k, k), "Pa*m^6/kmol^2*K^0.5");
+            coeffs[1].setQuantity(m_a_coeff_1(k, k), "Pa*m^6/kmol^2/K^0.5");
             eosNode["a"] = std::move(coeffs);
         } else {
-            eosNode["a"].setQuantity(a_coeff_vec(0, counter),
+            eosNode["a"].setQuantity(m_a_coeff_0(k, k),
                                     "Pa*m^6/kmol^2*K^0.5");
         }
         eosNode["b"].setQuantity(b_vec_Curr_[k], "m^3/kmol");
     } else if (m_coeffSource[k] == CoeffSource::CritProps) {
         auto& critProps = speciesNode["critical-parameters"];
-        double a = a_coeff_vec(0, k + m_kk * k);
+        double a = m_a_coeff_0(k, k);
         double b = b_vec_Curr_[k];
         double Tc = pow(a * omega_b / (b * omega_a * GasConstant), 2.0/3.0);
         double Pc = omega_b * GasConstant * Tc / b;
@@ -867,22 +811,14 @@ void RedlichKwongMFTP::updateMixingExpressions()
 {
     double temp = temperature();
     if (m_formTempParam == 1) {
-        for (size_t i = 0; i < m_kk; i++) {
-            for (size_t j = 0; j < m_kk; j++) {
-                size_t counter = i * m_kk + j;
-                a_vec_Curr_[counter] = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
-            }
-        }
+        a_vec_Curr_ = m_a_coeff_0 + temp * m_a_coeff_1;
     }
 
+    auto x = asVectorXd(moleFractions_);
+    const auto& b_k = b_vec_Curr_;
     m_b_current = 0.0;
-    m_a_current = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        m_b_current += moleFractions_[i] * b_vec_Curr_[i];
-        for (size_t j = 0; j < m_kk; j++) {
-            m_a_current += a_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
-        }
-    }
+    m_b_current = b_k.dot(x);
+    m_a_current = x.dot(a_vec_Curr_ * x);
     if (isnan(m_b_current)) {
         // One or more species do not have specified coefficients.
         fmt::memory_buffer b;
@@ -902,54 +838,30 @@ void RedlichKwongMFTP::updateMixingExpressions()
 
 void RedlichKwongMFTP::calculateAB(double temp, double& aCalc, double& bCalc) const
 {
-    bCalc = 0.0;
-    aCalc = 0.0;
+    auto x = asVectorXd(moleFractions_);
+    const auto& b_k = b_vec_Curr_;
+    bCalc = b_k.dot(x);
     if (m_formTempParam == 1) {
-        for (size_t i = 0; i < m_kk; i++) {
-            bCalc += moleFractions_[i] * b_vec_Curr_[i];
-            for (size_t j = 0; j < m_kk; j++) {
-                size_t counter = i * m_kk + j;
-                double a_vec_Curr = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
-                aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
-            }
-        }
+        aCalc = x.dot((m_a_coeff_0 + temp * m_a_coeff_1) * x);
     } else {
-        for (size_t i = 0; i < m_kk; i++) {
-            bCalc += moleFractions_[i] * b_vec_Curr_[i];
-            for (size_t j = 0; j < m_kk; j++) {
-                size_t counter = i * m_kk + j;
-                double a_vec_Curr = a_coeff_vec(0,counter);
-                aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
-            }
-        }
+        aCalc = x.dot(m_a_coeff_0 * x);
     }
 }
 
 double RedlichKwongMFTP::da_dt() const
 {
-    double dadT = 0.0;
-    if (m_formTempParam == 1) {
-        for (size_t i = 0; i < m_kk; i++) {
-            for (size_t j = 0; j < m_kk; j++) {
-                size_t counter = i * m_kk + j;
-                dadT+= a_coeff_vec(1,counter) * moleFractions_[i] * moleFractions_[j];
-            }
-        }
+    if (m_formTempParam == 0) {
+        return 0.0;
     }
-    return dadT;
+    auto x = asVectorXd(moleFractions_);
+    return x.dot(m_a_coeff_1 * x);
 }
 
 void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc) const
 {
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
+    auto x = asVectorXd(moleFractions_);
+    double a0 = x.dot(m_a_coeff_0 * x);
+    double aT = x.dot(m_a_coeff_1 * x);
     double a = m_a_current;
     double b = m_b_current;
     if (m_formTempParam != 0) {
