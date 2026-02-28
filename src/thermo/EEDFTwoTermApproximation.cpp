@@ -407,9 +407,7 @@ double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
         }
     }
     double nDensity = m_phase->molarDensity() * Avogadro;
-    auto f = ConstMappedVector(y.data(), y.size());
-    auto x = ConstMappedVector(m_gridEdge.data(), m_gridEdge.size());
-    return -1./3. * m_gamma * simpson(f, x) / nDensity;
+    return -1./3. * m_gamma * simpson(asVectorXd(y), asVectorXd(m_gridEdge)) / nDensity;
 }
 
 void EEDFTwoTermApproximation::initSpeciesIndexCrossSections()
