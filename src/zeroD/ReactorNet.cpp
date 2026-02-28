@@ -282,6 +282,9 @@ void ReactorNet::setLinearSolverType(const string& linSolverType)
 void ReactorNet::setPreconditioner(shared_ptr<SystemJacobian> preconditioner)
 {
     m_precon = preconditioner;
+    AnyMap settings;
+    settings["skip-nonideal"] = true;
+    setDerivativeSettings(settings);
     m_needIntegratorInit = true;
 }
 
