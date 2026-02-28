@@ -12,13 +12,22 @@ function output = getArray(funcName, buflen, varargin)
         extraArgs = {};
     end
 
-    buf = clib.array.ctMatlab.Double(buflen);
+    persistent arrayCache
+    if isempty(arrayCache)
+        arrayCache = containers.Map('KeyType','double','ValueType','any');
+    end
+
+    % Get or create buffer for this size
+    if arrayCache.isKey(buflen)
+        buf = arrayCache(buflen);
+    else
+        buf = clib.array.ctMatlab.Double(buflen);
+        arrayCache(buflen) = buf;
+    end
+
     iok = clib.ctMatlab.(funcName)(args{:}, buf, extraArgs{:});
 
-    iok = double(iok);
-    if ismember(iok, ct.impl.errorCode)
-        error('Cantera:ctError', ct.impl.getError());
-    end
+    ct.impl.checkErrorCode(iok);
 
     % Convert output to double for better data compatibility
     output = buf.double;

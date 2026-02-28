@@ -40,6 +40,12 @@ classdef Mixture < handle
         P % Pressure [Pa].
     end
 
+    properties (Hidden)
+        mixCache struct = struct('nElements', NaN, ...
+                                 'nSpecies', NaN, ...
+                                 'nPhases', NaN)
+    end
+
     properties (SetAccess = protected)
 
         phases % Phases in the mixture
@@ -150,6 +156,36 @@ classdef Mixture < handle
 
             ct.impl.call('mMix_addPhase', obj.mixID, phase.tpID, moles);
 
+            % Reset cached properties
+            obj.mixCache.nElements = NaN;
+            obj.mixCache.nPhases = NaN;
+            obj.mixCache.nSpecies = NaN;
+
+        end
+
+        %% Getter methods for cached properties.
+        % These properties rarely change, so we cache their values for efficiency.
+        % But make sure to update the cache if a certain method modifies them.
+
+        function n = get.nElements(obj)
+            if isnan(obj.mixCache.nElements)
+                obj.mixCache.nElements = ct.impl.call('mMix_nElements', obj.mixID);
+            end
+            n = obj.mixCache.nElements;
+        end
+
+        function n = get.nPhases(obj)
+            if isnan(obj.mixCache.nPhases)
+                obj.mixCache.nPhases = ct.impl.call('mMix_nPhases', obj.mixID);
+            end
+            n = obj.mixCache.nPhases;
+        end
+
+        function n = get.nSpecies(obj)
+            if isnan(obj.mixCache.nSpecies)
+                obj.mixCache.nSpecies = ct.impl.call('mMix_nSpecies', obj.mixID);
+            end
+            n = obj.mixCache.nSpecies;
         end
 
         %% Mixture Get methods
@@ -160,18 +196,6 @@ classdef Mixture < handle
 
         function pressure = get.P(obj)
             pressure = ct.impl.call('mMix_pressure', obj.mixID);
-        end
-
-        function n = get.nElements(obj)
-            n = ct.impl.call('mMix_nElements', obj.mixID);
-        end
-
-        function n = get.nPhases(obj)
-            n = ct.impl.call('mMix_nPhases', obj.mixID);
-        end
-
-        function n = get.nSpecies(obj)
-            n = ct.impl.call('mMix_nSpecies', obj.mixID);
         end
 
         function mu = get.chemPotentials(obj)
