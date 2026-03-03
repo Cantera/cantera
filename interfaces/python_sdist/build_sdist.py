@@ -52,8 +52,8 @@ def do_configure_substitution(
         "CT_USE_SYSTEM_FMT": "#define CT_USE_SYSTEM_FMT 1",
         "CT_USE_SYSTEM_YAMLCPP": "#define CT_USE_SYSTEM_YAMLCPP 1",
         "CT_SUNDIALS_USE_LAPACK": "#cmakedefine01 CT_SUNDIALS_USE_LAPACK",
-        "CT_USE_HDF5": "#define CT_USE_HDF5 1",
-        "CT_USE_SYSTEM_HIGHFIVE": "#define CT_USE_SYSTEM_HIGHFIVE 1",
+        "CT_USE_HDF5": "#cmakedefine01 CT_USE_HDF5",
+        "CT_USE_SYSTEM_HIGHFIVE": "#cmakedefine01 CT_USE_SYSTEM_HIGHFIVE",
     }
     configure_output = configure_template.format_map(configure_subst)
     return configure_output

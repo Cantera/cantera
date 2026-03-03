@@ -1,5 +1,15 @@
 include(FetchContent)
 
+if(CANTERA_PYODIDE)
+  set(CANTERA_ENABLE_LAPACK OFF)
+  set(CT_USE_HDF5 0)
+  set(CT_USE_SYSTEM_HIGHFIVE 0)
+else()
+  set(CANTERA_ENABLE_LAPACK ON)
+  set(CT_USE_HDF5 1)
+  set(CT_USE_SYSTEM_HIGHFIVE 1)
+endif()
+
 set(EIGEN_VERSION 3.4.0)
 FetchContent_Declare(
   eigen
@@ -40,15 +50,17 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
-set(HIGHFIVE_VERSION .3.1.1)
-FetchContent_Declare(
-  HighFive
-  URL https://github.com/highfive-devs/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-  URL_HASH SHA256=c0bc76b01868a133bf4550a07321923c5582fe3967edc102864b082e40799914
-  # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
-  # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS NAMES HighFive
-)
+if(CT_USE_HDF5)
+  set(HIGHFIVE_VERSION .3.1.1)
+  FetchContent_Declare(
+    HighFive
+    URL https://github.com/highfive-devs/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
+    URL_HASH SHA256=c0bc76b01868a133bf4550a07321923c5582fe3967edc102864b082e40799914
+    # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
+    # everything after it to pass to `find_package()`
+    FIND_PACKAGE_ARGS NAMES HighFive
+  )
+endif()
 
 if(NOT DEFINED Boost_INCLUDE_DIRS)
   find_package(Boost 1.70 CONFIG REQUIRED)
@@ -80,14 +92,16 @@ set(BUILD_IDA OFF)
 set(BUILD_KINSOL OFF)
 set(BUILD_CPODES OFF)
 set(BUILD_FORTRAN_MODULE_INTERFACE OFF)
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+if(CANTERA_ENABLE_LAPACK AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
     set(ENABLE_LAPACK ON)
     set(BLA_VENDOR Apple)
     set(SUNDIALS_LAPACK_CASE "LOWER")
     set(SUNDIALS_LAPACK_UNDERSCORES "NONE")
-elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+elseif(CANTERA_ENABLE_LAPACK AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
     set(ENABLE_LAPACK ON)
     set(BLA_VENDOR OpenBLAS)
+else()
+    set(ENABLE_LAPACK OFF)
 endif()
 
 # fmt build options
@@ -103,7 +117,11 @@ set(EIGEN_BUILD_DOC OFF)
 set(YAML_CPP_FORMAT_SOURCE OFF)
 set(YAML_CPP_INSTALL OFF)
 
-FetchContent_MakeAvailable(eigen yaml-cpp sundials fmt HighFive)
+set(CT_FETCHCONTENT_TARGETS eigen yaml-cpp sundials fmt)
+if(CT_USE_HDF5)
+  list(APPEND CT_FETCHCONTENT_TARGETS HighFive)
+endif()
+FetchContent_MakeAvailable(${CT_FETCHCONTENT_TARGETS})
 
 file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 # The Python extension handler is built with the rest of the Python library because it
@@ -111,7 +129,7 @@ file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
-if (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+if(CANTERA_ENABLE_LAPACK AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     find_package(LAPACK REQUIRED)
     find_package(BLAS REQUIRED)
     set(CT_USE_LAPACK 1)
@@ -133,7 +151,6 @@ target_link_libraries(cantera_lib PUBLIC
     yaml-cpp::yaml-cpp
     fmt::fmt
     Eigen3::Eigen
-    HighFive
     SUNDIALS::core
     SUNDIALS::nvecserial
     SUNDIALS::cvodes
@@ -145,3 +162,7 @@ target_link_libraries(cantera_lib PUBLIC
     SUNDIALS::sunnonlinsolnewton
     ${SUNDIALS_LIBRARIES}
 )
+
+if(CT_USE_HDF5)
+  target_link_libraries(cantera_lib PUBLIC HighFive)
+endif()
