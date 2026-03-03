@@ -66,7 +66,7 @@ logging.level = "DEBUG"
 build.verbose = true
 
 [tool.scikit-build.cmake]
-version = ">=3.27"
+version = ">=3.27,<4"
 
 [tool.scikit-build.ninja]
 version = ">=1.13"
@@ -74,6 +74,7 @@ make-fallback = false
 
 [tool.scikit-build.cmake.define]
 CMAKE_POSITION_INDEPENDENT_CODE = "ON"
+CANTERA_PYODIDE = { env = "CANTERA_PYODIDE", default = "OFF" }
 Boost_INCLUDE_DIRS = { env = "Boost_INCLUDE_DIRS" }
 HDF5_ROOT = { env = "HDF5_ROOT" }
 
