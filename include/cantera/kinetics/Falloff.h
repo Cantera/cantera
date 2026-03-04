@@ -347,7 +347,7 @@ public:
     }
 
     size_t nParameters() const override {
-        return 4;
+        return (m_t2 == 0) ? 3 : 4;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
@@ -448,7 +448,7 @@ public:
     }
 
     size_t nParameters() const override {
-        return 5;
+        return (m_d == 1.0 && m_e == 0.0) ? 3 : 5;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
@@ -467,7 +467,7 @@ protected:
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
     double m_d;
 
-    //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
+    //! parameter e in the 5-parameter SRI falloff function. Dimensionless.
     double m_e;
 };
 

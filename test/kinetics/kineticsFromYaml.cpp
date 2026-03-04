@@ -336,12 +336,17 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
     EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 1600);
     vector<double> params(rate->nParameters());
-    ASSERT_EQ(params.size(), (size_t) 4);
+    ASSERT_EQ(params.size(), 3U);
     rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
     EXPECT_DOUBLE_EQ(params[1], 91.0);
     EXPECT_DOUBLE_EQ(params[2], 5836.0);
+
+    params.resize(4);
+    params[3] = 1234.0;
+    rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[3], 0.0);
+
     EXPECT_EQ(R->input["source"].asString(), "somewhere");
 }
 
@@ -402,6 +407,29 @@ TEST(Reaction, FalloffFromYaml5)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_TRUE(R->usesThirdBody());
     EXPECT_EQ(R->type(), "falloff-Lindemann");
+}
+
+TEST(Reaction, FalloffFromYaml6)
+{
+    auto sol = newSolution("gri30.yaml", "", "none");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: N2O (+M) = N2 + O (+ M),"
+        " type: falloff,"
+        " high-P-rate-constant: [7.91000E+10, 0, 56020],"
+        " low-P-rate-constant: [6.37000E+14, 0, 56640],"
+        " SRI: {A: 1.1, B: 700.0, C: 1234.0},"
+        " efficiencies: {AR: 0.625}}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    const auto& rate = std::dynamic_pointer_cast<SriRate>(R->rate());
+    ASSERT_EQ(rate->nParameters(), 3U);
+    vector<double> params(rate->nParameters());
+    rate->getFalloffCoeffs(params);
+    EXPECT_DOUBLE_EQ(params[0], 1.1);
+    params.resize(5);
+    rate->getFalloffCoeffs(params);
+    EXPECT_DOUBLE_EQ(params[3], 1.0);
+    EXPECT_DOUBLE_EQ(params[4], 0.0);
 }
 
 TEST(Reaction, ChemicallyActivatedFromYaml)
