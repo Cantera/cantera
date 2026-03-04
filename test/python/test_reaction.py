@@ -559,7 +559,10 @@ class TestTroeRate(FalloffRateTests):
             """
 
         with pytest.warns(UserWarning, match="Unexpected parameter value T2=0"):
-            ct.ReactionRate.from_yaml(yaml)
+            rate = ct.ReactionRate.from_yaml(yaml)
+
+        assert len(rate.falloff_coeffs) == 3
+
 
 class TestSriRate(FalloffRateTests):
     """Test SRI rate expressions"""

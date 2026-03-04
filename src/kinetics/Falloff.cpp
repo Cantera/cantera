@@ -275,7 +275,9 @@ void TroeRate::getFalloffCoeffs(span<double> c) const
     c[0] = m_a;
     c[1] = 1.0 / m_rt3;
     c[2] = 1.0 / m_rt1;
-    c[3] = m_t2;
+    if (c.size() >= 4) {
+        c[3] = m_t2;
+    }
 }
 
 void TroeRate::updateTemp(double T, span<double> work) const
@@ -378,8 +380,10 @@ void SriRate::getFalloffCoeffs(span<double> c) const
     c[0] = m_a;
     c[1] = m_b;
     c[2] = m_c;
-    c[3] = m_d;
-    c[4] = m_e;
+    if (c.size() >= 5) {
+        c[3] = m_d;
+        c[4] = m_e;
+    }
 }
 
 void SriRate::updateTemp(double T, span<double> work) const
