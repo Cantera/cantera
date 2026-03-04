@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 from pytest import approx
 import re
-pd = pytest.importorskip("pandas")
 
 import cantera as ct
 
@@ -399,8 +398,8 @@ class TestFreeFlame:
         # restart from HDF format
         self.run_restart("h5")
 
-    @pytest.mark.skipif(not pd, reason="Pandas not installed")
     def test_restart_pandas(self):
+        pd = pytest.importorskip("pandas")
         # restart from Pandas DataFrame
         self.run_restart("pandas", auto=True)
 
