@@ -602,6 +602,40 @@ jobs:
             --delete --delete-excluded --filter='P .htaccess' \
             "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
+  pyodide-wheel:
+    name: Build Pyodide wheel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        name: Checkout the repository
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
+      - name: Build Pyodide wheel
+        run: |
+          pixi run -e pyodide scons pyodide-wheel
+      - name: Create Pyodide venv
+        run: |
+          pixi run -e pyodide pyodide venv .pyodide-venv
+      - name: Install wheel and dependencies into Pyodide venv
+        run: |
+          WHEEL=$(ls build/pyodide_dist/cantera-*.whl)
+          pixi run -e pyodide .pyodide-venv/bin/pip install pytest graphviz pandas \
+            pint "$WHEEL"
+      - name: Upload Pyodide wheel artifact
+        uses: actions/upload-artifact@v6
+        with:
+          path: build/pyodide_dist/cantera-*.whl
+          name: cantera-wheel-pyodide
+          if-no-files-found: error
+          retention-days: 14
+      - name: Run Python tests
+        run: |
+          pixi run -e pyodide .pyodide-venv/bin/python -m pytest -raP -v --durations=50 test/python
+
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}, NumPy ${{ matrix.numpy || 'latest' }}
     runs-on: ${{ matrix.os }}
