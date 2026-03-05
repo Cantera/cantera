@@ -541,7 +541,7 @@ public:
     }
 
     size_t nParameters() const override {
-        return 2;
+        return (m_b == 0.0) ? 1 : 2;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;

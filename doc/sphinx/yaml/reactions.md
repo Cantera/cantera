@@ -379,7 +379,7 @@ Includes field for specifying {ref}`efficiencies <sec-yaml-efficiencies>` as wel
 
 `Tsang`
 : Parameters for the [Tsang](sec-tsang-falloff) falloff function. A mapping containing
-  the keys `A` and `B`. The default value for `B` is 0.0.
+  the keys `A` and optionally `B`. The default value for `B` is 0.0.
 
 Examples:
 

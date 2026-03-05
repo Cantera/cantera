@@ -432,6 +432,28 @@ TEST(Reaction, FalloffFromYaml6)
     EXPECT_DOUBLE_EQ(params[4], 0.0);
 }
 
+TEST(Reaction, FalloffFromYaml7)
+{
+    auto sol = newSolution("gri30.yaml", "", "none");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: HCN (+ M) <=> H + CN (+ M),"
+        " type: falloff,"
+        " low-P-rate-constant: {A: 3.57e+26, b: -2.6, Ea: 1.249e+05},"
+        " high-P-rate-constant: {A: 8.3e+17, b: -0.93, Ea: 1.238e+05},"
+        " Tsang: {A: 0.95}}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    ASSERT_EQ(R->type(), "falloff-Tsang");
+    const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
+    vector<double> params(1);
+    rate->getFalloffCoeffs(params);
+    EXPECT_DOUBLE_EQ(params[0], 0.95);
+    params.resize(2);
+    params[1] = 1234.0;
+    rate->getFalloffCoeffs(params);
+    EXPECT_DOUBLE_EQ(params[1], 0.0);
+}
+
 TEST(Reaction, ChemicallyActivatedFromYaml)
 {
     auto sol = newSolution("gri30.yaml", "", "none");
