@@ -192,7 +192,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()
-        void getState(double*)
+        void getState(double*) except +translate_exception
         void getDerivative(int, double *) except +translate_exception
         void setAdvanceLimits(double*)
         cbool getAdvanceLimits(double*)
