@@ -190,7 +190,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()
-        void getState(span[double])
+        void getState(span[double]) except +translate_exception
         void getDerivative(int, span[double]) except +translate_exception
         void setAdvanceLimits(span[double])
         cbool getAdvanceLimits(span[double])
