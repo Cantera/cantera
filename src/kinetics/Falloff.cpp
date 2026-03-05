@@ -462,8 +462,7 @@ void TsangRate::setFalloffCoeffs(span<const double> c)
 
     if (c.size() == 2) {
         m_b = c[1];
-    }
-    else {
+    } else {
         m_b = 0.0;
     }
     m_valid = true;
@@ -473,7 +472,9 @@ void TsangRate::getFalloffCoeffs(span<double> c) const
 {
     checkArraySize("TsangRate::getFalloffCoeffs", c.size(), nParameters());
     c[0] = m_a;
-    c[1] = m_b;
+    if (c.size() >= 2) {
+        c[1] = m_b;
+    }
 }
 
 void TsangRate::updateTemp(double T, span<double> work) const
@@ -505,7 +506,7 @@ void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     }
     vector<double> params{
         f["A"].asDouble(),
-        f["B"].asDouble()
+        f.getDouble("B", 0.0)
     };
     setFalloffCoeffs(params);
 }
@@ -520,7 +521,9 @@ void TsangRate::getParameters(AnyMap& node) const
     } else {
         // Parameters do not have unit system (yet)
         params["A"] = m_a;
-        params["B"] = m_b;
+        if (m_b != 0.0) {
+            params["B"] = m_b;
+        }
     }
     params.setFlowStyle();
     node["Tsang"] = std::move(params);
