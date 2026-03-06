@@ -1904,6 +1904,10 @@ class TestFlowReactor:
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
         net = ct.ReactorNet([r])
+        y0, yp0 = net.get_state_dae()
+        assert y0[1] == approx(10 / g.density)
+        assert yp0[r.component_index('CO')] < 0
+        assert yp0[r.component_index('OH')] > 0
 
         i = 0
         while net.distance < 1.0:
@@ -1953,6 +1957,14 @@ class TestFlowReactor:
         assert X == approx([0.10578801, 0.001654415, 0.012103974])
         assert r.phase.density * r.area * r.speed == approx(mdot)
         assert sum(r.phase.Y) == approx(1.0)
+
+        y_surf, yp_surf = rsurf.get_state_dae()
+        y_gas, yp_gas = r.get_state_dae()
+        y_net, yp_net = sim.get_state_dae()
+        assert y_net[:r.n_vars] == approx(y_gas)
+        assert y_net[r.n_vars:] == approx(y_surf)
+        assert yp_net[:r.n_vars] == approx(yp_gas, abs=1e-4)
+        assert yp_net[r.n_vars:] == approx(yp_surf, abs=1e-4)
 
         sim.advance(1e-5)
         X = r.phase['CH4', 'H2', 'CO'].X

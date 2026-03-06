@@ -46,6 +46,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t componentIndex(string&) except +translate_exception
         string componentName(size_t) except +translate_exception
         void getState(span[double]) except +translate_exception
+        void getStateDae(span[double], span[double]) except +translate_exception
         void setInitialVolume(double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
 
@@ -191,6 +192,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setVerbose(cbool)
         size_t neq()
         void getState(span[double]) except +translate_exception
+        void getStateDae(span[double], span[double]) except +translate_exception
         void getDerivative(int, span[double]) except +translate_exception
         void setAdvanceLimits(span[double])
         cbool getAdvanceLimits(span[double])
