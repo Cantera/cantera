@@ -111,6 +111,19 @@ cdef class ReactorBase:
         self.rbase.getState(span[double](&y[0], y.size))
         return y
 
+    def get_state_dae(self):
+        """
+        Get the state vector and its time derivative for reactors formulated as DAEs
+        (namely, `FlowReactor`).
+
+        .. versionadded:: 4.0
+        """
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] yp = np.zeros(self.n_vars)
+        self.rbase.getStateDae(span[double](&y[0], y.size),
+                               span[double](&yp[0], yp.size))
+        return y, yp
+
     def syncState(self):
         """
         Set the state of the Reactor to match that of the associated
@@ -1965,6 +1978,22 @@ cdef class ReactorNet:
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
         self.net.getState(span[double](&y[0], y.size))
         return y
+
+    def get_state_dae(self):
+        """
+        Get the combined state vector and its time derivative for reactor networks
+        formulated as DAEs (namely, those containing `FlowReactor`).
+
+        The combined state vector consists of the concatenated state vectors of
+        all entities contained.
+
+        .. versionadded:: 4.0
+        """
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] yp = np.zeros(self.n_vars)
+        self.net.getStateDae(span[double](&y[0], y.size),
+                             span[double](&yp[0], yp.size))
+        return y, yp
 
     def get_derivative(self, k):
         """
