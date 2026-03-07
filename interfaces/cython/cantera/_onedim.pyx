@@ -1425,10 +1425,106 @@ cdef class Sim1D:
 
     def set_time_step_factor(self, tfactor):
         """
-        Set the factor by which the time step will be increased after a
-        successful step, or decreased after an unsuccessful one.
+        Set the factor by which the time step will be decreased after an
+        unsuccessful step.
+
+        :param tfactor:
+            Multiplicative reduction factor applied after failed steps.
         """
         self.sim.setTimeStepFactor(tfactor)
+
+    def set_time_step_growth_factor(self, tfactor):
+        """
+        Set the factor by which the time step will be increased after a
+        successful step when the Jacobian is reused.
+
+        If adaptive growth is disabled (default), this fixed factor is applied
+        directly after successful steps that reuse the Jacobian.
+
+        If adaptive growth is enabled, this factor is used as the accepted
+        growth value for heuristics 1, 2, and 4, and as the maximum growth for
+        heuristic 3.
+
+        :param tfactor:
+            Finite growth factor >= 1.0. The default value is 1.5.
+        """
+        self.sim.setTimeStepGrowthFactor(tfactor)
+
+    def time_step_growth_factor(self):
+        """
+        Get the configured growth factor for successful steps that reuse the
+        Jacobian.
+        """
+        return self.sim.timeStepGrowthFactor()
+
+    def set_adaptive_time_step_growth(self, enabled=True):
+        """
+        Enable or disable adaptive time-step growth heuristics.
+
+        Adaptive heuristics are only used after successful steps that reuse the
+        Jacobian. Disabled by default to preserve legacy behavior.
+
+        :param enabled:
+            `True` to enable adaptive growth heuristics, `False` to use the
+            fixed growth factor.
+        """
+        self.sim.setAdaptiveTimeStepGrowth(enabled)
+
+    def adaptive_time_step_growth(self):
+        """
+        Get whether adaptive time-step growth heuristics are enabled.
+        """
+        return self.sim.adaptiveTimeStepGrowth()
+
+    def set_time_step_growth_heuristic(self, heuristic):
+        """
+        Select the adaptive time-step growth heuristic.
+
+        Available options are:
+
+        ``1``:
+            Steady-state residual gate. Increase the timestep only if the
+            steady-state residual decreases.
+        ``2``:
+            Transient residual gate (default). Increase the timestep only if
+            the transient residual decreases.
+        ``3``:
+            Residual-ratio scaling. Scale growth using the transient residual
+            improvement ratio, capped by ``time_step_growth_factor()``.
+        ``4``:
+            Newton-iteration gate. Increase only if the most recent Newton
+            solve took at most 3 iterations.
+
+        :param heuristic:
+            Integer in the range [1, 4].
+        """
+        self.sim.setTimeStepGrowthHeuristic(heuristic)
+
+    def time_step_growth_heuristic(self):
+        """
+        Get the selected adaptive time-step growth heuristic (1-4).
+        """
+        return self.sim.timeStepGrowthHeuristic()
+
+    def set_time_step_regrid(self, max_tries=10):
+        """
+        Set the maximum number of regrid attempts after a time step failure.
+
+        This fallback is used by :meth:`Sim1D.solve` when ``refine_grid=True``.
+
+        :param max_tries:
+            Maximum retry attempts. Set to zero to disable regrid-on-failure
+            retries. Values less than zero are invalid.
+        """
+        self.sim.setTimeStepRegridMax(max_tries)
+
+    def time_step_regrid(self):
+        """
+        Get the maximum number of regrid attempts after a time step failure.
+
+        The default value is 10.
+        """
+        return self.sim.timeStepRegridMax()
 
     def set_min_time_step(self, tsmin):
         """ Set the minimum time step. """

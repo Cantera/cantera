@@ -35,6 +35,11 @@ public:
         return m_n;
     }
 
+    //! Number of Newton iterations taken in the most recent solve() call.
+    int lastIterations() const {
+        return m_lastIterations;
+    }
+
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
     //! @since Starting in %Cantera 3.2, the Jacobian is accessed via the OneDim object.
@@ -167,13 +172,16 @@ protected:
     double m_dampFactor = sqrt(2.0);
 
     //! Maximum number of damping iterations
-    size_t m_maxDampIter = 7;
+    size_t m_maxDampIter = 14;
 
     //! number of variables
     size_t m_n;
 
     //! Elapsed CPU time spent computing the Jacobian.
     double m_elapsed = 0.0;
+
+    //! Number of Newton iterations taken in the last solve() call.
+    int m_lastIterations = 0;
 };
 }
 

@@ -108,6 +108,51 @@ void SteadyStateSystem::solve(int loglevel)
     }
 }
 
+double SteadyStateSystem::timeStepIncreaseFactor(span<const double> x_before,
+                                                 span<const double> x_after)
+{
+    if (!m_adaptive_tstep_growth) {
+        return m_tstep_growth;
+    }
+
+    int heuristic = m_tstep_growth_heuristic; // Can be 1-4
+    m_work1.resize(m_size);
+    const double grow_factor = m_tstep_growth;
+
+    if (heuristic == 1) {
+        // Steady-state residual gate. If the steady-state residual decreased, allow
+        // increase in timestep.
+        double ss_before = ssnorm(x_before, m_work1);
+        double ss_after = ssnorm(x_after, m_work1);
+        return (ss_after < ss_before) ? grow_factor : 1.0;
+    } else if (heuristic == 2) {
+        // Transient residual gate. If the transient residual decreased, allow
+        // increase in timestep.
+        double ts_before = tsnorm(x_before, m_work1);
+        double ts_after = tsnorm(x_after, m_work1);
+        return (ts_after < ts_before) ? grow_factor : 1.0;
+    } else if (heuristic == 3) {
+        // Residual-ratio scaling gate (transient residual). If the transient residual
+        // decreased significantly, allow larger increase in timestep.
+        double ts_before = tsnorm(x_before, m_work1);
+        double ts_after = tsnorm(x_after, m_work1);
+        if (!(ts_after > 0.0) || !(ts_before > ts_after)) {
+            return 1.0;
+        }
+        const double max_growth = m_tstep_growth;
+        const double exponent = 0.2;
+        double ratio = ts_before / ts_after;
+        double factor = std::pow(ratio, exponent);
+        return std::min(max_growth, std::max(1.0, factor));
+    } else if (heuristic == 4) {
+        // Newton-iteration gate. If the last Newton solve required only a few
+        // iterations, allow increase in timestep.
+        const int max_iters_for_growth = 3;
+        return (newton().lastIterations() <= max_iters_for_growth) ? grow_factor : 1.0;
+    }
+    return m_tstep_growth;
+}
+
 double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
                                    span<double> r, int loglevel)
 {
@@ -124,12 +169,14 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
         writelog("============================");
     }
     while (n < nsteps) {
-        if (loglevel == 1) { // At level 1, output concise information
-            double ss = ssnorm(x, r);
-            writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
-        } else if (loglevel > 1) {
-            double ss = ssnorm(x, r);
-            writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt, log10(ss));
+        if (loglevel >= 1) {
+            double ss_before = ssnorm(x, r);
+            if (loglevel == 1) { // At level 1, output concise information
+                writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss_before));
+            } else {
+                writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt,
+                         log10(ss_before));
+            }
         }
 
         // set up for time stepping with stepsize dt
@@ -149,17 +196,18 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
             successiveFailures = 0;
             m_nsteps++;
             n += 1;
-            copy(r.begin(), r.end(), x.begin());
-            // No Jacobian evaluations were performed, so a larger timestep can be used
+            double grow_factor = 1.0;
             if (m_jac->nEvals() == j0) {
-                dt *= 1.5;
+                grow_factor = timeStepIncreaseFactor(x, r);
             }
+            copy(r.begin(), r.end(), x.begin());
+            dt *= grow_factor;
             if (m_time_step_callback) {
                 m_time_step_callback->eval(dt);
             }
             dt = std::min(dt, m_tmax);
             if (m_nsteps >= m_nsteps_max) {
-                throw CanteraError("OneDim::timeStep",
+                throw CanteraError("SteadyStateSystem::timeStep",
                     "Took maximum number of timesteps allowed ({}) without "
                     "reaching steady-state solution.", m_nsteps_max);
             }
@@ -182,7 +230,7 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
                 if (dt < m_tmin) {
                     string err_msg = fmt::format(
                         "Time integration failed. Minimum timestep ({}) reached.", m_tmin);
-                    throw CanteraError("OneDim::timeStep", err_msg);
+                    throw CanteraError("SteadyStateSystem::timeStep", err_msg);
                 }
             }
         }
@@ -211,6 +259,16 @@ double SteadyStateSystem::ssnorm(span<const double> x, span<double> r)
         ss = std::max(fabs(r[i]),ss);
     }
     return ss;
+}
+
+double SteadyStateSystem::tsnorm(span<const double> x, span<double> r)
+{
+    eval(x, r, m_rdt, 0);
+    double ts = 0.0;
+    for (size_t i = 0; i < m_size; i++) {
+        ts = std::max(fabs(r[i]), ts);
+    }
+    return ts;
 }
 
 void SteadyStateSystem::setTimeStep(double stepsize, span<const int> tsteps)
@@ -271,7 +329,9 @@ void SteadyStateSystem::setSteadyMode()
     }
 
     m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, m_mask);
+    if (m_jac_ok) {
+        m_jac->updateTransient(m_rdt, m_mask);
+    }
 }
 
 void SteadyStateSystem::setJacAge(int ss_age, int ts_age)
