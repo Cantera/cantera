@@ -1278,7 +1278,7 @@ class SolutionArray(SolutionArrayBase):
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
         :param basis:
-            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions;
             if not specified (`None`), the native basis of the underlying `ThermoPhase`
             manager is used.
 

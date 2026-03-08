@@ -251,7 +251,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     const vector<double>& mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
-        sk_wk = m_sdot[i] * mw[i];
+        sk_wk += m_sdot[i] * mw[i];
     }
     m_thermo->getPartialMolarEnthalpies(m_hk.data());
     // get net production

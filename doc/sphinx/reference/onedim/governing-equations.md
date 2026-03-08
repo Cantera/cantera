@@ -11,7 +11,7 @@ in Section 7.2 of {cite:t}`kee2017` and are implemented by class {ct}`Flow1D`.
 
 *Continuity*:
 
-$$  \pxpy{u}{z} + 2 \rho V = 0  $$
+$$  \pxpy{(\rho u)}{z} + 2 \rho V = 0  $$
 
 *Radial momentum*:
 

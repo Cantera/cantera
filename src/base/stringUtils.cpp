@@ -121,8 +121,9 @@ Composition parseCompString(const string& ss, const vector<string>& names)
 double fpValue(const string& val)
 {
     double rval;
+    static const auto locale = std::locale("C");
     std::stringstream ss(val);
-    ss.imbue(std::locale("C"));
+    ss.imbue(locale);
     ss >> rval;
     return rval;
 }

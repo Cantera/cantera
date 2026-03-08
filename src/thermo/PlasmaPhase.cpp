@@ -37,6 +37,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     m_nPoints = nGridCells + 1;
     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
     m_electronEnergyLevels = MappedVector(m_eedfSolver->getGridEdge().data(), m_nPoints);
+    m_electronEnergyDist.setZero(m_nPoints);
 }
 
 PlasmaPhase::~PlasmaPhase()

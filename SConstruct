@@ -158,7 +158,7 @@ logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
 
-cantera_version = "3.2.0"
+cantera_version = "3.2.1b1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
 cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
@@ -1000,7 +1000,10 @@ def get_processor_name():
     elif platform.system() == "Darwin":
         os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
         command ="sysctl -n machdep.cpu.brand_string"
-        return subprocess.check_output(command, shell=True).decode().strip()
+        try:
+            return subprocess.check_output(command, shell=True).decode().strip()
+        except subprocess.CalledProcessError:
+            return "<unknown processor>"
     elif platform.system() == "Linux":
         command = "lscpu || cat /proc/cpuinfo"
         all_info = subprocess.check_output(command, shell=True).decode().strip()

@@ -660,8 +660,8 @@ void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
 
 void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
 {
-    settings["skip-coverage-dependence"] = m_jac_skip_electrochemistry;
-    settings["skip-electrochemistry"] = m_jac_skip_coverage_dependence;
+    settings["skip-coverage-dependence"] = m_jac_skip_coverage_dependence;
+    settings["skip-electrochemistry"] = m_jac_skip_electrochemistry;
     settings["rtol-delta"] = m_jac_rtol_delta;
 }
 

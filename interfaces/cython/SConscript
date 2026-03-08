@@ -1,9 +1,10 @@
 """Cython-based Python Module"""
 import re
 from pathlib import Path
+from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 
-from buildutils import (get_command_output, which, multi_glob,
+from buildutils import (get_command_output, which, multi_glob, logger,
                         get_pip_install_location, setup_python_env)
 
 Import('env', 'build', 'install')
@@ -26,6 +27,7 @@ if localenv["example_data"]:
 install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
 
 setup_python_env(localenv)
+logger.info(f"Using setuptools version {localenv['setuptools_version']}")
 # Python module shouldn't explicitly link to Python library (added in other cases to
 # support Python-based extensions), except when using MinGW
 if localenv["toolchain"] != "mingw":
@@ -40,7 +42,11 @@ localenv.Depends(license, localenv["license_target"])
 directives = {"binding": True}
 if env["coverage"]:
     directives["linetrace"] = True
-    localenv.Append(CPPDEFINES={"CYTHON_TRACE": 1})
+    localenv.Append(CPPDEFINES={
+        "CYTHON_TRACE": 1,
+        # TODO: Remove after https://github.com/coveragepy/coveragepy/issues/1790 is resolved.
+        "CYTHON_USE_SYS_MONITORING": 0}
+    )
 
 # Build the Python module
 cython_obj = []
@@ -86,8 +92,10 @@ build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
 if parse_version(localenv["py_version_short"]) >= env["python_max_version"]:
     build_cmd += " --ignore-requires-python"
 
-# Setuptools 75.3.1 and later always lowercase the package name
-if localenv["setuptools_version"] >= parse_version("75.3.1"):
+# Newer setuptools versions always lowercase the package name
+spec1 = SpecifierSet(">=75.8.1")
+spec2 = SpecifierSet("~=75.3.1")  # change backported to this branch
+if localenv["setuptools_version"] in spec1 or localenv["setuptools_version"] in spec2:
     pkg_name = "cantera"
 else:
     pkg_name = "Cantera"
