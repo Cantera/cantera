@@ -12,6 +12,7 @@ it easier for others to understand your code in the context of Cantera as a whol
 * Configure your editor to use 4 spaces per indentation level, and **never to use
   tabs**.
 * Avoid introducing trailing whitespace
+* Files should end with a newline character
 * Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
 * Use whitespace to improve code readability. Examples:
