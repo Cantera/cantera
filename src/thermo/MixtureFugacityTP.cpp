@@ -13,6 +13,8 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace Cantera
@@ -264,6 +266,60 @@ void MixtureFugacityTP::getActivityConcentrations(span<double> c) const
 double MixtureFugacityTP::z() const
 {
     return pressure() * meanMolecularWeight() / (density() * RT());
+}
+
+double MixtureFugacityTP::cp_mole_ideal() const
+{
+    return GasConstant * mean_X(m_cp0_R);
+}
+
+double MixtureFugacityTP::cv_mole_ideal() const
+{
+    return GasConstant * (mean_X(m_cp0_R) - 1.0);
+}
+
+double MixtureFugacityTP::standardConcentration_ideal(size_t k) const
+{
+    getStandardVolumes(m_workS);
+    return 1.0 / m_workS[k];
+}
+
+void MixtureFugacityTP::getActivityCoefficients_ideal(span<double> ac) const
+{
+    checkArraySize("MixtureFugacityTP::getActivityCoefficients_ideal", ac.size(), m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = 1.0;
+    }
+}
+
+void MixtureFugacityTP::getChemPotentials_ideal(span<double> mu) const
+{
+    checkArraySize("MixtureFugacityTP::getChemPotentials_ideal", mu.size(), m_kk);
+    double RT_ = RT();
+    getStandardChemPotentials(mu);
+    for (size_t k = 0; k < m_kk; k++) {
+        double xx = std::max(SmallNumber, moleFraction(k));
+        mu[k] += RT_ * log(xx);
+    }
+}
+
+void MixtureFugacityTP::getPartialMolarEnthalpies_ideal(span<double> hbar) const
+{
+    checkArraySize("MixtureFugacityTP::getPartialMolarEnthalpies_ideal", hbar.size(), m_kk);
+    getEnthalpy_RT_ref(hbar);
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
+}
+
+void MixtureFugacityTP::getPartialMolarEntropies_ideal(span<double> sbar) const
+{
+    checkArraySize("MixtureFugacityTP::getPartialMolarEntropies_ideal", sbar.size(), m_kk);
+    getEntropy_R_ref(sbar);
+    scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
+    double logPres = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        double xx = std::max(SmallNumber, moleFraction(k));
+        sbar[k] -= GasConstant * (log(xx) + logPres);
+    }
 }
 
 double MixtureFugacityTP::sresid() const
@@ -841,6 +897,12 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     }
 
     double tmp;
+    auto physicalRoot = [b](double v) {
+        // For cubic EoS, physically admissible roots satisfy V > b and V > 0.
+        double vmin = std::max(0.0, b * (1.0 + 1e-12));
+        return std::isfinite(v) && v > vmin;
+    };
+
     // One real root -> have to determine whether gas or liquid is the root
     if (disc > 0.0) {
         double tmpD = sqrt(disc);
@@ -921,6 +983,11 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     // Find an accurate root, since there might be a heavy amount of roundoff error due to bad conditioning in this solver.
     double res, dresdV = 0.0;
     for (int i = 0; i < nSolnValues; i++) {
+        if (!physicalRoot(Vroot[i])) {
+            // Non-physical roots (for example, negative molar volume) are not
+            // used for state selection and should not trigger convergence errors.
+            continue;
+        }
         for (int n = 0; n < 20; n++) {
             res = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
             if (fabs(res) < 1.0E-14) { // accurate root is obtained
@@ -945,6 +1012,11 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                                "root failed to converge for T = {}, p = {} with "
                                "V = {}", T, pres, Vroot[i]);
         }
+    }
+    if (nSolnValues == 1 && !physicalRoot(Vroot[0])) {
+        throw CanteraError("MixtureFugacityTP::solveCubic",
+                           "single real root is non-physical for T = {}, p = {} "
+                           "(V = {}, b = {})", T, pres, Vroot[0], b);
     }
 
     if (nSolnValues == 1) {

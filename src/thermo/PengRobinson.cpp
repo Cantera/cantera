@@ -10,9 +10,18 @@
 #include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 namespace Cantera
 {
+
+namespace
+{
+bool isIdealCubicLimit(double aMix, double bMix)
+{
+    return aMix == 0.0 && bMix == 0.0;
+}
+}
 
 const double PengRobinson::omega_a = 4.5723552892138218E-01;
 const double PengRobinson::omega_b = 7.77960739038885E-02;
@@ -83,6 +92,9 @@ void PengRobinson::setBinaryCoeffs(const string& species_i,
 double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return cp_mole_ideal();
+    }
     double T = temperature();
     double mv = molarVolume();
     double vpb = mv + (1 + Sqrt2) * m_b;
@@ -97,6 +109,9 @@ double PengRobinson::cp_mole() const
 double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return cv_mole_ideal();
+    }
     double T = temperature();
     calculatePressureDerivatives();
     return (cp_mole() + T * m_dpdT * m_dpdT / m_dpdV);
@@ -114,13 +129,16 @@ double PengRobinson::pressure() const
 
 double PengRobinson::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS);
-    return 1.0 / m_workS[k];
+    return standardConcentration_ideal(k);
 }
 
 void PengRobinson::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("PengRobinson::getActivityCoefficients", ac.size(), m_kk);
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getActivityCoefficients_ideal(ac);
+        return;
+    }
     double mv = molarVolume();
     double vpb2 = mv + (1 + Sqrt2) * m_b;
     double vmb2 = mv + (1 - Sqrt2) * m_b;
@@ -154,8 +172,13 @@ void PengRobinson::getActivityCoefficients(span<double> ac) const
 
 void PengRobinson::getChemPotentials(span<double> mu) const
 {
-    getGibbs_ref(mu);
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getChemPotentials_ideal(mu);
+        return;
+    }
     double RT_ = RT();
+
+    getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += RT_ * (log(xx));
@@ -189,6 +212,10 @@ void PengRobinson::getChemPotentials(span<double> mu) const
 
 void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getPartialMolarEnthalpies_ideal(hbar);
+        return;
+    }
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
@@ -239,6 +266,11 @@ void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
 
 void PengRobinson::getPartialMolarEntropies(span<double> sbar) const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        getPartialMolarEntropies_ideal(sbar);
+        return;
+    }
+
     // Using the identity : (hk - T*sk) = gk
     double T = temperature();
     getPartialMolarEnthalpies(sbar);
@@ -444,6 +476,9 @@ void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode)
 
 double PengRobinson::sresid() const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double hh = m_b / molarV;
     double zz = z();
@@ -457,6 +492,9 @@ double PengRobinson::sresid() const
 
 double PengRobinson::hresid() const
 {
+    if (isIdealCubicLimit(m_aAlpha_mix, m_b)) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double zz = z();
     double aAlpha_1 = daAlpha_dT();
@@ -518,6 +556,39 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested,
 
     double volGuess = mmw / rhoGuess;
     m_NSolns = solveCubic(T, presPa, m_a, m_b, m_aAlpha_mix, m_Vroot);
+
+    // Ensure root ordering used for branch selection only contains physical roots.
+    // This avoids selecting negative-volume roots in mixed-parameter mechanisms.
+    double vmin = std::max(0.0, m_b * (1.0 + 1e-12));
+    vector<double> physicalRoots;
+    for (double root : m_Vroot) {
+        if (std::isfinite(root) && root > vmin) {
+            physicalRoots.push_back(root);
+        }
+    }
+    std::sort(physicalRoots.begin(), physicalRoots.end());
+    if (physicalRoots.empty()) {
+        return -1.0;
+    } else if (physicalRoots.size() == 1) {
+        // Preserve branch-request semantics for single-root states:
+        // return -2 when the requested phase is inconsistent with the
+        // single branch identified by solveCubic() sign convention.
+        if ((phaseRequested == FLUID_GAS && m_NSolns < 0)
+            || (phaseRequested >= FLUID_LIQUID_0 && m_NSolns > 0))
+        {
+            return -2.0;
+        }
+        // Otherwise, accept the physically admissible root directly.
+        return mmw / physicalRoots[0];
+    } else if (physicalRoots.size() == 2) {
+        m_Vroot[0] = physicalRoots[0];
+        m_Vroot[1] = 0.5 * (physicalRoots[0] + physicalRoots[1]);
+        m_Vroot[2] = physicalRoots[1];
+    } else {
+        m_Vroot[0] = physicalRoots[0];
+        m_Vroot[1] = physicalRoots[1];
+        m_Vroot[2] = physicalRoots[2];
+    }
 
     double molarVolLast = m_Vroot[0];
     if (m_NSolns >= 2) {

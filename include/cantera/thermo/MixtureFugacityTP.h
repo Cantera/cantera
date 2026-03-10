@@ -298,6 +298,42 @@ protected:
      */
     double z() const;
 
+    //! @name Ideal-Limit Utilities for Cubic EoS
+    //!
+    //! These helpers provide shared ideal-gas-limit expressions used by
+    //! cubic-EoS implementations when mixture non-ideal terms vanish.
+    //! @{
+
+    //! Molar heat capacity at constant pressure in the ideal-gas limit.
+    //! Units: J/kmol/K.
+    double cp_mole_ideal() const;
+
+    //! Molar heat capacity at constant volume in the ideal-gas limit.
+    //! Units: J/kmol/K.
+    double cv_mole_ideal() const;
+
+    //! Standard concentration in the ideal-gas limit for species @p k.
+    //! Units: kmol/m^3.
+    double standardConcentration_ideal(size_t k) const;
+
+    //! Ideal-gas-limit activity coefficients for all species.
+    //! Sets all entries of @p ac to 1.
+    void getActivityCoefficients_ideal(span<double> ac) const;
+
+    //! Ideal-gas-limit chemical potentials for all species.
+    //! @param mu Output vector of chemical potentials [J/kmol].
+    void getChemPotentials_ideal(span<double> mu) const;
+
+    //! Ideal-gas-limit partial molar enthalpies for all species.
+    //! @param hbar Output vector of partial molar enthalpies [J/kmol].
+    void getPartialMolarEnthalpies_ideal(span<double> hbar) const;
+
+    //! Ideal-gas-limit partial molar entropies for all species.
+    //! @param sbar Output vector of partial molar entropies [J/kmol/K].
+    void getPartialMolarEntropies_ideal(span<double> sbar) const;
+
+    //! @}
+
     //! Calculate the deviation terms for the total entropy of the mixture from
     //! the ideal gas mixture
     /**
