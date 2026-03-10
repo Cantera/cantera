@@ -3,7 +3,7 @@
 
 from .interrupts import no_op
 import warnings
-from os import get_terminal_size as _get_terminal_size
+from shutil import get_terminal_size as _get_terminal_size
 import numpy as np
 cimport numpy as np
 

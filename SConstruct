@@ -40,6 +40,8 @@ Basic usage:
 
     'scons doxygen' - Build the Doxygen documentation
 
+    'scons pyodide-wheel' - Build Pyodide wheels from Python sdist packages.
+
 Additional command options:
 
     'scons help --options' - Print a description of user-specifiable options.
@@ -104,7 +106,7 @@ if os.name not in ["nt", "posix"]:
 
 valid_commands = ("build", "clean", "install", "uninstall",
                   "help", "msi", "samples", "sphinx", "doxygen", "dump",
-                  "sdist")
+                  "sdist", "pyodide-wheel")
 
 # set default logging level
 if GetOption("silent"):
@@ -185,19 +187,17 @@ cython_version_spec = SpecifierSet(">=3.0.8,!=3.1.2", prereleases=True)
 numpy_version_spec = SpecifierSet(">=1.26.4,<3", prereleases=True)
 ruamel_version_spec = SpecifierSet(">=0.17.21,<1", prereleases=True)
 
-if "sdist" in COMMAND_LINE_TARGETS:
-    if "clean" in COMMAND_LINE_TARGETS:
-        COMMAND_LINE_TARGETS.remove("clean")
-    if len(COMMAND_LINE_TARGETS) > 1:
-        logger.error("'sdist' target cannot be built simultaneously with other targets.")
-        sys.exit(1)
+python_sdist_dir = "/".join((os.getcwd(), "build", "python_sdist"))
+
+
+def _build_python_sdist() -> None:
     logger.info("Copying files for sdist...")
     subprocess.run(
         [
             sys.executable,
             "interfaces/python_sdist/build_sdist.py",
             os.getcwd(),
-            "/".join((os.getcwd(), "build", "python_sdist")),
+            python_sdist_dir,
             cantera_git_commit,
             py_requires_ver_str,
             cantera_version,
@@ -214,13 +214,45 @@ if "sdist" in COMMAND_LINE_TARGETS:
             "-m",
             "build",
             "--sdist",
-            "/".join((os.getcwd(), "build", "python_sdist")),
+            python_sdist_dir,
         ],
     )
     message = textwrap.dedent(f"""
         ****************************************************************
         Python sdist 'Cantera-{cantera_version}.tar.gz' created successfully.
         The sdist file is in the 'build/python_sdist/dist' directory.
+        ****************************************************************
+    """)
+    logger.info(message, print_level=False)
+
+
+if "sdist" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'sdist' target cannot be built simultaneously with other targets.")
+        sys.exit(1)
+    _build_python_sdist()
+    sys.exit(0)
+
+if "pyodide-wheel" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'pyodide-wheel' target cannot be built simultaneously with other targets.")
+        sys.exit(1)
+    _build_python_sdist()
+    subprocess.run(
+        [
+            sys.executable,
+            "interfaces/python_sdist/build_pyodide_wheel.py",
+        ],
+        check=True,
+    )
+    message = textwrap.dedent("""
+        ****************************************************************
+        Pyodide wheel(s) created successfully.
+        The wheel file(s) are in the 'build/pyodide_dist' directory.
         ****************************************************************
     """)
     logger.info(message, print_level=False)

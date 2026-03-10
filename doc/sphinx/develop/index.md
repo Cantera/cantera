@@ -94,6 +94,7 @@ yaml-extensions
 
 - [](distribution-packages/release-checklist)
 - [](distribution-packages/pypi-sdist-wheel)
+- [](distribution-packages/pyodide-wheel)
 - [](distribution-packages/conda)
 - [](distribution-packages/ubuntu-ppa)
 - [](distribution-packages/windows-and-macos.md)
@@ -105,6 +106,7 @@ yaml-extensions
 
 distribution-packages/release-checklist
 distribution-packages/pypi-sdist-wheel
+distribution-packages/pyodide-wheel
 distribution-packages/conda
 distribution-packages/ubuntu-ppa
 distribution-packages/windows-and-macos
