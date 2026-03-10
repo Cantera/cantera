@@ -56,6 +56,29 @@ inline span<const double> asSpan(const Eigen::DenseBase<Derived>& v)
     return span<const double>(v.derived().data(), v.size());
 }
 
+//! Convenience wrapper for accessing std::vector as an Eigen VectorXd
+inline MappedVector asVectorXd(vector<double>& v)
+{
+    return MappedVector(v.data(), static_cast<Eigen::Index>(v.size()));
 }
 
+//! Convenience wrapper for accessing std::vector as an Eigen VectorXd
+inline ConstMappedVector asVectorXd(const vector<double>& v)
+{
+    return ConstMappedVector(v.data(), static_cast<Eigen::Index>(v.size()));
+}
+
+//! Convenience wrapper for accessing std::span as an Eigen VectorXd
+inline MappedVector asVectorXd(span<double> v)
+{
+    return MappedVector(v.data(), static_cast<Eigen::Index>(v.size()));
+}
+
+//! Convenience wrapper for accessing std::span as an Eigen VectorXd
+inline ConstMappedVector asVectorXd(span<const double> v)
+{
+    return ConstMappedVector(v.data(), static_cast<Eigen::Index>(v.size()));
+}
+
+}
 #endif
