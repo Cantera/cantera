@@ -615,6 +615,28 @@ void PengRobinson::updateMixingExpressions()
     calculateAB(m_a,m_b,m_aAlpha_mix);
 }
 
+
+void PengRobinson::updateMixingExpressions(double& temp,double& aCalc, double& bCalc, double& aAlphaCalc)
+{
+    //double temp = temperature();
+
+    // Update individual alpha
+    for (size_t j = 0; j < m_kk; j++) {
+        double critTemp_j = speciesCritTemperature(m_a_coeffs(j,j), m_b_coeffs[j]);
+        double sqt_alpha = 1 + m_kappa[j] * (1 - sqrt(temp / critTemp_j));
+        m_alpha[j] = sqt_alpha*sqt_alpha;
+    }
+
+    // Update aAlpha_i, j
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j < m_kk; j++) {
+            m_aAlpha_binary(i, j) = sqrt(m_alpha[i] * m_alpha[j]) * m_a_coeffs(i,j);
+        }
+    }
+    calculateAB(aCalc,bCalc,aAlphaCalc);
+}
+
+
 void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
 {
     bCalc = 0.0;
@@ -651,6 +673,30 @@ double PengRobinson::daAlpha_dT() const
     }
     return daAlphadT;
 }
+
+double PengRobinson::daAlpha_dT(double& temp) const
+{
+    double daAlphadT = 0.0, k, Tc, sqtTr, coeff1, coeff2;
+    for (size_t i = 0; i < m_kk; i++) {
+        // Calculate first derivative of alpha for individual species
+        Tc = speciesCritTemperature(m_a_coeffs(i,i), m_b_coeffs[i]);
+        sqtTr = sqrt(temp / Tc);
+        coeff1 = 1 / (Tc*sqtTr);
+        coeff2 = sqtTr - 1;
+        k = m_kappa[i];
+        m_dalphadT[i] = coeff1 * (k*k*coeff2 - k);
+    }
+    // Calculate mixture derivative
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j < m_kk; j++) {
+            daAlphadT += moleFractions_[i] * moleFractions_[j] * 0.5
+                         * m_aAlpha_binary(i, j)
+                         * (m_dalphadT[i] / m_alpha[i] + m_dalphadT[j] / m_alpha[j]);
+        }
+    }
+    return daAlphadT;
+}
+
 
 double PengRobinson::d2aAlpha_dT2() const
 {
@@ -732,6 +778,47 @@ AnyMap PengRobinson::getAuxiliaryData()
     parameters["d2aAlpha_dT2"] = d2aAlpha_dT2();
 
     return parameters;
+}
+
+void PengRobinson::setState_DP(double rho, double p,double tol, double Tguess)
+{
+    if (p <= 0 || rho<=0 ) {
+        throw CanteraError("PengRobinson::setState_DP",
+                            "pressure and density must be positive");
+    }
+    setDensity(rho);
+    double mV =  meanMolecularWeight() / rho;
+    // Update individual alpha
+    double aCalc, bCalc, aAlpha;
+    int iteration = 0;
+    double T_new = Tguess; //(p + term2) * denum / GasConstant;
+    double p_iter=p;
+    while (iteration < 300) {
+            // Update a, b, and alpha based on the current guess for T
+        updateMixingExpressions(T_new, aCalc, bCalc, aAlpha);
+        // Calculate p using PR EoS
+        double denom = mV * mV + 2 * mV * bCalc - bCalc * bCalc;
+        double mV_b = mV - bCalc;
+        double term2 = (aAlpha) / denom;
+        p_iter = (GasConstant*T_new)/mV_b - term2;
+        // Check if the result is within the specified tolerance
+        double error =(p_iter-p)/p;
+        if (fabs(error)<tol) {
+            break;
+        }
+        m_dpdT = (GasConstant / mV_b - daAlpha_dT(T_new) / denom);
+        T_new = T_new - (error/(m_dpdT/p));
+        iteration++;
+    }
+    if (iteration==300)
+    {
+    throw CanteraError("PengRobinson::DP did not converge at",
+        "negative temperature T = {} p= {} rho={} X1={} X2={}", T_new, p, rho,moleFractions_[0],moleFractions_[1]);
+    }
+    setDensity(rho);
+    setTemperature(T_new);
+    setState_TP(T_new,p);
+    updateMixingExpressions();
 }
 
 }
