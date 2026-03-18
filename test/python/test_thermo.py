@@ -1292,16 +1292,19 @@ class TestPlasmaPhase:
             phase.add_species(electron)
 
     def test_elastic_power_loss_low_T(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 1000, None, ct.one_atm
         assert phase.elastic_power_loss == approx(6846332332)
 
     def test_elastic_power_loss_high_T(self, phase):
         # when T is as high as Te the energy loss rate becomes small
-        phase.TPX = 4000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 4000, None, ct.one_atm
         assert phase.elastic_power_loss == approx(2865540)
 
     def test_elastic_power_loss_replace_rate(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 1000, None, ct.one_atm
         rate = ct.ReactionRate.from_dict(self.collision_data)
         phase.reaction(1).rate = rate
         assert phase.elastic_power_loss == approx(11765800095)
@@ -1309,17 +1312,20 @@ class TestPlasmaPhase:
     def test_elastic_power_loss_add_reaction(self, phase):
         phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
                              species=phase.species(), reactions=[])
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 1000, None, ct.one_atm
         phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
         assert phase.elastic_power_loss == approx(18612132428)
 
     def test_elastic_power_loss_change_levels(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 1000, None, ct.one_atm
         phase.electron_energy_levels = np.linspace(0,10,101)
         assert phase.elastic_power_loss == approx(113058853)
 
     def test_elastic_power_loss_change_dist(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.X = "O2:1, E:1e-5"
+        phase.TgTeP = 1000, None, ct.one_atm
         levels = np.array([0.0, 0.1, 1.0, 9.0, 10.0])
         dist = np.array([0.0, 0.2, 0.7, 0.01, 0.01])
         # set the electron energy levels first to test if
