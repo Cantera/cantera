@@ -81,9 +81,9 @@ void demoprog()
     // since the gas has been set to an equilibrium state, the forward
     // and reverse rates of progress should be equal for all
     // reversible reactions, and the net rates should be zero.
-    kin->getFwdRatesOfProgress(&qf[0]);
-    kin->getRevRatesOfProgress(&qr[0]);
-    kin->getNetRatesOfProgress(&q[0]);
+    kin->getFwdRatesOfProgress(qf);
+    kin->getRevRatesOfProgress(qr);
+    kin->getNetRatesOfProgress(q);
 
     writelog("\n\n");
     for (int i = 0; i < irxns; i++) {
@@ -107,7 +107,7 @@ void demoprog()
 
     int nsp = gas->nSpecies();
     vector<double> diff(nsp);
-    tr->getMixDiffCoeffs(&diff[0]);
+    tr->getMixDiffCoeffs(diff);
     int k;
     writelog("\n\n{:20s}  {:21s}\n", "Species", "Diffusion Coefficient");
     for (k = 0; k < nsp; k++) {

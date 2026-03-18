@@ -4,9 +4,12 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
+
+#include <numeric>
 
 using namespace Cantera;
 
@@ -39,7 +42,7 @@ TEST_F(OverconstrainedEquil, ChemEquil)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -50,7 +53,7 @@ TEST_F(OverconstrainedEquil, VcsNonideal)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -61,7 +64,7 @@ TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
     vector<double> mu(2);
-    gas->getChemPotentials(&mu[0]);
+    gas->getChemPotentials(mu);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
@@ -69,7 +72,7 @@ TEST_F(OverconstrainedEquil, exceptions)
 {
     setup();
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
 
     ASSERT_THROW(mphase.elementName(200), IndexError);
@@ -89,16 +92,18 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
 {
     setup();
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
-    int usedZeroedSpecies = 0;
-    vector<size_t> orderVectorSpecies;
-    vector<size_t> orderVectorElements;
+    bool usedZeroedSpecies = false;
+    vector<size_t> orderVectorSpecies(mphase.nSpecies());
+    vector<size_t> orderVectorElements(mphase.nElements());
+    std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
+    std::iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
 
     bool doFormMatrix = true;
-    vector<double> formRxnMatrix;
+    vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
-    size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
+    size_t nc = BasisOptimize(usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
                               formRxnMatrix);
     ASSERT_EQ(1, (int) nc);
@@ -108,16 +113,18 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
 {
     setup("O, H, C, N, Ar");
     MultiPhase mphase;
-    mphase.addPhase(gas.get(), 10.0);
+    mphase.addPhase(gas, 10.0);
     mphase.init();
-    int usedZeroedSpecies = 0;
-    vector<size_t> orderVectorSpecies;
-    vector<size_t> orderVectorElements;
+    bool usedZeroedSpecies = false;
+    vector<size_t> orderVectorSpecies(mphase.nSpecies());
+    vector<size_t> orderVectorElements(mphase.nElements());
+    std::iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
+    std::iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
 
     bool doFormMatrix = true;
-    vector<double> formRxnMatrix;
+    vector<double> formRxnMatrix(mphase.nSpecies() * mphase.nElements());
 
-    size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
+    size_t nc = BasisOptimize(usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
                               formRxnMatrix);
     ASSERT_EQ(1, (int) nc);
@@ -143,14 +150,14 @@ public:
         }
 
         vector<double> mu(gas.nSpecies());
-        gas.getChemPotentials(&mu[0]);
+        gas.getChemPotentials(mu);
         double mu_C = mu[gas.speciesIndex("C")];
         double mu_H = mu[gas.speciesIndex("H")];
         double mu_O = mu[gas.speciesIndex("O")];
         double mu_N = mu[gas.speciesIndex("N")];
         double mu_Ar = mu[gas.speciesIndex("AR")];
 
-        gas.getMoleFractions(&X[0]);
+        gas.getMoleFractions(X);
         for (size_t k = 0; k < gas.nSpecies(); k++) {
             if (X[k] < 1e-15) {
                 continue;
@@ -329,6 +336,49 @@ TEST_F(PropertyPairs, VcsNonideal_TV) { check_TV("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_UV) { check_UV("element_potential"); }
 // TEST_F(PropertyPairs, MultiPhase_UV) { check_UV("gibbs"); } // not implemented
 TEST_F(PropertyPairs, VcsNonideal_UV) { check_UV("vcs"); }
+
+class PlasmaEquil : public testing::Test
+{
+public:
+    PlasmaEquil() {}
+    void setup(const string& infile = "air-plasma.yaml",
+               const string& phaseName = "air-plasma-Phelps")
+    {
+        sol = newSolution(infile, phaseName, "none");
+        auto th = sol->thermo();
+        plasma = std::dynamic_pointer_cast<PlasmaPhase>(th);
+        ASSERT_TRUE(plasma) << "Failed to cast thermo to PlasmaPhase";
+    }
+    shared_ptr<Solution> sol;
+    shared_ptr<PlasmaPhase> plasma;
+};
+
+TEST_F(PlasmaEquil, ChemEquil_TP)
+{
+    setup();
+    auto& thermo = *plasma;
+    const double T = 1800.0;
+    const double P = OneAtm;
+    thermo.setState_TPX(T, P, "N2:0.8, O2:0.2, Electron:1E-11");
+    // Set a distinct electron temperature so Te-lock behavior is exercised
+    thermo.setElectronEnergyDistributionType("isotropic");
+    plasma->setElectronTemperature(1.5 * T);
+    // setElectronTemperature updates the EEDF so Te may drift slightly
+    double Te0 = plasma->electronTemperature();
+    EXPECT_NEAR(Te0, 1.5 * T, 1e-2);
+    vector<double> Yelem(thermo.nElements());
+    for (size_t i = 0; i < thermo.nElements(); i++) {
+        Yelem[i] = thermo.elementalMassFraction(i);
+    }
+    thermo.equilibrate("TP", "element_potential");
+    EXPECT_NEAR(thermo.temperature(), T, 1e-6);
+    EXPECT_NEAR(thermo.pressure(), P, 1e-3);
+    for (size_t i = 0; i < thermo.nElements(); i++) {
+        EXPECT_NEAR(Yelem[i], thermo.elementalMassFraction(i), 1e-8);
+    }
+    // Electron temperature should have been restored by endEquilibrate
+    EXPECT_NEAR(plasma->electronTemperature(), Te0, 1e-6);
+}
 
 int main(int argc, char** argv)
 {

@@ -34,13 +34,13 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     // Update distribution
     m_dist_number = pp.distributionNumber();
     distribution.resize(pp.nElectronEnergyLevels());
-    pp.getElectronEnergyDistribution(distribution.data());
+    pp.getElectronEnergyDistribution(distribution);
 
     // Update energy levels
     if (pp.levelNumber() != levelNumber || energyLevels.empty()) {
         levelNumber = pp.levelNumber();
         energyLevels.resize(pp.nElectronEnergyLevels());
-        pp.getElectronEnergyLevels(energyLevels.data());
+        pp.getElectronEnergyLevels(energyLevels);
     }
     return true;
 }
@@ -77,7 +77,8 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
 }
 
 void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
-    const vector<double>& sharedLevels) {
+    span<const double> sharedLevels)
+{
     m_crossSectionsInterpolated.clear();
     m_crossSectionsInterpolated.reserve(sharedLevels.size());
     for (double level : sharedLevels) {

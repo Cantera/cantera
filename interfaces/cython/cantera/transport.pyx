@@ -12,7 +12,7 @@ from .thermo cimport ThermoPhase
 # such as class Solution. [Cython 0.16]
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(tran.thermo.nSpecies())
-    method(tran.transport, &data[0])
+    method(tran.transport, span[double](&data[0], data.size))
     if tran._selected_species.size:
         return data[tran._selected_species]
     else:
@@ -22,20 +22,20 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
     cdef size_t kk = tran.thermo.nSpecies()
     # getMultiDiffCoeffs returns an array using Fortran ordering
     cdef np.ndarray[np.double_t, ndim=2, mode='fortran'] data = np.empty((kk, kk), order='F')
-    method(tran.transport, kk, &data[0,0])
+    method(tran.transport, kk, span[double](&data[0,0], kk * kk))
     return data
 
 cdef np.ndarray get_transport_polynomial(
         Transport tran, transportPolyMethod1i method, int index, int n_coeffs):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
-    method(tran.transport, index, &data[0])
+    method(tran.transport, index, span[double](&data[0], data.size))
     return data
 
 cdef np.ndarray get_binary_transport_polynomial(
         Transport tran, transportPolyMethod2i method, int indexi, int indexj,
         int n_coeffs):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
-    method(tran.transport, indexi, indexj, &data[0])
+    method(tran.transport, indexi, indexj, span[double](&data[0], data.size))
     return data
 
 cdef class GasTransportData:
@@ -316,8 +316,10 @@ cdef class Transport(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] adata = np.empty(n_values)
         cdef np.ndarray[np.double_t, ndim=1] bdata = np.empty(n_values)
         cdef np.ndarray[np.double_t, ndim=1] cdata = np.empty(n_values)
-        self.transport.getCollisionIntegralPolynomial(i, j, &adata[0], &bdata[0],
-                                                      &cdata[0])
+        self.transport.getCollisionIntegralPolynomial(i, j,
+            span[double](&adata[0], adata.size),
+            span[double](&bdata[0], bdata.size),
+            span[double](&cdata[0], cdata.size))
         return adata, bdata, cdata
 
     def set_viscosity_polynomial(self, i, values):
@@ -333,7 +335,8 @@ cdef class Transport(_SolutionBase):
                 received {len(values)}.""")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
                                                                         dtype=np.double)
-        tran_setViscosityPolynomial(self.transport, i, &data[0])
+        tran_setViscosityPolynomial(self.transport, i,
+                                    span[double](&data[0], data.size))
 
     def set_thermal_conductivity_polynomial(self, i, values):
         """
@@ -348,7 +351,8 @@ cdef class Transport(_SolutionBase):
                 received {len(values)}.""")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
                                                                         dtype=np.double)
-        tran_setConductivityPolynomial(self.transport, i, &data[0])
+        tran_setConductivityPolynomial(self.transport, i,
+                                       span[double](&data[0], data.size))
 
     def set_binary_diff_coeffs_polynomial(self, i, j, values):
         """
@@ -363,7 +367,8 @@ cdef class Transport(_SolutionBase):
                 received {len(values)}.""")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
                                                                         dtype=np.double)
-        tran_setBinDiffusivityPolynomial(self.transport, i, j, &data[0])
+        tran_setBinDiffusivityPolynomial(self.transport, i, j,
+                                        span[double](&data[0], data.size))
 
     def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues,
                                           actualT=False):
@@ -393,8 +398,9 @@ cdef class Transport(_SolutionBase):
                                                                         dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] cdata = np.ascontiguousarray(cvalues,
                                                                         dtype=np.double)
-        self.transport.setCollisionIntegralPolynomial(i, j, &adata[0], &bdata[0],
-                                                      &cdata[0], actualT)
+        self.transport.setCollisionIntegralPolynomial(i, j,
+            span[double](&adata[0], adata.size), span[double](&bdata[0], bdata.size),
+            span[double](&cdata[0], cdata.size), actualT)
 
     property transport_fitting_errors:
         """
@@ -493,6 +499,8 @@ cdef class DustyGasTransport(Transport):
         state2[1] = rho2
         state2[2:] = Y2
 
-        (<CxxDustyGasTransport*>self.transport).getMolarFluxes(&state1[0],
-            &state2[0], delta, &fluxes[0])
+        (<CxxDustyGasTransport*>self.transport).getMolarFluxes(
+            span[const_double](&state1[0], state1.size),
+            span[const_double](&state2[0], state2.size), delta,
+            span[double](&fluxes[0], fluxes.size))
         return fluxes

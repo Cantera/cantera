@@ -36,7 +36,7 @@ void Group::validate()
     }
 }
 
-std::ostream& Group::fmt(std::ostream& s, const vector<string>& esymbols) const
+std::ostream& Group::fmt(std::ostream& s, span<const string> esymbols) const
 {
     s << "(";
     bool first = true;
@@ -54,16 +54,6 @@ std::ostream& Group::fmt(std::ostream& s, const vector<string>& esymbols) const
         }
     }
     s << ")";
-    return s;
-}
-
-std::ostream& operator<<(std::ostream& s, const Group& g)
-{
-    if (g.valid()) {
-        s << g.m_comp;
-    } else {
-        s << "<none>";
-    }
     return s;
 }
 

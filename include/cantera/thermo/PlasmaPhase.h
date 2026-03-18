@@ -139,13 +139,12 @@ public:
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels [eV].
     //!                Length: #m_nPoints.
-    //! @param  length The length of the @c levels.
-    void setElectronEnergyLevels(const double* levels, size_t length);
+    void setElectronEnergyLevels(span<const double> levels);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels [eV]. Length: #m_nPoints
-    void getElectronEnergyLevels(double* levels) const {
-        Eigen::Map<Eigen::ArrayXd>(levels, m_nPoints) = m_electronEnergyLevels;
+    void getElectronEnergyLevels(span<double> levels) const {
+        Eigen::Map<Eigen::ArrayXd>(levels.data(), levels.size()) = m_electronEnergyLevels;
     }
 
     //! Set discretized electron energy distribution.
@@ -153,16 +152,14 @@ public:
     //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    //! @param  length The length of the vectors, which equals #m_nPoints.
-    void setDiscretizedElectronEnergyDist(const double* levels,
-                                          const double* distrb,
-                                          size_t length);
+    void setDiscretizedElectronEnergyDist(span<const double> levels,
+                                          span<const double> distrb);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    void getElectronEnergyDistribution(double* distrb) const {
-        Eigen::Map<Eigen::ArrayXd>(distrb, m_nPoints) = m_electronEnergyDist;
+    void getElectronEnergyDistribution(span<double> distrb) const {
+        Eigen::Map<Eigen::ArrayXd>(distrb.data(), distrb.size()) = m_electronEnergyDist;
     }
 
     //! Set the shape factor of isotropic electron energy distribution.
@@ -344,10 +341,55 @@ public:
      */
     double enthalpy_mole() const override;
 
+    // --------------------------------------------------------------------------------------//
+    //! Return the molar entropy. Units: J/kmol/K.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    * \hat s(T,T_e,p,X)
+    * = \sum_{k\neq k_e} X_k\left[\hat s_k^0(T) - R\ln\left(\frac{X_k p}{p^0}\right)\right]
+    * + X_{k_e}\left[\hat s_{k_e}^0(T_e) - R\ln\left(\frac{X_{k_e} p_e}{p^0}\right)\right],
+    * @f]
+    * where heavy-species properties are evaluated at @f$T@f$, electron properties at
+    * @f$T_e@f$, and the electron mixing term uses the electron pressure
+    * @f$p_e = n_{k_e} R T_e@f$.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double entropy_mole() const override;
+
+    //! Return the molar Gibbs free energy. Units: J/kmol.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    *   \hat g(T, T_e, p, X) = \sum_k X_k \mu_k(T_k, p_k, X),
+    * @f]
+    * where heavy species use the gas temperature @f$T@f$ and bulk pressure,
+    * while the electron chemical potential uses @f$T_e@f$ and
+    * @f$p_e = n_{k_e} R T_e@f$.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double gibbs_mole() const override;
+
+    //! Return the molar internal energy. Units: J/kmol.
+    /*!
+    * For an ideal gas mixture with an additional electron species,
+    * @f[
+    *   \hat u(T,T_e) = \sum_{k \neq k_e} X_k \hat u^0_k(T) + X_{k_e} \hat u^0_{k_e}(T_e),
+    * @f]
+    * where @f$\hat u^0_k(T) = \hat h^0_k(T) - R T@f$ for heavy species and
+    * @f$\hat u^0_{k_e}(T_e) = \hat h^0_{k_e}(T_e) - R T_e@f$ for electrons.
+    *
+    * @see MultiSpeciesThermo
+    */
+    double intEnergy_mole() const override;
+
     // double entropy_mole() const override;
     // double gibbs_mole() const override;
     // double intEnergy_mole() const override;
-
+    // --------------------------------------------------------------------------------------//
+    
     double cp_mole() const override;
     // double cp_mass() const; // Already defined in ThermoPhase
     // double cv_mole() const; // Already defined in IdealGasPhase
@@ -516,17 +558,18 @@ public:
     //! @name Partial Molar Properties of the Solution
     //! @{
 
-    void getChemPotentials(double* mu) const override;
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    // void getPartialMolarEntropies(double* sbar) const override;
+    void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    // void getPartialMolarEntropies(span<double> sbar) const override;
 
-    void getPartialMolarIntEnergies(double* ubar) const override;
-    // void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    // void getPartialMolarCp(span<double> cpbar) const override;
+
 
     // Whenever a temperature can be defined, the following relation holds:
     //   h_k = u_k + R * T_k = u_k + p * v_k
     // Therefore, v_k = R * T_k / p
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
     // ================================================================= //
@@ -543,18 +586,18 @@ public:
      *  \mu^0_{e}(T_e) = g_k^0(T_e) + RT_e \ln \left(\frac{P}{P^0}\right).
      * @f]
      */
-    void getStandardChemPotentials(double* muStar) const override;
+    void getStandardChemPotentials(span<double> muStar) const override;
 
-    // void getEnthalpy_RT(double* hrt) const override;
-    // void getEntropy_R(double* sr) const override;
-    // void getGibbs_RT(double* grt) const override;
-    // void getIntEnergy_RT(double* urt) const override;
-    // void getCp_R(double* cpr) const override;
+    // void getEnthalpy_RT(span<double> hrt) const override;
+    // void getEntropy_R(span<double> sr) const override;
+    // void getGibbs_RT(span<double> grt) const override;
+    // void getIntEnergy_RT(span<double> urt) const override;
+    // void getCp_R(span<double> cpr) const override;
 
     // Whenever a temperature can be defined, the following relation holds:
     //   h_k = u_k + R * T_k = u_k + p * v_k
     // Therefore, v_k = R * T_k / p
-    void getStandardVolumes(double* vol) const override;
+    void getStandardVolumes(span<double> vol) const override;
 
     //! @}
     // ================================================================= //
@@ -562,8 +605,8 @@ public:
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    // void getEnthalpy_RT_ref(double* hrt) const override;
-    // void getGibbs_RT_ref(double* grt) const override;
+    // void getEnthalpy_RT_ref(span<double> hrt) const override;
+    // void getGibbs_RT_ref(span<double> grt) const override;
 
     //! Return the reference-state Gibbs free energys of the species [J/kmol].
     /*!
@@ -574,12 +617,12 @@ public:
      *  \hat{g}^0_{e}(T_e) = \hat{h}^0_{e}(T_e) - T_e \hat{s}^0_{e}(T_e).
      * @f]
      */
-    void getGibbs_ref(double* g) const override;
+    void getGibbs_ref(span<double> g) const override;
 
-    // void getEntropy_R_ref(double* er) const override;
-    // void getIntEnergy_RT_ref(double* urt) const override;
-    // void getCp_R_ref(double* cprt) const override;
-    void getStandardVolumes_ref(double* vol) const override;
+    // void getEntropy_R_ref(span<double> er) const override;
+    // void getIntEnergy_RT_ref(span<double> urt) const override;
+    // void getCp_R_ref(span<double> cprt) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
     // ================================================================= //
@@ -699,6 +742,35 @@ public:
 
     //! @}
 
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
+
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
+     *   @f[
+     *     \sigma = e * n_e * \mu_e
+     *   @f]
+     * and @f$ E @f$ is the electric field strength (V/m).
+     */
+    double jouleHeatingPower() const;
+
+    void beginEquilibrate() override;
+
+    void endEquilibrate() override;
+
+    double intrinsicHeating() override;
 
 protected:
     void updateThermo() const override;
@@ -864,6 +936,15 @@ private:
 
     // Electron molar mass [kg/kmol].
     const double m_Me = ElectronMass * Avogadro;
+
+    //! Saved electron temperature during an equilibrium solve
+    double m_electronTempEquil = 0.0;
+
+    //! Lock flag (default off)
+    bool m_inEquilibrate = false;
+
+    //! Work array
+    mutable std::vector<double> m_work;
 };
 
 }

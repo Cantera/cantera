@@ -28,8 +28,8 @@ public:
     void initialize(size_t networkSize) override;
     const string type() const override { return "Adaptive"; }
     void factorize() override;
-    void solve(const size_t stateSize, double* rhs_vector, double* output) override;
-    void stateAdjustment(vector<double>& state) override;
+    void solve(span<const double> rhs_vector, span<double> output) override;
+    void stateAdjustment(span<double> state) override;
 
     int info() const override {
         return static_cast<int>(m_solver.info());

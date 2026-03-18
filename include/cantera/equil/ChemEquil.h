@@ -117,7 +117,7 @@ public:
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular Jacobian.
      */
-    int equilibrate(ThermoPhase& s, const char* XY, vector<double>& elMoles,
+    int equilibrate(ThermoPhase& s, const char* XY, span<double> elMoles,
                     int loglevel = 0);
 
     /**
@@ -155,16 +155,15 @@ protected:
      * @f[ \lambda_m/RT @f].
      * @param t temperature in K.
      */
-    void setToEquilState(ThermoPhase& s,
-                         const vector<double>& x, double t);
+    void setToEquilState(ThermoPhase& s, span<const double> x, double t);
 
     //! Estimate the initial mole numbers. This version borrows from the
     //! MultiPhaseEquil solver.
-    int setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal, int loglevel = 0);
+    int setInitialMoles(ThermoPhase& s, span<double> elMoleGoal, int loglevel = 0);
 
     //! Generate a starting estimate for the element potentials.
-    int estimateElementPotentials(ThermoPhase& s, vector<double>& lambda,
-                                  vector<double>& elMolesGoal, int loglevel = 0);
+    int estimateElementPotentials(ThermoPhase& s, span<double> lambda,
+                                  span<double> elMolesGoal, int loglevel = 0);
 
     /**
      * Do a calculation of the element potentials using the Brinkley method,
@@ -199,7 +198,7 @@ protected:
      *
      * NOTE: update for activity coefficients.
      */
-    int estimateEP_Brinkley(ThermoPhase& s, vector<double>& lambda, vector<double>& elMoles);
+    int estimateEP_Brinkley(ThermoPhase& s, span<double> lambda, span<double> elMoles);
 
     //! Find an acceptable step size and take it.
     /*!
@@ -214,22 +213,22 @@ protected:
      * limited to a factor of 2 jump in the values from this method. Near
      * convergence, the delta damping gets out of the way.
      */
-    int dampStep(ThermoPhase& s, vector<double>& oldx,
-                 double oldf, vector<double>& grad, vector<double>& step, vector<double>& x,
-                 double& f, vector<double>& elmols, double xval, double yval);
+    int dampStep(ThermoPhase& s, span<double> oldx, double oldf, span<double> grad,
+                 span<double> step, span<double> x, double& f, span<double> elmols,
+                 double xval, double yval);
 
     /**
      *  Evaluates the residual vector F, of length #m_mm
      */
-    void equilResidual(ThermoPhase& s, const vector<double>& x,
-                       const vector<double>& elmtotal, vector<double>& resid,
+    void equilResidual(ThermoPhase& s, span<const double> x,
+                       span<const double> elmtotal, span<double> resid,
                        double xval, double yval, int loglevel = 0);
 
-    void equilJacobian(ThermoPhase& s, vector<double>& x,
-                       const vector<double>& elmols, DenseMatrix& jac,
+    void equilJacobian(ThermoPhase& s, span<double> x,
+                       span<const double> elmols, DenseMatrix& jac,
                        double xval, double yval, int loglevel = 0);
 
-    void adjustEloc(ThermoPhase& s, vector<double>& elMolesGoal);
+    void adjustEloc(ThermoPhase& s, span<double> elMolesGoal);
 
     //! Update internally stored state information.
     void update(const ThermoPhase& s);
@@ -243,10 +242,9 @@ protected:
      * @param[in] Xmol_i_calc Mole fractions of the species
      * @param[in] pressureConst Pressure
      */
-    double calcEmoles(ThermoPhase& s, vector<double>& x,
-                      const double& n_t, const vector<double>& Xmol_i_calc,
-                      vector<double>& eMolesCalc, vector<double>& n_i_calc,
-                      double pressureConst);
+    double calcEmoles(ThermoPhase& s, span<double> x, const double& n_t,
+                      span<const double> Xmol_i_calc, span<double> eMolesCalc,
+                      span<double> n_i_calc, double pressureConst);
 
     size_t m_mm; //!< number of elements in the phase
     size_t m_kk; //!< number of species in the phase

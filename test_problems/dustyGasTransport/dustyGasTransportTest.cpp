@@ -25,7 +25,7 @@ int main(int argc, char** argv)
         tranDusty->setMeanPoreRadius(1.5E-7);
         tranDusty->setMeanParticleDiameter(1.5E-6);
 
-        tranDusty->getMultiDiffCoeffs(nsp, multiD.data());
+        tranDusty->getMultiDiffCoeffs(nsp, multiD);
         printf("MultiDiffusion coefficients: \n");
         for (size_t i = 0; i < nsp; i++) {
             for (size_t j = 0; j < nsp; j++) {
@@ -34,20 +34,20 @@ int main(int argc, char** argv)
             printf("\n");
         }
 
-        vector<double> state1;
+        vector<double> state1(g->stateSize());
         g->saveState(state1);
         g->setState_TP(T, 1.2 * OneAtm);
-        vector<double> state2;
+        vector<double> state2(g->stateSize());
         g->saveState(state2);
         double delta = 0.001;
         vector<double> fluxes;
         fluxes.resize(nsp);
 
-        tranDusty->getMolarFluxes(&state1[0], &state1[0], delta, &fluxes[0]);
+        tranDusty->getMolarFluxes(state1, state1, delta, fluxes);
         for (size_t i = 0; i < nsp; i++) {
             printf(" flux[%d] = %13.8E\n", int(i), fluxes[i]);
         }
-        tranDusty->getMolarFluxes(&state1[0], &state2[0], delta, &fluxes[0]);
+        tranDusty->getMolarFluxes(state1, state2, delta, fluxes);
         for (size_t i = 0; i < nsp; i++) {
             printf(" flux[%d] = %13.8E\n", int(i), fluxes[i]);
         }

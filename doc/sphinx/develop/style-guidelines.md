@@ -12,6 +12,7 @@ it easier for others to understand your code in the context of Cantera as a whol
 * Configure your editor to use 4 spaces per indentation level, and **never to use
   tabs**.
 * Avoid introducing trailing whitespace
+* Files should end with a newline character
 * Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
 * Use whitespace to improve code readability. Examples:
@@ -38,16 +39,20 @@ it easier for others to understand your code in the context of Cantera as a whol
 * Class names use `InitialCapsNames`
 * Methods use `camelCaseNames`
 * Do not indent the contents of namespaces
-* Code should follow the C++17 standard, with minimum required compiler versions GCC
-  7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
+* Code may use features from the C++20 standard, with minimum required compiler versions
+  GCC 13.2, Clang 18.0, Visual Studio 2019 version 16.11 and Intel 2023.1.
 * Cantera moves frequently used C++ standard namespace types and functions into the
   declarative region, meaning that the `std` scope resolution can be omitted. This
-  applies to the following: `string`, `vector`, `map`, `set`, `pair`, `shared_ptr`,
-  `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use `string`
-  instead of `std::string`; a `using namespace std;` declaration is not required.
+  applies to the following: `string`, `vector`, `span`, `map`, `set`, `pair`,
+  `shared_ptr`, `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use
+  `string` instead of `std::string`; a `using namespace std;` declaration is not
+  required.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
   standard library containers, as well as `unique_ptr` and `shared_ptr` when dynamic
   allocation is required.
+* Methods which take array arguments should use `span<double>` or `span<const double>`
+  instead of bare pointers that do not provide size information, and instead of specific
+  types that require the user to use a particular container like `std::vector<double>&`.
 * Portions of Boost which are "header only" may be used. If possible, include Boost
   header files only within .cpp files rather than other header files to avoid
   unnecessary increases in compilation time. Boost should not be added to the public
@@ -153,9 +158,14 @@ above, both are used.
 ### Style Guide
 
 * Style generally follows [PEP8](https://www.python.org/dev/peps/pep-0008/)
-* The minimum Python version that Cantera supports is Python 3.10, so code should only
-  use features added in Python 3.10 or earlier
+* The minimum Python version that Cantera supports is Python 3.12, so code should only
+  use features added in Python 3.12 or earlier
 * Please use double quotes in all new Python code
+* Type annotations are mandatory for any external interfaces:
+  * Utilize type annotations directly in all new pure Python code (`.py` files)
+  * For Cython code (`.pyx` files), add the annotations to the corresponding type stubs
+    (`.pyi` files)
+  * See [](sec-python-type-annotations) for more information
 
 ### Sphinx comments
 

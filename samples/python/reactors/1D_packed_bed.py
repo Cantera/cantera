@@ -212,10 +212,8 @@ Yk_0 = gas.Y
 rhou0 = gas.density * v_in
 
 # Initial surface coverages
-# advancing coverages over a long period of time to get the steady state.
-surf.advance_coverages(1e10)
+surf.advance_coverages_to_steady_state()
 Zk_0 = surf.coverages
-
 
 # %%
 # Define residual function required for IDA solver

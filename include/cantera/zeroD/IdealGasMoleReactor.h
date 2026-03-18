@@ -30,27 +30,36 @@ public:
     string componentName(size_t k) override;
     double upperBound(size_t k) const override;
     double lowerBound(size_t k) const override;
-    vector<size_t> steadyConstraints() const override;
+    vector<size_t> initializeSteady() override;
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
 
     void initialize(double t0=0.0) override;
 
-    void eval(double t, double* LHS, double* RHS) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
+    void evalSteady(double t, span<double> LHS, span<double> RHS) override;
 
-    void updateState(double* y) override;
+    void updateState(span<const double> y) override;
 
     //! Calculate an approximate Jacobian to accelerate preconditioned solvers
 
     //! Neglects derivatives with respect to mole fractions that would generate a
     //! fully-dense Jacobian. Currently, also neglects terms related to interactions
     //! between reactors, for example via inlets and outlets.
-    Eigen::SparseMatrix<double> jacobian() override;
+    void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
+    void getJacobianScalingFactors(double& f_species, span<double> f_energy) override;
 
     bool preconditionerSupported() const override {return true;};
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies
+    double m_TotalCv; //!< Total heat capacity (@f$ m c_v @f$) [J/K]
+
+     //! Initial volume [m³]; used for steady-state calculations
+    double m_initialVolume;
+
+     //! Initial temperature [K]; used for steady-state calculations
+    double m_initialTemperature;
 };
 
 }

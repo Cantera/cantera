@@ -137,10 +137,10 @@ class TestMixture:
         assert mix.species_moles[2] == approx(S[2])
         assert mix.phase_moles(0) == approx(sum(S[:phase1.n_species]))
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="too small"):
             mix.species_moles = (1, 2, 3)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError, match="too small"):
             mix.species_moles = 9
 
     def test_element_moles(self, mix):

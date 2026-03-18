@@ -35,6 +35,30 @@ private:
     ReactorFactory();
 };
 
+//! Factory class to create ReactorSurface objects
+//!
+//! This class is mainly used via the newReactorSurface() function, for example:
+//!
+//! ```cpp
+//!     shared_ptr<ReactorSurface> rsurf1 = newReactorSurface(
+//!         surf_phase, {reactor1, reactor2});
+//! @tem
+//! ```
+class ReactorSurfaceFactory : public Factory<ReactorSurface,
+    shared_ptr<Solution> /* surface */,
+    span<shared_ptr<ReactorBase>> /* adjacent reactors */,
+    bool /* clone */, const string& /* name */>
+{
+public:
+    static ReactorSurfaceFactory* factory();
+    void deleteFactory() override;
+
+private:
+    static ReactorSurfaceFactory* s_factory;
+    static std::mutex s_mutex;
+    ReactorSurfaceFactory();
+};
+
 //! @defgroup reactorGroup Reactors
 //! Zero-dimensional objects representing stirred reactors.
 //! Reactors simulate time-dependent behavior considering gas-phase chemistry.
@@ -61,14 +85,14 @@ shared_ptr<ReactorBase> newReactorBase(
 //!     reactor is independent of the original Solution object and any Solution objects
 //!     used by other reactors in the network.
 //! @param name  Name of the reactor.
-//! @since  Starting in %Cantera 3.3, returns a `shared_ptr<Reactor>` instead of a
+//! @since  Starting in %Cantera 4.0, returns a `shared_ptr<Reactor>` instead of a
 //!     `shared_ptr<ReactorBase>`.
 shared_ptr<Reactor> newReactor(
     const string& model, shared_ptr<Solution> phase, bool clone=true,
     const string& name="(none)");
 
 //! @copydoc newReactor
-//! @deprecated Transitional method; to be removed after %Cantera 3.3.
+//! @deprecated Transitional method; to be removed after %Cantera 4.0.
 inline shared_ptr<Reactor> newReactor4(const string& model, shared_ptr<Solution> phase,
                                 bool clone=true, const string& name="(none)")
 {
@@ -87,6 +111,10 @@ shared_ptr<Reservoir> newReservoir(
 
 //! Create a ReactorSurface object with the specified contents and adjacent reactors
 //! participating in surface reactions.
+//!
+//! The type of the reactor surface is automatically determined based on the types of
+//! the adjacent reactors.
+//!
 //! @param phase  Solution (Interface) object to model the thermodynamic properties
 //!     and reactions occurring in the reactor
 //! @param  reactors  List of Reactors adjacent to this surface, whose contents
@@ -97,7 +125,24 @@ shared_ptr<Reservoir> newReservoir(
 //! @param name  Name of the reactor surface.
 //! @since  New in %Cantera 3.2.
 shared_ptr<ReactorSurface> newReactorSurface(
-    shared_ptr<Solution> phase, const vector<shared_ptr<ReactorBase>>& reactors,
+    shared_ptr<Solution> phase, span<shared_ptr<ReactorBase>> reactors,
+    bool clone=true, const string& name="(none)");
+
+//! Create a ReactorSurface object with the specified contents and adjacent reactors
+//! participating in surface reactions.
+//! @param  model  Type of ReactorSurface to be created.
+//! @param phase  Solution (Interface) object to model the thermodynamic properties
+//!     and reactions occurring in the reactor
+//! @param  reactors  List of Reactors adjacent to this surface, whose contents
+//!     participate in reactions occurring on this surface.
+//! @param clone  Determines whether to clone `sol` so that the internal state of this
+//!     surface is independent of the original Interface object and any Solution objects
+//!     used by other reactors in the network except those in the `reactors` list.
+//! @param name  Name of the reactor surface.
+//! @since  New in %Cantera 4.0.
+shared_ptr<ReactorSurface> newReactorSurface(
+    const string& model, shared_ptr<Solution> phase,
+    span<shared_ptr<ReactorBase>> reactors,
     bool clone=true, const string& name="(none)");
 
 //! @}

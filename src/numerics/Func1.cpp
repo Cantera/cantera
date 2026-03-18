@@ -73,7 +73,7 @@ int Func1::order() const
 
 /*****************************************************************************/
 
-Sin1::Sin1(const vector<double>& params)
+Sin1::Sin1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Sin1::Sin1",
@@ -99,7 +99,7 @@ shared_ptr<Func1> Sin1::derivative() const
 
 /*****************************************************************************/
 
-Cos1::Cos1(const vector<double>& params)
+Cos1::Cos1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Cos1::Cos1",
@@ -125,7 +125,7 @@ string Cos1::write(const string& arg) const
 
 /**************************************************************************/
 
-Exp1::Exp1(const vector<double>& params)
+Exp1::Exp1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Exp1::Exp1",
@@ -152,7 +152,7 @@ string Exp1::write(const string& arg) const
     }
 }
 
-Log1::Log1(const vector<double>& params)
+Log1::Log1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Log1::Log1",
@@ -180,7 +180,7 @@ string Log1::write(const string& arg) const
 
 /******************************************************************************/
 
-Pow1::Pow1(const vector<double>& params)
+Pow1::Pow1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Pow1::Pow1",
@@ -203,7 +203,7 @@ shared_ptr<Func1> Pow1::derivative() const
 
 /******************************************************************************/
 
-Const1::Const1(const vector<double>& params)
+Const1::Const1(span<const double> params)
 {
     if (params.size() != 1) {
         throw CanteraError("Const1::Const1",
@@ -212,7 +212,7 @@ Const1::Const1(const vector<double>& params)
     m_c = params[0];
 }
 
-Poly1::Poly1(const vector<double>& params)
+Poly1::Poly1(span<const double> params)
 {
     if (params.size() == 0) {
         throw CanteraError("Poly1::Poly1",
@@ -258,7 +258,7 @@ string Poly1::write(const string& arg) const
     return out;
 }
 
-Fourier1::Fourier1(const vector<double>& params)
+Fourier1::Fourier1(span<const double> params)
 {
     if (params.size() < 4) {
         throw CanteraError("Fourier1::Fourier1",
@@ -277,7 +277,7 @@ Fourier1::Fourier1(const vector<double>& params)
     copy(params.data() + n + 2, params.data() + 2 * n + 2, m_csin.begin());
 }
 
-Gaussian1::Gaussian1(const vector<double>& params)
+Gaussian1::Gaussian1(span<const double> params)
 {
     if (params.size() != 3) {
         throw CanteraError("Gaussian1::Gaussian1",
@@ -288,7 +288,7 @@ Gaussian1::Gaussian1(const vector<double>& params)
     m_tau = params[2] / (2. * sqrt(log(2.)));
 }
 
-Arrhenius1::Arrhenius1(const vector<double>& params)
+Arrhenius1::Arrhenius1(span<const double> params)
 {
     if (params.size() < 3) {
         throw CanteraError("Arrhenius1::Arrhenius1",
@@ -310,23 +310,26 @@ Arrhenius1::Arrhenius1(const vector<double>& params)
     }
 }
 
-Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
+Tabulated1::Tabulated1(span<const double> tvals, span<const double> fvals,
                        const string& method)
 {
-    m_tvec.resize(n);
-    std::copy(tvals, tvals + n, m_tvec.begin());
+    if (tvals.size() != fvals.size()) {
+        throw CanteraError("Tabulated1::Tabulated1",
+            "Expected matching time/value lengths, got {} and {}.",
+            tvals.size(), fvals.size());
+    }
+    m_tvec.assign(tvals.begin(), tvals.end());
     for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
         if (*(it - 1) > *it) {
             throw CanteraError("Tabulated1::Tabulated1",
                                "time values are not increasing monotonically.");
         }
     }
-    m_fvec.resize(n);
-    std::copy(fvals, fvals + n, m_fvec.begin());
+    m_fvec.assign(fvals.begin(), fvals.end());
     setMethod(method);
 }
 
-Tabulated1::Tabulated1(const vector<double>& params) : m_isLinear(true)
+Tabulated1::Tabulated1(span<const double> params) : m_isLinear(true)
 {
     if (params.size() < 4) {
         throw CanteraError("Tabulated1::Tabulated1",
@@ -337,16 +340,14 @@ Tabulated1::Tabulated1(const vector<double>& params) : m_isLinear(true)
             "Constructor needs an array with an even number of entries.");
     }
     size_t n = params.size() / 2;
-    m_tvec.resize(n);
-    copy(params.data(), params.data() + n, m_tvec.begin());
+    m_tvec.assign(params.data(), params.data() + n);
     for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
         if (*(it - 1) > *it) {
             throw CanteraError("Tabulated1::Tabulated1",
                 "Time values are not monotonically increasing.");
         }
     }
-    m_fvec.resize(n);
-    copy(params.data() + n, params.data() + 2 * n, m_fvec.begin());
+    m_fvec.assign(params.data() + n, params.data() + 2 * n);
 }
 
 void Tabulated1::setMethod(const string& method)
@@ -407,7 +408,7 @@ shared_ptr<Func1> Tabulated1::derivative() const {
         dvec.push_back(0.);
         dvec.push_back(0.);
     }
-    return make_shared<Tabulated1>(tvec.size(), &tvec[0], &dvec[0], "previous");
+    return make_shared<Tabulated1>(tvec, dvec, "previous");
 }
 
 /******************************************************************************/

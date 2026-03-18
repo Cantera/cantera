@@ -3,8 +3,9 @@
 
 from .interrupts import no_op
 import warnings
-from os import get_terminal_size as _get_terminal_size
+from shutil import get_terminal_size as _get_terminal_size
 import numpy as np
+cimport numpy as np
 
 from ._utils cimport stringify, pystr, anymap_to_py
 from ._utils import CanteraError
@@ -132,15 +133,15 @@ cdef class Domain1D:
     @property
     def grid(self):
         """The grid for this domain."""
-        cdef vector[double] grid_vec = self.domain.grid()
-        return np.asarray(grid_vec)
+        cdef span[const_double] grid_span = self.domain.grid()
+        return np.array(<double[:grid_span.size()]>grid_span.data(), copy=True)
 
     @grid.setter
     def grid(self, grid):
         cdef vector[double] grid_vec
         for g in grid:
             grid_vec.push_back(g)
-        self.domain.setupGrid(grid_vec)
+        self.domain.setupGrid(span[const_double](grid_vec.data(), grid_vec.size()))
 
     def value(self, str component):
         """
@@ -197,10 +198,10 @@ cdef class Domain1D:
 
         .. versionadded:: 3.2
         """
-        cdef vector[double] values_vec
-        for v in values:
-            values_vec.push_back(v)
-        self.domain.setValues(stringify(component), values)
+        cdef np.ndarray[np.double_t, ndim=1] values_arr = \
+            np.ascontiguousarray(values, dtype=np.double)
+        self.domain.setValues(stringify(component),
+                              span[const_double](&values_arr[0], values_arr.size))
 
     def residuals(self, str component):
         """
@@ -238,7 +239,9 @@ cdef class Domain1D:
         for v in values:
             val_vec.push_back(v)
 
-        self.domain.setProfile(stringify(component), pos_vec, val_vec)
+        cdef span[const_double] pos_span = span[const_double](pos_vec.data(), pos_vec.size())
+        cdef span[const_double] val_span = span[const_double](val_vec.data(), val_vec.size())
+        self.domain.setProfile(stringify(component), pos_span, val_span)
 
     def set_flat_profile(self, component, value):
         """
@@ -496,7 +499,7 @@ cdef class Boundary1D(Domain1D):
         def __set__(self, X):
             self.gas.TPX = None, None, X
             cdef np.ndarray[np.double_t, ndim=1] data = self.gas.X
-            self.boundary.setMoleFractions(&data[0])
+            self.boundary.setMoleFractions(span[const_double](&data[0], data.size))
 
     property Y:
         """
@@ -788,7 +791,9 @@ cdef class FlowBase(Domain1D):
             x.push_back(p)
         for t in T:
             y.push_back(t)
-        self.flow.setFixedTempProfile(x, y)
+        cdef span[const_double] xspan = span[const_double](x.data(), x.size())
+        cdef span[const_double] yspan = span[const_double](y.data(), y.size())
+        self.flow.setFixedTempProfile(xspan, yspan)
 
     def get_settings3(self):
         """
@@ -1088,7 +1093,7 @@ cdef class Sim1D:
         cdef vector[int] data
         for n in n_steps:
             data.push_back(n)
-        self.sim.setTimeStep(stepsize, data.size(), &data[0])
+        self.sim.setTimeStep(stepsize, span[int](data))
 
     property max_time_step_count:
         """
@@ -1504,7 +1509,7 @@ cdef class Sim1D:
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
         :param basis:
-            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions;
             if not specified (`None`), the native basis of the underlying `ThermoPhase`
             manager is used.
 
@@ -1620,7 +1625,8 @@ cdef class Sim1D:
         cdef np.ndarray[np.double_t, ndim=1] gg = \
                 np.ascontiguousarray(dgdx, dtype=np.double)
 
-        self.sim.solveAdjoint(&gg[0], &L[0])
+        self.sim.solveAdjoint(span[const_double](&gg[0], gg.size),
+                              span[double](&L[0], L.size))
 
         cdef np.ndarray[np.double_t, ndim=1] dgdp = np.empty(n_params)
         cdef np.ndarray[np.double_t, ndim=2] dfdp = np.empty((n_vars, n_params))
@@ -1632,12 +1638,12 @@ cdef class Sim1D:
             perturb(self, i, dp)
             if g:
                 gplus = g(self)
-            self.sim.getResidual(0, &fplus[0])
+            self.sim.getResidual(0, span[double](&fplus[0], fplus.size))
 
             perturb(self, i, -dp)
             if g:
                 gminus = g(self)
-            self.sim.getResidual(0, &fminus[0])
+            self.sim.getResidual(0, span[double](&fminus[0], fminus.size))
 
             perturb(self, i, 0)
             dgdp[i] = (gplus - gminus)/(2*dp)

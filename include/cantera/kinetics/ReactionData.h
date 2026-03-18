@@ -61,7 +61,7 @@ struct ReactionData
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void update(double T, const vector<double>& extra) {
+    virtual void update(double T, span<const double> extra) {
         throw NotImplementedError("ReactionData::update",
             "ReactionData type does not use extra vector argument.");
     }
@@ -98,8 +98,8 @@ struct ReactionData
         m_temperature_buf = -1.;
     }
 
-    //! Update number of species, reactions and phases
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) {}
+    //! Update array sizes that depend on number of species, reactions and phases
+    virtual void resize(Kinetics& kin) {}
 
     //! Force shared data and reaction rates to be updated next time. This is called by
     //! functions that change quantities affecting rate calculations that are normally

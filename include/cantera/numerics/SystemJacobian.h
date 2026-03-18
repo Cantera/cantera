@@ -61,8 +61,8 @@ public:
     //! Adjust the state vector based on the preconditioner, e.g., Adaptive
     //! preconditioning uses a strictly positive composition when preconditioning which
     //! is handled by this function
-    //! @param state a vector containing the state to be updated
-    virtual void stateAdjustment(vector<double>& state) {
+    //! @param state a mutable span containing the state to be updated
+    virtual void stateAdjustment(span<double> state) {
         throw NotImplementedError("SystemJacobian::stateAdjustment");
     }
 
@@ -86,7 +86,7 @@ public:
     //! @f$ \alpha @f$.
     //! @param rdt  Reciprocal of the time step [1/s]
     //! @param mask  Mask for transient terms: 1 if transient, 0 if algebraic.
-    virtual void updateTransient(double rdt, int* mask) {
+    virtual void updateTransient(double rdt, span<const int> mask) {
         throw NotImplementedError("SystemJacobian::updateTransient");
     }
 
@@ -96,10 +96,9 @@ public:
     //! matrix, depending on whether updateTransient() or updatePreconditioner() was
     //! called last.
     //!
-    //! @param[in] stateSize length of the rhs and output vectors
     //! @param[in] rhs_vector right hand side vector used in linear system
     //! @param[out] output output vector for solution
-    virtual void solve(const size_t stateSize, double* rhs_vector, double* output) {
+    virtual void solve(span<const double> rhs_vector, span<double> output) {
         throw NotImplementedError("SystemJacobian::solve");
     };
 

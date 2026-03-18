@@ -3,6 +3,7 @@
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 using namespace Cantera;
 
@@ -181,13 +182,39 @@ TEST(zerodim, test_individual_reactor_initialization)
     // get state of reactors
     vector<double> state1(reactor1->neq());
     vector<double> state2(reactor2->neq());
-    reactor1->getState(state1.data());
-    reactor2->getState(state2.data());
+    reactor1->getState(state1);
+    reactor2->getState(state2);
     // compare the reactors.
     EXPECT_EQ(reactor1->neq(), reactor2->neq());
     for (size_t i = 0; i < reactor1->neq(); i++) {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
+}
+
+TEST(zerodim, plasma_reactor_energy)
+{
+    auto sol = newSolution("air-plasma.yaml", "air-plasma-Phelps", "none");
+    auto thermo = sol->thermo();
+    auto* plasma = dynamic_cast<PlasmaPhase*>(thermo.get());
+    ASSERT_NE(plasma, nullptr);
+    const double T0 = 300.0;
+    const double P0 = OneAtm;
+    thermo->setState_TPX(T0, P0, "N2:0.8, O2:0.2, Electron:1E-11");
+    // Set up some non-trivial & arbitrary plasma parameters so that
+    // jouleHeatingPower() is exercised
+    plasma->setElectricField(1e5);
+    plasma->updateElectronEnergyDistribution();
+    auto reactor = newReactor4("IdealGasReactor", sol, false, "plasma-reactor");
+    reactor->setEnergyEnabled(true);
+    ReactorNet net(reactor);
+    net.initialize();
+    const double t_end = 1e-3;
+    ASSERT_NO_THROW(net.advance(t_end));
+    const double T_final = reactor->temperature();
+    const double T_expected = 300.04674410693019;
+    const double rtol = 1e-6;
+    // Simple regression test
+    EXPECT_NEAR(T_final, T_expected, rtol * T_expected);
 }
 
 TEST(MoleReactorTestSet, test_mole_reactor_get_state)
@@ -203,7 +230,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     vector<double> state(reactor.neq());
     // test get state
     const ThermoPhase& thermo = *reactor.phase()->thermo();
-    const vector<double>& imw = thermo.inverseMolecularWeights();
+    auto imw = thermo.inverseMolecularWeights();
     // prescribed state
     double mass = reactor.volume() * thermo.density();
     size_t H2I = reactor.componentIndex("H2")-1;
@@ -211,7 +238,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     double O2_Moles = imw[O2I] * 0.5 * mass;
     double  H2_Moles = imw[H2I] * 0.5 * mass;
     // test getState
-    reactor.getState(state.data());
+    reactor.getState(state);
     EXPECT_NEAR(state[reactor.componentIndex("H2")], H2_Moles, tol);
     EXPECT_NEAR(state[reactor.componentIndex("O2")], O2_Moles, tol);
     EXPECT_NEAR(reactor.volume(), 0.5, tol);
@@ -245,7 +272,7 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     // test solve
     vector<double> output(testSize, 0);
     vector<double> rhs_vector(testSize, 10);
-    precon.solve(testSize, rhs_vector.data(), output.data());
+    precon.solve(rhs_vector, output);
     for (size_t i = 0; i < testSize; i++) {
         EXPECT_NEAR(rhs_vector[i], output[i], tol);
     }

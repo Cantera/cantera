@@ -70,7 +70,7 @@ public:
      *
      * @param[out] dt  Vector of thermal diffusion coefficients
      */
-    void getThermalDiffCoeffs(double* const dt) override;
+    void getThermalDiffCoeffs(span<double> dt) override;
 
     //! Returns the mixture thermal conductivity [W/m/K]
     /*!
@@ -100,7 +100,7 @@ public:
      *               The array must be dimensioned at least as large as the
      *               number of species.
      */
-    void getMobilities(double* const mobil) override;
+    void getMobilities(span<double> mobil) override;
 
     //! Update the internal parameters whenever the temperature has changed
     /*!
@@ -137,9 +137,9 @@ public:
      *     @f$ j_{kn} = \tt{ fluxes[n*ldf+k]} @f$ is the flux of species *k*
      *     in dimension *n*. Length is `ldf` * `ndim`.
      */
-    void getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                          size_t ldx, const double* const grad_X,
-                          size_t ldf, double* const fluxes) override;
+    void getSpeciesFluxes(size_t ndim, span<const double> grad_T,
+                          size_t ldx, span<const double> grad_X,
+                          size_t ldf, span<double> fluxes) override;
 
     void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 

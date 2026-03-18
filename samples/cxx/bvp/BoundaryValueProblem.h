@@ -17,6 +17,8 @@
 #include "cantera/onedim.h"
 #include <fstream>
 
+using std::span;
+
 /// Namespace for the boundary value problem package.
 namespace BVP
 {
@@ -84,7 +86,7 @@ public:
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
         }
-        setupGrid(np, z.data());
+        setupGrid(z);
         resize(nv, np);
 
         // Add dummy terminator domains on either side of this one.
@@ -101,7 +103,7 @@ public:
     BoundaryValueProblem(int nv, int np, double* z) :
         m_left(0), m_right(0), m_sim(0)
     {
-        setupGrid(np, z);
+        setupGrid(span<const double>(z, np));
         resize(nv, np);
 
         // Add dummy terminator domains on either side of this one.
@@ -237,7 +239,7 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    double cdif2(const double* x, int n, int j) const {
+    double cdif2(span<const double> x, int n, int j) const {
         double c1 = x[index(n,j)] - x[index(n,j-1)];
         double c2 = x[index(n,j+1)] - x[index(n,j)];
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/
@@ -251,7 +253,7 @@ protected:
      * value to the right is used, and if it is zero (default) a
      * central-differenced first derivative is computed.
     */
-    double firstDeriv(const double* x, int n, int j, int type = 0) const {
+    double firstDeriv(span<const double> x, int n, int j, int type = 0) const {
         switch (type) {
         case -1:
             return leftFirstDeriv(x, n, j);
@@ -267,7 +269,7 @@ protected:
      * is formed to the right of point j, using values at point j
      * and point j + 1.
      */
-    double rightFirstDeriv(const double* x, int n, int j) const {
+    double rightFirstDeriv(span<const double> x, int n, int j) const {
         return (x[index(n,j+1)] - x[index(n,j)])/(z(j+1) - z(j));
     }
 
@@ -277,7 +279,7 @@ protected:
      * and point j - 1.
      */
 
-    double leftFirstDeriv(const double* x, int n, int j) const {
+    double leftFirstDeriv(span<const double> x, int n, int j) const {
         return (x[index(n,j)] - x[index(n,j-1)])/(z(j) - z(j-1));
     }
 
@@ -288,7 +290,7 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    double centralFirstDeriv(const double* x, int n, int j) const {
+    double centralFirstDeriv(span<const double> x, int n, int j) const {
         double c1 = x[index(n,j+1)] - x[index(n,j-1)];
         return c1/(z(j+1) - z(j-1));
     }

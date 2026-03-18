@@ -377,19 +377,19 @@ public:
 
         vector<double> Y1(kk), Y2(kk), h1(kk), h2(kk), s1(kk), s2(kk);
         vector<double> mu1(kk), mu2(kk), v1(kk), v2(kk), a1(kk), a2(kk);
-        original->getMassFractions(Y1.data());
-        duplicate->getMassFractions(Y2.data());
-        original->getPartialMolarEnthalpies(h1.data());
-        duplicate->getPartialMolarEnthalpies(h2.data());
-        original->getPartialMolarEntropies(s1.data());
-        duplicate->getPartialMolarEntropies(s2.data());
-        original->getChemPotentials(mu1.data());
-        duplicate->getChemPotentials(mu2.data());
-        original->getPartialMolarVolumes(v1.data());
-        duplicate->getPartialMolarVolumes(v2.data());
+        original->getMassFractions(Y1);
+        duplicate->getMassFractions(Y2);
+        original->getPartialMolarEnthalpies(h1);
+        duplicate->getPartialMolarEnthalpies(h2);
+        original->getPartialMolarEntropies(s1);
+        duplicate->getPartialMolarEntropies(s2);
+        original->getChemPotentials(mu1);
+        duplicate->getChemPotentials(mu2);
+        original->getPartialMolarVolumes(v1);
+        duplicate->getPartialMolarVolumes(v2);
         if (!skip_activities) {
-            original->getActivityCoefficients(a1.data());
-            duplicate->getActivityCoefficients(a2.data());
+            original->getActivityCoefficients(a1);
+            duplicate->getActivityCoefficients(a2);
         }
 
         for (size_t k = 0; k < kk; k++) {
@@ -521,8 +521,8 @@ TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
     vector<double> origDist(origPlasma->nElectronEnergyLevels());
     vector<double> duplDist(duplPlasma->nElectronEnergyLevels());
-    origPlasma->getElectronEnergyLevels(origDist.data());
-    duplPlasma->getElectronEnergyLevels(duplDist.data());
+    origPlasma->getElectronEnergyLevels(origDist);
+    duplPlasma->getElectronEnergyLevels(duplDist);
     EXPECT_DOUBLE_EQ(origDist[2], duplDist[2]);
 }
 

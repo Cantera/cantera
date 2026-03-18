@@ -53,7 +53,9 @@ inline void sparseCscData(const Eigen::SparseMatrix<double>& mat,
     }
 }
 
-#define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
+#define KIN_1D(FUNC_NAME) \
+    inline void kin_ ## FUNC_NAME(Cantera::Kinetics* object, std::span<double> data) \
+    { object->FUNC_NAME(data); }
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)

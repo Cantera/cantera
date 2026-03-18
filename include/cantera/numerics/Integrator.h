@@ -54,11 +54,9 @@ public:
     //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
-     * @param n      Number of equations
-     * @param abstol array of N absolute tolerance values
+     * @param abstol vector of absolute tolerance values, length nEquations().
      */
-    virtual void setTolerances(double reltol, size_t n,
-                               double* abstol) {
+    virtual void setTolerances(double reltol, span<const double> abstol) {
         warn("setTolerances");
     }
 
@@ -120,12 +118,11 @@ public:
 
     //! Solve a linear system Ax=b where A is the preconditioner
     /*!
-     * @param[in] stateSize length of the rhs and output vectors
      * @param[in] rhs right hand side vector used in linear system
      * @param[out] output output vector for solution
      */
-    virtual void preconditionerSolve(size_t stateSize, double* rhs, double* output) {
-        m_preconditioner->solve(stateSize, rhs, output);
+    virtual void preconditionerSolve(span<const double> rhs, span<double> output) {
+        m_preconditioner->solve(rhs, output);
     }
 
     //! Return the side of the system on which the preconditioner is applied
@@ -184,15 +181,15 @@ public:
     }
 
     //! The current value of the solution of the system of equations.
-    virtual double* solution() {
+    virtual span<double> solution() {
         warn("solution");
-        return 0;
+        return {};
     }
 
     //! n-th derivative of the output function at time tout.
-    virtual double* derivative(double tout, int n) {
+    virtual span<double> derivative(double tout, int n) {
         warn("derivative");
-        return 0;
+        return {};
     }
 
     //! Order used during the last solution step

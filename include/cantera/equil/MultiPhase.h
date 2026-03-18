@@ -67,26 +67,9 @@ public:
      *  method addPhase().
      */
     MultiPhase() = default;
-
-    //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
-    //! (that is, responsibility for destroying) the phase objects.
+    MultiPhase(const MultiPhase&) = delete;
+    MultiPhase& operator=(const MultiPhase&) = delete;
     virtual ~MultiPhase();
-
-    //! Add a vector of phases to the mixture
-    /*!
-     * See the single addPhases command. This just does a bunch of phases
-     * at one time
-     *   @param phases Vector of pointers to phases
-     *   @param phaseMoles Vector of mole numbers in each phase (kmol)
-     */
-    void addPhases(vector<ThermoPhase*>& phases, const vector<double>& phaseMoles);
-
-    //! Add all phases present in 'mix' to this mixture.
-    /*!
-     *  @param mix  Add all of the phases in another MultiPhase
-     *              object to the current object.
-     */
-    void addPhases(MultiPhase& mix);
 
     //! Add a phase to the mixture.
     /*!
@@ -98,16 +81,6 @@ public:
      *  @since New in %Cantera 3.2.
      */
     void addPhase(shared_ptr<ThermoPhase> p, double moles);
-
-    //! Add a phase to the mixture.
-    /*!
-     *  This function must be called before the init() function is called,
-     *  which serves to freeze the MultiPhase.
-     *
-     *  @param p pointer to the phase object
-     *  @param moles total number of moles of all species in this phase
-     */
-    void addPhase(ThermoPhase* p, double moles);
 
     //! Number of elements.
     size_t nElements() const {
@@ -132,7 +105,7 @@ public:
      * @param name  String name of the global element.
      * @param raise  If `true`, raise exception if the specified element is not found;
      *      otherwise, return @ref npos.
-     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 3.3, changed the
+     * @since Added the `raise` argument in %Cantera 3.2. In %Cantera 4.0, changed the
      *     default value of `raise` to `true`.
      * @exception Throws a CanteraError if the specified element is not found and
      *      `raise` is `true`.
@@ -143,13 +116,6 @@ public:
     size_t nSpecies() const {
         return m_nsp;
     }
-
-    //! Check that the specified species index is in range.
-    /*!
-     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
-     * @exception Throws an IndexError if k is greater than nSpecies()-1
-     */
-    size_t checkSpeciesIndex(size_t k) const;
 
     //! Name of species with global index @e kGlob
     /*!
@@ -174,7 +140,7 @@ public:
      *
      *    @param x  vector of mole fractions. Length = number of global species.
      */
-    void getMoleFractions(double* const x) const;
+    void getMoleFractions(span<double> x) const;
 
     //! Process phases and build atomic composition array.
     /*!
@@ -196,7 +162,7 @@ public:
      * @param raise  If `true`, raise exception if the specified phase is not found.
      * @returns the index. A value of -1 means the phase isn't in the object.
      * @since Added the `raise` argument in %Cantera 3.2 and changed return type.
-     *      Changed the default value of `raise` to `true` in %Cantera 3.3.
+     *      Changed the default value of `raise` to `true` in %Cantera 4.0.
      * @exception Throws a CanteraError if the specified phase is not found and
      *      `raise` is `true`.
      */
@@ -224,13 +190,6 @@ public:
      * @return   Reference to the ThermoPhase object for the phase
      */
     ThermoPhase& phase(size_t n);
-
-    //! Check that the specified phase index is in range
-    /*!
-     * @since Starting in %Cantera 3.2, returns the input species index, if valid.
-     * @exception Throws an IndexError if m is greater than nPhases()-1
-     */
-    size_t checkPhaseIndex(size_t m) const;
 
     //! Returns the moles of global species @c k. units = kmol
     /*!
@@ -304,7 +263,7 @@ public:
      * @param mu Chemical potential vector. Length = num global species. Units
      *           = J/kmol.
      */
-    void getChemPotentials(double* mu) const;
+    void getChemPotentials(span<double> mu) const;
 
     //! Returns a vector of Valid chemical potentials.
     /*!
@@ -342,7 +301,7 @@ public:
      *                  potentials are returned instead of the composition-
      *                  dependent chemical potentials.
      */
-    void getValidChemPotentials(double not_mu, double* mu,
+    void getValidChemPotentials(double not_mu, span<double> mu,
                                 bool standard = false) const;
 
     //! Temperature [K].
@@ -388,22 +347,6 @@ public:
      * @param T   value of the temperature (Kelvin)
      */
     void setTemperature(const double T);
-
-    //! Set the state of the underlying ThermoPhase objects in one call
-    /*!
-     * @param T      Temperature of the system (kelvin)
-     * @param Pres   pressure of the system (pascal)
-     */
-    void setState_TP(const double T, const double Pres);
-
-    //! Set the state of the underlying ThermoPhase objects in one call
-    /*!
-     * @param T      Temperature of the system (kelvin)
-     * @param Pres   pressure of the system (pascal)
-     * @param Moles  Vector of mole numbers of all the species in all the phases
-     *               (kmol)
-     */
-    void setState_TPMoles(const double T, const double Pres, const double* Moles);
 
     //! Pressure [Pa].
     double pressure() const {
@@ -475,7 +418,7 @@ public:
      * @param n    index of the phase
      * @param x    Vector of input mole fractions.
      */
-    void setPhaseMoleFractions(const size_t n, const double* const x);
+    void setPhaseMoleFractions(const size_t n, span<const double> x);
 
     //! Set the number of moles of species in the mixture
     /*!
@@ -500,7 +443,7 @@ public:
      * @param[out] molNum Vector of doubles of length nSpecies() containing the
      *               global mole numbers (kmol).
      */
-    void getMoles(double* molNum) const;
+    void getMoles(span<double> molNum) const;
 
     //! Sets all of the global species mole numbers
     /*!
@@ -510,14 +453,7 @@ public:
      * @param n    Vector of doubles of length nSpecies() containing the global
      *             mole numbers (kmol).
      */
-    void setMoles(const double* n);
-
-    //! Adds moles of a certain species to the mixture
-    /*!
-     * @param indexS      Index of the species in the MultiPhase object
-     * @param addedMoles  Value of the moles that are added to the species.
-     */
-    void addSpeciesMoles(const int indexS, const double addedMoles);
+    void setMoles(span<const double> n);
 
     //! Retrieves a vector of element abundances
     /*!
@@ -525,7 +461,7 @@ public:
      * Length = number of elements in the MultiPhase object.
      * Index is the global element index. Units is in kmol.
      */
-    void getElemAbundances(double* elemAbundances) const;
+    void getElemAbundances(span<double> elemAbundances) const;
 
     //! Return true if the phase @e p has valid thermo data for the current
     //! temperature.
@@ -588,13 +524,8 @@ private:
      */
     vector<double> m_moles;
 
-    //! Vector of the ThermoPhase pointers.
-    vector<ThermoPhase*> m_phase;
-
-    //! Vector of shared ThermoPhase pointers.
-    //! Contains valid phase entries if added by addPhase(shared_ptr<ThermoPhase>) and
-    //! null pointers if a phase is added via addPhase(ThermoPhase*).
-    vector<shared_ptr<ThermoPhase>> m_sharedPhase;
+    //! Vector of phase objects.
+    vector<shared_ptr<ThermoPhase>> m_phase;
 
     //! Global Stoichiometric Coefficient array
     /*!
@@ -723,10 +654,9 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  *
  * @ingroup equilGroup
  */
-size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
-                     MultiPhase* mphase, vector<size_t>& orderVectorSpecies,
-                     vector<size_t>& orderVectorElements,
-                     vector<double>& formRxnMatrix);
+size_t BasisOptimize(bool& usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
+                     span<size_t> orderVectorSpecies, span<size_t> orderVectorElements,
+                     span<double> formRxnMatrix);
 
 //! Handles the potential rearrangement of the constraint equations
 //! represented by the Formula Matrix.
@@ -766,10 +696,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *
  * @ingroup equilGroup
  */
-void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
-                   MultiPhase* mphase,
-                   vector<size_t>& orderVectorSpecies,
-                   vector<size_t>& orderVectorElements);
+void ElemRearrange(size_t nComponents, span<const double> elementAbundances,
+                   MultiPhase* mphase, span<size_t> orderVectorSpecies,
+                   span<size_t> orderVectorElements);
 
 //! External int that is used to turn on debug printing for the
 //! BasisOptimize program.

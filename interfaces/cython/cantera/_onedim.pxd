@@ -27,14 +27,14 @@ cdef extern from "cantera/oneD/Domain1D.h":
         cbool hasComponent(string&) except +translate_exception
         string info(vector[string]&, int, int) except +translate_exception
         void updateState(size_t) except +translate_exception
-        vector[double] grid() except +translate_exception
-        void setupGrid(vector[double]&) except +translate_exception
+        span[const_double] grid() except +translate_exception
+        void setupGrid(span[const_double]) except +translate_exception
         double value(string&) except +translate_exception
         void setValue(string&, double) except +translate_exception
         vector[double] values(string&) except +translate_exception
-        void setValues(string&, vector[double]&) except +translate_exception
+        void setValues(string&, span[const_double]) except +translate_exception
         vector[double] residuals(string&) except +translate_exception
-        void setProfile(string&, vector[double]&, vector[double]&) except +translate_exception
+        void setProfile(string&, span[const_double], span[const_double]) except +translate_exception
         void setFlatProfile(string&, double) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
@@ -63,7 +63,7 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         double mdot()
         void setMdot(double)
         size_t nSpecies()
-        void setMoleFractions(double*) except +translate_exception
+        void setMoleFractions(span[const_double]) except +translate_exception
         void setMoleFractions(string) except +translate_exception
         double massFraction(size_t)
         double spreadRate()
@@ -84,7 +84,7 @@ cdef extern from "cantera/oneD/Flow1D.h":
         cbool radiationEnabled()
         double radiativeHeatLoss(size_t)
         double pressure()
-        void setFixedTempProfile(vector[double]&, vector[double]&)
+        void setFixedTempProfile(span[const_double], span[const_double])
         void solveElectricField() except +translate_exception
         void fixElectricField() except +translate_exception
         cbool doElectricField() except +translate_exception
@@ -118,7 +118,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
         void show() except +translate_exception
-        void setTimeStep(double, size_t, int*) except +translate_exception
+        void setTimeStep(double, span[int]) except +translate_exception
         void restoreTimeSteppingSolution() except +translate_exception
         void restoreSteadySolution() except +translate_exception
         void setMaxTimeStepCount(int)
@@ -145,8 +145,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         int domainIndex(string) except +translate_exception
         void eval(double ) except +translate_exception
         size_t size()
-        void solveAdjoint(const double*, double*) except +translate_exception
-        void getResidual(double, double*) except +translate_exception
+        void solveAdjoint(span[const_double], span[double]) except +translate_exception
+        void getResidual(double, span[double]) except +translate_exception
         void setJacAge(int, int)
         void setTimeStepFactor(double)
         void setMinTimeStep(double)

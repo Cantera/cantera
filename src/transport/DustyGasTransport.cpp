@@ -25,14 +25,15 @@ void DustyGasTransport::initialize(shared_ptr<ThermoPhase> phase, Transport* gas
     }
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.assign(m_thermo->molecularWeights().begin(),
+                m_thermo->molecularWeights().end());
 
     m_multidiff.resize(m_nsp, m_nsp);
     m_d.resize(m_nsp, m_nsp);
     m_dk.resize(m_nsp, 0.0);
 
     m_x.resize(m_nsp, 0.0);
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // set flags all false
     m_knudsen_ok = false;
@@ -49,7 +50,7 @@ void DustyGasTransport::updateBinaryDiffCoeffs()
     }
 
     // get the gaseous binary diffusion coefficients
-    m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
+    m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.data());
     double por2tort = m_porosity / m_tortuosity;
     for (size_t n = 0; n < m_nsp; n++) {
         for (size_t m = 0; m < m_nsp; m++) {
@@ -93,20 +94,22 @@ void DustyGasTransport::eval_H_matrix()
     }
 }
 
-void DustyGasTransport::getMolarFluxes(const double* const state1,
-                                       const double* const state2,
-                                       const double delta,
-                                       double* const fluxes)
+void DustyGasTransport::getMolarFluxes(span<const double> state1,
+                                       span<const double> state2,
+                                       const double delta, span<double> fluxes)
 {
+    checkArraySize("DustyGasTransport::getMolarFluxes: state1", state1.size(), m_nsp + 2);
+    checkArraySize("DustyGasTransport::getMolarFluxes: state2", state2.size(), m_nsp + 2);
+    checkArraySize("DustyGasTransport::getMolarFluxes: fluxes", fluxes.size(), m_nsp);
     // cbar will be the average concentration between the two points
-    double* const cbar = m_spwork.data();
-    double* const gradc = m_spwork2.data();
+    span<double> cbar(m_spwork);
+    span<double> gradc(m_spwork2);
     const double t1 = state1[0];
     const double t2 = state2[0];
     const double rho1 = state1[1];
     const double rho2 = state2[1];
-    const double* const y1 = state1 + 2;
-    const double* const y2 = state2 + 2;
+    span<const double> y1 = state1.subspan(2, m_nsp);
+    span<const double> y2 = state2.subspan(2, m_nsp);
     double c1sum = 0.0, c2sum = 0.0;
 
     for (size_t k = 0; k < m_nsp; k++) {
@@ -145,11 +148,11 @@ void DustyGasTransport::getMolarFluxes(const double* const state1,
         b = m_perm;
     }
     b *= gradp / m_gastran->viscosity();
-    scale(cbar, cbar + m_nsp, cbar, b);
+    scale(cbar.begin(), cbar.end(), cbar.begin(), b);
 
     // Multiply m_multidiff with cbar and add it to fluxes
     increment(m_multidiff, cbar, fluxes);
-    scale(fluxes, fluxes + m_nsp, fluxes, -1.0);
+    scale(fluxes.begin(), fluxes.end(), fluxes.begin(), -1.0);
 }
 
 void DustyGasTransport::updateMultiDiffCoeffs()
@@ -165,8 +168,12 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     invert(m_multidiff);
 }
 
-void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
+void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
 {
+    if (ld < m_nsp) {
+        throw CanteraError("DustyGasTransport::getMultiDiffCoeffs", "ld is too small");
+    }
+    checkArraySize("DustyGasTransport::getMultiDiffCoeffs", d.size(), ld * m_nsp);
     updateMultiDiffCoeffs();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
@@ -187,7 +194,7 @@ void DustyGasTransport::updateTransport_T()
 
 void DustyGasTransport::updateTransport_C()
 {
-    m_thermo->getMoleFractions(m_x.data());
+    m_thermo->getMoleFractions(m_x);
 
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)

@@ -12,7 +12,8 @@ classdef ctTestConstPressureReactor < ctTestCase
         r2
         solid
         resGas
-        env
+        env1
+        env2
         w1
         w2
         mfc1
@@ -60,23 +61,24 @@ classdef ctTestConstPressureReactor < ctTestCase
             self.r2.V = 0.2;
 
             self.resGas.TP = {T0 - 300, P0};
-            self.env = ct.zeroD.Reservoir(self.resGas);
+            self.env1 = ct.zeroD.Reservoir(self.resGas);
+            self.env2 = ct.zeroD.Reservoir(self.resGas);
 
             U = 300 * arg.addQ;
 
-            self.w1 = ct.zeroD.Wall(self.r1, self.env);
+            self.w1 = ct.zeroD.Wall(self.r1, self.env1);
             self.w1.area = 0.1;
             self.w1.expansionRateCoeff = 1e3;
             self.w1.heatTransferCoeff = U;
 
-            self.w2 = ct.zeroD.Wall(self.r2, self.env);
+            self.w2 = ct.zeroD.Wall(self.r2, self.env2);
             self.w2.area = 0.1;
             self.w2.heatTransferCoeff = U;
 
             if arg.addMdot
-                self.mfc1 = ct.zeroD.MassFlowController(self.env, self.r1);
+                self.mfc1 = ct.zeroD.MassFlowController(self.env1, self.r1);
                 self.mfc1.massFlowRate = 0.05;
-                self.mfc2 = ct.zeroD.MassFlowController(self.env, self.r2);
+                self.mfc2 = ct.zeroD.MassFlowController(self.env2, self.r2);
                 self.mfc2.massFlowRate = 0.05;
             end
 

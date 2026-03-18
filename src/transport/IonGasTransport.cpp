@@ -59,11 +59,9 @@ void IonGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
                          1200.0, 1500.0, 2000.0, 2500.0, 3000.0, 4000.0};
     const vector<double> om11_O2{120.0, 107.0, 98.1, 92.1, 83.0, 77.0,
                             72.6, 67.9, 62.7, 59.3, 56.7, 53.8};
-    vector<double> w(temp.size(),-1);
     int degree = 5;
     m_om11_O2.resize(degree + 1);
-    polyfit(temp.size(), degree, temp.data(), om11_O2.data(),
-            w.data(), m_om11_O2.data());
+    polyfit(degree, temp, om11_O2, {}, m_om11_O2);
     // set up Monchick and Mason parameters
     setupCollisionParameters();
     // set up n64 parameters
@@ -79,7 +77,8 @@ void IonGasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
     m_cond.resize(m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.resize(m_nsp);
+    m_thermo->getMolecularWeights(m_mw);
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -107,7 +106,7 @@ double IonGasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, m_molefracs.data(), m_spwork.data());
+    multiply(m_phi, m_molefracs, m_spwork);
 
     for (size_t k : m_kNeutral) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -138,7 +137,7 @@ double IonGasTransport::thermalConductivity()
 double IonGasTransport::electricalConductivity()
 {
     vector<double> mobi(m_nsp);
-    getMobilities(&mobi[0]);
+    getMobilities(mobi);
     double p = m_thermo->pressure();
     double sum = 0.0;
     for (size_t k : m_kIon) {
@@ -205,7 +204,7 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                      j == m_thermo->speciesIndex("O2-", false)) &&
                     (k == m_thermo->speciesIndex("O2", false) ||
                      j == m_thermo->speciesIndex("O2", false))) {
-                       om11 = poly5(t, m_om11_O2.data()) / 1e20;
+                       om11 = poly5(t, m_om11_O2) / 1e20;
                 }
                 double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))
                     * pow(Boltzmann * t, 1.5) / om11;
@@ -213,14 +212,14 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 diff[n] = diffcoeff/pow(t, 1.5);
                 w[n] = 1.0/(diff[n]*diff[n]);
             }
-            polyfit(np, degree, tlog.data(), diff.data(), w.data(), c.data());
+            polyfit(degree, tlog, diff, w, c);
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;
                 double t = exp(tlog[n]);
                 double pre = pow(t, 1.5);
                 val = pre * diff[n];
-                fit = pre * poly4(tlog[n], c.data());
+                fit = pre * poly4(tlog[n], c);
                 err = fit - val;
                 relerr = err/val;
                 mxerr = std::max(mxerr, fabs(err));
@@ -338,8 +337,9 @@ double IonGasTransport::omega11_n64(const double tstar, const double gamma)
     return om11;
 }
 
-void IonGasTransport::getMixDiffCoeffs(double* const d)
+void IonGasTransport::getMixDiffCoeffs(span<double> d)
 {
+    checkArraySize("IonGasTransport::getMixDiffCoeffs", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -373,8 +373,9 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
     }
 }
 
-void IonGasTransport::getMobilities(double* const mobi)
+void IonGasTransport::getMobilities(span<double> mobi)
 {
+    checkArraySize("IonGasTransport::getMobilities", mobi.size(), m_nsp);
     update_T();
     update_C();
 

@@ -130,7 +130,7 @@ extern "C" {
     void setstate_tpx_(double* T, double* P, double* X)
     {
         try {
-            _gas->setState_TPX(*T, *P, X);
+            _gas->setState_TPX(*T, *P, span<const double>(X, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -150,7 +150,7 @@ extern "C" {
     void setstate_tpy_(double* T, double* p, double* Y)
     {
         try {
-            _gas->setState_TPY(*T, *p, Y);
+            _gas->setState_TPY(*T, *p, span<const double>(Y, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -253,12 +253,12 @@ extern "C" {
 
     void gotmolefractions_(double* x)
     {
-        _gas->getMoleFractions(x);
+        _gas->getMoleFractions(span<double>(x, _gas->nSpecies()));
     }
 
     void gotmassfractions_(double* y)
     {
-        _gas->getMassFractions(y);
+        _gas->getMassFractions(span<double>(y, _gas->nSpecies()));
     }
 
     void equilibrate_(char* opt, ftnlen lenopt)
@@ -289,32 +289,32 @@ extern "C" {
 
     void getnetproductionrates_(double* wdot)
     {
-        _kin->getNetProductionRates(wdot);
+        _kin->getNetProductionRates(span<double>(wdot, _kin->nTotalSpecies()));
     }
 
     void getcreationrates_(double* cdot)
     {
-        _kin->getCreationRates(cdot);
+        _kin->getCreationRates(span<double>(cdot, _kin->nTotalSpecies()));
     }
 
     void getdestructionrates_(double* ddot)
     {
-        _kin->getDestructionRates(ddot);
+        _kin->getDestructionRates(span<double>(ddot, _kin->nTotalSpecies()));
     }
 
     void getnetratesofprogress_(double* q)
     {
-        _kin->getNetRatesOfProgress(q);
+        _kin->getNetRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     void getfwdratesofprogress_(double* q)
     {
-        _kin->getFwdRatesOfProgress(q);
+        _kin->getFwdRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     void getrevratesofprogress_(double* q)
     {
-        _kin->getRevRatesOfProgress(q);
+        _kin->getRevRatesOfProgress(span<double>(q, _kin->nReactions()));
     }
 
     //-------------------- transport properties --------------------
@@ -342,7 +342,7 @@ extern "C" {
     void getmixdiffcoeffs_(double* diff)
     {
         try {
-            _trans->getMixDiffCoeffs(diff);
+            _trans->getMixDiffCoeffs(span<double>(diff, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -351,7 +351,7 @@ extern "C" {
     void getthermaldiffcoeffs_(double* dt)
     {
         try {
-            _trans->getThermalDiffCoeffs(dt);
+            _trans->getThermalDiffCoeffs(span<double>(dt, _gas->nSpecies()));
         } catch (CanteraError& err) {
             handleError(err);
         }

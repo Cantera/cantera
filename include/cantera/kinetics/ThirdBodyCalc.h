@@ -72,7 +72,7 @@ public:
     }
 
     //! Update third-body concentrations in full vector
-    void update(const vector<double>& conc, double ctot, double* concm) const {
+    void update(span<const double> conc, double ctot, span<double> concm) const {
         for (size_t i = 0; i < m_reaction_index.size(); i++) {
             double sum = 0.0;
             for (size_t j = 0; j < m_species[i].size(); j++) {
@@ -83,7 +83,7 @@ public:
     }
 
     //! Multiply output with effective third-body concentration
-    void multiply(double* output, const double* concm) {
+    void multiply(span<double> output, span<const double> concm) {
         for (size_t i = 0; i < m_mass_action_index.size(); i++) {
             size_t ix = m_reaction_index[m_mass_action_index[i]];
             output[ix] *= concm[ix];
@@ -94,13 +94,13 @@ public:
     /*!
      *  @param product   Product of law of mass action and rate terms.
      */
-    Eigen::SparseMatrix<double> derivatives(const double* product) {
-        Eigen::Map<const Eigen::VectorXd> mapped(product, m_multipliers.rows());
+    Eigen::SparseMatrix<double> derivatives(span<const double> product) {
+        Eigen::Map<const Eigen::VectorXd> mapped(product.data(), m_multipliers.rows());
         return mapped.asDiagonal() * m_multipliers;
     }
 
     //! Scale entries involving third-body collider in law of mass action by factor
-    void scale(const double* in, double* out, double factor) const {
+    void scale(span<const double> in, span<double> out, double factor) const {
         for (size_t i = 0; i < m_mass_action_index.size(); i++) {
             size_t ix = m_reaction_index[m_mass_action_index[i]];
             out[ix] = factor * in[ix];
@@ -109,8 +109,8 @@ public:
 
     //! Scale entries involving third-body collider in rate expression
     //! by third-body concentration and factor
-    void scaleM(const double* in, double* out,
-                const double* concm, double factor) const
+    void scaleM(span<const double> in, span<double> out,
+                span<const double> concm, double factor) const
     {
         for (size_t i = 0; i < m_no_mass_action_index.size(); i++) {
             size_t ix = m_reaction_index[m_no_mass_action_index[i]];

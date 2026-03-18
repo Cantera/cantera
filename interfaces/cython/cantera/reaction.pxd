@@ -7,22 +7,7 @@
 from .ctcxx cimport *
 from .func1 cimport *
 from .delegator cimport CxxDelegator
-
-# @todo Replace with import from libcpp.map once Cython 0.29.x is no longer supported
-cdef extern from "<map>" namespace "std" nogil:
-    cdef cppclass multimap[T, U]:
-        cppclass iterator:
-            pair[T, U]& operator*()
-            iterator operator++()
-            iterator operator--()
-            bint operator==(iterator)
-            bint operator!=(iterator)
-        multimap() except +
-        U& operator[](T&)
-        iterator begin()
-        iterator end()
-        pair[iterator, bint] insert(pair[T, U])
-        iterator find(T&)
+from libcpp.map cimport multimap
 
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
@@ -72,8 +57,8 @@ cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
 cdef extern from "cantera/kinetics/ElectronCollisionPlasmaRate.h" namespace "Cantera":
     cdef cppclass CxxElectronCollisionPlasmaRate "Cantera::ElectronCollisionPlasmaRate" (CxxReactionRate):
         CxxElectronCollisionPlasmaRate(CxxAnyMap) except +translate_exception
-        vector[double]& energyLevels()
-        vector[double]& crossSections()
+        span[const_double] energyLevels()
+        span[const_double] crossSections()
 
 cdef extern from "cantera/base/Array.h" namespace "Cantera":
     cdef cppclass CxxArray2D "Cantera::Array2D":
@@ -146,8 +131,9 @@ cdef extern from "cantera/kinetics/Falloff.h" namespace "Cantera":
         void setLowRate(CxxArrheniusRate&) except +translate_exception
         CxxArrheniusRate& highRate()
         void setHighRate(CxxArrheniusRate&) except +translate_exception
-        void getFalloffCoeffs(vector[double]&)
-        void setFalloffCoeffs(vector[double]&) except +translate_exception
+        void getFalloffCoeffs(span[double])
+        void setFalloffCoeffs(span[double]) except +translate_exception
+        size_t nParameters()
         double evalF(double, double) except +translate_exception
 
     cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):

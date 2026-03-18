@@ -29,16 +29,15 @@ class SystemJacobian;
 class ReactorNet : public FuncEval
 {
 public:
-    ReactorNet();
     //! Create reactor network containing single reactor.
     //! @since New in %Cantera 3.2.
     ReactorNet(shared_ptr<ReactorBase> reactor);
     //! Create reactor network from multiple reactors.
     //! @since New in %Cantera 3.2.
-    ReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
-    ~ReactorNet() override;
+    ReactorNet(span<shared_ptr<ReactorBase>> reactors);
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
+    ~ReactorNet();
 
     //! @name Methods to set up a simulation
     //! @{
@@ -153,11 +152,8 @@ public:
     //! - The mass of constant pressure reactor types (such as ConstPressureReactor and
     //!   IdealGasConstPressureReactor) must be constant; if flow devices are used,
     //!   inlet and outlet flows must be balanced.
-    //! - The solver is currently not compatible with the ConstPressureMoleReactor or
-    //!   IdealGasConstPressureMoleReactor classes.
     //! - Only ideal gas reactor types can be used for when the energy equation is
     //!   disabled (fixed temperature simulations).
-    //! - Reacting surfaces are not yet supported.
     //!
     //! @param loglevel  Print information about solver progress to aid in understanding
     //!     cases where the solver fails to converge. Higher levels are more verbose.
@@ -173,7 +169,7 @@ public:
     //!     - 7: Print current residual vector after different solver stages
     //!
     //! @see SteadyStateSystem, MultiNewton
-    //! @since New in %Cantera 3.2.
+    //! @since New in %Cantera 3.2. Support for reacting surfaces added in %Cantera 4.0.
     void solveSteady(int loglevel=0);
 
     //! Get the Jacobian used by the steady-state solver.
@@ -186,7 +182,7 @@ public:
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
-    Reactor& reactor(int n) {
+    ReactorBase& reactor(int n) {
         return *m_reactors[n];
     }
 
@@ -208,7 +204,7 @@ public:
 
     //! Update the state of all the reactors in the network to correspond to
     //! the values in the solution vector *y*.
-    void updateState(double* y);
+    void updateState(span<const double> y);
 
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
@@ -246,8 +242,8 @@ public:
      *  @param[in] p sensitivity parameter vector (unused?)
      *  @param[out] j Jacobian matrix, size neq() by neq().
      */
-    void evalJacobian(double t, double* y,
-                      double* ydot, double* p, Array2D* j);
+    void evalJacobian(double t, span<double> y,
+                      span<double> ydot, span<const double> p, Array2D* j);
 
     // overloaded methods of class FuncEval
     size_t neq() const override {
@@ -258,19 +254,29 @@ public:
         return m_reactors.size();
     }
 
-    void eval(double t, double* y, double* ydot, double* p) override;
+    void eval(double t, span<const double> y, span<double> ydot,
+              span<const double> p) override;
+
+    //! Evaluate the governing equations adapted for the steady-state solver.
+    //!
+    //! @param[in] y  Current state vector, length neq()
+    //! @param[out] residual  For differential variables, this is the time derivative;
+    //!     for algebraic variables, this is the residual of the governing equation.
+    //!
+    //! @since New in %Cantera 4.0.
+    void evalSteady(span<const double> y, span<double> residual);
 
     //! eval coupling for IDA / DAEs
-    void evalDae(double t, double* y, double* ydot, double* p,
-                 double* residual) override;
+    void evalDae(double t, span<const double> y, span<const double> ydot,
+                 span<const double> p, span<double> residual) override;
 
-    void getState(double* y) override;
-    void getStateDae(double* y, double* ydot) override;
+    void getState(span<double> y) override;
+    void getStateDae(span<double> y, span<double> ydot) override;
 
     //! Return k-th derivative at the current state of the system
-    virtual void getDerivative(int k, double* dky);
+    virtual void getDerivative(int k, span<double> dky);
 
-    void getConstraints(double* constraints) override;
+    void getConstraints(span<double> constraints) override;
 
     size_t nparams() const override {
         return m_sens_params.size();
@@ -298,7 +304,7 @@ public:
     //! This method is used within solveSteady() if certain errors are encountered.
     //!
     //! @param[inout] y  current state vector, to be updated; length neq()
-    void resetBadValues(double* y);
+    void resetBadValues(span<double> y);
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -329,7 +335,7 @@ public:
     //! Called to trigger integrator reinitialization before further
     //! integration.
     void setNeedsReinit() {
-        m_integrator_init = false;
+        m_needIntegratorInit = true;
     }
 
     //! Set the maximum number of internal integration steps the
@@ -339,17 +345,17 @@ public:
     virtual void setMaxSteps(int nmax);
 
     //! Set absolute step size limits during advance
-    void setAdvanceLimits(const double* limits);
+    void setAdvanceLimits(span<const double> limits);
 
     //! Check whether ReactorNet object uses advance limits
     bool hasAdvanceLimits() const;
 
     //! Retrieve absolute step size limits during advance
-    bool getAdvanceLimits(double* limits) const;
+    bool getAdvanceLimits(span<double> limits) const;
 
-    void preconditionerSetup(double t, double* y, double gamma) override;
+    void preconditionerSetup(double t, span<const double> y, double gamma) override;
 
-    void preconditionerSolve(double* rhs, double* output) override;
+    void preconditionerSolve(span<const double> rhs, span<double> output) override;
 
     //! Get solver stats from integrator
     AnyMap solverStats() const;
@@ -367,32 +373,34 @@ public:
     //! When limits are active, this sets `gout[0]` to
     //! `1 - max_i(|y[i]-y_base[i]| / limit[i])` so a zero indicates a component has
     //! reached its limit; otherwise `gout[0]` is positive.
-    void evalRootFunctions(double t, const double* y, double* gout) override;
+    void evalRootFunctions(double t, span<const double> y,
+                           span<double> gout) override;
 
 protected:
-    //! Add the reactor *r* to this reactor network.
-    //! @since  Changed in %Cantera 3.2. Previous version used a reference.
-    void addReactor(shared_ptr<ReactorBase> reactor);
-
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
     void updatePreconditioner(double gamma) override;
 
     //! Create reproducible names for reactors and walls/connectors.
-    void updateNames(Reactor& r);
+    void updateNames(ReactorBase& r);
 
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual void getEstimate(double time, int k, double* yest);
+    virtual void getEstimate(double time, int k, span<double> yest);
 
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
     virtual int lastOrder() const;
 
-    vector<Reactor*> m_reactors;
+    vector<shared_ptr<ReactorBase>> m_reactors;
+    vector<shared_ptr<Reactor>> m_bulkReactors;
+    vector<shared_ptr<ReactorBase>> m_surfaces;
+    vector<shared_ptr<ReactorBase>> m_reservoirs;
+    set<FlowDevice*> m_flowDevices;
+    set<WallBase*> m_walls;
     map<string, int> m_counts;  //!< Map used for default name generation
     unique_ptr<Integrator> m_integ;
 
@@ -403,12 +411,9 @@ protected:
     //! The initial value of the independent variable in the system.
     double m_initial_time = 0.0;
 
-    bool m_init = false;
-    bool m_integrator_init = false; //!< True if integrator initialization is current
+    bool m_integratorInitialized = false; //!< True if the integrator has been initialized at least once
+    bool m_needIntegratorInit = true; //!< True if integrator needs to be (re)initialized
     size_t m_nv = 0;
-
-    //! m_start[n] is the starting point in the state vector for reactor n
-    vector<size_t> m_start;
 
     vector<double> m_atol;
     double m_rtol = 1.0e-9;
@@ -454,15 +459,16 @@ protected:
 class SteadyReactorSolver : public SteadyStateSystem
 {
 public:
-    SteadyReactorSolver(ReactorNet* net, double* x0);
-    void eval(double* x, double* r, double rdt=-1.0, int count=1) override;
-    void initTimeInteg(double dt, double* x) override;
-    void evalJacobian(double* x0) override;
-    double weightedNorm(const double* step) const override;
+    SteadyReactorSolver(ReactorNet* net, span<const double> x0);
+    void eval(span<const double> x, span<double> r,
+              double rdt=-1.0, int count=1) override;
+    void initTimeInteg(double dt, span<const double> x) override;
+    void evalJacobian(span<const double> x0) override;
+    double weightedNorm(span<const double> step) const override;
     string componentName(size_t i) const override;
     double upperBound(size_t i) const override;
     double lowerBound(size_t i) const override;
-    void resetBadValues(double* x) override;
+    void resetBadValues(span<double> x) override;
     void writeDebugInfo(const string& header_suffix, const string& message,
                         int loglevel, int attempt_counter) override;
 
@@ -471,10 +477,6 @@ private:
 
     //! Initial value of each state variable
     vector<double> m_initialState;
-
-    //! Indices of variables that are held constant in the time-stepping mode of the
-    //! steady-state solver.
-    vector<size_t> m_algebraic;
 };
 
 
@@ -485,7 +487,7 @@ private:
  *      together.
  * @since New in %Cantera 3.2.
  */
-shared_ptr<ReactorNet> newReactorNet(vector<shared_ptr<ReactorBase>>& reactors);
+shared_ptr<ReactorNet> newReactorNet(span<shared_ptr<ReactorBase>> reactors);
 
 }
 

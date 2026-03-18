@@ -61,7 +61,7 @@ public:
         return "DustyGas";
     }
 
-    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
+    void getMultiDiffCoeffs(const size_t ld, span<double> d) override;
 
     //! Get the molar fluxes [kmol/m²/s], given the thermodynamic state at two nearby points.
     /*!
@@ -76,8 +76,8 @@ public:
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force;
      *     length is the number of species.
      */
-    void getMolarFluxes(const double* const state1, const double* const state2,
-                        const double delta, double* const fluxes) override;
+    void getMolarFluxes(span<const double> state1, span<const double> state2,
+                        const double delta, span<double> fluxes) override;
 
     // new methods added in this class
 

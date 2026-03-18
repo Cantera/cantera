@@ -52,11 +52,11 @@ public:
 
     //! The mobilities for ions in gas.
     //! The ion mobilities are calculated by Blanc's law.
-    void getMobilities(double* const mobi) override;
+    void getMobilities(span<double> mobi) override;
 
     //! The mixture transport for ionized gas.
     //! The binary transport between two charged species is neglected.
-    void getMixDiffCoeffs(double* const d) override;
+    void getMixDiffCoeffs(span<double> d) override;
 
     /**
      * The electrical conductivity [siemens/m].

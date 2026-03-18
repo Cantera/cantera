@@ -124,7 +124,7 @@ public:
      * such as negative species concentrations. This function may be called
      * after a failed solution attempt.
      */
-    virtual void resetBadValues(double* xg) {}
+    virtual void resetBadValues(span<double> x) {}
 
     /**
      * Resize the domain to have nv components and np grid points. This method
@@ -274,8 +274,9 @@ public:
      * @param[in] dt  Time step
      * @param[in] x0  Array to store the solution at the last time step
      */
-    void initTimeInteg(double dt, const double* x0) {
-        std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
+    void initTimeInteg(double dt, span<const double> x0) {
+        auto local = x0.subspan(loc(), size());
+        std::copy(local.begin(), local.end(), m_slast.begin());
         m_rdt = 1.0/dt;
     }
 
@@ -316,7 +317,8 @@ public:
      *      component has a time derivative (1) or not (0).
      *  @param[in] rdt  Reciprocal of the timestep (`rdt=0` implies steady-state.)
      */
-    virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt=0.0) {
+    virtual void eval(size_t j, span<const double> x, span<double> r, span<int> mask,
+                      double rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
     }
 
@@ -374,7 +376,7 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void getValues(const string& component, vector<double>& values) const {
+    virtual void getValues(const string& component, span<double> values) const {
         throw NotImplementedError("Domain1D::getValues",
             "Not implemented for domain type '{}'.", domainType());
     }
@@ -386,7 +388,7 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void setValues(const string& component, const vector<double>& values) {
+    virtual void setValues(const string& component, span<const double> values) {
         throw NotImplementedError("Domain1D::setValues",
             "Not implemented for domain type '{}'.", domainType());
     }
@@ -416,7 +418,7 @@ public:
      *
      * @since New in %Cantera 3.2.
      */
-    virtual void getResiduals(const string& component, vector<double>& values) const {
+    virtual void getResiduals(const string& component, span<double> values) const {
         throw NotImplementedError("Domain1D::getResiduals",
             "Not applicable or not implemented for domain type '{}'.", domainType());
     }
@@ -437,7 +439,7 @@ public:
      * @since New in %Cantera 3.2.
      */
     virtual void setProfile(const string& component,
-                            const vector<double>& pos, const vector<double>& values) {
+                            span<const double> pos, span<const double> values) {
         throw NotImplementedError("Domain1D::setProfile",
             "Not implemented for domain type '{}'.", domainType());
     }
@@ -582,7 +584,7 @@ public:
 
     //! Print the solution.
     //! @param x  Pointer to the local portion of the system state vector
-    virtual void show(const double* x);
+    virtual void show(span<const double> x);
 
     //! Get the coordinate [m] of the point with local index `jlocal`
     double z(size_t jlocal) const {
@@ -600,21 +602,19 @@ public:
     }
 
     //! Access the array of grid coordinates [m]
-    vector<double>& grid() {
+    span<double> grid() {
         return m_z;
     }
 
     //! Access the array of grid coordinates [m]
-    const vector<double>& grid() const {
+    span<const double> grid() const {
         return m_z;
     }
 
     //! Set up initial grid.
     //! @since New in %Cantera 3.2.
-    void setupGrid(const vector<double>& grid);
-
     //! called to set up initial grid, and after grid refinement
-    virtual void setupGrid(size_t n, const double* z);
+    virtual void setupGrid(span<const double> z);
 
     //! Set up uniform grid.
     //! @param points  Number of grid points
@@ -630,7 +630,7 @@ public:
      * been set locally prior to installing this domain into the container to be
      * written to the global solution vector.
      */
-    virtual void _getInitialSoln(double* x);
+    virtual void _getInitialSoln(span<double> x);
 
     //! Initial value of solution component @e n at grid point @e j.
     virtual double initialValue(size_t n, size_t j);
@@ -643,7 +643,7 @@ public:
      * this domain that will be used as the initial guess. If no such parameters
      * need to be set, then method _finalize does not need to be overloaded.
      */
-    virtual void _finalize(const double* x) {}
+    virtual void _finalize(span<const double> x) {}
 
     /**
      * In some cases, for computational efficiency some properties (such as

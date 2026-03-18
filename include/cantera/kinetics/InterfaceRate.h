@@ -29,29 +29,14 @@ class AnyMap;
 struct InterfaceData : public BlowersMaselData
 {
     InterfaceData() = default;
-
     bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
-
     void update(double T) override;
-
-    void update(double T, const vector<double>& values) override;
-
+    void update(double T, span<const double> values) override;
     using BlowersMaselData::update;
-
     virtual void perturbTemperature(double deltaT);
-
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        coverages.resize(nSpecies, 0.);
-        logCoverages.resize(nSpecies, 0.);
-        partialMolarEnthalpies.resize(nSpecies, 0.);
-        electricPotentials.resize(nPhases, 0.);
-        standardChemPotentials.resize(nSpecies, 0.);
-        standardConcentrations.resize(nSpecies, 0.);
-        ready = true;
-    }
+    void resize(Kinetics& kin) override;
 
     double sqrtT = NAN; //!< square root of temperature
-
     vector<double> coverages; //!< surface coverages
     vector<double> logCoverages; //!< logarithm of surface coverages
     vector<double> electricPotentials; //!< electric potentials of phases
@@ -118,7 +103,7 @@ public:
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
     virtual void addCoverageDependence(const string& sp, double a, double m,
-                                       const vector<double>& e);
+                                       span<const double> e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -132,7 +117,7 @@ public:
 
     //! Set association with an ordered list of all species associated with a given
     //! `Kinetics` object.
-    void setSpecies(const vector<string>& species);
+    void setSpecies(span<const string> species);
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
@@ -441,7 +426,7 @@ public:
     }
 
     void addCoverageDependence(const string& sp, double a, double m,
-                               const vector<double>& e) override
+                               span<const double> e) override
     {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);

@@ -13,6 +13,7 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
+#include "cantera/numerics/eigen_dense.h"
 
 #include <boost/math/tools/roots.hpp>
 
@@ -33,25 +34,18 @@ Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
     m_kin = m_solution->kinetics().get();
     setChemistryEnabled(m_kin->nReactions() > 0);
     m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
+    m_sdot.resize(m_nsp, 0.0);
+    m_wdot.resize(m_nsp, 0.0);
+    m_nv = 3 + m_nsp; // mass, volume, internal energy, and species mass fractions
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
 {
     m_kin->setDerivativeSettings(settings);
-    // translate settings to surfaces
-    for (auto S : m_surfaces) {
-        S->kinetics()->setDerivativeSettings(settings);
-    }
 }
 
-void Reactor::getState(double* y)
+void Reactor::getState(span<double> y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("Reactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
-
     // set the first component to the total mass
     m_mass = m_thermo->density() * m_vol;
     y[0] = m_mass;
@@ -63,20 +57,7 @@ void Reactor::getState(double* y)
     y[2] = m_thermo->intEnergy_mass() * m_mass;
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(y+3);
-
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 3);
-}
-
-void Reactor::getSurfaceInitialConditions(double* y)
-{
-    size_t loc = 0;
-    for (auto& S : m_surfaces) {
-        S->getCoverages(y + loc);
-        loc += S->thermo()->nSpecies();
-    }
+    m_thermo->getMassFractions(y.subspan(3, m_nsp));
 }
 
 void Reactor::initialize(double t0)
@@ -85,45 +66,22 @@ void Reactor::initialize(double t0)
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
                 " for reactor '" + m_name + "'.");
     }
-    m_thermo->restoreState(m_state);
-    m_sdot.resize(m_nsp, 0.0);
-    m_wdot.resize(m_nsp, 0.0);
     updateConnected(true);
 
     for (size_t n = 0; n < m_wall.size(); n++) {
         WallBase* W = m_wall[n];
         W->initialize();
     }
-
-    m_nv = m_nsp + 3;
-    m_nv_surf = 0;
-    size_t maxnt = 0;
-    for (auto& S : m_surfaces) {
-        m_nv_surf += S->thermo()->nSpecies();
-        size_t nt = S->kinetics()->nTotalSpecies();
-        maxnt = std::max(maxnt, nt);
-    }
-    m_nv += m_nv_surf;
-    m_work.resize(maxnt);
 }
 
-size_t Reactor::nSensParams() const
-{
-    size_t ns = m_sensParams.size();
-    for (auto& S : m_surfaces) {
-        ns += S->nSensParams();
-    }
-    return ns;
-}
-
-void Reactor::updateState(double* y)
+void Reactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the total internal energy, [3...K+3] are the mass fractions of each
     // species, and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(y+3);
+    m_thermo->setMassFractions_NoNorm(y.subspan(3, m_nsp));
 
     if (m_energy) {
         double U = y[2];
@@ -161,56 +119,19 @@ void Reactor::updateState(double* y)
     }
 
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + 3);
 }
 
-void Reactor::updateSurfaceState(double* y)
-{
-    size_t loc = 0;
-    for (auto& S : m_surfaces) {
-        S->setCoverages(y+loc);
-        loc += S->thermo()->nSpecies();
-    }
-}
-
-void Reactor::updateConnected(bool updatePressure) {
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    if (updatePressure) {
-        m_pressure = m_thermo->pressure();
-    }
-    m_thermo->saveState(m_state);
-
-    // Update the mass flow rate of connected flow devices
-    double time = 0.0;
-    if (m_net != nullptr) {
-        time = (timeIsIndependent()) ? m_net->time() : m_net->distance();
-    }
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        m_outlet[i]->setSimTime(time);
-        m_outlet[i]->updateMassFlowRate(time);
-    }
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        m_inlet[i]->setSimTime(time);
-        m_inlet[i]->updateMassFlowRate(time);
-    }
-    for (size_t i = 0; i < m_wall.size(); i++) {
-        m_wall[i]->setSimTime(time);
-    }
-}
-
-void Reactor::eval(double time, double* LHS, double* RHS)
+void Reactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0];
-    double* mdYdt = RHS + 3; // mass * dY/dt
+    auto mdYdt = RHS.subspan(3); // mass * dY/dt
 
     evalWalls(time);
-    m_thermo->restoreState(m_state);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    updateSurfaceProductionRates();
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
-    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
-     // mass added to gas phase from surface reactions
+    // mass added to gas phase from surface reactions
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt = mdot_surf;
 
@@ -218,7 +139,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     RHS[1] = m_vdot;
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     for (size_t k = 0; k < m_nsp; k++) {
@@ -235,6 +156,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     // @f]
     if (m_energy) {
         RHS[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
+        RHS[2] += m_thermo->intrinsicHeating() * m_vol;
     } else {
         RHS[2] = 0.0;
     }
@@ -263,6 +185,12 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
+void Reactor::evalSteady(double time, span<double> LHS, span<double> RHS)
+{
+    eval(time, LHS, RHS);
+    RHS[1] = m_vol - m_initialVolume;
+}
+
 void Reactor::evalWalls(double t)
 {
     // time is currently unused
@@ -275,62 +203,23 @@ void Reactor::evalWalls(double t)
     }
 }
 
-void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
-{
-    fill(sdot, sdot + m_nsp, 0.0);
-    size_t loc = 0; // offset into ydot
-
-    for (auto S : m_surfaces) {
-        Kinetics* kin = S->kinetics();
-        SurfPhase* surf = S->thermo();
-
-        double rs0 = 1.0/surf->siteDensity();
-        size_t nk = surf->nSpecies();
-        double sum = 0.0;
-        S->restoreState();
-        kin->getNetProductionRates(&m_work[0]);
-        for (size_t k = 1; k < nk; k++) {
-            RHS[loc + k] = m_work[k] * rs0 * surf->size(k);
-            sum -= RHS[loc + k];
-        }
-        RHS[loc] = sum;
-        loc += nk;
-
-        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
-        double wallarea = S->area();
-        for (size_t k = 0; k < m_nsp; k++) {
-            sdot[k] += m_work[bulkloc + k] * wallarea;
-        }
-    }
-}
-
-vector<size_t> Reactor::steadyConstraints() const
+vector<size_t> Reactor::initializeSteady()
 {
     if (!energyEnabled()) {
-        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
+        throw CanteraError("Reactor::initializeSteady", "Steady state solver cannot"
             " be used with {0} when energy equation is disabled."
             "\nConsider using IdealGas{0} instead.\n"
             "See https://github.com/Cantera/enhancements/issues/234", type());
     }
-    if (nSurfs() != 0) {
-        throw CanteraError("Reactor::steadyConstraints", "Steady state solver cannot"
-            " currently be used when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234.");
-    }
+    m_initialVolume = m_vol;
     return {1}; // volume
 }
 
 Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
 {
-    if (m_nv == 0) {
-        throw CanteraError("Reactor::finiteDifferenceJacobian",
-                           "Reactor must be initialized first.");
-    }
-    // clear former jacobian elements
-    m_jac_trips.clear();
-
+    vector<Eigen::Triplet<double>> trips;
     Eigen::ArrayXd yCurrent(m_nv);
-    getState(yCurrent.data());
+    getState(asSpan(yCurrent));
     double time = (m_net != nullptr) ? m_net->time() : 0.0;
 
     Eigen::ArrayXd yPerturbed = yCurrent;
@@ -338,8 +227,8 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
     Eigen::ArrayXd rhsPerturbed(m_nv), rhsCurrent(m_nv);
     lhsCurrent = 1.0;
     rhsCurrent = 0.0;
-    updateState(yCurrent.data());
-    eval(time, lhsCurrent.data(), rhsCurrent.data());
+    updateState(asSpan(yCurrent));
+    eval(time, asSpan(lhsCurrent), asSpan(rhsCurrent));
 
     double rel_perturb = std::sqrt(std::numeric_limits<double>::epsilon());
     double atol = (m_net != nullptr) ? m_net->atol() : 1e-15;
@@ -349,57 +238,26 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
         double delta_y = std::max(std::abs(yCurrent[j]), 1000 * atol) * rel_perturb;
         yPerturbed[j] += delta_y;
 
-        updateState(yPerturbed.data());
+        updateState(asSpan(yPerturbed));
         lhsPerturbed = 1.0;
         rhsPerturbed = 0.0;
-        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
+        eval(time, asSpan(lhsPerturbed), asSpan(rhsPerturbed));
 
         // d ydot_i/dy_j
         for (size_t i = 0; i < m_nv; i++) {
             double ydotPerturbed = rhsPerturbed[i] / lhsPerturbed[i];
             double ydotCurrent = rhsCurrent[i] / lhsCurrent[i];
             if (ydotCurrent != ydotPerturbed) {
-                m_jac_trips.emplace_back(
-                    static_cast<int>(i), static_cast<int>(j),
-                    (ydotPerturbed - ydotCurrent) / delta_y);
+                trips.emplace_back(static_cast<int>(i), static_cast<int>(j),
+                                   (ydotPerturbed - ydotCurrent) / delta_y);
             }
         }
     }
-    updateState(yCurrent.data());
+    updateState(asSpan(yCurrent));
 
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+    jac.setFromTriplets(trips.begin(), trips.end());
     return jac;
-}
-
-
-void Reactor::evalSurfaces(double* RHS, double* sdot)
-{
-    fill(sdot, sdot + m_nsp, 0.0);
-    size_t loc = 0; // offset into ydot
-
-    for (auto S : m_surfaces) {
-        Kinetics* kin = S->kinetics();
-        SurfPhase* surf = S->thermo();
-
-        double rs0 = 1.0/surf->siteDensity();
-        size_t nk = surf->nSpecies();
-        double sum = 0.0;
-        S->restoreState();
-        kin->getNetProductionRates(&m_work[0]);
-        for (size_t k = 1; k < nk; k++) {
-            RHS[loc + k] = m_work[k] * rs0 * surf->size(k);
-            sum -= RHS[loc + k];
-        }
-        RHS[loc] = sum;
-        loc += nk;
-
-        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
-        double wallarea = S->area();
-        for (size_t k = 0; k < m_nsp; k++) {
-            sdot[k] += m_work[bulkloc + k] * wallarea;
-        }
-    }
 }
 
 void Reactor::addSensitivityReaction(size_t rxn)
@@ -430,27 +288,16 @@ void Reactor::addSensitivitySpeciesEnthalpy(size_t k)
                              SensParameterType::enthalpy});
 }
 
-size_t Reactor::speciesIndex(const string& nm) const
+void Reactor::updateSurfaceProductionRates()
 {
-    // check for a gas species name
-    size_t k = m_thermo->speciesIndex(nm, false);
-    if (k != npos) {
-        return k;
-    }
-
-    // check for a wall species
-    size_t offset = m_nsp;
+    m_sdot.assign(m_nsp, 0.0);
     for (auto& S : m_surfaces) {
-        ThermoPhase* th = S->thermo();
-        k = th->speciesIndex(nm, false);
-        if (k != npos) {
-            return k + offset;
-        } else {
-            offset += th->nSpecies();
+        const auto& sdot = S->surfaceProductionRates();
+        size_t offset = S->kinetics()->kineticsSpeciesIndex(m_thermo->speciesName(0));
+        for (size_t k = 0; k < m_nsp; k++) {
+            m_sdot[k] += sdot[offset + k] * S->area();
         }
     }
-    throw CanteraError("Reactor::speciesIndex",
-        "Species '{}' not found", nm);
 }
 
 size_t Reactor::componentIndex(const string& nm) const
@@ -465,7 +312,7 @@ size_t Reactor::componentIndex(const string& nm) const
         return 2;
     }
     try {
-        return speciesIndex(nm) + 3;
+        return m_thermo->speciesIndex(nm) + 3;
     } catch (const CanteraError&) {
         throw CanteraError("Reactor::componentIndex",
             "Component '{}' not found", nm);
@@ -480,20 +327,7 @@ string Reactor::componentName(size_t k) {
     } else if (k == 2) {
         return "int_energy";
     } else if (k >= 3 && k < neq()) {
-        k -= 3;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - 3);
     }
     throw IndexError("Reactor::componentName", "component", k, m_nv);
 }
@@ -526,15 +360,15 @@ double Reactor::lowerBound(size_t k) const {
     }
 }
 
-void Reactor::resetBadValues(double* y) {
+void Reactor::resetBadValues(span<double> y) {
     for (size_t k = 3; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }
 }
 
-void Reactor::applySensitivity(double* params)
+void Reactor::applySensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -545,18 +379,15 @@ void Reactor::applySensitivity(double* params)
             m_thermo->modifyOneHf298SS(p.local, p.value + params[p.global]);
         }
     }
-    for (auto& S : m_surfaces) {
-        S->setSensitivityParameters(params);
-    }
     m_thermo->invalidateCache();
     if (m_kin) {
         m_kin->invalidateCache();
     }
 }
 
-void Reactor::resetSensitivity(double* params)
+void Reactor::resetSensitivity(span<const double> params)
 {
-    if (!params) {
+    if (params.empty()) {
         return;
     }
     for (auto& p : m_sensParams) {
@@ -566,22 +397,15 @@ void Reactor::resetSensitivity(double* params)
             m_thermo->resetHf298(p.local);
         }
     }
-    for (auto& S : m_surfaces) {
-        S->resetSensitivityParameters();
-    }
     m_thermo->invalidateCache();
     if (m_kin) {
         m_kin->invalidateCache();
     }
 }
 
-void Reactor::setAdvanceLimits(const double *limits)
+void Reactor::setAdvanceLimits(span<const double> limits)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("Reactor::setAdvanceLimits",
-                           "Error: reactor is empty.");
-    }
-    m_advancelimits.assign(limits, limits + m_nv);
+    m_advancelimits.assign(limits.begin(), limits.end());
 
     // resize to zero length if no limits are set
     if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
@@ -590,13 +414,13 @@ void Reactor::setAdvanceLimits(const double *limits)
     }
 }
 
-bool Reactor::getAdvanceLimits(double *limits) const
+bool Reactor::getAdvanceLimits(span<double> limits) const
 {
     bool has_limit = hasAdvanceLimits();
     if (has_limit) {
-        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits);
+        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits.begin());
     } else {
-        std::fill(limits, limits + m_nv, -1.0);
+        std::fill(limits.begin(), limits.end(), -1.0);
     }
     return has_limit;
 }
@@ -604,23 +428,6 @@ bool Reactor::getAdvanceLimits(double *limits) const
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
-
-    if (m_thermo == 0) {
-        throw CanteraError("Reactor::setAdvanceLimit",
-                           "Error: reactor is empty.");
-    }
-    if (m_nv == 0) {
-        if (m_net == 0) {
-            throw CanteraError("Reactor::setAdvanceLimit",
-                               "Cannot set limit on a reactor that is not "
-                               "assigned to a ReactorNet object.");
-        } else {
-            m_net->initialize();
-        }
-    } else if (k > m_nv) {
-        throw CanteraError("Reactor::setAdvanceLimit",
-                           "Index out of bounds.");
-    }
     m_advancelimits.resize(m_nv, -1.0);
     m_advancelimits[k] = limit;
 

@@ -4,7 +4,7 @@
 cimport numpy as np
 import numpy as np
 from pathlib import PurePath as _PurePath
-from os import get_terminal_size as _get_terminal_size
+from shutil import get_terminal_size as _get_terminal_size
 import warnings
 
 from .thermo cimport *

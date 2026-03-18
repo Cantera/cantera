@@ -38,14 +38,15 @@ public:
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
     //! @since Starting in %Cantera 3.2, the Jacobian is accessed via the OneDim object.
-    void step(double* x, double* step, SteadyStateSystem& r, int loglevel);
+    void step(span<const double> x, span<double> step, SteadyStateSystem& r,
+              int loglevel);
 
     /**
      * Return the factor by which the undamped Newton step 'step0'
      * must be multiplied in order to keep all solution components in
      * all domains between their specified lower and upper bounds.
      */
-    double boundStep(const double* x0, const double* step0,
+    double boundStep(span<const double> x0, span<const double> step0,
                      const SteadyStateSystem& r, int loglevel);
 
     /**
@@ -115,8 +116,9 @@ public:
      * @since Starting in %Cantera 3.2, the Jacobian is accessed via the
      * SteadyStateSystem object.
      */
-    int dampStep(const double* x0, const double* step0, double* x1, double* step1,
-                 double& s1, SteadyStateSystem& r, int loglevel, bool writetitle);
+    int dampStep(span<const double> x0, span<const double> step0,
+                 span<double> x1, span<double> step1, double& s1,
+                 SteadyStateSystem& r, int loglevel, bool writetitle);
 
     /**
      * Find the solution to F(x) = 0 by damped Newton iteration. On entry, x0
@@ -135,7 +137,8 @@ public:
      * @since Starting in %Cantera 3.2, the Jacobian is accessed via the
      * SteadyStateSystem object.
      */
-    int solve(double* x0, double* x1, SteadyStateSystem& r, int loglevel);
+    int solve(span<const double> x0, span<double> x1, SteadyStateSystem& r,
+              int loglevel);
 
     //! Set options.
     //! @param maxJacAge  Maximum number of steps that can be taken before requiring

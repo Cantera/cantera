@@ -399,6 +399,15 @@ public:
         return 1.0 / temperature();
     }
 
+    //! Return the internal pressure. Units: Pa.
+    /*!
+     * For ideal gases, @f$ (\partial P/\partial T)_V = P/T @f$, so
+     * @f$ \pi_T = T(P/T) - P = 0 @f$.
+     */
+    double internalPressure() const override {
+        return 0.0;
+    }
+
     double soundSpeed() const override;
 
     //! @}
@@ -438,7 +447,7 @@ public:
      *           upon the implementation of the reaction rate expressions within
      *           the phase.
      */
-    void getActivityConcentrations(double* c) const override {
+    void getActivityConcentrations(span<double> c) const override {
         getConcentrations(c);
     }
 
@@ -465,44 +474,51 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
     //! @}
     //! @name Partial Molar Properties of the Solution
     //! @{
 
-    void getChemPotentials(double* mu) const override;
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
-    void getPartialMolarIntEnergies(double* ubar) const override;
-    void getPartialMolarCp(double* cpbar) const override;
-    void getPartialMolarVolumes(double* vbar) const override;
+    void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    void getPartialMolarIntEnergies_TV(span<double> utilde) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarCv_TV(span<double> cvtilde) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    void getStandardChemPotentials(double* mu) const override;
-    void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getGibbs_RT(double* grt) const override;
-    void getIntEnergy_RT(double* urt) const override;
-    void getCp_R(double* cpr) const override;
-    void getStandardVolumes(double* vol) const override;
+    void getStandardChemPotentials(span<double> mu) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getGibbs_RT(span<double> grt) const override;
+    void getIntEnergy_RT(span<double> urt) const override;
+    void getCp_R(span<double> cpr) const override;
+    void getStandardVolumes(span<double> vol) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getGibbs_RT_ref(double* grt) const override;
-    void getGibbs_ref(double* g) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getIntEnergy_RT_ref(double* urt) const override;
-    void getCp_R_ref(double* cprt) const override;
-    void getStandardVolumes_ref(double* vol) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getIntEnergy_RT_ref(span<double> urt) const override;
+    void getCp_R_ref(span<double> cprt) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
+
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void setToEquilState(span<const double> mu_RT) override;
+
+protected:
     //! @name NonVirtual Internal methods to Return References to Reference State Thermo
     //! @{
 
@@ -511,7 +527,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& enthalpy_RT_ref() const {
+    span<const double> enthalpy_RT_ref() const {
         updateThermo();
         return m_h0_RT;
     }
@@ -521,7 +537,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& gibbs_RT_ref() const {
+    span<const double> gibbs_RT_ref() const {
         updateThermo();
         return m_g0_RT;
     }
@@ -531,7 +547,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& entropy_R_ref() const {
+    span<const double> entropy_R_ref() const {
         updateThermo();
         return m_s0_R;
     }
@@ -541,17 +557,13 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector<double>& cp_R_ref() const {
+    span<const double> cp_R_ref() const {
         updateThermo();
         return m_cp0_R;
     }
 
     //! @}
 
-    bool addSpecies(shared_ptr<Species> spec) override;
-    void setToEquilState(const double* mu_RT) override;
-
-protected:
     //! Reference state pressure
     /*!
      *  Value of the reference state pressure in Pascals.

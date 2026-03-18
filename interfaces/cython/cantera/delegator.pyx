@@ -149,9 +149,9 @@ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double*)
-cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) noexcept:
-    cdef double[:] view = <double[:sizes[0]]>arg if sizes[0] else None
+# Wrapper for functions of type void(span<double>)
+cdef void callback_v_dp(PyFuncInfo& funcInfo, span[double] arg) noexcept:
+    cdef double[:] view = <double[:arg.size()]>arg.data() if arg.size() else None
 
     try:
         (<object>funcInfo.func())(view)
@@ -160,10 +160,10 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) no
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double, double*)
-cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
-                          double* arg2) noexcept:
-    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+# Wrapper for functions of type void(double, span<double>)
+cdef void callback_v_d_dp(PyFuncInfo& funcInfo, double arg1,
+                          span[double] arg2) noexcept:
+    cdef double[:] view = <double[:arg2.size()]>arg2.data() if arg2.size() else None
 
     try:
         (<object>funcInfo.func())(arg1, view)
@@ -172,13 +172,12 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type void(double*, double*, double*)
+# Wrapper for functions of type void(span<double>, span<double>, span<double>)
 cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
-        size_array3 sizes, double* arg1, double* arg2, double* arg3) noexcept:
-
-    cdef double[:] view1 = <double[:sizes[0]]>arg1 if sizes[0] else None
-    cdef double[:] view2 = <double[:sizes[1]]>arg2 if sizes[1] else None
-    cdef double[:] view3 = <double[:sizes[2]]>arg3 if sizes[2] else None
+        span[double] arg1, span[double] arg2, span[double] arg3) noexcept:
+    cdef double[:] view1 = <double[:arg1.size()]>arg1.data() if arg1.size() else None
+    cdef double[:] view2 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
+    cdef double[:] view3 = <double[:arg3.size()]>arg3.data() if arg3.size() else None
     try:
         (<object>funcInfo.func())(view1, view2, view3)
     except BaseException as e:
@@ -231,11 +230,11 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) n
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
 
-# Wrapper for functions of type void(double, double*, double*)
-cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
-                             double* arg2, double* arg3) noexcept:
-    cdef double[:] view1 = <double[:sizes[0]]>arg2 if sizes[0] else None
-    cdef double[:] view2 = <double[:sizes[1]]>arg3 if sizes[1] else None
+# Wrapper for functions of type void(double, span<double>, span<double>)
+cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, double arg1,
+                             span[double] arg2, span[double] arg3) noexcept:
+    cdef double[:] view1 = <double[:arg2.size()]>arg2.data() if arg2.size() else None
+    cdef double[:] view2 = <double[:arg3.size()]>arg3.data() if arg3.size() else None
 
     try:
         (<object>funcInfo.func())(arg1, view1, view2)
@@ -274,7 +273,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     cdef string cxx_name
     cdef string cxx_when
     obj._delegates = []
+    valid_names = set()
     for name, options in obj.delegatable_methods.items():
+        valid_names.add(name)
         if len(options) == 3:
             # Delegate with pre-selected mode, without using prefix on method name
             when = options[2]
@@ -374,6 +375,14 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         # from being deleted, while still being eventually reachable by the garbage
         # collector
         obj._delegates.append(method)
+
+    # Check for methods on the base object that have no matching delegate
+    for name in dir(obj):
+        if (name.startswith("before_") or name.startswith("after_") or
+            name.startswith("replace_")):
+            base_name = name.split("_", 1)[1]
+            if base_name not in valid_names:
+                raise ValueError(f"'{base_name}' is not a delegatable method")
 
     return 0
 

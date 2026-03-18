@@ -16,10 +16,11 @@ using namespace Cantera;
 
 #define MSSIZE 200
 
-void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
+void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr,
+              span<const double> src)
 {
-    double x[MSSIZE];
-    double C[MSSIZE];
+    vector<double> x(gasTP->nSpecies());
+    vector<double> C(gasTP->nSpecies());
     oooo.precision(3);
     string gasPhaseName = gasTP->name();
     gasTP->getMoleFractions(x);
@@ -48,11 +49,11 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     oooo << endl;
 }
 
-void printBulk(ostream& oooo,
-               ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printBulk(ostream& oooo, ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr,
+               span<const double> src)
 {
-    double x[MSSIZE];
-    double C[MSSIZE];
+    vector<double> x(bulkPhaseTP->nSpecies());
+    vector<double> C(bulkPhaseTP->nSpecies());
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
@@ -72,7 +73,7 @@ void printBulk(ostream& oooo,
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
     double Wsum = 0.0;
-    const vector<double>& molecW = bulkPhaseTP->molecularWeights();
+    auto molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, iPhase);
@@ -94,10 +95,10 @@ void printBulk(ostream& oooo,
     oooo << endl;
 }
 
-void printSurf(ostream& oooo,
-               ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr,
+               span<const double> src)
 {
-    double x[MSSIZE];
+    vector<double> x(surfPhaseTP->nSpecies());
     string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
     size_t iPhase = iKin_ptr->phaseIndex(surfParticlePhaseName);
@@ -153,29 +154,28 @@ int main(int argc, char** argv)
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[MSSIZE];
+        vector<double> x(nspGas);
 
         ofstream ofile("results.txt");
 
-        iKin_ptr->setIOFlag(ioflag);
         /*
          *  Solve the Equation system
          */
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
 
         /*
          * Download the source terms for the rate equations
          */
-        double src[MSSIZE];
+        vector<double> src(iKin_ptr->nTotalSpecies());
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
         printBulk(cout, bulkPhaseTP, iKin_ptr, src);
-        printSurf(cout, surfPhaseTP, iKin_ptr, src) ;
+        printSurf(cout, surfPhaseTP, iKin_ptr, src);
 
         printGas(ofile, gasTP, iKin_ptr, src);
         printBulk(ofile, bulkPhaseTP, iKin_ptr, src);
-        printSurf(ofile, surfPhaseTP, iKin_ptr, src) ;
+        printSurf(ofile, surfPhaseTP, iKin_ptr, src);
         /*****************************************************************************/
         /*  Now Tweak the inputs and do a quick calculation */
         /****************************************************************************/
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
         gasTP->setMoleFractions(x);
         gasTP->setPressure(pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
@@ -210,8 +210,10 @@ int main(int argc, char** argv)
         double temp = surfPhaseTP->temperature();
         temp += 95;
         surfPhaseTP->setState_TP(temp, pres);
+        gasTP->setState_TP(temp, pres);
+        bulkPhaseTP->setState_TP(temp, pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);
@@ -227,7 +229,7 @@ int main(int argc, char** argv)
         /****************************************************************************/
         surfPhaseTP->setState_TP(temp, pres);
 
-        iKin_ptr->solvePseudoSteadyStateProblem();
+        iKin_ptr->solvePseudoSteadyStateProblem(ioflag);
         iKin_ptr->getNetProductionRates(src);
 
         printGas(cout, gasTP, iKin_ptr, src);

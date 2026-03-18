@@ -17,6 +17,7 @@ Requires: cantera >= 3.2
 import csv
 
 import cantera as ct
+ct.CanteraError.set_stack_trace_depth(10)
 
 # unit conversion factors to SI
 cm = 0.01
@@ -97,7 +98,7 @@ m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
 # We need an outlet to the downstream reservoir. This will determine the
 # pressure in the reactor. The value of K will only affect the transient
 # pressure difference.
-v = ct.PressureController(r, downstream, primary=m, K=1e-5)
+v = ct.PressureController(r, downstream, primary=m, K=1e-6)
 
 sim = ct.ReactorNet([r])
 
@@ -105,10 +106,9 @@ output_data = []
 
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
-    gas.TDY = r.phase.TDY
-    upstream.syncState()
+    upstream.phase.TDY = r.phase.TDY
     sim.reinitialize()
-    sim.advance_to_steady_state()
+    sim.solve_steady()
     dist = n * rlen * 1.0e3  # distance in mm
 
     if n % 10 == 0:

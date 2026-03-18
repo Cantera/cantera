@@ -26,20 +26,21 @@ public:
         return "IdealGasConstPressureMoleReactor";
     };
 
-    void getState(double* y) override;
+    void getState(span<double> y) override;
 
     void initialize(double t0=0.0) override;
 
-    void eval(double t, double* LHS, double* RHS) override;
+    void eval(double t, span<double> LHS, span<double> RHS) override;
 
-    void updateState(double* y) override;
+    void updateState(span<const double> y) override;
+    void getJacobianScalingFactors(double& f_species, span<double> f_energy) override;
 
     //! Calculate an approximate Jacobian to accelerate preconditioned solvers
 
     //! Neglects derivatives with respect to mole fractions that would generate a
     //! fully-dense Jacobian. Currently also neglects terms related to interactions
     //! between reactors, for example via inlets and outlets.
-    Eigen::SparseMatrix<double> jacobian() override;
+    void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
 
     bool preconditionerSupported() const override { return true; };
 
@@ -50,6 +51,7 @@ public:
 
 protected:
     vector<double> m_hk; //!< Species molar enthalpies
+    double m_TotalCp; //!< Total heat capacity (@f$ m c_p @f$) [J/K]
 };
 
 }

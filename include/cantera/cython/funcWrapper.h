@@ -162,15 +162,7 @@ private:
     void* m_pyobj;
 };
 
-// @todo Remove the second case here when Cython 0.29.x is no longer supported
-#if defined(CYTHON_HEX_VERSION) && CYTHON_HEX_VERSION >= 0x001DFFFF
 extern PyObject* pyCanteraError;
-#else
-extern "C" {
-    extern PyObject* pyCanteraError;
-}
-#endif
-
 
 //! Take a function which requires Python function information (as a PyFuncInfo
 //! object) and capture that object to generate a function that does not require
@@ -227,6 +219,8 @@ inline int translate_exception()
         PyErr_SetString(PyExc_IndexError, exn.what());
     } catch (const Cantera::NotImplementedError& exn) {
         PyErr_SetString(PyExc_NotImplementedError, exn.what());
+    } catch (const Cantera::ArraySizeError& exn) {
+        PyErr_SetString(PyExc_ValueError, exn.what());
     } catch (const Cantera::CanteraError& exn) {
         PyErr_SetString(pyCanteraError, exn.what());
     } catch (const std::exception& exn) {

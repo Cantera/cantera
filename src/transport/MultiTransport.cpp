@@ -100,8 +100,9 @@ double MultiTransport::thermalConductivity()
     return -4.0*sum;
 }
 
-void MultiTransport::getThermalDiffCoeffs(double* const dt)
+void MultiTransport::getThermalDiffCoeffs(span<double> dt)
 {
+    checkArraySize("MultiTransport::getThermalDiffCoeffs", dt.size(), m_nsp);
     solveLMatrixEquation();
     const double c = 1.6/GasConstant;
     for (size_t k = 0; k < m_nsp; k++) {
@@ -151,30 +152,39 @@ void MultiTransport::solveLMatrixEquation()
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp, 0.0);
 
     //! Evaluate the upper-left block of the L matrix.
-    eval_L0000(m_molefracs.data());
-    eval_L0010(m_molefracs.data());
+    eval_L0000(m_molefracs);
+    eval_L0010(m_molefracs);
     eval_L0001();
     eval_L1000();
-    eval_L1010(m_molefracs.data());
-    eval_L1001(m_molefracs.data());
+    eval_L1010(m_molefracs);
+    eval_L1001(m_molefracs);
     eval_L0100();
     eval_L0110();
-    eval_L0101(m_molefracs.data());
+    eval_L0101(m_molefracs);
 
     // Solve it using GMRES or LU decomposition. The last solution in m_a should
     // provide a good starting guess, so convergence should be fast.
     m_a = m_b;
-    solve(m_Lmatrix, m_a.data());
+    solve(m_Lmatrix, m_a);
     m_lmatrix_soln_ok = true;
     m_molefracs_last = m_molefracs;
     // L matrix is overwritten with LU decomposition
     m_l0000_ok = false;
 }
 
-void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                                      size_t ldx, const double* const grad_X,
-                                      size_t ldf, double* const fluxes)
+void MultiTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
+                                      size_t ldx, span<const double> grad_X,
+                                      size_t ldf, span<double> fluxes)
 {
+    if (ldx < m_nsp) {
+        throw CanteraError("MultiTransport::getSpeciesFluxes", "ldx is too small");
+    }
+    if (ldf < m_nsp) {
+        throw CanteraError("MultiTransport::getSpeciesFluxes", "ldf is too small");
+    }
+    checkArraySize("MultiTransport::getSpeciesFluxes: grad_T", grad_T.size(), ndim);
+    checkArraySize("MultiTransport::getSpeciesFluxes: grad_X", grad_X.size(), ldx * ndim);
+    checkArraySize("MultiTransport::getSpeciesFluxes: fluxes", fluxes.size(), ldf * ndim);
     // update the binary diffusion coefficients if necessary
     update_T();
     updateDiff_T();
@@ -188,10 +198,10 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
         }
     }
     if (addThermalDiffusion) {
-        getThermalDiffCoeffs(m_spwork.data());
+        getThermalDiffCoeffs(m_spwork);
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
     double rho = m_thermo->density();
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -227,9 +237,10 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
 
     // copy grad_X to fluxes
     for (size_t n = 0; n < ndim; n++) {
-        const double* gx = grad_X + ldx*n;
-        copy(gx, gx + m_nsp, fluxes + ldf*n);
-        fluxes[jmax + n*ldf] = 0.0;
+        auto gx = grad_X.subspan(ldx * n, m_nsp);
+        auto fx = fluxes.subspan(ldf * n, m_nsp);
+        std::copy(gx.begin(), gx.end(), fx.begin());
+        fx[jmax] = 0.0;
     }
 
     // solve the equations
@@ -257,19 +268,23 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
     }
 }
 
-void MultiTransport::getMassFluxes(const double* state1, const double* state2,
-                                   double delta, double* fluxes)
+void MultiTransport::getMassFluxes(span<const double> state1,
+                                   span<const double> state2,
+                                   double delta, span<double> fluxes)
 {
-    double* x1 = m_spwork1.data();
-    double* x2 = m_spwork2.data();
-    double* x3 = m_spwork3.data();
+    checkArraySize("MultiTransport::getMassFluxes: state1", state1.size(), m_nsp + 2);
+    checkArraySize("MultiTransport::getMassFluxes: state2", state2.size(), m_nsp + 2);
+    checkArraySize("MultiTransport::getMassFluxes: fluxes", fluxes.size(), m_nsp);
+    span<double> x1(m_spwork1);
+    span<double> x2(m_spwork2);
+    span<double> x3(m_spwork3);
     size_t nsp = m_thermo->nSpecies();
-    m_thermo->restoreState(nsp+2, state1);
+    m_thermo->restoreState(state1);
     double p1 = m_thermo->pressure();
     double t1 = state1[0];
     m_thermo->getMoleFractions(x1);
 
-    m_thermo->restoreState(nsp+2, state2);
+    m_thermo->restoreState(state2);
     double p2 = m_thermo->pressure();
     double t2 = state2[0];
     m_thermo->getMoleFractions(x2);
@@ -281,7 +296,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
         x3[n] = 0.5*(x1[n] + x2[n]);
     }
     m_thermo->setState_TPX(t, p, x3);
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     // update the binary diffusion coefficients if necessary
     update_T();
@@ -292,10 +307,10 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     bool addThermalDiffusion = false;
     if (state1[0] != state2[0]) {
         addThermalDiffusion = true;
-        getThermalDiffCoeffs(m_spwork.data());
+        getThermalDiffCoeffs(m_spwork);
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
     double rho = m_thermo->density();
     for (size_t i = 0; i < m_nsp; i++) {
         double sum = 0.0;
@@ -345,10 +360,8 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     }
 }
 
-void MultiTransport::getMolarFluxes(const double* const state1,
-                                    const double* const state2,
-                                    const double delta,
-                                    double* const fluxes)
+void MultiTransport::getMolarFluxes(span<const double> state1,
+    span<const double> state2, const double delta, span<double> fluxes)
 {
     getMassFluxes(state1, state2, delta, fluxes);
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
@@ -356,8 +369,12 @@ void MultiTransport::getMolarFluxes(const double* const state1,
     }
 }
 
-void MultiTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
+void MultiTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
 {
+    if (ld < m_nsp) {
+        throw CanteraError("MultiTransport::getMultiDiffCoeffs", "ld is too small");
+    }
+    checkArraySize("MultiTransport::getMultiDiffCoeffs", d.size(), ld * m_nsp);
     double p = pressure_ig();
 
     // update the mole fractions
@@ -370,7 +387,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
     if (!m_l0000_ok) {
-        eval_L0000(m_molefracs.data());
+        eval_L0000(m_molefracs);
     }
 
     // invert L00,00
@@ -405,7 +422,7 @@ void MultiTransport::update_T()
 void MultiTransport::update_C()
 {
     // Update the local mole fraction array
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     for (size_t k = 0; k < m_nsp; k++) {
         // add an offset to avoid a pure species condition
@@ -434,13 +451,13 @@ void MultiTransport::updateThermal_T()
             double z = m_star_poly_uses_actualT[i][j] == 1 ? m_logt : m_logt - m_log_eps_k(i,j);
             int ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
-                m_astar(i,j) = poly6(z, m_astar_poly[ipoly].data());
-                m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly].data());
-                m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly].data());
+                m_astar(i,j) = poly6(z, m_astar_poly[ipoly]);
+                m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly]);
+                m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly]);
             } else {
-                m_astar(i,j) = poly8(z, m_astar_poly[ipoly].data());
-                m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly].data());
-                m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly].data());
+                m_astar(i,j) = poly8(z, m_astar_poly[ipoly]);
+                m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly]);
+                m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly]);
             }
             m_astar(j,i) = m_astar(i,j);
             m_bstar(j,i) = m_bstar(i,j);
@@ -470,7 +487,7 @@ void MultiTransport::updateThermal_T()
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */
     vector<double> cp(m_thermo->nSpecies());
-    m_thermo->getCp_R_ref(&cp[0]);
+    m_thermo->getCp_R_ref(cp);
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;
     }
@@ -485,7 +502,7 @@ bool MultiTransport::hasInternalModes(size_t j)
     return (m_cinternal[j] > Min_C_Internal);
 }
 
-void MultiTransport::eval_L0000(const double* const x)
+void MultiTransport::eval_L0000(span<const double> x)
 {
     double prefactor = 16.0*m_temp/25.0;
     double sum;
@@ -507,7 +524,7 @@ void MultiTransport::eval_L0000(const double* const x)
     }
 }
 
-void MultiTransport::eval_L0010(const double* const x)
+void MultiTransport::eval_L0010(span<const double> x)
 {
     double prefactor = 1.6*m_temp;
     for (size_t j = 0; j < m_nsp; j++) {
@@ -536,7 +553,7 @@ void MultiTransport::eval_L1000()
     }
 }
 
-void MultiTransport::eval_L1010(const double* x)
+void MultiTransport::eval_L1010(span<const double> x)
 {
     const double fiveover3pi = 5.0/(3.0*Pi);
     double prefactor = (16.0*m_temp)/25.0;
@@ -570,7 +587,7 @@ void MultiTransport::eval_L1010(const double* x)
     }
 }
 
-void MultiTransport::eval_L1001(const double* x)
+void MultiTransport::eval_L1001(span<const double> x)
 {
     double prefactor = 32.00*m_temp/(5.00*Pi);
     for (size_t j = 0; j < m_nsp; j++) {
@@ -620,7 +637,7 @@ void MultiTransport::eval_L0110()
     }
 }
 
-void MultiTransport::eval_L0101(const double* x)
+void MultiTransport::eval_L0101(span<const double> x)
 {
     for (size_t i = 0; i < m_nsp; i++) {
         if (hasInternalModes(i)) {

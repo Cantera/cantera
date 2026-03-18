@@ -40,6 +40,8 @@ Basic usage:
 
     'scons doxygen' - Build the Doxygen documentation
 
+    'scons pyodide-wheel' - Build Pyodide wheels from Python sdist packages.
+
 Additional command options:
 
     'scons help --options' - Print a description of user-specifiable options.
@@ -90,8 +92,8 @@ from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuratio
                         config_error, run_preprocessor, make_relative_path_absolute)
 
 # ensure that Python and SCons versions are sufficient for the build process
-EnsurePythonVersion(3, 10)
-EnsureSConsVersion(4, 0, 0)
+EnsurePythonVersion(3, 12)
+EnsureSConsVersion(4, 5, 0)
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -104,7 +106,7 @@ if os.name not in ["nt", "posix"]:
 
 valid_commands = ("build", "clean", "install", "uninstall",
                   "help", "msi", "samples", "sphinx", "doxygen", "dump",
-                  "sdist")
+                  "sdist", "pyodide-wheel")
 
 # set default logging level
 if GetOption("silent"):
@@ -158,7 +160,7 @@ logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
 
-cantera_version = "3.3.0a1"
+cantera_version = "4.0.0a1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
 cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
@@ -175,29 +177,27 @@ else:
 
 
 # Python Package Settings
-python_min_version = parse_version("3.10")
+python_min_version = parse_version("3.12")
 # Newest Python version not supported/tested by Cantera
 python_max_version = parse_version("3.15")
 # The string is used to set python_requires in setup.cfg.in
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
-cython_version_spec = SpecifierSet(">=0.29.31,!=3.1.2", prereleases=True)
-numpy_version_spec = SpecifierSet(">=1.21.0,<3", prereleases=True)
+cython_version_spec = SpecifierSet(">=3.0.8,!=3.1.2", prereleases=True)
+numpy_version_spec = SpecifierSet(">=1.26.4,<3", prereleases=True)
 ruamel_version_spec = SpecifierSet(">=0.17.21,<1", prereleases=True)
 
-if "sdist" in COMMAND_LINE_TARGETS:
-    if "clean" in COMMAND_LINE_TARGETS:
-        COMMAND_LINE_TARGETS.remove("clean")
-    if len(COMMAND_LINE_TARGETS) > 1:
-        logger.error("'sdist' target cannot be built simultaneously with other targets.")
-        sys.exit(1)
+python_sdist_dir = "/".join((os.getcwd(), "build", "python_sdist"))
+
+
+def _build_python_sdist() -> None:
     logger.info("Copying files for sdist...")
     subprocess.run(
         [
             sys.executable,
             "interfaces/python_sdist/build_sdist.py",
             os.getcwd(),
-            "/".join((os.getcwd(), "build", "python_sdist")),
+            python_sdist_dir,
             cantera_git_commit,
             py_requires_ver_str,
             cantera_version,
@@ -214,13 +214,45 @@ if "sdist" in COMMAND_LINE_TARGETS:
             "-m",
             "build",
             "--sdist",
-            "/".join((os.getcwd(), "build", "python_sdist")),
+            python_sdist_dir,
         ],
     )
     message = textwrap.dedent(f"""
         ****************************************************************
         Python sdist 'Cantera-{cantera_version}.tar.gz' created successfully.
         The sdist file is in the 'build/python_sdist/dist' directory.
+        ****************************************************************
+    """)
+    logger.info(message, print_level=False)
+
+
+if "sdist" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'sdist' target cannot be built simultaneously with other targets.")
+        sys.exit(1)
+    _build_python_sdist()
+    sys.exit(0)
+
+if "pyodide-wheel" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'pyodide-wheel' target cannot be built simultaneously with other targets.")
+        sys.exit(1)
+    _build_python_sdist()
+    subprocess.run(
+        [
+            sys.executable,
+            "interfaces/python_sdist/build_pyodide_wheel.py",
+        ],
+        check=True,
+    )
+    message = textwrap.dedent("""
+        ****************************************************************
+        Pyodide wheel(s) created successfully.
+        The wheel file(s) are in the 'build/pyodide_dist' directory.
         ****************************************************************
     """)
     logger.info(message, print_level=False)
@@ -282,8 +314,8 @@ config_options = [
            options with spaces, for example, "cxx_flags='-g -Wextra -O3 -std=c++20'"
            """,
         {
-            "cl": "/EHsc /std:c++17 /utf-8",
-            "default": "-std=c++17"
+            "cl": "/EHsc /std:c++20 /utf-8",
+            "default": "-std=c++20"
         }),
     Option(
         "CC",
@@ -646,7 +678,7 @@ config_options = [
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.""",
-        {"mingw": False, "cl": False, "default": True}),
+        {"cl": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', that is, a fixed
@@ -938,10 +970,6 @@ if env["OS"] == "Windows":
 elif env["OS"] == "Darwin":
     config.select("macOS")
 
-# SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if "mingw" in env["toolchain"] :
-    config.select("mingw")
-
 config.select("default")
 config["python_cmd"].default = sys.executable
 
@@ -996,7 +1024,10 @@ def get_processor_name():
     elif platform.system() == "Darwin":
         os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
         command ="sysctl -n machdep.cpu.brand_string"
-        return subprocess.check_output(command, shell=True).decode().strip()
+        try:
+            return subprocess.check_output(command, shell=True).decode().strip()
+        except subprocess.CalledProcessError:
+            return "<unknown processor>"
     elif platform.system() == "Linux":
         command = "lscpu || cat /proc/cpuinfo"
         all_info = subprocess.check_output(command, shell=True).decode().strip()
@@ -1239,7 +1270,7 @@ if env['system_fmt'] in ('y', 'default'):
     )
     if retcode and fmt_version_text:
         fmt_lib_version = split_version(fmt_version_text)
-        fmt_min_version = "8.0.0"
+        fmt_min_version = "9.1.0"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
@@ -1355,16 +1386,15 @@ env['HAS_OPENMP'] = conf.CheckLibWithHeader(
     ["iomp5", "omp", "gomp"], "omp.h", language="C++"
 )
 
+boost_version_spec = SpecifierSet(">=1.83")
 retcode, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
                  "'boost_inc_dir' to point to the boost headers.")
 else:
     env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().replace('"', "").split('_'))
-    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-        # or newer
-        config_error("Cantera requires Boost version 1.70 or newer.")
+    if env['BOOST_LIB_VERSION'] not in boost_version_spec:
+        config_error(f"Cantera requires Boost {boost_version_spec}.")
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
 
 # check BLAS/LAPACK installations
@@ -1443,8 +1473,8 @@ if env['system_sundials'] in ("y", "default"):
 if env["system_sundials"] in ("n", "default"):
     if not os.path.exists('ext/sundials/include/cvodes/cvodes.h'):
         checkout_submodule("Sundials", "ext/sundials")
-    logger.info("Using private installation of Sundials version 5.3.")
-    env['sundials_version'] = '5.3'
+    logger.info("Using private installation of Sundials version 7.5.")
+    env['sundials_version'] = '7.5'
     env['has_sundials_lapack'] = int(env['use_lapack'])
     env["system_sundials"] = "n"
 
@@ -1497,11 +1527,11 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
         highfive_include = "<highfive/H5Version.hpp>"
         retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
         if retcode and h5_lib_version:
-            if parse_version(h5_lib_version) < parse_version("2.5"):
+            if parse_version(h5_lib_version) < parse_version("2.10"):
                 if env["system_highfive"] == "y":
                     config_error(
                         f"System HighFive version {h5_lib_version} is not "
-                        "supported; version 2.5 or higher is required.")
+                        "supported; version 2.10 or higher is required.")
                 logger.info(
                     f"System HighFive version {h5_lib_version} is not supported. "
                     "Using private installation instead.")
@@ -1536,10 +1566,6 @@ if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
     logger.info(f"Using private installation of HighFive library.")
 
 if env["use_hdf5"]:
-    if conf.CheckStatement("HighFive::details::Boolean::HighFiveTrue",
-                           f"#include {highfive_include}"):
-        env["highfive_boolean"] = True
-
     retcode, hdf_version = run_preprocessor(
         conf, ['"H5public.h"'], "H5_VERS_MAJOR H5_VERS_MINOR H5_VERS_RELEASE"
     )
@@ -1659,8 +1685,6 @@ env["ct_pyscriptdir"] = "<not installed>"
 if env['python_package'] != 'n':
     python_config = check_for_python(env, COMMAND_LINE_TARGETS)
     env["python_package"] = python_config["python_package"]
-    if python_config["python_package"] == "y":
-        env["require_numpy_1_7_API"] = python_config["require_numpy_1_7_API"]
 
 if env["python_package"] == "y" and env["OS"] == "Darwin":
     # We need to know the macOS deployment target in advance to be able to determine
@@ -1834,7 +1858,6 @@ cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine("CT_USE_HDF5", "use_hdf5")
 cdefine("CT_USE_SYSTEM_HIGHFIVE", "system_highfive")
-cdefine("CT_USE_HIGHFIVE_BOOLEAN", "highfive_boolean")
 cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')

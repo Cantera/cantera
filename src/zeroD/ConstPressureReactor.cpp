@@ -14,14 +14,21 @@
 namespace Cantera
 {
 
-void ConstPressureReactor::getState(double* y)
+ConstPressureReactor::ConstPressureReactor(shared_ptr<Solution> sol,
+                                           const string& name)
+    : ConstPressureReactor(sol, true, name)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("ConstPressureReactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
+}
 
+ConstPressureReactor::ConstPressureReactor(shared_ptr<Solution> sol, bool clone,
+                                           const string& name)
+    : Reactor(sol, clone, name)
+{
+    m_nv = 2 + m_nsp; // mass, enthalpy, and mass fractions of each species
+}
+
+void ConstPressureReactor::getState(span<double> y)
+{
     // set the first component to the total mass
     y[0] = m_thermo->density() * m_vol;
 
@@ -29,26 +36,17 @@ void ConstPressureReactor::getState(double* y)
     y[1] = m_thermo->enthalpy_mass() * m_thermo->density() * m_vol;
 
     // set components y+2 ... y+K+1 to the mass fractions Y_k of each species
-    m_thermo->getMassFractions(y+2);
+    m_thermo->getMassFractions(y.subspan(2, m_nsp));
 
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
-void ConstPressureReactor::initialize(double t0)
-{
-    Reactor::initialize(t0);
-    m_nv -= 1; // Constant pressure reactor has one fewer state variable
-}
-
-void ConstPressureReactor::updateState(double* y)
+void ConstPressureReactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total enthalpy,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
     // coverages of surface species on each wall.
     m_mass = y[0];
-    m_thermo->setMassFractions_NoNorm(y+2);
+    m_thermo->setMassFractions_NoNorm(y.subspan(2, m_nsp));
     if (m_energy) {
         m_thermo->setState_HP(y[1]/m_mass, m_pressure);
     } else {
@@ -56,28 +54,25 @@ void ConstPressureReactor::updateState(double* y)
     }
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
-    updateSurfaceState(y + m_nsp + 2);
 }
 
-void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
+void ConstPressureReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0];
-    double* mdYdt = RHS + 2; // mass * dY/dt
+    auto mdYdt = RHS.subspan(2); // mass * dY/dt
 
     dmdt = 0.0;
 
     evalWalls(time);
+    updateSurfaceProductionRates();
 
-    m_thermo->restoreState(m_state);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
-
-    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
     for (size_t k = 0; k < m_nsp; k++) {
@@ -91,6 +86,10 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     // external heat transfer
     double dHdt = m_Qdot;
+
+    if (m_energy) {
+        dHdt += m_thermo->intrinsicHeating() * m_vol;
+    }
 
     // add terms for outlets
     for (auto outlet : m_outlet) {
@@ -118,13 +117,15 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-vector<size_t> ConstPressureReactor::steadyConstraints() const {
-    if (nSurfs() != 0) {
-        throw CanteraError("ConstPressureReactor::steadyConstraints",
-            "Steady state solver cannot currently be used with ConstPressureReactor"
-            " when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
-    }
+void ConstPressureReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
+{
+    eval(t, LHS, RHS);
+    RHS[0] = m_mass - m_initialMass;
+}
+
+vector<size_t> ConstPressureReactor::initializeSteady()
+{
+    m_initialMass = m_mass;
     return {0}; // mass
 }
 
@@ -137,7 +138,7 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
         return 1;
     }
     try {
-        return speciesIndex(nm) + 2;
+        return m_thermo->speciesIndex(nm) + 2;
     } catch (const CanteraError&) {
         throw CanteraError("ConstPressureReactor::componentIndex",
             "Component '{}' not found", nm);
@@ -150,20 +151,7 @@ string ConstPressureReactor::componentName(size_t k) {
     } else if (k == 1) {
         return "enthalpy";
     } else if (k >= 2 && k < neq()) {
-        k -= 2;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+        return m_thermo->speciesName(k - 2);
     }
     throw IndexError("ConstPressureReactor::componentName", "component", k, m_nv);
 }
@@ -194,7 +182,7 @@ double ConstPressureReactor::lowerBound(size_t k) const {
     }
 }
 
-void ConstPressureReactor::resetBadValues(double* y) {
+void ConstPressureReactor::resetBadValues(span<double> y) {
     for (size_t k = 2; k < m_nv; k++) {
         y[k] = std::max(y[k], 0.0);
     }

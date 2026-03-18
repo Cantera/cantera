@@ -162,12 +162,12 @@ public:
     double cp_mole() const override;
     double cv_mole() const override;
 
-    void getChemPotentials(double* mu) const override;
-    void getPartialMolarEnthalpies(double* hbar) const override;
-    void getPartialMolarEntropies(double* sbar) const override;
-    void getPartialMolarCp(double* cpbar) const override;
-    void getPartialMolarVolumes(double* vbar) const override;
-    void getStandardChemPotentials(double* mu0) const override;
+    void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarCp(span<double> cpbar) const override;
+    void getPartialMolarVolumes(span<double> vbar) const override;
+    void getStandardChemPotentials(span<double> mu0) const override;
 
     //! Return a vector of activity concentrations for each species
     /*!
@@ -193,7 +193,7 @@ public:
      *
      * @param c vector of activity concentration (kmol m-2).
      */
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -244,11 +244,11 @@ public:
      */
     void setSiteDensity(double n0);
 
-    void getGibbs_RT(double* grt) const override;
-    void getEnthalpy_RT(double* hrt) const override;
-    void getEntropy_R(double* sr) const override;
-    void getCp_R(double* cpr) const override;
-    void getStandardVolumes(double* vol) const override;
+    void getGibbs_RT(span<double> grt) const override;
+    void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getCp_R(span<double> cpr) const override;
+    void getStandardVolumes(span<double> vol) const override;
 
     //! Return the thermodynamic pressure (Pa).
     double pressure() const override {
@@ -264,10 +264,10 @@ public:
         m_press = p;
     }
 
-    void getGibbs_RT_ref(double* grt) const override;
-    void getEnthalpy_RT_ref(double* hrt) const override;
-    void getEntropy_R_ref(double* er) const override;
-    void getCp_R_ref(double* cprt) const override;
+    void getGibbs_RT_ref(span<double> grt) const override;
+    void getEnthalpy_RT_ref(span<double> hrt) const override;
+    void getEntropy_R_ref(span<double> er) const override;
+    void getCp_R_ref(span<double> cprt) const override;
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -281,7 +281,7 @@ public:
      *
      * This routine normalizes the theta's to 1, before application
      */
-    void setCoverages(const double* theta);
+    void setCoverages(span<const double> theta);
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -293,7 +293,7 @@ public:
      * @param theta    This is the surface site fraction for the kth species in
      *                 the surface phase. This is a dimensionless quantity.
      */
-    void setCoveragesNoNorm(const double* theta);
+    void setCoveragesNoNorm(span<const double> theta);
 
     //! Set the coverages from a string of colon-separated name:value pairs.
     /*!
@@ -314,7 +314,7 @@ public:
      * @param theta Array theta must be at least as long as the number of
      *              species.
      */
-    void getCoverages(double* theta) const;
+    void getCoverages(span<double> theta) const;
 
     //! @copydoc ThermoPhase::setState
     /*!

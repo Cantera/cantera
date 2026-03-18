@@ -15,7 +15,7 @@ namespace Cantera
 
 // forward declarations
 class SurfPhase;
-class ImplicitSurfChem;
+class ReactorNet;
 
 //! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
 //! assumed to occur at a 2D interface between two 3D phases.
@@ -56,7 +56,6 @@ class InterfaceKinetics : public Kinetics
 public:
     //! Constructor
     InterfaceKinetics() = default;
-
     ~InterfaceKinetics() override;
 
     void resizeReactions() override;
@@ -82,24 +81,24 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    void getEquilibriumConstants(double* kc) override;
+    void getEquilibriumConstants(span<double> kc) override;
 
-    void getDeltaGibbs(double* deltaG) override;
+    void getDeltaGibbs(span<double> deltaG) override;
 
-    void getDeltaElectrochemPotentials(double* deltaM) override;
-    void getDeltaEnthalpy(double* deltaH) override;
-    void getDeltaEntropy(double* deltaS) override;
+    void getDeltaElectrochemPotentials(span<double> deltaM) override;
+    void getDeltaEnthalpy(span<double> deltaH) override;
+    void getDeltaEntropy(span<double> deltaS) override;
 
-    void getDeltaSSGibbs(double* deltaG) override;
-    void getDeltaSSEnthalpy(double* deltaH) override;
-    void getDeltaSSEntropy(double* deltaS) override;
+    void getDeltaSSGibbs(span<double> deltaG) override;
+    void getDeltaSSEnthalpy(span<double> deltaH) override;
+    void getDeltaSSEntropy(span<double> deltaS) override;
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    void getFwdRateConstants(double* kfwd) override;
-    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
+    void getFwdRateConstants(span<double> kfwd) override;
+    void getRevRateConstants(span<double> krev, bool doIrreversible=false) override;
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -162,6 +161,10 @@ public:
      *    \dot {\theta}_k = \dot s_k (\sigma_k / s_0)
      *  @f]
      *
+     * For the purpose of this integration, the temperature and pressure of the adjacent
+     * bulk phases set equal to those of the surface phase, and the composition of the
+     * bulk phases is held fixed.
+     *
      * @param tstep  Time value to advance the surface coverages
      * @param rtol   The relative tolerance for the integrator
      * @param atol   The absolute tolerance for the integrator
@@ -179,25 +182,13 @@ public:
     //! Solve for the pseudo steady-state of the surface problem
     /*!
      * This is the same thing as the advanceCoverages() function,
-     * but at infinite times.
+     * but at infinite times. Carries out a direct solution of the nonlinear
+     * algebraic system using SteadyReactorSolver.
      *
-     * Note, a direct solve is carried out under the hood here,
-     * to reduce the computational time.
-     *
-     * @param ifuncOverride One of the values defined in @ref solvesp_methods.
-     *         The default is -1, which means that the program will decide.
-     * @param timeScaleOverride When a pseudo transient is selected this value
-     *             can be used to override the default time scale for
-     *             integration which is one. When SFLUX_TRANSIENT is used, this
-     *             is equal to the time over which the equations are integrated.
-     *             When SFLUX_INITIALIZE is used, this is equal to the time used
-     *             in the initial transient algorithm, before the equation
-     *             system is solved directly.
+     * @param loglevel  Log level argument passed to SteadyReactorSolver
+     * @since  In %Cantera 4.0, the previous arguments were replaced with `loglevel`.
      */
-    void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       double timeScaleOverride = 1.0);
-
-    void setIOFlag(int ioFlag);
+    void solvePseudoSteadyStateProblem(int loglevel=0);
 
     //! Update the standard state chemical potentials and species equilibrium
     //! constant entries
@@ -295,21 +286,25 @@ protected:
 
 
     //! Multiply rate with inverse equilibrium constant
-    void applyEquilibriumConstants(double* rop);
+    void applyEquilibriumConstants(span<double> rop);
 
     //! Process mole fraction derivative
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
-    Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
-                                            const vector<double>& in);
+    Eigen::SparseMatrix<double> calculateCompositionDerivatives(
+        StoichManagerN& stoich, span<const double> in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
     //! @throw CanteraError if coverage dependence or electrochemical reactions are
     //! included
     void assertDerivativesValid(const string& name);
+
+    //! Create a ReactorNet where only the surface species are active, for use with
+    //! advanceCoverages() and solvePseudoSteadyStateProblem().
+    void buildNetwork();
 
     //! @}
 
@@ -394,7 +389,7 @@ protected:
      * be used to solve this single InterfaceKinetics object's surface problem
      * uncoupled from other surface phases.
      */
-    ImplicitSurfChem* m_integrator = nullptr;
+    ReactorNet* m_integrator = nullptr;
 
     bool m_ROP_ok = false;
 
@@ -448,8 +443,6 @@ protected:
      *  participates in reaction j as a product.
      */
     vector<vector<bool>> m_rxnPhaseIsProduct;
-
-    int m_ioFlag = 0;
 
     //! Number of dimensions of reacting phase (2 for InterfaceKinetics, 1 for
     //! EdgeKinetics)

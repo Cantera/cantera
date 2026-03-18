@@ -167,6 +167,9 @@ class Solution:
     def partial_molar_cp(self) -> _Quantity: ...
     @property
     @copy_doc
+    def partial_molar_cv_TV(self) -> _Quantity: ...
+    @property
+    @copy_doc
     def partial_molar_enthalpies(self) -> _Quantity: ...
     @property
     @copy_doc
@@ -176,6 +179,9 @@ class Solution:
     def partial_molar_int_energies(self) -> _Quantity: ...
     @property
     @copy_doc
+    def partial_molar_int_energies_TV(self) -> _Quantity: ...
+    @property
+    @copy_doc
     def partial_molar_volumes(self) -> _Quantity: ...
     @property
     @copy_doc
@@ -183,6 +189,9 @@ class Solution:
     @property
     @copy_doc
     def thermal_expansion_coeff(self) -> _Quantity: ...
+    @property
+    @copy_doc
+    def internal_pressure(self) -> _Quantity: ...
     @property
     @copy_doc
     def cp(self) -> _Quantity: ...
@@ -449,6 +458,9 @@ class PureFluid:
     def partial_molar_cp(self) -> _Quantity: ...
     @property
     @copy_doc
+    def partial_molar_cv_TV(self) -> _Quantity: ...
+    @property
+    @copy_doc
     def partial_molar_enthalpies(self) -> _Quantity: ...
     @property
     @copy_doc
@@ -458,6 +470,9 @@ class PureFluid:
     def partial_molar_int_energies(self) -> _Quantity: ...
     @property
     @copy_doc
+    def partial_molar_int_energies_TV(self) -> _Quantity: ...
+    @property
+    @copy_doc
     def partial_molar_volumes(self) -> _Quantity: ...
     @property
     @copy_doc
@@ -465,6 +480,9 @@ class PureFluid:
     @property
     @copy_doc
     def thermal_expansion_coeff(self) -> _Quantity: ...
+    @property
+    @copy_doc
+    def internal_pressure(self) -> _Quantity: ...
     @property
     @copy_doc
     def cp(self) -> _Quantity: ...

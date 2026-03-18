@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 from pytest import approx
 import re
-pd = pytest.importorskip("pandas")
 
 import cantera as ct
 
@@ -399,8 +398,8 @@ class TestFreeFlame:
         # restart from HDF format
         self.run_restart("h5")
 
-    @pytest.mark.skipif(not pd, reason="Pandas not installed")
     def test_restart_pandas(self):
+        pd = pytest.importorskip("pandas")
         # restart from Pandas DataFrame
         self.run_restart("pandas", auto=True)
 
@@ -1294,6 +1293,41 @@ class TestDiffusionFlame:
         sim.oxidizer_inlet.X = "O2: 1.0, N2: 3.76"
         sim.fuel_inlet.X = "H2: 1.0"
         sim.set_initial_guess()
+
+    def test_linear_initial_guess_inert(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        sim = ct.CounterflowDiffusionFlame(gas, width=0.02)
+        sim.fuel_inlet.mdot = 0.2
+        sim.oxidizer_inlet.mdot = 0.2
+        sim.fuel_inlet.X = "AR:1.0"
+        sim.oxidizer_inlet.X = "N2:1.0"
+        sim.fuel_inlet.T = 300
+        sim.oxidizer_inlet.T = 600
+
+        with pytest.raises(ValueError, match="mode must be 'stoich' or 'linear'"):
+            sim.set_initial_guess(mode="bad-mode")
+
+        with pytest.raises(ct.CanteraError, match="Stoichiometric initial guess"):
+            sim.set_initial_guess()
+
+        sim.set_initial_guess(mode="linear")
+
+        zrel = (sim.grid - sim.grid[0]) / (sim.grid[-1] - sim.grid[0])
+        k_ar = gas.species_index("AR")
+        k_n2 = gas.species_index("N2")
+
+        assert sim.T[0] == approx(sim.fuel_inlet.T)
+        assert sim.T[-1] == approx(sim.oxidizer_inlet.T)
+        assert sim.Y[k_ar, 0] == approx(1.0)
+        assert sim.Y[k_n2, 0] == approx(0.0)
+        assert sim.Y[k_ar, -1] == approx(0.0)
+        assert sim.Y[k_n2, -1] == approx(1.0)
+        assert np.allclose(sim.Y[k_ar], 1.0 - zrel)
+        assert np.allclose(sim.Y[k_n2], zrel)
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=False)
 
     def run_restore_diffusionflame(self, fname):
         gas = ct.Solution("h2o2.yaml")

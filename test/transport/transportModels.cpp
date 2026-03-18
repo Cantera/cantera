@@ -93,12 +93,12 @@ TEST_F(NoTransportTest, check_exceptions_vector)
     // vector quantities
     auto tr = soln_->transport();
     vector<double> out(soln_->thermo()->nSpecies());
-    ASSERT_THROW(tr->getSpeciesViscosities(out.data()), CanteraError);
-    ASSERT_THROW(tr->getMobilities(out.data()), CanteraError);
-    ASSERT_THROW(tr->getThermalDiffCoeffs(out.data()), CanteraError);
-    ASSERT_THROW(tr->getMixDiffCoeffs(out.data()), CanteraError);
-    ASSERT_THROW(tr->getMixDiffCoeffsMole(out.data()), CanteraError);
-    ASSERT_THROW(tr->getMixDiffCoeffsMass(out.data()), CanteraError);
+    ASSERT_THROW(tr->getSpeciesViscosities(out), CanteraError);
+    ASSERT_THROW(tr->getMobilities(out), CanteraError);
+    ASSERT_THROW(tr->getThermalDiffCoeffs(out), CanteraError);
+    ASSERT_THROW(tr->getMixDiffCoeffs(out), CanteraError);
+    ASSERT_THROW(tr->getMixDiffCoeffsMole(out), CanteraError);
+    ASSERT_THROW(tr->getMixDiffCoeffsMass(out), CanteraError);
 }
 
 class DefaultTransportTest : public testing::Test

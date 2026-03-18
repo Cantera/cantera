@@ -195,8 +195,6 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         self.V = self.A * props.length             # reactor volume (m^3)
         self.molecular_weights = None
         self.species_offset = None
-
-    def after_initialize(self, t0):
         self.n_vars += 1                # additional equation for the solid temperature
         self.index_Ts = self.n_vars - 1
         self.species_offset = self.component_index(self.phase.species_name(0))

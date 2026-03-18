@@ -57,53 +57,59 @@ double MixtureFugacityTP::entropy_mole() const
 
 // ----- Thermodynamic Values for the Species Standard States States ----
 
-void MixtureFugacityTP::getStandardChemPotentials(double* g) const
+void MixtureFugacityTP::getStandardChemPotentials(span<double> g) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), g);
+    checkArraySize("MixtureFugacityTP::getStandardChemPotentials", g.size(), m_kk);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), g.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         g[k] = RT() * (g[k] + tmp);
     }
 }
 
-void MixtureFugacityTP::getEnthalpy_RT(double* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT(span<double> hrt) const
 {
     getEnthalpy_RT_ref(hrt);
 }
 
-void MixtureFugacityTP::getEntropy_R(double* sr) const
+void MixtureFugacityTP::getEntropy_R(span<double> sr) const
 {
-    copy(m_s0_R.begin(), m_s0_R.end(), sr);
+    checkArraySize("MixtureFugacityTP::getEntropy_R", sr.size(), m_kk);
+    copy(m_s0_R.begin(), m_s0_R.end(), sr.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
 }
 
-void MixtureFugacityTP::getGibbs_RT(double* grt) const
+void MixtureFugacityTP::getGibbs_RT(span<double> grt) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    checkArraySize("MixtureFugacityTP::getGibbs_RT", grt.size(), m_kk);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
 }
 
-void MixtureFugacityTP::getIntEnergy_RT(double* urt) const
+void MixtureFugacityTP::getIntEnergy_RT(span<double> urt) const
 {
-    copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
+    checkArraySize("MixtureFugacityTP::getIntEnergy_RT", urt.size(), m_kk);
+    copy(m_h0_RT.begin(), m_h0_RT.end(), urt.begin());
     for (size_t i = 0; i < m_kk; i++) {
         urt[i] -= 1.0;
     }
 }
 
-void MixtureFugacityTP::getCp_R(double* cpr) const
+void MixtureFugacityTP::getCp_R(span<double> cpr) const
 {
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
+    checkArraySize("MixtureFugacityTP::getCp_R", cpr.size(), m_kk);
+    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
-void MixtureFugacityTP::getStandardVolumes(double* vol) const
+void MixtureFugacityTP::getStandardVolumes(span<double> vol) const
 {
+    checkArraySize("MixtureFugacityTP::getStandardVolumes", vol.size(), m_kk);
     for (size_t i = 0; i < m_kk; i++) {
         vol[i] = RT() / pressure();
     }
@@ -111,39 +117,39 @@ void MixtureFugacityTP::getStandardVolumes(double* vol) const
 
 // ----- Thermodynamic Values for the Species Reference States ----
 
-void MixtureFugacityTP::getEnthalpy_RT_ref(double* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT_ref(span<double> hrt) const
 {
-    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
+    checkArraySize("MixtureFugacityTP::getEnthalpy_RT_ref", hrt.size(), m_kk);
+    copy(m_h0_RT.begin(), m_h0_RT.end(), hrt.begin());
 }
 
-void MixtureFugacityTP::getGibbs_RT_ref(double* grt) const
+void MixtureFugacityTP::getGibbs_RT_ref(span<double> grt) const
 {
-    copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
+    checkArraySize("MixtureFugacityTP::getGibbs_RT_ref", grt.size(), m_kk);
+    copy(m_g0_RT.begin(), m_g0_RT.end(), grt.begin());
 }
 
-void MixtureFugacityTP::getGibbs_ref(double* g) const
+void MixtureFugacityTP::getGibbs_ref(span<double> g) const
 {
-    const vector<double>& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), g, RT());
+    checkArraySize("MixtureFugacityTP::getGibbs_ref", g.size(), m_kk);
+    scale(m_g0_RT.begin(), m_g0_RT.end(), g.begin(), RT());
 }
 
-const vector<double>& MixtureFugacityTP::gibbs_RT_ref() const
+void MixtureFugacityTP::getEntropy_R_ref(span<double> er) const
 {
-    return m_g0_RT;
+    checkArraySize("MixtureFugacityTP::getEntropy_R_ref", er.size(), m_kk);
+    copy(m_s0_R.begin(), m_s0_R.end(), er.begin());
 }
 
-void MixtureFugacityTP::getEntropy_R_ref(double* er) const
+void MixtureFugacityTP::getCp_R_ref(span<double> cpr) const
 {
-    copy(m_s0_R.begin(), m_s0_R.end(), er);
+    checkArraySize("MixtureFugacityTP::getCp_R_ref", cpr.size(), m_kk);
+    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr.begin());
 }
 
-void MixtureFugacityTP::getCp_R_ref(double* cpr) const
+void MixtureFugacityTP::getStandardVolumes_ref(span<double> vol) const
 {
-    copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
-}
-
-void MixtureFugacityTP::getStandardVolumes_ref(double* vol) const
-{
+    checkArraySize("MixtureFugacityTP::getStandardVolumes_ref", vol.size(), m_kk);
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
     }
@@ -242,11 +248,11 @@ void MixtureFugacityTP::setPressure(double p)
 void MixtureFugacityTP::compositionChanged()
 {
     Phase::compositionChanged();
-    getMoleFractions(moleFractions_.data());
+    getMoleFractions(moleFractions_);
     updateMixingExpressions();
 }
 
-void MixtureFugacityTP::getActivityConcentrations(double* c) const
+void MixtureFugacityTP::getActivityConcentrations(span<double> c) const
 {
     getActivityCoefficients(c);
     double p_RT = pressure() / RT();
@@ -706,7 +712,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
     if (m_tlast != Tnow) {
-        m_spthermo.update(Tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
+        m_spthermo.update(Tnow, m_cp0_R, m_h0_RT, m_s0_R);
         m_tlast = Tnow;
 
         // update the species Gibbs functions
@@ -763,10 +769,11 @@ void MixtureFugacityTP::calcCriticalConditions(double& pc, double& tc, double& v
 }
 
 int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
-                                  double aAlpha, double Vroot[3], double an,
+                                  double aAlpha, span<double> Vroot, double an,
                                   double bn, double cn, double dn, double tc, double vc) const
 {
-    fill_n(Vroot, 3, 0.0);
+    checkArraySize("MixtureFugacityTP::solveCubic: Vroot", Vroot.size(), 3);
+    fill(Vroot.begin(), Vroot.end(), 0.0);
     if (T <= 0.0) {
         throw CanteraError("MixtureFugacityTP::solveCubic",
             "negative temperature T = {}", T);

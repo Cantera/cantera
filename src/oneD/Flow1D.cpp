@@ -35,7 +35,8 @@ Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
     , m_thermo(phase->thermo().get())
 {
     // make a local copy of the species molecular weight vector
-    m_wt = m_thermo->molecularWeights();
+    m_wt.assign(m_thermo->molecularWeights().begin(),
+                m_thermo->molecularWeights().end());
 
     // set pressure based on associated thermo object
     setPressure(m_thermo->pressure());
@@ -80,7 +81,7 @@ Flow1D::Flow1D(shared_ptr<Solution> phase, const string& id, size_t points)
     for (size_t ng = 0; ng < m_points; ng++) {
         gr.push_back(1.0*ng/m_points);
     }
-    setupGrid(m_points, gr.data());
+    setupGrid(gr);
 
     // Find indices for radiating species
     m_kRadiating.resize(2, npos);
@@ -172,9 +173,9 @@ void Flow1D::resize(size_t ncomponents, size_t points)
     m_z.resize(m_points);
 }
 
-void Flow1D::setupGrid(size_t n, const double* z)
+void Flow1D::setupGrid(span<const double> z)
 {
-    resize(m_nv, n);
+    resize(m_nv, z.size());
 
     m_z[0] = z[0];
     for (size_t j = 1; j < m_points; j++) {
@@ -187,13 +188,12 @@ void Flow1D::setupGrid(size_t n, const double* z)
     }
 }
 
-void Flow1D::resetBadValues(double* xg)
+void Flow1D::resetBadValues(span<double> xg)
 {
-    double* x = xg + loc();
+    span<double> x = xg.subspan(loc(), size());
     for (size_t j = 0; j < m_points; j++) {
-        double* Y = x + m_nv*j + c_offset_Y;
-        m_thermo->setMassFractions(Y);
-        m_thermo->getMassFractions(Y);
+        m_thermo->setMassFractions(Y(x, j));
+        m_thermo->getMassFractions(Y(x, j));
     }
 }
 
@@ -221,36 +221,35 @@ void Flow1D::setFluxGradientBasis(ThermoBasis fluxGradientBasis) {
     }
 }
 
-void Flow1D::_getInitialSoln(double* x)
+void Flow1D::_getInitialSoln(span<double> x)
 {
     for (size_t j = 0; j < m_points; j++) {
         T(x,j) = m_thermo->temperature();
-        m_thermo->getMassFractions(&Y(x, 0, j));
+        m_thermo->getMassFractions(Y(x, j));
         m_rho[j] = m_thermo->density();
     }
 }
 
-void Flow1D::setGas(const double* x, size_t j)
+void Flow1D::setGas(span<const double> x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
-    const double* yy = x + m_nv*j + c_offset_Y;
-    m_thermo->setMassFractions_NoNorm(yy);
+    m_thermo->setMassFractions_NoNorm(Y(x, j));
     m_thermo->setPressure(m_press);
 }
 
-void Flow1D::setGasAtMidpoint(const double* x, size_t j)
+void Flow1D::setGasAtMidpoint(span<const double> x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
-    const double* yy_j = x + m_nv*j + c_offset_Y;
-    const double* yy_j_plus1 = x + m_nv*(j+1) + c_offset_Y;
+    auto yy_j = Y(x, j);
+    auto yy_j_plus1 = Y(x, j+1);
     for (size_t k = 0; k < m_nsp; k++) {
         m_ybar[k] = 0.5*(yy_j[k] + yy_j_plus1[k]);
     }
-    m_thermo->setMassFractions_NoNorm(m_ybar.data());
+    m_thermo->setMassFractions_NoNorm(m_ybar);
     m_thermo->setPressure(m_press);
 }
 
-void Flow1D::_finalize(const double* x)
+void Flow1D::_finalize(span<const double> x)
 {
     if (!(m_do_multicomponent ||
           m_trans->transportModel() == "mixture-averaged" ||
@@ -302,8 +301,8 @@ void Flow1D::_finalize(const double* x)
     }
 }
 
-void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
-                  integer* diagGlobal, double rdt)
+void Flow1D::eval(size_t jGlobal, span<const double> xGlobal, span<double> rsdGlobal,
+                  span<int> diagGlobal, double rdt)
 {
     // If evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
@@ -312,9 +311,9 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     }
 
     // start of local part of global arrays
-    double* x = xGlobal + loc();
-    double* rsd = rsdGlobal + loc();
-    integer* diag = diagGlobal + loc();
+    span<const double> x = xGlobal.subspan(loc(), size());
+    span<double> rsd = rsdGlobal.subspan(loc(), size());
+    span<int> diag = diagGlobal.subspan(loc(), size());
 
     size_t jmin, jmax;
     if (jGlobal == npos) { // evaluate all points
@@ -341,7 +340,7 @@ void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
 }
 
-void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
+void Flow1D::updateProperties(size_t jg, span<const double> x, size_t jmin, size_t jmax)
 {
     // properties are computed for grid points from j0 to j1
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
@@ -354,10 +353,10 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
         updateTransport(x, j0, j1);
     }
     if (jg == npos) {
-        double* Yleft = x + index(c_offset_Y, jmin);
-        m_kExcessLeft = distance(Yleft, max_element(Yleft, Yleft + m_nsp));
-        double* Yright = x + index(c_offset_Y, jmax);
-        m_kExcessRight = distance(Yright, max_element(Yright, Yright + m_nsp));
+        auto yLeft = Y(x, jmin);
+        auto yRight = Y(x, jmax);
+        m_kExcessLeft = distance(yLeft.begin(), ranges::max_element(yLeft));
+        m_kExcessRight = distance(yRight.begin(), ranges::max_element(yRight));
     }
 
     // update the species diffusive mass fluxes whether or not a
@@ -365,7 +364,7 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     updateDiffFluxes(x, j0, j1);
 }
 
-void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
+void Flow1D::updateTransport(span<const double> x, size_t j0, size_t j1)
 {
      if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
@@ -373,7 +372,8 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
             double wtm = m_thermo->meanMolecularWeight();
             double rho = m_thermo->density();
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
+            m_trans->getMultiDiffCoeffs(m_nsp,
+                span<double>(&m_multidiff[mindex(0,0,j)], m_nsp * m_nsp));
 
             // Use m_diff as storage for the factor outside the summation
             for (size_t k = 0; k < m_nsp; k++) {
@@ -382,7 +382,7 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
 
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+                m_trans->getThermalDiffCoeffs(m_dthermal.col(j));
             }
         }
     } else { // mixture averaged transport
@@ -391,9 +391,9 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
 
             if (m_fluxGradientBasis == ThermoBasis::molar) {
-                m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+                m_trans->getMixDiffCoeffs(span<double>(&m_diff[j*m_nsp], m_nsp));
             } else {
-                m_trans->getMixDiffCoeffsMass(&m_diff[j*m_nsp]);
+                m_trans->getMixDiffCoeffsMass(span<double>(&m_diff[j*m_nsp], m_nsp));
             }
 
             double rho = m_thermo->density();
@@ -410,13 +410,13 @@ void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
             }
             m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+                m_trans->getThermalDiffCoeffs(m_dthermal.col(j));
             }
         }
     }
 }
 
-void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
+void Flow1D::updateDiffFluxes(span<const double> x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
@@ -462,7 +462,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 }
 
-void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
+void Flow1D::computeRadiation(span<const double> x, size_t jmin, size_t jmax)
 {
     // Variable definitions for the Planck absorption coefficient and the
     // radiation calculation:
@@ -509,7 +509,7 @@ void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
     }
 }
 
-void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
+void Flow1D::evalContinuity(span<const double> x, span<double> rsd, span<int> diag,
                             double rdt, size_t jmin, size_t jmax)
 {
     // The left boundary has the same form for all cases.
@@ -566,7 +566,7 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
+void Flow1D::evalMomentum(span<const double> x, span<double> rsd, span<int> diag,
                           double rdt, size_t jmin, size_t jmax)
 {
     if (!m_usesLambda) { //disable this equation
@@ -602,7 +602,7 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalLambda(double* x, double* rsd, int* diag,
+void Flow1D::evalLambda(span<const double> x, span<double> rsd, span<int> diag,
                         double rdt, size_t jmin, size_t jmax)
 {
     if (!m_usesLambda) { // disable this equation
@@ -645,7 +645,7 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
+void Flow1D::evalEnergy(span<const double> x, span<double> rsd, span<int> diag,
                         double rdt, size_t jmin, size_t jmax)
 {
     if (jmin == 0) { // left boundary
@@ -687,7 +687,7 @@ void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalUo(double* x, double* rsd, int* diag,
+void Flow1D::evalUo(span<const double> x, span<double> rsd, span<int> diag,
                     double rdt, size_t jmin, size_t jmax)
 {
     if (!m_twoPointControl) { // disable this equation
@@ -727,7 +727,7 @@ void Flow1D::evalUo(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
+void Flow1D::evalSpecies(span<const double> x, span<double> rsd, span<int> diag,
                          double rdt, size_t jmin, size_t jmax)
 {
     if (jmin == 0) { // left boundary
@@ -767,7 +767,7 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
+void Flow1D::evalElectricField(span<const double> x, span<double> rsd, span<int> diag,
                                double rdt, size_t jmin, size_t jmax)
 {
     for (size_t j = jmin; j <= jmax; j++) {
@@ -776,7 +776,7 @@ void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::show(const double* x)
+void Flow1D::show(span<const double> x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
 
@@ -930,11 +930,12 @@ void Flow1D::updateState(size_t loc)
             "Domain does not have associated Solution object.");
     }
     const double* soln = m_state->data() + m_iloc + m_nv * loc;
-    m_solution->thermo()->setMassFractions_NoNorm(soln + c_offset_Y);
+    m_solution->thermo()->setMassFractions_NoNorm(
+        span<const double>(soln + c_offset_Y, m_nsp));
     m_solution->thermo()->setState_TP(*(soln + c_offset_T), m_press);
 }
 
-void Flow1D::getValues(const string& component, vector<double>& values) const
+void Flow1D::getValues(const string& component, span<double> values) const
 {
     if (!m_state) {
         throw CanteraError("Flow1D::getValues",
@@ -955,7 +956,7 @@ void Flow1D::getValues(const string& component, vector<double>& values) const
     }
 }
 
-void Flow1D::setValues(const string& component, const vector<double>& values)
+void Flow1D::setValues(const string& component, span<const double> values)
 {
     if (!m_state) {
         throw CanteraError("Flow1D::setValues",
@@ -976,7 +977,7 @@ void Flow1D::setValues(const string& component, const vector<double>& values)
     }
 }
 
-void Flow1D::getResiduals(const string& component, vector<double>& values) const
+void Flow1D::getResiduals(const string& component, span<double> values) const
 {
     if (!m_state) {
         throw CanteraError("Flow1D::getResiduals",
@@ -998,7 +999,7 @@ void Flow1D::getResiduals(const string& component, vector<double>& values) const
 }
 
 void Flow1D::setProfile(const string& component,
-                        const vector<double>& pos, const vector<double>& values)
+                        span<const double> pos, span<const double> values)
 {
     if (!m_state) {
         throw CanteraError("Flow1D::setProfile",
@@ -1075,7 +1076,7 @@ shared_ptr<SolutionArray> Flow1D::toArray(bool normalize)
             arr->setComponent(name, value);
         }
     }
-    updateThermo(soln, 0, m_points-1);
+    updateThermo(span<const double>(soln, size()), 0, m_points-1);
     value = m_rho;
     arr->setComponent("D", value); // use density rather than pressure
 
@@ -1099,7 +1100,7 @@ void Flow1D::fromArray(const shared_ptr<SolutionArray>& arr)
     }
     resize(nComponents(), arr->size());
     m_container->resize();
-    double* soln = m_state->data() + m_iloc;
+    span<double> soln(m_state->data() + m_iloc, size());
 
     Domain1D::setMeta(arr->meta());
     arr->setLoc(0);
@@ -1107,7 +1108,7 @@ void Flow1D::fromArray(const shared_ptr<SolutionArray>& arr)
     m_press = phase->pressure();
 
     const auto grid = arr->getComponent("grid").as<vector<double>>();
-    setupGrid(nPoints(), &grid[0]);
+    setupGrid(grid);
     setMeta(arr->meta()); // can affect which components are active
 
     for (size_t i = 0; i < nComponents(); i++) {
@@ -1285,7 +1286,7 @@ void Flow1D::fixTemperature(size_t j)
     }
 }
 
-void Flow1D::grad_hk(const double* x, size_t j)
+void Flow1D::grad_hk(span<const double> x, size_t j)
 {
     size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
     for(size_t k = 0; k < m_nsp; k++) {

@@ -46,11 +46,11 @@ public:
 TEST_F(BandMatrixTest, matrix_times_vector)
 {
     vector<double> c(6, 0.0);
-    A1.mult(x.data(), c.data());
+    A1.mult(x, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(b1[i], c[i]);
     }
-    A2.mult(x.data(), c.data());
+    A2.mult(x, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(b2[i], c[i]);
     }
@@ -59,11 +59,11 @@ TEST_F(BandMatrixTest, matrix_times_vector)
 TEST_F(BandMatrixTest, vector_times_matrix)
 {
     vector<double> c(6, 0.0);
-    A1.leftMult(x.data(), c.data());
+    A1.leftMult(x, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(v1[i], c[i]);
     }
-    A2.leftMult(x.data(), c.data());
+    A2.leftMult(x, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(v2[i], c[i]);
     }
@@ -72,11 +72,11 @@ TEST_F(BandMatrixTest, vector_times_matrix)
 TEST_F(BandMatrixTest, solve_linear_system)
 {
     vector<double> c(6, 0.0);
-    A1.solve(b1.data(), c.data());
+    A1.solve(b1, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_NEAR(x[i], c[i], 1e-10);
     }
-    A2.solve(b2.data(), c.data());
+    A2.solve(b2, c);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_NEAR(x[i], c[i], 1e-10);
     }
@@ -147,15 +147,15 @@ public:
 TEST_F(DenseMatrixTest, matrix_times_vector)
 {
     vector<double> c(4, 0.0);
-    A1.mult(x4.data(), c.data());
+    A1.mult(x4, c);
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(b1[i], c[i]);
     }
-    A2.mult(x3.data(), c.data());
+    A2.mult(x3, c);
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(b2[i], c[i]);
     }
-    A3.mult(x4.data(), c.data());
+    A3.mult(x4, c);
     for (size_t i = 0; i < 3; i++) {
         EXPECT_DOUBLE_EQ(b3[i], c[i]);
     }
@@ -183,7 +183,7 @@ TEST_F(DenseMatrixTest, matrix_times_matrix)
 TEST_F(DenseMatrixTest, solve_single_rhs)
 {
     vector<double> c(b1);
-    solve(A1, c.data());
+    solve(A1, c);
     for (size_t i = 0; i < 4; i++) {
         EXPECT_NEAR(x4[i], c[i], 1e-12);
     }
@@ -208,19 +208,19 @@ TEST_F(DenseMatrixTest, solve_multi_rhs)
 TEST_F(DenseMatrixTest, increment)
 {
     vector<double> c(b1.size(), 3.0);
-    increment(A1, x4.data(), c.data());
+    increment(A1, x4, c);
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(3.0 + b1[i], c[i]);
     }
 
     c.assign(b2.size(), 3.0);
-    increment(A2, x3.data(), c.data());
+    increment(A2, x3, c);
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(3.0 + b2[i], c[i]);
     }
 
     c.assign(b3.size(), 3.0);
-    increment(A3, x4.data(), c.data());
+    increment(A3, x4, c);
     for (size_t i = 0; i < 3; i++) {
         EXPECT_DOUBLE_EQ(3.0 + b3[i], c[i]);
     }

@@ -148,7 +148,17 @@ TEST_P(TestConsistency, h_eq_u_plus_Pv) {
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(h, u + p * v, atol);
+    if (phase->type() == "plasma" && ke != npos) {
+        // Two-temperature identity for PlasmaPhase:
+        // h = u + p*v + X_e * R * (Te - T)
+        vector<double> X(nsp);
+        phase->getMoleFractions(X);
+        double Xe = X[ke];
+        EXPECT_NEAR(h, u + p * v + Xe * (RTe - RT), atol);
+    } else {
+        // Standard single-temperature identity
+        EXPECT_NEAR(h, u + p * v, atol);
+    }
 }
 
 TEST_P(TestConsistency, g_eq_h_minus_Ts) {
@@ -192,9 +202,9 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
 {
     vector<double> hk(nsp), uk(nsp), vk(nsp);
     try {
-        phase->getPartialMolarEnthalpies(hk.data());
-        phase->getPartialMolarIntEnergies(uk.data());
-        phase->getPartialMolarVolumes(vk.data());
+        phase->getPartialMolarEnthalpies(hk);
+        phase->getPartialMolarIntEnergies(uk);
+        phase->getPartialMolarVolumes(vk);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -203,13 +213,67 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
     }
 }
 
+TEST_P(TestConsistency, utilde_eq_uk_minus_piT_vk)
+{
+    vector<double> utilde(nsp), uk(nsp), vk(nsp);
+    double piT;
+    try {
+        phase->getPartialMolarIntEnergies_TV(utilde);
+        phase->getPartialMolarIntEnergies(uk);
+        phase->getPartialMolarVolumes(vk);
+        piT = phase->internalPressure();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    if (!std::isfinite(piT)) {
+        GTEST_SKIP() << "internalPressure is not finite at this state";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        if (k != ke) {
+            double expected = uk[k] - piT * vk[k];
+            double tol = max({atol, rtol_fd * abs(utilde[k]), rtol_fd * abs(expected)});
+            EXPECT_NEAR(utilde[k], expected, tol) << "k = " << k;
+        }
+    }
+}
+
+TEST_P(TestConsistency, piT_eq_dudv_const_T)
+{
+    if (!phase->isCompressible()) {
+        GTEST_SKIP() << "Undefined for incompressible phase";
+    }
+
+    double piT;
+    double T0 = phase->temperature();
+    double v0 = 1.0 / phase->density(); // specific volume [m^3/kg]
+    // Use a moderate perturbation to avoid cancellation in u(v) differences.
+    double dv = 1e-4 * v0;
+    double v1 = v0 - dv;
+    double v2 = v0 + dv;
+
+    try {
+        piT = phase->internalPressure();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    phase->setState_TD(T0, 1.0 / v1);
+    double u1 = phase->intEnergy_mass();
+    phase->setState_TD(T0, 1.0 / v2);
+    double u2 = phase->intEnergy_mass();
+
+    double piT_fd = (u2 - u1) / (v2 - v1);
+    double tol = max({rtol_fd * abs(piT), rtol_fd * abs(piT_fd), atol});
+    EXPECT_NEAR(piT_fd, piT, tol);
+}
+
 TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
 {
     vector<double> gk(nsp), hk(nsp), sk(nsp);
     try {
-        phase->getChemPotentials(gk.data());
-        phase->getPartialMolarEnthalpies(hk.data());
-        phase->getPartialMolarEntropies(sk.data());
+        phase->getChemPotentials(gk);
+        phase->getPartialMolarEnthalpies(hk);
+        phase->getPartialMolarEntropies(sk);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -227,7 +291,7 @@ TEST_P(TestConsistency, h_eq_sum_hk_Xk)
 {
     vector<double> hk(nsp);
     try {
-        phase->getPartialMolarEnthalpies(hk.data());
+        phase->getPartialMolarEnthalpies(hk);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -239,7 +303,7 @@ TEST_P(TestConsistency, u_eq_sum_uk_Xk)
     vector<double> uk(nsp);
     double u;
     try {
-        phase->getPartialMolarIntEnergies(uk.data());
+        phase->getPartialMolarIntEnergies(uk);
         u = phase->intEnergy_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
@@ -252,7 +316,7 @@ TEST_P(TestConsistency, g_eq_sum_gk_Xk)
     vector<double> gk(nsp);
     double g;
     try {
-        phase->getChemPotentials(gk.data());
+        phase->getChemPotentials(gk);
         g = phase->gibbs_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
@@ -265,7 +329,7 @@ TEST_P(TestConsistency, s_eq_sum_sk_Xk)
     vector<double> sk(nsp);
     double s;
     try {
-        phase->getPartialMolarEntropies(sk.data());
+        phase->getPartialMolarEntropies(sk);
         s = phase->entropy_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
@@ -277,7 +341,7 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
 {
     vector<double> vk(nsp);
     try {
-        phase->getPartialMolarVolumes(vk.data());
+        phase->getPartialMolarVolumes(vk);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -289,7 +353,7 @@ TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
     vector<double> cpk(nsp);
     double cp;
     try {
-        phase->getPartialMolarCp(cpk.data());
+        phase->getPartialMolarCp(cpk);
         cp = phase->cp_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
@@ -514,9 +578,9 @@ TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
 {
     vector<double> h0(nsp), u0(nsp), v0(nsp);
     try {
-        phase->getEnthalpy_RT(h0.data());
-        phase->getIntEnergy_RT(u0.data());
-        phase->getStandardVolumes(v0.data());
+        phase->getEnthalpy_RT(h0);
+        phase->getIntEnergy_RT(u0);
+        phase->getStandardVolumes(v0);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -533,9 +597,9 @@ TEST_P(TestConsistency, gk0_eq_hk0_minus_T_sk0)
 {
     vector<double> g0(nsp), h0(nsp), s0(nsp);
     try {
-        phase->getEnthalpy_RT(h0.data());
-        phase->getGibbs_RT(g0.data());
-        phase->getEntropy_R(s0.data());
+        phase->getEnthalpy_RT(h0);
+        phase->getGibbs_RT(g0);
+        phase->getEntropy_R(s0);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -549,8 +613,8 @@ TEST_P(TestConsistency, cpk0_eq_dhk0dT)
 {
     vector<double> h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
     try {
-        phase->getEnthalpy_RT(h1.data());
-        phase->getCp_R(cp1.data());
+        phase->getEnthalpy_RT(h1);
+        phase->getCp_R(cp1);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -562,11 +626,12 @@ TEST_P(TestConsistency, cpk0_eq_dhk0dT)
     double dTe = 1e-5 * Te;
 
     phase->setState_TP(T1 + dT, phase->pressure());
+
     if (phase->type() == "plasma") {
         phase->setElectronTemperature(Te + dTe);
     }
-    phase->getEnthalpy_RT(h2.data());
-    phase->getCp_R(cp2.data());
+    phase->getEnthalpy_RT(h2);
+    phase->getCp_R(cp2);
 
     for (size_t k = 0; k < nsp; k++) {
         // Determine effective temperature and perturbation for species k.
@@ -584,8 +649,8 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
 {
     vector<double> g0_RT(nsp), mu0(nsp);
     try {
-        phase->getGibbs_RT(g0_RT.data());
-        phase->getStandardChemPotentials(mu0.data());
+        phase->getGibbs_RT(g0_RT);
+        phase->getStandardChemPotentials(mu0);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -601,9 +666,9 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
 TEST_P(TestConsistency, chem_potentials_to_activities) {
     vector<double> mu0(nsp), mu(nsp), a(nsp);
     try {
-        phase->getChemPotentials(mu.data());
-        phase->getStandardChemPotentials(mu0.data());
-        phase->getActivities(a.data());
+        phase->getChemPotentials(mu);
+        phase->getStandardChemPotentials(mu0);
+        phase->getActivities(a);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -623,9 +688,9 @@ TEST_P(TestConsistency, chem_potentials_to_activities) {
 TEST_P(TestConsistency, activity_coeffs) {
     vector<double> a(nsp), gamma(nsp), X(nsp);
     try {
-        phase->getActivities(a.data());
-        phase->getActivityCoefficients(gamma.data());
-        phase->getMoleFractions(X.data());
+        phase->getActivities(a);
+        phase->getActivityCoefficients(gamma);
+        phase->getMoleFractions(X);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -638,8 +703,8 @@ TEST_P(TestConsistency, activity_coeffs) {
 TEST_P(TestConsistency, activity_concentrations) {
     vector<double> a(nsp), Cact(nsp);
     try {
-        phase->getActivities(a.data());
-        phase->getActivityConcentrations(Cact.data());
+        phase->getActivities(a);
+        phase->getActivityConcentrations(Cact);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -659,8 +724,8 @@ TEST_P(TestConsistency, log_standard_concentrations) {
 TEST_P(TestConsistency, log_activity_coeffs) {
     vector<double> gamma(nsp), log_gamma(nsp);
     try {
-        phase->getActivityCoefficients(gamma.data());
-        phase->getLnActivityCoefficients(log_gamma.data());
+        phase->getActivityCoefficients(gamma);
+        phase->getLnActivityCoefficients(log_gamma);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -675,9 +740,9 @@ TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
 {
     vector<double> hRef(nsp), uRef(nsp), vRef(nsp);
     try {
-        phase->getEnthalpy_RT_ref(hRef.data());
-        phase->getIntEnergy_RT_ref(uRef.data());
-        phase->getStandardVolumes_ref(vRef.data());
+        phase->getEnthalpy_RT_ref(hRef);
+        phase->getIntEnergy_RT_ref(uRef);
+        phase->getStandardVolumes_ref(vRef);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -694,10 +759,10 @@ TEST_P(TestConsistency, gRef_eq_hRef_minus_T_sRef)
 {
     vector<double> hRef(nsp), gRef_RT(nsp), gRef(nsp), sRef(nsp);
     try {
-        phase->getEnthalpy_RT_ref(hRef.data());
-        phase->getGibbs_ref(gRef.data());
-        phase->getGibbs_RT_ref(gRef_RT.data());
-        phase->getEntropy_R_ref(sRef.data());
+        phase->getEnthalpy_RT_ref(hRef);
+        phase->getGibbs_ref(gRef);
+        phase->getGibbs_RT_ref(gRef_RT);
+        phase->getEntropy_R_ref(sRef);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -718,8 +783,8 @@ TEST_P(TestConsistency, cpRef_eq_dhRefdT)
 {
     vector<double> h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
     try {
-        phase->getEnthalpy_RT_ref(h1.data());
-        phase->getCp_R_ref(cp1.data());
+        phase->getEnthalpy_RT_ref(h1);
+        phase->getCp_R_ref(cp1);
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
@@ -731,11 +796,12 @@ TEST_P(TestConsistency, cpRef_eq_dhRefdT)
     double dTe = 1e-5 * Te;
     
     phase->setState_TP(T1 + dT, phase->pressure());
+
     if (phase->type() == "plasma") {
         phase->setElectronTemperature(Te + dTe);
     }
-    phase->getEnthalpy_RT_ref(h2.data());
-    phase->getCp_R_ref(cp2.data());
+    phase->getEnthalpy_RT_ref(h2);
+    phase->getCp_R_ref(cp2);
 
     for (size_t k = 0; k < nsp; k++) {
         // Determine effective temperature and perturbation for species k.

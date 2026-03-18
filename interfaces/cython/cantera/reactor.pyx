@@ -5,6 +5,7 @@ import warnings
 import numbers as _numbers
 from cython.operator cimport dereference as deref
 import numpy as np
+cimport numpy as np
 
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
 from .delegator cimport *
@@ -17,7 +18,7 @@ cdef class ReactorBase:
     reactor_type = "none"
     def __cinit__(self, _SolutionBase phase, *args, name="(none)", clone=True,
                   **kwargs):
-        if self.reactor_type != "ReactorSurface":
+        if not isinstance(self, ReactorSurface):
             self._rbase = newReactorBase(stringify(self.reactor_type),
                                         phase._base, clone, stringify(name))
             self.rbase = self._rbase.get()
@@ -47,11 +48,92 @@ cdef class ReactorBase:
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
+    def component_index(self, name):
+        """
+        Returns the index of the component named ``name`` in the system. This determines
+        the index of the component in the vector of sensitivity coefficients. ``name``
+        is either a species name or the name of a reactor state variable, for example
+        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
+        """
+        k = self.rbase.componentIndex(stringify(name))
+        if k == -1:
+            raise IndexError('No such component: {!r}'.format(name))
+        return k
+
+    def component_name(self, int i):
+        """
+        Returns the name of the component with index ``i`` within the array of
+        variables returned by `get_state`. This is the inverse of
+        `component_index`.
+        """
+        return pystr(self.rbase.componentName(i))
+
+    property n_vars:
+        """
+        The number of state variables in the reactor.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+        """
+        def __get__(self):
+            return self.rbase.neq()
+
+    def get_state(self):
+        """
+        Get the state vector of the reactor.
+
+        The order of the variables (that is, rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+        - 0  - mass
+        - 1  - volume
+        - 2  - internal energy or temperature
+        - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+
+        - 0  - mass
+        - 1  - enthalpy or temperature
+        - 2+ - mass fractions of the species
+
+        You can use the function `component_index` to determine the location of
+        a specific component from its name, or `component_name` to determine the
+        name from the index.
+        """
+        if not self.n_vars:
+            raise CanteraError('Reactor empty or network not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.rbase.getState(span[double](&y[0], y.size))
+        return y
+
+    def get_state_dae(self):
+        """
+        Get the state vector and its time derivative for reactors formulated as DAEs
+        (namely, `FlowReactor`).
+
+        .. versionadded:: 4.0
+        """
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] yp = np.zeros(self.n_vars)
+        self.rbase.getStateDae(span[double](&y[0], y.size),
+                               span[double](&yp[0], yp.size))
+        return y, yp
+
     def syncState(self):
         """
         Set the state of the Reactor to match that of the associated
         `ThermoPhase` object. After calling syncState(), call
         ReactorNet.reinitialize() before further integration.
+
+        .. deprecated:: 4.0
+           Manual synchronization of reactor state is no longer required. Call
+           `ReactorNet.reinitialize` directly to indicate a change in state that
+           requires integrator reinitialization.
         """
         self.rbase.syncState()
 
@@ -63,7 +145,6 @@ cdef class ReactorBase:
         .. versionchanged:: 3.2
            Renamed from ``thermo``.
         """
-        self.rbase.restoreState()
         return self._phase
 
     property volume:
@@ -287,69 +368,6 @@ cdef class Reactor(ReactorBase):
         """
         self.reactor.addSensitivitySpeciesEnthalpy(self.phase.species_index(k))
 
-    def component_index(self, name):
-        """
-        Returns the index of the component named ``name`` in the system. This determines
-        the index of the component in the vector of sensitivity coefficients. ``name``
-        is either a species name or the name of a reactor state variable, for example
-        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
-        """
-        k = self.reactor.componentIndex(stringify(name))
-        if k == -1:
-            raise IndexError('No such component: {!r}'.format(name))
-        return k
-
-    def component_name(self, int i):
-        """
-        Returns the name of the component with index ``i`` within the array of
-        variables returned by `get_state`. This is the inverse of
-        `component_index`.
-        """
-        return pystr(self.reactor.componentName(i))
-
-    property n_vars:
-        """
-        The number of state variables in the reactor.
-        Equal to:
-
-        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
-        internal energy or temperature).
-
-        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
-        `n_species` + 2 (mass, enthalpy or temperature).
-        """
-        def __get__(self):
-            return self.reactor.neq()
-
-    def get_state(self):
-        """
-        Get the state vector of the reactor.
-
-        The order of the variables (that is, rows) is:
-
-        `Reactor` or `IdealGasReactor`:
-
-        - 0  - mass
-        - 1  - volume
-        - 2  - internal energy or temperature
-        - 3+ - mass fractions of the species
-
-        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
-
-        - 0  - mass
-        - 1  - enthalpy or temperature
-        - 2+ - mass fractions of the species
-
-        You can use the function `component_index` to determine the location of
-        a specific component from its name, or `component_name` to determine the
-        name from the index.
-        """
-        if not self.n_vars:
-            raise CanteraError('Reactor empty or network not initialized.')
-        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.reactor.getState(&y[0])
-        return y
-
     property jacobian:
         """
         Get the local, reactor-specific Jacobian or an approximation thereof
@@ -487,63 +505,6 @@ cdef class FlowReactor(Reactor):
         (<CxxFlowReactor*>self.reactor).setArea(area)
 
     @property
-    def inlet_surface_atol(self):
-        """
-        Get/Set the steady-state tolerances used to determine the initial surface
-        species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceAtol()
-
-    @inlet_surface_atol.setter
-    def inlet_surface_atol(self, atol):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
-
-    @property
-    def inlet_surface_rtol(self):
-        """
-        Get/Set the steady-state tolerances used to determine the initial surface
-        species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceRtol()
-
-    @inlet_surface_rtol.setter
-    def inlet_surface_rtol(self, rtol):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
-
-    @property
-    def inlet_surface_max_steps(self):
-        """
-        Get/Set the maximum number of integrator steps used to determine the initial
-        surface species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxSteps()
-
-    @inlet_surface_max_steps.setter
-    def inlet_surface_max_steps(self, nsteps):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
-
-    @property
-    def inlet_surface_max_error_failures(self):
-        """
-        Get/Set the maximum number of integrator error failures allowed when determining
-        the initial surface species coverages.
-        """
-        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxErrorFailures()
-
-    @inlet_surface_max_error_failures.setter
-    def inlet_surface_max_error_failures(self, nsteps):
-        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
-
-    @property
-    def surface_area_to_volume_ratio(self):
-        """Get/Set the surface area to volume ratio of the reactor [1/m]"""
-        return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
-
-    @surface_area_to_volume_ratio.setter
-    def surface_area_to_volume_ratio(self, sa_to_vol):
-        (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
-
-    @property
     def speed(self):
         """ Speed [m/s] of the flow in the reactor at the current position """
         return (<CxxFlowReactor*>self.reactor).speed()
@@ -553,6 +514,10 @@ cdef class ExtensibleReactor(Reactor):
     """
     A base class for a reactor with delegated methods where the base
     functionality corresponds to the `Reactor` class.
+
+    The ``__init__`` method of the derived class should allocate and size any
+    internal variables and set the total number of state variables associated with this
+    reactor, `n_vars` (if it is different from the base class).
 
     The following methods of the C++ :ct:`Reactor` class can be modified by a
     Python class which inherits from this class. For each method, the name below
@@ -568,15 +533,10 @@ cdef class ExtensibleReactor(Reactor):
     from the supplied method and the base class method.
 
     ``initialize(self, t0: double) -> None``
-        Responsible for allocating and setting the sizes of any internal
-        variables, initializing attached walls, and setting the total number of
-        state variables associated with this reactor, `n_vars`.
+        Responsible for initialization that can only be performed after connecting the
+        elements of the reactor network, such as initializing attached walls.
 
         Called once before the start of time integration.
-
-    ``sync_state(self) -> None``
-        Responsible for setting the state of the reactor to correspond to the
-        state of the associated ThermoPhase object.
 
     ``get_state(self, y : double[:]) -> None``
         Responsible for populating the state vector ``y`` (length `n_vars`)
@@ -585,16 +545,6 @@ cdef class ExtensibleReactor(Reactor):
     ``update_state(self, y : double[:]) -> None``
         Responsible for setting the state of the reactor object from the
         values in the state vector ``y`` (length `n_vars`)
-
-    ``update_surface_state(self, y : double[:]) -> None``
-        Responsible for setting the state of surface phases in this reactor
-        from the values in the state vector ``y``. The length of ``y`` is the
-        total number of surface species in all surfaces.
-
-    ``get_surface_initial_conditions(self, y : double[:]) -> None``
-        Responsible for populating the state vector ``y`` with the initial
-        state of each surface phase in this reactor. The length of ``y`` is the
-        total number of surface species in all surfaces.
 
     ``update_connected(self, update_pressure : bool) -> None``
         Responsible for storing properties which may be accessed by connected
@@ -612,44 +562,31 @@ cdef class ExtensibleReactor(Reactor):
         and the net rate of heat transfer `heat_rate` caused by walls connected
         to this reactor.
 
-    ``eval_surfaces(LHS : double[:], RHS : double[:], sdot : double[:]) -> None``
-        Responsible for calculating the ``LHS`` and ``RHS`` (length: total number of
-        surface species in all surfaces) of the ODEs for surface species coverages,
-        and the molar production rate of bulk phase species ``sdot`` (length: number
-        of bulk phase species).
-
     ``component_name(i : int) -> string``
         Returns the name of the state vector component with index ``i``
 
     ``component_index(name: string) -> int``
         Returns the index of the state vector component named ``name``
-
-    ``species_index(name : string) -> int``
-        Returns the index of the species named ``name``, in either the bulk
-        phase or a surface phase, relative to the start of the species terms in
-        the state vector.
     """
 
     reactor_type = "ExtensibleReactor"
 
     delegatable_methods = {
         'initialize': ('initialize', 'void(double)'),
-        'sync_state': ('syncState', 'void()'),
         'get_state': ('getState', 'void(double*)'),
         'update_state': ('updateState', 'void(double*)'),
-        'update_surface_state': ('updateSurfaceState', 'void(double*)'),
-        'get_surface_initial_conditions': ('getSurfaceInitialConditions', 'void(double*)'),
         'update_connected': ('updateConnected', 'void(bool)'),
         'eval': ('eval', 'void(double, double*, double*)'),
         'eval_walls': ('evalWalls', 'void(double)'),
-        'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
-        'species_index': ('speciesIndex', 'size_t(string)')
     }
 
     def __cinit__(self, *args, **kwargs):
         self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
+        cdef span[double] sdot = \
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        self.surface_production_rates = <double[:sdot.size()]> sdot.data()
 
     def __init__(self, *args, **kwargs):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
@@ -689,20 +626,6 @@ cdef class ExtensibleReactor(Reactor):
     @heat_rate.setter
     def heat_rate(self, qdot):
         self.accessor.setHeatRate(qdot)
-
-    def restore_thermo_state(self):
-        """
-        Set the state of the thermo object to correspond to the state of the
-        reactor.
-        """
-        self.accessor.restoreThermoState()
-
-    def restore_surface_state(self, n):
-        """
-        Set the state of the thermo object for surface ``n`` to correspond to the
-        state of that surface
-        """
-        self.accessor.restoreSurfaceState(n)
 
 
 cdef class ExtensibleIdealGasReactor(ExtensibleReactor):
@@ -806,7 +729,8 @@ cdef class ReactorSurface(ReactorBase):
     """
     reactor_type = "ReactorSurface"
 
-    def __cinit__(self, _SolutionBase phase, r, clone=True, name="(none)", **kwargs):
+    def __cinit__(self, _SolutionBase phase, r, *, clone=True, name="(none)",
+                  kind=None, **kwargs):
         cdef ReactorBase adj
         cdef vector[shared_ptr[CxxReactorBase]] cxx_adj
         if isinstance(r, ReactorBase):
@@ -824,11 +748,23 @@ cdef class ReactorSurface(ReactorBase):
             raise TypeError("Parameter 'r' should be a ReactorBase object or a list "
                             "of ReactorBase objects.")
 
-        self._rbase = CxxNewReactorSurface(phase._base, cxx_adj, clone, stringify(name))
+        cdef span[shared_ptr[CxxReactorBase]] adj_span = \
+            span[shared_ptr[CxxReactorBase]](cxx_adj)
+
+        if kind is None and self.reactor_type != "ReactorSurface":
+            kind = self.reactor_type
+
+        if kind is not None:
+            self._rbase = CxxNewReactorSurface(stringify(kind), phase._base, adj_span,
+                                               clone, stringify(name))
+        else:
+            self._rbase = CxxNewReactorSurface(phase._base, adj_span, clone,
+                                               stringify(name))
+
         self.rbase = self._rbase.get()
         self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, phase=None, r=None, *, clone=True,
+    def __init__(self, phase=None, r=None, *, kind=None, clone=True,
                  name="(none)", A=None, node_attr=None):
         super().__init__(phase, name=name)
 
@@ -850,7 +786,6 @@ cdef class ReactorSurface(ReactorBase):
         def __get__(self):
             if self._phase is None:
                 raise CanteraError('No kinetics manager present')
-            self.rbase.restoreState()
             return self._phase.coverages
         def __set__(self, coverages):
             if self._phase is None:
@@ -864,7 +799,7 @@ cdef class ReactorSurface(ReactorBase):
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
-            self.surface.setCoverages(&data[0])
+            self.surface.setCoverages(span[double](&data[0], data.size))
 
     @property
     def reactor(self):
@@ -931,6 +866,109 @@ cdef class ReactorSurface(ReactorBase):
         """
         return draw_surface(self, graph, graph_attr, node_attr, surface_edge_attr,
                             print_state, species, species_units)
+
+
+cdef class FlowReactorSurface(ReactorSurface):
+    reactor_type = "FlowReactorSurface"
+
+    @property
+    def initial_atol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialAtol()
+
+    @initial_atol.setter
+    def initial_atol(self, atol):
+        (<CxxFlowReactorSurface*>self.surface).setInitialAtol(atol)
+    @property
+    def initial_rtol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialRtol()
+
+    @initial_rtol.setter
+    def initial_rtol(self, rtol):
+        (<CxxFlowReactorSurface*>self.surface).setInitialRtol(rtol)
+
+    @property
+    def initial_max_steps(self):
+        """
+        Get/Set the maximum number of integrator steps used to determine the initial
+        surface species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialMaxSteps()
+
+    @initial_max_steps.setter
+    def initial_max_steps(self, nsteps):
+        (<CxxFlowReactorSurface*>self.surface).setInitialMaxSteps(nsteps)
+
+    @property
+    def initial_max_error_failures(self):
+        """
+        Get/Set the maximum number of integrator error failures allowed when determining
+        the initial surface species coverages.
+        """
+        return (<CxxFlowReactorSurface*>self.surface).initialMaxErrorFailures()
+
+    @initial_max_error_failures.setter
+    def initial_max_error_failures(self, nsteps):
+        (<CxxFlowReactorSurface*>self.surface).setInitialMaxErrorFailures(nsteps)
+
+
+cdef class ExtensibleReactorSurface(ReactorSurface):
+    """
+    A base class for a reactor surface with delegated methods where the base
+    functionality corresponds to the `ReactorSurface` class.
+
+    Methods of the base class can be modified in the same way as in class
+    `ExtensibleReactor`. The methods that can be modified are::
+
+    - ``initialize(self, t0: double) -> None``
+    - ``get_state(self, y : double[:]) -> None``
+    - ``update_state(self, y : double[:]) -> None``
+    - ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
+    - ``component_name(i : int) -> string``
+    - ``component_index(name: string) -> int``
+    """
+
+    reactor_type = "ExtensibleReactorSurface"
+
+    delegatable_methods = {
+        'initialize': ('initialize', 'void(double)'),
+        'get_state': ('getState', 'void(double*)'),
+        'update_state': ('updateState', 'void(double*)'),
+        'eval': ('eval', 'void(double, double*, double*)'),
+        'component_name': ('componentName', 'string(size_t)'),
+        'component_index': ('componentIndex', 'size_t(string)'),
+    }
+
+    def __init__(self, *args, **kwargs):
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
+        cdef span[double] sdot = \
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
+        self.surface_production_rates = <double[:sdot.size()]> sdot.data()
+        super().__init__(*args, **kwargs)
+
+    property n_vars:
+        """
+        Get/Set the number of state variables in the reactor.
+        """
+        def __get__(self):
+            return self.reactor.neq()
+        def __set__(self, n):
+            dynamic_cast[CxxReactorAccessorPtr](self.rbase).setNEq(n)
+
+
+cdef class ExtensibleMoleReactorSurface(ExtensibleReactorSurface):
+    """
+    A variant of `ExtensibleReactorSurface` where the base behavior corresponds to the
+    :ct:`MoleReactorSurface` class.
+    """
+    reactor_type = "ExtensibleMoleReactorSurface"
 
 
 cdef class ConnectorNode:
@@ -1565,11 +1603,13 @@ cdef class ReactorNet:
     def __init__(self, reactors=()):
         self._reactors = []  # prevents premature garbage collection
         cdef vector[shared_ptr[CxxReactorBase]] cxx_reactors
-        cdef Reactor r
+        cdef ReactorBase r
         for r in reactors:
             self._reactors.append(r)
             cxx_reactors.push_back(r._rbase)
-        self._net = CxxNewReactorNet(cxx_reactors)
+        cdef span[shared_ptr[CxxReactorBase]] reactors_span = \
+            span[shared_ptr[CxxReactorBase]](cxx_reactors)
+        self._net = CxxNewReactorNet(reactors_span)
         self.net = self._net.get()
 
     def advance(self, double t, pybool apply_limit=True):
@@ -1936,8 +1976,24 @@ cdef class ReactorNet:
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.net.getState(&y[0])
+        self.net.getState(span[double](&y[0], y.size))
         return y
+
+    def get_state_dae(self):
+        """
+        Get the combined state vector and its time derivative for reactor networks
+        formulated as DAEs (namely, those containing `FlowReactor`).
+
+        The combined state vector consists of the concatenated state vectors of
+        all entities contained.
+
+        .. versionadded:: 4.0
+        """
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] yp = np.zeros(self.n_vars)
+        self.net.getStateDae(span[double](&y[0], y.size),
+                             span[double](&yp[0], yp.size))
+        return y, yp
 
     def get_derivative(self, k):
         """
@@ -1947,7 +2003,7 @@ cdef class ReactorNet:
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')
         cdef np.ndarray[np.double_t, ndim = 1] dky = np.zeros(self.n_vars)
-        self.net.getDerivative(k, & dky[0])
+        self.net.getDerivative(k, span[double](&dky[0], dky.size))
         return dky
 
     property advance_limits:
@@ -1959,7 +2015,7 @@ cdef class ReactorNet:
         """
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] limits = np.empty(self.n_vars)
-            self.net.getAdvanceLimits(&limits[0])
+            self.net.getAdvanceLimits(span[double](&limits[0], limits.size))
             return limits
 
         def __set__(self, limits):
@@ -1970,7 +2026,7 @@ cdef class ReactorNet:
 
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(limits, dtype=np.double)
-            self.net.setAdvanceLimits(&data[0])
+            self.net.setAdvanceLimits(span[double](&data[0], data.size))
 
     def advance_to_steady_state(self, int max_steps=10000,
                                 double residual_threshold=0., double atol=0.,

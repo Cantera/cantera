@@ -2,8 +2,10 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import numpy as np
+cimport numpy as np
 
 from .solutionbase cimport *
+from .ctcxx cimport span
 from .thermo cimport *
 from ._utils cimport *
 
@@ -56,8 +58,7 @@ cdef class Mixture:
             phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
 
         for phase,moles in phases:
-            # Block species from being added to the phase as long as this object exists
-            self.mix.addPhase(phase.thermo, moles)
+            self.mix.addPhase(phase.base.thermo(), moles)
             self._phases.append(phase)
 
         self.mix.init()
@@ -266,12 +267,9 @@ cdef class Mixture:
                 self.mix.setMolesByName(stringify(moles))
                 return
 
-            if len(moles) != self.n_species:
-                raise ValueError('mole array must be of length n_species')
-
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(moles, dtype=np.double)
-            self.mix.setMoles(&data[0])
+            self.mix.setMoles(span[double](&data[0], data.size))
 
     def element_moles(self, e):
         """
@@ -284,7 +282,8 @@ cdef class Mixture:
         """The chemical potentials of all species [J/kmol]."""
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            self.mix.getChemPotentials(&data[0])
+            cdef span[double] view = span[double](&data[0], <size_t>self.n_species)
+            self.mix.getChemPotentials(view)
             return data
 
     def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=1000,

@@ -6,7 +6,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_solve.h"
 
 #include "cantera/thermo/ThermoPhase.h"
@@ -17,92 +16,49 @@
 namespace Cantera
 {
 
-vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
-    m_owningSolverObject(owningSolverObject)
+vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject,
+                           ThermoPhase* thermoPhase, size_t phaseNum)
+    : m_owningSolverObject(owningSolverObject)
 {
-}
-
-vcs_VolPhase::~vcs_VolPhase()
-{
-    for (size_t k = 0; k < m_numSpecies; k++) {
-        delete ListSpeciesPtr[k];
+    if (!m_owningSolverObject) {
+        throw CanteraError("vcs_VolPhase::vcs_VolPhase",
+                           "owningSolverObject must not be null");
     }
-}
+    if (!thermoPhase) {
+        throw CanteraError("vcs_VolPhase::vcs_VolPhase",
+                           "thermoPhase must not be null");
+    }
 
-void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
-                          const size_t numElem, const char* const phaseName,
-                          const double molesInert)
-{
-    AssertThrowMsg(nspecies > 0, "vcs_VolPhase::resize", "nspecies Error");
-    setTotalMolesInert(molesInert);
-    m_phi = 0.0;
+    VP_ID_ = phaseNum;
+    PhaseName = thermoPhase->name().empty() ?
+        fmt::format("Phase_{}", VP_ID_) : thermoPhase->name();
+
+    m_numSpecies = thermoPhase->nSpecies();
+    AssertThrowMsg(m_numSpecies > 0, "vcs_VolPhase::vcs_VolPhase",
+        "nspecies Error");
+    m_singleSpecies = (m_numSpecies == 1);
     m_phiVarIndex = npos;
 
-    if (phaseNum == VP_ID_) {
-        if (strcmp(PhaseName.c_str(), phaseName)) {
-            throw CanteraError("vcs_VolPhase::resize",
-                               "Strings are different: " + PhaseName + " " +
-                               phaseName + " :unknown situation");
-        }
-    } else {
-        VP_ID_ = phaseNum;
-        if (!phaseName) {
-            PhaseName = fmt::format("Phase_{}", VP_ID_);
-        } else {
-            PhaseName = phaseName;
-        }
-    }
-    if (nspecies > 1) {
-        m_singleSpecies = false;
-    } else {
-        m_singleSpecies = true;
+    p_activityConvention = thermoPhase->activityConvention();
+
+    IndSpecies.assign(m_numSpecies, npos);
+    Xmol_.assign(m_numSpecies, 0.0);
+    creationMoleNumbers_.assign(m_numSpecies, 0.0);
+    creationGlobalRxnNumbers_.assign(m_numSpecies, npos);
+    for (size_t k = 0; k < m_numSpecies; k++) {
+        double defaultFrac = 1.0 / m_numSpecies;
+        Xmol_[k] = defaultFrac;
+        creationMoleNumbers_[k] = defaultFrac;
     }
 
-    if (m_numSpecies == nspecies && numElem == m_numElemConstraints) {
-        return;
-    }
+    SS0ChemicalPotential.assign(m_numSpecies, -1.0);
+    StarChemicalPotential.assign(m_numSpecies, -1.0);
+    StarMolarVol.assign(m_numSpecies, -1.0);
+    PartialMolarVol.assign(m_numSpecies, -1.0);
+    ActCoeff.assign(m_numSpecies, 1.0);
+    np_dLnActCoeffdMolNumber.resize(m_numSpecies, m_numSpecies, 0.0);
 
-    m_numSpecies = nspecies;
-    if (nspecies > 1) {
-        m_singleSpecies = false;
-    }
-
-    IndSpecies.resize(nspecies, npos);
-
-    if (ListSpeciesPtr.size() >= m_numSpecies) {
-        for (size_t i = 0; i < m_numSpecies; i++) {
-            if (ListSpeciesPtr[i]) {
-                delete ListSpeciesPtr[i];
-                ListSpeciesPtr[i] = 0;
-            }
-        }
-    }
-    ListSpeciesPtr.resize(nspecies, 0);
-    for (size_t i = 0; i < nspecies; i++) {
-        ListSpeciesPtr[i] = new vcs_SpeciesProperties(phaseNum, i, this);
-    }
-
-    Xmol_.resize(nspecies, 0.0);
-    creationMoleNumbers_.resize(nspecies, 0.0);
-    creationGlobalRxnNumbers_.resize(nspecies, npos);
-    for (size_t i = 0; i < nspecies; i++) {
-        Xmol_[i] = 1.0/nspecies;
-        creationMoleNumbers_[i] = 1.0/nspecies;
-        if (IndSpecies[i] >= m_numElemConstraints) {
-            creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
-        } else {
-            creationGlobalRxnNumbers_[i] = npos;
-        }
-    }
-
-    SS0ChemicalPotential.resize(nspecies, -1.0);
-    StarChemicalPotential.resize(nspecies, -1.0);
-    StarMolarVol.resize(nspecies, -1.0);
-    PartialMolarVol.resize(nspecies, -1.0);
-    ActCoeff.resize(nspecies, 1.0);
-    np_dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
-
-    m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
+    m_speciesUnknownType.assign(m_numSpecies, VCS_SPECIES_TYPE_MOLNUM);
     m_UpToDate = false;
     m_vcsStateStatus = VCS_STATECALC_OLD;
     m_UpToDate_AC = false;
@@ -111,7 +67,33 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     m_UpToDate_GStar = false;
     m_UpToDate_G0 = false;
 
-    elemResize(numElem);
+    TP_ptr = thermoPhase;
+    Temp_ = TP_ptr->temperature();
+    Pres_ = TP_ptr->pressure();
+    m_phi = TP_ptr->electricPotential();
+
+    transferElementsFM(TP_ptr);
+    setTotalMoles(0.0);
+
+    // Determine the global index for each of the elements in the phase
+    size_t neVP = nElemConstraints();
+    for (size_t eVP = 0; eVP < neVP; eVP++) {
+        string enVP = elementName(eVP);
+        size_t foundPos = m_owningSolverObject->elementIndex(enVP);
+        if (foundPos == npos) {
+            int elType = elementType(eVP);
+            int elactive = elementActive(eVP);
+            foundPos = m_owningSolverObject->addElement(enVP.c_str(), elType, elactive);
+        }
+        setElemGlobalIndex(eVP, foundPos);
+    }
+
+    setState_TP(Temp_, Pres_);
+    TP_ptr->getMoleFractions(Xmol_);
+    creationMoleNumbers_ = Xmol_;
+    _updateMoleFractionDependencies();
+
+    m_isIdealSoln = m_singleSpecies ? true : TP_ptr->isIdeal();
 }
 
 void vcs_VolPhase::elemResize(const size_t numElemConstraints)
@@ -131,13 +113,13 @@ void vcs_VolPhase::_updateActCoeff() const
         m_UpToDate_AC = true;
         return;
     }
-    TP_ptr->getActivityCoefficients(&ActCoeff[0]);
+    TP_ptr->getActivityCoefficients(ActCoeff);
     m_UpToDate_AC = true;
 }
 
 void vcs_VolPhase::_updateG0() const
 {
-    TP_ptr->getGibbs_ref(&SS0ChemicalPotential[0]);
+    TP_ptr->getGibbs_ref(SS0ChemicalPotential);
     m_UpToDate_G0 = true;
 }
 
@@ -151,7 +133,7 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateGStar() const
 {
-    TP_ptr->getStandardChemPotentials(&StarChemicalPotential[0]);
+    TP_ptr->getStandardChemPotentials(StarChemicalPotential);
     m_UpToDate_GStar = true;
 }
 
@@ -163,8 +145,9 @@ double vcs_VolPhase::GStar_calc_one(size_t kspec) const
     return StarChemicalPotential[kspec];
 }
 
-void vcs_VolPhase::setMoleFractions(const double* const xmol)
+void vcs_VolPhase::setMoleFractions(span<const double> xmol)
 {
+    checkArraySize("vcs_VolPhase::setMoleFractions", xmol.size(), m_numSpecies);
     double sum = -1.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         Xmol_[k] = xmol[k];
@@ -183,7 +166,8 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
     if (TP_ptr) {
-        TP_ptr->setMoleFractions(&Xmol_[m_MFStartIndex]);
+        TP_ptr->setMoleFractions(span<const double>(
+            &Xmol_[m_MFStartIndex], m_numSpecies));
         TP_ptr->setPressure(Pres_);
     }
     if (!m_isIdealSoln) {
@@ -192,7 +176,7 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
     }
 }
 
-const vector<double> & vcs_VolPhase::moleFractions() const
+span<const double> vcs_VolPhase::moleFractions() const
 {
     return Xmol_;
 }
@@ -203,9 +187,10 @@ double vcs_VolPhase::moleFraction(size_t k) const
 }
 
 void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
-        const double* const moleFractions,
-        const int vcsStateStatus)
+        span<const double> moleFractions, const int vcsStateStatus)
 {
+    checkArraySize("vcs_VolPhase::setMoleFractionsState", moleFractions.size(),
+                   m_numSpecies);
     if (totalMoles != 0.0) {
         // There are other ways to set the mole fractions when VCS_STATECALC
         // is set to a normal settting.
@@ -227,14 +212,6 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
     }
     double fractotal = 1.0;
     v_totalMoles = totalMoles;
-    if (m_totalMolesInert > 0.0) {
-        if (m_totalMolesInert > v_totalMoles) {
-            throw CanteraError("vcs_VolPhase::setMolesFractionsState",
-                 "inerts greater than total: {} {}",
-                 v_totalMoles, m_totalMolesInert);
-        }
-        fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
-    }
     double sum = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         Xmol_[k] = moleFractions[k];
@@ -253,30 +230,18 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 }
 
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
-                                   const double* molesSpeciesVCS)
+                                   span<const double> molesSpeciesVCS)
 {
-    v_totalMoles = m_totalMolesInert;
+    v_totalMoles = 0.0;
 
-    if (molesSpeciesVCS == 0) {
-        AssertThrowMsg(m_owningSolverObject, "vcs_VolPhase::setMolesFromVCS",
-                       "shouldn't be here");
+    if (molesSpeciesVCS.empty()) {
         if (stateCalc == VCS_STATECALC_OLD) {
-            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_old[0];
+            molesSpeciesVCS = span<const double>(m_owningSolverObject->m_molNumSpecies_old);
         } else if (stateCalc == VCS_STATECALC_NEW) {
-            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_new[0];
+            molesSpeciesVCS = span<const double>(m_owningSolverObject->m_molNumSpecies_new);
         } else {
             throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
         }
-    } else if (m_owningSolverObject) {
-        // if (stateCalc == VCS_STATECALC_OLD) {
-        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
-        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-        //     }
-        // } else if (stateCalc == VCS_STATECALC_NEW) {
-        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_new[0]) {
-        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-        //     }
-        // }
     }
 
     for (size_t k = 0; k < m_numSpecies; k++) {
@@ -317,9 +282,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         }
     }
     _updateMoleFractionDependencies();
-    if (m_totalMolesInert > 0.0) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    }
 
     // If stateCalc is old and the total moles is positive, then we have a valid
     // state. If the phase went away, it would be a valid starting point for
@@ -334,8 +296,8 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
 }
 
 void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
-                                        const double* molesSpeciesVCS,
-                                        const double* const TPhMoles)
+                                        span<const double> molesSpeciesVCS,
+                                        span<const double> TPhMoles)
 {
     setMolesFromVCS(vcsStateStatus, molesSpeciesVCS);
 
@@ -353,14 +315,13 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
 
 void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
 {
-    if ((!m_UpToDate || vcsStateStatus != m_vcsStateStatus) && m_owningSolverObject &&
+    if ((!m_UpToDate || vcsStateStatus != m_vcsStateStatus) &&
         (vcsStateStatus == VCS_STATECALC_OLD || vcsStateStatus == VCS_STATECALC_NEW)) {
         setMolesFromVCS(vcsStateStatus);
     }
 }
 
-void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
-                                      double* const AC)
+void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus, span<double> AC)
 {
     updateFromVCS_MoleNumbers(vcsStateStatus);
     if (!m_UpToDate_AC) {
@@ -372,7 +333,7 @@ void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
     }
 }
 
-double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
+double vcs_VolPhase::sendToVCS_VolPM(span<double> VolPM) const
 {
     if (!m_UpToDate_VolPM) {
         _updateVolPM();
@@ -384,7 +345,7 @@ double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
     return m_totalVol;
 }
 
-void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
+void vcs_VolPhase::sendToVCS_GStar(span<double> gstar) const
 {
     if (!m_UpToDate_GStar) {
         _updateGStar();
@@ -427,42 +388,20 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
     m_UpToDate_G0 = false;
 }
 
-void vcs_VolPhase::setState_T(const double temp)
-{
-    setState_TP(temp, Pres_);
-}
-
 void vcs_VolPhase::_updateVolStar() const
 {
-    TP_ptr->getStandardVolumes(&StarMolarVol[0]);
+    TP_ptr->getStandardVolumes(StarMolarVol);
     m_UpToDate_VolStar = true;
-}
-
-double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
-{
-    if (!m_UpToDate_VolStar) {
-        _updateVolStar();
-    }
-    return StarMolarVol[kspec];
 }
 
 double vcs_VolPhase::_updateVolPM() const
 {
-    TP_ptr->getPartialMolarVolumes(&PartialMolarVol[0]);
+    TP_ptr->getPartialMolarVolumes(PartialMolarVol);
     m_totalVol = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
     }
     m_totalVol *= v_totalMoles;
-
-    if (m_totalMolesInert > 0.0) {
-        if (m_gasPhase) {
-            double volI = m_totalMolesInert * GasConstant * Temp_ / Pres_;
-            m_totalVol += volI;
-        } else {
-            throw CanteraError("vcs_VolPhase::_updateVolPM", "unknown situation");
-        }
-    }
     m_UpToDate_VolPM = true;
     return m_totalVol;
 }
@@ -481,10 +420,11 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     if (!TP_ptr) {
         return;
     }
-    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber(0,0));
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies,
+        span<double>(&np_dLnActCoeffdMolNumber(0, 0), m_numSpecies * m_numSpecies));
     for (size_t j = 0; j < m_numSpecies; j++) {
         double moles_j_base = phaseTotalMoles * Xmol_[j];
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber.ptrColumn(j);
+        auto np_lnActCoeffCol = np_dLnActCoeffdMolNumber.col(j);
         if (moles_j_base < 1.0E-200) {
             moles_j_base = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
         }
@@ -527,7 +467,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     // Go get base values for the activity coefficients. Note this calls
     // setState_TPX() again; Just wanted to make sure that cantera is in sync
     // with VolPhase after this call.
-    setMoleFractions(&Xmol_Base[0]);
+    setMoleFractions(Xmol_Base);
     _updateMoleFractionDependencies();
     _updateActCoeff();
 }
@@ -548,39 +488,6 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
     }
 }
 
-void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
-{
-    TP_ptr = tp_ptr;
-    Temp_ = TP_ptr->temperature();
-    Pres_ = TP_ptr->pressure();
-    setState_TP(Temp_, Pres_);
-    m_phi = TP_ptr->electricPotential();
-    size_t nsp = TP_ptr->nSpecies();
-    size_t nelem = TP_ptr->nElements();
-    if (nsp != m_numSpecies) {
-        if (m_numSpecies != 0) {
-            warn_user("vcs_VolPhase::setPtrThermoPhase",
-                "Nsp != NVolSpeces: {} {}", nsp, m_numSpecies);
-        }
-        resize(VP_ID_, nsp, nelem, PhaseName.c_str());
-    }
-    TP_ptr->getMoleFractions(&Xmol_[0]);
-    creationMoleNumbers_ = Xmol_;
-    _updateMoleFractionDependencies();
-
-    // figure out ideal solution tag
-    if (nsp == 1) {
-        m_isIdealSoln = true;
-    } else {
-        m_isIdealSoln = TP_ptr->isIdeal();
-    }
-}
-
-const ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
-{
-    return TP_ptr;
-}
-
 double vcs_VolPhase::totalMoles() const
 {
     return v_totalMoles;
@@ -591,40 +498,36 @@ double vcs_VolPhase::molefraction(size_t k) const
     return Xmol_[k];
 }
 
-void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
-        const vector<size_t> &creationGlobalRxnNumbers)
+void vcs_VolPhase::setCreationMoleNumbers(span<const double> n_k,
+        span<const size_t> creationGlobalRxnNumbers)
 {
-    creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
+    checkArraySize("vcs_VolPhase::setCreationMoleNumbers", n_k.size(), m_numSpecies);
+    checkArraySize("vcs_VolPhase::setCreationMoleNumbers", creationGlobalRxnNumbers.size(), m_numSpecies);
+    creationMoleNumbers_.assign(n_k.begin(), n_k.end());
     for (size_t k = 0; k < m_numSpecies; k++) {
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
 }
 
-const vector<double>& vcs_VolPhase::creationMoleNumbers(
-        vector<size_t> &creationGlobalRxnNumbers) const
+span<const double> vcs_VolPhase::creationMoleNumbers(
+        span<size_t> creationGlobalRxnNumbers) const
 {
-    creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
+    checkArraySize("vcs_VolPhase::creationMoleNumbers", creationGlobalRxnNumbers.size(), m_numSpecies);
+    copy(creationGlobalRxnNumbers_.begin(), creationGlobalRxnNumbers_.end(),
+         creationGlobalRxnNumbers.begin());
     return creationMoleNumbers_;
 }
 
 void vcs_VolPhase::setTotalMoles(const double totalMols)
 {
     v_totalMoles = totalMols;
-    if (m_totalMolesInert > 0.0) {
+    if (m_singleSpecies && (m_phiVarIndex == 0)) {
         m_existence = VCS_PHASE_EXIST_ALWAYS;
-        AssertThrowMsg(totalMols >= m_totalMolesInert,
-                       "vcs_VolPhase::setTotalMoles",
-                       "totalMoles less than inert moles: {} {}",
-                       totalMols, m_totalMolesInert);
     } else {
-        if (m_singleSpecies && (m_phiVarIndex == 0)) {
-            m_existence = VCS_PHASE_EXIST_ALWAYS;
+        if (totalMols > 0.0) {
+            m_existence = VCS_PHASE_EXIST_YES;
         } else {
-            if (totalMols > 0.0) {
-                m_existence = VCS_PHASE_EXIST_YES;
-            } else {
-                m_existence = VCS_PHASE_EXIST_NO;
-            }
+            m_existence = VCS_PHASE_EXIST_NO;
         }
     }
 }
@@ -662,11 +565,6 @@ void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
     }
 }
 
-vcs_SpeciesProperties* vcs_VolPhase::speciesProperty(const size_t kindex)
-{
-    return ListSpeciesPtr[kindex];
-}
-
 int vcs_VolPhase::exists() const
 {
     return m_existence;
@@ -679,11 +577,9 @@ void vcs_VolPhase::setExistence(const int existence)
             throw CanteraError("vcs_VolPhase::setExistence",
                                "setting false existence for phase with moles");
         }
-    } else if (m_totalMolesInert == 0.0) {
-        if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
-            throw CanteraError("vcs_VolPhase::setExistence",
-                    "setting true existence for phase with no moles");
-        }
+    } else if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
+        throw CanteraError("vcs_VolPhase::setExistence",
+                "setting true existence for phase with no moles");
     }
     if (m_singleSpecies && m_phiVarIndex == 0 && (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE)) {
         throw CanteraError("vcs_VolPhase::setExistence",
@@ -704,36 +600,6 @@ void vcs_VolPhase::setSpGlobalIndexVCS(const size_t spIndex,
     if (spGlobalIndex >= m_numElemConstraints) {
         creationGlobalRxnNumbers_[spIndex] = spGlobalIndex - m_numElemConstraints;
     }
-}
-
-void vcs_VolPhase::setTotalMolesInert(const double tMolesInert)
-{
-    if (m_totalMolesInert != tMolesInert) {
-        m_UpToDate = false;
-        m_UpToDate_AC = false;
-        m_UpToDate_VolStar = false;
-        m_UpToDate_VolPM = false;
-        m_UpToDate_GStar = false;
-        m_UpToDate_G0 = false;
-        v_totalMoles += (tMolesInert - m_totalMolesInert);
-        m_totalMolesInert = tMolesInert;
-    }
-    if (m_totalMolesInert > 0.0) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    } else if (m_singleSpecies && (m_phiVarIndex == 0)) {
-        m_existence = VCS_PHASE_EXIST_ALWAYS;
-    } else {
-        if (v_totalMoles > 0.0) {
-            m_existence = VCS_PHASE_EXIST_YES;
-        } else {
-            m_existence = VCS_PHASE_EXIST_NO;
-        }
-    }
-}
-
-double vcs_VolPhase::totalMolesInert() const
-{
-    return m_totalMolesInert;
 }
 
 size_t vcs_VolPhase::elemGlobalIndex(const size_t e) const
@@ -918,25 +784,6 @@ size_t vcs_VolPhase::nSpecies() const
 
 string vcs_VolPhase::eos_name() const
 {
-    switch (m_eqnState) {
-    case VCS_EOS_CONSTANT:
-        return "Constant";
-    case VCS_EOS_IDEAL_GAS:
-        return "Ideal Gas";
-    case VCS_EOS_STOICH_SUB:
-        return "Stoich Sub";
-    case VCS_EOS_IDEAL_SOLN:
-        return "Ideal Soln";
-    case VCS_EOS_DEBEYE_HUCKEL:
-        return "Debeye Huckel";
-    case VCS_EOS_REDLICH_KWONG:
-        return "Redlich_Kwong";
-    case VCS_EOS_REGULAR_SOLN:
-        return "Regular Soln";
-    default:
-        return fmt::format("UnkType: {:7d}", m_eqnState);
-        break;
-    }
+    return TP_ptr->type();
 }
-
 }

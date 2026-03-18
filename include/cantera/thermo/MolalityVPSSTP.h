@@ -318,7 +318,7 @@ public:
      *
      * @param molal       Output vector of molalities. Length: m_kk.
      */
-    void getMolalities(double* const molal) const;
+    void getMolalities(span<double> molal) const;
 
     //! Set the molalities of the solutes in a phase
     /*!
@@ -352,7 +352,7 @@ public:
      *
      * @param molal   Input vector of molalities. Length: m_kk.
      */
-    void setMolalities(const double* const molal);
+    void setMolalities(span<const double> molal);
 
     //! Set the molalities of a phase
     /*!
@@ -386,7 +386,7 @@ public:
      */
     int activityConvention() const override;
 
-    void getActivityConcentrations(double* c) const override;
+    void getActivityConcentrations(span<double> c) const override;
     double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities (molality based for this
@@ -405,7 +405,7 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    void getActivities(double* ac) const override;
+    void getActivities(span<double> ac) const override;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -436,7 +436,7 @@ public:
      * @param ac  Output vector containing the mole-fraction based activity
      *            coefficients. length: m_kk.
      */
-    void getActivityCoefficients(double* ac) const override;
+    void getActivityCoefficients(span<double> ac) const override;
 
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -467,7 +467,7 @@ public:
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(double* acMolality) const;
+    virtual void getMolalityActivityCoefficients(span<double> acMolality) const;
 
     //! Calculate the osmotic coefficient
     /*!
@@ -507,7 +507,7 @@ public:
      * @param molalities  Input vector of molalities of the solutes.
      *                    Length: m_kk.
      */
-    void setState_TPM(double t, double p, const double* const molalities);
+    void setState_TPM(double t, double p, span<const double> molalities);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
@@ -532,7 +532,8 @@ public:
      */
     void setState(const AnyMap& state) override;
 
-    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
+    void getdlnActCoeffdlnN(const size_t ld,
+                            span<double> const dlnActCoeffdlnN) override {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
@@ -551,7 +552,7 @@ protected:
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getUnscaledMolalityActivityCoefficients(double* acMolality) const;
+    virtual void getUnscaledMolalityActivityCoefficients(span<double> acMolality) const;
 
     //! Apply the current phScale to a set of activity Coefficients or
     //! activities
@@ -561,7 +562,7 @@ protected:
      * @param acMolality input/Output vector containing the molality based
      *                   activity coefficients. length: m_kk.
      */
-    virtual void applyphScale(double* acMolality) const;
+    virtual void applyphScale(span<double> acMolality) const;
 
 private:
     //! Returns the index of the Cl- species.

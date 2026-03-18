@@ -5,7 +5,6 @@ classdef ctTestReactor < ctTestCase
         gas2
         r1
         r2
-        net
         w
     end
 
@@ -32,16 +31,12 @@ classdef ctTestReactor < ctTestCase
             self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
             self.r1 = ct.zeroD.Reactor(self.gas1);
 
-            if arg.nr == 1
-                self.net = ct.zeroD.ReactorNet(self.r1);
-            elseif arg.nr >= 2
+            if arg.nr == 2
                 self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
                 self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = ct.zeroD.Reactor(self.gas2);
                 self.r2.energyEnabled = true;
-                self.net = ct.zeroD.ReactorNet({self.r1, self.r2});
             end
-            self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
         end
 
         function addWall(self, arg)
@@ -78,12 +73,14 @@ classdef ctTestReactor < ctTestCase
 
         function testIndependentVariable(self)
             self.makeReactors('nr', 1);
-            self.verifyEqual(self.net.time, 0.0, 'AbsTol', self.atol);
+            net = ct.zeroD.ReactorNet(self.r1);
+            self.verifyEqual(net.time, 0.0, 'AbsTol', self.atol);
         end
 
         function testDisjoint(self)
             self.makeReactors('T1', 300, 'P1', 101325, 'T2', 500, 'P2', 300000);
-            self.net.advance(1.0);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.advance(1.0);
 
             self.verifyEqual(self.gas1.T, 300, 'AbsTol', self.atol);
             self.verifyEqual(self.gas2.T, 500, 'AbsTol', self.atol);
@@ -93,21 +90,22 @@ classdef ctTestReactor < ctTestCase
 
         function testTimeStepping(self)
             self.makeReactors();
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
 
             tStart = 0.3;
             tEnd = 10.0;
             dtMax = 0.07;
             t = tStart;
 
-            self.net.maxTimeStep = dtMax;
-            self.net.time = tStart;
-            self.verifyEqual(self.net.time, tStart);
+            net.maxTimeStep = dtMax;
+            net.time = tStart;
+            self.verifyEqual(net.time, tStart);
 
             while t < tEnd
                 tPrev = t;
-                t = self.net.step;
+                t = net.step;
                 self.verifyLessThanOrEqual(t - tPrev, 1.0001 * dtMax);
-                self.verifyEqual(t, self.net.time, 'AbsTol', self.atol);
+                self.verifyEqual(t, net.time, 'AbsTol', self.atol);
             end
         end
 
@@ -138,9 +136,9 @@ classdef ctTestReactor < ctTestCase
         function testEqualizePressure(self)
             self.makeReactors('P1', 101325, 'P2', 300000);
             self.addWall('K', 0.1, 'A', 1.0);
-
-            self.net.advance(1.0);
-            self.verifyEqual(self.net.time, 1.0, 'AbsTol', self.atol);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.advance(1.0);
+            self.verifyEqual(net.time, 1.0, 'AbsTol', self.atol);
             self.verifyEqual(self.r1.phase.P, self.r2.phase.P, 'RelTol', self.rtol);
             self.verifyNotEqual(self.r1.T, self.r2.T);
         end
@@ -148,9 +146,10 @@ classdef ctTestReactor < ctTestCase
         function testHeatTransfer1(self)
             self.makeReactors('T1', 300, 'T2', 1000);
             self.addWall('U', 500, 'A', 1.0);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
 
-            self.net.advance(10.0);
-            self.verifyEqual(self.net.time, 10.0, 'RelTol', self.atol);
+            net.advance(10.0);
+            self.verifyEqual(net.time, 10.0, 'RelTol', self.atol);
             self.verifyEqual(self.r1.T, self.r2.T, 'RelTol', 5e-7);
             self.verifyNotEqual(self.r1.P, self.r2.P);
         end
@@ -159,12 +158,14 @@ classdef ctTestReactor < ctTestCase
             self.assumeFail('Skipped until heatTransferCoeff getter is implemented');
             self.makeReactors('T1', 300, 'T2', 1000);
             self.addWall('U', 200, 'A', 1.0);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
 
-            self.net.advance(1.0);
+            net.advance(1.0);
             T1a = self.r1.T;
             T2a = self.r2.T;
 
             self.makeReactors('T1', 300, 'T2', 1000);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
             self.r1.V = 0.25;
             self.r2.V = 0.25;
             self.addWall('U', 100, 'A', 0.5);
@@ -172,7 +173,7 @@ classdef ctTestReactor < ctTestCase
             Qdot1 = self.w.heatTransferCoeff * self.w.area * (self.r1.T - self.r2.T);
             self.verifyEqual(Qdot1, self.w.heatRate, 'RelTol', self.rtol);
 
-            self.net.advance(1.0);
+            net.advance(1.0);
             Qdot2 = self.w.heatTransferCoeff * self.w.area * (self.r1.T - self.r2.T);
             self.verifyEqual(Qdot2, self.w.heatRate, 'RelTol', self.rtol);
             T1b = self.r1.T;
@@ -188,18 +189,18 @@ classdef ctTestReactor < ctTestCase
                 T0 = 1100;
                 X0 = 'H2:1.0, O2:0.5, AR:8.0';
                 self.makeReactors('nr', 1, 'T1', T0, 'P1', P0, 'X1', X0);
-                self.net.rtol = rtol;
-                self.net.atol = atol;
+                net = ct.zeroD.ReactorNet({self.r1});
+                net.rtol = rtol;
+                net.atol = atol;
 
-                self.verifyEqual(self.net.rtol, rtol);
-                self.verifyEqual(self.net.atol, atol);
-
+                self.verifyEqual(net.rtol, rtol);
+                self.verifyEqual(net.atol, atol);
                 tEnd = 1.0;
                 nSteps = 0;
                 t = 0;
 
                 while t < tEnd
-                    t = self.net.step();
+                    t = net.step();
                     nSteps = nSteps + 1;
                 end
 
@@ -216,10 +217,11 @@ classdef ctTestReactor < ctTestCase
 
         function testAdvanceReverse(self)
             self.makeReactors('nr', 1);
-            self.net.advance(0.1);
+            net = ct.zeroD.ReactorNet(self.r1);
+            net.advance(0.1);
 
             try
-                self.net.advance(0.09);
+                net.advance(0.09);
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message, 'backwards in time');
@@ -231,8 +233,9 @@ classdef ctTestReactor < ctTestCase
             T0 = 1100;
             X0 = 'H2:1.0, O2:0.5, AR:8.0';
             self.makeReactors('nr', 1, 'T1', T0, 'P1', P0, 'X1', X0);
+            net = ct.zeroD.ReactorNet({self.r1});
 
-            self.net.advance(1.0);
+            net.advance(1.0);
 
             gas = ct.Solution('h2o2.yaml', '', 'none');
             gas.TPX = {T0, P0, X0};
@@ -254,9 +257,9 @@ classdef ctTestReactor < ctTestCase
             self.gas1.TPX = {T0, P0, X0};
             self.r1 = ct.zeroD.IdealGasConstPressureReactor(self.gas1);
 
-            self.net = ct.zeroD.ReactorNet(self.r1);
-            self.net.time = 0.0;
-            self.net.advance(1.0);
+            net = ct.zeroD.ReactorNet(self.r1);
+            net.time = 0.0;
+            net.advance(1.0);
 
             self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
             self.gas2.TPX = {T0, P0, X0};
@@ -283,12 +286,13 @@ classdef ctTestReactor < ctTestCase
 
             v = ct.Func1('tabulated-linear', [0.0, 1.0, 2.0], [0.0, 1.0, 0.0]);
             self.w.velocity = v;
-            self.net.advance(1.0);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.advance(1.0);
 
             self.verifyEqual(self.w.velocity, v(1.0), 'AbsTol', self.atol);
             self.verifyEqual(self.w.expansionRate, 1.0 * A, 'AbsTol', self.atol);
 
-            self.net.advance(2.0);
+            net.advance(2.0);
 
             self.verifyEqual(selfw.expansionRate, 0.0, 'AbsTol', self.atol);
             self.verifyEqual(self.r1.V, V1 + 1.0 * A, 'RelTol', self.rtol);
@@ -299,7 +303,8 @@ classdef ctTestReactor < ctTestCase
             self.makeReactors('T1', 500);
             self.r1.energyEnabled = false;
             self.addWall('A', 1.0, 'U', 2500);
-            self.net.advance(11.0);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.advance(11.0);
 
             self.verifyEqual(self.r1.T, 500, 'RelTol', self.rtol);
             self.verifyEqual(self.r2.T, 500, 'RelTol', self.rtol);
@@ -308,7 +313,8 @@ classdef ctTestReactor < ctTestCase
         function testDisableChemistry(self)
             self.makeReactors('T1', 1000, 'nr', 1, 'X1', 'H2:2.0,O2:1.0');
             self.r1.chemistryEnabled = false;
-            self.net.advance(11.0);
+            net = ct.zeroD.ReactorNet({self.r1});
+            net.advance(11.0);
             x1 = self.r1.phase.X(self.r1.phase.speciesIndex('H2'));
             x2 = self.r1.phase.X(self.r1.phase.speciesIndex('O2'));
 
@@ -332,7 +338,8 @@ classdef ctTestReactor < ctTestCase
             self.w.heatFlux = f;
             Q = 0.3 * 60000;
 
-            self.net.advance(1.1);
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            net.advance(1.1);
             self.verifyEqual(self.w.heatFlux, f(1.1), 'RelTol', self.rtol);
             U1b = self.r1.V * self.r1.D * self.r1.phase.U;
             U2b = self.r2.V * self.r2.D * self.r2.phase.U;

@@ -6,51 +6,40 @@ use Cantera.
 
 ## Compilers
 
-You must have one of the following C++ compilers installed on your system. A Fortran
+You must have one of the following C++ compilers installed on your system. Cantera
+requires compiler versions that support features from the C++20 standard. A Fortran
 compiler is required only if you plan to build the Fortran module.
 
-- GNU compilers (C/C++/Fortran)
+- GCC (C/C++/Fortran): Works with versions >= 13.2.
 
-  - Known to work with versions 9.4 and 11.4. Expected to work with version >= 9.0.
+- Clang/LLVM (C/C++): Works with versions >= 18.0.
 
-- Clang/LLVM (C/C++)
+  - This includes the versions included in Xcode >= 15.3.
 
-  - Known to work with versions 10 and 12. Expected to work with version >= 5.0
-  - Works with the versions included in Xcode 13.0 and 14.3.1.
+- Intel OneAPI compilers (C/C++/Fortran): Works with versions >= 2023.1.
 
-- Intel compilers (C/C++/Fortran)
+- Microsoft compilers (C/C++): Works with Visual Studio 2019 versions >= 16.11
+  (MSVC runtime version 14.29) or any version of Visual Studio 2022.
 
-  - Known to work with the Intel OneAPI Compilers (version 2022.0.2).
-  - Some earlier versions of the Intel compiler (including the 2017 version) are
-    **NOT RECOMMENDED** because of a bug in the C compiler.
+- MinGW (C/C++/Fortran): Works with versions >= 13.0.
 
-- Microsoft compilers (C/C++)
-
-  - Known to work with Visual Studio 2019 (MSVC 14.2) and Visual Studio 2022
-    (MSVC 14.3).
-
-- MinGW (C/C++/Fortran)
-
-  - <http://mingw-w64.org/doku.php> (64-bit)
-  - <http://tdm-gcc.tdragon.net/> (64-bit)
-  - Known to work with Mingw-w64 12.2.
+  - See <https://www.mingw-w64.org/downloads/> for downloads.
 
 ## Other Required Software
 
 - [SCons](https://scons.org/tag/releases.html):
 
-  - Works with versions >= 4.0.0
+  - Works with versions >= 4.5.0
   - On Windows, more recent SCons versions are required to support each new version of
     the MSVC compiler.
 
 - [Python](https://python.org/downloads/):
 
-  - Works with versions >= 3.10.
+  - Works with versions >= 3.12.
 
 - [Boost](https://www.boost.org/releases/latest/)
 
-  - Known to work with versions 1.71, 1.74, and 1.82; Expected to work with versions >=
-    1.70
+  - Expected to work with Boost versions >= 1.83.
   - Only the "header-only" portions of Boost are required. Cantera does not currently
     depend on any of the compiled Boost libraries.
 
@@ -59,7 +48,7 @@ compiler is required only if you plan to build the Fortran module.
   - If SUNDIALS is not installed and you have checked out the Cantera source code using
     Git, SUNDIALS will be automatically downloaded and the necessary portions will be
     compiled and installed with Cantera.
-  - Known to work with versions >= 5.0 and \<= 7.2.
+  - Known to work with versions >= 6.4 and \<= 7.5.
   - To use SUNDIALS with Cantera on a Linux/Unix system, it must be compiled
     with the `-fPIC` flag. You can specify this flag when configuring SUNDIALS as
     `cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>`
@@ -75,7 +64,7 @@ compiler is required only if you plan to build the Fortran module.
   - If fmt (previously known as cppformat) is not installed and you have checked out the
     Cantera source code using Git, fmt will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
-  - Known to work with versions 8.0 through 11.0.
+  - Known to work with versions 9.1 through 12.0.
 
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
@@ -102,11 +91,11 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  - Expected to work with versions >= 1.21.0.
+  - Expected to work with versions >= 1.26.4.
 
 - [Cython](https://cython.org/)
 
-  - Required version >=0.29.31 to build the Python module.
+  - Required version >=3.0.8 to build the Python module.
 
 - [pip](https://pip.pypa.io/en/stable/installing/) (Python)
 
@@ -139,7 +128,7 @@ compiler is required only if you plan to build the Fortran module.
   - If HighFive is not installed and you have checked out the Cantera source code
     using Git, HighFive will be automatically downloaded and the necessary portions will
     be compiled as part of the Cantera build process.
-  - Version 2.5.0 or newer is required.
+  - HighFive version 2.10 or newer is required.
 
 - [Google Test](https://github.com/google/googletest)
 

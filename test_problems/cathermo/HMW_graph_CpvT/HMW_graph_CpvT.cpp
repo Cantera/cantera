@@ -19,19 +19,11 @@ int main(int argc, char** argv)
 
     try {
         string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.yaml";
-        double Cp0_R[20], pmCp[20];
-
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
         auto solid = newThermo("NaCl_Solid.yaml", "NaCl(S)");
 
         size_t nsp = HMW->nSpecies();
-        double mf[100];
-        double moll[100];
-        for (i = 0; i < 100; i++) {
-            mf[i] = 0.0;
-        }
-
-        HMW->getMoleFractions(mf);
+        vector<double> Cp0_R(nsp), pmCp(nsp), moll(nsp);
         string sName;
 
         TemperatureTable TTable(15, false, 273.15, 25., 0, 0);
@@ -60,7 +52,7 @@ int main(int argc, char** argv)
         moll[i1] = Is;
         moll[i2] = Is;
         HMW->setState_TPM(298.15, pres, moll);
-        double Xmol[30];
+        vector<double> Xmol(nsp);
         HMW->getMoleFractions(Xmol);
 
         /*

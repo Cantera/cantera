@@ -103,7 +103,7 @@ public:
      *
      * @returns The number of new grid points needed (size of #m_insertPts)
      */
-    int analyze(size_t n, const double* z, const double* x);
+    int analyze(size_t n, span<const double> z, span<const double> x);
 
     //! Returns the number of new grid points that were needed.
     int nNewPoints() {
@@ -147,7 +147,7 @@ public:
      * @param n %Solution component index
      * @param j Grid point index
      */
-    double value(const double* x, size_t n, size_t j);
+    double value(span<const double> x, size_t n, size_t j);
 
     //! Returns the maximum allowable ratio of grid spacing between adjacent intervals
     double maxRatio() {

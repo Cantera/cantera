@@ -42,7 +42,19 @@ localenv.Depends(license, localenv["license_target"])
 directives = {"binding": True}
 if env["coverage"]:
     directives["linetrace"] = True
-    localenv.Append(CPPDEFINES={"CYTHON_TRACE": 1})
+    localenv.Append(CPPDEFINES={
+        "CYTHON_TRACE": 1,
+        # TODO: Remove after https://github.com/coveragepy/coveragepy/issues/1790 is resolved.
+        "CYTHON_USE_SYS_MONITORING": 0}
+    )
+
+if env["OS"] == "Darwin" and env['debug']:
+    # Avoid needing to specify DYLD_LIBRARY_PATH when running the Python module
+    # from the build directory. Excluded for non-debug builds to avoid polluting
+    # RPATH with paths from the build environment.
+    localenv.Append(
+        LINKFLAGS=env.subst(
+            f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
 
 # Build the Python module
 cython_obj = []

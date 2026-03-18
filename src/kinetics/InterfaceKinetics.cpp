@@ -6,7 +6,10 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/zeroD/ReactorNet.h"
+#include "cantera/zeroD/ReactorFactory.h"
+#include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/Reservoir.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
@@ -14,6 +17,8 @@
 namespace Cantera
 {
 
+// Constructor / destructor definitions required due to forward-declared unique_ptr
+// members.
 InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
@@ -28,7 +33,7 @@ void InterfaceKinetics::resizeReactions()
     m_rbuf1.resize(nReactions());
 
     for (auto& rates : m_rateHandlers) {
-        rates->resize(nTotalSpecies(), nReactions(), nPhases());
+        rates->resize(*this);
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in InterfaceKinetics::_update_rates_T
         //      and running updateROP() is premature
@@ -52,11 +57,12 @@ void InterfaceKinetics::_update_rates_T()
     if (T != m_temp || m_redo_rates) {
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
         for (size_t n = 0; n < nPhases(); n++) {
-            thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
+            thermo(n).getPartialMolarEnthalpies(
+                span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
         }
 
         // Use the stoichiometric manager to find deltaH for each reaction.
-        getReactionDelta(m_grt.data(), m_dH.data());
+        getReactionDelta(m_grt, m_dH);
 
         m_temp = T;
         m_ROP_ok = false;
@@ -67,7 +73,7 @@ void InterfaceKinetics::_update_rates_T()
     for (auto& rates : m_rateHandlers) {
         bool changed = rates->update(thermo(0), *this);
         if (changed) {
-            rates->getRateConstants(m_rfn.data());
+            rates->getRateConstants(m_rfn);
             m_ROP_ok = false;
             m_redo_rates = true;
         }
@@ -100,10 +106,11 @@ void InterfaceKinetics::_update_rates_C()
          * the vector m_conc. m_start[] are integer indices for that vector
          * denoting the start of the species for each phase.
          */
-        tp.getActivityConcentrations(m_actConc.data() + m_start[n]);
+        tp.getActivityConcentrations(
+            span<double>(m_actConc).subspan(m_start[n], tp.nSpecies()));
 
         // Get regular concentrations too
-        tp.getConcentrations(m_conc.data() + m_start[n]);
+        tp.getConcentrations(span<double>(m_conc).subspan(m_start[n], tp.nSpecies()));
     }
     m_ROP_ok = false;
 }
@@ -122,7 +129,7 @@ void InterfaceKinetics::updateKc()
         double rrt = 1.0 / thermo(0).RT();
 
         // compute Delta mu^0 for all reversible reactions
-        getRevReactionDelta(m_mu0_Kc.data(), m_rkcn.data());
+        getRevReactionDelta(m_mu0_Kc, m_rkcn);
 
         for (size_t i = 0; i < m_revindex.size(); i++) {
             size_t irxn = m_revindex[i];
@@ -148,7 +155,8 @@ void InterfaceKinetics::updateMu0()
     //      once the old framework is removed
     size_t ik = 0;
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
+        thermo(n).getStandardChemPotentials(
+            span<double>(m_mu0).subspan(m_start[n], thermo(n).nSpecies()));
         for (size_t k = 0; k < thermo(n).nSpecies(); k++) {
             m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
             m_mu0_Kc[ik] -= thermo(0).RT() * thermo(n).logStandardConc(k);
@@ -157,19 +165,20 @@ void InterfaceKinetics::updateMu0()
     }
 }
 
-void InterfaceKinetics::getEquilibriumConstants(double* kc)
+void InterfaceKinetics::getEquilibriumConstants(span<double> kc)
 {
     updateMu0();
     double rrt = 1.0 / thermo(0).RT();
-    std::fill(kc, kc + nReactions(), 0.0);
-    getReactionDelta(m_mu0_Kc.data(), kc);
+    std::fill(kc.begin(), kc.end(), 0.0);
+    getReactionDelta(m_mu0_Kc, kc);
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
     }
 }
 
-void InterfaceKinetics::getFwdRateConstants(double* kfwd)
+void InterfaceKinetics::getFwdRateConstants(span<double> kfwd)
 {
+    checkArraySize("InterfaceKinetics::getFwdRateConstants", kfwd.size(), nReactions());
     updateROP();
     for (size_t i = 0; i < nReactions(); i++) {
         // base rate coefficient multiplied by perturbation factor
@@ -177,11 +186,11 @@ void InterfaceKinetics::getFwdRateConstants(double* kfwd)
     }
 }
 
-void InterfaceKinetics::getRevRateConstants(double* krev, bool doIrreversible)
+void InterfaceKinetics::getRevRateConstants(span<double> krev, bool doIrreversible)
 {
     getFwdRateConstants(krev);
     if (doIrreversible) {
-        getEquilibriumConstants(m_ropnet.data());
+        getEquilibriumConstants(m_ropnet);
         for (size_t i = 0; i < nReactions(); i++) {
             krev[i] /= m_ropnet[i];
         }
@@ -213,16 +222,16 @@ void InterfaceKinetics::updateROP()
     }
 
     for (auto& rates : m_rateHandlers) {
-        rates->modifyRateConstants(m_ropf.data(), m_ropr.data());
+        rates->modifyRateConstants(m_ropf, m_ropr);
     }
 
     // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
-    m_reactantStoich.multiply(m_actConc.data(), m_ropf.data());
+    m_reactantStoich.multiply(m_actConc, m_ropf);
 
     // For reversible reactions, multiply ropr by the activity concentration
     // products
-    m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
+    m_revProductStoich.multiply(m_actConc, m_ropr);
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -278,101 +287,106 @@ void InterfaceKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void InterfaceKinetics::getDeltaGibbs(double* deltaG)
+void InterfaceKinetics::getDeltaGibbs(span<double> deltaG)
 {
     // Get the chemical potentials of the species in the all of the phases used
     // in the kinetics mechanism
     for (size_t n = 0; n < nPhases(); n++) {
-        m_thermo[n]->getChemPotentials(m_mu.data() + m_start[n]);
+        m_thermo[n]->getChemPotentials(
+            span<double>(m_mu).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu.data(), m_rbuf.data());
-    if (deltaG != 0 && (m_rbuf.data() != deltaG)) {
-        for (size_t j = 0; j < nReactions(); ++j) {
-            deltaG[j] = m_rbuf[j];
-        }
+    getReactionDelta(m_mu, m_rbuf);
+    if (deltaG.data() != m_rbuf.data()) {
+        copy(m_rbuf.begin(), m_rbuf.end(), deltaG.begin());
     }
 }
 
-void InterfaceKinetics::getDeltaElectrochemPotentials(double* deltaM)
+void InterfaceKinetics::getDeltaElectrochemPotentials(span<double> deltaM)
 {
     // Get the chemical potentials of the species
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getElectrochemPotentials(m_grt.data() + m_start[n]);
+        thermo(n).getElectrochemPotentials(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_grt.data(), deltaM);
+    getReactionDelta(m_grt, deltaM);
 }
 
-void InterfaceKinetics::getDeltaEnthalpy(double* deltaH)
+void InterfaceKinetics::getDeltaEnthalpy(span<double> deltaH)
 {
     // Get the partial molar enthalpy of all species
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
+        thermo(n).getPartialMolarEnthalpies(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_grt, deltaH);
 }
 
-void InterfaceKinetics::getDeltaEntropy(double* deltaS)
+void InterfaceKinetics::getDeltaEntropy(span<double> deltaS)
 {
     // Get the partial molar entropy of all species in all of the phases
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getPartialMolarEntropies(m_grt.data() + m_start[n]);
+        thermo(n).getPartialMolarEntropies(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_grt, deltaS);
 }
 
-void InterfaceKinetics::getDeltaSSGibbs(double* deltaGSS)
+void InterfaceKinetics::getDeltaSSGibbs(span<double> deltaGSS)
 {
     // Get the standard state chemical potentials of the species. This is the
     // array of chemical potentials at unit activity We define these here as the
     // chemical potentials of the pure species at the temperature and pressure
     // of the solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
+        thermo(n).getStandardChemPotentials(
+            span<double>(m_mu0).subspan(m_start[n], thermo(n).nSpecies()));
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu0.data(), deltaGSS);
+    getReactionDelta(m_mu0, deltaGSS);
 }
 
-void InterfaceKinetics::getDeltaSSEnthalpy(double* deltaH)
+void InterfaceKinetics::getDeltaSSEnthalpy(span<double> deltaH)
 {
     // Get the standard state enthalpies of the species. This is the array of
     // chemical potentials at unit activity We define these here as the
     // enthalpies of the pure species at the temperature and pressure of the
     // solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getEnthalpy_RT(m_grt.data() + m_start[n]);
+        thermo(n).getEnthalpy_RT(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= thermo(0).RT();
     }
 
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_grt, deltaH);
 }
 
-void InterfaceKinetics::getDeltaSSEntropy(double* deltaS)
+void InterfaceKinetics::getDeltaSSEntropy(span<double> deltaS)
 {
     // Get the standard state entropy of the species. We define these here as
     // the entropies of the pure species at the temperature and pressure of the
     // solution.
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getEntropy_R(m_grt.data() + m_start[n]);
+        thermo(n).getEntropy_R(
+            span<double>(m_grt).subspan(m_start[n], thermo(n).nSpecies()));
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= GasConstant;
     }
 
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_grt, deltaS);
 }
 
 bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
@@ -418,7 +432,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     if (m_rateTypes.find(rtype) == m_rateTypes.end()) {
         m_rateTypes[rtype] = m_rateHandlers.size();
         m_rateHandlers.push_back(rate->newMultiRate());
-        m_rateHandlers.back()->resize(m_kk, nReactions(), nPhases());
+        m_rateHandlers.back()->resize(*this);
     }
 
     // Add reaction rate to evaluator
@@ -471,14 +485,6 @@ void InterfaceKinetics::setMultiplier(size_t i, double f)
     m_ROP_ok = false;
 }
 
-void InterfaceKinetics::setIOFlag(int ioFlag)
-{
-    m_ioFlag = ioFlag;
-    if (m_integrator) {
-        m_integrator->setIOFlag(ioFlag);
-    }
-}
-
 void InterfaceKinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
     Kinetics::addThermo(thermo);
@@ -510,34 +516,72 @@ void InterfaceKinetics::resizeSpecies()
     m_phi.resize(nPhases(), 0.0);
 }
 
+void InterfaceKinetics::buildNetwork()
+{
+    for (auto& phase : m_thermo) {
+        if (!phase->root()) {
+            throw CanteraError("InterfaceKinetics::buildNetwork",
+                "Phase '{}' is not attached to a Solution.", phase->name());
+        }
+    }
+    vector<shared_ptr<ReactorBase>> reservoirs;
+    for (size_t i = 1; i < nPhases(); i++) {
+        auto r = newReservoir(thermo(i).root(), false);
+        reservoirs.push_back(r);
+    }
+    auto rsurf = newReactorSurface(thermo(0).root(), reservoirs, false);
+    m_integrator = new ReactorNet(rsurf);
+}
+
 void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
         double maxStepSize, size_t maxSteps, size_t maxErrTestFails)
 {
-    if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k{this};
-        m_integrator = new ImplicitSurfChem(k);
+    // Stash the state of adjacent phases, and set their T and P to match the surface
+    vector<vector<double>> savedStates(nPhases());
+    for (size_t i = 1; i < nPhases(); i++) {
+        savedStates[i].resize(thermo(i).partialStateSize());
+        thermo(i).savePartialState(savedStates[i]);
+        thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
+
+    if (!m_integrator) {
+        buildNetwork();
+    }
+
     m_integrator->setTolerances(rtol, atol);
-    m_integrator->setMaxStepSize(maxStepSize);
+    m_integrator->setMaxTimeStep(maxStepSize);
     m_integrator->setMaxSteps(maxSteps);
     m_integrator->setMaxErrTestFails(maxErrTestFails);
-    m_integrator->integrate(0.0, tstep);
-    delete m_integrator;
-    m_integrator = 0;
+    m_integrator->setInitialTime(0.0);
+    m_integrator->advance(tstep);
+
+    // Restore adjacent phases to their original states
+    for (size_t i = 1; i < nPhases(); i++) {
+        thermo(i).restorePartialState(savedStates[i]);
+    }
 }
 
-void InterfaceKinetics::solvePseudoSteadyStateProblem(
-    int ifuncOverride, double timeScaleOverride)
+void InterfaceKinetics::solvePseudoSteadyStateProblem(int loglevel)
 {
-    // create our own solver object
-    if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k{this};
-        m_integrator = new ImplicitSurfChem(k);
-        m_integrator->initialize();
+    // Stash the state of adjacent phases, and set their T and P to match the surface
+    vector<vector<double>> savedStates(nPhases());
+    for (size_t i = 1; i < nPhases(); i++) {
+        savedStates[i].resize(thermo(i).partialStateSize());
+        thermo(i).savePartialState(savedStates[i]);
+        thermo(i).setState_TP(thermo(0).temperature(), thermo(0).pressure());
     }
-    m_integrator->setIOFlag(m_ioFlag);
-    // New direct method to go here
-    m_integrator->solvePseudoSteadyStateProblem(ifuncOverride, timeScaleOverride);
+
+    if (!m_integrator) {
+        buildNetwork();
+    }
+
+    m_integrator->setVerbose(loglevel != 0);
+    m_integrator->solveSteady(loglevel);
+
+    // Restore adjacent phases to their original states
+    for (size_t i = 1; i < nPhases(); i++) {
+        thermo(i).restorePartialState(savedStates[i]);
+    }
 }
 
 void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
@@ -587,8 +631,8 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     vector<double> netProdRates(m_kk, 0.0);
     double dotProduct = 0.0;
 
-    thermo(iphase).getCharges(charges.data());
-    getNetProductionRates(netProdRates.data());
+    thermo(iphase).getCharges(charges);
+    getNetProductionRates(netProdRates);
 
     for (size_t k = 0; k < thermo(iphase).nSpecies(); k++)
     {
@@ -604,7 +648,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
 
@@ -614,8 +658,8 @@ Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddCi");
     // reverse reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
-    applyEquilibriumConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
+    applyEquilibriumConstants(rop_rates);
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
@@ -625,12 +669,12 @@ Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddCi()
     assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector<double>& rop_rates = m_rbuf0;
-    getFwdRateConstants(rop_rates.data());
+    getFwdRateConstants(rop_rates);
     Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich,
         rop_rates);
 
     // reverse reaction rate coefficients
-    applyEquilibriumConstants(rop_rates.data());
+    applyEquilibriumConstants(rop_rates);
     return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
@@ -652,18 +696,18 @@ void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
 
 void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
 {
-    settings["skip-coverage-dependence"] = m_jac_skip_electrochemistry;
-    settings["skip-electrochemistry"] = m_jac_skip_coverage_dependence;
+    settings["skip-coverage-dependence"] = m_jac_skip_coverage_dependence;
+    settings["skip-electrochemistry"] = m_jac_skip_electrochemistry;
     settings["rtol-delta"] = m_jac_rtol_delta;
 }
 
 Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
-    StoichManagerN& stoich, const vector<double>& in)
+    StoichManagerN& stoich, span<const double> in)
 {
     vector<double>& outV = m_rbuf1;
     // derivatives handled by StoichManagerN
     copy(in.begin(), in.end(), outV.begin());
-    return stoich.derivatives(m_actConc.data(), outV.data());
+    return stoich.derivatives(m_actConc, outV);
 }
 
 void InterfaceKinetics::assertDerivativesValid(const string& name)
@@ -675,7 +719,7 @@ void InterfaceKinetics::assertDerivativesValid(const string& name)
     }
 }
 
-void InterfaceKinetics::applyEquilibriumConstants(double* rop)
+void InterfaceKinetics::applyEquilibriumConstants(span<double> rop)
 {
     // For reverse rates computed from thermochemistry, multiply the forward
     // rate coefficients by the reciprocals of the equilibrium constants

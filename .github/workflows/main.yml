@@ -36,37 +36,38 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
         os: ['ubuntu-24.04']
         architecture: ['x64']
         numpy: ['']
-        cython: ['!=3.1.2'] # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+        cython: ['']
         scons: ['']
         setuptools: ['']
+        save-wheel: [true]
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
-          os: 'ubuntu-22.04'
+          os: 'ubuntu-24.04'
           numpy: "'<2.0'"
-          cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+          cython: ''
           scons: '==4.8.1'
+          save-wheel: false
           # Keep some test cases with older Cython versions
-        - python-version: '3.10'
-          os: 'ubuntu-22.04'
-          cython: "==0.29.31" # minimum supported version
-          scons: '==4.0.1' # minimum supported version
-          setuptools: "==75.7.0" # latest version that leaves package name uppercase
-        - python-version: '3.11'
-          os: 'ubuntu-22.04'
+        - python-version: '3.12'
+          os: 'ubuntu-24.04'
           cython: "==3.0.8" # System version for Ubuntu 24.04
           scons: '==4.5.2' # System version for Ubuntu 24.04
+          setuptools: "==75.7.0" # latest version that leaves package name uppercase
+          save-wheel: false
         - python-version: '3.13'
-          os: 'ubuntu-22.04'
+          os: 'ubuntu-24.04'
           numpy: "'<2.2'"
-          cython: '!=3.1.2' # Specifier can be dropped after 3.1.3 or 3.2.0 is released
+          cython: ''
+          save-wheel: false
         - python-version: '3.14'
           os: 'ubuntu-24.04-arm'
           architecture: 'arm64'
+          save-wheel: false
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -120,8 +121,8 @@ jobs:
     - name: Run install command
       run: python3 `which scons` install prefix=tmp_install
     - name: Upload shared library
-      uses: actions/upload-artifact@v5
-      if: matrix.python-version == '3.11'
+      uses: actions/upload-artifact@v7
+      if: matrix.python-version == '3.14'
       with:
         path: build/lib/libcantera_shared.so
         name: libcantera_shared-${{ matrix.os }}.so
@@ -129,27 +130,28 @@ jobs:
     - name: Create archive for Doxygen output
       run: tar -czf doxygen.tar.gz Cantera.tag  doxygen/xml
       working-directory: build/doc
-      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
+      if: matrix.python-version == '3.14' && matrix.os == 'ubuntu-24.04'
     - name: Upload Doxygen output
       # Only need one copy from CI run
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         path: build/doc/doxygen.tar.gz
         name: doxygen-tree
         overwrite: true
         retention-days: 2
-      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-24.04'
+      if: matrix.python-version == '3.14' && matrix.os == 'ubuntu-24.04'
     - name: Save the wheel file to install Cantera
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         path: build/python/dist/cantera*.whl
         retention-days: 2
         name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
         if-no-files-found: error
+      if: matrix.save-wheel == true
 
   clang-compiler:
     name: LLVM/Clang with Python 3.13
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v6
@@ -166,15 +168,15 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libomp-dev libomp5 \
-          libopenblas-openmp-dev libhdf5-dev doxygen graphviz
+          libopenblas-openmp-dev libhdf5-dev doxygen graphviz libeigen3-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas pytest Jinja2
+      run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest Jinja2
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
-        CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        CXX=clang++-18 CC=clang-18 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j4 debug=n --debug=time logging=debug
         warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
@@ -201,15 +203,11 @@ jobs:
         python-version: ['3.12', '3.13']
         include:
           - macos-version: 'macos-14'
-            python-version: '3.10'
-            extra-build-args: cxx_flags='-std=c++20'
+            python-version: '3.12'
           - macos-version: 'macos-15'
-            python-version: '3.11'
+            python-version: '3.13'
           - macos-version: 'macos-15'
             python-version: '3.14'
-            extra-build-args: cxx_flags='-std=c++20'
-          # - macos-version: 'macos-15-intel'
-          #   python-version: '3.1x'  # sporadic failures: tracked in post-merge-tests
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -219,7 +217,7 @@ jobs:
         persist-credentials: false
     - name: Write dependencies to a file for caching
       run: |
-        echo "scons ruamel.yaml numpy cython!=3.1.2 pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
+        echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
@@ -247,7 +245,7 @@ jobs:
         export DYLD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Upload shared library
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       if: matrix.python-version == '3.12'
       with:
         path: build/lib/libcantera_shared.dylib
@@ -271,7 +269,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v6
       with:
-        python-version: '3.11'
+        python-version: '3.14'
         architecture: x64
     - name: Install Apt dependencies
       run: |
@@ -283,7 +281,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas scipy pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
         pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
         Jinja2
     - name: Setup .NET Core SDK
@@ -349,31 +347,31 @@ jobs:
         --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
         --xml coverage.xml --html-details htmlcoverage.html --txt
     - name: Archive C++ coverage results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: cxx-coverage-report
         path: htmlcoverage*
         retention-days: 5
     - name: Archive Python coverage results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: python-coverage-report
         path: build/python-coverage*
         retention-days: 5
     - name: Archive .NET coverage results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: dotnet-coverage-report
         path: interfaces/dotnet/coveragereport*
         retention-days: 5
     - name: Archive MATLAB coverage results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: matlab-coverage-report
         path: test/matlab/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab/matlabCoverage.xml
@@ -396,25 +394,25 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.10"
+          python-version: "3.14"
           architecture: x64
       - name: Install Apt dependencies
         run: |
           sudo apt update
           sudo apt install graphviz libhdf5-dev libfmt-dev libopenblas-openmp-dev
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
-          name: cantera-wheel-3.10-ubuntu-24.04
+          name: cantera-wheel-3.14-ubuntu-24.04
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: libcantera_shared-ubuntu-24.04.so
           path: build/lib
       - name: Set up environment
         run: |
-          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.4
           echo "LD_LIBRARY_PATH=build/lib" >> $GITHUB_ENV
           mkdir -p type_check
       - name: Upgrade pip
@@ -457,7 +455,7 @@ jobs:
             cantera >> type_check/stubtest_detailed.txt
       - name: Archive Python API type checking results
         if: failure() || success()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: python-type-check-reports
           path: type_check/*
@@ -492,7 +490,7 @@ jobs:
         with:
           environment-name: test-env
           create-args: >-
-            python=3.11 doxygen=1.9.7 scons pip scikits.odes
+            python=3.14 doxygen=1.9.7 scons pip scikits.odes
           post-cleanup: none
       - name: Install Apt dependencies
         run: |
@@ -505,7 +503,7 @@ jobs:
         # Pinned sphinx and pydata-sphinx-theme versions are for the Cantera 3.1.x
         # series. These versions can be relaxed on main branch afterwards.
         run: |
-          pip install ruamel.yaml scons numpy cython!=3.1.2 'sphinx>=7.3.7,<7.4' sphinx-gallery \
+          pip install ruamel.yaml scons numpy cython 'sphinx>=7.3.7,<7.4' sphinx-gallery \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             'pydata-sphinx-theme>=0.15.3,<0.16' sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
@@ -531,7 +529,7 @@ jobs:
           tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
       - name: Store a copy of docs output
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           path: build/doc/docs.tar.gz
           name: docs
@@ -564,7 +562,7 @@ jobs:
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
         if: steps.deploy-conf.outputs.match == 'true'
-        uses: shimataro/ssh-key-action@d4fffb50872869abe2d9a9098a6d9c5aa7d16be4 # v2.7.0
+        uses: shimataro/ssh-key-action@6b84f2e793b32fa0b03a379cadadec75cc539391 # v2.8.0
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
@@ -604,6 +602,40 @@ jobs:
             --delete --delete-excluded --filter='P .htaccess' \
             "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
+  pyodide-wheel:
+    name: Build Pyodide wheel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        name: Checkout the repository
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
+      - name: Build Pyodide wheel
+        run: |
+          pixi run -e pyodide scons pyodide-wheel
+      - name: Create Pyodide venv
+        run: |
+          pixi run -e pyodide pyodide venv .pyodide-venv
+      - name: Install wheel and dependencies into Pyodide venv
+        run: |
+          WHEEL=$(ls build/pyodide_dist/cantera-*.whl)
+          pixi run -e pyodide .pyodide-venv/bin/pip install pytest graphviz pandas \
+            pint "$WHEEL"
+      - name: Upload Pyodide wheel artifact
+        uses: actions/upload-artifact@v6
+        with:
+          path: build/pyodide_dist/cantera-*.whl
+          name: cantera-wheel-pyodide
+          if-no-files-found: error
+          retention-days: 14
+      - name: Run Python tests
+        run: |
+          pixi run -e pyodide .pyodide-venv/bin/python -m pytest -raP -v --durations=50 test/python
+
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}, NumPy ${{ matrix.numpy || 'latest' }}
     runs-on: ${{ matrix.os }}
@@ -613,26 +645,10 @@ jobs:
       matrix:
         # Keep some test cases with NumPy 1.x until we explicitly drop support
         include:
-        - os: "ubuntu-22.04"
-          python-version: "3.10"
-          numpy: ""
-          libhdf5: "libhdf5-103"
         - os: "ubuntu-24.04"
-          python-version: "3.10"
-          numpy: "==1.21.6"
-          libhdf5: "libhdf5-103-1t64"
-        - os: "ubuntu-22.04"
-          python-version: "3.11"
-          numpy: "==1.23.5"
-          libhdf5: "libhdf5-103"
-        - os: "ubuntu-24.04"
-          python-version: "3.11"
-          numpy: ""
-          libhdf5: "libhdf5-103-1t64"
-        - os: "ubuntu-22.04"
           python-version: "3.12"
           numpy: "==1.26.4"
-          libhdf5: "libhdf5-103"
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-24.04"
           python-version: "3.12"
           numpy: ""
@@ -641,10 +657,10 @@ jobs:
           python-version: "3.14"
           numpy: ""
           libhdf5: "libhdf5-103-1t64"
-        - os: "ubuntu-22.04"
+        - os: "ubuntu-24.04"
           python-version: "3.13"
           numpy: ""
-          libhdf5: "libhdf5-103"
+          libhdf5: "libhdf5-103-1t64"
       fail-fast: false
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
@@ -663,12 +679,12 @@ jobs:
           sudo apt update
           sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev libopenblas0-openmp
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: libcantera_shared-${{ matrix.os }}.so
           path: build/lib
@@ -688,7 +704,7 @@ jobs:
         # Skip examples for Python releases where pandas/pyarrow or CoolProp are not available
         run: |
           echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
-          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.4
           rm samples/python/reactors/1D_packed_bed.py
           if [ -e SKIP_PANDAS ]; then
             rm samples/python/kinetics/diamond_cvd.py
@@ -708,14 +724,14 @@ jobs:
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
-          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
+          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 -u "$n" >> results.txt || exit 1; done' sh {} +
         env:
           # The pyparsing ignore setting is due to a new warning introduced in Matplotlib==3.6.0
           # Ignore NasaPoly2 warnings from n-hexane-NUIG-2015.yaml
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:NasaPoly2:UserWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           path: results.txt
           retention-days: 2
@@ -736,15 +752,14 @@ jobs:
     strategy:
       matrix:
         include:
-        - sundials-ver: 5.8
-          fmt-ver: 9.1
         - sundials-ver: 6.4.1
-          fmt-ver: 10
+          fmt-ver: 9.1
         - sundials-ver: 6.6
           fmt-ver: 10
         - sundials-ver: 7.2
           fmt-ver: 11
-          extra-build-args: cxx_flags='-std=c++20'
+        - sundials-ver: 7.5
+          fmt-ver: 12
       fail-fast: false
     steps:
       - uses: actions/checkout@v6
@@ -760,7 +775,7 @@ jobs:
           # use boost-cpp rather than boost from conda-forge
           create-args: >-
             python=${{ env.PYTHON_VERSION }} sundials=${{ matrix.sundials-ver }} scons
-            numpy ruamel.yaml cython!=3.1.2 boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
+            numpy ruamel.yaml cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
             pandas libgomp openblas pytest pytest-xdist highfive python-graphviz
             setuptools Jinja2 doxygen
           post-cleanup: none
@@ -803,17 +818,12 @@ jobs:
     strategy:
       matrix:
         include:
-        - python-version: '3.13'
-          fmt-ver: '10'
-        - python-version: '3.10'
-          fmt-ver: '8.1'
-        - python-version: '3.11'
-          fmt-ver: '9.1'
         - python-version: '3.12'
-          fmt-ver: '10.0'
+          fmt-ver: '9.1'
         - python-version: '3.13'
           fmt-ver: '11.0'
-          extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
+        - python-version: '3.14'
+          fmt-ver: '12.0'
       fail-fast: false
     steps:
     - uses: actions/checkout@v6
@@ -827,9 +837,8 @@ jobs:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
         # use boost-cpp rather than boost from conda-forge
-        # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
         create-args: >-
-          python=${{ matrix.python-version }} scons numpy cython!=3.1.2 ruamel.yaml boost-cpp
+          python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
           fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen openblas
         post-cleanup: none
@@ -870,8 +879,8 @@ jobs:
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
     - name: Upload shared library
-      uses: actions/upload-artifact@v5
-      if: matrix.python-version == '3.11'
+      uses: actions/upload-artifact@v7
+      if: matrix.python-version == '3.14'
       with:
         path: build/lib/cantera_shared.dll
         name: cantera_shared-windows-2022.dll
@@ -886,7 +895,7 @@ jobs:
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.12", "3.13", "3.14"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v6
@@ -901,11 +910,14 @@ jobs:
           architecture: x64
           check-latest: true
       - name: Install Python dependencies
-        run: |
+        run:
           python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython!=3.1.2 pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures typing_extensions Jinja2
+
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython
+            pandas graphviz pytest pytest-xdist typing_extensions Jinja2
+            pytest-github-actions-annotate-failures
       - name: Restore Boost cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
@@ -937,8 +949,8 @@ jobs:
       - name: Run Python tests
         run: python -m pytest -raP -v -n auto --durations=50 test/python
       - name: Upload shared library
-        uses: actions/upload-artifact@v5
-        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v7
+        if: matrix.python-version == '3.14'
         with:
           path: build/lib/cantera_shared.dll
           name: cantera_shared-windows-2025.dll
@@ -981,7 +993,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython!=3.1.2 pandas pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2
     - name: Setup Intel oneAPI environment
       run: |
@@ -1000,7 +1012,7 @@ jobs:
         python3 -m pytest -raP -v -n auto --durations=50 test/python
 
   windows-mingw:
-    name: mingw on Windows, Python 3.10
+    name: mingw on Windows, Python 3.14
     runs-on: windows-2022
     timeout-minutes: 120 # MinGW is slooooow
     env:
@@ -1015,20 +1027,20 @@ jobs:
     - name: Set Up Python
       uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.14"
         architecture: x64
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip setuptools wheel
-        python -m pip install scons pypiwin32 numpy ruamel.yaml cython!=3.1.2 h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
     - name: Restore Boost cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache-boost
       with:
         path: ${{env.BOOST_ROOT}}
         key: boost-187-win
     - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@84c781b557efd538dec66bde06988d81cd3138cf # v2.2.0
+      uses: egor-tensin/setup-mingw@41b837e47d7f85214629d255b9c4bc3fcbe9fd63 # v3.0
       with:
         platform: x64
         static: false
@@ -1054,7 +1066,7 @@ jobs:
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
     - name: Upload Wheel
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         path: build\python\dist\cantera*.whl
         name: cantera-win_amd64.whl
@@ -1067,7 +1079,7 @@ jobs:
       run: python -m pytest -raP -v -n auto --durations=50 test/python
     - name: Upload Test binaries
       if: always()
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         path: |
           build/test/**/*.exe
@@ -1079,7 +1091,7 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, windows-2025, macos-14]
+        os: [ubuntu-24.04, windows-2022, windows-2025, macos-14]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
@@ -1101,7 +1113,7 @@ jobs:
         # fmt needs to match the version of the windows-2022 runner selected to upload
         # the cantera_shared.dll artifact
         create-args: >-
-          yaml-cpp openblas highfive fmt=9.1
+          yaml-cpp openblas highfive fmt=12.0
         init-shell: bash powershell
         post-cleanup: none
       if: matrix.os == 'windows-2022'
@@ -1126,25 +1138,25 @@ jobs:
       with:
         dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: libcantera_shared-${{ matrix.os }}.so
         path: build/lib
       if: runner.os == 'Linux'
     - name: Download the Cantera shared library (.dylib)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: libcantera_shared-${{ matrix.os }}.dylib
         path: build/lib
       if: runner.os == 'macOS'
     - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: cantera_shared-${{ matrix.os }}.dll
         path: build/lib
       if: runner.os == 'Windows'
     - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: doxygen-tree
         path: build/doc
@@ -1227,7 +1239,7 @@ jobs:
         python3 -m pip install --upgrade pip setuptools wheel build
         python3 -m pip install ruamel.yaml Jinja2
     - name: Download the Cantera shared library (Linux)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: libcantera_shared-${{ matrix.os }}.so
         path: build/lib
@@ -1237,11 +1249,11 @@ jobs:
       # MATLAB requires a specific library name: libcantera_shared.so.X
       # Recreating all symlinks to replicate status after build process
       run: |
-        ln -s libcantera_shared.so libcantera_shared.so.3.3.0
-        ln -s libcantera_shared.so.3.3.0 libcantera_shared.so.3
+        ln -s libcantera_shared.so libcantera_shared.so.4.0.0
+        ln -s libcantera_shared.so.4.0.0 libcantera_shared.so.4
       if: runner.os == 'Linux'
     - name: Download the Cantera shared library (macOS)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: libcantera_shared-${{ matrix.os }}.dylib
         path: build/lib
@@ -1251,17 +1263,17 @@ jobs:
       # MATLAB requires a specific library name: libcantera_shared.X.Y.Z.dylib
       # Recreating all symlinks to replicate status after build process
       run: |
-        ln -s libcantera_shared.dylib libcantera_shared.3.3.0.dylib
-        ln -s libcantera_shared.3.3.0.dylib libcantera_shared.3.dylib
+        ln -s libcantera_shared.dylib libcantera_shared.4.0.0.dylib
+        ln -s libcantera_shared.4.0.0.dylib libcantera_shared.4.dylib
       if: runner.os == 'macOS'
     - name: Download the Cantera shared library (Windows)
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: cantera_shared-${{ matrix.os }}.dll
         path: build/lib
       if: runner.os == 'Windows'
     - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: doxygen-tree
         path: build/doc

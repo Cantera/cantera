@@ -212,7 +212,8 @@ extern "C" {
     status_t phase_getmolefractions_(const integer* n, double* x)
     {
         try {
-            _fph(n)->getMoleFractions(x);
+            auto* phase = _fph(n);
+            phase->getMoleFractions(span<double>(x, phase->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -233,7 +234,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            p->getMassFractions(y);
+            p->getMassFractions(span<double>(y, p->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -254,9 +255,9 @@ extern "C" {
         try {
             ThermoPhase* p = _fph(n);
             if (*norm) {
-                p->setMoleFractions(x);
+                p->setMoleFractions(span<const double>(x, p->nSpecies()));
             } else {
-                p->setMoleFractions_NoNorm(x);
+                p->setMoleFractions_NoNorm(span<const double>(x, p->nSpecies()));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -280,9 +281,9 @@ extern "C" {
         try {
             ThermoPhase* p = _fph(n);
             if (*norm) {
-                p->setMassFractions(y);
+                p->setMassFractions(span<const double>(y, p->nSpecies()));
             } else {
-                p->setMassFractions_NoNorm(y);
+                p->setMassFractions_NoNorm(span<const double>(y, p->nSpecies()));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -305,7 +306,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            const vector<double>& wt = p->atomicWeights();
+            auto wt = p->atomicWeights();
             copy(wt.begin(), wt.end(), atw);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -317,7 +318,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            const vector<double>& wt = p->molecularWeights();
+            auto wt = p->molecularWeights();
             copy(wt.begin(), wt.end(), mw);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -507,7 +508,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getChemPotentials(murt);
+            thrm->getChemPotentials(span<double>(murt, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -605,7 +606,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getEnthalpy_RT(h_rt);
+            thrm->getEnthalpy_RT(span<double>(h_rt, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -615,7 +616,7 @@ extern "C" {
     status_t th_getgibbs_rt_(const integer* n, double* g_rt) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getGibbs_RT(g_rt);
+        thrm->getGibbs_RT(span<double>(g_rt, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }
@@ -626,7 +627,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getEntropy_R(s_r);
+            thrm->getEntropy_R(span<double>(s_r, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -637,7 +638,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getCp_R(cp_r);
+            thrm->getCp_R(span<double>(cp_r, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -648,7 +649,7 @@ extern "C" {
     {
         try {
             ThermoPhase* thrm = _fth(n);
-            thrm->getPartialMolarIntEnergies(ie);
+            thrm->getPartialMolarIntEnergies(span<double>(ie, thrm->nSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -658,7 +659,7 @@ extern "C" {
     status_t th_getpartialmolarenthalpies_(const integer* n, double* hbar) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getPartialMolarEnthalpies(hbar);
+        thrm->getPartialMolarEnthalpies(span<double>(hbar, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }
@@ -668,7 +669,7 @@ extern "C" {
     status_t th_getpartialmolarcp_(const integer* n, double* cpbar) {
       try {
         ThermoPhase* thrm = _fth(n);
-        thrm->getPartialMolarCp(cpbar);
+        thrm->getPartialMolarCp(span<double>(cpbar, thrm->nSpecies()));
       } catch(...) {
         return handleAllExceptions(-1, ERR);
       }
@@ -808,7 +809,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getFwdRatesOfProgress(fwdROP);
+            k->getFwdRatesOfProgress(span<double>(fwdROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -819,7 +820,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getRevRatesOfProgress(revROP);
+            k->getRevRatesOfProgress(span<double>(revROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -839,7 +840,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getNetRatesOfProgress(netROP);
+            k->getNetRatesOfProgress(span<double>(netROP, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -850,7 +851,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getCreationRates(cdot);
+            k->getCreationRates(span<double>(cdot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -861,7 +862,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getDestructionRates(ddot);
+            k->getDestructionRates(span<double>(ddot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -872,7 +873,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getNetProductionRates(wdot);
+            k->getNetProductionRates(span<double>(wdot, k->nTotalSpecies()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -892,7 +893,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            k->getEquilibriumConstants(kc);
+            k->getEquilibriumConstants(span<double>(kc, k->nReactions()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -997,7 +998,8 @@ extern "C" {
     status_t trans_getthermaldiffcoeffs_(const integer* n, double* dt)
     {
         try {
-            _ftrans(n)->getThermalDiffCoeffs(dt);
+            auto tr = _ftrans(n);
+            tr->getThermalDiffCoeffs(span<double>(dt, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1007,7 +1009,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffs_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffs(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffs(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1017,7 +1020,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffsmass_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffsMass(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffsMass(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1027,7 +1031,8 @@ extern "C" {
     status_t trans_getmixdiffcoeffsmole_(const integer* n, double* d)
     {
         try {
-            _ftrans(n)->getMixDiffCoeffsMole(d);
+            auto tr = _ftrans(n);
+            tr->getMixDiffCoeffsMole(span<double>(d, tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1037,7 +1042,8 @@ extern "C" {
     status_t trans_getbindiffcoeffs_(const integer* n, integer* ld, double* d)
     {
         try {
-            _ftrans(n)->getBinaryDiffCoeffs(*ld,d);
+            auto tr = _ftrans(n);
+            tr->getBinaryDiffCoeffs(*ld, span<double>(d, *ld * tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1047,7 +1053,8 @@ extern "C" {
     status_t trans_getmultidiffcoeffs_(const integer* n, integer* ld, double* d)
     {
         try {
-            _ftrans(n)->getMultiDiffCoeffs(*ld,d);
+            auto tr = _ftrans(n);
+            tr->getMultiDiffCoeffs(*ld, span<double>(d, *ld * tr->thermo().nSpecies()));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

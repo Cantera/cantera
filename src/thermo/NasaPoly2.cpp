@@ -10,8 +10,8 @@
 
 namespace Cantera {
 
-void NasaPoly2::setParameters(double Tmid, const vector<double>& low,
-                              const vector<double>& high) {
+void NasaPoly2::setParameters(double Tmid, span<const double> low,
+                              span<const double> high) {
     m_midT = Tmid;
     mnp_low.setMaxTemp(Tmid);
     mnp_high.setMinTemp(Tmid);
@@ -38,8 +38,8 @@ void NasaPoly2::validate(const string& name)
 
     double cp_low, h_low, s_low;
     double cp_high, h_high, s_high;
-    mnp_low.updatePropertiesTemp(m_midT, &cp_low, &h_low, &s_low);
-    mnp_high.updatePropertiesTemp(m_midT, &cp_high, &h_high, &s_high);
+    mnp_low.updatePropertiesTemp(m_midT, cp_low, h_low, s_low);
+    mnp_high.updatePropertiesTemp(m_midT, cp_high, h_high, s_high);
 
     double delta = cp_low - cp_high;
     if (fabs(delta/(fabs(cp_low)+1.0E-4)) > 0.01) {

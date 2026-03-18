@@ -30,7 +30,6 @@ namespace Cantera
 {
 
 class vcs_VolPhase;
-class VCS_SPECIES_THERMO;
 class VCS_COUNTERS;
 class MultiPhase;
 
@@ -52,31 +51,11 @@ public:
 
     ~VCS_SOLVE();
 
-    //! Solve an equilibrium problem
-    /*!
-     * This is the main interface routine to the equilibrium solver
-     *
-     * @param ipr Printing of results
-     *     ipr = 1 -> Print problem statement and final results to
-     *                standard output
-     *           0 -> don't report on anything
-     * @param ip1 Printing of intermediate results
-     *     IP1 = 1 -> Print intermediate results.
-     * @param maxit  Maximum number of iterations for the algorithm
-     * @return nonzero value: failure to solve the problem at hand. zero :
-     *       success
-     */
-    int vcs(int ipr, int ip1, int maxit);
-
     //! Main routine that solves for equilibrium at constant T and P using a
     //! variant of the VCS method
     /*!
-     * This is the main routine that solves for equilibrium at constant T and P
-     * using a variant of the VCS method. Nonideal phases can be accommodated as
-     * well.
-     *
-     * Any number of single-species phases and multi-species phases can be
-     * handled by the present version.
+     * Any number of single-species phases and multi-species phases, including non-ideal
+     * phases, can be handled by the present version.
      *
      * @param print_lvl     1 -> Print results to standard output;
      *                      0 -> don't report on anything
@@ -92,7 +71,7 @@ public:
      *     * -1 = Maximum number of iterations is exceeded. Convergence was
      *       not found.
      */
-    int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
+    int solve_TP(int print_lvl, int printDetails, int maxit);
 
     /**
      * We make decisions on the initial mole number, and major-minor status
@@ -126,20 +105,8 @@ public:
      *
      * @param[in] doJustComponents  If true, the #m_stoichCoeffRxnMatrix and
      *                              #m_deltaMolNumPhase are not calculated.
-     * @param[in] aw     Vector of mole fractions which will be used to
-     *                   construct an optimal basis from.
-     * @param[in] sa     Gram-Schmidt orthog work space (nc in length) sa[j]
-     * @param[in] ss     Gram-Schmidt orthog work space (nc in length) ss[j]
-     * @param[in] sm     QR matrix work space (nc*ne in length)         sm[i+j*ne]
      * @param[in] test   This is a small negative number dependent upon whether
      *                   an estimate is supplied or not.
-     * @param[out] usedZeroedSpecies  If true, then a species with a zero
-     *                                concentration was used as a component.
-     *                                The problem may be converged. Or, the
-     *                                problem may have a range space error and
-     *                                may not have a proper solution.
-     * @returns VCS_SUCCESS if everything went ok. Returns
-     *     VCS_FAILED_CONVERGENCE if there is a problem.
      *
      * ### Internal Variables calculated by this routine:
      *
@@ -156,21 +123,7 @@ public:
      * - `m_phaseParticipation(iphase,irxn)`: This is 1 if the phase, iphase,
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
-    int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
-                   double ss[], double test, bool* const usedZeroedSpecies);
-
-    //!  Choose a species to test for the next component
-    /*!
-     * We make the choice based on testing (molNum[i] * spSize[i]) for its
-     * maximum value. Preference for single species phases is also made.
-     *
-     * @param molNum  Mole number vector
-     * @param j       index into molNum[] that indicates where the search will
-     *     start from Previous successful components are swapped into the front
-     *     of molNum[].
-     * @param n       Length of molNum[]
-     */
-    size_t vcs_basisOptMax(const double* const molNum, const size_t j, const size_t n);
+    void vcs_basopt(const bool doJustComponents, double test);
 
     //! Evaluate the species category for the indicated species
     /*!
@@ -185,9 +138,6 @@ public:
     /*!
      *  - #VCS_SPECIES_MAJOR: Major species
      *  - #VCS_SPECIES_MINOR: Minor species
-     *  - #VCS_SPECIES_SMALLMS: The species lies in a multicomponent phase
-     *    that exists. Its concentration is currently very low, necessitating
-     *    a different method of calculation.
      *  - #VCS_SPECIES_ZEROEDMS: The species lies in a multicomponent phase
      *    which currently doesn't exist. Its concentration is currently zero.
      *  - #VCS_SPECIES_ZEROEDSS: Species lies in a single-species phase which
@@ -330,12 +280,10 @@ public:
 
     //! Decision as to whether a phase pops back into existence
     /*!
-     * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
-     *         that will be popped this step.
      * @returns the phase id of the phase that pops back into existence. Returns
      *         -1 if there are no phases
      */
-    size_t vcs_popPhaseID(vector<size_t> &phasePopPhaseIDs);
+    size_t vcs_popPhaseID();
 
     //! Calculates the deltas of the reactions due to phases popping
     //! into existence
@@ -417,8 +365,6 @@ public:
     void vcs_deltag(const int L, const bool doDeleted, const int vcsState,
                     const bool alterZeroedPhases = true);
 
-    void vcs_printDeltaG(const int stateCalc);
-
     //!  Swaps the indices for all of the global data for two species, k1
     //!  and k2.
     /*!
@@ -440,33 +386,6 @@ public:
      */
     double vcs_phaseStabilityTest(const size_t iph);
 
-    //! Solve an equilibrium problem at a particular fixed temperature
-    //! and pressure
-    /*!
-     * The actual problem statement is assumed to be in the structure already.
-     * This is a wrapper around the solve_TP() function. In this wrapper, we
-     * calculate the standard state Gibbs free energies of the species
-     * and we decide whether to we need to use the initial guess algorithm.
-     *
-     * @param ipr = 1 -> Print results to standard output;
-     *              0 -> don't report on anything
-     * @param ip1 = 1 -> Print intermediate results;
-     *              0 -> Dont print any intermediate results
-     * @param maxit  Maximum number of iterations for the algorithm
-     * @param T    Value of the Temperature (Kelvin)
-     * @param pres Value of the Pressure
-     * @returns an integer representing the success of the algorithm
-     * * 0 = Equilibrium Achieved
-     * * 1 = Range space error encountered. The element abundance criteria are
-     *   only partially satisfied. Specifically, the first NC= (number of
-     *   components) conditions are satisfied. However, the full NE (number of
-     *   elements) conditions are not satisfied. The equilibrium condition is
-     *   returned.
-     * * -1 = Maximum number of iterations is exceeded. Convergence was not
-     *   found.
-     */
-    int vcs_TP(int ipr, int ip1, int maxit, double T, double pres);
-
     /**
      * Evaluate the standard state free energies at the current temperature
      * and pressure. Ideal gas pressure contribution is added in here.
@@ -478,31 +397,6 @@ public:
      * @param  pres  Pressure (Pascal)
      */
     int vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres);
-
-    //! Initialize the chemical potential of single species phases
-    /*!
-     * For single species phases, initialize the chemical potential with the
-     * value of the standard state chemical potential. This value doesn't
-     * change during the calculation
-     */
-    void vcs_fePrep_TP();
-
-    //! Calculation of the total volume and the partial molar volumes
-    /*!
-     * This function calculates the partial molar volume for all species, kspec,
-     * in the thermo problem at the temperature TKelvin and pressure, Pres, pres
-     * is in atm. And, it calculates the total volume of the combined system.
-     *
-     * @param[in] tkelvin   Temperature in kelvin()
-     * @param[in] pres      Pressure in Pascal
-     * @param[in] w         w[] is the vector containing the current mole
-     *                      numbers in units of kmol.
-     * @param[out] volPM[]  For species in all phase, the entries are the
-     *                      partial molar volumes units of M**3 / kmol.
-     * @returns the total volume of the entire system in units of m**3.
-     */
-    double vcs_VolTotal(const double tkelvin, const double pres,
-                        const double w[], double volPM[]);
 
     //! This routine is mostly concerned with changing the private data to be
     //! consistent with what's needed for solution. It is called one time for
@@ -531,13 +425,8 @@ public:
      *       abundances are zero, the algorithm will fail)
      *
      * @param printLvl Print level of the routine
-     * @return
-     *     VCS_SUCCESS = everything went OK;
-     *     VCS_PUB_BAD = There is an irreconcilable difference in the
-     *                   public data structure from when the problem was
-     *                   initially set up.
      */
-    int vcs_prep(int printLvl);
+    void vcs_prep(int printLvl);
 
     //! Rearrange the constraint equations represented by the Formula
     //! Matrix so that the operational ones are in the front
@@ -563,15 +452,8 @@ public:
      * constraints which span the range space of the Component Formula matrix,
      * and assigns them as the first nc components in the formula matrix. This
      * guarantees that vcs_basopt[] has a nonsingular matrix to invert.
-     *
-     * Other Variables
-     *  @param aw   Mole fraction work space        (ne in length)
-     *  @param sa   Gram-Schmidt orthog work space (ne in length)
-     *  @param sm   QR matrix work space (ne*ne in length)
-     *  @param ss   Gram-Schmidt orthog work space (ne in length)
      */
-    int vcs_elem_rearrange(double* const aw, double* const sa,
-                           double* const sm, double* const ss);
+    void vcs_elem_rearrange();
 
     //! Swaps the indices for all of the global data for two elements, ipos
     //! and jpos.
@@ -609,7 +491,7 @@ public:
      *
      * NOTE: This routine needs to be regulated.
      */
-    void vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS);
+    void vcs_CalcLnActCoeffJac(span<const double> moleSpeciesVCS);
 
     //! Print out a report on the state of the equilibrium problem to
     //! standard output.
@@ -619,7 +501,7 @@ public:
      *    -   1 range space error
      *    -  -1 not converged
      */
-    int vcs_report(int iconv);
+    void vcs_report(int iconv);
 
     //! Computes the current elemental abundances vector
     /*!
@@ -651,13 +533,6 @@ public:
      */
     bool vcs_elabcheck(int ibound);
 
-    /**
-     * Computes the elemental abundances vector for a single phase,
-     * elemAbundPhase[], and returns it through the argument list. The mole
-     * numbers of species are taken from the current value in
-     * m_molNumSpecies_old[].
-     */
-    void vcs_elabPhase(size_t iphase, double* const elemAbundPhase);
 
     /**
      * This subroutine corrects for element abundances. At the end of the
@@ -691,17 +566,10 @@ public:
      *
      *  Still need to check out when we do loops over nc vs. ne.
      */
-    int vcs_elcorr(double aa[], double x[]);
+    int vcs_elcorr(span<double> aa, span<double> x);
 
-    //! Create an initial estimate of the solution to the thermodynamic
-    //! equilibrium problem.
-    /*!
-     * @return  value indicates success:
-     *   -    0: successful initial guess
-     *   -   -1: Unsuccessful initial guess; the elemental abundances aren't
-     *           satisfied.
-     */
-    int vcs_inest_TP();
+    //! Create an initial estimate of the solution to the equilibrium problem.
+    void vcs_inest();
 
     //! Estimate the initial mole numbers by constrained linear programming
     /*!
@@ -717,27 +585,10 @@ public:
 
     //! Calculate the total dimensionless Gibbs free energy
     /*!
-     * Inert species are handled as if they had a standard free energy of
-     * zero. Note, for this algorithm this function should be monotonically
-     * decreasing.
+     * Note, for this algorithm this function should be monotonically decreasing.
      */
-    double vcs_Total_Gibbs(double* w, double* fe, double* tPhMoles);
-
-    //! Calculate the total dimensionless Gibbs free energy of a single phase
-    /*!
-     * Inert species are handled as if they had a standard free energy of
-     * zero and if they obeyed ideal solution/gas theory.
-     *
-     * @param iphase   ID of the phase
-     * @param w        Species mole number vector for all species
-     * @param fe       vector of partial molar free energies of all of the
-     *                 species
-     */
-    double vcs_GibbsPhase(size_t iphase, const double* const w,
-                          const double* const fe);
-
-    //! Transfer the results of the equilibrium calculation back from VCS_SOLVE
-    void vcs_prob_update();
+    double vcs_Total_Gibbs(span<const double> w, span<const double> fe,
+                           span<const double> tPhMoles);
 
     //! Fully specify the problem to be solved
     void vcs_prob_specifyFully();
@@ -794,14 +645,13 @@ private:
      * Make sure to conserve elements and keep track of the total kmoles in
      * all phases.
      *
-     * @param kspec The species index
-     * @param delta_ptr   pointer to the delta for the species. This may
-     *                     change during the calculation
+     * @param kspec  The species index
+     * @param delta  The delta for the species. This may change during the calculation.
      * @return
      *     1: succeeded without change of dx
      *     0: Had to adjust dx, perhaps to zero, in order to do the delta.
      */
-    int delta_species(const size_t kspec, double* const delta_ptr);
+    int delta_species(const size_t kspec, double& delta);
 
     //! Provide an estimate for the deleted species in phases that are not
     //! zeroed out
@@ -866,10 +716,8 @@ private:
      * @param[out] do_delete:  BOOLEAN which if true on return, then we
      *                         branch to the section that deletes a species
      *                         from the current set of active species.
-     * @param[out] ANOTE  Buffer used for debug annotations
      */
-    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
-                              char* ANOTE=0) const;
+    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool& do_delete) const;
 
     //! This routine optimizes the minimization of the total Gibbs free energy
     //! by making sure the slope of the following functional stays negative:
@@ -899,38 +747,17 @@ private:
      *
      * @param dg Vector of local delta G's.
      */
-    double l2normdg(double dg[]) const;
+    double l2normdg(span<const double> dg) const;
 
-    void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
-
-    //! Estimate equilibrium compositions
-    /*!
-     * Algorithm covered in a section of Smith and Missen's Book @cite smith1982.
-     *
-     * Linear programming module is based on using dbolm.
-     *
-     * @param aw   aw[i[  Mole fraction work space        (ne in length)
-     * @param sa   sa[j] = Gram-Schmidt orthog work space (ne in length)
-     * @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
-     * @param ss   ss[j] = Gram-Schmidt orthog work space (ne in length)
-     * @param test This is a small negative number.
-     */
-    void vcs_inest(double* const aw, double* const sa, double* const sm,
-                   double* const ss, double test);
+    void checkDelta1(span<const double> ds, span<const double> delTPhMoles,
+                     size_t kspec);
 
     //! Calculate the status of single species phases.
     void vcs_SSPhase();
 
-    //! Delete memory that isn't just resizable STL containers
-    /*!
-     * This gets called by the destructor or by InitSizes().
-     */
-    void vcs_delete_memory();
-
     //! Initialize the internal counters
     /*!
-     * Initialize the internal counters containing the subroutine call
-     * values and times spent in the subroutines.
+     * Initialize the internal counters tracking subroutine calls.
      *
      *  ifunc = 0     Initialize only those counters appropriate for the top of
      *                vcs_solve_TP().
@@ -938,16 +765,10 @@ private:
      */
     void vcs_counters_init(int ifunc);
 
-    //! Create a report on the plog file containing timing and its information
-    /*!
-     * @param timing_print_lvl If 0, just report the iteration count. If larger
-     *     than zero, report the timing information
-     */
-    void vcs_TCounters_report(int timing_print_lvl = 1);
+    //! Create a report on the plog file containing iteration counters
+    void vcs_TCounters_report();
 
     void vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc);
-
-    void vcs_setFlagsVolPhase(const size_t iph, const bool upToDate, const int stateCalc);
 
     //! Update all underlying vcs_VolPhase objects
     /*!
@@ -960,10 +781,10 @@ private:
     void vcs_updateMolNumVolPhases(const int stateCalc);
 
     // Helper functions used internally by vcs_solve_TP
-    int solve_tp_component_calc(bool& allMinorZeroedSpecies);
+    void solve_tp_component_calc(bool& allMinorZeroedSpecies);
     void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
                         bool& allMinorZeroedSpecies, int& forceComponentCalc,
-                        int& stage, bool printDetails, char* ANOTE);
+                        int& stage, bool printDetails);
     void solve_tp_equilib_check(bool& allMinorZeroedSpecies, bool& uptodate_minors,
                                 bool& giveUpOnElemAbund, int& solveFail,
                                 size_t& iti, size_t& it1, int maxit,
@@ -973,11 +794,10 @@ private:
                                    int& finalElemAbundAttempts,
                                    int& rangeErrorFound);
 
-    // data used by vcs_solve_TP and it's helper functions
-    vector<double> m_sm;
-    vector<double> m_ss;
-    vector<double> m_sa;
-    vector<double> m_aw;
+    vector<double> m_sm; //!< QR matrix work space used in vcs_basopt()
+    vector<double> m_ss; //!< Gram-Schmidt work space used in vcs_basopt()
+    vector<double> m_sa; //!< Gram-Schmidt work space used in vcs_basopt()
+    vector<double> m_aw; //!< work array of mole fractions used in vcs_basopt()
     vector<double> m_wx;
 
 public:
@@ -996,21 +816,6 @@ public:
     void prob_report(int print_lvl);
 
     //! Add elements to the local element list
-    /*!
-     * This routine sorts through the elements defined in the vcs_VolPhase
-     * object. It then adds the new elements to the VCS_SOLVE object, and creates
-     * a global map, which is stored in the vcs_VolPhase object. Id and matching
-     * of elements is done strictly via the element name, with case not
-     * mattering.
-     *
-     * The routine also fills in the position of the element in the vcs_VolPhase
-     * object's ElGlobalIndex field.
-     *
-     * @param volPhase  Object containing the phase to be added. The elements in
-     *     this phase are parsed for addition to the global element list
-     */
-    void addPhaseElements(vcs_VolPhase* volPhase);
-
     //! This routines adds entries for the formula matrix for one species
     /*!
      * This routines adds entries for the formula matrix for this object for one
@@ -1039,7 +844,8 @@ public:
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);
 
-    void reportCSV(const string& reportFile);
+    //! Return the index of an element by name, or npos if not found
+    size_t elementIndex(const string& elementName) const;
 
     //!  Total number of species in the problems
     size_t m_nsp;
@@ -1233,8 +1039,7 @@ public:
 
     //! Total number of kmoles in all phases
     /*!
-     * This number includes the inerts.
-     *            -> Don't use this except for scaling purposes
+     * Don't use this except for scaling purposes
      */
     double m_totalMolNum = 0.0;
 
@@ -1272,13 +1077,6 @@ public:
 
     //! Pressure
     double m_pressurePA;
-
-    //! Total kmoles of inert to add to each phase
-    /*!
-     * TPhInertMoles[iph] = Total kmoles of inert to add to each phase
-     * length = number of phases
-     */
-    vector<double> TPhInertMoles;
 
     //! Tolerance requirement for major species
     double m_tolmaj= 1e-8;
@@ -1379,9 +1177,6 @@ public:
      *  * 2 - #VCS_ELEM_TYPE_CHARGENEUTRALITY element dof that corresponds to
      *    a required charge neutrality constraint on the phase. The element
      *    abundance is always exactly zero.
-     *  * 3 - #VCS_ELEM_TYPE_OTHERCONSTRAINT Other constraint which may mean
-     *    that a species has neg 0 or pos value of that constraint (other than
-     *    charge)
      */
     vector<int> m_elType;
 
@@ -1453,23 +1248,12 @@ public:
 
     vector<vector<size_t>> phasePopProblemLists_;
 
-    //! Vector of pointers to thermo structures which identify the model
-    //! and parameters for evaluating the thermodynamic functions for that
-    //! particular species.
-    /*!
-     * SpeciesThermo[k] pointer to the thermo information for the kth species
-     */
-    vector<unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
-
     //! Choice of Hessians
     /*!
      * If this is true, then we will use a better approximation to the Hessian
      * based on Jacobian of the ln(ActCoeff) with respect to mole numbers
      */
     int m_useActCoeffJac = 0;
-
-    //! Total volume of all phases. Units are m^3
-    double m_totalVol;
 
     //! Partial molar volumes of the species
     /*!
@@ -1497,17 +1281,6 @@ public:
      *     * 10 Additionally Hessian matrix is printed out
      */
     int m_debug_print_lvl = 0;
-
-    //! printing level of timing information
-    /*!
-     *  * 1 allowing printing of timing
-     *  * 0 do not allow printing of timing -> everything is printed as a NA.
-     */
-    int m_timing_print_lvl = 1;
-
-    //! Disable printing of timing information. Used to generate consistent
-    //! output for tests.
-    static void disableTiming();
 
     friend class vcs_phaseStabilitySolve;
 };

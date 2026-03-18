@@ -13,14 +13,8 @@
 namespace Cantera
 {
 
-void IdealGasReactor::getState(double* y)
+void IdealGasReactor::getState(span<double> y)
 {
-    if (m_thermo == 0) {
-        throw CanteraError("IdealGasReactor::getState",
-                           "Error: reactor is empty.");
-    }
-    m_thermo->restoreState(m_state);
-
     // set the first component to the total mass
     m_mass = m_thermo->density() * m_vol;
     y[0] = m_mass;
@@ -32,60 +26,52 @@ void IdealGasReactor::getState(double* y)
     y[2] = m_thermo->temperature();
 
     // set components y+3 ... y+K+2 to the mass fractions of each species
-    m_thermo->getMassFractions(y+3);
-
-    // set the remaining components to the surface species
-    // coverages on the walls
-    getSurfaceInitialConditions(y + m_nsp + 3);
+    m_thermo->getMassFractions(y.subspan(3, m_nsp));
 }
 
 void IdealGasReactor::initialize(double t0)
 {
-    //! @todo: Add a method to ThermoPhase that indicates whether a given
-    //! subclass is compatible with this reactor model
-    if (m_thermo->type() != "ideal-gas") {
-        throw CanteraError("IdealGasReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     Reactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
 }
 
-void IdealGasReactor::updateState(double* y)
+void IdealGasReactor::updateState(span<const double> y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the temperature, [3...K+3] are the mass fractions of each species,
     // and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-    m_thermo->setMassFractions_NoNorm(y+3);
+    m_thermo->setMassFractions_NoNorm(y.subspan(3, m_nsp));
     m_thermo->setState_TD(y[2], m_mass / m_vol);
     updateConnected(true);
-    updateSurfaceState(y + m_nsp + 3);
 }
 
-void IdealGasReactor::eval(double time, double* LHS, double* RHS)
+void IdealGasReactor::eval(double time, span<double> LHS, span<double> RHS)
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
     double& mcvdTdt = RHS[2]; // m * c_v * dT/dt
-    double* mdYdt = RHS + 3; // mass * dY/dt
+    auto mdYdt = RHS.subspan(3); // mass * dY/dt
 
     evalWalls(time);
-    m_thermo->restoreState(m_state);
-    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* Y = m_thermo->massFractions();
+    updateSurfaceProductionRates();
+    m_thermo->getPartialMolarIntEnergies_TV(m_uk);
+    auto mw = m_thermo->molecularWeights();
+    auto Y = m_thermo->massFractions();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        m_kin->getNetProductionRates(m_wdot); // "omega dot"
     }
 
-    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
-    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
+    mcvdTdt += - (m_pressure + m_thermo->internalPressure()) * m_vdot + m_Qdot;
+
+    if (m_energy) {
+        mcvdTdt += m_thermo->intrinsicHeating() * m_vol;
+    }
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions
@@ -130,14 +116,19 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-vector<size_t> IdealGasReactor::steadyConstraints() const
+void IdealGasReactor::evalSteady(double t, span<double> LHS, span<double> RHS)
 {
-    if (nSurfs() != 0) {
-        throw CanteraError("IdealGasReactor::steadyConstraints",
-            "Steady state solver cannot currently be used with IdealGasReactor"
-            " when reactor surfaces are present.\n"
-            "See https://github.com/Cantera/enhancements/issues/234");
+    eval(t, LHS, RHS);
+    RHS[1] = m_vol - m_initialVolume;
+    if (!energyEnabled()) {
+        RHS[2] = m_thermo->temperature() - m_initialTemperature;
     }
+}
+
+vector<size_t> IdealGasReactor::initializeSteady()
+{
+    m_initialTemperature = m_thermo->temperature();
+    m_initialVolume = m_vol;
     if (energyEnabled()) {
         return {1}; // volume
     } else {
@@ -157,7 +148,7 @@ size_t IdealGasReactor::componentIndex(const string& nm) const
         return 2;
     }
     try {
-        return speciesIndex(nm) + 3;
+        return m_thermo->speciesIndex(nm) + 3;
     } catch (const CanteraError&) {
         throw CanteraError("IdealGasReactor::componentIndex",
             "Component '{}' not found", nm);

@@ -16,7 +16,8 @@ namespace Cantera
 class FlowReactor : public IdealGasReactor
 {
 public:
-    using IdealGasReactor::IdealGasReactor; // inherit constructors
+    FlowReactor(shared_ptr<Solution> sol, const string& name="(none)");
+    FlowReactor(shared_ptr<Solution> sol, bool clone, const string& name="(none)");
 
     string type() const override {
         return "FlowReactor";
@@ -31,25 +32,24 @@ public:
     }
 
     //! Not implemented; FlowReactor implements getStateDae() instead.
-    void getState(double* y) override {
+    void getState(span<double> y) override {
         throw NotImplementedError("FlowReactor::getState");
     }
 
-    void getStateDae(double* y, double* ydot) override;
-    void initialize(double t0=0.0) override;
-    void syncState() override;
-    void updateState(double* y) override;
+    void getStateDae(span<double> y, span<double> ydot) override;
+    void updateState(span<const double> y) override;
 
     //! Not implemented; FlowReactor implements evalDae() instead.
-    void eval(double t, double* LHS, double* RHS) override {
+    void eval(double t, span<double> LHS, span<double> RHS) override {
         throw NotImplementedError("FlowReactor::eval");
     }
 
-    void evalDae(double t, double* y, double* ydot, double* residual) override;
+    void evalDae(double t, span<const double> y, span<const double> ydot,
+                 span<double> residual) override;
 
-    void getConstraints(double* constraints) override;
-    vector<size_t> steadyConstraints() const override {
-        throw CanteraError("FlowReactor::steadyConstraints",
+    void getConstraints(span<double> constraints) override;
+    vector<size_t> initializeSteady() override {
+        throw CanteraError("FlowReactor::initializeSteady",
             "FlowReactor is not compatible with time-dependent steady-state solver.");
     }
 
@@ -74,102 +74,26 @@ public:
     //! Sets the area of the reactor [m²]
     void setArea(double area) override;
 
-    //! The ratio of the reactor's surface area to volume ratio [m^-1]
-    //! @note If the surface area to volume ratio is unspecified by the user,
-    //!       this will be calculated assuming the reactor is a cylinder.
-    double surfaceAreaToVolumeRatio() const;
-
-    //! Set the reactor's surface area to volume ratio [m^-1]
-    void setSurfaceAreaToVolumeRatio(double sa_to_vol) {
-        m_sa_to_vol = sa_to_vol;
-    }
-
-    //! Get the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    double inletSurfaceAtol() const {
-        return m_ss_atol;
-    }
-
-    //! Set the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    void setInletSurfaceAtol(double atol) {
-        m_ss_atol = atol;
-    }
-
-    //! Get the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    double inletSurfaceRtol() const {
-        return m_ss_rtol;
-    }
-
-    //! Set the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    void setInletSurfaceRtol(double rtol) {
-        m_ss_rtol = rtol;
-    }
-
-    //! Get the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    double inletSurfaceMaxSteps() const {
-        return m_max_ss_steps;
-    }
-
-    //! Set the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    void setInletSurfaceMaxSteps(int max_steps) {
-        m_max_ss_steps = max_steps;
-    }
-
-    //! Get the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    double inletSurfaceMaxErrorFailures() const {
-        return m_max_ss_error_fails;
-    }
-
-    //! Set the steady state tolerances used to determine the initial state for
-    //! surface coverages
-    void setInletSurfaceMaxErrorFailures(int max_fails) {
-        m_max_ss_error_fails = max_fails;
-    }
-
     //! Return the index in the solution vector for this reactor of the component named
     //! *nm*. Possible values for *nm* are "density", "speed", "pressure",
-    //! "temperature", the name of a homogeneous phase species, or the name of a surface
-    //! species.
+    //! "temperature" or the name of a homogeneous phase species.
     size_t componentIndex(const string& nm) const override;
 
     string componentName(size_t k) override;
-
-    void updateSurfaceState(double* y) override;
 
 protected:
     //! Density [kg/m^3]. First component of the state vector.
     double m_rho = NAN;
     //! Axial velocity [m/s]. Second component of the state vector.
     double m_u = -1.0;
-    //! Pressure [Pa]. Third component of the state vector.
-    double m_P = NAN;
-    //! Temperature [K]. Fourth component of the state vector.
-    double m_T = NAN;
     //! offset to the species equations
     const size_t m_offset_Y = 4;
     //! reactor area [m^2]
     double m_area = 1.0;
-    //! reactor surface area to volume ratio [m^-1]
-    double m_sa_to_vol = -1.0;
-    //! temporary storage for surface species production rates
-    vector<double> m_sdot_temp;
     //! temporary storage for species partial molar enthalpies
     vector<double> m_hk;
-    //! steady-state relative tolerance, used to determine initial surface coverages
-    double m_ss_rtol = 1e-7;
-    //! steady-state absolute tolerance, used to determine initial surface coverages
-    double m_ss_atol = 1e-14;
-    //! maximum number of steady-state coverage integrator-steps
-    int m_max_ss_steps = 20000;
-    //! maximum number of steady-state integrator error test failures
-    int m_max_ss_error_fails = 10;
 };
+
 }
 
 #endif

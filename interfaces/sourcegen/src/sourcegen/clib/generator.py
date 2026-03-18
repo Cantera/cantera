@@ -161,7 +161,7 @@ class CLibSourceGenerator(SourceGenerator):
             after = f"copyString(out, {c_args[-1].name}, {c_args[-2].name});"
         elif "shared_ptr" in cxx_type:
             cxx_rbase = self._shared_object(cxx_type)
-        elif "vector" in cxx_type:
+        elif "vector" in cxx_type or "span" in cxx_type:
             buffer = [
                 f"{cxx_type} out",
                 "int(out.size())",
@@ -225,8 +225,11 @@ class CLibSourceGenerator(SourceGenerator):
             if check_array:
                 # Need to handle crosswalked parameter with length information
                 c_prev = c_args[c_ix-1].name
-                if "vector<shared_ptr" in cxx_type:
+                if "vector<shared_ptr" in cxx_type or "span<shared_ptr" in cxx_type:
                     # Example: vector<shared_ptr<Domain1D>>
+                    if "span<" in cxx_type:
+                        # Generate a vector to pass to a function taking a span
+                        cxx_type = cxx_type.replace("span<", "vector<")
                     cxx_type = cxx_type.removeprefix("const ").rstrip("&")
                     cxx_base = cxx_type.rstrip(">").split("<")[-1]
                     bases.add(cxx_base)
@@ -252,6 +255,10 @@ class CLibSourceGenerator(SourceGenerator):
                     if not cxx_type.startswith("const") or cxx_arg.direction == "out":
                         after.append(
                             f"std::copy({c_name}_.begin(), {c_name}_.end(), {c_name});")
+                    args.append(f"{c_name}_")
+                elif "span<" in cxx_type:
+                    # Example: span<double> par_(par, par + parLen);
+                    before.append(f"{cxx_type} {c_name}_({c_name}, {c_prev});")
                     args.append(f"{c_name}_")
                 elif "*" in cxx_type:
                     # Can be passed directly; example: double *const
@@ -392,6 +399,8 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "getter":
             ret_type = c_func.wraps.ret_type
             if "void" in ret_type or "vector" in ret_type:
+                template = loader.from_string(self._templates["clib-array-getter"])
+            elif "span" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
             elif "size_t" in ret_type:
                 template = loader.from_string(self._templates["clib-size-getter"])

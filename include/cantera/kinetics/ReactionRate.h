@@ -200,7 +200,7 @@ public:
     //! Kinetics reaction rate evaluators.
     //! @warning  This method is an experimental part of the %Cantera API and
     //!     may be changed or removed without notice.
-    double eval(double T, const vector<double>& extra) {
+    double eval(double T, span<const double> extra) {
         _evaluator().update(T, extra);
         return _evaluator().evalSingle(*this);
     }

@@ -911,6 +911,9 @@ class TestThermoPhase:
     def test_thermal_expansion_coeff(self):
         assert self.phase.thermal_expansion_coeff == approx(1.0/self.phase.T)
 
+    def test_internal_pressure(self):
+        assert self.phase.internal_pressure == approx(0.0)
+
     def test_ref_info(self):
         assert self.phase.reference_pressure == approx(ct.one_atm)
         assert self.phase.min_temp == approx(300.0)

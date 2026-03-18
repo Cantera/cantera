@@ -224,15 +224,7 @@ cdef class Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         cdef Func1 f1 = other
-
-        # @todo: When dropping support for Cython < 3.0.0, 'f0' can be removed and
-        # 'self._func' can be used directly in the C++ call
-        cdef Func1 f0
-        if isinstance(self, Func1):
-            f0 = self
-        else:
-            f0 = Func1(self)
-        return Func1._make_func1(CxxNewSumFunction(f0._func, f1._func))
+        return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
 
     def __radd__(self, other):
         if not isinstance(other, Func1):
@@ -244,15 +236,7 @@ cdef class Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         cdef Func1 f1 = other
-
-        # @todo: When dropping support for Cython < 3.0.0, 'f0' can be removed and
-        # 'self._func' can be used directly in the C++ call
-        cdef Func1 f0
-        if isinstance(self, Func1):
-            f0 = self
-        else:
-            f0 = Func1(self)
-        return Func1._make_func1(CxxNewDiffFunction(f0._func, f1._func))
+        return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
 
     def __rsub__(self, other):
         if not isinstance(other, Func1):
@@ -264,14 +248,7 @@ cdef class Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         cdef Func1 f1 = other
-        # @todo: When dropping support for Cython < 3.0.0, 'f0' can be removed and
-        # 'self._func' can be used directly in the C++ call
-        cdef Func1 f0
-        if isinstance(self, Func1):
-            f0 = self
-        else:
-            f0 = Func1(self)
-        return Func1._make_func1(CxxNewProdFunction(f0._func, f1._func))
+        return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
 
     def __rmul__(self, other):
         if not isinstance(other, Func1):
@@ -283,14 +260,7 @@ cdef class Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         cdef Func1 f1 = other
-        # @todo: When dropping support for Cython < 3.0.0, 'f0' can be removed and
-        # 'self._func' can be used directly in the C++ call
-        cdef Func1 f0
-        if isinstance(self, Func1):
-            f0 = self
-        else:
-            f0 = Func1(self)
-        return Func1._make_func1(CxxNewRatioFunction(f0._func, f1._func))
+        return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
 
     def __rtruediv__(self, other):
         if not isinstance(other, Func1):

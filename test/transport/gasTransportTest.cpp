@@ -14,7 +14,7 @@ class GasTransportTest : public testing::Test
 public:
     GasTransportTest() {
         nsp = s_thermo->nSpecies();
-        s_thermo->setState_TPX(T0, P0, X0.data());
+        s_thermo->setState_TPX(T0, P0, X0);
     }
 
     static void SetUpTestCase() {
@@ -91,7 +91,7 @@ TEST_F(GasTransportTest, mixDiffCoeffs)
     };
 
     vector<double> mixDiffs(nsp, 0.0);
-    s_mix->getMixDiffCoeffs(mixDiffs.data());
+    s_mix->getMixDiffCoeffs(mixDiffs);
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(mixDiffs[k], Dref[k], 1e-9) << k;
     }
@@ -115,7 +115,7 @@ TEST_F(GasTransportTest, speciesViscosities)
     };
 
     vector<double> specVisc(nsp, 0.0);
-    s_mix->getSpeciesViscosities(specVisc.data());
+    s_mix->getSpeciesViscosities(specVisc);
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(specVisc[k], viscRef[k], 1e-9) << k;
     }
@@ -140,7 +140,7 @@ TEST_F(GasTransportTest, speciesMobilities)
 
     vector<double> mob(nsp, 0.0);
     s_thermo->setState_TP(T1, P0);
-    s_mix->getMobilities(mob.data());
+    s_mix->getMobilities(mob);
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(mob[k], mobRef[k], 1e-7) << k;
     }
@@ -199,13 +199,13 @@ TEST_F(GasTransportTest, thermalDiffCoeffs)
     };
 
     vector<double> thermalDiff(nsp, -1);
-    s_mix->getThermalDiffCoeffs(thermalDiff.data());
+    s_mix->getThermalDiffCoeffs(thermalDiff);
     for (size_t k = 0; k < nsp; k++) {
         double tol = std::max(1e-16, 1e-5 * fabs(thermalDiffMixRef[k]));
         EXPECT_NEAR(thermalDiff[k], thermalDiffMixRef[k], tol) << k;
     }
 
-    s_multi->getThermalDiffCoeffs(thermalDiff.data());
+    s_multi->getThermalDiffCoeffs(thermalDiff);
     for (size_t k = 0; k < nsp; k++) {
         double tol = std::max(1e-16, 1e-5 * fabs(thermalDiffRef[k]));
         EXPECT_NEAR(thermalDiff[k], thermalDiffRef[k], tol) << k;
@@ -259,7 +259,7 @@ TEST_F(GasTransportTest, binaryDiffCoeffs)
     Array2D Bdiff(nsp, nsp, 0.0);
     s_thermo->setState_TP(T1, P0);
     size_t kH2 = s_thermo->speciesIndex("H2");
-    s_mix->getBinaryDiffCoeffs(nsp, &Bdiff(0,0));
+    s_mix->getBinaryDiffCoeffs(nsp, Bdiff.data());
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(Bdiff(k, kH2), BdiffRef_H2[k], 1e-8) << k;
         EXPECT_DOUBLE_EQ(Bdiff(kH2, k), Bdiff(k, kH2)) << k;
@@ -294,8 +294,8 @@ TEST_F(GasTransportTest, getSpeciesFluxes_mix)
 
     auto [grad_T, grad_X] = SetUpFluxes();
     Array2D fluxes(nsp, 2, 0.0);
-    s_thermo->setState_TPX(T1, P0, X0.data());
-    s_mix->getSpeciesFluxes(2, grad_T.data(), nsp, &grad_X(0, 0), nsp, &fluxes(0, 0));
+    s_thermo->setState_TPX(T1, P0, X0);
+    s_mix->getSpeciesFluxes(2, grad_T, nsp, grad_X.data(), nsp, fluxes.data());
 
     double netFlux0 = 0.0, netFlux1 = 0.0;
     for (size_t k = 0; k < nsp; k++) {
@@ -342,8 +342,8 @@ TEST_F(GasTransportTest, getSpeciesFluxes_multi)
 
     auto [grad_T, grad_X] = SetUpFluxes();
     Array2D fluxes(nsp, 2, 0.0);
-    s_thermo->setState_TPX(T1, P0, X0.data());
-    s_multi->getSpeciesFluxes(2, grad_T.data(), nsp, &grad_X(0, 0), nsp, &fluxes(0, 0));
+    s_thermo->setState_TPX(T1, P0, X0);
+    s_multi->getSpeciesFluxes(2, grad_T, nsp, grad_X.data(), nsp, fluxes.data());
 
     double netFlux0 = 0.0, netFlux1 = 0.0;
     for (size_t k = 0; k < nsp; k++) {
@@ -388,8 +388,8 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
     };
 
     Array2D multiDiff(nsp, nsp);
-    s_thermo->setState_TPX(T1, P0, X0.data());
-    s_multi->getMultiDiffCoeffs(nsp, &multiDiff(0,0));
+    s_thermo->setState_TPX(T1, P0, X0);
+    s_multi->getMultiDiffCoeffs(nsp, multiDiff.data());
     size_t kH2 = s_thermo->speciesIndex("H2");
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(multiDiff(k, kH2), D_X_H2_ref[k], 1e-8) << k;
@@ -400,26 +400,27 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
 TEST_F(GasTransportTest, getFluxes_multi)
 {
     vector<double> fluxS(nsp), fluxMass(nsp), fluxMole(nsp);
-    vector<double> state2, state3;
+    vector<double> state2(s_thermo->stateSize());
+    vector<double> state3(s_thermo->stateSize());
     vector<double> X1(nsp), X2(nsp), X3(nsp), grad_X(nsp);
 
     s_thermo->setState_TPX(T2, P0,
         "H2:0.25, H:0.0001, H2O:0.17, CO:0.15, CO2:0.05, NO:0.001, N2: 0.38");
     s_thermo->saveState(state2);
-    s_thermo->getMoleFractions(X2.data());
+    s_thermo->getMoleFractions(X2);
     s_thermo->setState_TPX(T3, P0, "H2:0.27, H2O:0.18, CO:0.13, CO2:0.04, N2: 0.38");
     s_thermo->saveState(state3);
-    s_thermo->getMoleFractions(X3.data());
+    s_thermo->getMoleFractions(X3);
     double grad_T = (T3 - T2) / dist;
     for (size_t k = 0; k < nsp; k++) {
         X1[k] = 0.5 * (X2[k] + X3[k]);
         grad_X[k] = (X3[k] - X2[k]) / dist;
     }
 
-    s_thermo->setState_TPX(0.5 * (T2 + T3), P0, X1.data());
-    s_multi->getSpeciesFluxes(1, &grad_T, nsp, grad_X.data(), nsp, fluxS.data());
-    s_multi->getMassFluxes(state2.data(), state3.data(), dist, fluxMass.data());
-    s_multi->getMolarFluxes(state2.data(), state3.data(), dist, fluxMole.data());
+    s_thermo->setState_TPX(0.5 * (T2 + T3), P0, X1);
+    s_multi->getSpeciesFluxes(1, span<const double>(&grad_T, 1), nsp, grad_X, nsp, fluxS);
+    s_multi->getMassFluxes(state2, state3, dist, fluxMass);
+    s_multi->getMolarFluxes(state2, state3, dist, fluxMole);
 
     double netFlux = 0.0;
     for (size_t k = 0; k < nsp; k++) {

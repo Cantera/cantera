@@ -189,7 +189,7 @@ public:
     }
 
     //! Constructor uses single parameter (frequency)
-    Sin1(const vector<double>& params);
+    Sin1(span<const double> params);
 
     string write(const string& arg) const override;
 
@@ -220,7 +220,7 @@ public:
     }
 
     //! Constructor uses single parameter (frequency)
-    Cos1(const vector<double>& params);
+    Cos1(span<const double> params);
 
     string write(const string& arg) const override;
 
@@ -249,7 +249,7 @@ public:
     }
 
     //! Constructor uses single parameter (exponent factor)
-    Exp1(const vector<double>& params);
+    Exp1(span<const double> params);
 
     string write(const string& arg) const override;
 
@@ -280,7 +280,7 @@ public:
     }
 
     //! Constructor uses single parameter (factor)
-    Log1(const vector<double>& params);
+    Log1(span<const double> params);
 
     string type() const override {
         return "log";
@@ -309,7 +309,7 @@ public:
     }
 
     //! Constructor uses single parameter (exponent)
-    Pow1(const vector<double>& params);
+    Pow1(span<const double> params);
 
     string write(const string& arg) const override;
 
@@ -338,17 +338,16 @@ class Tabulated1 : public Func1
 public:
     //! Constructor.
     /*!
-     * @param n      Size of tabulated value arrays
-     * @param tvals   Pointer to time value array
-     * @param fvals   Pointer to function value array
+     * @param tvals   Time value array
+     * @param fvals   Function value array
      * @param method Interpolation method ('linear' or 'previous')
      */
-    Tabulated1(size_t n, const double* tvals, const double* fvals,
+    Tabulated1(span<const double> tvals, span<const double> fvals,
                const string& method="linear");
 
     //! Constructor uses @f$ 2 n @f$ parameters in the following order:
     //! @f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] @f$
-    Tabulated1(const vector<double>& params);
+    Tabulated1(span<const double> params);
 
     //! Set the interpolation method
     //! @param method  Evaluation method. If @c "linear" (default), a linear
@@ -393,7 +392,7 @@ public:
     }
 
     //! Constructor uses single parameter (constant)
-    Const1(const vector<double>& params);
+    Const1(span<const double> params);
 
     string write(const string& arg) const override;
 
@@ -650,7 +649,7 @@ public:
 
     //! Constructor uses 3 parameters in the following order:
     //! @f$ [A, t_0, \mathrm{fwhm}] @f$
-    Gaussian1(const vector<double>& params);
+    Gaussian1(span<const double> params);
 
     string type() const override {
         return "Gaussian";
@@ -685,14 +684,9 @@ protected:
 class Poly1 : public Func1
 {
 public:
-    Poly1(size_t n, const double* c) {
-        m_cpoly.resize(n+1);
-        std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
-    }
-
     //! Constructor uses @f$ n + 1 @f$ parameters in the following order:
     //! @f$ [a_n, \dots, a_1, a_0] @f$
-    Poly1(const vector<double>& params);
+    Poly1(span<const double> params);
 
     string type() const override {
         return "polynomial3";
@@ -729,18 +723,21 @@ protected:
 class Fourier1 : public Func1
 {
 public:
-    Fourier1(size_t n, double omega, double a0, const double* a, const double* b) {
+    Fourier1(double omega, double a0, span<const double> a, span<const double> b) {
+        if (a.size() != b.size()) {
+            throw CanteraError("Fourier1::Fourier1",
+                "Expected matching sin/cos coefficient lengths, got {} and {}.",
+                a.size(), b.size());
+        }
         m_omega = omega;
         m_a0_2 = 0.5*a0;
-        m_ccos.resize(n);
-        m_csin.resize(n);
-        std::copy(a, a+n, m_ccos.begin());
-        std::copy(b, b+n, m_csin.begin());
+        m_ccos.assign(a.begin(), a.end());
+        m_csin.assign(b.begin(), b.end());
     }
 
     //! Constructor uses @f$ 2 n + 2 @f$ parameters in the following order:
     //! @f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] @f$
-    Fourier1(const vector<double>& params);
+    Fourier1(span<const double> params);
 
     string type() const override {
         return "Fourier";
@@ -778,21 +775,9 @@ protected:
 class Arrhenius1 : public Func1
 {
 public:
-    Arrhenius1(size_t n, const double* c) {
-        m_A.resize(n);
-        m_b.resize(n);
-        m_E.resize(n);
-        for (size_t i = 0; i < n; i++) {
-            size_t loc = 3*i;
-            m_A[i] = c[loc];
-            m_b[i] = c[loc+1];
-            m_E[i] = c[loc+2];
-        }
-    }
-
     //! Constructor uses @f$ 3 n @f$ parameters in the following order:
     //! @f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] @f$
-    Arrhenius1(const vector<double>& params);
+    Arrhenius1(span<const double> params);
 
     string type() const override {
         return "Arrhenius";

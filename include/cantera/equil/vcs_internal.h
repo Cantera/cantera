@@ -17,14 +17,6 @@ namespace Cantera
  */
 #define plogf writelogf
 
-//! Global hook for turning on and off time printing.
-/*!
- * Default is to allow printing. But, you can assign this to zero globally to
- * turn off all time printing. This is helpful for test suite purposes where you
- * are interested in differences in text files.
- */
-extern int vcs_timing_print_lvl;
-
 //! Class to keep track of time and iterations
 /*!
  * class keeps all of the counters together.
@@ -52,40 +44,14 @@ public:
 
     //! Current number of calls to vcs_TP
     int T_Calls_vcs_TP;
-
-    //! Current time spent in vcs_TP
-    double T_Time_vcs_TP;
-
-    //! Current time spent in vcs_TP
-    double Time_vcs_TP;
-
-    //! Total Time spent in basopt
-    double T_Time_basopt;
-
-    //! Current Time spent in basopt
-    double Time_basopt;
-
-    //! Time spent in initial estimator
-    double T_Time_inest;
-
-    //! Time spent in the vcs suite of programs
-    double T_Time_vcs;
 };
-
-//! Definition of the function pointer for the root finder
-/*!
- *  see vcsUtil_root1d for a definition of how to use this.
- */
-typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
-                              int varID, void* fptrPassthrough,
-                              int* err);
 
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles
  * @returns   the l2 norm of the vector
  */
-double vcs_l2norm(const vector<double>& vec);
+double vcs_l2norm(span<const double> vec);
 
 //! Returns a const char string representing the type of the species given by
 //! the first argument

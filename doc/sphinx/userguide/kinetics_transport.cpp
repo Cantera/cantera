@@ -20,7 +20,7 @@ void simple_demo2()
 
     // Get the net reaction rates.
     vector<double> wdot(kin->nReactions());
-    kin->getNetRatesOfProgress(wdot.data());
+    kin->getNetRatesOfProgress(wdot);
 
     writelog("Net reaction rates for reactions involving CO2\n");
     size_t kCO2 = gas->speciesIndex("CO2");

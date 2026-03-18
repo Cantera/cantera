@@ -48,12 +48,12 @@ void EigenSparseJacobian::updatePreconditioner()
     factorize();
 }
 
-void EigenSparseJacobian::updateTransient(double rdt, int* mask)
+void EigenSparseJacobian::updateTransient(double rdt, span<const int> mask)
 {
     // set matrix to steady Jacobian
     m_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
     // update transient diagonal terms
-    Eigen::VectorXd diag = Eigen::Map<Eigen::VectorXi>(mask, m_dim).cast<double>();
+    Eigen::VectorXd diag = Eigen::Map<const Eigen::VectorXi>(mask.data(), m_dim).cast<double>();
     m_matrix -= rdt * diag.matrix().asDiagonal();
     factorize();
 }

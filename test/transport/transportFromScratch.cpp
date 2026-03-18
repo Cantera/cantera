@@ -74,8 +74,8 @@ TEST_F(TransportFromScratch, binaryDiffCoeffs)
     Array2D bdiffTest(3,3);
     ref->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     test->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
-    trRef->getBinaryDiffCoeffs(K, &bdiffRef(0,0));
-    trTest.getBinaryDiffCoeffs(K, &bdiffTest(0,0));
+    trRef->getBinaryDiffCoeffs(K, bdiffRef.data());
+    trTest.getBinaryDiffCoeffs(K, bdiffTest.data());
 
     for (size_t i=0; i < K; i++) {
         for (size_t j=0; j < K; j++) {
@@ -95,8 +95,8 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
     vector<double> Dtest(3);
     ref->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     test->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
-    trRef->getMixDiffCoeffs(&Dref[0]);
-    trTest.getMixDiffCoeffs(&Dtest[0]);
+    trRef->getMixDiffCoeffs(Dref);
+    trTest.getMixDiffCoeffs(Dtest);
 
     for (size_t k=0; k < K; k++) {
         EXPECT_DOUBLE_EQ(Dref[k], Dtest[k]) << "k = " << k;
@@ -143,8 +143,8 @@ TEST_F(TransportFromScratch, multiDiffCoeffs)
     Array2D Dtest(3,3);
     ref->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     test->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
-    trRef->getMultiDiffCoeffs(K, &Dref(0,0));
-    trTest.getMultiDiffCoeffs(K, &Dtest(0,0));
+    trRef->getMultiDiffCoeffs(K, Dref.data());
+    trTest.getMultiDiffCoeffs(K, Dtest.data());
 
     for (size_t i=0; i < K; i++) {
         for (size_t j=0; j < K; j++) {

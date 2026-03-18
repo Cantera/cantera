@@ -15,11 +15,7 @@ namespace {
 
 N_Vector newNVector(size_t N, Cantera::SundialsContext& context)
 {
-#if SUNDIALS_VERSION_MAJOR >= 6
     return N_VNew_Serial(static_cast<sd_size_t>(N), context.get());
-#else
-    return N_VNew_Serial(static_cast<sd_size_t>(N));
-#endif
 }
 
 } // end anonymous namespace
@@ -39,7 +35,7 @@ extern "C" {
     static int cvodes_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->evalNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
+        return f->evalNoThrow(t, asSpan(y), asSpan(ydot));
     }
 
     #if SUNDIALS_VERSION_MAJOR >= 7
@@ -75,7 +71,7 @@ extern "C" {
         FuncEval* f = (FuncEval*) f_data;
         if (!jok) {
             *jcurPtr = true; // jacobian data was recomputed
-            return f->preconditioner_setup_nothrow(t, NV_DATA_S(y), gamma);
+            return f->preconditioner_setup_nothrow(t, asSpan(y), gamma);
         } else {
             f->updatePreconditioner(gamma); // updates preconditioner with new gamma
             *jcurPtr = false; // indicates that Jacobian data was not recomputed
@@ -88,7 +84,7 @@ extern "C" {
                                  int lr, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
+        return f->preconditioner_solve_nothrow(asSpan(r), asSpan(z));
     }
 
     /**
@@ -103,7 +99,8 @@ extern "C" {
     static int cvodes_root(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
     {
         auto* f = static_cast<FuncEval*>(user_data);
-        return f->evalRootFunctionsNoThrow(t, NV_DATA_S(y), gout);
+        return f->evalRootFunctionsNoThrow(t, asSpan(y),
+                                           span<double>(gout, f->nRootFunctions()));
     }
 }
 
@@ -135,11 +132,7 @@ CVodesIntegrator::~CVodesIntegrator()
         N_VDestroy_Serial(m_dky);
     }
     if (m_yS) {
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            N_VDestroyVectorArray(m_yS, static_cast<int>(m_np));
-        #else
-            N_VDestroyVectorArray_Serial(m_yS, static_cast<int>(m_np));
-        #endif
+        N_VDestroyVectorArray(m_yS, static_cast<int>(m_np));
     }
 }
 
@@ -149,13 +142,14 @@ double& CVodesIntegrator::solution(size_t k)
     return NV_Ith_S(m_y, k);
 }
 
-double* CVodesIntegrator::solution()
+span<double> CVodesIntegrator::solution()
 {
-    return NV_DATA_S(m_y);
+    return asSpan(m_y);
 }
 
-void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
+void CVodesIntegrator::setTolerances(double reltol, span<const double> abstol)
 {
+    size_t n = abstol.size();
     m_itol = CV_SV;
     m_nabs = n;
     if (n != m_neq) {
@@ -168,6 +162,10 @@ void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
         NV_Ith_S(m_abstol, i) = abstol[i];
     }
     m_reltol = reltol;
+    if (m_cvode_mem) {
+        int flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
+        checkError(flag, "setTolerances", "CVodeSVtolerances");
+    }
 }
 
 void CVodesIntegrator::setTolerances(double reltol, double abstol)
@@ -175,12 +173,26 @@ void CVodesIntegrator::setTolerances(double reltol, double abstol)
     m_itol = CV_SS;
     m_reltol = reltol;
     m_abstols = abstol;
+    if (m_cvode_mem) {
+        int flag = CVodeSStolerances(m_cvode_mem, m_reltol, m_abstols);
+        checkError(flag, "setTolerances", "CVodeSStolerances");
+    }
 }
 
 void CVodesIntegrator::setSensitivityTolerances(double reltol, double abstol)
 {
     m_reltolsens = reltol;
     m_abstolsens = abstol;
+    if (m_cvode_mem && m_yS) {
+        vector<double> atol(m_np);
+        for (size_t n = 0; n < m_np; n++) {
+            // This scaling factor is tuned so that reaction and species enthalpy
+            // sensitivities can be computed simultaneously with the same abstol.
+            atol[n] = m_abstolsens / m_func->m_paramScales[n];
+        }
+        int flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
+        checkError(flag, "setSensitivityTolerances", "CVodeSensSStolerances");
+    }
 }
 
 void CVodesIntegrator::setMethod(MethodType t)
@@ -254,11 +266,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     m_sens_ok = false;
 
     N_Vector y = newNVector(func.neq(), m_sundials_ctx);
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
-    #else
-        m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
-    #endif
+    m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_yS[n]);
     }
@@ -267,15 +275,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     int flag = CVodeSensInit(m_cvode_mem, static_cast<int>(m_np),
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
     checkError(flag, "sensInit", "CVodeSensInit");
-
-    vector<double> atol(m_np);
-    for (size_t n = 0; n < m_np; n++) {
-        // This scaling factor is tuned so that reaction and species enthalpy
-        // sensitivities can be computed simultaneously with the same abstol.
-        atol[n] = m_abstolsens / func.m_paramScales[n];
-    }
-    flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
-    checkError(flag, "sensInit", "CVodeSensSStolerances");
+    setSensitivityTolerances(m_reltolsens, m_abstolsens);
 }
 
 void CVodesIntegrator::initialize(double t0, FuncEval& func)
@@ -306,20 +306,13 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
                            "not enough absolute tolerance values specified.");
     }
 
-    func.getState(NV_DATA_S(m_y));
+    func.getState(asSpan(m_y));
 
     if (m_cvode_mem) {
         CVodeFree(&m_cvode_mem);
     }
 
-    //! Specify the method and the iteration type. Cantera Defaults:
-    //!        CV_BDF  - Use BDF methods
-    //!        CV_NEWTON - use Newton's method
-    #if SUNDIALS_VERSION_MAJOR < 6
-        m_cvode_mem = CVodeCreate(m_method);
-    #else
-        m_cvode_mem = CVodeCreate(m_method, m_sundials_ctx.get());
-    #endif
+    m_cvode_mem = CVodeCreate(m_method, m_sundials_ctx.get());
     if (!m_cvode_mem) {
         throw CanteraError("CVodesIntegrator::initialize",
                            "CVodeCreate failed.");
@@ -372,7 +365,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_t0 = t0;
     m_time = t0;
     m_tInteg = t0;
-    func.getState(NV_DATA_S(m_y));
+    func.getState(asSpan(m_y));
     m_func = &func;
     func.clearErrors();
     // reinitialize preconditioner if applied
@@ -392,35 +385,21 @@ void CVodesIntegrator::applyOptions()
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-        #else
-            m_linsol_matrix = SUNDenseMatrix(N, N);
-        #endif
+        m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         if (m_linsol_matrix == nullptr) {
             throw CanteraError("CVodesIntegrator::applyOptions",
                 "Unable to create SUNDenseMatrix of size {0} x {0}", N);
         }
         int flag;
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
-                                                    m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
-                                            m_sundials_ctx.get());
-            #endif
-            flag = CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
-                                        (SUNMatrix) m_linsol_matrix);
+        #if CT_SUNDIALS_USE_LAPACK
+            m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
+                                                m_sundials_ctx.get());
         #else
-            #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
-            #else
-                m_linsol = SUNDenseLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
-            flag = CVDlsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
-                                        (SUNMatrix) m_linsol_matrix);
+            m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
+                                        m_sundials_ctx.get());
         #endif
+        flag = CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
+                                    (SUNMatrix) m_linsol_matrix);
         if (m_linsol == nullptr) {
             throw CanteraError("CVodesIntegrator::applyOptions",
                 "Error creating Sundials dense linear solver object");
@@ -444,13 +423,8 @@ void CVodesIntegrator::applyOptions()
         }
     } else if (m_type == "GMRES") {
         SUNLinSolFree((SUNLinearSolver) m_linsol);
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
-            CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #else
-            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
-            CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
-        #endif
+        m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
+        CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
         // set preconditioner if used
         if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
             SUNLinSol_SPGMRSetPrecType((SUNLinearSolver) m_linsol,
@@ -464,35 +438,21 @@ void CVodesIntegrator::applyOptions()
         sd_size_t nl = m_mlower;
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-        #else
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
-        #endif
+        m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
         if (m_linsol_matrix == nullptr) {
             throw CanteraError("CVodesIntegrator::applyOptions",
                 "Unable to create SUNBandMatrix of size {} with bandwidths "
                 "{} and {}", N, nu, nl);
         }
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
-                                                m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
+        #if CT_SUNDIALS_USE_LAPACK
+            m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
                                             m_sundials_ctx.get());
-            #endif
-                CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
-                                    (SUNMatrix) m_linsol_matrix);
         #else
-            #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
-            #else
-                m_linsol = SUNBandLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
-            CVDlsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
-                                (SUNMatrix) m_linsol_matrix);
+            m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
+                                        m_sundials_ctx.get());
         #endif
+            CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
+                                (SUNMatrix) m_linsol_matrix);
     } else {
         throw CanteraError("CVodesIntegrator::applyOptions",
                            "unsupported linear solver flag '{}'", m_type);
@@ -588,11 +548,11 @@ double CVodesIntegrator::step(double tout)
     return m_time;
 }
 
-double* CVodesIntegrator::derivative(double tout, int n)
+span<double> CVodesIntegrator::derivative(double tout, int n)
 {
     int flag = CVodeGetDky(m_cvode_mem, tout, n, m_dky);
     checkError(flag, "derivative", "CVodeGetDky");
-    return NV_DATA_S(m_dky);
+    return asSpan(m_dky);
 }
 
 int CVodesIntegrator::lastOrder() const
@@ -618,7 +578,7 @@ AnyMap CVodesIntegrator::solverStats() const
     long int steps = 0, rhsEvals = 0, errTestFails = 0, jacEvals = 0, linSetup = 0,
              linRhsEvals = 0, linIters = 0, linConvFails = 0, precEvals = 0,
              precSolves = 0, jtSetupEvals = 0, jTimesEvals = 0, nonlinIters = 0,
-             nonlinConvFails = 0, orderReductions = 0;
+             nonlinConvFails = 0, orderReductions = 0, stepSolveFails = 0;
     int lastOrder = 0;
 ;
 
@@ -637,14 +597,10 @@ AnyMap CVodesIntegrator::solverStats() const
     CVodeGetNumPrecSolves(m_cvode_mem, &precSolves);
     CVodeGetNumJTSetupEvals(m_cvode_mem, &jtSetupEvals);
     CVodeGetNumJtimesEvals(m_cvode_mem, &jTimesEvals);
-
-    #if SUNDIALS_VERSION_MAJOR >= 7 || (SUNDIALS_VERSION_MAJOR == 6 && SUNDIALS_VERSION_MINOR >= 2)
-        long int stepSolveFails = 0;
-        CVodeGetNumStepSolveFails(m_cvode_mem, &stepSolveFails);
-        stats["step_solve_fails"] = stepSolveFails;
-    #endif
+    CVodeGetNumStepSolveFails(m_cvode_mem, &stepSolveFails);
 
     stats["steps"] = steps;
+    stats["step_solve_fails"] = stepSolveFails;
     stats["rhs_evals"] = rhsEvals;
     stats["nonlinear_iters"] = nonlinIters;
     stats["nonlinear_conv_fails"] = nonlinConvFails;

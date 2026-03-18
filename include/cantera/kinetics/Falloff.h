@@ -37,12 +37,7 @@ struct FalloffData : public ReactionData
     void perturbThirdBodies(double deltaM);
 
     void restore() override;
-
-    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        conc_3b.resize(nReactions, NAN);
-        m_conc_3b_buf.resize(nReactions, NAN);
-        ready = true;
-    }
+    void resize(Kinetics& kin) override;
 
     void invalidateCache() override {
         ReactionData::invalidateCache();
@@ -92,15 +87,17 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void setFalloffCoeffs(const vector<double>& c);
+    virtual void setFalloffCoeffs(span<const double> c);
 
     /**
      * Retrieve coefficients of the falloff parameterization.
      *
-     * @param c Vector of coefficients of the parameterization. The number and
-     *     meaning of these coefficients is subclass-dependent.
+     * @param c Vector of coefficients of the parameterization. The number (obtained
+     *     with the nParameters() method) and meaning of these coefficients is
+     *     subclass-dependent.
      */
-    virtual void getFalloffCoeffs(vector<double>& c) const;
+    virtual void getFalloffCoeffs(span<double> c) const {};
+
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
@@ -109,7 +106,7 @@ public:
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
-    virtual void updateTemp(double T, double* work) const {}
+    virtual void updateTemp(double T, span<double> work) const {}
 
     /**
      * The falloff function.
@@ -120,19 +117,19 @@ public:
      *             to updateTemp.
      * @returns the value of the falloff function @f$ F @f$ defined above
      */
-    virtual double F(double pr, const double* work) const {
+    virtual double F(double pr, span<const double> work) const {
         return 1.0;
     }
 
     //! Evaluate falloff function at current conditions
     double evalF(double T, double conc3b) {
-        updateTemp(T, m_work.data());
+        updateTemp(T, m_work);
         double logT = std::log(T);
         double recipT = 1. / T;
         m_rc_low = m_lowRate.evalRate(logT, recipT);
         m_rc_high = m_highRate.evalRate(logT, recipT);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
-        return F(pr, m_work.data());
+        return F(pr, m_work);
     }
 
     const string type() const override {
@@ -155,7 +152,7 @@ public:
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const FalloffData& shared_data) {
-        updateTemp(shared_data.temperature, m_work.data());
+        updateTemp(shared_data.temperature, m_work);
         m_rc_low = m_lowRate.evalRate(shared_data.logT, shared_data.recipT);
         m_rc_high = m_highRate.evalRate(shared_data.logT, shared_data.recipT);
         double thirdBodyConcentration;
@@ -169,12 +166,12 @@ public:
         // Apply falloff function
         if (m_chemicallyActivated) {
             // 1 / (1 + Pr) * F
-            pr = F(pr, m_work.data()) / (1.0 + pr);
+            pr = F(pr, m_work) / (1.0 + pr);
             return pr * m_rc_low;
         }
 
         // Pr / (1 + Pr) * F
-        pr *= F(pr, m_work.data()) / (1.0 + pr);
+        pr *= F(pr, m_work) / (1.0 + pr);
         return pr * m_rc_high;
     }
 
@@ -256,7 +253,7 @@ public:
     LindemannRate(const AnyMap& node, const UnitStack& rate_units={});
 
     LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                  const vector<double>& c);
+                  span<const double> c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override{
         return make_unique<MultiRate<LindemannRate, FalloffData>>();
@@ -320,7 +317,7 @@ public:
 
     TroeRate(const AnyMap& node, const UnitStack& rate_units={});
     TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
-             const vector<double>& c);
+             span<const double> c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<TroeRate, FalloffData>>();
@@ -331,9 +328,9 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -341,16 +338,16 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "Troe";
     }
 
     size_t nParameters() const override {
-        return 4;
+        return (m_t2 == 0) ? 3 : 4;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
@@ -414,7 +411,7 @@ public:
 
     SriRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
+    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, span<const double> c)
         : SriRate()
     {
         m_lowRate = low;
@@ -432,9 +429,9 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -442,16 +439,16 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "SRI";
     }
 
     size_t nParameters() const override {
-        return 5;
+        return (m_d == 1.0 && m_e == 0.0) ? 3 : 5;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
@@ -470,7 +467,7 @@ protected:
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
     double m_d;
 
-    //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
+    //! parameter e in the 5-parameter SRI falloff function. Dimensionless.
     double m_e;
 };
 
@@ -508,7 +505,7 @@ public:
 
     TsangRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
+    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, span<const double> c)
         : TsangRate()
     {
         m_lowRate = low;
@@ -525,9 +522,9 @@ public:
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    void setFalloffCoeffs(const vector<double>& c) override;
+    void setFalloffCoeffs(span<const double> c) override;
 
-    void getFalloffCoeffs(vector<double>& c) const override;
+    void getFalloffCoeffs(span<double> c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -535,16 +532,16 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, span<double> work) const override;
 
-    double F(double pr, const double* work) const override;
+    double F(double pr, span<const double> work) const override;
 
     const string subType() const override {
         return "Tsang";
     }
 
     size_t nParameters() const override {
-        return 2;
+        return (m_b == 0.0) ? 1 : 2;
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;

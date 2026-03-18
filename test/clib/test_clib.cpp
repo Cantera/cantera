@@ -218,7 +218,7 @@ TEST(ct, transport)
     vector<double> cpp_dkm(nsp);
     auto sol = newSolution("gri30.yaml", "gri30");
     auto transport = sol->transport();
-    transport->getMixDiffCoeffs(cpp_dkm.data());
+    transport->getMixDiffCoeffs(cpp_dkm);
 
     for (size_t n = 0; n < nsp; n++) {
         ASSERT_NEAR(cpp_dkm[n], c_dkm[n], 1e-10);

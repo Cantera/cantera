@@ -41,7 +41,8 @@ public:
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] p sensitivity parameter vector, length nparams()
      */
-    virtual void eval(double t, double* y, double* ydot, double* p) {
+    virtual void eval(double t, span<const double> y, span<double> ydot,
+                      span<const double> p) {
         throw NotImplementedError("FuncEval::eval");
     }
 
@@ -49,18 +50,18 @@ public:
      * Evaluate the right-hand-side DAE function. Called by the integrator.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
-     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] ydot rate of change of solution vector, length neq()
      * @param[in] p sensitivity parameter vector, length nparams()
      * @param[out] residual the DAE residuals, length nparams()
      */
-    virtual void evalDae(double t, double* y, double* ydot, double* p,
-                         double* residual) {
+    virtual void evalDae(double t, span<const double> y, span<const double> ydot,
+                         span<const double> p, span<double> residual) {
         throw NotImplementedError("FuncEval::evalDae");
     }
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
-    virtual void getConstraints(double* constraints) {
+    virtual void getConstraints(span<double> constraints) {
         throw NotImplementedError("FuncEval::getConstraints");
     }
 
@@ -73,7 +74,7 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int evalNoThrow(double t, double* y, double* ydot);
+    int evalNoThrow(double t, span<const double> y, span<double> ydot);
 
     //! Evaluate the right-hand side using return code to indicate status.
     /*!
@@ -84,7 +85,8 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int evalDaeNoThrow(double t, double* y, double* ydot, double* residual);
+    int evalDaeNoThrow(double t, span<const double> y, span<const double> ydot,
+                       span<double> residual);
 
     /**
      * Evaluate the setup processes for the Jacobian preconditioner.
@@ -94,7 +96,7 @@ public:
      * @warning This function is an experimental part of the %Cantera API and may be
      * changed or removed without notice.
      */
-    virtual void preconditionerSetup(double t, double* y, double gamma) {
+    virtual void preconditionerSetup(double t, span<const double> y, double gamma) {
         throw NotImplementedError("FuncEval::preconditionerSetup");
     }
 
@@ -105,7 +107,7 @@ public:
      * @warning This function is an experimental part of the %Cantera API and may be
      * changed or removed without notice.
      */
-    virtual void preconditionerSolve(double* rhs, double* output) {
+    virtual void preconditionerSolve(span<const double> rhs, span<double> output) {
         throw NotImplementedError("FuncEval::preconditionerSolve");
     }
 
@@ -124,7 +126,7 @@ public:
      * @warning This function is an experimental part of the %Cantera API and may be
      * changed or removed without notice.
      */
-    int preconditioner_setup_nothrow(double t, double* y, double gamma);
+    int preconditioner_setup_nothrow(double t, span<const double> y, double gamma);
 
     /**
      * Preconditioner solve that doesn't throw an error but returns a
@@ -135,7 +137,7 @@ public:
      * @warning This function is an experimental part of the %Cantera API and may be
      * changed or removed without notice.
      */
-    int preconditioner_solve_nothrow(double* rhs, double* output);
+    int preconditioner_solve_nothrow(span<const double> rhs, span<double> output);
 
     //! Number of event/root functions exposed to the integrator.
     //! 0 indicates root finding is disabled.
@@ -152,22 +154,22 @@ public:
      * @param[out] gout Array of length nRootFunctions() to be filled with the
      *      values of the root functions
      */
-    virtual void evalRootFunctions(double t, const double* y, double* gout) { }
+    virtual void evalRootFunctions(double t, span<const double> y, span<double> gout) {}
 
     //! Wrapper for evalRootFunctions that converts exceptions to return codes.
     //! @returns 0 for a successful evaluation, 1 after a potentially-
     //!     recoverable error, or -1 after an unrecoverable error.
-    int evalRootFunctionsNoThrow(double t, const double* y, double* gout);
+    int evalRootFunctionsNoThrow(double t, span<const double> y, span<double> gout);
 
     //! Fill in the vector *y* with the current state of the system.
     //! Used for getting the initial state for ODE systems.
-    virtual void getState(double* y) {
+    virtual void getState(span<double> y) {
         throw NotImplementedError("FuncEval::getState");
     }
 
     //! Fill in the vectors *y* and *ydot* with the current state of the system.
     //! Used for getting the initial state for DAE systems.
-    virtual void getStateDae(double* y, double* ydot) {
+    virtual void getStateDae(span<double> y, span<double> ydot) {
         throw NotImplementedError("FuncEval::getStateDae");
     }
 

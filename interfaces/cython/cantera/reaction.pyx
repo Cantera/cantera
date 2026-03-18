@@ -9,6 +9,7 @@ from cython.operator cimport dereference as deref
 from .kinetics cimport Kinetics
 from ._utils cimport *
 from ._utils import CanteraError
+from .ctcxx cimport span
 from .units cimport *
 from .delegator cimport *
 
@@ -420,7 +421,12 @@ cdef class ElectronCollisionPlasmaRate(ReactionRate):
         of `cross_sections`.
         """
         def __get__(self):
-            return np.fromiter(self.base.energyLevels(), np.double)
+            cdef span[const_double] levels = self.base.energyLevels()
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(levels.size())
+            cdef size_t i
+            for i in range(levels.size()):
+                data[i] = levels[i]
+            return data
 
     property cross_sections:
         """
@@ -428,7 +434,12 @@ cdef class ElectronCollisionPlasmaRate(ReactionRate):
         level of `energy_levels`.
         """
         def __get__(self):
-            return np.fromiter(self.base.crossSections(), np.double)
+            cdef span[const_double] cross_sections = self.base.crossSections()
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(cross_sections.size())
+            cdef size_t i
+            for i in range(cross_sections.size()):
+                data[i] = cross_sections[i]
+            return data
 
 
 cdef class FalloffRate(ReactionRate):
@@ -512,14 +523,21 @@ cdef class FalloffRate(ReactionRate):
     property falloff_coeffs:
         """ The array of coefficients used to define this falloff function. """
         def __get__(self):
-            cdef vector[double] cxxdata
-            self.falloff.getFalloffCoeffs(cxxdata)
-            return np.fromiter(cxxdata, np.double)
+            cdef size_t n = self.falloff.nParameters()
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n)
+            if n:
+                self.falloff.getFalloffCoeffs(span[double](&data[0], n))
+            return data
+
         def __set__(self, data):
             cdef vector[double] cxxdata
             for c in data:
                 cxxdata.push_back(c)
-            self.falloff.setFalloffCoeffs(cxxdata)
+            if cxxdata.size():
+                self.falloff.setFalloffCoeffs(
+                    span[double](&cxxdata[0], cxxdata.size()))
+            else:
+                self.falloff.setFalloffCoeffs(span[double]())
 
     property allow_negative_pre_exponential_factor:
         """

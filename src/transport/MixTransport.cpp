@@ -20,9 +20,10 @@ void MixTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
     m_cond.resize(m_nsp);
 }
 
-void MixTransport::getMobilities(double* const mobil)
+void MixTransport::getMobilities(span<double> mobil)
 {
-    getMixDiffCoeffs(m_spwork.data());
+    checkArraySize("MixTransport::getMobilities", mobil.size(), m_nsp);
+    getMixDiffCoeffs(m_spwork);
     double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -48,8 +49,9 @@ double MixTransport::thermalConductivity()
     return m_lambda;
 }
 
-void MixTransport::getThermalDiffCoeffs(double* const dt)
+void MixTransport::getThermalDiffCoeffs(span<double> dt)
 {
+    checkArraySize("MixTransport::getThermalDiffCoeffs", dt.size(), m_nsp);
     update_T();
     update_C();
     if (!m_bindiff_ok) {
@@ -59,7 +61,7 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
         updateViscosity_T();
     }
 
-    const double* y = m_thermo->massFractions();
+    auto y = m_thermo->massFractions();
 
     vector<double>& a = m_spwork;
 
@@ -94,9 +96,9 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
 
             double Cstar = 0.;
             if (m_mode == CK_Mode) {
-                Cstar = poly6(log_tstar, m_cstar_poly[ipoly].data());
+                Cstar = poly6(log_tstar, m_cstar_poly[ipoly]);
             } else {
-                Cstar = poly8(log_tstar, m_cstar_poly[ipoly].data());
+                Cstar = poly8(log_tstar, m_cstar_poly[ipoly]);
             }
 
             double dt_T = ((1.2*Cstar - 1.0)/(m_bdiff(k,j)*rp))
@@ -108,7 +110,7 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
     }
 
     vector<double>& Dm = m_spwork;
-    getMixDiffCoeffs(Dm.data());
+    getMixDiffCoeffs(Dm);
 
     double mmw = m_thermo->meanMolecularWeight();
     double norm = 0.;
@@ -123,15 +125,24 @@ void MixTransport::getThermalDiffCoeffs(double* const dt)
     }
 }
 
-void MixTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                                    size_t ldx, const double* const grad_X,
-                                    size_t ldf, double* const fluxes)
+void MixTransport::getSpeciesFluxes(size_t ndim, span<const double> grad_T,
+                                    size_t ldx, span<const double> grad_X,
+                                    size_t ldf, span<double> fluxes)
 {
+    checkArraySize("MixTransport::getSpeciesFluxes: grad_T", grad_T.size(), ndim);
+    if (ldx < m_nsp) {
+        throw CanteraError("MixTransport::getSpeciesFluxes", "ldx is too small");
+    }
+    checkArraySize("MixTransport::getSpeciesFluxes: grad_X", grad_X.size(), ldx * ndim);
+    if (ldf < m_nsp) {
+        throw CanteraError("MixTransport::getSpeciesFluxes", "ldf is too small");
+    }
+    checkArraySize("MixTransport::getSpeciesFluxes: fluxes", fluxes.size(), ldf * ndim);
     update_T();
     update_C();
-    getMixDiffCoeffs(m_spwork.data());
-    const vector<double>& mw = m_thermo->molecularWeights();
-    const double* y = m_thermo->massFractions();
+    getMixDiffCoeffs(m_spwork);
+    auto mw = m_thermo->molecularWeights();
+    auto y = m_thermo->massFractions();
     double rhon = m_thermo->molarDensity();
     vector<double> sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {
@@ -167,7 +178,7 @@ void MixTransport::update_C()
     // before use, and update the local mole fractions.
     m_visc_ok = false;
     m_condmix_ok = false;
-    m_thermo->getMoleFractions(m_molefracs.data());
+    m_thermo->getMoleFractions(m_molefracs);
 
     // add an offset to avoid a pure species condition
     for (size_t k = 0; k < m_nsp; k++) {

@@ -42,11 +42,11 @@ public:
      *
      * @param dt  Vector of thermal diffusion coefficients.
      */
-    void getThermalDiffCoeffs(double* const dt) override;
+    void getThermalDiffCoeffs(span<double> dt) override;
 
     double thermalConductivity() override;
 
-    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
+    void getMultiDiffCoeffs(const size_t ld, span<double> d) override;
 
     //! Get the species diffusive mass fluxes [kg/m²/s] with respect to the mass
     //! averaged velocity, given the gradients in mole fraction and temperature
@@ -64,9 +64,9 @@ public:
      *     @f$ j_{kn} = \tt{ fluxes[n*ldf+k]} @f$ is the flux of species *k*
      *     in dimension *n*. Length is `ldf` * `ndim`.
      */
-    void getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                          size_t ldx, const double* const grad_X,
-                          size_t ldf, double* const fluxes) override;
+    void getSpeciesFluxes(size_t ndim, span<const double> grad_T,
+                          size_t ldx, span<const double> grad_X,
+                          size_t ldf, span<double> fluxes) override;
 
     //! Get the molar diffusional fluxes [kmol/m²/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -82,8 +82,8 @@ public:
      * @param fluxes Array containing the diffusive molar fluxes of species from
      *     `state1` to `state2`; Length is number of species.
      */
-    void getMolarFluxes(const double* const state1, const double* const state2,
-                        const double delta, double* const fluxes) override;
+    void getMolarFluxes(span<const double> state1, span<const double> state2,
+                        const double delta, span<double> fluxes) override;
 
     //! Get the mass diffusional fluxes [kg/m²/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -99,8 +99,8 @@ public:
      * @param fluxes Array containing the diffusive mass fluxes of species from
      *     `state1` to `state2`; length is number of species.
      */
-    void getMassFluxes(const double* state1, const double* state2, double delta,
-                       double* fluxes) override;
+    void getMassFluxes(span<const double> state1, span<const double> state2,
+                       double delta, span<double> fluxes) override;
 
     void init(shared_ptr<ThermoPhase> thermo, int mode=0) override;
 
@@ -160,23 +160,23 @@ protected:
      *  Evaluate the upper-left block of the L matrix.
      *  @param x vector of species mole fractions
      */
-    void eval_L0000(const double* const x);
+    void eval_L0000(span<const double> x);
 
     //! Evaluate the L0010 matrices
     /*!
      *  @param x vector of species mole fractions
      */
-    void eval_L0010(const double* const x);
+    void eval_L0010(span<const double> x);
 
     //! Evaluate the L1000 matrices
     void eval_L1000();
 
     void eval_L0100();
     void eval_L0001();
-    void eval_L1010(const double* x);
-    void eval_L1001(const double* x);
+    void eval_L1010(span<const double> x);
+    void eval_L1001(span<const double> x);
     void eval_L0110();
-    void eval_L0101(const double* x);
+    void eval_L0101(span<const double> x);
     bool hasInternalModes(size_t j);
 
     double pressure_ig();

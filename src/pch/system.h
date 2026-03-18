@@ -8,6 +8,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <vector>
+#include <span>
+#include <array>
 #include <map>
 #include <set>
 #include <string>

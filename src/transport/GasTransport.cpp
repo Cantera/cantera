@@ -72,7 +72,7 @@ double GasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, m_molefracs.data(), m_spwork.data());
+    multiply(m_phi, m_molefracs, m_spwork);
 
     for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -146,7 +146,7 @@ void GasTransport::updateDiff_T()
     m_bindiff_ok = true;
 }
 
-void GasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
+void GasTransport::getBinaryDiffCoeffs(const size_t ld, span<double> d)
 {
     update_T();
     // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
@@ -156,6 +156,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
     if (ld < m_nsp) {
         throw CanteraError("GasTransport::getBinaryDiffCoeffs", "ld is too small");
     }
+    checkArraySize("GasTransport::getBinaryDiffCoeffs", d.size(), ld * m_nsp);
     double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
@@ -164,8 +165,9 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffs(double* const d)
+void GasTransport::getMixDiffCoeffs(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffs", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -195,8 +197,9 @@ void GasTransport::getMixDiffCoeffs(double* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMole(double* const d)
+void GasTransport::getMixDiffCoeffsMole(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffsMole", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -225,8 +228,9 @@ void GasTransport::getMixDiffCoeffsMole(double* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMass(double* const d)
+void GasTransport::getMixDiffCoeffsMass(span<double> d)
 {
+    checkArraySize("GasTransport::getMixDiffCoeffsMass", d.size(), m_nsp);
     update_T();
     update_C();
 
@@ -276,7 +280,8 @@ void GasTransport::init(shared_ptr<ThermoPhase> thermo, int mode)
     m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
+    m_mw.resize(m_nsp);
+    m_thermo->getMolecularWeights(m_mw);
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -308,7 +313,7 @@ void GasTransport::setupCollisionParameters()
     m_disp.resize(m_nsp, 0.0);
     m_quad_polar.resize(m_nsp, 0.0);
 
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     getTransportData();
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -471,8 +476,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             if (dptr == fitlist.end()) {
                 vector<double> ca(degree+1), cb(degree+1), cc(degree+1);
                 vector<double> co22(degree+1);
-                integrals.fit(degree, dstar, ca.data(), cb.data(), cc.data());
-                integrals.fit_omega22(degree, dstar, co22.data());
+                integrals.fit(degree, dstar, ca, cb, cc);
+                integrals.fit_omega22(degree, dstar, co22);
                 m_omega22_poly.push_back(co22);
                 m_astar_poly.push_back(ca);
                 m_bstar_poly.push_back(cb);
@@ -516,7 +521,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     double visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
     double T_save = m_thermo->temperature();
-    const vector<double>& mw = m_thermo->molecularWeights();
+    auto mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         double tstar = Boltzmann * 298.0 / m_eps[k];
         // Scaling factor for temperature dependence of z_rot. [Kee2003] Eq.
@@ -528,7 +533,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
             vector<double> cp_R_all(m_thermo->nSpecies());
-            m_thermo->getCp_R_ref(&cp_R_all[0]);
+            m_thermo->getCp_R_ref(cp_R_all);
             double cp_R = cp_R_all[k];
             tstar = Boltzmann * t / m_eps[k];
             double sqrt_T = sqrt(t);
@@ -580,19 +585,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
             }
         }
-        polyfit(np, degree, tlog.data(), spvisc.data(), w.data(), c.data());
-        polyfit(np, degree, tlog.data(), spcond.data(), w2.data(), c2.data());
+        polyfit(degree, tlog, spvisc, w, c);
+        polyfit(degree, tlog, spcond, w2, c2);
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spvisc[n]);
-                fit = exp(poly3(tlog[n], c.data()));
+                fit = exp(poly3(tlog[n], c));
             } else {
                 double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
-                fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
+                fit = sqrt_T * pow(poly4(tlog[n], c),2);
             }
             err = fit - val;
             relerr = err/val;
@@ -607,11 +612,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spcond[n]);
-                fit = exp(poly3(tlog[n], c2.data()));
+                fit = exp(poly3(tlog[n], c2));
             } else {
                 double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
-                fit = sqrt_T * poly4(tlog[n], c2.data());
+                fit = sqrt_T * poly4(tlog[n], c2);
             }
             err = fit - val;
             relerr = err/val;
@@ -672,18 +677,18 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                     w[n] = 1.0/(diff[n]*diff[n]);
                 }
             }
-            polyfit(np, degree, tlog.data(), diff.data(), w.data(), c.data());
+            polyfit(degree, tlog, diff, w, c);
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;
                 if (m_mode == CK_Mode) {
                     val = exp(diff[n]);
-                    fit = exp(poly3(tlog[n], c.data()));
+                    fit = exp(poly3(tlog[n], c));
                 } else {
                     double t = exp(tlog[n]);
                     double pre = pow(t, 1.5);
                     val = pre * diff[n];
-                    fit = pre * poly4(tlog[n], c.data());
+                    fit = pre * poly4(tlog[n], c);
                 }
                 err = fit - val;
                 relerr = err/val;
@@ -750,26 +755,32 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
           (q2*xk*xk + q1*xj*xj + q12*xk*xj);
 }
 
-void GasTransport::getViscosityPolynomial(size_t i, double* coeffs) const
+void GasTransport::getViscosityPolynomial(size_t i, span<double> coeffs) const
 {
     checkSpeciesIndex(i);
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::getViscosityPolynomial", coeffs.size(), N);
+    for (size_t k = 0; k < N; k++) {
         coeffs[k] = m_visccoeffs[i][k];
     }
 }
 
-void GasTransport::getConductivityPolynomial(size_t i, double* coeffs) const
+void GasTransport::getConductivityPolynomial(size_t i, span<double> coeffs) const
 {
     checkSpeciesIndex(i);
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::getConductivityPolynomial", coeffs.size(), N);
+    for (size_t k = 0; k < N; k++) {
         coeffs[k] = m_condcoeffs[i][k];
     }
 }
 
-void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const
+void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, span<double> coeffs) const
 {
     checkSpeciesIndex(i);
     checkSpeciesIndex(j);
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::getBinDiffusivityPolynomial", coeffs.size(), N);
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
     size_t ic = 0;
@@ -778,47 +789,60 @@ void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     }
     ic += mj - mi;
 
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (size_t k = 0; k < N; k++) {
         coeffs[k] = m_diffcoeffs[ic][k];
     }
 }
 
 void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j,
-                                                 double* astar_coeffs,
-                                                 double* bstar_coeffs,
-                                                 double* cstar_coeffs) const
+                                                 span<double> astar_coeffs,
+                                                 span<double> bstar_coeffs,
+                                                 span<double> cstar_coeffs) const
 {
     checkSpeciesIndex(i);
     checkSpeciesIndex(j);
-    for (int k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
+    size_t N = (m_mode == CK_Mode) ? 7 : COLL_INT_POLY_DEGREE + 1;
+    checkArraySize("GasTransport::getCollisionIntegralPolynomial[astar]",
+                   astar_coeffs.size(), N);
+    checkArraySize("GasTransport::getCollisionIntegralPolynomial[bstar]",
+                   bstar_coeffs.size(), N);
+    checkArraySize("GasTransport::getCollisionIntegralPolynomial[cstar]",
+                   cstar_coeffs.size(), N);
+    for (size_t k = 0; k < N; k++) {
         astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
         bstar_coeffs[k] = m_bstar_poly[m_poly[i][j]][k];
         cstar_coeffs[k] = m_cstar_poly[m_poly[i][j]][k];
     }
 }
 
-void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
+void GasTransport::setViscosityPolynomial(size_t i, span<double> coeffs)
 {
     checkSpeciesIndex(i);
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::setViscosityPolynomial", coeffs.size(), N);
+    for (size_t k = 0; k < N; k++) {
         m_visccoeffs[i][k] = coeffs[k];
     }
     invalidateCache();
 }
 
-void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
+void GasTransport::setConductivityPolynomial(size_t i, span<double> coeffs)
 {
     checkSpeciesIndex(i);
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::setConductivityPolynomial", coeffs.size(), N);
+    for (size_t k = 0; k < N; k++) {
         m_condcoeffs[i][k] = coeffs[k];
     }
     invalidateCache();
 }
 
-void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs)
+void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, span<double> coeffs)
 {
     checkSpeciesIndex(i);
     checkSpeciesIndex(j);
+    size_t N = (m_mode == CK_Mode) ? 4 : 5;
+    checkArraySize("GasTransport::setBinDiffusivityPolynomial", coeffs.size(), N);
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
     size_t ic = 0;
@@ -827,23 +851,28 @@ void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     }
     ic += mj - mi;
 
-    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (size_t k = 0; k < N; k++) {
         m_diffcoeffs[ic][k] = coeffs[k];
     }
     invalidateCache();
 }
 
 void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
-                                                  double* astar_coeffs,
-                                                  double* bstar_coeffs,
-                                                  double* cstar_coeffs, bool actualT)
+    span<double> astar_coeffs, span<double> bstar_coeffs, span<double> cstar_coeffs,
+    bool actualT)
 {
     checkSpeciesIndex(i);
     checkSpeciesIndex(j);
-    size_t degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    vector<double> ca(degree+1), cb(degree+1), cc(degree+1);
+    size_t N = (m_mode == CK_Mode) ? 7 : COLL_INT_POLY_DEGREE + 1;
+    checkArraySize("GasTransport::setCollisionIntegralPolynomial[astar]",
+                   astar_coeffs.size(), N);
+    checkArraySize("GasTransport::setCollisionIntegralPolynomial[bstar]",
+                   bstar_coeffs.size(), N);
+    checkArraySize("GasTransport::setCollisionIntegralPolynomial[cstar]",
+                   cstar_coeffs.size(), N);
+    vector<double> ca(N), cb(N), cc(N);
 
-    for (size_t k = 0; k < degree+1; k++) {
+    for (size_t k = 0; k < N; k++) {
         ca[k] = astar_coeffs[k];
         cb[k] = bstar_coeffs[k];
         cc[k] = cstar_coeffs[k];

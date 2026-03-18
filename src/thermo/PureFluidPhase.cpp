@@ -40,7 +40,7 @@ void PureFluidPhase::initThermo()
     p = 0.001 * p;
     m_sub->Set(tpx::PropertyPair::TP, T0, p);
 
-    m_spthermo.update_single(0, T0, &cp0_R, &h0_RT, &s0_R);
+    m_spthermo.update_single(0, T0, cp0_R, h0_RT, s0_R);
     double s_R = s0_R - log(p/refPressure());
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
@@ -156,33 +156,43 @@ double PureFluidPhase::thermalExpansionCoeff() const
     return m_sub->thermalExpansionCoeff();
 }
 
+double PureFluidPhase::internalPressure() const
+{
+    return m_sub->internalPressure();
+}
+
 tpx::Substance& PureFluidPhase::TPX_Substance()
 {
     return *m_sub;
 }
 
-void PureFluidPhase::getPartialMolarEnthalpies(double* hbar) const
+void PureFluidPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarEnthalpies", hbar.size(), 1);
     hbar[0] = enthalpy_mole();
 }
 
-void PureFluidPhase::getPartialMolarEntropies(double* sbar) const
+void PureFluidPhase::getPartialMolarEntropies(span<double> sbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarEntropies", sbar.size(), 1);
     sbar[0] = entropy_mole();
 }
 
-void PureFluidPhase::getPartialMolarIntEnergies(double* ubar) const
+void PureFluidPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarIntEnergies", ubar.size(), 1);
     ubar[0] = intEnergy_mole();
 }
 
-void PureFluidPhase::getPartialMolarCp(double* cpbar) const
+void PureFluidPhase::getPartialMolarCp(span<double> cpbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarCp", cpbar.size(), 1);
     cpbar[0] = cp_mole();
 }
 
-void PureFluidPhase::getPartialMolarVolumes(double* vbar) const
+void PureFluidPhase::getPartialMolarVolumes(span<double> vbar) const
 {
+    checkArraySize("PureFluidPhase::getPartialMolarVolumes", vbar.size(), 1);
     vbar[0] = 1.0 / molarDensity();
 }
 
@@ -191,8 +201,9 @@ Units PureFluidPhase::standardConcentrationUnits() const
     return Units(1.0);
 }
 
-void PureFluidPhase::getActivityConcentrations(double* c) const
+void PureFluidPhase::getActivityConcentrations(span<double> c) const
 {
+    checkArraySize("PureFluidPhase::getActivityConcentrations", c.size(), 1);
     c[0] = 1.0;
 }
 
@@ -201,32 +212,37 @@ double PureFluidPhase::standardConcentration(size_t k) const
     return 1.0;
 }
 
-void PureFluidPhase::getActivities(double* a) const
+void PureFluidPhase::getActivities(span<double> a) const
 {
+    checkArraySize("PureFluidPhase::getActivities", a.size(), 1);
     a[0] = 1.0;
 }
 
-void PureFluidPhase::getStandardChemPotentials(double* mu) const
+void PureFluidPhase::getStandardChemPotentials(span<double> mu) const
 {
+    checkArraySize("PureFluidPhase::getStandardChemPotentials", mu.size(), 1);
     mu[0] = gibbs_mole();
 }
 
-void PureFluidPhase::getEnthalpy_RT(double* hrt) const
+void PureFluidPhase::getEnthalpy_RT(span<double> hrt) const
 {
+    checkArraySize("PureFluidPhase::getEnthalpy_RT", hrt.size(), 1);
     hrt[0] = enthalpy_mole() / RT();
 }
 
-void PureFluidPhase::getEntropy_R(double* sr) const
+void PureFluidPhase::getEntropy_R(span<double> sr) const
 {
+    checkArraySize("PureFluidPhase::getEntropy_R", sr.size(), 1);
     sr[0] = entropy_mole() / GasConstant;
 }
 
-void PureFluidPhase::getGibbs_RT(double* grt) const
+void PureFluidPhase::getGibbs_RT(span<double> grt) const
 {
+    checkArraySize("PureFluidPhase::getGibbs_RT", grt.size(), 1);
     grt[0] = gibbs_mole() / RT();
 }
 
-void PureFluidPhase::getEnthalpy_RT_ref(double* hrt) const
+void PureFluidPhase::getEnthalpy_RT_ref(span<double> hrt) const
 {
     double rhoSave = density();
     double t = temperature();
@@ -237,7 +253,7 @@ void PureFluidPhase::getEnthalpy_RT_ref(double* hrt) const
 
 }
 
-void PureFluidPhase::getGibbs_RT_ref(double* grt) const
+void PureFluidPhase::getGibbs_RT_ref(span<double> grt) const
 {
     double rhoSave = density();
     double t = temperature();
@@ -249,13 +265,13 @@ void PureFluidPhase::getGibbs_RT_ref(double* grt) const
     Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 }
 
-void PureFluidPhase::getGibbs_ref(double* g) const
+void PureFluidPhase::getGibbs_ref(span<double> g) const
 {
     getGibbs_RT_ref(g);
     g[0] *= RT();
 }
 
-void PureFluidPhase::getEntropy_R_ref(double* er) const
+void PureFluidPhase::getEntropy_R_ref(span<double> er) const
 {
     double rhoSave = density();
     double t = temperature();

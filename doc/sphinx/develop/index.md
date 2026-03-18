@@ -52,6 +52,7 @@ reactor-integration
 - [](vscode-tips)
 - [](writing-tests)
 - [](running-tests)
+- [](type-checking)
 - [](writing-examples)
 - [](doc-formatting)
 - [](continuous-integration)
@@ -65,6 +66,7 @@ style-guidelines
 vscode-tips
 writing-tests
 running-tests
+type-checking
 writing-examples
 doc-formatting
 continuous-integration
@@ -94,6 +96,7 @@ yaml-extensions
 
 - [](distribution-packages/release-checklist)
 - [](distribution-packages/pypi-sdist-wheel)
+- [](distribution-packages/pyodide-wheel)
 - [](distribution-packages/conda)
 - [](distribution-packages/ubuntu-ppa)
 - [](distribution-packages/windows-and-macos.md)
@@ -105,6 +108,7 @@ yaml-extensions
 
 distribution-packages/release-checklist
 distribution-packages/pypi-sdist-wheel
+distribution-packages/pyodide-wheel
 distribution-packages/conda
 distribution-packages/ubuntu-ppa
 distribution-packages/windows-and-macos

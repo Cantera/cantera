@@ -21,12 +21,14 @@
 // STL includes
 #include <cstdlib>
 #include <vector>
+#include <span>
 #include <map>
 #include <set>
 #include <string>
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include <array>
 
 /**
  * Namespace for the Cantera kernel.
@@ -45,6 +47,7 @@ using std::map;
 using std::set;
 using std::function;
 using std::pair;
+using std::span;
 
 /**
  * @defgroup physConstants Physical Constants

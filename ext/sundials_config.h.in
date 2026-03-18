@@ -1,14 +1,24 @@
 /* Minimal set of SUNDIALS configuration variables */
-#define SUNDIALS_VERSION "5.3.0"
-#define SUNDIALS_VERSION_MAJOR 5
-#define SUNDIALS_VERSION_MINOR 3
+
+#include "sundials/sundials_export.h"
+
+/* Indicates that the function will not report an error via last_err,
+   a return code. In C++, it is just defined as noexcept. */
+#if defined(__cplusplus)
+#define SUNDIALS_NOEXCEPT noexcept
+#else
+#define SUNDIALS_NOEXCEPT
+#endif
+
+#define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
+#define SUNDIALS_VERSION "7.5.0"
+#define SUNDIALS_VERSION_MAJOR 7
+#define SUNDIALS_VERSION_MINOR 5
 #define SUNDIALS_VERSION_PATCH 0
 #define SUNDIALS_VERSION_LABEL ""
-#define SUNDIALS_F77_FUNC(name,NAME) name ## _
 #define SUNDIALS_DOUBLE_PRECISION 1
 #define SUNDIALS_INT32_T 1
 #define SUNDIALS_INDEX_TYPE int32_t
 {SUNDIALS_USE_GENERIC_MATH!s}
 {SUNDIALS_BLAS_LAPACK!s}
-#define SUNDIALS_EXPORT
-#define SUNDIALS_DEPRECATED SUNDIALS_EXPORT
+#define SUNDIALS_COUNTER_TYPE long int

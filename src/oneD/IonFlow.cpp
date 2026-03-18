@@ -91,24 +91,24 @@ bool IonFlow::componentActive(size_t n) const
     }
 }
 
-void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
+void IonFlow::updateTransport(span<const double> x, size_t j0, size_t j1)
 {
     Flow1D::updateTransport(x,j0,j1);
     for (size_t j = j0; j < j1; j++) {
         setGasAtMidpoint(x,j);
-        m_trans->getMobilities(&m_mobility[j*m_nsp]);
+        m_trans->getMobilities(span<double>(&m_mobility[j*m_nsp], m_nsp));
         if (m_import_electron_transport) {
             size_t k = m_kElectron;
             double tlog = log(m_thermo->temperature());
-            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix.data());
+            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix);
             double rho = m_thermo->density();
             double wtm = m_thermo->meanMolecularWeight();
-            m_diff[k+m_nsp*j] = m_wt[k]*rho*poly5(tlog, m_diff_e_fix.data())/wtm;
+            m_diff[k+m_nsp*j] = m_wt[k]*rho*poly5(tlog, m_diff_e_fix)/wtm;
         }
     }
 }
 
-void IonFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
+void IonFlow::updateDiffFluxes(span<const double> x, size_t j0, size_t j1)
 {
     if (m_do_electric_field) {
         electricFieldMethod(x,j0,j1);
@@ -117,7 +117,7 @@ void IonFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 }
 
-void IonFlow::frozenIonMethod(const double* x, size_t j0, size_t j1)
+void IonFlow::frozenIonMethod(span<const double> x, size_t j0, size_t j1)
 {
     for (size_t j = j0; j < j1; j++) {
         double dz = z(j+1) - z(j);
@@ -142,7 +142,7 @@ void IonFlow::frozenIonMethod(const double* x, size_t j0, size_t j1)
     }
 }
 
-void IonFlow::electricFieldMethod(const double* x, size_t j0, size_t j1)
+void IonFlow::electricFieldMethod(span<const double> x, size_t j0, size_t j1)
 {
     for (size_t j = j0; j < j1; j++) {
         double rho = density(j);
@@ -180,7 +180,7 @@ void IonFlow::electricFieldMethod(const double* x, size_t j0, size_t j1)
 }
 
 //! Evaluate the electric field equation residual
-void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
+void IonFlow::evalElectricField(span<const double> x, span<double> rsd, span<int> diag,
                                 double rdt, size_t jmin, size_t jmax)
 {
     Flow1D::evalElectricField(x, rsd, diag, rdt, jmin, jmax);
@@ -205,7 +205,7 @@ void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
     }
 }
 
-void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
+void IonFlow::evalSpecies(span<const double> x, span<double> rsd, span<int> diag,
                           double rdt, size_t jmin, size_t jmax)
 {
     Flow1D::evalSpecies(x, rsd, diag, rdt, jmin, jmax);
@@ -247,8 +247,8 @@ void IonFlow::fixElectricField()
     m_do_electric_field = false;
 }
 
-void IonFlow::setElectronTransport(vector<double>& tfix, vector<double>& diff_e,
-                                   vector<double>& mobi_e)
+void IonFlow::setElectronTransport(span<const double> tfix, span<const double> diff_e,
+                                   span<const double> mobi_e)
 {
     m_import_electron_transport = true;
     size_t degree = 5;
@@ -257,11 +257,10 @@ void IonFlow::setElectronTransport(vector<double>& tfix, vector<double>& diff_e,
     for (size_t i = 0; i < n; i++) {
         tlog.push_back(log(tfix[i]));
     }
-    vector<double> w(n, -1.0);
     m_diff_e_fix.resize(degree + 1);
     m_mobi_e_fix.resize(degree + 1);
-    polyfit(n, degree, tlog.data(), diff_e.data(), w.data(), m_diff_e_fix.data());
-    polyfit(n, degree, tlog.data(), mobi_e.data(), w.data(), m_mobi_e_fix.data());
+    polyfit(degree, tlog, diff_e, {}, m_diff_e_fix);
+    polyfit(degree, tlog, mobi_e, {}, m_mobi_e_fix);
 }
 
 }

@@ -132,8 +132,8 @@ public:
     size_t ldim() const;
 
     //! Multiply A*b and write result to @c prod.
-    void mult(const double* b, double* prod) const override;
-    void leftMult(const double* const b, double* const prod) const override;
+    void mult(span<const double> b, span<double> prod) const override;
+    void leftMult(span<const double> b, span<double> prod) const override;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     //! The factorization is saved in ludata.
@@ -144,7 +144,7 @@ public:
      * @param b  INPUT RHS of the problem
      * @param x  OUTPUT solution to the problem
      */
-    void solve(const double* const b, double* const x);
+    void solve(span<const double> b, span<double> x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -153,7 +153,7 @@ public:
      * @param nrhs  Number of right hand sides to solve
      * @param ldb   Leading dimension of `b`. Default is nColumns()
      */
-    void solve(double* b, size_t nrhs=1, size_t ldb=0) override;
+    void solve(span<double> b, size_t nrhs=1, size_t ldb=0) override;
 
     void zero() override;
 
@@ -172,39 +172,6 @@ public:
 
     //! Returns the one norm of the matrix
     double oneNorm() const override;
-
-    //! Return a pointer to the top of column j
-    /*!
-     * Column values are assumed to be contiguous in memory (LAPACK band matrix
-     * structure)
-     *
-     * On entry, the matrix A in band storage, in rows KL+1 to 2*KL+KU+1; rows 1
-     * to KL of the array need not be set. The j-th column of A is stored in the
-     * j-th column of the array AB as follows:
-     *
-     * AB(KL + KU + 1 + i - j,j) = A(i,j) for max(1, j - KU) <= i <= min(m, j + KL)
-     *
-     * This routine returns the position of AB(1,j) (fortran-1 indexing) in the
-     * above format
-     *
-     * So to address the (i,j) position, you use the following indexing:
-     *
-     *     double *colP_j = matrix.ptrColumn(j);
-     *     double a_i_j = colP_j[kl + ku + i - j];
-     *
-     *  @param j   Value of the column
-     *  @returns a pointer to the top of the column
-     */
-    double* ptrColumn(size_t j) override;
-
-    //! Return a vector of const pointers to the columns
-    /*!
-     * Note the value of the pointers are protected by their being const.
-     * However, the value of the matrix is open to being changed.
-     *
-     * @returns a vector of pointers to the top of the columns of the matrices.
-     */
-    double* const* colPts() override;
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!
@@ -235,6 +202,8 @@ protected:
 
     //! Factorized data
     vector<double> ludata;
+    //! Pointers into #ludata used by the SUNDIALS solver
+    vector<double*> m_lu_col_ptrs;
 
     //! Number of rows and columns of the matrix
     size_t m_n = 0;
@@ -253,15 +222,12 @@ protected:
     //! Pivot vector
     unique_ptr<PivData> m_ipiv;
 
-    //! Vector of column pointers
-    vector<double*> m_colPtrs;
-    vector<double*> m_lu_col_ptrs;
-
     //! Extra work array needed - size = n
     vector<int> iwork_;
 
     //! Extra dp work array needed - size = 3n
     vector<double> work_;
+
 
     int m_info = 0;
 };

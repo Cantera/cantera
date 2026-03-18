@@ -38,12 +38,16 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxReactorBase() except +translate_exception
         string type()
         shared_ptr[CxxSolution] phase()
-        void restoreState() except +translate_exception
         void syncState() except +translate_exception
         double volume()
         string name()
-        void setName(string)
-        void setInitialVolume(double)
+        void setName(string) except +translate_exception
+        size_t neq()
+        size_t componentIndex(string&) except +translate_exception
+        string componentName(size_t) except +translate_exception
+        void getState(span[double]) except +translate_exception
+        void getStateDae(span[double], span[double]) except +translate_exception
+        void setInitialVolume(double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
@@ -52,10 +56,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool chemistryEnabled()
         void setEnergyEnabled(cbool)
         cbool energyEnabled()
-        size_t componentIndex(string&) except +translate_exception
-        string componentName(size_t) except +translate_exception
-        size_t neq()
-        void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
@@ -67,32 +67,36 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double speed()
         void setArea(double) except +translate_exception
         double area() except +translate_exception
-        void setSurfaceAreaToVolumeRatio(double) except +translate_exception
-        double surfaceAreaToVolumeRatio() except +translate_exception
-        double inletSurfaceAtol()
-        void setInletSurfaceAtol(double) except +translate_exception
-        double inletSurfaceRtol()
-        void setInletSurfaceRtol(double) except +translate_exception
-        double inletSurfaceMaxSteps()
-        void setInletSurfaceMaxSteps(int) except +translate_exception
-        int inletSurfaceMaxErrorFailures()
-        void setInletSurfaceMaxErrorFailures(int) except +translate_exception
+
 
     # reactor surface
 
-    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        string type()
-        string name()
-        void setName(string) except +translate_exception
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorBase):
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*) except +translate_exception
-        void setCoverages(double*)
+        void setCoverages(span[double]) except +translate_exception
         void setCoverages(Composition&) except +translate_exception
-        void syncState()
+
+    cdef cppclass CxxFlowReactorSurface "Cantera::FlowReactorSurface" (CxxReactorSurface):
+        CxxFlowReactorSurface() except +translate_exception
+
+        double initialAtol()
+        void setInitialAtol(double) except +translate_exception
+        double initialRtol()
+        void setInitialRtol(double) except +translate_exception
+        double initialMaxSteps()
+        void setInitialMaxSteps(int) except +translate_exception
+        int initialMaxErrorFailures()
+        void setInitialMaxErrorFailures(int) except +translate_exception
 
     cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
-        shared_ptr[CxxSolution], vector[shared_ptr[CxxReactorBase]]&, cbool, string) except +translate_exception
+        string, shared_ptr[CxxSolution], span[shared_ptr[CxxReactorBase]],
+        cbool, string) except +translate_exception
+
+    cdef shared_ptr[CxxReactorBase] CxxNewReactorSurface "newReactorSurface" (
+        shared_ptr[CxxSolution], span[shared_ptr[CxxReactorBase]],
+        cbool, string) except +translate_exception
 
     # connectors
 
@@ -161,7 +165,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # reactor net
 
     cdef shared_ptr[CxxReactorNet] CxxNewReactorNet "newReactorNet" (
-        vector[shared_ptr[CxxReactorBase]]&) except +translate_exception
+        span[shared_ptr[CxxReactorBase]]) except +translate_exception
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
@@ -187,10 +191,11 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()
-        void getState(double*)
-        void getDerivative(int, double *) except +translate_exception
-        void setAdvanceLimits(double*)
-        cbool getAdvanceLimits(double*)
+        void getState(span[double]) except +translate_exception
+        void getStateDae(span[double], span[double]) except +translate_exception
+        void getDerivative(int, span[double]) except +translate_exception
+        void setAdvanceLimits(span[double])
+        cbool getAdvanceLimits(span[double])
         string componentName(size_t) except +translate_exception
         size_t globalComponentIndex(string&, int) except +translate_exception
         void setSensitivityTolerances(double, double)
@@ -214,8 +219,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setExpansionRate(double)
         double heatRate()
         void setHeatRate(double)
-        void restoreThermoState() except +translate_exception
-        void restoreSurfaceState(size_t) except +translate_exception
+        span[double] surfaceProductionRates()
 
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
@@ -272,10 +276,27 @@ cdef class FlowReactor(Reactor):
 cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
+    cdef public double[:] surface_production_rates
+    """
+    An array containing the total production rates [kmol/s] of bulk species on
+    surfaces. Updated from adjacent surfaces as part of ``Reactor.eval``.
+    """
 
 cdef class ReactorSurface(ReactorBase):
     cdef CxxReactorSurface* surface
     cdef list _reactors
+
+cdef class FlowReactorSurface(ReactorSurface):
+    pass
+
+cdef class ExtensibleReactorSurface(ReactorSurface):
+    cdef public _delegates
+    cdef public double[:] surface_production_rates
+    """
+    An array containing the net production rates [kmol/m²/s] of surface and bulk species
+    on the surface, with the order corresponding to the `InterfaceKinetics` object.
+    Updated as part of ``ReactorSurface.update_state``.
+    """
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node

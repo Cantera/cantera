@@ -73,38 +73,39 @@ public:
     double astar(double ts, double deltastar);
     double bstar(double ts, double deltastar);
     double cstar(double ts, double deltastar);
-    void fit(int degree, double deltastar, double* astar, double* bstar, double* cstar);
-    void fit_omega22(int degree, double deltastar, double* om22);
+    void fit(int degree, double deltastar, span<double> astar, span<double> bstar,
+             span<double> cstar);
+    void fit_omega22(int degree, double deltastar, span<double> om22);
     double omega11(double ts, double deltastar) {
         return omega22(ts, deltastar)/astar(ts, deltastar);
     }
 
 private:
-    double fitDelta(int table, int ntstar, int degree, double* c);
-    double quadInterp(double x0, double* x, double* y);
+    double fitDelta(int table, int ntstar, int degree, span<double> c);
+    double quadInterp(double x0, span<const double> x, span<const double> y);
 
     vector<vector<double>> m_o22poly;
     vector<vector<double>> m_apoly;
     vector<vector<double>> m_bpoly;
     vector<vector<double>> m_cpoly;
 
-    static double delta[8];
-    static double tstar22[37];
+    static std::array<double, 8> delta;
+    static std::array<double, 37> tstar22;
 
     //! Table of omega22 values
-    static double omega22_table[37*8];
+    static std::array<double, 37*8> omega22_table;
 
     //! T* values (reduced temperature)
-    static double tstar[39];
+    static std::array<double, 39> tstar;
 
     //! astar table
-    static double astar_table[39*8];
+    static std::array<double, 39*8> astar_table;
 
     //! bstar table
-    static double bstar_table[39*8];
+    static std::array<double, 39*8> bstar_table;
 
     //! cstar table
-    static double cstar_table[39*8];
+    static std::array<double, 39*8> cstar_table;
 
     //! Log temp
     vector<double> m_logTemp;

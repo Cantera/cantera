@@ -1352,9 +1352,8 @@ def setup_python_env(env):
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
 
-    if not env.get("require_numpy_1_7_API", True):
-        env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
-
+    # TODO: Remove after dropping support for Numpy 1.x
+    env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
 
     return env
 
@@ -1431,10 +1430,6 @@ def check_for_python(
             * ``"python_package"``: String with the value ``"y"`` or ``"n"`` to
               indicate whether or not the Python package will be built. This key will
               always be present.
-            * ``"require_numpy_1_7_API"``: Boolean indicating whether Cython will use
-              NumPy 1.7 API support. This is purely a compile-time constant and does not
-              affect which versions of NumPy Cantera supports. This key may or may not
-              be present in the return dictionary.
 
     Raises:
         config_error: If the user specifies that the Python package should be built but
@@ -1576,14 +1571,8 @@ def check_for_python(
         if exit_on_error:
             sys.exit(1)
         return {"python_package": "n"}
-    elif cython_version < parse_version("3.0.0"):
-        logger.info(
-            f"Using Cython version {cython_version} (uses legacy NumPy API)"
-        )
-        require_numpy_1_7_API = True
     else:
         logger.info(f"Using Cython version {cython_version}")
-        require_numpy_1_7_API = False
 
     if check_for_ruamel_yaml:
         ruamel_yaml_version = versions.get("ruamel.yaml")
@@ -1617,7 +1606,7 @@ def check_for_python(
         else:
             logger.info(f"Using pytest version {pytest_version}")
 
-    return {"python_package": "y", "require_numpy_1_7_API": require_numpy_1_7_API}
+    return {"python_package": "y"}
 
 
 def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
@@ -1744,11 +1733,11 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
         "system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
     should_exit_with_error = conf.env["system_sundials"] == "y"
 
-    if sundials_ver < parse_version("5.0") or sundials_ver >= parse_version("8.0"):
+    if sundials_ver < parse_version("6.4") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
-            config_error(f"Sundials version must be >=5.0,<8.0. Found {sundials_ver}.")
+            config_error(f"Sundials version must be >=6.4,<8.0. Found {sundials_ver}.")
         return bundled_sundials
-    elif sundials_ver > parse_version("7.2.0"):
+    elif sundials_ver > parse_version("7.5.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
 
     if sundials_ver >= parse_version("7.0.0"):
@@ -1773,7 +1762,6 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
             return bundled_sundials
 
     cvode_checks = {
-        SpecifierSet(">=5.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
         SpecifierSet(">=6.0,<7.0"): (
             "SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]
         ),
@@ -1803,11 +1791,7 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
     logger.info(f"Using system installation of Sundials version {sundials_ver}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver < parse_version("5.5"):
-        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
-        has_sundials_lapack = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
-                '#include "sundials/sundials_config.h"', 'C++')
-    elif sundials_ver <= parse_version("6.6.0"):
+    if sundials_ver <= parse_version("6.6.0"):
         # In Sundials 5.5-6.6.0, two defines are included specific to the
         # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
         lapackband = conf.CheckDeclaration(

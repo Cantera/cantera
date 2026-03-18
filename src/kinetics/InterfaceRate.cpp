@@ -20,14 +20,14 @@ void InterfaceData::update(double T)
         "Missing state information: 'InterfaceData' requires species coverages.");
 }
 
-void InterfaceData::update(double T, const vector<double>& values)
+void InterfaceData::update(double T, span<const double> values)
 {
     warn_user("InterfaceData::update",
         "This method does not update the site density.");
     ReactionData::update(T);
     sqrtT = sqrt(T);
     if (coverages.size() == 0) {
-        coverages = values;
+        coverages.assign(values.begin(), values.end());
         logCoverages.resize(values.size());
     } else if (values.size() == coverages.size()) {
         std::copy(values.begin(), values.end(), coverages.begin());
@@ -62,7 +62,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
         changed = true;
     }
     if (changed || mf != m_state_mf_number) {
-        surf.getCoverages(coverages.data());
+        surf.getCoverages(coverages);
         for (size_t n = 0; n < coverages.size(); n++) {
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }
@@ -70,8 +70,10 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
-            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
-            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            ph.getPartialMolarEnthalpies(
+                span<double>(partialMolarEnthalpies).subspan(start, ph.nSpecies()));
+            ph.getStandardChemPotentials(
+                span<double>(standardChemPotentials).subspan(start, ph.nSpecies()));
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 // only used for exchange current density formulation
@@ -87,6 +89,16 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
 void InterfaceData::perturbTemperature(double deltaT)
 {
     throw NotImplementedError("InterfaceData::perturbTemperature");
+}
+
+void InterfaceData::resize(Kinetics& kin) {
+    coverages.resize(kin.thermo().nSpecies(), 0.);
+    logCoverages.resize(kin.thermo().nSpecies(), 0.);
+    partialMolarEnthalpies.resize(kin.nTotalSpecies(), 0.);
+    electricPotentials.resize(kin.nPhases(), 0.);
+    standardChemPotentials.resize(kin.nTotalSpecies(), 0.);
+    standardConcentrations.resize(kin.nTotalSpecies(), 0.);
+    ready = true;
 }
 
 InterfaceRateBase::InterfaceRateBase()
@@ -197,12 +209,12 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies) const
 }
 
 void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double m,
-                                              const vector<double>& e)
+                                              span<const double> e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
         m_ac.push_back(a);
-        m_ec.push_back(e);
+        m_ec.emplace_back(e.begin(), e.end());
         m_mc.push_back(m);
         m_indices.clear();
     } else {
@@ -211,7 +223,7 @@ void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double
     }
 }
 
-void InterfaceRateBase::setSpecies(const vector<string>& species)
+void InterfaceRateBase::setSpecies(span<const string> species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {
@@ -245,7 +257,7 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
         if (m_lindep[iCov]) {
             m_ecov += m_ec[iCov][1] * shared_data.coverages[iKin];
         } else {
-            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov].data());
+            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov]);
         }
         m_mcov += m_mc[iCov] * shared_data.logCoverages[iKin];
     }

@@ -107,7 +107,7 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
 
         Eigen::VectorXd f0_old = f0;
         f0 = iterate(f0_old, delta);
-        checkFinite("EEDFTwoTermApproximation::converge: f0", f0.data(), f0.size());
+        checkFinite("EEDFTwoTermApproximation::converge: f0", asSpan(f0));
 
         err0 = err1;
         Eigen::VectorXd Df0 = (f0_old - f0).cwiseAbs();
@@ -166,7 +166,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
         return f0;
     }
 
-    checkFinite("EEDFTwoTermApproximation::converge: f0", f1.data(), f1.size());
+    checkFinite("EEDFTwoTermApproximation::converge: f0", asSpan(f1));
     f1 /= norm(f1, m_gridCenter);
     return f1;
 }
@@ -223,7 +223,7 @@ vector<double> EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
     return g;
 }
 
-SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
+SparseMat EEDFTwoTermApproximation::matrix_P(span<const double> g, size_t k)
 {
     SparseTriplets tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -242,7 +242,7 @@ SparseMat EEDFTwoTermApproximation::matrix_P(const vector<double>& g, size_t k)
     return P;
 }
 
-SparseMat EEDFTwoTermApproximation::matrix_Q(const vector<double>& g, size_t k)
+SparseMat EEDFTwoTermApproximation::matrix_Q(span<const double> g, size_t k)
 {
     SparseTriplets tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -371,7 +371,7 @@ double EEDFTwoTermApproximation::netProductionFrequency(const Eigen::VectorXd& f
                               m_X_targets[m_klocTargets[k]];
             Eigen::VectorXd s = PQ * f0;
             checkFinite("EEDFTwoTermApproximation::netProductionFrequency: s",
-                        s.data(), s.size());
+                        asSpan(s));
             nu += s.sum();
         }
     }
@@ -485,8 +485,8 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
-        auto& x = m_phase->collisionRate(k)->energyLevels();
-        auto& y = m_phase->collisionRate(k)->crossSections();
+        auto x = m_phase->collisionRate(k)->energyLevels();
+        auto y = m_phase->collisionRate(k)->crossSections();
 
         for (size_t i = 0; i < m_points; i++) {
             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
@@ -504,8 +504,8 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
     m_sigmaElastic.clear();
     m_sigmaElastic.resize(m_points, 0.0);
     for (size_t k : m_phase->kElastic()) {
-        auto& x = m_phase->collisionRate(k)->energyLevels();
-        auto& y = m_phase->collisionRate(k)->crossSections();
+        auto x = m_phase->collisionRate(k)->energyLevels();
+        auto y = m_phase->collisionRate(k)->crossSections();
         // Note:
         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
@@ -528,8 +528,8 @@ void EEDFTwoTermApproximation::setGridCache()
     m_i.resize(m_phase->nCollisions());
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
         auto& collision = m_phase->collisionRate(k);
-        auto& x = collision->energyLevels();
-        auto& y = collision->crossSections();
+        auto x = collision->energyLevels();
+        auto y = collision->crossSections();
         vector<double> eps1(m_points + 1);
         int shiftFactor = (collision->kind() == "ionization") ? 2 : 1;
 
@@ -580,7 +580,8 @@ void EEDFTwoTermApproximation::setGridCache()
         }
 
         // construct sigma_offset
-        auto x_offset = collision->energyLevels();
+        vector<double> x_offset(collision->energyLevels().begin(),
+                                collision->energyLevels().end());
         for (auto& element : x_offset) {
             element -= collision->threshold();
         }

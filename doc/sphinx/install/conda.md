@@ -24,7 +24,7 @@ Packages are available for the following platforms:
 
 - Windows (64-bit Intel)
 - Linux (64-bit Intel, 64-bit ARM, and 64-bit PPCLE)
-- macOS (64-bit Intel and 64-bit ARM (Apple Silicon))
+- macOS (64-bit ARM (Apple Silicon))
 
 ### Option 1: Create a new environment for Cantera
 
@@ -58,7 +58,7 @@ name: ct-env
 channels:
 - conda-forge
 dependencies:
-- python  # Cantera supports Python 3.10 and up
+- python  # Cantera supports Python 3.12 and up
 - cantera
 - ipython  # optional (needed for nicer interactive command line)
 - jupyter  # optional (needed for Jupyter Notebook)

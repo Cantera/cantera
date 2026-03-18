@@ -517,7 +517,8 @@ class SolutionArray(SolutionArrayBase):
         'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
         'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
-        'thermal_expansion_coeff', 'sound_speed', 'electric_potential',
+        'thermal_expansion_coeff', 'internal_pressure', 'sound_speed',
+        'electric_potential',
         # From Kinetics
         'heat_release_rate',
         # From Transport
@@ -528,7 +529,8 @@ class SolutionArray(SolutionArrayBase):
         # from ThermoPhase
         'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
         'partial_molar_entropies', 'partial_molar_int_energies',
-        'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
+        'partial_molar_int_energies_TV', 'chemical_potentials',
+        'electrochemical_potentials', 'partial_molar_cp', 'partial_molar_cv_TV',
         'partial_molar_volumes', 'standard_enthalpies_RT',
         'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
         'standard_cp_R', 'activities', 'activity_coefficients',
@@ -1278,7 +1280,7 @@ class SolutionArray(SolutionArrayBase):
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
         :param basis:
-            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions;
             if not specified (`None`), the native basis of the underlying `ThermoPhase`
             manager is used.
 

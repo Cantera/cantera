@@ -57,7 +57,7 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
             a_coeff_vec(1, k + m_kk * j) = a1kj;
         }
     }
-    a_coeff_vec.getRow(0, a_vec_Curr_.data());
+    a_coeff_vec.getRow(0, a_vec_Curr_);
     b_vec_Curr_[k] = b;
 }
 
@@ -125,12 +125,13 @@ double RedlichKwongMFTP::pressure() const
 
 double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_workS.data());
+    getStandardVolumes(m_workS);
     return 1.0 / m_workS[k];
 }
 
-void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
+void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
+    checkArraySize("RedlichKwongMFTP::getActivityCoefficients", ac.size(), m_kk);
     double mv = molarVolume();
     double sqt = sqrt(temperature());
     double vpb = mv + m_b_current;
@@ -161,7 +162,7 @@ void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void RedlichKwongMFTP::getChemPotentials(double* mu) const
+void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 {
     getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
@@ -195,11 +196,11 @@ void RedlichKwongMFTP::getChemPotentials(double* mu) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
+void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 {
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
-    scale(hbar, hbar+m_kk, hbar, RT());
+    scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
 
     // We calculate dpdni_
     double TKelvin = temperature();
@@ -240,10 +241,10 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
+void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R_ref(sbar);
-    scale(sbar, sbar+m_kk, sbar, GasConstant);
+    scale(sbar.begin(), sbar.end(), sbar.begin(), GasConstant);
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
@@ -285,16 +286,16 @@ void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
     }
 
     pressureDerivatives();
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getPartialMolarVolumes(m_partialMolarVolumes);
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarIntEnergies(double* ubar) const
+void RedlichKwongMFTP::getPartialMolarIntEnergies(span<double> ubar) const
 {
     // u_k = h_k - P * v_k
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getPartialMolarVolumes(m_partialMolarVolumes);
     getPartialMolarEnthalpies(ubar);
     double p = pressure();
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -302,8 +303,198 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies(double* ubar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarVolumes(double* vbar) const
+void RedlichKwongMFTP::getPartialMolarIntEnergies_TV(span<double> utilde) const
 {
+    checkArraySize("RedlichKwongMFTP::getPartialMolarIntEnergies_TV", utilde.size(), m_kk);
+    _updateReferenceStateThermo();
+
+    double T = temperature();
+    double sqt = sqrt(T);
+    double mv = molarVolume();
+    double b = m_b_current;
+    double a = m_a_current;
+    double dadt = da_dt();
+
+    for (size_t k = 0; k < m_kk; k++) {
+        utilde[k] = RT() * (m_h0_RT[k] - 1.0);
+    }
+
+    if (fabs(b) < SmallNumber) {
+        return;
+    }
+
+    // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
+    for (size_t k = 0; k < m_kk; k++) {
+        m_pp[k] = 0.0;
+        m_dAkdT[k] = 0.0;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk * i;
+            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
+            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
+        }
+    }
+
+    double vpb = mv + b;
+    double logv = log(vpb / mv);
+    double F = T * dadt - 1.5 * a;
+    double C = -logv / b + 1.0 / vpb;
+    double pref = 1.0 / (b * sqt);
+
+    for (size_t k = 0; k < m_kk; k++) {
+        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_pp[k];
+        double ures = pref * (logv * Sk + b_vec_Curr_[k] * F * C);
+        utilde[k] += ures;
+    }
+}
+
+void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
+{
+    checkArraySize("RedlichKwongMFTP::getPartialMolarCp", cpbar.size(), m_kk);
+    _updateReferenceStateThermo();
+
+    double T = temperature();
+    double sqt = sqrt(T);
+    double v = molarVolume();
+    double b = m_b_current;
+    double a = m_a_current;
+    double dadt = da_dt();
+    double d2adt2 = 0.0; // current RK model uses a(T)=a0+a1*T
+
+    for (size_t k = 0; k < m_kk; k++) {
+        cpbar[k] = GasConstant * m_cp0_R[k];
+    }
+
+    if (fabs(b) < SmallNumber) {
+        return;
+    }
+
+    // Mixture pressure derivatives
+    pressureDerivatives();
+    double pT = dpdT_;
+    double pV = dpdV_;
+    double dvdT_P = -pT / pV;
+
+    double vpb = v + b;
+    double vmb = v - b;
+
+    // P_TT, P_TV and P_VV for v''(T)|P from EOS:
+    // v'' = -(P_TT + 2 P_TV v' + P_VV v'^2) / P_V
+    double pTT = (-d2adt2 + dadt / T - 3.0 * a / (4.0 * T * T)) / (sqt * v * vpb);
+    double pTV = -GasConstant / (vmb * vmb)
+        + (dadt - a / (2.0 * T)) * (2.0 * v + b) / (sqt * v * v * vpb * vpb);
+    double pVV = 2.0 * GasConstant * T / (vmb * vmb * vmb)
+        - 2.0 * a * (3.0 * v * v + 3.0 * b * v + b * b)
+            / (sqt * v * v * v * vpb * vpb * vpb);
+    double d2vdT2_P = -(pTT + 2.0 * pTV * dvdT_P + pVV * dvdT_P * dvdT_P) / pV;
+
+    // Species-dependent A_k and dA_k/dT
+    for (size_t k = 0; k < m_kk; k++) {
+        m_pp[k] = 0.0;
+        m_dAkdT[k] = 0.0;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk * i;
+            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
+            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
+        }
+    }
+
+    double F = T * dadt - 1.5 * a;
+    double dF_dT = -0.5 * dadt + T * d2adt2;
+    double logvpv = log(vpb / v);
+    double termLPrime = -b * dvdT_P / (v * vpb);
+
+    for (size_t k = 0; k < m_kk; k++) {
+        double bk = b_vec_Curr_[k];
+        double Ak = m_pp[k];
+        double dAk = m_dAkdT[k];
+        double Sk = 2.0 * T * dAk - 3.0 * Ak;
+        double dSk_dT = -dAk; // for linear a(T)
+
+        // dp/dn_k at constant T,V,n_j
+        double dpdni = RT() / vmb + RT() * bk / (vmb * vmb)
+            - 2.0 * Ak / (sqt * v * vpb)
+            + a * bk / (sqt * v * vpb * vpb);
+
+        // d/dT|P [dp/dn_k]
+        double d_dpdni_dT = GasConstant / vmb
+            - GasConstant * T * dvdT_P / (vmb * vmb)
+            + GasConstant * bk / (vmb * vmb)
+            - 2.0 * GasConstant * T * bk * dvdT_P / (vmb * vmb * vmb)
+            - 2.0 * dAk / (sqt * v * vpb)
+            + Ak / (T * sqt * v * vpb)
+            + 2.0 * Ak * (2.0 * v + b) * dvdT_P / (sqt * v * v * vpb * vpb)
+            + bk * dadt / (sqt * v * vpb * vpb)
+            - bk * a / (2.0 * T * sqt * v * vpb * vpb)
+            - bk * a * (3.0 * v + b) * dvdT_P / (sqt * v * v * vpb * vpb * vpb);
+
+        // d/dT|P of departure terms used in getPartialMolarEnthalpies
+        double dterm1 = -bk / (b * b * sqt)
+            * (termLPrime * F + logvpv * dF_dT - logvpv * F / (2.0 * T));
+        double dterm2 = 1.0 / (b * sqt)
+            * (termLPrime * Sk + logvpv * dSk_dT - logvpv * Sk / (2.0 * T));
+        double dterm3 = bk / (b * sqt)
+            * (dF_dT / vpb - F * dvdT_P / (vpb * vpb) - F / (2.0 * T * vpb));
+
+        // cp_k = d hbar_k / dT at constant P and composition
+        cpbar[k] += -GasConstant
+            + (dvdT_P + T * d2vdT2_P) * dpdni
+            + T * dvdT_P * d_dpdni_dT
+            + dterm1 + dterm2 + dterm3;
+    }
+}
+
+void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
+{
+    checkArraySize("RedlichKwongMFTP::getPartialMolarCv_TV", cvtilde.size(), m_kk);
+    _updateReferenceStateThermo();
+
+    double T = temperature();
+    double sqt = sqrt(T);
+    double mv = molarVolume();
+    double b = m_b_current;
+    double a = m_a_current;
+    double dadt = da_dt();
+
+    for (size_t k = 0; k < m_kk; k++) {
+        cvtilde[k] = GasConstant * (m_cp0_R[k] - 1.0);
+    }
+
+    if (fabs(b) < SmallNumber) {
+        return;
+    }
+
+    // A_k = sum_i x_i a_ki and A'_k = dA_k/dT = sum_i x_i a_ki,1
+    for (size_t k = 0; k < m_kk; k++) {
+        m_pp[k] = 0.0;
+        m_dAkdT[k] = 0.0;
+        for (size_t i = 0; i < m_kk; i++) {
+            size_t counter = k + m_kk * i;
+            m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
+            m_dAkdT[k] += moleFractions_[i] * a_coeff_vec(1, counter);
+        }
+    }
+
+    // Residual contribution for
+    // \tilde{u}_k = (\partial U / \partial n_k)_{T,V,n_j}
+    // with linear a(T): a_ij = a_ij,0 + a_ij,1 T
+    double vpb = mv + b;
+    double logv = log(vpb / mv);
+    double F = T * dadt - 1.5 * a;
+    double C = -logv / b + 1.0 / vpb;
+    double pref = 1.0 / (b * sqt);
+
+    for (size_t k = 0; k < m_kk; k++) {
+        double Sk = 2.0 * T * m_dAkdT[k] - 3.0 * m_pp[k];
+        double ures = pref * (logv * Sk + b_vec_Curr_[k] * F * C);
+        double dresdT = pref * (-logv * m_dAkdT[k] - 0.5 * b_vec_Curr_[k] * dadt * C)
+            - 0.5 * ures / T;
+        cvtilde[k] += dresdT;
+    }
+}
+
+void RedlichKwongMFTP::getPartialMolarVolumes(span<double> vbar) const
+{
+    checkArraySize("RedlichKwongMFTP::getPartialMolarVolumes", vbar.size(), m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -347,6 +538,7 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
         a_coeff_vec.resize(2, m_kk * m_kk, NAN);
 
         m_pp.push_back(0.0);
+        m_dAkdT.push_back(0.0);
         m_coeffSource.push_back(CoeffSource::EoS);
         m_partialMolarVolumes.push_back(0.0);
         dpdni_.push_back(0.0);
@@ -644,6 +836,12 @@ double RedlichKwongMFTP::thermalExpansionCoeff() const
     return -dpdT_ / (molarVolume() * dpdV_);
 }
 
+double RedlichKwongMFTP::internalPressure() const
+{
+    pressureDerivatives();
+    return temperature() * dpdT_ - pressure();
+}
+
 double RedlichKwongMFTP::soundSpeed() const
 {
     pressureDerivatives();
@@ -794,7 +992,8 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b, double Vroot[3]) const
+int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b,
+                                 span<double> Vroot) const
 {
 
     // Derive the coefficients of the cubic polynomial to solve.

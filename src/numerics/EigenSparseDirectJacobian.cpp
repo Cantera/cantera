@@ -21,9 +21,9 @@ void EigenSparseDirectJacobian::factorize()
     }
 }
 
-void EigenSparseDirectJacobian::solve(const size_t stateSize, double* b, double* x)
+void EigenSparseDirectJacobian::solve(span<const double> b, span<double> x)
 {
-    MappedVector(x, m_dim) = m_solver.solve(MappedVector(b, m_dim));
+    MappedVector(x.data(), m_dim) = m_solver.solve(ConstMappedVector(b.data(), m_dim));
     // check for errors
     if (m_solver.info() != Eigen::Success) {
         throw CanteraError("EigenSparseDirectJacobian::solve",

@@ -113,7 +113,7 @@ compile Cantera on your operating system.
   channels:
   - conda-forge
   dependencies:
-  - python  # Cantera supports Python 3.10 and up
+  - python  # Cantera supports Python 3.12 and up
   - scons  # build system
   - boost-cpp  # C++ dependency
   - hdf5  # optional C++ dependency
@@ -135,6 +135,7 @@ compile Cantera on your operating system.
   - doxygen  # needed for code generation and documentation
   - jinja2  # needed for code generation
   # - pandas  # optional (needed for pandas interface and some examples)
+  # - pandas-stubs  # optional (needed for type checking)
   # - scipy  # optional (needed for some examples)
   # - matplotlib  # optional (needed for plots and some examples)
   # - python-graphviz  # optional (needed for reaction path diagrams and some examples)
@@ -151,11 +152,14 @@ compile Cantera on your operating system.
   # - sphinxcontrib-bibtex  # optional (needed for documentation)
   # - sphinxcontrib-matlabdomain  # optional (needed for documentation)
   # - sphinxcontrib-doxylink  # optional (needed for documentation)
-  # - graphviz  # optional (needed for documentation)
+  # - graphviz  # optional (needed for documentation and type checking)
   # - texlive-core  # optional (needed for documentation)
   # - perl  # optional (needed for documentation)
   # - coolprop  # optional (needed for some examples)
-  # - pint  # optional (needed for some examples)
+  # - pint  # optional (needed for some examples and type checking)
+  # - lxml  # optional (needed for type checking)
+  # - mypy[reports]  # optional (needed for type checking)
+  # - pyright  # optional (needed for type checking)
   # - pip:  # optional (list of PyPI managed packages)
   #   - "git+https://github.com/Cantera/sphinx-tags.git@main"  # optional (needed for documentation)
   ```
@@ -220,9 +224,9 @@ Next: Download the Source Code
 
 ### Ubuntu & Debian
 
-- Ubuntu 22.04 LTS (Focal Fossa) or newer
+- Ubuntu 24.04 LTS (Focal Fossa) or newer
 
-- Debian 12.0 (Bookworm) or newer
+- Debian 13.0 (Trixie) or newer
 
 - The following packages must be installed to build any of the Cantera modules using
   your choice of package manager:
@@ -249,7 +253,7 @@ Next: Download the Source Code
   cython3 python3-setuptools python3-wheel python3-numpy python3-ruamel.yaml python3-pytest
   ```
 
-  - Debian 12.0 (Bookworm) and Ubuntu 23.04 (Lunar Lobster) provide compatible Cython
+  - Debian 13.0 (Trixie) and Ubuntu 24.04 (Noble Numbat) provide compatible Cython
     versions. For older releases, install Cython using Pip.
 
 - In addition to the general packages, building the Fortran module also requires:
@@ -415,7 +419,7 @@ Next: Download the Source Code
   - Python
 
     - <https://www.python.org/downloads/>
-    - Cantera supports Python 3.10 and higher
+    - Cantera supports Python 3.12 and higher
     - Be sure to choose the appropriate architecture for your system - either
       32-bit or 64-bit
     - When installing, make sure to choose the option to add to your `PATH`

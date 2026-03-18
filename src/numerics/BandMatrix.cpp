@@ -52,11 +52,9 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, double v)   :
     fill(data.begin(), data.end(), v);
     fill(ludata.begin(), ludata.end(), 0.0);
     m_ipiv->data.resize(m_n);
-    m_colPtrs.resize(n);
     m_lu_col_ptrs.resize(n);
     size_t ldab = (2*kl + ku + 1);
     for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
@@ -72,11 +70,9 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_info(y.m_info)
 {
     m_ipiv->data = y.m_ipiv->data;
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 *m_kl + m_ku + 1);
+    size_t ldab = (2*m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
@@ -93,11 +89,9 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     m_ipiv->data = y.m_ipiv->data;
     data = y.data;
     ludata = y.ludata;
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 * m_kl + m_ku + 1);
+    size_t ldab = (2*m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
     m_info = y.m_info;
@@ -111,15 +105,13 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, double v)
     m_ku = ku;
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
-    m_ipiv->data.resize(m_n);
-    fill(data.begin(), data.end(), v);
-    m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
-    size_t ldab = (2 * m_kl + m_ku + 1);
-    for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &data[ldab * j];
+    size_t ldab = (2*m_kl + m_ku + 1);
+    for (size_t j = 0; j < m_n; j++) {
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
+    m_ipiv->data.resize(m_n);
+    fill(data.begin(), data.end(), v);
     m_factored = false;
 }
 
@@ -197,8 +189,10 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-void BandMatrix::mult(const double* b, double* prod) const
+void BandMatrix::mult(span<const double> b, span<double> prod) const
 {
+    checkArraySize("BandMatrix::mult", b.size(), m_n);
+    checkArraySize("BandMatrix::mult", prod.size(), m_n);
     for (size_t m = 0; m < m_n; m++) {
         double sum = 0.0;
         size_t start = (m >= m_kl) ? m - m_kl : 0;
@@ -210,8 +204,10 @@ void BandMatrix::mult(const double* b, double* prod) const
     }
 }
 
-void BandMatrix::leftMult(const double* const b, double* const prod) const
+void BandMatrix::leftMult(span<const double> b, span<double> prod) const
 {
+    checkArraySize("BandMatrix::leftMult", b.size(), m_n);
+    checkArraySize("BandMatrix::leftMult", prod.size(), m_n);
     for (size_t n = 0; n < m_n; n++) {
         double sum = 0.0;
         size_t start = (n >= m_ku) ? n - m_ku : 0;
@@ -233,14 +229,9 @@ void BandMatrix::factor()
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        m_info = SUNDlsMat_bandGBTRF(m_lu_col_ptrs.data(),
-                                     static_cast<long int>(nColumns()),
-                                     nu, nl, smu, m_ipiv->data.data());
-    #else
-        m_info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
-                        nu, nl, smu, m_ipiv->data.data());
-    #endif
+    m_info = SUNDlsMat_bandGBTRF(m_lu_col_ptrs.data(),
+                                 static_cast<long int>(nColumns()),
+                                 nu, nl, smu, m_ipiv->data.data());
 #endif
     if (m_info != 0) {
         throw Cantera::CanteraError("BandMatrix::factor",
@@ -249,13 +240,15 @@ void BandMatrix::factor()
     m_factored = true;
 }
 
-void BandMatrix::solve(const double* const b, double* const x)
+void BandMatrix::solve(span<const double> b, span<double> x)
 {
-    copy(b, b + m_n, x);
+    checkArraySize("BandMatrix::solve", b.size(), m_n);
+    checkArraySize("BandMatrix::solve", x.size(), m_n);
+    copy(b.begin(), b.begin() + m_n, x.begin());
     solve(x);
 }
 
-void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
+void BandMatrix::solve(span<double> b, size_t nrhs, size_t ldb)
 {
     if (!m_factored) {
         factor();
@@ -263,10 +256,11 @@ void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     if (ldb == 0) {
         ldb = nColumns();
     }
+    checkArraySize("BandMatrix::solve", b.size(), nrhs * ldb);
 #if CT_USE_LAPACK
     ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
               nSuperDiagonals(), nrhs, ludata.data(), ldim(),
-              m_ipiv->data.data(), b, ldb, m_info);
+              m_ipiv->data.data(), b.data(), ldb, m_info);
     if (m_info != 0) {
         throw Cantera::CanteraError("BandMatrix::solve",
             "Linear solve failed with DGBTRS error code {}.", m_info);
@@ -276,13 +270,8 @@ void BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
     double** a = m_lu_col_ptrs.data();
-    #if SUNDIALS_VERSION_MAJOR >= 6
-        SUNDlsMat_bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
-                            m_ipiv->data.data(), b);
-    #else
-        bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
-                  m_ipiv->data.data(), b);
-    #endif
+    SUNDlsMat_bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
+                        m_ipiv->data.data(), b.data());
     m_info = 0;
 #endif
 }
@@ -384,16 +373,6 @@ size_t BandMatrix::checkColumns(double& valueSmall) const
         }
     }
     return jSmall;
-}
-
-double* BandMatrix::ptrColumn(size_t j)
-{
-    return m_colPtrs[j];
-}
-
-double* const* BandMatrix::colPts()
-{
-    return &m_colPtrs[0];
 }
 
 }

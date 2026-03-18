@@ -10,7 +10,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase"
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
         CxxMultiPhase()
-        void addPhase(CxxThermoPhase*, double) except +translate_exception
+        void addPhase(shared_ptr[CxxThermoPhase], double) except +translate_exception
         void init() except +translate_exception
         void updatePhases() except +translate_exception
 
@@ -27,7 +27,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
 
         double phaseMoles(size_t) except +translate_exception
         void setPhaseMoles(size_t, double) except +translate_exception
-        void setMoles(double*) except +translate_exception
+        void setMoles(span[double]) except +translate_exception
         void setMolesByName(string) except +translate_exception
 
         double speciesMoles(size_t) except +translate_exception
@@ -42,7 +42,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double maxTemp() except +translate_exception
         double charge() except +translate_exception
         double phaseCharge(size_t) except +translate_exception
-        void getChemPotentials(double*) except +translate_exception
+        void getChemPotentials(span[double]) except +translate_exception
         double enthalpy() except +translate_exception
         double entropy() except +translate_exception
         double gibbs() except +translate_exception

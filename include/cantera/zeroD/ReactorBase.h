@@ -8,6 +8,7 @@
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -25,6 +26,7 @@ class ReactorSurface;
 class Kinetics;
 class ThermoPhase;
 class Solution;
+class AnyMap;
 
 enum class SensParameterType {
     reaction,
@@ -45,7 +47,7 @@ struct SensitivityParameter
  * defined.
  * @ingroup reactorGroup
  */
-class ReactorBase
+class ReactorBase : public std::enable_shared_from_this<ReactorBase>
 {
 public:
     //! Instantiate a ReactorBase object with Solution contents.
@@ -96,6 +98,17 @@ public:
     //! @since New in %Cantera 3.2
     shared_ptr<const Solution> phase() const { return m_solution; }
 
+    //! Indicates whether the governing equations for this reactor are functions of time
+    //! or a spatial variable. All reactors in a network must have the same value.
+    virtual bool timeIsIndependent() const {
+        return true;
+    }
+
+    //! Number of equations (state variables) for this reactor
+    size_t neq() {
+        return m_nv;
+    }
+
     //! @name Methods to set up a simulation
     //! @{
 
@@ -110,6 +123,12 @@ public:
     virtual double area() const {
         throw NotImplementedError("ReactorBase::area",
             "Area is undefined for reactors of type '{}'.", type());
+    }
+
+    //! Evaluate contributions from walls connected to this reactor
+    virtual void evalWalls(double t) {
+        throw NotImplementedError("ReactorBase::evalWalls",
+            "Wall evaluation is undefined for reactors of type '{}'.", type());
     }
 
     //! Set an area associated with a reactor [m²].
@@ -200,6 +219,18 @@ public:
         return m_surfaces.size();
     }
 
+    //! Production rates on surfaces.
+    //!
+    //! For bulk reactors, this contains the total production rates [kmol/s] of bulk
+    //! phase species due to reactions on all adjacent species.
+    //!
+    //! For surfaces, this contains the production rates [kmol/m²/s] of species on the
+    //! surface and all adjacent phases, in the order defined by the InterfaceKinetics
+    //! object.
+    span<const double> surfaceProductionRates() const {
+        return m_sdot;
+    }
+
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
@@ -207,16 +238,183 @@ public:
         throw NotImplementedError("ReactorBase::initialize");
     }
 
+    //! Get the current state of the reactor.
+    /*!
+     *  @param[out] y state vector representing the initial state of the reactor
+     */
+    virtual void getState(span<double> y) {
+        throw NotImplementedError("ReactorBase::getState",
+            "Not implemented for reactor type '{}'.", type());
+    }
+
+    //! Get the current state and derivative vector of the reactor for a DAE solver
+    /*!
+     *  @param[out] y     state vector representing the initial state of the reactor
+     *  @param[out] ydot  state vector representing the initial derivatives of the
+     *                    reactor
+     */
+    virtual void getStateDae(span<double> y, span<double> ydot) {
+        throw NotImplementedError("ReactorBase::getStateDae(y, ydot)");
+    }
+
+    //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
+    //! @param[in] t time.
+    //! @param[out] LHS pointer to start of vector of left-hand side
+    //! coefficients for governing equations, length m_nv, default values 1
+    //! @param[out] RHS pointer to start of vector of right-hand side
+    //! coefficients for governing equations, length m_nv, default values 0
+    virtual void eval(double t, span<double> LHS, span<double> RHS) {
+        throw NotImplementedError("ReactorBase::eval");
+    }
+
+    /**
+     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[in] ydot rate of change of solution vector, length neq()
+     * @param[out] residual residuals vector, length neq()
+     */
+    virtual void evalDae(double t, span<const double> y, span<const double> ydot,
+                         span<double> residual) {
+        throw NotImplementedError("ReactorBase::evalDae");
+    }
+
+    //! Evaluate the governing equations with modifications for the steady-state solver.
+    //!
+    //! This method calls the standard eval() method then modifies elements of `RHS`
+    //! that correspond to algebraic constraints.
+    //!
+    //! @since New in %Cantera 4.0.
+    virtual void evalSteady(double t, span<double> LHS, span<double> RHS) {
+        throw NotImplementedError("ReactorBase::evalSteady",
+            "Not implemented for reactor type '{}'.", type());
+    }
+
+    //! Given a vector of length neq(), mark which variables should be
+    //! considered algebraic constraints
+    virtual void getConstraints(span<double> constraints) {
+        throw NotImplementedError("ReactorBase::getConstraints");
+    }
+
+    //! Initialize the reactor before solving a steady-state problem.
+    //!
+    //! This method is responsible for storing the initial value for any algebraic
+    //! constraints and returning the indices of those constraints.
+    //!
+    //! @return Indices of equations that are algebraic constraints when solving the
+    //! steady-state problem.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 3.2. Renamed from `steadyConstraints` in %Cantera 4.0.
+    virtual vector<size_t> initializeSteady() {
+        throw NotImplementedError("ReactorBase::initializeSteady");
+    }
+
+    //! Set the state of the reactor to correspond to the state vector *y*.
+    virtual void updateState(span<const double> y) {
+        throw NotImplementedError("ReactorBase::updateState");
+    }
+
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k*.
+    virtual void addSensitivitySpeciesEnthalpy(size_t k) {
+        throw NotImplementedError("ReactorBase::addSensitivitySpeciesEnthalpy");
+    }
+
+    //! Return the index in the solution vector for this reactor of the
+    //! component named *nm*.
+    virtual size_t componentIndex(const string& nm) const {
+        throw NotImplementedError("ReactorBase::componentIndex");
+    }
+
+    //! Return the name of the solution component with index *i*.
+    //! @see componentIndex()
+    virtual string componentName(size_t k) {
+        throw NotImplementedError("ReactorBase::componentName");
+    }
+
+    //! Get the upper bound on the k-th component of the local state vector.
+    virtual double upperBound(size_t k) const {
+        throw NotImplementedError("ReactorBase::upperBound");
+    }
+
+    //! Get the lower bound on the k-th component of the local state vector.
+    virtual double lowerBound(size_t k) const {
+        throw NotImplementedError("ReactorBase::lowerBound");
+    }
+
+    //! Reset physically or mathematically problematic values, such as negative species
+    //! concentrations.
+    //! @param[inout] y  current state vector, to be updated; length neq()
+    virtual void resetBadValues(span<double> y) {
+        throw NotImplementedError("ReactorBase::resetBadValues");
+    }
+
+    //! Get Jacobian elements for this reactor within the full reactor network.
+    //!
+    //! Indices within `trips` are global indices within the full reactor network. The
+    //! reactor is responsible for providing all elements of the Jacobian in the rows
+    //! corresponding to its state variables, that is, all derivatives of its state
+    //! variables with respect to all state variables in the network.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    virtual void getJacobianElements(vector<Eigen::Triplet<double>>& trips) {};
+
+    //! Calculate the Jacobian of a specific reactor specialization.
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian();
+
+    //! Use this to set the kinetics objects derivative settings
+    virtual void setDerivativeSettings(AnyMap& settings) {
+        throw NotImplementedError("ReactorBase::setDerivativeSettings");
+    }
+
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    virtual void applySensitivity(span<const double> params) {
+        throw NotImplementedError("ReactorBase::applySensitivity");
+    }
+
+    //! Reset the reaction rate multipliers
+    virtual void resetSensitivity(span<const double> params) {
+        throw NotImplementedError("ReactorBase::resetSensitivity");
+    }
+
+    //! Return a false if preconditioning is not supported or true otherwise.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    //!
+    //! @since New in %Cantera 3.0
+    //!
+    virtual bool preconditionerSupported() const { return false; };
+
     //! @}
 
-    //! Set the state of the Phase object associated with this reactor to the
-    //! reactor's current state.
-    virtual void restoreState();
-
     //! Set the state of the reactor to the associated ThermoPhase object.
-    //! This method is the inverse of restoreState() and will trigger integrator
-    //! reinitialization.
+    //! This method will trigger integrator reinitialization.
+    //! @deprecated To be removed after %Cantera 4.0. Use ReactorNet::reinitialize to
+    //!     indicate a change in state that requires integrator reinitialization.
     virtual void syncState();
+
+    //! Update state information needed by connected reactors, flow devices, and walls.
+    //!
+    //! Called from updateState() for normal reactor types, and from
+    //! ReactorNet::updateState for Reservoir.
+    //!
+    //! @param updatePressure  Indicates whether to update #m_pressure. Should
+    //!     `true` for reactors where the pressure is a dependent property,
+    //!     calculated from the state, and `false` when the pressure is constant
+    //!     or an independent variable.
+    virtual void updateConnected(bool updatePressure);
 
     //! Return the residence time (s) of the contents of this reactor, based
     //! on the outlet mass flow rates and the mass of the reactor contents.
@@ -234,22 +432,10 @@ public:
     }
 
     //! Returns the current density (kg/m^3) of the reactor's contents.
-    double density() const {
-        if (m_state.empty()) {
-            throw CanteraError("ReactorBase::density",
-                               "Reactor state empty and/or contents not defined.");
-        }
-        return m_state[1];
-    }
+    double density() const;
 
     //! Returns the current temperature (K) of the reactor's contents.
-    double temperature() const {
-        if (m_state.empty()) {
-            throw CanteraError("ReactorBase::temperature",
-                               "Reactor state empty and/or contents not defined.");
-        }
-        return m_state[0];
-    }
+    double temperature() const;
 
     //! Returns the current enthalpy (J/kg) of the reactor's contents.
     double enthalpy_mass() const {
@@ -267,22 +453,10 @@ public:
     }
 
     //! Return the vector of species mass fractions.
-    const double* massFractions() const {
-        if (m_state.empty()) {
-            throw CanteraError("ReactorBase::massFractions",
-                               "Reactor state empty and/or contents not defined.");
-        }
-        return m_state.data() + 2;
-    }
+    span<const double> massFractions() const;
 
     //! Return the mass fraction of the *k*-th species.
-    double massFraction(size_t k) const {
-        if (m_state.empty()) {
-            throw CanteraError("ReactorBase::massFraction",
-                               "Reactor state empty and/or contents not defined.");
-        }
-        return m_state[k+2];
-    }
+    double massFraction(size_t k) const;
 
     //! @}
 
@@ -291,6 +465,32 @@ public:
 
     //! Set the ReactorNet that this reactor belongs to.
     void setNetwork(ReactorNet* net);
+
+    //! Get the starting offset for this reactor's state variables within the global
+    //! state vector of the ReactorNet.
+    size_t offset() const { return m_offset; }
+
+    //! Set the starting offset for this reactor's state variables within the global
+    //! state vector of the ReactorNet.
+    void setOffset(size_t offset) { m_offset = offset; }
+
+    //! Offset of the first species in the local state vector
+    size_t speciesOffset() const {
+        return m_nv - m_nsp;
+    }
+
+    //! Get scaling factors for the Jacobian matrix terms proportional to
+    //! @f$ d\dot{n}_k/dC_j @f$.
+    //!
+    //! Used to determine contribution of surface phases to the Jacobian.
+    //!
+    //! @param f_species  Scaling factor for derivatives appearing in the species
+    //!     equations. Equal to $1/V$.
+    //! @param f_energy  Scaling factor for each species term appearing in the energy
+    //!     equation.
+    virtual void getJacobianScalingFactors(double& f_species, span<double> f_energy) {
+        throw NotImplementedError("ReactorBase::getJacobianScalingFactors");
+    }
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     virtual void addSensitivityReaction(size_t rxn) {
@@ -318,15 +518,17 @@ protected:
 
     vector<WallBase*> m_wall;
     vector<ReactorSurface*> m_surfaces;
+    vector<double> m_sdot; //!< species production rates on surfaces
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
     vector<int> m_lr;
     string m_name;  //!< Reactor name.
     bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+    size_t m_nv = 0; //!< Number of state variables for this reactor
 
-    //! The ReactorNet that this reactor is part of
-    ReactorNet* m_net = nullptr;
+    ReactorNet* m_net = nullptr; //!< The ReactorNet that this reactor is part of
+    size_t m_offset = 0; //!< Offset into global ReactorNet state vector
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
