@@ -36,7 +36,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     size_t nGridCells = 301;
     m_nPoints = nGridCells + 1;
     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
-    m_electronEnergyLevels = MappedVector(m_eedfSolver->getGridEdge().data(), m_nPoints);
+    m_electronEnergyLevels = asVectorXd(m_eedfSolver->getGridEdge());
     m_electronEnergyDist.setZero(m_nPoints);
 }
 
@@ -179,12 +179,10 @@ void PlasmaPhase::electronEnergyLevelChanged()
     m_levelNum++;
     // Cross sections are interpolated on the energy levels
     if (m_collisions.size() > 0) {
-        vector<double> energyLevels(m_nPoints);
-        MappedVector(energyLevels.data(), m_nPoints) = m_electronEnergyLevels;
         for (shared_ptr<Reaction> collision : m_collisions) {
             const auto& rate = boost::polymorphic_pointer_downcast
                 <ElectronCollisionPlasmaRate>(collision->rate());
-            rate->updateInterpolatedCrossSection(energyLevels);
+            rate->updateInterpolatedCrossSection(asSpan(m_electronEnergyLevels));
         }
     }
 }
@@ -222,10 +220,8 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
 {
     m_distributionType = "discretized";
     m_nPoints = levels.size();
-    m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
-    m_electronEnergyDist =
-        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
+    m_electronEnergyLevels = asVectorXd(levels);
+    m_electronEnergyDist = asVectorXd(dist);
     checkElectronEnergyLevels();
     if (m_do_normalizeElectronEnergyDist) {
         normalizeElectronEnergyDistribution();

@@ -7,7 +7,7 @@
 #define CT_REDLICHKWONGMFTP_H
 
 #include "MixtureFugacityTP.h"
-#include "cantera/base/Array.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -403,20 +403,30 @@ protected:
 
     //! Value of b in the equation of state
     /*!
-     *  m_b is a function of the temperature and the mole fraction.
+     *  `m_bMix` is a function of the temperature and the mole fraction.
      */
-    double m_b_current = 0.0;
+    double m_bMix = 0.0;
 
     //! Value of a in the equation of state
     /*!
-     *  a_b is a function of the temperature and the mole fraction.
+     *  `m_aMix` is a function of the temperature and the mole fraction.
      */
-    double m_a_current = 0.0;
+    double m_aMix = 0.0;
 
-    vector<double> a_vec_Curr_;
-    vector<double> b_vec_Curr_;
+    //! Current temperature-dependent value of @f$ a_{jk} @f$ for each species pair.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a;
 
-    Array2D a_coeff_vec;
+    //! Coefficients @f$ b_k @f$ for each species. Size #m_kk.
+    Eigen::ArrayXd m_b;
+
+    //! Constant term in the expression for @f$ a_{jk} @f$ for each species pair.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a0;
+
+    //! Temperature coefficient in the expression for @f$ a_{jk} @f$.
+    //! Size #m_kk by #m_kk.
+    Eigen::MatrixXd m_a1;
 
     //! Explicitly-specified binary interaction parameters
     map<string, map<string, pair<double, double>>> m_binaryParameters;
@@ -429,13 +439,14 @@ protected:
 
     double Vroot_[3] = {0.0, 0.0, 0.0};
 
-    //! Temporary storage - length = m_kk.
-    mutable vector<double> m_pp;
+    //! @f$ A_k = \sum_i X_i a_{ki} @f$. Length #m_kk.
+    mutable Eigen::ArrayXd m_Ak;
 
     // Partial molar volumes of the species
     mutable vector<double> m_partialMolarVolumes;
 
-    mutable vector<double> m_dAkdT; //!< Temporary storage for dA_k/dT; length #m_kk.
+    //! @f$ A'_k = dA_k/dT = \sum_i X_i a_{ki,1} @f$. Length #m_kk.
+    mutable Eigen::ArrayXd m_dAkdT;
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -456,7 +467,7 @@ protected:
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable vector<double> dpdni_;
+    mutable Eigen::ArrayXd m_dpdni;
 
 private:
     //! Omega constant for a -> value of a in terms of critical properties
