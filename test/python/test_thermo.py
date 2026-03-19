@@ -1074,6 +1074,28 @@ class TestThermoPhase:
         assert gas.density > 0.0
         assert gas.P == approx(pressure)
 
+    @pytest.mark.parametrize("p", [2.0e7, 4.0e7, 6.0e7])
+    def test_partial_lookup_pr_high_pressure_equilibrate(self, p):
+        gas = self._partial_lookup_peng_robinson_phase()
+
+        fuel_temp = 255.0
+        oxidizer_temp = 142.0
+
+        gas.TPY = fuel_temp, p, "CH4:1.0"
+        yin_f = gas.Y
+        gas.TPY = oxidizer_temp, p, "O2:1.0"
+        yin_o = gas.Y
+        zst = 1.0 / (1.0 + gas.stoich_air_fuel_ratio(yin_f, yin_o, "mass"))
+        yst = zst * yin_f + (1.0 - zst) * yin_o
+
+        tbar = 0.5 * (fuel_temp + oxidizer_temp)
+        gas.TPY = tbar, p, yst
+        gas.equilibrate("HP")
+
+        assert np.isfinite(gas.T)
+        assert gas.T > tbar
+        assert gas.P == approx(p)
+
     def test_partial_lookup_pr_zero_ab_properties_finite(self):
         gas = self._partial_lookup_peng_robinson_phase()
         gas.TPX = 500.0, 1.0e6, "CO2:0.333, H2O:0.666"

@@ -115,5 +115,16 @@ TEST_F(cubicSolver_Test, solve_cubic)
     p = peng_robinson_phase->pressure();
     EXPECT_NEAR(p, pCrit, 1);
 }
+
+TEST_F(cubicSolver_Test, solve_cubic_nonphysical_single_root_when_b_zero)
+{
+    auto* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
+    ASSERT_TRUE(peng_robinson_phase != nullptr);
+
+    double Vroot[3];
+    EXPECT_THROW(
+        peng_robinson_phase->solveCubic(300.0, 1.0e5, 2.0e7, 0.0, 2.0e7, Vroot),
+        CanteraError);
+}
 #endif
 };
