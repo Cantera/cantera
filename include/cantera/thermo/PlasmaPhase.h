@@ -630,7 +630,7 @@ public:
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    //! Return the standard chemical potentials of the species [J/kmol].
+    //! Return the standard chemical potentials of the species. Units: J/kmol.
     /*!
      * For heavy species, this is identical to the IdealGasPhase
      * implementation. For electrons, the standard chemical potential
@@ -641,15 +641,27 @@ public:
      */
     void getStandardChemPotentials(span<double> muStar) const override;
 
-    // void getEnthalpy_RT(span<double> hrt) const override;
+    // Below are 5 methods already defined in IdealGasPhase, that do not need
+    // to be overridden since `updateThermo` already updates the standard-state
+    // properties for electrons at the electron temperature.
+    // And for entropy (and thus Gibbs free energy), for all species, the total
+    // pressure is used in the logarithmic term (not the partial pressure).
+    // {
+    // void getEnthalpy_RT(span<double> hrt) const override;   
     // void getEntropy_R(span<double> sr) const override;
     // void getGibbs_RT(span<double> grt) const override;
     // void getIntEnergy_RT(span<double> urt) const override;
     // void getCp_R(span<double> cpr) const override;
+    // }
 
-    // Whenever a temperature can be defined, the following relation holds:
-    //   h_k = u_k + R * T_k = u_k + p * v_k
-    // Therefore, v_k = R * T_k / p
+    //! Return the standard molar volumes of the species. Units: m³/kmol.
+    /*!
+     * For a multitemperature system,
+     * @f[
+     *   v_k = \frac{R T_k}{P},
+     * @f]
+     * where @f$ T_k @f$ is the temperature at which the standard molar volume is evaluated.
+     */
     void getStandardVolumes(span<double> vol) const override;
 
     //! @}

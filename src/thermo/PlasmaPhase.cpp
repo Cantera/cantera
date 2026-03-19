@@ -828,36 +828,6 @@ void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
     muStar[k] += log(pressure() / refPressure()) * RTe();
 }
 
-// void PlasmaPhase::getEntropy_R(span<double> sr) const
-// {
-//     checkArraySize("PlasmaPhase::getEntropy_R", sr.size(), m_kk);
-//     auto _s = entropy_R_ref();
-//     copy(_s.begin(), _s.end(), sr.begin());
-//     double tmp = log(pressure() / refPressure());
-//     for (size_t k = 0; k < m_kk; k++) {
-//         if (k != m_electronSpeciesIndex) {
-//             sr[k] -= tmp;
-//         } else {
-//             sr[k] -= log(electronPressure() / refPressure());
-//         }
-//     }
-// }
-
-// void PlasmaPhase::getGibbs_RT(span<double> grt) const
-// {
-//     checkArraySize("PlasmaPhase::getGibbs_RT", grt.size(), m_kk);
-//     auto gibbsrt = gibbs_RT_ref();
-//     copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
-//     double tmp = log(pressure() / refPressure());
-//     for (size_t k = 0; k < m_kk; k++) {
-//         if (k != m_electronSpeciesIndex) {
-//             grt[k] += tmp;
-//         } else {
-//             grt[k] += log(electronPressure() / refPressure());
-//         }
-//     }
-// }
-
 void PlasmaPhase::getStandardVolumes(span<double> vol) const
 {
     double tmp = RT() / pressure();
