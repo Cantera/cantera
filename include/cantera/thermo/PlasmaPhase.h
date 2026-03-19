@@ -85,9 +85,9 @@ class PlasmaPhase: public IdealGasPhase
 public:
     //! Construct and initialize a PlasmaPhase object
     //! directly from an input file. The constructor initializes the electron
-    //! energy distribution to be Druyvesteyn distribution (m_x = 2.0). The initial
-    //! electron energy grid is set to a linear space which starts at 0.01 eV and ends
-    //! at 1 eV with 1000 points.
+    //! energy distribution to be a Maxwellian distribution (m_isotropicShapeFactor = 1.0).
+    // The initial electron energy grid is set to a linear space which starts
+    // at 0.01 eV and ends at 1 eV with 1000 points.
     /*!
      * @param  inputFile Name of the input file containing the phase definition
      *                   to set up the object. If blank, an empty phase will be
@@ -329,13 +329,18 @@ public:
 
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
-     * For an ideal gas mixture with additional electron,
+     * For an ideal gas mixture with electrons at a different temperature
+     * than the heavy species, the molar enthalpy is calculated as:
      * @f[
-     * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
+     * \begin{align}
+     *  \hat h(T) &= \sum_{k} X_k \hat h^0_k(T_k) \\
+     *            &= \sum_{k \neq k_e} X_k \hat h^0_k(T_g) + X_{k_e} \hat h^0_{k_e}(T_e),
+     * \end{align}
      * @f]
-     * and is a function only of temperature. The standard-state pure-species
-     * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
-     * thermodynamic property manager.
+     * where heavy-species properties are evaluated at @f$T@f$, and electron
+     * properties at @f$T_e@f$.
+     * The standard-state pure-species enthalpies @f$ \hat h^0_k(T) @f$ are
+     * computed by the species thermodynamic property manager.
      *
      * @see MultiSpeciesThermo
      */
