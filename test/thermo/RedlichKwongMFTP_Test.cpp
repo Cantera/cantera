@@ -1,7 +1,10 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
+#include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
+
+#include <cmath>
 
 
 namespace Cantera
@@ -145,6 +148,43 @@ TEST_F(RedlichKwongMFTP_Test, localCritProperties)
     test_phase->setState_TPX(400, 1.2e6, "H2O: 1.0");
     EXPECT_NEAR(test_phase->critTemperature(), 647.096, 1e-5);
     EXPECT_NEAR(test_phase->critPressure(), 22.064e6, 1e-4);
+}
+
+TEST_F(RedlichKwongMFTP_Test, forcedGasBranchPreventsCrossing)
+{
+    auto mix = std::dynamic_pointer_cast<MixtureFugacityTP>(test_phase);
+    ASSERT_TRUE(mix);
+    set_r(1.0);
+
+    mix->setForcedSolutionBranch(FLUID_UNDEFINED);
+    test_phase->setState_TP(400.0, 1.0e6);
+    ASSERT_LT(mix->reportSolnBranchActual(), FLUID_LIQUID_0);
+
+    mix->setForcedSolutionBranch(FLUID_GAS);
+    try {
+        test_phase->setState_TP(240.0, 4.0e7);
+        FAIL() << "Expected forced gas branch to reject liquid-side state.";
+    } catch (CanteraError& err) {
+        EXPECT_NE(string(err.what()).find("wrong state"), string::npos);
+    }
+
+    mix->setForcedSolutionBranch(FLUID_UNDEFINED);
+    test_phase->setState_TP(240.0, 4.0e7);
+    EXPECT_GE(mix->reportSolnBranchActual(), FLUID_LIQUID_0);
+}
+
+TEST(RedlichKwongMFTP, densityCalcFiltersNearIdealRoots)
+{
+    RedlichKwongMFTP test("co2_RK_example.yaml");
+    test.setSpeciesCoeffs("CO2", 1.0e-4, 0.0, 1.0e-12);
+    test.setState_TPX(300.0, 1.0e5, "CO2:1.0");
+
+    double rhoGas = test.densityCalc(300.0, 1.0e5, FLUID_GAS, -1.0);
+    double rhoIdeal = test.meanMolecularWeight() * 1.0e5 / (GasConstant * 300.0);
+    ASSERT_TRUE(std::isfinite(rhoGas));
+    EXPECT_GT(rhoGas, 0.0);
+    EXPECT_NEAR(rhoGas, rhoIdeal, 1e-8 * rhoIdeal);
+    EXPECT_LT(test.densityCalc(300.0, 1.0e5, FLUID_LIQUID_0, -1.0), 0.0);
 }
 
 };
