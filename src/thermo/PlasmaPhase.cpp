@@ -640,6 +640,52 @@ double PlasmaPhase::elasticPowerLoss()
 }
 
 
+double PlasmaPhase::electronMobility() const
+{
+    // Only implemented when using the Boltzmann two-term EEDF
+    if (m_distributionType == "Boltzmann-two-term") {
+        return m_eedfSolver->getElectronMobility();
+    } else {
+        throw NotImplementedError("PlasmaPhase::electronMobility",
+            "Electron mobility is only available for 'Boltzmann-two-term' "
+            "electron energy distributions.");
+    }
+}
+
+
+double PlasmaPhase::jouleHeatingPower() const
+{
+    // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
+    const double mu_e = electronMobility();    // m^2 / (V·s)
+    if (mu_e <= 0.0) {
+        return 0.0;
+    }
+    const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
+    if (ne <= 0.0) {
+        return 0.0;
+    }
+    const double E  = electricField(); // V/m
+    if (E <= 0.0) {
+        return 0.0;
+    }
+    const double sigma = ElectronCharge * ne * mu_e; // S/m
+    return sigma * E * E; // W/m^3
+}
+
+double PlasmaPhase::intrinsicHeating()
+{
+    // Joule heating: sigma * E^2 [W/m^3]
+    const double qJ = jouleHeatingPower();
+    checkFinite(qJ);
+
+    // Elastic + inelastic recoil power loss [W/m^3]
+    double qElastic = elasticPowerLoss();
+    checkFinite(qElastic);
+
+    return qJ + qElastic;
+}
+
+
 // ================================================================= //
 //           Molar Thermodynamic Properties of the Solution          //
 // ================================================================= //
@@ -1055,50 +1101,7 @@ void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
     }
 }
 
-double PlasmaPhase::electronMobility() const
-{
-    // Only implemented when using the Boltzmann two-term EEDF
-    if (m_distributionType == "Boltzmann-two-term") {
-        return m_eedfSolver->getElectronMobility();
-    } else {
-        throw NotImplementedError("PlasmaPhase::electronMobility",
-            "Electron mobility is only available for 'Boltzmann-two-term' "
-            "electron energy distributions.");
-    }
-}
 
-
-double PlasmaPhase::jouleHeatingPower() const
-{
-    // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
-    const double mu_e = electronMobility();    // m^2 / (V·s)
-    if (mu_e <= 0.0) {
-        return 0.0;
-    }
-    const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
-    if (ne <= 0.0) {
-        return 0.0;
-    }
-    const double E  = electricField(); // V/m
-    if (E <= 0.0) {
-        return 0.0;
-    }
-    const double sigma = ElectronCharge * ne * mu_e; // S/m
-    return sigma * E * E; // W/m^3
-}
-
-double PlasmaPhase::intrinsicHeating()
-{
-    // Joule heating: sigma * E^2 [W/m^3]
-    const double qJ = jouleHeatingPower();
-    checkFinite(qJ);
-
-    // Elastic + inelastic recoil power loss [W/m^3]
-    double qElastic = elasticPowerLoss();
-    checkFinite(qElastic);
-
-    return qJ + qElastic;
-}
 
 
 }

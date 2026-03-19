@@ -321,6 +321,25 @@ public:
      */
     double elasticPowerLoss();
 
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
+     *   @f[
+     *     \sigma = e * n_e * \mu_e
+     *   @f]
+     * and @f$ E @f$ is the electric field strength (V/m).
+     */
+    double jouleHeatingPower() const;
+
+    void beginEquilibrate() override;
+
+    void endEquilibrate() override;
+
+    double intrinsicHeating() override;
+
     //! @}
     // ================================================================= //
     // ================================================================= //
@@ -769,24 +788,7 @@ public:
      */
     double electronMobility() const;
 
-    /**
-     * The joule heating power (W/m³)
-     *   @f[
-     *     q_J = \sigma * E^2,
-     *   @f]
-     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
-     *   @f[
-     *     \sigma = e * n_e * \mu_e
-     *   @f]
-     * and @f$ E @f$ is the electric field strength (V/m).
-     */
-    double jouleHeatingPower() const;
 
-    void beginEquilibrate() override;
-
-    void endEquilibrate() override;
-
-    double intrinsicHeating() override;
 
 protected:
     void updateThermo() const override;
