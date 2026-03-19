@@ -562,6 +562,17 @@ public:
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     // void getPartialMolarEntropies(span<double> sbar) const override;
 
+    //! Return the partial molar internal energies of the species in the solution. Units: J/kmol.
+    /*!
+     * The partial molar internal energy of species @f$ k @f$ is calculated as:
+     * @f[
+     * u_k^0 = h_k^0 - R T_k,
+     * @f]
+     * where @f$ h_k^0 @f$ is the partial molar enthalpy of species @f$ k @f$, and
+     * @f$ T_k @f$ is the temperature at which the partial molar enthalpy is evaluated.
+     * For heavy species, the partial molar enthalpy is evaluated at the gas temperature,
+     * while for electrons, it is evaluated at the electron temperature.
+     */
     void getPartialMolarIntEnergies(span<double> ubar) const override;
     // void getPartialMolarCp(span<double> cpbar) const override;
 
