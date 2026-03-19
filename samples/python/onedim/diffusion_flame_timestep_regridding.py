@@ -13,7 +13,7 @@ and recover a converged solution.
 
 Requires: cantera >= 4.0; matplotlib is optional for plotting
 
-.. tags:: Python, combustion, 1D flow, diffusion flame, solver, grid refinement
+.. tags:: Python, combustion, 1D flow, diffusion flame, strained flame, plotting
 """
 
 import time
