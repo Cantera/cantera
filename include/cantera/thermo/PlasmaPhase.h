@@ -375,7 +375,6 @@ public:
      */
     double enthalpy_mole() const override;
 
-    // --------------------------------------------------------------------------------------//
     //! Return the molar entropy. Units: J/kmol/K.
     /*!
     * For an ideal gas mixture with an additional electron species,
@@ -418,10 +417,6 @@ public:
     * @see MultiSpeciesThermo
     */
     double intEnergy_mole() const override;
-
-    // double entropy_mole() const override;
-    // double gibbs_mole() const override;
-    // --------------------------------------------------------------------------------------//
     
     // double cp_mole() const override;  // Already defined in IdealGasPhase
     // double cp_mass() const; // Already defined in ThermoPhase
