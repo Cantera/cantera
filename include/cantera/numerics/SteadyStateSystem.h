@@ -17,6 +17,20 @@ namespace Cantera
 class Func1;
 class MultiNewton;
 
+//! Error thrown when time stepping cannot proceed and the steady-state solver
+//! should be given a chance to recover by other means.
+class TimeStepError : public CanteraError
+{
+public:
+    template <typename... Args>
+    TimeStepError(const string& func, const string& msg, const Args&... args) :
+        CanteraError(func, msg, args...) {}
+
+    string getClass() const override {
+        return "TimeStepError";
+    }
+};
+
 //! Base class for representing a system of differential-algebraic equations and solving
 //! for its steady-state response.
 //!
@@ -204,12 +218,8 @@ public:
     //! Set the growth factor used after successful timesteps when the Jacobian is
     //! re-used.
     //!
-    //! When adaptive growth is disabled (default), this fixed factor is applied after
-    //! each successful step that does not require a new Jacobian.
-    //!
-    //! When adaptive growth is enabled, this value is used as:
-    //! - the accepted growth factor for heuristics 1, 2, and 4; and
-    //! - the maximum allowed growth factor for heuristic 3.
+    //! This factor is used directly by the `fixed-growth` strategy, and as the
+    //! accepted growth factor or upper bound for the other named strategies.
     //!
     //! The default value is 1.5, matching historical behavior.
     //! @param tfactor  Finite growth factor applied to successful timesteps;
@@ -228,47 +238,25 @@ public:
         return m_tstep_growth;
     }
 
-    //! Enable or disable adaptive time-step growth heuristics.
+    //! Set the strategy used to grow the timestep after a successful step that
+    //! reuses the current Jacobian.
     //!
-    //! Adaptive heuristics are only applied after successful timesteps that reuse the
-    //! Jacobian. If disabled, the fixed growth factor from setTimeStepGrowthFactor()
-    //! is used directly. Disabled by default.
+    //! Available options are:
+    //! - `fixed-growth`: Always apply timeStepGrowthFactor().
+    //! - `steady-norm`: Apply timeStepGrowthFactor() only if the steady-state
+    //!   residual norm decreases.
+    //! - `transient-residual`: Apply timeStepGrowthFactor() only if the transient
+    //!   residual norm decreases.
+    //! - `residual-ratio`: Scale the growth factor based on transient residual
+    //!   improvement, capped by timeStepGrowthFactor().
+    //! - `newton-iterations`: Apply timeStepGrowthFactor() only if the most recent
+    //!   Newton solve used at most 3 iterations.
     //!
-    //! @param enabled  Enable (`true`) or disable (`false`) adaptive growth heuristics.
-    void setAdaptiveTimeStepGrowth(bool enabled) {
-        m_adaptive_tstep_growth = enabled;
-    }
+    //! The default strategy is `fixed-growth`, which matches historical behavior.
+    void setTimeStepGrowthStrategy(const string& strategy);
 
-    //! Get whether adaptive time-step growth heuristics are enabled.
-    bool adaptiveTimeStepGrowth() const {
-        return m_adaptive_tstep_growth;
-    }
-
-    //! Select the adaptive time-step growth heuristic.
-    //!
-    //! Heuristic options:
-    //! - `1`: Increase only if the steady-state residual decreases
-    //!   (`ssnorm(x_after) < ssnorm(x_before)`).
-    //! - `2`: Increase only if the transient residual decreases
-    //!   (`tsnorm(x_after) < tsnorm(x_before)`). This is the default.
-    //! - `3`: Scale growth by residual improvement ratio based on transient residual:
-    //!   @f$ \min(m\_tstep\_growth, \max(1, (ts\_before/ts\_after)^{0.2})) @f$.
-    //! - `4`: Increase only if the most recent Newton solve used at most 3 iterations.
-    //!
-    //! @param heuristic  Integer in [1, 4].
-    void setTimeStepGrowthHeuristic(int heuristic) {
-        if (heuristic < 1 || heuristic > 4) {
-            throw CanteraError("SteadyStateSystem::setTimeStepGrowthHeuristic",
-                "Time step growth heuristic must be in the range [1, 4]. Got {}.",
-                heuristic);
-        }
-        m_tstep_growth_heuristic = heuristic;
-    }
-
-    //! Get the selected adaptive time-step growth heuristic (`1`-`4`).
-    int timeStepGrowthHeuristic() const {
-        return m_tstep_growth_heuristic;
-    }
+    //! Get the configured timestep growth strategy.
+    string timeStepGrowthStrategy() const;
 
     //! Set the maximum number of timeteps allowed before successful steady-state solve
     void setMaxTimeStepCount(int nmax) {
@@ -327,15 +315,26 @@ public:
     virtual void clearDebugFile() {}
 
 protected:
+    enum class TimeStepGrowthStrategy {
+        fixed,
+        steadyNorm,
+        transientResidual,
+        residualRatio,
+        newtonIterations
+    };
+
     //! Evaluate the steady-state Jacobian, accessible via linearSolver()
     //! @param[in] x  Current state vector, length size()
     void evalSSJacobian(span<const double> x);
 
+    static TimeStepGrowthStrategy parseTimeStepGrowthStrategy(const string& strategy);
+    static string timeStepGrowthStrategyName(TimeStepGrowthStrategy strategy);
+
     //! Determine the timestep growth factor after a successful step.
     //!
     //! Called only when a successful step reuses the current Jacobian.
-    double timeStepIncreaseFactor(span<const double> x_before,
-                                  span<const double> x_after);
+    double calculateTimeStepGrowthFactor(span<const double> x_before,
+                                         span<const double> x_after);
 
     //! Array of number of steps to take after each unsuccessful steady-state solve
     //! before re-attempting the steady-state solution. For subsequent time stepping
@@ -351,18 +350,12 @@ protected:
 
     //! Growth factor for successful steps that reuse the Jacobian.
     //!
-    //! Used directly when adaptive growth is disabled, and as the base / cap value
-    //! when adaptive growth is enabled.
+    //! Used directly for `fixed-growth`, and as the base / cap value for the
+    //! other named growth strategies.
     double m_tstep_growth = 1.5;
 
-    //! If `true`, use heuristic gating for successful-step growth; otherwise use the
-    //! fixed growth factor.
-    bool m_adaptive_tstep_growth = false;
-
-    //! Selected adaptive growth heuristic:
-    //! `1`: steady residual gate; `2`: transient residual gate;
-    //! `3`: residual-ratio scaling; `4`: Newton-iteration gate.
-    int m_tstep_growth_heuristic = 2;
+    //! Selected strategy for successful-step growth.
+    TimeStepGrowthStrategy m_tstep_growth_strategy = TimeStepGrowthStrategy::fixed;
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
