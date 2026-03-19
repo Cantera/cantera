@@ -172,7 +172,7 @@ protected:
     double m_dampFactor = sqrt(2.0);
 
     //! Maximum number of damping iterations
-    size_t m_maxDampIter = 14;
+    size_t m_maxDampIter = 7;
 
     //! number of variables
     size_t m_n;
