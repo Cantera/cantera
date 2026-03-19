@@ -1873,14 +1873,14 @@ cdef class ThermoPhase(_SolutionBase):
             span[double](&data_levels[0], data_levels.size),
             span[double](&data_dist[0], data_dist.size))
     
-    def mean_temperature(self):
+    property mean_temperature:
+        """Get the mean temperature of the plasma [K].
+        This is a mole-weighted average of the electron and heavy species temperatures.
         """
-        Get the mean temperature of the plasma [K]. This is a weighted average
-        of the electron and heavy species temperatures.
-        """
-        if not self._enable_plasma:
-            raise ThermoModelMethodError(self.thermo_model)
-        return self.plasma.meanTemperature()
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.meanTemperature()
 
     property TgTeP:
         """Get/Set gas temperature [K], electron temperature [K], and pressure [Pa]."""
