@@ -558,7 +558,7 @@ public:
     //! @name Partial Molar Properties of the Solution
     //! @{
 
-    // Return the chemical potentials of the species in the solution. Units: J/kmol.
+    //! Return the chemical potentials of the species in the solution. Units: J/kmol.
     /*!
      * The chemical potential of species @f$ k @f$ is calculated as:
      * @f[
@@ -607,16 +607,21 @@ public:
      */
     void getPartialMolarIntEnergies(span<double> ubar) const override;
 
-    // Return the partial molar heat capacities of the species in the solution. Units: J/kmol/K.
+    //! Return the partial molar heat capacities of the species in the solution. Units: J/kmol/K.
     /*!
      * Since the computation of the partial molar enthalpy does not depend on the temperature,
      * there is no need to override the method.
      */
     // void getPartialMolarCp(span<double> cpbar) const override;
 
-    // Whenever a temperature can be defined, the following relation holds:
-    //   h_k = u_k + R * T_k = u_k + p * v_k
-    // Therefore, v_k = R * T_k / p
+    //! Return the partial molar volumes of the species in the solution. Units: m³/kmol.
+    /*!
+     * For a multitemperature system,
+     * @f[
+     *   v_k = \frac{R T_k}{P},
+     * @f]
+     * where @f$ T_k @f$ is the temperature at which the partial molar enthalpy is evaluated. 
+     */
     void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
