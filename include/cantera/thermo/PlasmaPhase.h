@@ -333,13 +333,13 @@ public:
      * than the heavy species, the molar enthalpy is calculated as:
      * @f[
      * \begin{align}
-     *  \hat h(T) &= \sum_{k} X_k \hat h^0_k(T_k) \\
-     *            &= \sum_{k \neq k_e} X_k \hat h^0_k(T_g) + X_{k_e} \hat h^0_{k_e}(T_e),
+     *  \hat h(T, T_e) &= \sum_{k} X_k \hat h^0_k(T_k) \\
+     *                 &= \sum_{k \neq k_e} X_k \hat h^0_k(T_g) + X_{k_e} \hat h^0_{k_e}(T_e),
      * \end{align}
      * @f]
      * where heavy-species properties are evaluated at @f$T@f$, and electron
      * properties at @f$T_e@f$.
-     * The standard-state pure-species enthalpies @f$ \hat h^0_k(T) @f$ are
+     * The standard-state pure-species enthalpies @f$ \hat h^0_k(T_k) @f$ are
      * computed by the species thermodynamic property manager.
      *
      * @see MultiSpeciesThermo
@@ -450,7 +450,7 @@ public:
     //! @name Mechanical Equation of State
     //! @{
 
-    //! Return the mean temperature of the plasma phase [K].
+    //! Return the mean temperature of the plasma phase. Units: K.
     /*!
      * In a plasma phase, the electron temperature can differ from the
      * heavy-species (gas) temperature. Therefore, the mean temperature is
@@ -466,7 +466,7 @@ public:
      */
     double meanTemperature() const;
 
-    //! Return the pressure of the plasma phase [Pa].
+    //! Return the pressure of the plasma phase. Units: Pa.
     /*!
      * The pressure of the plasma phase is calculated using the mean temperature,
      * which is a mole-fraction-weighted average of the electron and heavy-species
@@ -496,32 +496,36 @@ public:
      */
     double pressure() const override;
 
-    //! Set the pressure at constant temperature and composition.
+    //! Set the pressure at constant temperature and composition. Units: Pa.
     /*!
-     * Units: Pa.
      * This method is implemented by setting the mass density to
      * @f[
      * \rho = \frac{P \overline{W}}{\hat R \overline{T} }.
      * @f]
      *
-     * @param p Pressure (Pa)
+     * @param p Pressure [Pa].
      */
     void setPressure(double p) override {
         setDensity(p * meanMolecularWeight() / (GasConstant * meanTemperature()));
     }
 
-    //! Return the Gas Constant multiplied by the current electron temperature [J/kmol].
-    double RTe() const {
-        return electronTemperature() * GasConstant;
-    }
-
-    //! Return the electron pressure [Pa]. 
+    //! Return the electron pressure. Units: Pa.
     /*
-     * @f[P = n_{k_e} R T_e @f]
+     * The partial pressure of electrons is calculated using the electron temperature:
+     * @f[
+     *    P_e = n_e k_B T_e = C_e R T_e,
+     * @f]
+     * where @f$ C_e @f$ is the molar concentration of electrons [in kmol/m³],
+     * @f$ R @f$ is the gas constant [J/kmol/K], and @f$ T_e @f$ is the electron temperature [K].
      */
     virtual double electronPressure() const {
         return GasConstant * concentration(m_electronSpeciesIndex) *
                electronTemperature();
+    }
+
+    //! Return the Gas Constant multiplied by the current electron temperature [J/kmol].
+    double RTe() const {
+        return electronTemperature() * GasConstant;
     }
 
     double thermalExpansionCoeff() const override {
@@ -541,19 +545,26 @@ public:
     //! @{
 
     //! Returns the standard concentration @f$ C^0_k @f$, which is used to
-    //! normalize the generalized concentration.
+    //! normalize the generalized concentration. Units: m³/kmol.
     /*!
      * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity. Since the activity
      * for an ideal gas mixture is simply the mole fraction, for an ideal gas
      * @f$ C^0_k = P/\hat R T @f$.
-     * For a multi-temperature plasma phase, the mean temperature is used instead:
-     * @f[$ C^0_k = P/\hat R \overline{T} @f$.
+     * For a multi-temperature system, this translates to:
+     * @f[
+     * \begin{align}
+     * C^0_k &= \frac{C_k}{a_k} 
+     *       &= \frac{X_k \frac{P}{R \overline{T}}}{X_k}
+     *       &= \frac{P}{R \overline{T}}
+     * \end{align}
+     * @f]
+     * where @f$C_k@f$ is the molar concentration of species @f$k@f$ [in kmol/m³],
+     * @f$ a_k @f$ is the activity of species @f$ k @f$, which is equal to the
+     * mole fraction @f$ X_k @f$.
      *
      * @param k Parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return
-     *   Returns the standard Concentration in units of m3 kmol-1.
      */
     double standardConcentration(size_t k=0) const override;
 
