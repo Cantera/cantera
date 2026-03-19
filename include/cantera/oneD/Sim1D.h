@@ -369,7 +369,7 @@ protected:
     Func1* m_steady_callback;
 
     //! 0 disables regrid-on-timestep-failure retries
-    int m_ts_regrid_max = 10;
+    int m_ts_regrid_max = 3;
 
 private:
     //! Calls method _finalize in each domain.
