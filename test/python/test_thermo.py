@@ -1295,19 +1295,18 @@ class TestPlasmaPhase:
             phase.add_species(electron)
 
     def test_elastic_power_loss_low_T(self, phase):
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 1000, None, ct.one_atm
+        Te = phase.Te
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.Te = Te
         assert phase.elastic_power_loss == approx(6846332332)
 
     def test_elastic_power_loss_high_T(self, phase):
         # when T is as high as Te the energy loss rate becomes small
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 4000, None, ct.one_atm
+        phase.TPX = 4000, ct.one_atm, "O2:1, E:1e-5"
         assert phase.elastic_power_loss == approx(2865540)
 
     def test_elastic_power_loss_replace_rate(self, phase):
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 1000, None, ct.one_atm
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         rate = ct.ReactionRate.from_dict(self.collision_data)
         phase.reaction(1).rate = rate
         assert phase.elastic_power_loss == approx(11765800095)
@@ -1315,20 +1314,17 @@ class TestPlasmaPhase:
     def test_elastic_power_loss_add_reaction(self, phase):
         phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
                              species=phase.species(), reactions=[])
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 1000, None, ct.one_atm
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
         assert phase.elastic_power_loss == approx(18612132428)
 
     def test_elastic_power_loss_change_levels(self, phase):
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 1000, None, ct.one_atm
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.electron_energy_levels = np.linspace(0,10,101)
         assert phase.elastic_power_loss == approx(113058853)
 
     def test_elastic_power_loss_change_dist(self, phase):
-        phase.X = "O2:1, E:1e-5"
-        phase.TgTeP = 1000, None, ct.one_atm
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         levels = np.array([0.0, 0.1, 1.0, 9.0, 10.0])
         dist = np.array([0.0, 0.2, 0.7, 0.01, 0.01])
         # set the electron energy levels first to test if
@@ -1383,6 +1379,78 @@ class TestPlasmaPhase:
 
         l2_norm = np.linalg.norm(interp - reference_eedf)
         assert l2_norm < 1e-3
+    
+    def _make_simple_plasma_phase(self, Te, set_te_first=False):
+        phase = ct.Solution("thermo_plasma_simple.yaml", "plasma", transport_model=None)
+        phase.isotropic_shape_factor = 1.0
+
+        T = 300.0  # K
+        P = ct.one_atm
+        composition = "O: 0.8, O+: 0.1, e-: 0.1"
+
+        if set_te_first:
+            phase.Te = Te
+        phase.TPX = T, P, composition
+        if not set_te_first:
+            phase.Te = Te
+
+        return phase
+
+    @staticmethod
+    def _expected_cp_mole(X):
+        cp_o = 3.0 * ct.gas_constant
+        cp_o_plus = 8.0 * ct.gas_constant
+        cp_e = 2.5 * ct.gas_constant
+        return X[0] * cp_o + X[1] * cp_o_plus + X[2] * cp_e
+
+    @staticmethod
+    def _expected_h_mole(X, T, Te):
+        h_o = 3.0 * ct.gas_constant * T + 3e4 * ct.gas_constant
+        h_o_plus = 8.0 * ct.gas_constant * T + 2e5 * ct.gas_constant
+        h_e = 2.5 * ct.gas_constant * Te - 750.0 * ct.gas_constant
+        return X[0] * h_o + X[1] * h_o_plus + X[2] * h_e
+
+    @pytest.mark.parametrize(
+        "Te,set_te_first",
+        [
+            (300.0, True),
+            (300.0, False),
+            (30_000.0, True),
+            (30_000.0, False),
+        ],
+    )
+    def test_rho_two_temperature_modes(self, Te, set_te_first):
+        phase = self._make_simple_plasma_phase(Te, set_te_first=set_te_first)
+        T_ref = phase.mean_temperature
+        expected_rho = phase.P * phase.mean_molecular_weight / (ct.gas_constant * T_ref)
+        assert phase.density == approx(expected_rho)
+
+    @pytest.mark.parametrize(
+        "Te,set_te_first",
+        [
+            (300.0, True),
+            (300.0, False),
+            (30_000.0, True),
+            (30_000.0, False),
+        ],
+    )
+    def test_cp_mole_two_temperature_modes(self, Te, set_te_first):
+        phase = self._make_simple_plasma_phase(Te, set_te_first=set_te_first)
+        assert phase.cp_mole == approx(self._expected_cp_mole(phase.X))
+
+    @pytest.mark.parametrize(
+        "Te,set_te_first",
+        [
+            (300.0, True),
+            (300.0, False),
+            (30_000.0, True),
+            (30_000.0, False),
+        ],
+    )
+    def test_enthalpy_mole_two_temperature_modes(self, Te, set_te_first):
+        phase = self._make_simple_plasma_phase(Te, set_te_first=set_te_first)
+        expected_h = self._expected_h_mole(phase.X, phase.T, phase.Te)
+        assert phase.enthalpy_mole == approx(expected_h)
 
 
 class TestImport:
