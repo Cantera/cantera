@@ -151,10 +151,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setTimeStepFactor(double)
         void setTimeStepGrowthFactor(double) except +translate_exception
         double timeStepGrowthFactor()
-        void setAdaptiveTimeStepGrowth(cbool)
-        cbool adaptiveTimeStepGrowth()
-        void setTimeStepGrowthHeuristic(int) except +translate_exception
-        int timeStepGrowthHeuristic()
+        void setTimeStepGrowthStrategy(const string&) except +translate_exception
+        string timeStepGrowthStrategy()
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
         void setTimeStepRegridMax(int) except +translate_exception
