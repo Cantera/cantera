@@ -670,23 +670,17 @@ public:
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
+    // Below are 5 methods already defined in IdealGasPhase, that do not need
+    // to be overridden, since they do not depend on the temperature.
+    // {
     // void getEnthalpy_RT_ref(span<double> hrt) const override;
     // void getGibbs_RT_ref(span<double> grt) const override;
-
-    //! Return the reference-state Gibbs free energys of the species [J/kmol].
-    /*!
-     * For heavy species, this is identical to the IdealGasPhase
-     * implementation. For electrons, the reference-state Gibbs free energy
-     * is evaluated at the electron temperature:
-     * @f[
-     *  \hat{g}^0_{e}(T_e) = \hat{h}^0_{e}(T_e) - T_e \hat{s}^0_{e}(T_e).
-     * @f]
-     */
-    void getGibbs_ref(span<double> g) const override;
-
     // void getEntropy_R_ref(span<double> er) const override;
     // void getIntEnergy_RT_ref(span<double> urt) const override;
     // void getCp_R_ref(span<double> cprt) const override;
+    // }
+
+    void getGibbs_ref(span<double> g) const override;
     void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}

@@ -837,12 +837,10 @@ void PlasmaPhase::getStandardVolumes(span<double> vol) const
     vol[m_electronSpeciesIndex] = RTe() / pressure();
 }
 
+
 // ================================================================= //
 //       Thermodynamic Values for the Species Reference States       //
 // ================================================================= //
-
-
-
 
 void PlasmaPhase::getGibbs_ref(span<double> g) const
 {
@@ -855,6 +853,7 @@ void PlasmaPhase::getStandardVolumes_ref(span<double> vol) const
     IdealGasPhase::getStandardVolumes_ref(vol);
     vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
+
 
 // ================================================================= //
 //                        Setting the State                          //
