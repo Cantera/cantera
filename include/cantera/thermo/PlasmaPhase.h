@@ -308,7 +308,17 @@ public:
     //! Set reduced electric field given in [V·m²].
     void setReducedElectricField(double EN) {
         m_electricField = EN * molarDensity() * Avogadro; // [V/m]
-    }  
+    }
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
 
     /**
      * The elastic power loss [J/s/m³]
@@ -778,15 +788,7 @@ public:
     //! @}
 
 
-    /**
-     * The electron mobility (m²/V/s)
-     *   @f[
-     *     \mu = \nu_d / E,
-     *   @f]
-     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
-     * field strength (V/m).
-     */
-    double electronMobility() const;
+
 
 
 
