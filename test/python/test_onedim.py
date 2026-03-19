@@ -139,46 +139,27 @@ class TestOnedim:
         assert rtol_ss == set((5e-3, 3e-4, 7e-7))
         assert rtol_ts == set((6e-3, 4e-4, 2e-7))
 
-    def test_time_step_growth_controls(self):
+    def test_time_step_control_option_validation(self):
         gas = ct.Solution("h2o2.yaml")
         left = ct.Inlet1D(gas)
         flame = ct.FreeFlow(gas)
         right = ct.Outlet1D(gas)
         sim = ct.Sim1D((left, flame, right))
 
-        assert sim.time_step_growth_factor() == approx(1.5)
-        assert not sim.adaptive_time_step_growth()
-        assert sim.time_step_growth_heuristic() == 2
-
-        sim.set_time_step_growth_factor(1.2)
-        assert sim.time_step_growth_factor() == approx(1.2)
-
-        sim.set_adaptive_time_step_growth(True)
-        assert sim.adaptive_time_step_growth()
-
-        sim.set_time_step_growth_heuristic(4)
-        assert sim.time_step_growth_heuristic() == 4
-
         with pytest.raises(ct.CanteraError, match=">= 1.0"):
-            sim.set_time_step_growth_factor(0.9)
+            sim.time_step_growth_factor = 0.9
 
         with pytest.raises(ct.CanteraError, match="finite and >= 1.0"):
-            sim.set_time_step_growth_factor(float("inf"))
+            sim.time_step_growth_factor = float("inf")
 
         with pytest.raises(ct.CanteraError, match="finite and >= 1.0"):
-            sim.set_time_step_growth_factor(float("nan"))
+            sim.time_step_growth_factor = float("nan")
 
-        with pytest.raises(ct.CanteraError, match=r"\[1, 4\]"):
-            sim.set_time_step_growth_heuristic(5)
-
-        assert sim.time_step_regrid() == 10
-        sim.set_time_step_regrid(3)
-        assert sim.time_step_regrid() == 3
-        sim.set_time_step_regrid(0)
-        assert sim.time_step_regrid() == 0
+        with pytest.raises(ct.CanteraError, match="must be one of"):
+            sim.time_step_growth_strategy = "not-a-strategy"
 
         with pytest.raises(ct.CanteraError, match=">= 0"):
-            sim.set_time_step_regrid(-1)
+            sim.time_step_regrid = -1
 
     def test_switch_transport(self):
         gas = ct.Solution('h2o2.yaml')
@@ -249,6 +230,15 @@ class TestFreeFlame:
         self.sim.solve(loglevel=loglevel, refine_grid=False)
 
         assert not self.sim.energy_enabled
+
+    def solve_fixed_T_with_growth(self, growth_factor=1.5, strategy="fixed-growth"):
+        dts = []
+        self.sim.set_time_step_callback(lambda dt: dts.append(float(dt)) or 0)
+        self.sim.time_step_growth_factor = growth_factor
+        self.sim.time_step_growth_strategy = strategy
+        self.sim.clear_stats()
+        self.solve_fixed_T()
+        return dts
 
     def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True,
                   auto=False):
@@ -542,6 +532,59 @@ class TestFreeFlame:
         assert "Attempt 2 timesteps" in out
         assert "Attempt 3 timesteps" in out
         assert "Attempt 10 timesteps" in out
+
+    def test_time_step_growth_behavior(self):
+        reactants = "H2:3, O2:1, AR:10"
+        case = dict(p=ct.one_atm, Tin=250, reactants=reactants, width=0.02)
+
+        self.create_sim(**case)
+        assert self.sim.time_step_growth_factor == approx(1.5)
+        assert self.sim.time_step_growth_strategy == "fixed-growth"
+        self.sim.time_step_growth_factor = 1.2
+        assert self.sim.time_step_growth_factor == approx(1.2)
+        self.sim.time_step_growth_strategy = "newton-iterations"
+        assert self.sim.time_step_growth_strategy == "newton-iterations"
+        no_growth_dts = self.solve_fixed_T_with_growth(growth_factor=1.0)
+        reference_velocity = self.sim.velocity[0]
+
+        self.create_sim(**case)
+        fixed_growth_dts = self.solve_fixed_T_with_growth(growth_factor=2.0)
+        assert self.sim.velocity[0] == approx(reference_velocity, rel=1e-8, abs=1e-12)
+
+        self.create_sim(**case)
+        steady_norm_dts = self.solve_fixed_T_with_growth(
+            growth_factor=2.0, strategy="steady-norm")
+        assert self.sim.velocity[0] == approx(reference_velocity, rel=1e-8, abs=1e-12)
+
+        self.create_sim(**case)
+        transient_residual_dts = self.solve_fixed_T_with_growth(
+            growth_factor=2.0, strategy="transient-residual")
+        assert self.sim.velocity[0] == approx(reference_velocity, rel=1e-8, abs=1e-12)
+
+        self.create_sim(**case)
+        residual_ratio_dts = self.solve_fixed_T_with_growth(
+            growth_factor=2.0, strategy="residual-ratio")
+        assert self.sim.velocity[0] == approx(reference_velocity, rel=1e-8, abs=1e-12)
+
+        self.create_sim(**case)
+        newton_iterations_dts = self.solve_fixed_T_with_growth(
+            growth_factor=2.0, strategy="newton-iterations")
+        assert self.sim.velocity[0] == approx(reference_velocity, rel=1e-8, abs=1e-12)
+
+        assert len(no_growth_dts) > 0
+        assert no_growth_dts == approx([no_growth_dts[0]] * len(no_growth_dts))
+        assert max(fixed_growth_dts) > 100 * min(fixed_growth_dts)
+        assert transient_residual_dts == fixed_growth_dts
+        assert steady_norm_dts != fixed_growth_dts
+        assert sum(steady_norm_dts) < sum(fixed_growth_dts)
+        assert max(steady_norm_dts) < max(fixed_growth_dts)
+        assert residual_ratio_dts != fixed_growth_dts
+        assert sum(steady_norm_dts) < sum(residual_ratio_dts) < sum(fixed_growth_dts)
+        assert max(residual_ratio_dts) < max(fixed_growth_dts)
+        assert newton_iterations_dts != fixed_growth_dts
+        assert sum(newton_iterations_dts) < sum(steady_norm_dts)
+        assert min(newton_iterations_dts) < min(fixed_growth_dts)
+        assert max(newton_iterations_dts) < max(steady_norm_dts)
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
@@ -1109,6 +1152,28 @@ class TestDiffusionFlame:
         assert arr.radial_pressure_gradient[0] == radial_lambda[0]
         assert getattr(arr, "radial-pressure-gradient")[0] == radial_lambda[0]
 
+    def make_high_pressure_regrid_case(self, pressure, regrid_max,
+                                       refine_criteria=(2.0, 0.06, 0.08, 0.02)):
+        gas = ct.Solution("h2o2.yaml")
+        flame = ct.CounterflowDiffusionFlame(gas, grid=np.linspace(0.0, 30e-3, 20))
+        flame.max_time_step_count = 200
+        flame.set_refine_criteria(
+            ratio=refine_criteria[0], slope=refine_criteria[1],
+            curve=refine_criteria[2], prune=refine_criteria[3]
+        )
+        flame.time_step_regrid = regrid_max
+        flame.P = pressure
+        flame.fuel_inlet.X = "H2:1.0"
+        flame.fuel_inlet.T = 800.0
+        flame.oxidizer_inlet.X = "O2:1.0"
+        flame.oxidizer_inlet.T = 711.0
+
+        rho_f = flame.fuel_inlet.phase.density
+        rho_o = flame.oxidizer_inlet.phase.density
+        flame.fuel_inlet.mdot = 0.3
+        flame.oxidizer_inlet.mdot = (0.3 / rho_f) * rho_o * 3.0
+        return flame
+
     @pytest.mark.slow_test
     def test_mixture_averaged(self, request, test_data_path):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
@@ -1176,6 +1241,43 @@ class TestDiffusionFlame:
             bad = compareProfiles(test_data_path / referenceFile, data,
                                   rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
+
+    @pytest.mark.slow_test
+    def test_time_step_regrid_high_pressure(self, capsys):
+        flame = self.make_high_pressure_regrid_case(7e6, 0)
+        with pytest.raises(ct.CanteraError):
+            flame.solve(loglevel=0, auto=False)
+        assert sum(flame.time_step_stats) == 200
+
+        flame = self.make_high_pressure_regrid_case(7e6, 1)
+        assert flame.time_step_regrid == 1
+        with pytest.raises(ct.CanteraError):
+            flame.solve(loglevel=0, auto=False)
+        assert sum(flame.time_step_stats) == 400
+        assert len(flame.grid) > 20
+
+        flame = self.make_high_pressure_regrid_case(7e6, 3)
+        flame.solve(loglevel=1, auto=False)
+        out = capsys.readouterr().out
+
+        assert "Time stepping failed; attempting to refine the grid and retry" in out
+        assert out.count("Time stepping failed; attempting to refine the grid and retry") == 3
+        assert sum(flame.time_step_stats) > 200
+        assert len(flame.grid) > 20
+        assert np.max(flame.T) > 3000
+
+    @pytest.mark.slow_test
+    def test_time_step_regrid_unchanged_grid_aborts(self, capsys):
+        flame = self.make_high_pressure_regrid_case(
+            7e6, 3, refine_criteria=(1000.0, 1.0, 1.0, 0.0))
+        with pytest.raises(ct.CanteraError):
+            flame.solve(loglevel=1, auto=False)
+        out = capsys.readouterr().out
+
+        assert "Time stepping failed; attempting to refine the grid and retry" in out
+        assert "Regrid retry aborted: grid was unchanged." in out
+        assert sum(flame.time_step_stats) == 200
+        assert len(flame.grid) == 20
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
         self.create_sim(fuel='H2:1.0', oxidizer='O2:1.0', p=ct.one_atm*P,
