@@ -641,17 +641,6 @@ double PlasmaPhase::elasticPowerLoss()
 
 
 // ================================================================= //
-//                Chemical Potentials and Activities                 //
-// ================================================================= //
-
-
-double PlasmaPhase::standardConcentration(size_t k) const
-{
-    return pressure() / (GasConstant * meanTemperature());
-}
-
-
-// ================================================================= //
 //           Molar Thermodynamic Properties of the Solution          //
 // ================================================================= //
 
@@ -758,6 +747,18 @@ double PlasmaPhase::meanTemperature() const
 double PlasmaPhase::pressure() const {
     return GasConstant * meanTemperature() * density() / meanMolecularWeight();
 }
+
+// ================================================================= //
+//                Chemical Potentials and Activities                 //
+// ================================================================= //
+
+
+double PlasmaPhase::standardConcentration(size_t k) const
+{
+    return pressure() / (GasConstant * meanTemperature());
+}
+
+
 
 // ================================================================= //
 //              Partial Molar Properties of the Solution             //
