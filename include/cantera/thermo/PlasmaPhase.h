@@ -421,57 +421,12 @@ public:
 
     // double entropy_mole() const override;
     // double gibbs_mole() const override;
-    // double intEnergy_mole() const override;
     // --------------------------------------------------------------------------------------//
     
-    double cp_mole() const override;
+    // double cp_mole() const override;  // Already defined in IdealGasPhase
     // double cp_mass() const; // Already defined in ThermoPhase
     // double cv_mole() const; // Already defined in IdealGasPhase
 
-    //! Return the constant-pressure specific heat capacity of electrons [J/kmol/K].
-    /*!
-     * For electrons, the specific heat capacity at constant pressure does not
-     * depend on temperature. It is constant, and given by:
-     * @f[
-     * \hat c_{p,e} = \frac{5}{2} R
-     * @f]
-     * This comes from statistical mechanics, where only translational degrees of
-     * freedom contribute to the specific heat capacity (no electronic, vibrational, or
-     * rotational contributions). The factor of 5/2 arises from the 3/2R contribution
-     * from translational motion, plus an additional R from the pressure-volume work
-     * done at constant pressure.
-     */
-    double cp_mole_e() const;
-    //! Return the constant-pressure specific heat capacity of electrons [J/kg/K].
-    double cp_mass_e() const {
-        return cp_mole_e() / m_Me;
-    };
-    //! Return the constant-volume specific heat capacity of electrons [J/kmol/K].
-    double cv_mole_e() const {
-        return cp_mole_e() - GasConstant;
-    };
-    //! Return the constant-volume specific heat capacity of electrons [J/kg/K].
-    double cv_mass_e() const {
-        return cp_mass_e() - GasConstant / m_Me;
-    };
-
-    //! Return the constant-pressure specific heat capacity of heavy species [J/kmol/K].
-    /*!
-     * The mean heavy-species specific heat capacity at constant pressure is
-     * calculated as:
-     * @f[
-     * \hat c_{p,h} = \sum_{k \neq k_e} X_k \hat c^0_{p,k}(T_g)
-     * @f]
-     * where @f$ \hat c^0_{p,k}(T_g) @f$ is the standard-state specific heat capacity
-     * at constant pressure for species @f$ k @f$ and @f$ T_g @f$ is the gas temperature.
-     */
-    double cp_mole_h() const;
-    //! Return the constant-pressure specific heat capacity of heavy species [J/kg/K].
-    double cp_mass_h() const;
-    //! Return the constant-volume specific heat capacity of heavy species [J/kmol/K].
-    double cv_mole_h() const;
-    //! Return the constant-volume specific heat capacity of heavy species [J/kg/K].
-    double cv_mass_h() const;
 
     //! @}
     // ================================================================= //

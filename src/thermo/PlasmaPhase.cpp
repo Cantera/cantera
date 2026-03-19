@@ -731,53 +731,6 @@ double PlasmaPhase::intEnergy_mole() const
     return u;
 }
 
-double PlasmaPhase::cp_mole() const {
-    return GasConstant * mean_X(cp_R_ref());
-}
-
-double PlasmaPhase::cp_mole_e() const
-{
-    // TODO: compare m_cp0_R[m_electronSpeciesIndex] with 2.5 * GasConstant,
-    // when initThermo is called.
-    return 2.5 * GasConstant;
-}
-
-double PlasmaPhase::cp_mole_h() const
-{
-    double value = cp_mole();
-    double cp_e = cp_mole_e();
-    double Xe = moleFraction(m_electronSpeciesIndex);
-    value -= Xe * cp_e;
-    return value;
-}
-
-double PlasmaPhase::cp_mass_h() const
-{
-    double value = cp_mass();
-    double cp_e = cp_mass_e();
-    double Ye = massFraction(m_electronSpeciesIndex);
-    value -= Ye * cp_e;
-    return value;
-}
-
-double PlasmaPhase::cv_mole_h() const
-{
-    double value = cv_mole();
-    double cv_e = cv_mole_e();
-    double Xe = moleFraction(m_electronSpeciesIndex);
-    value -= Xe * cv_e;
-    return value;
-}
-
-double PlasmaPhase::cv_mass_h() const
-{
-    double value = cv_mass();
-    double cv_e = cv_mass_e();
-    double Ye = massFraction(m_electronSpeciesIndex);
-    value -= Ye * cv_e;
-    return value;
-}
-
 // ================================================================= //
 //                     Mechanical Equation of State                  //
 // ================================================================= //
