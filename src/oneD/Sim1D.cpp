@@ -350,25 +350,22 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
     int retries = 0;
     while (new_points > 0) {
-        if (refine_grid == true) {
+        if (refine_grid && retries < m_ts_regrid_max) {
             try {
                 SteadyStateSystem::solve(loglevel);
-            } catch (CanteraError& err) {
-                if (err.getMethod() == "SteadyStateSystem::timeStep" && retries < m_ts_regrid_max) {
-                    if (loglevel > 0) {
-                        writelog("\nTime stepping failed; attempting to refine the grid and retry "
-                                "({}/{})...\n", retries+1, m_ts_regrid_max);
-                    }
-                    new_points = refine(loglevel);
-                    if (new_points > 0) {
-                        retries++;
-                        continue;
-                    }
-                    if (loglevel > 0) {
-                        if (new_points == 0) {
-                            writelog("Regrid retry aborted: no new points added.\n");
-                        }
-                    }
+            } catch (TimeStepError&) {
+                if (loglevel > 0) {
+                    writelog("\nTime stepping failed; attempting to refine the grid and retry "
+                            "({}/{})...\n", retries+1, m_ts_regrid_max);
+                }
+                int regrid_result = refine(loglevel);
+                if (regrid_result != 0) {
+                    retries++;
+                    new_points = 1;
+                    continue;
+                }
+                if (loglevel > 0) {
+                    writelog("Regrid retry aborted: grid was unchanged.\n");
                 }
                 throw;
             }
