@@ -83,12 +83,15 @@ void PengRobinson::setBinaryCoeffs(const string& species_i,
 double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
+    double cpref = GasConstant * mean_X(m_cp0_R);
+    if (m_b == 0.0) {
+        return cpref;
+    }
     double T = temperature();
     double mv = molarVolume();
     double vpb = mv + (1 + Sqrt2) * m_b;
     double vmb = mv + (1 - Sqrt2) * m_b;
     calculatePressureDerivatives();
-    double cpref = GasConstant * mean_X(m_cp0_R);
     double dHdT_V = cpref + mv * m_dpdT - GasConstant
                     + 1.0 / (2.0 * Sqrt2 * m_b) * log(vpb / vmb) * T * d2aAlpha_dT2();
     return dHdT_V - (mv + T * m_dpdT / m_dpdV) * m_dpdT;
@@ -97,6 +100,10 @@ double PengRobinson::cp_mole() const
 double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
+    double cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
+    if (m_b == 0.0) {
+        return cvref;
+    }
     double T = temperature();
     calculatePressureDerivatives();
     return (cp_mole() + T * m_dpdT * m_dpdT / m_dpdV);
@@ -121,6 +128,12 @@ double PengRobinson::standardConcentration(size_t k) const
 void PengRobinson::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("PengRobinson::getActivityCoefficients", ac.size(), m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = 1.0;
+    }
+    if (m_b == 0.0) {
+        return;
+    }
     double mv = molarVolume();
     double vpb2 = mv + (1 + Sqrt2) * m_b;
     double vmb2 = mv + (1 - Sqrt2) * m_b;
@@ -154,11 +167,14 @@ void PengRobinson::getActivityCoefficients(span<double> ac) const
 
 void PengRobinson::getChemPotentials(span<double> mu) const
 {
-    getGibbs_ref(mu);
     double RT_ = RT();
+    getStandardChemPotentials(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += RT_ * (log(xx));
+        mu[k] += RT_ * log(xx);
+    }
+    if (m_b == 0.0) {
+        return;
     }
 
     double mv = molarVolume();
@@ -173,14 +189,13 @@ void PengRobinson::getChemPotentials(span<double> mu) const
         }
     }
     double pres = pressure();
-    double refP = refPressure();
     double denom = 2 * Sqrt2 * m_b * m_b;
     double denom2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
 
     for (size_t k = 0; k < m_kk; k++) {
         double num = 2 * m_b * m_pp[k] - m_aAlpha_mix * m_b_coeffs[k];
 
-        mu[k] += RT_ * log(pres/refP) - RT_ * log(pres * mv / RT_)
+        mu[k] += - RT_ * log(pres * mv / RT_)
                  + RT_ * log(mv / vmb) + RT_ * m_b_coeffs[k] / vmb
                  - (num /denom) * log(vpb2/vmb2)
                  - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2;
@@ -192,6 +207,9 @@ void PengRobinson::getPartialMolarEnthalpies(span<double> hbar) const
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
+    if (m_b == 0.0) {
+        return;
+    }
     vector<double> tmp;
     tmp.resize(m_kk,0.0);
 
@@ -444,6 +462,9 @@ void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode)
 
 double PengRobinson::sresid() const
 {
+    if (m_b == 0.0) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double hh = m_b / molarV;
     double zz = z();
@@ -457,6 +478,9 @@ double PengRobinson::sresid() const
 
 double PengRobinson::hresid() const
 {
+    if (m_b == 0.0) {
+        return 0.0;
+    }
     double molarV = molarVolume();
     double zz = z();
     double aAlpha_1 = daAlpha_dT();

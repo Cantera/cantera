@@ -993,6 +993,82 @@ class TestThermoPhase:
 
         assert abs(gas.P - evaluated_pressure) < 1e-6
 
+    def _partial_lookup_peng_robinson_phase(self):
+        """
+        Build a mixed-parameter Peng-Robinson phase:
+        - CH4 / O2 use critical-property lookup
+        - all other species use ideal-like PR placeholders (a=b=0)
+        """
+        species = ct.Species.list_from_file("co2_PR_example.yaml")
+        phase_species = []
+        for sp in species:
+            data = dict(sp.input_data)
+            if data["name"] in {"CH4", "O2"}:
+                data.pop("equation-of-state", None)
+            else:
+                data["equation-of-state"] = {
+                    "model": "Peng-Robinson",
+                    "a": 0.0,
+                    "b": 0.0,
+                    "acentric-factor": 0.0,
+                }
+            phase_species.append(ct.Species.from_dict(data))
+
+        return ct.Solution(
+            thermo="Peng-Robinson",
+            kinetics="bulk",
+            species=phase_species,
+            reactions=[],
+            name="partial-lookup-pr",
+        )
+
+    def _zero_param_redlich_kwong_phase(self):
+        species = ct.Species.list_from_file("co2_RK_example.yaml")
+        phase_species = []
+        for sp in species:
+            data = dict(sp.input_data)
+            data["equation-of-state"] = {
+                "model": "Redlich-Kwong",
+                "a": 0.0,
+                "b": 0.0,
+            }
+            phase_species.append(ct.Species.from_dict(data))
+
+        return ct.Solution(
+            thermo="Redlich-Kwong",
+            kinetics="bulk",
+            species=phase_species,
+            reactions=[],
+            name="zero-params-rk",
+        )
+
+    def test_partial_lookup_pr_zero_ab_properties_finite(self):
+        gas = self._partial_lookup_peng_robinson_phase()
+        gas.TPX = 500.0, 1.0e6, "CO2:0.333, H2O:0.666"
+
+        assert np.isfinite(gas.enthalpy_mole)
+        assert np.isfinite(gas.int_energy_mole)
+        assert np.isfinite(gas.entropy_mole)
+        assert np.isfinite(gas.cp_mole)
+        assert np.isfinite(gas.cv_mole)
+        assert np.allclose(gas.activity_coefficients, 1.0)
+        assert np.all(np.isfinite(gas.chemical_potentials))
+
+    def test_zero_ab_redlich_kwong_properties_finite(self):
+        gas = self._zero_param_redlich_kwong_phase()
+        gas.TPX = 500.0, 1.0e6, {
+            gas.species_names[0]: 0.5,
+            gas.species_names[1]: 0.5,
+        }
+
+        assert np.isfinite(gas.enthalpy_mole)
+        assert np.isfinite(gas.int_energy_mole)
+        assert np.isfinite(gas.entropy_mole)
+        assert np.isfinite(gas.cp_mole)
+        assert np.isfinite(gas.cv_mole)
+        assert np.allclose(gas.activity_coefficients, 1.0)
+        assert np.all(np.isfinite(gas.chemical_potentials))
+
 
 @pytest.fixture(scope='function')
 def setup_thermo_tests(request):

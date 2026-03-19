@@ -85,12 +85,15 @@ void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& sp
 double RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
+    double cpref = GasConstant * mean_X(m_cp0_R);
+    if (m_b_current == 0.0) {
+        return cpref;
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
     double vpb = mv + m_b_current;
     pressureDerivatives();
-    double cpref = GasConstant * mean_X(m_cp0_R);
     double dadt = da_dt();
     double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     double dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
@@ -101,11 +104,14 @@ double RedlichKwongMFTP::cp_mole() const
 double RedlichKwongMFTP::cv_mole() const
 {
     _updateReferenceStateThermo();
+    double cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
+    if (m_b_current == 0.0) {
+        return cvref;
+    }
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
     double vpb = mv + m_b_current;
-    double cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
     double dadt = da_dt();
     double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     return (cvref - 1.0/(2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv)*fac
@@ -132,6 +138,12 @@ double RedlichKwongMFTP::standardConcentration(size_t k) const
 void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 {
     checkArraySize("RedlichKwongMFTP::getActivityCoefficients", ac.size(), m_kk);
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = 1.0;
+    }
+    if (m_b_current == 0.0) {
+        return;
+    }
     double mv = molarVolume();
     double sqt = sqrt(temperature());
     double vpb = mv + m_b_current;
@@ -164,10 +176,13 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
 
 void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
 {
-    getGibbs_ref(mu);
+    getStandardChemPotentials(mu);
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += RT()*(log(xx));
+        mu[k] += RT() * log(xx);
+    }
+    if (m_b_current == 0.0) {
+        return;
     }
 
     double mv = molarVolume();
@@ -183,10 +198,9 @@ void RedlichKwongMFTP::getChemPotentials(span<double> mu) const
         }
     }
     double pres = pressure();
-    double refP = refPressure();
 
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += (RT() * log(pres/refP) - RT() * log(pres * mv / RT())
+        mu[k] += (- RT() * log(pres * mv / RT())
                   + RT() * log(mv / vmb)
                   + RT() * b_vec_Curr_[k] / vmb
                   - 2.0 * m_pp[k] / (m_b_current * sqt) * log(vpb/mv)
@@ -201,6 +215,9 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar.begin(), hbar.end(), hbar.begin(), RT());
+    if (m_b_current == 0.0) {
+        return;
+    }
 
     // We calculate dpdni_
     double TKelvin = temperature();
@@ -248,11 +265,15 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
     double TKelvin = temperature();
     double sqt = sqrt(TKelvin);
     double mv = molarVolume();
-    double refP = refPressure();
+    double pres = pressure();
+    double logPres = log(pres / refPressure());
 
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        sbar[k] += GasConstant * (- log(xx));
+        sbar[k] -= GasConstant * (log(xx) + logPres);
+    }
+    if (m_b_current == 0.0) {
+        return;
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -274,21 +295,20 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
     double vmb = mv - m_b_current;
     double vpb = mv + m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] -=(GasConstant * log(GasConstant * TKelvin / (refP * mv))
-                   + GasConstant
-                   + GasConstant * log(mv/vmb)
-                   + GasConstant * b_vec_Curr_[k]/vmb
-                   + m_pp[k]/(m_b_current * TKelvin * sqt) * log(vpb/mv)
-                   - 2.0 * m_workS[k]/(m_b_current * sqt) * log(vpb/mv)
-                   + b_vec_Curr_[k] / (m_b_current * m_b_current * sqt) * log(vpb/mv) * fac
-                   - 1.0 / (m_b_current * sqt) * b_vec_Curr_[k] / vpb * fac
-                  );
+        sbar[k] += (GasConstant * log(pres * mv / RT())
+                    - GasConstant
+                    - GasConstant * log(mv/vmb)
+                    - GasConstant * b_vec_Curr_[k]/vmb
+                    - m_pp[k]/(m_b_current * TKelvin * sqt) * log(vpb/mv)
+                    + 2.0 * m_workS[k]/(m_b_current * sqt) * log(vpb/mv)
+                    - b_vec_Curr_[k] / (m_b_current * m_b_current * sqt) * log(vpb/mv) * fac
+                    + 1.0 / (m_b_current * sqt) * b_vec_Curr_[k] / vpb * fac);
     }
 
     pressureDerivatives();
     getPartialMolarVolumes(m_partialMolarVolumes);
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
+        sbar[k] += m_partialMolarVolumes[k] * dpdT_;
     }
 }
 
@@ -505,6 +525,9 @@ void RedlichKwongMFTP::getSpeciesParameters(const string& name,
 
 double RedlichKwongMFTP::sresid() const
 {
+    if (m_b_current == 0.0) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
@@ -521,6 +544,9 @@ double RedlichKwongMFTP::sresid() const
 
 double RedlichKwongMFTP::hresid() const
 {
+    if (m_b_current == 0.0) {
+        return 0.0;
+    }
     // note this agrees with tpx
     double rho = density();
     double mmw = meanMolecularWeight();
