@@ -213,14 +213,6 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         double electricField()
         void updateElectronEnergyDistribution() except +translate_exception
         double elasticPowerLoss() except +translate_exception
-        double cp_mole_e()
-        double cp_mass_e()
-        double cv_mole_e()
-        double cv_mass_e()
-        double cp_mole_h()
-        double cp_mass_h()
-        double cv_mole_h()
-        double cv_mass_h()
         double meanTemperature()
         void setState_TgTeP(double, double, double) except +translate_exception
         void setState_TgTeD(double, double, double) except +translate_exception
