@@ -17,7 +17,8 @@ diffusion flame that fails without recovery.
 
 Requires: cantera >= 4.0; matplotlib is optional for plotting
 
-.. tags:: Python, combustion, 1D flow, free flame, diffusion flame, solver
+.. tags:: Python, combustion, 1D flow, premixed flame, diffusion flame, strained flame,
+   plotting
 """
 
 from __future__ import annotations
