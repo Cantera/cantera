@@ -652,17 +652,6 @@ double PlasmaPhase::enthalpy_mole() const {
     return value;
 }
 
-double PlasmaPhase::intEnergy_mole() const
-{
-    m_work.resize(m_kk);
-    getPartialMolarIntEnergies(m_work);
-    double u = 0.0;
-    for (size_t k = 0; k < m_kk; ++k) {
-        u += moleFraction(k) * m_work[k];
-    }
-    return u;
-}
-
 double PlasmaPhase::entropy_mole() const
 {
     m_work.resize(m_kk);
@@ -683,6 +672,17 @@ double PlasmaPhase::gibbs_mole() const
         g += moleFraction(k) * m_work[k];
     }
     return g;
+}
+
+double PlasmaPhase::intEnergy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarIntEnergies(m_work);
+    double u = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        u += moleFraction(k) * m_work[k];
+    }
+    return u;
 }
 
 double PlasmaPhase::cp_mole() const {
