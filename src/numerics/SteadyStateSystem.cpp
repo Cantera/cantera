@@ -108,49 +108,95 @@ void SteadyStateSystem::solve(int loglevel)
     }
 }
 
-double SteadyStateSystem::timeStepIncreaseFactor(span<const double> x_before,
-                                                 span<const double> x_after)
+SteadyStateSystem::TimeStepGrowthStrategy
+SteadyStateSystem::parseTimeStepGrowthStrategy(const string& strategy)
 {
-    if (!m_adaptive_tstep_growth) {
+    if (strategy == "fixed-growth") {
+        return TimeStepGrowthStrategy::fixed;
+    } else if (strategy == "steady-norm") {
+        return TimeStepGrowthStrategy::steadyNorm;
+    } else if (strategy == "transient-residual") {
+        return TimeStepGrowthStrategy::transientResidual;
+    } else if (strategy == "residual-ratio") {
+        return TimeStepGrowthStrategy::residualRatio;
+    } else if (strategy == "newton-iterations") {
+        return TimeStepGrowthStrategy::newtonIterations;
+    }
+    throw CanteraError("SteadyStateSystem::setTimeStepGrowthStrategy",
+        "Unknown time step growth strategy '{}'; must be one of "
+        "'fixed-growth', 'steady-norm', 'transient-residual', "
+        "'residual-ratio', or 'newton-iterations'.", strategy);
+}
+
+string SteadyStateSystem::timeStepGrowthStrategyName(TimeStepGrowthStrategy strategy)
+{
+    switch (strategy) {
+    case TimeStepGrowthStrategy::fixed:
+        return "fixed-growth";
+    case TimeStepGrowthStrategy::steadyNorm:
+        return "steady-norm";
+    case TimeStepGrowthStrategy::transientResidual:
+        return "transient-residual";
+    case TimeStepGrowthStrategy::residualRatio:
+        return "residual-ratio";
+    case TimeStepGrowthStrategy::newtonIterations:
+        return "newton-iterations";
+    }
+    throw CanteraError("SteadyStateSystem::timeStepGrowthStrategyName",
+        "Unknown time step growth strategy.");
+}
+
+void SteadyStateSystem::setTimeStepGrowthStrategy(const string& strategy)
+{
+    m_tstep_growth_strategy = parseTimeStepGrowthStrategy(strategy);
+}
+
+string SteadyStateSystem::timeStepGrowthStrategy() const
+{
+    return timeStepGrowthStrategyName(m_tstep_growth_strategy);
+}
+
+double SteadyStateSystem::calculateTimeStepGrowthFactor(span<const double> x_before,
+                                                        span<const double> x_after)
+{
+    if (m_tstep_growth_strategy == TimeStepGrowthStrategy::fixed) {
         return m_tstep_growth;
     }
 
-    int heuristic = m_tstep_growth_heuristic; // Can be 1-4
     m_work1.resize(m_size);
-    const double grow_factor = m_tstep_growth;
+    const double growth = m_tstep_growth;
 
-    if (heuristic == 1) {
-        // Steady-state residual gate. If the steady-state residual decreased, allow
-        // increase in timestep.
+    switch (m_tstep_growth_strategy) {
+    case TimeStepGrowthStrategy::fixed:
+        return growth;
+    case TimeStepGrowthStrategy::steadyNorm: {
         double ss_before = ssnorm(x_before, m_work1);
         double ss_after = ssnorm(x_after, m_work1);
-        return (ss_after < ss_before) ? grow_factor : 1.0;
-    } else if (heuristic == 2) {
-        // Transient residual gate. If the transient residual decreased, allow
-        // increase in timestep.
+        return (ss_after < ss_before) ? growth : 1.0;
+    }
+    case TimeStepGrowthStrategy::transientResidual: {
         double ts_before = tsnorm(x_before, m_work1);
         double ts_after = tsnorm(x_after, m_work1);
-        return (ts_after < ts_before) ? grow_factor : 1.0;
-    } else if (heuristic == 3) {
-        // Residual-ratio scaling gate (transient residual). If the transient residual
-        // decreased significantly, allow larger increase in timestep.
+        return (ts_after < ts_before) ? growth : 1.0;
+    }
+    case TimeStepGrowthStrategy::residualRatio: {
         double ts_before = tsnorm(x_before, m_work1);
         double ts_after = tsnorm(x_after, m_work1);
         if (!(ts_after > 0.0) || !(ts_before > ts_after)) {
             return 1.0;
         }
-        const double max_growth = m_tstep_growth;
         const double exponent = 0.2;
         double ratio = ts_before / ts_after;
         double factor = std::pow(ratio, exponent);
-        return std::min(max_growth, std::max(1.0, factor));
-    } else if (heuristic == 4) {
-        // Newton-iteration gate. If the last Newton solve required only a few
-        // iterations, allow increase in timestep.
-        const int max_iters_for_growth = 3;
-        return (newton().lastIterations() <= max_iters_for_growth) ? grow_factor : 1.0;
+        return std::min(growth, std::max(1.0, factor));
     }
-    return m_tstep_growth;
+    case TimeStepGrowthStrategy::newtonIterations: {
+        const int max_iters_for_growth = 3;
+        return (newton().lastIterations() <= max_iters_for_growth) ? growth : 1.0;
+    }
+    }
+    throw CanteraError("SteadyStateSystem::calculateTimeStepGrowthFactor",
+        "Unknown time step growth strategy '{}'.", timeStepGrowthStrategy());
 }
 
 double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
@@ -169,14 +215,12 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
         writelog("============================");
     }
     while (n < nsteps) {
-        if (loglevel >= 1) {
-            double ss_before = ssnorm(x, r);
-            if (loglevel == 1) { // At level 1, output concise information
-                writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss_before));
-            } else {
-                writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt,
-                         log10(ss_before));
-            }
+        if (loglevel == 1) { // At level 1, output concise information
+            double ss = ssnorm(x, r);
+            writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
+        } else if (loglevel > 1) {
+            double ss = ssnorm(x, r);
+            writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt, log10(ss));
         }
 
         // set up for time stepping with stepsize dt
@@ -196,18 +240,16 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
             successiveFailures = 0;
             m_nsteps++;
             n += 1;
-            double grow_factor = 1.0;
             if (m_jac->nEvals() == j0) {
-                grow_factor = timeStepIncreaseFactor(x, r);
+                dt *= calculateTimeStepGrowthFactor(x, r);
             }
             copy(r.begin(), r.end(), x.begin());
-            dt *= grow_factor;
             if (m_time_step_callback) {
                 m_time_step_callback->eval(dt);
             }
             dt = std::min(dt, m_tmax);
             if (m_nsteps >= m_nsteps_max) {
-                throw CanteraError("SteadyStateSystem::timeStep",
+                throw TimeStepError("SteadyStateSystem::timeStep",
                     "Took maximum number of timesteps allowed ({}) without "
                     "reaching steady-state solution.", m_nsteps_max);
             }
@@ -228,9 +270,8 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, span<double> x,
                 debuglog("--> Reducing timestep", loglevel);
                 dt *= m_tfactor;
                 if (dt < m_tmin) {
-                    string err_msg = fmt::format(
+                    throw TimeStepError("SteadyStateSystem::timeStep",
                         "Time integration failed. Minimum timestep ({}) reached.", m_tmin);
-                    throw CanteraError("SteadyStateSystem::timeStep", err_msg);
                 }
             }
         }
