@@ -558,6 +558,18 @@ public:
     //! @name Partial Molar Properties of the Solution
     //! @{
 
+    // Return the chemical potentials of the species in the solution. Units: J/kmol.
+    /*!
+     * The chemical potential of species @f$ k @f$ is calculated as:
+     * @f[
+     * \begin{align}
+     *  \mu_k(T_k, X_k, P)
+     *      &= \mu_k^*(T_k, P) + R T_k \ln(X_k) \\
+     *      &= g_k^0(T_k) + R T_k \ln\left(\frac{P}{P^0}\right) + R T_k \ln(X_k) \\
+     *      &= h_k^0(T_k) - T_k s_k^0(T_k) + R T_k \ln\left(\frac{P}{P^0}\right) + R T_k \ln(X_k) \\
+     * \end{align}
+     * @f]
+     */
     void getChemPotentials(span<double> mu) const override;
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     // void getPartialMolarEntropies(span<double> sbar) const override;
@@ -594,7 +606,7 @@ public:
      * implementation. For electrons, the standard chemical potential
      * is evaluated at the electron temperature:
      * @f[
-     *  \mu^0_{e}(T_e) = g_k^0(T_e) + RT_e \ln \left(\frac{P}{P^0}\right).
+     *  \mu^*_{e}(T_e) = g_k^0(T_e) + RT_e \ln \left(\frac{P}{P^0}\right).
      * @f]
      */
     void getStandardChemPotentials(span<double> muStar) const override;
