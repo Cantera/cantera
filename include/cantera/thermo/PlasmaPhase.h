@@ -571,7 +571,27 @@ public:
      * @f]
      */
     void getChemPotentials(span<double> mu) const override;
+
+    //! Return the partial molar enthalpies of the species in the solution. Units: J/kmol.
+    /*!
+    * The partial molar enthalpy of species @f$ k @f$ is @f[h_k^0(T_k)@f]
+    * where heavy-species properties are evaluated at the gas temperature,
+    * and electron properties are evaluated at the electron temperature.
+    * Since @f[h_k^0(T_k)@f] is computed from by @f[m_h0_RT(T_k) * R * T@f],
+    * we need to update the calculation for electron so that
+    * @f[h_k^0(T_k) = m_h0_RT(T_k) * R * T_k@f]
+    */
     void getPartialMolarEnthalpies(span<double> hbar) const override;
+    
+    //! Return the partial molar entropies of the species in the solution. Units: J/kmol/K.
+    /*!
+    * The partial molar enthalpy of species @f$ k @f$ is @f[s_k^0(T_k) + log(P/P^0)@f]
+    * where heavy-species properties are evaluated at the gas temperature,
+    * and electron properties are evaluated at the electron temperature.
+    * Since @f[s_k^0(T_k)@f] is computed from by @f[m_s0_R(T_k) * R + log(P/P^0)@f],
+    * it does not depend on temperature, so we don't need to override the function.
+    * @f[h_k^0(T_k) = m_h0_RT(T_k) * R * T_k@f]
+    */
     // void getPartialMolarEntropies(span<double> sbar) const override;
 
     //! Return the partial molar internal energies of the species in the solution. Units: J/kmol.
@@ -586,8 +606,13 @@ public:
      * while for electrons, it is evaluated at the electron temperature.
      */
     void getPartialMolarIntEnergies(span<double> ubar) const override;
-    // void getPartialMolarCp(span<double> cpbar) const override;
 
+    // Return the partial molar heat capacities of the species in the solution. Units: J/kmol/K.
+    /*!
+     * Since the computation of the partial molar enthalpy does not depend on the temperature,
+     * there is no need to override the method.
+     */
+    // void getPartialMolarCp(span<double> cpbar) const override;
 
     // Whenever a temperature can be defined, the following relation holds:
     //   h_k = u_k + R * T_k = u_k + p * v_k
