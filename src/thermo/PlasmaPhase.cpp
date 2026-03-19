@@ -289,6 +289,11 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
+    // If the electron temperature is negative, throw an error.
+    if (Te < 0.0) {
+        throw CanteraError("PlasmaPhase::setElectronTemperature",
+            "Electron temperature cannot be negative.");
+    }
     m_electronTemp = Te;
     updateElectronEnergyDistribution();
 }
