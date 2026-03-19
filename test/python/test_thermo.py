@@ -1045,6 +1045,35 @@ class TestThermoPhase:
             name="zero-params-rk",
         )
 
+    @pytest.mark.parametrize(
+        "temperature,pressure,composition",
+        [
+            (
+                198.5,
+                6.0e7,
+                [
+                    0.13124237144841314,
+                    0.10978856515950584,
+                    0.13745471373026613,
+                    0.23651613973352531,
+                    0.25457002638236204,
+                    0.06814754884267295,
+                    0.062280634703254616,
+                ],
+            ),
+            (220.0, 6.0e7, [0.2, 0.08, 0.12, 0.2, 0.25, 0.1, 0.05]),
+            (260.0, 6.0e7, [0.1, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1]),
+            (240.0, 4.0e7, [0.12, 0.14, 0.14, 0.2, 0.22, 0.08, 0.1]),
+            (300.0, 2.0e7, [0.2, 0.1, 0.15, 0.2, 0.2, 0.1, 0.05]),
+        ],
+    )
+    def test_partial_lookup_pr_state_setting(self, temperature, pressure, composition):
+        gas = self._partial_lookup_peng_robinson_phase()
+        gas.TPX = temperature, pressure, np.array(composition)
+        assert np.isfinite(gas.density)
+        assert gas.density > 0.0
+        assert gas.P == approx(pressure)
+
     def test_partial_lookup_pr_zero_ab_properties_finite(self):
         gas = self._partial_lookup_peng_robinson_phase()
         gas.TPX = 500.0, 1.0e6, "CO2:0.333, H2O:0.666"
