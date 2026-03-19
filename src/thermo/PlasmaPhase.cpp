@@ -969,7 +969,7 @@ void PlasmaPhase::setState(const AnyMap& input_state)
 void PlasmaPhase::setState_TP(double t, double p)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         if (m_distributionType == "isotropic") {
@@ -983,7 +983,7 @@ void PlasmaPhase::setState_TP(double t, double p)
         }
         setPressure(p);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -991,7 +991,7 @@ void PlasmaPhase::setState_TP(double t, double p)
 void PlasmaPhase::setState_TgTeP(double Tg, double Te, double p)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(Tg);
         if (m_distributionType == "isotropic") {
@@ -1005,7 +1005,7 @@ void PlasmaPhase::setState_TgTeP(double Tg, double Te, double p)
         }
         setPressure(p);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -1013,7 +1013,7 @@ void PlasmaPhase::setState_TgTeP(double Tg, double Te, double p)
 void PlasmaPhase::setState_TD(double t, double rho)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(t);
         if (m_distributionType == "isotropic") {
@@ -1027,7 +1027,7 @@ void PlasmaPhase::setState_TD(double t, double rho)
         }
         setDensity(rho);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }
@@ -1035,7 +1035,7 @@ void PlasmaPhase::setState_TD(double t, double rho)
 void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
 {
     vector<double> state(partialStateSize());
-    savePartialState(state.size(), state.data());
+    savePartialState(state);
     try {
         setTemperature(Tg);
         if (m_distributionType == "isotropic") {
@@ -1049,7 +1049,7 @@ void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
         }
         setDensity(rho);
     } catch (std::exception&) {
-        restorePartialState(state.size(), state.data());
+        restorePartialState(state);
         throw;
     }
 }

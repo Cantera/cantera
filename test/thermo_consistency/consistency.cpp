@@ -186,7 +186,7 @@ TEST_P(TestConsistency, g_eq_h_minus_Ts) {
 
         // Get partial molar entropy of electron species.
         vector<double> sk(nsp);
-        phase->getPartialMolarEntropies(sk.data());
+        phase->getPartialMolarEntropies(sk);
         double se = sk[ke];
         // Get mole fraction of electron species.
         double Xe = phase->moleFraction(ke);
