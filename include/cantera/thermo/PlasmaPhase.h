@@ -963,9 +963,6 @@ private:
     //! Add a collision and record the target species
     void addCollision(shared_ptr<Reaction> collision);
 
-    // Electron molar mass [kg/kmol].
-    const double m_Me = ElectronMass * Avogadro;
-
     //! Saved electron temperature during an equilibrium solve
     double m_electronTempEquil = 0.0;
 
