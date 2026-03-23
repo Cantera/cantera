@@ -1232,20 +1232,6 @@ class TestPlasmaPhase:
             "duplicate": True,
         }
 
-    def test_set_TgTeP(self, phase):
-        phase.TgTeP = 3000, 10000, ct.one_atm
-        Tg, Te, P = phase.TgTeP
-        assert Tg == approx(3000)
-        assert Te == approx(10000)
-        assert P == approx(ct.one_atm)
-    
-    def test_set_TgTeD(self, phase):
-        phase.TgTeD = 3000, 10000, 1.0
-        Tg, Te, D = phase.TgTeD
-        assert Tg == approx(3000)
-        assert Te == approx(10000)
-        assert D == approx(1.0)
-
     def test_converting_electron_energy_to_temperature(self, phase):
         phase.mean_electron_energy = 1.0
         Te = 2.0 / 3.0 * ct.electron_charge / ct.boltzmann
