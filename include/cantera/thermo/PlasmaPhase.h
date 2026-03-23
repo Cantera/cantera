@@ -735,65 +735,6 @@ public:
      */
     virtual void setState_TgTeD(double Tg, double Te, double rho);
 
-    // The following setState_XY methods are not implemented for PlasmaPhase,
-    // since both gas and electron temperatures are needed to fully specify
-    // the thermodynamic state.
-    void setState_HP(double h, double p, double tol=1e-9) override{
-        throw NotImplementedError("PlasmaPhase::setState_HP",
-            "Setting the state using enthalpy and pressure is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_UV(double u, double v, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_UV",
-            "Setting the state using internal energy and volume is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_SV(double s, double v, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_SV",
-            "Setting the state using entropy and volume is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_SP(double s, double p, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_SP",
-            "Setting the state using entropy and pressure is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_ST(double s, double t, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_ST",
-            "Setting the state using entropy and temperature is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_TV(double t, double v, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_TV",
-            "Setting the state using temperature and volume is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_PV(double p, double v, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_PV",
-            "Setting the state using pressure and volume is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_UP(double u, double p, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_UP",
-            "Setting the state using internal energy and pressure is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_VH(double v, double h, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_VH",
-            "Setting the state using volume and enthalpy is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_TH(double t, double h, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_TH",
-            "Setting the state using temperature and enthalpy is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-    void setState_SH(double s, double h, double tol=1e-9) override {
-        throw NotImplementedError("PlasmaPhase::setState_SH",
-            "Setting the state using entropy and enthalpy is not implemented "
-            "for plasma phases, since both gas and electron temperatures are needed.");
-    }
-
     //! @}
 
 
