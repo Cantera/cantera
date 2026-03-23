@@ -1872,7 +1872,7 @@ cdef class ThermoPhase(_SolutionBase):
         self.plasma.setDiscretizedElectronEnergyDist(
             span[double](&data_levels[0], data_levels.size),
             span[double](&data_dist[0], data_dist.size))
-    
+
     property mean_temperature:
         """Get the mean temperature of the plasma [K].
         This is a mole-weighted average of the electron and heavy species temperatures.

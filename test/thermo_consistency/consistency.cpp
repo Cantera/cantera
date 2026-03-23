@@ -784,7 +784,7 @@ TEST_P(TestConsistency, cpRef_eq_dhRefdT)
     // For plasma phases, also perturb the electron temperature.
     double Te = phase->electronTemperature();
     double dTe = 1e-5 * Te;
-    
+
     phase->setState_TP(T1 + dT, phase->pressure());
 
     if (phase->type() == "plasma") {

@@ -417,7 +417,7 @@ public:
     * @see MultiSpeciesThermo
     */
     double intEnergy_mole() const override;
-    
+
     // double cp_mole() const override;  // Already defined in IdealGasPhase
     // double cp_mass() const; // Already defined in ThermoPhase
     // double cv_mole() const; // Already defined in IdealGasPhase
@@ -464,7 +464,7 @@ public:
      * @f$ X_e @f$ is the mole fraction of electrons, @f$ T_g @f$ is the
      * heavy-species (gas) temperature [K], @f$ T_e @f$ is the electron temperature [K],
      * and @f$ k_B @f$ is the Boltzmann constant [J/K].
-     * 
+     *
      * The number density times Boltzmann constant can be expressed as
      * @f$ n_{total} k_B = C_{total} R @f$, where @f$ C_{total} @f$ is the
      * total molar concentration of the phase [in kmol/m³] and
@@ -533,7 +533,7 @@ public:
      * For a multi-temperature system, this translates to:
      * @f[
      * \begin{align}
-     * C^0_k &= \frac{C_k}{a_k} 
+     * C^0_k &= \frac{C_k}{a_k}
      *       &= \frac{X_k \frac{P}{R \overline{T}}}{X_k}
      *       &= \frac{P}{R \overline{T}}
      * \end{align}
@@ -577,7 +577,7 @@ public:
     * @f[h_k^0(T_k) = m_h0_RT(T_k) * R * T_k@f]
     */
     void getPartialMolarEnthalpies(span<double> hbar) const override;
-    
+
     //! Return the partial molar entropies of the species in the solution. Units: J/kmol/K.
     /*!
     * The partial molar enthalpy of species @f$ k @f$ is @f[s_k^0(T_k) + log(P/P^0)@f]
@@ -615,7 +615,7 @@ public:
      * @f[
      *   v_k = \frac{R T_k}{P},
      * @f]
-     * where @f$ T_k @f$ is the temperature at which the partial molar enthalpy is evaluated. 
+     * where @f$ T_k @f$ is the temperature at which the partial molar enthalpy is evaluated.
      */
     void getPartialMolarVolumes(span<double> vbar) const override;
 
@@ -642,7 +642,7 @@ public:
     // And for entropy (and thus Gibbs free energy), for all species, the total
     // pressure is used in the logarithmic term (not the partial pressure).
     // {
-    // void getEnthalpy_RT(span<double> hrt) const override;   
+    // void getEnthalpy_RT(span<double> hrt) const override;
     // void getEntropy_R(span<double> sr) const override;
     // void getGibbs_RT(span<double> grt) const override;
     // void getIntEnergy_RT(span<double> urt) const override;
@@ -704,7 +704,7 @@ public:
      * units specified, which will be converted using the Units class.
      */
     void setState(const AnyMap& state) override;
-    
+
     //! Set the gas and electron temperature [K] and pressure [Pa].
     /*!
      * @param t    Temperature [K]

@@ -1369,7 +1369,7 @@ class TestPlasmaPhase:
 
         l2_norm = np.linalg.norm(interp - reference_eedf)
         assert l2_norm < 1e-3
-    
+
     def _make_simple_plasma_phase(self, Te, set_te_first=False):
         phase = ct.Solution("thermo_plasma_simple.yaml", "plasma", transport_model=None)
         phase.isotropic_shape_factor = 1.0
