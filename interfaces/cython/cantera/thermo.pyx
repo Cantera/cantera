@@ -1873,6 +1873,15 @@ cdef class ThermoPhase(_SolutionBase):
             span[double](&data_levels[0], data_levels.size),
             span[double](&data_dist[0], data_dist.size))
 
+    property mean_temperature:
+        """Get the mean temperature of the plasma [K].
+        This is a mole-weighted average of the electron and heavy species temperatures.
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.meanTemperature()
+
     def update_electron_energy_distribution(self):
         """
         Update the electron energy distribution function to account for changes in

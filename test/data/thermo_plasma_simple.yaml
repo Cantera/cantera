@@ -1,0 +1,49 @@
+description: |-
+  This is a simple test of the plasma thermodynamic model, with a single plasma phase and a single gas phase.
+  The plasma phase has an isotropic electron energy distribution, and the gas phase is an ideal gas.
+
+phases:
+  - name: plasma
+    thermo: plasma
+    elements: [O, E]
+    species: [O, O+, e-]
+    kinetics: gas
+    state: { T: 300.0, P: 1 atm }
+    electron-energy-distribution:
+      type: isotropic
+      shape-factor: 1.0
+      energy-levels: [0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0]
+      mean-electron-energy: 1.0 eV
+    reactions: none
+
+species:
+  - name: O
+    composition: { O: 1 }
+    thermo:
+      model: NASA9
+      temperature-ranges: [200.0, 1000.0, 6000.0, 2.0e+04]
+      data:
+        - [0.0, 0.0, 3, 0.0, 0.0, 0.0, 0.0, 3e+04, 8.5]
+        - [0.0, 0.0, 3, 0.0, 0.0, 0.0, 0.0, 3e+04, 8.5]
+        - [0.0, 0.0, 3, 0.0, 0.0, 0.0, 0.0, 3e+04, 8.5]
+      note: False, but for testing purposes.
+  - name: O+
+    composition: { O: 1, E: -1 }
+    thermo:
+      model: NASA9
+      temperature-ranges: [298.15, 1000.0, 6000.0, 2.0e+04]
+      data:
+        - [0.0, 0.0, 8, 0.0, 0.0, 0.0, 0.0, 2e+05, 10.0]
+        - [0.0, 0.0, 8, 0.0, 0.0, 0.0, 0.0, 2e+05, 10.0]
+        - [0.0, 0.0, 8, 0.0, 0.0, 0.0, 0.0, 2e+05, 10.0]
+      note: False, but for testing purposes.
+  - name: e-
+    composition: { E: 1 }
+    thermo:
+      model: NASA9
+      temperature-ranges: [298.15, 1000.0, 6000.0, 2.0e+04]
+      data:
+        - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -750, -11.7]
+        - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -750, -11.7]
+        - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -750, -11.7]
+      note: False, but for testing purposes.

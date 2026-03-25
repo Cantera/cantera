@@ -377,7 +377,7 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param rho   Density (kg/m^3)
     //!     @since New in %Cantera 3.0.
-    void setState_TD(double t, double rho);
+    virtual void setState_TD(double t, double rho);
 
     //! @} end group set thermo state
 
