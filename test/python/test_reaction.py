@@ -1,4 +1,5 @@
 import gc
+import re
 import numpy as np
 from pathlib import Path
 import pytest
@@ -252,9 +253,10 @@ class ReactionRateTests:
 
     def test_with_units(self):
         # test custom units. Sticking coefficients are dimensionless, so this is only
-        # a concern for other rate types
+        # a concern for other rate types. Strip any existing custom units first.
         units = "units: {length: cm, quantity: mol}"
-        yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
+        yaml = re.sub(r"units:.*", "", self._yaml)
+        yaml = f"{textwrap.dedent(yaml)}\n{units}"
         if "sticking" not in yaml:
             with pytest.raises(Exception, match="undefined units"):
                 ct.ReactionRate.from_yaml(yaml)

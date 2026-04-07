@@ -23,7 +23,6 @@ phases:
 - name: debye-huckel-dilute-IAPWS
   elements: [O, H, C, E, Fe, Si, N, Na, Cl]
   species:
-  species:
   - water_IAPWS: [H2O(L)]
   - species_waterSolution: [Na+, Cl-, H+, OH-, NaCl(aq), NaOH(aq), SiO2(aq),
       NaH3SiO4(aq), H3SiO4-]
