@@ -740,6 +740,10 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
     )
     if ret.returncode:
         logger.error("FAILED (program exit code:{})", ret.returncode)
+        if ret.stdout:
+            logger.error("program stdout:\n{}", ret.stdout, print_level=False)
+        if ret.stderr:
+            logger.error("program stderr:\n{}", ret.stderr, print_level=False)
     dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
