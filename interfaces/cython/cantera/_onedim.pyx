@@ -1425,10 +1425,72 @@ cdef class Sim1D:
 
     def set_time_step_factor(self, tfactor):
         """
-        Set the factor by which the time step will be increased after a
-        successful step, or decreased after an unsuccessful one.
+        Set the factor by which the time step will be decreased after an
+        unsuccessful step.
+
+        :param tfactor:
+            Multiplicative reduction factor applied after failed steps.
         """
         self.sim.setTimeStepFactor(tfactor)
+
+    property time_step_growth_factor:
+        """
+        Get/Set the factor by which the time step will be increased after a
+        successful step when the Jacobian is reused.
+
+        This value is used directly by the ``"fixed-growth"`` strategy, and as
+        the accepted growth factor or cap value for the other growth
+        strategies.
+
+        :param tfactor:
+            Finite growth factor >= 1.0. The default value is 1.5.
+        """
+        def __get__(self):
+            return self.sim.timeStepGrowthFactor()
+        def __set__(self, tfactor):
+            self.sim.setTimeStepGrowthFactor(tfactor)
+
+    property time_step_growth_strategy:
+        """
+        Get/Set the strategy used to grow the time step after a successful
+        step that reuses the Jacobian.
+
+        Available options are:
+
+        ``"fixed-growth"``:
+            Always apply ``time_step_growth_factor``.
+        ``"steady-norm"``:
+            Apply growth only when the steady-state residual norm decreases.
+        ``"transient-residual"``:
+            Apply growth only when the transient residual norm decreases.
+        ``"residual-ratio"``:
+            Scale the growth factor based on transient residual improvement,
+            capped by ``time_step_growth_factor``.
+        ``"newton-iterations"``:
+            Apply growth only if the most recent Newton solve used at most
+            three iterations.
+        """
+        def __get__(self):
+            return pystr(self.sim.timeStepGrowthStrategy())
+        def __set__(self, strategy):
+            self.sim.setTimeStepGrowthStrategy(stringify(strategy))
+
+    property time_step_regrid:
+        """
+        Get/Set the maximum number of regrid attempts after a time step
+        failure.
+
+        This fallback is used by :meth:`Sim1D.solve` when ``refine_grid=True``.
+        Set to zero to disable regrid-on-failure retries. The default value is
+        3.
+
+        :param max_tries:
+            Maximum retry attempts. Values less than zero are invalid.
+        """
+        def __get__(self):
+            return self.sim.timeStepRegridMax()
+        def __set__(self, max_tries):
+            self.sim.setTimeStepRegridMax(max_tries)
 
     def set_min_time_step(self, tsmin):
         """ Set the minimum time step. """

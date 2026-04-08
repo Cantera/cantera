@@ -6,6 +6,8 @@
 #ifndef CT_STEADYSTATESYSTEM_H
 #define CT_STEADYSTATESYSTEM_H
 
+#include <cmath>
+
 #include "cantera/base/ct_defs.h"
 #include "SystemJacobian.h"
 
@@ -14,6 +16,20 @@ namespace Cantera
 
 class Func1;
 class MultiNewton;
+
+//! Error thrown when time stepping cannot proceed and the steady-state solver
+//! should be given a chance to recover by other means.
+class TimeStepError : public CanteraError
+{
+public:
+    template <typename... Args>
+    TimeStepError(const string& func, const string& msg, const Args&... args) :
+        CanteraError(func, msg, args...) {}
+
+    string getClass() const override {
+        return "TimeStepError";
+    }
+};
 
 //! Base class for representing a system of differential-algebraic equations and solving
 //! for its steady-state response.
@@ -72,6 +88,11 @@ public:
     //! Steady-state max norm (infinity norm) of the residual evaluated using solution
     //! x. On return, array r contains the steady-state residual values.
     double ssnorm(span<const double> x, span<double> r);
+
+    //! Transient max norm (infinity norm) of the residual evaluated using solution
+    //! x and the current timestep (rdt). On return, array r contains the
+    //! transient residual values.
+    double tsnorm(span<const double> x, span<double> r);
 
     //! Total solution vector length;
     size_t size() const {
@@ -194,6 +215,49 @@ public:
         m_tfactor = tfactor;
     }
 
+    //! Set the growth factor used after successful timesteps when the Jacobian is
+    //! re-used.
+    //!
+    //! This factor is used directly by the `fixed-growth` strategy, and as the
+    //! accepted growth factor or upper bound for the other named strategies.
+    //!
+    //! The default value is 1.5, matching historical behavior.
+    //! @param tfactor  Finite growth factor applied to successful timesteps;
+    //!     must be >= 1.0.
+    void setTimeStepGrowthFactor(double tfactor) {
+        if (!std::isfinite(tfactor) || tfactor < 1.0) {
+            throw CanteraError("SteadyStateSystem::setTimeStepGrowthFactor",
+                "Time step growth factor must be finite and >= 1.0. Got {}.",
+                tfactor);
+        }
+        m_tstep_growth = tfactor;
+    }
+
+    //! Get the successful-step time step growth factor.
+    double timeStepGrowthFactor() const {
+        return m_tstep_growth;
+    }
+
+    //! Set the strategy used to grow the timestep after a successful step that
+    //! reuses the current Jacobian.
+    //!
+    //! Available options are:
+    //! - `fixed-growth`: Always apply timeStepGrowthFactor().
+    //! - `steady-norm`: Apply timeStepGrowthFactor() only if the steady-state
+    //!   residual norm decreases.
+    //! - `transient-residual`: Apply timeStepGrowthFactor() only if the transient
+    //!   residual norm decreases.
+    //! - `residual-ratio`: Scale the growth factor based on transient residual
+    //!   improvement, capped by timeStepGrowthFactor().
+    //! - `newton-iterations`: Apply timeStepGrowthFactor() only if the most recent
+    //!   Newton solve used at most 3 iterations.
+    //!
+    //! The default strategy is `fixed-growth`, which matches historical behavior.
+    void setTimeStepGrowthStrategy(const string& strategy);
+
+    //! Get the configured timestep growth strategy.
+    string timeStepGrowthStrategy() const;
+
     //! Set the maximum number of timeteps allowed before successful steady-state solve
     void setMaxTimeStepCount(int nmax) {
         m_nsteps_max = nmax;
@@ -251,9 +315,26 @@ public:
     virtual void clearDebugFile() {}
 
 protected:
+    enum class TimeStepGrowthStrategy {
+        fixed,
+        steadyNorm,
+        transientResidual,
+        residualRatio,
+        newtonIterations
+    };
+
     //! Evaluate the steady-state Jacobian, accessible via linearSolver()
     //! @param[in] x  Current state vector, length size()
     void evalSSJacobian(span<const double> x);
+
+    static TimeStepGrowthStrategy parseTimeStepGrowthStrategy(const string& strategy);
+    static string timeStepGrowthStrategyName(TimeStepGrowthStrategy strategy);
+
+    //! Determine the timestep growth factor after a successful step.
+    //!
+    //! Called only when a successful step reuses the current Jacobian.
+    double calculateTimeStepGrowthFactor(span<const double> x_before,
+                                         span<const double> x_after);
 
     //! Array of number of steps to take after each unsuccessful steady-state solve
     //! before re-attempting the steady-state solution. For subsequent time stepping
@@ -266,6 +347,15 @@ protected:
 
     //! Factor time step is multiplied by if time stepping fails ( < 1 )
     double m_tfactor = 0.5;
+
+    //! Growth factor for successful steps that reuse the Jacobian.
+    //!
+    //! Used directly for `fixed-growth`, and as the base / cap value for the
+    //! other named growth strategies.
+    double m_tstep_growth = 1.5;
+
+    //! Selected strategy for successful-step growth.
+    TimeStepGrowthStrategy m_tstep_growth_strategy = TimeStepGrowthStrategy::fixed;
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
@@ -314,6 +404,7 @@ protected:
     double m_jacobianRelPerturb = 1e-5;
     //! Absolute perturbation of each component in finite difference Jacobian
     double m_jacobianAbsPerturb = 1e-10;
+
 };
 
 }

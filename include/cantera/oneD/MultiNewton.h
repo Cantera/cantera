@@ -35,6 +35,11 @@ public:
         return m_n;
     }
 
+    //! Number of Newton iterations taken in the most recent solve() call.
+    int lastIterations() const {
+        return m_lastIterations;
+    }
+
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
     //! @since Starting in %Cantera 3.2, the Jacobian is accessed via the OneDim object.
@@ -174,6 +179,9 @@ protected:
 
     //! Elapsed CPU time spent computing the Jacobian.
     double m_elapsed = 0.0;
+
+    //! Number of Newton iterations taken in the last solve() call.
+    int m_lastIterations = 0;
 };
 }
 
