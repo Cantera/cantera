@@ -1,6 +1,7 @@
 cantera._types.*
 
 # Exclude ArgumentParser, Path, and various types
+# TODO: Remove after dropping support for mypy 1.19 and older.
 ((_|\w)+\.)+_?(ArgumentParser|Path|Any|Iterable|Sequence|TypedDict|TypeVar).*
 
 # Exclude all dunder methods
@@ -13,6 +14,7 @@ cantera._types.*
 cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys|conditional_annotations)__
 
 # Current output of stubtest --generate-allowlist
+# TODO: Remove many of these after dropping support for mypy 1.19 and older.
 cantera.ArrheniusRate.__init__
 cantera.BlowersMaselRate.__init__
 cantera.ChebyshevRate.__init__

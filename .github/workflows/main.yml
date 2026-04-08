@@ -448,10 +448,12 @@ jobs:
         if: failure() || success()
         run: |
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
-            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
+            --ignore-disjoint-bases --ignore-unused-allowlist \
+            --allowlist interfaces/cython/.mypyignore \
             --concise cantera | tee type_check/stubtest_concise.txt
           stubtest --mypy-config-file interfaces/cython/pyproject.toml \
-            --ignore-disjoint-bases --allowlist interfaces/cython/.mypyignore \
+            --ignore-disjoint-bases --ignore-unused-allowlist \
+            --allowlist interfaces/cython/.mypyignore \
             cantera >> type_check/stubtest_detailed.txt
       - name: Archive Python API type checking results
         if: failure() || success()
