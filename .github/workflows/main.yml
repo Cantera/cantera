@@ -304,9 +304,9 @@ jobs:
         LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@b6c98f7926801316606ab9a0c4516b82e8271a2c # v2.6.1
+      uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@8a0be7dc1ad8322f05a5197ed0ffe4a345ddcd82 # v2.4.0
+      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -319,7 +319,7 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@8a0be7dc1ad8322f05a5197ed0ffe4a345ddcd82 # v2.4.0
+      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -371,7 +371,7 @@ jobs:
         path: test/matlab/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab/matlabCoverage.xml
@@ -432,7 +432,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@ee0ae774f6d3afedcbd1683c1ab21b83670bdf8e # v5.5.1
+        uses: danielpalme/ReportGenerator-GitHub-Action@cf6fe1b38ed5becc89ffe056c1f240825993be5b # v5.5.4
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -486,7 +486,7 @@ jobs:
             gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
           fi
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
+        uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
         with:
           environment-name: test-env
           create-args: >-
@@ -562,7 +562,7 @@ jobs:
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
         if: steps.deploy-conf.outputs.match == 'true'
-        uses: shimataro/ssh-key-action@6b84f2e793b32fa0b03a379cadadec75cc539391 # v2.8.0
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
@@ -613,7 +613,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
+        uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -626,7 +626,7 @@ jobs:
           pixi run -e pyodide .pyodide-venv/bin/pip install pytest graphviz pandas \
             pint "$WHEEL"
       - name: Upload Pyodide wheel artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: build/pyodide_dist/cantera-*.whl
           name: cantera-wheel-pyodide
@@ -768,7 +768,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
+        uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -832,7 +832,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
+      uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -1107,7 +1107,7 @@ jobs:
       with:
         python-version: "3.12"
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
+      uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
@@ -1292,11 +1292,11 @@ jobs:
         echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       if: runner.os == 'Linux'
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@b6c98f7926801316606ab9a0c4516b82e8271a2c # v2.6.1
+      uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@8a0be7dc1ad8322f05a5197ed0ffe4a345ddcd82 # v2.4.0
+      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1307,6 +1307,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@f62b20333be06630e9cbf62753e509073cc9148e # v2.3.0
+      uses: matlab-actions/run-tests@4be3345d41da8b1bf8cc5cb01a5e19c4611cb15d # v3.0.0
       with:
         select-by-folder: test/matlab
