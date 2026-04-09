@@ -25,13 +25,13 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 
-    // initial electron temperature
+    // Initial electron temperature.
     m_electronTemp = temperature();
 
-    // Initialize the Boltzmann Solver
+    // Initialize the Boltzmann Solver.
     m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
 
-    // Set Energy Grid (Hardcoded Defaults for Now)
+    // Set Energy Grid (Hardcoded Defaults for Now).
     double kTe_max = 60;
     size_t nGridCells = 301;
     m_nPoints = nGridCells + 1;
@@ -47,219 +47,80 @@ PlasmaPhase::~PlasmaPhase()
         soln->kinetics()->removeReactionAddedCallback(this);
     }
     for (size_t k = 0; k < nCollisions(); k++) {
-        // remove callback
+        // Remove callback.
         m_collisions[k]->removeSetRateCallback(this);
     }
 }
 
-void PlasmaPhase::updateElectronEnergyDistribution()
+void PlasmaPhase::initThermo()
 {
-    if (m_distributionType == "discretized") {
-        throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
-            "Invalid for discretized electron energy distribution.");
-    } else if (m_distributionType == "isotropic") {
-        setIsotropicElectronEnergyDistribution();
-    } else if (m_distributionType == "Boltzmann-two-term") {
-        auto ierr = m_eedfSolver->calculateDistributionFunction();
-        if (ierr == 0) {
-            auto y = m_eedfSolver->getEEDFEdge();
-            m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(y.data(), m_nPoints);
+    IdealGasPhase::initThermo();
+
+    // Check if there is an electron species in the phase.
+    if (m_electronSpeciesIndex == npos) {
+        throw CanteraError("PlasmaPhase::initThermo",
+                           "No electron species found.");
+    }
+}
+
+void PlasmaPhase::updateThermo() const
+{
+    // Update the heavy species thermodynamic properties
+    // before updating the electron species properties.
+    IdealGasPhase::updateThermo();
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    double tempNow = temperature();
+    double electronTempNow = electronTemperature();
+    size_t k = m_electronSpeciesIndex;
+    // If the electron temperature has changed since the last time these
+    // properties were computed, recompute them.
+    if (cached.state1 != tempNow || cached.state2 != electronTempNow) {
+        // Evaluate the electron species thermodynamic properties
+        // at the electron temperature.
+        m_spthermo.update_single(k, electronTemperature(),
+                m_cp0_R[k], m_h0_RT[k], m_s0_R[k]);
+        cached.state1 = tempNow;
+        cached.state2 = electronTempNow;
+
+        // Update the electron Gibbs functions, with the electron temperature.
+        m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+    }
+}
+
+// ================================================================= //
+//           Overridden from IdealGasPhase or ThermoPhase            //
+// ================================================================= //
+
+bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = IdealGasPhase::addSpecies(spec);
+    size_t k = m_kk - 1;
+
+    if ((spec->name == "e" || spec->name == "Electron") ||
+        (spec->composition.find("E") != spec->composition.end() &&
+         spec->composition.size() == 1 &&
+         spec->composition["E"] == 1)) {
+        if (m_electronSpeciesIndex == npos) {
+            m_electronSpeciesIndex = k;
         } else {
-            throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
-                "Call to calculateDistributionFunction failed.");
-        }
-        bool validEEDF = (
-            static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
-            m_electronEnergyDist.allFinite() &&
-            m_electronEnergyDist.maxCoeff() > 0.0 &&
-            m_electronEnergyDist.sum() > 0.0
-        );
-
-        if (validEEDF) {
-            updateElectronTemperatureFromEnergyDist();
-        } else {
-            writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
-        }
-    } else {
-        throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
-            "Unknown method '{}' for determining EEDF", m_distributionType);
-    }
-    updateElectronEnergyDistDifference();
-    electronEnergyDistributionChanged();
-}
-
-void PlasmaPhase::normalizeElectronEnergyDistribution() {
-    Eigen::ArrayXd eps32 = m_electronEnergyLevels.pow(3./2.);
-    double norm = 2./3. * numericalQuadrature(m_quadratureMethod,
-                                              m_electronEnergyDist, eps32);
-    if (norm < 0.0) {
-        throw CanteraError("PlasmaPhase::normalizeElectronEnergyDistribution",
-                           "The norm is negative. This might be caused by bad "
-                           "electron energy distribution");
-    }
-    m_electronEnergyDist /= norm;
-}
-
-void PlasmaPhase::setElectronEnergyDistributionType(const string& type)
-{
-    if (type == "discretized" ||
-        type == "isotropic" ||
-        type == "Boltzmann-two-term") {
-        m_distributionType = type;
-    } else {
-        throw CanteraError("PlasmaPhase::setElectronEnergyDistributionType",
-            "Unknown type for electron energy distribution.");
-    }
-}
-
-void PlasmaPhase::setIsotropicElectronEnergyDistribution()
-{
-    m_electronEnergyDist.resize(m_nPoints);
-    double x = m_isotropicShapeFactor;
-    double gamma1 = boost::math::tgamma(3.0 / 2.0 / x);
-    double gamma2 = boost::math::tgamma(5.0 / 2.0 / x);
-    double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
-    double c2 = std::pow(gamma2 / gamma1, x);
-    m_electronEnergyDist =
-        c1  / std::pow(meanElectronEnergy(), 1.5) *
-        (-c2 * (m_electronEnergyLevels /
-        meanElectronEnergy()).pow(x)).exp();
-    checkElectronEnergyDistribution();
-}
-
-void PlasmaPhase::setElectronTemperature(const double Te) {
-    m_electronTemp = Te;
-    updateElectronEnergyDistribution();
-}
-
-void PlasmaPhase::beginEquilibrate()
-{
-    ThermoPhase::beginEquilibrate();
-
-    if (!m_inEquilibrate) {
-        m_inEquilibrate = true;
-        // Remember current Te and lock Te -> T for the duration
-        m_electronTempEquil = electronTemperature();
-        setElectronTemperature(temperature());
-    }
-}
-
-void PlasmaPhase::endEquilibrate()
-{
-    if (m_inEquilibrate) {
-        // Restore Te to the pre-equilibrate value
-        setElectronTemperature(m_electronTempEquil);
-        m_inEquilibrate = false;
-    }
-
-    ThermoPhase::endEquilibrate();
-}
-
-void PlasmaPhase::setMeanElectronEnergy(double energy) {
-    m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
-    updateElectronEnergyDistribution();
-}
-
-void PlasmaPhase::setElectronEnergyLevels(span<const double> levels)
-{
-    m_nPoints = levels.size();
-    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
-    checkElectronEnergyLevels();
-    electronEnergyLevelChanged();
-    updateElectronEnergyDistribution();
-}
-
-void PlasmaPhase::electronEnergyDistributionChanged()
-{
-    m_distNum++;
-}
-
-void PlasmaPhase::electronEnergyLevelChanged()
-{
-    m_levelNum++;
-    // Cross sections are interpolated on the energy levels
-    if (m_collisions.size() > 0) {
-        vector<double> energyLevels(m_nPoints);
-        MappedVector(energyLevels.data(), m_nPoints) = m_electronEnergyLevels;
-        for (shared_ptr<Reaction> collision : m_collisions) {
-            const auto& rate = boost::polymorphic_pointer_downcast
-                <ElectronCollisionPlasmaRate>(collision->rate());
-            rate->updateInterpolatedCrossSection(energyLevels);
+            throw CanteraError("PlasmaPhase::addSpecies",
+                               "Cannot add species, {}. "
+                               "Only one electron species is allowed.", spec->name);
         }
     }
+    return added;
 }
 
-void PlasmaPhase::checkElectronEnergyLevels() const
-{
-    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
-                       m_electronEnergyLevels.head(m_nPoints - 1);
-    if (m_electronEnergyLevels[0] < 0.0 || (h <= 0.0).any()) {
-        throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
-            "Values of electron energy levels need to be positive and "
-            "monotonically increasing.");
+void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
+    ThermoPhase::setSolution(soln);
+    // Register callback function to be executed
+    // when the thermo or kinetics object changed.
+    if (shared_ptr<Solution> soln = m_soln.lock()) {
+        soln->registerChangedCallback(this, [&]() {
+            setCollisions();
+        });
     }
-}
-
-void PlasmaPhase::checkElectronEnergyDistribution() const
-{
-    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
-                       m_electronEnergyLevels.head(m_nPoints - 1);
-    if ((m_electronEnergyDist < 0.0).any()) {
-        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
-            "Values of electron energy distribution cannot be negative.");
-    }
-    if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
-        warn_user("PlasmaPhase::checkElectronEnergyDistribution",
-        "The value of the last element of electron energy distribution exceed 0.01. "
-        "This indicates that the value of electron energy level is not high enough "
-        "to contain the isotropic distribution at mean electron energy of "
-        "{} eV", meanElectronEnergy());
-    }
-}
-
-void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
-                                                  span<const double> dist)
-{
-    m_distributionType = "discretized";
-    m_nPoints = levels.size();
-    m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
-    m_electronEnergyDist =
-        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
-    checkElectronEnergyLevels();
-    if (m_do_normalizeElectronEnergyDist) {
-        normalizeElectronEnergyDistribution();
-    }
-    checkElectronEnergyDistribution();
-    updateElectronEnergyDistDifference();
-    updateElectronTemperatureFromEnergyDist();
-    electronEnergyLevelChanged();
-    electronEnergyDistributionChanged();
-}
-
-void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
-{
-    // calculate mean electron energy and electron temperature
-    Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
-    double epsilon_m = 2.0 / 5.0 * numericalQuadrature(m_quadratureMethod,
-                                                       m_electronEnergyDist, eps52);
-    if (epsilon_m < 0.0 && m_quadratureMethod == "simpson") {
-        // try trapezoidal method
-        epsilon_m = 2.0 / 5.0 * numericalQuadrature(
-            "trapezoidal", m_electronEnergyDist, eps52);
-    }
-
-    if (epsilon_m < 0.0) {
-        throw CanteraError("PlasmaPhase::updateElectronTemperatureFromEnergyDist",
-            "The electron energy distribution produces negative electron temperature.");
-    }
-
-    m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
-}
-
-void PlasmaPhase::setIsotropicShapeFactor(double x) {
-    m_isotropicShapeFactor = x;
-    updateElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getParameters(AnyMap& phaseNode) const
@@ -348,47 +209,225 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
     }
 }
 
-bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
-{
-    bool added = IdealGasPhase::addSpecies(spec);
-    size_t k = m_kk - 1;
+// ================================================================= //
+//               Electron Energy Distribution Functions              //
+// ================================================================= //
 
-    if ((spec->name == "e" || spec->name == "Electron") ||
-        (spec->composition.find("E") != spec->composition.end() &&
-         spec->composition.size() == 1 &&
-         spec->composition["E"] == 1)) {
-        if (m_electronSpeciesIndex == npos) {
-            m_electronSpeciesIndex = k;
+void PlasmaPhase::updateElectronEnergyDistribution()
+{
+    if (m_distributionType == "discretized") {
+        throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
+            "Invalid for discretized electron energy distribution.");
+    } else if (m_distributionType == "isotropic") {
+        setIsotropicElectronEnergyDistribution();
+    } else if (m_distributionType == "Boltzmann-two-term") {
+        auto ierr = m_eedfSolver->calculateDistributionFunction();
+        if (ierr == 0) {
+            auto y = m_eedfSolver->getEEDFEdge();
+            m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(y.data(), m_nPoints);
         } else {
-            throw CanteraError("PlasmaPhase::addSpecies",
-                               "Cannot add species, {}. "
-                               "Only one electron species is allowed.", spec->name);
+            throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
+                "Call to calculateDistributionFunction failed.");
+        }
+        bool validEEDF = (
+            static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
+            m_electronEnergyDist.allFinite() &&
+            m_electronEnergyDist.maxCoeff() > 0.0 &&
+            m_electronEnergyDist.sum() > 0.0
+        );
+
+        if (validEEDF) {
+            updateElectronTemperatureFromEnergyDist();
+        } else {
+            writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
+        }
+    } else {
+        throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
+            "Unknown method '{}' for determining EEDF", m_distributionType);
+    }
+    updateElectronEnergyDistDifference();
+    electronEnergyDistributionChanged();
+}
+
+void PlasmaPhase::normalizeElectronEnergyDistribution() {
+    Eigen::ArrayXd eps32 = m_electronEnergyLevels.pow(3./2.);
+    double norm = 2./3. * numericalQuadrature(m_quadratureMethod,
+                                              m_electronEnergyDist, eps32);
+    if (norm < 0.0) {
+        throw CanteraError("PlasmaPhase::normalizeElectronEnergyDistribution",
+                           "The norm is negative. This might be caused by bad "
+                           "electron energy distribution");
+    }
+    m_electronEnergyDist /= norm;
+}
+
+void PlasmaPhase::setElectronEnergyDistributionType(const string& type)
+{
+    if (type == "discretized" ||
+        type == "isotropic" ||
+        type == "Boltzmann-two-term") {
+        m_distributionType = type;
+    } else {
+        throw CanteraError("PlasmaPhase::setElectronEnergyDistributionType",
+            "Unknown type for electron energy distribution.");
+    }
+}
+
+void PlasmaPhase::setIsotropicElectronEnergyDistribution()
+{
+    m_electronEnergyDist.resize(m_nPoints);
+    double x = m_isotropicShapeFactor;
+    double gamma1 = boost::math::tgamma(3.0 / 2.0 / x);
+    double gamma2 = boost::math::tgamma(5.0 / 2.0 / x);
+    double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
+    double c2 = std::pow(gamma2 / gamma1, x);
+    m_electronEnergyDist =
+        c1  / std::pow(meanElectronEnergy(), 1.5) *
+        (-c2 * (m_electronEnergyLevels /
+        meanElectronEnergy()).pow(x)).exp();
+    checkElectronEnergyDistribution();
+}
+
+void PlasmaPhase::setElectronTemperature(const double Te) {
+    // If the electron temperature is negative, throw an error.
+    if (Te < 0.0) {
+        throw CanteraError("PlasmaPhase::setElectronTemperature",
+            "Electron temperature cannot be negative.");
+    }
+    m_electronTemp = Te;
+    updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::beginEquilibrate()
+{
+    ThermoPhase::beginEquilibrate();
+
+    if (!m_inEquilibrate) {
+        m_inEquilibrate = true;
+        // Remember current Te and lock Te -> T for the duration
+        m_electronTempEquil = electronTemperature();
+        setElectronTemperature(temperature());
+    }
+}
+
+void PlasmaPhase::endEquilibrate()
+{
+    if (m_inEquilibrate) {
+        // Restore Te to the pre-equilibrate value
+        setElectronTemperature(m_electronTempEquil);
+        m_inEquilibrate = false;
+    }
+
+    ThermoPhase::endEquilibrate();
+}
+
+void PlasmaPhase::setMeanElectronEnergy(double energy) {
+    m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
+    updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::setElectronEnergyLevels(span<const double> levels)
+{
+    m_nPoints = levels.size();
+    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
+    checkElectronEnergyLevels();
+    electronEnergyLevelChanged();
+    updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::electronEnergyDistributionChanged()
+{
+    m_distNum++;
+}
+
+void PlasmaPhase::electronEnergyLevelChanged()
+{
+    m_levelNum++;
+    // Cross sections are interpolated on the energy levels.
+    if (m_collisions.size() > 0) {
+        vector<double> energyLevels(m_nPoints);
+        MappedVector(energyLevels.data(), m_nPoints) = m_electronEnergyLevels;
+        for (shared_ptr<Reaction> collision : m_collisions) {
+            const auto& rate = boost::polymorphic_pointer_downcast
+                <ElectronCollisionPlasmaRate>(collision->rate());
+            rate->updateInterpolatedCrossSection(energyLevels);
         }
     }
-    return added;
 }
 
-void PlasmaPhase::initThermo()
+void PlasmaPhase::checkElectronEnergyLevels() const
 {
-    IdealGasPhase::initThermo();
-
-    // Check electron species
-    if (m_electronSpeciesIndex == npos) {
-        throw CanteraError("PlasmaPhase::initThermo",
-                           "No electron species found.");
+    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
+                       m_electronEnergyLevels.head(m_nPoints - 1);
+    if (m_electronEnergyLevels[0] < 0.0 || (h <= 0.0).any()) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
+            "Values of electron energy levels need to be positive and "
+            "monotonically increasing.");
     }
 }
 
-void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
-    ThermoPhase::setSolution(soln);
-    // register callback function to be executed
-    // when the thermo or kinetics object changed
-    if (shared_ptr<Solution> soln = m_soln.lock()) {
-        soln->registerChangedCallback(this, [&]() {
-            setCollisions();
-        });
+void PlasmaPhase::checkElectronEnergyDistribution() const
+{
+    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
+                       m_electronEnergyLevels.head(m_nPoints - 1);
+    if ((m_electronEnergyDist < 0.0).any()) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+            "Values of electron energy distribution cannot be negative.");
+    }
+    if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
+        warn_user("PlasmaPhase::checkElectronEnergyDistribution",
+        "The value of the last element of electron energy distribution exceed 0.01. "
+        "This indicates that the value of electron energy level is not high enough "
+        "to contain the isotropic distribution at mean electron energy of "
+        "{} eV", meanElectronEnergy());
     }
 }
+
+void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
+                                                  span<const double> dist)
+{
+    m_distributionType = "discretized";
+    m_nPoints = levels.size();
+    m_electronEnergyLevels =
+        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
+    m_electronEnergyDist =
+        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
+    checkElectronEnergyLevels();
+    if (m_do_normalizeElectronEnergyDist) {
+        normalizeElectronEnergyDistribution();
+    }
+    checkElectronEnergyDistribution();
+    updateElectronEnergyDistDifference();
+    updateElectronTemperatureFromEnergyDist();
+    electronEnergyLevelChanged();
+    electronEnergyDistributionChanged();
+}
+
+void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
+{
+    // Calculate mean electron energy and electron temperature.
+    Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
+    double epsilon_m = 2.0 / 5.0 * numericalQuadrature(m_quadratureMethod,
+                                                       m_electronEnergyDist, eps52);
+    if (epsilon_m < 0.0 && m_quadratureMethod == "simpson") {
+        // Try trapezoidal method.
+        epsilon_m = 2.0 / 5.0 * numericalQuadrature(
+            "trapezoidal", m_electronEnergyDist, eps52);
+    }
+
+    if (epsilon_m < 0.0) {
+        throw CanteraError("PlasmaPhase::updateElectronTemperatureFromEnergyDist",
+            "The electron energy distribution produces negative electron temperature.");
+    }
+
+    m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
+}
+
+void PlasmaPhase::setIsotropicShapeFactor(double x) {
+    m_isotropicShapeFactor = x;
+    updateElectronEnergyDistribution();
+}
+
 
 void PlasmaPhase::setCollisions()
 {
@@ -398,8 +437,8 @@ void PlasmaPhase::setCollisions()
             return;
         }
 
-        // add collision from the initial list of reactions. Only add reactions we
-        // haven't seen before
+        // Add collision from the initial list of reactions.
+        // Only add reactions we haven't seen before.
         set<Reaction*> existing;
         for (auto& R : m_collisions) {
             existing.insert(R.get());
@@ -413,8 +452,8 @@ void PlasmaPhase::setCollisions()
             addCollision(R);
         }
 
-        // register callback when reaction is added later
-        // Modifying collision reactions is not supported
+        // Register callback when reaction is added later.
+        // Modifying collision reactions is not supported.
         kin->registerReactionAddedCallback(this, [this, kin]() {
             size_t i = kin->nReactions() - 1;
             if (kin->reaction(i)->type() == "electron-collision-plasma") {
@@ -428,18 +467,18 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
 {
     size_t i = nCollisions();
 
-    // setup callback to signal updating the cross-section-related
-    // parameters
+    // Setup callback to signal updating the cross-section-related
+    // parameters.
     collision->registerSetRateCallback(this, [this, i, collision]() {
         m_interp_cs_ready[i] = false;
         m_collisionRates[i] =
             std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate());
     });
 
-    // Identify target species for electron-collision reactions
+    // Identify target species for electron-collision reactions.
     string target;
     for (const auto& [name, _] : collision->reactants) {
-        // Reactants are expected to be electrons and the target species
+        // Reactants are expected to be electrons and the target species.
         if (name != electronSpeciesName()) {
             m_targetSpeciesIndices.emplace_back(speciesIndex(name, true));
             target = name;
@@ -456,11 +495,11 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate()));
     m_interp_cs_ready.emplace_back(false);
 
-    // resize parameters
+    // Resize parameters.
     m_elasticElectronEnergyLossCoefficients.resize(nCollisions());
     updateInterpolatedCrossSection(i);
 
-    // Set up data used by Boltzmann solver
+    // Set up data used by Boltzmann solver.
     auto& rate = *m_collisionRates.back();
     string kind = m_collisionRates.back()->kind();
 
@@ -501,12 +540,12 @@ bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)
 void PlasmaPhase::updateElectronEnergyDistDifference()
 {
     m_electronEnergyDistDiff.resize(nElectronEnergyLevels());
-    // Forward difference for the first point
+    // Forward difference for the first point.
     m_electronEnergyDistDiff[0] =
         (m_electronEnergyDist[1] - m_electronEnergyDist[0]) /
         (m_electronEnergyLevels[1] - m_electronEnergyLevels[0]);
 
-    // Central difference for the middle points
+    // Central difference for the middle points.
     for (size_t i = 1; i < m_nPoints - 1; i++) {
         double h1 = m_electronEnergyLevels[i+1] - m_electronEnergyLevels[i];
         double h0 = m_electronEnergyLevels[i] - m_electronEnergyLevels[i-1];
@@ -516,7 +555,7 @@ void PlasmaPhase::updateElectronEnergyDistDifference()
                 (h1 * h0) / (h1 + h0);
     }
 
-    // Backward difference for the last point
+    // Backward difference for the last point.
     m_electronEnergyDistDiff[m_nPoints-1] =
         (m_electronEnergyDist[m_nPoints-1] -
         m_electronEnergyDist[m_nPoints-2]) /
@@ -526,11 +565,11 @@ void PlasmaPhase::updateElectronEnergyDistDifference()
 
 void PlasmaPhase::updateElasticElectronEnergyLossCoefficients()
 {
-    // cache of cross section plus distribution plus energy-level number
+    // Cache of cross section plus distribution plus energy-level number.
     static const int cacheId = m_cache.getId();
     CachedScalar last_stateNum = m_cache.getScalar(cacheId);
 
-    // combine the distribution and energy level number
+    // Combine the distribution and energy level number.
     int stateNum = m_distNum + m_levelNum;
 
     vector<bool> interpChanged(m_collisions.size());
@@ -539,15 +578,15 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficients()
     }
 
     if (last_stateNum.validate(temperature(), stateNum)) {
-        // check each cross section, and only update coefficients that
-        // the interpolated cross sections change
+        // Check each cross section, and only update coefficients that
+        // the interpolated cross sections change.
         for (size_t i = 0; i < m_collisions.size(); i++) {
             if (interpChanged[i]) {
                 updateElasticElectronEnergyLossCoefficient(i);
             }
         }
     } else {
-        // update every coefficient if distribution, temperature,
+        // Update every coefficient if distribution, temperature,
         // or energy levels change.
         for (size_t i = 0; i < m_collisions.size(); i++) {
             updateElasticElectronEnergyLossCoefficient(i);
@@ -566,10 +605,10 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
         m_collisionRates[i]->crossSectionInterpolated().size()
     );
 
-    // Mass ratio calculation
+    // Mass ratio calculation.
     double mass_ratio = ElectronMass / molecularWeight(k) * Avogadro;
 
-    // Calculate the rate using Simpson's rule or trapezoidal rule
+    // Calculate the rate using Simpson's rule or trapezoidal rule.
     Eigen::ArrayXd f0_plus = m_electronEnergyDist + Boltzmann * temperature() /
                                 ElectronCharge * m_electronEnergyDistDiff;
     m_elasticElectronEnergyLossCoefficients[i] = 2.0 * mass_ratio * gamma *
@@ -605,149 +644,6 @@ double PlasmaPhase::elasticPowerLoss()
     return q_elastic;
 }
 
-void PlasmaPhase::updateThermo() const
-{
-    IdealGasPhase::updateThermo();
-    static const int cacheId = m_cache.getId();
-    CachedScalar cached = m_cache.getScalar(cacheId);
-    double tempNow = temperature();
-    double electronTempNow = electronTemperature();
-    size_t k = m_electronSpeciesIndex;
-    // If the electron temperature has changed since the last time these
-    // properties were computed, recompute them.
-    if (cached.state1 != tempNow || cached.state2 != electronTempNow) {
-        m_spthermo.update_single(k, electronTemperature(),
-                m_cp0_R[k], m_h0_RT[k], m_s0_R[k]);
-        cached.state1 = tempNow;
-        cached.state2 = electronTempNow;
-    }
-    // update the species Gibbs functions
-    m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-}
-
-double PlasmaPhase::enthalpy_mole() const {
-    double value = IdealGasPhase::enthalpy_mole();
-    value += GasConstant * (electronTemperature() - temperature()) *
-             moleFraction(m_electronSpeciesIndex) *
-             m_h0_RT[m_electronSpeciesIndex];
-    return value;
-}
-
-double PlasmaPhase::intEnergy_mole() const
-{
-    m_work.resize(m_kk);
-    getPartialMolarIntEnergies(m_work);
-    double u = 0.0;
-    for (size_t k = 0; k < m_kk; ++k) {
-        u += moleFraction(k) * m_work[k];
-    }
-    return u;
-}
-
-double PlasmaPhase::entropy_mole() const
-{
-    m_work.resize(m_kk);
-    getPartialMolarEntropies(m_work);
-    double s = 0.0;
-    for (size_t k = 0; k < m_kk; ++k) {
-        s += moleFraction(k) * m_work[k];
-    }
-    return s;
-}
-
-double PlasmaPhase::gibbs_mole() const
-{
-    m_work.resize(m_kk);
-    getChemPotentials(m_work);
-    double g = 0.0;
-    for (size_t k = 0; k < m_kk; ++k) {
-        g += moleFraction(k) * m_work[k];
-    }
-    return g;
-}
-
-void PlasmaPhase::getGibbs_ref(span<double> g) const
-{
-    IdealGasPhase::getGibbs_ref(g);
-    g[m_electronSpeciesIndex] *= electronTemperature() / temperature();
-}
-
-void PlasmaPhase::getStandardVolumes_ref(span<double> vol) const
-{
-    IdealGasPhase::getStandardVolumes_ref(vol);
-    vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
-}
-
-void PlasmaPhase::getPartialMolarEnthalpies(span<double> hbar) const
-{
-    IdealGasPhase::getPartialMolarEnthalpies(hbar);
-    hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
-}
-
-void PlasmaPhase::getPartialMolarEntropies(span<double> sbar) const
-{
-    IdealGasPhase::getPartialMolarEntropies(sbar);
-    double logp = log(pressure());
-    double logpe = log(electronPressure());
-    sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
-}
-
-void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
-{
-    checkArraySize("PlasmaPhase::getPartialMolarIntEnergies", ubar.size(), m_kk);
-    auto _h = enthalpy_RT_ref();
-    for (size_t k = 0; k < m_kk; k++) {
-        ubar[k] = RT() * (_h[k] - 1.0);
-    }
-    size_t k = m_electronSpeciesIndex;
-    ubar[k] = RTe() * (_h[k] - 1.0);
-}
-
-void PlasmaPhase::getChemPotentials(span<double> mu) const
-{
-    IdealGasPhase::getChemPotentials(mu);
-    size_t k = m_electronSpeciesIndex;
-    double xx = std::max(SmallNumber, moleFraction(k));
-    mu[k] += (RTe() - RT()) * log(xx);
-}
-
-void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
-{
-    IdealGasPhase::getStandardChemPotentials(muStar);
-    size_t k = m_electronSpeciesIndex;
-    muStar[k] -= log(pressure() / refPressure()) * RT();
-    muStar[k] += log(electronPressure() / refPressure()) * RTe();
-}
-
-void PlasmaPhase::getEntropy_R(span<double> sr) const
-{
-    checkArraySize("PlasmaPhase::getEntropy_R", sr.size(), m_kk);
-    auto _s = entropy_R_ref();
-    copy(_s.begin(), _s.end(), sr.begin());
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            sr[k] -= tmp;
-        } else {
-            sr[k] -= log(electronPressure() / refPressure());
-        }
-    }
-}
-
-void PlasmaPhase::getGibbs_RT(span<double> grt) const
-{
-    checkArraySize("PlasmaPhase::getGibbs_RT", grt.size(), m_kk);
-    auto gibbsrt = gibbs_RT_ref();
-    copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            grt[k] += tmp;
-        } else {
-            grt[k] += log(electronPressure() / refPressure());
-        }
-    }
-}
 
 double PlasmaPhase::electronMobility() const
 {
@@ -793,6 +689,346 @@ double PlasmaPhase::intrinsicHeating()
 
     return qJ + qElastic;
 }
+
+
+// ================================================================= //
+//           Molar Thermodynamic Properties of the Solution          //
+// ================================================================= //
+
+double PlasmaPhase::enthalpy_mole() const {
+    double value = IdealGasPhase::enthalpy_mole();
+    value += GasConstant * (electronTemperature() - temperature()) *
+             moleFraction(m_electronSpeciesIndex) *
+             m_h0_RT[m_electronSpeciesIndex];
+    return value;
+}
+
+double PlasmaPhase::entropy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarEntropies(m_work);
+    double s = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        s += moleFraction(k) * m_work[k];
+    }
+    return s;
+}
+
+double PlasmaPhase::gibbs_mole() const
+{
+    m_work.resize(m_kk);
+    getChemPotentials(m_work);
+    double g = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        g += moleFraction(k) * m_work[k];
+    }
+    return g;
+}
+
+double PlasmaPhase::intEnergy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarIntEnergies(m_work);
+    double u = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        u += moleFraction(k) * m_work[k];
+    }
+    return u;
+}
+
+// ================================================================= //
+//                     Mechanical Equation of State                  //
+// ================================================================= //
+
+double PlasmaPhase::meanTemperature() const
+{
+    double T_g = temperature();
+    double T_e = electronTemperature();
+    double X_e = moleFraction(m_electronSpeciesIndex);
+    return T_g + X_e * (T_e - T_g);
+}
+
+double PlasmaPhase::pressure() const {
+    return GasConstant * meanTemperature() * density() / meanMolecularWeight();
+}
+
+// ================================================================= //
+//                Chemical Potentials and Activities                 //
+// ================================================================= //
+
+
+double PlasmaPhase::standardConcentration(size_t k) const
+{
+    return pressure() / (GasConstant * meanTemperature());
+}
+
+
+
+// ================================================================= //
+//              Partial Molar Properties of the Solution             //
+// ================================================================= //
+
+void PlasmaPhase::getChemPotentials(span<double> mu) const
+{
+    IdealGasPhase::getChemPotentials(mu);
+    size_t k = m_electronSpeciesIndex;
+    double xx = std::max(SmallNumber, moleFraction(k));
+    mu[k] += (RTe() - RT()) * log(xx);
+}
+
+void PlasmaPhase::getPartialMolarEnthalpies(span<double> hbar) const
+{
+    IdealGasPhase::getPartialMolarEnthalpies(hbar);
+    hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+// void PlasmaPhase::getPartialMolarEntropies(span<double> sbar) const
+// {
+//     IdealGasPhase::getPartialMolarEntropies(sbar);
+//     double logp = log(pressure());
+//     double logpe = log(electronPressure());
+//     sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
+// }
+
+void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
+{
+    checkArraySize("PlasmaPhase::getPartialMolarIntEnergies", ubar.size(), m_kk);
+    auto _h = enthalpy_RT_ref();
+    for (size_t k = 0; k < m_kk; k++) {
+        ubar[k] = RT() * (_h[k] - 1.0);
+    }
+    // Redefine it for the electron species.
+    size_t k = m_electronSpeciesIndex;
+    ubar[k] = RTe() * (_h[k] - 1.0);
+}
+
+void PlasmaPhase::getPartialMolarVolumes(span<double> vbar) const
+{
+    double vol = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vbar[k] = vol;
+    }
+    vbar[m_electronSpeciesIndex] = RTe() / pressure();
+}
+
+// ================================================================= //
+//  Properties of the Standard State of the Species in the Solution  //
+// ================================================================= //
+
+void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
+{
+    // After calling PlasmaPhase::getGibbs_ref, muStar = g_k(T_k).
+    // g_k is evaluated at T for heavy species and at Te for electrons.
+    getGibbs_ref(muStar);
+
+    // Then, we need to add R*T_k*ln(P/Pref) to g_k.
+    // .. For heavy species, mu_star = g_k(T) + R*T*ln(P/Pref)
+    double tmp = log(pressure() / refPressure()) * RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        muStar[k] += tmp;
+    }
+    // .. For electrons, mu_star = g_k(Te) + R*T_e*ln(P/Pref)
+    size_t k = m_electronSpeciesIndex;
+    muStar[k] -= log(pressure() / refPressure()) * RT();
+    muStar[k] += log(pressure() / refPressure()) * RTe();
+}
+
+void PlasmaPhase::getStandardVolumes(span<double> vol) const
+{
+    double tmp = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vol[k] = tmp;
+    }
+    vol[m_electronSpeciesIndex] = RTe() / pressure();
+}
+
+
+// ================================================================= //
+//       Thermodynamic Values for the Species Reference States       //
+// ================================================================= //
+
+void PlasmaPhase::getGibbs_ref(span<double> g) const
+{
+    IdealGasPhase::getGibbs_ref(g);
+    g[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getStandardVolumes_ref(span<double> vol) const
+{
+    IdealGasPhase::getStandardVolumes_ref(vol);
+    vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+
+// ================================================================= //
+//                        Setting the State                          //
+// ================================================================= //
+
+
+void PlasmaPhase::setState(const AnyMap& input_state)
+{
+    AnyMap state = input_state;
+
+    // Remap allowable synonyms.
+    if (state.hasKey("mass-fractions")) {
+        state["Y"] = state["mass-fractions"];
+        state.erase("mass-fractions");
+    }
+    if (state.hasKey("mole-fractions")) {
+        state["X"] = state["mole-fractions"];
+        state.erase("mole-fractions");
+    }
+    if (state.hasKey("gas-temperature")) {
+        state["T"] = state["gas-temperature"];
+    }
+    if (state.hasKey("Tg")) {
+        state["T"] = state["Tg"];
+    }
+    if (state.hasKey("electron-temperature")) {
+        state["Te"] = state["electron-temperature"];
+    }
+    if (state.hasKey("pressure")) {
+        state["P"] = state["pressure"];
+    }
+    if (state.hasKey("density")) {
+        state["D"] = state["density"];
+    }
+    // Set composition.
+    if (state.hasKey("X")) {
+        if (state["X"].is<string>()) {
+            setMoleFractionsByName(state["X"].asString());
+        } else {
+            setMoleFractionsByName(state["X"].asMap<double>());
+        }
+        state.erase("X");
+    } else if (state.hasKey("Y")) {
+        if (state["Y"].is<string>()) {
+            setMassFractionsByName(state["Y"].asString());
+        } else {
+            setMassFractionsByName(state["Y"].asMap<double>());
+        }
+        state.erase("Y");
+    }
+
+    // Set thermodynamic state using whichever property set is found
+    if (state.hasKey("T") && state.hasKey("Te") && state.hasKey("P")) {
+        setState_TgTeP(
+            state.convert("T", "K"),
+            state.convert("Te", "K"),
+            state.convert("P", "Pa")
+        );
+    } else if (state.hasKey("T") && state.hasKey("Te") && state.hasKey("D")) {
+        setState_TgTeD(
+            state.convert("T", "K"),
+            state.convert("Te", "K"),
+            state.convert("D", "kg/m^3")
+        );
+    } else if (state.hasKey("T") && state.hasKey("P")) {
+        setState_TP(
+            state.convert("T", "K"),
+            state.convert("P", "Pa")
+        );
+    } else if (state.hasKey("T") && state.hasKey("D")) {
+        setState_TD(
+            state.convert("T", "K"),
+            state.convert("D", "kg/m^3")
+        );
+    } else {
+        throw CanteraError("PlasmaPhase::setState",
+            "'state' did not specify a recognized set of properties.\n"
+            "Keys provided were: {}", input_state.keys_str());
+    }
+}
+
+void PlasmaPhase::setState_TP(double t, double p)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state);
+    try {
+        setTemperature(t);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(t);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TP",
+                "The electron temperature is not set equal to the gas temperature "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setPressure(p);
+    } catch (std::exception&) {
+        restorePartialState(state);
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TgTeP(double Tg, double Te, double p)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state);
+    try {
+        setTemperature(Tg);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(Te);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TgTeP",
+                "The electron temperature cannot be set "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setPressure(p);
+    } catch (std::exception&) {
+        restorePartialState(state);
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TD(double t, double rho)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state);
+    try {
+        setTemperature(t);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(t);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TD",
+                "The electron temperature is not set equal to the gas temperature "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setDensity(rho);
+    } catch (std::exception&) {
+        restorePartialState(state);
+        throw;
+    }
+}
+
+void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
+{
+    vector<double> state(partialStateSize());
+    savePartialState(state);
+    try {
+        setTemperature(Tg);
+        if (m_distributionType == "isotropic") {
+            setElectronTemperature(Te);
+        } else {
+            // Warning for other distribution types.
+            warn_user("PlasmaPhase::setState_TgTeD",
+                "The electron temperature cannot be set "
+                "when using '{}' electron energy distribution. "
+                "This may not be intended.", m_distributionType);
+        }
+        setDensity(rho);
+    } catch (std::exception&) {
+        restorePartialState(state);
+        throw;
+    }
+}
+
+
 
 
 }
