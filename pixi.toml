@@ -4,11 +4,15 @@ name = "cantera"
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 version = "0.1.0"
 
-[tasks]
-build = "scons build"
-test = "scons test"
+[feature.core.target.unix.activation.env]
+PYTHONPATH = "$PIXI_PROJECT_ROOT/build/python"
+CANTERA_DATA = "$PIXI_PROJECT_ROOT/data"
 
-[dependencies]
+[feature.core.target.win.activation.env]
+PYTHONPATH = "%PIXI_PROJECT_ROOT%\\build\\python"
+CANTERA_DATA = "%PIXI_PROJECT_ROOT%\\data"
+
+[feature.core.dependencies]
 python = "3.14.*"
 scons = ">=4.10.1,<5"
 boost-cpp = ">=1.85.0,<2"
@@ -26,6 +30,8 @@ typing-extensions = ">=4.15.0,<5"
 pytest = ">=9.0.2,<10"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 jinja2 = ">=3.1.6,<4"
+
+[feature.samples.dependencies]
 pandas = ">=3.0.0,<4"
 scipy = ">=1.17.0,<2"
 matplotlib = ">=3.10.8,<4"
@@ -86,9 +92,11 @@ scikit-build-core = ">=0.12.1, <0.13"
 pyodide-build = ">=0.33.0, <0.34"
 
 [environments]
+default = { features = ["core", "devtools", "docs", "samples"], no-default-feature = true }
+core = { features = ["core"], no-default-feature = true }
+docs = { features = ["core", "docs", "samples"], no-default-feature = true }
+devtools = { features = ["core", "devtools"], no-default-feature = true }
 pyodide = { features = ["pyodide"], no-default-feature = true }
-docs = { features = ["docs"], no-default-feature = false }
-devtools = { features = ["devtools"], no-default-feature = false }
 
 [feature.docs.tasks]
 docs = "scons sphinx doxygen"
