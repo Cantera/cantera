@@ -64,8 +64,6 @@ from email.utils import formatdate
 from typing import Any, Literal
 from collections.abc import Iterable
 
-from ._types import add_args_to_signature
-
 if sys.version_info < (3, 9):
     class BooleanOptionalAction(argparse.Action):
         def __init__(self, option_strings, dest, *,
@@ -108,7 +106,6 @@ class HeaderTextWrapper(TextWrapper):
     .. versionadded:: 3.0
     """
 
-    @add_args_to_signature(TextWrapper.__init__, Iterable[str])  # type: ignore[type-abstract]
     def __init__(self, input_files: Iterable[str], /, *args: Any, **kwargs: Any) -> None:
         self.input_files = input_files
         super().__init__(*args, **kwargs)
