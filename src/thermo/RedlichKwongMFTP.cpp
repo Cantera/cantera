@@ -83,16 +83,16 @@ double RedlichKwongMFTP::cp_mole() const
     if (m_bMix == 0.0) {
         return cpref;
     }
-    double TKelvin = temperature();
-    double sqt = sqrt(TKelvin);
+    double T = temperature();
+    double sqt = sqrt(T);
     double mv = molarVolume();
     double vpb = mv + m_bMix;
     pressureDerivatives();
     double dadt = da_dt();
-    double fac = TKelvin * dadt - 3.0 * m_aMix / 2.0;
-    double dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_bMix * TKelvin * sqt) * log(vpb/mv) * fac
-                         +1.0/(m_bMix * sqt) * log(vpb/mv) * (-0.5 * dadt));
-    return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
+    double fac = T * dadt - 3.0 * m_aMix / 2.0;
+    double dHdT_V = cpref - 0.5 * dadt * log(vpb/mv) / (m_bMix * sqt)
+        + mv * dpdT_ - GasConstant - log(vpb/mv) * fac / (2.0 * m_bMix * T * sqt);
+    return dHdT_V - (mv + T * dpdT_ / dpdV_) * dpdT_;
 }
 
 double RedlichKwongMFTP::cv_mole() const
@@ -102,13 +102,13 @@ double RedlichKwongMFTP::cv_mole() const
     if (m_bMix == 0.0) {
         return cvref;
     }
-    double TKelvin = temperature();
-    double sqt = sqrt(TKelvin);
+    double T = temperature();
+    double sqt = sqrt(T);
     double mv = molarVolume();
     double vpb = mv + m_bMix;
     double dadt = da_dt();
-    double fac = TKelvin * dadt - 3.0 * m_aMix / 2.0;
-    return (cvref - 1.0/(2.0 * m_bMix * TKelvin * sqt) * log(vpb/mv)*fac
+    double fac = T * dadt - 3.0 * m_aMix / 2.0;
+    return (cvref - 1.0/(2.0 * m_bMix * T * sqt) * log(vpb/mv)*fac
             +1.0/(m_bMix * sqt) * log(vpb/mv)*(-0.5*dadt));
 }
 
@@ -119,7 +119,8 @@ double RedlichKwongMFTP::pressure() const
     //  Get a copy of the private variables stored in the State object
     double T = temperature();
     double molarV = meanMolecularWeight() / density();
-    double pp = GasConstant * T/(molarV - m_bMix) - m_aMix/(sqrt(T) * molarV * (molarV + m_bMix));
+    double pp = GasConstant * T/(molarV - m_bMix)
+        - m_aMix/(sqrt(T) * molarV * (molarV + m_bMix));
     return pp;
 }
 
@@ -142,9 +143,8 @@ void RedlichKwongMFTP::getActivityCoefficients(span<double> ac) const
     double sqt = sqrt(temperature());
     double vpb = mv + m_bMix;
     double vmb = mv - m_bMix;
-    double pres = pressure();
     double logv = log(vpb / mv);
-    Eigen::ArrayXd g = RT() * (log(RT() / (vmb * pres)) + m_b / vmb)
+    Eigen::ArrayXd g = RT() * (log(RT() / (vmb * pressure())) + m_b / vmb)
         - 2.0 * m_Ak / (m_bMix * sqt) * logv
         + m_aMix * m_b / (m_bMix * m_bMix * sqt) * logv
         - m_aMix * m_b / (m_bMix * sqt * vpb);
@@ -185,20 +185,20 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
     }
 
     // We calculate m_dpdni
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
-    double sqt = sqrt(TKelvin);
+    double sqt = sqrt(T);
     double vpb = mv + m_bMix;
     double vmb = mv - m_bMix;
     m_dpdni = RT() / vmb * (1.0 + m_b / vmb)
         - 2.0 * m_Ak / (sqt * mv * vpb)
         + m_aMix * m_b / (sqt * mv * vpb * vpb);
     double dadt = da_dt();
-    double fac = TKelvin * dadt - 3.0 * m_aMix / 2.0;
-    Eigen::ArrayXd Sk = 2.0 * TKelvin * m_dAkdT - 3.0 * m_Ak;
+    double fac = T * dadt - 3.0 * m_aMix / 2.0;
+    Eigen::ArrayXd Sk = 2.0 * T * m_dAkdT - 3.0 * m_Ak;
 
     pressureDerivatives();
-    double fac2 = mv + TKelvin * dpdT_ / dpdV_;
+    double fac2 = mv + T * dpdT_ / dpdV_;
     double logv = log(vpb / mv);
     Eigen::ArrayXd hE_v = mv * m_dpdni
         - RT()
@@ -211,8 +211,8 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(span<double> hbar) const
 void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R_ref(sbar);
-    double TKelvin = temperature();
-    double sqt = sqrt(TKelvin);
+    double T = temperature();
+    double sqt = sqrt(T);
     double mv = molarVolume();
     double pres = pressure();
 
@@ -223,13 +223,13 @@ void RedlichKwongMFTP::getPartialMolarEntropies(span<double> sbar) const
     if (m_bMix == 0.0) {
         return;
     }
-    double fac = da_dt() - m_aMix / (2.0 * TKelvin);
+    double fac = da_dt() - m_aMix / (2.0 * T);
     double vmb = mv - m_bMix;
     double vpb = mv + m_bMix;
     double logv = log(vpb / mv);
     Eigen::ArrayXd sdep = GasConstant * (log(RT() / (pres * vmb)) + 1)
         + GasConstant * m_b / vmb
-        + m_Ak / (m_bMix * TKelvin * sqt) * logv
+        + m_Ak / (m_bMix * T * sqt) * logv
         - 2.0 * m_dAkdT / (m_bMix * sqt) * logv
         + m_b / (m_bMix * m_bMix * sqt) * logv * fac
         - m_b / (m_bMix * sqt * vpb) * fac;
@@ -256,25 +256,20 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies_TV(span<double> utilde) const
     checkArraySize("RedlichKwongMFTP::getPartialMolarIntEnergies_TV", utilde.size(), m_kk);
     _updateReferenceStateThermo();
 
-    double T = temperature();
-    double sqt = sqrt(T);
-    double mv = molarVolume();
-    double b = m_bMix;
-    double a = m_aMix;
-    double dadt = da_dt();
-
     Eigen::Map<Eigen::ArrayXd> utildeVec(utilde.data(), m_kk);
     utildeVec = RT() * (asVectorXd(m_h0_RT).array() - 1.0);
 
-    if (fabs(b) < SmallNumber) {
+    if (fabs(m_bMix) < SmallNumber) {
         return;
     }
 
-    double vpb = mv + b;
+    double T = temperature();
+    double mv = molarVolume();
+    double vpb = mv + m_bMix;
     double logv = log(vpb / mv);
-    double F = T * dadt - 1.5 * a;
-    double C = -logv / b + 1.0 / vpb;
-    double pref = 1.0 / (b * sqt);
+    double F = T * da_dt() - 1.5 * m_aMix;
+    double C = -logv / m_bMix + 1.0 / vpb;
+    double pref = 1.0 / (m_bMix * sqrt(T));
 
     Eigen::ArrayXd Sk = 2.0 * T * m_dAkdT - 3.0 * m_Ak;
     utildeVec += pref * (logv * Sk + m_b * F * C);
@@ -284,46 +279,40 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
 {
     checkArraySize("RedlichKwongMFTP::getPartialMolarCp", cpbar.size(), m_kk);
     _updateReferenceStateThermo();
-
-    double T = temperature();
-    double sqt = sqrt(T);
-    double v = molarVolume();
-    double b = m_bMix;
-    double a = m_aMix;
-    double dadt = da_dt();
-    double d2adt2 = 0.0; // current RK model uses a(T)=a0+a1*T
-
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] = GasConstant * m_cp0_R[k];
     }
 
-    if (fabs(b) < SmallNumber) {
+    if (fabs(m_bMix) < SmallNumber) {
         return;
     }
 
+    double T = temperature();
+    double sqt = sqrt(T);
+    double v = molarVolume();
+    double dadt = da_dt();
+    double d2adt2 = 0.0; // current RK model uses a(T)=a0+a1*T
+
     // Mixture pressure derivatives
     pressureDerivatives();
-    double pT = dpdT_;
-    double pV = dpdV_;
-    double dvdT_P = -pT / pV;
-
-    double vpb = v + b;
-    double vmb = v - b;
+    double dvdT_P = -dpdT_ / dpdV_;
+    double vpb = v + m_bMix;
+    double vmb = v - m_bMix;
 
     // P_TT, P_TV and P_VV for v''(T)|P from EOS:
     // v'' = -(P_TT + 2 P_TV v' + P_VV v'^2) / P_V
-    double pTT = (-d2adt2 + dadt / T - 3.0 * a / (4.0 * T * T)) / (sqt * v * vpb);
+    double pTT = (-d2adt2 + dadt / T - 3.0 * m_aMix / (4.0 * T * T)) / (sqt * v * vpb);
     double pTV = -GasConstant / (vmb * vmb)
-        + (dadt - a / (2.0 * T)) * (2.0 * v + b) / (sqt * v * v * vpb * vpb);
+        + (dadt - m_aMix / (2.0 * T)) * (2.0 * v + m_bMix) / (sqt * v * v * vpb * vpb);
     double pVV = 2.0 * GasConstant * T / (vmb * vmb * vmb)
-        - 2.0 * a * (3.0 * v * v + 3.0 * b * v + b * b)
+        - 2.0 * m_aMix * (3.0 * v * v + 3.0 * m_bMix * v + m_bMix * m_bMix)
             / (sqt * v * v * v * vpb * vpb * vpb);
-    double d2vdT2_P = -(pTT + 2.0 * pTV * dvdT_P + pVV * dvdT_P * dvdT_P) / pV;
+    double d2vdT2_P = -(pTT + 2.0 * pTV * dvdT_P + pVV * dvdT_P * dvdT_P) / dpdV_;
 
-    double F = T * dadt - 1.5 * a;
+    double F = T * dadt - 1.5 * m_aMix;
     double dF_dT = -0.5 * dadt + T * d2adt2;
     double logvpv = log(vpb / v);
-    double termLPrime = -b * dvdT_P / (v * vpb);
+    double termLPrime = -m_bMix * dvdT_P / (v * vpb);
 
     for (size_t k = 0; k < m_kk; k++) {
         double bk = m_b[k];
@@ -335,7 +324,7 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
         // dp/dn_k at constant T,V,n_j
         double dpdni = RT() / vmb + RT() * bk / (vmb * vmb)
             - 2.0 * Ak / (sqt * v * vpb)
-            + a * bk / (sqt * v * vpb * vpb);
+            + m_aMix * bk / (sqt * v * vpb * vpb);
 
         // d/dT|P [dp/dn_k]
         double d_dpdni_dT = GasConstant / vmb
@@ -344,17 +333,17 @@ void RedlichKwongMFTP::getPartialMolarCp(span<double> cpbar) const
             - 2.0 * GasConstant * T * bk * dvdT_P / (vmb * vmb * vmb)
             - 2.0 * dAk / (sqt * v * vpb)
             + Ak / (T * sqt * v * vpb)
-            + 2.0 * Ak * (2.0 * v + b) * dvdT_P / (sqt * v * v * vpb * vpb)
-            + bk * dadt / (sqt * v * vpb * vpb)
-            - bk * a / (2.0 * T * sqt * v * vpb * vpb)
-            - bk * a * (3.0 * v + b) * dvdT_P / (sqt * v * v * vpb * vpb * vpb);
+            + 2.0 * Ak * (2.0 * v + m_bMix) * dvdT_P / (sqt * v * v * vpb * vpb)
+            + bk * da_dt() / (sqt * v * vpb * vpb)
+            - bk * m_aMix / (2.0 * T * sqt * v * vpb * vpb)
+            - bk * m_aMix * (3.0 * v + m_bMix) * dvdT_P / (sqt * v * v * vpb * vpb * vpb);
 
         // d/dT|P of departure terms used in getPartialMolarEnthalpies
-        double dterm1 = -bk / (b * b * sqt)
+        double dterm1 = -bk / (m_bMix * m_bMix * sqt)
             * (termLPrime * F + logvpv * dF_dT - logvpv * F / (2.0 * T));
-        double dterm2 = 1.0 / (b * sqt)
+        double dterm2 = 1.0 / (m_bMix * sqt)
             * (termLPrime * Sk + logvpv * dSk_dT - logvpv * Sk / (2.0 * T));
-        double dterm3 = bk / (b * sqt)
+        double dterm3 = bk / (m_bMix * sqt)
             * (dF_dT / vpb - F * dvdT_P / (vpb * vpb) - F / (2.0 * T * vpb));
 
         // cp_k = d hbar_k / dT at constant P and composition
@@ -370,28 +359,26 @@ void RedlichKwongMFTP::getPartialMolarCv_TV(span<double> cvtilde) const
     checkArraySize("RedlichKwongMFTP::getPartialMolarCv_TV", cvtilde.size(), m_kk);
     _updateReferenceStateThermo();
 
-    double T = temperature();
-    double sqt = sqrt(T);
-    double mv = molarVolume();
-    double b = m_bMix;
-    double a = m_aMix;
-    double dadt = da_dt();
-
     Eigen::Map<Eigen::ArrayXd> cvtildeVec(cvtilde.data(), m_kk);
     cvtildeVec = GasConstant * (asVectorXd(m_cp0_R).array() - 1.0);
 
-    if (fabs(b) < SmallNumber) {
+    if (fabs(m_bMix) < SmallNumber) {
         return;
     }
+
+    double T = temperature();
+    double sqt = sqrt(T);
+    double mv = molarVolume();
+    double dadt = da_dt();
 
     // Residual contribution for
     // \tilde{u}_k = (\partial U / \partial n_k)_{T,V,n_j}
     // with linear a(T): a_ij = a_ij,0 + a_ij,1 T
-    double vpb = mv + b;
+    double vpb = mv + m_bMix;
     double logv = log(vpb / mv);
-    double F = T * dadt - 1.5 * a;
-    double C = -logv / b + 1.0 / vpb;
-    double pref = 1.0 / (b * sqt);
+    double F = T * dadt - 1.5 * m_aMix;
+    double C = -logv / m_bMix + 1.0 / vpb;
+    double pref = 1.0 / (m_bMix * sqt);
 
     Eigen::ArrayXd Sk = 2.0 * T * m_dAkdT - 3.0 * m_Ak;
     Eigen::ArrayXd ures = pref * (logv * Sk + m_b * F * C);
@@ -596,16 +583,12 @@ double RedlichKwongMFTP::sresid() const
         return 0.0;
     }
     // note this agrees with tpx
-    double rho = density();
-    double mmw = meanMolecularWeight();
-    double molarV = mmw / rho;
-    double hh = m_bMix / molarV;
+    double hh = m_bMix / molarVolume();
     double zz = z();
-    double dadt = da_dt();
     double T = temperature();
-    double sqT = sqrt(T);
-    double fac = dadt - m_aMix / (2.0 * T);
-    double sresid_mol_R = log(zz*(1.0 - hh)) + log(1.0 + hh) * fac / (sqT * GasConstant * m_bMix);
+    double fac = da_dt() - m_aMix / (2.0 * T);
+    double sresid_mol_R = log(zz*(1.0 - hh))
+        + log(1.0 + hh) * fac / (sqrt(T) * GasConstant * m_bMix);
     return GasConstant * sresid_mol_R;
 }
 
@@ -615,30 +598,25 @@ double RedlichKwongMFTP::hresid() const
         return 0.0;
     }
     // note this agrees with tpx
-    double rho = density();
-    double mmw = meanMolecularWeight();
-    double molarV = mmw / rho;
-    double hh = m_bMix / molarV;
+    double hh = m_bMix / molarVolume();
     double zz = z();
-    double dadt = da_dt();
     double T = temperature();
-    double sqT = sqrt(T);
-    double fac = T * dadt - 3.0 *m_aMix / (2.0);
-    return GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_bMix);
+    double fac = T * da_dt() - 3.0 *m_aMix / (2.0);
+    return GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqrt(T) * m_bMix);
 }
 
-double RedlichKwongMFTP::liquidVolEst(double TKelvin, double& presGuess) const
+double RedlichKwongMFTP::liquidVolEst(double T, double& presGuess) const
 {
     double v = m_bMix * 1.1;
     double atmp;
     double btmp;
-    calculateAB(TKelvin, atmp, btmp);
-    double pres = std::max(psatEst(TKelvin), presGuess);
+    calculateAB(T, atmp, btmp);
+    double pres = std::max(psatEst(T), presGuess);
     double Vroot[3];
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-        int nsol = solveCubic(TKelvin, pres, atmp, btmp, Vroot);
+        int nsol = solveCubic(T, pres, atmp, btmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -659,26 +637,26 @@ double RedlichKwongMFTP::liquidVolEst(double TKelvin, double& presGuess) const
     return v;
 }
 
-double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseRequested,
+double RedlichKwongMFTP::densityCalc(double T, double presPa, int phaseRequested,
                                      double rhoguess)
 {
     // It's necessary to set the temperature so that m_a_current is set correctly.
-    setTemperature(TKelvin);
+    setTemperature(T);
     double tcrit = critTemperature();
     double mmw = meanMolecularWeight();
     if (rhoguess == -1.0) {
         if (phaseRequested >= FLUID_LIQUID_0) {
-                    double lqvol = liquidVolEst(TKelvin, presPa);
+                    double lqvol = liquidVolEst(T, presPa);
                     rhoguess = mmw / lqvol;
                 }
         } else {
             // Assume the Gas phase initial guess, if nothing is specified to the routine
-            rhoguess = presPa * mmw / (GasConstant * TKelvin);
+            rhoguess = presPa * mmw / (GasConstant * T);
     }
 
 
     double volguess = mmw / rhoguess;
-    NSolns_ = solveCubic(TKelvin, presPa, m_aMix, m_bMix, Vroot_);
+    NSolns_ = solveCubic(T, presPa, m_aMix, m_bMix, Vroot_);
 
     // Ensure root ordering used for branch selection only contains physical roots.
     double vmin = std::max(0.0, m_bMix * (1.0 + 1e-12));
@@ -734,7 +712,7 @@ double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseReq
     } else if (NSolns_ == -1) {
         if (phaseRequested >= FLUID_LIQUID_0 || phaseRequested == FLUID_UNDEFINED || phaseRequested == FLUID_SUPERCRIT) {
             molarVolLast = Vroot_[0];
-        } else if (TKelvin > tcrit) {
+        } else if (T > tcrit) {
             molarVolLast = Vroot_[0];
         } else {
             return -2.0;
@@ -746,15 +724,15 @@ double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseReq
     return mmw / molarVolLast;
 }
 
-double RedlichKwongMFTP::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
+double RedlichKwongMFTP::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
-    double sqt = sqrt(TKelvin);
-    presCalc = GasConstant * TKelvin / (molarVol - m_bMix)
+    double sqt = sqrt(T);
+    presCalc = GasConstant * T / (molarVol - m_bMix)
                - m_aMix / (sqt * molarVol * (molarVol + m_bMix));
 
     double vpb = molarVol + m_bMix;
     double vmb = molarVol - m_bMix;
-    return - GasConstant * TKelvin / (vmb * vmb)
+    return - GasConstant * T / (vmb * vmb)
         + m_aMix * (2 * molarVol + m_bMix) / (sqt * molarVol * molarVol * vpb * vpb);
 }
 
@@ -784,25 +762,21 @@ double RedlichKwongMFTP::soundSpeed() const
 
 void RedlichKwongMFTP::pressureDerivatives() const
 {
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double pres;
 
-    dpdV_ = dpdVCalc(TKelvin, mv, pres);
-    double sqt = sqrt(TKelvin);
-    double vpb = mv + m_bMix;
-    double vmb = mv - m_bMix;
-    double dadt = da_dt();
-    double fac = dadt - m_aMix/(2.0 * TKelvin);
-    dpdT_ = (GasConstant / vmb - fac / (sqt * mv * vpb));
+    dpdV_ = dpdVCalc(T, mv, pres);
+    double fac = da_dt() - m_aMix/(2.0 * T);
+    dpdT_ = (GasConstant / (mv - m_bMix) - fac / (sqrt(T) * mv * (mv + m_bMix)));
 }
 
 void RedlichKwongMFTP::updateMixingExpressions()
 {
-    double temp = temperature();
+    double T = temperature();
     auto x = asVectorXd(moleFractions_);
     if (m_formTempParam == 1) {
-        m_a = m_a0 + temp * m_a1;
+        m_a = m_a0 + T * m_a1;
         m_dAkdT = m_a1 * x;
     }
 
@@ -826,12 +800,12 @@ void RedlichKwongMFTP::updateMixingExpressions()
     }
 }
 
-void RedlichKwongMFTP::calculateAB(double temp, double& aCalc, double& bCalc) const
+void RedlichKwongMFTP::calculateAB(double T, double& aCalc, double& bCalc) const
 {
     auto x = asVectorXd(moleFractions_);
     bCalc = m_b.matrix().dot(x);
     if (m_formTempParam == 1) {
-        aCalc = x.dot((m_a0 + temp * m_a1) * x);
+        aCalc = x.dot((m_a0 + T * m_a1) * x);
     } else {
         aCalc = x.dot(m_a0 * x);
     }
@@ -852,11 +826,10 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
     double a0 = x.dot(m_a0 * x);
     double aT = x.dot(m_a1 * x);
     double a = m_aMix;
-    double b = m_bMix;
     if (m_formTempParam != 0) {
         a = a0;
     }
-    if (b <= 0.0) {
+    if (m_bMix <= 0.0) {
         tc = 1000000.;
         pc = 1.0E13;
         vc = omega_vc * GasConstant * tc / pc;
@@ -865,10 +838,10 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
     if (a <= 0.0) {
         tc = 0.0;
         pc = 0.0;
-        vc = 2.0 * b;
+        vc = 2.0 * m_bMix;
         return;
     }
-    double tmp = a * omega_b / (b * omega_a * GasConstant);
+    double tmp = a * omega_b / (m_bMix * omega_a * GasConstant);
     double pp = 2./3.;
     double sqrttc, f, dfdt, deltatc;
 
@@ -878,8 +851,8 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
         tc = pow(tmp, pp);
         for (int j = 0; j < 10; j++) {
             sqrttc = sqrt(tc);
-            f = omega_a * b * GasConstant * tc * sqrttc / omega_b - aT * tc - a0;
-            dfdt = 1.5 * omega_a * b * GasConstant * sqrttc / omega_b - aT;
+            f = omega_a * m_bMix * GasConstant * tc * sqrttc / omega_b - aT * tc - a0;
+            dfdt = 1.5 * omega_a * m_bMix * GasConstant * sqrttc / omega_b - aT;
             deltatc = - f / dfdt;
             tc += deltatc;
         }
@@ -889,7 +862,7 @@ void RedlichKwongMFTP::calcCriticalConditions(double& pc, double& tc, double& vc
         }
     }
 
-    pc = omega_b * GasConstant * tc / b;
+    pc = omega_b * GasConstant * tc / m_bMix;
     vc = omega_vc * GasConstant * tc / pc;
 }
 
