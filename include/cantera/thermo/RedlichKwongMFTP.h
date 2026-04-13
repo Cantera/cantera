@@ -350,9 +350,9 @@ protected:
     double hresid() const override;
 
 public:
-    double liquidVolEst(double TKelvin, double& pres) const override;
+    double liquidVolEst(double T, double& pres) const override;
     double densityCalc(double T, double pressure, int phase, double rhoguess) override;
-    double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const override;
+    double dpdVCalc(double T, double molarVol, double& presCalc) const override;
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
@@ -378,11 +378,11 @@ public:
      * This function doesn't change the internal state of the object, so it is a
      * const function.  It does use the stored mole fractions in the object.
      *
-     * @param temp  Temperature (TKelvin)
+     * @param T  Temperature
      * @param aCalc (output)  Returns the a value
      * @param bCalc (output)  Returns the b value.
      */
-    void calculateAB(double temp, double& aCalc, double& bCalc) const;
+    void calculateAB(double T, double& aCalc, double& bCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
 
