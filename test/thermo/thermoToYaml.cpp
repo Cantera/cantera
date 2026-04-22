@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/YamlWriter.h"
@@ -471,6 +472,44 @@ TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
 {
     roundtrip("thermo-models.yaml", "IdealSolnGas-liquid");
     compareThermo(320, 1.5e5, "Li(l):1.0");
+}
+
+TEST(ThermoYamlWriter, preservesCustomElements)
+{
+    auto original = newSolution("ideal-gas.yaml", "element-override", "none");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.skipUserDefined();
+
+    AnyMap root = AnyMap::fromYamlString(writer.toYamlString());
+    ASSERT_TRUE(root.hasKey("elements"));
+    const AnyMap& element = root["elements"].getMapWhere("symbol", "Ar");
+    EXPECT_DOUBLE_EQ(element["atomic-weight"].asDouble(), 36);
+
+    auto duplicate = newSolution(root["phases"].getMapWhere("name", "element-override"),
+                                 root, "none");
+    EXPECT_DOUBLE_EQ(
+        duplicate->thermo()->atomicWeight(duplicate->thermo()->elementIndex("Ar")),
+        36.0);
+}
+
+TEST(ThermoYamlWriter, preservesRemoteCustomElements)
+{
+    auto original = newSolution("ideal-gas.yaml", "element-remote", "none");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.skipUserDefined();
+
+    AnyMap root = AnyMap::fromYamlString(writer.toYamlString());
+    ASSERT_TRUE(root.hasKey("elements"));
+    const AnyMap& element = root["elements"].getMapWhere("symbol", "Ar");
+    EXPECT_DOUBLE_EQ(element["atomic-weight"].asDouble(), 38);
+
+    auto duplicate = newSolution(root["phases"].getMapWhere("name", "element-remote"),
+                                 root, "none");
+    EXPECT_DOUBLE_EQ(
+        duplicate->thermo()->atomicWeight(duplicate->thermo()->elementIndex("Ar")),
+        38.0);
 }
 
 TEST_F(ThermoYamlRoundTrip, HMWSoln)

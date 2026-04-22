@@ -97,6 +97,28 @@ string YamlWriter::toYamlString() const
     }
     output["phases"] = phaseDefs;
 
+    // Build custom element definitions needed by any phase
+    vector<AnyMap> elementDefs;
+    std::unordered_map<string, size_t> elementDefIndex;
+    for (const auto& phase : m_phases) {
+        for (auto& elementDef : phase->thermo()->elementDefinitions()) {
+            const string& symbol = elementDef["symbol"].asString();
+            if (elementDefIndex.count(symbol) == 0) {
+                elementDefs.emplace_back(std::move(elementDef));
+                elementDefIndex[symbol] = elementDefs.size() - 1;
+            } else if (elementDefs[elementDefIndex[symbol]] != elementDef) {
+                throw CanteraError("YamlWriter::toYamlString",
+                    "Multiple elements with different definitions are not "
+                    "supported:\n>>>>>>\n{}\n======\n{}\n<<<<<<\n",
+                    elementDef.toYamlString(),
+                    elementDefs[elementDefIndex[symbol]].toYamlString());
+            }
+        }
+    }
+    if (!elementDefs.empty()) {
+        output["elements"] = std::move(elementDefs);
+    }
+
     // Build species definitions for all phases
     vector<AnyMap> speciesDefs;
     speciesDefs.reserve(nspecies_total);
