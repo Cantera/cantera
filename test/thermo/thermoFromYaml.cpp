@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/Species.h"
@@ -39,6 +40,31 @@ TEST(ThermoFromYaml, elementFromDifferentFile)
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(0), getElementWeight("N"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(1), getElementWeight("O"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(2), 38);
+}
+
+TEST(ThermoFromYaml, cloneCustomElements)
+{
+    auto original = newSolution("ideal-gas.yaml", "element-override", "none");
+    auto duplicate = original->clone({}, false, false)->thermo();
+
+    EXPECT_EQ(duplicate->nElements(), (size_t) 3);
+    EXPECT_DOUBLE_EQ(duplicate->atomicWeight(2), 36);
+    EXPECT_EQ(duplicate->elementName(2), "Ar");
+    EXPECT_DOUBLE_EQ(duplicate->molecularWeight(duplicate->speciesIndex("AR")), 36.0);
+    EXPECT_DOUBLE_EQ(duplicate->cp_mass(), original->thermo()->cp_mass());
+}
+
+TEST(ThermoFromYaml, cloneRemoteCustomElements)
+{
+    auto original = newSolution("ideal-gas.yaml", "element-remote", "none");
+    original->thermo()->setState_TPX(300, OneAtm, "AR:0.5, NO:0.5");
+    auto duplicate = original->clone({}, false, false)->thermo();
+
+    EXPECT_EQ(duplicate->nElements(), (size_t) 3);
+    EXPECT_DOUBLE_EQ(duplicate->atomicWeight(2), 38);
+    EXPECT_DOUBLE_EQ(duplicate->molecularWeight(duplicate->speciesIndex("AR")),
+        38);
+    EXPECT_DOUBLE_EQ(duplicate->cp_mass(), original->thermo()->cp_mass());
 }
 
 TEST(ThermoFromYaml, speciesFromDifferentFile)

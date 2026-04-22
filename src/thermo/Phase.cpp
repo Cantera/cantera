@@ -705,6 +705,58 @@ size_t Phase::addElement(const string& symbol, double weight, int atomic_number,
     return m_mm-1;
 }
 
+vector<AnyMap> Phase::elementDefinitions() const
+{
+    vector<AnyMap> definitions;
+    definitions.reserve(nElements());
+    const static AnyMap db = AnyMap::fromYamlFile("element-standard-entropies.yaml");
+    const static auto standardEntropies = db["elements"].asMap("symbol");
+    const auto& weights = elementWeights();
+
+    for (size_t m = 0; m < nElements(); m++) {
+        const string& symbol = m_elementNames[m];
+        bool exportDefinition = false;
+        AnyMap element;
+        element["symbol"] = symbol;
+
+        auto weightIter = weights.find(symbol);
+        if (weightIter == weights.end()) {
+            exportDefinition = true;
+            element["atomic-weight"] = m_atomicWeights[m];
+        } else if (m_atomicWeights[m] != weightIter->second) {
+            exportDefinition = true;
+            element["atomic-weight"] = m_atomicWeights[m];
+        }
+
+        if (m_atomicNumbers[m] != 0) {
+            exportDefinition = true;
+            element["atomic-number"] = m_atomicNumbers[m];
+        }
+
+        if (m_entropy298[m] != ENTROPY298_UNKNOWN) {
+            auto entropyIter = standardEntropies.find(symbol);
+            if (entropyIter == standardEntropies.end()
+                || !entropyIter->second->hasKey("entropy298"))
+            {
+                exportDefinition = true;
+                element["entropy298"].setQuantity(m_entropy298[m], "J/kmol/K");
+            } else {
+                double defaultEntropy =
+                    entropyIter->second->convert("entropy298", "J/kmol/K");
+                if (m_entropy298[m] != defaultEntropy) {
+                    exportDefinition = true;
+                    element["entropy298"].setQuantity(m_entropy298[m], "J/kmol/K");
+                }
+            }
+        }
+
+        if (exportDefinition) {
+            definitions.push_back(std::move(element));
+        }
+    }
+    return definitions;
+}
+
 bool Phase::addSpecies(shared_ptr<Species> spec)
 {
     if (m_nSpeciesLocks) {
