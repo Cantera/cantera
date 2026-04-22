@@ -29,6 +29,10 @@ shared_ptr<ThermoPhase> ThermoPhase::clone() const
 {
     AnyMap phase = parameters();
     AnyMap root;
+    auto elementDefs = elementDefinitions();
+    if (!elementDefs.empty()) {
+        root["elements"] = std::move(elementDefs);
+    }
     vector<AnyMap> speciesDefs;
     speciesDefs.reserve(nSpecies());
     for (const auto& name : speciesNames()) {

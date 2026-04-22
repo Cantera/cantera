@@ -10,6 +10,7 @@
 #define CT_PHASE_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/base/ValueCache.h"
 
@@ -706,6 +707,12 @@ public:
     size_t addElement(const string& symbol, double weight=-12345.0,
                       int atomicNumber=0, double entropy298=ENTROPY298_UNKNOWN,
                       int elem_type=CT_ELEM_TYPE_ABSPOS);
+
+    //! Return explicit element definitions needed to reconstruct this phase.
+    //! Elements that can be recreated unambiguously from the default database
+    //! are omitted.
+    //! @since New in %Cantera 4.0.
+    vector<AnyMap> elementDefinitions() const;
 
     //! Add a Species to this Phase. Returns `true` if the species was
     //! successfully added, or `false` if the species was ignored.
