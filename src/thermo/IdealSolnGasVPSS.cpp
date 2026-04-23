@@ -61,7 +61,7 @@ double IdealSolnGasVPSS::cp_mole() const
 
 double IdealSolnGasVPSS::cv_mole() const
 {
-    return cp_mole() - GasConstant;
+    return cp_mole();
 }
 
 void IdealSolnGasVPSS::setPressure(double p)
