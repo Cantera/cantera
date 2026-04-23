@@ -52,7 +52,7 @@ void MargulesVPSSTP::getChemPotentials(span<double> mu) const
 
 double MargulesVPSSTP::cv_mole() const
 {
-    return cp_mole() - GasConstant;
+    return cp_mole();
 }
 
 void MargulesVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const

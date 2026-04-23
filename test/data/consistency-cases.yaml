@@ -265,8 +265,6 @@ debye-huckel-beta_ij-IAPWS:
 margules:
   setup:
     file: LiKCl_liquid.yaml
-    known-failures:
-      cv_eq.+: "Implementation of cv is incorrect. See GitHub Issue #1308"
   states:
   - {T: 900, P: 1 atm, X: {KCl(L): 0.2, LiCl(L): 0.8}}
   - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
@@ -332,10 +330,6 @@ ideal-solution-VPSS-simple:
   setup:
     file: IdealSolidSolnPhaseExample.yaml
     phase: VpssSolidSolutionExample
-    known-failures:
-      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
-      cv_eq_dsdT_const_v_times_T:
-        "Implementation of cv is incorrect. See GitHub Issue #1317"
   states:
   - {T: 300, P: 1 atm, X: {C2H2-graph: 0.2, C-graph: 0.5, H2-solute: 0.3}}
   - {T: 400, P: 1 atm, X: {C2H2-graph: 1.0}}
@@ -348,9 +342,9 @@ ideal-solution-VPSS-HKFT:
     # implementation of WaterPropsIAPWSphi::dfind.
     rtol_fd: 2e-6
     known-failures:
-      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
-      cv_eq_dsdT_const_v_times_T:
-        "Implementation of cv is incorrect. See GitHub Issue #1317"
+      cv_eq_dudT:
+        "HKFT species have T-dependent standard volumes; cv = cp - T*V*alpha^2/kappa_T
+        correction not yet implemented in IdealSolnGasVPSS. See GitHub Issue #1317"
   states:
   - {T: 300, P: 1 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
   - {T: 360, P: 5 atm, X: {H2O(L): 0.6, Na+: 0.2, Cl-: 0.2}}
