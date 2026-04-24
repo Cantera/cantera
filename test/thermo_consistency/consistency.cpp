@@ -912,6 +912,12 @@ INSTANTIATE_TEST_SUITE_P(MargulesSSVol, TestConsistency,
         testing::ValuesIn(getStates("margules-SSVol")))
 );
 
+INSTANTIATE_TEST_SUITE_P(MargulesWithExcessVolume, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("margules-with-excess-volume")),
+        testing::ValuesIn(getStates("margules-with-excess-volume")))
+);
+
 INSTANTIATE_TEST_SUITE_P(FixedStoichiometry, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("fixed-stoichiometry")),

@@ -42,7 +42,7 @@ namespace Cantera
  * 2 species.
  *
  * @f[
- *     G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
+ *     G^E = \sum_i \left(  H_{Ei} - T S_{Ei} + (P - P_{ref}) V^E_i \right)
  * @f]
  * @f[
  *    H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
@@ -50,8 +50,18 @@ namespace Cantera
  * @f[
  *    S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
  * @f]
+ * @f[
+ *    V^E_i = n X_{Ai} X_{Bi} \left( v_{o,i} +  v_{1,i} X_{Bi} \right)
+ * @f]
  *
- * where n is the total moles in the solution.
+ * where n is the total moles in the solution, @f$ P_{ref} @f$ is the
+ * standard-state reference pressure (1 atm), and @f$ v_{o,i} = v^{HE}_{o,i} -
+ * T \cdot v^{SE}_{o,i} @f$, @f$ v_{1,i} = v^{HE}_{1,i} - T \cdot
+ * v^{SE}_{1,i} @f$ where @f$ v^{HE} @f$ and @f$ v^{SE} @f$ are the
+ * `excess-volume-enthalpy` and `excess-volume-entropy` interaction parameters.
+ * The @f$ (P - P_{\rm ref}) V^E_i @f$ term is what makes the Maxwell relation
+ * @f$ (\partial S/\partial P)_T = -(\partial V/\partial T)_P @f$ consistent
+ * with the non-zero, temperature-dependent excess volume.
  *
  * The activity of a species defined in the phase is given by an excess Gibbs
  * free energy formulation.
@@ -74,9 +84,10 @@ namespace Cantera
  *       \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right)
  * @f]
  * where
- * @f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} @f$ and
- * @f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} @f$ and where
- * @f$ X_k @f$ is the mole fraction of species *k*.
+ * @f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} + (P - P_{\rm ref})(v^{HE}_{o,i} - T \cdot v^{SE}_{o,i}) @f$
+ * and
+ * @f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} + (P - P_{\rm ref})(v^{HE}_{1,i} - T \cdot v^{SE}_{1,i}) @f$
+ * and where @f$ X_k @f$ is the mole fraction of species *k*.
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the
  * specification and calculation of all standard state and reference state
