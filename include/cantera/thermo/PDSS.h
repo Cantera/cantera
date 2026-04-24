@@ -231,6 +231,20 @@ public:
      */
     virtual double molarVolume() const;
 
+    //! Return the temperature derivative of the standard state molar volume
+    //! at constant pressure [m³/kmol/K].
+    //!
+    //! @return @f$ (dV^\circ/dT)_P @f$ at the current temperature and pressure.
+    //! @since New in %Cantera 4.0.
+    virtual double dVdT() const;
+
+    //! Return the pressure derivative of the standard state molar volume
+    //! at constant temperature [m³/kmol/Pa].
+    //!
+    //! @return @f$ (dV^\circ/dP)_T @f$ at the current temperature and pressure.
+    //! @since New in %Cantera 4.0.
+    virtual double dVdP() const;
+
     //! Return the standard state density at standard state
     /*!
      * @return The standard state density at the current temperature and

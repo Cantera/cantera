@@ -53,7 +53,17 @@ double PDSS_ConstVol::intEnergy_mole() const
 
 double PDSS_ConstVol::cv_mole() const
 {
-    return (cp_mole() - m_V0);
+    return cp_mole();
+}
+
+double PDSS_ConstVol::dVdT() const
+{
+    return 0.0;
+}
+
+double PDSS_ConstVol::dVdP() const
+{
+    return 0.0;
 }
 
 void PDSS_ConstVol::setPressure(double p)

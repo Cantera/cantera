@@ -106,12 +106,20 @@ double PDSS_HKFT::cp_mole() const
 
 double PDSS_HKFT::molarVolume() const
 {
-    // Initially do all calculations in (cal/gmol/Pa)
+    return molarVolumeTP(m_temp, m_pres);
+}
 
+double PDSS_HKFT::density() const
+{
+    return m_mw / molarVolume();
+}
+
+double PDSS_HKFT::molarVolumeTP(double temp, double pres) const
+{
     double a1term = m_a1 * 1.0E-5;
-    double a2term = m_a2 / (2600.E5 + m_pres);
-    double a3term = m_a3 * 1.0E-5/ (m_temp - 228.);
-    double a4term = m_a4 / (m_temp - 228.) / (2600.E5 + m_pres);
+    double a2term = m_a2 / (2600.E5 + pres);
+    double a3term = m_a3 * 1.0E-5 / (temp - 228.);
+    double a4term = m_a4 / (temp - 228.) / (2600.E5 + pres);
 
     double omega_j;
     double domega_jdP;
@@ -123,8 +131,8 @@ double PDSS_HKFT::molarVolume() const
         double charge2 = m_charge_j * m_charge_j;
         double r_e_j_pr_tr = charge2 / (m_omega_pr_tr/nu + m_charge_j/3.082);
 
-        double gval = gstar(m_temp, m_pres, 0);
-        double dgvaldP = gstar(m_temp, m_pres, 3);
+        double gval = gstar(temp, pres, 0);
+        double dgvaldP = gstar(temp, pres, 3);
 
         double r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
         double r_e_H = 3.082 + gval;
@@ -135,21 +143,36 @@ double PDSS_HKFT::molarVolume() const
                      + nu * m_charge_j / (r_e_H * r_e_H) * dgvaldP;
     }
 
-    double drelepsilondP = m_waterProps->relEpsilon(m_temp, m_pres, 3);
-    double relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
+    double drelepsilondP = m_waterProps->relEpsilon(temp, pres, 3);
+    double relepsilon = m_waterProps->relEpsilon(temp, pres, 0);
     double Q = drelepsilondP / (relepsilon * relepsilon);
     double Z = -1.0 / relepsilon;
     double wterm = - domega_jdP * (Z + 1.0);
     double qterm = - omega_j * Q;
     double molVol_calgmolPascal = a1term + a2term + a3term + a4term + wterm + qterm;
-
-    // Convert to m**3 / kmol from (cal/gmol/Pa)
     return m_units.convertTo(molVol_calgmolPascal, "J/kmol");
 }
 
-double PDSS_HKFT::density() const
+double PDSS_HKFT::dVdT() const
 {
-    return m_mw / molarVolume();
+    double dT = 1.0e-4 * m_temp;
+    double v_hi = molarVolumeTP(m_temp + dT, m_pres);
+    double v_lo = molarVolumeTP(m_temp - dT, m_pres);
+    // Restore water state modified by gstar() calls inside molarVolumeTP
+    m_waterSS->setState_TP(m_temp, m_pres);
+    m_densWaterSS = m_waterSS->density();
+    return (v_hi - v_lo) / (2.0 * dT);
+}
+
+double PDSS_HKFT::dVdP() const
+{
+    double dP = 1.0e-4 * m_pres;
+    double v_hi = molarVolumeTP(m_temp, m_pres + dP);
+    double v_lo = molarVolumeTP(m_temp, m_pres - dP);
+    // Restore water state modified by gstar() calls inside molarVolumeTP
+    m_waterSS->setState_TP(m_temp, m_pres);
+    m_densWaterSS = m_waterSS->density();
+    return (v_hi - v_lo) / (2.0 * dP);
 }
 
 double PDSS_HKFT::gibbs_RT_ref() const

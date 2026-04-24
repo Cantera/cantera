@@ -91,7 +91,17 @@ double PDSS_SSVol::intEnergy_mole() const
 
 double PDSS_SSVol::cv_mole() const
 {
-    return (cp_mole() - m_V0);
+    return cp_mole();
+}
+
+double PDSS_SSVol::dVdT() const
+{
+    return dVdT_;
+}
+
+double PDSS_SSVol::dVdP() const
+{
+    return 0.0;
 }
 
 void PDSS_SSVol::calcMolarVolume()

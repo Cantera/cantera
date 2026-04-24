@@ -355,6 +355,11 @@ TEST_P(TestConsistency, cp_eq_dhdT)
 
 TEST_P(TestConsistency, cv_eq_dudT)
 {
+    if (!phase->isCompressible()) {
+        // For nearly-incompressible phases, we can't use setState_TD to evaluate
+        // ∂u/∂T at constant V using finite differences to compare with cv.
+        GTEST_SKIP() << "Not meaningful for incompressible phases";
+    }
     double u1, cv1;
     try {
         u1 = phase->intEnergy_mole();
@@ -364,11 +369,7 @@ TEST_P(TestConsistency, cv_eq_dudT)
     }
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
-    if (phase->isCompressible()) {
-        phase->setState_TD(T1 + dT, phase->density());
-    } else {
-        phase->setTemperature(T1 + dT);
-    }
+    phase->setState_TD(T1 + dT, phase->density());
     double u2 = phase->intEnergy_mole();
     double cv2 = phase->cv_mole();
     double cv_mid = 0.5 * (cv1 + cv2);
@@ -397,6 +398,11 @@ TEST_P(TestConsistency, cp_eq_dsdT_const_p_times_T)
 
 TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
 {
+    if (!phase->isCompressible()) {
+        // For nearly-incompressible phases, we can't use setState_TD to evaluate ∂S/∂T
+        // at constant V by finite difference to compare with cv.
+        GTEST_SKIP() << "Not meaningful for incompressible phases";
+    }
     double s1, cv1;
     try {
         s1 = phase->entropy_mole();
@@ -406,16 +412,32 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
     }
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
-    if (phase->isCompressible()) {
-        phase->setState_TD(T1 + dT, phase->density());
-    } else {
-        phase->setTemperature(T1 + dT);
-    }
+    phase->setState_TD(T1 + dT, phase->density());
     double s2 = phase->entropy_mole();
     double cv2 = phase->cv_mole();
     double cv_mid = 0.5 * (cv1 + cv2);
     double cv_fd = (T1 + dT/2) * (s2 - s1) / dT;
     EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
+}
+
+TEST_P(TestConsistency, cv_eq_cp_minus_T_V_beta2_over_kappa_T)
+{
+    double cv, cp, beta, kappa_T, V;
+    try {
+        cv = phase->cv_mole();
+        cp = phase->cp_mole();
+        beta = phase->thermalExpansionCoeff();
+        kappa_T = phase->isothermalCompressibility();
+        V = phase->molarVolume();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    if (kappa_T == 0.0) {
+        // Truly incompressible: cv = cp exactly
+        EXPECT_NEAR(cv, cp, atol);
+    } else {
+        EXPECT_NEAR(cv, cp - T * V * beta * beta / kappa_T, max({rtol_fd * cv, atol}));
+    }
 }
 
 TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
@@ -519,7 +541,7 @@ TEST_P(TestConsistency, alphaV_eq_dmv_dT_const_P_div_mv)
     double alphaV_fd = 1 / mv_mid * (mv2 - mv1) / (T2 - T1);
 
     EXPECT_NEAR(alphaV_fd, alphaV_mid,
-                max({rtol_fd * alphaV_mid, rtol_fd * alphaV_fd, atol_e}));
+        max({rtol_fd * std::abs(alphaV_mid), rtol_fd * std::abs(alphaV_fd), atol_e}));
 }
 
 TEST_P(TestConsistency, c_eq_sqrt_dP_drho_const_s)

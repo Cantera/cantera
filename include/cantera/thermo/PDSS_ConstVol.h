@@ -31,6 +31,8 @@ public:
     // See PDSS.h for documentation of functions overridden from Class PDSS
     double intEnergy_mole() const override;
     double cv_mole() const override;
+    double dVdT() const override;
+    double dVdP() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
