@@ -270,6 +270,15 @@ margules:
   - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
   - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}
 
+margules-with-excess-volume:
+  setup:
+    file: thermo-models.yaml
+    phase: ethanol-water-rough
+  states:
+  - {T: 298.15, P: 1 atm, X: {ethanol: 0.3, water: 0.7}}
+  - {T: 298.15, P: 1 atm, X: {ethanol: 0.5, water: 0.5}}
+  - {T: 308.15, P: 1 atm, X: {ethanol: 0.5, water: 0.5}}
+
 margules-SSVol:
   # Tests Margules phase with PDSS_SSVol species (T-dependent standard state
   # volumes), exercising the thermalExpansionCoeff and cv implementations.

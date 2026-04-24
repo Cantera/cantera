@@ -25,6 +25,23 @@ phases:
     excess-enthalpy: [-17570, -377]
     excess-entropy: [-7.627, 4.958]
 
+- name: ethanol-water-rough
+  note: Rough approximation of the ethanol-water system to enable regression and
+    consistency tests for the "excess volume" terms in this model. These parameter
+    values are not an accurate fit to any literature data and should not be used for
+    scientific purposes.
+  thermo: Margules
+  elements: [H, C, O]
+  species:
+  - {ethanol-water-fake-species: all}
+  interactions:
+  - species: [ethanol, water]
+    excess-enthalpy: [-2449 J/mol, -1613 J/mol]
+    excess-entropy: [-14.45 J/mol/K, -11.64 J/mol/K]
+    # VHE0 = v0 + T0*VSE0 = -3.762 + 298.15*(-0.030) = -12.707 cm^3/mol
+    excess-volume-enthalpy: [-12.707 cm^3/mol, 0.476 cm^3/mol]
+    excess-volume-entropy: [-0.030 cm^3/mol/K, 0.0 cm^3/mol/K]
+
 - name: ideal-molal-aqueous
   thermo: ideal-molal-solution
   species:
@@ -356,6 +373,30 @@ species:
     model: constant-volume
     density: 5.0317 g/cm^3
 
+ethanol-water-fake-species:
+- name: ethanol
+  composition: {C: 2, H: 6, O: 1}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -277.7 kJ/mol
+    s0: 159.86 J/mol/K
+    cp0: 112.0 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 58.35 cm^3/mol
+
+- name: water
+  composition: {H: 2, O: 1}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -285.83 kJ/mol
+    s0: 69.91 J/mol/K
+    cp0: 75.3 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 18.07 cm^3/mol
 
 ideal-molal-fake-species:
 # Fake thermo data (GRI 3.0 coefficients for H2)

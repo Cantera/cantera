@@ -63,8 +63,8 @@ double MargulesVPSSTP::cv_mole() const
 
 double MargulesVPSSTP::isothermalCompressibility() const
 {
-    // The Margules excess volume has no pressure dependence, so only the
-    // standard state PDSS derivatives contribute.
+    // V^E has no pressure dependence in this model, so only the standard
+    // state PDSS derivatives contribute to kappa_T.
     double sum_xk_dVkdP = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         sum_xk_dVkdP += moleFractions_[k] * providePDSS(k)->dVdP();
@@ -265,12 +265,15 @@ void MargulesVPSSTP::addBinaryInteraction(const string& speciesA,
 void MargulesVPSSTP::s_update_lnActCoeff() const
 {
     double T = temperature();
+    double deltaP_RT = (pressure() - OneAtm) / RT();
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
-        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT();
-        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT();
+        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         const double XAXB = XA * XB;
@@ -288,6 +291,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 {
     double invT = 1.0 / temperature();
     double invRTT = 1.0 / GasConstant*invT*invT;
+    double deltaP = pressure() - OneAtm;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
@@ -295,8 +299,8 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
-        double g0 = -m_HE_b_ij[i] * invRTT;
-        double g1 = -m_HE_c_ij[i] * invRTT;
+        double g0 = -(m_HE_b_ij[i] + deltaP * m_VHE_b_ij[i]) * invRTT;
+        double g1 = -(m_HE_c_ij[i] + deltaP * m_VHE_c_ij[i]) * invRTT;
         const double XAXB = XA * XB;
         const double g0g1XB = (g0 + g1 * XB);
         const double all = -1.0 * XAXB * g0g1XB - XAXB * XB * g1;
@@ -337,6 +341,7 @@ void MargulesVPSSTP::getdlnActCoeffds(const double dTds, span<const double> cons
     checkArraySize("MargulesVPSSTP::getdlnActCoeffds", dlnActCoeffds.size(), m_kk);
     checkArraySize("MargulesVPSSTP::getdlnActCoeffds", dXds.size(), m_kk);
     double T = temperature();
+    double deltaP_RT = (pressure() - OneAtm) / RT();
     s_update_dlnActCoeff_dT();
     for (size_t iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
@@ -349,8 +354,10 @@ void MargulesVPSSTP::getdlnActCoeffds(const double dTds, span<const double> cons
         double XB = moleFractions_[iB];
         double dXA = dXds[iA];
         double dXB = dXds[iB];
-        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT();
-        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT();
+        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
         const double g02g1XB = g0 + 2*g1*XB;
         const double g2XAdXB = 2*g1*XA*dXB;
         const double all = (-XB * dXA - XA *dXB) * g02g1XB - XB *g2XAdXB;
@@ -365,6 +372,7 @@ void MargulesVPSSTP::getdlnActCoeffds(const double dTds, span<const double> cons
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 {
     double T = temperature();
+    double deltaP_RT = (pressure() - OneAtm) / RT();
     dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -385,8 +393,10 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
 
-            double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT();
-            double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT();
+            double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT()
+                      + deltaP_RT * (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+            double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT()
+                      + deltaP_RT * (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
 
             dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
         }
@@ -397,6 +407,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 {
     double T = temperature();
+    double deltaP_RT = (pressure() - OneAtm) / RT();
     dlnActCoeffdlnN_.zero();
 
     // Loop over the activity coefficient gamma_k
@@ -423,8 +434,10 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 
                 double XA = moleFractions_[iA];
                 double XB = moleFractions_[iB];
-                double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT();
-                double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT();
+                double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT()
+                          + deltaP_RT * (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+                double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT()
+                          + deltaP_RT * (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
             }
@@ -436,6 +449,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
 {
     double T = temperature();
+    double deltaP_RT = (pressure() - OneAtm) / RT();
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
 
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
@@ -445,8 +459,10 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
 
-        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT();
-        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT();
+        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT()
+                  + deltaP_RT * (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
 
         dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
         dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
