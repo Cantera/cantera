@@ -415,17 +415,18 @@ public:
      * of the molality-based activity coefficients.
      *  See Denbigh p. 278 @cite denbigh1981 for a thorough discussion.
      *
-     * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated
-     * from the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$
-     * by the following formula.
+     * The mole-fraction-based activity coefficients @f$ \gamma_k @f$ may be calculated
+     * from the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$,
+     * by requiring consistency with the activity: @f$ a_k = X_k \gamma_k @f$ for all
+     * species. For solute species (k ≠ o), using the molality definition
+     * @f$ m_k = X_k / (X_o \tilde{M}_o) @f$ and @f$ a_k = m_k \gamma_k^\triangle @f$:
      * @f[
-     *     \gamma_k = \frac{\gamma_k^\triangle}{X_o}
+     *     \gamma_k = \frac{\gamma_k^\triangle}{X_o \tilde{M}_o}
      * @f]
+     * where @f$ \tilde{M}_o @f$ is the molar mass of the solvent in kg/mol.
      *
-     * For purposes of establishing a convention, the molar activity coefficient of the
-     * solvent is set equal to the molality-based activity coefficient of the
-     * solvent:
-     *
+     * For the solvent (k = o), the mole-fraction-based activity coefficient equals the
+     * molality-based activity coefficient:
      * @f[
      *     \gamma_o = \gamma_o^\triangle
      * @f]

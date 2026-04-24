@@ -61,6 +61,7 @@ jobs:
           echo "test/data/*.cti -diff" >> .gitattributes
           echo "test/data/*.dat -diff" >> .gitattributes
           echo "test_problems/**/*blessed* -diff" >> .gitattributes
+          echo "test_problems/**/*.txt -diff" >> .gitattributes
 
           git config --global core.autocrlf false
           git config --global core.whitespace \
