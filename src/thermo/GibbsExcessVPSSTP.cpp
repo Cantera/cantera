@@ -27,19 +27,6 @@ void GibbsExcessVPSSTP::compositionChanged()
     getMoleFractions(moleFractions_);
 }
 
-// ------------ Mechanical Properties ------------------------------
-
-void GibbsExcessVPSSTP::calcDensity()
-{
-    auto vbar = getStandardVolumes();
-    double vtotal = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        vtotal += vbar[i] * moleFractions_[i];
-    }
-    double dd = meanMolecularWeight() / vtotal;
-    Phase::assignDensity(dd);
-}
-
 // - Activities, Standard States, Activity Concentrations -----------
 
 Units GibbsExcessVPSSTP::standardConcentrationUnits() const
