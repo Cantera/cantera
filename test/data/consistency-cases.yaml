@@ -270,6 +270,17 @@ margules:
   - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
   - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}
 
+margules-SSVol:
+  # Tests Margules phase with PDSS_SSVol species (T-dependent standard state
+  # volumes), exercising the thermalExpansionCoeff and cv implementations.
+  setup:
+    file: Li_Liquid.yaml
+    phase: Li(L)
+  states:
+  - {T: 300, P: 1 atm, X: {Li(L): 0.4, "Li(L)2": 0.6}}
+  - {T: 400, P: 10 atm, X: {Li(L): 0.9, "Li(L)2": 0.1}}
+  - {T: 500, P: 5 atm, X: {Li(L): 0.5, "Li(L)2": 0.5}}
+
 fixed-stoichiometry:
   setup:
     file: thermo-models.yaml

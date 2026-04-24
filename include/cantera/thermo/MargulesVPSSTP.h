@@ -230,7 +230,38 @@ public:
     //! @name  Molar Thermodynamic Properties
     //! @{
 
+    //! Molar heat capacity at constant volume.
+    //!
+    //! For a Margules phase with pressure-dependent standard state volumes, the
+    //! thermodynamic identity @f$ c_v = c_p - T v \beta^2 / \kappa_T @f$ is used.
+    //! If @f$ \kappa_T = 0 @f$ (all species have pressure-independent standard state
+    //! volumes), then @f$ c_v = c_p @f$.
     double cv_mole() const override;
+
+    //! Isothermal compressibility of the mixture.
+    /*!
+     * Computed as
+     * @f[
+     *   \kappa_T = -\frac{1}{v} \sum_k X_k \frac{\partial V^\circ_k}{\partial P}\Bigg|_T
+     * @f]
+     * The Margules excess volume has no pressure dependence, so only the standard
+     * state PDSS derivatives contribute.
+     */
+    double isothermalCompressibility() const override;
+
+    //! Thermal expansion coefficient of the mixture.
+    /*!
+     * Computed as
+     * @f[
+     *   \beta = \frac{1}{v} \left(
+     *       \sum_k X_k \frac{\partial V^\circ_k}{\partial T}\Bigg|_P
+     *       + \frac{\partial V_\mathrm{excess}}{\partial T}\Bigg|_{P,X}
+     *   \right)
+     * @f]
+     * where the excess volume T-derivative is computed analytically from the
+     * Margules excess-volume-entropy interaction parameters.
+     */
+    double thermalExpansionCoeff() const override;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations

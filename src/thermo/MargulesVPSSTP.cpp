@@ -10,6 +10,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MargulesVPSSTP.h"
+#include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
@@ -52,7 +53,41 @@ void MargulesVPSSTP::getChemPotentials(span<double> mu) const
 
 double MargulesVPSSTP::cv_mole() const
 {
-    return cp_mole();
+    double kappa_T = isothermalCompressibility();
+    if (kappa_T == 0.0) {
+        return cp_mole();
+    }
+    double beta = thermalExpansionCoeff();
+    return cp_mole() - temperature() * molarVolume() * beta * beta / kappa_T;
+}
+
+double MargulesVPSSTP::isothermalCompressibility() const
+{
+    // The Margules excess volume has no pressure dependence, so only the
+    // standard state PDSS derivatives contribute.
+    double sum_xk_dVkdP = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sum_xk_dVkdP += moleFractions_[k] * providePDSS(k)->dVdP();
+    }
+    return -sum_xk_dVkdP / molarVolume();
+}
+
+double MargulesVPSSTP::thermalExpansionCoeff() const
+{
+    // Standard state contribution
+    double dVdT = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        dVdT += moleFractions_[k] * providePDSS(k)->dVdT();
+    }
+    // Excess volume contribution: d/dT [XA*XB*(g0 + g1*XB)]
+    // where g0 = VHE_b - T*VSE_b, g1 = VHE_c - T*VSE_c
+    // => dg0/dT = -VSE_b, dg1/dT = -VSE_c
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        double XA = moleFractions_[m_pSpecies_A_ij[i]];
+        double XB = moleFractions_[m_pSpecies_B_ij[i]];
+        dVdT -= XA * XB * (m_VSE_b_ij[i] + m_VSE_c_ij[i] * XB);
+    }
+    return dVdT / molarVolume();
 }
 
 void MargulesVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
