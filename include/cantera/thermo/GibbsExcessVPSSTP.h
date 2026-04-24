@@ -90,14 +90,6 @@ public:
     GibbsExcessVPSSTP() {}
 
     //! @}
-    //! @name Mechanical Properties
-    //! @{
-
-protected:
-    void calcDensity() override;
-
-public:
-    //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
     //! The activity @f$ a_k @f$ of a species in solution is related to the
