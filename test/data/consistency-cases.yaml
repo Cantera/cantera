@@ -67,7 +67,6 @@ ideal-molal-solution:
       cv_eq_.+: cv not implemented
       cp_eq_dsdT_const_p_times_T:
         "Implementation of cp and s are inconsistent. See GitHub Issue #1300"
-      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
   states:
   - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
   - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
@@ -169,7 +168,6 @@ debye-huckel-dilute:
     phase: debye-huckel-dilute
     known-failures: &debye-huckel-failures
       cv_eq_.+: cv not implemented
-      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
 
   states: &debye-huckel-states
   - {T: 300, P: 1 atm,
@@ -193,7 +191,6 @@ debye-huckel-dilute-IAPWS:
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
     known-failures:
       cv_eq_.+: cv not implemented
-      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
       cp_eq_.+: "cp with variable A_Debye is incorrect. See GitHub Issue #1500"
       dsdP_const_T_eq_minus_dV_dT_const_P.+:
         "Error with dilute limit with variable A_Debye. See GitHub Issue #1502"
@@ -213,7 +210,6 @@ debye-huckel-B-dot-ak-IAPWS:
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
     known-failures: &debye-huckel-IAPWS-failures
       cv_eq_.+: cv not implemented
-      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
       cp_eq_.+: "cp with variable A_debye is incorrect. See GitHub Issue #1500"
   states: *debye-huckel-states
 
@@ -396,7 +392,6 @@ HMW-electrolyte:
       cp_eq_dhdT: "Moderate discrepancies. See GitHub Issue #1324"
       cp_eq_dsdT_const_p_times_T: "Moderate discrepancies. See GitHub Issue #1324"
       dsdP_const_T_eq_minus_dV_dT_const_P: "Moderate discrepancies. See GitHub Issue #1324"
-      activity_coeffs: "Major discrepancies for all solute species. See GitHub Issue #1324"
   states:
   - {T: 300, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-05, OH-: 1.0e-05}}
   - {T: 330, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-04, OH-: 1.0e-04}}

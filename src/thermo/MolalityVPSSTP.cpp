@@ -205,7 +205,7 @@ void MolalityVPSSTP::getActivityCoefficients(span<double> ac) const
     getMolalityActivityCoefficients(ac);
     double xmolSolvent = std::max(moleFraction(0), m_xmolSolventMIN);
     for (size_t k = 1; k < m_kk; k++) {
-        ac[k] /= xmolSolvent;
+        ac[k] /= (xmolSolvent * m_Mnaught);
     }
 }
 

@@ -264,8 +264,8 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
     double mvRef[] = {0.01815197, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
     double hRef[] = {-2.84096961e+08, -2.38159643e+08, -1.68846908e+08,
                      3.59728865e+06, -2.29291570e+08};
-    double acoeffRef[] = {0.922403480, 1.21859875, 1.21859855, 5.08171133,
-                          0.5983205};
+    double acoeffRef[] = {0.922403480, 67.643561092, 67.643549776, 282.082227796,
+                          33.212351882};
 
     // Regression test based on HMWSoln.fromScratch_HKFT
     size_t N = thermo->nSpecies();
@@ -276,7 +276,7 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
         EXPECT_NEAR(h[k], hRef[k], 2e0);
-        EXPECT_NEAR(acoeff[k], acoeffRef[k], 2e-8);
+        EXPECT_NEAR(acoeff[k], acoeffRef[k], 1e-6);
     }
 }
 
