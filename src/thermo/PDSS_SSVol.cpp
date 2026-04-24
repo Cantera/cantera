@@ -140,7 +140,7 @@ void PDSS_SSVol::setPressure(double p)
         m_hss_RT = m_h0_RT + sV_term + del_pRT * m_Vss;
         m_sss_R = m_s0_R + sV_term;
         m_gss_RT = m_hss_RT - m_sss_R;
-        m_cpss_R = m_cp0_R - m_temp * deltaP * d2VdT2_;
+        m_cpss_R = m_cp0_R - m_temp * deltaP * d2VdT2_ / GasConstant;
     }
 }
 
@@ -162,7 +162,7 @@ void PDSS_SSVol::setTemperature(double temp)
         m_hss_RT = m_h0_RT + sV_term + del_pRT * m_Vss;
         m_sss_R = m_s0_R + sV_term;
         m_gss_RT = m_hss_RT - m_sss_R;
-        m_cpss_R = m_cp0_R - m_temp * deltaP * d2VdT2_;
+        m_cpss_R = m_cp0_R - m_temp * deltaP * d2VdT2_ / GasConstant;
     }
 }
 
