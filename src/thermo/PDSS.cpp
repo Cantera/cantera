@@ -70,6 +70,16 @@ double PDSS::density() const
     throw NotImplementedError("PDSS::density");
 }
 
+double PDSS::dVdT() const
+{
+    throw NotImplementedError("PDSS::dVdT");
+}
+
+double PDSS::dVdP() const
+{
+    throw NotImplementedError("PDSS::dVdP");
+}
+
 double PDSS::cv_mole() const
 {
     throw NotImplementedError("PDSS::cv_mole");

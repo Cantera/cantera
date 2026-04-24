@@ -84,6 +84,16 @@ double PDSS_Water::molarVolume() const
     return m_mw / m_sub.density();
 }
 
+double PDSS_Water::dVdT() const
+{
+    return thermalExpansionCoeff() * molarVolume();
+}
+
+double PDSS_Water::dVdP() const
+{
+    return -isothermalCompressibility() * molarVolume();
+}
+
 double PDSS_Water::gibbs_RT_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);

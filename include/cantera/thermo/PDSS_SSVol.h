@@ -120,6 +120,8 @@ public:
 
     double intEnergy_mole() const override;
     double cv_mole() const override;
+    double dVdT() const override;
+    double dVdP() const override;
 
     //! @}
 

@@ -54,6 +54,16 @@ public:
     double enthalpy_mole() const override;
     double entropy_mole() const override;
     double cp_mole() const override;
+
+    //! Molar heat capacity at constant volume.
+    //!
+    //! For an ideal solution with pressure-dependent standard state volumes, the
+    //! thermodynamic identity @f$ c_v = c_p - T v \beta^2 / \kappa_T @f$ is used, where
+    //! @f$ \beta @f$ and @f$ \kappa_T @f$ are the mixture thermal expansion coefficient
+    //! and isothermal compressibility, respectively.
+    //!
+    //! If all species have pressure-independent standard state volumes
+    //! (@f$ \kappa_T = 0 @f$), then @f$ c_v = c_p @f$.
     double cv_mole() const override;
 
     //! @}
@@ -61,6 +71,30 @@ public:
     //! @{
 
     void setPressure(double p) override;
+
+    //! Isothermal compressibility of the mixture.
+    /*!
+     * Computed as
+     * @f[
+     *   \kappa_T = -\frac{1}{v}
+     *       \sum_k X_k \left.\frac{\partial V^\circ_k}{\partial P}\right|_T
+     * @f]
+     * using the species standard state volume derivatives from each PDSS object. For
+     * phases where all species have pressure-independent standard state volumes,
+     * returns zero.
+     */
+    double isothermalCompressibility() const override;
+
+    //! Thermal expansion coefficient of the mixture.
+    /*!
+     * Computed as
+     * @f[
+     *   \beta = \frac{1}{v}
+     *       \sum_k X_k \left.\frac{\partial V^\circ_k}{\partial T}\right|_P
+     * @f]
+     * using the species standard state volume derivatives from each PDSS object.
+     */
+    double thermalExpansionCoeff() const override;
 
 protected:
     void calcDensity() override;

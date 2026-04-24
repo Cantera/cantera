@@ -61,7 +61,39 @@ double IdealSolnGasVPSS::cp_mole() const
 
 double IdealSolnGasVPSS::cv_mole() const
 {
-    return cp_mole();
+    updateStandardStateThermo();
+    double sum_xk_dVkdT = 0.0;
+    double sum_xk_dVkdP = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        double Xk = moleFraction(k);
+        sum_xk_dVkdT += Xk * providePDSS(k)->dVdT();
+        sum_xk_dVkdP += Xk * providePDSS(k)->dVdP();
+    }
+    if (sum_xk_dVkdP == 0.0) {
+        return cp_mole();
+    }
+    // cv = cp - T*V*beta^2/kappa_T, using mixture beta and kappa_T from PDSS
+    return cp_mole() - temperature() * sum_xk_dVkdT * sum_xk_dVkdT / (-sum_xk_dVkdP);
+}
+
+double IdealSolnGasVPSS::isothermalCompressibility() const
+{
+    updateStandardStateThermo();
+    double sum_xk_dVkdP = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sum_xk_dVkdP += moleFraction(k) * providePDSS(k)->dVdP();
+    }
+    return -sum_xk_dVkdP / molarVolume();
+}
+
+double IdealSolnGasVPSS::thermalExpansionCoeff() const
+{
+    updateStandardStateThermo();
+    double sum_xk_dVkdT = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sum_xk_dVkdT += moleFraction(k) * providePDSS(k)->dVdT();
+    }
+    return sum_xk_dVkdT / molarVolume();
 }
 
 void IdealSolnGasVPSS::setPressure(double p)

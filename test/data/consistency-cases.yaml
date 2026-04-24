@@ -338,13 +338,12 @@ ideal-solution-VPSS-simple:
 ideal-solution-VPSS-HKFT:
   setup:
     file: pdss_hkft.yaml
-    # Relax tolerance slightly to accommodate iterative solver accuracy in the
-    # implementation of WaterPropsIAPWSphi::dfind.
-    rtol_fd: 2e-6
-    known-failures:
-      cv_eq_dudT:
-        "HKFT species have T-dependent standard volumes; cv = cp - T*V*alpha^2/kappa_T
-        correction not yet implemented in IdealSolnGasVPSS. See GitHub Issue #1317"
+    # Relax tolerances slightly to accommodate iterative solver accuracy in the
+    # implementation of WaterPropsIAPWSphi::dfind, and the coarser finite difference
+    # step used internally in PDSS_HKFT::dVdP() relative to the consistency test finite
+    # difference step.
+    rtol_fd: 4e-6
+    atol_c: 5e-14
   states:
   - {T: 300, P: 1 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
   - {T: 360, P: 5 atm, X: {H2O(L): 0.6, Na+: 0.2, Cl-: 0.2}}

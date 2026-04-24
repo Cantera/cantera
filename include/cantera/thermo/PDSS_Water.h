@@ -65,6 +65,8 @@ public:
     double cv_mole() const override;
     double molarVolume() const override;
     double density() const override;
+    double dVdT() const override;
+    double dVdP() const override;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution

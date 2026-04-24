@@ -43,6 +43,8 @@ public:
     double cp_mole() const override;
     double molarVolume() const override;
     double density() const override;
+    double dVdT() const override;
+    double dVdP() const override;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
@@ -99,6 +101,10 @@ public:
 private:
     VPStandardStateTP* m_tp; //!< Parent VPStandardStateTP (ThermoPhase) object
     size_t m_spindex; //!< Index of this species within the parent phase
+
+    //! Evaluate the molar volume at a given temperature and pressure.
+    //! Used internally by dVdT() to evaluate derivatives by finite difference.
+    double molarVolumeTP(double temp, double pres) const;
 
     //! Main routine that actually calculates the Gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
