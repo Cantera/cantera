@@ -192,8 +192,6 @@ debye-huckel-dilute-IAPWS:
     known-failures:
       cv_eq_.+: cv not implemented
       cp_eq_.+: "cp with variable A_Debye is incorrect. See GitHub Issue #1500"
-      dsdP_const_T_eq_minus_dV_dT_const_P.+:
-        "Error with dilute limit with variable A_Debye. See GitHub Issue #1502"
   states: *debye-huckel-states
 
 debye-huckel-B-dot-ak:
