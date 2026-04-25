@@ -188,10 +188,10 @@ double WaterProps::ADebye(double T, double P_input, int ifunc)
             d2AdT2 += 1.5 * (- dAdT * depsRelWaterdT / epsRelWater
                              - A_Debye / epsRelWater *
                              (d2epsRelWaterdT2 - depsRelWaterdT * depsRelWaterdT / epsRelWater));
-            double deltaT = -0.1;
-            double Tdel = T + deltaT;
-            double cte_del = coeffThermalExp_IAPWS(Tdel, P);
-            double dctedT = (cte_del - cte) / Tdel;
+            double deltaT = 0.1;
+            double cte_del_p = coeffThermalExp_IAPWS(T + deltaT, P);
+            double cte_del_m = coeffThermalExp_IAPWS(T - deltaT, P);
+            double dctedT = (cte_del_p - cte_del_m) / (2 * deltaT);
             double contrib3 = 0.5 * (-(dAdT * cte) -(A_Debye * dctedT));
             d2AdT2 += contrib3;
             return d2AdT2;
