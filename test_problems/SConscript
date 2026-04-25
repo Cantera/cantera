@@ -196,7 +196,7 @@ CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('VCS-NaCl', 'VCSnonideal/NaCl_equil',
                'nacl_equil', 'good_out.txt',
-               options='-d 3',
+               options='-d 3', threshold=1e-12,
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
 
 # C++ Samples
