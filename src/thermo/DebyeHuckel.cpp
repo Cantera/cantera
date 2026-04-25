@@ -1162,10 +1162,12 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
 
     switch (m_formDH) {
     case DHFORM_DILUTE_LIMIT:
-        for (size_t k = 0; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
             m_dlnActCoeffMolaldP[k] =
                 m_lnActCoeffMolal[k] * dAdP / m_A_Debye;
         }
+        m_dlnActCoeffMolaldP[0] = 2.0 / 3.0 * dAdP * m_Mnaught *
+                                   m_IionicMolality * sqrt(m_IionicMolality);
         break;
 
     case DHFORM_BDOT_AK:
