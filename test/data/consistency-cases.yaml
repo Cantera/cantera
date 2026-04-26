@@ -60,13 +60,7 @@ ideal-molal-solution:
     file: thermo-models.yaml
     phase: ideal-molal-aqueous
     known-failures:
-      g_eq_h_minus_Ts:
-        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
-      gk_eq_hk_minus_T_sk:
-        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
       cv_eq_.+: cv not implemented
-      cp_eq_dsdT_const_p_times_T:
-        "Implementation of cp and s are inconsistent. See GitHub Issue #1300"
   states:
   - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
   - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}

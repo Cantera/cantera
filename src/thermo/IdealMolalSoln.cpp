@@ -227,6 +227,9 @@ void IdealMolalSoln::getPartialMolarIntEnergies(span<double> ubar) const
 void IdealMolalSoln::getPartialMolarEntropies(span<double> sbar) const
 {
     getEntropy_R(sbar);
+    for (size_t k = 0; k < m_kk; k++) {
+        sbar[k] *= GasConstant;
+    }
     calcMolalities();
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {
