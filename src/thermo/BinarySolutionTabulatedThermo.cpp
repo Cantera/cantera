@@ -42,15 +42,10 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
         double x_other = moleFraction(1 - m_kk_tab);
         m_h0_tab = interpolate(x_tab, m_enthalpy_tab);
         m_s0_tab = interpolate(x_tab, m_entropy_tab);
-        if (x_tab == 0) {
-            m_s0_tab = -BigNumber;
-        } else if (x_other == 0) {
-            m_s0_tab = BigNumber;
-        } else {
-            m_s0_tab += GasConstant*std::log(x_tab / x_other) +
-                    GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
-                    /standardConcentration(m_kk_tab));
-        }
+        m_s0_tab += GasConstant*std::log(std::max(SmallNumber, x_tab)
+                                         / std::max(SmallNumber, x_other))
+                  + GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
+                  / standardConcentration(m_kk_tab));
     }
 
     double tnow = temperature();
