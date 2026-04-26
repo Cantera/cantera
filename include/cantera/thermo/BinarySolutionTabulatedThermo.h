@@ -52,10 +52,14 @@ namespace Cantera
  *  @f]
  *
  *  For the tabulated binary phase, the user identifies a 'tabulated' species,
- *  while the other is considered the 'reference' species.  The standard state
- *  thermo variables for the tabulated species therefore incorporate any and all
- *  excess energy contributions, and are calculated according to the reaction
- *  energy terms:
+ *  while the other is considered the 'reference' species.  The reference
+ *  species (typically a vacancy) is assigned standard state thermo variables
+ *  @f$ h^{\rm o} = 0 @f$ and @f$ s^{\rm o} = 0 @f$, and all excess
+ *  thermodynamics are absorbed into the standard state of the tabulated
+ *  species.  Standard state thermo variables for species in any other phases
+ *  are calculated according to the rules specified in that phase definition.
+ *  The standard state thermo variables are calculated according to the
+ *  reaction energy terms:
  *
  *  @f[
  *  \Delta h_{\rm rxn} = \sum_k \nu_k h^{\rm o}_k
@@ -63,11 +67,6 @@ namespace Cantera
  *  @f[
  *  \Delta s_{\rm rxn} = \sum_k \nu_k s^{\rm o}_k + RT\ln\left(\prod_k\left(\frac{c_k}{c^{\rm o}_k} \right)^{\nu_k}\right)
  *  @f]
- *
- *  Where the 'reference' species is automatically assigned standard state
- *  thermo variables @f$ h^{\rm o} = 0 @f$ and @f$ s^{\rm o} = 0 @f$, and standard
- *  state thermo variables for species in any other phases are calculated
- *  according to the rules specified in that phase definition.
  *
  *  The present model is intended for modeling non-ideal, tabulated
  *  thermodynamics for binary solutions where the tabulated species is
@@ -94,6 +93,10 @@ namespace Cantera
  *  temperature of @f$ T^{\rm o} @f$.  The arrays @f$ h_{\rm tab} @f$ and
  *  @f$ s_{\rm tab} @f$ must be the same length as the @f$ x_{\rm tab} @f$ array.
  *
+ *  Note that @f$ s_{\rm tab} @f$ is the *non-configurational* (excess) entropy
+ *  derived from electrochemical measurements. It is a experimentally determined
+ *  function of composition and does not include any logarithmic mixing terms.
+ *
  *  From these tabulated inputs, the standard state thermodynamic properties
  *  for the tabulated species (subscript @f$ k @f$, tab) are calculated as:
  *
@@ -103,6 +106,23 @@ namespace Cantera
  *  @f[
  *   s^{\rm o}_{k,\,{\rm tab}} =  s_{\rm tab} + R\ln\frac{x_{k,\,{\rm tab}}}{1-x_{k,\,{\rm tab}}} + \frac{R}{F} \ln\left(\frac{c^{\rm o}_{k,\,{\rm ref}}}{c^{\rm o}_{k,\,{\rm tab}}}\right)
  *  @f]
+ *
+ *  The mole fraction-dependent term in @f$ s^{\rm o} @f$ encodes the vacancy-reference
+ *  activity convention: it ensures that the electrode reaction driving force
+ *  @f$ \Delta g_{\rm rxn} = \mu_{\rm tab} - \mu_{\rm ref} = h_{\rm tab} - T s_{\rm tab} @f$
+ *  is independent of the vacancy (reference species) mole fraction.  Because
+ *  this term makes @f$ s^{\rm o}_{k,\,{\rm tab}} @f$ composition-dependent, the
+ *  standard-state entropy of the tabulated species diverges at both composition
+ *  limits (@f$ x_{\rm tab} \to 0 @f$ and @f$ x_{\rm tab} \to 1 @f$), and the
+ *  mixture entropy returned by entropy_mole() diverges as @f$ x_{\rm tab} \to 1
+ *  @f$ (equivalently, @f$ x_{\rm ref} \to 0 @f$). These behaviors are
+ *  expected consequences of the activity convention and do not affect the
+ *  accuracy of electrode reaction thermodynamics, which is the primary
+ *  intended use of this class.
+ *
+ *  The correction term @f$ (R/F)\ln(c^{\rm o}_{k,\,{\rm ref}} / c^{\rm o}_{k,\,{\rm tab}}) @f$
+ *  accounts for differing standard concentration choices between the tabulated phase
+ *  and the counter electrode phase.
  *
  *  Now, whenever the composition has changed, the lookup/interpolation of the
  *  tabulated thermo data is performed to update the standard state
