@@ -333,6 +333,8 @@ int main(int argc, char** argv)
     testing::InitGoogleTest(&argc, argv);
     Cantera::make_deprecation_warnings_fatal();
     Cantera::CanteraError::setStackTraceDepth(20);
+    Cantera::addDataDirectory("test/data");
+    Cantera::addDataDirectory("data");
     printStackTraceOnSegfault();
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();

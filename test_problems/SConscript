@@ -51,6 +51,13 @@ class Test(object):
         PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
         test_results.tests[self.testName] = self
+        # Add build directory RPATH for test binaries
+        if env["OS"] == "Darwin":
+            localenv.Append(
+                LINKFLAGS=env.subst(
+                f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+        elif env["use_rpath_linkage"]:
+            localenv.Append(RPATH=localenv.Dir('#build/lib'))
 
         if source_files:
             self.program = localenv.Program(

@@ -95,6 +95,14 @@ def addTestProgram(subdir, progName, env_vars={}):
         testenv.Append(CPPDEFINES=["CT_SKIP_SLOW"])
     if env["python_package"] == "n":
         testenv.Append(CPPDEFINES=["CT_NO_PYTHON"])
+    # Add build directory RPATH for test binaries
+    if env["OS"] == "Darwin":
+        testenv.Append(
+            LINKFLAGS=env.subst(
+                f"${{RPATHPREFIX}}{testenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+    elif env["use_rpath_linkage"]:
+        testenv.Append(RPATH=testenv.Dir('#build/lib'))
+
     program = testenv.Program(pjoin(subdir, progName),
                               multi_glob(testenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
