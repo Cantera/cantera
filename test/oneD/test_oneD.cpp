@@ -130,6 +130,8 @@ int main(int argc, char** argv)
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
     printStackTraceOnSegfault();
+    Cantera::addDataDirectory("test/data");
+    Cantera::addDataDirectory("data");
     CanteraError::setStackTraceDepth(20);
     int result = RUN_ALL_TESTS();
     appdelete();

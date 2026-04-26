@@ -240,6 +240,8 @@ int main(int argc, char** argv)
     make_deprecation_warnings_fatal();
     printStackTraceOnSegfault();
     Cantera::CanteraError::setStackTraceDepth(20);
+    Cantera::addDataDirectory("test/data");
+    Cantera::addDataDirectory("data");
     vector<string> fileNames = {"gtest-freeflame.yaml", "gtest-freeflame.h5"};
     for (const auto& fileName : fileNames) {
         if (std::ifstream(fileName).good()) {
