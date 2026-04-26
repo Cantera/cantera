@@ -191,7 +191,6 @@ debye-huckel-dilute-IAPWS:
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
     known-failures:
       cv_eq_.+: cv not implemented
-      cp_eq_.+: "cp with variable A_Debye is incorrect. See GitHub Issue #1500"
   states: *debye-huckel-states
 
 debye-huckel-B-dot-ak:
@@ -208,7 +207,6 @@ debye-huckel-B-dot-ak-IAPWS:
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
     known-failures: &debye-huckel-IAPWS-failures
       cv_eq_.+: cv not implemented
-      cp_eq_.+: "cp with variable A_debye is incorrect. See GitHub Issue #1500"
   states: *debye-huckel-states
 
 debye-huckel-B-dot-a:
