@@ -258,6 +258,16 @@ if "pyodide-wheel" in COMMAND_LINE_TARGETS:
     logger.info(message, print_level=False)
     sys.exit(0)
 
+
+def add_rpath_link_flags(env, paths):
+    """Add ELF linker search paths for indirect shared library dependencies."""
+    if env["OS"] != "Linux" or not env["use_rpath_linkage"]:
+        return
+    if isinstance(paths, str):
+        paths = [paths]
+    env.AppendUnique(LINKFLAGS=[f"-Wl,-rpath-link,{p}" for p in paths if p])
+
+
 # ******************************************
 # *** Specify defaults for SCons options ***
 # ******************************************
@@ -1107,6 +1117,7 @@ env.Append(LIBPATH=env['extra_lib_dirs'])
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['extra_lib_dirs'])
+    add_rpath_link_flags(env, env['extra_lib_dirs'])
 
 if env['CC'] == 'cl':
     # embed manifest file
@@ -1127,6 +1138,7 @@ if env['blas_lapack_dir']:
     env.Append(LIBPATH=[env['blas_lapack_dir']])
     if env['use_rpath_linkage']:
         env.Append(RPATH=env['blas_lapack_dir'])
+        add_rpath_link_flags(env, env['blas_lapack_dir'])
 
 if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
@@ -1139,6 +1151,7 @@ if env['system_sundials'] in ('y','default'):
         env['system_sundials'] = 'y'
         if env['use_rpath_linkage']:
             env.Append(RPATH=env['sundials_libdir'])
+            add_rpath_link_flags(env, env['sundials_libdir'])
 
 # BLAS / LAPACK configuration
 if env['blas_lapack_libs'] != '':
@@ -1502,6 +1515,7 @@ if env["hdf_libdir"] and env["hdf_support"] in ("y", "default"):
     env["hdf_support"] = "y"
     if env["use_rpath_linkage"]:
         env.Append(RPATH=env["hdf_libdir"])
+        add_rpath_link_flags(env, env["hdf_libdir"])
 
 if env["hdf_support"] == "n":
     env["use_hdf5"] = False
@@ -1823,6 +1837,7 @@ for loc in locations:
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['ct_libdir'])
+    add_rpath_link_flags(env, env['ct_libdir'])
 
 # **************************************
 # *** Set options needed in config.h ***

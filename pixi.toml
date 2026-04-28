@@ -31,6 +31,9 @@ pytest = ">=9.0.2,<10"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 jinja2 = ">=3.1.6,<4"
 
+[feature.core.target.linux-64.dependencies]
+clangxx = ">=18.0"
+
 [feature.samples.dependencies]
 pandas = ">=3.0.0,<4"
 scipy = ">=1.17.0,<2"
