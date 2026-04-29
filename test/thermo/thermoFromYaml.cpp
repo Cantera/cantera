@@ -67,6 +67,36 @@ TEST(ThermoFromYaml, cloneRemoteCustomElements)
     EXPECT_DOUBLE_EQ(duplicate->cp_mass(), original->thermo()->cp_mass());
 }
 
+TEST(ThermoFromYaml, customElementDefinitions)
+{
+    auto thermo = std::dynamic_pointer_cast<Phase>(newThermo("ideal-gas.yaml",
+        "custom-elements"));
+    EXPECT_EQ(thermo->nElements(), (size_t) 2);
+
+    // Element X is not in the standard element list, has atomic-weight and entropy298
+    auto definitions = thermo->elementDefinitions();
+    ASSERT_EQ(definitions.size(), (size_t) 2);
+
+    // Find element X definition
+    bool foundX = false;
+    bool foundQ = false;
+    for (const auto& def : definitions) {
+        if (def["symbol"] == "X") {
+            foundX = true;
+            EXPECT_DOUBLE_EQ(def["atomic-weight"].asDouble(), 10.0);
+            // entropy298 should be present since X is not in standard entropies
+            EXPECT_TRUE(def.hasKey("entropy298"));
+        } else if (def["symbol"] == "Q") {
+            foundQ = true;
+            EXPECT_DOUBLE_EQ(def["atomic-weight"].asDouble(), 15.0);
+            // atomic-number should NOT be present since it was set to 0
+            EXPECT_FALSE(def.hasKey("atomic-number"));
+        }
+    }
+    EXPECT_TRUE(foundX);
+    EXPECT_TRUE(foundQ);
+}
+
 TEST(ThermoFromYaml, speciesFromDifferentFile)
 {
     IdealGasPhase thermo("ideal-gas.yaml", "species-remote");
