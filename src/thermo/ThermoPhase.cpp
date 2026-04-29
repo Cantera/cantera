@@ -15,6 +15,7 @@
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/base/global.h"
 
 #include <iomanip>
 #include <fstream>
@@ -61,6 +62,21 @@ struct PhaseEquilGuard
 private:
     ThermoPhase& m_phase;
 };
+
+void checkTemperatureLimits(const string& method, const ThermoPhase& phase)
+{
+    if (phase.temperature() > phase.maxTemp() + 1.0
+        || phase.temperature() < phase.minTemp() - 1.0) {
+        if (phase.temperatureLimitsEnforced()) {
+            throw CanteraError(method,
+                "Temperature ({} K) outside valid range of {} K to {} K",
+                phase.temperature(), phase.minTemp(), phase.maxTemp());
+        }
+        warn_user(method,
+            "Temperature ({} K) outside valid range of {} K to {} K",
+            phase.temperature(), phase.minTemp(), phase.maxTemp());
+    }
+}
 
 } // namespace
 
@@ -344,8 +360,13 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
         }
         setPressure(p);
     }
-    double Tmax = maxTemp() + 0.1;
-    double Tmin = minTemp() - 0.1;
+    double Tmax = temperatureLimitsEnforced() ? maxTemp() + 0.1 :
+        std::max(maxTemp() + 1000.0, 10.0 * maxTemp());
+    double Tmin = temperatureLimitsEnforced() ? minTemp() - 0.1
+                                              : clip(minTemp(), SmallNumber, 100.0);
+    if (Tmax <= Tmin) {
+        Tmax = Tmin + 20.0;
+    }
 
     // Make sure we are within the temperature bounds at the start
     // of the iteration
@@ -412,7 +433,15 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
                     Ttop = Tmax;
                     Htop = Hmax;
                 }
+                Tnew = Tmax;
+                dt = Tnew - Told;
             } else {
+                if (temperatureLimitsEnforced()) {
+                    throw CanteraError("ThermoPhase::setState_HPorUV",
+                        "Target {} = {} cannot be reached within the temperature "
+                        "bounds of {} K to {} K.",
+                        doUV ? "internal energy" : "enthalpy", Htarget, Tmin, Tmax);
+                }
                 Tnew = Tmax + 1.0;
                 ignoreBounds = true;
             }
@@ -425,7 +454,15 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
                     Tbot = Tmin;
                     Hbot = Hmin;
                 }
+                Tnew = Tmin;
+                dt = Tnew - Told;
             } else {
+                if (temperatureLimitsEnforced()) {
+                    throw CanteraError("ThermoPhase::setState_HPorUV",
+                        "Target {} = {} cannot be reached within the temperature "
+                        "bounds of {} K to {} K.",
+                        doUV ? "internal energy" : "enthalpy", Htarget, Tmin, Tmax);
+                }
                 Tnew = Tmin - 1.0;
                 ignoreBounds = true;
             }
@@ -461,6 +498,9 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
         }
 
         if (Hnew == Htarget) {
+            checkTemperatureLimits(
+                doUV ? "ThermoPhase::setState_UV" : "ThermoPhase::setState_HP",
+                *this);
             return;
         } else if (Hnew > Htarget && (Htop < Htarget || Hnew < Htop)) {
             Htop = Hnew;
@@ -475,6 +515,9 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
         double denom = std::max(fabs(Htarget), acpd * Tnew);
         double HConvErr = fabs((Herr)/denom);
         if (HConvErr < rtol || fabs(dt/Tnew) < rtol) {
+            checkTemperatureLimits(
+                doUV ? "ThermoPhase::setState_UV" : "ThermoPhase::setState_HP",
+                *this);
             return;
         }
     }
@@ -558,8 +601,13 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
         }
         setPressure(p);
     }
-    double Tmax = maxTemp() + 0.1;
-    double Tmin = minTemp() - 0.1;
+    double Tmax = temperatureLimitsEnforced() ? maxTemp() + 0.1 :
+        std::max(maxTemp() + 1000.0, 10.0 * maxTemp());
+    double Tmin = temperatureLimitsEnforced() ? minTemp() - 0.1
+                                              : clip(minTemp(), SmallNumber, 100.0);
+    if (Tmax <= Tmin) {
+        Tmax = Tmin + 20.0;
+    }
 
     // Make sure we are within the temperature bounds at the start
     // of the iteration
@@ -621,7 +669,14 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
                     Ttop = Tmax;
                     Stop = Smax;
                 }
+                Tnew = Tmax;
+                dt = Tnew - Told;
             } else {
+                if (temperatureLimitsEnforced()) {
+                    throw CanteraError("ThermoPhase::setState_SPorSV",
+                        "Target entropy = {} cannot be reached within the temperature "
+                        "bounds of {} K to {} K.", Starget, Tmin, Tmax);
+                }
                 Tnew = Tmax + 1.0;
                 ignoreBounds = true;
             }
@@ -633,7 +688,14 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
                     Tbot = Tmin;
                     Sbot = Smin;
                 }
+                Tnew = Tmin;
+                dt = Tnew - Told;
             } else {
+                if (temperatureLimitsEnforced()) {
+                    throw CanteraError("ThermoPhase::setState_SPorSV",
+                        "Target entropy = {} cannot be reached within the temperature "
+                        "bounds of {} K to {} K.", Starget, Tmin, Tmax);
+                }
                 Tnew = Tmin - 1.0;
                 ignoreBounds = true;
             }
@@ -660,6 +722,9 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
         }
 
         if (Snew == Starget) {
+            checkTemperatureLimits(
+                doSV ? "ThermoPhase::setState_SV" : "ThermoPhase::setState_SP",
+                *this);
             return;
         } else if (Snew > Starget && (Stop < Starget || Snew < Stop)) {
             Stop = Snew;
@@ -674,6 +739,9 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
         double denom = std::max(fabs(Starget), acpd * Tnew);
         double SConvErr = fabs((Serr * Tnew)/denom);
         if (SConvErr < rtol || fabs(dt/Tnew) < rtol) {
+            checkTemperatureLimits(
+                doSV ? "ThermoPhase::setState_SV" : "ThermoPhase::setState_SP",
+                *this);
             return;
         }
     }

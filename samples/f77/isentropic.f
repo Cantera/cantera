@@ -31,8 +31,10 @@ c     stagnation state properties
       dmdot = 1.0d0
       amin = 1.0d14
 
+      pmin = 0.01d0*p0
+      pmax = 0.99d0*p0
       do n = 1, NPTS
-         p = p0*n/(NPTS+1)
+         p = pmin + (pmax - pmin)*(n - 1)/(NPTS - 1)
          call setState_SP(s0,p)
          h = enthalpy_mass()
          rho = density()
