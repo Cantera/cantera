@@ -1140,7 +1140,13 @@ class TestThermo:
 
         self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
         s1, v1 = self.gas.SV
-        self.gas.SV = s1, 3 * v1
+        self.gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="temperature bounds"):
+            self.gas.SV = s1, 3 * v1
+
+        self.gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            self.gas.SV = s1, 3 * v1
 
         assert self.gas.s == approx(s1)
         assert self.gas.v == approx(3 * v1)
@@ -1148,7 +1154,13 @@ class TestThermo:
 
     def test_setSV_low_invalid(self):
         self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
-        self.gas.SV = 4600, None
+        self.gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="temperature bounds"):
+            self.gas.SV = 4600, None
+
+        self.gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            self.gas.SV = 4600, None
         with pytest.raises(ct.CanteraError):
             self.gas.SV = -1000, None
 
@@ -1160,7 +1172,13 @@ class TestThermo:
 
         self.gas.TPX = 2900, 1e5, 'H2:1.0, O2:0.4, AR:3'
         s1, v1 = self.gas.SV
-        self.gas.SV = s1, 0.3 * v1
+        self.gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="temperature bounds"):
+            self.gas.SV = s1, 0.3 * v1
+
+        self.gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            self.gas.SV = s1, 0.3 * v1
 
         assert self.gas.s == approx(s1)
         assert self.gas.v == approx(0.3 * v1)
@@ -1175,7 +1193,13 @@ class TestThermo:
         self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
         deltaH = 1.25e5
         h1, p1 = self.gas.HP
-        self.gas.HP = h1 - deltaH, None
+        self.gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="temperature bounds"):
+            self.gas.HP = h1 - deltaH, None
+
+        self.gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            self.gas.HP = h1 - deltaH, None
 
         assert self.gas.h == approx(h1 - deltaH)
         assert self.gas.P == approx(p1)
@@ -1200,7 +1224,13 @@ class TestThermo:
         self.gas.TPX = 2800, 1e5, 'H2:1.0, O2:0.4, AR:3'
         deltaH = 8.25e5
         h1, p1 = self.gas.HP
-        self.gas.HP = h1 + deltaH, None
+        self.gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="temperature bounds"):
+            self.gas.HP = h1 + deltaH, None
+
+        self.gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            self.gas.HP = h1 + deltaH, None
 
         assert self.gas.h == approx(h1 + deltaH)
         assert self.gas.P == approx(p1)

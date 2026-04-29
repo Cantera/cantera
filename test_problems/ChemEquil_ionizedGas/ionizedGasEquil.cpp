@@ -3,15 +3,36 @@
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/global.h"
+#include "cantera/base/logger.h"
 
 #include <iostream>
 
 using namespace std;
 using namespace Cantera;
 
+namespace
+{
+
+class TestLogger : public Logger
+{
+public:
+    void warn(const string& warning, const string& msg) override {
+        if (warning == "Cantera"
+            && msg.find("ThermoPhase::setState_UV: Temperature") == 0
+            && msg.find("outside valid range") != string::npos) {
+            return;
+        }
+        Logger::warn(warning, msg);
+    }
+};
+
+}
+
 int main(int argc, char** argv)
 {
     try {
+        setLogger(make_unique<TestLogger>());
         auto sol = newSolution("air_below6000K.yaml");
         auto gas = sol->thermo();
 

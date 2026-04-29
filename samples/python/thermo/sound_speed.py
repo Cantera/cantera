@@ -56,7 +56,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-8, max_iter=5000):
 # Calculate sound speed at a range of temperatures
 gas = ct.Solution('gri30_highT.yaml')
 gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-T_range = np.arange(300, 5901, 200)
+T_range = np.arange(300, 5001, 200)
 data = []
 print('   T     Equilibrium  Frozen manual  Frozen built-in')
 print('  [K]       [m/s]         [m/s]           [m/s]')
