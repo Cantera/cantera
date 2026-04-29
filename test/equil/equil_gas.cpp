@@ -273,6 +273,28 @@ public:
         check();
     }
 
+    void check_HP_relaxed_temperature_limit() {
+        gas.setState_TPX(299.999, 100002.0,
+            "C2H4:0.19274682199314855, N2:0.32751737685952764, "
+            "O2:0.47973580114732384");
+        double h0 = gas.enthalpy_mass();
+        save_elemental_mole_fractions();
+
+        EXPECT_FALSE(gas.temperatureLimitsEnforced());
+        gas.setTemperatureLimitsEnforced(true);
+        EXPECT_THROW(gas.equilibrate("HP", "element_potential"), CanteraError);
+
+        gas.setState_TPX(299.999, 100002.0,
+            "C2H4:0.19274682199314855, N2:0.32751737685952764, "
+            "O2:0.47973580114732384");
+        gas.setTemperatureLimitsEnforced(false);
+        gas.equilibrate("HP", "element_potential");
+        EXPECT_GT(gas.temperature(), gas.maxTemp());
+        EXPECT_NEAR(h0, gas.enthalpy_mass(), 1e-3);
+        EXPECT_NEAR(100002.0, gas.pressure(), 1e-3);
+        check();
+    }
+
     void check_SP(const string& solver) {
         gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
         double s0 = gas.entropy_mass();
@@ -322,6 +344,9 @@ TEST_F(PropertyPairs, ChemEquil_TP) { check_TP("element_potential"); }
 TEST_F(PropertyPairs, MultiPhase_TP) { check_TP("gibbs"); }
 TEST_F(PropertyPairs, VcsNonideal_TP) { check_TP("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_HP) { check_HP("element_potential"); }
+TEST_F(PropertyPairs, ChemEquil_HP_relaxedTemperatureLimit) {
+    check_HP_relaxed_temperature_limit();
+}
 TEST_F(PropertyPairs, MultiPhase_HP) { check_HP("gibbs"); }
 TEST_F(PropertyPairs, VcsNonideal_HP) { check_HP("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_SP) { check_SP("element_potential"); }

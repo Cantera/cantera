@@ -1777,6 +1777,22 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.maxTemp()
 
+    property enforce_temperature_limits:
+        """
+        Get/set whether temperature limits are enforced in iterative solvers.
+
+        When this option is disabled, property-pair setters and equilibrium
+        solvers may extrapolate beyond the nominal valid temperature range of
+        the thermodynamic data. Methods that converge outside this range should
+        issue a warning.
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return self.thermo.temperatureLimitsEnforced()
+        def __set__(self, enable):
+            self.thermo.setTemperatureLimitsEnforced(enable)
+
     property reference_pressure:
         """Reference state pressure [Pa]."""
         def __get__(self):

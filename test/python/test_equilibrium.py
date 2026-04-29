@@ -84,6 +84,31 @@ class TestChemEquil(EquilTestCases):
 
     solver = 'element_potential'
 
+    def test_relaxed_temperature_limit(self):
+        gas = ct.Solution('gri30.yaml', transport_model=None)
+        gas.TPX = 299.999, 100002.0, {
+            'C2H4': 0.19274682199314855,
+            'N2': 0.32751737685952764,
+            'O2': 0.47973580114732384,
+        }
+        h0 = gas.enthalpy_mass
+
+        assert not gas.enforce_temperature_limits
+        gas.enforce_temperature_limits = True
+        with pytest.raises(ct.CanteraError, match="no convergence"):
+            gas.equilibrate('HP', solver='element_potential')
+
+        gas.TPX = 299.999, 100002.0, {
+            'C2H4': 0.19274682199314855,
+            'N2': 0.32751737685952764,
+            'O2': 0.47973580114732384,
+        }
+        gas.enforce_temperature_limits = False
+        with pytest.warns(UserWarning, match="outside valid range"):
+            gas.equilibrate('HP', solver='element_potential')
+        assert gas.T > gas.max_temp
+        assert gas.enthalpy_mass == approx(h0, abs=1e-3)
+
 
 class TestMultiphaseEquil(EquilTestCases):
     """

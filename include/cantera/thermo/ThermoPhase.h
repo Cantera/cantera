@@ -511,6 +511,24 @@ public:
         return m_spthermo.maxTemp(k);
     }
 
+    //! Returns `true` if temperature limits are enforced for this phase.
+    //!
+    //! When enabled, property-pair solvers and equilibrium solvers keep temperature
+    //! iterates within the range where thermodynamic fits are valid. When disabled,
+    //! these methods may extrapolate beyond that temperature range, while retaining
+    //! broad numerical bounds to avoid nonphysical temperatures. Methods that converge
+    //! outside the valid range should issue a warning.
+    //! @since New in %Cantera 4.0.
+    bool temperatureLimitsEnforced() const {
+        return m_enforceTemperatureLimits;
+    }
+
+    //! Set whether temperature limits are enforced for this phase.
+    //! @since New in %Cantera 4.0.
+    void setTemperatureLimitsEnforced(bool enforce) {
+        m_enforceTemperatureLimits = enforce;
+    }
+
     //! Returns the chargeNeutralityNecessity boolean
     /*!
      * Some phases must have zero net charge in order for their thermodynamics
@@ -2150,6 +2168,9 @@ protected:
 
     //! Contains the standard state convention
     int m_ssConvention = cSS_CONVENTION_TEMPERATURE;
+
+    //! Whether to enforce temperature limits in iterative solvers.
+    bool m_enforceTemperatureLimits = false;
 
     //! last value of the temperature processed by reference state
     mutable double m_tlast = 0.0;

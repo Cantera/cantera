@@ -51,6 +51,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         vector[string] partialStates()
         double minTemp() except +translate_exception
         double maxTemp() except +translate_exception
+        cbool temperatureLimitsEnforced()
+        void setTemperatureLimitsEnforced(cbool)
         double refPressure() except +translate_exception
         void equilibrate(string, string, double, int, int, int, int) except +translate_exception
         size_t stateSize()
