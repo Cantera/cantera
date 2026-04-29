@@ -356,9 +356,9 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
         throw CanteraError("ChemEquil::equilibrate",
                            "illegal property pair '{}'", XYstr);
     }
-    // If the temperature is one of the specified variables, and
-    // it is outside the valid range, throw an exception.
-    if (tempFixed) {
+    // If the temperature is one of the specified variables, and it is outside
+    // the valid range, throw an exception if strict limits are requested.
+    if (tempFixed && options.enforceTemperatureLimits) {
         double tfixed = s.temperature();
         if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
             throw CanteraError("ChemEquil::equilibrate", "Specified temperature"
@@ -410,15 +410,23 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 
     double tmaxPhase = s.maxTemp();
     double tminPhase = s.minTemp();
+    double tminSolver = options.enforceTemperatureLimits ? tminPhase :
+        clip(SmallNumber, 0.5 * tminPhase, 100.0);
+    double tmaxSolver = options.enforceTemperatureLimits ? tmaxPhase :
+        std::max(tmaxPhase + 1000.0, 10.0 * tmaxPhase);
+    if (tmaxSolver <= tminSolver) {
+        tmaxSolver = tminSolver + 20.0;
+    }
+
     // loop to estimate T
     if (!tempFixed) {
-        double tmin = std::max(s.temperature(), tminPhase);
-        if (tmin > tmaxPhase) {
-            tmin = tmaxPhase - 20;
+        double tmin = std::max(s.temperature(), tminSolver);
+        if (tmin > tmaxSolver) {
+            tmin = tmaxSolver - 20;
         }
-        double tmax = std::min(tmin + 10., tmaxPhase);
-        if (tmax < tminPhase) {
-            tmax = tminPhase + 20;
+        double tmax = std::min(tmin + 10., tmaxSolver);
+        if (tmax < tminSolver) {
+            tmax = tminSolver + 20;
         }
 
         double slope, phigh, plow, pval, dt;
@@ -467,15 +475,15 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
                 break;
             }
             dt = clip(dt, -200.0, 200.0);
-            if ((t0 + dt) < tminPhase) {
-                dt = 0.5*((t0) + tminPhase) - t0;
+            if ((t0 + dt) < tminSolver) {
+                dt = 0.5*((t0) + tminSolver) - t0;
             }
-            if ((t0 + dt) > tmaxPhase) {
-                dt = 0.5*((t0) + tmaxPhase) - t0;
+            if ((t0 + dt) > tmaxSolver) {
+                dt = 0.5*((t0) + tmaxSolver) - t0;
             }
             // update the T estimate
             t0 += dt;
-            if (t0 <= tminPhase || t0 >= tmaxPhase || t0 < 100.0) {
+            if (t0 <= tminSolver || t0 >= tmaxSolver) {
                 throw CanteraError("ChemEquil::equilibrate", "T out of bounds");
             }
             s.setTemperature(t0);
@@ -518,10 +526,16 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
         }
     }
 
-    // Set the temperature bounds to be 25 degrees different than the max and
-    // min temperatures.
-    above[mm] = log(s.maxTemp() + 25.0);
-    below[mm] = log(s.minTemp() - 25.0);
+    // Set temperature bounds. By default, these are broad numerical guardrails
+    // rather than the nominal validity limits of the thermodynamic fits. The
+    // log(T) step is separately damped below to avoid large extrapolation steps.
+    if (options.enforceTemperatureLimits) {
+        above[mm] = log(tmaxPhase + 25.0);
+        below[mm] = log(std::max(1.0, tminPhase - 25.0));
+    } else {
+        above[mm] = log(tmaxSolver);
+        below[mm] = log(tminSolver);
+    }
 
     vector<double> grad(nvar, 0.0); // gradient of f = F*F/2
     vector<double> oldx(nvar, 0.0); // old solution

@@ -1262,6 +1262,7 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
             ChemEquil E;
             E.options.maxIterations = max_steps;
             E.options.relTolerance = rtol;
+            E.options.enforceTemperatureLimits = temperatureLimitsEnforced();
             int ret = E.equilibrate(*this, XY.c_str(), log_level-1);
             if (ret < 0) {
                 throw CanteraError("ThermoPhase::equilibrate",

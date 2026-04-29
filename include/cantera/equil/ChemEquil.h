@@ -38,6 +38,16 @@ public:
     double maxStepSize = 10.0;
 
     /**
+     * Enforce temperature validity limits during equilibrium solver iterations.
+     *
+     * When false, the solver is allowed to extrapolate beyond the nominal
+     * temperature range of the thermodynamic fits, and a warning is issued if
+     * the converged state is outside that range. Broad numerical bounds are
+     * still applied to avoid nonphysical temperatures during iterations.
+     */
+    bool enforceTemperatureLimits = false;
+
+    /**
      * Property pair flag. Determines which two thermodynamic properties
      * are fixed.
      */
