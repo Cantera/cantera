@@ -81,6 +81,47 @@ phases:
   reactions: [test_subdir/species-elements.yaml/nox-reactions]
   state: {T: 300.0, P: 1 atm, X: {N2: 1.0}}
 
+- name: custom-elements
+  thermo: ideal-gas
+  elements:
+  - custom-elements: [X, Q]
+  species:
+  - custom-elements-species: [X, Q]
+  state: {T: 300.0, P: 1 atm, X: {X: 0.5, Q: 0.5}}
+
+# Custom element definitions (not in the standard list)
+custom-elements:
+- symbol: X
+  atomic-weight: 10.0
+  entropy298: 50000.0
+- symbol: Q
+  atomic-weight: 15.0
+  atomic-number: 0
+
+# Custom species definitions
+custom-elements-species:
+- name: X
+  composition: {X: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 5000.00]
+    data:
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+
+- name: Q
+  composition: {Q: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 5000.00]
+    data:
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+
 elements:
 - symbol: Ar
   atomic-weight: 36
