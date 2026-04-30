@@ -95,7 +95,7 @@ class TestChemEquil(EquilTestCases):
 
         assert not gas.enforce_temperature_limits
         gas.enforce_temperature_limits = True
-        with pytest.raises(ct.CanteraError, match="no convergence"):
+        with pytest.raises(ct.CanteraError, match="enthalpy.*temperature bounds"):
             gas.equilibrate('HP', solver='element_potential')
 
         gas.TPX = 299.999, 100002.0, {
