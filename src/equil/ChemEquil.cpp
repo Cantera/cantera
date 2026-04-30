@@ -40,6 +40,47 @@ int _equilflag(const char* xy)
     return -1;
 }
 
+namespace
+{
+
+const char* targetPropertyName(int XY)
+{
+    switch (XY) {
+    case HP:
+    case PH:
+        return "enthalpy";
+    case SP:
+    case PS:
+    case SV:
+    case VS:
+        return "entropy";
+    case UV:
+    case VU:
+        return "internal energy";
+    default:
+        return "specified property";
+    }
+}
+
+[[noreturn]] void throwTemperatureBoundError(const string& XYstr, int XY,
+                                             double target, double current,
+                                             double currentT, double Tmin,
+                                             double Tmax, int boundDirection)
+{
+    string bound = boundDirection > 0 ? "upper" : "lower";
+    double Tbound = boundDirection > 0 ? Tmax : Tmin;
+    throw CanteraError("ChemEquil::equilibrate",
+        "Equilibration with the '{}' property pair failed because the solver "
+        "reached the {} temperature bound of {} K. The target {} is {}, but "
+        "the current value is {} at T = {} K. The enforced temperature bounds "
+        "are {} K to {} K. Disable temperature-limit enforcement to allow "
+        "extrapolation beyond this range.",
+        XYstr, bound, Tbound, targetPropertyName(XY), target, current,
+        currentT, Tmin, Tmax);
+}
+
+}
+
 ChemEquil::ChemEquil(ThermoPhase& s)
 {
     initialize(s);
@@ -417,6 +458,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     if (tmaxSolver <= tminSolver) {
         tmaxSolver = tminSolver + 20.0;
     }
+    int temperatureBoundDirection = 0;
 
     // loop to estimate T
     if (!tempFixed) {
@@ -484,7 +526,12 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
             // update the T estimate
             t0 += dt;
             if (t0 <= tminSolver || t0 >= tmaxSolver) {
-                throw CanteraError("ChemEquil::equilibrate", "T out of bounds");
+                int boundDirection = t0 >= tmaxSolver ? 1 : -1;
+                double current = m_p1(s);
+                double currentT = s.temperature();
+                s.restoreState(state);
+                throwTemperatureBoundError(XYstr, XY, xval, current, currentT,
+                                           tminPhase, tmaxPhase, boundDirection);
             }
             s.setTemperature(t0);
         }
@@ -530,8 +577,8 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     // rather than the nominal validity limits of the thermodynamic fits. The
     // log(T) step is separately damped below to avoid large extrapolation steps.
     if (options.enforceTemperatureLimits) {
-        above[mm] = log(tmaxPhase + 25.0);
-        below[mm] = log(std::max(1.0, tminPhase - 25.0));
+        above[mm] = log(tmaxPhase);
+        below[mm] = log(std::max(SmallNumber, tminPhase));
     } else {
         above[mm] = log(tmaxSolver);
         below[mm] = log(tminSolver);
@@ -638,6 +685,18 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
         // find the factor by which the Newton step can be multiplied
         // to keep the solution within bounds.
         double fctr = 1.0;
+        // Track whether the undamped Newton step wants to move the temperature past a
+        // strict bound. The subsequent damping loop may keep the actual step in bounds,
+        // so this records the limiting direction across iterations instead of relying
+        // only on the final damped state.
+        if (options.enforceTemperatureLimits && !tempFixed) {
+            double newTempVal = x[mm] + res_trial[mm];
+            if (newTempVal > above[mm]) {
+                temperatureBoundDirection = 1;
+            } else if (newTempVal < below[mm]) {
+                temperatureBoundDirection = -1;
+            }
+        }
         for (size_t m = 0; m < nvar; m++) {
             double newval = x[m] + res_trial[m];
             if (newval > above[m]) {
@@ -670,7 +729,25 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
                       x, f, elMolesGoal , xval, yval)) {
             fail++;
             if (fail > 3) {
+                int boundDirection = temperatureBoundDirection;
+                // If no recent proposed step crossed a temperature bound, the solver
+                // may still have been damped onto the bound earlier and then failed
+                // there. Check the current temperature unknown as a fallback before
+                // reporting a generic damping failure.
+                if (options.enforceTemperatureLimits && !tempFixed && boundDirection == 0) {
+                    if (x[mm] >= above[mm] - 1e-10) {
+                        boundDirection = 1;
+                    } else if (x[mm] <= below[mm] + 1e-10) {
+                        boundDirection = -1;
+                    }
+                }
+                double current = m_p1(s);
+                double currentT = s.temperature();
                 s.restoreState(state);
+                if (boundDirection != 0) {
+                    throwTemperatureBoundError(XYstr, XY, xval, current, currentT,
+                                               tminPhase, tmaxPhase, boundDirection);
+                }
                 throw CanteraError("ChemEquil::equilibrate",
                                    "Cannot find an acceptable Newton damping coefficient.");
             }
@@ -680,7 +757,25 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     }
 
     // no convergence
+    int boundDirection = temperatureBoundDirection;
+    // As with a damping failure, max-iteration failure can occur after the solver has
+    // been held at a temperature bound without the last step attempting to cross it.
+    // Inspect x[mm] so the final error still identifies the limiting bound when
+    // temperature enforcement is the likely cause.
+    if (options.enforceTemperatureLimits && !tempFixed && boundDirection == 0) {
+        if (x[mm] >= above[mm] - 1e-10) {
+            boundDirection = 1;
+        } else if (x[mm] <= below[mm] + 1e-10) {
+            boundDirection = -1;
+        }
+    }
+    double current = m_p1(s);
+    double currentT = s.temperature();
     s.restoreState(state);
+    if (boundDirection != 0) {
+        throwTemperatureBoundError(XYstr, XY, xval, current, currentT,
+                                   tminPhase, tmaxPhase, boundDirection);
+    }
     throw CanteraError("ChemEquil::equilibrate",
                        "no convergence in {} iterations.", options.maxIterations);
 }
