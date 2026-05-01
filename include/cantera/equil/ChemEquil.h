@@ -32,12 +32,6 @@ public:
     int iterations = 0; //!< Iteration counter
 
     /**
-     * Maximum step size. Largest change in any element potential or
-     * in log(T) allowed in one Newton step.
-     */
-    double maxStepSize = 10.0;
-
-    /**
      * Enforce temperature validity limits during equilibrium solver iterations.
      *
      * When false, the solver is allowed to extrapolate beyond the nominal
@@ -47,18 +41,6 @@ public:
      */
     bool enforceTemperatureLimits = false;
 
-    /**
-     * Property pair flag. Determines which two thermodynamic properties
-     * are fixed.
-     */
-    int propertyPair = TP;
-
-    /**
-     * Continuation flag. Set true if the calculation should be initialized from
-     * the last calculation. Otherwise, the calculation will be started from
-     * scratch and the initial composition and element potentials estimated.
-     */
-    bool contin = false;
 };
 
 /**
@@ -223,9 +205,7 @@ protected:
      * limited to a factor of 2 jump in the values from this method. Near
      * convergence, the delta damping gets out of the way.
      */
-    int dampStep(ThermoPhase& s, span<double> oldx, double oldf, span<double> grad,
-                 span<double> step, span<double> x, double& f, span<double> elmols,
-                 double xval, double yval);
+    void dampStep(span<double> oldx, span<double> step, span<double> x);
 
     /**
      *  Evaluates the residual vector F, of length #m_mm
@@ -276,22 +256,16 @@ protected:
     //! Current value of the element mole fractions. Note these aren't the goal
     //! element mole fractions.
     vector<double> m_elementmolefracs;
-    vector<double> m_reswork;
     vector<double> m_jwork1;
     vector<double> m_jwork2;
 
     //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
     vector<double> m_comp;
-    double m_temp, m_dens;
-    double m_p0 = OneAtm;
 
     //! Index of the element id corresponding to the electric charge of each
     //! species. Equal to -1 if there is no such element id.
     size_t m_eloc = npos;
 
-    vector<double> m_startSoln;
-
-    vector<double> m_grt;
     vector<double> m_mu_RT;
 
     //! Dimensionless values of the Gibbs free energy for the standard state of
@@ -302,7 +276,6 @@ protected:
 
     //! element fractional cutoff, below which the element will be zeroed.
     double m_elemFracCutoff = 1e-100;
-    bool m_doResPerturb = false;
 
     vector<size_t> m_orderVectorElements;
     vector<size_t> m_orderVectorSpecies;
