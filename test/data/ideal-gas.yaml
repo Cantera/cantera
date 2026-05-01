@@ -89,6 +89,25 @@ phases:
   - custom-elements-species: [X, Q]
   state: {T: 300.0, P: 1 atm, X: {X: 0.5, Q: 0.5}}
 
+# Two phases with conflicting element definitions for 'X'.
+# Used to test YamlWriter exception when serializing multiple
+# phases that define the same element symbol differently.
+- name: conflict-phase-A
+  thermo: ideal-gas
+  elements:
+  - custom-elements-a: [X]
+  species:
+  - custom-elements-species: [X]
+  state: {T: 300.0, P: 1 atm, X: {X: 1.0}}
+
+- name: conflict-phase-B
+  thermo: ideal-gas
+  elements:
+  - custom-elements-b: [X]
+  species:
+  - custom-elements-species: [X]
+  state: {T: 300.0, P: 1 atm, X: {X: 1.0}}
+
 # Custom element definitions (not in the standard list)
 custom-elements:
 - symbol: X
@@ -121,6 +140,15 @@ custom-elements-species:
        0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
     - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
        0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+
+# Conflicting element definitions for testing YamlWriter exception
+custom-elements-a:
+- symbol: X
+  atomic-weight: 10.0
+
+custom-elements-b:
+- symbol: X
+  atomic-weight: 20.0
 
 elements:
 - symbol: Ar
