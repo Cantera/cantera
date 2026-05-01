@@ -512,6 +512,25 @@ TEST(ThermoYamlWriter, preservesRemoteCustomElements)
         38.0);
 }
 
+TEST(ThermoYamlWriter, conflictingElementDefinitions)
+{
+    // Create two phases that define the same element symbol 'X' with different
+    // atomic weights. Serializing them together via YamlWriter should throw.
+    auto phaseA = newSolution("ideal-gas.yaml", "conflict-phase-A", "none");
+    auto phaseB = newSolution("ideal-gas.yaml", "conflict-phase-B", "none");
+
+    EXPECT_DOUBLE_EQ(phaseA->thermo()->atomicWeight(
+        phaseA->thermo()->elementIndex("X")), 10.0);
+    EXPECT_DOUBLE_EQ(phaseB->thermo()->atomicWeight(
+        phaseB->thermo()->elementIndex("X")), 20.0);
+
+    YamlWriter writer;
+    writer.addPhase(phaseA);
+    writer.addPhase(phaseB);
+
+    EXPECT_THROW(writer.toYamlString(), CanteraError);
+}
+
 TEST_F(ThermoYamlRoundTrip, HMWSoln)
 {
     roundtrip("thermo-models.yaml", "HMW-NaCl-electrolyte");
