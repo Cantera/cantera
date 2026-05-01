@@ -347,7 +347,7 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
 
     // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
-        double v = p;
+        v = p;
         if (v < 1.0E-300) {
             throw CanteraError("ThermoPhase::setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
