@@ -306,7 +306,7 @@ jobs:
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
+      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -319,7 +319,7 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
+      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -432,7 +432,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@cf6fe1b38ed5becc89ffe056c1f240825993be5b # v5.5.4
+        uses: danielpalme/ReportGenerator-GitHub-Action@a003c8fb9ac008fd0fffd5faa4f7d3ecb52e0675 # v5.5.7
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -1298,7 +1298,7 @@ jobs:
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@00a6560bdaa6b55c93fff755fb869911be1a9aab # v3.0.1
+      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1309,6 +1309,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@4be3345d41da8b1bf8cc5cb01a5e19c4611cb15d # v3.0.0
+      uses: matlab-actions/run-tests@ce92354620b6f08157933aa0b2d1e4ff1fe47a2b # v3.1.0
       with:
         select-by-folder: test/matlab
