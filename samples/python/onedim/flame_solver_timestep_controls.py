@@ -1,176 +1,183 @@
-# This file is part of Cantera. See License.txt in the top-level directory or
-# at https://cantera.org/license.txt for license and copyright information.
-
 """
 Timestep Controls for 1D Flame Solvers
 ======================================
 
-This example prints three compact comparisons for one-dimensional flame solvers:
+This example demonstrates four solver controls that affect pseudo-transient
+convergence in one-dimensional flame calculations:
 
-1. Named strategies for growing the timestep after a successful transient step.
-2. Regridding retries after timestepping is exhausted on a difficult problem.
-3. A harder 15 MPa case that is sensitive to both timestep budget and
-   timestep-growth strategy.
+1. ``time_step_growth_strategy``, which controls when the timestep grows after a
+   successful transient step.
+2. ``time_step_growth_factor``, which controls how much the timestep grows when
+   growth is triggered.
+3. ``time_step_regrid``, which controls how many times the solver may refine the
+   grid and retry after timestepping is exhausted.
+4. ``max_time_step_count``, which controls the number of transient steps allowed
+   before a timestep attempt gives up.
 
-The first table varies the timestep-growth strategy on a fixed-temperature free
-flame. The second varies the regrid retry count on a coarse high-pressure
-counterflow diffusion flame. The third shows a numerically difficult
-variant where both `max_time_step_count` and `time_step_growth_strategy`
-matter.
+The first comparison uses a burner-stabilized premixed flame. The following two
+comparisons use a high-pressure counterflow diffusion flame, where solver convergence
+can depend on both regridding and the transient-step budget.
 
-Requires: cantera >= 4.0; matplotlib is optional for plotting
+Requires: cantera >= 4.0; matplotlib >= 2.0
 
-.. tags:: Python, combustion, 1D flow, premixed flame, diffusion flame, strained flame,
-   plotting
+.. tags:: Python, combustion, 1D flow, premixed flame, diffusion flame,
+          strained flame, plotting
 """
 
 from __future__ import annotations
 
 import time
 
+import matplotlib.pyplot as plt
+plt.rcParams['figure.constrained_layout.use'] = True
 import numpy as np
 
 import cantera as ct
 
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    plt = None
 
-
-GROWTH_CASE = {
-    "Tin": 250.0,
-    "pressure": ct.one_atm,
-    "reactants": "H2:3, O2:1, AR:10",
-    "width": 20e-3,
-}
-GROWTH_FACTOR = 2.0
-GROWTH_STRATEGIES = (
-    "fixed-growth",
-    "steady-norm",
-    "transient-residual",
-    "residual-ratio",
-    "newton-iterations",
+# %%
+# Timestep Growth Strategies
+# --------------------------
+#
+# The one-dimensional solver falls back to pseudo-transient timestepping when the Newton
+# solver cannot converge directly to steady state. After a successful transient step,
+# Cantera can either grow the timestep by a fixed factor or apply one of several
+# heuristics that wait for evidence that the larger step is helpful.
+#
+# This first problem uses a premixed methane / air burner-stabilized flame. The physical
+# solution is the same for each case, so the differences in the table are from the
+# timestep-growth rule. We test several combinations of growth strategies and growth
+# factors.
+growth_strategies = (
+    ("fixed-growth", 1.5),  # default growth strategy and factor
+    ("fixed-growth", 2.0),
+    ("steady-norm", 2.0),
+    ("transient-residual", 2.0),
+    ("residual-ratio", 2.0),
+    ("newton-iterations", 2.0),
+    ("steady-norm", 6.0),
+    ("newton-iterations", 6.0),
 )
 
-REGRID_WIDTH = 30e-3
-REGRID_INITIAL_POINTS = 20
-REGRID_PRESSURE = 7e6
-REGRID_REFINE = (2.0, 0.06, 0.08, 0.02)
-REGRID_CASES = (
-    {
-        "label": "time_step_regrid = 0",
-        "plot_label": "0",
-        "regrid_max": 0,
-        "refine_criteria": REGRID_REFINE,
-    },
-    {
-        "label": "time_step_regrid = 1",
-        "plot_label": "1",
-        "regrid_max": 1,
-        "refine_criteria": REGRID_REFINE,
-    },
-    {
-        "label": "time_step_regrid = 3",
-        "plot_label": "3",
-        "regrid_max": 3,
-        "refine_criteria": REGRID_REFINE,
-    },
-)
+def make_growth_flame() -> ct.BurnerFlame:
+    gas = ct.Solution("gri30.yaml")
+    gas.set_equivalence_ratio(0.8, "CH4", {"O2": 1.0, "N2": 3.76})
+    gas.TP = 300.0, ct.one_atm
 
-DIFFICULT_PRESSURE = 15e6
-DIFFICULT_BUDGET_CASES = (
-    {
-        "label": "max_time_step_count = 200",
-        "plot_label": "200",
-        "max_time_step_count": 200,
-        "regrid_max": 3,
-        "growth_strategy": "fixed-growth",
-        "growth_factor": 1.5,
-    },
-    {
-        "label": "max_time_step_count = 1250",
-        "plot_label": "1250",
-        "max_time_step_count": 1250,
-        "regrid_max": 3,
-        "growth_strategy": "fixed-growth",
-        "growth_factor": 1.5,
-    },
-)
-
-DIFFICULT_STRATEGY_CASES = (
-    {
-        "label": "residual-ratio",
-        "plot_label": "ratio",
-        "max_time_step_count": 1250,
-        "regrid_max": 3,
-        "growth_strategy": "residual-ratio",
-        "growth_factor": 1.5,
-    },
-    {
-        "label": "newton-iterations",
-        "plot_label": "newton",
-        "max_time_step_count": 1250,
-        "regrid_max": 3,
-        "growth_strategy": "newton-iterations",
-        "growth_factor": 1.5,
-    },
-)
-
-
-def make_growth_flame() -> ct.FreeFlame:
-    gas = ct.Solution("h2o2.yaml")
-    gas.TPX = GROWTH_CASE["Tin"], GROWTH_CASE["pressure"], GROWTH_CASE["reactants"]
-
-    flame = ct.FreeFlame(gas, width=GROWTH_CASE["width"])
-    flame.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-14])
-    flame.flame.set_transient_tolerances(default=[1.0e-4, 1.0e-11])
-    flame.inlet.T = GROWTH_CASE["Tin"]
-    flame.inlet.X = GROWTH_CASE["reactants"]
+    flame = ct.BurnerFlame(gas, width=0.02)
+    flame.burner.mdot = 0.09
+    flame.set_refine_criteria(ratio=3.0, slope=0.25, curve=0.35, prune=0.05)
     return flame
 
 
-def run_growth_case(strategy: str) -> dict[str, object]:
+def run_growth_strategy(strategy: str, growth_factor: float) -> dict[str, object]:
     flame = make_growth_flame()
-    dts = []
-    flame.set_time_step_callback(lambda dt: dts.append(float(dt)) or 0)
-    flame.time_step_growth_factor = GROWTH_FACTOR
+    timesteps = []
+    flame.set_time_step_callback(
+        lambda dt: timesteps.append(float(dt)) or 0
+    )
+    flame.time_step_growth_factor = growth_factor
     flame.time_step_growth_strategy = strategy
-    flame.clear_stats()
 
-    flame.energy_enabled = False
-    t0 = time.perf_counter()
-    flame.solve(loglevel=0, refine_grid=False)
-    elapsed = time.perf_counter() - t0
+    tic = time.perf_counter()
+    print("** Running growth strategy:", strategy)
+    flame.solve(loglevel=1, refine_grid=True)
+    elapsed = time.perf_counter() - tic
 
     return {
-        "strategy": strategy,
-        "accepted_steps": len(dts),
-        "dt_sum": float(np.sum(dts)),
-        "dt_min": float(np.min(dts)),
-        "dt_max": float(np.max(dts)),
+        "strategy": f"{strategy} (growth factor = {growth_factor:.1f})",
+        "n_steps": len(timesteps),
+        "dt_sum": float(np.sum(timesteps)),
+        "dt_min": float(np.min(timesteps)),
+        "dt_max": float(np.max(timesteps)),
         "jacobians": int(sum(flame.jacobian_count_stats)),
-        "velocity": float(flame.velocity[0]),
+        "T_max": float(np.max(flame.T)),
         "wall_time": elapsed,
-        "dts": np.asarray(dts, dtype=float),
+        "dts": np.asarray(timesteps, dtype=float),
     }
 
 
-def make_regrid_flame(regrid_max: int,
-                      refine_criteria: tuple[float, float, float, float],
-                      growth_strategy: str = "fixed-growth",
-                      growth_factor: float = 1.5,
-                      pressure: float = REGRID_PRESSURE,
-                      max_time_step_count: int = 200
-                      ) -> ct.CounterflowDiffusionFlame:
+growth_results = [run_growth_strategy(strategy, growth_factor)
+                  for strategy, growth_factor in growth_strategies]
+
+# %%
+# The timestep history is collected with ``set_time_step_callback``.
+# The columns below report the number of timesteps, the total transient
+# time covered by those steps, the largest timestep, the number of
+# Jacobian evaluations, and the maximum temperature of the converged flame.
+
+growth_header = (
+    f"{'Strategy':<42} {'Steps':>8} {'sum(dt) [s]':>12} "
+    f"{'max(dt) [s]':>12} {'Jac':>5} {'T_max [K]':>12} {'Runtime [s]':>9}"
+)
+print(growth_header)
+print("-" * len(growth_header))
+for row in growth_results:
+    print(
+        f"{row['strategy']:<42} {row['n_steps']:>8d} "
+        f"{row['dt_sum']:>12.4e} {row['dt_max']:>12.4e} "
+        f"{row['jacobians']:>5d} {row['T_max']:>12.4f} {row['wall_time']:>9.2f}"
+    )
+
+# %%
+# In short, ``fixed-growth`` always applies ``time_step_growth_factor`` after a
+# successful step. ``steady-norm`` and ``transient-residual`` require the
+# corresponding residual norm to decrease. ``residual-ratio`` scales the growth
+# using the transient residual improvement, capped by
+# ``time_step_growth_factor``. ``newton-iterations`` grows the step only after a
+# low-iteration Newton solve. Setting ``time_step_growth_factor = 1.0`` disables
+# growth.
+
+# %%
+# Timestep Histories
+# ------------------
+#
+# The timestep histories show how the strategy changes the sequence of transient
+# steps even when all cases reach the same steady fixed-temperature solution.
+cmap = plt.get_cmap('Dark2')
+
+fig, ax = plt.subplots()
+for i,row in enumerate(growth_results):
+    steps = np.arange(1, row["n_steps"] + 1)
+    ax.semilogy(
+        steps + 0.1*i, row["dts"], "o-", linewidth=1.6, markersize=4,
+        color=cmap(i), label=row["strategy"]
+    )
+ax.set_xlabel("timestep number")
+ax.set_ylabel("dt [s]")
+ax.grid(True, which="both", alpha=0.3)
+ax.legend(fontsize=8)
+plt.show()
+
+
+# %%
+# Regridding After Timestep Failure
+# ---------------------------------
+#
+# The next comparison uses a high-pressure hydrogen / oxygen counterflow
+# diffusion flame. The initial grid has only 20 points across a 30 mm domain, which is
+# too coarse for the steady-state solver to converge. The ``time_step_regrid`` option
+# lets the solver refine the grid and retry when a timestepping sequence has reached
+# ``max_time_step_count``.
+diffusion_width = 30e-3
+diffusion_initial_points = 20
+diffusion_fuel_mdot = 0.3
+diffusion_oxidizer_mdot_factor = 3.0
+
+
+def make_regrid_flame(
+    pressure: float,
+    regrid_max: int,
+    max_time_step_count: int = 200,
+    growth_strategy: str = "fixed-growth",
+    growth_factor: float = 1.5,
+) -> ct.CounterflowDiffusionFlame:
     gas = ct.Solution("h2o2.yaml")
     flame = ct.CounterflowDiffusionFlame(
-        gas, grid=np.linspace(0.0, REGRID_WIDTH, REGRID_INITIAL_POINTS))
-    flame.max_time_step_count = max_time_step_count
-    flame.set_refine_criteria(
-        ratio=refine_criteria[0], slope=refine_criteria[1],
-        curve=refine_criteria[2], prune=refine_criteria[3]
+        gas, grid=np.linspace(0.0, diffusion_width, diffusion_initial_points)
     )
+    flame.max_time_step_count = max_time_step_count
+    flame.set_refine_criteria(ratio=2.0, slope=0.06, curve=0.08, prune=0.02)
     flame.time_step_regrid = regrid_max
     flame.time_step_growth_strategy = growth_strategy
     flame.time_step_growth_factor = growth_factor
@@ -181,295 +188,260 @@ def make_regrid_flame(regrid_max: int,
     flame.oxidizer_inlet.X = "O2:1.0"
     flame.oxidizer_inlet.T = 711.0
 
-    rho_f = flame.fuel_inlet.phase.density
-    rho_o = flame.oxidizer_inlet.phase.density
-    flame.fuel_inlet.mdot = 0.3
-    flame.oxidizer_inlet.mdot = (0.3 / rho_f) * rho_o * 3.0
+    rho_fuel = flame.fuel_inlet.phase.density
+    rho_oxidizer = flame.oxidizer_inlet.phase.density
+    flame.fuel_inlet.mdot = diffusion_fuel_mdot
+    flame.oxidizer_inlet.mdot = (
+        diffusion_fuel_mdot / rho_fuel * rho_oxidizer * diffusion_oxidizer_mdot_factor
+    )
     return flame
 
 
 def run_regrid_case(case: dict[str, object]) -> dict[str, object]:
-    flame = make_regrid_flame(case["regrid_max"], case["refine_criteria"])
+    flame = make_regrid_flame(
+        pressure=case["pressure"],
+        regrid_max=case["regrid_max"],
+        max_time_step_count=case["max_time_step_count"],
+        growth_strategy=case["growth_strategy"],
+        growth_factor=case["growth_factor"],
+    )
     flame.clear_stats()
 
-    t0 = time.perf_counter()
+    tic = time.perf_counter()
     try:
         flame.solve(loglevel=0, auto=False)
         success = True
-    except ct.CanteraError:
+    except ct.CanteraError as err:
         success = False
-    elapsed = time.perf_counter() - t0
+    elapsed = time.perf_counter() - tic
 
     return {
         "label": case["label"],
         "plot_label": case["plot_label"],
+        "pressure": case["pressure"],
         "success": success,
         "grid_points": len(flame.grid),
         "timesteps": int(sum(flame.time_step_stats)),
         "jacobians": int(sum(flame.jacobian_count_stats)),
         "peak_temperature": float(np.max(flame.T)) if success else None,
+        "grid": np.array(flame.grid, copy=True),
+        "temperature": np.array(flame.T, copy=True),
         "wall_time": elapsed,
-    }
-
-
-def run_difficult_case(case: dict[str, object]) -> dict[str, object]:
-    flame = make_regrid_flame(
-        case["regrid_max"], REGRID_REFINE, case["growth_strategy"],
-        case["growth_factor"], DIFFICULT_PRESSURE, case["max_time_step_count"])
-    flame.clear_stats()
-
-    t0 = time.perf_counter()
-    try:
-        flame.solve(loglevel=0, auto=False)
-        success = True
-    except ct.CanteraError:
-        success = False
-    elapsed = time.perf_counter() - t0
-
-    return {
-        "label": case["label"],
-        "plot_label": case["plot_label"],
-        "growth_strategy": case["growth_strategy"],
-        "growth_factor": case["growth_factor"],
         "max_time_step_count": case["max_time_step_count"],
         "regrid_max": case["regrid_max"],
-        "success": success,
-        "grid_points": len(flame.grid),
-        "timesteps": int(sum(flame.time_step_stats)),
-        "jacobians": int(sum(flame.jacobian_count_stats)),
-        "peak_temperature": float(np.max(flame.T)) if success else None,
-        "wall_time": elapsed,
+        "growth_strategy": case["growth_strategy"],
+        "growth_factor": case["growth_factor"],
     }
 
 
-def print_growth_summary(results: list[dict[str, object]]) -> None:
-    print("\nNamed timestep-growth strategies")
-    print(
-        "  Case: fixed-temperature H2/O2/Ar free flame at "
-        f"{GROWTH_CASE['Tin']:.0f} K, {GROWTH_CASE['pressure'] / ct.one_atm:.1f} atm, "
-        f"width = {1e3 * GROWTH_CASE['width']:.0f} mm"
-    )
-    print("  Varied option: `time_step_growth_strategy`")
-    print(f"  Configured time_step_growth_factor = {GROWTH_FACTOR:.1f}")
-
+def print_regrid_rows(results: list[dict[str, object]], label_width: int = 28) -> None:
     header = (
-        f"{'Strategy':<20} {'Accepted':>8} {'sum(dt) [s]':>12} "
-        f"{'max(dt) [s]':>12} {'Jac':>5} {'u0 [m/s]':>12}"
-    )
-    print(f"\n  {header}")
-    print(f"  {'-' * len(header)}")
-    for row in results:
-        print(
-            "  "
-            f"{row['strategy']:<20} {row['accepted_steps']:>8d} "
-            f"{row['dt_sum']:>12.4e} {row['dt_max']:>12.4e} "
-            f"{row['jacobians']:>5d} {row['velocity']:>12.10f}"
-        )
-
-    print("\n  Option reminder:")
-    print("  `fixed-growth`: always apply `time_step_growth_factor` after a successful step.")
-    print("  `steady-norm`: grow only if the steady-state residual norm decreases.")
-    print("  `transient-residual`: grow only if the transient residual norm decreases.")
-    print("  `residual-ratio`: scale growth based on transient residual improvement.")
-    print("  `newton-iterations`: grow only after small-iteration Newton solves.")
-    print("  Set `time_step_growth_factor = 1.0` to disable successful-step growth.")
-
-
-def print_regrid_summary(results: list[dict[str, object]]) -> None:
-    print("\nRegrid retries after timestep failure")
-    print(
-        "  Case: H2/O2 counterflow diffusion flame at "
-        f"{REGRID_PRESSURE / 1e6:.1f} MPa on an initial {REGRID_INITIAL_POINTS}-point grid"
-    )
-    print("  Varied option: `time_step_regrid`")
-    print("  Growth-factor and growth-strategy settings are left at their defaults.")
-
-    header = (
-        f"{'Mode':<43} {'Success':>7} {'Grid':>6} "
+        f"{'Mode':<{label_width}} {'Success':>7} {'Grid':>6} "
         f"{'Steps':>7} {'Jac':>5} {'Tmax [K]':>10} {'Wall [s]':>9}"
     )
-    print(f"\n  {header}")
-    print(f"  {'-' * len(header)}")
+    print(header)
+    print("-" * len(header))
     for row in results:
         peak_temperature = (
             f"{row['peak_temperature']:>10.1f}"
             if row["peak_temperature"] is not None else f"{'--':>10}"
         )
         print(
-            "  "
-            f"{row['label']:<43} {str(row['success']):>7} "
+            f"{row['label']:<{label_width}} {str(row['success']):>7} "
             f"{row['grid_points']:>6d} {row['timesteps']:>7d} "
             f"{row['jacobians']:>5d} {peak_temperature} {row['wall_time']:>9.2f}"
         )
 
-    print("\n  Option reminder:")
-    print("  `time_step_regrid = 0`: disable retry-after-regrid.")
-    print("  `time_step_regrid = n > 0`: allow up to `n` regrid retries after timestep failure.")
-    print("  If refinement criteria do not change the grid, the retry path aborts.")
 
+regrid_pressure = 7e6
+regrid_cases = (
+    {
+        "label": "time_step_regrid = 0",
+        "plot_label": "0",
+        "pressure": regrid_pressure,
+        "regrid_max": 0,
+        "max_time_step_count": 200,
+        "growth_strategy": "fixed-growth",
+        "growth_factor": 1.5,
+    },
+    {
+        "label": "time_step_regrid = 1",
+        "plot_label": "1",
+        "pressure": regrid_pressure,
+        "regrid_max": 1,
+        "max_time_step_count": 200,
+        "growth_strategy": "fixed-growth",
+        "growth_factor": 1.5,
+    },
+    {
+        "label": "time_step_regrid = 3",
+        "plot_label": "3",
+        "pressure": regrid_pressure,
+        "regrid_max": 3,
+        "max_time_step_count": 200,
+        "growth_strategy": "fixed-growth",
+        "growth_factor": 1.5,
+    },
+)
 
-def print_difficult_summary(budget_results: list[dict[str, object]],
-                            strategy_results: list[dict[str, object]]) -> None:
-    print("\nA numerically difficult 15 MPa case")
-    print(
-        "  Case: the same coarse H2/O2 counterflow diffusion flame at "
-        f"{DIFFICULT_PRESSURE / 1e6:.1f} MPa"
+regrid_results = [run_regrid_case(case) for case in regrid_cases]
+
+# %%
+# Here the growth-factor and growth-strategy settings are held at their defaults. Only
+# the number of regrid retries changes.
+print("Regrid retries after timestep failure")
+print(
+    f"Case: H2/O2 counterflow diffusion flame at {regrid_pressure / 1e6:.1f} MPa "
+    f"on an initial {diffusion_initial_points}-point grid"
+)
+print("Varied option: time_step_regrid")
+print()
+print_regrid_rows(regrid_results, label_width=43)
+
+# %%
+# ``time_step_regrid = 0`` disables retry-after-regrid. Positive values allow up to that
+# many grid-refinement retries after timestep failure. If the refinement criteria do not
+# change the grid, the retry path aborts because there is no new discretization to try.
+
+# %%
+# Regrid Retry Comparison
+# ~~~~~~~~~~~~~~~~~~~~~~~
+#
+# The first two cases exit before reaching a steady solution. With three regrid
+# retries, the solver has enough opportunities to add points and continue.
+colors = ["#ae2012" if not row["success"] else "#0a9396" for row in regrid_results]
+fig, ax = plt.subplots()
+bars = ax.bar(
+    [row["plot_label"] for row in regrid_results],
+    [row["timesteps"] for row in regrid_results],
+    color=colors,
+)
+ax.set_xlabel("time_step_regrid")
+ax.set_ylabel("timesteps before exit")
+ax.grid(True, axis="y", alpha=0.3)
+for bar, row in zip(bars, regrid_results):
+    status = "ok" if row["success"] else "fail"
+    ax.text(
+        bar.get_x() + bar.get_width() / 2,
+        bar.get_height() + 10,
+        f"grid={row['grid_points']}\n{status}",
+        ha="center",
+        va="bottom",
+        fontsize=8,
     )
-    print("  This case converges only after allowing more transient steps,")
-    print("  and then shows meaningful sensitivity to the growth heuristic.")
+plt.show()
 
-    header = (
-        f"{'Mode':<25} {'Success':>7} {'Grid':>6} "
-        f"{'Steps':>7} {'Jac':>5} {'Tmax [K]':>10} {'Wall [s]':>9}"
-    )
-    print("\n  Recovery with a larger timestep budget")
-    print("  Varied option: `max_time_step_count` with `time_step_regrid = 3`")
-    print("  Growth settings are held at `fixed-growth` with factor 1.5.")
-    print(f"\n  {header}")
-    print(f"  {'-' * len(header)}")
-    for row in budget_results:
-        peak_temperature = (
-            f"{row['peak_temperature']:>10.1f}"
-            if row["peak_temperature"] is not None else f"{'--':>10}"
-        )
-        print(
-            "  "
-            f"{row['label']:<25} {str(row['success']):>7} "
-            f"{row['grid_points']:>6d} {row['timesteps']:>7d} "
-            f"{row['jacobians']:>5d} {peak_temperature} {row['wall_time']:>9.2f}"
-        )
+# %%
+# Flame Profile
+# ~~~~~~~~~~~~~
+#
+# The successful 7 MPa case is not just a solver-status change: after regridding,
+# the solver finds a steady-state solution for a resolved diffusion flame with a hot
+# reaction zone in the counterflow domain.
+regrid_result = next(
+    row for row in regrid_results if row["success"] and row["regrid_max"] == 3
+)
 
-    strategy_header = (
-        f"{'Strategy':<18} {'Success':>7} {'Grid':>6} "
-        f"{'Steps':>7} {'Jac':>5} {'Tmax [K]':>10} {'Wall [s]':>9}"
-    )
-    print("\n  Growth-strategy sensitivity after recovery")
-    print(
-        "  Varied option: `time_step_growth_strategy` with "
-        "`max_time_step_count = 1250`, `time_step_regrid = 3`, and "
-        "`time_step_growth_factor = 1.5`."
-    )
-    print(f"\n  {strategy_header}")
-    print(f"  {'-' * len(strategy_header)}")
-    for row in strategy_results:
-        peak_temperature = (
-            f"{row['peak_temperature']:>10.1f}"
-            if row["peak_temperature"] is not None else f"{'--':>10}"
-        )
-        print(
-            "  "
-            f"{row['growth_strategy']:<18} {str(row['success']):>7} "
-            f"{row['grid_points']:>6d} {row['timesteps']:>7d} "
-            f"{row['jacobians']:>5d} {peak_temperature} {row['wall_time']:>9.2f}"
-        )
+fig, ax = plt.subplots()
+ax.plot(
+    1e3 * regrid_result["grid"],
+    regrid_result["temperature"],
+    ".-",
+)
+ax.set_xlabel("distance from fuel inlet [mm]")
+ax.set_ylabel("temperature [K]")
+ax.grid(True, alpha=0.3)
+plt.show()
 
-    print("\n  Option reminder:")
-    print("  `max_time_step_count` limits accepted transient steps before a timestep attempt gives up.")
-    print("  Larger values can recover harder cases, but they increase wall time substantially.")
-    print("  On this 15 MPa case, adaptive growth strategies can also cut wall time substantially once the timestep budget is large enough.")
+# %%
+# A More Difficult Pressure
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# At 15 MPa, the same coarse counterflow problem is more demanding. Regridding is
+# enabled for all cases in this section, but a 200-step timestep budget is still
+# insufficient. The first comparison shows the effect of increasing
+# ``max_time_step_count`` while leaving the growth strategy fixed.
+difficult_pressure = 15e6
+difficult_budget_cases = (
+    {
+        "label": "max_time_step_count = 200",
+        "plot_label": "200",
+        "pressure": difficult_pressure,
+        "max_time_step_count": 200,
+        "regrid_max": 3,
+        "growth_strategy": "fixed-growth",
+        "growth_factor": 1.5,
+    },
+    {
+        "label": "max_time_step_count = 1250",
+        "plot_label": "1250",
+        "pressure": difficult_pressure,
+        "max_time_step_count": 1250,
+        "regrid_max": 3,
+        "growth_strategy": "fixed-growth",
+        "growth_factor": 1.5,
+    },
+)
 
+difficult_budget_results = [run_regrid_case(case) for case in difficult_budget_cases]
 
-def plot_results(growth_results: list[dict[str, object]],
-                 regrid_results: list[dict[str, object]],
-                 difficult_strategy_results: list[dict[str, object]]) -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
+print("Solving with a larger timestep budget")
+print(
+    f"Case: H2/O2 counterflow diffusion flame at "
+    f"{difficult_pressure / 1e6:.1f} MPa"
+)
+print("Fixed settings: time_step_regrid = 3, time_step_growth_strategy = fixed-growth")
+print()
+print_regrid_rows(difficult_budget_results, label_width=28)
 
-    growth_colors = {
-        "fixed-growth": "#005f73",
-        "steady-norm": "#bb3e03",
-        "transient-residual": "#0a9396",
-        "residual-ratio": "#ca6702",
-        "newton-iterations": "#ae2012",
-    }
-    for row in growth_results:
-        steps = np.arange(1, row["accepted_steps"] + 1)
-        axes[0].semilogy(
-            steps, row["dts"], "o-", linewidth=1.6, markersize=4,
-            color=growth_colors[row["strategy"]], label=row["strategy"]
-        )
-    axes[0].set_title("Accepted dt histories")
-    axes[0].set_xlabel("Accepted timestep number")
-    axes[0].set_ylabel("dt [s]")
-    axes[0].grid(True, which="both", alpha=0.3)
-    axes[0].legend(fontsize=8)
+# %%
+# Once the timestep budget is large enough enable solution of the steady-state problem,
+# the growth strategy can still affect the work required to reach the converged steady
+# solution. The fixed-growth row below reuses the successful result from the previous
+# table, and the remaining rows rerun the same problem with adaptive growth strategies.
+timestep_budget_result = next(
+    row for row in difficult_budget_results if row["max_time_step_count"] == 1250
+)
+difficult_strategy_cases = (
+    {
+        "label": "residual-ratio",
+        "plot_label": "ratio",
+        "pressure": difficult_pressure,
+        "max_time_step_count": 1250,
+        "regrid_max": 3,
+        "growth_strategy": "residual-ratio",
+        "growth_factor": 1.5,
+    },
+    {
+        "label": "newton-iterations",
+        "plot_label": "newton",
+        "pressure": difficult_pressure,
+        "max_time_step_count": 1250,
+        "regrid_max": 3,
+        "growth_strategy": "newton-iterations",
+        "growth_factor": 1.5,
+    },
+)
 
-    colors = ["#ae2012" if not row["success"] else "#0a9396" for row in regrid_results]
-    bars = axes[1].bar(
-        [row["plot_label"] for row in regrid_results],
-        [row["timesteps"] for row in regrid_results],
-        color=colors,
-    )
-    axes[1].set_title("Regrid retry modes")
-    axes[1].set_xlabel("time_step_regrid")
-    axes[1].set_ylabel("Accepted timesteps before exit")
-    axes[1].grid(True, axis="y", alpha=0.3)
-    for bar, row in zip(bars, regrid_results):
-        tag = "ok" if row["success"] else "fail"
-        axes[1].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 10,
-            f"grid={row['grid_points']}\n{tag}",
-            ha="center",
-            va="bottom",
-            fontsize=8,
-        )
+difficult_strategy_results = [
+    {
+        **timestep_budget_result,
+        "label": "fixed-growth",
+        "plot_label": "fixed",
+    },
+    *[run_regrid_case(case) for case in difficult_strategy_cases],
+]
 
-    colors = [
-        growth_colors.get(row["growth_strategy"], "#0a9396")
-        if row["success"] else "#ae2012"
-        for row in difficult_strategy_results
-    ]
-    bars = axes[2].bar(
-        [row["plot_label"] for row in difficult_strategy_results],
-        [row["wall_time"] for row in difficult_strategy_results],
-        color=colors,
-    )
-    axes[2].set_title("15 MPa heuristic sensitivity")
-    axes[2].set_xlabel("time_step_growth_strategy")
-    axes[2].set_ylabel("Wall time [s]")
-    axes[2].grid(True, axis="y", alpha=0.3)
-    for bar, row in zip(bars, difficult_strategy_results):
-        tag = "ok" if row["success"] else "fail"
-        axes[2].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.3,
-            f"jac={row['jacobians']}\n{tag}",
-            ha="center",
-            va="bottom",
-            fontsize=8,
-        )
+print("Growth-strategy sensitivity after recovery")
+print(
+    "Fixed settings: max_time_step_count = 1250, time_step_regrid = 3, "
+    "time_step_growth_factor = 1.5"
+)
+print()
+print_regrid_rows(difficult_strategy_results, label_width=18)
 
-    fig.tight_layout()
-    if "agg" not in plt.get_backend().lower():
-        plt.show()
-
-
-def main() -> None:
-    growth_results = [run_growth_case(strategy) for strategy in GROWTH_STRATEGIES]
-    regrid_results = [run_regrid_case(case) for case in REGRID_CASES]
-    difficult_budget_results = [run_difficult_case(case) for case in DIFFICULT_BUDGET_CASES]
-    recovered_baseline = next(
-        row for row in difficult_budget_results if row["max_time_step_count"] == 1250
-    )
-    difficult_strategy_results = [
-        {
-            **recovered_baseline,
-            "label": "fixed-growth",
-            "plot_label": "fixed",
-        },
-        *[run_difficult_case(case) for case in DIFFICULT_STRATEGY_CASES],
-    ]
-
-    print_growth_summary(growth_results)
-    print_regrid_summary(regrid_results)
-    print_difficult_summary(difficult_budget_results, difficult_strategy_results)
-
-    if plt is not None:
-        plot_results(
-            growth_results, regrid_results, difficult_strategy_results)
-    else:
-        print("\nInstall matplotlib to plot the timestep histories and comparison tables.")
-
-
-if __name__ == "__main__":
-    main()
+# %%
+# ``max_time_step_count`` limits the number of transient steps before a timestep attempt
+# gives up. Larger values can allow harder cases to converge, but solving these cases
+# will be slow. On this 15 MPa case, adaptive growth strategies can reduce wall time
+# once the timestep budget is large enough.
