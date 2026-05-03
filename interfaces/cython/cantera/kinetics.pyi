@@ -184,7 +184,7 @@ class InterfaceKinetics(Kinetics):
     def write_yaml(  # type: ignore[override]
         self,
         filename: Path | str,
-        phases: Sequence[ThermoPhase] | None = None,
+        phases: Sequence[ThermoPhase] | ThermoPhase | None = None,
         units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
