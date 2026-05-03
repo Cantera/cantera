@@ -76,7 +76,7 @@ class _SolutionBase:
     def write_yaml(
         self,
         filename: None = None,
-        phases: Sequence[ThermoPhase] | None = None,
+        phases: Sequence[ThermoPhase] | ThermoPhase |None = None,
         units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
@@ -86,7 +86,7 @@ class _SolutionBase:
     def write_yaml(
         self,
         filename: str | Path,
-        phases: Sequence[ThermoPhase] | None = None,
+        phases: Sequence[ThermoPhase] | ThermoPhase | None = None,
         units: UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
