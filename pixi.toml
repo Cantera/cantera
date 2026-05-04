@@ -47,6 +47,9 @@ matplotlib = ">=3.10.8,<4"
 python-graphviz = ">=0.21,<0.22"
 pint = ">=0.25.2,<0.26"
 
+[feature.samples.pypi-dependencies]
+coolprop = ">=7.2.0, <8"
+
 [feature.devtools.dependencies]
 ipython = ">=9.10.0,<10"
 pyarrow = ">=23.0.1,<24"
