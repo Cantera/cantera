@@ -619,14 +619,6 @@ jobs:
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
-      - name: Create Pyodide venv
-        run: |
-          pixi run -e pyodide pyodide venv .pyodide-venv
-      - name: Install wheel and dependencies into Pyodide venv
-        run: |
-          WHEEL=$(ls build/pyodide_dist/cantera-*.whl)
-          pixi run -e pyodide .pyodide-venv/bin/pip install pytest graphviz pandas \
-            pint "$WHEEL"
       - name: Upload Pyodide wheel artifact
         uses: actions/upload-artifact@v7
         with:
@@ -634,6 +626,64 @@ jobs:
           name: cantera-wheel-pyodide
           if-no-files-found: error
           retention-days: 14
+      - name: Create Pyodide venv
+        run: |
+          pixi run -e pyodide pyodide venv .pyodide-venv
+      - name: Install wheel and dependencies into Pyodide venv
+        run: |
+          WHEELHOUSE="${RUNNER_TEMP}/pyodide-wheelhouse"
+          mkdir -p "${WHEELHOUSE}"
+
+          # Load packages that are part of the Pyodide distribution. This is a
+          # separate process since loadPackage does not reliably return control
+          # to the calling Python script in the Node.js CLI runtime.
+          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
+          from pyodide_js import loadPackage
+
+          loadPackage(["pytest", "pandas"])
+          PY
+
+          # Download pure-Python packages and their dependencies with host pip.
+          # The Pyodide venv pip wrapper can fail with newer pip / urllib3
+          # combinations before it starts dependency resolution.
+          pixi run -e pyodide python -m pip download --only-binary=:all: \
+            --dest "${WHEELHOUSE}" pint graphviz ruamel.yaml packaging
+
+          export WHEEL WHEELHOUSE
+          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
+          import asyncio
+          import os
+          from pathlib import Path
+
+          import micropip
+
+          wheelhouse = Path(os.environ["WHEELHOUSE"])
+          pure_python_wheels = [
+              f"emfs:{wheel}" for wheel in sorted(wheelhouse.glob("*.whl"))
+          ]
+          cantera_wheel = f"emfs:{list(Path('build/pyodide_dist').glob('*.whl'))[0].resolve()}"
+
+          async def main():
+              await micropip.install(pure_python_wheels, deps=True, reinstall=True)
+              await micropip.install(cantera_wheel, deps=True, reinstall=True)
+
+          asyncio.run(main())
+          PY
+
+          # Sanity checks (useful to debug future regressions)
+          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
+          import sys
+
+          import js
+          import cantera
+          import pandas
+          import graphviz
+          import pint
+          import pytest
+
+          print("platform:", sys.platform)
+          print("ok: js/cantera/pandas/graphviz/pint/pytest imported")
+          PY
       - name: Run Python tests
         run: |
           pixi run -e pyodide .pyodide-venv/bin/python -m pytest -raP -v --durations=50 test/python
