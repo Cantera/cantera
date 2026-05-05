@@ -117,6 +117,114 @@ TEST_F(TestThermoMethods, setConcentrations)
     EXPECT_NEAR(thermo->moleFraction(2), -1e-8 / ctot, 1e-16);
 }
 
+//! These tests are aimed at covering some of the corner-case logic in
+//! ThermoPhase::setState_HPorUV and ThermoPhase::setStateSPorSV.
+class EnforcedTemperatureLimits : public testing::Test
+{
+public:
+    EnforcedTemperatureLimits() {
+        thermo = newThermo("h2o2.yaml", "");
+        thermo->setTemperatureLimitsEnforced(true);
+    }
+
+    shared_ptr<ThermoPhase> thermo;
+};
+
+TEST_F(EnforcedTemperatureLimits, setStateHPClipsToUpperTemperatureLimit)
+{
+    double T = thermo->maxTemp() - 0.02;
+    thermo->setState_TPX(T, OneAtm, "O2:1");
+    double h = thermo->enthalpy_mass();
+
+    thermo->setState_TP(thermo->minTemp() + 1.23, OneAtm);
+    thermo->setState_HP(h, OneAtm);
+
+    EXPECT_NEAR(thermo->temperature(), T, 1e-5);
+}
+
+TEST_F(EnforcedTemperatureLimits, setStateHPClipsToLowerTemperatureLimit)
+{
+    double T = thermo->minTemp() + 0.01;
+    thermo->setState_TPX(T, OneAtm, "O:1");
+    double h = thermo->enthalpy_mass();
+    thermo->setState_TP(thermo->maxTemp() - 1.24, OneAtm);
+    thermo->setState_HP(h, OneAtm);
+
+    EXPECT_NEAR(thermo->temperature(), T, 1e-5);
+}
+
+TEST_F(EnforcedTemperatureLimits, setStateSPClipsToUpperTemperatureLimit)
+{
+    double T = thermo->maxTemp() - 0.01;
+    thermo->setState_TPX(T, OneAtm, "O2:1");
+    double s = thermo->entropy_mass();
+
+    thermo->setState_TP(thermo->minTemp() + 1.23, OneAtm);
+    thermo->setState_SP(s, OneAtm);
+
+    EXPECT_NEAR(thermo->temperature(), T, 1e-5);
+}
+
+TEST_F(EnforcedTemperatureLimits, setStateSPClipsToLowerTemperatureLimit)
+{
+    double T = thermo->minTemp() + 0.01;
+    thermo->setState_TPX(T, OneAtm, "O2:1");
+    double s = thermo->entropy_mass();
+
+    thermo->setState_TP(thermo->maxTemp() - 1.24, OneAtm);
+    thermo->setState_SP(s, OneAtm);
+
+    EXPECT_NEAR(thermo->temperature(), T, 1e-5);
+}
+
+shared_ptr<ThermoPhase> makeNonOverlappingTemperatureRangePhase()
+{
+    AnyMap root = AnyMap::fromYamlString(R"(
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, O]
+  species: [low-T, high-T]
+  state: {T: 1000 K, P: 1 atm, X: {high-T: 1.0}}
+species:
+- name: low-T
+  composition: {O: 1}
+  thermo:
+    model: constant-cp
+    T-min: 100 K
+    T-max: 500 K
+    T0: 300 K
+    h0: 0 J/kmol
+    s0: 0 J/kmol/K
+    cp0: 30000 J/kmol/K
+- name: high-T
+  composition: {H: 1}
+  thermo:
+    model: constant-cp
+    T-min: 1000 K
+    T-max: 2000 K
+    T0: 1000 K
+    h0: 0 J/kmol
+    s0: 0 J/kmol/K
+    cp0: 30000 J/kmol/K
+)");
+    AnyMap& phase = root["phases"].getMapWhere("name", "gas");
+    return newThermo(phase, root);
+}
+
+TEST(ThermoPhase, setStateHPHandlesNonOverlappingTemperatureLimits)
+{
+    auto thermo = makeNonOverlappingTemperatureRangePhase();
+    EXPECT_LT(thermo->maxTemp(), thermo->minTemp());
+
+    thermo->setState_TPX(1010, OneAtm, "high-T:1");
+    double h = thermo->enthalpy_mass();
+
+    thermo->setState_TP(1000, OneAtm);
+    thermo->setTemperatureLimitsEnforced(true);
+    EXPECT_THROW(thermo->setState_HP(h, OneAtm), CanteraError);
+}
+
 class EquilRatio_MixFrac_Test : public testing::Test
 {
 public:
