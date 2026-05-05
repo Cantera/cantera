@@ -27,12 +27,6 @@ void IdealGasConstPressureReactor::getState(span<double> y)
 
 void IdealGasConstPressureReactor::initialize(double t0)
 {
-    //! @todo: Add a method to ThermoPhase that indicates whether a given
-    //! subclass is compatible with this reactor model
-    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
-        throw CanteraError("IdealGasConstPressureReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     ConstPressureReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }

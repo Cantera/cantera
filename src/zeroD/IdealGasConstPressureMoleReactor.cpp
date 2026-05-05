@@ -30,10 +30,6 @@ void IdealGasConstPressureMoleReactor::getState(span<double> y)
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
 {
-    if (m_thermo->type() != "ideal-gas" && m_thermo->type() != "plasma") {
-        throw CanteraError("IdealGasConstPressureMoleReactor::initialize",
-                           "Incompatible phase type '{}' provided", m_thermo->type());
-    }
     ConstPressureMoleReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }

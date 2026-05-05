@@ -3698,6 +3698,13 @@ NONIDEAL_CONSTV_REACTORS = [
     ct.IdealGasMoleReactor,
 ]
 
+NONIDEAL_CONSTP_REACTORS = [
+    ct.ConstPressureReactor,
+    ct.IdealGasConstPressureReactor,
+    ct.ConstPressureMoleReactor,
+    ct.IdealGasConstPressureMoleReactor,
+]
+
 
 class TestNonIdealConstVolumeEnergy:
     @pytest.fixture(scope='class')
@@ -3799,3 +3806,94 @@ class TestNonIdealConstVolumeEnergy:
 
         Tgap1 = abs(r2.T - r1.T)
         assert Tgap1 < Tgap0
+
+
+class TestNonIdealConstPressureEnergy:
+    @pytest.fixture(scope='class')
+    def gas(self):
+        return ct.Solution("h2o2.yaml", "ohmech-RK")
+
+    @staticmethod
+    def total_enthalpy(reactors):
+        return sum(r.mass * r.phase.h for r in reactors)
+
+    @pytest.mark.parametrize("reactor_class", NONIDEAL_CONSTP_REACTORS)
+    def test_const_pressure_ignition_enthalpy(self, reactor_class, gas):
+        gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 1050.0, 20 * ct.one_atm
+
+        reactor = reactor_class(gas, volume=1.0, clone=False)
+        net = ct.ReactorNet([reactor])
+
+        H0 = reactor.mass * reactor.phase.h
+        T0 = reactor.T
+
+        while net.time < 0.1:
+            net.step()
+            H1 = reactor.mass * reactor.phase.h
+            assert H1 == approx(H0, rel=1e-8)
+
+        # Ensure this is an ignition case, not a trivially static state.
+        assert reactor.T - T0 > 500
+
+    @pytest.mark.parametrize("reactor_class", NONIDEAL_CONSTP_REACTORS)
+    def test_closed_three_reactor_flow_conserves_total_enthalpy(self, reactor_class, gas):
+        gas.TPX = 800.0, 15 * ct.one_atm, "H2:0.6, O2:0.2, N2:0.2"
+        r1 = reactor_class(gas, volume=1.0)
+        gas.TPX = 1200.0, 15 * ct.one_atm, "H2:0.1, O2:0.6, H2O:0.1, N2:0.2"
+        r2 = reactor_class(gas, volume=1.2)
+        gas.TPX = 1000.0, 15 * ct.one_atm, "H2:0.2, O2:0.1, H2O:0.5, N2:0.2"
+        r3 = reactor_class(gas, volume=0.8)
+
+        mdot = 0.3
+        ct.MassFlowController(r1, r2, mdot=mdot)
+        ct.MassFlowController(r2, r3, mdot=mdot)
+        ct.MassFlowController(r3, r1, mdot=mdot)
+
+        net = ct.ReactorNet([r1, r2, r3])
+        H0 = self.total_enthalpy((r1, r2, r3))
+        M0 = r1.mass + r2.mass + r3.mass
+
+        while net.time < 0.2:
+            net.step()
+            H1 = self.total_enthalpy((r1, r2, r3))
+            M1 = r1.mass + r2.mass + r3.mass
+            assert M1 == approx(M0, rel=1e-12)
+            assert H1 == approx(H0, rel=3e-5)
+
+    @pytest.mark.parametrize("reactor_class", NONIDEAL_CONSTP_REACTORS)
+    def test_heat_transfer_conserves_combined_enthalpy(self, reactor_class, gas):
+        gas.TPX = 700.0, 15 * ct.one_atm, "H2:0.2, O2:0.3, N2:0.4"
+        r1 = reactor_class(gas, volume=1.0)
+        gas.TPX = 1200.0, 15 * ct.one_atm, "H2:0.2, H2O:0.1, N2:0.4"
+        r2 = reactor_class(gas, volume=1.0)
+        r1.chemistry_enabled = False
+        r2.chemistry_enabled = False
+
+        Tgap0 = abs(r2.T - r1.T)
+        ct.Wall(r1, r2, U=250.0, A=1.2)
+        net = ct.ReactorNet([r1, r2])
+
+        H0 = self.total_enthalpy((r1, r2))
+        while net.time < 0.2:
+            net.step()
+            H1 = self.total_enthalpy((r1, r2))
+            assert H1 == approx(H0, rel=2e-7)
+
+        Tgap1 = abs(r2.T - r1.T)
+        assert Tgap1 < Tgap0
+
+    def test_nonideal_preconditioned_const_pressure_mole_reactor(self, gas):
+        gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 1050.0, 20 * ct.one_atm
+
+        reactor = ct.IdealGasConstPressureMoleReactor(gas, clone=False)
+        net = ct.ReactorNet([reactor])
+        net.preconditioner = ct.AdaptivePreconditioner()
+
+        H0 = reactor.mass * reactor.phase.h
+        net.advance(1e-4)
+
+        assert net.linear_solver_type == "GMRES"
+        assert reactor.mass * reactor.phase.h == approx(H0, rel=1e-8)
+        assert reactor.T > 1050.0
