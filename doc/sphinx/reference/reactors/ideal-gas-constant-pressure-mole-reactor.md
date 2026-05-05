@@ -3,16 +3,17 @@
 
 # Ideal Gas Constant Pressure Mole Reactor
 
-An ideal gas constant pressure mole reactor, as implemented by the C++ class
-{ct}`IdealGasConstPressureMoleReactor` and available in Python as the
+A constant pressure mole reactor using temperature as a state variable, as implemented
+by the C++ class {ct}`IdealGasConstPressureMoleReactor` and available in Python as the
 {py:class}`IdealGasConstPressureMoleReactor` class. It is defined by the state
 variables:
 
 - $T$, the temperature (in K)
 - $n_k$, the number of moles for each species (in kmol)
 
-Equations 1 and 2 below are the governing equations for an ideal gas constant pressure
-mole reactor.
+Equations 1 and 2 below are the governing equations for this reactor model. While the
+class name is historical, this formulation is applicable to non-ideal equations of
+state as well.
 
 ## Species Equations
 
@@ -54,22 +55,29 @@ $$
                 - \hat{h} \sum_\t{out} \dot{n}_\t{out}
 $$
 
-As for the [ideal gas mole reactor](ideal-gas-mole-reactor), we replace the total
-enthalpy as a state variable with the temperature by writing the total enthalpy in terms
-of the species moles and temperature:
-
-$$  H = \sum_k \hat{h}_k(T) n_k  $$
-
-and differentiating with respect to time:
-
-$$  \frac{dH}{dt} = \frac{dT}{dt}\sum_k n_k \hat{c}_{p,k} + \sum \dot{n}_k \hat{h}_k $$
-
-Making this substitution yields an equation for the temperature:
+In this reactor model, the reactor temperature $T$ is used as a state variable instead
+of the total enthalpy $H$. For a general equation of state, write:
 
 $$
-\sum_k n_k \hat{c}_{p,k} \frac{dT}{dt} = & \dot{Q} + \sum_\t{in} \dot{n}_k \hat{h}_k
+H = H(T, P, n_1, \ldots, n_K)
+$$
+
+At constant pressure, applying the chain rule gives:
+
+$$
+\frac{dH}{dt} = N \hat{c}_p \frac{dT}{dt}
+    + \sum_k \bar{h}_k \frac{dn_k}{dt}
+$$
+
+where $N$ is the total number of moles, $\hat{c}_p$ is the mixture molar heat
+capacity, and $\bar{h}_k$ are the partial molar enthalpies. Making this substitution
+yields:
+
+$$
+N \hat{c}_p \frac{dT}{dt} = & \dot{Q}
+        + \sum_\t{in} \dot{n}_\t{in} \hat{h}_\t{in}
         - \hat{h} \sum_\t{out} \dot{n}_\t{out} \\
-        & - \sum_k \hat{h}_k \left(V \dot{\omega}_k + \dot{n}_{k,\t{wall}}
+        & - \sum_k \bar{h}_k \left(V \dot{\omega}_k + \dot{n}_{k,\t{wall}}
                                    + \sum_\t{in} \dot{n}_{k,\t{in}}
                                    - \sum_\t{out} \dot{n}_{k,\t{out}} \right)
 $$
@@ -77,7 +85,8 @@ $$
 Rearranging and simplifying gives the final energy equation:
 
 $$
-n \hat{c}_p \frac{dT}{dt} = \dot{Q}
-        - \sum_k \hat{h}_k \left(V \dot{\omega}_k + \dot{n}_{k,\t{wall}} \right)
-        + \sum_\t{in} \dot{n}_\t{in} \left( \hat{h}_\t{in} - \hat{h} \right)
+N \hat{c}_p \frac{dT}{dt} = \dot{Q}
+        - \sum_k \bar{h}_k \left(V \dot{\omega}_k + \dot{n}_{k,\t{wall}} \right)
+        + \sum_\t{in} \left(\dot{n}_\t{in} \hat{h}_\t{in}
+            - \sum_k \bar{h}_k \dot{n}_{k,\t{in}} \right)
 $$  (ig-const-pressure-mole-reactor-energy)

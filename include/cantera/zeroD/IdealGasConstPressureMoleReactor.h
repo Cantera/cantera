@@ -12,8 +12,11 @@ namespace Cantera
 {
 
 /**
- * IdealGasConstPressureMoleReactor is a class for ideal gas constant-pressure reactors
- * which use a state of moles.
+ * IdealGasConstPressureMoleReactor is a class for constant-pressure reactors
+ * which use temperature and species moles as state variables. The class name is
+ * historical; this formulation is applicable to non-ideal equations of state
+ * where the ThermoPhase implements the required enthalpy and heat capacity
+ * properties.
  * @since New in %Cantera 3.0
  * @ingroup reactorGroup
  */

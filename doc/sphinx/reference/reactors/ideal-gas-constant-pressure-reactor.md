@@ -3,16 +3,17 @@
 
 # Ideal Gas Constant Pressure Reactor
 
-An ideal gas constant pressure reactor, as implemented by the C++ class
-{ct}`IdealGasConstPressureReactor` and available in Python as the
+A constant pressure reactor using temperature as a state variable, as implemented by
+the C++ class {ct}`IdealGasConstPressureReactor` and available in Python as the
 {py:class}`IdealGasConstPressureReactor` class. It is defined by the state variables:
 
 - $m$, the mass of the reactor's contents (in kg)
 - $T$, the temperature (in K)
 - $Y_k$, the mass fractions for each species (dimensionless)
 
-Equations 1-3 below are the governing equations for an ideal gas constant pressure
-reactor.
+Equations 1-3 below are the governing equations for this reactor model. While the
+class name is historical, this formulation is applicable to non-ideal equations of
+state as well.
 
 ## Mass Conservation
 
@@ -52,21 +53,27 @@ $$ (igcpr-species)
 
 ## Energy Equation
 
-As for the [ideal gas reactor](ideal-gas-reactor), we replace the total enthalpy as a
-state variable with the temperature by writing the total enthalpy in terms of the mass
-fractions and temperature and differentiating with respect to time:
+In this reactor model, the reactor temperature $T$ is used as a state variable instead
+of the total enthalpy $H$. For the mass-based form, write:
 
 $$
-H &= m \sum_k Y_k h_k(T)
-
-\frac{dH}{dt} &= h \frac{dm}{dt} + m c_p \frac{dT}{dt}
-                + m \sum_k h_k \frac{dY_k}{dt}
+H = H(T, P, m_1, \ldots, m_K), \qquad m_k = mY_k
 $$
 
-Substituting the corresponding derivatives into the constant pressure reactor energy
-equation {eq}`constpressurereactor-energy` yields an equation for the temperature:
+At constant pressure, applying the chain rule gives:
 
 $$
-m c_p \frac{dT}{dt} = \dot{Q} - \sum_k h_k \dot{m}_{k,\t{gen}}
-     + \sum_\t{in} \dot{m}_\t{in} \left(h_\t{in} - \sum_k h_k Y_{k,\t{in}} \right)
+\frac{dH}{dt} = m c_p \frac{dT}{dt}
+    + \sum_k \frac{\bar{h}_k}{W_k} \frac{dm_k}{dt}
+$$
+
+where $\bar{h}_k$ are the partial molar enthalpies and $W_k$ are the molecular weights.
+Substituting the species and mass equations into the constant
+pressure reactor energy equation {eq}`constpressurereactor-energy` yields:
+
+$$
+m c_p \frac{dT}{dt} = \dot{Q}
+     - \sum_k \frac{\bar{h}_k}{W_k} \dot{m}_{k,\t{gen}}
+     + \sum_\t{in} \left(\dot{m}_\t{in} h_\t{in}
+        - \sum_k \frac{\bar{h}_k}{W_k} \dot{m}_{k,\t{in}} \right)
 $$ (igcpr-energy)

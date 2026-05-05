@@ -12,11 +12,11 @@ namespace Cantera
 {
 
 /**
- * Class ConstPressureReactor is a class for constant-pressure reactors. The
- * reactor may have an arbitrary number of inlets and outlets, each of which may
- * be connected to a "flow device" such as a mass flow controller, a pressure
- * regulator, etc. Additional reactors may be connected to the other end of the
- * flow device, allowing construction of arbitrary reactor networks.
+ * Class IdealGasConstPressureReactor is a class for constant-pressure reactors
+ * that use temperature instead of total enthalpy as a state variable. The class
+ * name is historical; this formulation is applicable to non-ideal equations of
+ * state where the ThermoPhase implements the required enthalpy and heat
+ * capacity properties.
  * @ingroup reactorGroup
  */
 class IdealGasConstPressureReactor : public ConstPressureReactor
