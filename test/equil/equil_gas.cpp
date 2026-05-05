@@ -1,10 +1,12 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "cantera/test/gtest_utils.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/PlasmaPhase.h"
+#include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
@@ -338,6 +340,52 @@ public:
         EXPECT_NEAR(rho0, gas.density(), 1e-5);
         check();
     }
+
+    void check_HP_estimate_clipped_at_temperature_bound(double T, double P=1e5) {
+        gas.setState_TPX(T, P, "CH4:0.3, O2:0.3, N2:0.4");
+
+        ChemEquil solver(gas);
+        solver.options.enforceTemperatureLimits = true;
+        solver.options.maxIterations = 0;
+
+        try {
+            solver.equilibrate(gas, "HP");
+            FAIL() << "Expected CanteraError";
+        } catch (CanteraError& err) {
+            EXPECT_THAT(err.getMessage(),
+                        testing::HasSubstr("no convergence in 0 iterations"));
+        }
+    }
+
+    void check_HP_initial_estimate_at_upper_bound() {
+        gas.setState_TPX(gas.maxTemp(), 1e5, "O2:1, N2:3");
+
+        ChemEquil solver(gas);
+        solver.options.enforceTemperatureLimits = true;
+
+        try {
+            solver.equilibrate(gas, "HP");
+            FAIL() << "Expected CanteraError";
+        } catch (CanteraError& err) {
+            EXPECT_THAT(err.getMessage(), testing::HasSubstr("temperature bounds"));
+        }
+    }
+
+    void check_HP_strict_temperature_limit_no_convergence() {
+        gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
+
+        ChemEquil solver(gas);
+        solver.options.enforceTemperatureLimits = true;
+        solver.options.maxIterations = 0;
+
+        try {
+            solver.equilibrate(gas, "HP");
+            FAIL() << "Expected CanteraError";
+        } catch (CanteraError& err) {
+            EXPECT_THAT(err.getMessage(),
+                        testing::HasSubstr("no convergence in 0 iterations"));
+        }
+    }
 };
 
 TEST_F(PropertyPairs, ChemEquil_TP) { check_TP("element_potential"); }
@@ -347,6 +395,30 @@ TEST_F(PropertyPairs, ChemEquil_HP) { check_HP("element_potential"); }
 TEST_F(PropertyPairs, ChemEquil_HP_relaxedTemperatureLimit) {
     check_HP_relaxed_temperature_limit();
 }
+TEST_F(PropertyPairs, ChemEquil_HP_estimateClippedAtLowerTemperatureBound) {
+    check_HP_estimate_clipped_at_temperature_bound(gas.minTemp() - 10.0, 1.0);
+}
+TEST_F(PropertyPairs, ChemEquil_HP_estimateClippedAtUpperTemperatureBound) {
+    check_HP_estimate_clipped_at_temperature_bound(1.1 * gas.maxTemp());
+}
+TEST_F(PropertyPairs, ChemEquil_HP_initialEstimateAtUpperTemperatureBound) {
+    check_HP_initial_estimate_at_upper_bound();
+}
+TEST_F(PropertyPairs, ChemEquil_HP_strictTemperatureLimitNoConvergence) {
+    check_HP_strict_temperature_limit_no_convergence();
+}
+TEST_F(PropertyPairs, ChemEquil_TP_strictTemperatureLimit) {
+    gas.setState_TPX(gas.maxTemp() + 2.0, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
+    gas.setTemperatureLimitsEnforced(true);
+
+    try {
+        gas.equilibrate("TP", "element_potential");
+        FAIL() << "Expected CanteraError";
+    } catch (CanteraError& err) {
+        EXPECT_THAT(err.getMessage(), testing::HasSubstr("outside valid range"));
+    }
+}
+
 TEST_F(PropertyPairs, MultiPhase_HP) { check_HP("gibbs"); }
 TEST_F(PropertyPairs, VcsNonideal_HP) { check_HP("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_SP) { check_SP("element_potential"); }
