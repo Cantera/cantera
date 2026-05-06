@@ -43,6 +43,99 @@ void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
     setGridCache();
 }
 
+
+void EEDFTwoTermApproximation::setQuadraticGrid(double& kTe_max, size_t& ncell)
+{
+    m_points = ncell;
+
+    m_gridCenter.resize(m_points);
+    m_gridEdge.resize(m_points + 1);
+    m_f0.resize(m_points);
+    m_f0_edge.resize(m_points + 1);
+
+    double n = static_cast<double>(m_points);
+
+    for (size_t j = 0; j <= m_points; j++) {
+        double x = static_cast<double>(j);
+        m_gridEdge[j] = kTe_max * x * (x + 1.0) / (n * (n + 1.0));
+    }
+
+    for (size_t j = 0; j < m_points; j++) {
+        m_gridCenter[j] = 0.5 * (m_gridEdge[j] + m_gridEdge[j + 1]);
+    }
+
+    setGridCache();
+}
+
+void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell)
+{
+    m_points = ncell;
+
+    m_gridCenter.resize(m_points);
+    m_gridEdge.resize(m_points + 1);
+    m_f0.resize(m_points);
+    m_f0_edge.resize(m_points + 1);
+
+    double ratio = 1.05;
+
+    double denominator = std::pow(ratio, m_points) - 1.0;
+
+    if (std::abs(denominator) < 1e-14) {
+        throw CanteraError("EEDFTwoTermApproximation::setGeometricGrid",
+            "Invalid geometric-grid ratio.");
+    }
+
+    for (size_t j = 0; j < m_points; j++) {
+        m_gridEdge[j] = kTe_max * (std::pow(ratio, j) - 1.0) / denominator;
+
+        m_gridCenter[j] = kTe_max
+            * (std::pow(ratio, j + 0.5) - 1.0)
+            / denominator;
+    }
+
+    m_gridEdge[m_points] = kTe_max;
+
+    setGridCache();
+}
+
+void EEDFTwoTermApproximation::setCustomGrid(span<const double> levels)
+{
+    if (levels.size() < 2) {
+        throw CanteraError("EEDFTwoTermApproximation::setCustomGrid",
+            "Energy grid must contain at least two edge points.");
+    }
+
+    m_points = levels.size() - 1;
+
+    m_gridCenter.resize(m_points);
+    m_gridEdge.resize(m_points + 1);
+    m_f0.resize(m_points);
+    m_f0_edge.resize(m_points + 1);
+
+    for (size_t j = 0; j < m_points + 1; j++) {
+        if (!std::isfinite(levels[j])) {
+            throw CanteraError("EEDFTwoTermApproximation::setCustomGrid",
+                "Energy grid contains a non-finite value.");
+        }
+        if (levels[j] < 0.0) {
+            throw CanteraError("EEDFTwoTermApproximation::setCustomGrid",
+                "Energy grid values must be non-negative.");
+        }
+        if (j > 0 && levels[j] <= levels[j - 1]) {
+            throw CanteraError("EEDFTwoTermApproximation::setCustomGrid",
+                "Energy grid values must be strictly increasing.");
+        }
+
+        m_gridEdge[j] = levels[j];
+    }
+
+    for (size_t j = 0; j < m_points; j++) {
+        m_gridCenter[j] = 0.5 * (m_gridEdge[j] + m_gridEdge[j + 1]);
+    }
+
+    setGridCache();
+}
+
 int EEDFTwoTermApproximation::calculateDistributionFunction()
 {
     if (m_first_call) {
