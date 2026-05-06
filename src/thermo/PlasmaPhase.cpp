@@ -183,6 +183,71 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             auto levels = eedf["energy-levels"].asVector<double>();
             auto distribution = eedf["distribution"].asVector<double>(levels.size());
             setDiscretizedElectronEnergyDist(levels, distribution);
+        } else if (m_distributionType == "Boltzmann-two-term") {
+            m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
+
+            if (eedf.hasKey("energy-levels")) {
+                auto levels = eedf["energy-levels"].asVector<double>();
+                m_eedfSolver->setCustomGrid(levels);
+                m_nPoints = levels.size();
+            } else {
+                if (!eedf.hasKey("initial_max_energy_level")) {
+                    throw CanteraError("PlasmaPhase::setParameters",
+                        "Boltzmann-two-term requires either 'energy-levels' or "
+                        "'initial_max_energy_level'.");
+                }
+
+                if (!eedf.hasKey("initial_number_of_energy_grid_cells")) {
+                    throw CanteraError("PlasmaPhase::setParameters",
+                        "Boltzmann-two-term requires either 'energy-levels' or "
+                        "'initial_number_of_energy_grid_cells'.");
+                }
+
+                double kTe_max = eedf["initial_max_energy_level"].asDouble();
+                size_t nGridCells = static_cast<size_t>(
+                    eedf["initial_number_of_energy_grid_cells"].asInt());
+
+                if (kTe_max <= 0.0) {
+                    throw CanteraError("PlasmaPhase::setParameters",
+                        "initial_max_energy_level must be greater than zero.");
+                }
+
+                if (nGridCells == 0) {
+                    throw CanteraError("PlasmaPhase::setParameters",
+                        "initial_number_of_energy_grid_cells must be greater than zero.");
+                }
+
+                string energyLevelsDistribution = "Linear";
+                if (eedf.hasKey("energy_levels_distribution")) {
+                    energyLevelsDistribution =
+                        eedf["energy_levels_distribution"].asString();
+                } else {
+                    writelog("No energy_levels_distribution key found in the input file. "
+                            "Defaulting to linear grid.\n");
+                }
+
+                if (energyLevelsDistribution == "Linear") {
+                    m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
+                } else if (energyLevelsDistribution == "Quadratic") {
+                    m_eedfSolver->setQuadraticGrid(kTe_max, nGridCells);
+                } else if (energyLevelsDistribution == "Geometric") {
+                    m_eedfSolver->setGeometricGrid(kTe_max, nGridCells);
+                } else {
+                    throw CanteraError("PlasmaPhase::setParameters",
+                        "energy_levels_distribution should be Linear, Quadratic "
+                        "or Geometric.");
+                }
+
+                m_nPoints = nGridCells + 1;
+            }
+
+            m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
+                m_eedfSolver->getGridEdge().data(), m_nPoints);
+            m_electronEnergyDist.resize(m_nPoints);
+            m_electronEnergyDist.setZero();
+
+            checkElectronEnergyLevels();
+            electronEnergyLevelChanged();
         }
     }
 

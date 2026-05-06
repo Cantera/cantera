@@ -69,6 +69,12 @@ public:
     int calculateDistributionFunction();
 
     void setLinearGrid(double& kTe_max, size_t& ncell);
+    
+    void setQuadraticGrid(double& kTe_max, size_t& ncell);
+
+    void setGeometricGrid(double& kTe_max, size_t& ncell);
+
+    void setCustomGrid(span<const double> levels);
 
     void setGridCache();
 
