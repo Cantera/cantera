@@ -4,6 +4,7 @@
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
 #include "cantera/thermo/PlasmaPhase.h"
+#include <numeric>
 
 using namespace Cantera;
 
@@ -243,6 +244,146 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     EXPECT_NEAR(state[reactor.componentIndex("O2")], O2_Moles, tol);
     EXPECT_NEAR(reactor.volume(), 0.5, tol);
     EXPECT_NEAR(reactor.pressure(), OneAtm, tol);
+}
+
+class TestReactorNet : public ReactorNet
+{
+public:
+    using ReactorNet::ReactorNet;
+
+    const vector<double>& atolVector() const {
+        return m_atol;
+    }
+};
+
+TEST(MoleReactorTestSet, test_bulk_mole_reactor_default_atol)
+{
+    auto makeNetwork = [](double volume) {
+        auto sol = newSolution("h2o2.yaml", "ohmech", "none");
+        sol->thermo()->setState_TPX(1000.0, 2 * OneAtm, "H2:0.5, O2:0.5");
+        auto reactor = make_shared<IdealGasMoleReactor>(sol, true);
+        reactor->setInitialVolume(volume);
+        return make_pair(reactor, make_shared<TestReactorNet>(reactor));
+    };
+
+    auto [reactor1, net1] = makeNetwork(1.0e-09);
+    auto [reactor2, net2] = makeNetwork(1.0e+04);
+    net1->initialize();
+    net2->initialize();
+
+    vector<double> state1(reactor1->neq());
+    vector<double> state2(reactor2->neq());
+    reactor1->getState(state1);
+    reactor2->getState(state2);
+    size_t sidx = reactor1->speciesOffset();
+    double moles1 = std::accumulate(state1.begin() + sidx, state1.end(), 0.0);
+    double moles2 = std::accumulate(state2.begin() + sidx, state2.end(), 0.0);
+
+    // Non-species components should have the default atol, while species components
+    // should have atol scaled by the total number of moles in the reactor.
+    EXPECT_DOUBLE_EQ(net1->atolVector()[0], net1->atol());
+    EXPECT_DOUBLE_EQ(net1->atolVector()[1], net1->atol());
+    for (size_t k = 0; k < reactor1->phase()->thermo()->nSpecies(); k++) {
+        EXPECT_DOUBLE_EQ(net1->atolVector()[sidx + k], net1->atol() * moles1);
+        EXPECT_DOUBLE_EQ(net2->atolVector()[sidx + k], net2->atol() * moles2);
+        EXPECT_DOUBLE_EQ(net2->atolVector()[sidx + k] / net1->atolVector()[sidx + k],
+                         moles2 / moles1);
+    }
+}
+
+TEST(MoleReactorTestSet, test_mole_reactor_surface_default_atol)
+{
+    auto makeNetwork = [](double area) {
+        auto surf = newSolution("methane_pox_on_pt.yaml", "Pt_surf");
+        auto gas = surf->adjacent("gas");
+        gas->thermo()->setState_TPX(900.0, OneAtm, "CH4:1.0, O2:2.0, AR:7.52");
+        auto reactor = make_shared<IdealGasMoleReactor>(gas, true);
+        vector<shared_ptr<ReactorBase>> adjacent{reactor};
+        auto rsurf = newReactorSurface("MoleReactorSurface", surf, adjacent, true);
+        rsurf->setArea(area);
+        return make_tuple(reactor, rsurf, make_shared<TestReactorNet>(reactor));
+    };
+
+    auto [reactor1, rsurf1, net1] = makeNetwork(1.0e-07);
+    auto [reactor2, rsurf2, net2] = makeNetwork(3.0e+05);
+    net1->initialize();
+    net2->initialize();
+
+    vector<double> state1(rsurf1->neq());
+    vector<double> state2(rsurf2->neq());
+    rsurf1->getState(state1);
+    rsurf2->getState(state2);
+    double moles1 = std::accumulate(state1.begin(), state1.end(), 0.0);
+    double moles2 = std::accumulate(state2.begin(), state2.end(), 0.0);
+
+    for (size_t k = 0; k < rsurf1->neq(); k++) {
+        size_t i1 = rsurf1->offset() + k;
+        size_t i2 = rsurf2->offset() + k;
+        EXPECT_DOUBLE_EQ(net1->atolVector()[i1], net1->atol() * moles1);
+        EXPECT_DOUBLE_EQ(net2->atolVector()[i2], net2->atol() * moles2);
+        EXPECT_DOUBLE_EQ(net2->atolVector()[i2] / net1->atolVector()[i1],
+                         moles2 / moles1);
+    }
+}
+
+TEST(MoleReactorTestSet, test_user_atol_is_not_scaled)
+{
+    auto surf = newSolution("methane_pox_on_pt.yaml", "Pt_surf");
+    auto gas = surf->adjacent("gas");
+    gas->thermo()->setState_TPX(900.0, OneAtm, "CH4:1.0, O2:2.0, AR:7.52");
+    auto reactor = make_shared<IdealGasMoleReactor>(gas, true);
+    reactor->setInitialVolume(4000.0);
+    vector<shared_ptr<ReactorBase>> adjacent{reactor};
+    auto rsurf = newReactorSurface("MoleReactorSurface", surf, adjacent, true);
+    rsurf->setArea(0.0001);
+    TestReactorNet net(reactor);
+    double atol = 2.0e-20;
+    net.setAbsoluteTolerance(atol);
+    net.initialize();
+
+    for (const auto& value : net.atolVector()) {
+        EXPECT_DOUBLE_EQ(value, atol);
+    }
+
+    net.clearAbsoluteTolerance();
+    vector<double> reactorState(reactor->neq());
+    reactor->getState(reactorState);
+    size_t sidx = reactor->speciesOffset();
+    double bulkMoles = std::accumulate(reactorState.begin() + sidx,
+                                       reactorState.end(), 0.0);
+    EXPECT_DOUBLE_EQ(net.atolVector()[sidx], net.atol() * bulkMoles);
+}
+
+TEST(MoleReactorTestSet, test_reactor_atol_vector)
+{
+    auto surf = newSolution("methane_pox_on_pt.yaml", "Pt_surf");
+    auto gas = surf->adjacent("gas");
+    gas->thermo()->setState_TPX(900.0, OneAtm, "CH4:1.0, O2:2.0, AR:7.52");
+    auto reactor = make_shared<IdealGasMoleReactor>(gas, true);
+    vector<shared_ptr<ReactorBase>> adjacent{reactor};
+    auto rsurf = newReactorSurface("MoleReactorSurface", surf, adjacent, true);
+
+    vector<double> reactorAtol(reactor->neq());
+    vector<double> surfaceAtol(rsurf->neq());
+    for (size_t i = 0; i < reactorAtol.size(); i++) {
+        reactorAtol[i] = (i + 1) * 1.0e-20;
+    }
+    for (size_t i = 0; i < surfaceAtol.size(); i++) {
+        surfaceAtol[i] = (i + 1) * 1.0e-25;
+    }
+    reactor->setAbsoluteTolerances(reactorAtol);
+    rsurf->setAbsoluteTolerances(surfaceAtol);
+
+    TestReactorNet net(reactor);
+    net.setAbsoluteTolerance(2.0e-30);
+    net.initialize();
+
+    for (size_t i = 0; i < reactorAtol.size(); i++) {
+        EXPECT_DOUBLE_EQ(net.atolVector()[reactor->offset() + i], reactorAtol[i]);
+    }
+    for (size_t i = 0; i < surfaceAtol.size(); i++) {
+        EXPECT_DOUBLE_EQ(net.atolVector()[rsurf->offset() + i], surfaceAtol[i]);
+    }
 }
 
 TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)

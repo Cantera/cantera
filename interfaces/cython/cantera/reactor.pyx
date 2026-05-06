@@ -124,6 +124,33 @@ cdef class ReactorBase:
                                span[double](&yp[0], yp.size))
         return y, yp
 
+    property atol:
+        """
+        Absolute tolerances for this reactor's local state variables.
+
+        If set, this array overrides the network-level scalar absolute tolerance
+        for this reactor. Entries are ordered according to `component_name`.
+        Setting this property to ``None`` clears the local override.
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] atol = np.empty(self.n_vars)
+            if self.rbase.getAbsoluteTolerances(span[double](&atol[0], atol.size)):
+                return atol
+            return None
+
+        def __set__(self, values):
+            if values is None:
+                self.rbase.clearAbsoluteTolerances()
+                return
+            if len(values) != self.n_vars:
+                raise ValueError('array must be of length n_vars')
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(values, dtype=np.double)
+            self.rbase.setAbsoluteTolerances(
+                span[const_double](&data[0], data.size))
+
     def syncState(self):
         """
         Set the state of the Reactor to match that of the associated
@@ -1823,17 +1850,23 @@ cdef class ReactorNet:
         def __get__(self):
             return self.net.rtol()
         def __set__(self, tol):
-            self.net.setTolerances(tol, -1)
+            self.net.setRelativeTolerance(tol)
 
     property atol:
         """
-        The absolute error tolerance used while integrating the reactor
-        equations.
+        The scalar absolute error tolerance used while integrating the reactor
+        equations. This value is used for state variables that do not have
+        reactor-specific absolute tolerances set by `Reactor.atol`. Setting
+        this property to ``None`` clears the scalar override and restores
+        reactor-specific default absolute tolerance scaling.
         """
         def __get__(self):
             return self.net.atol()
         def __set__(self, tol):
-            self.net.setTolerances(-1, tol)
+            if tol is None:
+                self.net.clearAbsoluteTolerance()
+            else:
+                self.net.setAbsoluteTolerance(tol)
 
     property rtol_sensitivity:
         """

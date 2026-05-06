@@ -146,6 +146,7 @@ public:
     string type() const override { return "MoleReactorSurface"; }
     void initialize(double t0=0.0) override;
     void getState(span<double> y) override;
+    void updateDefaultTolerances(span<double> atol, double baseAtol) override;
     void updateState(span<const double> y) override;
     void eval(double t, span<double> LHS, span<double> RHS) override;
     void evalSteady(double t, span<double> LHS, span<double> RHS) override;
