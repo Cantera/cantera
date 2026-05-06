@@ -430,6 +430,8 @@ public:
 
     double intrinsicHeating() override;
 
+    double inelasticPower();
+
 protected:
     void updateThermo() const override;
 
