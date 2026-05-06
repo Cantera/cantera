@@ -9,6 +9,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include <numeric>
 
 namespace Cantera
 {
@@ -237,6 +238,17 @@ void MoleReactorSurface::getState(span<double> y)
     for (size_t k = 0; k < m_nsp; k++) {
         y[k] *= totalSites / m_surf->size(k);
     }
+}
+
+void MoleReactorSurface::updateDefaultTolerances(span<double> atol, double baseAtol)
+{
+    vector<double> y(neq());
+    getState(y);
+    double totalMoles = std::accumulate(y.begin(), y.end(), 0.0);
+    if (totalMoles <= 0.0) {
+        return;
+    }
+    std::fill(atol.begin(), atol.end(), baseAtol * totalMoles);
 }
 
 void MoleReactorSurface::updateState(span<const double> y)

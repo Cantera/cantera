@@ -47,6 +47,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string componentName(size_t) except +translate_exception
         void getState(span[double]) except +translate_exception
         void getStateDae(span[double], span[double]) except +translate_exception
+        void setAbsoluteTolerances(span[const_double]) except +translate_exception
+        cbool getAbsoluteTolerances(span[double]) except +translate_exception
+        void clearAbsoluteTolerances() except +translate_exception
         void setInitialVolume(double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
 
@@ -179,6 +182,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double distance() except +translate_exception
         void setInitialTime(double)
         double getInitialTime()
+        void setRelativeTolerance(double) except +translate_exception
+        void setAbsoluteTolerance(double) except +translate_exception
+        void clearAbsoluteTolerance() except +translate_exception
         void setTolerances(double, double)
         double rtol()
         double atol()

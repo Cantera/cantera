@@ -11,6 +11,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/utilities.h"
 #include <boost/math/tools/roots.hpp>
+#include <numeric>
 
 using namespace std;
 namespace bmt = boost::math::tools;
@@ -58,6 +59,20 @@ void MoleReactor::getState(span<double> y)
     y[1] = m_vol;
     // set components y+2 ... y+K+2 to the moles of each species
     getMoles(y.subspan(m_sidx));
+}
+
+void MoleReactor::updateDefaultTolerances(span<double> atol, double baseAtol)
+{
+    vector<double> y(neq());
+    getState(y);
+    size_t sidx = speciesOffset();
+    double totalMoles = std::accumulate(y.begin() + sidx,
+                                        y.begin() + sidx + m_nsp, 0.0);
+    if (totalMoles <= 0.0) {
+        return;
+    }
+    std::fill(atol.begin() + sidx, atol.begin() + sidx + m_nsp,
+              baseAtol * totalMoles);
 }
 
 void MoleReactor::updateState(span<const double> y)

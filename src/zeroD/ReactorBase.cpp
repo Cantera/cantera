@@ -143,6 +143,39 @@ void ReactorBase::syncState()
     }
 }
 
+void ReactorBase::setAbsoluteTolerances(span<const double> atol)
+{
+    if (atol.size() != m_nv) {
+        throw CanteraError("ReactorBase::setAbsoluteTolerances",
+            "Expected array of length {}, but got length {}.", m_nv, atol.size());
+    }
+    m_userAtol.assign(atol.begin(), atol.end());
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
+}
+
+bool ReactorBase::getAbsoluteTolerances(span<double> atol) const
+{
+    if (atol.size() != m_nv) {
+        throw CanteraError("ReactorBase::getAbsoluteTolerances",
+            "Expected array of length {}, but got length {}.", m_nv, atol.size());
+    }
+    if (m_userAtol.empty()) {
+        return false;
+    }
+    std::copy(m_userAtol.begin(), m_userAtol.end(), atol.begin());
+    return true;
+}
+
+void ReactorBase::clearAbsoluteTolerances()
+{
+    m_userAtol.clear();
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
+}
+
 void ReactorBase::updateConnected(bool updatePressure) {
     // save parameters needed by other connected reactors
     m_enthalpy = m_thermo->enthalpy_mass();

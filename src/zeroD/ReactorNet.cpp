@@ -17,6 +17,7 @@
 #include "cantera/numerics/EigenSparseJacobian.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/MultiNewton.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 #include <deque>
@@ -165,7 +166,7 @@ ReactorNet::ReactorNet(span<shared_ptr<ReactorBase>> reactors)
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setLinearSolverType("DENSE");
-    setTolerances(-1.0, -1.0);
+    updateTolerances();
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -186,15 +187,60 @@ void ReactorNet::setMaxErrTestFails(int nmax)
     integrator().setMaxErrTestFails(nmax);
 }
 
+void ReactorNet::setRelativeTolerance(double rtol)
+{
+    if (rtol <= 0.0) {
+        throw CanteraError("ReactorNet::setRelativeTolerance",
+            "Relative tolerance must be positive; got {}.", rtol);
+    }
+    m_rtol = rtol;
+    updateTolerances();
+}
+
+void ReactorNet::setAbsoluteTolerance(double atol)
+{
+    if (atol <= 0.0) {
+        throw CanteraError("ReactorNet::setAbsoluteTolerance",
+            "Absolute tolerance must be positive; got {}.", atol);
+    }
+    m_atols = atol;
+    m_atolUserSpecified = true;
+    updateTolerances();
+}
+
+void ReactorNet::clearAbsoluteTolerance()
+{
+    m_atols = 1.0e-15;
+    m_atolUserSpecified = false;
+    updateTolerances();
+}
+
 void ReactorNet::setTolerances(double rtol, double atol)
 {
-    if (rtol >= 0.0) {
+    warn_deprecated("ReactorNet::setTolerances",
+        "Use setRelativeTolerance and setAbsoluteTolerance instead."
+        " To be removed after Cantera 4.0.");
+    if (rtol > 0.0) {
         m_rtol = rtol;
     }
-    if (atol >= 0.0) {
+    if (atol > 0.0) {
         m_atols = atol;
+        m_atolUserSpecified = true;
     }
+    updateTolerances();
+}
+
+void ReactorNet::updateTolerances()
+{
     fill(m_atol.begin(), m_atol.end(), m_atols);
+    for (auto& R : m_reactors) {
+        auto localAtol = span<double>(m_atol.data() + R->offset(), R->neq());
+        if (R->hasUserTolerances()) {
+            R->getAbsoluteTolerances(localAtol);
+        } else if (!m_atolUserSpecified) {
+            R->updateDefaultTolerances(localAtol, m_atols);
+        }
+    }
     m_integ->setTolerances(m_rtol, m_atol);
 }
 
@@ -244,6 +290,7 @@ void ReactorNet::initialize()
     for (auto& reactor : m_reactors) {
         reactor->updateConnected(true);
     }
+    updateTolerances();
     m_integ->initialize(m_time, *this);
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
@@ -263,6 +310,7 @@ void ReactorNet::reinitialize()
         for (auto& reactor : m_reactors) {
             reactor->updateConnected(true);
         }
+        updateTolerances();
         m_integ->reinitialize(m_time, *this);
         if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
             checkPreconditionerSupported();

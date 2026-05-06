@@ -76,7 +76,38 @@ public:
     //! integrator in a single step.
     void setMaxErrTestFails(int nmax);
 
-    //! Set the relative and absolute tolerances for the integrator.
+    //! Set the relative tolerance for the integrator.
+    //!
+    //! @param rtol  Relative tolerance for all state variables; must be positive.
+    //! @since New in %Cantera 4.0.
+    void setRelativeTolerance(double rtol);
+
+    //! Set the scalar absolute tolerance for the integrator.
+    //!
+    //! @param atol  Scalar absolute tolerance for state variables without
+    //!     reactor-specific absolute tolerances; must be positive. Superseded by
+    //!     absolute tolerances set for individual reactors.
+    //! @see ReactorBase::setAbsoluteTolerances
+    //! @since New in %Cantera 4.0.
+    void setAbsoluteTolerance(double atol);
+
+    //! Clear the user-specified scalar absolute tolerance.
+    //!
+    //! Restores the default scalar absolute tolerance and enables
+    //! reactor-specific default scaling rules.
+    //! @see ReactorBase::updateDefaultTolerances
+    //! @since New in %Cantera 4.0.
+    void clearAbsoluteTolerance();
+
+    //! Set the relative and scalar absolute tolerances for the integrator.
+    //!
+    //! @param rtol  If positive, set the relative tolerance for all state variables;
+    //!     ignored if negative.
+    //! @param atol  If positive, set the scalar absolute tolerance for all state
+    //!     variables; ignored if negative. Superseded by absolute tolerances set
+    //!     for individual reactors.
+    //! @deprecated To be removed after %Cantera 4.0. Use setRelativeTolerance()
+    //!     and setAbsoluteTolerance() instead.
     void setTolerances(double rtol, double atol);
 
     //! Set the relative and absolute tolerances for integrating the
@@ -96,7 +127,7 @@ public:
         return m_rtol;
     }
 
-    //! Absolute integration tolerance
+    //! Scalar absolute integration tolerance
     double atol() {
         return m_atols;
     }
@@ -380,6 +411,10 @@ protected:
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
+    //! Update the integrator tolerance vector from the current scalar settings,
+    //! reactor-specific user tolerances, and reactor-specific default scaling rules.
+    void updateTolerances();
+
     void updatePreconditioner(double gamma) override;
 
     //! Create reproducible names for reactors and walls/connectors.
@@ -420,6 +455,8 @@ protected:
     double m_rtolsens = 1.0e-4;
     double m_atols = 1.0e-15;
     double m_atolsens = 1.0e-6;
+    //! True if scalar absolute tolerance was user-specified
+    bool m_atolUserSpecified = false;
     shared_ptr<SystemJacobian> m_precon;
     string m_linearSolverType;
 

@@ -247,6 +247,48 @@ public:
             "Not implemented for reactor type '{}'.", type());
     }
 
+    //! Set absolute tolerances for this reactor's state variables.
+    //!
+    //! @param atol  User-specified absolute tolerances. The length must be equal
+    //!     to neq(), and entries are ordered according to componentName().
+    //!
+    //! ReactorNet uses these values for this reactor's portion of the state vector
+    //! instead of the network-level scalar absolute tolerance or reactor-specific
+    //! default tolerances.
+    //! @since New in %Cantera 4.0.
+    void setAbsoluteTolerances(span<const double> atol);
+
+    //! Get the absolute tolerances set for this reactor's state variables.
+    //!
+    //! @param[out] atol  User-specified absolute tolerances. The length must be
+    //!     equal to neq().
+    //! @return  `true` if user-specified absolute tolerances are set for this
+    //!     reactor; `false` otherwise.
+    //! @since New in %Cantera 4.0.
+    bool getAbsoluteTolerances(span<double> atol) const;
+
+    //! Clear user-specified absolute tolerances for this reactor.
+    //! @since New in %Cantera 4.0.
+    void clearAbsoluteTolerances();
+
+    //! Returns `true` if user-specified absolute tolerances are set for this reactor.
+    //! @since New in %Cantera 4.0.
+    bool hasUserTolerances() const {
+        return !m_userAtol.empty();
+    }
+
+    //! Update default absolute tolerances based on this reactor's state variables.
+    //!
+    //! @param[in,out] atol  Mutable slice of ReactorNet's absolute tolerance
+    //!     vector for this reactor. The length is neq(), and entries are ordered
+    //!     according to componentName(). On entry, all values are set to baseAtol.
+    //! @param baseAtol  The network-level scalar default absolute tolerance.
+    //!
+    //! ReactorNet calls this hook only when neither this reactor nor the network
+    //! has user-specified absolute tolerances.
+    //! @since New in %Cantera 4.0.
+    virtual void updateDefaultTolerances(span<double> atol, double baseAtol) {}
+
     //! Get the current state and derivative vector of the reactor for a DAE solver
     /*!
      *  @param[out] y     state vector representing the initial state of the reactor
@@ -529,6 +571,9 @@ protected:
 
     ReactorNet* m_net = nullptr; //!< The ReactorNet that this reactor is part of
     size_t m_offset = 0; //!< Offset into global ReactorNet state vector
+
+    //! User-specified absolute tolerances for this reactor's state variables.
+    vector<double> m_userAtol;
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;

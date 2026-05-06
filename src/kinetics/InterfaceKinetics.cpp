@@ -548,7 +548,8 @@ void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
         buildNetwork();
     }
 
-    m_integrator->setTolerances(rtol, atol);
+    m_integrator->setRelativeTolerance(rtol);
+    m_integrator->setAbsoluteTolerance(atol);
     m_integrator->setMaxTimeStep(maxStepSize);
     m_integrator->setMaxSteps(maxSteps);
     m_integrator->setMaxErrTestFails(maxErrTestFails);

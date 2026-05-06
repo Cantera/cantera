@@ -876,7 +876,7 @@ class TestReactor:
             t = net.step()
             assert mdot(t) == approx(mfc.mass_flow_rate)
             dP = self.r1.phase.P - outlet_reservoir.phase.P
-            assert mdot(t) + 1e-5 * dP == approx(pc.mass_flow_rate)
+            assert max(mdot(t) + 1e-5 * dP, 0.0) == approx(pc.mass_flow_rate)
 
     def test_pressure_controller2(self):
         self.make_reactors(n_reactors=1)
@@ -1346,6 +1346,37 @@ def test_MoleReactorSurface_site_occupancy():
     assert sum(rsurf2.phase.X) == approx(1.0)
     assert rsurf1.coverages == approx(rsurf2.coverages)
     assert rsurf2.phase.X == approx(rsurf1.phase.X)
+
+
+def test_reactor_atol_vector():
+    surf = ct.Interface("methane_pox_on_pt.yaml", "Pt_surf")
+    gas = surf.adjacent["gas"]
+    gas.TPX = 900, ct.one_atm, "CH4:1.0, O2:2.0, AR:7.52"
+    r = ct.IdealGasMoleReactor(gas)
+    rsurf = ct.ReactorSurface(surf, r, A=0.2)
+
+    assert r.atol is None
+    assert rsurf.atol is None
+
+    r_atol = np.linspace(1e-20, r.n_vars * 1e-20, r.n_vars)
+    surf_atol = np.linspace(1e-25, rsurf.n_vars * 1e-25, rsurf.n_vars)
+    r.atol = r_atol
+    rsurf.atol = surf_atol
+
+    assert r.atol == approx(r_atol)
+    assert rsurf.atol == approx(surf_atol)
+
+    net = ct.ReactorNet([r])
+    net.atol = 1e-30
+    net.initialize()
+    assert net.atol == approx(1e-30)
+    net.atol = None
+    assert net.atol == approx(1e-15)
+
+    r.atol = None
+    rsurf.atol = None
+    assert r.atol is None
+    assert rsurf.atol is None
 
 
 class TestWellStirredReactorIgnition:

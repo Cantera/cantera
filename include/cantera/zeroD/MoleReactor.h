@@ -28,6 +28,7 @@ public:
     }
 
     void getState(span<double> y) override;
+    void updateDefaultTolerances(span<double> atol, double baseAtol) override;
     void updateState(span<const double> y) override;
     void eval(double t, span<double> LHS, span<double> RHS) override;
     size_t componentIndex(const string& nm) const override;

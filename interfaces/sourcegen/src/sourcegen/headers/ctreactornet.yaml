@@ -10,7 +10,10 @@ recipes:
   wraps: newReactorNet
 - name: setInitialTime
 - name: setMaxTimeStep
-- name: setTolerances
+- name: setRelativeTolerance
+- name: setAbsoluteTolerance
+- name: clearAbsoluteTolerance
+- name: setTolerances  # deprecated in Cantera 4.0
 - name: setSensitivityTolerances
 - name: advance
   wraps: advance(double)
