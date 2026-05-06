@@ -385,6 +385,8 @@ public:
 
     double intrinsicHeating() override;
 
+    double inelasticPower();
+
     //! @}
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
@@ -782,7 +784,6 @@ public:
 
 
     //! @}
-
 
 protected:
     //! Update the species reference state thermodynamic functions
