@@ -1,4 +1,5 @@
 doc/ctdeploy_key
+compile_commands.json
 *~
 *#
 *.o

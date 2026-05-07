@@ -902,7 +902,9 @@ else:
     config.add(config_options)
     toolchain = ["default"]
 
-env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "UnitsInterfaceBuilder", "wix", "gch"],
+env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall",
+                                   "UnitsInterfaceBuilder", "wix", "gch",
+                                   "compilation_db"],
                   ENV={"PATH": os.environ["PATH"]},
                   toolchain=toolchain,
                   **extraEnvArgs)
@@ -2064,6 +2066,10 @@ def postBuildMessage(target, source, env):
     build_message.append(f"\n{'*' * 80}\n")
 
     logger.status("\n".join(build_message), print_level=False)
+
+compiledb = env.CompilationDatabase('compile_commands.json')
+Alias('compiledb', compiledb)
+buildTargets.append(compiledb)
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
 env.Depends(finish_build, buildTargets)
