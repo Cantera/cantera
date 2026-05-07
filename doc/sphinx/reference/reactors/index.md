@@ -181,8 +181,26 @@ Y_k = \frac{W_k n_k}{m}, \qquad
  = \frac{W_k \delta_{kj}}{m} - \frac{Y_k W_j}{m}
 $$
 
-where $\delta_{kj}$ is the Kronecker delta function. Non-ideal pressure and composition
-derivatives are intentionally neglected in these preconditioner terms.
+where $\delta_{kj}$ is the Kronecker delta function.
+
+For inlets carrying enthalpy into a reactor, the connector terms also include
+derivatives of the upstream specific enthalpy with respect to the upstream reactor's
+state. The temperature contribution is
+
+$$
+\frac{\partial h_\t{in}}{\partial T_\t{in}} = c_{p,\t{in}},
+$$
+
+and the optional composition contribution is
+
+$$
+\frac{\partial h_\t{in}}{\partial n_{k,\t{in}}}
+ = \frac{\bar{h}_k - h_\t{in} W_k}{m_\t{in}},
+$$
+
+where $\bar{h}_k$ is the partial molar enthalpy of species $k$ in the upstream reactor.
+The composition contribution adds one entry per species to the preconditioner and is
+controlled by the ``skip-connector-composition-dependence`` setting.
 
 The wall heat-transfer terms illustrate the difference between the full Jacobian and
 the sparse approximation used for preconditioning. For a wall contribution to reactor

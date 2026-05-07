@@ -7,6 +7,7 @@
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/numerics/Func1.h"
+#include <limits>
 
 namespace Cantera
 {
@@ -115,7 +116,25 @@ double FlowDevice::pressureFunction_ddP(double deltaP) const
     if (!m_pfunc) {
         return 1.0;
     }
-    return m_pfunc->derivative()->eval(deltaP);
+    try {
+        return m_pfunc->derivative()->eval(deltaP);
+    } catch (CanteraError&) {
+        // Fall back to central finite difference for functions without analytic
+        // derivatives (for example, Tabulated1 with nearest-neighbor interpolation,
+        // or user-defined Func1 subclasses).
+        double eps = std::sqrt(std::numeric_limits<double>::epsilon())
+                     * std::max(1.0, std::abs(deltaP));
+        return (m_pfunc->eval(deltaP + eps) - m_pfunc->eval(deltaP - eps))
+               / (2.0 * eps);
+    }
+}
+
+void FlowDevice::addInletEnthalpyJacobian(SparseTriplets& trips, size_t row,
+    double coeff, bool includeComposition)
+{
+    if (m_mdot != 0.0) {
+        m_in->addEnthalpyJacobian(trips, row, coeff * m_mdot, includeComposition);
+    }
 }
 
 }

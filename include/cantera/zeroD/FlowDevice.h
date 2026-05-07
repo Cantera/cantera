@@ -52,6 +52,16 @@ public:
         throw NotImplementedError("FlowDevice::setMassFlowRate");
     }
 
+    //! Derivative of mass flow rate with respect to pressure difference.
+    //!
+    //! Returns `d(mdot)/d(P_in - P_out)` for the current state. A return value of zero
+    //! indicates that pressure coupling does not contribute Jacobian entries.
+    //!
+    //! @since New in %Cantera 4.0.
+    virtual double massFlowRate_ddP() const {
+        return 0.0;
+    }
+
     //! Get the device coefficient (defined by derived class).
     //! @since  New in %Cantera 3.2.
     double deviceCoefficient() const {
@@ -113,15 +123,21 @@ public:
         SparseTriplets& trips, size_t row, size_t k, double coeff,
         bool includeComposition=true, bool includePressureSpecies=true);
 
-    //! Derivative of mass flow rate with respect to pressure difference.
+    //! Add Jacobian terms for the inlet enthalpy dependence on upstream state.
     //!
-    //! Returns `d(mdot)/d(P_in - P_out)` for the current state. A return value of zero
-    //! indicates that pressure coupling does not contribute Jacobian entries.
+    //! Adds entries for `coeff * mdot * d(h_in)/dy_j`, where `h_in` is the specific
+    //! enthalpy of the upstream reactor. This captures how the energy carried into a
+    //! downstream reactor changes when the upstream temperature or composition changes.
     //!
+    //! @param[in,out] trips  Sparse Jacobian entries.
+    //! @param row  Global row index receiving these chain-rule terms.
+    //! @param coeff  Multiplicative factor applied to `mdot * d(h_in)/dy_j`.
+    //! @param includeComposition  Include derivatives of upstream enthalpy with respect
+    //!     to upstream species moles. These terms add composition-mediated fill-in and
+    //!     are controlled by preconditioner sparsity settings.
     //! @since New in %Cantera 4.0.
-    virtual double massFlowRate_ddP() const {
-        return 0.0;
-    }
+    void addInletEnthalpyJacobian(SparseTriplets& trips, size_t row, double coeff,
+                                   bool includeComposition=true);
 
     //! specific enthalpy
     double enthalpy_mass();
