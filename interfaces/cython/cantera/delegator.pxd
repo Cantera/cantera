@@ -16,6 +16,10 @@ cdef extern from "cantera/extensions/PythonHandle.h" namespace "Cantera":
         CxxPythonHandle(PyObject*, cbool)
         PyObject* get()
 
+cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
+    cdef cppclass CxxEigenTriplet "Eigen::Triplet<double>":
+        CxxEigenTriplet(size_t, size_t, double)
+
 
 cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
     cdef cppclass CxxDelegator "Cantera::Delegator":
@@ -35,6 +39,7 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[void(double, span[double])], string&) except +translate_exception
         void setDelegate(string&, function[void(double, span[double], span[double])], string&) except +translate_exception
         void setDelegate(string&, function[void(span[double], span[double], span[double])], string&) except +translate_exception
+        void setDelegate(string&, function[void(vector[CxxEigenTriplet]&)], string&) except +translate_exception
         void setDelegate(string&, function[int(double&, void*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
@@ -59,6 +64,8 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject*, void(PyFuncInfo&, double, span[double], span[double]))
     cdef function[void(span[double], span[double], span[double])] pyOverride(
         PyObject*, void(PyFuncInfo&, span[double], span[double], span[double]))
+    cdef function[void(vector[CxxEigenTriplet]&)] pyOverride(
+        PyObject*, void(PyFuncInfo&, vector[CxxEigenTriplet]&))
     cdef function[int(double&, void*)] pyOverride(PyObject*, int(PyFuncInfo&, double&, void*))
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
     cdef function[int(size_t&, const string&)] pyOverride(
