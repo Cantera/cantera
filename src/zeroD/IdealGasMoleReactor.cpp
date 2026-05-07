@@ -313,25 +313,27 @@ void IdealGasMoleReactor::getJacobianScalingFactors(
 void IdealGasMoleReactor::addPressureJacobian(
     SparseTriplets& trips, size_t row, double coeff, bool includeSpecies) const
 {
-    // Use ideal-gas pressure derivatives for preconditioning, even when the phase
-    // model is non-ideal. This avoids requiring connector code to know how pressure
-    // depends on this reactor's state representation.
-    double totalMoles = m_mass / m_thermo->meanMolecularWeight();
-    if (totalMoles <= 0.0 || m_vol <= 0.0 || m_thermo->temperature() <= 0.0) {
+    if (m_vol <= 0.0 || m_thermo->temperature() <= 0.0) {
         return;
     }
-    double idealPressure = GasConstant * m_thermo->temperature() * totalMoles / m_vol;
+    // dP/dT|_V = (pi_T + P) / T, where pi_T = internalPressure() = T*(dP/dT)_V - P.
+    // For ideal gas: pi_T = 0, giving P/T; non-ideal EOS returns the correct pi_T.
+    double dPdT = (m_thermo->internalPressure() + m_pressure)
+                  / m_thermo->temperature();
+    // dP/dV_total|_T = -1/(V * kappa_T), where kappa_T = isothermalCompressibility().
+    // For ideal gas: kappa_T = 1/P, giving -P/V.
+    double dPdV = -1.0 / (m_vol * m_thermo->isothermalCompressibility());
     if (!isJacobianLocalRow(row)) {
         // Local temperature-column entries are already captured by the finite
         // difference temperature column in getJacobianElements. Cross-reactor
         // temperature entries are not, so they are added here.
-        trips.emplace_back(row, m_offset,
-                           coeff * idealPressure / m_thermo->temperature());
+        trips.emplace_back(row, m_offset, coeff * dPdT);
     }
-    trips.emplace_back(row, m_offset + 1, -coeff * idealPressure / m_vol);
+    trips.emplace_back(row, m_offset + 1, coeff * dPdV);
     if (includeSpecies) {
-        // Species derivatives dP/dn_j = R T / V are optional because they add
-        // composition-mediated pressure fill-in.
+        // Species derivatives: use the ideal-gas approximation dP/dn_k = R*T/V for all
+        // k. For non-ideal phases the exact partial molar pressure derivative would
+        // require EOS-specific evaluation, but these terms are skipped by default.
         double dPdn = GasConstant * m_thermo->temperature() / m_vol;
         for (size_t k = 0; k < m_nsp; k++) {
             trips.emplace_back(row, m_offset + m_sidx + k, coeff * dPdn);

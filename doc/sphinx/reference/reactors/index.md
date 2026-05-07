@@ -155,22 +155,32 @@ $\partial \dot m / \partial (P_1 - P_2)$,
 $\partial \dot V / \partial (P_\t{left} - P_\t{right})$, or
 $\partial \dot Q / \partial T_\t{left}$. Reactor objects know how pressure,
 temperature, and flow-carried composition depend on their own state variables. Helper
-methods such as ``addPressureJacobian``, ``addTemperatureJacobian``, and
-``addSpeciesMassFractionJacobian`` combine these pieces.
+methods such as ``addPressureJacobian``, ``addTemperatureJacobian``,
+``addSpeciesMassFractionJacobian``, and ``addEnthalpyJacobian`` combine these pieces.
 
-The connector terms used for preconditioning are evaluated using ideal-gas
-thermodynamic approximations, even when the underlying phase model is non-ideal. For an
-{ct}`IdealGasMoleReactor`, the pressure derivatives use
+For an {ct}`IdealGasMoleReactor`, the pressure derivatives used in connector terms are
 
 $$
-P = \frac{N R T}{V}, \qquad
-\frac{\partial P}{\partial T} = \frac{P}{T}, \qquad
-\frac{\partial P}{\partial V} = -\frac{P}{V}, \qquad
-\frac{\partial P}{\partial n_j} = \frac{P}{N}.
+\frac{\partial P}{\partial T}\bigg|_V
+  = \frac{\pi_T + P}{T}, \qquad
+\frac{\partial P}{\partial V}\bigg|_T
+  = -\frac{1}{V \kappa_T}, \qquad
+\frac{\partial P}{\partial n_j}
+  \approx \frac{RT}{V},
 $$
+
+where $\pi_T = T(\partial P/\partial T)_V - P$ is the internal pressure and
+$\kappa_T = -(1/V)(\partial V/\partial P)_T$ is the isothermal compressibility. The
+first two derivatives are evaluated exactly using the equation of state via
+{ct}`ThermoPhase::internalPressure` and {ct}`ThermoPhase::isothermalCompressibility`,
+so they are correct for both ideal and non-ideal phases. The species-mole pressure
+derivative uses an ideal-gas approximation $\partial P/\partial n_j = RT/V$, which is
+exact for ideal gases. This approximation avoids EOS-specific partial-molar pressure
+evaluation and these terms are skipped by default (see ``skip-connector-pressure-composition-dependence``).
 
 For an {ct}`IdealGasConstPressureMoleReactor`, the reactor pressure is treated as fixed
-for these connector derivatives. Composition carried by a flow device is based on mass
+for these connector derivatives, so pressure-coupling terms from this reactor type are
+zero. Composition carried by a flow device is based on mass
 fractions because flow-device species fluxes are defined as $\dot m Y_k$. Mole reactors
 therefore convert those composition derivatives back to their native species-mole state
 variables using
