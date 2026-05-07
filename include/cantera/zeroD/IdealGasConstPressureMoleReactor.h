@@ -39,11 +39,15 @@ public:
     void getJacobianScalingFactors(double& f_species, span<double> f_energy) override;
 
     //! Calculate an approximate Jacobian to accelerate preconditioned solvers
-
+    //!
     //! Neglects derivatives with respect to mole fractions that would generate a
-    //! fully-dense Jacobian. Currently also neglects terms related to interactions
-    //! between reactors, for example via inlets and outlets.
-    void getJacobianElements(vector<Eigen::Triplet<double>>& trips) override;
+    //! fully-dense Jacobian. Connector terms are included for supported flow devices
+    //! and walls, subject to derivative settings that control sparse approximations.
+    void getJacobianElements(SparseTriplets& trips) override;
+    void addTemperatureJacobian(SparseTriplets& trips, size_t row,
+                                double coeff) const override;
+    void addSpeciesMassFractionJacobian(SparseTriplets& trips, size_t row, size_t k,
+                                        double coeff) const override;
 
     bool preconditionerSupported() const override { return true; };
 

@@ -47,7 +47,7 @@ $$  \dot m = K_v (P_1 - P_2)  $$
 corresponding to a linear dependence of the mass flow rate on the pressure difference.
 The pressure difference between the upstream (1) and downstream (2) reactor is defined
 as $P_1 - P_2$. The flow is not allowed to reverse and go from the downstream to the
-upstream reactor/reservoir, which means that the flow rate is set to zero if the
+upstream reactor/reservoir, which means that the flow rate is clamped to zero if the
 computed value of $\dot m$ is negative, for example if $P_1 < P_2$.
 
 Valves are often used between an upstream reactor and a downstream reactor or reservoir
@@ -55,6 +55,15 @@ to maintain them both at nearly the same pressure. By setting the constant $K_v$
 sufficiently large value, very small pressure differences will result in flow between
 the reactors that counteracts the pressure difference. However, excessively large values
 of $K_v$ may slow down the integrator or cause it to fail.
+
+For preconditioner construction, active (unclamped) valves contribute
+
+$$
+\pxpy{\dot m}{(P_1 - P_2)} = K_v g(t) f'(P_1 - P_2),
+$$
+
+and contribute zero when the flow is clamped to zero. The pressure derivatives with
+respect to reactor state variables are supplied by the adjacent reactor models.
 
 :::{admonition} Python Usage
 :class: tip
@@ -83,6 +92,11 @@ allows simple implementation of loops, in which exhaust gas from a reactor is fe
 into it through an inlet. But note that this capability should be used with caution,
 since no account is taken of the work required to do this.
 
+For preconditioner construction, mass flow controllers have
+$\partial \dot m / \partial P = 0$. They may still contribute derivatives through the
+composition carried from the upstream reactor unless connector composition dependence is
+disabled by derivative settings.
+
 :::{admonition} Python Usage
 :class: tip
 
@@ -107,6 +121,15 @@ $$  \dot m = \dot m_\t{primary} + K_v f(P_1 - P_2)  $$
 where $K_v$ is a proportionality constant and $f$ is a function of the pressure drop
 that defaults to $f(P_1 - P_2) = P_1 - P_2$. If $\dot m < 0$, the mass flow rate will be
 set to zero, since a reversal of the flow direction is not allowed.
+
+For preconditioner construction, pressure controllers include the derivative of their
+primary flow device and the pressure-correction derivative
+
+$$
+\pxpy{\dot m}{(P_1 - P_2)} = K_v f'(P_1 - P_2),
+$$
+
+when the resulting flow is active and unclamped.
 
 :::{admonition} Python Usage
 :class: tip
@@ -154,6 +177,27 @@ Stefan-Boltzmann radiation constant, and $q_0(t)$ is a user-specified, time-depe
 heat flux (W/m{sup}`2`). This definition is such that positive $q_0(t)$ implies heat
 transfer from the "left" reactor to the "right" reactor. Each of the user-specified
 terms defaults to 0.
+
+For sparse preconditioner construction, walls provide the derivatives:
+
+$$
+\pxpy{\dot V_w}{P_\t{left}} = K A,\qquad
+\pxpy{\dot V_w}{P_\t{right}} = -K A,
+$$
+
+where $\dot V_w = A v$ is the volumetric expansion rate [m³/s] associated with the
+wall's motion. Heat-transfer derivatives are:
+
+$$
+\pxpy{\dot Q_w}{T_\t{left}} = U A + 4 \epsilon \sigma A T_\t{left}^3,\qquad
+\pxpy{\dot Q_w}{T_\t{right}} = -U A - 4 \epsilon \sigma A T_\t{right}^3.
+$$
+
+The time-dependent velocity and heat-flux functions are treated as independent of the
+reactor state. When these wall derivatives are used in reactor energy equations for
+the sparse preconditioner, they are multiplied by the current inverse reactor heat
+capacity. Derivatives of that heat capacity with respect to temperature or composition
+are not included in the connector terms; see [](sec-reactor-preconditioning).
 
 :::{admonition} Python Usage
 :class: tip

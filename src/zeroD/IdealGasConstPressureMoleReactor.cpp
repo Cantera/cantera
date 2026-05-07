@@ -8,6 +8,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/Wall.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -104,8 +105,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, span<double> LHS,
     }
 }
 
-void IdealGasConstPressureMoleReactor::getJacobianElements(
-    vector<Eigen::Triplet<double>>& trips)
+void IdealGasConstPressureMoleReactor::getJacobianElements(SparseTriplets& trips)
 {
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
@@ -172,6 +172,49 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(
                 (specificHeat[j] * qdot - m_TotalCp * hk_dnkdnj_sums[j]) * denom);
         }
     }
+
+    // Add cross-reactor terms due to flow devices and walls.
+    bool includeComposition = !m_jac_skip_connector_composition_dependence;
+    bool includePressureSpecies =
+        !m_jac_skip_connector_pressure_composition_dependence;
+
+    if (!m_jac_skip_flow_devices) {
+        auto imw = m_thermo->inverseMolecularWeights();
+        for (auto outlet : m_outlet) {
+            for (size_t n = 0; n < m_nsp; n++) {
+                outlet->addOutletSpeciesMassFlowRateJacobian(trips,
+                    m_offset + m_sidx + n, n, -imw[n],
+                    includeComposition, includePressureSpecies);
+            }
+        }
+
+        for (auto inlet : m_inlet) {
+            for (size_t n = 0; n < m_nsp; n++) {
+                inlet->addOutletSpeciesMassFlowRateJacobian(trips,
+                    m_offset + m_sidx + n, n, imw[n],
+                    includeComposition, includePressureSpecies);
+            }
+            if (m_energy) {
+                inlet->addMassFlowRateJacobian(trips, m_offset,
+                    inlet->enthalpy_mass() / m_TotalCp, includePressureSpecies);
+                for (size_t n = 0; n < m_nsp; n++) {
+                    inlet->addOutletSpeciesMassFlowRateJacobian(trips, m_offset, n,
+                        -m_hk[n] * imw[n] / m_TotalCp,
+                        includeComposition, includePressureSpecies);
+                }
+            }
+        }
+    }
+
+    if (!m_jac_skip_walls && m_energy) {
+        for (size_t i = 0; i < m_wall.size(); i++) {
+            int f = 2 * m_lr[i] - 1;
+            // Connector preconditioner terms include numerator derivatives for
+            // wall heat transfer. Derivatives of m_TotalCp are omitted here to avoid
+            // dense temperature/composition fill-in.
+            m_wall[i]->addHeatRateJacobian(trips, m_offset, f / m_TotalCp);
+        }
+    }
 }
 
 void IdealGasConstPressureMoleReactor::getJacobianScalingFactors(
@@ -180,6 +223,35 @@ void IdealGasConstPressureMoleReactor::getJacobianScalingFactors(
     f_species = 1.0 / m_vol;
     for (size_t k = 0; k < m_nsp; k++) {
         f_energy[k] = - m_hk[k] / m_TotalCp;
+    }
+}
+
+void IdealGasConstPressureMoleReactor::addTemperatureJacobian(
+    SparseTriplets& trips, size_t row, double coeff) const
+{
+    if (!isJacobianLocalRow(row)) {
+        // Local temperature-column entries are already captured by the finite
+        // difference temperature column in getJacobianElements. Cross-reactor
+        // temperature entries are not, so they are added here.
+        trips.emplace_back(row, m_offset, coeff);
+    }
+}
+
+void IdealGasConstPressureMoleReactor::addSpeciesMassFractionJacobian(
+    SparseTriplets& trips, size_t row, size_t k, double coeff) const
+{
+    if (m_mass <= 0.0 || k >= m_nsp) {
+        return;
+    }
+    auto mw = m_thermo->molecularWeights();
+    double Yk = m_thermo->massFraction(k);
+    // Convert flow-carried composition derivatives from dY_k/dy to dY_k/dn_j.
+    for (size_t j = 0; j < m_nsp; j++) {
+        double dYdn = -Yk * mw[j] / m_mass;
+        if (j == k) {
+            dYdn += mw[k] / m_mass;
+        }
+        trips.emplace_back(row, m_offset + m_sidx + j, coeff * dYdn);
     }
 }
 

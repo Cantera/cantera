@@ -164,11 +164,13 @@ sim.advance(1)
 reac.phase()
 ```
 
-The approximate Jacobian matrices used to construct the preconditioners do not currently
-account for terms that link multiple reactors in the same network. For networks of this
-type, the iterative solver may exhibit convergence errors for systems where the default
-direct solver does not. If the solver converges, the solution will satisfy the error
-tolerances, even though the Jacobian matrix is not exact.
+```{versionadded} 4.0
+The approximate Jacobian matrices used to construct the preconditioners now include
+sparse terms for supported flow devices, walls, and reacting surfaces connecting mole
+reactors. Some dense connector terms are omitted by default to preserve sparsity; see
+{ct}`Reactor::setDerivativeSettings` and [](#Kinetics.derivative_settings) for the
+derivative settings controlling these terms.
+```
 
 ## Common Reactor Types and their Implementation in Cantera
 

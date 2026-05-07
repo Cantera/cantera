@@ -143,6 +143,74 @@ and benchmarks demonstrating the achievable performance gains can be found in
 {cite:t}`walker2023`. An example demonstrating the use of this feature can be found in
 [`preconditioned_integration.py`](/examples/python/reactors/preconditioned_integration).
 
+For reactor networks containing multiple reactors, each reactor contributes the Jacobian
+rows corresponding to its own governing equations. Terms involving flow devices, walls,
+and reacting surfaces may therefore appear in columns for other reactors in the same
+network.
+
+The connector implementation is split between connector-specific scalar derivatives
+and reactor-specific state derivatives. Connectors such as valves, pressure
+controllers, and walls know simple derivatives such as
+$\partial \dot m / \partial (P_1 - P_2)$,
+$\partial \dot V / \partial (P_\t{left} - P_\t{right})$, or
+$\partial \dot Q / \partial T_\t{left}$. Reactor objects know how pressure,
+temperature, and flow-carried composition depend on their own state variables. Helper
+methods such as ``addPressureJacobian``, ``addTemperatureJacobian``, and
+``addSpeciesMassFractionJacobian`` combine these pieces.
+
+The connector terms used for preconditioning are evaluated using ideal-gas
+thermodynamic approximations, even when the underlying phase model is non-ideal. For an
+{ct}`IdealGasMoleReactor`, the pressure derivatives use
+
+$$
+P = \frac{N R T}{V}, \qquad
+\frac{\partial P}{\partial T} = \frac{P}{T}, \qquad
+\frac{\partial P}{\partial V} = -\frac{P}{V}, \qquad
+\frac{\partial P}{\partial n_j} = \frac{P}{N}.
+$$
+
+For an {ct}`IdealGasConstPressureMoleReactor`, the reactor pressure is treated as fixed
+for these connector derivatives. Composition carried by a flow device is based on mass
+fractions because flow-device species fluxes are defined as $\dot m Y_k$. Mole reactors
+therefore convert those composition derivatives back to their native species-mole state
+variables using
+
+$$
+Y_k = \frac{W_k n_k}{m}, \qquad
+\frac{\partial Y_k}{\partial n_j}
+ = \frac{W_k \delta_{kj}}{m} - \frac{Y_k W_j}{m}
+$$
+
+where $\delta_{kj}$ is the Kronecker delta function. Non-ideal pressure and composition
+derivatives are intentionally neglected in these preconditioner terms.
+
+The wall heat-transfer terms illustrate the difference between the full Jacobian and
+the sparse approximation used for preconditioning. For a wall contribution to reactor
+$i$ written as
+
+$$
+\dot{T}_i = \frac{f_i \dot{Q}_w}{C_i},
+$$
+
+where $C_i = n_i \bar{c}_{v,i}$ for an {ct}`IdealGasMoleReactor` and
+$C_i = n_i \bar{c}_{p,i}$ for an {ct}`IdealGasConstPressureMoleReactor`, the full
+derivative is
+
+$$
+\frac{\partial \dot{T}_i}{\partial y_j}
+ = \frac{f_i}{C_i}\frac{\partial \dot{Q}_w}{\partial y_j}
+ - \frac{f_i \dot{Q}_w}{C_i^2}\frac{\partial C_i}{\partial y_j}.
+$$
+
+The second term includes temperature and composition derivatives of the reactor heat
+capacity. These terms are omitted from connector preconditioner entries because they
+add cost and, for composition derivatives, can add substantial fill-in. The implemented
+wall connector terms retain the numerator derivatives, for example
+$(f_i / C_i)\partial\dot{Q}_w/\partial T_\t{neighbor}$, which are the sparse
+cross-reactor couplings that most directly affect the iterative linear solve. Similar
+denominator-derivative terms are neglected for connector contributions involving
+enthalpy, internal energy, and pressure-expansion work.
+
 
 ```{toctree}
 :hidden:

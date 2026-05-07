@@ -384,6 +384,12 @@ cdef class Kinetics(_SolutionBase):
         """
         Property setting behavior of derivative evaluation.
 
+        Derivative settings are updated using a dictionary::
+
+            >>> gas.derivative_settings = {"skip-falloff": True}
+
+        Passing an empty dictionary will reset all values to their defaults.
+
         For :ct:`BulkKinetics`, the following keyword/value pairs are supported:
 
         -  ``skip-third-bodies`` (boolean) ... if `False` (default), third body
@@ -392,14 +398,25 @@ cdef class Kinetics(_SolutionBase):
         -  ``skip-falloff`` (boolean) ... if `True` (default), third-body effects
            on reaction rates are not considered.
 
+        - `skip-nonideal` (boolean): if `false` (default), derivatives are only
+          supported for ideal ThermoPhase models; if `true`, derivatives for
+          non-ideal phases are evaluated using idealized approximations that
+          neglect non-ideal contributions.
+
         -  ``rtol-delta`` (double) ... relative tolerance used to perturb properties
            when calculating numerical derivatives. The default value is 1e-8.
 
-        Derivative settings are updated using a dictionary::
+        For :ct:`InterfaceKinetics`, the following keyword/value pairs are supported:
 
-            >>> gas.derivative_settings = {"skip-falloff": True}
+        - `skip-coverage-dependence` (boolean): if `false` (default), rate constant
+          coverage dependence is not considered when evaluating derivatives.
 
-        Passing an empty dictionary will reset all values to their defaults.
+        - `skip-electrochemistry` (boolean): if `false` (default), electrical charge
+          is not considered in evaluating the derivatives and these reactions are
+          treated as normal surface reactions.
+
+        - `rtol-delta` (double): relative tolerance used to perturb properties
+          when calculating numerical derivatives. The default value is 1e-8.
         """
         def __get__(self):
             cdef CxxAnyMap settings

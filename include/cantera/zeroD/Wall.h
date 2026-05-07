@@ -9,6 +9,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "ConnectorNode.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -84,6 +85,38 @@ public:
     void setSimTime(double time) {
         m_time = time;
     }
+
+    //! Add Jacobian terms proportional to derivatives of the wall expansion rate.
+    //!
+    //! Adds entries for `coeff * d(expansionRate)/dy_j` to the specified global row of
+    //! the reactor network Jacobian. The wall supplies scalar derivatives with
+    //! respect to left and right pressures, while adjacent reactors supply pressure
+    //! derivatives with respect to their state variables.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms.
+    //! @param coeff  Multiplicative factor applied to `d(expansionRate)/dy_j`.
+    //! @param includePressureSpecies  Include pressure derivatives with respect to
+    //!     species state variables when pressure is a derived quantity. These terms
+    //!     may be dense and are controlled by preconditioner sparsity settings.
+    //! @since New in %Cantera 4.0.
+    virtual void addExpansionRateJacobian(SparseTriplets& trips, size_t row,
+        double coeff, bool includePressureSpecies=true) {};
+
+    //! Add Jacobian terms proportional to derivatives of the wall heat rate.
+    //!
+    //! Adds entries for `coeff * d(heatRate)/dy_j` to the specified global row of the
+    //! reactor network Jacobian. The wall supplies scalar derivatives with respect to
+    //! left and right temperatures, while adjacent reactors supply temperature
+    //! derivatives with respect to their state variables.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms.
+    //! @param coeff  Multiplicative factor applied to `d(heatRate)/dy_j`.
+    //! @since New in %Cantera 4.0.
+    virtual void addHeatRateJacobian(SparseTriplets& trips, size_t row, double coeff) {};
 
 protected:
     ReactorBase* m_left = nullptr;
@@ -199,6 +232,10 @@ public:
     double getExpansionRateCoeff() const {
         return m_k;
     }
+
+    void addExpansionRateJacobian(SparseTriplets& trips, size_t row, double coeff,
+                                  bool includePressureSpecies=true) override;
+    void addHeatRateJacobian(SparseTriplets& trips, size_t row, double coeff) override;
 
 protected:
 

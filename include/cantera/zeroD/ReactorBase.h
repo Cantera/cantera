@@ -402,7 +402,62 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera API and may be
     //! changed or removed without notice.
-    virtual void getJacobianElements(vector<Eigen::Triplet<double>>& trips) {};
+    virtual void getJacobianElements(SparseTriplets& trips) {};
+
+    //! Add terms proportional to derivatives with respect to this reactor's pressure.
+    //!
+    //! This method is used by connectors to apply the chain rule. For example, a
+    //! valve may know a row contribution as
+    //! `coeff * d(mdot)/d(P_in - P_out)`, while the reactor knows how its pressure
+    //! depends on its own state variables. Calling this method appends all entries
+    //! `coeff * dP/dy_j` for this reactor's state variables `y_j`.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms. This may be a
+    //!     row belonging to another reactor when a connector creates cross-reactor
+    //!     coupling.
+    //! @param coeff  Multiplicative factor applied to `dP/dy_j`.
+    //! @param includeSpecies  Include pressure derivatives with respect to species
+    //!     state variables. These terms may be dense for mole reactors and are
+    //!     controlled by preconditioner sparsity settings.
+    //! @since New in %Cantera 4.0.
+    virtual void addPressureJacobian(SparseTriplets& trips, size_t row, double coeff,
+                                     bool includeSpecies=true) const {};
+
+    //! Add terms proportional to derivatives with respect to this reactor's
+    //! temperature.
+    //!
+    //! This method is used by connectors to apply the chain rule. Calling this method
+    //! appends all entries `coeff * dT/dy_j` for this reactor's state variables `y_j`.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms. This may be a
+    //!     row belonging to another reactor when a connector creates cross-reactor
+    //!     coupling.
+    //! @param coeff  Multiplicative factor applied to `dT/dy_j`.
+    //! @since New in %Cantera 4.0.
+    virtual void addTemperatureJacobian(SparseTriplets& trips, size_t row,
+                                        double coeff) const {};
+
+    //! Add terms proportional to derivatives with respect to a species mass fraction.
+    //!
+    //! Flow devices transport species according to upstream mass fractions. This
+    //! method lets a connector request chain-rule entries for `coeff * dY_k/dy_j`
+    //! while the reactor implementation handles how `Y_k` depends on its native state
+    //! variables, such as species moles.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms. This may be a
+    //!     row belonging to another reactor when a connector creates cross-reactor
+    //!     coupling.
+    //! @param k  Species index in this reactor's phase.
+    //! @param coeff  Multiplicative factor applied to `dY_k/dy_j`.
+    //! @since New in %Cantera 4.0.
+    virtual void addSpeciesMassFractionJacobian(SparseTriplets& trips, size_t row,
+                                                size_t k, double coeff) const {};
 
     //! Calculate the Jacobian of a specific reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
@@ -546,6 +601,15 @@ public:
 
 protected:
     explicit ReactorBase(const string& name="(none)");
+
+    //! Check whether a global Jacobian row belongs to this reactor.
+    //!
+    //! Used by Jacobian helper methods when local rows are already covered by the
+    //! reactor's own block approximation, while cross-reactor rows need explicit
+    //! connector entries.
+    bool isJacobianLocalRow(size_t row) const {
+        return row >= m_offset && row < m_offset + m_nv;
+    }
 
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;

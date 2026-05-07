@@ -49,6 +49,24 @@ void PressureController::updateMassFlowRate(double time)
     m_mdot = std::max(mdot, 0.0);
 }
 
+double PressureController::massFlowRate_ddP() const
+{
+    if (m_mdot <= 0.0) {
+        return 0.0;
+    }
+    double delta_P = in().pressure() - out().pressure();
+    return m_coeff * pressureFunction_ddP(delta_P);
+}
+
+void PressureController::addMassFlowRateJacobian(
+    SparseTriplets& trips, size_t row, double coeff, bool includePressureSpecies)
+{
+    FlowDevice::addMassFlowRateJacobian(trips, row, coeff, includePressureSpecies);
+    if (m_primary) {
+        m_primary->addMassFlowRateJacobian(trips, row, coeff, includePressureSpecies);
+    }
+}
+
 void PressureController::setPrimary(shared_ptr<ConnectorNode> primary)
 {
     auto dev = std::dynamic_pointer_cast<FlowDevice>(primary);
@@ -77,6 +95,20 @@ void Valve::updateMassFlowRate(double time)
         mdot *= delta_P;
     }
     m_mdot = std::max(mdot, 0.0);
+}
+
+double Valve::massFlowRate_ddP() const
+{
+    if (m_mdot <= 0.0) {
+        return 0.0;
+    }
+    double alpha = m_coeff;
+    if (m_tfunc) {
+        alpha *= m_tfunc->eval(m_time);
+    }
+    double delta_P = in().pressure() - out().pressure();
+    alpha *= pressureFunction_ddP(delta_P);
+    return alpha;
 }
 
 }

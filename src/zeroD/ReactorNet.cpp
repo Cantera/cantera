@@ -332,6 +332,8 @@ void ReactorNet::setPreconditioner(shared_ptr<SystemJacobian> preconditioner)
     m_precon = preconditioner;
     AnyMap settings;
     settings["skip-nonideal"] = true;
+    settings["skip-connector-composition-dependence"] = true;
+    settings["skip-connector-pressure-composition-dependence"] = true;
     setDerivativeSettings(settings);
     m_needIntegratorInit = true;
 }

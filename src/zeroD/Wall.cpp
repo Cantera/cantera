@@ -75,4 +75,37 @@ double Wall::heatRate()
     return q1;
 }
 
+void Wall::addExpansionRateJacobian(
+    SparseTriplets& trips, size_t row, double coeff, bool includePressureSpecies)
+{
+    double alpha = m_k * m_area;
+    if (alpha == 0.0) {
+        return;
+    }
+    // Chain rule for expansionRate(P_left - P_right): the wall supplies
+    // d(expansionRate)/dDeltaP, while reactors supply dP/dy.
+    m_left->addPressureJacobian(trips, row, coeff * alpha, includePressureSpecies);
+    m_right->addPressureJacobian(trips, row, -coeff * alpha, includePressureSpecies);
+}
+
+void Wall::addHeatRateJacobian(SparseTriplets& trips, size_t row, double coeff)
+{
+    double leftCoeff = m_area * m_rrth;
+    double rightCoeff = -leftCoeff;
+    if (m_emiss > 0.0) {
+        leftCoeff += 4.0 * m_emiss * m_area * StefanBoltz
+                     * std::pow(m_left->temperature(), 3);
+        rightCoeff -= 4.0 * m_emiss * m_area * StefanBoltz
+                      * std::pow(m_right->temperature(), 3);
+    }
+    // Chain rule for heatRate(T_left, T_right): the wall supplies dQ/dT, while
+    // reactors supply dT/dy.
+    if (leftCoeff != 0.0) {
+        m_left->addTemperatureJacobian(trips, row, coeff * leftCoeff);
+    }
+    if (rightCoeff != 0.0) {
+        m_right->addTemperatureJacobian(trips, row, coeff * rightCoeff);
+    }
+}
+
 }

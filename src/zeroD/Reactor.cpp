@@ -42,6 +42,21 @@ Reactor::Reactor(shared_ptr<Solution> sol, bool clone, const string& name)
 void Reactor::setDerivativeSettings(AnyMap& settings)
 {
     m_kin->setDerivativeSettings(settings);
+    bool force = settings.empty();
+    if (force || settings.hasKey("skip-flow-devices")) {
+        m_jac_skip_flow_devices = settings.getBool("skip-flow-devices", false);
+    }
+    if (force || settings.hasKey("skip-walls")) {
+        m_jac_skip_walls = settings.getBool("skip-walls", false);
+    }
+    if (force || settings.hasKey("skip-connector-composition-dependence")) {
+        m_jac_skip_connector_composition_dependence =
+            settings.getBool("skip-connector-composition-dependence", false);
+    }
+    if (force || settings.hasKey("skip-connector-pressure-composition-dependence")) {
+        m_jac_skip_connector_pressure_composition_dependence =
+            settings.getBool("skip-connector-pressure-composition-dependence", false);
+    }
 }
 
 void Reactor::getState(span<double> y)

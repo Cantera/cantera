@@ -128,6 +128,25 @@ public:
     //! API and may be changed or removed without notice.
     Eigen::SparseMatrix<double> finiteDifferenceJacobian();
 
+    //! Control terms included when calculating sparse Jacobian approximations
+    //!
+    //! The `settings` map may include the following boolean options:
+    //!
+    //! - `skip-flow-devices` omits flow-device coupling terms.
+    //! - `skip-walls` omits wall heat-transfer and expansion terms.
+    //! - `skip-connector-composition-dependence` omits derivatives of flow-carried
+    //!   composition with respect to upstream species moles.
+    //! - `skip-connector-pressure-composition-dependence` omits the species-mole part
+    //!   of pressure derivatives. These terms can be dense and are omitted by default
+    //!   when an AdaptivePreconditioner is installed, while pressure derivatives with
+    //!   respect to temperature and volume are retained.
+    //!
+    //! Settings for keys not included in the map are left unchanged. Passing an empty
+    //! map will reset all settings to their defaults.
+    //!
+    //! See @ref kinDerivs for additional settings that affect how derivatives for
+    //! certain reaction-related terms are calculated.
+    //!
     void setDerivativeSettings(AnyMap& settings) override;
 
     void applySensitivity(span<const double> params) override;
@@ -156,6 +175,18 @@ protected:
 
     bool m_chem = false;
     bool m_energy = true;
+
+    //! Omit flow-device terms from the sparse Jacobian
+    bool m_jac_skip_flow_devices = false;
+
+    //! Omit wall terms from the sparse Jacobian
+    bool m_jac_skip_walls = false;
+
+    //! Omit flow composition derivatives, which can add dense connector blocks
+    bool m_jac_skip_connector_composition_dependence = false;
+
+    //! Omit species terms in pressure derivatives, which can add fill-in
+    bool m_jac_skip_connector_pressure_composition_dependence = false;
 
     vector<double> m_advancelimits; //!< Advance step limit
 
