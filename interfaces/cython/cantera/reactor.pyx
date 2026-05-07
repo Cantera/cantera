@@ -594,6 +594,10 @@ cdef class ExtensibleReactor(Reactor):
 
     ``component_index(name: string) -> int``
         Returns the index of the state vector component named ``name``
+
+    ``get_jacobian_elements(elements : list) -> None``
+        Appends sparse Jacobian elements as ``(row, column, value)`` tuples. Row and
+        column indices are global within the containing reactor network.
     """
 
     reactor_type = "ExtensibleReactor"
@@ -607,6 +611,7 @@ cdef class ExtensibleReactor(Reactor):
         'eval_walls': ('evalWalls', 'void(double)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
+        'get_jacobian_elements': ('getJacobianElements', 'void(SparseTriplets&)'),
     }
 
     def __cinit__(self, *args, **kwargs):

@@ -29,7 +29,7 @@ target_include_directories(ext_manager PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}"
   "../include"
   "${Python_INCLUDE_DIRS}")
-target_link_libraries(ext_manager PRIVATE fmt::fmt)
+target_link_libraries(ext_manager PRIVATE fmt::fmt Eigen3::Eigen)
 add_dependencies(ext_manager DELEGATOR_H_EXT)
 
 python_add_library(_cantera MODULE ${CY_OUTPUTS} WITH_SOABI)

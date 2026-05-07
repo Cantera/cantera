@@ -185,6 +185,21 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
+# Wrapper for functions of type void(SparseTriplets&)
+cdef void callback_v_vETr(PyFuncInfo& funcInfo,
+                          vector[CxxEigenTriplet]& trips) noexcept:
+    try:
+        pyTrips = []
+        ret = (<object>funcInfo.func())(pyTrips)
+        if ret is not None:
+            pyTrips.extend(ret)
+        for row, col, value in pyTrips:
+            trips.push_back(CxxEigenTriplet(<size_t>row, <size_t>col, <double>value))
+    except BaseException as e:
+        exc_type, exc_value = _sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
 # Wrapper for functions of type double(void*)
 cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept:
     try:
@@ -355,6 +370,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double*,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
+        elif callback == 'void(SparseTriplets&)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_v_vETr), cxx_when)
         elif callback == 'double(void*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_d_vp), cxx_when)

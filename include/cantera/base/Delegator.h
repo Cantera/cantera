@@ -10,6 +10,7 @@
 #include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ExtensionManager.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -267,6 +268,20 @@ public:
         *m_funcs_sz_csr[name] = makeDelegate(name, func, when, m_base_sz_csr[name]);
     }
 
+    //! Set delegates for member functions with the signature `void(SparseTriplets&)`
+    //! @since New in %Cantera 4.0.
+    void setDelegate(const string& name,
+                     const function<void(SparseTriplets&)>& func,
+                     const string& when)
+    {
+        if (!m_funcs_v_vET.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'void(SparseTriplets&)'.", name);
+        }
+        *m_funcs_v_vET[name] = makeDelegate(func, when, *m_funcs_v_vET[name]);
+    }
+
     //! Store a handle to a wrapper for the delegate from an external language interface
     void holdExternalHandle(const string& name,
                             const shared_ptr<ExternalHandle>& handle) {
@@ -402,6 +417,17 @@ protected:
         m_base_sz_csr[name] = base;
     }
 
+    //! Install a function with the signature `void(SparseTriplets&)`
+    //! as being delegatable
+    //! @since New in %Cantera 4.0.
+    void install(const string& name,
+                 function<void(SparseTriplets&)>& target,
+                 const function<void(SparseTriplets&)>& base)
+    {
+        target = base;
+        m_funcs_v_vET[name] = &target;
+    }
+
     //! Create a delegate for a function with no return value
     template <typename BaseFunc, class ... Args>
     function<void(Args ...)> makeDelegate(
@@ -508,6 +534,7 @@ protected:
     //! - `sz` for `size_t`
     //! - `AM` for `AnyMap`
     //! - `US` for `UnitStack`
+    //! - `ET` for `Eigen::Triplet<double>`
     //! - prefix `c` for `const` arguments
     //! - suffix `r` for reference arguments
     //! - suffix `p` for span arguments (for example, `dp` for `span<double>`)
@@ -526,6 +553,7 @@ protected:
         function<void(double, span<double>, span<double>)>*> m_funcs_v_d_dp_dp;
     map<string,
         function<void(span<double>, span<double>, span<double>)>*> m_funcs_v_dp_dp_dp;
+    map<string, function<void(SparseTriplets&)>*> m_funcs_v_vET;
 
     // Delegates with a return value
     map<string, function<double(void*)>> m_base_d_vp;

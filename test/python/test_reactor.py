@@ -3323,6 +3323,27 @@ class TestExtensibleReactor:
         with pytest.raises(TestException):
             r.component_index("fail")
 
+    def test_jacobian_elements_delegate(self):
+        class JacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+            def after_get_jacobian_elements(self, elements):
+                elements.append((self.component_index("H2"),
+                                 self.component_index("O2"), 12.5))
+
+        self.gas.TPX = 1000, ct.one_atm, "H2:2.0, O2:1.0, AR:8.0"
+        self.gas.set_multiplier(0.0)
+        r = JacobianReactor(self.gas)
+        r.energy_enabled = False
+
+        row = r.component_index("H2")
+        col = r.component_index("O2")
+        assert r.jacobian[row, col] == approx(12.5)
+
+        precon = ct.AdaptivePreconditioner()
+        net = ct.ReactorNet([r])
+        net.preconditioner = precon
+        net.advance(1e-8)
+        assert precon.jacobian[row, col] == approx(12.5)
+
     def test_misc(self):
         class DummyReactor(ct.ExtensibleReactor):
             def __init__(self, gas, *args, **kwargs):
