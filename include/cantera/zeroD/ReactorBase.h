@@ -459,6 +459,25 @@ public:
     virtual void addSpeciesMassFractionJacobian(SparseTriplets& trips, size_t row,
                                                 size_t k, double coeff) const {};
 
+    //! Add terms proportional to derivatives of this reactor's specific enthalpy.
+    //!
+    //! This method is used by flow device connectors to apply the chain rule for inlet
+    //! enthalpy contributions. It appends entries `coeff * dh/dy_j` for this reactor's
+    //! state variables `y_j`. The temperature contribution is `coeff * cp_mass`; the
+    //! optional composition contribution adds one entry per species.
+    //!
+    //! @param[in,out] trips  Sparse Jacobian entries. Implementations append entries
+    //!     using global row and column indices in the reactor network.
+    //! @param row  Global row index receiving these chain-rule terms. This may be a
+    //!     row belonging to another reactor when the inlet energy source is cross-reactor.
+    //! @param coeff  Multiplicative factor applied to `dh/dy_j`.
+    //! @param includeComposition  Include derivatives of specific enthalpy with respect
+    //!     to species state variables. These terms may be dense and are controlled by
+    //!     preconditioner sparsity settings.
+    //! @since New in %Cantera 4.0.
+    virtual void addEnthalpyJacobian(SparseTriplets& trips, size_t row, double coeff,
+                                     bool includeComposition=true) const {};
+
     //! Calculate the Jacobian of a specific reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for

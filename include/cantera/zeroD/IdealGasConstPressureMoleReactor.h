@@ -48,6 +48,8 @@ public:
                                 double coeff) const override;
     void addSpeciesMassFractionJacobian(SparseTriplets& trips, size_t row, size_t k,
                                         double coeff) const override;
+    void addEnthalpyJacobian(SparseTriplets& trips, size_t row, double coeff,
+                             bool includeComposition=true) const override;
 
     bool preconditionerSupported() const override { return true; };
 

@@ -197,6 +197,9 @@ void IdealGasConstPressureMoleReactor::getJacobianElements(SparseTriplets& trips
             if (m_energy) {
                 inlet->addMassFlowRateJacobian(trips, m_offset,
                     inlet->enthalpy_mass() / m_TotalCp, includePressureSpecies);
+                // d(h_in)/d(upstream_state): temperature and (optionally) composition.
+                inlet->addInletEnthalpyJacobian(trips, m_offset,
+                    1.0 / m_TotalCp, includeComposition);
                 for (size_t n = 0; n < m_nsp; n++) {
                     inlet->addOutletSpeciesMassFlowRateJacobian(trips, m_offset, n,
                         -m_hk[n] * imw[n] / m_TotalCp,
@@ -252,6 +255,25 @@ void IdealGasConstPressureMoleReactor::addSpeciesMassFractionJacobian(
             dYdn += mw[k] / m_mass;
         }
         trips.emplace_back(row, m_offset + m_sidx + j, coeff * dYdn);
+    }
+}
+
+void IdealGasConstPressureMoleReactor::addEnthalpyJacobian(SparseTriplets& trips,
+    size_t row, double coeff, bool includeComposition) const
+{
+    if (m_mass <= 0.0) {
+        return;
+    }
+    // d(h_mass)/dT = cp_mass
+    addTemperatureJacobian(trips, row, coeff * m_thermo->cp_mass());
+    if (includeComposition) {
+        // d(h_mass)/d(n_k) = (h_k_molar - h_mass * W_k) / m_mass
+        double h_mass = m_thermo->enthalpy_mass();
+        auto mw = m_thermo->molecularWeights();
+        for (size_t k = 0; k < m_nsp; k++) {
+            trips.emplace_back(row, m_offset + m_sidx + k,
+                               coeff * (m_hk[k] - h_mass * mw[k]) / m_mass);
+        }
     }
 }
 
