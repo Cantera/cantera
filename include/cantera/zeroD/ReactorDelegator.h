@@ -82,6 +82,8 @@ public:
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
             [this](const string& nm) { return R::componentIndex(nm); });
+        install("getJacobianElements", m_getJacobianElements,
+            [this](SparseTriplets& trips) { R::getJacobianElements(trips); });
     }
 
     // Overrides of Reactor methods
@@ -128,6 +130,10 @@ public:
 
     size_t componentIndex(const string& nm) const override {
         return m_componentIndex(nm);
+    }
+
+    void getJacobianElements(SparseTriplets& trips) override {
+        m_getJacobianElements(trips);
     }
 
     // Public access to protected Reactor variables needed by derived classes
@@ -185,6 +191,7 @@ private:
     function<void(double)> m_evalWalls;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
+    function<void(SparseTriplets&)> m_getJacobianElements;
 };
 
 }

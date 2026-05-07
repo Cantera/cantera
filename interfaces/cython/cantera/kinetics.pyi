@@ -24,6 +24,10 @@ _DerivativeSettings = TypedDict(
         "skip-coverage-dependence": bool,
         "skip-electrochemistry": bool,
         "skip-nonideal": bool,
+        "skip-flow-devices": bool,
+        "skip-walls": bool,
+        "skip-connector-composition-dependence": bool,
+        "skip-connector-pressure-composition-dependence": bool,
     },
     total=False,
 )

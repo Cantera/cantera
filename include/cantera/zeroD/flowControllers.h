@@ -61,6 +61,10 @@ public:
     //! stored mass flow rate. Otherwise, mdot is a constant, and does not
     //! need updating.
     void updateMassFlowRate(double time) override;
+
+    double massFlowRate_ddP() const override {
+        return 0.0;
+    }
 };
 
 /**
@@ -109,6 +113,16 @@ public:
 
     void updateMassFlowRate(double time) override;
 
+    double massFlowRate_ddP() const override;
+
+    //! Add terms proportional to derivatives of this device's mass flow rate.
+    //!
+    //! Adds both the pressure-correction derivative and the primary flow device's
+    //! derivative.
+    //! @copydetails FlowDevice::addMassFlowRateJacobian
+    void addMassFlowRateJacobian(SparseTriplets& trips, size_t row, double coeff,
+                                 bool includePressureSpecies=true) override;
+
 protected:
     FlowDevice* m_primary = nullptr;
 };
@@ -150,6 +164,8 @@ public:
 
     //! Compute the current mass flow rate, based on the pressure difference.
     void updateMassFlowRate(double time) override;
+
+    double massFlowRate_ddP() const override;
 };
 
 }

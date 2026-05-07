@@ -468,6 +468,148 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     EXPECT_GE(stats["nonlinear_conv_fails"].asInt(), 0);
 }
 
+static Eigen::SparseMatrix<double> preconditionerJacobian(ReactorNet& network,
+    shared_ptr<AdaptivePreconditioner> precon)
+{
+    network.setPreconditioner(precon);
+    network.setLinearSolverType("GMRES");
+    network.initialize();
+    vector<double> state(network.neq());
+    network.getState(state);
+    network.preconditionerSetup(0.0, state, 0.0);
+    return precon->jacobian();
+}
+
+TEST(AdaptivePreconditionerTests, multi_reactor_valve_pressure_coupling)
+{
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, 2.0 * OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto upstream = newReactor4("IdealGasMoleReactor", gas, true, "upstream");
+    upstream->setEnergyEnabled(false);
+    upstream->setInitialVolume(0.5);
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, AR:8.0");
+    auto downstream = newReactor4(
+        "IdealGasConstPressureMoleReactor", gas, true, "downstream");
+    downstream->setEnergyEnabled(false);
+    downstream->setInitialVolume(0.5);
+
+    double kValve = 1e-5;
+    auto valve = make_shared<Valve>(upstream, downstream);
+    valve->setDeviceCoefficient(kValve);
+
+    vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
+    ReactorNet network(reactors);
+    auto precon = make_shared<AdaptivePreconditioner>();
+    Eigen::SparseMatrix<double> jac = preconditionerJacobian(network, precon);
+
+    size_t h2 = downstream->phase()->thermo()->speciesIndex("H2");
+    size_t row = upstream->neq() + downstream->componentIndex("H2");
+    double imwH2 = downstream->phase()->thermo()->inverseMolecularWeights()[h2];
+    double Yh2 = upstream->phase()->thermo()->massFraction(h2);
+    double coeff = imwH2 * Yh2 * kValve;
+    double dPdT = upstream->pressure() / upstream->temperature();
+    double dPdV = -upstream->pressure() / upstream->volume();
+
+    EXPECT_NEAR(jac.coeff(row, upstream->componentIndex("temperature")),
+                coeff * dPdT, 1e-10 * std::abs(coeff * dPdT));
+    EXPECT_NEAR(jac.coeff(row, upstream->componentIndex("volume")),
+                coeff * dPdV, 1e-10 * std::abs(coeff * dPdV));
+    EXPECT_EQ(jac.coeff(row, upstream->componentIndex("H2")), 0.0);
+}
+
+TEST(AdaptivePreconditionerTests, connector_composition_coupling_flag)
+{
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto upstream = newReactor4("IdealGasMoleReactor", gas, true, "upstream");
+    upstream->setEnergyEnabled(false);
+    upstream->setInitialVolume(0.5);
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, AR:8.0");
+    auto downstream = newReactor4("IdealGasMoleReactor", gas, true, "downstream");
+    downstream->setEnergyEnabled(false);
+    downstream->setInitialVolume(0.5);
+
+    double mdot = 0.02;
+    auto mfc = make_shared<MassFlowController>(upstream, downstream);
+    mfc->setMassFlowRate(mdot);
+
+    vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
+    ReactorNet network(reactors);
+    auto precon = make_shared<AdaptivePreconditioner>();
+    Eigen::SparseMatrix<double> sparseJac = preconditionerJacobian(network, precon);
+
+    size_t h2 = downstream->phase()->thermo()->speciesIndex("H2");
+    size_t row = upstream->neq() + downstream->componentIndex("H2");
+    size_t col = upstream->componentIndex("H2");
+    EXPECT_EQ(sparseJac.coeff(row, col), 0.0);
+
+    AnyMap settings;
+    settings["skip-connector-composition-dependence"] = false;
+    network.setDerivativeSettings(settings);
+    vector<double> state(network.neq());
+    network.getState(state);
+    network.preconditionerSetup(0.0, state, 0.0);
+    Eigen::SparseMatrix<double> fullJac = precon->jacobian();
+
+    auto thermo = upstream->phase()->thermo();
+    auto mw = thermo->molecularWeights();
+    double Yh2 = thermo->massFraction(h2);
+    double dYdn = mw[h2] * (1.0 - Yh2) / upstream->mass();
+    double expected = downstream->phase()->thermo()->inverseMolecularWeights()[h2]
+                      * mdot * dYdn;
+    EXPECT_NEAR(fullJac.coeff(row, col), expected, 1e-10 * std::abs(expected));
+}
+
+TEST(AdaptivePreconditionerTests, multi_reactor_wall_coupling)
+{
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, 2.0 * OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto left = newReactor4("IdealGasMoleReactor", gas, true, "left");
+    left->setInitialVolume(0.5);
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, AR:8.0");
+    auto right = newReactor4("IdealGasMoleReactor", gas, true, "right");
+    right->setInitialVolume(0.5);
+
+    double area = 2.0;
+    double heatTransferCoeff = 20.0;
+    double expansionCoeff = 1e-9;
+    auto wall = make_shared<Wall>(left, right);
+    wall->setArea(area);
+    wall->setHeatTransferCoeff(heatTransferCoeff);
+    wall->setEmissivity(0.0);
+    wall->setExpansionRateCoeff(expansionCoeff);
+
+    vector<shared_ptr<ReactorBase>> reactors{left, right};
+    ReactorNet network(reactors);
+    auto precon = make_shared<AdaptivePreconditioner>();
+    Eigen::SparseMatrix<double> jac = preconditionerJacobian(network, precon);
+
+    double totalCv = left->mass() * left->phase()->thermo()->cv_mass();
+    size_t rightTemperature = left->neq() + right->componentIndex("temperature");
+    double expansionWorkTerm = left->pressure() * area * expansionCoeff
+        * right->pressure() / right->temperature() / totalCv;
+    EXPECT_NEAR(jac.coeff(left->componentIndex("temperature"), rightTemperature),
+                area * heatTransferCoeff / totalCv + expansionWorkTerm,
+                1e-10 * (area * heatTransferCoeff / totalCv + expansionWorkTerm));
+
+    double dPdT = left->pressure() / left->temperature();
+    double dPdV = -left->pressure() / left->volume();
+    EXPECT_NEAR(jac.coeff(left->componentIndex("volume"),
+                          left->componentIndex("temperature")),
+                area * expansionCoeff * dPdT,
+                1e-8 * std::abs(area * expansionCoeff * dPdT));
+    EXPECT_NEAR(jac.coeff(left->componentIndex("volume"),
+                          left->componentIndex("volume")),
+                area * expansionCoeff * dPdV,
+                1e-10 * std::abs(area * expansionCoeff * dPdV));
+}
+
 int main(int argc, char** argv)
 {
     printf("Running main() from test_zeroD.cpp\n");
