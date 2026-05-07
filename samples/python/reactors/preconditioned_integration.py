@@ -2,8 +2,11 @@
 Acceleration of reactor integration using a sparse preconditioned solver
 ========================================================================
 
-Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned
-and non-preconditioned integration of n-heptane.
+This example compares reactor network integration with and without the sparse
+preconditioned solver for a constant-pressure ignition simulation. The stoichiometric
+n-heptane/air mixture is ignited at constant pressure using a detailed mechanism with
+1268 species. Preconditioning is especially effective for large mechanisms where the
+species Jacobian is sparse.
 
 Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
@@ -12,11 +15,12 @@ Requires: cantera >= 3.2.0, matplotlib >= 2.0
 import cantera as ct
 import matplotlib.pyplot as plt
 plt.rcParams['figure.constrained_layout.use'] = True
-from timeit import default_timer
+ct.suppress_thermo_warnings()
+from time import perf_counter
 
 # %%
-# Simulation setup
-# ----------------
+# Constant-pressure ignition
+# --------------------------
 #
 # Create a reactor network for simulating the constant pressure ignition of a
 # stoichiometric n-heptane/air mixture, with or without the use of the preconditioned
@@ -36,15 +40,15 @@ def integrate_reactor(preconditioner=True):
         sim.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
         sim.preconditioner = ct.AdaptivePreconditioner()
     sim.initialize()
-    # Advance to steady state
-    integ_time = default_timer()
+    # Advance to the final time
+    integ_time = perf_counter()
     # solution array for state data
     states = ct.SolutionArray(reactor.phase, extra=['time'])
-    # advance to steady state manually
+    # advance to the final time manually
     while (sim.time < 0.1):
         states.append(reactor.phase.state, time=sim.time)
         sim.step()
-    integ_time = default_timer() - integ_time
+    integ_time = perf_counter() - integ_time
     # Return time to integrate
     if preconditioner:
         print(f"Preconditioned Integration Time: {integ_time:f}")
@@ -69,7 +73,7 @@ timenp, Tnp, CO2np, NC7H16np  = integrate_reactor(preconditioner=False)
 
 # %%
 # Plot selected state variables
-# -----------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(5, 8))
 # temperature plot
 ax1.set_xlabel("Time")
@@ -83,7 +87,7 @@ ax2.set_ylabel("CO2")
 ax2.plot(timenp, CO2np, linewidth=2)
 ax2.plot(timep, CO2p, linewidth=2, linestyle=":")
 ax2.legend(["Normal", "Preconditioned"])
-# C12H26 plot
+# n-heptane plot
 ax3.set_xlabel("Time")
 ax3.set_ylabel("NC7H16")
 ax3.plot(timenp, NC7H16np, linewidth=2)
