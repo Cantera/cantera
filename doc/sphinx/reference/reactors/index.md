@@ -140,8 +140,11 @@ provide implementations of a sparse, approximate Jacobian matrix, which can be u
 within CVODES. This sparse, preconditioned method can significantly accelerate
 integration for reactors containing many species. A derivation of the derivative terms
 and benchmarks demonstrating the achievable performance gains can be found in
-{cite:t}`walker2023`. An example demonstrating the use of this feature can be found in
-[`preconditioned_integration.py`](/examples/python/reactors/preconditioned_integration).
+{cite:t}`walker2023`. Examples demonstrating the use of this feature can be found in
+[`preconditioned_integration.py`](/examples/python/reactors/preconditioned_integration)
+(large mechanism, single reactor) and
+[`preconditioned_network.py`](/examples/python/reactors/preconditioned_network)
+(network with several coupled reactors).
 
 For reactor networks containing multiple reactors, each reactor contributes the Jacobian
 rows corresponding to its own governing equations. Terms involving flow devices, walls,
