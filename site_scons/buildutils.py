@@ -1164,9 +1164,9 @@ def add_system_include(env, include, mode='append'):
     else:
         if isinstance(include, (list, tuple)):
             for inc in include:
-                add(CXXFLAGS=('-isystem', inc))
+                add(CXXFLAGS=('-isystem', Dir(inc).abspath))
         else:
-            add(CXXFLAGS=('-isystem', include))
+            add(CXXFLAGS=('-isystem', Dir(include).abspath))
 
 
 def quoted(s: str) -> str:

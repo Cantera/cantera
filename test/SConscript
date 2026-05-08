@@ -5,7 +5,7 @@ from os.path import join as pjoin
 import time
 import sys
 
-from buildutils import logger, test_results, multi_glob
+from buildutils import logger, test_results, multi_glob, add_system_include
 
 Import('env','build','install')
 localenv = env.Clone()
@@ -19,8 +19,9 @@ if env['python_package'] != 'y':
     localenv.Append(CPPDEFINES={'CT_SKIP_PYTHON': '1'})
 
 if env['googletest'] == 'submodule':
-    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
-                              '#ext/googletest/googlemock/include'])
+    add_system_include(localenv, ['#ext/googletest/googletest/include',
+                                  '#ext/googletest/googlemock/include'])
+
 if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
 
