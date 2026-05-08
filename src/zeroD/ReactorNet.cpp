@@ -466,6 +466,48 @@ Eigen::SparseMatrix<double> ReactorNet::steadyJacobian(double rdt)
     return std::dynamic_pointer_cast<EigenSparseJacobian>(solver.linearSolver())->jacobian();
 }
 
+Eigen::SparseMatrix<double> ReactorNet::jacobian()
+{
+    initialize();
+    SparseTriplets trips;
+    for (auto& r : m_reactors) {
+        r->getJacobianElements(trips);
+    }
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+    jac.setFromTriplets(trips.begin(), trips.end());
+    return jac;
+}
+
+Eigen::SparseMatrix<double> ReactorNet::finiteDifferenceJacobian()
+{
+    initialize();
+    vector<double> yCurrent(m_nv);
+    getState(yCurrent);
+    vector<double> yPerturbed(m_nv);
+    vector<double> ydotPlus(m_nv), ydotMinus(m_nv);
+
+    SparseTriplets trips;
+    for (size_t j = 0; j < m_nv; j++) {
+        double dy = m_atol[j] + std::abs(yCurrent[j]) * m_rtol;
+        std::copy(yCurrent.begin(), yCurrent.end(), yPerturbed.begin());
+        yPerturbed[j] += dy;
+        eval(m_time, yPerturbed, ydotPlus, m_sens_params);
+        yPerturbed[j] = yCurrent[j] - dy;
+        eval(m_time, yPerturbed, ydotMinus, m_sens_params);
+        for (size_t i = 0; i < m_nv; i++) {
+            double val = (ydotPlus[i] - ydotMinus[i]) / (2.0 * dy);
+            if (val != 0.0) {
+                trips.emplace_back(static_cast<int>(i), static_cast<int>(j), val);
+            }
+        }
+    }
+    updateState(yCurrent);
+
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+    jac.setFromTriplets(trips.begin(), trips.end());
+    return jac;
+}
+
 void ReactorNet::getEstimate(double time, int k, span<double> yest)
 {
     initialize();

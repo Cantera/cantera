@@ -468,18 +468,6 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     EXPECT_GE(stats["nonlinear_conv_fails"].asInt(), 0);
 }
 
-static Eigen::SparseMatrix<double> preconditionerJacobian(ReactorNet& network,
-    shared_ptr<AdaptivePreconditioner> precon)
-{
-    network.setPreconditioner(precon);
-    network.setLinearSolverType("GMRES");
-    network.initialize();
-    vector<double> state(network.neq());
-    network.getState(state);
-    network.preconditionerSetup(0.0, state, 0.0);
-    return precon->jacobian();
-}
-
 TEST(AdaptivePreconditionerTests, multi_reactor_valve_pressure_coupling)
 {
     auto gas = newSolution("h2o2.yaml");
@@ -501,8 +489,7 @@ TEST(AdaptivePreconditionerTests, multi_reactor_valve_pressure_coupling)
 
     vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
     ReactorNet network(reactors);
-    auto precon = make_shared<AdaptivePreconditioner>();
-    Eigen::SparseMatrix<double> jac = preconditionerJacobian(network, precon);
+    Eigen::SparseMatrix<double> jac = network.jacobian();
 
     size_t h2 = downstream->phase()->thermo()->speciesIndex("H2");
     size_t row = upstream->neq() + downstream->componentIndex("H2");
@@ -516,7 +503,6 @@ TEST(AdaptivePreconditionerTests, multi_reactor_valve_pressure_coupling)
                 coeff * dPdT, 1e-10 * std::abs(coeff * dPdT));
     EXPECT_NEAR(jac.coeff(row, upstream->componentIndex("volume")),
                 coeff * dPdV, 1e-10 * std::abs(coeff * dPdV));
-    EXPECT_EQ(jac.coeff(row, upstream->componentIndex("H2")), 0.0);
 }
 
 TEST(AdaptivePreconditionerTests, connector_composition_coupling_flag)
@@ -539,21 +525,10 @@ TEST(AdaptivePreconditionerTests, connector_composition_coupling_flag)
 
     vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
     ReactorNet network(reactors);
-    auto precon = make_shared<AdaptivePreconditioner>();
-    Eigen::SparseMatrix<double> sparseJac = preconditionerJacobian(network, precon);
 
     size_t h2 = downstream->phase()->thermo()->speciesIndex("H2");
     size_t row = upstream->neq() + downstream->componentIndex("H2");
     size_t col = upstream->componentIndex("H2");
-    EXPECT_EQ(sparseJac.coeff(row, col), 0.0);
-
-    AnyMap settings;
-    settings["skip-connector-composition-dependence"] = false;
-    network.setDerivativeSettings(settings);
-    vector<double> state(network.neq());
-    network.getState(state);
-    network.preconditionerSetup(0.0, state, 0.0);
-    Eigen::SparseMatrix<double> fullJac = precon->jacobian();
 
     auto thermo = upstream->phase()->thermo();
     auto mw = thermo->molecularWeights();
@@ -561,7 +536,17 @@ TEST(AdaptivePreconditionerTests, connector_composition_coupling_flag)
     double dYdn = mw[h2] * (1.0 - Yh2) / upstream->mass();
     double expected = downstream->phase()->thermo()->inverseMolecularWeights()[h2]
                       * mdot * dYdn;
+
+    // By default, composition coupling is included
+    Eigen::SparseMatrix<double> fullJac = network.jacobian();
     EXPECT_NEAR(fullJac.coeff(row, col), expected, 1e-10 * std::abs(expected));
+
+    // With the skip flag, composition coupling is excluded
+    AnyMap settings;
+    settings["skip-connector-composition-dependence"] = true;
+    network.setDerivativeSettings(settings);
+    Eigen::SparseMatrix<double> sparseJac = network.jacobian();
+    EXPECT_EQ(sparseJac.coeff(row, col), 0.0);
 }
 
 TEST(AdaptivePreconditionerTests, multi_reactor_wall_coupling)
@@ -587,8 +572,7 @@ TEST(AdaptivePreconditionerTests, multi_reactor_wall_coupling)
 
     vector<shared_ptr<ReactorBase>> reactors{left, right};
     ReactorNet network(reactors);
-    auto precon = make_shared<AdaptivePreconditioner>();
-    Eigen::SparseMatrix<double> jac = preconditionerJacobian(network, precon);
+    Eigen::SparseMatrix<double> jac = network.jacobian();
 
     double totalCv = left->mass() * left->phase()->thermo()->cv_mass();
     size_t rightTemperature = left->neq() + right->componentIndex("temperature");

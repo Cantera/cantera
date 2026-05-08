@@ -1717,6 +1717,58 @@ cdef class ReactorNet:
         """
         return get_from_sparse(self.net.steadyJacobian(rdt), self.n_vars, self.n_vars)
 
+    property jacobian:
+        """
+        Get the analytical preconditioner Jacobian for the reactor network as a
+        sparse matrix.
+
+        Collects entries from each reactor's ``getJacobianElements()`` implementation
+        and assembles them into a single network-level matrix using global row and
+        column indices. Reactors that do not implement ``getJacobianElements()``
+        contribute no entries.
+
+        This property is useful for debugging custom Jacobian implementations in
+        :py:class:`ExtensibleReactor` subclasses — for example, to verify that
+        elements are placed in the correct global positions and have the expected
+        values.
+
+        .. warning::
+
+            Depending on the particular implementation, this may return an approximate
+            Jacobian intended only for use in forming a preconditioner for iterative
+            solvers, excluding terms that would generate a fully-dense Jacobian.
+
+        .. warning::
+
+            This property is an experimental part of the Cantera API and may be
+            changed or removed without notice.
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return get_from_sparse(self.net.jacobian(), self.n_vars, self.n_vars)
+
+    property finite_difference_jacobian:
+        """
+        Get the system Jacobian for the reactor network, calculated using finite
+        differences, as a sparse matrix.
+
+        Perturbs each element of the network state vector and evaluates the network
+        RHS using central differences to estimate the full Jacobian. Perturbation
+        step sizes are scaled by the integrator tolerances. This method is intended
+        for debugging and validation of analytical Jacobian implementations.
+
+        .. warning::
+
+            This property is an experimental part of the Cantera API and may be
+            changed or removed without notice.
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return get_from_sparse(self.net.finiteDifferenceJacobian(),
+                                   self.n_vars, self.n_vars)
+
     def initialize(self):
         """
         Force initialization of the integrator after initial setup.
