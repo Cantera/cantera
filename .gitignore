@@ -27,6 +27,7 @@ stage/
 .vscode
 .idea/
 .ipynb_checkpoints/
+.cache/
 cantera.conf*
 config.log
 *.DS_Store
@@ -49,6 +50,7 @@ environment.y*
 .project
 .pydevproject
 .settings
+.claude/
 *.gcda
 *.gcno
 *.gch
@@ -56,6 +58,7 @@ coverage/
 coverage.info
 .coverage
 # pixi environments
-.pixi/*
+.pixi
+.pixi-cache/*
 pixi.lock
 !.pixi/config.toml
