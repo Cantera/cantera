@@ -171,7 +171,6 @@ class TestMixture:
         assert mix.T == approx(400)
         assert mix.P == approx(2 * ct.one_atm)
 
-    @pytest.mark.xfail(reason="See https://github.com/Cantera/cantera/issues/1023")
     def test_equilibrate2(self, mix):
         mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
         mix.T = 400

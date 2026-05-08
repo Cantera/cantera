@@ -92,14 +92,26 @@ class TestMultiphaseEquil(EquilTestCases):
 
     solver = 'gibbs'
 
-    @pytest.mark.xfail
+    def test_trace_solution_species(self):
+        s = """
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          species: [{nasa_gas.yaml/species: [C, CO, CO2, C2]}]
+          skip-undeclared-elements: true
+          elements: [C, O]
+        """
+        gas = ct.Solution(yaml=s)
+        gas.TPX = 300, 1e5, 'CO2:1'
+        gas.equilibrate('TP', self.solver, max_steps=10000)
+        assert gas['CO2'].X[0] == approx(1.0)
+
     def test_equil_gri_stoichiometric(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
-    @pytest.mark.xfail
     def test_equil_gri_lean(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
