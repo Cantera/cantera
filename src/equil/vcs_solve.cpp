@@ -442,6 +442,13 @@ size_t VCS_SOLVE::vcs_popPhaseID()
             if (Vphase->m_singleSpecies) {
                 // Single Phase Stability Resolution
                 size_t kspec = Vphase->spGlobalIndexVCS(0);
+                // Skip if the species is a component: a zero-abundance element may
+                // cause its only containing species to be selected as a component with
+                // zero moles, making its phase dead while still in the component basis.
+                // Such phases can never be popped.
+                if (kspec < m_numComponents) {
+                    continue;
+                }
                 size_t irxn = kspec - m_numComponents;
                 if (irxn > m_deltaGRxn_old.size()) {
                     throw CanteraError("VCS_SOLVE::vcs_popPhaseID",
@@ -504,6 +511,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop].get();
     // Identify the first species in the phase
     size_t kspec = Vphase->spGlobalIndexVCS(0);
+    AssertThrowMsg(kspec >= m_numComponents, "VCS_SOLVE::vcs_popPhaseRxnStepSizes",
+        "called for a phase whose species is a component");
     // Identify the formation reaction for that species
     size_t irxn = kspec - m_numComponents;
     vector<size_t> creationGlobalRxnNumbers(Vphase->nSpecies(), npos);

@@ -276,20 +276,29 @@ class Test_IdealSolidSolnPhase_Equil:
         assert gas['H2-solute'].X[0] == approx(1.0 / 3.0)
 
 
-def test_excluded_species_initial():
+@pytest.mark.parametrize("solver,include_h2o",
+                         [("gibbs", False), ("vcs", False),
+                          ("gibbs", True), ("vcs", True)])
+def test_excluded_species_extra_element(solver, include_h2o):
     """
     Test equilibration of a Pb/O/C mixture where one of the condensed phases (PbO(yw))
     has thermo data only valid above 762 K. When equilibrating at 400 K, the solver
     should exclude PbO(yw) and redistribute its elemental contribution to valid species,
-    regardless of whether PbO(yw) appears in the initial composition. Adapted from
-    issue report https://github.com/Cantera/cantera/issues/160.
-    """
+    regardless of whether PbO(yw) appears in the initial composition.
 
-    _pb_phases_yaml = """
+    Also test a case when a mixture includes a phase (H2O_s) that introduces an
+    element (H) with zero abundance and only one phase containing that element.
+
+    Adapted from issue report https://github.com/Cantera/cantera/issues/160.
+    """
+    _pb_phases_yaml_with_H2O = """
     phases:
     - name: gas
       thermo: ideal-gas
       species: [{nasa_gas.yaml/species: [Pb, O, C]}]
+    - name: H2O_s
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [H2O(s)]}]
     - name: C_gr
       thermo: fixed-stoichiometry
       species: [{nasa_condensed.yaml/species: [C(gr)]}]
@@ -309,8 +318,12 @@ def test_excluded_species_initial():
       thermo: fixed-stoichiometry
       species: [{nasa_condensed.yaml/species: [Pb3O4(s)]}]
     """
-    phase_names = ['gas', 'C_gr', 'Pb_s', 'PbO_rd', 'PbO_yw', 'PbO2_s', 'Pb3O4_s']
-    phases = [ct.Solution(yaml=_pb_phases_yaml, name=n) for n in phase_names]
+    if include_h2o:
+        phase_names = ['gas', 'H2O_s', 'C_gr', 'Pb_s', 'PbO_rd', 'PbO_yw', 'PbO2_s',
+                       'Pb3O4_s']
+    else:
+        phase_names = ['gas', 'C_gr', 'Pb_s', 'PbO_rd', 'PbO_yw', 'PbO2_s', 'Pb3O4_s']
+    phases = [ct.Solution(yaml=_pb_phases_yaml_with_H2O, name=n) for n in phase_names]
     mix = ct.Mixture(phases)
     mix.T = 400
     mix.P = ct.one_atm
@@ -325,9 +338,11 @@ def test_excluded_species_initial():
     mix.T = 400
     mix.P = ct.one_atm
     mix.species_moles = 'O:2, PbO(yw):1, C:1'  # same element totals
-    mix.equilibrate('TP', solver='gibbs', rtol=1e-10)
+    mix.equilibrate('TP', solver=solver, rtol=1e-10, max_steps=10000, max_iter=10000)
 
-    # PbO2(s) and C(gr) should be present; PbO(yw) excluded and absent
+    # PbO2(s) and C(gr) should be present; PbO(yw) excluded and absent; H2O(s) absent
+    if include_h2o:
+        assert mix.phase_moles("H2O_s") == approx(0.0)
     assert mix.phase_moles("PbO_yw") == approx(0.0)
     assert mix.phase_moles("PbO2_s") == approx(1.0, rel=1e-6)
     assert mix.phase_moles() == approx(phase_moles_ref, rel=1e-6)
