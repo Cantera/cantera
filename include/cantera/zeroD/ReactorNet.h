@@ -210,6 +210,35 @@ public:
     //! @since New in %Cantera 3.2.
     Eigen::SparseMatrix<double> steadyJacobian(double rdt=0.0);
 
+    //! Calculate the semi-analytical preconditioner Jacobian for the entire network.
+    //!
+    //! Collects sparse Jacobian entries from each reactor's `getJacobianElements()`
+    //! implementation and assembles them into a single network-level matrix. Reactors
+    //! that do not implement `getJacobianElements()` contribute no entries. The
+    //! matrix uses global row and column indices for the full network state vector.
+    //!
+    //! @warning Depending on the particular implementation, this may return an
+    //!     approximate Jacobian intended only for use in forming a preconditioner for
+    //!     iterative solvers, excluding terms that would generate a fully-dense
+    //!     Jacobian.
+    //!
+    //! @warning This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 4.0.
+    Eigen::SparseMatrix<double> jacobian();
+
+    //! Calculate the system Jacobian for the reactor network using finite differences.
+    //!
+    //! Perturbs each element of the state vector and evaluates the network RHS to
+    //! estimate the full Jacobian. Uses the integrator tolerances to scale each
+    //! perturbation. This method is intended for debugging and validation of analytical
+    //! Jacobian implementations, including those added via {ct}`ExtensibleReactor`.
+    //!
+    //! @warning This method is an experimental part of the %Cantera API and may be
+    //!     changed or removed without notice.
+    //! @since New in %Cantera 4.0.
+    Eigen::SparseMatrix<double> finiteDifferenceJacobian();
+
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
