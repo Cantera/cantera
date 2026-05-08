@@ -274,3 +274,60 @@ class Test_IdealSolidSolnPhase_Equil:
         gas.equilibrate('TP', solver='element_potential')
         assert gas['C-graph'].X[0] == approx(2.0 / 3.0)
         assert gas['H2-solute'].X[0] == approx(1.0 / 3.0)
+
+
+def test_excluded_species_initial():
+    """
+    Test equilibration of a Pb/O/C mixture where one of the condensed phases (PbO(yw))
+    has thermo data only valid above 762 K. When equilibrating at 400 K, the solver
+    should exclude PbO(yw) and redistribute its elemental contribution to valid species,
+    regardless of whether PbO(yw) appears in the initial composition. Adapted from
+    issue report https://github.com/Cantera/cantera/issues/160.
+    """
+
+    _pb_phases_yaml = """
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      species: [{nasa_gas.yaml/species: [Pb, O, C]}]
+    - name: C_gr
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [C(gr)]}]
+    - name: Pb_s
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [Pb(cr)]}]
+    - name: PbO_rd
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [PbO(rd)]}]
+    - name: PbO_yw
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [PbO(yw)]}]
+    - name: PbO2_s
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [PbO2(s)]}]
+    - name: Pb3O4_s
+      thermo: fixed-stoichiometry
+      species: [{nasa_condensed.yaml/species: [Pb3O4(s)]}]
+    """
+    phase_names = ['gas', 'C_gr', 'Pb_s', 'PbO_rd', 'PbO_yw', 'PbO2_s', 'Pb3O4_s']
+    phases = [ct.Solution(yaml=_pb_phases_yaml, name=n) for n in phase_names]
+    mix = ct.Mixture(phases)
+    mix.T = 400
+    mix.P = ct.one_atm
+    mix.species_moles = 'O:3, Pb:1, C:1'
+    mix.equilibrate('TP', solver='gibbs', rtol=1e-10)
+    phase_moles_ref = mix.phase_moles()
+
+    # Initial composition includes PbO(yw), which has no valid thermo at 400 K and is
+    # excluded from the calculation. The solver should redistribute its Pb and O atoms
+    # to valid species and converge to the same equilibrium as when initialized with
+    # elemental species (mix1).
+    mix.T = 400
+    mix.P = ct.one_atm
+    mix.species_moles = 'O:2, PbO(yw):1, C:1'  # same element totals
+    mix.equilibrate('TP', solver='gibbs', rtol=1e-10)
+
+    # PbO2(s) and C(gr) should be present; PbO(yw) excluded and absent
+    assert mix.phase_moles("PbO_yw") == approx(0.0)
+    assert mix.phase_moles("PbO2_s") == approx(1.0, rel=1e-6)
+    assert mix.phase_moles() == approx(phase_moles_ref, rel=1e-6)

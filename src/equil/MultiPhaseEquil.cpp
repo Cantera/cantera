@@ -69,17 +69,31 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // only extend to 273.15 K, and give unphysical results above this
     // temperature, leading (incorrectly) to Gibbs free energies at high
     // temperature lower than for liquid water.
+    //
+    // When start=true (the default for TP equilibration), the solver computes
+    // its own initial composition from elemental totals. In that case, if an
+    // excluded species has non-zero initial moles, its elemental contribution
+    // is tracked in b_missing and redistributed to valid component species
+    // before calling setInitialMoles.
+    vector<double> b_missing(m_nel, 0.0);
+    bool has_excluded_moles = false;
     for (size_t k = 0; k < m_nsp_mix; k++) {
         size_t ip = m_mix->speciesPhaseIndex(k);
         if (!m_mix->solutionSpecies(k) &&
                 !m_mix->tempOK(ip)) {
             m_incl_species[k] = 0;
             if (m_mix->speciesMoles(k) > 0.0) {
-                throw CanteraError("MultiPhaseEquil::MultiPhaseEquil",
-                                   "condensed-phase species"+ m_mix->speciesName(k)
-                                   + " is excluded since its thermo properties are \n"
-                                   "not valid at this temperature, but it has "
-                                   "non-zero moles in the initial state.");
+                if (!start) {
+                    throw CanteraError("MultiPhaseEquil::MultiPhaseEquil",
+                        "condensed-phase species {} is excluded since its thermo "
+                        "properties are\nnot valid at this temperature, but it has "
+                        "non-zero moles in the initial state.", m_mix->speciesName(k));
+                }
+                for (size_t m = 0; m < m_nel; m++) {
+                    b_missing[m] += m_mix->speciesMoles(k) *
+                                    m_mix->nAtoms(k, m_element[m]);
+                }
+                has_excluded_moles = true;
             }
         }
     }
@@ -123,6 +137,17 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // linear Gibbs minimization. In this case, only the elemental composition
     // of the initial mixture state matters.
     if (start) {
+        if (has_excluded_moles) {
+            // Adjust m_moles to restore element contributions from excluded
+            // condensed-phase species. After Gaussian elimination, m_A has an identity
+            // matrix in the component-species columns, so adding b_missing[m] to
+            // m_moles[m_order[m]] changes only element m's total.
+            computeN();
+            for (size_t m = 0; m < m_nel; m++) {
+                m_moles[m_order[m]] += b_missing[m];
+            }
+            updateMixMoles();
+        }
         setInitialMoles(loglevel-1);
     }
     computeN();
