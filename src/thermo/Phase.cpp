@@ -298,6 +298,11 @@ void Phase::setMoleFractions(span<const double> x)
     // molecular weight:
     //     m_ym_k = X_k / (sum_k X_k M_k)
     const double invSum = 1.0/sum;
+    if (!std::isfinite(invSum) && m_kk != 0) {
+        throw CanteraError("Phase::setMoleFractions",
+            "The sum of the species mole fractions is zero, too small to normalize,"
+            " or not-a-number.");
+    }
     for (size_t k=0; k < m_kk; k++) {
         m_ym[k] = m_y[k]*invSum;
     }
@@ -340,8 +345,13 @@ void Phase::setMassFractions(span<const double> y)
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
     }
-    double norm = accumulate(m_y.begin(), m_y.end(), 0.0);
-    scale(m_y.begin(), m_y.end(), m_y.begin(), 1.0/norm);
+    double invSum = 1.0 / accumulate(m_y.begin(), m_y.end(), 0.0);
+    if (!std::isfinite(invSum) && m_kk != 0) {
+        throw CanteraError("Phase::setMassFractions",
+            "The sum of the species mass fractions is zero, too small to normalize,"
+            " or not-a-number.");
+    }
+    scale(m_y.begin(), m_y.end(), m_y.begin(), invSum);
 
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());

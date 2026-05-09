@@ -363,7 +363,7 @@ void MultiPhase::setMoles(span<const double> n)
         }
         m_moles[ip] = phasemoles;
         if (nsp > 1) {
-            if (phasemoles > 0.0) {
+            if (phasemoles > SmallNumber) {
                 p->setState_TPX(m_temp, m_press, n.subspan(loc, nsp));
                 p->getMoleFractions(span<double>(&m_moleFractions[loc], nsp));
             } else {
