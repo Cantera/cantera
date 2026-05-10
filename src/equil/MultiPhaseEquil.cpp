@@ -580,29 +580,44 @@ double MultiPhaseEquil::computeReactionSteps(span<double> dxi)
 
             // noncomponent term
             size_t kc = m_order[j + m_nel];
-            double nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
-            double term1 = m_dsoln[kc]/nmoles;
+            size_t ip_kc = m_mix->speciesPhaseIndex(m_species[kc]);
+            double nmoles_kc = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
+            double pm_kc = fabs(m_mix->phaseMoles(ip_kc)) + Tiny;
 
-            // sum over solution phases
+            // Phase correction: subtract (sum_{k in phase} nu_k)^2 / n_phase for
+            // each solution phase, which is the Hessian term for an ideal phase.
+            //
+            // For the phase containing kc, combine term1 = dsoln/nmoles_kc with
+            // the phase correction -nu_sum^2/pm_kc into a single fraction. This is
+            // algebraically equivalent but avoids catastrophic cancellation when
+            // pm_kc ≈ nmoles_kc (a trace single-species phase).
+            double nu_sum_kc = 0.0;
             double sum = 0.0;
             for (size_t ip = 0; ip < m_mix->nPhases(); ip++) {
-                ThermoPhase& p = m_mix->phase(ip);
-                if (p.nSpecies() > 1) {
-                    double psum = 0.0;
+                double pm = fabs(m_mix->phaseMoles(ip));
+                if (m_mix->phase(ip).nSpecies() > 1 && pm > 0.0) {
+                    double nu_sum = 0.0;
                     for (k = 0; k < m_nsp; k++) {
                         kc = m_species[k];
                         if (m_mix->speciesPhaseIndex(kc) == ip) {
-                            psum += pow(nu[k], 2);
+                            nu_sum += nu[k];
                         }
                     }
-                    sum -= psum / (fabs(m_mix->phaseMoles(ip)) + Tiny);
+                    if (ip == ip_kc) {
+                        nu_sum_kc = nu_sum;
+                    } else {
+                        sum -= nu_sum * nu_sum / (pm + Tiny);
+                    }
                 }
             }
+            kc = m_order[j + m_nel];
+            double term1 = (m_dsoln[kc]*pm_kc - nu_sum_kc*nu_sum_kc*nmoles_kc)
+                           / (nmoles_kc*pm_kc);
             double rfctr = term1 + csum + sum;
             if (fabs(rfctr) < Tiny) {
                 fctr = 1.0;
             } else {
-                fctr = 1.0/(term1 + csum + sum);
+                fctr = 1.0/rfctr;
             }
         }
         dxi[j] = -fctr*dg_rt;
