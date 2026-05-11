@@ -696,6 +696,15 @@ double MultiPhaseEquil::error()
 {
     double err, maxerr = 0.0;
 
+    // Total moles in the mixture; used to scale the "negligible reaction" check
+    // below: a reaction whose maximum possible Gibbs reduction is far below the
+    // mixture scale cannot meaningfully change the composition and should not
+    // block convergence.
+    double total_moles = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        total_moles += std::max(0.0, m_moles[k]);
+    }
+
     // examine every reaction
     for (size_t j = 0; j < nFree(); j++) {
         size_t ik = j + m_nel;
@@ -711,6 +720,30 @@ double MultiPhaseEquil::error()
             err = 0.0;
         } else {
             err = fabs(m_deltaG_RT[j]);
+            // For an unfavorable (dG > 0) solution-phase formation reaction,
+            // the maximum extent achievable in a single step is bounded by
+            // the noncomponent's own moles (which the reaction is consuming)
+            // and by the components that the reaction would produce
+            // (m_N(n,j) > 0 in the same direction). If this maximum extent is
+            // far below the mixture scale, the reaction cannot meaningfully
+            // change the composition and its dG/RT — which can be set by
+            // floating-point noise in trace mole fractions — should not block
+            // convergence. We do not apply the same bound to favorable
+            // reactions because they can still grow a species from trace
+            // through repeated 10× steps of the exponential update formula.
+            if (!isStoichPhase(ik) && m_deltaG_RT[j] > 0.0) {
+                double max_extent = fabs(moles(ik));
+                for (size_t n = 0; n < m_nel; n++) {
+                    double nu = m_N(n, j);
+                    if (nu > 0.0) {
+                        double mc = std::max(0.0, m_moles[m_order[n]]);
+                        max_extent = std::min(max_extent, mc / nu);
+                    }
+                }
+                if (max_extent * err < 1.0e-15 * total_moles) {
+                    err = 0.0;
+                }
+            }
         }
         maxerr = std::max(maxerr, err);
     }
