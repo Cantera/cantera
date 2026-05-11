@@ -445,8 +445,32 @@ void MultiPhaseEquil::step(double omega, span<double> deltaN, int loglevel)
         if (m_majorsp[k]) {
             m_moles[k] += omega * deltaN[k];
         } else {
-            m_moles[k] = fabs(m_moles[k])*std::min(10.0,
-                                                   exp(-m_deltaG_RT[ik - m_nel]));
+            // Minor non-component species use a non-linear update:
+            // moles_new = |m_moles[k]| * exp(-dG/RT), capped at 10x growth for
+            // stability. When m_moles[k] is exactly zero, this degenerates to 0
+            // regardless of dG; the species stays at 0 and the component
+            // correction below suppresses the would-be formation reaction.
+            size_t j = ik - m_nel;
+            double moles_new = fabs(m_moles[k])
+                               * std::min(10.0, exp(-m_deltaG_RT[j]));
+            // The components were already updated above by omega*deltaN, which
+            // assumes each noncomponent species k changes by omega*deltaN[k].
+            // The actual change here is moles_new - m_moles[k], so element
+            // balance has an "excess" error that should be corrected on the
+            // components. We only apply the correction when the imbalance is
+            // catastrophic — i.e., the Newton step expects a large change in
+            // this species but the exponential formula caps it at a small
+            // fraction. For modestly-trace species the imbalance is O(m_moles[k])
+            // and applying the correction routinely would destabilize convergence
+            // by perturbing trace component species.
+            double excess = (moles_new - m_moles[k]) - omega * deltaN[k];
+            if (fabs(excess) > 10.0 * fabs(moles_new - m_moles[k]) &&
+                    fabs(excess) > SmallNumber) {
+                for (size_t n = 0; n < m_nel; n++) {
+                    m_moles[m_order[n]] += m_N(n, j) * excess;
+                }
+            }
+            m_moles[k] = moles_new;
         }
     }
     updateMixMoles();
@@ -513,7 +537,7 @@ double MultiPhaseEquil::stepComposition(int loglevel)
     }
 
     // now take a step with this scaled omega
-    step(omegamax, m_work);
+    step(omegamax, m_work, loglevel);
     // compute the gradient of G at this new position in the current direction.
     // If it is positive, then we have overshot the minimum. In this case,
     // interpolate back.
