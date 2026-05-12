@@ -228,10 +228,12 @@ void PlasmaPhase::electronEnergyLevelChanged()
     m_levelNum++;
     // Cross sections are interpolated on the energy levels
     if (m_collisions.size() > 0) {
+        vector<double> energyLevels(m_nPoints);
+        MappedVector(energyLevels.data(), m_nPoints) = m_electronEnergyLevels;
         for (shared_ptr<Reaction> collision : m_collisions) {
             const auto& rate = boost::polymorphic_pointer_downcast
                 <ElectronCollisionPlasmaRate>(collision->rate());
-            rate->updateInterpolatedCrossSection(asSpan(m_electronEnergyLevels));
+            rate->updateInterpolatedCrossSection(energyLevels);
         }
     }
 }
