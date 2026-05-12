@@ -778,7 +778,17 @@ void PlasmaPhase::updateElasticElectronEnergyLossCoefficients()
 
 void PlasmaPhase::updateElasticElectronEnergyLossCoefficient(size_t i)
 {
-    // @todo exclude attachment collisions
+    if (m_elasticElectronEnergyLossCoefficients.size() != nCollisions()) {
+        m_elasticElectronEnergyLossCoefficients.resize(nCollisions(), 0.0);
+    }
+
+    const string kind = m_collisionRates[i]->kind();
+
+    if (kind == "attachment") {
+        m_elasticElectronEnergyLossCoefficients[i] = 0.0;
+        return;
+    }
+
     size_t k = m_targetSpeciesIndices[i];
 
     // Map cross sections to Eigen::ArrayXd
@@ -812,6 +822,12 @@ double PlasmaPhase::elasticPowerLoss()
     // collisions (inelastic recoil effects).
     double rate = 0.0;
     for (size_t i = 0; i < nCollisions(); i++) {
+        const string kind = m_collisionRates[i]->kind();
+
+        if (kind == "attachment") {
+            continue;
+        }
+
         rate += concentration(m_targetSpeciesIndices[i]) *
                 m_elasticElectronEnergyLossCoefficients[i];
     }
