@@ -187,8 +187,10 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
 
             if (eedf.hasKey("energy-levels")) {
+                // User-provided grid edges are explicit and fixed by default.
                 auto levels = eedf["energy-levels"].asVector<double>();
                 m_eedfSolver->setCustomGrid(levels);
+                m_eedfSolver->enableGridAdaptation(false);
                 m_nPoints = levels.size();
             } else {
                 if (!eedf.hasKey("initial_max_energy_level")) {
@@ -203,13 +205,13 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "'initial_number_of_energy_grid_cells'.");
                 }
 
-                double kTe_max = eedf["initial_max_energy_level"].asDouble();
+                double initialMaxEnergy = eedf["initial_max_energy_level"].asDouble();
                 size_t nGridCells = static_cast<size_t>(
                     eedf["initial_number_of_energy_grid_cells"].asInt());
 
-                if (kTe_max <= 0.0) {
+                if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "initial_max_energy_level must be greater than zero.");
+                        "initial_max_energy_level must be finite and greater than zero.");
                 }
 
                 if (nGridCells == 0) {
@@ -226,21 +228,55 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                             "Defaulting to linear grid.\n");
                 }
 
+                m_eedfSolver->setGridType(energyLevelsDistribution);
+                m_eedfSolver->setInitialGridParameters(initialMaxEnergy, nGridCells);
+
                 if (energyLevelsDistribution == "Linear") {
-                    m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
+                    m_eedfSolver->setLinearGrid(initialMaxEnergy, nGridCells);
                 } else if (energyLevelsDistribution == "Quadratic") {
-                    m_eedfSolver->setQuadraticGrid(kTe_max, nGridCells);
+                    m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
                 } else if (energyLevelsDistribution == "Geometric") {
-                    m_eedfSolver->setGeometricGrid(kTe_max, nGridCells);
+                    m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
                 } else {
                     throw CanteraError("PlasmaPhase::setParameters",
                         "energy_levels_distribution should be Linear, Quadratic "
                         "or Geometric.");
                 }
 
+                if (eedf.hasKey("energy_grid_adaptation")) {
+                    const AnyMap adapt = eedf["energy_grid_adaptation"].as<AnyMap>();
+                    bool enabled = true;
+                    if (adapt.hasKey("enabled")) {
+                        enabled = adapt["enabled"].asBool();
+                    }
+                    double minDecayDecades = 8.0;
+                    if (adapt.hasKey("min_decay_decades")) {
+                        minDecayDecades = adapt["min_decay_decades"].asDouble();
+                    }
+                    double maxDecayDecades = 14.0;
+                    if (adapt.hasKey("max_decay_decades")) {
+                        maxDecayDecades = adapt["max_decay_decades"].asDouble();
+                    }
+                    double updateFactor = 0.25;
+                    if (adapt.hasKey("update_factor")) {
+                        updateFactor = adapt["update_factor"].asDouble();
+                    }
+                    size_t maxIterations = 5;
+                    if (adapt.hasKey("max_iterations")) {
+                        maxIterations = static_cast<size_t>(
+                            adapt["max_iterations"].asInt());
+                    }
+                    m_eedfSolver->setGridAdaptationParameters(
+                        enabled, minDecayDecades, maxDecayDecades, updateFactor,
+                        maxIterations);
+                } else {
+                    m_eedfSolver->enableGridAdaptation(false);
+                }
+
                 m_nPoints = nGridCells + 1;
             }
 
+            m_nPoints = m_eedfSolver->getGridEdge().size();
             m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
                 m_eedfSolver->getGridEdge().data(), m_nPoints);
             m_electronEnergyDist.resize(m_nPoints);
@@ -288,23 +324,26 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "Boltzmann-two-term") {
         auto ierr = m_eedfSolver->calculateDistributionFunction();
         if (ierr == 0) {
+            auto levels = m_eedfSolver->getGridEdge();
             auto y = m_eedfSolver->getEEDFEdge();
-            m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(y.data(), m_nPoints);
+
+            if (levels.size() != y.size()) {
+                throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
+                    "Inconsistent EEDF solver output: grid edge size and EEDF edge size differ.");
+            }
+
+            m_nPoints = levels.size();
+
+            m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
+                levels.data(), m_nPoints);
+
+            m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(
+                y.data(), m_nPoints);
+
+            electronEnergyLevelChanged();
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
-        }
-        bool validEEDF = (
-            static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
-            m_electronEnergyDist.allFinite() &&
-            m_electronEnergyDist.maxCoeff() > 0.0 &&
-            m_electronEnergyDist.sum() > 0.0
-        );
-
-        if (validEEDF) {
-            updateElectronTemperatureFromEnergyDist();
-        } else {
-            writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
         }
     } else {
         throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
