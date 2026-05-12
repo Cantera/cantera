@@ -23,21 +23,36 @@ namespace {
 
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
-    initThermoFile(inputFile, id_);
-
-    // initial electron temperature
+    // Initialize electron temperature before setParameters() can trigger EEDF updates.
     m_electronTemp = temperature();
 
-    // Initialize the Boltzmann Solver
+    // The EEDF solver must exist before initThermoFile(), because setParameters()
+    // may add electron collisions and addCollision() updates the solver cache.
     m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
 
-    // Set Energy Grid (Hardcoded Defaults for Now)
-    double kTe_max = 60;
-    size_t nGridCells = 301;
-    m_nPoints = nGridCells + 1;
+    // Safe default grid used before / unless the input file overrides it.
+    double kTe_max = 100.0;
+    size_t nGridCells = 1001;
+    m_eedfSolver->setInitialGridParameters(kTe_max, nGridCells);
     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
-    m_electronEnergyLevels = asVectorXd(m_eedfSolver->getGridEdge());
-    m_electronEnergyDist.setZero(m_nPoints);
+
+    auto levels = m_eedfSolver->getGridEdge();
+    m_nPoints = levels.size();
+    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
+        levels.data(), m_nPoints);
+    m_electronEnergyDist.resize(m_nPoints);
+    m_electronEnergyDist.setZero();
+
+    if (!inputFile.empty()) {
+        initThermoFile(inputFile, id_);
+    }
+
+    // If no EEDF was supplied by input, initialize a valid default isotropic EEDF.
+    if (m_distributionType == "isotropic" &&
+        static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
+        m_electronEnergyDist.sum() == 0.0) {
+        updateElectronEnergyDistribution();
+    }
 }
 
 PlasmaPhase::~PlasmaPhase()
