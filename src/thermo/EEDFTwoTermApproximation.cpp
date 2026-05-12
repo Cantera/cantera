@@ -160,6 +160,68 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 
     converge(m_f0);
 
+    if (m_adaptGrid) {
+        const double fFloor = 1e-300;
+
+        for (size_t n = 0; n < m_maxGridAdaptIterations; n++) {
+            double fLeft = std::max(std::abs(m_f0(0)), fFloor);
+            double fRight = std::max(std::abs(m_f0(m_points - 1)), fFloor);
+
+            double decades = std::log10(fLeft) - std::log10(fRight);
+
+            if (!std::isfinite(decades)) {
+                throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
+                    "Non-finite EEDF decay detected during grid adaptation.");
+            }
+
+            if (decades < m_minEedfDecay) {
+                // The right boundary is too low: the tail has not decayed enough.
+                double newMaxEnergy = m_kTeMax * (1.0 + m_gridUpdateFactor);
+
+                updateGrid(newMaxEnergy);
+
+                if (m_firstguess == "maxwell") {
+                    for (size_t j = 0; j < m_points; j++) {
+                        m_f0(j) = 2.0 * std::sqrt(1.0 / Pi) *
+                            std::pow(m_init_kTe, -1.5) *
+                            std::exp(-m_gridCenter[j] / m_init_kTe);
+                    }
+                    m_f0 /= norm(m_f0, m_gridCenter);
+                } else {
+                    throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
+                        "Unknown EEDF first guess.");
+                }
+
+                updateCrossSections();
+                converge(m_f0);
+
+            } else if (decades > m_maxEedfDecay) {
+                // The right boundary is unnecessarily high.
+                double newMaxEnergy = m_kTeMax / (1.0 + m_gridUpdateFactor);
+
+                updateGrid(newMaxEnergy);
+
+                if (m_firstguess == "maxwell") {
+                    for (size_t j = 0; j < m_points; j++) {
+                        m_f0(j) = 2.0 * std::sqrt(1.0 / Pi) *
+                            std::pow(m_init_kTe, -1.5) *
+                            std::exp(-m_gridCenter[j] / m_init_kTe);
+                    }
+                    m_f0 /= norm(m_f0, m_gridCenter);
+                } else {
+                    throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
+                        "Unknown EEDF first guess.");
+                }
+
+                updateCrossSections();
+                converge(m_f0);
+
+            } else {
+                break;
+            }
+        }
+    }
+
     // write the EEDF at grid edges
     vector<double> f(m_f0.data(), m_f0.data() + m_f0.rows() * m_f0.cols());
     vector<double> x(m_gridCenter.data(), m_gridCenter.data() + m_gridCenter.rows() * m_gridCenter.cols());
@@ -687,6 +749,94 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
         p[i] = f(i) * pow(grid[i], 0.5);
     }
     return numericalQuadrature(m_quadratureMethod, p, grid);
+}
+
+
+void EEDFTwoTermApproximation::setGridType(const string& gridType)
+{
+    if (gridType != "Linear" &&
+        gridType != "Quadratic" &&
+        gridType != "Geometric") {
+        throw CanteraError("EEDFTwoTermApproximation::setGridType",
+            "Unknown energy grid type '{}'. Expected Linear, Quadratic or Geometric.",
+            gridType);
+    }
+
+    m_gridType = gridType;
+}
+
+void EEDFTwoTermApproximation::setInitialGridParameters(double initialMaxEnergy,
+                                                        size_t nGridCells)
+{
+    if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setInitialGridParameters",
+            "initialMaxEnergy must be finite and greater than zero.");
+    }
+
+    if (nGridCells == 0) {
+        throw CanteraError("EEDFTwoTermApproximation::setInitialGridParameters",
+            "nGridCells must be greater than zero.");
+    }
+
+    m_kTeMax = initialMaxEnergy;
+    m_initialGridCells = nGridCells;
+}
+
+void EEDFTwoTermApproximation::enableGridAdaptation(bool enabled)
+{
+    m_adaptGrid = enabled;
+}
+
+void EEDFTwoTermApproximation::setGridAdaptationParameters(bool enabled,
+                                                           double minDecayDecades,
+                                                           double maxDecayDecades,
+                                                           double updateFactor,
+                                                           size_t maxIterations)
+{
+    if (!std::isfinite(minDecayDecades) || !std::isfinite(maxDecayDecades) ||
+        minDecayDecades <= 0.0 || maxDecayDecades <= minDecayDecades) {
+        throw CanteraError("EEDFTwoTermApproximation::setGridAdaptationParameters",
+            "Require 0 < min_decay_decades < max_decay_decades.");
+    }
+
+    if (!std::isfinite(updateFactor) || updateFactor <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setGridAdaptationParameters",
+            "update_factor must be finite and greater than zero.");
+    }
+
+    if (maxIterations == 0) {
+        throw CanteraError("EEDFTwoTermApproximation::setGridAdaptationParameters",
+            "max_iterations must be greater than zero.");
+    }
+
+    m_adaptGrid = enabled;
+    m_minEedfDecay = minDecayDecades;
+    m_maxEedfDecay = maxDecayDecades;
+    m_gridUpdateFactor = updateFactor;
+    m_maxGridAdaptIterations = maxIterations;
+}
+
+void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
+{
+    if (!std::isfinite(maxEnergy) || maxEnergy <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::updateGrid",
+            "Maximum grid energy must be finite and greater than zero.");
+    }
+
+    m_kTeMax = maxEnergy;
+
+    if (m_gridType == "Linear") {
+        setLinearGrid(m_kTeMax, m_initialGridCells);
+    } else if (m_gridType == "Quadratic") {
+        setQuadraticGrid(m_kTeMax, m_initialGridCells);
+    } else if (m_gridType == "Geometric") {
+        setGeometricGrid(m_kTeMax, m_initialGridCells);
+    } else {
+        throw CanteraError("EEDFTwoTermApproximation::updateGrid",
+            "Unknown energy grid type '{}'.", m_gridType);
+    }
+
+    m_has_EEDF = false;
 }
 
 }
