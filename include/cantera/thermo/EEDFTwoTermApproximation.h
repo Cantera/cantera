@@ -314,6 +314,8 @@ protected:
 
     void updateGrid(double maxEnergy);
 
+    const double EN_min = 1e-21; // Reduced electric field below which the EEDF is not computed.
+                             // Instead, a Maxwellian at the gas temperature is imposed.
 
 }; // end of class EEDFTwoTermApproximation
 

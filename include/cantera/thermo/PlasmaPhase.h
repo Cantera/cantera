@@ -389,6 +389,11 @@ public:
     //}
 
     //! Get the reduced electric field strength [V·m²]
+    double reducedElectricField() const {
+        return m_electricField / (molarDensity() * Avogadro);
+    }
+
+    //! Get the reduced electric field strength [V·m²]
     void setReducedElectricField(double EN) {
         if (!std::isfinite(EN) || EN < 0.0) {
             throw CanteraError("PlasmaPhase::setReducedElectricField",
@@ -402,11 +407,6 @@ public:
         }
 
         m_electricField = EN * nDensity;
-    }
-
-    //! Set reduced electric field given in [V·m²]
-    void setReducedElectricField(double EN) {
-        m_electricField = EN * molarDensity() * Avogadro; // [V/m]
     }
 
     virtual void setSolution(std::weak_ptr<Solution> soln) override;
