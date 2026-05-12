@@ -98,9 +98,7 @@ public:
         return m_f0_edge;
     }
 
-    double getElectronMobility() const {
-        return m_electronMobility;
-    }
+    double getElectronMobility() const;
 
 protected:
 

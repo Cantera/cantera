@@ -869,4 +869,13 @@ void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
     m_has_EEDF = false;
 }
 
+double EEDFTwoTermApproximation::getElectronMobility() const
+{
+    if (!m_has_EEDF || !std::isfinite(m_electronMobility)) {
+        throw CanteraError("EEDFTwoTermApproximation::getElectronMobility",
+            "Electron mobility is not available before a valid EEDF has been computed.");
+    }
+    return m_electronMobility;
+}
+
 }
