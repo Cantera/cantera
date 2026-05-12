@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -117,6 +119,110 @@ class TestMultiphaseEquil(EquilTestCases):
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
+
+
+class TestMultiphase_H2O2_TwoPhase:
+    """
+    Stress test for the 'gibbs' (``MultiPhaseEquil``) solver on a two-phase setup where
+    the second phase is a subset of the h2o2 mechanism species and the mixture
+    composition is stoichiometric with respect to H2 and O2. Verifies element
+    conservation and that the converged state satisfies the element-potential
+    consistency condition, sampling a range of phase2 compositions, temperatures,
+    pressures, and inert moles. Regression coverage for the cluster of MultiPhaseEquil
+    fixes addressing issue #1023.
+    """
+
+    # Spot-check conditions chosen to exercise the regimes that previously had failures
+    # (issue #1023): low T where the answer is fully-combusted, mid T where minor
+    # species start to matter, high T where dissociation becomes significant, and a
+    # high-T/high-P combination.
+    _H2O2_TPN = [
+        (400, 1.0, 0.1),
+        (500, 2.0, 0.3),
+        (1000, 5.0, 0.7),
+        (1300, 5.0, 0.7),
+        (1700, 1.0, 0.0),
+        (2000, 20.0, 0.7),
+    ]
+
+    @staticmethod
+    def _h2o2_phase2_samples(n=20):
+        """Deterministic sample of ~n phase2 species combinations from h2o2.yaml,
+        spanning all combination sizes from 2 to the full set."""
+        species = ['H2', 'H', 'O', 'O2', 'OH', 'H2O', 'HO2', 'H2O2', 'AR', 'N2']
+        combos = [c for r in range(2, len(species) + 1)
+                    for c in itertools.combinations(species, r)]
+        stride = max(1, len(combos) // n)
+        return [list(c) for c in combos[::stride][:n]]
+
+    @staticmethod
+    def _at_equilibrium(mix, abs_tol=1e-6):
+        """
+        Verify that ``mix`` is at chemical equilibrium by checking that the chemical
+        potential of each species satisfies ``mu_k = sum_e n_{e,k} * lambda_e`` where
+        ``lambda_e`` is the element potential for element e and ``n_{e,k}`` is the
+        number of atoms of element e in species k. We solve for ``lambda`` by weighted
+        least squares (weighting by moles so trace species do not dominate the fit),
+        then require ``|mu_k - sum_e n_{e,k} lambda_e| / (R T) < abs_tol`` for every
+        species whose moles are more than 1e-10 of the total. Returns the worst relative
+        residual.
+        """
+        R = ct.gas_constant
+        T = mix.T
+        n_species = mix.n_species
+        n_elements = mix.n_elements
+        mu = np.asarray(mix.chemical_potentials)
+        moles = np.asarray(mix.species_moles)
+        composition = np.array([[mix.n_atoms(k, e) for e in range(n_elements)]
+                                for k in range(n_species)])
+
+        w = np.sqrt(np.maximum(moles, 0.0))
+        mask = w > 0.0
+        Aw = composition[mask] * w[mask, None]
+        muw = mu[mask] * w[mask]
+        lam, *_ = np.linalg.lstsq(Aw, muw, rcond=None)
+
+        total = moles.sum()
+        worst = 0.0
+        for k in range(n_species):
+            if moles[k] > 1e-10 * total:
+                residual = (mu[k] - composition[k] @ lam) / (R * T)
+                assert abs(residual) < abs_tol, (
+                    f"species {mix.species_name(k)} (k={k}): "
+                    f"moles={moles[k]:.3g} of total {total:.3g}, "
+                    f"|mu_k - sum_e n_{{e,k}} lambda_e| / RT = {abs(residual):.3g}"
+                )
+                worst = max(worst, abs(residual))
+        return worst
+
+    @pytest.mark.parametrize("phase2_names", _h2o2_phase2_samples())
+    @pytest.mark.parametrize("T,P_atm,N_inert", _H2O2_TPN)
+    def test_equilibrate(self, T, P_atm, N_inert, phase2_names):
+        S = ct.Species.list_from_file('h2o2.yaml')
+        phase1 = ct.Solution('h2o2.yaml')
+        phase2 = ct.Solution(thermo='ideal-gas',
+                             species=[s for s in S if s.name in phase2_names])
+
+        P = P_atm * ct.one_atm
+        initial = {"O2": 1.0, "H2": 2.0, "N2": N_inert}
+        phase1.TPX = T, P, initial
+        mix = ct.Mixture([(phase1, sum(initial.values())), (phase2, 0.0)])
+        elements_before = np.array([mix.element_moles(e)
+                                    for e in range(mix.n_elements)])
+
+        mix.T = T
+        mix.P = P
+        # The default max_steps=1000 is not enough for a handful of corner cases (e.g.
+        # T=1700, N_inert=0 with phase2 = {H2, O, O2, OH, H2O, N2}) where atom transfer
+        # to phase2 is constrained by a single very-small species.
+        mix.equilibrate('TP', solver='gibbs', max_steps=5000)
+
+        elements_after = np.array([mix.element_moles(e)
+                                   for e in range(mix.n_elements)])
+        np.testing.assert_allclose(elements_after, elements_before, rtol=1e-7,
+                                   atol=1e-12,
+                                   err_msg="element moles changed during equilibration")
+        self._at_equilibrium(mix, abs_tol=1e-6)
 
 
 @pytest.fixture(scope='function')
