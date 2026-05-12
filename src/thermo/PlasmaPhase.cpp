@@ -91,16 +91,22 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     electronEnergyDistributionChanged();
 }
 
-void PlasmaPhase::normalizeElectronEnergyDistribution() {
-    Eigen::ArrayXd eps32 = m_electronEnergyLevels.pow(3./2.);
-    double norm = 2./3. * numericalQuadrature(m_quadratureMethod,
-                                              m_electronEnergyDist, eps32);
-    if (norm < 0.0) {
+void PlasmaPhase::normalizeElectronEnergyDistribution()
+{
+    checkElectronEnergyLevels();
+    checkElectronEnergyDistribution();
+
+    Eigen::ArrayXd eps32 = m_electronEnergyLevels.pow(3.0 / 2.0);
+    double norm = 2.0 / 3.0 * numericalQuadrature(
+        m_quadratureMethod, m_electronEnergyDist, eps32);
+
+    if (!std::isfinite(norm) || norm <= 0.0) {
         throw CanteraError("PlasmaPhase::normalizeElectronEnergyDistribution",
-                           "The norm is negative. This might be caused by bad "
-                           "electron energy distribution");
+            "Electron energy distribution has invalid norm: {}.", norm);
     }
+
     m_electronEnergyDist /= norm;
+    checkElectronEnergyDistribution();
 }
 
 void PlasmaPhase::setElectronEnergyDistributionType(const string& type)
@@ -130,7 +136,13 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
     checkElectronEnergyDistribution();
 }
 
-void PlasmaPhase::setElectronTemperature(const double Te) {
+void PlasmaPhase::setElectronTemperature(const double Te)
+{
+    if (!std::isfinite(Te) || Te <= 0.0) {
+        throw CanteraError("PlasmaPhase::setElectronTemperature",
+            "Electron temperature must be finite and positive.");
+    }
+
     m_electronTemp = Te;
     updateElectronEnergyDistribution();
 }
@@ -158,7 +170,13 @@ void PlasmaPhase::endEquilibrate()
     ThermoPhase::endEquilibrate();
 }
 
-void PlasmaPhase::setMeanElectronEnergy(double energy) {
+void PlasmaPhase::setMeanElectronEnergy(double energy)
+{
+    if (!std::isfinite(energy) || energy <= 0.0) {
+        throw CanteraError("PlasmaPhase::setMeanElectronEnergy",
+            "Mean electron energy must be finite and positive.");
+    }
+
     m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
     updateElectronEnergyDistribution();
 }
@@ -192,39 +210,92 @@ void PlasmaPhase::electronEnergyLevelChanged()
 
 void PlasmaPhase::checkElectronEnergyLevels() const
 {
-    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
-                       m_electronEnergyLevels.head(m_nPoints - 1);
-    if (m_electronEnergyLevels[0] < 0.0 || (h <= 0.0).any()) {
+    if (m_nPoints < 2 ||
+        static_cast<size_t>(m_electronEnergyLevels.size()) != m_nPoints) {
         throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
-            "Values of electron energy levels need to be positive and "
-            "monotonically increasing.");
+            "Electron energy levels must contain at least two points and match m_nPoints.");
+    }
+
+    for (size_t i = 0; i < m_nPoints; i++) {
+        const double eps = m_electronEnergyLevels[i];
+        if (!std::isfinite(eps)) {
+            throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
+                "Electron energy level {} is non-finite.", i);
+        }
+        if (eps < 0.0) {
+            throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
+                "Electron energy levels must be non-negative.");
+        }
+        if (i > 0 && eps <= m_electronEnergyLevels[i - 1]) {
+            throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
+                "Electron energy levels must be strictly increasing.");
+        }
     }
 }
 
 void PlasmaPhase::checkElectronEnergyDistribution() const
 {
-    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
-                       m_electronEnergyLevels.head(m_nPoints - 1);
-    if ((m_electronEnergyDist < 0.0).any()) {
+    if (m_nPoints < 2 ||
+        static_cast<size_t>(m_electronEnergyDist.size()) != m_nPoints ||
+        static_cast<size_t>(m_electronEnergyLevels.size()) != m_nPoints) {
         throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
-            "Values of electron energy distribution cannot be negative.");
+            "Electron energy distribution and energy levels must have matching "
+            "sizes of at least two points.");
     }
+
+    double sum = 0.0;
+    double maxVal = -BigNumber;
+
+    for (size_t i = 0; i < m_nPoints; i++) {
+        const double f = m_electronEnergyDist[i];
+        if (!std::isfinite(f)) {
+            throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+                "Electron energy distribution contains a non-finite value at index {}.",
+                i);
+        }
+        if (f < 0.0) {
+            throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+                "Electron energy distribution cannot contain negative values.");
+        }
+        sum += f;
+        maxVal = std::max(maxVal, f);
+    }
+
+    if (!(sum > 0.0) || !(maxVal > 0.0)) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+            "Electron energy distribution must contain at least one positive value.");
+    }
+
     if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
         warn_user("PlasmaPhase::checkElectronEnergyDistribution",
-        "The value of the last element of electron energy distribution exceed 0.01. "
-        "This indicates that the value of electron energy level is not high enough "
-        "to contain the isotropic distribution at mean electron energy of "
-        "{} eV", meanElectronEnergy());
+            "The last value of the electron energy distribution exceeds 0.01. "
+            "The electron energy grid may be too short for a mean electron energy "
+            "of {} eV.", meanElectronEnergy());
     }
 }
+
 
 void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
                                                   span<const double> dist)
 {
+    if (levels.size() != dist.size()) {
+        throw CanteraError("PlasmaPhase::setDiscretizedElectronEnergyDist",
+            "Energy levels and electron energy distribution must have the same size. "
+            "Got {} levels and {} distribution values.", levels.size(), dist.size());
+    }
+
+    if (levels.size() < 2) {
+        throw CanteraError("PlasmaPhase::setDiscretizedElectronEnergyDist",
+            "A discretized electron energy distribution requires at least two points.");
+    }
+
     m_distributionType = "discretized";
     m_nPoints = levels.size();
-    m_electronEnergyLevels = asVectorXd(levels);
-    m_electronEnergyDist = asVectorXd(dist);
+    m_electronEnergyLevels =
+        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
+    m_electronEnergyDist =
+        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
+
     checkElectronEnergyLevels();
     if (m_do_normalizeElectronEnergyDist) {
         normalizeElectronEnergyDistribution();
@@ -248,15 +319,22 @@ void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
             "trapezoidal", m_electronEnergyDist, eps52);
     }
 
-    if (epsilon_m < 0.0) {
+    if (!std::isfinite(epsilon_m) || epsilon_m <= 0.0) {
         throw CanteraError("PlasmaPhase::updateElectronTemperatureFromEnergyDist",
-            "The electron energy distribution produces negative electron temperature.");
+            "The electron energy distribution produces an invalid mean electron energy: {}.",
+            epsilon_m);
     }
 
     m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
 }
 
-void PlasmaPhase::setIsotropicShapeFactor(double x) {
+void PlasmaPhase::setIsotropicShapeFactor(double x)
+{
+    if (!std::isfinite(x) || x <= 0.0) {
+        throw CanteraError("PlasmaPhase::setIsotropicShapeFactor",
+            "The isotropic shape factor must be finite and positive.");
+    }
+
     m_isotropicShapeFactor = x;
     updateElectronEnergyDistribution();
 }
