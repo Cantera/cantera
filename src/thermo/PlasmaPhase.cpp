@@ -94,6 +94,19 @@ void PlasmaPhase::updateElectronEnergyDistribution()
                 y.data(), m_nPoints);
 
             electronEnergyLevelChanged();
+
+            bool validEEDF = (
+                static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
+                m_electronEnergyDist.allFinite() &&
+                m_electronEnergyDist.maxCoeff() > 0.0 &&
+                m_electronEnergyDist.sum() > 0.0
+            );
+
+            if (validEEDF) {
+                updateElectronTemperatureFromEnergyDist();
+            } else {
+                writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
+            }
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
