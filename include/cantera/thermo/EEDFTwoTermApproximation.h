@@ -78,6 +78,18 @@ public:
 
     void setGridCache();
 
+    void setGridType(const string& gridType);
+
+    void setInitialGridParameters(double initialMaxEnergy, size_t nGridCells);
+
+    void enableGridAdaptation(bool enabled);
+
+    void setGridAdaptationParameters(bool enabled,
+                                    double minDecayDecades,
+                                    double maxDecayDecades,
+                                    double updateFactor,
+                                    size_t maxIterations);
+
     vector<double> getGridEdge() const {
         return m_gridEdge;
     }
@@ -287,6 +299,22 @@ protected:
 
     //! First call to calculateDistributionFunction
     bool m_first_call;
+
+    
+    string m_gridType = "Linear";
+
+    double m_kTeMax = 60.0;
+    size_t m_initialGridCells = 301;
+
+    bool m_adaptGrid = false;
+    double m_minEedfDecay = 8.0;
+    double m_maxEedfDecay = 14.0;
+    double m_gridUpdateFactor = 0.25;
+    size_t m_maxGridAdaptIterations = 5;
+
+    void updateGrid(double maxEnergy);
+
+
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera
