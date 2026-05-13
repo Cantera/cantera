@@ -212,8 +212,9 @@ public:
     /*!
      * Units (J/kmol/K)
      *
-     * For this phase, the partial molar heat capacities are equal to the standard
-     * state heat capacities:
+     * For this phase, the first and second temperature derivative terms of
+     * the activity coefficients cancel, so the partial molar heat capacities
+     * are equal to the standard state heat capacities:
      *
      * @f[
      *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)
