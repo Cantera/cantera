@@ -43,15 +43,14 @@ namespace Cantera
  * All of the Excess Gibbs free energy formulations in this area employ
  * symmetrical formulations.
  *
- * Chemical potentials of species k, @f$ \mu_o @f$, has the following general
- * format:
+ * Chemical potentials of species k have the following general format:
  *
  * @f[
  *    \mu_k = \mu^o_k(T,P) + R T \ln( \gamma_k X_k )
  * @f]
  *
- * where @f$ \gamma_k^{\triangle} @f$ is a molar based activity coefficient for
- * species @f$ k @f$.
+ * where @f$ \gamma_k @f$ is a molar based activity coefficient for species
+ * @f$ k @f$, and @f$ X_k @f$ is the mole fraction.
  *
  * GibbsExcessVPSSTP contains an internal vector with the current mole fraction
  * vector. That's one of its primary usages. In order to keep the mole fraction
@@ -66,14 +65,17 @@ namespace Cantera
  * Activity concentrations are used directly in the expressions for kinetics.
  * Standard concentrations are used as the multiplicative constant that takes
  * the activity of a species and turns it into an activity concentration.
- * Standard concentrations must not depend on the concentration of the species
- * in the phase.
+ * Standard concentrations must not depend on the composition of the phase.
  *
- * Here we set a standard for the specification of the standard concentrations
+ * Here we set a convention for the specification of the standard concentrations
  * for this class and all child classes underneath it. We specify here that the
  * standard concentration is equal to 1 for all species. Therefore, the
- * activities appear directly in kinetics expressions involving species in
- * underlying GibbsExcessVPSSTP phases.
+ * activity concentrations used in kinetics expressions are dimensionless and
+ * equal to the thermodynamic activities:
+ *
+ * @f[
+ *   C^a_k = a_k = \gamma_k X_k
+ * @f]
  *
  * ### SetState Strategy
  *
@@ -93,7 +95,7 @@ public:
     //! @name Activities, Standard States, and Activity Concentrations
     //!
     //! The activity @f$ a_k @f$ of a species in solution is related to the
-    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T,P) + \hat R T \ln a_k. @f] The
     //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
@@ -111,25 +113,25 @@ public:
      * sizes), this method may be called with an optional parameter indicating
      * the species.
      *
-     * The standard concentration for defaulted to 1. In other words
-     * the activity concentration is assumed to be 1.
+     * The standard concentration is 1. In other words, the activity
+     * concentration is equal to the thermodynamic activity.
      *
      * @param k species index. Defaults to zero.
      */
     double standardConcentration(size_t k=0) const override;
     double logStandardConc(size_t k=0) const override;
 
-    //! Get the array of non-dimensional activities (molality based for this
-    //! class and classes that derive from it) at the current solution
-    //! temperature, pressure, and solution concentration.
+    //! Get the array of non-dimensional molar-based activities at the current
+    //! solution temperature, pressure, and composition.
     /*!
      * @f[
-     *  a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
+     *  a_k = \gamma_k X_k
      * @f]
      *
-     * This function must be implemented in derived classes.
+     * This function is implemented using the activity coefficients calculated
+     * by derived classes.
      *
-     * @param ac     Output vector of molality-based activities. Length: m_kk.
+     * @param ac     Output vector of molar-based activities. Length: m_kk.
      */
     void getActivities(span<double> ac) const override;
 
