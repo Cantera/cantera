@@ -2739,7 +2739,7 @@ def convert(
     metadata: CommentedMap = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "4.0.0a1",
+            "cantera-version": "4.0.0a2",
             "date": formatdate(localtime=True),
         }
     )
