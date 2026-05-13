@@ -57,7 +57,7 @@ TEST_F(OverconstrainedEquil, VcsNonideal)
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
 
-TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
+TEST_F(OverconstrainedEquil, MultiphaseEquil)
 {
     setup();
     gas->equilibrate("TP", "gibbs");

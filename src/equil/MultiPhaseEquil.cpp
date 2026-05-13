@@ -321,12 +321,26 @@ void MultiPhaseEquil::getComponents(span<const size_t> order)
                 }
             }
             if (m != n) {
-                // Swap this row with the last non-zero row
+                // Swap this row with the last non-zero row, and keep m_element
+                // in sync so that the element index matches its A matrix row.
                 for (size_t k = 0; k < nColumns; k++) {
                     std::swap(m_A(n,k), m_A(m,k));
                 }
+                std::swap(m_element[m], m_element[n]);
             } else {
                 // All remaining rows are zero. Elimination is complete.
+                // The rank of the element matrix is m, which may be less than
+                // m_nel when some element constraints are linearly dependent
+                // (e.g., all species share a fixed H/C ratio). Update m_nel
+                // and resize arrays that depend on nFree().
+                if (m < m_nel) {
+                    m_nel = m;
+                    m_dxi.resize(nFree());
+                    m_deltaG_RT.assign(nFree(), 0.0);
+                    m_solnrxn.resize(nFree());
+                    m_N.resize(m_nsp, nFree());
+                    m_lastsort.resize(m_nel);
+                }
                 break;
             }
         }
