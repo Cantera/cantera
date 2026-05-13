@@ -141,15 +141,14 @@ public:
 
     //! Solve the matrix problem Ax = b
     /*!
-     * @param b  INPUT RHS of the problem
-     * @param x  OUTPUT solution to the problem
+     * @param[in] b  RHS of the problem
+     * @param[out] x  Solution to the problem
      */
     void solve(span<const double> b, span<double> x);
 
     //! Solve the matrix problem Ax = b
     /*!
-     * @param b     INPUT RHS of the problem
-     *              OUTPUT solution to the problem
+     * @param[inout] b  On entry, RHS of the problem; At exit, solution to the problem.
      * @param nrhs  Number of right hand sides to solve
      * @param ldb   Leading dimension of `b`. Default is nColumns()
      */
