@@ -284,8 +284,9 @@ plt.show()
 # References
 # ----------
 #
-# .. [1] K. Zhang, C. Banyon, C. Togbé, P. Dagaut, J. Bugler, H. J. Curran (2015). "An
-#        experimental and kinetic modeling study of n-hexane oxidation," *Combustion and
-#        Flame* 162:11, 4194-4207, https://doi.org/10.1016/j.combustflame.2015.08.001.
+# .. [1] K. Zhang, C. Banyon, J. Bugler, H. J. Curran, A. Rodriguez, O. Herbinet, F.
+#        Battin-Leclerc, C. B'Chir, K. A. Heufer (2016). "An updated experimental and
+#        kinetic modeling study of n-heptane oxidation," *Combustion and Flame* 172,
+#        116-135, https://doi.org/10.1016/j.combustflame.2016.06.028.
 
 # sphinx_gallery_thumbnail_number = -1
