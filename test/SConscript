@@ -98,9 +98,9 @@ def addTestProgram(subdir, progName, env_vars={}):
         testenv.Append(CPPDEFINES=["CT_NO_PYTHON"])
     # Add build directory RPATH for test binaries
     if env["OS"] == "Darwin":
-        testenv.Append(
-            LINKFLAGS=env.subst(
-                f"${{RPATHPREFIX}}{testenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+        rpath_flag = env.subst(
+            f"${{RPATHPREFIX}}{testenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}")
+        testenv.AppendUnique(LINKFLAGS=[rpath_flag])
     elif env["use_rpath_linkage"]:
         testenv.Append(RPATH=testenv.Dir('#build/lib'))
 
