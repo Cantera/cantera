@@ -228,16 +228,6 @@ public:
     void getPartialMolarVolumes(span<double> vbar) const override;
     //! @}
 
-    //! Get the array of temperature second derivatives of the log activity
-    //! coefficients
-    /*!
-     *  units = 1/Kelvin
-     *
-     * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
-     *                         the log Activity Coefficients. length = m_kk
-     */
-    void getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const;
-
     void getdlnActCoeffdT(span<double> dlnActCoeffdT) const override;
 
     //! @name Initialization
