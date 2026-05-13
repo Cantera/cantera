@@ -89,16 +89,14 @@ class AnyMap;
 //! methods always write the results into flat arrays, ordered by phase in the
 //! order the phase was added, and within a phase in the order the species were
 //! added to the phase (which is the same ordering as in the input file).
-//! Example: suppose a heterogeneous mechanism involves three phases -- a bulk
-//! phase 'a', another bulk phase 'b', and the surface phase 'a:b' at the a/b
-//! interface. Phase 'a' contains 12 species, phase 'b' contains 3, and at the
-//! interface there are 5 adsorbed species defined in phase 'a:b'. Then methods
-//! like getNetProductionRates(span<double> net) will write and output array of
-//! length 20, beginning at the start of the span. The first 12
-//! values will be the net production rates for all 12 species of phase 'a'
-//! (even if some do not participate in the reactions), the next 3 will be for
-//! phase 'b', and finally the net production rates for the surface species will
-//! occupy the last 5 locations.
+//! For example, suppose a heterogeneous mechanism involves three phases -- a surface
+//! phase 's' surrounded by two bulk phases 'a' and 'b'. The surface defines 5 adsorbed
+//! species, phase 'a' contains 12 species, and phase 'b' contains 3. Then methods like
+//! `getNetProductionRates(span<double> net)` will write an output array of length 20,
+//! beginning at the start of the span. The first 5 values will be the net production
+//! rates for all 5 species of phase 's' (even if some do not participate in the
+//! reactions); the next 12 will be for phase 'a', and finally the net production rates
+//! for phase 'b' will occupy the last 3 locations.
 //! @ingroup chemkinetics
 
 //! @defgroup rateEvaluators Rate Evaluators
