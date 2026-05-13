@@ -1241,8 +1241,8 @@ if env['OS'] == 'Solaris' or env['HAS_CLANG'] or env["OS"] == "Darwin":
 if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
     # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
     # specifying this directly as part of LINKFLAGS
-    env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
-                          for x in env['RPATH']])
+    rpath_flags = [env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX') for x in env['RPATH']]
+    env.AppendUnique(LINKFLAGS=rpath_flags)
 
 # Check that libraries link correctly
 retcode = conf.TryLink(
@@ -1862,8 +1862,8 @@ def cdefine(definevar, configvar, comp=True, value=1):
 if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
     # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
     # specifying this directly as part of LINKFLAGS
-    env.Append(LINKFLAGS=[d for x in env['RPATH']
-        if (d := env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')) not in env['LINKFLAGS']])
+    rpath_flags = [env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX') for x in env['RPATH']]
+    env.AppendUnique(LINKFLAGS=rpath_flags)
 
 if env.get('has_sundials_lapack') and env['use_lapack']:
     configh['CT_SUNDIALS_USE_LAPACK'] = 1

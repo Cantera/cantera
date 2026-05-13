@@ -21,7 +21,8 @@ for programName, sources in samples:
     if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
         # SCons fails to specify RPATH on macOS, so circumvent that behavior by
         # specifying this directly as part of LINKFLAGS
-        linkflags.extend(env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX') for d in libdirs)
+        rpath_flags = [env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX') for d in libdirs]
+        linkflags.extend(rpath_flags)
 
     if localenv['package_build']:
         # For package builds, use environment variables or rely on SCons to find the

@@ -56,9 +56,9 @@ for sample in samples:
     if env["OS"] == "Darwin":
         # TODO: Accelerate is only used if other BLAS/LAPACK are not used
         cmake_extra.append("find_library(ACCELERATE_FRAMEWORK Accelerate)")
-        localenv.Append(
-            LINKFLAGS=env.subst(
-                f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+        rpath_flag = env.subst(
+            f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}")
+        localenv.AppendUnique(LINKFLAGS=[rpath_flag])
 
     localenv.Append(LIBS=env['cantera_shared_libs'])
     localenv.Prepend(CPPPATH=['#include'])
@@ -98,8 +98,8 @@ for sample in samples:
     if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
         # SCons fails to specify RPATH on macOS, so circumvent that behavior by
         # specifying this directly as part of LINKFLAGS
-        localenv.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX')
-                                   for d in libdirs])
+        rpath_flags = [env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX') for d in libdirs]
+        localenv.AppendUnique(LINKFLAGS=rpath_flags)
 
     cmake_libs = localenv['cantera_shared_libs'].copy()
     if "fmt" in cmake_libs:
