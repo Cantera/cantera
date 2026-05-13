@@ -216,10 +216,6 @@ protected:
     mutable vector<double> dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
-    //! to temperature of the log of the activity coefficients of the species
-    mutable vector<double> d2lnActCoeffdT2_Scaled_;
-
-    //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the mole fraction of the log of the activity
     //! coefficients of the species
     mutable vector<double> dlnActCoeffdlnN_diag_;

@@ -66,8 +66,7 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
         hbar[k] *= GasConstant * T;
     }
 
-    // Update the activity coefficients, This also update the internally stored
-    // molalities.
+    // Update the activity coefficients.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -91,8 +90,7 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(span<double> sbar) const
     getEntropy_R(sbar);
     double T = temperature();
 
-    // Update the activity coefficients, This also update the internally stored
-    // molalities.
+    // Update the activity coefficients.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -243,10 +241,6 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
             }
         }
     }
-
-    for (size_t k = 0; k < m_kk; k++) {
-        d2lnActCoeffdT2_Scaled_[k] = -2 / T * dlnActCoeffdT_Scaled_[k];
-    }
 }
 
 void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
@@ -255,16 +249,6 @@ void RedlichKisterVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
-    }
-}
-
-void RedlichKisterVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
-{
-    checkArraySize("RedlichKisterVPSSTP::getd2lnActCoeffdT2",
-                   d2lnActCoeffdT2.size(), m_kk);
-    s_update_dlnActCoeff_dT();
-    for (size_t k = 0; k < m_kk; k++) {
-        d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
 

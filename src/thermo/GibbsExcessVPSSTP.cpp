@@ -91,7 +91,6 @@ bool GibbsExcessVPSSTP::addSpecies(shared_ptr<Species> spec)
         }
         lnActCoeff_Scaled_.push_back(0.0);
         dlnActCoeffdT_Scaled_.push_back(0.0);
-        d2lnActCoeffdT2_Scaled_.push_back(0.0);
         dlnActCoeffdlnX_diag_.push_back(0.0);
         dlnActCoeffdlnN_diag_.push_back(0.0);
         dlnActCoeffdlnN_.resize(m_kk, m_kk);

@@ -100,8 +100,7 @@ void MargulesVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
         hbar[k] *= RT();
     }
 
-    // Update the activity coefficients, This also update the internally stored
-    // molalities.
+    // Update the activity coefficients.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -125,8 +124,7 @@ void MargulesVPSSTP::getPartialMolarEntropies(span<double> sbar) const
     getEntropy_R(sbar);
     double T = temperature();
 
-    // Update the activity coefficients, This also update the internally stored
-    // molalities.
+    // Update the activity coefficients.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -283,7 +281,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
     double invRTT = 1.0 / GasConstant*invT*invT;
     double deltaP = pressure() - OneAtm;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
-    d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
@@ -294,16 +291,11 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         const double XAXB = XA * XB;
         const double g0g1XB = (g0 + g1 * XB);
         const double all = -1.0 * XAXB * g0g1XB - XAXB * XB * g1;
-        const double mult = 2.0 * invT;
-        const double dT2all = mult * all;
         for (size_t iK = 0; iK < m_kk; iK++) {
             dlnActCoeffdT_Scaled_[iK] += all;
-            d2lnActCoeffdT2_Scaled_[iK] -= dT2all;
         }
         dlnActCoeffdT_Scaled_[iA] += XB * g0g1XB;
         dlnActCoeffdT_Scaled_[iB] += XA * g0g1XB + XAXB * g1;
-        d2lnActCoeffdT2_Scaled_[iA] -= mult * XB * g0g1XB;
-        d2lnActCoeffdT2_Scaled_[iB] -= mult * (XA * g0g1XB + XAXB * g1);
     }
 }
 
@@ -313,15 +305,6 @@ void MargulesVPSSTP::getdlnActCoeffdT(span<double> dlnActCoeffdT) const
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
-    }
-}
-
-void MargulesVPSSTP::getd2lnActCoeffdT2(span<double> d2lnActCoeffdT2) const
-{
-    checkArraySize("MargulesVPSSTP::getd2lnActCoeffdT2", d2lnActCoeffdT2.size(), m_kk);
-    s_update_dlnActCoeff_dT();
-    for (size_t k = 0; k < m_kk; k++) {
-        d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
 
