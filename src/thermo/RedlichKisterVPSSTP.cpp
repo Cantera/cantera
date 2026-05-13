@@ -77,8 +77,9 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(span<double> hbar) const
 
 void RedlichKisterVPSSTP::getPartialMolarCp(span<double> cpbar) const
 {
+    // The Redlich-Kister excess Gibbs energy is linear in T, so the first and
+    // second temperature derivative terms of the activity coefficients cancel.
     getCp_R(cpbar);
-    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }

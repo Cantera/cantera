@@ -216,15 +216,14 @@ public:
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
     /*!
-     * Units (J/kmol)
+     * Units (J/kmol/K)
      *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
+     * For this phase, the partial molar entropies are equal to the standard
+     * state entropies modified by the activity and the temperature derivative
+     * of the activity coefficient:
      *
      * @f[
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
+     *   \bar s_k(T,P) = s^o_k(T,P) - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      * @f]
      *
@@ -233,22 +232,16 @@ public:
      */
     void getPartialMolarEntropies(span<double> sbar) const override;
 
-    //! Returns an array of partial molar entropies for the species in the
-    //! mixture.
+    //! Returns an array of partial molar heat capacities [J/kmol/K] for the species in
+    //! the mixture.
     /*!
-     * Units (J/kmol)
+     * For this model, the first and second temperature derivative terms of the activity
+     * coefficients cancel, so the partial molar heat capacities are equal to the
+     * standard state heat capacities:
      *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
-     *
-     *  @f[
-     *   ???????????????
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
-     *                              - R T \frac{d \ln(\gamma_k) }{dT}
-     *   ???????????????
-     *  @f]
+     * @f[
+     *   \bar C_{p,k}(T,P) = C^o_{p,k}(T,P)
+     * @f]
      *
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
