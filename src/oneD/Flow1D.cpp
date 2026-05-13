@@ -847,7 +847,9 @@ bool Flow1D::hasComponent(const string& name, bool checkAlias) const
             return true;
         }
     }
-    if (checkAlias && _componentAliasMap().count(name)) {
+    if (checkAlias && _componentAliasMap().count(name)
+        && componentMap.count(_componentAliasMap().at(name)))
+    {
         return true;
     }
     return false;
