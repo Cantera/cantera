@@ -1866,6 +1866,442 @@ class TestReactorJacobians:
         # check that they two arrays are the same
         assert r1.jacobian == approx(r2.jacobian, rel=2e-6, abs=1e-8)
 
+
+class TestConnectorJacobians:
+    """Tests for cross-reactor Jacobian contributions from flow devices and walls.
+
+    Each test compares the analytical Jacobian from ``ReactorNet.jacobian`` with the
+    finite-difference Jacobian from ``ReactorNet.finite_difference_jacobian``. Tests
+    focus on the off-diagonal blocks that represent coupling between reactors. Cases
+    with kinetics disabled (``set_multiplier(0)``) isolate the connector terms.
+
+    The IdealGasMoleReactor state layout is [T, V, n_1, ..., n_K] (sidx=2).
+    The IdealGasConstPressureMoleReactor state layout is [T, n_1, ..., n_K] (sidx=1).
+    """
+
+    # Compositions with all species non-zero so FD central differences are accurate
+    # when perturbing species moles (FD breaks near zero because n_k < 0 is unphysical).
+    _X1 = "H2:2, H:0.01, O:0.005, O2:1, OH:0.01, H2O:0.05, HO2:0.001, H2O2:0.001, AR:8, N2:0.1"
+    _X2 = "H2:1, H:0.005, O:0.002, O2:0.5, OH:0.005, H2O:0.1, HO2:0.001, H2O2:0.001, AR:8, N2:0.1"
+
+    def _make_h2o2_gas(self, T, P, X):
+        gas = ct.Solution("h2o2.yaml", "ohmech")
+        gas.TPX = T, P, X
+        gas.set_multiplier(0.0)
+        return gas
+
+    def test_mfc_const_flow_cross_reactor_species(self):
+        """Constant MassFlowController: downstream species depend on upstream composition.
+
+        With a constant mass flow rate there is no pressure dependence (massFlowRate_ddP
+        = 0), so the only cross-reactor terms come from the composition coupling
+        dY_k/dn_j. The full off-diagonal block J[n1:, :n1] should match FD; the
+        reverse block J[:n1, n1:] should be zero (upstream is unaffected by downstream).
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # Downstream block depending on upstream state: species rows only (skip T=0, V=0)
+        assert J[n1+2:, :n1] == approx(J_fd[n1+2:, :n1], rel=5e-3, abs=1e-10)
+        # Upstream does not depend on downstream for a constant-flow MFC
+        assert J[:n1, n1:] == approx(np.zeros((n1, r2.n_vars)), abs=1e-15)
+        assert J_fd[:n1, n1:] == approx(np.zeros((n1, r2.n_vars)), abs=1e-10)
+
+    def test_valve_cross_reactor_pressure_and_composition(self):
+        """Valve: both pressure coupling (T and V columns) and composition coupling.
+
+        The valve mass flow rate depends on pressure difference, so perturbing upstream
+        temperature or volume changes the flow into the downstream reactor. Both the
+        analytical Jacobian and FD should capture entries in the upstream T/V columns
+        for downstream species rows, and entries in the downstream T/V columns for
+        upstream species rows (the outlet term).
+
+        The temperature row (row 0 in each block) is omitted from the comparison
+        because the energy is disabled, making it zero in the FD Jacobian.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.Valve(r1, r2, K=1e-5)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # Downstream species rows depending on upstream state (all columns)
+        assert J[n1+2:, :n1] == approx(J_fd[n1+2:, :n1], rel=5e-3, abs=1e-10)
+        # Upstream species rows depending on downstream state (outlet pressure coupling)
+        assert J[2:n1, n1:] == approx(J_fd[2:n1, n1:], rel=5e-3, abs=1e-10)
+
+    def test_pressure_controller_cross_reactor(self):
+        """PressureController: flow tracks a primary MFC, with pressure-function coupling.
+
+        The PressureController adds its own dmdot/dDeltaP contribution on top of the
+        primary MFC's. The pressures are close together so the PC flow stays comparable
+        to the MFC flow and the FD Jacobian remains reliable.
+        """
+        _X3 = "H2:0.5, H:0.002, O:0.001, O2:0.5, OH:0.002, H2O:0.05, HO2:0.002, H2O2:0.003, AR:8, N2:0.3"
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        # Use pressures close together so the PC flow rate stays the same order as MFC
+        gas2 = self._make_h2o2_gas(900, 1.05 * ct.one_atm, self._X2)
+        gas3 = self._make_h2o2_gas(800, ct.one_atm, _X3)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        r3 = ct.IdealGasMoleReactor(gas3, energy="off")
+        mfc = ct.MassFlowController(r1, r2, mdot=0.01)
+        ct.PressureController(r2, r3, primary=mfc, K=1e-6)
+
+        net = ct.ReactorNet([r1, r2, r3])
+        n1 = r1.n_vars
+        n2 = r2.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # r2 species depending on r1 state (composition coupling from MFC only)
+        assert J[n1+2:n1+n2, :n1] == approx(J_fd[n1+2:n1+n2, :n1],
+                                              rel=1e-2, abs=1e-10)
+        # r3 species depending on r2 state (pressure and composition coupling from PC)
+        assert J[n1+n2+2:, n1:n1+n2] == approx(J_fd[n1+n2+2:, n1:n1+n2],
+                                                 rel=1e-2, abs=1e-10)
+
+    def test_wall_heat_transfer_cross_reactor_temperature(self):
+        """Wall with heat transfer only: T of each reactor affects dT/dt of the other.
+
+        With no expansion (expansionRateCoeff=0), the wall contributes only heat flux
+        terms that couple the temperature equations across reactors. Energy must be
+        enabled to see these terms.
+        """
+        gas1 = self._make_h2o2_gas(1200, ct.one_atm, "H2:2.0, O2:1.0, AR:8.0")
+        gas2 = self._make_h2o2_gas(800, ct.one_atm, "H2:1.0, O2:1.0, AR:8.0")
+        r1 = ct.IdealGasMoleReactor(gas1)
+        r2 = ct.IdealGasMoleReactor(gas2)
+        wall = ct.Wall(r1, r2, A=2.0, U=50.0, K=0.0)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # Temperature equation of r2 depends on T of r1 and vice versa (heat transfer)
+        # Compare only the T-row / T-column cross entries (row 0 of each block,
+        # column 0 of each block).
+        assert J[n1, 0] == approx(J_fd[n1, 0], rel=1e-3, abs=1e-10)
+        assert J[0, n1] == approx(J_fd[0, n1], rel=1e-3, abs=1e-10)
+
+        # Manual check: Q = U*A*(T1 - T2), so dQ/dT1 = +U*A and dQ/dT2 = -U*A.
+        # r1 energy equation: m1*cv1*dT1/dt = -Q, so d(dT1/dt)/dT2 = +U*A/(m1*cv1) > 0
+        # r2 energy equation: m2*cv2*dT2/dt = +Q, so d(dT2/dt)/dT1 = +U*A/(m2*cv2) > 0
+        Q_deriv = wall.heat_transfer_coeff * wall.area
+        assert J[0, n1] == approx(Q_deriv / (r1.mass * gas1.cv_mass), rel=1e-6)
+        assert J[n1, 0] == approx(Q_deriv / (r2.mass * gas2.cv_mass), rel=1e-6)
+
+    def test_wall_expansion_cross_reactor_volume(self):
+        """Wall with expansion only: pressure difference drives volume change.
+
+        With no heat transfer (U=0) and no radiation (emissivity=0), the wall
+        contributes only expansion-rate terms that couple the volume equations.
+        With energy enabled, expansion work also couples into the temperature equation.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.Wall(r1, r2, A=1.0, K=1e-6, U=0.0)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # Volume equation of r1 (row 1) depends on downstream T and V through pressure
+        assert J[1, n1:] == approx(J_fd[1, n1:], rel=5e-3, abs=1e-10)
+        # Volume equation of r2 (row n1+1) depends on upstream T and V through pressure
+        assert J[n1+1, :n1] == approx(J_fd[n1+1, :n1], rel=5e-3, abs=1e-10)
+
+    def test_const_pressure_mole_reactor_mfc_cross_reactor(self):
+        """IdealGasConstPressureMoleReactor downstream: state is [T, n_1, ..., n_K].
+
+        With a constant MFC, the downstream species rows depend on upstream composition.
+        The constant-pressure reactor has no volume variable (sidx=1 instead of 2),
+        so the cross-reactor block layout is different from the constant-volume case.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasConstPressureMoleReactor(gas2, energy="off")
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # r2 is IdealGasConstPressureMoleReactor: species start at index 1 (no volume)
+        # Downstream species rows (n1+1:) depend on upstream state (all n1 columns)
+        assert J[n1+1:, :n1] == approx(J_fd[n1+1:, :n1], rel=5e-3, abs=1e-10)
+        # Upstream does not depend on downstream (constant MFC, no pressure coupling back)
+        assert J[:n1, n1:] == approx(np.zeros((n1, r2.n_vars)), abs=1e-15)
+
+    def test_mixed_reactor_types_valve_cross_reactor(self):
+        """Valve from IdealGasMoleReactor to IdealGasConstPressureMoleReactor.
+
+        Tests that pressure coupling is correctly computed across reactors of different
+        types. The upstream has a volume variable; the downstream does not.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasConstPressureMoleReactor(gas2, energy="off")
+        ct.Valve(r1, r2, K=1e-5)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # r2 species rows (n1+1:) depending on r1 state
+        assert J[n1+1:, :n1] == approx(J_fd[n1+1:, :n1], rel=5e-3, abs=1e-10)
+        # r1 species rows (2:n1) depending on r2 state (outlet pressure coupling)
+        assert J[2:n1, n1:] == approx(J_fd[2:n1, n1:], rel=5e-3, abs=1e-10)
+
+    def test_species_subset_mfc_cross_reactor(self):
+        """MFC where upstream gas has only a subset of downstream species.
+
+        The upstream gas has only H2, O2, and AR. The downstream gas is the full h2o2
+        mechanism. Species in the downstream that are not in the upstream (H, OH, H2O,
+        etc.) should receive zero cross-reactor Jacobian contributions (they cannot be
+        transported by the flow). Only H2, O2, and AR should have non-zero cross terms.
+        """
+        upstream_yaml = """
+            phases:
+            - name: upstream_gas
+              thermo: ideal-gas
+              species:
+              - h2o2.yaml/species: [H2, O2, AR]
+              kinetics: gas
+              reactions: none
+        """
+        gas1 = ct.Solution(yaml=upstream_yaml)
+        gas1.TPX = 1000, 2 * ct.one_atm, "H2:2.0, O2:1.0, AR:8.0"
+        gas2 = ct.Solution("h2o2.yaml", "ohmech")
+        gas2.TPX = 900, ct.one_atm, "H2:1.0, O2:0.5, AR:8.0"
+        gas2.set_multiplier(0.0)
+
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars  # 2 + 3 (T, V, H2, O2, AR)
+
+        J = net.jacobian
+
+        # Downstream species that ARE in the upstream should have non-zero cross terms
+        for sp in ["H2", "O2", "AR"]:
+            row = n1 + r2.component_index(sp)
+            assert np.any(J[row, :n1] != 0.0), f"{sp} should have cross-reactor entries"
+
+        # Downstream species NOT in the upstream should have zero cross terms
+        downstream_only = [sp for sp in gas2.species_names
+                           if sp not in gas1.species_names]
+        for sp in downstream_only:
+            row = n1 + r2.component_index(sp)
+            assert J[row, :n1] == approx(np.zeros(n1), abs=1e-15), (
+                f"{sp} (not in upstream) should have zero cross-reactor entries")
+
+        # FD verification for the shared-species cross block
+        J_fd = net.finite_difference_jacobian
+        shared_rows = [n1 + r2.component_index(sp) for sp in ["H2", "O2", "AR"]]
+        for row in shared_rows:
+            assert J[row, :n1] == approx(J_fd[row, :n1], rel=1e-4, abs=1e-10)
+
+    def test_skip_flow_devices_flag(self):
+        """The skip-flow-devices derivative setting removes all flow device cross terms."""
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, "H2:2.0, O2:1.0, AR:8.0")
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, "H2:1.0, O2:1.0, AR:8.0")
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J_full = net.jacobian
+        # Full Jacobian should have non-zero cross-reactor entries
+        assert np.any(J_full[n1:, :n1] != 0.0)
+
+        net.derivative_settings = {"skip-flow-devices": True}
+        J_skip = net.jacobian
+        # With flow devices skipped, cross-reactor species block should be zero
+        assert J_skip[n1:, :n1] == approx(np.zeros((r2.n_vars, n1)), abs=1e-15)
+
+    def test_skip_connector_composition_dependence(self):
+        """The skip-connector-composition-dependence flag removes dY/dn_j terms.
+
+        A constant MFC has no pressure dependence, so removing composition dependence
+        should zero out all cross-reactor entries. A valve retains pressure coupling
+        (T and V columns) even when composition dependence is removed.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, "H2:2.0, O2:1.0, AR:8.0")
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, "H2:1.0, O2:1.0, AR:8.0")
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        # Default: composition coupling is included
+        J_full = net.jacobian
+        assert np.any(J_full[n1:, :n1] != 0.0)
+
+        # With composition skipped, constant MFC has no remaining cross terms
+        net.derivative_settings = {"skip-connector-composition-dependence": True}
+        J_no_comp = net.jacobian
+        assert J_no_comp[n1:, :n1] == approx(np.zeros((r2.n_vars, n1)), abs=1e-15)
+
+    def test_skip_walls_flag(self):
+        """The skip-walls derivative setting removes all wall coupling terms."""
+        gas1 = self._make_h2o2_gas(1200, ct.one_atm, "H2:2.0, O2:1.0, AR:8.0")
+        gas2 = self._make_h2o2_gas(800, ct.one_atm, "H2:1.0, O2:1.0, AR:8.0")
+        r1 = ct.IdealGasMoleReactor(gas1)
+        r2 = ct.IdealGasMoleReactor(gas2)
+        ct.Wall(r1, r2, A=2.0, U=50.0, K=1e-6)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J_full = net.jacobian
+        # Wall should contribute cross-reactor T-T and V-V entries
+        assert J_full[n1, 0] != approx(0.0)  # r2 T depends on r1 T (heat transfer)
+        assert J_full[1, n1] != approx(0.0)  # r1 V depends on r2 T via pressure
+
+        net.derivative_settings = {"skip-walls": True}
+        J_skip = net.jacobian
+        # With walls skipped, the entire off-diagonal blocks should be zero
+        assert J_skip[n1:, :n1] == approx(np.zeros((r2.n_vars, n1)), abs=1e-15)
+        assert J_skip[:n1, n1:] == approx(np.zeros((n1, r2.n_vars)), abs=1e-15)
+
+    def test_mfc_energy_enabled_cross_reactor(self):
+        """MFC with energy enabled: enthalpy coupling adds cross-reactor T-row entries.
+
+        When energy is enabled, the downstream temperature equation depends on the
+        upstream enthalpy (h_in * mdot). The enthalpy depends on upstream T and
+        (optionally) composition, generating additional cross-reactor entries.
+        """
+        gas1 = self._make_h2o2_gas(1200, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1)
+        r2 = ct.IdealGasMoleReactor(gas2)
+        # Energy enabled (default)
+        ct.MassFlowController(r1, r2, mdot=0.02)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # With energy, r2 temperature row should depend on r1 temperature (enthalpy term)
+        assert J[n1, 0] != approx(0.0, abs=1e-20)
+        assert J[n1, 0] == approx(J_fd[n1, 0], rel=1e-2, abs=1e-10)
+
+        # Species cross terms should also match (with looser tolerance due to energy
+        # coupling that modifies TotalCv-denominator terms)
+        assert J[n1+2:, 2:n1] == approx(J_fd[n1+2:, 2:n1], rel=1e-2, abs=1e-10)
+
+    def test_const_pressure_wall_heat_transfer_cross_reactor(self):
+        """Wall heat transfer between two IdealGasConstPressureMoleReactors.
+
+        For constant-pressure reactors, there is no volume variable, so expansion
+        coupling does not appear. Only heat transfer couples the temperature equations.
+        """
+        gas1 = self._make_h2o2_gas(1200, ct.one_atm, "H2:2.0, O2:1.0, AR:8.0")
+        gas2 = self._make_h2o2_gas(800, ct.one_atm, "H2:1.0, O2:1.0, AR:8.0")
+        r1 = ct.IdealGasConstPressureMoleReactor(gas1)
+        r2 = ct.IdealGasConstPressureMoleReactor(gas2)
+        ct.Wall(r1, r2, A=2.0, U=50.0, K=0.0)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars
+
+        J = net.jacobian
+        J_fd = net.finite_difference_jacobian
+
+        # Cross T-T entries
+        assert J[n1, 0] == approx(J_fd[n1, 0], rel=1e-3, abs=1e-10)
+        assert J[0, n1] == approx(J_fd[0, n1], rel=1e-3, abs=1e-10)
+
+        # Manual check: Q = U*A*(T1-T2), dQ/dT1 = +U*A, dQ/dT2 = -U*A.
+        # r1: m1*cp1*dT1/dt = -Q → d(dT1/dt)/dT2 = +U*A/(m1*cp1) > 0
+        # r2: m2*cp2*dT2/dt = +Q → d(dT2/dt)/dT1 = +U*A/(m2*cp2) > 0
+        Q_deriv = 50.0 * 2.0  # U * A
+        assert J[n1, 0] == approx(Q_deriv / (r2.mass * gas2.cp_mass), rel=1e-6)
+        assert J[0, n1] == approx(Q_deriv / (r1.mass * gas1.cp_mass), rel=1e-6)
+
+    def test_skip_connector_pressure_composition_dependence(self):
+        """skip-connector-pressure-composition-dependence removes dP/dn_k terms.
+
+        For a pressure-dependent flow device (Valve), the flow rate depends on ΔP.
+        The ideal-gas pressure depends on composition: dP/dn_k = RT/V (same for all k).
+        This flag removes these composition-via-pressure terms while retaining direct
+        composition coupling (dY_k/dn_j terms from addSpeciesMassFractionJacobian).
+
+        The removed terms form a rank-1 structure: each upstream-species column j in the
+        downstream-species block carries the same vector of values (because dP/dn_j = RT/V
+        is independent of j), namely K * (RT1/V1) * Y_k(in) / W_k for each species k.
+        """
+        gas1 = self._make_h2o2_gas(1000, 2 * ct.one_atm, self._X1)
+        gas2 = self._make_h2o2_gas(900, ct.one_atm, self._X2)
+        r1 = ct.IdealGasMoleReactor(gas1, energy="off")
+        r2 = ct.IdealGasMoleReactor(gas2, energy="off")
+        K = 1e-5
+        ct.Valve(r1, r2, K=K)
+
+        net = ct.ReactorNet([r1, r2])
+        n1 = r1.n_vars  # state layout: T, V, then species (species start at index 2)
+        nsp = gas1.n_species
+
+        J_full = net.jacobian
+
+        net.derivative_settings = {"skip-connector-pressure-composition-dependence": True}
+        J_skip = net.jacobian
+
+        # Both should have non-zero cross-reactor species entries
+        assert np.any(J_full[n1+2:, 2:n1] != 0.0)
+        assert np.any(J_skip[n1+2:, 2:n1] != 0.0)
+
+        # The difference isolates the pressure-composition path.
+        # For each upstream species column j: contribution = K * dP/dn_j * Y_k(in)/W_k
+        # Since dP/dn_j = RT1/V1 (same for all j), each column is identical.
+        diff = (J_full - J_skip)[n1+2:, 2:n1]  # downstream species, upstream species cols
+        for j in range(1, nsp):
+            assert diff[:, j] == approx(diff[:, 0], rel=1e-6, abs=1e-20)
+
+        # Verify the magnitude: each entry = K * (RT1/V1) * Y_k(in) / W_k
+        dPdn = ct.gas_constant * gas1.T / r1.volume
+        for k in range(nsp):
+            expected = K * dPdn * gas1.Y[k] / gas1.molecular_weights[k]
+            assert diff[k, 0] == approx(expected, rel=1e-6, abs=1e-20)
+
+
 # A rate type used for testing integrator error handling
 class FailRateData(ct.ExtensibleRateData):
     def __init__(self):

@@ -594,6 +594,138 @@ TEST(AdaptivePreconditionerTests, multi_reactor_wall_coupling)
                 1e-10 * std::abs(area * expansionCoeff * dPdV));
 }
 
+TEST(AdaptivePreconditionerTests, const_pressure_outlet_enthalpy_jacobian)
+{
+    // Constant pressure reactor as upstream with outlet; energy enabled. Verifies that:
+    // (1) the reactor outlet contributes cross-reactor species terms, and
+    // (2) addEnthalpyJacobian is called on the upstream reactor when the
+    //     downstream reactor processes its inlet with energy on.
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, 2.0 * OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto upstream = newReactor4(
+        "IdealGasConstPressureMoleReactor", gas, true, "upstream");
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, N2:8.0");
+    auto downstream = newReactor4("IdealGasMoleReactor", gas, true, "downstream");
+    downstream->setInitialVolume(0.5);
+
+    double kValve = 1e-5;
+    auto valve = make_shared<Valve>(upstream, downstream);
+    valve->setDeviceCoefficient(kValve);
+
+    vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
+    ReactorNet network(reactors);
+    Eigen::SparseMatrix<double> jac = network.jacobian();
+
+    // Constant pressure reactor inlet-enthalpy Jacobian: cross-reactor term
+    // Expected: mdot * cp_mass_upstream / TotalCv_downstream
+    double deltaP = upstream->pressure() - downstream->pressure();
+    double mdot = kValve * deltaP;
+    double cp_up = upstream->phase()->thermo()->cp_mass();
+    double totalCvDown = downstream->mass() * downstream->phase()->thermo()->cv_mass();
+    double expected_dE_dT_up = mdot * cp_up / totalCvDown;
+    size_t downstream_energy = upstream->neq() + downstream->componentIndex("temperature");
+    size_t upstream_T = upstream->componentIndex("temperature");
+    EXPECT_NEAR(jac.coeff(downstream_energy, upstream_T),
+                expected_dE_dT_up, 1e-8 * std::abs(expected_dE_dT_up));
+
+    // Reactor outlet species: coupling from downstream pressure to
+    // species equation. The downstream reactor's addPressureJacobian
+    // contributes to d(dn_H2/dt)/dT_downstream.
+    size_t h2 = upstream->phase()->thermo()->speciesIndex("H2");
+    double imwH2 = upstream->phase()->thermo()->inverseMolecularWeights()[h2];
+    double Yh2 = upstream->phase()->thermo()->massFraction(h2);
+    double dPdT_down = downstream->pressure() / downstream->temperature();
+    size_t IGCPMR_h2 = upstream->componentIndex("H2");
+    size_t downstream_T = upstream->neq() + downstream->componentIndex("temperature");
+    EXPECT_NEAR(jac.coeff(IGCPMR_h2, downstream_T),
+                imwH2 * Yh2 * kValve * dPdT_down,
+                1e-8 * std::abs(imwH2 * Yh2 * kValve * dPdT_down));
+}
+
+TEST(AdaptivePreconditionerTests, flow_device_pressure_function_jacobian)
+{
+    // Valve with a non-trivial pressure function (quadratic). Verifies that
+    // pressureFunction_ddP uses the analytic derivative of the pressure function
+    // rather than the linear default.
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, 2.0 * OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto upstream = newReactor4("IdealGasMoleReactor", gas, true, "upstream");
+    upstream->setEnergyEnabled(false);
+    upstream->setInitialVolume(0.5);
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, AR:8.0");
+    auto downstream = newReactor4("IdealGasMoleReactor", gas, true, "downstream");
+    downstream->setEnergyEnabled(false);
+    downstream->setInitialVolume(0.5);
+
+    double kValve = 1e-5;
+    auto valve = make_shared<Valve>(upstream, downstream);
+    valve->setDeviceCoefficient(kValve);
+    // Quadratic pressure function: mdot = kValve * deltaP^2
+    // Derivative: dmdot/d(deltaP) = kValve * 2 * deltaP
+    auto pfunc = make_shared<Pow1>(2.0);
+    valve->setPressureFunction(pfunc);
+
+    vector<shared_ptr<ReactorBase>> reactors{upstream, downstream};
+    ReactorNet network(reactors);
+    Eigen::SparseMatrix<double> jac = network.jacobian();
+
+    // Cross-reactor term: d(dn_H2/dt_down)/dT_up.
+    size_t h2 = upstream->phase()->thermo()->speciesIndex("H2");
+    double imwH2 = downstream->phase()->thermo()->inverseMolecularWeights()[h2];
+    double Yh2 = upstream->phase()->thermo()->massFraction(h2);
+    double deltaP = upstream->pressure() - downstream->pressure();
+    double dmdot_ddP = kValve * 2.0 * deltaP;  // pfunc derivative = 2*deltaP
+    double dPdT = upstream->pressure() / upstream->temperature();
+
+    size_t row = upstream->neq() + downstream->componentIndex("H2");
+    size_t col = upstream->componentIndex("temperature");
+    double expected = imwH2 * Yh2 * dmdot_ddP * dPdT;
+    EXPECT_NEAR(jac.coeff(row, col), expected, 1e-8 * std::abs(expected));
+}
+
+TEST(AdaptivePreconditionerTests, wall_emissivity_jacobian)
+{
+    // Wall with non-zero emissivity. Verifies that addHeatRateJacobian includes
+    // the Stefan-Boltzmann radiation term in addition to convective heat transfer.
+    auto gas = newSolution("h2o2.yaml");
+
+    gas->thermo()->setState_TPX(1000.0, 2.0 * OneAtm, "H2:2.0, O2:1.0, AR:8.0");
+    auto left = newReactor4("IdealGasMoleReactor", gas, true, "left");
+    left->setInitialVolume(0.5);
+
+    gas->thermo()->setState_TPX(900.0, OneAtm, "H2:1.0, O2:1.0, AR:8.0");
+    auto right = newReactor4("IdealGasMoleReactor", gas, true, "right");
+    right->setInitialVolume(0.5);
+
+    double area = 2.0;
+    double emissivity = 0.5;
+    auto wall = make_shared<Wall>(left, right);
+    wall->setArea(area);
+    wall->setHeatTransferCoeff(0.0);
+    wall->setEmissivity(emissivity);
+    wall->setExpansionRateCoeff(0.0);
+
+    vector<shared_ptr<ReactorBase>> reactors{left, right};
+    ReactorNet network(reactors);
+    Eigen::SparseMatrix<double> jac = network.jacobian();
+
+    // d(Q)/dT_right = -4 * emiss * area * StefanBoltz * T_right^3
+    // For the left reactor: coeff = -1/TotalCv (f = -1 for the wall's left side).
+    // Result: jac[left_T, right_T] = (-1/TotalCv_left) * rightCoeff
+    //       = 4 * emiss * area * StefanBoltz * T_right^3 / TotalCv_left
+    double totalCvLeft = left->mass() * left->phase()->thermo()->cv_mass();
+    double T_right = right->phase()->thermo()->temperature();
+    double expected = 4.0 * emissivity * area * StefanBoltz
+                      * std::pow(T_right, 3) / totalCvLeft;
+    size_t left_T = left->componentIndex("temperature");
+    size_t right_T = left->neq() + right->componentIndex("temperature");
+    EXPECT_NEAR(jac.coeff(left_T, right_T), expected, 1e-8 * std::abs(expected));
+}
+
 int main(int argc, char** argv)
 {
     printf("Running main() from test_zeroD.cpp\n");
