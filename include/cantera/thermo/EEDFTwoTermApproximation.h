@@ -209,7 +209,7 @@ protected:
     double electronDiffusivity(const Eigen::VectorXd& f0);
 
     //! Mobility
-    double electronMobility(const Eigen::VectorXd& f0);
+    double computeElectronMobility(const Eigen::VectorXd& f0);
 
     //! Initialize species indices associated with cross-section data
     void initSpeciesIndexCrossSections();

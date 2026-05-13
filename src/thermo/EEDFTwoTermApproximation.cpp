@@ -260,7 +260,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     m_has_EEDF = true;
 
     // Update electron mobility.
-    m_electronMobility = electronMobility(m_f0);
+    m_electronMobility = computeElectronMobility(m_f0);
 
     return 0;
 }
@@ -462,7 +462,7 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     double alpha;
     double E = m_phase->electricField();
     if (m_growth == "spatial") {
-        double mu = electronMobility(f0);
+        double mu = computeElectronMobility(f0);
         double D = electronDiffusivity(f0);
         alpha = (mu * E - sqrt(pow(mu * E, 2) - 4 * D * nu * nDensity)) / 2.0 / D / nDensity;
     } else {
@@ -578,7 +578,7 @@ double EEDFTwoTermApproximation::electronDiffusivity(const Eigen::VectorXd& f0)
     return 1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
-double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
+double EEDFTwoTermApproximation::computeElectronMobility(const Eigen::VectorXd& f0)
 {
     double nu = netProductionFrequency(f0);
     vector<double> y(m_points + 1, 0.0);
@@ -592,7 +592,7 @@ double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
     }
     double nDensity = m_phase->molarDensity() * Avogadro;
     auto f = ConstMappedVector(y.data(), y.size());
-    auto x = ConstMappedVector(m_gridEdge.data(), m_gridEdge.size());
+    auto x = ConstMappedVector(m_gridEdge.data(), m_gridEdge.size()); 
     return -1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
