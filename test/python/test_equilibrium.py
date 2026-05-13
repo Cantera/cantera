@@ -382,6 +382,86 @@ class Test_IdealSolidSolnPhase_Equil:
         assert gas['H2-solute'].X[0] == approx(1.0 / 3.0)
 
 
+class TestMultiphase_VaporLiquidHydrocarbon:
+    """
+    Regression test for element conservation in a two-phase vapor/liquid hydrocarbon
+    mixture (C8H18, C6H6, C7H8). Previously, elements were not conserved after
+    equilibration due to errors in MultiPhaseEquil with "trace" species.
+    Regression coverage for issue #425.
+    """
+
+    _gas_yaml = """
+    phases:
+    - name: vapor
+      thermo: ideal-gas
+      elements: [O, H, C]
+      species: [{nasa_gas.yaml/species: ["C8H18,n-octane", C6H6, C7H8]}]
+      state: {T: 300.0, P: 1 atm}
+    """
+
+    _liquid_yaml = """
+    phases:
+    - name: liquid
+      elements: [O, H, C]
+      thermo: ideal-condensed
+      species: ["C8H18(L),n-octa", C6H6(L), C7H8(L)]
+      state: {T: 300.0, P: 1 atm}
+
+    # Species data from nasa_condensed.yaml, augmented with (fake) density data
+    species:
+    - name: C8H18(L),n-octa
+      composition: {C: 8, H: 18}
+      thermo:
+        model: NASA7
+        temperature-ranges: [220.0, 300.0]
+        data:
+        - [71.413393, -0.5020795, 1.834199e-03, -2.0450165e-06, 0.0, -4.1243725e+04,
+          -277.2224]
+      equation-of-state:
+        model: constant-volume
+        density: 0.8765 g/cm^3
+    - name: C6H6(L)
+      composition: {C: 6, H: 6}
+      thermo:
+        model: NASA7
+        temperature-ranges: [278.68, 500.0]
+        data:
+        - [63.6690229, -0.600534398, 2.6679281e-03, -5.06308828e-06, 3.63955562e-09,
+          -1670.85472, -243.891797]
+      equation-of-state:
+        model: constant-volume
+        density: 0.8765 g/cm^3
+    - name: C7H8(L)
+      composition: {C: 7, H: 8}
+      thermo:
+        model: NASA7
+        temperature-ranges: [178.15, 500.0]
+        data:
+        - [29.3676022, -0.194722686, 9.74773096e-04, -1.91472689e-06, 1.48097019e-09,
+          -4163.18442, -112.019966]
+      equation-of-state:
+        model: constant-volume
+        density: 0.8765 g/cm^3
+    """
+
+    @pytest.mark.parametrize("n_C7H8_vapor", [1, 2, 3, 5, 9, 11, 20])
+    def test_element_conservation(self, n_C7H8_vapor):
+        liquid = ct.Solution(yaml=self._liquid_yaml)
+        vapor = ct.Solution(yaml=self._gas_yaml)
+
+        liquid.Y = {'C7H8(L)': 1.0, 'C6H6(L)': 1.0}
+        vapor.Y = {'C7H8': n_C7H8_vapor, 'C6H6': 1.0}
+        mix = ct.Mixture([(vapor, 1.0), (liquid, 1.0)])
+
+        mix.T = 373.15
+        mix.P = 101325.0
+        elements_before = [mix.element_moles(e) for e in range(mix.n_elements)]
+        mix.equilibrate('TP', solver='gibbs', max_steps=5000)
+        elements_after = [mix.element_moles(e) for e in range(mix.n_elements)]
+
+        assert elements_after == approx(elements_before, rel=1e-7)
+
+
 @pytest.mark.parametrize("solver,include_h2o",
                          [("gibbs", False), ("vcs", False),
                           ("gibbs", True), ("vcs", True)])
