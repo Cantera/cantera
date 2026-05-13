@@ -31,12 +31,12 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
         return false;
     }
 
-    // Update distribution
+    // Update the cached eedf from the plasma phase.
     m_dist_number = pp.distributionNumber();
     distribution.resize(pp.nElectronEnergyLevels());
     pp.getElectronEnergyDistribution(distribution);
 
-    // Update energy levels
+    // Update the cached energy grid only when the phase grid revision changes.
     if (pp.levelNumber() != levelNumber || energyLevels.empty()) {
         levelNumber = pp.levelNumber();
         energyLevels.resize(pp.nElectronEnergyLevels());
@@ -48,34 +48,6 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
 void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node,
                                                 const UnitStack& rate_units)
 {
-
-    // Diagnostics de débuggage:
-
-    // writelog("[plasma-collision-debug] ElectronCollisionPlasmaRate::setParameters: start\n");
-
-    // if (node.hasKey("collision")) {
-    //     writelog("[plasma-collision-debug]   found collision reference: '{}'\n",
-    //         node["collision"].asString());
-    // }
-
-    // bool hasEnergyLevels = node.hasKey("energy-levels");
-    // bool hasCrossSections = node.hasKey("cross-sections");
-
-    // writelog("[plasma-collision-debug]   has energy-levels: {}, has cross-sections: {}\n",
-    //     hasEnergyLevels, hasCrossSections);
-
-    // if (node.hasKey("kind")) {
-    //     writelog("[plasma-collision-debug]   YAML kind: '{}'\n",
-    //         node["kind"].asString());
-    // }
-
-    // if (node.hasKey("threshold")) {
-    //     writelog("[plasma-collision-debug]   YAML threshold: {}\n",
-    //         node["threshold"].asDouble());
-    // }
-
-    // fin des diagnostics
-
 
     ReactionRate::setParameters(node, rate_units);
 
@@ -99,12 +71,6 @@ void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node,
         applyCollisionData(node);
     }
 
-
-    // un peu plus de débuggage.
-    // writelog("[plasma-collision-debug]   after setParameters: collisionName='{}', kind='{}', "
-    //      "target='{}', product='{}', threshold={}, hasCrossSectionData={}, nLevels={}, nSections={}\n",
-    //         m_collisionName, m_kind, m_target, m_product, m_threshold,
-    //         m_hasCrossSectionData, m_energyLevels.size(), m_crossSections.size());
 }
 
 void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const
@@ -197,7 +163,7 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
         m_crossSectionsOffset.resize(shared_data.energyLevels.size());
         for (size_t i = 1; i < m_energyLevels.size(); i++) {
             // The energy levels are offset by the first energy level (threshold)
-            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_energyLevels[0]);
+            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_threshold);
         }
         for (size_t i = 0; i < shared_data.energyLevels.size(); i++) {
             // The interpolated super-elastic cross section is evaluated
@@ -214,20 +180,19 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
         shared_data.energyLevels.data(), shared_data.energyLevels.size()
     );
 
-    // Map energyLevels in Eigen::ArrayXd
+    // Map the electron energy distribution to Eigen::ArrayXd.
     auto distribution = Eigen::Map<const Eigen::ArrayXd>(
         shared_data.distribution.data(), shared_data.distribution.size()
     );
 
     // unit in kmol/m3/s
     kr = pow(2.0 * ElectronCharge / ElectronMass, 0.5) * Avogadro *
-         simpson((eps + m_energyLevels[0]).cwiseProduct(
+         simpson((eps + m_threshold).cwiseProduct(
          distribution.cwiseProduct(m_crossSectionsOffset)), eps);
 }
 
 void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    // writelog("[plasma-collision-debug] ElectronCollisionPlasmaRate::setContext: equation='{}'\n", rxn.equation());
 
     const ThermoPhase& thermo = kin.thermo();
     // get electron species name
@@ -272,11 +237,6 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
         }
     }
 
-    // writelog("[plasma-collision-debug]   setContext result: collisionName='{}', kind='{}', "
-    //      "threshold={}, hasCrossSectionData={}, nLevels={}\n",
-    // m_collisionName, m_kind, m_threshold,
-    // m_hasCrossSectionData, m_energyLevels.size());
-
     setDefaultThreshold();
 
     if (!rxn.reversible) {
@@ -300,31 +260,6 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
 
 void ElectronCollisionPlasmaRate::applyCollisionData(const AnyMap& node)
 {
-
-    // logging de debug
-    // writelog("[plasma-collision-debug] ElectronCollisionPlasmaRate::applyCollisionData: start\n");
-
-    // if (node.hasKey("name")) {
-    //     writelog("[plasma-collision-debug]   collision entry name: '{}'\n",
-    //         node["name"].asString());
-    // }
-
-    // if (node.hasKey("target")) {
-    //     writelog("[plasma-collision-debug]   collision target: '{}'\n",
-    //         node["target"].asString());
-    // }
-
-    // if (node.hasKey("product")) {
-    //     writelog("[plasma-collision-debug]   collision product: '{}'\n",
-    //         node["product"].asString());
-    // }
-
-    // if (node.hasKey("kind")) {
-    //     writelog("[plasma-collision-debug]   collision kind: '{}'\n",
-    //         node["kind"].asString());
-    // }
-
-    // fin du logging de debug
 
     if (node.hasKey("kind")) {
         string collisionKind = node["kind"].asString();
@@ -361,30 +296,7 @@ void ElectronCollisionPlasmaRate::applyCollisionData(const AnyMap& node)
     m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
     m_threshold = node.getDouble("threshold", 0.0);
 
-        // un peu plus de logging de debug
-
-    // writelog("[plasma-collision-debug]   loaded collision data: kind='{}', target='{}', "
-    //         "product='{}', threshold={}, nLevels={}, nSections={}\n",
-    //     m_kind, m_target, m_product, m_threshold,
-    //     m_energyLevels.size(), m_crossSections.size());
-
-    // if (!m_energyLevels.empty()) {
-    //     writelog("[plasma-collision-debug]   energy range: [{}, {}]\n",
-    //         m_energyLevels.front(), m_energyLevels.back());
-    // }
-
-    // if (!m_crossSections.empty()) {
-    //     writelog("[plasma-collision-debug]   cross-section range values: first={}, last={}\n",
-    //         m_crossSections.front(), m_crossSections.back());
-    // }
-
-    // le debug se stop ici
-
     setDefaultThreshold();
-
-    // encore du debug
-    // writelog("[plasma-collision-debug]   final threshold after default logic: {}\n",
-    // m_threshold);
 
     validateCollisionData(node);
     m_hasCrossSectionData = true;

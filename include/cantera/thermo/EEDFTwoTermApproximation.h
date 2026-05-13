@@ -61,44 +61,101 @@ public:
 
     virtual ~EEDFTwoTermApproximation() = default;
 
-    // compute the EEDF given an electric field
-    // CQM The solver will take the species to consider and the set of cross-sections
-    // from the PlasmaPhase object.
-    // It will write the EEDF and its grid into the PlasmaPhase object.
-    // Successful returns are indicated by a return value of 0.
+    //! Compute the electron energy distribution function for the current plasma state.
+    /*!
+     * The solver uses the electric field, species mole fractions, and electron
+     * collision cross sections provided by the associated PlasmaPhase object.
+     * On success, the internal EEDF and energy grid are updated.
+     *
+     * @return 0 if the EEDF calculation succeeds.
+     */
     int calculateDistributionFunction();
 
+    //! Sets a linear energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
     void setLinearGrid(double& kTe_max, size_t& ncell);
 
+    //! Sets a quadratic energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
     void setQuadraticGrid(double& kTe_max, size_t& ncell);
 
+    //! Sets a geometric energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
+    //! @todo the geometric ratio is currently fixed to 1.05 but this parameter could be chosen by the user in the yaml file.
     void setGeometricGrid(double& kTe_max, size_t& ncell);
 
+    //! Sets a custom energy grid for the EEDF solver, defined by the user-provided vector of energy levels.
     void setCustomGrid(span<const double> levels);
 
+    //! Build or rebuild the grid-dependent cache used for scattering matrices.
     void setGridCache();
 
+    //! Set the type of generated electron energy grid.
+    /*!
+     * Supported values are "Linear", "Quadratic", and "Geometric".
+     *
+     * @param gridType  Type of grid spacing to use when generating or adapting
+     *                  the electron energy grid.
+     */
     void setGridType(const string& gridType);
+
+    //! Set the initial grid parameters used by generated EEDF grids.
+    /*!
+     * These values are used when creating Linear, Quadratic, or Geometric grids,
+     * and are also reused during grid adaptation.
+     *
+     * @param initialMaxEnergy  Maximum electron energy of the initial grid [eV].
+     * @param nGridCells        Number of grid cells. The number of grid edges is
+     *                          nGridCells + 1.
+     */
     void setInitialGridParameters(double initialMaxEnergy, size_t nGridCells);
 
+    //! This funcion enables or disables the grid adaptation based on the EEDF decay at its tail.
     void enableGridAdaptation(bool enabled);
 
+    //! Set parameters controlling automatic adaptation of the EEDF energy grid.
+    /*!
+     * Grid adaptation adjusts the maximum grid energy based on the number of
+     * decades by which the EEDF decays between the low- and high-energy ends of
+     * the grid. The number of grid cells is kept fixed.
+     *
+     * @param enabled          True to enable grid adaptation.
+     * @param minDecayDecades  Minimum acceptable EEDF tail decay in decades. If
+     *                         the decay is smaller, the maximum grid energy is
+     *                         increased.
+     * @param maxDecayDecades  Maximum acceptable EEDF tail decay in decades. If
+     *                         the decay is larger, the maximum grid energy is
+     *                         decreased.
+     * @param updateFactor     Relative factor used to increase or decrease the
+     *                         maximum grid energy during adaptation.
+     * @param maxIterations    Maximum number of grid adaptation iterations per
+     *                         EEDF solve.
+     */
     void setGridAdaptationParameters(bool enabled,
                                     double minDecayDecades,
                                     double maxDecayDecades,
                                     double updateFactor,
                                     size_t maxIterations);
 
+    //! Return the electron energy grid edges [eV].
+    /*!
+     * The returned vector contains m_points + 1 values corresponding to cell
+     * boundaries.
+     */
     vector<double> getGridEdge() const {
         return m_gridEdge;
     }
 
+    //! Return the EEDF values interpolated at the electron energy grid edges.
+    /*!
+     * These values are copied back to PlasmaPhase after a successful
+     * Boltzmann-two-term EEDF solve.
+     */
     vector<double> getEEDFEdge() const {
         return m_f0_edge;
     }
 
+    //! Return the latest value of the computed electron mobility computed from the EEDF
     double getElectronMobility() const;
 
+    //! Controls the threshold below which the EEDF solver does not solve for the EEDF but imposes a Maxwellian distribution.
     void setReducedFieldThresholdBeforeMaxwellianTd(double threshold); 
 
 protected:
@@ -232,7 +289,7 @@ protected:
     //! @param grid  Vector representing the energy grid corresponding to f
     double norm(const Eigen::VectorXd& f, const Eigen::VectorXd& grid);
 
-    //! Electron mobility [m²/V·s]
+    //! Electron mobility computed from the most recent valid EEDF [m²/V/s].
     double m_electronMobility;
 
     //! Grid of electron energy (cell center) [eV]
@@ -253,7 +310,7 @@ protected:
     //! The energy boundaries of the overlap of cell i and j
     vector<vector<vector<double>>> m_eps;
 
-    //! normalized electron energy distribution function
+    //! Normalized electron energy distribution function
     Eigen::VectorXd m_f0;
 
     //! EEDF at grid edges (cell boundaries)
@@ -266,13 +323,13 @@ protected:
     //! energy grid
     vector<double> m_totalCrossSectionEdge;
 
-    //! vector of total elastic cross section weighted with mass ratio
+    //! Vector of total elastic cross section weighted with mass ratio
     vector<double> m_sigmaElastic;
 
-    //! list of target species indices in global Cantera numbering (1 index per cs)
+    //! List of target species indices in global Cantera numbering (1 index per cs)
     vector<size_t> m_kTargets;
 
-    //! list of target species indices in local X EEDF numbering (1 index per cs)
+    //! List of target species indices in local X EEDF numbering (1 index per cs)
     vector<size_t> m_klocTargets;
 
     //! Indices of species which has no cross-section data
@@ -287,10 +344,14 @@ protected:
     //! Previous mole fraction of targets used to compute eedf
     vector<double> m_X_targets_prev;
 
-    //! in factor. This is used for calculating the Q matrix of
-    //! scattering-in processes.
+    //! Multiplicity factor for scattering-in terms in matrix_Q().
+    /*!
+     * Values are 2 for ionization, 0 for attachment, and 1 for other collision
+     * types.
+     */
     vector<int> m_inFactor;
 
+    //! Conversion factor sqrt(2 e / m_e) used in electron energy-space transport terms.
     double m_gamma;
 
     //! flag of having an EEDF
@@ -299,21 +360,41 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
 
+    //! The grid type used by the EEDF solver. Supported values are "Linear", "Quadratic", and "Geometric".
     string m_gridType = "Linear";
 
+    //! Initial maximum energy of the grid [eV] used when generating EEDF grids. Can be changed by user input of by grid adaptation.
     double m_kTeMax = 60.0;
+
+    //! Initial / default number of grid cells. Can be changed by user input.
     size_t m_initialGridCells = 301;
 
+    //! Flag indicating whether grid adaptation based on EEDF tail decay is enabled.
     bool m_adaptGrid = false;
-    double m_minEedfDecay = 8.0;
-    double m_maxEedfDecay = 14.0;
-    double m_gridUpdateFactor = 0.25;
-    size_t m_maxGridAdaptIterations = 5;
 
+    // Parameters controlling grid adaptation based on EEDF tail decay. They will be used if no parameters are provided by the user in the YAML file.
+    
+    //! Minimum acceptable EEDF tail decay in decades; lower values trigger grid expansion.
+    double m_minEedfDecay = 10.0;
+
+    //! Maximum acceptable EEDF tail decay in decades; higher values trigger grid contraction.
+    double m_maxEedfDecay = 12.0;
+
+    //! Relative factor used to increase or decrease the maximum grid energy.
+    double m_gridUpdateFactor = 0.25;
+
+    //! Maximum number of grid adaptation iterations per EEDF solve.
+    size_t m_maxGridAdaptIterations = 100;
+    
+    //! Sets a new grid for the EEDF solver once the maximum energy is updated. This function is only called in the case of grid adaptation.
     void updateGrid(double maxEnergy);
 
-    double EN_min = 1e-21; // the reduced electric field below which the EEDF id not computed. Instead, a maxwellian at the
-    // gas temperature is imposed.
+    //! Reduced electric field threshold below which the EEDF is forced to a Maxwellian.
+    /*!
+     * Stored internally in SI units [V m²]. User-facing input is provided in
+     * Townsend by setReducedFieldThresholdBeforeMaxwellianTd().
+     */
+    double EN_min = 1e-21; 
 
 }; // end of class EEDFTwoTermApproximation
 

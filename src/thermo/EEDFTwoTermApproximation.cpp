@@ -21,7 +21,7 @@ typedef Eigen::SparseMatrix<double> SparseMat;
 
 EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase* s)
 {
-    // store a pointer to s.
+    // Store the PlasmaPhase context used by the solver (pointer to s).
     m_phase = s;
     m_first_call = true;
     m_has_EEDF = false;
@@ -75,8 +75,8 @@ void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell)
     m_f0.resize(m_points);
     m_f0_edge.resize(m_points + 1);
 
+    // @todo Make the geometric-grid ratio configurable from input.
     double ratio = 1.05;
-
     double denominator = std::pow(ratio, m_points) - 1.0;
 
     if (std::abs(denominator) < 1e-14) {
@@ -147,6 +147,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 
     const double EN = m_phase->reducedElectricField();
 
+    // Helper used to impose a Maxwellian EEDF.
     auto setMaxwellian = [&](double kTe_eV) {
         if (!std::isfinite(kTe_eV) || kTe_eV <= 0.0) {
             throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
@@ -178,7 +179,8 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     };
 
     // At very low reduced electric field, force a Maxwellian at the gas
-    // temperature and skip the Boltzmann convergence.
+    // temperature and skip the Boltzmann convergence to avoid wrong EEDF convergence and numerical instabilities 
+    // when integrating over time.
     if (EN <= EN_min) {
         setMaxwellian(Boltzmann * m_phase->temperature() / ElectronCharge);
     } else {
@@ -194,6 +196,11 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
         }
 
         converge(m_f0);
+
+        // Grid adaptation based on EEDF tail decay. If enabled, this will iteratively adjust the grid 
+        // until the EEDF tail decays within the specified bounds given in the YAML file.
+        // @todo Implement a more robust version which also varies the number of grid points if necessary. 
+        // The current version only adjusts the maximum energy of the grid.
 
         if (m_adaptGrid) {
             const double fFloor = 1e-300;
@@ -299,7 +306,7 @@ void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
         if (err1 < m_rtol) {
             break;
         } else if (n == m_maxn - 1) {
-            throw CanteraError("WeaklyIonizedGas::converge", "Convergence failed");
+            throw CanteraError("EEDFTwoTermApproximation::converge", "Convergence failed");
         }
     }
 }
@@ -316,7 +323,7 @@ Eigen::VectorXd EEDFTwoTermApproximation::iterate(const Eigen::VectorXd& f0, dou
     for (size_t k : m_phase->kInelastic()) {
         SparseMat Q_k = matrix_Q(g, k);
         SparseMat P_k = matrix_P(g, k);
-        PQ += (matrix_Q(g, k) - matrix_P(g, k)) * m_X_targets[m_klocTargets[k]];
+        PQ += (Q_k - P_k) * m_X_targets[m_klocTargets[k]];
     }
 
     SparseMat A = matrix_A(f0);
@@ -526,7 +533,7 @@ SparseMat EEDFTwoTermApproximation::matrix_A(const Eigen::VectorXd& f0)
     SparseMat A(m_points, m_points);
     A.setFromTriplets(tripletList.begin(), tripletList.end());
 
-    //plus G
+    // plus G
     SparseMat G(m_points, m_points);
     if (m_growth == "temporal") {
         for (size_t i = 0; i < m_points; i++) {
@@ -650,6 +657,7 @@ void EEDFTwoTermApproximation::updateCrossSections()
 }
 
 // Update the species mole fractions used for EEDF computation
+// Renormalize over species with electron-collision cross-section data.
 void EEDFTwoTermApproximation::updateMoleFractions()
 {
     double tmp_sum = 0.0;
@@ -866,6 +874,7 @@ void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
             "Unknown energy grid type '{}'.", m_gridType);
     }
 
+    // put back the flag at false because since the grid has changed the EEDF must be computed again.
     m_has_EEDF = false;
 }
 

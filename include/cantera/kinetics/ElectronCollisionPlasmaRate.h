@@ -214,10 +214,10 @@ public:
     //! Returns the name of the collision linking the reaction to the data stored in electron-collision
     const string& collisionName() const;
 
-    //! Returns the information whether the considered reaction node has cross-sections data
+    //! Return whether this rate object has tabulated cross-section data.
     bool hasCrossSectionData() const;
 
-    //! Enters the collision data found in the YAML when it is given in the old format.
+    //! Enters the collision data found in the YAML when it is given in the old (still accepted but deprecated) format.
     void applyCollisionData(const AnyMap& node);
 
     //! Checks the validity of the YAML entry.
@@ -252,18 +252,17 @@ private:
     //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
 
-    //! collision cross section [m2] interpolated on #m_energyLevels offset by the
-    //! threshold energy (the first energy level).
-    //! This is used for the calculation of the super-elastic collision reaction
-    //! rate coefficient.
+    //! Super-elastic cross sections [m²] interpolated on the shared EEDF grid
+    //! after shifting the tabulated energy levels by #m_threshold.
     Eigen::ArrayXd m_crossSectionsOffset;
 
     //! The name of the collision field in the new YAML PlasmaPhase implementation
     string m_collisionName;
 
-    //! Check whether a yaml node entry offers some cross section data
+    //! Check whether a YAML node entry offers some cross section data
     bool m_hasCrossSectionData = false;
 
+    //! Get the energy threshold for the reaction from the energy levels and cross sections data if threshold is not given in the reaction
     void setDefaultThreshold();
 
 };
