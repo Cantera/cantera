@@ -511,6 +511,15 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "energy_levels_distribution should be Linear, Quadratic or Geometric.");
                 }
 
+                if (eedf.hasKey("reduced_field_threshold_before_maxwellian_Td")){
+                    double maxwellian_threshold = eedf["reduced_field_threshold_before_maxwellian_Td"].asDouble();
+                    if (!std::isfinite(maxwellian_threshold) || maxwellian_threshold < 0.0) {
+                        throw CanteraError("PlasmaPhase::setParameters",
+                            "reduced_field_threshold_before_maxwellian_Td must be finite and non-negative.");
+                    }
+                    m_eedfSolver->setReducedFieldThresholdBeforeMaxwellianTd(maxwellian_threshold); // The input to this function is expected to be in Townsend.
+                }
+
                 if (eedf.hasKey("energy_grid_adaptation")) {
                     const AnyMap adapt = eedf["energy_grid_adaptation"].as<AnyMap>();
 

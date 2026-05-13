@@ -878,4 +878,14 @@ double EEDFTwoTermApproximation::getElectronMobility() const
     return m_electronMobility;
 }
 
+// Set the reduced electric field threshold below which the EEDF is forced to be Maxwellian at the gas temperature. 
+// The input to this function is expected to be in Townsend.
+void EEDFTwoTermApproximation::setReducedFieldThresholdBeforeMaxwellianTd(double threshold){
+    if (!std::isfinite(threshold) || threshold < 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setReducedFieldThresholdBeforeMaxwellianTd",
+            "Reduced field threshold must be finite and non-negative.");
+    }
+    EN_min = threshold*1e-21;
+}
+
 }

@@ -99,6 +99,8 @@ public:
 
     double getElectronMobility() const;
 
+    void setReducedFieldThresholdBeforeMaxwellianTd(double threshold); 
+
 protected:
 
     //! Formerly options for the EEDF solver
@@ -310,7 +312,7 @@ protected:
 
     void updateGrid(double maxEnergy);
 
-    const double EN_min = 1e-21; // the reduced electric field below which the EEDF id not computed. Instead, a maxwellian at the
+    double EN_min = 1e-21; // the reduced electric field below which the EEDF id not computed. Instead, a maxwellian at the
     // gas temperature is imposed.
 
 }; // end of class EEDFTwoTermApproximation
