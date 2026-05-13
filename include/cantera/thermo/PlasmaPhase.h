@@ -393,7 +393,7 @@ public:
         return m_electricField / (molarDensity() * Avogadro);
     }
 
-    //! Get the reduced electric field strength [V·m²]
+    //! Set reduced electric field given in [V·m²]
     void setReducedElectricField(double EN) {
         if (!std::isfinite(EN) || EN < 0.0) {
             throw CanteraError("PlasmaPhase::setReducedElectricField",
@@ -583,6 +583,11 @@ protected:
     */
     void updateElasticElectronEnergyLossCoefficients();
 
+    //! Add an electron collision with respect to the old formats of electron collision. Function made for compatibility.
+    void addStandaloneElectronCollision(const AnyMap& item);
+
+    string inferElectronCollisionKind(const shared_ptr<Reaction>& collision) const;
+
 private:
 
     //! Solver used to calculate the EEDF based on electron collision rates
@@ -623,6 +628,13 @@ private:
 
     //! Work array
     mutable std::vector<double> m_work;
+
+    //! The array containing the names of the electron collisions
+    map<string, AnyMap> m_electronCollisionDefinitions;
+
+    //! The array containing the references of each electron collision.
+    set<string> m_referencedElectronCollisions;
+
 };
 
 }

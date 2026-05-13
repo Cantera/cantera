@@ -211,6 +211,18 @@ public:
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(span<const double>);
 
+    //! Returns the name of the collision linking the reaction to the data stored in electron-collision
+    const string& collisionName() const;
+
+    //! Returns the information whether the considered reaction node has cross-sections data
+    bool hasCrossSectionData() const;
+
+    //! Enters the collision data found in the YAML when it is given in the old format.
+    void applyCollisionData(const AnyMap& node);
+
+    //! Checks the validity of the YAML entry.
+    void validateCollisionData(const AnyMap& node) const;
+
 private:
     //! The name of the kind of electron collision
     string m_kind;
@@ -222,7 +234,7 @@ private:
     string m_product;
 
     //! The energy threshold of electron collision
-    double m_threshold;
+    double m_threshold = 0;
 
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
@@ -245,6 +257,15 @@ private:
     //! This is used for the calculation of the super-elastic collision reaction
     //! rate coefficient.
     Eigen::ArrayXd m_crossSectionsOffset;
+
+    //! The name of the collision field in the new YAML PlasmaPhase implementation
+    string m_collisionName;
+
+    //! Check whether a yaml node entry offers some cross section data
+    bool m_hasCrossSectionData = false;
+
+    void setDefaultThreshold();
+
 };
 
 }

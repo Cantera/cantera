@@ -43,7 +43,6 @@ void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
     setGridCache();
 }
 
-
 void EEDFTwoTermApproximation::setQuadraticGrid(double& kTe_max, size_t& ncell)
 {
     m_points = ncell;
@@ -592,7 +591,9 @@ double EEDFTwoTermApproximation::electronMobility(const Eigen::VectorXd& f0)
         }
     }
     double nDensity = m_phase->molarDensity() * Avogadro;
-    return -1./3. * m_gamma * simpson(asVectorXd(y), asVectorXd(m_gridEdge)) / nDensity;
+    auto f = ConstMappedVector(y.data(), y.size());
+    auto x = ConstMappedVector(m_gridEdge.data(), m_gridEdge.size());
+    return -1./3. * m_gamma * simpson(f, x) / nDensity;
 }
 
 void EEDFTwoTermApproximation::initSpeciesIndexCrossSections()
@@ -780,7 +781,6 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
     }
     return numericalQuadrature(m_quadratureMethod, p, grid);
 }
-
 
 void EEDFTwoTermApproximation::setGridType(const string& gridType)
 {

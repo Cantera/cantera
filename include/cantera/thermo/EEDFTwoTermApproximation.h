@@ -69,7 +69,7 @@ public:
     int calculateDistributionFunction();
 
     void setLinearGrid(double& kTe_max, size_t& ncell);
-    
+
     void setQuadraticGrid(double& kTe_max, size_t& ncell);
 
     void setGeometricGrid(double& kTe_max, size_t& ncell);
@@ -79,7 +79,6 @@ public:
     void setGridCache();
 
     void setGridType(const string& gridType);
-
     void setInitialGridParameters(double initialMaxEnergy, size_t nGridCells);
 
     void enableGridAdaptation(bool enabled);
@@ -298,7 +297,6 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
 
-    
     string m_gridType = "Linear";
 
     double m_kTeMax = 60.0;
@@ -312,8 +310,8 @@ protected:
 
     void updateGrid(double maxEnergy);
 
-    const double EN_min = 1e-21; // Reduced electric field below which the EEDF is not computed.
-                             // Instead, a Maxwellian at the gas temperature is imposed.
+    const double EN_min = 1e-21; // the reduced electric field below which the EEDF id not computed. Instead, a maxwellian at the
+    // gas temperature is imposed.
 
 }; // end of class EEDFTwoTermApproximation
 

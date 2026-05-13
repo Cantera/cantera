@@ -21,6 +21,27 @@ namespace {
     const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
 }
 
+// Initial constructor for PlasmaPhase. Might have generated some crashes so was changed by the implementation below:
+// PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
+// {
+//     initThermoFile(inputFile, id_);
+
+//     // initial electron temperature
+//     m_electronTemp = temperature();
+
+//     // Initialize the Boltzmann Solver
+//     m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
+
+//     // Set Energy Grid (Hardcoded Defaults for Now)
+//     double kTe_max = 60;
+//     size_t nGridCells = 301;
+//     m_nPoints = nGridCells + 1;
+//     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
+//     m_electronEnergyLevels = MappedVector(m_eedfSolver->getGridEdge().data(), m_nPoints);
+//     m_electronEnergyDist.setZero(m_nPoints);
+// }
+
+// New PlasmaPhase constructor
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
     // Initialize electron temperature before setParameters() can trigger EEDF updates.
@@ -94,22 +115,21 @@ void PlasmaPhase::updateElectronEnergyDistribution()
                 y.data(), m_nPoints);
 
             electronEnergyLevelChanged();
-
-            bool validEEDF = (
-                static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
-                m_electronEnergyDist.allFinite() &&
-                m_electronEnergyDist.maxCoeff() > 0.0 &&
-                m_electronEnergyDist.sum() > 0.0
-            );
-
-            if (validEEDF) {
-                updateElectronTemperatureFromEnergyDist();
-            } else {
-                writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
-            }
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
+        }
+        bool validEEDF = (
+            static_cast<size_t>(m_electronEnergyDist.size()) == m_nPoints &&
+            m_electronEnergyDist.allFinite() &&
+            m_electronEnergyDist.maxCoeff() > 0.0 &&
+            m_electronEnergyDist.sum() > 0.0
+        );
+
+        if (validEEDF) {
+            updateElectronTemperatureFromEnergyDist();
+        } else {
+            writelog("Skipping Te update: EEDF is empty, non-finite, or unnormalized.\n");
         }
     } else {
         throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
@@ -263,6 +283,7 @@ void PlasmaPhase::checkElectronEnergyLevels() const
     }
 }
 
+
 void PlasmaPhase::checkElectronEnergyDistribution() const
 {
     if (m_nPoints < 2 ||
@@ -304,7 +325,6 @@ void PlasmaPhase::checkElectronEnergyDistribution() const
     }
 }
 
-
 void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
                                                   span<const double> dist)
 {
@@ -318,14 +338,12 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
         throw CanteraError("PlasmaPhase::setDiscretizedElectronEnergyDist",
             "A discretized electron energy distribution requires at least two points.");
     }
-
     m_distributionType = "discretized";
     m_nPoints = levels.size();
     m_electronEnergyLevels =
         Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
     m_electronEnergyDist =
         Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
-
     checkElectronEnergyLevels();
     if (m_do_normalizeElectronEnergyDist) {
         normalizeElectronEnergyDistribution();
@@ -548,27 +566,134 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
  
     }
 
+    // writelog("[plasma-collision-debug] PlasmaPhase::setParameters: scanning electron-collisions\n");
     if (rootNode.hasKey("electron-collisions")) {
         for (const auto& item : rootNode["electron-collisions"].asVector<AnyMap>()) {
-            auto rate = make_shared<ElectronCollisionPlasmaRate>(item);
-            Composition reactants, products;
-            reactants[item["target"].asString()] = 1;
-            reactants[electronSpeciesName()] = 1;
-            if (item.hasKey("product")) {
-                products[item["product"].asString()] = 1;
-            } else {
-                products[item["target"].asString()] = 1;
+            if (item.hasKey("name")) {
+                string name = item["name"].asString();
+                if (name.empty()) {
+                    throw InputFileError("setParameters", rootNode, "Empty electron-collision name.");
+                }
+                if (m_electronCollisionDefinitions.count(name)) {
+                    throw InputFileError("setParameters", rootNode, "Duplicate electron-collision name '{}'.", name);
+                }
+                m_electronCollisionDefinitions[name] = item;
             }
-            products[electronSpeciesName()] = 1;
-            if (rate->kind() == "ionization") {
-                products[electronSpeciesName()] += 1;
-            } else if (rate->kind() == "attachment") {
-                products[electronSpeciesName()] -= 1;
+        //     if (item.hasKey("name")) {
+        //         writelog("[plasma-collision-debug]   found named electron-collision: '{}'\n",
+        //             item["name"].asString());
+        //     } else {
+        //         writelog("[plasma-collision-debug]   found anonymous electron-collision entry\n");
+        //     }
+
+        //     if (item.hasKey("target")) {
+        //         writelog("[plasma-collision-debug]     target: '{}'\n",
+        //             item["target"].asString());
+        //     }
+
+        //     if (item.hasKey("kind")) {
+        //         writelog("[plasma-collision-debug]     kind: '{}'\n",
+        //             item["kind"].asString());
+        //     }
+        }
+        // writelog("[plasma-collision-debug] PlasmaPhase::setParameters: registered {} named electron-collision definitions\n",
+        // m_electronCollisionDefinitions.size());
+    }
+
+    // in the case of a wrong combination of the two entry formats, ensure that each collision is only loaded once
+    // writelog("[plasma-collision-debug] PlasmaPhase::setParameters: scanning reactions for collision references\n");
+    if (rootNode.hasKey("reactions")) {
+        for (const auto& rxnNode : rootNode["reactions"].asVector<AnyMap>()) {
+            if (rxnNode.hasKey("type")
+                && rxnNode["type"].asString() == "electron-collision-plasma"
+                && rxnNode.hasKey("collision")) {
+                string name = rxnNode["collision"].asString();
+                // writelog("[plasma-collision-debug]   reaction references collision '{}'\n", name);
+
+                if (!m_electronCollisionDefinitions.count(name)) {
+                    // writelog("[plasma-collision-debug]     reference '{}' found in electron-collisions\n",
+                    //     name);
+                    throw InputFileError("setParameters", rootNode,
+                        "Reaction references unknown electron collision '{}'.", name);
+                }
+                m_referencedElectronCollisions.insert(name);
             }
-            auto R = make_shared<Reaction>(reactants, products, rate);
-            addCollision(R);
         }
     }
+
+    // writelog("[plasma-collision-debug] PlasmaPhase::setParameters: {} electron-collisions are referenced by reactions\n",
+    // m_referencedElectronCollisions.size());
+
+    if (rootNode.hasKey("electron-collisions")) {
+        for (const auto& item : rootNode["electron-collisions"].asVector<AnyMap>()) {
+            if (item.hasKey("name")) {
+                string name = item["name"].asString();
+
+                if (m_referencedElectronCollisions.count(name)) {
+                    // writelog("[plasma-collision-debug]   skipping electron-collision '{}' because it is referenced by a reaction\n",
+                    //     name);
+                     continue;
+                 }
+
+                // writelog("[plasma-collision-debug]   adding named standalone electron-collision '{}'\n",
+                //     name);
+            } else {
+                // writelog("[plasma-collision-debug]   adding anonymous standalone electron-collision\n");
+            }
+            bool hasName = item.hasKey("name");
+
+            if (hasName) {
+                string name = item["name"].asString();
+
+                // Nouveau format : si la collision est référencée par une réaction,
+                // ne pas créer de réaction synthétique ici.
+                if (m_referencedElectronCollisions.count(name)) {
+                    continue;
+                }
+            }
+
+            // Ancien format anonyme, ou nouvelle collision nommée non référencée :
+            // elle reste une collision EEDF autonome.
+            addStandaloneElectronCollision(item);
+            
+        }
+    }
+}
+
+
+void PlasmaPhase::addStandaloneElectronCollision(const AnyMap& item)
+{
+    auto rate = make_shared<ElectronCollisionPlasmaRate>(item);
+
+    if (!rate->hasCrossSectionData()) {
+        throw InputFileError("addStandaloneElectronCollision", item,
+            "Cross-sections are required in the reaction if you are using the deprecated input format!");
+    }
+
+    Composition reactants;
+    Composition products;
+
+    string target = item["target"].asString();
+
+    reactants[target] = 1;
+    reactants[electronSpeciesName()] = 1;
+
+    if (item.hasKey("product")) {
+        products[item["product"].asString()] = 1;
+    } else {
+        products[target] = 1;
+    }
+
+    products[electronSpeciesName()] = 1;
+
+    if (rate->kind() == "ionization") {
+        products[electronSpeciesName()] += 1;
+    } else if (rate->kind() == "attachment") {
+        products[electronSpeciesName()] -= 1;
+    }
+
+    auto R = make_shared<Reaction>(reactants, products, rate);
+    addCollision(R);
 }
 
 bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
@@ -649,6 +774,7 @@ void PlasmaPhase::setCollisions()
 
 void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
 {
+    // writelog("[plasma-collision-debug] Adding electron collision '{}'\n", collision->equation());
     size_t i = nCollisions();
 
     // setup callback to signal updating the cross-section-related
@@ -673,7 +799,72 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         throw CanteraError("PlasmaPhase::addCollision", "Error identifying target for"
             " collision with equation '{}'", collision->equation());
     }
+    // writelog("[plasma-collision-debug]   identified target species: '{}'\n", target);
 
+    // management of the new data file format
+
+    auto ratePtr = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate());
+    // writelog("[plasma-collision-debug]   rate before resolution: collisionName='{}', kind='{}', "
+    //      "target='{}', product='{}', threshold={}, hasCrossSectionData={}, nLevels={}, nSections={}\n",
+    // ratePtr->collisionName(), ratePtr->kind(), ratePtr->target(), ratePtr->product(),
+    // ratePtr->threshold(), ratePtr->hasCrossSectionData(),
+    // ratePtr->energyLevels().size(), ratePtr->crossSections().size());
+
+    if (!ratePtr) {
+        throw CanteraError("addCollision", "The rate is not initialised");
+    }
+
+    if (!ratePtr->collisionName().empty() && !ratePtr->hasCrossSectionData()) {
+        auto it = m_electronCollisionDefinitions.find(ratePtr->collisionName());
+        if (it == m_electronCollisionDefinitions.end()) {
+            throw CanteraError("addCollision", "Unknown electron collision '{}'.", ratePtr->collisionName());
+        }
+
+    //     writelog("[plasma-collision-debug]   resolving collision reference '{}'\n",
+    // ratePtr->collisionName());
+        ratePtr->applyCollisionData(it->second);
+    //     writelog("[plasma-collision-debug]   rate after resolution: collisionName='{}', kind='{}', "
+    //      "target='{}', product='{}', threshold={}, hasCrossSectionData={}, nLevels={}, nSections={}\n",
+    // ratePtr->collisionName(), ratePtr->kind(), ratePtr->target(), ratePtr->product(),
+    // ratePtr->threshold(), ratePtr->hasCrossSectionData(),
+    // ratePtr->energyLevels().size(), ratePtr->crossSections().size());
+    }
+
+    if (!ratePtr->hasCrossSectionData()) {
+        throw CanteraError("addCollision",
+            "ElectronCollisionPlasmaRate requires either inline cross-section data "
+            "or a valid 'collision' reference.");
+    }
+
+    if (!ratePtr->target().empty() && ratePtr->target() != target) {
+        throw CanteraError("PlasmaPhase::addCollision",
+            "Electron collision '{}' targets '{}', but reaction '{}' uses target '{}'.",
+            ratePtr->collisionName(), ratePtr->target(),
+            collision->equation(), target);
+    }
+    // writelog("[plasma-collision-debug]   target validation OK: reaction target='{}', collision target='{}'\n",
+    // target, ratePtr->target());
+
+    string kindFromReaction = inferElectronCollisionKind(collision);
+    string kindFromCollision = ratePtr->kind();
+
+    bool compatibleKind = kindFromReaction == kindFromCollision;
+
+    if ((kindFromReaction == "elastic" || kindFromReaction == "effective") &&
+        (kindFromCollision == "elastic" || kindFromCollision == "effective")) {
+        compatibleKind = true;
+    }
+
+    if (!compatibleKind) {
+        throw CanteraError("PlasmaPhase::addCollision",
+            "Electron collision '{}' has kind '{}', but reaction '{}' is inferred as '{}'.",
+            ratePtr->collisionName(), kindFromCollision,
+            collision->equation(), kindFromReaction);
+    }
+    // writelog("[plasma-collision-debug]   kind validation OK: reaction inferred kind='{}', collision kind='{}'\n",
+    // kindFromReaction, ratePtr->kind());
+
+    // writelog("[plasma-collision-debug]   adding electron collision at index {}\n", i);
     m_collisions.emplace_back(collision);
     m_collisionRates.emplace_back(
         std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate()));
@@ -684,7 +875,6 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     updateInterpolatedCrossSection(i);
 
     // Set up data used by Boltzmann solver
-    auto& rate = *m_collisionRates.back();
     string kind = m_collisionRates.back()->kind();
 
     if ((kind == "effective" || kind == "elastic")) {
@@ -701,12 +891,53 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     } else {
         m_kInelastic.push_back(i);
     }
+//     if ((kind == "effective" || kind == "elastic")) {
+//     writelog("[plasma-collision-debug]   classified as elastic/effective collision, index={}\n", i);
+// } else {
+//     writelog("[plasma-collision-debug]   classified as inelastic collision, index={}\n", i);
+// }
 
-    auto levels = rate.energyLevels();
+    auto levels = ratePtr->energyLevels();
     m_energyLevels.emplace_back(levels.begin(), levels.end());
-    auto sections = rate.crossSections();
+    auto sections = ratePtr->crossSections();
     m_crossSections.emplace_back(sections.begin(), sections.end());
     m_eedfSolver->setGridCache();
+
+    // writelog("[plasma-collision-debug]   addCollision done: nCollisions={}, nElastic={}, nInelastic={}\n",
+    // nCollisions(), m_kElastic.size(), m_kInelastic.size());
+}
+
+string PlasmaPhase::inferElectronCollisionKind(
+    const shared_ptr<Reaction>& collision) const
+{
+    const string eName = electronSpeciesName();
+
+    double nReactantElectrons = 0.0;
+    double nProductElectrons = 0.0;
+
+    auto reactantElectron = collision->reactants.find(eName);
+    if (reactantElectron != collision->reactants.end()) {
+        nReactantElectrons = reactantElectron->second;
+    }
+
+    auto productElectron = collision->products.find(eName);
+    if (productElectron != collision->products.end()) {
+        nProductElectrons = productElectron->second;
+    }
+
+    if (nProductElectrons > nReactantElectrons) {
+        return "ionization";
+    }
+
+    if (nProductElectrons < nReactantElectrons) {
+        return "attachment";
+    }
+
+    if (collision->reactants == collision->products) {
+        return "elastic";
+    }
+
+    return "excitation";
 }
 
 bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)
