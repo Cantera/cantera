@@ -12,9 +12,7 @@ namespace Cantera
 
 void MassFlowController::setMassFlowRate(double mdot)
 {
-    if (m_tfunc) {
-        delete m_tfunc;
-    }
+    m_tfunc.reset();
     m_coeff = mdot;
 }
 
