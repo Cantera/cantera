@@ -243,9 +243,6 @@ void IdealGasConstPressureMoleReactor::addTemperatureJacobian(
 void IdealGasConstPressureMoleReactor::addSpeciesMassFractionJacobian(
     SparseTriplets& trips, size_t row, size_t k, double coeff) const
 {
-    if (m_mass <= 0.0 || k >= m_nsp) {
-        return;
-    }
     auto mw = m_thermo->molecularWeights();
     double Yk = m_thermo->massFraction(k);
     // Convert flow-carried composition derivatives from dY_k/dy to dY_k/dn_j.
@@ -261,9 +258,6 @@ void IdealGasConstPressureMoleReactor::addSpeciesMassFractionJacobian(
 void IdealGasConstPressureMoleReactor::addEnthalpyJacobian(SparseTriplets& trips,
     size_t row, double coeff, bool includeComposition) const
 {
-    if (m_mass <= 0.0) {
-        return;
-    }
     // d(h_mass)/dT = cp_mass
     addTemperatureJacobian(trips, row, coeff * m_thermo->cp_mass());
     if (includeComposition) {

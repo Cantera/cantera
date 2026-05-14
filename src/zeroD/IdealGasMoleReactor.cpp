@@ -100,6 +100,10 @@ void IdealGasMoleReactor::updateState(span<const double> y)
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
     setMassFromMoles(y.subspan(m_sidx));
+    if (y[1] <= 0.0) {
+        throw CanteraError("IdealGasMoleReactor::updateState",
+            "Volume must be positive. Input value was {}", y[1]);
+    }
     m_vol = y[1];
     // set state
     m_thermo->setMolesNoTruncate(y.subspan(m_sidx, m_nsp));
@@ -313,9 +317,6 @@ void IdealGasMoleReactor::getJacobianScalingFactors(
 void IdealGasMoleReactor::addPressureJacobian(
     SparseTriplets& trips, size_t row, double coeff, bool includeSpecies) const
 {
-    if (m_vol <= 0.0 || m_thermo->temperature() <= 0.0) {
-        return;
-    }
     // dP/dT|_V = (pi_T + P) / T, where pi_T = internalPressure() = T*(dP/dT)_V - P.
     // For ideal gas: pi_T = 0, giving P/T; non-ideal EOS returns the correct pi_T.
     double dPdT = (m_thermo->internalPressure() + m_pressure)
@@ -344,9 +345,6 @@ void IdealGasMoleReactor::addPressureJacobian(
 void IdealGasMoleReactor::addEnthalpyJacobian(SparseTriplets& trips, size_t row,
     double coeff, bool includeComposition) const
 {
-    if (m_mass <= 0.0) {
-        return;
-    }
     // d(h_mass)/dT = cp_mass
     addTemperatureJacobian(trips, row, coeff * m_thermo->cp_mass());
     if (includeComposition) {
@@ -376,9 +374,6 @@ void IdealGasMoleReactor::addTemperatureJacobian(
 void IdealGasMoleReactor::addSpeciesMassFractionJacobian(
     SparseTriplets& trips, size_t row, size_t k, double coeff) const
 {
-    if (m_mass <= 0.0 || k >= m_nsp) {
-        return;
-    }
     auto mw = m_thermo->molecularWeights();
     double Yk = m_thermo->massFraction(k);
     // Convert flow-carried composition derivatives from dY_k/dy to dY_k/dn_j.
