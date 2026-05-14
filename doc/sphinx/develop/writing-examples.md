@@ -103,10 +103,10 @@ these files can be added to the
 [`cantera-example-data`](https://github.com/cantera/cantera-example-data) repository.
 Files in this repository will be installed with Cantera and available under the
 `example_data` subdirectory within the standard search path. For example, the mechanism
-`n-hexane-NUIG-2015.yaml` can be loaded as:
+`n-heptane-NUIG-2016.yaml` can be loaded as:
 
 ```py
-gas = ct.Solution("example_data/n-hexane-NUIG-2015.yaml")
+gas = ct.Solution("example_data/n-heptane-NUIG-2016.yaml")
 ```
 
 When developing examples, the use of well-documented mechanisms that have been published

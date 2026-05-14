@@ -58,7 +58,7 @@ print(f"Running Cantera version: {ct.__version__}")
 # can be found in the paper by Zhang et al. [1]_ We will use the same mechanism reported
 # in the paper. It consists of 1268 species and 5336 reactions.
 
-gas = ct.Solution("example_data/n-hexane-NUIG-2015.yaml")
+gas = ct.Solution("example_data/n-heptane-NUIG-2016.yaml")
 
 # %%
 # Define initial conditions

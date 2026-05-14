@@ -3,7 +3,7 @@ Acceleration of reactor integration using a sparse preconditioned solver
 ========================================================================
 
 Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned
-and non-preconditioned integration of n-hexane.
+and non-preconditioned integration of n-heptane.
 
 Requires: cantera >= 3.2.0, matplotlib >= 2.0
 
@@ -19,13 +19,13 @@ from timeit import default_timer
 # ----------------
 #
 # Create a reactor network for simulating the constant pressure ignition of a
-# stoichiometric n-hexane/air mixture, with or without the use of the preconditioned
+# stoichiometric n-heptane/air mixture, with or without the use of the preconditioned
 # solver.
 def integrate_reactor(preconditioner=True):
-    # Use a detailed n-hexane mechanism with 1268 species
-    gas = ct.Solution('example_data/n-hexane-NUIG-2015.yaml')
+    # Use a detailed n-heptane mechanism with 1268 species
+    gas = ct.Solution('example_data/n-heptane-NUIG-2016.yaml')
     gas.TP = 1000, ct.one_atm
-    gas.set_equivalence_ratio(1, 'NC6H14', 'N2:3.76, O2:1.0')
+    gas.set_equivalence_ratio(1, 'NC7H16', 'N2:3.76, O2:1.0')
     reactor = ct.IdealGasConstPressureMoleReactor(gas, clone=False)
     # set volume for reactors
     reactor.volume = 0.1
@@ -55,17 +55,17 @@ def integrate_reactor(preconditioner=True):
         print(f"{key:>24s}: {value}")
     print("\n")
     # return some variables for plotting
-    return states.time, states.T, states('CO2').Y, states('NC6H14').Y
+    return states.time, states.T, states('CO2').Y, states('NC7H16').Y
 
 # %%
 # Integrate with sparse, preconditioned solver
 # --------------------------------------------
-timep, Tp, CO2p, NC6H14p = integrate_reactor(preconditioner=True)
+timep, Tp, CO2p, NC7H16p = integrate_reactor(preconditioner=True)
 
 # %%
 # Integrate with direct linear solver
 # -----------------------------------
-timenp, Tnp, CO2np, NC6H14np  = integrate_reactor(preconditioner=False)
+timenp, Tnp, CO2np, NC7H16np  = integrate_reactor(preconditioner=False)
 
 # %%
 # Plot selected state variables
@@ -85,8 +85,8 @@ ax2.plot(timep, CO2p, linewidth=2, linestyle=":")
 ax2.legend(["Normal", "Preconditioned"])
 # C12H26 plot
 ax3.set_xlabel("Time")
-ax3.set_ylabel("NC6H14")
-ax3.plot(timenp, NC6H14np, linewidth=2)
-ax3.plot(timep, NC6H14p, linewidth=2, linestyle=":")
+ax3.set_ylabel("NC7H16")
+ax3.plot(timenp, NC7H16np, linewidth=2)
+ax3.plot(timep, NC7H16p, linewidth=2, linestyle=":")
 ax3.legend(["Normal", "Preconditioned"])
 plt.show()

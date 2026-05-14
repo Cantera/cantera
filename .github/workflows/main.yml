@@ -779,7 +779,7 @@ jobs:
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 -u "$n" >> results.txt || exit 1; done' sh {} +
         env:
           # The pyparsing ignore setting is due to a new warning introduced in Matplotlib==3.6.0
-          # Ignore NasaPoly2 warnings from n-hexane-NUIG-2015.yaml
+          # Ignore NasaPoly2 warnings from n-heptane-NUIG-2016.yaml
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:,ignore:NasaPoly2:UserWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
