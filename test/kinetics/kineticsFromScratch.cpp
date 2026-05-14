@@ -14,6 +14,7 @@
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/VibrationalRelaxationRate.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/stringUtils.h"
 
