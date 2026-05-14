@@ -2022,6 +2022,17 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.elasticPowerLoss()
 
+    property electron_mobility:
+        """
+        Electron mobility (m^2/(V.s))
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electronMobility()
+
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):
