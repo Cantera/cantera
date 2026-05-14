@@ -177,7 +177,7 @@ public:
     //! depends on the derived flow device class.
     //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     virtual void setPressureFunction(shared_ptr<Func1> f) {
-        m_pfunc = f.get();
+        m_pfunc = f;
     }
 
     //! Return current value of the time function.
@@ -195,7 +195,7 @@ public:
     //! depends on the derived flow device class.
     //! @since  Changed in %Cantera 3.2. Previous version used a raw pointer.
     virtual void setTimeFunction(shared_ptr<Func1> g) {
-        m_tfunc = g.get();
+        m_tfunc = g;
     }
 
     //! Set current reactor network time
@@ -215,10 +215,10 @@ protected:
     double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
-    Func1* m_pfunc = nullptr;
+    shared_ptr<Func1> m_pfunc;
 
     //! Function set by setTimeFunction; used by updateMassFlowRate
-    Func1* m_tfunc = nullptr;
+    shared_ptr<Func1> m_tfunc;
 
     //! Coefficient set by derived classes; used by updateMassFlowRate
     double m_coeff = 1.0;
