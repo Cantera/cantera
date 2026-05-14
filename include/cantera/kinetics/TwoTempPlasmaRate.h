@@ -48,12 +48,14 @@ struct TwoTempPlasmaData : public ReactionData
  * activation energy for electron is included.
  *
  *   @f[
- *        k_f =  A T_e^b \exp (-E_{a,g}/RT) \exp (E_{a,e} (T_e - T)/(R T T_e))
+ *        k_f = A T^{b_g} T_e^b * exp(-E_{a,g}/RT) * exp(E_{a,e}(T_e - T)/(R T T_e))
  *   @f]
  *
  * where @f$ T_e @f$ is the electron temperature, @f$ E_{a,g} @f$ is the activation
  * energy for gas, and @f$ E_{a,e} @f$ is the activation energy for electron, see
  * Kossyi, et al. @cite kossyi1992.
+ * The optional gas temperature exponent b_g defaults to zero, which stricly corresponds to @cite kossyi1992. 
+ * If b_g is non-zero, a generalisation is used.
  *
  * @ingroup arrheniusGroup
  */
@@ -66,10 +68,13 @@ public:
     /*!
      *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
      *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b  Temperature exponent (non-dimensional)
+     *  @param b   Electron temperature exponent (non-dimensional)
      *  @param Ea  Activation energy in energy units [J/kmol]
      *  @param EE  Activation electron energy in energy units [J/kmol]
+     *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0.
      */
+    TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg);
+
     TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
 
     TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={});
@@ -90,11 +95,11 @@ public:
      */
     double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation (in temperature units)
-        return m_A * std::exp(m_b * shared_data.logTe -
-                              m_Ea_R * shared_data.recipT +
-                              m_E4_R * (shared_data.electronTemp - shared_data.temperature)
-                              * shared_data.recipTe * shared_data.recipT);
+            return m_A * std::exp(m_bg * shared_data.logT + m_b * shared_data.logTe
+                    - m_Ea_R * shared_data.recipT + m_E4_R * (shared_data.electronTemp - shared_data.temperature)
+                    * shared_data.recipTe * shared_data.recipT);
     }
+
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
@@ -109,6 +114,9 @@ public:
     double activationElectronEnergy() const {
         return m_E4_R * GasConstant;
     }
+
+protected:
+    double m_bg = 0.0; //!< Gas temperature exponent
 };
 
 }

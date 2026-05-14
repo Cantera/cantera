@@ -57,19 +57,34 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
     m_E4_R = EE / GasConstant;
+    m_bg = 0.0;
+}
+
+TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg)
+    : ArrheniusBase(A, b, Ea)
+{
+    TwoTempPlasmaRate(A, b, Ea, EE);
+    m_bg = bg;
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
     : TwoTempPlasmaRate()
 {
     setParameters(node, rate_units);
+
+    if (node.hasKey("b-gas")) {
+        m_bg = node["b-gas"].asDouble();
+    } else if (node.hasKey("b_gas")) {
+        m_bg = node["b_gas"].asDouble();
+    }
 }
 
 double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
 {
     warn_user("TwoTempPlasmaRate::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of electron temperature.");
-    return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
+        return m_bg * shared_data.recipT
+           + (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
 }
 
 void TwoTempPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
