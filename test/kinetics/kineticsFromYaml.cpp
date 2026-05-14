@@ -13,6 +13,7 @@
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/DetailedVVVTRate.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/Array.h"
