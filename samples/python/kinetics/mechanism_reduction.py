@@ -6,7 +6,7 @@ A simplistic approach to mechanism reduction which demonstrates Cantera's
 features for dynamically manipulating chemical mechanisms.
 
 Here, we use the detailed NUI Galway mechanism to simulate adiabatic, constant pressure
-ignition of a lean n-hexane/air mixture. We track the maximum reaction rates for
+ignition of a lean n-heptane/air mixture. We track the maximum reaction rates for
 each reaction to determine which reactions are the most important, according to
 a simple metric based on the relative net reaction rate.
 
@@ -37,8 +37,8 @@ class Result:
 ct.suppress_thermo_warnings()
 T0 = 975
 P0 = 5 * ct.one_atm
-gas = ct.Solution('example_data/n-hexane-NUIG-2015.yaml')
-gas.set_equivalence_ratio(0.8, 'NC6H14:1.0', 'O2:1.0, N2:3.76')
+gas = ct.Solution('example_data/n-heptane-NUIG-2016.yaml')
+gas.set_equivalence_ratio(0.8, 'NC7H16:1.0', 'O2:1.0, N2:3.76')
 X0 = gas.mole_fraction_dict()
 gas.TP = T0, P0
 
@@ -76,7 +76,7 @@ for i, N in enumerate([100, 200, 300, 400, 600, 800]):
 
     # find the species involved in these reactions. At a minimum, include all
     # species in the reactant mixture
-    species_names = {'N2', 'NC6H14', 'O2'}
+    species_names = {'N2', 'NC7H16', 'O2'}
     for reaction in reactions:
         species_names.update(reaction.reactants)
         species_names.update(reaction.products)
@@ -89,7 +89,7 @@ for i, N in enumerate([100, 200, 300, 400, 600, 800]):
                        species=species, reactions=reactions)
 
     # save the reduced mechanism for later use
-    gas2.write_yaml(f"hexane-reduced-{N}-reaction.yaml")
+    gas2.write_yaml(f"heptane-reduced-{N}-reaction.yaml")
 
     # Re-run the ignition problem with the reduced mechanism
     gas2.TPX = T0, P0, X0
