@@ -87,8 +87,20 @@ void ConstPressureReactor::eval(double time, span<double> LHS, span<double> RHS)
     // external heat transfer
     double dHdt = m_Qdot;
 
+    // if (m_energy) {
+    //     dHdt += m_thermo->intrinsicHeating() * m_vol;
+    // }
+
     if (m_energy) {
-        dHdt += m_thermo->intrinsicHeating() * m_vol;
+        double qint = m_thermo->intrinsicHeating();
+
+        static int count = 0;
+        if (count++ < 20) {
+            writelog("intrinsicHeating = {} W/m3, V = {}, contribution = {} W\n",
+                    qint, m_vol, qint * m_vol);
+        }
+
+        dHdt += qint * m_vol;
     }
 
     // add terms for outlets

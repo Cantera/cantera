@@ -260,21 +260,35 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
 
 void ElectronCollisionPlasmaRate::applyCollisionData(const AnyMap& node)
 {
-
     if (node.hasKey("kind")) {
         string collisionKind = node["kind"].asString();
 
         if (!m_kind.empty() && m_kind != collisionKind) {
             string collisionName = node.hasKey("name") ? node["name"].asString() : m_collisionName;
 
-            throw InputFileError("applyCollisionData", node,
-                "Electron collision '{}' has kind '{}', but the reaction was inferred as '{}'.",
+            bool allowCollapsedInelastic =
+                (m_kind == "effective" || m_kind == "elastic") &&
+                collisionKind == "excitation";
+
+            if (!allowCollapsedInelastic) {
+                throw InputFileError("applyCollisionData", node,
+                    "Electron collision '{}' has kind '{}', but the reaction was inferred as '{}'.",
+                    collisionName, collisionKind, m_kind);
+            }
+
+            warn_user("ElectronCollisionPlasmaRate::applyCollisionData",
+                "Electron collision '{}' has kind '{}', but the reaction was inferred "
+                "as '{}'. Treating this as an intentionally collapsed inelastic "
+                "electron-collision channel. No species source term will be generated "
+                "for the unresolved product.",
                 collisionName, collisionKind, m_kind);
         }
 
+        // Important: keep the collision classified using the data-file kind.
+        // For collapsed channels such as N2(rot), this ensures that the
+        // Boltzmann solver treats the channel as inelastic.
         m_kind = collisionKind;
     }
-
 
     if (node.hasKey("target")) {
         m_target = node["target"].asString();
@@ -300,8 +314,6 @@ void ElectronCollisionPlasmaRate::applyCollisionData(const AnyMap& node)
 
     validateCollisionData(node);
     m_hasCrossSectionData = true;
-
-
 }
 
 void ElectronCollisionPlasmaRate::validateCollisionData(const AnyMap& node) const

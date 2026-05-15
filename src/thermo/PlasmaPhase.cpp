@@ -800,6 +800,16 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         compatibleKind = true;
     }
 
+    // Allow collapsed inelastic channels.
+    // Example:
+    //   reaction:  Electron + N2 => Electron + N2
+    //   collision: kind: excitation, product: N2(rot)
+    if (!compatibleKind &&
+        (kindFromReaction == "effective" || kindFromReaction == "elastic") &&
+        kindFromCollision == "excitation") {
+        compatibleKind = true;
+    }
+
     if (!compatibleKind) {
         throw CanteraError("PlasmaPhase::addCollision",
             "Electron collision '{}' has kind '{}', but reaction '{}' is inferred as '{}'.",
@@ -1209,6 +1219,8 @@ double PlasmaPhase::intrinsicHeating()
     // Joule heating: sigma * E^2 [W/m^3]
     const double qJ = jouleHeatingPower();
     checkFinite(qJ);
+
+    writelog("Calling PlasmaPhase::intrinsicHeating(): qJ = {}\n", qJ);
 
     return qJ;
 }
