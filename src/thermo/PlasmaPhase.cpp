@@ -1220,8 +1220,6 @@ double PlasmaPhase::intrinsicHeating()
     const double qJ = jouleHeatingPower();
     checkFinite(qJ);
 
-    writelog("Calling PlasmaPhase::intrinsicHeating(): qJ = {}\n", qJ);
-
     return qJ;
 }
 
