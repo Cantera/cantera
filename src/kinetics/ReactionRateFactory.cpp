@@ -18,7 +18,7 @@
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
-#include "cantera/kinetics/DetailedVVVTRate.h"
+#include "cantera/kinetics/VibrationalRelaxationRate.h"
 
 namespace Cantera
 {
@@ -41,9 +41,9 @@ ReactionRateFactory::ReactionRateFactory()
         return new TwoTempPlasmaRate(node, rate_units);
     });
 
-    // DetailedVVVTRate evaluator
-    reg("detailed-vv-vt", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new DetailedVVVTRate(node, rate_units);
+    // VibrationalRelaxationRate evaluator
+    reg("vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new VibrationalRelaxationRate(node, rate_units);
     });
 
     // ElectronCollisionPlasmaRate evaluator

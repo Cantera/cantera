@@ -63,9 +63,7 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
 TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg)
     : ArrheniusBase(A, b, Ea)
 {
-    m_Ea_str = "Ea-gas";
-    m_E4_str = "Ea-electron";
-    m_E4_R = EE / GasConstant;
+    TwoTempPlasmaRate(A, b, Ea, EE);
     m_bg = bg;
 }
 

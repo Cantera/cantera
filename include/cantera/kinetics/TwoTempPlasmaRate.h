@@ -73,7 +73,7 @@ public:
      *  @param EE  Activation electron energy in energy units [J/kmol]
      *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0.
      */
-    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0, double bg=0.0);
+    TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg);
 
     TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
 
