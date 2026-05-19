@@ -893,6 +893,7 @@ jobs:
           python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
           fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen openblas
+        micromamba-version: '2.6.0-0'  # Pin until mamba-org/setup-micromamba#306 is fixed
         post-cleanup: none
         init-shell: powershell
     - name: Build Cantera
