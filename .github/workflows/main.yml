@@ -649,7 +649,7 @@ jobs:
           pixi run -e pyodide python -m pip download --only-binary=:all: \
             --dest "${WHEELHOUSE}" pint graphviz ruamel.yaml packaging
 
-          export WHEEL WHEELHOUSE
+          export WHEELHOUSE
           pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
           import asyncio
           import os
