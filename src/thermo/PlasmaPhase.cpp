@@ -1201,6 +1201,7 @@ double PlasmaPhase::jouleHeatingPower() const
     return sigma * E * E; // W/m^3
 }
 
+// actually be careful, this is inelastic + growth
 double PlasmaPhase::inelasticPower()
 {
     // Joule heating: sigma * E^2 [W/m^3]

@@ -4,6 +4,40 @@
 //! This file is part of Cantera. See License.txt in the top-level directory or
 //! at https://cantera.org/license.txt for license and copyright information.
 
+
+//! It implements the relaxation rate of vibrationally excited species in plasma kinetics.
+//! Four models are currently supported by this class: 'constant', 'detailed-vv-vt', 'starikovskiy', and 'castela'.
+
+//! The 'constant' model relaxes the vibrational species with a constant rate coefficient. It could just as well be an
+//! Arrhenius rate, but the constant model is provided for convenience and to avoid confusion with conventional Arrhenius rates.
+
+//! The 'detailed-vv-vt' model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
+//! in the phase (Ex: N2(v=1-8)) and solves for their V-T and V-V relaxation. The rates are based on the SSH theory detailed 
+//! in the Chapter 7 of the following book:
+//! Capitelli, M., Ferreira, C. M., Gordiets, B. F., & Osipov, A. I. (2013). 
+//! Plasma kinetics in atmospheric gases (Vol. 31). Springer Science & Business Media.
+
+//! The 'castela' model is meant to be used only for N2 vibrational relaxation, by collisions with N2, O2 and O exclusively.
+//! It implements the mean vibrational energy relaxation model using a fictive cantera species.
+//! The Castela model is based on the following paper:
+//! Castela, M., Fiorina, B., Coussement, A., Gicquel, O., Darabiha, N., & Laux, C. O. (2016). 
+//! Modelling the impact of non-equilibrium discharges on reactive mixtures for simulations of 
+//! plasma-assisted ignition in turbulent flows. Combustion and flame, 166, 133-147.
+
+//! The so-called 'starikovskiy' model is an extension of the Castela model to several vibrational species and additional colliders.
+//! A lot of vibrational relaxation rates can be found in Table 1 of the following paper:
+//! Starikovskiy, A., & Aleksandrov, N. (2013). Plasma-assisted ignition and combustion. 
+//! Progress in Energy and Combustion Science, 39(1), 61-110.
+//! The rates for the vibrational relaxation of NH3 can be found in the reaction mechanism provided in supplementary material
+//! of the following paper:
+//! Zhong, H. et al. (2023) “Understanding non-equilibrium N2O/NOx chemistry in plasma-assisted low-temperature NH3 oxidation,” 
+//! Combustion and Flame, 256. 
+//! More rates for the vibrational relaxation of CH$ can be found in the following paper:
+//! Popov, N.A. (2016) “Kinetics of plasma-assisted combustion: Effect of non-equilibrium excitation on the ignition 
+//! and oxidation of combustible mixtures,” Plasma Sources Science and Technology. Institute of Physics Publishing. 
+
+
+
 #ifndef CT_VIBRATIONALRELAXATIONRATE_H
 #define CT_VIBRATIONALRELAXATIONRATE_H
 
