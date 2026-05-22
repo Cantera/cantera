@@ -66,7 +66,7 @@ void EEDFTwoTermApproximation::setQuadraticGrid(double& kTe_max, size_t& ncell)
     setGridCache();
 }
 
-void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell)
+void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell, double ratio)
 {
     m_points = ncell;
 
@@ -75,8 +75,6 @@ void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell)
     m_f0.resize(m_points);
     m_f0_edge.resize(m_points + 1);
 
-    // @todo Make the geometric-grid ratio configurable from input.
-    double ratio = 1.05;
     double denominator = std::pow(ratio, m_points) - 1.0;
 
     if (std::abs(denominator) < 1e-14) {

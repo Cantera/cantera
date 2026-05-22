@@ -506,7 +506,18 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 } else if (energyLevelsDistribution == "Quadratic") {
                     m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
                 } else if (energyLevelsDistribution == "Geometric") {
+                    if (eedf.hasKey("geometric_grid_ratio")) {
+                        double ratio = eedf["geometric_grid_ratio"].asDouble();
+                        if (!std::isfinite(ratio) || ratio <= 1.0) {
+                            throw CanteraError("PlasmaPhase::setParameters",
+                                "geometric_grid_ratio must be finite and greater than 1.0.");
+                        }
+                        m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
+                    } else {
+                         writelog("No geometric_grid_ratio key found for geometric grid in the input file. "
+                                 "Defaulting to a geometric ratio of 1.01.\n");
                     m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
+                }
                 } else {
                     throw CanteraError("PlasmaPhase::setParameters",
                         "energy_levels_distribution should be Linear, Quadratic or Geometric.");
