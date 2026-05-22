@@ -672,38 +672,138 @@ void EEDFTwoTermApproximation::updateMoleFractions()
     }
 }
 
+// Base implementation of the function
+// void EEDFTwoTermApproximation::calculateTotalCrossSection()
+// {
+//     m_totalCrossSectionCenter.assign(m_points, 0.0);
+//     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
+//     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
+//         auto x = m_phase->collisionRate(k)->energyLevels();
+//         auto y = m_phase->collisionRate(k)->crossSections();
+
+//         for (size_t i = 0; i < m_points; i++) {
+//             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
+//                                             linearInterp(m_gridCenter[i], x, y);
+//         }
+//         for (size_t i = 0; i < m_points + 1; i++) {
+//             m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
+//                                           linearInterp(m_gridEdge[i], x, y);
+//         }
+//     }
+// }
+
+// // base implementation of the function
+// void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
+// {
+//     m_sigmaElastic.clear();
+//     m_sigmaElastic.resize(m_points, 0.0);
+//     for (size_t k : m_phase->kElastic()) {
+//         auto x = m_phase->collisionRate(k)->energyLevels();
+//         auto y = m_phase->collisionRate(k)->crossSections();
+//         // Note:
+//         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
+//         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
+//         for (size_t i = 0; i < m_points; i++) {
+//             m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
+//                                  linearInterp(m_gridEdge[i], x, y);
+//         }
+//     }
+// }
+
+// The old implementation counted the effective cros section as an elastic contribution
+// thus double counting the inelastic contributions to the total cross section.
 void EEDFTwoTermApproximation::calculateTotalCrossSection()
 {
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
+
+    std::vector<bool> has_effective_for_target(m_phase->nSpecies(), false);
+
+    // build this list first to avoid scanning through all collisions for each target twice in the loop.
+    for (size_t ke : m_phase->kElastic()) {
+        if (m_phase->collisionRate(ke)->kind() == "effective") {
+            has_effective_for_target[m_phase->targetIndex(ke)] = true;
+        }
+    }
+
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
+        const std::string& kind = m_phase->collisionRate(k)->kind();
+        const size_t target = m_phase->targetIndex(k);
+
+        // If this target has an effective cross section, then that effective
+        // cross section already contains elastic + inelastic contributions.
+        // So only the effective cross section contributes to sigma_total.
+        if (has_effective_for_target[target] && kind != "effective") {
+            continue;
+        }
+
         auto x = m_phase->collisionRate(k)->energyLevels();
         auto y = m_phase->collisionRate(k)->crossSections();
 
+        const double X_target = m_X_targets[m_klocTargets[k]];
+
         for (size_t i = 0; i < m_points; i++) {
-            m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
+            m_totalCrossSectionCenter[i] += X_target *
                                             linearInterp(m_gridCenter[i], x, y);
         }
+
         for (size_t i = 0; i < m_points + 1; i++) {
-            m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
+            m_totalCrossSectionEdge[i] += X_target *
                                           linearInterp(m_gridEdge[i], x, y);
         }
     }
 }
 
+// new implementation of the function proposed by nicolas
 void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
 {
     m_sigmaElastic.clear();
     m_sigmaElastic.resize(m_points, 0.0);
     for (size_t k : m_phase->kElastic()) {
+
+        writelog("Enter with an elastic cs\n");
         auto x = m_phase->collisionRate(k)->energyLevels();
         auto y = m_phase->collisionRate(k)->crossSections();
+        vector<double> y_elastic(y.data(), y.data() + y.size());
+
         // Note:
         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
+
+        if (m_phase->collisionRate(k)->kind()=="effective") {
+
+            writelog("Enter with an elastic cs that is actually an effective\n");
+
+            for (size_t ki : m_phase->kInelastic())
+            {
+                if(m_phase->targetIndex(ki) == m_phase->targetIndex(k)){
+                    writelog("loop over inelastic processes: process {}\n", ki);
+                    auto xi = m_phase->collisionRate(ki)->energyLevels();
+                    auto yi = m_phase->collisionRate(ki)->crossSections();
+                    for (size_t i = 0; i < x.size(); i++)
+                    {
+                        y_elastic[i] -= linearInterp(x[i], xi, yi);
+                    }
+                }
+            }
+            // check that the reconstructed elastic cross section is non-negative.
+            for (size_t i = 0; i < y_elastic.size(); i++) {
+                if (y_elastic[i] < 0.0) {
+                    if (y_elastic[i] > -1e-30) {
+                        y_elastic[i] = 0.0;
+                    } else {
+                        writelog("Warning: reconstructed elastic cross section is negative "
+                                "for collision {} at energy {}: {}\n",
+                                k, x[i], y_elastic[i]);
+                        y_elastic[i] = 0.0;
+                    }
+                }
+            }
+        }
+
         for (size_t i = 0; i < m_points; i++) {
             m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
-                                 linearInterp(m_gridEdge[i], x, y);
+                                 linearInterp(m_gridEdge[i], x, y_elastic);
         }
     }
 }
