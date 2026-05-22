@@ -19,6 +19,22 @@ namespace Cantera {
 
 namespace {
     const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
+
+    bool isVibrationalReservoirName(const string& name, string& baseName)
+    {
+        const string suffix = "(v)";
+
+        if (name.size() <= suffix.size()) {
+            return false;
+        }
+
+        if (name.compare(name.size() - suffix.size(), suffix.size(), suffix) != 0) {
+            return false;
+        }
+
+        baseName = name.substr(0, name.size() - suffix.size());
+        return !baseName.empty();
+    }
 }
 
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
@@ -656,6 +672,7 @@ void PlasmaPhase::addStandaloneElectronCollision(const AnyMap& item)
     addCollision(R);
 }
 
+
 bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
 {
     bool added = IdealGasPhase::addSpecies(spec);
@@ -673,6 +690,11 @@ bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
                                "Only one electron species is allowed.", spec->name);
         }
     }
+
+    if (added) {
+        m_vibrationalReservoirSpeciesNeedUpdate = true;
+    }
+
     return added;
 }
 
@@ -1221,8 +1243,83 @@ double PlasmaPhase::intrinsicHeating()
     const double qJ = jouleHeatingPower();
     checkFinite(qJ);
 
+    checkVibrationalReservoirMoleFractions();
+
     return qJ;
 }
 
+void PlasmaPhase::updateVibrationalReservoirSpecies()
+{
+    m_vibrationalReservoirSpecies.clear();
+
+    for (size_t k = 0; k < nSpecies(); k++) {
+        string baseName;
+        const string& reservoirName = speciesName(k);
+
+        if (!isVibrationalReservoirName(reservoirName, baseName)) {
+            continue;
+        }
+
+        size_t kBase = speciesIndex(baseName, false);
+
+        if (kBase == npos) {
+            warn_user("PlasmaPhase::updateVibrationalReservoirSpecies",
+                "Species '{}' matches the fictive vibrational-reservoir naming "
+                "convention, but the corresponding base species '{}' was not found. "
+                "This species will not be monitored as a vibrational reservoir.",
+                reservoirName, baseName);
+            continue;
+        }
+
+        VibrationalReservoirSpecies reservoir;
+        reservoir.reservoirIndex = k;
+        reservoir.baseSpeciesIndex = kBase;
+
+        m_vibrationalReservoirSpecies.push_back(reservoir);
+    }
+
+    m_vibrationalReservoirSpeciesNeedUpdate = false;
+}
+
+void PlasmaPhase::checkVibrationalReservoirMoleFractions()
+{
+    if (m_vibrationalReservoirSpeciesNeedUpdate) {
+        updateVibrationalReservoirSpecies();
+    }
+
+    for (const auto& reservoir : m_vibrationalReservoirSpecies) {
+        const size_t kReservoir = reservoir.reservoirIndex;
+        const size_t kBase = reservoir.baseSpeciesIndex;
+
+        const double Xv = moleFraction(kReservoir);
+        const double Xb = moleFraction(kBase);
+
+        const double pool = Xv + Xb;
+
+        if (pool <= m_vibrationalAbsoluteMoleFractionThreshold) {
+            continue;
+        }
+
+        const double reservoirFraction = Xv / pool;
+
+        if (reservoirFraction > m_vibrationalMoleFractionThreshold) {
+            const string& reservoirName = speciesName(kReservoir);
+            const string& baseName = speciesName(kBase);
+
+            writelog("Warning: fictive vibrational reservoir species '{}' contains "
+                     "{:.3e} of the total '{}' pool. "
+                     "X({}) = {:.3e}, X({}) = {:.3e}, threshold = {:.3e}. "
+                     "Chemistry involving '{}' may be affected because part of the "
+                     "material is stored in an inert vibrational reservoir.\n",
+                     reservoirName,
+                     reservoirFraction,
+                     baseName,
+                     reservoirName, Xv,
+                     baseName, Xb,
+                     m_vibrationalMoleFractionThreshold,
+                     baseName);
+        }
+    }
+}
 
 }
