@@ -457,19 +457,28 @@ public:
     //! Calculates the power losses (W/m³) of the plasma electrons through inelastic collisions.
     double inelasticPower();
 
+    //! Allows to store info on potential vibrational reservoir / fictive species that could be declare by the user
+    //! These species take the form A(v) where A is a base species and v represents the general vibration.
     struct VibrationalReservoirSpecies {
         size_t reservoirIndex = npos;
         size_t baseSpeciesIndex = npos;
     };
 
+    //! list of detected vibrational reservoir species in the phase.
     std::vector<VibrationalReservoirSpecies> m_vibrationalReservoirSpecies;
 
+    //! Flag to indicate whether the vibrational reservoir species list needs to be updated
     bool m_vibrationalReservoirSpeciesNeedUpdate = true;
 
+    // Thresholds for identifying vibrational reservoir species based on their mole fractions
     double m_vibrationalMoleFractionThreshold = 1e-2;
     double m_vibrationalAbsoluteMoleFractionThreshold = 1e-20;
 
+    //! Update the list of vibrational reservoir / fictive species
     void updateVibrationalReservoirSpecies();
+
+    //! Checks that declared vibrational reservoir / fictive species have mole fractions
+    //! low enough not to impact the phase chemistry.
     void checkVibrationalReservoirMoleFractions();
 
 protected:

@@ -673,46 +673,9 @@ void EEDFTwoTermApproximation::updateMoleFractions()
     }
 }
 
-// Base implementation of the function
-// void EEDFTwoTermApproximation::calculateTotalCrossSection()
-// {
-//     m_totalCrossSectionCenter.assign(m_points, 0.0);
-//     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
-//     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
-//         auto x = m_phase->collisionRate(k)->energyLevels();
-//         auto y = m_phase->collisionRate(k)->crossSections();
-
-//         for (size_t i = 0; i < m_points; i++) {
-//             m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
-//                                             linearInterp(m_gridCenter[i], x, y);
-//         }
-//         for (size_t i = 0; i < m_points + 1; i++) {
-//             m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
-//                                           linearInterp(m_gridEdge[i], x, y);
-//         }
-//     }
-// }
-
-// // base implementation of the function
-// void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
-// {
-//     m_sigmaElastic.clear();
-//     m_sigmaElastic.resize(m_points, 0.0);
-//     for (size_t k : m_phase->kElastic()) {
-//         auto x = m_phase->collisionRate(k)->energyLevels();
-//         auto y = m_phase->collisionRate(k)->crossSections();
-//         // Note:
-//         // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
-//         double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
-//         for (size_t i = 0; i < m_points; i++) {
-//             m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
-//                                  linearInterp(m_gridEdge[i], x, y);
-//         }
-//     }
-// }
-
-// The old implementation counted the effective cros section as an elastic contribution
+// The former implementation counted the effective cros section as an elastic contribution
 // thus double counting the inelastic contributions to the total cross section.
+// This implemetation avoids this drawback.
 void EEDFTwoTermApproximation::calculateTotalCrossSection()
 {
     m_totalCrossSectionCenter.assign(m_points, 0.0);
