@@ -12,10 +12,16 @@
 //! Arrhenius rate, but the constant model is provided for convenience and to avoid confusion with conventional Arrhenius rates.
 
 //! The 'detailed-vv-vt' model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
-//! in the phase (Ex: N2(v=1-8)) and solves for their V-T and V-V relaxation. The rates are based on the SSH theory detailed 
-//! in the Chapter 7 of the following book:
+//! in the phase (Ex: N2(v=1-8)) and solves for their V-T and V-V relaxation. The scaling of the rates are based on the SSH theory
+//! detailed in Chapter 7 of the following book:
 //! Capitelli, M., Ferreira, C. M., Gordiets, B. F., & Osipov, A. I. (2013). 
 //! Plasma kinetics in atmospheric gases (Vol. 31). Springer Science & Business Media.
+//! The simplified version of the SSH theory implemented in this model is based on the harmonic oscillator approximation and can be found
+//! in the following paper (equations 18 and 19):
+//! Vasco Guerra et al 2019 Plasma Sources Sci. Technol. 28 073001
+//! The k10 rates are taken from //! Zhong, H. et al. (2023) “Understanding non-equilibrium N2O/NOx chemistry in plasma-assisted 
+//! low-temperature NH3 oxidation,” Combustion and Flame, 256, which itself took those rates from both the Capitelli book and 
+//! the article from Strikovskiy and Aleksandrov (2013), see more below.
 
 //! The 'castela' model is meant to be used only for N2 vibrational relaxation, by collisions with N2, O2 and O exclusively.
 //! It implements the mean vibrational energy relaxation model using a fictive cantera species.
