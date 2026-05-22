@@ -72,7 +72,9 @@ public:
     
     void setQuadraticGrid(double& kTe_max, size_t& ncell);
 
-    void setGeometricGrid(double& kTe_max, size_t& ncell);
+    //! Sets a geometric energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
+    //! the geometric ratio defaults to 1.01 if not specified.
+    void setGeometricGrid(double& kTe_max, size_t& ncell, double ratio = 1.01);
 
     void setCustomGrid(span<const double> levels);
 
