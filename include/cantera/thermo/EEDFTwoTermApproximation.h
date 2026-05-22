@@ -283,6 +283,9 @@ protected:
     //! Compute the total (elastic + inelastic) cross section
     void calculateTotalCrossSection();
 
+    //!
+    void checkSpeciesNoCrossSection();
+
     //! Compute the L1 norm of a function f defined over a given energy grid.
     //!
     //! @param f     Vector representing the function values (EEDF)

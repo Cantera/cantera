@@ -143,6 +143,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     }
 
     updateMoleFractions();
+    checkSpeciesNoCrossSection();
     updateCrossSections();
 
     const double EN = m_phase->reducedElectricField();
@@ -804,6 +805,17 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
         for (size_t i = 0; i < m_points; i++) {
             m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
                                  linearInterp(m_gridEdge[i], x, y_elastic);
+        }
+    }
+}
+
+void EEDFTwoTermApproximation::checkSpeciesNoCrossSection()
+{
+    // warn that a specific species needs cross-section data.
+    for (size_t k : m_kOthers) {
+        if (m_phase->moleFraction(k) > m_moleFractionThreshold) {
+            writelog("EEDFTwoTermApproximation:checkSpeciesNoCrossSection\n");
+            writelog("Warning:The mole fraction of species {} is more than 0.01 (X = {:.3g}) but it has no cross-section data\n", m_phase->speciesName(k), m_phase->moleFraction(k));
         }
     }
 }
