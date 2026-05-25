@@ -744,7 +744,7 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
                     auto yi = m_phase->collisionRate(ki)->crossSections();
                     for (size_t i = 0; i < x.size(); i++)
                     {
-                        y_elastic[i] -= linearInterp(x[i], xi, yi);
+                        y_elastic[i] -= linearInterpCrossSectionZeroOutside(x[i], xi, yi);
                     }
                 }
             }
@@ -754,9 +754,12 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
                     if (y_elastic[i] > -1e-30) {
                         y_elastic[i] = 0.0;
                     } else {
+                        const std::string& effectiveKind = m_phase->collisionRate(k)->kind();
+                        std::string effectiveTarget = m_phase->speciesName(m_phase->targetIndex(k));
+
                         writelog("Warning: reconstructed elastic cross section is negative "
-                                "for collision {} at energy {}: {}\n",
-                                k, x[i], y_elastic[i]);
+                                "for collision {} kind {} target {} at energy {}: {}\n",
+                                k, effectiveKind, effectiveTarget, x[i], y_elastic[i]);
                         y_elastic[i] = 0.0;
                     }
                 }
@@ -768,6 +771,35 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
                                  linearInterp(m_gridEdge[i], x, y_elastic);
         }
     }
+}
+
+double EEDFTwoTermApproximation::linearInterpBounded(double x,
+                           span<const double> xpts,
+                           span<const double> fpts,
+                           double below_value,
+                           double above_value)
+{
+    AssertThrowMsg(!xpts.empty(), "linearInterpBounded", "x data empty");
+    AssertThrowMsg(!fpts.empty(), "linearInterpBounded", "f(x) data empty");
+    AssertThrowMsg(xpts.size() == fpts.size(), "linearInterpBounded",
+        "len(xpts) = {}, len(fpts) = {}", xpts.size(), fpts.size());
+
+    if (x < xpts.front()) {
+        return below_value;
+    }
+
+    if (x > xpts.back()) {
+        return above_value;
+    }
+
+    return linearInterp(x, xpts, fpts);
+}
+
+double EEDFTwoTermApproximation::linearInterpCrossSectionZeroOutside(double x,
+                                           span<const double> xpts,
+                                           span<const double> fpts)
+{
+    return linearInterpBounded(x, xpts, fpts, 0.0, 0.0);
 }
 
 void EEDFTwoTermApproximation::checkSpeciesNoCrossSection()

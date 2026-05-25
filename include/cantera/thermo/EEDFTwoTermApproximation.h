@@ -158,6 +158,23 @@ public:
     //! Controls the threshold below which the EEDF solver does not solve for the EEDF but imposes a Maxwellian distribution.
     void setReducedFieldThresholdBeforeMaxwellianTd(double threshold); 
 
+    //! An extension of the linearInterp function that returns specified values when the input is
+    //! out of bounds instead of returning one of the extremities of the list.
+    double linearInterpBounded(double x,
+                           span<const double> xpts,
+                           span<const double> fpts,
+                           double below_value,
+                           double above_value);
+    
+    //! A special use case of linearInterpBounded for cross sections
+    //! It is not necessary as the code could just use the previous function
+    //! using the values 0, but the author of this code finds it clearer to 
+    //! the reader to have an explicit name for this use case.
+    double linearInterpCrossSectionZeroOutside(double x,
+                                    span<const double> xpts,
+                                    span<const double> fpts);
+
+
 protected:
 
     //! Formerly options for the EEDF solver
