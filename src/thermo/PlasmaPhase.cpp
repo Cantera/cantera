@@ -687,12 +687,15 @@ double PlasmaPhase::intrinsicHeating()
 //           Molar Thermodynamic Properties of the Solution          //
 // ================================================================= //
 
-double PlasmaPhase::enthalpy_mole() const {
-    double value = IdealGasPhase::enthalpy_mole();
-    value += GasConstant * (electronTemperature() - temperature()) *
-             moleFraction(m_electronSpeciesIndex) *
-             m_h0_RT[m_electronSpeciesIndex];
-    return value;
+double PlasmaPhase::enthalpy_mole() const
+{
+    m_work.resize(m_kk);
+    getPartialMolarEnthalpies(m_work);
+    double h = 0.0;
+    for (size_t k = 0; k < m_kk; ++k) {
+        h += moleFraction(k) * m_work[k];
+    }
+    return h;
 }
 
 double PlasmaPhase::intEnergy_mole() const
