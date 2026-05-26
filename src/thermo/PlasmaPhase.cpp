@@ -732,6 +732,22 @@ double PlasmaPhase::gibbs_mole() const
 }
 
 // ================================================================= //
+//                     Mechanical Equation of State                  //
+// ================================================================= //
+
+double PlasmaPhase::meanTemperature() const
+{
+    double T_g = temperature();
+    double T_e = electronTemperature();
+    double X_e = moleFraction(m_electronSpeciesIndex);
+    return T_g + X_e * (T_e - T_g);
+}
+
+double PlasmaPhase::pressure() const {
+    return GasConstant * meanTemperature() * density() / meanMolecularWeight();
+}
+
+// ================================================================= //
 //              Partial Molar Properties of the Solution             //
 // ================================================================= //
 
