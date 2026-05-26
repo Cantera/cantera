@@ -747,6 +747,17 @@ double PlasmaPhase::pressure() const {
     return GasConstant * meanTemperature() * density() / meanMolecularWeight();
 }
 
+
+// ================================================================= //
+//                Chemical Potentials and Activities                 //
+// ================================================================= //
+
+double PlasmaPhase::standardConcentration(size_t k) const
+{
+    return pressure() / (GasConstant * meanTemperature());
+}
+
+
 // ================================================================= //
 //              Partial Molar Properties of the Solution             //
 // ================================================================= //
@@ -778,6 +789,15 @@ void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
     ubar[k] = RTe() * (_h[k] - 1.0);
 }
 
+void PlasmaPhase::getPartialMolarVolumes(span<double> vbar) const
+{
+    double vol = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vbar[k] = vol;
+    }
+    vbar[m_electronSpeciesIndex] = RTe() / pressure();
+}
+
 // ================================================================= //
 //  Properties of the Standard State of the Species in the Solution  //
 // ================================================================= //
@@ -800,7 +820,14 @@ void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
     muStar[k] += log(pressure() / refPressure()) * RTe();
 }
 
-
+void PlasmaPhase::getStandardVolumes(span<double> vol) const
+{
+    double tmp = RT() / pressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        vol[k] = tmp;
+    }
+    vol[m_electronSpeciesIndex] = RTe() / pressure();
+}
 
 // ================================================================= //
 //       Thermodynamic Values for the Species Reference States       //
