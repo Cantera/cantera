@@ -423,6 +423,62 @@ public:
     //! @name Mechanical Equation of State
     //! @{
 
+    //! Return the mean temperature of the plasma phase [K].
+    /*!
+     * In a plasma phase, the electron temperature can differ from the
+     * heavy-species (gas) temperature. Therefore, the mean temperature is
+     * defined as a mole-fraction-weighted average of the electron and
+     * heavy-species temperatures:
+     * @f[
+     *      \bar{T} = \sum_{k \neq k_e} X_k T_g + X_{k_e} T_e
+     *             = (1 - X_{k_e}) T_g + X_{k_e} T_e
+     *             = T_g + X_{k_e} (T_e - T_g)
+     * @f]
+     * See the `pressure()` method for usage of the mean temperature in
+     * calculating the pressure of the plasma phase.
+     */
+    double meanTemperature() const;
+
+    //! Return the pressure of the plasma phase [Pa].
+    /*!
+     * The pressure of the plasma phase is calculated using the mean temperature,
+     * which is a mole-fraction-weighted average of the electron and heavy-species
+     * temperatures.
+     * @f[
+     *      P = \sum_k n_k k_B T_k
+     *        = \sum_{k \neq e} n_k k_B T_g + n_{e} k_B T_e
+     *        = (n_{total} - n_{e}) k_B T_g + n_{e} k_B T_e
+     *        = n_{total} (1 - X_e) k_B T_g + n_{total} X_e k_B T_e
+     *        = n_{total} k_B \bar{T}
+     * @f]
+     * where @f$ \bar{T} @f$ is the mean temperature of the plasma phase,
+     * defined in the `meanTemperature()` method.
+     * Here, @f$ n_k @f$ is the number density of species @f$ k @f$,
+     * @f$ n_{total} @f$ is the total number density of the phase,
+     * @f$ X_e @f$ is the mole fraction of electrons, @f$ T_g @f$ is the
+     * heavy-species (gas) temperature, @f$ T_e @f$ is the electron temperature,
+     * and @f$ k_B @f$ is the Boltzmann constant.
+     *
+     * The number density times Boltzmann constant can be expressed as
+     * @f$ n_{total} k_B = C_{total} R @f$, where @f$ C_{total} @f$ is the
+     * total molar concentration of the phase and @f$ R @f$ is the gas constant.
+     */
+    double pressure() const override;
+
+    //! Set the pressure at constant temperature and composition.
+    /*!
+     * Units: Pa.
+     * This method is implemented by setting the mass density to
+     * @f[
+     * \rho = \frac{P \overline{W}}{\hat R \overline{T} }.
+     * @f]
+     *
+     * @param p Pressure (Pa)
+     */
+    void setPressure(double p) override {
+        setDensity(p * meanMolecularWeight() / (GasConstant * meanTemperature()));
+    }
+
     //! Return the Gas Constant multiplied by the current electron temperature
     /*!
      *  The units are Joules kmol-1
