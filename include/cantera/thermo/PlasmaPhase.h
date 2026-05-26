@@ -105,6 +105,37 @@ public:
 
     void initThermo() override;
 
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Overridden from IdealGasPhase or ThermoPhase
+    //! @{
+    bool addSpecies(shared_ptr<Species> spec) override;
+    virtual void setSolution(std::weak_ptr<Solution> soln) override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Electron Species Information
+    //! @{
+
+    //! Electron Species Index
+    size_t electronSpeciesIndex() const {
+        return m_electronSpeciesIndex;
+    }
+
+    //! Electron species name
+    string electronSpeciesName() const {
+        return speciesName(m_electronSpeciesIndex);
+    }
+
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Electron Energy Distribution Functions
+    //! @{
+
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
@@ -186,29 +217,10 @@ public:
         return m_do_normalizeElectronEnergyDist;
     }
 
-    bool addSpecies(shared_ptr<Species> spec) override;
-
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
     double electronTemperature() const override {
         return m_electronTemp;
-    }
-
-    //! Return the Gas Constant multiplied by the current electron temperature
-    /*!
-     *  The units are Joules kmol-1
-     */
-    double RTe() const {
-        return electronTemperature() * GasConstant;
-    }
-
-    /**
-     * Electron pressure. Units: Pa.
-     * @f[P = n_{k_e} R T_e @f]
-     */
-    virtual double electronPressure() const {
-        return GasConstant * concentration(m_electronSpeciesIndex) *
-               electronTemperature();
     }
 
     //! Number of electron levels
@@ -234,10 +246,115 @@ public:
         return m_collisionRates[i];
     }
 
-    //! Electron Species Index
-    size_t electronSpeciesIndex() const {
-        return m_electronSpeciesIndex;
+
+    //! Update the electron energy distribution.
+    void updateElectronEnergyDistribution();
+
+    //! Return the distribution number #m_distNum.
+    int distributionNumber() const {
+        return m_distNum;
     }
+
+    //! Return the electron energy level number #m_levelNum.
+    int levelNumber() const {
+        return m_levelNum;
+    }
+
+    //! Get the indicies for inelastic electron collisions.
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kInelastic() const {
+        return m_kInelastic;
+    }
+
+    //! Get the indices for elastic electron collisions.
+    //! @since New in %Cantera 3.2.
+    const vector<size_t>& kElastic() const {
+        return m_kElastic;
+    }
+
+    //! Return the target of a specific process.
+    //! @since New in %Cantera 3.2.
+    size_t targetIndex(size_t i) const {
+        return m_targetSpeciesIndices[i];
+    }
+
+    //! Get the frequency of the applied electric field [Hz].
+    //! @since New in %Cantera 3.2.
+    double electricFieldFrequency() const {
+        return m_electricFieldFrequency;
+    }
+
+    //! Get the applied electric field strength [V/m].
+    double electricField() const {
+        return m_electricField;
+    }
+
+    //! Set the absolute electric field strength [V/m].
+    void setElectricField(double E) {
+        m_electricField = E;
+    }
+
+    //! Calculate the degree of ionization
+    //double ionDegree() const {
+    //    double ne = concentration(m_electronSpeciesIndex); // [kmol/m³]
+    //    double n_total = molarDensity();                   // [kmol/m³]
+    //    return ne / n_total;
+    //}
+
+    //! Get the reduced electric field strength [V·m²].
+    double reducedElectricField() const {
+        return m_electricField / (molarDensity() * Avogadro);
+    }
+
+    //! Set reduced electric field given in [V·m²].
+    void setReducedElectricField(double EN) {
+        m_electricField = EN * molarDensity() * Avogadro; // [V/m]
+    }
+
+    /**
+     * The elastic power loss [J/s/m³]
+     *   @f[
+     *     P_k = N_A N_A C_e e \sum_k C_k K_k,
+     *   @f]
+     * where @f$ C_k @f$ and @f$ C_e @f$ are the concentration (kmol/m³) of the
+     * target species and electrons, respectively. @f$ K_k @f$ is the elastic
+     * electron energy loss coefficient (eV-m³/s).
+     */
+    double elasticPowerLoss();
+
+    /**
+     * The electron mobility (m²/V/s)
+     *   @f[
+     *     \mu = \nu_d / E,
+     *   @f]
+     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * field strength (V/m).
+     */
+    double electronMobility() const;
+
+    /**
+     * The joule heating power (W/m³)
+     *   @f[
+     *     q_J = \sigma * E^2,
+     *   @f]
+     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
+     *   @f[
+     *     \sigma = e * n_e * \mu_e
+     *   @f]
+     * and @f$ E @f$ is the electric field strength (V/m).
+     */
+    double jouleHeatingPower() const;
+
+    void beginEquilibrate() override;
+
+    void endEquilibrate() override;
+
+    double intrinsicHeating() override;
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Molar Thermodynamic Properties of the Solution
+    //! @{
 
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
@@ -296,139 +413,77 @@ public:
     */
     double intEnergy_mole() const override;
 
-    void getEntropy_R(span<double> sr) const override;
+    double cp_mole() const override;
+    // double cp_mass() const; // Already defined in ThermoPhase
+    // double cv_mole() const; // Already defined in IdealGasPhase
 
-    void getGibbs_RT(span<double> grt) const override;
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Mechanical Equation of State
+    //! @{
 
-    void getGibbs_ref(span<double> g) const override;
+    //! Return the Gas Constant multiplied by the current electron temperature
+    /*!
+     *  The units are Joules kmol-1
+     */
+    double RTe() const {
+        return electronTemperature() * GasConstant;
+    }
 
-    void getStandardVolumes_ref(span<double> vol) const override;
+    /**
+     * Electron pressure. Units: Pa.
+     * @f[P = n_{k_e} R T_e @f]
+     */
+    virtual double electronPressure() const {
+        return GasConstant * concentration(m_electronSpeciesIndex) *
+               electronTemperature();
+    }
+
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Partial Molar Properties of the Solution
+    //! @{
 
     void getChemPotentials(span<double> mu) const override;
+    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    void getPartialMolarEntropies(span<double> sbar) const override;
+    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    // void getPartialMolarCp(span<double> cpbar) const override;
+    // void getPartialMolarVolumes(span<double> vbar) const override;
+
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name  Properties of the Standard State of the Species in the Solution
+    //! @{
 
     void getStandardChemPotentials(span<double> muStar) const override;
+    // void getEnthalpy_RT(span<double> hrt) const override;
+    void getEntropy_R(span<double> sr) const override;
+    void getGibbs_RT(span<double> grt) const override;
+    // void getIntEnergy_RT(span<double> urt) const override;
+    // void getCp_R(span<double> cpr) const override;
+    // void getStandardVolumes(span<double> vol) const override;
 
-    void getPartialMolarEnthalpies(span<double> hbar) const override;
+    //! @}
+    // ================================================================= //
+    // ================================================================= //
+    //! @name Thermodynamic Values for the Species Reference States
+    //! @{
 
-    void getPartialMolarEntropies(span<double> sbar) const override;
+    // void getEnthalpy_RT_ref(span<double> hrt) const override;
+    // void getGibbs_RT_ref(span<double> grt) const override;
+    void getGibbs_ref(span<double> g) const override;
+    // void getEntropy_R_ref(span<double> er) const override;
+    // void getIntEnergy_RT_ref(span<double> urt) const override;
+    // void getCp_R_ref(span<double> cprt) const override;
+    void getStandardVolumes_ref(span<double> vol) const override;
 
-    void getPartialMolarIntEnergies(span<double> ubar) const override;
+    //! @}
 
-    void getParameters(AnyMap& phaseNode) const override;
 
-    void setParameters(const AnyMap& phaseNode,
-                       const AnyMap& rootNode=AnyMap()) override;
-
-    //! Update the electron energy distribution.
-    void updateElectronEnergyDistribution();
-
-    //! Electron species name
-    string electronSpeciesName() const {
-        return speciesName(m_electronSpeciesIndex);
-    }
-
-    //! Return the distribution Number #m_distNum
-    int distributionNumber() const {
-        return m_distNum;
-    }
-
-    //! Return the electron energy level Number #m_levelNum
-    int levelNumber() const {
-        return m_levelNum;
-    }
-
-    //! Get the indicies for inelastic electron collisions
-    //! @since New in %Cantera 3.2.
-    const vector<size_t>& kInelastic() const {
-        return m_kInelastic;
-    }
-
-    //! Get the indices for elastic electron collisions
-    //! @since New in %Cantera 3.2.
-    const vector<size_t>& kElastic() const {
-        return m_kElastic;
-    }
-
-    //! target of a specific process
-    //! @since New in %Cantera 3.2.
-    size_t targetIndex(size_t i) const {
-        return m_targetSpeciesIndices[i];
-    }
-
-    //! Get the frequency of the applied electric field [Hz]
-    //! @since New in %Cantera 3.2.
-    double electricFieldFrequency() const {
-        return m_electricFieldFrequency;
-    }
-
-    //! Get the applied electric field strength [V/m]
-    double electricField() const {
-        return m_electricField;
-    }
-
-    //! Set the absolute electric field strength [V/m]
-    void setElectricField(double E) {
-        m_electricField = E;
-    }
-
-    //! Calculate the degree of ionization
-    //double ionDegree() const {
-    //    double ne = concentration(m_electronSpeciesIndex); // [kmol/m³]
-    //    double n_total = molarDensity();                   // [kmol/m³]
-    //    return ne / n_total;
-    //}
-
-    //! Get the reduced electric field strength [V·m²]
-    double reducedElectricField() const {
-        return m_electricField / (molarDensity() * Avogadro);
-    }
-
-    //! Set reduced electric field given in [V·m²]
-    void setReducedElectricField(double EN) {
-        m_electricField = EN * molarDensity() * Avogadro; // [V/m]
-    }
-
-    virtual void setSolution(std::weak_ptr<Solution> soln) override;
-
-    /**
-     * The elastic power loss (J/s/m³)
-     *   @f[
-     *     P_k = N_A N_A C_e e \sum_k C_k K_k,
-     *   @f]
-     * where @f$ C_k @f$ and @f$ C_e @f$ are the concentration (kmol/m³) of the
-     * target species and electrons, respectively. @f$ K_k @f$ is the elastic
-     * electron energy loss coefficient (eV-m³/s).
-     */
-    double elasticPowerLoss();
-
-    /**
-     * The electron mobility (m²/V/s)
-     *   @f[
-     *     \mu = \nu_d / E,
-     *   @f]
-     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
-     * field strength (V/m).
-     */
-    double electronMobility() const;
-
-    /**
-     * The joule heating power (W/m³)
-     *   @f[
-     *     q_J = \sigma * E^2,
-     *   @f]
-     * where @f$ \sigma @f$ is the conductivity (S/m), defined by:
-     *   @f[
-     *     \sigma = e * n_e * \mu_e
-     *   @f]
-     * and @f$ E @f$ is the electric field strength (V/m).
-     */
-    double jouleHeatingPower() const;
-
-    void beginEquilibrate() override;
-
-    void endEquilibrate() override;
-
-    double intrinsicHeating() override;
 
 protected:
     void updateThermo() const override;
