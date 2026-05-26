@@ -289,7 +289,6 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
-    // If the electron temperature is negative, throw an error.
     if (Te < 0.0) {
         throw CanteraError("PlasmaPhase::setElectronTemperature",
             "Electron temperature cannot be negative.");
@@ -343,14 +342,12 @@ void PlasmaPhase::electronEnergyDistributionChanged()
 void PlasmaPhase::electronEnergyLevelChanged()
 {
     m_levelNum++;
-    // Cross sections are interpolated on the energy levels.
+    // Cross sections are interpolated on the energy levels
     if (m_collisions.size() > 0) {
-        vector<double> energyLevels(m_nPoints);
-        MappedVector(energyLevels.data(), m_nPoints) = m_electronEnergyLevels;
         for (shared_ptr<Reaction> collision : m_collisions) {
             const auto& rate = boost::polymorphic_pointer_downcast
                 <ElectronCollisionPlasmaRate>(collision->rate());
-            rate->updateInterpolatedCrossSection(energyLevels);
+            rate->updateInterpolatedCrossSection(asSpan(m_electronEnergyLevels));
         }
     }
 }
@@ -388,10 +385,8 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(span<const double> levels,
 {
     m_distributionType = "discretized";
     m_nPoints = levels.size();
-    m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels.data(), m_nPoints);
-    m_electronEnergyDist =
-        Eigen::Map<const Eigen::ArrayXd>(dist.data(), m_nPoints);
+    m_electronEnergyLevels = asVectorXd(levels);
+    m_electronEnergyDist = asVectorXd(dist);
     checkElectronEnergyLevels();
     if (m_do_normalizeElectronEnergyDist) {
         normalizeElectronEnergyDistribution();
@@ -451,8 +446,8 @@ void PlasmaPhase::setCollisions()
             addCollision(R);
         }
 
-        // register callback when reaction is added later
-        // Modifying collision reactions is not supported
+        // Register callback when reaction is added later.
+        // Modifying collision reactions is not supported.
         kin->registerReactionAddedCallback(this, [this, kin]() {
             size_t i = kin->nReactions() - 1;
             if (kin->reaction(i)->type() == "electron-collision-plasma") {
@@ -655,39 +650,6 @@ double PlasmaPhase::electronMobility() const
     }
 }
 
-
-double PlasmaPhase::jouleHeatingPower() const
-{
-    // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
-    const double mu_e = electronMobility();    // m^2 / (V·s)
-    if (mu_e <= 0.0) {
-        return 0.0;
-    }
-    const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
-    if (ne <= 0.0) {
-        return 0.0;
-    }
-    const double E  = electricField(); // V/m
-    if (E <= 0.0) {
-        return 0.0;
-    }
-    const double sigma = ElectronCharge * ne * mu_e; // S/m
-    return sigma * E * E; // W/m^3
-}
-
-double PlasmaPhase::intrinsicHeating()
-{
-    // Joule heating: sigma * E^2 [W/m^3]
-    const double qJ = jouleHeatingPower();
-    checkFinite(qJ);
-
-    // Elastic + inelastic recoil power loss [W/m^3]
-    double qElastic = elasticPowerLoss();
-    checkFinite(qElastic);
-
-    return qJ + qElastic;
-}
-
 // ================================================================= //
 //           Molar Thermodynamic Properties of the Solution          //
 // ================================================================= //
@@ -777,10 +739,25 @@ void PlasmaPhase::getChemPotentials(span<double> mu) const
 
 void PlasmaPhase::getPartialMolarEnthalpies(span<double> hbar) const
 {
+    // Since the `updateThermo` is overriden in `PlasmaPhase`,
+    // `enthalpy_RT_ref` returns \tilde{h}_k(T_k) / (R * T_k).
+    // When calling `IdealGasPhase::getPartialMolarEnthalpies(hbar)`,
+    // the `hbar` array is equal to \tilde{h}_k(T_k) * (R * T) / (R * T_k).
+    // For all heavy species, T_k == T, so we get \tilde{h}_k(T).
+    // For electrons, we need to multiply by T_e/T to get \tilde{h}_k(T_e).
     IdealGasPhase::getPartialMolarEnthalpies(hbar);
     hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
+void PlasmaPhase::getPartialMolarEntropies(span<double> sbar) const
+{
+    // Since the `updateThermo` is overriden in `PlasmaPhase`,
+    // `entropy_R_ref` returns s^\text{ref}_k(T_k)/R.
+    // When calling `IdealGasPhase::getPartialMolarEntropies(hbar)`,
+    // the `sbar` array is equal to s^\text{ref}_k(T_k)*R/R - R ln(X_k P/P^ref).
+    // Therefore, there is no need to correct for temperature.
+    IdealGasPhase::getPartialMolarEntropies(sbar);
+}
 
 void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
@@ -809,17 +786,17 @@ void PlasmaPhase::getPartialMolarVolumes(span<double> vbar) const
 
 void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
 {
-    // After calling PlasmaPhase::getGibbs_ref, muStar = g_k(T_k).
-    // g_k is evaluated at T for heavy species and at Te for electrons.
+    // After calling PlasmaPhase::getGibbs_ref, muStar = mu^\text{ref}_k(T_k)(T_k).
+    // mu^\text{ref} is evaluated at T for heavy species and at Te for electrons.
     getGibbs_ref(muStar);
 
-    // Then, we need to add R*T_k*ln(P/Pref) to g_k.
-    // .. For heavy species, mu_star = g_k(T) + R*T*ln(P/Pref)
+    // Then, we need to add R*T_k*ln(P/Pref) to mu^\text{ref}.
+    // .. For heavy species, mu_star = mu^\text{ref}(T) + R*T*ln(P/Pref)
     double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp;
     }
-    // .. For electrons, mu_star = g_k(Te) + R*T_e*ln(P/Pref)
+    // .. For electrons, mu_star = mu^\text{ref}(Te) + R*T_e*ln(P/Pref)
     size_t k = m_electronSpeciesIndex;
     muStar[k] -= log(pressure() / refPressure()) * RT();
     muStar[k] += log(pressure() / refPressure()) * RTe();
@@ -840,6 +817,12 @@ void PlasmaPhase::getStandardVolumes(span<double> vol) const
 
 void PlasmaPhase::getGibbs_ref(span<double> g) const
 {
+    // Since the `updateThermo` is overriden in `PlasmaPhase`,
+    // `gibbs_RT_ref` returns \mu^\text{ref}_k(T_k) / (R * T_k).
+    // When calling `IdealGasPhase::getGibbs_ref(g)`,
+    // the `g` array is equal to \mu^\text{ref}_k(T_k) * (R * T) / (R * T_k).
+    // For all heavy species, T_k == T, so we get \mu^\text{ref}_k(T).
+    // For electrons, we need to multiply by T_e/T to get \mu^\text{ref}_k(T_e).
     IdealGasPhase::getGibbs_ref(g);
     g[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
@@ -850,11 +833,9 @@ void PlasmaPhase::getStandardVolumes_ref(span<double> vol) const
     vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
-
 // ================================================================= //
 //                        Setting the State                          //
 // ================================================================= //
-
 
 void PlasmaPhase::setState(const AnyMap& input_state)
 {
@@ -1019,5 +1000,38 @@ void PlasmaPhase::setState_TgTeD(double Tg, double Te, double rho)
         throw;
     }
 }
+
+double PlasmaPhase::jouleHeatingPower() const
+{
+    // sigma = e * n_e * mu_e   [S/m];   q_J = sigma * E^2   [W/m^3]
+    const double mu_e = electronMobility();    // m^2 / (V·s)
+    if (mu_e <= 0.0) {
+        return 0.0;
+    }
+    const double ne = concentration(m_electronSpeciesIndex) * Avogadro; // m^-3
+    if (ne <= 0.0) {
+        return 0.0;
+    }
+    const double E  = electricField(); // V/m
+    if (E <= 0.0) {
+        return 0.0;
+    }
+    const double sigma = ElectronCharge * ne * mu_e; // S/m
+    return sigma * E * E; // W/m^3
+}
+
+double PlasmaPhase::intrinsicHeating()
+{
+    // Joule heating: sigma * E^2 [W/m^3]
+    const double qJ = jouleHeatingPower();
+    checkFinite(qJ);
+
+    // Elastic + inelastic recoil power loss [W/m^3]
+    double qElastic = elasticPowerLoss();
+    checkFinite(qElastic);
+
+    return qJ + qElastic;
+}
+
 
 }
