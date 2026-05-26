@@ -6,12 +6,12 @@
 
 
 //! It implements the relaxation rate of vibrationally excited species in plasma kinetics.
-//! Four models are currently supported by this class: 'constant', 'detailed-vv-vt', 'starikovskiy', and 'castela'.
+//! Four models are currently supported by this class: 'constant', 'multi-state-resolved', 'starikovskiy', and 'castela'.
 
 //! The 'constant' model relaxes the vibrational species with a constant rate coefficient. It could just as well be an
 //! Arrhenius rate, but the constant model is provided for convenience and to avoid confusion with conventional Arrhenius rates.
 
-//! The 'detailed-vv-vt' model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
+//! The 'multi-state-resolved' model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
 //! in the phase (Ex: N2(v=1-8)) and solves for their V-T and V-V relaxation. The scaling of the rates are based on the SSH theory
 //! detailed in Chapter 7 of the following book:
 //! Capitelli, M., Ferreira, C. M., Gordiets, B. F., & Osipov, A. I. (2013). 
@@ -78,7 +78,7 @@ struct DetailedVibData : public ReactionData
  * relaxation models:
  *
  * - `constant`
- * - `detailed-vv-vt`
+ * - `multi-state-resolved`
  * - `starikovskiy`
  * - `castela`
  *
@@ -108,7 +108,7 @@ struct DetailedVibData : public ReactionData
  *
  * @code{.yaml}
  * vibration_model: constant
- * vibration_model: detailed-vv-vt
+ * vibration_model: multi-state-resolved
  * vibration_model: starikovskiy
  * vibration_model: castela
  * @endcode
@@ -251,11 +251,11 @@ private:
      * Accepted values:
      *
      * - `constant`
-     * - `detailed-vv-vt`
+     * - `multi-state-resolved`
      * - `starikovskiy`
      * - `castela`
      */
-    string m_vibration_model = "detailed-vv-vt";
+    string m_vibration_model = "multi-state-resolved";
 
     //! YAML key names.
     string m_B_str = "B";

@@ -158,7 +158,7 @@ std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 // Allowed:
 //
 //   N2(v)  -> constant
-//   O2(v)  -> detailed-vv-vt
+//   O2(v)  -> multi-state-resolved
 //   NH3(v) -> starikovskiy
 //
 // Forbidden:
@@ -471,12 +471,12 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     // The physical model is selected separately by:
     //
     //   vibration_model: constant
-    //   vibration_model: detailed-vv-vt
+    //   vibration_model: multi-state-resolved
     //   vibration_model: starikovskiy
     //   vibration_model: castela
     //
-    // For backward compatibility, the default model is detailed-vv-vt.
-    m_vibration_model = "detailed-vv-vt";
+    // For backward compatibility, the default model is multi-state-resolved.
+    m_vibration_model = "multi-state-resolved";
 
     if (node.hasKey("vibration_model")) {
         m_vibration_model = node["vibration_model"].asString();
@@ -536,7 +536,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         m_z = 1.0;
         m_scaling = 1.0;
     }
-    else if (m_vibration_model == "detailed-vv-vt") {
+    else if (m_vibration_model == "multi-state-resolved") {
         // Detailed VV/VT model:
         //
         //   k(T) = scaling * A * exp(
@@ -690,7 +690,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     }
     else {
         throw InputFileError("VibrationalRelaxationRate::setParameters", node,
-            "Unrecognized vibration_model '{}'. Expected 'detailed-vv-vt', "
+            "Unrecognized vibration_model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
     }
@@ -736,7 +736,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
 
         storePreExponentialFactor(rateNode, m_scaling * m_A);
     }
-    else if (m_vibration_model == "detailed-vv-vt") {
+    else if (m_vibration_model == "multi-state-resolved") {
         storePreExponentialFactor(rateNode, m_A);
 
         rateNode[m_b_str] = m_b;
@@ -782,7 +782,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     }
     else {
         throw InputFileError("VibrationalRelaxationRate::getParameters", node,
-            "Unrecognized vibration_model '{}'. Expected 'detailed-vv-vt', "
+            "Unrecognized vibration_model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
     }
@@ -821,7 +821,7 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
         validateCastelaReaction(rxn);
     } else if (m_vibration_model == "starikovskiy") {
         validateSimpleRelaxationToGroundState(rxn, "starikovskiy");
-    } else if (m_vibration_model == "detailed-vv-vt") {
+    } else if (m_vibration_model == "multi-state-resolved") {
         validateDetailedRelaxationReaction(rxn);
     } else {
         throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
