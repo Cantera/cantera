@@ -765,13 +765,6 @@ void PlasmaPhase::getPartialMolarEnthalpies(span<double> hbar) const
     hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
-void PlasmaPhase::getPartialMolarEntropies(span<double> sbar) const
-{
-    IdealGasPhase::getPartialMolarEntropies(sbar);
-    double logp = log(pressure());
-    double logpe = log(electronPressure());
-    sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
-}
 
 void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
 {
@@ -791,40 +784,20 @@ void PlasmaPhase::getPartialMolarIntEnergies(span<double> ubar) const
 
 void PlasmaPhase::getStandardChemPotentials(span<double> muStar) const
 {
-    IdealGasPhase::getStandardChemPotentials(muStar);
+    // After calling PlasmaPhase::getGibbs_ref, muStar = g_k(T_k).
+    // g_k is evaluated at T for heavy species and at Te for electrons.
+    getGibbs_ref(muStar);
+
+    // Then, we need to add R*T_k*ln(P/Pref) to g_k.
+    // .. For heavy species, mu_star = g_k(T) + R*T*ln(P/Pref)
+    double tmp = log(pressure() / refPressure()) * RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        muStar[k] += tmp;
+    }
+    // .. For electrons, mu_star = g_k(Te) + R*T_e*ln(P/Pref)
     size_t k = m_electronSpeciesIndex;
     muStar[k] -= log(pressure() / refPressure()) * RT();
-    muStar[k] += log(electronPressure() / refPressure()) * RTe();
-}
-
-void PlasmaPhase::getEntropy_R(span<double> sr) const
-{
-    checkArraySize("PlasmaPhase::getEntropy_R", sr.size(), m_kk);
-    auto _s = entropy_R_ref();
-    copy(_s.begin(), _s.end(), sr.begin());
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            sr[k] -= tmp;
-        } else {
-            sr[k] -= log(electronPressure() / refPressure());
-        }
-    }
-}
-
-void PlasmaPhase::getGibbs_RT(span<double> grt) const
-{
-    checkArraySize("PlasmaPhase::getGibbs_RT", grt.size(), m_kk);
-    auto gibbsrt = gibbs_RT_ref();
-    copy(gibbsrt.begin(), gibbsrt.end(), grt.begin());
-    double tmp = log(pressure() / refPressure());
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_electronSpeciesIndex) {
-            grt[k] += tmp;
-        } else {
-            grt[k] += log(electronPressure() / refPressure());
-        }
-    }
+    muStar[k] += log(pressure() / refPressure()) * RTe();
 }
 
 

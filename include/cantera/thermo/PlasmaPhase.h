@@ -504,7 +504,7 @@ public:
 
     void getChemPotentials(span<double> mu) const override;
     void getPartialMolarEnthalpies(span<double> hbar) const override;
-    void getPartialMolarEntropies(span<double> sbar) const override;
+    // void getPartialMolarEntropies(span<double> sbar) const override;
     void getPartialMolarIntEnergies(span<double> ubar) const override;
     // void getPartialMolarCp(span<double> cpbar) const override;
     // void getPartialMolarVolumes(span<double> vbar) const override;
@@ -515,10 +515,20 @@ public:
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
+    //! Return the standard chemical potentials of the species [J/kmol].
+    /*!
+     * For heavy species, this is identical to the IdealGasPhase
+     * implementation. For electrons, the standard chemical potential
+     * is evaluated at the electron temperature:
+     * @f[
+     *  \mu^0_{e}(T_e) = g_k^0(T_e) + RT_e \ln \left(\frac{P}{P^0}\right).
+     * @f]
+     */
     void getStandardChemPotentials(span<double> muStar) const override;
+
     // void getEnthalpy_RT(span<double> hrt) const override;
-    void getEntropy_R(span<double> sr) const override;
-    void getGibbs_RT(span<double> grt) const override;
+    // void getEntropy_R(span<double> sr) const override;
+    // void getGibbs_RT(span<double> grt) const override;
     // void getIntEnergy_RT(span<double> urt) const override;
     // void getCp_R(span<double> cpr) const override;
     // void getStandardVolumes(span<double> vol) const override;
@@ -531,7 +541,18 @@ public:
 
     // void getEnthalpy_RT_ref(span<double> hrt) const override;
     // void getGibbs_RT_ref(span<double> grt) const override;
+
+    //! Return the reference-state Gibbs free energys of the species [J/kmol].
+    /*!
+     * For heavy species, this is identical to the IdealGasPhase
+     * implementation. For electrons, the reference-state Gibbs free energy
+     * is evaluated at the electron temperature:
+     * @f[
+     *  \hat{g}^0_{e}(T_e) = \hat{h}^0_{e}(T_e) - T_e \hat{s}^0_{e}(T_e).
+     * @f]
+     */
     void getGibbs_ref(span<double> g) const override;
+
     // void getEntropy_R_ref(span<double> er) const override;
     // void getIntEnergy_RT_ref(span<double> urt) const override;
     // void getCp_R_ref(span<double> cprt) const override;
