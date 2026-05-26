@@ -572,8 +572,8 @@ TEST_F(ThermoYamlRoundTrip, CoverageDependentSurface)
 TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
-    skip_cp = true; // Not implemented for PlasmaPhase
-    skip_entropy = true; // Not implemented for PlasmaPhase
+    skip_cp = false; // Not implemented for PlasmaPhase
+    skip_entropy = false; // Not implemented for PlasmaPhase
     compareThermo(800, 2*OneAtm);
     auto origPlasma = std::dynamic_pointer_cast<PlasmaPhase>(original);
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
