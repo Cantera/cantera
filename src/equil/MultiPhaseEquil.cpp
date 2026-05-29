@@ -495,6 +495,31 @@ double MultiPhaseEquil::stepComposition(int loglevel)
     m_iter++;
     double grad0 = computeReactionSteps(m_dxi);
 
+    // Drop trace stoichiometric (single-species) condensed phases that the current step
+    // would consume. Such a phase, with a mole number near the numerical floor left
+    // over from initialization, would otherwise pin the step size omega to a
+    // vanishingly small value (omega <= -moles/deltaN in the loop below), stalling
+    // progress on every other reaction. Because the step is removing it (dxi < 0, i.e.
+    // dG/RT for its formation reaction is positive), the phase should be absent. We
+    // zero its mole number and suppress its formation reaction here.
+    double total_moles = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        total_moles += std::max(0.0, m_moles[k]);
+    }
+    double trace = Tiny * total_moles;
+    bool dropped = false;
+    for (size_t j = 0; j < nFree(); j++) {
+        size_t k = m_order[j + m_nel];
+        if (!m_dsoln[k] && m_moles[k] > 0.0 && m_moles[k] < trace && m_dxi[j] < 0.0) {
+            m_dxi[j] = 0.0;
+            m_moles[k] = 0.0;
+            dropped = true;
+        }
+    }
+    if (dropped) {
+        updateMixMoles();
+    }
+
     // compute the mole fraction changes.
     if (nFree()) {
         multiply(m_N, m_dxi, m_work);
