@@ -91,6 +91,12 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
     bool uptodate_minors = true;
     int forceComponentCalc = 1;
 
+    // Counts consecutive component recalculations forced by the optimum-basis check in
+    // solve_tp_inner. A real basis improvement is resolved in a few recalculations; a
+    // large count means the check and vcs_basopt disagree on the best basis and are
+    // oscillating, so the forcing should be suppressed.
+    int basisOptCount = 0;
+
     // Set the debug print lvl to the same as the print lvl.
     m_debug_print_lvl = printDetails;
     if (printDetails > 0 && print_lvl == 0) {
@@ -194,8 +200,8 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
                 stage = RETURN_A;
                 continue;
             }
-    solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
-                   forceComponentCalc, stage, printDetails > 0);
+            solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
+                           forceComponentCalc, stage, printDetails > 0, basisOptCount);
             lec = false;
         } else if (stage == EQUILIB_CHECK) {
             // EQUILIBRIUM CHECK FOR MAJOR SPECIES
@@ -353,7 +359,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                                bool& uptodate_minors,
                                bool& allMinorZeroedSpecies,
                                int& forceComponentCalc,
-                               int& stage, bool printDetails)
+                               int& stage, bool printDetails,
+                               int& basisOptCount)
 {
     if (iti == 0) {
         // SET INITIAL VALUES FOR ITERATION
@@ -1058,42 +1065,66 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     }
 
     // CHECK FOR OPTIMUM BASIS
-    for (size_t i = 0; i < m_numRxnRdc; ++i) {
-        size_t k = m_indexRxnToSpecies[i];
-        if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            continue;
-        }
-        for (size_t j = 0; j < m_numComponents; ++j) {
-            bool doSwap = false;
-            if (m_SSPhase[j]) {
-                doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
-                         (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-                if (!m_SSPhase[k] && doSwap) {
-                    doSwap = m_molNumSpecies_old[k] > (m_molNumSpecies_old[j] * 1.01);
-                }
-            } else {
-                if (m_SSPhase[k]) {
+    //
+    // This check can disagree with the basis actually selected by vcs_basopt: here a
+    // noncomponent is judged "better" than a component using mole numbers alone, while
+    // vcs_basopt additionally enforces linear independence and uses slightly different
+    // size weighting. When the two disagree, forcing a recalculation re-selects the
+    // same basis, which trips this check again, causing an oscillation that prevents
+    // the solver from ever reaching the equilibrium check. Because the convergence
+    // criterion does not depend on which equivalent basis is chosen, suppressing the
+    // swap once it is clearly oscillating is safe: it only affects conditioning, not
+    // the answer. Allow a run of recalculations to settle, then stop forcing. The
+    // threshold is set well above the number a legitimately converging case needs but
+    // far below the iteration limit, so a true oscillation is still broken promptly.
+    int maxBasisOpt = 200;
+    if (basisOptCount <= maxBasisOpt) {
+        for (size_t i = 0; i < m_numRxnRdc; ++i) {
+            size_t k = m_indexRxnToSpecies[i];
+            if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                continue;
+            }
+            for (size_t j = 0; j < m_numComponents; ++j) {
+                bool doSwap = false;
+                if (m_SSPhase[j]) {
                     doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
                              (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-                    if (!doSwap) {
+                    if (!m_SSPhase[k] && doSwap) {
                         doSwap = m_molNumSpecies_old[k] > (m_molNumSpecies_old[j] * 1.01);
                     }
                 } else {
-                    doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
-                             (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+                    if (m_SSPhase[k]) {
+                        doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
+                                 (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+                        if (!doSwap) {
+                            doSwap = m_molNumSpecies_old[k] > (m_molNumSpecies_old[j] * 1.01);
+                        }
+                    } else {
+                        doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
+                                 (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
+                    }
                 }
-            }
-            if (doSwap && m_stoichCoeffRxnMatrix(j,i) != 0.0) {
-                if (m_debug_print_lvl >= 2) {
-                    plogf("   --- Get a new basis because %s", m_speciesName[k]);
-                    plogf(" is better than comp %s", m_speciesName[j]);
-                    plogf(" and share nonzero stoic: %-9.1f\n",
-                          m_stoichCoeffRxnMatrix(j,i));
+                if (doSwap && m_stoichCoeffRxnMatrix(j,i) != 0.0) {
+                    if (m_debug_print_lvl >= 2) {
+                        plogf("   --- Get a new basis because %s", m_speciesName[k]);
+                        plogf(" is better than comp %s", m_speciesName[j]);
+                        plogf(" and share nonzero stoic: %-9.1f\n",
+                              m_stoichCoeffRxnMatrix(j,i));
+                    }
+                    forceComponentCalc = 1;
+                    basisOptCount++;
+                    return;
                 }
-                forceComponentCalc = 1;
-                return;
             }
         }
+        // The optimum-basis check found no improvement: the basis is genuinely settled,
+        // so reset the counter. When the check is suppressed because it is oscillating,
+        // the counter is deliberately left latched so the suppression persists for the
+        // rest of this solve.
+        basisOptCount = 0;
+    } else {
+        debuglog("   --- Optimum basis check suppressed: basis is oscillating\n",
+                 m_debug_print_lvl >= 2);
     }
     debuglog("   --- Check for an optimum basis passed\n", m_debug_print_lvl >= 2);
     stage = EQUILIB_CHECK;
