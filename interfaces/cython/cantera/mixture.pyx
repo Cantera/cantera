@@ -286,7 +286,7 @@ cdef class Mixture:
             self.mix.getChemPotentials(view)
             return data
 
-    def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=1000,
+    def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=50000,
                     max_iter=100, estimate_equil=0, log_level=0):
         """
         Set to a state of chemical equilibrium holding property pair ``XY``
