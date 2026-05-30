@@ -312,6 +312,49 @@ class TestMultiphase_CHO:
         self._check([(gas, 1.0), (carbon, 0.0)], C, H, O, max_steps=5000)
 
 
+class TestMultiphase_VCS_CHO:
+    """
+    Regression tests for the 'vcs' (``vcs_MultiPhaseEquil``) solver on C/H/O
+    compositions which previously failed to converge (Issue #266). Each case uses
+    the GRI 3.0 gas phase plus a graphite condensed phase at 923 K and 1 atm, with
+    the element amounts set by integer atom counts (C, H, O).
+    """
+
+    T = 923.0
+    P = ct.one_atm
+
+    @staticmethod
+    def _ids(cases):
+        return [f"C{C}-H{H}-O{O}" for C, H, O in cases]
+
+    def _check(self, C, H, O, max_steps):
+        gas = ct.Solution('gri30.yaml', transport_model=None)
+        carbon = ct.Solution('graphite.yaml')
+        gas.TPX = self.T, self.P, {'C': C, 'H': H, 'O': O}
+        mix = ct.Mixture([(gas, 1.0), (carbon, 0.0)])
+        elements_before = np.array([mix.element_moles(e)
+                                    for e in range(mix.n_elements)])
+        mix.T = self.T
+        mix.P = self.P
+        mix.equilibrate('TP', solver='vcs', max_steps=max_steps)
+        elements_after = np.array([mix.element_moles(e)
+                                   for e in range(mix.n_elements)])
+        np.testing.assert_allclose(
+            elements_after, elements_before, rtol=1e-7, atol=1e-12,
+            err_msg="element moles changed during equilibration")
+        assert_at_equilibrium(mix, abs_tol=1e-6)
+
+    # A representative spread across the band of compositions (C=13..30) that
+    # previously triggered the basis-swap oscillation, including its edges.
+    _cases = [
+        (13, 78, 9), (15, 70, 15), (16, 65, 19), (20, 60, 20),
+        (22, 56, 22), (25, 50, 25), (27, 44, 29), (30, 36, 34),
+    ]
+    @pytest.mark.parametrize("C,H,O", _cases, ids=_ids(_cases))
+    def test_two_phase(self, C, H, O):
+        self._check(C, H, O, max_steps=10000)
+
+
 @pytest.fixture(scope='function')
 def extra_elements(request):
     s = """

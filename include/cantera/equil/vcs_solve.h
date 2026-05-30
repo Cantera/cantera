@@ -784,7 +784,7 @@ private:
     void solve_tp_component_calc(bool& allMinorZeroedSpecies);
     void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
                         bool& allMinorZeroedSpecies, int& forceComponentCalc,
-                        int& stage, bool printDetails);
+                        int& stage, bool printDetails, int& basisOptCount);
     void solve_tp_equilib_check(bool& allMinorZeroedSpecies, bool& uptodate_minors,
                                 bool& giveUpOnElemAbund, int& solveFail,
                                 size_t& iti, size_t& it1, int maxit,
