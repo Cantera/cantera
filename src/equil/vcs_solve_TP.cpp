@@ -311,11 +311,13 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
         vcs_TCounters_report();
     }
 
-    // FILL IN
-    if (iconv < 0) {
-        plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
-    } else if (iconv == 1) {
-        plogf("WARNING: RANGE SPACE ERROR encountered\n");
+    // Report non-convergence if diagnostic output has been requested.
+    if (print_lvl > 0) {
+        if (iconv < 0) {
+            plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
+        } else if (iconv == 1) {
+            plogf("WARNING: RANGE SPACE ERROR encountered\n");
+        }
     }
     // Return a Flag indicating whether convergence occurred
     return iconv;
