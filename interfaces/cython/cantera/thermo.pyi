@@ -162,7 +162,7 @@ class ThermoPhase(_SolutionBase):
         XY: PropertyPair,
         solver: EquilibriumSolver = "auto",
         rtol: float = 1e-9,
-        max_steps: int = 1000,
+        max_steps: int = 50000,
         max_iter: int = 100,
         estimate_equil: int = 0,
         log_level: LogLevel = 0,
