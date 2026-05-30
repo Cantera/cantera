@@ -313,11 +313,11 @@ config_options = [
     Option(
         "AR",
         "The archiver to use.",
-        "${AR}"),
+        os.environ.get("AR") or "${AR}"),
     Option(
         "CXX",
         "The C++ compiler to use.",
-        "${CXX}"),
+        os.environ.get("CXX") or "${CXX}"),
     Option(
         "cxx_flags",
         """Compiler flags passed to the C++ compiler only. Separate multiple
@@ -330,7 +330,7 @@ config_options = [
     Option(
         "CC",
         "The C compiler to use. This is only used to compile CVODE.",
-        "${CC}"),
+        os.environ.get("CC") or "${CC}"),
     Option(
         "cc_flags",
         """Compiler flags passed to both the C and C++ compilers, regardless of
@@ -397,10 +397,11 @@ config_options = [
         "default", ("y", "n", "default")),
     PathOption(
         "FORTRAN",
-        """The Fortran (90) compiler. If unspecified, the builder will look for a
-           compatible compiler (pgfortran, gfortran, ifort, ifx, g95) in the 'PATH'
-           environment variable. Used only for compiling the Fortran 90 interface.""",
-        "", PathVariable.PathAccept),
+        """The Fortran (90) compiler. If unspecified, the 'FC' environment variable is
+           used if set; otherwise the builder will look for a compatible compiler
+           (pgfortran, gfortran, ifort, ifx, g95) in the 'PATH' environment variable.
+           Used only for compiling the Fortran 90 interface.""",
+        os.environ.get("FC") or "", PathVariable.PathAccept),
     Option(
         "FORTRANFLAGS",
         "Compilation options for the Fortran (90) compiler.",
