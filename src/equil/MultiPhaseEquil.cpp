@@ -709,7 +709,8 @@ void MultiPhaseEquil::computeN()
         m_sortindex[k] = moleFractions[k].second;
     }
 
-    for (size_t m = 0; m < m_nel; m++) {
+    bool reselect = m_force;
+    for (size_t m = 0; m < m_nel && !reselect; m++) {
         size_t k = 0;
         for (size_t ik = 0; ik < m_nsp; ik++) {
             k = m_sortindex[ik];
@@ -723,11 +724,33 @@ void MultiPhaseEquil::computeN()
                 ok = true;
             }
         }
-        if (!ok || m_force) {
-            getComponents(m_sortindex);
-            m_force = true;
-            break;
+        if (!ok) {
+            reselect = true;
         }
+    }
+
+    // Reselect the component basis if any current component has been depleted to a
+    // negligible mole number. A near-empty basis species throttles every reaction that
+    // must consume it (the step size is bounded by moles/|deltaN|), which stalls the
+    // solver in a limit cycle without converging. Reselecting from the
+    // mole-fraction-sorted list replaces the depleted species with an abundant,
+    // linearly-independent one when possible.
+    if (!reselect) {
+        double total_moles = 0.0;
+        for (size_t k = 0; k < m_nsp; k++) {
+            total_moles += std::max(0.0, m_moles[k]);
+        }
+        for (size_t m = 0; m < m_nel; m++) {
+            if (m_moles[m_order[m]] < 1.0e-3 * total_moles) {
+                reselect = true;
+                break;
+            }
+        }
+    }
+
+    if (reselect) {
+        getComponents(m_sortindex);
+        m_force = true;
     }
 }
 

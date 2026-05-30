@@ -9,6 +9,47 @@ from .utilities import (
     compare
 )
 
+
+def assert_at_equilibrium(mix, abs_tol=1e-6):
+    """
+    Verify that ``mix`` is at chemical equilibrium by checking that the chemical
+    potential of each species satisfies ``mu_k = sum_e n_{e,k} * lambda_e`` where
+    ``lambda_e`` is the element potential for element e and ``n_{e,k}`` is the
+    number of atoms of element e in species k. We solve for ``lambda`` by weighted
+    least squares (weighting by moles so trace species do not dominate the fit),
+    then require ``|mu_k - sum_e n_{e,k} lambda_e| / (R T) < abs_tol`` for every
+    species whose moles are more than 1e-10 of the total. Returns the worst relative
+    residual.
+    """
+    R = ct.gas_constant
+    T = mix.T
+    n_species = mix.n_species
+    n_elements = mix.n_elements
+    mu = np.asarray(mix.chemical_potentials)
+    moles = np.asarray(mix.species_moles)
+    composition = np.array([[mix.n_atoms(k, e) for e in range(n_elements)]
+                            for k in range(n_species)])
+
+    w = np.sqrt(np.maximum(moles, 0.0))
+    mask = w > 0.0
+    Aw = composition[mask] * w[mask, None]
+    muw = mu[mask] * w[mask]
+    lam, *_ = np.linalg.lstsq(Aw, muw, rcond=None)
+
+    total = moles.sum()
+    worst = 0.0
+    for k in range(n_species):
+        if moles[k] > 1e-10 * total:
+            residual = (mu[k] - composition[k] @ lam) / (R * T)
+            assert abs(residual) < abs_tol, (
+                f"species {mix.species_name(k)} (k={k}): "
+                f"moles={moles[k]:.3g} of total {total:.3g}, "
+                f"|mu_k - sum_e n_{{e,k}} lambda_e| / RT = {abs(residual):.3g}"
+            )
+            worst = max(worst, abs(residual))
+    return worst
+
+
 class EquilTestCases:
     """
     Base class for equilibrium test cases, parameterized by the solver to use.
@@ -180,46 +221,6 @@ class TestMultiphase_H2O2_TwoPhase:
         stride = max(1, len(combos) // n)
         return [list(c) for c in combos[::stride][:n]]
 
-    @staticmethod
-    def _at_equilibrium(mix, abs_tol=1e-6):
-        """
-        Verify that ``mix`` is at chemical equilibrium by checking that the chemical
-        potential of each species satisfies ``mu_k = sum_e n_{e,k} * lambda_e`` where
-        ``lambda_e`` is the element potential for element e and ``n_{e,k}`` is the
-        number of atoms of element e in species k. We solve for ``lambda`` by weighted
-        least squares (weighting by moles so trace species do not dominate the fit),
-        then require ``|mu_k - sum_e n_{e,k} lambda_e| / (R T) < abs_tol`` for every
-        species whose moles are more than 1e-10 of the total. Returns the worst relative
-        residual.
-        """
-        R = ct.gas_constant
-        T = mix.T
-        n_species = mix.n_species
-        n_elements = mix.n_elements
-        mu = np.asarray(mix.chemical_potentials)
-        moles = np.asarray(mix.species_moles)
-        composition = np.array([[mix.n_atoms(k, e) for e in range(n_elements)]
-                                for k in range(n_species)])
-
-        w = np.sqrt(np.maximum(moles, 0.0))
-        mask = w > 0.0
-        Aw = composition[mask] * w[mask, None]
-        muw = mu[mask] * w[mask]
-        lam, *_ = np.linalg.lstsq(Aw, muw, rcond=None)
-
-        total = moles.sum()
-        worst = 0.0
-        for k in range(n_species):
-            if moles[k] > 1e-10 * total:
-                residual = (mu[k] - composition[k] @ lam) / (R * T)
-                assert abs(residual) < abs_tol, (
-                    f"species {mix.species_name(k)} (k={k}): "
-                    f"moles={moles[k]:.3g} of total {total:.3g}, "
-                    f"|mu_k - sum_e n_{{e,k}} lambda_e| / RT = {abs(residual):.3g}"
-                )
-                worst = max(worst, abs(residual))
-        return worst
-
     @pytest.mark.parametrize("phase2_names", _h2o2_phase2_samples())
     @pytest.mark.parametrize("T,P_atm,N_inert", _H2O2_TPN)
     def test_equilibrate(self, T, P_atm, N_inert, phase2_names):
@@ -247,7 +248,68 @@ class TestMultiphase_H2O2_TwoPhase:
         np.testing.assert_allclose(elements_after, elements_before, rtol=1e-7,
                                    atol=1e-12,
                                    err_msg="element moles changed during equilibration")
-        self._at_equilibrium(mix, abs_tol=1e-6)
+        assert_at_equilibrium(mix, abs_tol=1e-6)
+
+
+class TestMultiphase_CHO:
+    """
+    Regression tests for the 'gibbs' (``MultiPhaseEquil``) solver on C/H/O compositions
+    which previously failed to converge (Issue #265). Each case uses the GRI 3.0 gas
+    phase at 923 K and 1 atm, with the element amounts set by integer atom counts (C, H,
+    O). The cases exercise the two failure mechanisms that were fixed:
+
+    - A trace single-species condensed phase (graphite) pinning the step size to a
+      negligible value (oxygen-rich cases such as C=23, H=79, O=98).
+    - A depleted species left in the component basis, which throttles every reaction
+      that must consume it and sends the solver into a non-converging limit cycle
+      (carbon-rich, low-oxygen cases such as C=77, H=120, O=3).
+    """
+
+    T = 923.0
+    P = ct.one_atm
+
+    @staticmethod
+    def _ids(cases):
+        return [f"C{C}-H{H}-O{O}" for C, H, O in cases]
+
+    def _check(self, phases, C, H, O, max_steps):
+        gas = phases[0][0]
+        gas.TPX = self.T, self.P, {'C': C, 'H': H, 'O': O}
+        mix = ct.Mixture(phases)
+        elements_before = np.array([mix.element_moles(e)
+                                    for e in range(mix.n_elements)])
+        mix.T = self.T
+        mix.P = self.P
+        mix.equilibrate('TP', solver='gibbs', max_steps=max_steps)
+        elements_after = np.array([mix.element_moles(e)
+                                   for e in range(mix.n_elements)])
+        np.testing.assert_allclose(
+            elements_after, elements_before, rtol=1e-7, atol=1e-12,
+            err_msg="element moles changed during equilibration")
+        assert_at_equilibrium(mix, abs_tol=1e-6)
+
+    # (C, H, O) atom counts. Single-phase (gas only) cases are carbon-rich, low-oxygen
+    # compositions that previously stalled in a component-basis limit cycle.
+    _single_phase = [
+        (40, 147, 13), (77, 120, 3), (78, 119, 4),
+        (80, 117, 3), (77, 119, 4), (80, 116, 4),
+    ]
+    @pytest.mark.parametrize("C,H,O", _single_phase, ids=_ids(_single_phase))
+    def test_single_phase(self, C, H, O):
+        gas = ct.Solution('gri30.yaml', transport_model=None)
+        self._check([(gas, 1.0)], C, H, O, max_steps=2000)
+
+    # Two-phase (gas + graphite) cases: oxygen-rich (trace condensed-phase pinning)
+    # through carbon-rich (slow convergence with the condensed phase present).
+    _two_phase = [
+        (23, 79, 98), (124, 67, 9), (160, 36, 4),
+        (150, 46, 4), (100, 90, 10), (40, 147, 13),
+    ]
+    @pytest.mark.parametrize("C,H,O", _two_phase, ids=_ids(_two_phase))
+    def test_two_phase(self, C, H, O):
+        gas = ct.Solution('gri30.yaml', transport_model=None)
+        carbon = ct.Solution('graphite.yaml')
+        self._check([(gas, 1.0), (carbon, 0.0)], C, H, O, max_steps=5000)
 
 
 @pytest.fixture(scope='function')
