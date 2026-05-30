@@ -184,11 +184,15 @@ int VCS_SOLVE::solve_TP(int print_lvl, int printDetails, int maxit)
                 forceComponentCalc = 0;
                 iti = 0;
             }
-            // Check on too many iterations. If we have too many iterations,
-            // Clean up and exit code even though we haven't converged.
-            //     -> we have run out of iterations!
+            // Check on too many iterations. If we have too many iterations, clean up
+            // and exit even though we haven't converged. The equilibrium check below
+            // also enforces the iteration limit, but it is not always reached: a
+            // basis-swap oscillation can keep the solver cycling through this MAIN
+            // stage indefinitely.
             if (m_VCount->Its > maxit) {
                 iconv = -1;
+                stage = RETURN_A;
+                continue;
             }
     solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
                    forceComponentCalc, stage, printDetails > 0);
