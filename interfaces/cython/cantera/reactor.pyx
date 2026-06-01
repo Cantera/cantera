@@ -1994,11 +1994,16 @@ cdef class ReactorNet:
         coefficient :math:`S_{ki}` of the solution variable :math:`y_k` with
         respect to sensitivity parameter :math:`p_i` is defined as:
 
-        .. math:: S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i}
+        .. math:: S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i}
 
         For reaction sensitivities, the parameter is a multiplier on the forward
         rate constant (and implicitly on the reverse rate constant for
-        reversible reactions).
+        reversible reactions) which has a nominal value of 1.0, and the sensitivity
+        is nondimensional.
+
+        For species enthalpy sensitivities, the parameter is an additive perturbation to
+        the molar enthalpy of formation, such that the dimensions of the
+        sensitivity are kmol/J.
 
         The sensitivities are returned in an array with dimensions *(n_vars,
         n_sensitivity_params)*, unless no integration steps have been taken, in which

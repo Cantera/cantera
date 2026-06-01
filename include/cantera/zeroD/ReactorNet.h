@@ -279,7 +279,7 @@ public:
      *  reversible reactions) which has a nominal value of 1.0, and the
      *  sensitivity is nondimensional.
      *
-     *  For species enthalpy sensitivities, the parameter is a perturbation to
+     *  For species enthalpy sensitivities, the parameter is an additive perturbation to
      *  the molar enthalpy of formation, such that the dimensions of the
      *  sensitivity are kmol/J.
      */
