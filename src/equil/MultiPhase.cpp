@@ -458,13 +458,16 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
         double Thigh = 2.0*m_Tmax; // upper bound on T
         double Hlow = Undef, Hhigh = Undef;
         for (int n = 0; n < maxiter; n++) {
-            // if 'strt' is false, the current composition will be used as
-            // the starting estimate; otherwise it will be estimated
-            MultiPhaseEquil e(this, strt);
-            // start with a loose error tolerance, but tighten it as we get
-            // close to the final temperature
-
             try {
+                // if 'strt' is false, the current composition will be used as the
+                // starting estimate; otherwise it will be estimated. Construction can
+                // fail if the temperature guess puts a phase outside its valid
+                // temperature range while it still has moles in the current
+                // composition; the catch block below recovers by recomputing the
+                // initial composition (strt=true).
+                MultiPhaseEquil e(this, strt);
+                // start with a loose error tolerance, but tighten it as we get close to
+                // the final temperature
                 e.equilibrate(TP, err, maxsteps, loglevel);
                 double hnow = enthalpy();
                 // the equilibrium enthalpy monotonically increases with T;
@@ -533,9 +536,12 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
         double Tlow = 1.0; // lower bound on T
         double Thigh = 1.0e6; // upper bound on T
         for (int n = 0; n < maxiter; n++) {
-            MultiPhaseEquil e(this, strt);
-
             try {
+                // Construction (inside the try so the catch below can recover) can fail
+                // if the temperature guess puts a condensed phase outside its valid
+                // range while it still has moles in the current composition; recovery
+                // recomputes the initial composition (strt=true).
+                MultiPhaseEquil e(this, strt);
                 e.equilibrate(TP, err, maxsteps, loglevel);
                 double snow = entropy();
                 if (snow < s0) {
