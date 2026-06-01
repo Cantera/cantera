@@ -760,8 +760,7 @@ class BurnerFlame(FlameBase):
     def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
-            `Solution` (using the IdealGas thermodynamic model) used to
-            evaluate all gas properties and reaction rates.
+            `Solution` used to evaluate all gas properties and reaction rates.
         :param grid:
             A list of points to be used as the initial grid. Not recommended
             unless solving only on a fixed grid; Use the `width` parameter
@@ -894,8 +893,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
-            `Solution` (using the IdealGas thermodynamic model) used to
-            evaluate all gas properties and reaction rates.
+            `Solution` used to evaluate all gas properties and reaction rates.
         :param grid:
             A list of points to be used as the initial grid. Not recommended
             unless solving only on a fixed grid; Use the `width` parameter
@@ -1244,8 +1242,7 @@ class ImpingingJet(FlameBase):
     def __init__(self, gas, grid=None, width=None, surface=None):
         """
         :param gas:
-            `Solution` (using the IdealGas thermodynamic model) used to
-            evaluate all gas properties and reaction rates.
+            `Solution` used to evaluate all gas properties and reaction rates.
         :param grid:
             A list of points to be used as the initial grid. Not recommended
             unless solving only on the initial grid; Use the `width` parameter
@@ -1333,8 +1330,7 @@ class CounterflowPremixedFlame(FlameBase):
     def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
-            `Solution` (using the IdealGas thermodynamic model) used to
-            evaluate all gas properties and reaction rates.
+            `Solution` used to evaluate all gas properties and reaction rates.
         :param grid:
             Array of initial grid points. Not recommended unless solving only on
             a fixed grid; Use the `width` parameter instead.
@@ -1440,8 +1436,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
-            `Solution` (using the IdealGas thermodynamic model) used to
-            evaluate all gas properties and reaction rates.
+            `Solution` used to evaluate all gas properties and reaction rates.
         :param grid:
             Array of initial grid points. Not recommended unless solving only on
             a fixed grid; Use the `width` parameter instead.
