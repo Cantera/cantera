@@ -8,7 +8,7 @@ solution begins with a flame attached to the inlet (burner), and the mass flow
 rate is progressively increased, causing the flame to detach and move closer
 to the surface.
 
-This example illustrates use of the new 'prune' grid refinement parameter,
+This example illustrates use of the 'prune' grid refinement parameter,
 which allows grid points to be removed if they are no longer required to
 resolve the solution. This is important here, since the flamefront moves as
 the mass flowrate is increased. Without using 'prune', a large number of grid
