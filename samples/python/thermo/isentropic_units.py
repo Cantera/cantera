@@ -54,7 +54,7 @@ def isentropic(gas=None):
     data = []
 
     # compute values for a range of pressure ratios
-    p_range = np.logspace(-3, 0, 10) * p0
+    p_range = np.linspace(0.01, 0.99, 10) * p0
     for p in p_range:
 
         # set the state using (p,s0)
