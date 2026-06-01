@@ -48,13 +48,17 @@ if env["coverage"]:
         "CYTHON_USE_SYS_MONITORING": 0}
     )
 
-if env["OS"] == "Darwin" and env['debug']:
-    # Avoid needing to specify DYLD_LIBRARY_PATH when running the Python module
-    # from the build directory. Excluded for non-debug builds to avoid polluting
-    # RPATH with paths from the build environment.
-    localenv.Append(
-        LINKFLAGS=env.subst(
-            f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+if env['debug']:
+    # Avoid needing to specify LD_LIBRARY_PATH or DYLD_LIBRARY_PATH when running the
+    # Python module from the build directory. Excluded for non-debug builds to avoid
+    # polluting RPATH with paths from the build environment.
+    if env["OS"] == "Darwin":
+        localenv.Append(
+            LINKFLAGS=env.subst(
+                f"${{RPATHPREFIX}}{localenv.Dir('#build/lib').abspath}${{RPATHSUFFIX}}"))
+    elif env["use_rpath_linkage"]:
+        localenv.Append(RPATH=localenv.Dir('#build/lib').abspath)
+
 
 # Build the Python module
 cython_obj = []
