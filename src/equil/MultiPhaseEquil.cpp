@@ -7,6 +7,7 @@
 
 #include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
+#include "cantera/numerics/eigen_dense.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -72,11 +73,10 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     //
     // When start=true (the default for TP equilibration), the solver computes
     // its own initial composition from elemental totals. In that case, if an
-    // excluded species has non-zero initial moles, its elemental contribution
-    // is tracked in b_missing and redistributed to valid component species
-    // before calling setInitialMoles.
-    vector<double> b_missing(m_nel, 0.0);
-    bool has_excluded_moles = false;
+    // excluded species has non-zero initial moles, it is recorded here so that
+    // its elemental contribution can be redistributed to valid component
+    // species before calling setInitialMoles.
+    vector<size_t> excluded_with_nonzero_moles;
     for (size_t k = 0; k < m_nsp_mix; k++) {
         size_t ip = m_mix->speciesPhaseIndex(k);
         if (!m_mix->solutionSpecies(k) &&
@@ -85,15 +85,11 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
             if (m_mix->speciesMoles(k) > 0.0) {
                 if (!start) {
                     throw CanteraError("MultiPhaseEquil::MultiPhaseEquil",
-                        "condensed-phase species {} is excluded since its thermo "
-                        "properties are\nnot valid at this temperature, but it has "
-                        "non-zero moles in the initial state.", m_mix->speciesName(k));
+                        "Species {} is excluded since its thermo properties are not "
+                        "valid\nat this temperature, but it has non-zero moles in the "
+                        "initial state.", m_mix->speciesName(k));
                 }
-                for (size_t m = 0; m < m_nel; m++) {
-                    b_missing[m] += m_mix->speciesMoles(k) *
-                                    m_mix->nAtoms(k, m_element[m]);
-                }
-                has_excluded_moles = true;
+                excluded_with_nonzero_moles.push_back(k);
             }
         }
     }
@@ -137,14 +133,32 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // linear Gibbs minimization. In this case, only the elemental composition
     // of the initial mixture state matters.
     if (start) {
-        if (has_excluded_moles) {
-            // Adjust m_moles to restore element contributions from excluded
-            // condensed-phase species. After Gaussian elimination, m_A has an identity
-            // matrix in the component-species columns, so adding b_missing[m] to
-            // m_moles[m_order[m]] changes only element m's total.
+        if (!excluded_with_nonzero_moles.empty()) {
+            // Adjust m_moles to restore the element contributions of excluded
+            // condensed-phase species. computeN() selects a set of linearly independent
+            // component species; the change in element totals from adding moles of
+            // these components is B*delta, where B is the component formula matrix
+            // B(i,j) = nAtoms(component_j, element_i). To restore exactly the missing
+            // element totals b_missing, we solve B*delta = b_missing and add delta[j]
+            // moles of component j. Note that b_missing must be computed after
+            // computeN(), since computeN() may reorder m_element or reduce m_nel.
             computeN();
-            for (size_t m = 0; m < m_nel; m++) {
-                m_moles[m_order[m]] += b_missing[m];
+            Eigen::VectorXd b_missing = Eigen::VectorXd::Zero(m_nel);
+            for (size_t k : excluded_with_nonzero_moles) {
+                for (size_t m = 0; m < m_nel; m++) {
+                    b_missing[m] += m_mix->speciesMoles(k) *
+                                    m_mix->nAtoms(k, m_element[m]);
+                }
+            }
+            Eigen::MatrixXd B(m_nel, m_nel);
+            for (size_t i = 0; i < m_nel; i++) {
+                for (size_t j = 0; j < m_nel; j++) {
+                    B(i, j) = m_mix->nAtoms(m_species[m_order[j]], m_element[i]);
+                }
+            }
+            Eigen::VectorXd delta = B.colPivHouseholderQr().solve(b_missing);
+            for (size_t j = 0; j < m_nel; j++) {
+                m_moles[m_order[j]] += delta[j];
             }
             updateMixMoles();
         }
