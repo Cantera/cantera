@@ -619,3 +619,61 @@ def test_excluded_species_extra_element(solver, include_h2o):
     assert mix.phase_moles("PbO_yw") == approx(0.0)
     assert mix.phase_moles("PbO2_s") == approx(1.0, rel=1e-6)
     assert mix.phase_moles() == approx(phase_moles_ref, rel=1e-6)
+
+
+def _methane_air_water_mixture(T):
+    """
+    Stoichiometric methane/air mixture with excess liquid water as a heat sink, at
+    temperature ``T`` and 1 atm. Used by the excluded-species regression tests below.
+    """
+    liquid = ct.Solution('water.yaml', 'liquid_water')
+    gas = ct.Solution('gri30.yaml', transport_model=None)
+    gas.TPX = 300, ct.one_atm, 'O2:1.0, N2:3.76, CH4:0.5'
+    mix = ct.Mixture([(gas, 1.0), (liquid, 2.0)])
+    mix.T = T
+    mix.P = ct.one_atm
+    return mix
+
+
+@pytest.mark.parametrize("solver", ["vcs", "gibbs"])
+def test_excluded_species_HP(solver):
+    """
+    Constant enthalpy/pressure equilibration of a methane/air mixture with excess liquid
+    water acting as a heat sink. The temperature search visits temperatures where liquid
+    water's thermo data are invalid; the solver must exclude liquid water at those
+    temperatures while redistributing its (multi-element) elemental content to the
+    polyatomic component species without corrupting the element abundances. Regression
+    test for https://github.com/Cantera/cantera/issues/268.
+    """
+    mix = _methane_air_water_mixture(300)
+    elements = ['H', 'O', 'C', 'N']
+    elements_before = [mix.element_moles(e) for e in elements]
+
+    mix.equilibrate('HP', solver=solver)
+
+    # Element abundances must be conserved through the temperature search
+    assert [mix.element_moles(e) for e in elements] == approx(elements_before, rel=1e-7)
+    assert_at_equilibrium(mix)
+
+
+@pytest.mark.parametrize("solver", ["vcs", "gibbs"])
+def test_excluded_species_TP_polyatomic(solver):
+    """
+    Constant temperature/pressure equilibration at a temperature where liquid water's
+    thermo data are invalid, but with liquid water present in the initial composition.
+    The solver excludes liquid water and must redistribute its multi-element (H, O)
+    content onto the *polyatomic* gas-phase component species. This is the narrowest
+    direct reproducer of the redistribution bug: when the component formula matrix is not
+    the identity (i.e. components are not monatomic), adding the missing element totals
+    directly to the component moles corrupts the element abundances. Regression test for
+    the redistribution introduced in https://github.com/Cantera/cantera/pull/2116.
+    """
+    mix = _methane_air_water_mixture(1000.0)  # liquid water is excluded at this T
+    elements = ['H', 'O', 'C', 'N']
+    elements_before = [mix.element_moles(e) for e in elements]
+
+    mix.equilibrate('TP', solver=solver)
+
+    # Element abundances must be conserved despite the excluded liquid water
+    assert [mix.element_moles(e) for e in elements] == approx(elements_before, rel=1e-7)
+    assert_at_equilibrium(mix)
