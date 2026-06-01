@@ -366,18 +366,23 @@ public:
      */
     virtual void getNetRatesOfProgress(span<double> netROP);
 
-    //! Return a vector of Equilibrium constants.
+    //! Get the vector of equilibrium constants in concentration units.
     /*!
-     *  Return the equilibrium constants of the reactions in concentration
-     *  units in array kc, which must be dimensioned at least as large as the
-     *  total number of reactions.
-     *
+     * The equilibrium constant for reaction *i* is defined as
      * @f[
-     *       Kc_i = \exp [ \Delta G_{ss,i} ] \prod(Cs_k) \exp(\sum_k \nu_{k,i} F \phi_n)
+     *   K_{c,i} = \exp \left( -\frac{\Delta G^\circ_i}{RT}
+     *             + \sum_k \nu_{k,i} \ln C^\circ_k
+     *             - \frac{F}{RT} \sum_k \nu_{k,i} z_k \phi_{p(k)} \right)
      * @f]
-     *
-     * @param kc   Output vector containing the equilibrium constants.
-     *             Length: nReactions().
+     * where @f$ \Delta G^\circ_i @f$ is the standard state Gibbs free energy change for
+     * reaction *i*, @f$ \nu_{k,i} @f$ is the stoichiometric coefficient of species *k*
+     * in reaction *i*, @f$ C^\circ_k @f$ is the standard concentration for species *k*,
+     * @f$ z_k @f$ is the charge of species *k*, @f$ \phi_{p(k)} @f$ is the electric
+     * potential of the phase containing species *k*, and @f$ F @f$ is the
+     * Faraday constant. The final term is included only for reactions involving species
+     * in multiple phases (InterfaceKinetics), since it is otherwise identically zero.
+     * @param[out] kc  Vector of equilibrium constants in concentration units;
+     *                 length nReactions().
      */
     virtual void getEquilibriumConstants(span<double> kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");

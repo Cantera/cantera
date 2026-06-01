@@ -74,15 +74,7 @@ public:
     //! @name Reaction Rates Of Progress
     //! @{
 
-    //! Equilibrium constant for all reactions including the voltage term
-    /*!
-     *   Kc = exp(deltaG/RT)
-     *
-     *   where deltaG is the electrochemical potential difference between
-     *   products minus reactants.
-     */
     void getEquilibriumConstants(span<double> kc) override;
-
     void getDeltaGibbs(span<double> deltaG) override;
 
     void getDeltaElectrochemPotentials(span<double> deltaM) override;
