@@ -383,15 +383,14 @@ protected:
      * %Cantera searches for input files along a path that includes platform-
      * specific default locations, and possibly user-specified locations.
      * This function installs the platform-specific directories on the search
-     * path. It is invoked at startup by appinit(), and never should need to
-     * be called by user programs.
+     * path. It is invoked during construction of the singleton Application class.
      *
      * The current directory (".") is always searched first. Then, on Windows, the
      * registry is checked to find the %Cantera installation directory, and the
      * 'data' subdirectory of the installation directory will be added to the search
      * path.
      *
-     * On any platform, if environment variable CANTERA_DATA is set to a directory
+     * On any platform, if environment variable `CANTERA_DATA` is set to a directory
      * name or a list of directory names separated with the OS-dependent path
      * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
      * be added to the search path.
@@ -399,7 +398,7 @@ protected:
      * Finally, the location where the data files were installed when
      * %Cantera was built is added to the search path.
      *
-     * Additional directories may be added by calling function addDataDirectory.
+     * Additional directories may be added by calling function addDataDirectory().
      * @ingroup inputGroup
      */
     void setDefaultDirectories();
