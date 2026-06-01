@@ -2,15 +2,15 @@
 Integrating constant pressure ignition using SciPy
 ==================================================
 
-Solve a constant pressure ignition problem where the governing equations are
-implemented in Python.
+Solve a constant pressure ignition problem in Python using an external integrator.
 
-This demonstrates an approach for solving problems where Cantera's reactor
-network model cannot be configured to describe the system in question. Here,
-Cantera is used for evaluating thermodynamic properties and kinetic rates while
-an external ODE solver is used to integrate the resulting equations. In this
-case, the SciPy wrapper for VODE is used, which uses the same variable-order BDF
-methods as the Sundials CVODES solver used by Cantera.
+This demonstrates an approach for solving problems where Cantera is used to evaluate
+thermodynamic properties and kinetic rates while an external ODE solver is used to
+integrate the resulting equations. In this case, the SciPy wrapper for VODE is used,
+which uses the same variable-order BDF methods as the Sundials CVODES solver used by
+Cantera. For most cases that are only modest variations on the standard reactor types,
+the :doc:`extensible reactor </userguide/extensible-reactor>` framework provides an
+approach that builds on Cantera's existing reactor network capabilities.
 
 Requires: cantera >= 2.5.0, scipy >= 0.19, matplotlib >= 2.0
 
