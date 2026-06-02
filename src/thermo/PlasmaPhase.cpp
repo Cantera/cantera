@@ -321,8 +321,7 @@ void PlasmaPhase::endEquilibrate()
 }
 
 void PlasmaPhase::setMeanElectronEnergy(double energy) {
-    m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
-    updateElectronEnergyDistribution();
+    setElectronTemperature(2.0 / 3.0 * energy * ElectronCharge / Boltzmann);
 }
 
 void PlasmaPhase::setElectronEnergyLevels(span<const double> levels)
