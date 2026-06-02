@@ -85,7 +85,7 @@ class PlasmaPhase: public IdealGasPhase
 public:
     //! Construct and initialize a PlasmaPhase object directly from an input file.
     //! The constructor initializes the electron energy distribution to be a
-    //! Maxwellian distribution (m_isotropicShapeFactor = 1.0).
+    //! Maxwellian distribution (#m_isotropicShapeFactor = 1.0).
     //! The initial electron energy grid is set to a linear space which starts
     //! at 0.01 eV and ends at 1 eV with 1000 points.
     /*!
@@ -105,8 +105,6 @@ public:
 
     void initThermo() override;
 
-    // ================================================================= //
-    // ================================================================= //
     //! @name Overridden from IdealGasPhase or ThermoPhase
     //! @{
     bool addSpecies(shared_ptr<Species> spec) override;
@@ -115,8 +113,6 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Electron Species Information
     //! @{
 
@@ -131,8 +127,6 @@ public:
     }
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Electron Energy Distribution Functions
     //! @{
 
@@ -350,8 +344,6 @@ public:
     double intrinsicHeating() override;
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
 
@@ -361,17 +353,15 @@ public:
      * than the heavy species, the molar enthalpy is calculated as:
      * @f[
      * \begin{align}
-     *  \hat h(T, T_\text{e}, P)
-     *  &= \sum_{k} X_k \tilde{h}_k(T_k)
-     *   = \sum_{k} X_k h^\text{ref}_k(T_k) \\
-     *  &= \sum_{k \neq e} X_k h^\text{ref}_k(T)
-     *     + X_\text{e} h_\text{e}^\text{ref}(T_\text{e})
+     *  \hat h(T, T_\text{e})
+     *  &= \sum_{k} X_k h^0_k(T_k) \\
+     *  &= \sum_{k \neq e} X_k h^0_k(T) + X_\text{e} h_\text{e}^0(T_\text{e})
      * \end{align}
      * @f]
      * where heavy-species properties are evaluated at @f$ T @f$, electron properties
      * at @f$ T_\text{e} @f$, and @f$ P @f$ is the total pressure of the mixture.
-     * For an ideal gas, enthalpy is indepedant of pressure.
-     * The standard-state pure-species enthalpies @f$ h^\text{ref}_k(T_k) @f$ are
+     * For an ideal gas, enthalpy is independent of pressure.
+     * The standard-state pure-species enthalpies @f$ h^0_k(T_k) @f$ are
      * computed by the species thermodynamic property manager.
      */
     double enthalpy_mole() const override;
@@ -381,12 +371,7 @@ public:
      * For an ideal gas mixture with electrons at a different temperature
      * than the heavy species, the molar entropy is calculated as:
      * @f[
-     * \begin{align}
-     *  \hat s(T,T_\text{e},P)
-     *  &= \sum_{k} X_k \tilde{s}_k(T_k, P) \\
-     *  &= \sum_{k} X_k \left[s^\text{ref}_k(T_k)
-     *     - R \ln \frac{X_k P}{P^\text{ref}} \right] \\
-     * \end{align}
+     * \hat s(T,T_\text{e},P) = \sum_k X_k \hat s^0_k(T_k) - \hat R \ln \frac{P}{P^0}
      * @f]
      * where heavy-species properties are evaluated at @f$ T @f$, electron properties
      * at @f$ T_\text{e} @f$, and @f$ P @f$ is the total pressure of the mixture.
@@ -402,8 +387,8 @@ public:
      *  \hat g(T,T_\text{e},P)
      *  &= \sum_{k} X_k \tilde{g}_k(T_k, P)
      *   = \sum_{k} X_k \mu_k(T_k, P) \\
-     *  &= \sum_{k} X_k \left[\mu^\text{ref}_k(T_k)
-     *     + R T_k \ln \left( \frac{X_k P}{P^\text{ref}} \right) \right] \\
+     *  &= \sum_{k} X_k \left[\mu^0_k(T_k)
+     *     + R T_k \ln \left( \frac{X_k P}{P^0} \right) \right] \\
      * \end{align}
      * @f]
      * where heavy-species properties are evaluated at @f$ T @f$, electron properties
@@ -422,20 +407,11 @@ public:
      * @f]
      * where heavy-species properties are evaluated at @f$ T @f$, electron properties
      * at @f$ T_\text{e} @f$, and @f$ P @f$ is the total pressure of the mixture.
-     * For an ideal gas, enthalpy is indepedant of pressure.
+     * For an ideal gas, internal energy is independent of pressure.
      */
     double intEnergy_mole() const override;
 
-    // No need to override IdealGasPhase:cp_mole, as the computation
-    // does not imply temperature.
-    // double cp_mole() const override;
-    // double cp_mass() const; // Already defined in ThermoPhase
-    // double cv_mole() const; // Already defined in IdealGasPhase
-
-
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Mechanical Equation of State
     //! @{
 
@@ -526,9 +502,11 @@ public:
      * @f[
      *    P_\text{e} = n_\text{e} k_\text{B} T_\text{e} = C_\text{e} R T_\text{e},
      * @f]
-     * where @f$ C_\text{e} @f$ is the molar concentration of electrons [in kmol/m³],
-     * @f$ R @f$ is the gas constant [J/kmol/K],
-     * and @f$ T_\text{e} @f$ is the electron temperature [K].
+     * where @f$ n_\text{e} @f$ is the particular density of electrons [in 1/m³],
+     * @f$ k_\text{B} @f$ is the Boltzmann constant [J/K],
+     * @f$ C_\text{e} @f$ is the molar concentration of electrons [in kmol/m³],
+     * @f$ R @f$ is the gas constant [J/kmol/K], and
+     * @f$ T_\text{e} @f$ is the electron temperature [K].
      */
     virtual double electronPressure() const {
         return GasConstant * concentration(m_electronSpeciesIndex) *
@@ -546,8 +524,6 @@ public:
     }
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Chemical Potentials and Activities
     //! @{
 
@@ -576,8 +552,6 @@ public:
     double standardConcentration(size_t k=0) const override;
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Partial Molar Properties of the Solution
     //! @{
 
@@ -588,12 +562,12 @@ public:
      * \begin{align}
      *  \mu_k(T_k, X_k, P)
      *      &= \mu_k^o(T_k, P) + R T_k \ln(X_k) \\
-     *      &= \mu^\text{ref}_k(T_k)(T_k)
-     *         + R T_k \ln\left(\frac{P}{P^\text{ref}}\right)
+     *      &= \mu^0_k(T_k)(T_k)
+     *         + R T_k \ln\left(\frac{P}{P^0}\right)
      *         + R T_k \ln(X_k) \\
-     *      &= h^\text{ref}_k(T_k)
-     *         - T_k s^\text{ref}_k(T_k)
-     *         + R T_k \ln\left(\frac{P X_k}{P^\text{ref}}\right) \\
+     *      &= h^0_k(T_k)
+     *         - T_k s^0_k(T_k)
+     *         + R T_k \ln\left(\frac{P X_k}{P^0}\right) \\
      * \end{align}
      * @f]
      * Note that it is also equal to the partial molar Gibbs free energy.
@@ -613,7 +587,7 @@ public:
     /*!
      * The partial molar enthalpy of species *k* is:
      * @f[
-     * \tilde{s}_k(T_k, P) = s^\text{ref}_k(T_k) - R \ln \frac{X_k P}{P^\text{ref}}
+     * \tilde{s}_k(T_k, P) = s^0_k(T_k) - R \ln \frac{X_k P}{P^0}
      * @f]
      * where heavy-species properties are evaluated at the gas temperature,
      * and electron properties are evaluated at the electron temperature.
@@ -634,13 +608,6 @@ public:
      */
     void getPartialMolarIntEnergies(span<double> ubar) const override;
 
-    //! Return the partial molar heat capacities of the species in the solution. Units: J/kmol/K.
-    /*!
-     * Since the computation of the partial molar enthalpy does not depend on the temperature,
-     * there is no need to override the method (since #updateThermo has been overriden).
-     */
-    // void getPartialMolarCp(span<double> cpbar) const override;
-
     //! Return the partial molar volumes of the species in the solution. Units: m³/kmol.
     /*!
      * For a multitemperature system,
@@ -653,8 +620,6 @@ public:
     void getPartialMolarVolumes(span<double> vbar) const override;
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
@@ -665,28 +630,15 @@ public:
      * @f[
      * \begin{align}
      *  \mu^0_k(T_k, X_k, P)
-     *      &= mu^\text{ref}_k(T_k)(T_k)
-     *         + R T_k \ln\left(\frac{P}{P^\text{ref}}\right) \\
-     *      &= h^\text{ref}_k(T_k) - T_k s^\text{ref}_k(T_k)
-     *         + R T_k \ln\left(\frac{P X_k}{P^\text{ref}}\right) \\
+     *      &= mu^0_k(T_k)(T_k)
+     *         + R T_k \ln\left(\frac{P}{P^0}\right) \\
+     *      &= h^0_k(T_k) - T_k s^0_k(T_k)
+     *         + R T_k \ln\left(\frac{P X_k}{P^0}\right) \\
      * \end{align}
      * @f]
      * Here, @f$ P @f$ is the total pressure of the mixture, as defined in #pressure().
      */
     void getStandardChemPotentials(span<double> muStar) const override;
-
-    // Below are 5 methods already defined in IdealGasPhase, that do not need
-    // to be overridden since `updateThermo` already updates the standard-state
-    // properties for electrons at the electron temperature.
-    // And for entropy (and thus Gibbs free energy), for all species, the total
-    // pressure is used in the logarithmic term (not the partial pressure).
-    // {
-    // void getEnthalpy_RT(span<double> hrt) const override;
-    // void getEntropy_R(span<double> sr) const override;
-    // void getGibbs_RT(span<double> grt) const override;
-    // void getIntEnergy_RT(span<double> urt) const override;
-    // void getCp_R(span<double> cpr) const override;
-    // }
 
     //! Return the standard molar volumes of the species. Units: m³/kmol.
     /*!
@@ -700,27 +652,15 @@ public:
     void getStandardVolumes(span<double> vol) const override;
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
-
-    // Below are 5 methods already defined in IdealGasPhase, that do not need
-    // to be overridden, since they do not depend on the temperature.
-    // {
-    // void getEnthalpy_RT_ref(span<double> hrt) const override;
-    // void getGibbs_RT_ref(span<double> grt) const override;
-    // void getEntropy_R_ref(span<double> er) const override;
-    // void getIntEnergy_RT_ref(span<double> urt) const override;
-    // void getCp_R_ref(span<double> cprt) const override;
-    // }
 
     //! Return the reference chemical potentials of the species. Units: J/kmol.
     /*!
      * The reference chemical potentials (or reference state Gibbs free energy)
      * of species *k* is calculated as:
      * @f[
-     *  \mu^\text{ref}_k(T_k) = h^\text{ref}_k(T_k) - T_k s^\text{ref}_k(T_k)
+     *  \mu^0_k(T_k) = h^0_k(T_k) - T_k s^0_k(T_k)
      * @f]
      */
     void getGibbs_ref(span<double> g) const override;
@@ -730,7 +670,7 @@ public:
      * The molar volumes of the species reference states of species *k*
      * is calculated as:
      * @f[
-     *  v^o_k(T_k) = \frac{R T_k}{P^\text{ref}}
+     *  v^o_k(T_k) = \frac{R T_k}{P^0}
      * @f]
      *
      * @param vol     Output vector containing the standard state volumes.
@@ -740,8 +680,6 @@ public:
     void getStandardVolumes_ref(span<double> vol) const override;
 
     //! @}
-    // ================================================================= //
-    // ================================================================= //
     //! @name Setting the State
     //!
     //! For a plasma phase, setting the state requires specifying both
@@ -757,12 +695,22 @@ public:
      * * `T` or `Tg` or `gas-temperature` [K]
      * * `Te` or `electron-temperature` [K]
      * * `P` or `pressure` [Pa]
+     * * `H` or `enthalpy` [J/kg]
+     * * `U` or `internal-energy` [J/kg]
+     * * `S` or `entropy` [J/kg/K]
+     * * `V` or `specific-volume` [m^3/kg]
      * * `D` or `density` [kg/m^3]
      *
      * Composition can be specified as either an AnyMap of species names to
      * values or as a composition string. All other values can be given as
      * floating point values in Cantera's default units, or as strings with the
      * units specified, which will be converted using the Units class.
+     *
+     * If no thermodynamic property pair is given, or only one of temperature or
+     * pressure is given, then 298.15 K and 101325 Pa will be used as necessary
+     * to fully set the state.
+     *
+     * Set the electron temperature first, and call ThermoPhase::setState.
      */
     void setState(const AnyMap& state) override;
 
@@ -771,6 +719,21 @@ public:
 
 
 protected:
+    //! Update the species reference state thermodynamic functions
+    /*!
+     *  This method is called each time a thermodynamic property is requested,
+     *  to check whether the internal species properties within the object
+     *  need to be updated (like getPartialMolarCp, getEnthalpy_RT, getEntropy_R,
+     *  getGibbs_RT, getIntEnergy_RT, getCp_R, and getEnthalpy_RT_ref and alike).
+     *  Currently, this updates the species thermo polynomial values for the current
+     *  value of the gas temperature for heavy species, and of the electron
+     *  temperature for the electron species. A check is made to see if gas
+     *  or electron temperatures have changed since the last evaluation.
+     *  This object does not contain any persistent data that depends on the
+     *  concentration, that needs to be updated. The state object modifies its
+     *  concentration dependent information at the time the setMoleFractions()
+     *  (or equivalent) call is made.
+     */
     void updateThermo() const override;
 
     //! When electron energy distribution changed, plasma properties such as

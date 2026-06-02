@@ -1892,6 +1892,8 @@ cdef class ThermoPhase(_SolutionBase):
     property mean_temperature:
         """Get the mean temperature of the plasma [K].
         This is a mole-weighted average of the electron and heavy species temperatures.
+
+        .. versionadded:: 4.0
         """
         def __get__(self):
             if not self._enable_plasma:
