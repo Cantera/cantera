@@ -334,6 +334,74 @@ TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
     EXPECT_NEAR(cp, phase->mean_X(cpk), atol);
 }
 
+TEST_P(TestConsistency, gibbs_duhem_const_T_P)
+{
+    // Gibbs-Duhem at constant T and P requires sum_k X_k * dmu_k = 0 for any
+    // change in composition. This is the differential complement to the Euler
+    // relation g = sum_k X_k * mu_k (tested by g_eq_sum_gk_Xk): together they
+    // are equivalent to the fundamental relation
+    // dU = T dS - P dV + sum_k mu_k dN_k. A model can report chemical potentials
+    // that satisfy the Euler relation at every individual state yet still violate
+    // this differential identity if the mu_k are not consistent partial molar
+    // Gibbs energies of a single underlying G(T, P, N).
+    vector<double> X0(nsp), mu_plus(nsp), mu_minus(nsp);
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    phase->getMoleFractions(X0);
+
+    // Only species that are actually present can be perturbed.
+    vector<size_t> active;
+    for (size_t k = 0; k < nsp; k++) {
+        if (k != ke && X0[k] > 1e-6) {
+            active.push_back(k);
+        }
+    }
+    if (active.size() < 2) {
+        GTEST_SKIP() << "Fewer than two species available to perturb composition";
+    }
+
+    // Test each independent composition direction by transferring a small amount
+    // of material from species active[0] to each of the other active species,
+    // using a centered difference about the original composition X0. The step is
+    // scaled to the smaller of the two mole fractions so that the relative
+    // perturbation (and hence the finite-difference truncation error) is the same
+    // regardless of how dilute the perturbed species are.
+    double eps = 1e-4;
+    size_t i = active[0];
+    for (size_t n = 1; n < active.size(); n++) {
+        size_t j = active[n];
+        double dx = eps * std::min(X0[i], X0[j]);
+        vector<double> Xp = X0, Xm = X0;
+        Xp[i] -= dx; Xp[j] += dx;
+        Xm[i] += dx; Xm[j] -= dx;
+
+        try {
+            phase->setMoleFractions(Xp);
+            phase->setState_TP(T0, P0);
+            phase->getChemPotentials(mu_plus);
+            phase->setMoleFractions(Xm);
+            phase->setState_TP(T0, P0);
+            phase->getChemPotentials(mu_minus);
+        } catch (NotImplementedError& err) {
+            GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+        }
+
+        double gd = 0.0;
+        double scale = 0.0;
+        for (size_t k = 0; k < nsp; k++) {
+            double term = X0[k] * (mu_plus[k] - mu_minus[k]);
+            gd += term;
+            scale = std::max(scale, std::abs(term));
+        }
+        EXPECT_NEAR(gd, 0.0, rtol_fd * scale + atol)
+            << "perturbing species " << i << " <-> " << j;
+    }
+
+    // Restore the original state for any subsequent use of the cached phase.
+    phase->setMoleFractions(X0);
+    phase->setState_TP(T0, P0);
+}
+
 TEST_P(TestConsistency, cp_eq_dhdT)
 {
     double h1, cp1;
