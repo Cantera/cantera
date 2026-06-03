@@ -306,7 +306,7 @@ jobs:
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
+      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -319,7 +319,7 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
+      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -371,7 +371,7 @@ jobs:
         path: test/matlab/matlabCoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
       with:
         verbose: true
         files: ./coverage.xml,./build/pycov.xml,./interfaces/dotnet/coverage.cobertura.xml,./test/matlab/matlabCoverage.xml
@@ -432,7 +432,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@a003c8fb9ac008fd0fffd5faa4f7d3ecb52e0675 # v5.5.7
+        uses: danielpalme/ReportGenerator-GitHub-Action@049f7ec958c672fd31d5cc1cb01622dc8d2e23ab # v5.5.10
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -615,7 +615,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -1349,7 +1349,7 @@ jobs:
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@2970c890bd6dfbc8ba4d640879c4c496dec4e426 # v3.1.0
+      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1360,6 +1360,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@ce92354620b6f08157933aa0b2d1e4ff1fe47a2b # v3.1.0
+      uses: matlab-actions/run-tests@4c375221b861dd3f7ea9b31704a3cf45d35073f1 # v3.1.2
       with:
         select-by-folder: test/matlab
