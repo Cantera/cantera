@@ -87,6 +87,9 @@ binary-solution-tabulated:
   setup:
     file: BinarySolutionTabulatedThermo.yaml
     phase: anode
+    known-failures:
+      gibbs_duhem_const_T_P/[012]: >-
+        Model does not satisfy Gibbs-Duhem relation. See GitHub Issue #1928.
   states:
   - {T: 300, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
   - {T: 320, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
@@ -173,6 +176,12 @@ debye-huckel-B-dot-ak:
   setup:
     file: debye-huckel-all.yaml
     phase: debye-huckel-B-dot-ak
+    known-failures:
+      gibbs_duhem_const_T_P: >-
+        The B-dot model with per-ion size parameters (a_k) gives ionic activity
+        coefficients whose composition dependence is not balanced by a consistent
+        solvent (water) activity, so sum_k X_k dmu_k != 0. Other Debye-Huckel
+        variants (single a, beta_ij, Pitzer beta_ij) satisfy Gibbs-Duhem.
   states: *debye-huckel-states
 
 debye-huckel-B-dot-ak-IAPWS:
@@ -180,6 +189,12 @@ debye-huckel-B-dot-ak-IAPWS:
     file: debye-huckel-all.yaml
     phase: debye-huckel-B-dot-ak-IAPWS
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures:
+      gibbs_duhem_const_T_P: >-
+        The B-dot model with per-ion size parameters (a_k) gives ionic activity
+        coefficients whose composition dependence is not balanced by a consistent
+        solvent (water) activity, so sum_k X_k dmu_k != 0. Other Debye-Huckel
+        variants (single a, beta_ij, Pitzer beta_ij) satisfy Gibbs-Duhem.
   states: *debye-huckel-states
 
 debye-huckel-B-dot-a:
@@ -283,6 +298,12 @@ coverage-dependent-surface:
     file: copt_covdepsurf_example.yaml
     phase: covdep
     atol_v: 1e-7
+    known-failures:
+      gibbs_duhem_const_T_P: >-
+        The coverage-dependent enthalpy and entropy corrections are applied to
+        each species' chemical potential without the cross-species coupling
+        required for the mu_k to derive from a single Gibbs energy function, so
+        sum_k X_k dmu_k != 0.
   states:
   - {T: 700, P: 1 atm,
      coverages: {Pt: 0.0, OC_Pt: 0.1, CO2_Pt: 0.5, C_Pt: 0.1, O_Pt: 0.3}}
