@@ -31,7 +31,9 @@
 # supports setting the state using any of the variables supported there.
 
 ideal-gas-h2o2:
-  setup: {file: h2o2.yaml}
+  setup:
+    file: h2o2.yaml
+    atol_v: 5e-11  # finite difference noise floor in dh/dP for ideal gas
   states:
   - {T: 300, P: 101325, X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
   - {T: 300, P: 101325, Y: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
@@ -103,6 +105,10 @@ electron-cloud:
   setup:
     file: thermo-models.yaml
     phase: Metal
+    known-failures:
+      v_eq_dgdP_const_T: Problematic handling of "density"; See GitHub Issue #2131.
+      dhdP_const_T_eq_v_minus_T_dvdT_const_P: >-
+        Problematic handling of "density"; See GitHub Issue #2131.
   states:
   - {T: 300, P: 1 atm}
   - {T: 400, P: 1 atm}
@@ -119,6 +125,14 @@ nitrogen-purefluid:
       cv_eq_.+/3: cv not defined in two-phase region
       cp_eq_sum_cpk_Xk: cp is inf in the two-phase region
       dsdP_const_T_eq_minus_dV_dT_const_P/3: Can't set TP in two-phase region
+      sk_eq_minus_dmu_k_dT_const_P_X/3:
+        Perturbing T crosses the saturation boundary in the two-phase region
+      vk_eq_dmu_k_dP_const_T_X/3:
+        Perturbing P crosses the saturation boundary in the two-phase region
+      v_eq_dgdP_const_T/3:
+        Perturbing P crosses the saturation boundary in the two-phase region
+      dhdP_const_T_eq_v_minus_T_dvdT_const_P/3:
+        Perturbing T or P crosses the saturation boundary in the two-phase region
   states:
   - {T: 300, P: 1 atm}
   - {T: 70, P: 1 atm}
@@ -129,6 +143,8 @@ plasma:
   setup:
     file: oxygen-plasma.yaml
     phase: discretized-electron-energy-plasma
+    # finite difference noise floor in dh/dP for the pure-electron state
+    atol_v: 5e-11
     known-failures:
       g_eq_h_minus_Ts/.+: Test does not account for distinct electron temperature
       u_eq_sum_uk_Xk/.+: Test does not account for distinct electron temperature
@@ -180,8 +196,14 @@ debye-huckel-B-dot-ak:
       gibbs_duhem_const_T_P: >-
         The B-dot model with per-ion size parameters (a_k) gives ionic activity
         coefficients whose composition dependence is not balanced by a consistent
-        solvent (water) activity, so sum_k X_k dmu_k != 0. Other Debye-Huckel
-        variants (single a, beta_ij, Pitzer beta_ij) satisfy Gibbs-Duhem.
+        solvent (water) activity, so sum_k X_k dmu_k != 0. See GitHub Issue #2132.
+      dmu_k_dNj_eq_dmu_j_dNk_const_T_P: >-
+        Same root cause as gibbs_duhem_const_T_P: the B-dot model with per-ion
+        size parameters gives ionic activity coefficients that depend on all
+        ionic molalities via species-specific a_k radii, but the solvent activity
+        is not adjusted to compensate. The mu_k therefore do not derive from a
+        single G(T, P, N), so the composition Hessian is not symmetric.
+        See GitHub Issue #2132.
   states: *debye-huckel-states
 
 debye-huckel-B-dot-ak-IAPWS:
@@ -190,11 +212,8 @@ debye-huckel-B-dot-ak-IAPWS:
     phase: debye-huckel-B-dot-ak-IAPWS
     rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
     known-failures:
-      gibbs_duhem_const_T_P: >-
-        The B-dot model with per-ion size parameters (a_k) gives ionic activity
-        coefficients whose composition dependence is not balanced by a consistent
-        solvent (water) activity, so sum_k X_k dmu_k != 0. Other Debye-Huckel
-        variants (single a, beta_ij, Pitzer beta_ij) satisfy Gibbs-Duhem.
+      gibbs_duhem_const_T_P: See GitHub Issue #2132.
+      dmu_k_dNj_eq_dmu_j_dNk_const_T_P: See GitHub Issue #2132.
   states: *debye-huckel-states
 
 debye-huckel-B-dot-a:
@@ -303,7 +322,11 @@ coverage-dependent-surface:
         The coverage-dependent enthalpy and entropy corrections are applied to
         each species' chemical potential without the cross-species coupling
         required for the mu_k to derive from a single Gibbs energy function, so
-        sum_k X_k dmu_k != 0.
+        sum_k X_k dmu_k != 0. See GitHub Issue #2133.
+      dmu_k_dNj_eq_dmu_j_dNk_const_T_P: >-
+        Same root cause as gibbs_duhem_const_T_P: the coverage-dependent surface
+        chemical potentials are not consistent partial molar Gibbs energies of a single
+        G(T, P, N), so the composition Hessian is not symmetric. See GitHub Issue #2133.
   states:
   - {T: 700, P: 1 atm,
      coverages: {Pt: 0.0, OC_Pt: 0.1, CO2_Pt: 0.5, C_Pt: 0.1, O_Pt: 0.3}}
@@ -342,7 +365,7 @@ ideal-solution-VPSS-HKFT:
     # implementation of WaterPropsIAPWSphi::dfind, and the coarser finite difference
     # step used internally in PDSS_HKFT::dVdP() relative to the consistency test finite
     # difference step.
-    rtol_fd: 4e-6
+    rtol_fd: 1.5e-5  # limited by vk_eq_dmu_k_dP test for state 3
     atol_c: 5e-14
   states:
   - {T: 300, P: 1 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
@@ -364,6 +387,7 @@ Redlich-Kister-complex:
   setup:
     file: thermo-models.yaml
     phase: Redlich-Kister-complex
+    rtol_fd: 3e-5  # Limited by state 2 due to PDSS finite difference sensitivity
   states:
   - {T: 900, P: 1 atm, X: {KCl(l): 0.85, LiCl(l): 0.15}}
   - {T: 950, P: 10 atm, X: {KCl(l): 0.3, LiCl(l): 0.2, NaCl(s): 0.5}}
