@@ -97,6 +97,28 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
                               cython_obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
                               SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
+# Cython pure-Python-syntax modules built as their own extensions (PoC, enhancement
+# #241). Each ships its .py source alongside the compiled extension: the extension wins
+# CPython import precedence, while the .py serves tracebacks, IDEs, and type checkers.
+pure_py_modules = ["jacobians"]
+pure_py_ext = []
+for _name in pure_py_modules:
+    _cythonized = localenv.Command(
+        f"cantera/{_name}.cpp", f"cantera/{_name}.py",
+        f'''${{python_cmd}} -c "import setuptools; import Cython.Build; '''
+        f'''Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
+    )
+    for _pxd in multi_glob(localenv, "cantera", "pxd"):
+        localenv.Depends(_cythonized, _pxd)
+    _obj = localenv.SharedObject(f"#build/temp-py/{_name}", _cythonized[0])
+    _modext = localenv.LoadableModule(
+        f"cantera/{_name}{module_ext}", _obj,
+        LIBPREFIX="", SHLIBSUFFIX=module_ext, SHLIBPREFIX="",
+        LIBSUFFIXES=[module_ext])
+    if env["OS"] != "Windows":
+        localenv.Depends(_modext, localenv["cantera_shlib"])
+    pure_py_ext.append(_modext)
+
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
 # We've already warned that this Python version might be unsupported, so disable
@@ -119,7 +141,7 @@ mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
 env['python_module'] = mod
 env['python_extension'] = ext
 
-localenv.Depends(mod, [ext, dataFiles, setup_cfg, readme, license,
+localenv.Depends(mod, [ext, pure_py_ext, dataFiles, setup_cfg, readme, license,
                        "setup.py", "pyproject.toml",
                        "cantera/test/README.txt", "cantera/examples/README.txt"])
 
