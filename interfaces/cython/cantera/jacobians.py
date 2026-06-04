@@ -161,7 +161,10 @@ class AdaptivePreconditioner(EigenSparseJacobian):
         ).ilutFillFactor()
 
     @ilut_fill_factor.setter
-    def ilut_fill_factor(self, val: float) -> None:
+    def ilut_fill_factor(self, val: int) -> None:
+        # NOTE: in pure-Python Cython, argument annotations are real C types, so this
+        # must match the C++ signature ``setIlutFillFactor(int)`` (the old .pyi loosely
+        # typed it ``float``, which is fine as a stub but a compile error as source).
         cython.cast(
             cython.pointer(CxxAdaptivePreconditioner), self.jac
         ).setIlutFillFactor(val)
