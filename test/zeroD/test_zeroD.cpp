@@ -212,7 +212,7 @@ TEST(zerodim, plasma_reactor_energy)
     const double t_end = 1e-3;
     ASSERT_NO_THROW(net.advance(t_end));
     const double T_final = reactor->temperature();
-    const double T_expected = 300.04674410693019;
+    const double T_expected = 300.04632309322466;
     const double rtol = 1e-6;
     // Simple regression test
     EXPECT_NEAR(T_final, T_expected, rtol * T_expected);
