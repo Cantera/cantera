@@ -9,6 +9,7 @@
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
 #include <boost/algorithm/string.hpp>
+#include <limits>
 #include <regex>
 
 // This is a set of tests that check all ThermoPhase models implemented in Cantera
@@ -633,6 +634,208 @@ TEST_P(TestConsistency, c_eq_sqrt_dP_drho_const_s)
     double c_fd = sqrt((P2 - P1) / (rho2 - rho1));
 
     EXPECT_NEAR(c_fd, c_mid, max({rtol_fd * c_mid, rtol_fd * c_fd, atol}));
+}
+
+TEST_P(TestConsistency, sk_eq_minus_dmu_k_dT_const_P_X)
+{
+    // Composition<->T Maxwell relation: partial molar entropy s_k equals
+    // -(d mu_k / dT) at constant P and composition. The s_k are read at the
+    // midpoint T0 and compared with a central finite difference of mu_k.
+    vector<double> s_k(nsp), mu1(nsp), mu2(nsp);
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    double dT = 1e-5 * T0;
+    try {
+        phase->getPartialMolarEntropies(s_k);
+        phase->setState_TP(T0 - dT, P0);
+        phase->getChemPotentials(mu1);
+        phase->setState_TP(T0 + dT, P0);
+        phase->getChemPotentials(mu2);
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    phase->setState_TP(T0, P0); // restore cached state
+    for (size_t k = 0; k < nsp; k++) {
+        if (k == ke) {
+            continue; // electron species handled by two-temperature identities
+        }
+        double dmu_dT = (mu2[k] - mu1[k]) / (2 * dT);
+        EXPECT_NEAR(-dmu_dT, s_k[k],
+            max({rtol_fd * s_k[k], rtol_fd * std::abs(dmu_dT), atol}))
+            << "for species " << k;
+    }
+}
+
+TEST_P(TestConsistency, vk_eq_dmu_k_dP_const_T_X)
+{
+    // Composition<->P Maxwell relation: partial molar volume v_k equals
+    // (d mu_k / dP) at constant T and composition.
+    vector<double> v_k(nsp), mu1(nsp), mu2(nsp);
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    double dP = 1e-4 * P0;
+    try {
+        phase->getPartialMolarVolumes(v_k);
+        phase->setState_TP(T0, P0 - dP);
+        phase->getChemPotentials(mu1);
+        phase->setState_TP(T0, P0 + dP);
+        phase->getChemPotentials(mu2);
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    phase->setState_TP(T0, P0); // restore cached state
+    for (size_t k = 0; k < nsp; k++) {
+        if (k == ke) {
+            continue;
+        }
+        double dmu_dP = (mu2[k] - mu1[k]) / (2 * dP);
+        EXPECT_NEAR(dmu_dP, v_k[k],
+            max({rtol_fd * std::abs(v_k[k]), rtol_fd * std::abs(dmu_dP), atol_v}))
+            << "for species " << k;
+    }
+}
+
+TEST_P(TestConsistency, v_eq_dgdP_const_T)
+{
+    // dG pressure coefficient: molar volume equals (dG/dP) at constant T.
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    double v, g1, g2;
+    double dP = 1e-4 * P0;
+    try {
+        v = phase->molarVolume();
+        phase->setState_TP(T0, P0 - dP);
+        g1 = phase->gibbs_mole();
+        phase->setState_TP(T0, P0 + dP);
+        g2 = phase->gibbs_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    phase->setState_TP(T0, P0); // restore cached state
+    double dgdP = (g2 - g1) / (2 * dP);
+    double v_expected = v;
+    if (phase->type() == "plasma" && ke != npos) {
+        // For a two-temperature plasma, the electron species contributes an extra
+        // term because the pressure term in mu_e uses the electron temperature Te,
+        // giving (dG/dP)_T = V + X_e * R * (Te - T) / P (compare with h_eq_u_plus_Pv).
+        vector<double> X(nsp);
+        phase->getMoleFractions(X);
+        v_expected += X[ke] * (RTe - RT) / P0;
+    }
+    EXPECT_NEAR(dgdP, v_expected,
+        max({rtol_fd * std::abs(v_expected), rtol_fd * std::abs(dgdP), atol_v}));
+}
+
+TEST_P(TestConsistency, dhdP_const_T_eq_v_minus_T_dvdT_const_P)
+{
+    // dH pressure coefficient: (dH/dP)_T = V - T (dV/dT)_P. Both the dH/dP and
+    // the dV/dT derivatives use centered differences about (T0, P0).
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    double dP = 1e-4 * P0;
+    double dT = 1e-4 * T0;
+    double v, h1, v_lo;
+    try {
+        v = phase->molarVolume();
+        phase->setState_TP(T0, P0 - dP);
+        h1 = phase->enthalpy_mole();
+        phase->setState_TP(T0 - dT, P0);
+        v_lo = phase->molarVolume();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    phase->setState_TP(T0, P0 + dP);
+    double h2 = phase->enthalpy_mole();
+    double dhdP = (h2 - h1) / (2 * dP);
+
+    phase->setState_TP(T0 + dT, P0);
+    double v_hi = phase->molarVolume();
+    double dvdT = (v_hi - v_lo) / (2 * dT);
+
+    phase->setState_TP(T0, P0); // restore cached state
+    double rhs = v - T0 * dvdT;
+    EXPECT_NEAR(dhdP, rhs,
+        max({rtol_fd * std::abs(dhdP), rtol_fd * std::abs(rhs), atol_v}));
+}
+
+TEST_P(TestConsistency, dmu_k_dNj_eq_dmu_j_dNk_const_T_P)
+{
+    // Symmetry of the composition Hessian of G: d mu_k / dN_j = d mu_j / dN_k.
+    // This is the pure-composition Maxwell relation, equivalent to the mu_k
+    // being the gradient of a single Gibbs energy G(T, P, N). It is only
+    // nontrivial with at least three independently variable species; for a
+    // binary solution, the single composition direction is already covered by
+    // gibbs_duhem_const_T_P. Mole fractions are treated as mole numbers with
+    // total N = 1; setMoleFractions renormalizes, so perturbing one entry is
+    // equivalent to adding that species to an open system.
+    //
+    // Each mu_k carries a large, composition-independent standard-state term,
+    // so differencing mu_k has a roundoff floor of order |mu|_max * eps_machine.
+    // Divided by the perturbation dN this gives a noise floor on each computed
+    // derivative, which is added to the comparison tolerance. Species too dilute to
+    // perturb meaningfully thus are given a large floor to avoid producing false
+    // positives.
+    vector<double> X0(nsp);
+    double T0 = phase->temperature();
+    double P0 = phase->pressure();
+    phase->getMoleFractions(X0);
+
+    vector<size_t> active;
+    for (size_t k = 0; k < nsp; k++) {
+        if (k != ke && X0[k] > 1e-6) {
+            active.push_back(k);
+        }
+    }
+    if (active.size() < 3) {
+        GTEST_SKIP() << "Fewer than three species: Hessian symmetry is trivial";
+    }
+
+    double eps = 1e-4;
+    double mu_mag = 0.0;
+    vector<double> dn(active.size());
+
+    // cols[a][k] = d mu_k / dN_{active[a]} via centered difference in N_{active[a]}
+    auto dmu_dN = [&](size_t a, vector<double>& col) {
+        size_t j = active[a];
+        dn[a] = eps * X0[j];
+        vector<double> np = X0, nm = X0, mu_p(nsp), mu_m(nsp);
+        np[j] += dn[a];
+        nm[j] -= dn[a];
+        phase->setMoleFractions(np);
+        phase->setState_TP(T0, P0);
+        phase->getChemPotentials(mu_p);
+        phase->setMoleFractions(nm);
+        phase->setState_TP(T0, P0);
+        phase->getChemPotentials(mu_m);
+        for (size_t k = 0; k < nsp; k++) {
+            col[k] = (mu_p[k] - mu_m[k]) / (2 * dn[a]);
+            mu_mag = std::max({mu_mag, std::abs(mu_p[k]), std::abs(mu_m[k])});
+        }
+    };
+
+    try {
+        vector<vector<double>> cols(active.size(), vector<double>(nsp));
+        for (size_t a = 0; a < active.size(); a++) {
+            dmu_dN(a, cols[a]);
+        }
+        double eps_mach = std::numeric_limits<double>::epsilon();
+        for (size_t a = 0; a < active.size(); a++) {
+            for (size_t b = a + 1; b < active.size(); b++) {
+                double kj = cols[b][active[a]]; // d mu_{active[a]} / dN_{active[b]}
+                double jk = cols[a][active[b]]; // d mu_{active[b]} / dN_{active[a]}
+                double scale = std::max(std::abs(kj), std::abs(jk));
+                double noise = 10 * mu_mag * eps_mach
+                               * std::max(1.0 / dn[a], 1.0 / dn[b]);
+                EXPECT_NEAR(kj, jk, rtol_fd * scale + noise + atol)
+                    << "species " << active[a] << " <-> " << active[b];
+            }
+        }
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    phase->setMoleFractions(X0);
+    phase->setState_TP(T0, P0); // restore cached state
 }
 
 // ---------- Tests for consistency of standard state properties ---------------
