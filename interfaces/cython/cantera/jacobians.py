@@ -1,22 +1,31 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from ._utils cimport stringify, pystr, py_to_anymap, anymap_to_py
-from .kinetics cimport get_from_sparse
+# distutils: language = c++
+# cython: language_level=3
+
+from typing import Any, ClassVar, Literal
+
+import cython
+from cython.cimports.cantera._utils import stringify, pystr
+from cython.cimports.cantera.kinetics import get_from_sparse
+
+from ._types import Array
 
 # dictionary to store reaction rate classes
-cdef dict _class_registry = {}
+_class_registry: dict = {}
 
 
-cdef class SystemJacobian:
+@cython.cclass
+class SystemJacobian:
     """
     Common base class for Jacobian matrices used in the solution of nonlinear systems.
     Wraps C++ class :ct:`SystemJacobian`.
     """
-    _type = "SystemJacobian"
-    linear_solver_type = "GMRES"
+    _type: ClassVar[str] = "SystemJacobian"
+    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "GMRES"
 
-    def __cinit__(self, *args, init=True, **kwargs):
+    def __cinit__(self, *args: Any, init: bool = True, **kwargs: Any) -> None:
         if init:
             self._cinit(*args, **kwargs)
 
@@ -24,8 +33,9 @@ cdef class SystemJacobian:
         self._base = newSystemJacobian(stringify(self._type))
         self.jac = self._base.get()
 
+    @cython.cfunc
     @staticmethod
-    cdef wrap(shared_ptr[CxxSystemJacobian] base):
+    def wrap(base: shared_ptr[CxxSystemJacobian]):
         """
         Wrap a C++ SystemJacobian object with a Python object of the correct
         derived type.
@@ -42,66 +52,71 @@ cdef class SystemJacobian:
 
         cxx_type = pystr(base.get().type())
         cls = _class_registry.get(cxx_type, SystemJacobian)
-        cdef SystemJacobian jac
-        jac = cls(init=False)
+        jac: SystemJacobian = cls(init=False)
         jac._base = base
         jac.jac = base.get()
         return jac
 
-    property side:
+    @property
+    def side(self) -> Literal["none", "left", "right", "both"]:
         """
         Get/Set the side of the system matrix where the preconditioner is applied.
         Options are "none", "left", "right", or "both". Not all options are supported
         by all solver types.
         """
-        def __get__(self):
-            return pystr(self.jac.preconditionerSide())
+        return pystr(self.jac.preconditionerSide())
 
-        def __set__(self, side):
-            self.jac.setPreconditionerSide(stringify(side))
+    @side.setter
+    def side(self, side: Literal["none", "left", "right", "both"]) -> None:
+        self.jac.setPreconditionerSide(stringify(side))
 
-cdef class EigenSparseJacobian(SystemJacobian):
+
+@cython.cclass
+class EigenSparseJacobian(SystemJacobian):
     """
     Base class for system Jacobians that use Eigen sparse matrices for storage.
     Wraps C++ class :ct:`EigenSparseJacobian`.
     """
+    _type: ClassVar[str] = "eigen-sparse"
 
-    _type = "eigen-sparse"
+    def print_contents(self) -> None:
+        cython.cast(
+            cython.pointer(CxxEigenSparseJacobian), self.jac
+        ).printPreconditioner()
 
-    def print_contents(self):
-        (<CxxEigenSparseJacobian*>self.jac).printPreconditioner()
+    @property
+    def matrix(self) -> Array:
+        """Property to retrieve the latest internal preconditioner matrix."""
+        smat: CxxSparseMatrix = cython.cast(
+            cython.pointer(CxxEigenSparseJacobian), self.jac
+        ).matrix()
+        return get_from_sparse(smat, smat.rows(), smat.cols())
 
-    property matrix:
-        """
-        Property to retrieve the latest internal preconditioner matrix.
-        """
-        def __get__(self):
-            cdef CxxSparseMatrix smat = (<CxxEigenSparseJacobian*>self.jac).matrix()
-            return get_from_sparse(smat, smat.rows(), smat.cols())
-
-    property jacobian:
-        """
-        Property to retrieve the latest Jacobian.
-        """
-        def __get__(self):
-            cdef CxxSparseMatrix smat = (<CxxEigenSparseJacobian*>self.jac).jacobian()
-            return get_from_sparse(smat, smat.rows(), smat.cols())
+    @property
+    def jacobian(self) -> Array:
+        """Property to retrieve the latest Jacobian."""
+        smat: CxxSparseMatrix = cython.cast(
+            cython.pointer(CxxEigenSparseJacobian), self.jac
+        ).jacobian()
+        return get_from_sparse(smat, smat.rows(), smat.cols())
 
 
-cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
+@cython.cclass
+class EigenSparseDirectJacobian(EigenSparseJacobian):
     """
     A system matrix solver that uses Eigen's sparse direct (LU) algorithm. Wraps C++
     class :ct:`EigenSparseDirectJacobian`.
     """
+    _type: ClassVar[str] = "eigen-sparse-direct"
 
-    _type = "eigen-sparse-direct"
 
+@cython.cclass
+class AdaptivePreconditioner(EigenSparseJacobian):
+    _type: ClassVar[str] = "Adaptive"
+    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "GMRES"
 
-cdef class AdaptivePreconditioner(EigenSparseJacobian):
-    _type = "Adaptive"
-    linear_solver_type = "GMRES"
-
-    property threshold:
+    @property
+    def threshold(self) -> float:
         """
         The threshold of the preconditioner is used to remove or prune any off diagonal
         elements below the given value inside of the preconditioner. In other words,
@@ -116,13 +131,18 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
 
         Default is 0.0.
         """
-        def __get__(self):
-            return (<CxxAdaptivePreconditioner*>self.jac).threshold()
+        return cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).threshold()
 
-        def __set__(self, val):
-            (<CxxAdaptivePreconditioner*>self.jac).setThreshold(val)
+    @threshold.setter
+    def threshold(self, val: float) -> None:
+        cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).setThreshold(val)
 
-    property ilut_fill_factor:
+    @property
+    def ilut_fill_factor(self) -> float:
         """
         Property setting the linear solvers fill factor.
 
@@ -136,13 +156,18 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
 
         Default is the state size divided by 4.
         """
-        def __set__(self, val):
-            (<CxxAdaptivePreconditioner*>self.jac).setIlutFillFactor(val)
+        return cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).ilutFillFactor()
 
-        def __get__(self):
-            return (<CxxAdaptivePreconditioner*>self.jac).ilutFillFactor()
+    @ilut_fill_factor.setter
+    def ilut_fill_factor(self, val: float) -> None:
+        cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).setIlutFillFactor(val)
 
-    property ilut_drop_tol:
+    @property
+    def ilut_drop_tol(self) -> float:
         """
         Property setting the linear solvers drop tolerance.
 
@@ -154,16 +179,22 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
 
         Default is 1e-10.
         """
-        def __set__(self, val):
-            (<CxxAdaptivePreconditioner*>self.jac).setIlutDropTol(val)
+        return cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).ilutDropTol()
 
-        def __get__(self):
-            return (<CxxAdaptivePreconditioner*>self.jac).ilutDropTol()
+    @ilut_drop_tol.setter
+    def ilut_drop_tol(self, val: float) -> None:
+        cython.cast(
+            cython.pointer(CxxAdaptivePreconditioner), self.jac
+        ).setIlutDropTol(val)
 
-cdef class BandedJacobian(SystemJacobian):
+
+@cython.cclass
+class BandedJacobian(SystemJacobian):
     """
     A system matrix solver that uses a direct banded linear solver. Wraps C++
     class :ct:`MultiJac`.
     """
-    _type = "banded-direct"
-    linear_solver_type = "direct"
+    _type: ClassVar[str] = "banded-direct"
+    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "direct"
