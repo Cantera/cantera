@@ -50,6 +50,9 @@ reactions:
 - equation: E + O2 + O2 => O2- + O2
   type: two-temperature-plasma
   rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
+- equation: O2 + E <=> O2 + E
+  type: electron-collision-plasma
+  collision: test_O2_effective_O2_0
 
 electron-collisions:
 - name: test_O2_effective_O2_0
