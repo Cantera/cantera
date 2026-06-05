@@ -1439,38 +1439,57 @@ class TestPlasmaPhase:
 
     def test_elastic_power_loss_low_T(self, phase):
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
-        assert phase.elastic_power_loss == approx(6846332332)
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(6846332332)
 
     def test_elastic_power_loss_high_T(self, phase):
         # when T is as high as Te the energy loss rate becomes small
         phase.TPX = 4000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
-        assert phase.elastic_power_loss == approx(2865540)
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(2865540)
 
     def test_elastic_power_loss_replace_rate(self, phase):
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
         rate = ct.ReactionRate.from_dict(self.collision_data)
         phase.reaction(1).rate = rate
-        assert phase.elastic_power_loss == approx(11765800095)
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(11765800095)
 
     def test_elastic_power_loss_add_reaction(self, phase):
         phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
                              species=phase.species(), reactions=[])
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
         phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
-        assert phase.elastic_power_loss == approx(18612132428)
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(18612132428)
 
     def test_elastic_power_loss_change_levels(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
         phase.electron_energy_levels = np.linspace(0,10,101)
-        assert phase.elastic_power_loss == approx(113058853)
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(113058853)
 
     def test_elastic_power_loss_change_dist(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         levels = np.array([0.0, 0.1, 1.0, 9.0, 10.0])
         dist = np.array([0.0, 0.2, 0.7, 0.01, 0.01])
         # set the electron energy levels first to test if
@@ -1479,18 +1498,34 @@ class TestPlasmaPhase:
         phase.electron_energy_levels = np.array([0.0, 0.1, 1.0, 7.0, 10.0])
         phase.normalize_electron_energy_distribution_enabled = False
         phase.set_discretized_electron_energy_distribution(levels, dist)
-        assert phase.elastic_power_loss == approx(7568518396)
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(7568518396)
 
     def test_elastic_power_loss_change_mean_electron_energy(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.mean_electron_energy = 2.0
-        assert phase.elastic_power_loss == approx(5826212349)
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(5826212349)
 
     def test_elastic_power_loss_change_shape_factor(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.mean_electron_energy = 1.0
         phase.isotropic_shape_factor = 1.1
-        assert phase.elastic_power_loss == approx(7408711810)
+        phase.mean_electron_energy = 1.0
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        # Since `elasticPowerLoss` involves two multiplications with the concentration
+        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
+        # correction factor to get back the value that was obtained with C=P/(R * T),
+        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
+        corr_factor = (phase.mean_temperature / phase.T )**2
+        assert phase.elastic_power_loss * corr_factor == approx(7408711810)
 
     def test_eedf_solver(self):
 

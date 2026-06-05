@@ -766,35 +766,6 @@ public:
      */
     void setState(const AnyMap& state) override;
 
-    //! Set the gas and electron temperature [K] and pressure [Pa].
-    /*!
-     * @param t    Temperature [K]
-     * @param p    Pressure [Pa]
-     */
-    void setState_TP(double t, double p) override;
-
-    //! Set the gas temperature [K], electron temperature [K], and pressure [Pa].
-    /*!
-     * @param Tg   Gas (heavy-species) temperature [K]
-     * @param Te   Electron temperature [K]
-     * @param p    Pressure [Pa]
-     */
-    virtual void setState_TgTeP(double Tg, double Te, double p);
-
-    //! Set the gas and electron temperature [K] and mass density [kg/m^3].
-    /*!
-     * @param t    Temperature [K]
-     * @param rho    Mass density [kg/m^3]
-     */
-    void setState_TD(double t, double rho) override;
-
-    //! Set the gas temperature [K], electron temperature [K], and mass density [kg/m^3].
-    /*!
-     * @param Tg   Gas (heavy-species) temperature [K]
-     * @param Te   Electron temperature [K]
-     * @param rho    Mass density [kg/m^3]
-     */
-    virtual void setState_TgTeD(double Tg, double Te, double rho);
 
     //! @}
 

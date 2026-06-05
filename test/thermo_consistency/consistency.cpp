@@ -430,6 +430,9 @@ TEST_P(TestConsistency, cp_eq_dhdT)
     }
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T1 + dT);
+    }
     phase->setState_TP(T1 + dT, phase->pressure());
     double h2 = phase->enthalpy_mole();
     double cp2 = phase->cp_mole();
@@ -454,6 +457,9 @@ TEST_P(TestConsistency, cv_eq_dudT)
     }
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T1 + dT);
+    }
     phase->setState_TD(T1 + dT, phase->density());
     double u2 = phase->intEnergy_mole();
     double cv2 = phase->cv_mole();
@@ -473,7 +479,11 @@ TEST_P(TestConsistency, cp_eq_dsdT_const_p_times_T)
     }
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
-    phase->setState_TP(T1 + dT, phase->pressure());
+    double pressure = phase->pressure();
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T1 + dT);
+    }
+    phase->setState_TP(T1 + dT, pressure);
     double s2 = phase->entropy_mole();
     double cp2 = phase->cp_mole();
     double cp_mid = 0.5 * (cp1 + cp2);
@@ -497,6 +507,9 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
     }
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T1 + dT);
+    }
     phase->setState_TD(T1 + dT, phase->density());
     double s2 = phase->entropy_mole();
     double cv2 = phase->cv_mole();
@@ -535,15 +548,25 @@ TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
     try {
         phase->setState_TP(T0, P0 - dP);
         s1 = phase->entropy_mole();
+        if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T0 - dT);
+        }
         phase->setState_TP(T0 - dT, P0);
         v1 = phase->molarVolume();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
+
+    if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T0);
+    }
     phase->setState_TP(T0, P0 + dP);
     double s2 = phase->entropy_mole();
     double dsdP = (s2 - s1) / (2 * dP);
 
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T0 + dT);
+    }
     phase->setState_TP(T0 + dT, P0);
     double v2 = phase->molarVolume();
     double dvdT = (v2 - v1) / (2 * dT);
@@ -567,6 +590,9 @@ TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
         double dsdv = (s2 - s1) / (v2 - v1);
 
         double T2 = T * (1 + 1e-7);
+        if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T2);
+        }
         phase->setState_TD(T2, 1 / v1);
         double P2 = phase->pressure();
         double dPdT = (P2 - P1) / (T2 - T);
