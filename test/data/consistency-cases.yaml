@@ -153,14 +153,15 @@ plasma:
         The differential methods are not yet implemented for two-temperature systems.
       dSdv_const_T_eq_dPdT_const_V/[345]:
         The differential methods are not yet implemented for two-temperature systems.
+      dsdP_const_T_eq_minus_dV_dT_const_P/[345]:
+        The differential methods are not yet implemented for two-temperature systems.
       betaT_eq_minus_dmv_dP_const_T_div_mv/[345]:
         The differential methods are not yet implemented for two-temperature systems.
   states:
-  # In the test cases below, it is implicitly assumed that the electron temperature
-  # equals the gas temperature.
-  - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
-  - {T: 300, P: 1 atm, X: {E: 1.0}}
-  - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}}
+  # In the test cases below, set Te=T
+  - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}, Te: 300}
+  - {T: 300, P: 1 atm, X: {E: 1.0}, Te: 300}
+  - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}, Te: 3500}
   # In the test case below, set Te != T
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}, Te: 10000}
   - {T: 300, P: 1 atm, X: {E: 1.0}, Te: 10000}
