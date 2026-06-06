@@ -184,6 +184,22 @@ TEST(SolutionArray, getStateReadOnly)
     ASSERT_THROW(arr->getState(1), IndexError);
 }
 
+TEST(SolutionArray, setLocBounds)
+{
+    // An out-of-range location must throw deterministically rather than indexing the
+    // active-location vector out of bounds and silently writing to a buffered location
+    auto gas = newSolution("h2o2.yaml", "ohmech");
+    auto arr = SolutionArray::create(gas, 3);
+
+    vector<double> state = arr->getState(0);
+    arr->setState(0, state); // buffers location 0
+
+    ASSERT_THROW(arr->setState(3, state), IndexError);
+    // a negative location must throw rather than silently writing to the buffered loc
+    ASSERT_THROW(arr->setState(-1, state), IndexError);
+    ASSERT_THROW(arr->setLoc(-1), IndexError);
+}
+
 TEST(SolutionArray, normalize)
 {
     auto gas = newSolution("h2o2.yaml",  "", "none");
