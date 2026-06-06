@@ -804,16 +804,10 @@ void SolutionArray::setLoc(int loc, bool restore)
     if (m_size == 0) {
         throw CanteraError("SolutionArray::setLoc",
             "Unable to set location in empty SolutionArray.");
-    } else if (loc < 0) {
-        if (m_loc == npos) {
-            throw CanteraError("SolutionArray::setLoc",
-                "Both current and buffered indices are invalid.");
-        }
-        return;
+    } else if (loc < 0 || loc_ >= m_size) {
+        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size);
     } else if (static_cast<size_t>(m_active[loc_]) == m_loc) {
         return;
-    } else if (loc_ >= m_size) {
-        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size);
     }
     m_loc = static_cast<size_t>(m_active[loc_]);
     if (restore) {
