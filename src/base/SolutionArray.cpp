@@ -831,13 +831,18 @@ void SolutionArray::updateState(int loc)
         span<double>(m_data->data() + m_loc * m_stride, nState));
 }
 
-vector<double> SolutionArray::getState(int loc)
+vector<double> SolutionArray::getState(int loc) const
 {
-    setLoc(loc);
+    // read-only access: resolve the data index directly without modifying m_loc or the
+    // associated Solution object, so that the stored state is always returned
+    if (loc < 0 || static_cast<size_t>(loc) >= m_size) {
+        throw IndexError("SolutionArray::getState", "indices",
+                         static_cast<size_t>(loc), m_size);
+    }
+    size_t index = static_cast<size_t>(m_active[loc]);
     size_t nState = m_sol->thermo()->stateSize();
-    vector<double> out(nState);
-    m_sol->thermo()->saveState(out); // thermo contains current state
-    return out;
+    const double* data = m_data->data() + index * m_stride;
+    return vector<double>(data, data + nState);
 }
 
 void SolutionArray::setState(int loc, const vector<double>& state)

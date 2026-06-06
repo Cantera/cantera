@@ -161,6 +161,29 @@ TEST(SolutionArray, simple)
     ASSERT_THROW(arr->setAuxiliary(0, m), CanteraError);
 }
 
+TEST(SolutionArray, getStateReadOnly)
+{
+    // getState must return the state stored at a location regardless of subsequent
+    // modifications to the associated Solution object (GitHub issue #2067)
+    auto gas = newSolution("h2o2.yaml", "ohmech");
+    auto arr = SolutionArray::create(gas, 1);
+
+    gas->thermo()->setTemperature(100.0);
+    arr->updateState(0); // store state with T = 100 K at location 0
+
+    // modify the Solution after the location was last accessed
+    gas->thermo()->setTemperature(234.0);
+
+    vector<double> state = arr->getState(0);
+    EXPECT_DOUBLE_EQ(state[0], 100.0); // stored state, not the modified Solution state
+
+    // getState is a pure read and must not alter the Solution object
+    EXPECT_DOUBLE_EQ(gas->thermo()->temperature(), 234.0);
+
+    ASSERT_THROW(arr->getState(-1), IndexError);
+    ASSERT_THROW(arr->getState(1), IndexError);
+}
+
 TEST(SolutionArray, normalize)
 {
     auto gas = newSolution("h2o2.yaml",  "", "none");
