@@ -197,8 +197,13 @@ public:
     //! Retrieve list of extra component names
     vector<string> listExtra(bool all=true) const;
 
-    //! Retrieve auxiliary data for a given location.
-    AnyMap getAuxiliary(int loc);
+    /**
+     *  Retrieve auxiliary data for a given location.
+     *  This is a read-only accessor that returns the auxiliary data stored at @c loc;
+     *  it does not modify the buffered location or the associated Solution object.
+     *  @since  Starting in %Cantera 4.0, this method is const/read-only.
+     */
+    AnyMap getAuxiliary(int loc) const;
 
     //! Set auxiliary data for a given location.
     void setAuxiliary(int loc, const AnyMap& data);

@@ -885,25 +885,31 @@ void SolutionArray::normalize() {
     }
 }
 
-AnyMap SolutionArray::getAuxiliary(int loc)
+AnyMap SolutionArray::getAuxiliary(int loc) const
 {
-    setLoc(loc);
+    // read-only access: resolve the data index directly without modifying m_loc or the
+    // associated Solution object
+    if (loc < 0 || static_cast<size_t>(loc) >= m_size) {
+        throw IndexError("SolutionArray::getAuxiliary", "indices",
+                         static_cast<size_t>(loc), m_size);
+    }
+    size_t index = static_cast<size_t>(m_active[loc]);
     AnyMap out;
     for (const auto& [key, extra] : *m_extra) {
         if (extra.is<void>()) {
             out[key] = extra;
         } else if (extra.isVector<long int>()) {
-            out[key] = extra.asVector<long int>()[m_loc];
+            out[key] = extra.asVector<long int>()[index];
         } else if (extra.isVector<double>()) {
-            out[key] = extra.asVector<double>()[m_loc];
+            out[key] = extra.asVector<double>()[index];
         } else if (extra.isVector<string>()) {
-            out[key] = extra.asVector<string>()[m_loc];
+            out[key] = extra.asVector<string>()[index];
         } else if (extra.isVector<vector<long int>>()) {
-            out[key] = extra.asVector<vector<long int>>()[m_loc];
+            out[key] = extra.asVector<vector<long int>>()[index];
         } else if (extra.isVector<vector<double>>()) {
-            out[key] = extra.asVector<vector<double>>()[m_loc];
+            out[key] = extra.asVector<vector<double>>()[index];
         } else if (extra.isVector<vector<string>>()) {
-            out[key] = extra.asVector<vector<string>>()[m_loc];
+            out[key] = extra.asVector<vector<string>>()[index];
         } else {
             throw NotImplementedError("SolutionArray::getAuxiliary",
                 "Unable to retrieve data for component '{}' with type '{}'.",
