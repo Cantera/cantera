@@ -164,8 +164,13 @@ public:
      */
     void updateState(int loc);
 
-    //! Retrieve the state vector for a given location.
-    vector<double> getState(int loc);
+    /**
+     *  Retrieve the state vector for a given location.
+     *  This is a read-only accessor that returns the state stored at @c loc; it does
+     *  not modify the buffered location or the associated Solution object.
+     *  @since  Starting in %Cantera 4.0, this method is const/read-only.
+     */
+    vector<double> getState(int loc) const;
 
     //! Set the state vector for a given location.
     void setState(int loc, const vector<double>& state);
