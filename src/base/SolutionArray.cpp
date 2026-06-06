@@ -112,7 +112,7 @@ SolutionArray::SolutionArray(const SolutionArray& other,
     }
     for (auto loc : m_active) {
         if (loc < 0 || loc >= (int)m_dataSize) {
-            IndexError("SolutionArray::SolutionArray", "indices", loc, m_dataSize);
+            throw IndexError("SolutionArray::SolutionArray", "indices", loc, m_dataSize);
         }
     }
     set<int> unique(selected.begin(), selected.end());
