@@ -394,6 +394,9 @@ protected:
     //! Retrieve set containing list of properties defining state
     set<string> _stateProperties(const string& mode, bool alias=false);
 
+    //! `true` if this object is a view (slice) into another SolutionArray's data
+    bool _isSliced() const { return m_shared; }
+
     shared_ptr<Solution> m_sol; //!< Solution object associated with state data
     size_t m_size; //!< Number of entries in SolutionArray
     size_t m_dataSize; //!< Total size of unsliced data

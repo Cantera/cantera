@@ -91,7 +91,7 @@ SolutionArray::SolutionArray(const SolutionArray& other,
                              const vector<int>& selected)
     : m_sol(other.m_sol)
     , m_size(selected.size())
-    , m_dataSize(other.m_data->size())
+    , m_dataSize(other.m_dataSize)
     , m_stride(other.m_stride)
     , m_data(other.m_data)
     , m_extra(other.m_extra)
@@ -713,7 +713,7 @@ AnyValue SolutionArray::getComponent(const string& name) const
         if (extra.is<void>()) {
             return AnyValue();
         }
-        if (m_size == m_dataSize) {
+        if (!_isSliced()) {
             return extra; // slicing not necessary
         }
         if (extra.isVector<long int>()) {
@@ -1172,7 +1172,7 @@ void SolutionArray::writeEntry(const string& fname, const string& name,
         throw CanteraError("SolutionArray::writeEntry",
             "Group name specifying root location must not be empty.");
     }
-    if (m_size < m_dataSize) {
+    if (_isSliced()) {
         throw NotImplementedError("SolutionArray::writeEntry",
             "Unable to save sliced data.");
     }
@@ -1249,7 +1249,7 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         throw CanteraError("SolutionArray::writeEntry",
             "Field name specifying root location must not be empty.");
     }
-    if (m_size < m_dataSize) {
+    if (_isSliced()) {
         throw NotImplementedError("SolutionArray::writeEntry",
             "Unable to save sliced data.");
     }
@@ -1356,7 +1356,7 @@ void SolutionArray::save(const string& fname, const string& name, const string& 
                          const string& desc, bool overwrite, int compression,
                          const string& basis)
 {
-    if (m_size < m_dataSize) {
+    if (_isSliced()) {
         throw NotImplementedError("SolutionArray::save",
                                   "Unable to save sliced data.");
     }
@@ -1551,7 +1551,7 @@ void SolutionArray::_setExtra(const string& name, const AnyValue& data)
     }
 
     auto& extra = m_extra->at(name);
-    if (data.is<void>() && m_size == m_dataSize) {
+    if (data.is<void>() && !_isSliced()) {
         // reset placeholder
         extra = AnyValue();
         return;
@@ -1559,7 +1559,7 @@ void SolutionArray::_setExtra(const string& name, const AnyValue& data)
 
     // uninitialized component
     if (extra.is<void>()) {
-        if (m_size != m_dataSize) {
+        if (_isSliced()) {
             throw CanteraError("SolutionArray::_setExtra",
                 "Unable to replace '{}' for sliced data.", name);
         }

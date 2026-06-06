@@ -200,6 +200,56 @@ TEST(SolutionArray, setLocBounds)
     ASSERT_THROW(arr->setLoc(-1), IndexError);
 }
 
+TEST(SolutionArray, slicePermutation)
+{
+    // A full-length permutation slice is still a view: components must be returned in
+    // the permuted order (not the underlying order), and saving it must be refused like
+    // any other slice. This guards against view detection that relies on m_size vs
+    // m_dataSize, which cannot distinguish a permutation from the unsliced original.
+    auto gas = newSolution("h2o2.yaml", "ohmech");
+    auto arr = SolutionArray::create(gas, 3);
+
+    // distinct temperature (native state index 0) per location
+    vector<double> state = arr->getState(0);
+    for (int loc = 0; loc < arr->size(); loc++) {
+        state[0] = 300.0 + 100.0 * loc; // 300, 400, 500
+        arr->setState(loc, state);
+    }
+    // distinct extra-component value per location
+    arr->addExtra("x");
+    AnyValue xval;
+    xval = vector<double>{10.0, 20.0, 30.0};
+    arr->setComponent("x", xval);
+
+    // full-length permutation slice
+    auto perm = arr->share({2, 1, 0});
+
+    // state component reindexes through m_active
+    auto T = perm->getComponent("T").asVector<double>();
+    ASSERT_EQ(T.size(), 3u);
+    EXPECT_DOUBLE_EQ(T[0], 500.0);
+    EXPECT_DOUBLE_EQ(T[1], 400.0);
+    EXPECT_DOUBLE_EQ(T[2], 300.0);
+
+    // extra component must also be permuted (not short-circuited to the unsliced vector)
+    auto x = perm->getComponent("x").asVector<double>();
+    ASSERT_EQ(x.size(), 3u);
+    EXPECT_DOUBLE_EQ(x[0], 30.0);
+    EXPECT_DOUBLE_EQ(x[1], 20.0);
+    EXPECT_DOUBLE_EQ(x[2], 10.0);
+
+    // a view (permutation or subset) cannot be saved
+    ASSERT_THROW(perm->save("test_slice_permutation.csv"), NotImplementedError);
+
+    // subset slice reindexes correctly and is likewise unsaveable
+    auto subset = arr->share({0, 2});
+    auto xsub = subset->getComponent("x").asVector<double>();
+    ASSERT_EQ(xsub.size(), 2u);
+    EXPECT_DOUBLE_EQ(xsub[0], 10.0);
+    EXPECT_DOUBLE_EQ(xsub[1], 30.0);
+    ASSERT_THROW(subset->save("test_slice_subset.csv"), NotImplementedError);
+}
+
 TEST(SolutionArray, normalize)
 {
     auto gas = newSolution("h2o2.yaml",  "", "none");
