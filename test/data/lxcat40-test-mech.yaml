@@ -1,0 +1,83 @@
+description: |-
+  Minimal CanteraPlasma 4.0 mechanism used to test lxcat2yaml merge mode.
+
+units:
+  length: cm
+  time: s
+  quantity: mol
+  activation-energy: cal/mol
+
+phases:
+- name: isotropic-electron-energy-plasma
+  thermo: plasma
+  elements: [E, O, C]
+  species: [Electron, O2, O2+, O, O-, CO, CO2]
+  kinetics: gas
+  reactions: all
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    mean-electron-energy: 5.0 eV
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: Electron
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 20.786
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 29.355
+- name: O2+
+  composition: {O: 2, E: -1}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 29.355
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 20.786
+- name: O-
+  composition: {O: 1, E: 1}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 20.786
+- name: CO
+  composition: {C: 1, O: 1}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 29.100
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: constant-cp
+    T0: 300.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 37.135
+
+reactions:
+- equation: O + CO => CO2
+  rate-constant: {A: 1.0e12, b: 0.0, Ea: 0.0}

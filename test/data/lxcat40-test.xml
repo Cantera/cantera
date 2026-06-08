@@ -1,0 +1,93 @@
+<lxcat version="1.1" created="2026-06-08 00:00:00">
+  <References>
+    <Source>Minimal LXCat test file.</Source>
+  </References>
+  <Database name="test database" id="test">
+    <Groups>
+      <Group id="minimal">
+        <Processes>
+          <Process class="Scattering Cross Sections" type="Effective">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>CO2</Reactant>
+              <Product>E</Product>
+              <Product>CO2</Product>
+            </Species>
+            <Reaction>E + CO2 -&gt; E + CO2</Reaction>
+            <Parameters>
+              <mM>1.0e-5</mM>
+            </Parameters>
+            <Comment>Effective momentum-transfer-like process.</Comment>
+            <Updated>2026-06-08 00:00:00</Updated>
+            <DataX type="Energy" units="eV" size="2">0.0 1.0</DataX>
+            <DataY type="Cross section" units="m2" size="2">1.0e-20 2.0e-20</DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Ionization">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>O2</Reactant>
+              <Product>E</Product>
+              <Product>E</Product>
+              <Product>O2^+</Product>
+            </Species>
+            <Reaction>E + O2 -&gt; E + E + O2^+</Reaction>
+            <Parameters>
+              <E units="eV">12.0</E>
+            </Parameters>
+            <Comment>Simple ionization process.</Comment>
+            <Updated>2026-06-08 00:00:00</Updated>
+            <DataX type="Energy" units="eV" size="2">12.0 20.0</DataX>
+            <DataY type="Cross section" units="m2" size="2">0.0 5.5e-22</DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Excitation">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>O2</Reactant>
+              <Product>E</Product>
+              <Product>O2(6.0eV)</Product>
+            </Species>
+            <Reaction>E + O2 -&gt; E + O2(6.0eV)</Reaction>
+            <Parameters>
+              <E units="eV">6.0</E>
+            </Parameters>
+            <Comment>Dissociation represented through converter mapping.</Comment>
+            <Updated>2026-06-08 00:00:00</Updated>
+            <DataX type="Energy" units="eV" size="2">6.0 10.0</DataX>
+            <DataY type="Cross section" units="m2" size="2">0.0 1.0e-21</DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Excitation">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>O2</Reactant>
+              <Product>E</Product>
+              <Product>O2(8.4eV)</Product>
+            </Species>
+            <Reaction>E + O2 -&gt; E + O2(8.4eV)</Reaction>
+            <Parameters>
+              <E units="eV">8.4</E>
+            </Parameters>
+            <Comment>Second dissociation channel mapped to the same phase-level equation.</Comment>
+            <Updated>2026-06-08 00:00:00</Updated>
+            <DataX type="Energy" units="eV" size="2">8.4 12.0</DataX>
+            <DataY type="Cross section" units="m2" size="2">0.0 2.0e-21</DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Attachment">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>CO2</Reactant>
+              <Product>CO+O^-</Product>
+            </Species>
+            <Reaction>E + CO2 -&gt; CO + O^-</Reaction>
+            <Parameters>
+              <E units="eV">0.0</E>
+            </Parameters>
+            <Comment>Dissociative attachment, threshold 3.85eV.</Comment>
+            <Updated>2026-06-08 00:00:00</Updated>
+            <DataX type="Energy" units="eV" size="3">3.85 4.30 9.70</DataX>
+            <DataY type="Cross section" units="m2" size="3">0.0 1.4e-23 0.0</DataY>
+          </Process>
+        </Processes>
+      </Group>
+    </Groups>
+  </Database>
+</lxcat>
