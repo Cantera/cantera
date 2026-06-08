@@ -16,6 +16,7 @@ update, please report on Cantera's
 - **Philip Berndt**
 - **Guus Bertens** [@guusbertens](https://github.com/guusbertens) - Eindhoven University of Technology
 - **Wolfgang Bessler** [@wbessler](https://github.com/wbessler) - Offenburg University of Applied Science
+- **Gaétan Bizot** [@Gaetanosaure] (https://github.com/Gaetanosaure) - University of Florence
 - **Paul Blum** [@paulblum](https://github.com/paulblum)
 - **Tilman Bremer**
 - **Victor Brunini** [@vbrunini](https://github.com/vbrunini) - Sandia National Laboratory
