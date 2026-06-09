@@ -96,8 +96,8 @@ public:
     double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation (in temperature units)
             return m_A * std::exp(m_bg * shared_data.logT + m_b * shared_data.logTe
-            - m_Ea_R * shared_data.recipT + m_E4_R * (shared_data.electronTemp - shared_data.temperature)
-            * shared_data.recipTe * shared_data.recipT);
+                    - m_Ea_R * shared_data.recipT + m_E4_R * (shared_data.electronTemp - shared_data.temperature)
+                    * shared_data.recipTe * shared_data.recipT);
     }
 
 
