@@ -835,8 +835,22 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
 
     // Allow collapsed inelastic channels.
     // Example:
-    //   reaction:  Electron + N2 => Electron + N2
-    //   collision: kind: excitation, product: N2(rot)
+    //   reactions:  
+    //      equation: Electron + N2 => Electron + N2
+    //      collision: phelps_N2_excitation_N2(rot)_0.02
+    //
+    //   electron-collisions: 
+    //      name: phelps_N2_excitation_N2(rot)_0.02
+    //      target: N2
+    //      product: N2(rot)
+    //      energy-levels: [0.02, 0.03, 0.4, 0.8, 1.2, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3,
+    //          2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.6, 5.0]
+    //      cross-sections: [0.0, 2.5e-22, 2.5e-22, 2.5e-22, 4.7e-22, 8.6e-22, 1.5e-21, 2.35e-21,
+    //          1.08e-20, 1.9e-20, 2.03e-20, 2.77e-20, 2.5e-20, 2.19e-20, 2.4e-20, 2.17e-20,
+    //          1.62e-20, 1.38e-20, 1.18e-20, 1.03e-20, 8.4e-21, 6.9e-21, 5e-21, 1.7e-21, 0.0]
+    //      kind: excitation,
+    //      threshold: 0.02
+
     if (!compatibleKind &&
         (kindFromReaction == "effective" || kindFromReaction == "elastic") &&
         kindFromCollision == "excitation") {
