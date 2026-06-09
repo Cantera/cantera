@@ -68,7 +68,7 @@ public:
     /*!
      *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
      *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b  Temperature exponent (non-dimensional)
+     *  @param b   Electron temperature exponent (non-dimensional)
      *  @param Ea  Activation energy in energy units [J/kmol]
      *  @param EE  Activation electron energy in energy units [J/kmol]
      *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0.
