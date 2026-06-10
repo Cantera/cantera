@@ -2361,3 +2361,24 @@ class TestEvalJacobian:
         # update. Differences are bounded by the neglected dD/dY terms (<1%).
         scale = np.abs(fd_col).max()
         assert np.abs(jac_col - fd_col).max() < 2e-2 * scale
+
+
+class TestJacobianMode:
+    def test_mode_roundtrip(self):
+        gas = ct.Solution("h2o2.yaml")
+        flame = ct.FreeFlow(gas)
+        assert flame.jacobian_mode == "finite-difference"
+        flame.jacobian_mode = "analytic"
+        assert flame.jacobian_mode == "analytic"
+        with pytest.raises(ct.CanteraError, match="Unknown Jacobian mode"):
+            flame.jacobian_mode = "automagic"
+
+    def test_analytic_mode_unclaimed_is_identical(self):
+        # Until Flow1D implements claims, analytic mode must not change anything.
+        # NOTE: once Flow1D claims Y-columns (a later task) this becomes a
+        # closeness test; it is replaced there by TestAnalyticVsFD.
+        gas, sim = make_flame()
+        J_fd = get_jacobian(sim)
+        sim.flame.jacobian_mode = "analytic"
+        J_an = get_jacobian(sim)
+        assert np.array_equal(J_fd, J_an)

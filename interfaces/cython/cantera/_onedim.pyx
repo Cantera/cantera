@@ -434,6 +434,20 @@ cdef class Domain1D:
         else:
             return self.domain.transient_atol(self.component_index(component))
 
+    property jacobian_mode:
+        """
+        Method used to evaluate this domain's Jacobian columns:
+        ``'finite-difference'`` (default) or ``'analytic'``. In ``'analytic'``
+        mode, domains that support it compute some Jacobian columns
+        analytically instead of by finite differences.
+
+        .. versionadded:: 4.0
+        """
+        def __get__(self):
+            return pystr(self.domain.jacobianMode())
+        def __set__(self, mode):
+            self.domain.setJacobianMode(stringify(mode))
+
     property name:
         """ The name / id of this domain """
         def __get__(self):

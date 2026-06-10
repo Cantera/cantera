@@ -20,6 +20,7 @@ class Kinetics;
 class Transport;
 class Solution;
 class SolutionArray;
+class SystemJacobian;
 
 /**
  * Base class for one-dimensional domains.
@@ -258,6 +259,43 @@ public:
     double lowerBound(size_t n) const {
         return m_min[n];
     }
+
+    //! Set the method used to evaluate this domain's Jacobian columns.
+    //! @param mode  Either `"finite-difference"` (default) or `"analytic"`.
+    //!     In `"analytic"` mode, derived classes that implement analytic
+    //!     Jacobian elements (see hasAnalyticJacobian()) compute them directly
+    //!     instead of by finite-differencing the residual.
+    //! @since New in %Cantera 4.0.
+    void setJacobianMode(const string& mode) {
+        if (mode != "finite-difference" && mode != "analytic") {
+            throw CanteraError("Domain1D::setJacobianMode",
+                "Unknown Jacobian mode '{}'", mode);
+        }
+        m_jacobianMode = mode;
+    }
+
+    //! Get the method used to evaluate this domain's Jacobian columns.
+    //! @since New in %Cantera 4.0.
+    const string& jacobianMode() const {
+        return m_jacobianMode;
+    }
+
+    //! Returns `true` if this domain computes the Jacobian column for
+    //! component `n` at (domain-local) grid point `j` analytically, in which
+    //! case the finite-difference evaluation of that column is skipped and the
+    //! domain must provide all entries of the column in evalJacobianAnalytic().
+    //! @since New in %Cantera 4.0.
+    virtual bool hasAnalyticJacobian(size_t j, size_t n) const {
+        return false;
+    }
+
+    //! Add this domain's analytic Jacobian entries (for columns claimed by
+    //! hasAnalyticJacobian()) to `jac` via SystemJacobian::setValue(), using
+    //! global row/column indices (domain-local index + loc()). Entries must be
+    //! the steady-state Jacobian; transient diagonal terms are handled
+    //! separately. Base class implementation does nothing.
+    //! @since New in %Cantera 4.0.
+    virtual void evalJacobianAnalytic(span<const double> x, SystemJacobian& jac) {}
 
     /**
      * Set grid refinement criteria. @see Refiner::setCriteria.
@@ -715,6 +753,7 @@ protected:
     vector<string> m_name; //!< Names of solution components
     int m_bw = -1; //!< See bandwidth()
     bool m_force_full_update = false; //!< see forceFullUpdate()
+    string m_jacobianMode = "finite-difference"; //!< see setJacobianMode()
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
