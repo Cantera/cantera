@@ -1441,9 +1441,33 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
 //   Analytic Jacobian (species Y-columns)
 //---------------------------------------------------------------------------
 
+void Flow1D::probeAnalyticJacobian() const
+{
+    if (m_jacobianMode != "analytic" || m_analyticJacCapable != -1) {
+        return;
+    }
+    // Probe once whether the kinetics object supports the composition
+    // derivatives. The thermo object is left in a valid state by the base
+    // residual evaluation that precedes the Jacobian's FD column loop, so we
+    // can build the sparse pattern of m_ddC here without re-setting the state.
+    try {
+        m_kin->netProductionRates_ddCi(m_ddC);
+        m_analyticJacCapable = 1;
+    } catch (NotImplementedError& err) {
+        warn_user("Flow1D::probeAnalyticJacobian",
+            "Falling back to finite-difference Jacobian: {}", err.what());
+        m_analyticJacCapable = 0;
+        m_ddC = Eigen::SparseMatrix<double>();
+    }
+}
+
 bool Flow1D::usingAnalyticJacobian() const
 {
-    return m_jacobianMode == "analytic" && m_analyticJacCapable == 1
+    if (m_jacobianMode != "analytic") {
+        return false;
+    }
+    probeAnalyticJacobian();
+    return m_analyticJacCapable == 1
            && !m_do_multicomponent && !m_force_full_update
            && !m_do_radiation // removed in a later task
            && m_fluxGradientBasis == ThermoBasis::molar // removed in a later task
@@ -1458,19 +1482,6 @@ bool Flow1D::hasAnalyticJacobian(size_t j, size_t n) const
 
 void Flow1D::evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& jac)
 {
-    if (m_jacobianMode == "analytic" && m_analyticJacCapable == -1) {
-        // probe once whether the kinetics object supports the derivatives
-        try {
-            setGas(xGlobal.subspan(loc(), size()), 0);
-            m_kin->netProductionRates_ddCi(m_ddC);
-            m_analyticJacCapable = 1;
-        } catch (NotImplementedError& err) {
-            warn_user("Flow1D::evalJacobianAnalytic",
-                "Falling back to finite-difference Jacobian: {}", err.what());
-            m_analyticJacCapable = 0;
-            m_ddC = Eigen::SparseMatrix<double>();
-        }
-    }
     if (!usingAnalyticJacobian()) {
         return;
     }
@@ -1689,8 +1700,11 @@ void Flow1D::addEnergyJacEntries(span<const double> x, size_t p, SystemJacobian&
             m_thermo->getPartialMolarCp(m_jacCpWork); // J/kmol/K
             for (size_t m = 0; m < K; m++) {
                 double cpm = m_jacCpWork[m] / m_wt[m]; // J/kg/K
-                // 1/(rho cp) chain on -B/(rho cp)
-                col[m] += B * rcp * (m_wtm[j] / m_wt[m] - cpm / m_cp[j]);
+                // 1/(rho cp) chain on -B/(rho cp). The residual is
+                // rsd = -u dTdz - B/(rho cp); since d(1/(rho cp))/dY_m =
+                // (1/(rho cp))(wtm/W_m - cpm/cp) (FD-verified), the chain term
+                // is -B*rcp*(wtm/W_m - cpm/cp).
+                col[m] -= B * rcp * (m_wtm[j] / m_wt[m] - cpm / m_cp[j]);
                 // reaction chain: -(1/(rho cp)) sum_k h_k dwdot_k/dY_m
                 double s = 0.0;
                 for (size_t k = 0; k < K; k++) {

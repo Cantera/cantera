@@ -925,12 +925,14 @@ public:
 protected:
     //! `true` if analytic Jacobian columns are supported for the current
     //! configuration (set lazily; see usingAnalyticJacobian()).
-    //! -1: unprobed, 0: no, 1: yes
-    int m_analyticJacCapable = -1;
+    //! -1: unprobed, 0: no, 1: yes. Mutable because the capability probe runs
+    //! lazily from the const hasAnalyticJacobian()/usingAnalyticJacobian()
+    //! queries that the FD column-skip loop issues before evalJacobianAnalytic().
+    mutable int m_analyticJacCapable = -1;
 
     //! Sparse dwdot/dC (∂ω̇_k/∂C_m) at one point; pattern built on first fill and
     //! reused across points/calls by Kinetics::netProductionRates_ddCi(jac).
-    Eigen::SparseMatrix<double> m_ddC;
+    mutable Eigen::SparseMatrix<double> m_ddC;
     vector<double> m_dwdY; //!< dense dwdot/dY at one point, column-major K×K
     //! d(F_k(p-1))/dY_m(p) and d(F_k(p))/dY_m(p), column-major K×K. For a
     //! claimed column point p, only the derivatives of the two adjacent
@@ -945,6 +947,11 @@ protected:
 
     //! `true` if analytic Y-columns are active for this domain
     bool usingAnalyticJacobian() const;
+
+    //! Probe (once) whether the kinetics object supports the composition
+    //! derivatives required for the analytic Jacobian, caching the result in
+    //! #m_analyticJacCapable. Safe to call from const query methods.
+    void probeAnalyticJacobian() const;
 
     //! Chain rule: fill m_dwdY from m_ddC at point j (state already set)
     void computeWdotDerivatives(span<const double> x, size_t j);
