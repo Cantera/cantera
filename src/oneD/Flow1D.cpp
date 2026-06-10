@@ -9,6 +9,9 @@
 #include "cantera/transport/Transport.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/numerics/SystemJacobian.h"
+#include "cantera/numerics/eigen_sparse.h"
+#include "cantera/numerics/eigen_dense.h"
 #include "cantera/base/global.h"
 
 using namespace std;
@@ -171,6 +174,19 @@ void Flow1D::resize(size_t ncomponents, size_t points)
 
     m_dz.resize(m_points-1);
     m_z.resize(m_points);
+
+    // analytic Jacobian workspace. m_ddC (sparse) is intentionally NOT sized
+    // here: its pattern is built on the first netProductionRates_ddCi(m_ddC)
+    // call. Reset it to empty so a grid/state change rebuilds a fresh pattern.
+    m_ddC = Eigen::SparseMatrix<double>();
+    m_dwdY.resize(m_nsp * m_nsp);
+    m_dFm_dYp.resize(m_nsp * m_nsp);
+    m_dF0_dYp.resize(m_nsp * m_nsp);
+    m_jacScratch.resize(m_nsp * m_nsp);
+    m_jacBlockWork.resize(m_nsp * m_nsp);
+    m_jacXwork.resize(2 * m_nsp);
+    m_jacColWork.resize(m_nsp);
+    m_jacCpWork.resize(m_nsp);
 }
 
 void Flow1D::setupGrid(span<const double> z)
@@ -1419,6 +1435,216 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
             "Invalid operation: two-point control can only be used"
             "with axisymmetric flames.");
     }
+}
+
+//---------------------------------------------------------------------------
+//   Analytic Jacobian (species Y-columns)
+//---------------------------------------------------------------------------
+
+bool Flow1D::usingAnalyticJacobian() const
+{
+    return m_jacobianMode == "analytic" && m_analyticJacCapable == 1
+           && !m_do_multicomponent && !m_force_full_update
+           && !m_do_radiation // removed in a later task
+           && m_fluxGradientBasis == ThermoBasis::molar // removed in a later task
+           && m_points >= 6;
+}
+
+bool Flow1D::hasAnalyticJacobian(size_t j, size_t n) const
+{
+    return usingAnalyticJacobian()
+           && n >= c_offset_Y && j >= 2 && j + 3 <= m_points;
+}
+
+void Flow1D::evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& jac)
+{
+    if (m_jacobianMode == "analytic" && m_analyticJacCapable == -1) {
+        // probe once whether the kinetics object supports the derivatives
+        try {
+            setGas(xGlobal.subspan(loc(), size()), 0);
+            m_kin->netProductionRates_ddCi(m_ddC);
+            m_analyticJacCapable = 1;
+        } catch (NotImplementedError& err) {
+            warn_user("Flow1D::evalJacobianAnalytic",
+                "Falling back to finite-difference Jacobian: {}", err.what());
+            m_analyticJacCapable = 0;
+            m_ddC = Eigen::SparseMatrix<double>();
+        }
+    }
+    if (!usingAnalyticJacobian()) {
+        return;
+    }
+    span<const double> x = xGlobal.subspan(loc(), size());
+
+    // Refresh cached thermo (rho, wtm, cp, hk, wdot) and diffusive fluxes at
+    // the base state; FD point-evaluations may have left them perturbed at a
+    // few points. Transport coefficients (m_diff, m_visc, m_tcon) are NOT
+    // updated, matching the frozen-transport convention of the FD Jacobian.
+    updateThermo(x, 0, m_points - 1);
+    updateDiffFluxes(x, 0, m_points - 2);
+
+    for (size_t p = 2; p + 3 <= m_points; p++) {
+        setGas(x, p);
+        m_kin->netProductionRates_ddCi(m_ddC); // sparse, pattern reused across p
+        computeWdotDerivatives(x, p);
+        addSpeciesJacEntries(x, p, jac);
+        addEnergyJacEntries(x, p, jac);
+        addFlowJacEntries(x, p, jac);
+    }
+}
+
+void Flow1D::computeWdotDerivatives(span<const double> x, size_t j)
+{
+    // dwdot_k/dY_m = (rho * ddC[k][m] - wbar * (ddC . C)_k) / W_m
+    // (constant T and P; perturbations of unnormalized Y)
+    size_t K = m_nsp;
+    double rho = m_rho[j];
+    double wbar = m_wtm[j];
+    vector<double>& conc = m_jacColWork;
+    m_thermo->getConcentrations(conc); // state was set by caller via setGas
+    Eigen::Map<Eigen::MatrixXd> JY(m_dwdY.data(), K, K);
+    Eigen::Map<const Eigen::VectorXd> c(conc.data(), K);
+    Eigen::VectorXd g = m_ddC * c; // sparse matvec
+    // dense rank-1 part for every column
+    for (size_t m = 0; m < K; m++) {
+        JY.col(m) = (-wbar / m_wt[m]) * g;
+    }
+    // add the sparse ∂ω̇/∂C column scaled by rho/W_m
+    for (int m = 0; m < m_ddC.outerSize(); m++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(m_ddC, m); it; ++it) {
+            JY(it.row(), m) += rho / m_wt[m] * it.value();
+        }
+    }
+}
+
+void Flow1D::fluxJacobian(span<const double> x, size_t q,
+                          span<double> dFdYq, span<double> dFdYq1)
+{
+    // dF_k(q)/dY_m at points q (output dFdYq) and q+1 (output dFdYq1), K×K
+    // column-major, with the flux prefactors m_diff frozen. Mirrors
+    // updateDiffFluxes() for the mixture-averaged, molar-gradient case;
+    // Soret and electric-field terms have no Y dependence.
+    size_t K = m_nsp;
+    double dz = m_dz[q];
+    std::fill(dFdYq.begin(), dFdYq.end(), 0.0);
+    std::fill(dFdYq1.begin(), dFdYq1.end(), 0.0);
+
+    const double* d = &m_diff[q * K]; // frozen diffusion prefactors
+
+    // X and wbar at the two end points (unnormalized convention, matching the
+    // residual's X(x,k,j) accessor: X_n(p) = Y_n(p) * wbar_p / W_n)
+    double wbq = m_wtm[q], wbq1 = m_wtm[q + 1];
+    double* Xq = m_jacXwork.data();
+    double* Xq1 = m_jacXwork.data() + K;
+    for (size_t n = 0; n < K; n++) {
+        Xq[n] = Y(x, n, q) * wbq / m_wt[n];
+        Xq1[n] = Y(x, n, q + 1) * wbq1 / m_wt[n];
+    }
+
+    // S_q = -sum_n (d_n/dz)(X_n(q) - X_n(q+1)); a_p = sum_n (d_n/dz)X_n(p)
+    double S = 0.0, aq = 0.0, aq1 = 0.0;
+    for (size_t n = 0; n < K; n++) {
+        S -= d[n] / dz * (Xq[n] - Xq1[n]);
+        aq += d[n] / dz * Xq[n];
+        aq1 += d[n] / dz * Xq1[n];
+    }
+
+    for (size_t m = 0; m < K; m++) {
+        double fq = wbq / m_wt[m];   // dX/dY scale at point q
+        double fq1 = wbq1 / m_wt[m]; // at point q+1
+        double dS_dYmq = -fq * (d[m] / dz - aq);
+        double dS_dYmq1 = fq1 * (d[m] / dz - aq1);
+        for (size_t k = 0; k < K; k++) {
+            double Ykq = Y(x, k, q);
+            // dF_k(q)/dY_m(q)
+            double v = (d[k] / dz) * fq * ((k == m) - Xq[k]) + Ykq * dS_dYmq;
+            if (k == m) {
+                v += S;
+            }
+            dFdYq[m * K + k] = v;
+            // dF_k(q)/dY_m(q+1)
+            dFdYq1[m * K + k] = -(d[k] / dz) * fq1 * ((k == m) - Xq1[k])
+                                + Ykq * dS_dYmq1;
+        }
+    }
+}
+
+void Flow1D::addSpeciesJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
+{
+    size_t K = m_nsp;
+    fluxJacobian(x, p - 1, m_jacScratch, m_dFm_dYp);
+    fluxJacobian(x, p, m_dF0_dYp, m_jacScratch);
+
+    // rows at j = p-1, p, p+1; columns are Y_m at p. Accumulate the full K×K
+    // block first, then emit each (row, col) entry exactly once (MultiJac::
+    // setValue overwrites; EigenSparseJacobian sums duplicate triplets).
+    for (size_t j = p - 1; j <= p + 1; j++) {
+        double* blk = m_jacBlockWork.data(); // blk[m*K + k] = d rsd(Y_k, j)/d Y_m(p)
+        std::fill(m_jacBlockWork.begin(), m_jacBlockWork.end(), 0.0);
+        double rDz2 = 2.0 / ((z(j + 1) - z(j - 1)) * m_rho[j]);
+        double uj = u(x, j);
+        size_t jloc = (uj > 0.0) ? j : j + 1;
+
+        // diffusion flux-derivative terms
+        if (j == p - 1) {
+            for (size_t i = 0; i < K * K; i++) {
+                blk[i] -= rDz2 * m_dFm_dYp[i];
+            }
+        } else if (j == p) {
+            for (size_t i = 0; i < K * K; i++) {
+                blk[i] -= rDz2 * (m_dF0_dYp[i] - m_dFm_dYp[i]);
+            }
+        } else { // j == p + 1
+            for (size_t i = 0; i < K * K; i++) {
+                blk[i] += rDz2 * m_dF0_dYp[i];
+            }
+        }
+
+        if (j == p) {
+            for (size_t m = 0; m < K; m++) {
+                double rW = m_wtm[j] / m_wt[m];
+                for (size_t k = 0; k < K; k++) {
+                    // reaction term and the 1/rho chain on the reaction and
+                    // diffusion parts of the residual
+                    double diffus = 2.0 * (m_flux(k, j) - m_flux(k, j - 1))
+                                    / (z(j + 1) - z(j - 1));
+                    blk[m * K + k] += m_wt[k] / m_rho[j] * m_dwdY[m * K + k]
+                        + (m_wt[k] * m_wdot(k, j) - diffus) / m_rho[j] * rW;
+                }
+            }
+        }
+
+        // convection: -u_j * dYdz(k, j), upwinded
+        if (jloc == p) {
+            for (size_t k = 0; k < K; k++) {
+                blk[k * K + k] -= uj / m_dz[jloc - 1];
+            }
+        } else if (jloc - 1 == p) {
+            for (size_t k = 0; k < K; k++) {
+                blk[k * K + k] += uj / m_dz[jloc - 1];
+            }
+        }
+
+        for (size_t m = 0; m < K; m++) {
+            size_t gcol = loc() + index(c_offset_Y + m, p);
+            for (size_t k = 0; k < K; k++) {
+                if (blk[m * K + k] != 0.0) {
+                    jac.setValue(loc() + index(c_offset_Y + k, j), gcol,
+                                 blk[m * K + k]);
+                }
+            }
+        }
+    }
+}
+
+void Flow1D::addEnergyJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
+{
+    // Implemented in Task 5.
+}
+
+void Flow1D::addFlowJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
+{
+    // Implemented in Task 5.
 }
 
 } // namespace
