@@ -125,6 +125,7 @@ void BulkKinetics::resizeReactions()
     m_rbuf0.resize(nReactions());
     m_rbuf1.resize(nReactions());
     m_rbuf2.resize(nReactions());
+    m_rbuf3.assign(nTotalSpecies(), 0.0);
     m_kf0.resize(nReactions());
     m_sbuf0.resize(nTotalSpecies());
     m_state.resize(thermo().stateSize());
@@ -693,6 +694,100 @@ Eigen::SparseMatrix<double> BulkKinetics::calculateCompositionDerivatives(
     // derivatives handled by ThirdBodyCalc
     out += m_multi_concm.derivatives(outV);
     return out;
+}
+
+namespace {
+
+//! Fuse one rates-of-progress-derivative matrix `dRoP` (rows = reactions,
+//! cols = species, compressed column-major) with the net stoichiometry matrix
+//! `stoichMat` (rows = species k, cols = reactions i) into the result column
+//! storage of `out`, computing
+//!   out(k, m) += sign * sum_i stoichMat(k, i) * dRoP(i, m).
+//! `scatter` is a length-K dense workspace; on entry and exit all of its touched
+//! entries are zero. `out` must already have a nonzero slot for every (k, m)
+//! that the product touches.
+template <class Derived>
+void fuseStoichProduct(const Eigen::SparseMatrix<double>& stoichMat,
+                       const Eigen::SparseMatrixBase<Derived>& dRoP,
+                       Eigen::SparseMatrix<double>& out,
+                       double sign,
+                       vector<double>& scatter)
+{
+    const int* outOuter = out.outerIndexPtr();
+    const int* outInner = out.innerIndexPtr();
+    double* outVal = out.valuePtr();
+    for (int m = 0; m < dRoP.outerSize(); m++) {
+        // accumulate column m of the product into the dense scatter, touching
+        // only species rows k that actually appear
+        for (typename Derived::InnerIterator it(dRoP.derived(), m); it; ++it) {
+            int i = it.row(); // reaction index
+            double v = sign * it.value();
+            for (Eigen::SparseMatrix<double>::InnerIterator sit(stoichMat, i);
+                 sit; ++sit) {
+                scatter[sit.row()] += sit.value() * v;
+            }
+        }
+        // fold the scatter into out's compressed storage for column m and reset
+        for (int slot = outOuter[m]; slot < outOuter[m + 1]; slot++) {
+            int k = outInner[slot];
+            outVal[slot] += scatter[k];
+            scatter[k] = 0.0;
+        }
+    }
+}
+
+} // anonymous namespace
+
+void BulkKinetics::accumulateCompositionDerivatives(
+    StoichManagerN& stoich, span<const double> in,
+    Eigen::SparseMatrix<double>& out, double sign)
+{
+    vector<double>& outV = m_rbuf2;
+
+    // derivatives due to law of mass action
+    copy(in.begin(), in.end(), outV.begin());
+    processThirdBodies(outV);
+    // consume the StoichManagerN Map immediately; its backing storage is reused
+    // on the next call to stoich.derivatives()
+    fuseStoichProduct(m_stoichMatrix, stoich.derivatives(m_act_conc, outV),
+                      out, sign, m_rbuf3);
+
+    if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
+        return;
+    }
+
+    // derivatives due to reaction rates depending on third-body colliders
+    copy(in.begin(), in.end(), outV.begin());
+    stoich.multiply(m_act_conc, outV);
+    if (!m_jac_skip_falloff) {
+        for (auto& rates : m_rateHandlers) {
+            // processing step does not modify entries not dependent on M
+            rates->processRateConstants_ddM(outV, m_rfn, m_jac_rtol_delta, false);
+        }
+    }
+    // derivatives handled by ThirdBodyCalc
+    fuseStoichProduct(m_stoichMatrix, m_multi_concm.derivatives(outV),
+                      out, sign, m_rbuf3);
+}
+
+void BulkKinetics::netProductionRates_ddCi(Eigen::SparseMatrix<double>& jac)
+{
+    assertDerivativesValid("BulkKinetics::netProductionRates_ddCi");
+    if (jac.nonZeros() == 0) {
+        // build the fixed pattern once; values overwritten below
+        jac = Kinetics::netProductionRates_ddCi();
+        jac.makeCompressed();
+    }
+    std::fill(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), 0.0);
+
+    // forward reaction rate coefficients
+    vector<double>& rop_rates = m_rbuf0;
+    getFwdRateConstants(rop_rates);
+    accumulateCompositionDerivatives(m_reactantStoich, rop_rates, jac, 1.0);
+
+    // reverse reaction rate coefficients
+    applyEquilibriumConstants(rop_rates);
+    accumulateCompositionDerivatives(m_revProductStoich, rop_rates, jac, -1.0);
 }
 
 void BulkKinetics::assertDerivativesValid(const string& name)
