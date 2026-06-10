@@ -55,6 +55,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         string domainType()
         shared_ptr[CxxSolutionArray] toArray(cbool) except +translate_exception
         void fromArray(shared_ptr[CxxSolutionArray]) except +translate_exception
+        void setJacobianMode(string&) except +translate_exception
+        string jacobianMode()
 
 
 cdef extern from "cantera/oneD/Boundary1D.h":

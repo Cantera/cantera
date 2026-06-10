@@ -286,7 +286,14 @@ void OneDim::evalJacobian(span<const double> x0)
     size_t ipt = 0;
     for (size_t j = 0; j < points(); j++) {
         size_t nv = nVars(j);
+        Domain1D* dom = pointDomain(ipt);
+        size_t jLocal = j - dom->firstPoint();
         for (size_t n = 0; n < nv; n++) {
+            if (dom->hasAnalyticJacobian(jLocal, n)) {
+                // skip FD perturbation; analytic fill handled below
+                ipt++;
+                continue;
+            }
             // perturb x(n); preserve sign(x(n))
             double xsave = x0[ipt];
             double dx = fabs(xsave) * m_jacobianRelPerturb + m_jacobianAbsPerturb;
@@ -315,6 +322,11 @@ void OneDim::evalJacobian(span<const double> x0)
             perturbed[ipt] = xsave;
             ipt++;
         }
+    }
+
+    // analytic contributions for claimed columns
+    for (auto& dom : m_dom) {
+        dom->evalJacobianAnalytic(x0, *m_jac);
     }
 
     m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
