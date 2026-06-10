@@ -917,6 +917,52 @@ protected:
     //! Array of size #m_nsp by #m_points for saving species production rates
     Array2D m_wdot;
 
+    //---------- analytic Jacobian machinery (see evalJacobianAnalytic) ----------
+public:
+    bool hasAnalyticJacobian(size_t j, size_t n) const override;
+    void evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& jac) override;
+
+protected:
+    //! `true` if analytic Jacobian columns are supported for the current
+    //! configuration (set lazily; see usingAnalyticJacobian()).
+    //! -1: unprobed, 0: no, 1: yes
+    int m_analyticJacCapable = -1;
+
+    //! Sparse dwdot/dC (∂ω̇_k/∂C_m) at one point; pattern built on first fill and
+    //! reused across points/calls by Kinetics::netProductionRates_ddCi(jac).
+    Eigen::SparseMatrix<double> m_ddC;
+    vector<double> m_dwdY; //!< dense dwdot/dY at one point, column-major K×K
+    //! d(F_k(p-1))/dY_m(p) and d(F_k(p))/dY_m(p), column-major K×K. For a
+    //! claimed column point p, only the derivatives of the two adjacent
+    //! midpoint fluxes with respect to Y *at p* are needed.
+    vector<double> m_dFm_dYp;
+    vector<double> m_dF0_dYp;
+    vector<double> m_jacScratch; //!< discarded second output of fluxJacobian (K×K)
+    vector<double> m_jacBlockWork; //!< per-(row, col-point) accumulation block (K×K)
+    vector<double> m_jacXwork; //!< mole fractions at two interval endpoints (2K)
+    vector<double> m_jacColWork; //!< concentrations / energy-row accumulator (K)
+    vector<double> m_jacCpWork; //!< species heat capacities (K)
+
+    //! `true` if analytic Y-columns are active for this domain
+    bool usingAnalyticJacobian() const;
+
+    //! Chain rule: fill m_dwdY from m_ddC at point j (state already set)
+    void computeWdotDerivatives(span<const double> x, size_t j);
+
+    //! d(F_k(q))/dY_m at the two end points of midpoint interval q.
+    //! Writes K×K column-major matrices dF/dY(q) and dF/dY(q+1).
+    void fluxJacobian(span<const double> x, size_t q,
+                      span<double> dFdYq, span<double> dFdYq1);
+
+    //! Add species-row entries for claimed column point p
+    void addSpeciesJacEntries(span<const double> x, size_t p, SystemJacobian& jac);
+
+    //! Add energy-row entries for claimed column point p
+    void addEnergyJacEntries(span<const double> x, size_t p, SystemJacobian& jac);
+
+    //! Add continuity- and momentum-row entries for claimed column point p
+    void addFlowJacEntries(span<const double> x, size_t p, SystemJacobian& jac);
+
     size_t m_nsp; //!< Number of species in the mechanism
 
     //! Phase object used for calculating thermodynamic properties
