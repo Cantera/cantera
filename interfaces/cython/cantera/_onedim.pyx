@@ -88,6 +88,16 @@ cdef class Domain1D:
         """Index of the component with name 'name'"""
         return self.domain.componentIndex(stringify(name))
 
+    def global_component_index(self, str component, int point):
+        """
+        The index of the component named ``component`` at grid point ``point``
+        within the global solution vector of a containing `Sim1D`. Mirrors
+        `ReactorNet.global_component_index`.
+
+        .. versionadded:: 4.0
+        """
+        return self.domain.globalComponentIndex(stringify(component), point)
+
     def _has_component(self, str name):
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
@@ -1067,6 +1077,16 @@ cdef class Sim1D:
            Reciprocal of the time-step
         """
         self.sim.eval(rdt)
+
+    def eval_jacobian(self):
+        """
+        Evaluate the steady-state Jacobian at the current solution estimate.
+        The result can be examined through the `linear_solver` object, e.g. the
+        ``jacobian`` property of `EigenSparseDirectJacobian`.
+
+        .. versionadded:: 4.0
+        """
+        self.sim.evalSSJacobian()
 
     def show(self):
         """

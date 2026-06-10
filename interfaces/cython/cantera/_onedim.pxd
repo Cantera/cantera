@@ -25,6 +25,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
         string componentName(size_t) except +translate_exception
         size_t componentIndex(string&) except +translate_exception
         cbool hasComponent(string&) except +translate_exception
+        size_t globalComponentIndex(string&, size_t) except +translate_exception
         string info(vector[string]&, int, int) except +translate_exception
         void updateState(size_t) except +translate_exception
         span[const_double] grid() except +translate_exception
@@ -144,6 +145,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
 
         int domainIndex(string) except +translate_exception
         void eval(double ) except +translate_exception
+        void evalSSJacobian() except +translate_exception
         size_t size()
         void solveAdjoint(span[const_double], span[double]) except +translate_exception
         void getResidual(double, span[double]) except +translate_exception

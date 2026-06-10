@@ -172,6 +172,13 @@ public:
      */
     virtual bool hasComponent(const string& name, bool checkAlias=true) const;
 
+    //! Index of component `name` at grid point `j` within the global solution
+    //! vector of the containing OneDim/Sim1D object.
+    //! @since New in %Cantera 4.0.
+    size_t globalComponentIndex(const string& name, size_t j) const {
+        return loc() + index(componentIndex(name), j);
+    }
+
     /**
      * Update state at given location to state of associated Solution object.
      */
