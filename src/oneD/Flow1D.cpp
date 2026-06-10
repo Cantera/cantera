@@ -1639,12 +1639,128 @@ void Flow1D::addSpeciesJacEntries(span<const double> x, size_t p, SystemJacobian
 
 void Flow1D::addEnergyJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
 {
-    // Implemented in Task 5.
+    size_t K = m_nsp;
+    // m_dFm_dYp / m_dF0_dYp are fresh from addSpeciesJacEntries(p).
+    // rows j = p-1, p, p+1; energy rows only exist at interior points
+    for (size_t j = p - 1; j <= p + 1; j++) {
+        if (j == 0 || j + 1 == m_points || !m_do_energy[j]) {
+            continue; // T - T_fixed residual has no Y dependence
+        }
+        double rcp = 1.0 / (m_rho[j] * m_cp[j]);
+        grad_hk(x, j); // fills m_dhk_dz(:, j)
+        double* col = m_jacColWork.data(); // col[m] = d rsd(T, j)/d Y_m(p)
+        std::fill(m_jacColWork.begin(), m_jacColWork.end(), 0.0);
+
+        // enthalpy-flux term: -(1/(rho cp)) sum_k (dhk_dz_k/W_k) * dFbar_k/dY_m
+        // Fbar_k = 0.5(F_k(j-1) + F_k(j)); the dF/dY(p) blocks for the two
+        // intervals adjacent to point p map to rows j as for species diffusion.
+        const double* dFa = nullptr;
+        const double* dFb = nullptr;
+        if (j == p - 1) {
+            dFa = m_dFm_dYp.data(); // dF(p-1)/dY(p) contributes to Fbar(p-1)
+        } else if (j == p) {
+            dFa = m_dFm_dYp.data(); // dF(p-1)/dY(p)
+            dFb = m_dF0_dYp.data(); // dF(p)/dY(p)
+        } else { // j == p + 1
+            dFa = m_dF0_dYp.data(); // dF(p)/dY(p) contributes to Fbar(p+1)
+        }
+        for (size_t m = 0; m < K; m++) {
+            double s = 0.0;
+            for (size_t k = 0; k < K; k++) {
+                double dF = (dFa ? dFa[m * K + k] : 0.0)
+                            + (dFb ? dFb[m * K + k] : 0.0);
+                s += m_dhk_dz(k, j) / m_wt[k] * 0.5 * dF;
+            }
+            col[m] -= rcp * s;
+        }
+
+        if (j == p) {
+            // B = cond + sum_k(wdot_k h_k + Fbar_k dhk_dz_k/W_k) + qdot; the
+            // -u*dTdz part of the residual has no Y dependence (rho cancels)
+            double B = conduction(x, j);
+            for (size_t k = 0; k < K; k++) {
+                double flxk = 0.5 * (m_flux(k, j - 1) + m_flux(k, j));
+                B += m_wdot(k, j) * m_hk(k, j);
+                B += flxk * m_dhk_dz(k, j) / m_wt[k];
+            }
+            B += m_qdotRadiation[j]; // zero unless radiation enabled
+            // species heat capacities (mass basis) at point j; setGas was
+            // called for point p == j by evalJacobianAnalytic
+            m_thermo->getPartialMolarCp(m_jacCpWork); // J/kmol/K
+            for (size_t m = 0; m < K; m++) {
+                double cpm = m_jacCpWork[m] / m_wt[m]; // J/kg/K
+                // 1/(rho cp) chain on -B/(rho cp)
+                col[m] += B * rcp * (m_wtm[j] / m_wt[m] - cpm / m_cp[j]);
+                // reaction chain: -(1/(rho cp)) sum_k h_k dwdot_k/dY_m
+                double s = 0.0;
+                for (size_t k = 0; k < K; k++) {
+                    s += m_hk(k, j) * m_dwdY[m * K + k];
+                }
+                col[m] -= rcp * s;
+            }
+            // radiation derivative added here in the radiation task
+        }
+
+        size_t grow = loc() + index(c_offset_T, j);
+        for (size_t m = 0; m < K; m++) {
+            if (col[m] != 0.0) {
+                jac.setValue(grow, loc() + index(c_offset_Y + m, p), col[m]);
+            }
+        }
+    }
 }
 
 void Flow1D::addFlowJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
 {
-    // Implemented in Task 5.
+    size_t K = m_nsp;
+    // d(rho_q)/dY_m(q) = -rho_q * wbar_q / W_m
+    auto addRhoChain = [&](size_t row_j, size_t q, double drsd_drho) {
+        // emits d(rsd[c_offset_U, row_j])/dY_m(q) for q == p only
+        if (q != p) {
+            return;
+        }
+        size_t grow = loc() + index(c_offset_U, row_j);
+        for (size_t m = 0; m < K; m++) {
+            double v = drsd_drho * (-m_rho[q] * m_wtm[q] / m_wt[m]);
+            jac.setValue(grow, loc() + index(c_offset_Y + m, p), v);
+        }
+    };
+
+    for (size_t j = p - 1; j <= p + 1; j++) {
+        if (j == 0 || j + 1 == m_points) {
+            continue;
+        }
+        if (m_usesLambda) { // axisymmetric
+            // rsd_U(j) = -(rho_u(j+1)-rho_u(j))/m_dz[j] - (rho(j+1)V(j+1)+rho(j)V(j))
+            addRhoChain(j, j, u(x, j) / m_dz[j] - V(x, j));
+            addRhoChain(j, j + 1, -u(x, j + 1) / m_dz[j] - V(x, j + 1));
+        } else if (m_isFree) {
+            if (z(j) > m_zfixed) {
+                addRhoChain(j, j, -u(x, j) / m_dz[j - 1]);
+                addRhoChain(j, j - 1, u(x, j - 1) / m_dz[j - 1]);
+            } else if (z(j) == m_zfixed) {
+                if (!m_do_energy[j]) {
+                    addRhoChain(j, j, u(x, j));
+                } // else: T-based residual, no Y dependence
+            } else { // z(j) < m_zfixed
+                addRhoChain(j, j + 1, -u(x, j + 1) / m_dz[j]);
+                addRhoChain(j, j, u(x, j) / m_dz[j]);
+            }
+        } else { // unstrained
+            addRhoChain(j, j, u(x, j));
+            addRhoChain(j, j - 1, -u(x, j - 1));
+        }
+
+        // momentum row (axisymmetric only): ((shear - Lambda)/rho_j) chain
+        if (m_usesLambda && j == p) {
+            double Mj = shear(x, j) - Lambda(x, j);
+            size_t grow = loc() + index(c_offset_V, j);
+            for (size_t m = 0; m < K; m++) {
+                double v = Mj / m_rho[j] * m_wtm[j] / m_wt[m];
+                jac.setValue(grow, loc() + index(c_offset_Y + m, p), v);
+            }
+        }
+    }
 }
 
 } // namespace
