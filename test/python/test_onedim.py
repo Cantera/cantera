@@ -2295,3 +2295,69 @@ class TestIonBurnerFlame:
         # Regression test
         assert max(self.sim.flame.electric_field) == approx(591.76, rel=1e-2)
         assert max(self.sim.X[self.gas.species_index('E')]) == approx(8.024e-9, rel=1e-2)
+
+
+# --- 1D Jacobian evaluation: FD/analytic comparison harness ---
+
+def make_flame(mech="h2o2.yaml", fuel="H2:1.0", width=0.02, **flame_kwargs):
+    gas = ct.Solution(mech)
+    gas.TP = 300, ct.one_atm
+    gas.set_equivalence_ratio(1.0, fuel, "O2:1.0, N2:3.76")
+    sim = ct.FreeFlame(gas, width=width)
+    sim.set_refine_criteria(ratio=4, slope=0.3, curve=0.5)
+    for key, val in flame_kwargs.items():
+        setattr(sim.flame, key, val)
+    sim.solve(loglevel=0, auto=True)
+    return gas, sim
+
+
+def get_jacobian(sim):
+    """Evaluate and return the dense steady-state Jacobian at the current state."""
+    if not isinstance(sim.linear_solver, ct.EigenSparseDirectJacobian):
+        sim.linear_solver = ct.EigenSparseDirectJacobian()
+    sim.eval_jacobian()
+    J = sim.linear_solver.jacobian
+    # jacobian may be a dense ndarray or scipy sparse matrix depending on
+    # whether ct.use_sparse(True) has been called; normalise to dense.
+    if hasattr(J, "toarray"):
+        return J.toarray()
+    return np.array(J)
+
+
+class TestEvalJacobian:
+    def test_jacobian_matches_manual_fd(self):
+        gas, sim = make_flame()
+        J = get_jacobian(sim)
+        flame = sim.flame
+        n_comp = flame.n_components
+
+        # manual FD of the residual for one species column at one interior point,
+        # mirroring OneDim::evalJacobian (one-sided, rel 1e-5, abs 1e-10)
+        ntot = sum(d.n_components * d.n_points for d in sim.domains)
+        assert J.shape == (ntot, ntot)
+
+        jpt = flame.n_points // 2
+        comp = "OH"
+        prof = flame.values(comp).copy()
+        sim.eval(0.0)
+        r0 = np.array([flame.residuals(flame.component_name(i))[jpt]
+                       for i in range(n_comp)])
+        dy = abs(prof[jpt]) * 1e-5 + 1e-10
+        prof[jpt] += dy
+        flame.set_values(comp, prof)
+        sim.eval(0.0)
+        r1 = np.array([flame.residuals(flame.component_name(i))[jpt]
+                       for i in range(n_comp)])
+        prof[jpt] -= dy
+        flame.set_values(comp, prof)
+
+        # rows: all components at point jpt; column: OH at jpt. The global index
+        # of component `comp` at grid point `jpt` is global_component_index(comp, jpt).
+        col = flame.global_component_index(comp, jpt)
+        row0 = flame.global_component_index(flame.component_name(0), jpt)
+        fd_col = (r1 - r0) / dy
+        jac_col = J[row0: row0 + n_comp, col]
+        # The solver FD freezes transport properties; sim.eval() does a full
+        # update. Differences are bounded by the neglected dD/dY terms (<1%).
+        scale = np.abs(fd_col).max()
+        assert np.abs(jac_col - fd_col).max() < 2e-2 * scale
