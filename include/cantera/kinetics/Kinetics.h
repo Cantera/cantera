@@ -1132,6 +1132,17 @@ public:
      */
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 
+    //! Calculate derivatives of species net production rates with respect to
+    //! species concentrations, filling the caller-owned sparse matrix @c jac and
+    //! reusing its existing nonzero pattern across calls. The sparsity pattern of
+    //! d(wdot_k)/d(c_m) is fixed for a given mechanism and derivative settings.
+    //! On the first call (when @c jac is empty) the pattern is constructed;
+    //! subsequent calls overwrite the stored values in place with no allocation.
+    //! Pass a default-constructed matrix after changing derivativeSettings().
+    //! @param[in,out] jac  Sparse matrix to fill; pattern reused if non-empty.
+    //! @since New in %Cantera 4.0.
+    virtual void netProductionRates_ddCi(Eigen::SparseMatrix<double>& jac);
+
     /** @} End of Kinetics Derivatives */
     //! @} End of addtogroup derivGroup
 

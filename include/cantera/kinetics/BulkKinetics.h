@@ -77,6 +77,7 @@ public:
     Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi() override;
     Eigen::SparseMatrix<double> revRatesOfProgress_ddCi() override;
     Eigen::SparseMatrix<double> netRatesOfProgress_ddCi() override;
+    void netProductionRates_ddCi(Eigen::SparseMatrix<double>& jac) override;
     //! @}
 
     //! @name Rate calculation intermediate methods
@@ -139,6 +140,16 @@ protected:
     Eigen::SparseMatrix<double> calculateCompositionDerivatives(
         StoichManagerN& stoich, span<const double> in, bool ddX=true);
 
+    //! Accumulate `sign * nu_net * d(rates-of-progress)/dC` into the
+    //! already-patterned, compressed column-major sparse matrix `out`, mirroring
+    //! calculateCompositionDerivatives() but scattering the stoichiometry-matrix
+    //! product directly into `out` via an O(K) dense scatter column. `out`'s
+    //! pattern must already cover every (k, m) the product can touch.
+    void accumulateCompositionDerivatives(StoichManagerN& stoich,
+                                          span<const double> in,
+                                          Eigen::SparseMatrix<double>& out,
+                                          double sign);
+
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
     //! @throw CanteraError if ideal gas assumption does not hold
@@ -174,6 +185,11 @@ protected:
     vector<double> m_rbuf0;
     vector<double> m_rbuf1;
     vector<double> m_rbuf2;
+
+    //! Dense scatter column of length nTotalSpecies() used by
+    //! accumulateCompositionDerivatives() to fold the stoichiometry-matrix product
+    //! into the result column-by-column.
+    vector<double> m_rbuf3;
     vector<double> m_kf0; //!< Forward rate constants without perturbation
     vector<double> m_sbuf0;
     vector<double> m_state;

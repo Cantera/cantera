@@ -2,6 +2,7 @@
 #include "cantera/core.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -242,6 +243,39 @@ TEST(LinearBurkeRate, RateCombinations)
     double Pr_R6 = 7.0 / eps_mix * X_R6;
     EXPECT_NEAR(kf(0, T, P0, "P3A: 0.4, R6: 0.6"),
                 kf(2, T, Peff_P3A) * Pr_P3A + kf(1, T, Peff_M) * Pr_R6, atol);
+}
+
+TEST(NetProductionRates_ddCi, pattern_reuse_matches_allocating)
+{
+    auto sol = newSolution("gri30.yaml");
+    auto& kin = *sol->kinetics();
+    auto& thermo = *sol->thermo();
+    Eigen::SparseMatrix<double> reused; // empty: pattern built on first call
+
+    for (auto state : {std::make_tuple(1500.0, 2e5, "CH4:0.05, O2:0.21, N2:0.74, "
+                                       "CO2:0.04, H2O:0.05, OH:1e-5, H:1e-6"),
+                       std::make_tuple(1100.0, 1e5,
+                                       "H2:0.3, O2:0.2, OH:1e-4, H:2e-5, N2:0.5")}) {
+        thermo.setState_TPX(std::get<0>(state), std::get<1>(state), std::get<2>(state));
+        Eigen::SparseMatrix<double> ref = kin.netProductionRates_ddCi(); // allocating
+        kin.netProductionRates_ddCi(reused);                             // in place
+        Eigen::MatrixXd diff = Eigen::MatrixXd(reused) - Eigen::MatrixXd(ref);
+        EXPECT_LT(diff.cwiseAbs().maxCoeff(), 1e-12 * ref.coeffs().cwiseAbs().maxCoeff());
+    }
+}
+
+TEST(NetProductionRates_ddCi, pattern_reuse_with_skip_third_bodies)
+{
+    auto sol = newSolution("gri30.yaml");
+    auto& kin = *sol->kinetics();
+    sol->thermo()->setState_TPX(1500, 1e5, "CH4:0.05, O2:0.2, N2:0.75, OH:1e-5");
+    AnyMap settings; settings["skip-third-bodies"] = true;
+    kin.setDerivativeSettings(settings);
+    Eigen::SparseMatrix<double> ref = kin.netProductionRates_ddCi();
+    Eigen::SparseMatrix<double> reused;
+    kin.netProductionRates_ddCi(reused);
+    Eigen::MatrixXd diff = Eigen::MatrixXd(reused) - Eigen::MatrixXd(ref);
+    EXPECT_LT(diff.cwiseAbs().maxCoeff(), 1e-12 * ref.coeffs().cwiseAbs().maxCoeff());
 }
 
 
