@@ -2373,12 +2373,44 @@ class TestJacobianMode:
         with pytest.raises(ct.CanteraError, match="Unknown Jacobian mode"):
             flame.jacobian_mode = "automagic"
 
-    def test_analytic_mode_unclaimed_is_identical(self):
-        # Until Flow1D implements claims, analytic mode must not change anything.
-        # NOTE: once Flow1D claims Y-columns (a later task) this becomes a
-        # closeness test; it is replaced there by TestAnalyticVsFD.
+
+def compare_modes(sim, rtol=1e-3):
+    """Solve-state FD vs analytic Jacobian comparison for claimed columns."""
+    flame = sim.flame
+    sim.flame.jacobian_mode = "finite-difference"
+    J_fd = get_jacobian(sim)
+    sim.flame.jacobian_mode = "analytic"
+    J_an = get_jacobian(sim)
+
+    n_comp = flame.n_components
+    n_pts = flame.n_points
+    K = sim.gas.n_species
+    first_species = flame.component_name(n_comp - K)  # first species component
+    worst = 0.0
+    # global index of component 0 at point p == start of point p's column block
+    pt0 = lambda p: flame.global_component_index(flame.component_name(0), p)
+    # claimed columns: species at points 2 .. n_pts-3 inclusive, matching
+    # Flow1D::hasAnalyticJacobian (j >= 2 && j + 3 <= m_points)
+    for p in range(2, n_pts - 2):
+        cols = slice(flame.global_component_index(first_species, p),
+                     pt0(p) + n_comp)
+        fd = J_fd[:, cols]
+        an = J_an[:, cols]
+        scale = max(np.abs(fd).max(), 1e-7)
+        worst = max(worst, np.abs(an - fd).max() / scale)
+        assert np.abs(an - fd).max() < rtol * scale, f"point {p}"
+    # unclaimed columns must be bit-identical (same FD path)
+    for p in (0, 1, n_pts - 2, n_pts - 1):
+        cols = slice(pt0(p), pt0(p) + n_comp)
+        assert np.array_equal(J_fd[:, cols], J_an[:, cols])
+    return worst
+
+
+class TestAnalyticVsFD:
+    def test_free_flame_h2(self):
         gas, sim = make_flame()
-        J_fd = get_jacobian(sim)
-        sim.flame.jacobian_mode = "analytic"
-        J_an = get_jacobian(sim)
-        assert np.array_equal(J_fd, J_an)
+        compare_modes(sim)
+
+    def test_free_flame_gri(self):
+        gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03)
+        compare_modes(sim)
