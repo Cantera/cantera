@@ -478,18 +478,24 @@ void Flow1D::updateDiffFluxes(span<const double> x, size_t j0, size_t j1)
     }
 }
 
+double Flow1D::radiationPolyFactor(span<const double> x, size_t j, int s) const
+{
+    // Polynomial coefficients for Planck-mean absorption, from the RADCAL program
+    // and TNF Workshop data. Index 0 = CO2, index 1 = H2O.
+    static const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
+                                    56.310, -5.8169};
+    static const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
+                                    0.51382, -1.86840e-5};
+    const double* c = (s == 0) ? c_CO2 : c_H2O;
+    double f = 0.0;
+    for (size_t n = 0; n <= 5; n++) {
+        f += c[n] * pow(1000.0 / T(x, j), (double) n);
+    }
+    return f / OneAtm; // k_P_ref = 1 atm
+}
+
 void Flow1D::computeRadiation(span<const double> x, size_t jmin, size_t jmax)
 {
-    // Variable definitions for the Planck absorption coefficient and the
-    // radiation calculation:
-    double k_P_ref = 1.0*OneAtm;
-
-    // Polynomial coefficients:
-    const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
-                                    0.51382, -1.86840e-5};
-    const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
-                                    56.310, -5.8169};
-
     // Calculation of the two boundary values
     double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
     double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
@@ -497,23 +503,13 @@ void Flow1D::computeRadiation(span<const double> x, size_t jmin, size_t jmax)
     for (size_t j = jmin; j < jmax; j++) {
         // calculation of the mean Planck absorption coefficient
         double k_P = 0;
-        // Absorption coefficient for H2O
+        // Absorption coefficient for H2O (m_kRadiating[1])
         if (m_kRadiating[1] != npos) {
-            double k_P_H2O = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
-            }
-            k_P_H2O /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
+            k_P += m_press * X(x, m_kRadiating[1], j) * radiationPolyFactor(x, j, 1);
         }
-        // Absorption coefficient for CO2
+        // Absorption coefficient for CO2 (m_kRadiating[0])
         if (m_kRadiating[0] != npos) {
-            double k_P_CO2 = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
-            }
-            k_P_CO2 /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
+            k_P += m_press * X(x, m_kRadiating[0], j) * radiationPolyFactor(x, j, 0);
         }
 
         // Calculation of the radiative heat loss term
@@ -1469,8 +1465,6 @@ bool Flow1D::usingAnalyticJacobian() const
     probeAnalyticJacobian();
     return m_analyticJacCapable == 1
            && !m_do_multicomponent && !m_force_full_update
-           && !m_do_radiation // removed in a later task
-           && m_fluxGradientBasis == ThermoBasis::molar // removed in a later task
            && m_points >= 6;
 }
 
@@ -1541,6 +1535,27 @@ void Flow1D::fluxJacobian(span<const double> x, size_t q,
     std::fill(dFdYq1.begin(), dFdYq1.end(), 0.0);
 
     const double* d = &m_diff[q * K]; // frozen diffusion prefactors
+
+    if (m_fluxGradientBasis == ThermoBasis::mass) {
+        // Mass-basis flux: F_k(q) = d_kq*(Y_k(q)-Y_k(q+1))/dz + Y_k(q)*S_q
+        // with S_q = -sum_n (d_nq/dz)(Y_n(q)-Y_n(q+1)). No wbar/W_m factors.
+        double S = 0.0;
+        for (size_t n = 0; n < K; n++) {
+            S -= d[n] / dz * (Y(x, n, q) - Y(x, n, q + 1));
+        }
+        for (size_t m = 0; m < K; m++) {
+            for (size_t k = 0; k < K; k++) {
+                double Ykq = Y(x, k, q);
+                double v = -Ykq * d[m] / dz;
+                if (k == m) {
+                    v += d[k] / dz + S;
+                }
+                dFdYq[m * K + k] = v;
+                dFdYq1[m * K + k] = (k == m ? -d[k] / dz : 0.0) + Ykq * d[m] / dz;
+            }
+        }
+        return;
+    }
 
     // X and wbar at the two end points (unnormalized convention, matching the
     // residual's X(x,k,j) accessor: X_n(p) = Y_n(p) * wbar_p / W_n)
@@ -1712,7 +1727,28 @@ void Flow1D::addEnergyJacEntries(span<const double> x, size_t p, SystemJacobian&
                 }
                 col[m] -= rcp * s;
             }
-            // radiation derivative added here in the radiation task
+            if (m_do_radiation) {
+                // qdot(j) = 2 kP (2 sigma T^4 - BL - BR)
+                // kP = sum_s P * X_s * f_s(T), d(qdot)/dX_s = 2 P f_s(T) * bracket
+                // dX_s/dY_m = (wbar/W_m)(delta_sm - X_s)
+                // The energy residual contribution is -qdot/(rho cp), so
+                // col[m] gets -(1/(rho cp)) * d(qdot)/dY_m
+                double bracket = 2.0 * StefanBoltz * pow(T(x, j), 4)
+                    - m_epsilon_left * StefanBoltz * pow(T(x, 0), 4)
+                    - m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
+                for (int s : {0, 1}) { // m_kRadiating: 0 = CO2, 1 = H2O
+                    size_t ks = m_kRadiating[s];
+                    if (ks == npos) {
+                        continue;
+                    }
+                    double fs = radiationPolyFactor(x, j, s);
+                    double Xs = Y(x, ks, j) * m_wtm[j] / m_wt[ks];
+                    for (size_t m = 0; m < K; m++) {
+                        double dX = (m_wtm[j] / m_wt[m]) * ((m == ks ? 1.0 : 0.0) - Xs);
+                        col[m] -= rcp * 2.0 * m_press * fs * bracket * dX;
+                    }
+                }
+            }
         }
 
         size_t grow = loc() + index(c_offset_T, j);

@@ -505,6 +505,11 @@ protected:
      */
     void computeRadiation(span<const double> x, size_t jmin, size_t jmax);
 
+    //! Planck-mean absorption polynomial factor for radiating species @p s
+    //! (0: CO2, 1: H2O) at grid point @p j. Returns k_P_s / (m_press * X_s),
+    //! i.e. the polynomial value divided by the reference pressure (OneAtm).
+    double radiationPolyFactor(span<const double> x, size_t j, int s) const;
+
     //! @}
 
     //! @name Governing Equations
