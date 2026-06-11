@@ -16,10 +16,64 @@ SteadyStateSystem::SteadyStateSystem()
 {
     m_state = make_shared<vector<double>>();
     m_newt = make_unique<MultiNewton>(1);
+    clearStats();
 }
 
 SteadyStateSystem::~SteadyStateSystem()
 {
+}
+
+void SteadyStateSystem::saveStats()
+{
+    if (!m_jac) {
+        return;
+    }
+    long int nev = m_jac->nEvals();
+    if (nev > 0 && m_nevals > 0) {
+        m_stats["grid_points"].asVector<long int>().push_back(
+            static_cast<long int>(gridSize()));
+        m_stats["steps"].asVector<long int>().push_back(m_nsteps);
+        m_stats["residual_evals"].asVector<long int>().push_back(m_nevals);
+        m_stats["residual_time"].asVector<double>().push_back(m_evaltime);
+        m_stats["jacobian_evals"].asVector<long int>().push_back(nev);
+        m_stats["jacobian_time"].asVector<double>().push_back(m_jac->elapsedTime());
+        m_stats["factorizations"].asVector<long int>().push_back(m_factorizations);
+        m_stats["factor_time"].asVector<double>().push_back(m_factorTime);
+        m_stats["linear_solves"].asVector<long int>().push_back(m_linearSolves);
+        m_stats["solve_time"].asVector<double>().push_back(m_solveTime);
+        m_stats["total_time"].asVector<double>().push_back(m_gridTime);
+        m_nevals = 0;
+        m_evaltime = 0.0;
+        m_factorizations = 0;
+        m_factorTime = 0.0;
+        m_linearSolves = 0;
+        m_solveTime = 0.0;
+        m_gridTime = 0.0;
+        m_nsteps = 0;
+    }
+}
+
+void SteadyStateSystem::clearStats()
+{
+    m_stats["grid_points"] = vector<long int>();
+    m_stats["steps"] = vector<long int>();
+    m_stats["residual_evals"] = vector<long int>();
+    m_stats["residual_time"] = vector<double>();
+    m_stats["jacobian_evals"] = vector<long int>();
+    m_stats["jacobian_time"] = vector<double>();
+    m_stats["factorizations"] = vector<long int>();
+    m_stats["factor_time"] = vector<double>();
+    m_stats["linear_solves"] = vector<long int>();
+    m_stats["solve_time"] = vector<double>();
+    m_stats["total_time"] = vector<double>();
+    m_nevals = 0;
+    m_evaltime = 0.0;
+    m_factorizations = 0;
+    m_factorTime = 0.0;
+    m_linearSolves = 0;
+    m_solveTime = 0.0;
+    m_gridTime = 0.0;
+    m_nsteps = 0;
 }
 
 void SteadyStateSystem::setInitialGuess(span<const double> x)
@@ -36,10 +90,16 @@ void SteadyStateSystem::getState(span<double> x) const
 
 void SteadyStateSystem::solve(int loglevel)
 {
+    auto tStart = std::chrono::steady_clock::now();
     size_t istep = 0;
     int nsteps = m_steps[istep];
     m_nsteps = 0;
     double dt = m_tstep;
+    // Lambda to accumulate elapsed wall time before any return from this call.
+    auto accumulateGridTime = [&]() {
+        m_gridTime += std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - tStart).count();
+    };
 
     while (true) {
         // Keep the attempt_counter in the range of [1, max_history]
@@ -52,7 +112,10 @@ void SteadyStateSystem::solve(int loglevel)
         if (!m_jac_ok) {
             evalJacobian(*m_state);
             try {
+                auto tf0 = std::chrono::steady_clock::now();
                 m_jac->updateTransient(m_rdt, m_mask);
+                recordFactorization(std::chrono::duration<double>(
+                    std::chrono::steady_clock::now() - tf0).count());
                 m_jac_ok = true;
             } catch (CanteraError& err) {
                 // Allow solver to continue after failure to factorize the steady-state
@@ -76,7 +139,7 @@ void SteadyStateSystem::solve(int loglevel)
             *m_state = m_xnew;
             writeDebugInfo("NewtonSuccess", "After successful Newton solve",
                            loglevel, m_attempt_counter);
-
+            accumulateGridTime();
             return;
         } else {
             debuglog("\nNewton steady-state solve failed.\n", loglevel);
