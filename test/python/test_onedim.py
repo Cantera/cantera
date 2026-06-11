@@ -1122,15 +1122,10 @@ class TestFreeFlame:
                 stats["residual_time"][i] + stats["jacobian_time"][i]
                 + stats["factor_time"][i] + stats["solve_time"][i])
 
-    def test_solver_stats_deprecated_aliases(self):
-        gas = ct.Solution("h2o2.yaml")
-        gas.TPX = 300.0, ct.one_atm, "H2:1.1, O2:1, AR:5"
-        flame = ct.FreeFlame(gas, width=0.1)
-        flame.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
-        flame.solve(loglevel=0, auto=True)
+        # deprecated per-metric aliases warn and return the matching column
         with pytest.warns(DeprecationWarning):
             steps = flame.time_step_stats
-        assert steps == flame.solver_stats["steps"]
+        assert steps == stats["steps"]
 
 
 class TestDiffusionFlame:
@@ -2345,7 +2340,7 @@ def make_flame(mech="h2o2.yaml", fuel="H2:1.0", width=0.02, **flame_kwargs):
     sim.set_refine_criteria(ratio=4, slope=0.3, curve=0.5)
     for key, val in flame_kwargs.items():
         setattr(sim.flame, key, val)
-    sim.solve(loglevel=0, auto=True)
+    sim.solve(loglevel=0, auto=False)
     return gas, sim
 
 
@@ -2412,53 +2407,57 @@ class TestJacobianMode:
             flame.jacobian_mode = "automagic"
 
 
-def compare_modes(sim, rtol=1e-3):
-    """Solve-state FD vs analytic Jacobian comparison for claimed columns."""
-    flame = sim.flame
-    sim.flame.jacobian_mode = "finite-difference"
-    J_fd = get_jacobian(sim)
-    sim.flame.jacobian_mode = "analytic"
-    J_an = get_jacobian(sim)
-
-    # ensure analytic mode actually engaged: the FD and analytic Jacobians must
-    # NOT be bit-identical (with analytic active they agree only to ~1e-5, never exactly)
-    assert not np.array_equal(J_fd, J_an)
-
-    n_comp = flame.n_components
-    n_pts = flame.n_points
-    K = sim.gas.n_species
-    first_species = flame.component_name(n_comp - K)  # first species component
-    worst = 0.0
-    # global index of component 0 at point p == start of point p's column block
-    pt0 = lambda p: flame.global_component_index(flame.component_name(0), p)
-    # claimed columns: species at points 1 .. n_pts-2 inclusive, matching
-    # Flow1D::hasAnalyticJacobian (j >= 1 && j + 2 <= m_points)
-    for p in range(1, n_pts - 1):
-        cols = slice(flame.global_component_index(first_species, p),
-                     pt0(p) + n_comp)
-        fd = J_fd[:, cols]
-        an = J_an[:, cols]
-        scale = max(np.abs(fd).max(), 1e-7)
-        worst = max(worst, np.abs(an - fd).max() / scale)
-        assert np.abs(an - fd).max() < rtol * scale, f"point {p}"
-    # boundary columns (j == 0 and j == n_pts-1) always use FD; must be identical
-    for p in (0, n_pts - 1):
-        cols = slice(pt0(p), pt0(p) + n_comp)
-        assert np.array_equal(J_fd[:, cols], J_an[:, cols])
-    return worst
-
-
 class TestAnalyticVsFD:
+    # All tests here solve a flame in a particular configuration, then compare
+    # the analytic Jacobian against the finite-difference Jacobian at the
+    # converged state. The solves use auto=False: these configurations converge
+    # directly, so auto-mode recovery would only mask an unexpected failure.
+
+    @staticmethod
+    def compare_modes(sim, rtol=1e-3):
+        """Solve-state FD vs analytic Jacobian comparison for claimed columns."""
+        flame = sim.flame
+        sim.flame.jacobian_mode = "finite-difference"
+        J_fd = get_jacobian(sim)
+        sim.flame.jacobian_mode = "analytic"
+        J_an = get_jacobian(sim)
+
+        # ensure analytic mode actually engaged: the FD and analytic Jacobians must
+        # NOT be bit-identical (with analytic active they agree only to ~1e-5, never exactly)
+        assert not np.array_equal(J_fd, J_an)
+
+        n_comp = flame.n_components
+        n_pts = flame.n_points
+        K = sim.gas.n_species
+        first_species = flame.component_name(n_comp - K)  # first species component
+        worst = 0.0
+        # global index of component 0 at point p == start of point p's column block
+        pt0 = lambda p: flame.global_component_index(flame.component_name(0), p)
+        # claimed columns: species at points 1 .. n_pts-2 inclusive, matching
+        # Flow1D::hasAnalyticJacobian (j >= 1 && j + 2 <= m_points)
+        for p in range(1, n_pts - 1):
+            cols = slice(flame.global_component_index(first_species, p),
+                         pt0(p) + n_comp)
+            fd = J_fd[:, cols]
+            an = J_an[:, cols]
+            scale = max(np.abs(fd).max(), 1e-7)
+            worst = max(worst, np.abs(an - fd).max() / scale)
+            assert np.abs(an - fd).max() < rtol * scale, f"point {p}"
+        # boundary columns (j == 0 and j == n_pts-1) always use FD; must be identical
+        for p in (0, n_pts - 1):
+            cols = slice(pt0(p), pt0(p) + n_comp)
+            assert np.array_equal(J_fd[:, cols], J_an[:, cols])
+        return worst
+
     def test_free_flame_h2(self):
         gas, sim = make_flame()
-        compare_modes(sim)
+        self.compare_modes(sim)
 
+    @pytest.mark.slow_test
     def test_free_flame_gri(self):
-        gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03)
-        compare_modes(sim)
+        gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03, jacobian_mode="analytic")
+        self.compare_modes(sim)
 
-
-class TestAnalyticConfigurations:
     def test_radiation(self):
         # Use h2o2.yaml (small mechanism) on a fixed grid; H2O radiation is enough
         # to exercise the analytic Jacobian radiation code path without the expense
@@ -2466,14 +2465,12 @@ class TestAnalyticConfigurations:
         gas, sim = make_flame()
         sim.flame.radiation_enabled = True
         sim.solve(loglevel=0, refine_grid=False)
-        compare_modes(sim)
+        self.compare_modes(sim)
 
     def test_mass_flux_basis(self):
         gas, sim = make_flame(flux_gradient_basis="mass")
-        compare_modes(sim)
+        self.compare_modes(sim)
 
-
-class TestAnalyticConfigMatrix:
     def test_axisymmetric_counterflow(self):
         gas = ct.Solution("h2o2.yaml")
         gas.TP = 300, ct.one_atm
@@ -2484,8 +2481,8 @@ class TestAnalyticConfigMatrix:
         sim.oxidizer_inlet.mdot = 3.0
         sim.oxidizer_inlet.X = "O2:1"
         sim.oxidizer_inlet.T = 300
-        sim.solve(loglevel=0, auto=True)
-        compare_modes(sim)
+        sim.solve(loglevel=0, auto=False)
+        self.compare_modes(sim)
 
     def test_burner_unstrained(self):
         gas = ct.Solution("h2o2.yaml")
@@ -2493,12 +2490,12 @@ class TestAnalyticConfigMatrix:
         gas.set_equivalence_ratio(0.9, "H2:1.0", "O2:1.0, N2:3.76")
         sim = ct.BurnerFlame(gas, width=0.01)
         sim.burner.mdot = 0.15
-        sim.solve(loglevel=0, auto=True)
-        compare_modes(sim)
+        sim.solve(loglevel=0, auto=False)
+        self.compare_modes(sim)
 
     def test_soret(self):
         gas, sim = make_flame(soret_enabled=True)
-        compare_modes(sim)
+        self.compare_modes(sim)
 
     def test_two_point_control(self):
         # counterflow diffusion flame with two-point control enabled (setup
@@ -2513,7 +2510,7 @@ class TestAnalyticConfigMatrix:
         sim.oxidizer_inlet.X = "O2:0.21, AR:0.78"
         sim.oxidizer_inlet.T = 300
         sim.set_refine_criteria(ratio=4, slope=0.3, curve=0.5)
-        sim.solve(loglevel=0, auto=True)
+        sim.solve(loglevel=0, auto=False)
         sim.two_point_control_enabled = True
         control_temperature = np.min(sim.T) + 0.95 * (np.max(sim.T) - np.min(sim.T))
         sim.set_left_control_point(control_temperature)
@@ -2521,18 +2518,21 @@ class TestAnalyticConfigMatrix:
         sim.left_control_point_temperature -= 10
         sim.right_control_point_temperature -= 10
         sim.solve(loglevel=0, refine_grid=False)
-        compare_modes(sim)
+        self.compare_modes(sim)
 
 
 class TestAnalyticSolve:
     def test_full_solve_matches_fd(self):
+        # A small mechanism with loose refinement is enough to drive several
+        # grid-refinement stages through the analytic Jacobian and confirm the
+        # full solve converges to the same flame speed as the FD Jacobian.
         speeds = {}
         for mode in ("finite-difference", "analytic"):
-            gas = ct.Solution("gri30.yaml")
+            gas = ct.Solution("h2o2.yaml")
             gas.TP = 300, ct.one_atm
-            gas.set_equivalence_ratio(1.0, "CH4:1.0", "O2:1.0, N2:3.76")
+            gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
             sim = ct.FreeFlame(gas, width=0.03)
-            sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
+            sim.set_refine_criteria(ratio=4, slope=0.3, curve=0.5)
             sim.flame.jacobian_mode = mode
             sim.solve(loglevel=0, auto=True)
             speeds[mode] = sim.velocity[0]

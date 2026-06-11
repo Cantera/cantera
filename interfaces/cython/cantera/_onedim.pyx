@@ -1755,7 +1755,7 @@ cdef class Sim1D:
         ``factorizations``, ``factor_time``, ``linear_solves``, ``solve_time``,
         and ``total_time``. Time values are wall-clock seconds.
 
-        .. versionadded:: 3.2
+        .. versionadded:: 4.0
         """
         def __get__(self):
             return anymap_to_py(self.sim.solverStats())
@@ -1764,12 +1764,12 @@ cdef class Sim1D:
         """
         Return total grid size in each call to solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.grid_size_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["grid_points"]
 
@@ -1777,12 +1777,12 @@ cdef class Sim1D:
         """
         Return CPU time spent evaluating Jacobians in each call to solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.jacobian_time_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["jacobian_time"]
 
@@ -1790,12 +1790,12 @@ cdef class Sim1D:
         """
         Return number of Jacobian evaluations made in each call to solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.jacobian_count_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["jacobian_evals"]
 
@@ -1804,12 +1804,12 @@ cdef class Sim1D:
         Return CPU time spent on non-Jacobian function evaluations in each call
         to solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.eval_time_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["residual_time"]
 
@@ -1818,12 +1818,12 @@ cdef class Sim1D:
         Return number of non-Jacobian function evaluations made in each call to
         solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.eval_count_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["residual_evals"]
 
@@ -1831,12 +1831,12 @@ cdef class Sim1D:
         """
         Return number of time steps taken in each call to solve().
 
-        .. deprecated:: 3.2
+        .. deprecated:: 4.0
             Use `solver_stats` instead.
         """
         def __get__(self):
             warnings.warn("Sim1D.time_step_stats is deprecated and will be "
-                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                "removed after Cantera 4.0. Use Sim1D.solver_stats instead.",
                 DeprecationWarning)
             return anymap_to_py(self.sim.solverStats())["steps"]
 
