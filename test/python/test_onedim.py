@@ -2430,3 +2430,54 @@ class TestAnalyticConfigurations:
     def test_mass_flux_basis(self):
         gas, sim = make_flame(flux_gradient_basis="mass")
         compare_modes(sim)
+
+
+class TestAnalyticConfigMatrix:
+    def test_axisymmetric_counterflow(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        sim = ct.CounterflowDiffusionFlame(gas, width=0.02)
+        sim.fuel_inlet.mdot = 0.5
+        sim.fuel_inlet.X = "H2:1"
+        sim.fuel_inlet.T = 300
+        sim.oxidizer_inlet.mdot = 3.0
+        sim.oxidizer_inlet.X = "O2:1"
+        sim.oxidizer_inlet.T = 300
+        sim.solve(loglevel=0, auto=True)
+        compare_modes(sim)
+
+    def test_burner_unstrained(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        gas.set_equivalence_ratio(0.9, "H2:1.0", "O2:1.0, N2:3.76")
+        sim = ct.BurnerFlame(gas, width=0.01)
+        sim.burner.mdot = 0.15
+        sim.solve(loglevel=0, auto=True)
+        compare_modes(sim)
+
+    def test_soret(self):
+        gas, sim = make_flame(soret_enabled=True)
+        compare_modes(sim)
+
+    def test_two_point_control(self):
+        # counterflow diffusion flame with two-point control enabled (setup
+        # follows test_onedim.py::TestCounterflowDiffusionFlame::test_two_point_control)
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        sim = ct.CounterflowDiffusionFlame(gas, width=0.05)
+        sim.fuel_inlet.mdot = 0.05
+        sim.fuel_inlet.X = "H2:1.0, AR:1.0"
+        sim.fuel_inlet.T = 300
+        sim.oxidizer_inlet.mdot = 0.1
+        sim.oxidizer_inlet.X = "O2:0.21, AR:0.78"
+        sim.oxidizer_inlet.T = 300
+        sim.set_refine_criteria(ratio=4, slope=0.3, curve=0.5)
+        sim.solve(loglevel=0, auto=True)
+        sim.two_point_control_enabled = True
+        control_temperature = np.min(sim.T) + 0.95 * (np.max(sim.T) - np.min(sim.T))
+        sim.set_left_control_point(control_temperature)
+        sim.set_right_control_point(control_temperature)
+        sim.left_control_point_temperature -= 10
+        sim.right_control_point_temperature -= 10
+        sim.solve(loglevel=0, refine_grid=False)
+        compare_modes(sim)
