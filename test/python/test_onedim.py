@@ -2382,6 +2382,10 @@ def compare_modes(sim, rtol=1e-3):
     sim.flame.jacobian_mode = "analytic"
     J_an = get_jacobian(sim)
 
+    # ensure analytic mode actually engaged: the FD and analytic Jacobians must
+    # NOT be bit-identical (with analytic active they agree only to ~1e-5, never exactly)
+    assert not np.array_equal(J_fd, J_an)
+
     n_comp = flame.n_components
     n_pts = flame.n_points
     K = sim.gas.n_species
@@ -2413,4 +2417,16 @@ class TestAnalyticVsFD:
 
     def test_free_flame_gri(self):
         gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03)
+        compare_modes(sim)
+
+
+class TestAnalyticConfigurations:
+    def test_radiation(self):
+        gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03)
+        sim.flame.radiation_enabled = True
+        sim.solve(loglevel=0, refine_grid=False)
+        compare_modes(sim)
+
+    def test_mass_flux_basis(self):
+        gas, sim = make_flame(flux_gradient_basis="mass")
         compare_modes(sim)
