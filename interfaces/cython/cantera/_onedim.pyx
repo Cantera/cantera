@@ -1747,41 +1747,98 @@ cdef class Sim1D:
 
         return dgdp - np.dot(L, dfdp)
 
-    property grid_size_stats:
-        """Return total grid size in each call to solve()"""
+    property solver_stats:
+        """
+        Solver statistics from the most recent solve, as a dict of per-grid
+        arrays. Keys: ``grid_points``, ``steps``, ``residual_evals``,
+        ``residual_time``, ``jacobian_evals``, ``jacobian_time``,
+        ``factorizations``, ``factor_time``, ``linear_solves``, ``solve_time``,
+        and ``total_time``. Time values are wall-clock seconds.
+
+        .. versionadded:: 3.2
+        """
         def __get__(self):
-            return self.sim.gridSizeStats()
+            return anymap_to_py(self.sim.solverStats())
+
+    property grid_size_stats:
+        """
+        Return total grid size in each call to solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
+        """
+        def __get__(self):
+            warnings.warn("Sim1D.grid_size_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["grid_points"]
 
     property jacobian_time_stats:
-        """Return CPU time spent evaluating Jacobians in each call to solve()"""
+        """
+        Return CPU time spent evaluating Jacobians in each call to solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
+        """
         def __get__(self):
-            return self.sim.jacobianTimeStats()
+            warnings.warn("Sim1D.jacobian_time_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["jacobian_time"]
 
     property jacobian_count_stats:
-        """Return number of Jacobian evaluations made in each call to solve()"""
+        """
+        Return number of Jacobian evaluations made in each call to solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
+        """
         def __get__(self):
-            return self.sim.jacobianCountStats()
+            warnings.warn("Sim1D.jacobian_count_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["jacobian_evals"]
 
     property eval_time_stats:
         """
         Return CPU time spent on non-Jacobian function evaluations in each call
-        to solve()
+        to solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
         """
         def __get__(self):
-            return self.sim.evalTimeStats()
+            warnings.warn("Sim1D.eval_time_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["residual_time"]
 
     property eval_count_stats:
         """
         Return number of non-Jacobian function evaluations made in each call to
-        solve()
+        solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
         """
         def __get__(self):
-            return self.sim.evalCountStats()
+            warnings.warn("Sim1D.eval_count_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["residual_evals"]
 
     property time_step_stats:
-        """Return number of time steps taken in each call to solve()"""
+        """
+        Return number of time steps taken in each call to solve().
+
+        .. deprecated:: 3.2
+            Use `solver_stats` instead.
+        """
         def __get__(self):
-            return self.sim.timeStepStats()
+            warnings.warn("Sim1D.time_step_stats is deprecated and will be "
+                "removed after Cantera 3.2. Use Sim1D.solver_stats instead.",
+                DeprecationWarning)
+            return anymap_to_py(self.sim.solverStats())["steps"]
 
     def set_max_grid_points(self, domain, npmax):
         """ Set the maximum number of grid points in the specified domain. """

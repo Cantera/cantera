@@ -138,12 +138,13 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void writeStats(int) except +translate_exception
         void clearStats()
         void resize() except +translate_exception
-        vector[size_t]& gridSizeStats()
-        vector[double]& jacobianTimeStats()
-        vector[double]& evalTimeStats()
-        vector[int]& jacobianCountStats()
-        vector[int]& evalCountStats()
-        vector[int]& timeStepStats()
+        CxxAnyMap solverStats() except +translate_exception
+        vector[size_t] gridSizeStats()
+        vector[double] jacobianTimeStats()
+        vector[double] evalTimeStats()
+        vector[int] jacobianCountStats()
+        vector[int] evalCountStats()
+        vector[int] timeStepStats()
 
         int domainIndex(string) except +translate_exception
         void eval(double ) except +translate_exception

@@ -1094,6 +1094,44 @@ class TestFreeFlame:
         self.sim.max_grid_points = 10
         assert self.sim.max_grid_points == 10
 
+    def test_solver_stats(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 300.0, ct.one_atm, "H2:1.1, O2:1, AR:5"
+        flame = ct.FreeFlame(gas, width=0.1)
+        flame.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
+        flame.solve(loglevel=0, auto=True)
+
+        stats = flame.solver_stats
+        expected_keys = {
+            "grid_points", "steps", "residual_evals", "residual_time",
+            "jacobian_evals", "jacobian_time", "factorizations", "factor_time",
+            "linear_solves", "solve_time", "total_time"}
+        assert expected_keys <= set(stats)
+        n = len(stats["grid_points"])
+        assert n > 0
+        for key in expected_keys:
+            assert len(stats[key]) == n
+        # integer columns are ints, time columns are floats
+        assert all(isinstance(v, int) for v in stats["jacobian_evals"])
+        assert all(isinstance(v, float) for v in stats["factor_time"])
+        # times are non-negative and total bounds the parts
+        for i in range(n):
+            assert stats["factor_time"][i] >= 0.0
+            assert stats["solve_time"][i] >= 0.0
+            assert stats["total_time"][i] + 1e-9 >= (
+                stats["residual_time"][i] + stats["jacobian_time"][i]
+                + stats["factor_time"][i] + stats["solve_time"][i])
+
+    def test_solver_stats_deprecated_aliases(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 300.0, ct.one_atm, "H2:1.1, O2:1, AR:5"
+        flame = ct.FreeFlame(gas, width=0.1)
+        flame.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
+        flame.solve(loglevel=0, auto=True)
+        with pytest.warns(DeprecationWarning):
+            steps = flame.time_step_stats
+        assert steps == flame.solver_stats["steps"]
+
 
 class TestDiffusionFlame:
     """
@@ -1246,13 +1284,13 @@ class TestDiffusionFlame:
         flame = self.make_high_pressure_regrid_case(7e6, 0)
         with pytest.raises(ct.CanteraError):
             flame.solve(loglevel=0, auto=False)
-        assert sum(flame.time_step_stats) == 200
+        assert sum(flame.solver_stats["steps"]) == 200
 
         flame = self.make_high_pressure_regrid_case(7e6, 1)
         assert flame.time_step_regrid == 1
         with pytest.raises(ct.CanteraError):
             flame.solve(loglevel=0, auto=False)
-        assert sum(flame.time_step_stats) == 400
+        assert sum(flame.solver_stats["steps"]) == 400
         assert len(flame.grid) > 20
 
         flame = self.make_high_pressure_regrid_case(7e6, 3)
@@ -1261,7 +1299,7 @@ class TestDiffusionFlame:
 
         assert "Time stepping failed; attempting to refine the grid and retry" in out
         assert out.count("Time stepping failed; attempting to refine the grid and retry") == 3
-        assert sum(flame.time_step_stats) > 200
+        assert sum(flame.solver_stats["steps"]) > 200
         assert len(flame.grid) > 20
         assert np.max(flame.T) > 3000
 
@@ -1275,7 +1313,7 @@ class TestDiffusionFlame:
 
         assert "Time stepping failed; attempting to refine the grid and retry" in out
         assert "Regrid retry aborted: grid was unchanged." in out
-        assert sum(flame.time_step_stats) == 200
+        assert sum(flame.solver_stats["steps"]) == 200
         assert len(flame.grid) == 20
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
