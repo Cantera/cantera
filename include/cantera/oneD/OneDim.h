@@ -9,13 +9,12 @@
 #define CT_ONEDIM_H
 
 #include "Domain1D.h"
+#include "cantera/base/global.h"
 #include "cantera/numerics/SystemJacobian.h"
 #include "cantera/numerics/SteadyStateSystem.h"
 
 namespace Cantera
 {
-
-class AnyMap;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -184,59 +183,64 @@ public:
      */
     void writeStats(int printTime = 1);
 
-    /**
-     * Save statistics on function and Jacobian evaluation, and reset the
-     * counters. Statistics are saved only if the number of Jacobian
-     * evaluations is greater than zero. The statistics saved are:
-     *
-     * - number of grid points
-     * - number of Jacobian evaluations
-     * - CPU time spent evaluating Jacobians
-     * - number of non-Jacobian function evaluations
-     * - CPU time spent evaluating functions
-     * - number of time steps
-     */
-    void saveStats();
-
-    //! Clear saved statistics
-    void clearStats();
-
     //! Return total grid size in each call to solve()
-    const vector<size_t>& gridSizeStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<size_t> gridSizeStats() {
+        warn_deprecated("OneDim::gridSizeStats", "To be removed after Cantera"
+            " 3.2. Use solverStats() instead.");
         saveStats();
-        return m_gridpts;
+        auto& v = m_stats["grid_points"].asVector<long int>();
+        return vector<size_t>(v.begin(), v.end());
     }
 
     //! Return CPU time spent evaluating Jacobians in each call to solve()
-    const vector<double>& jacobianTimeStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<double> jacobianTimeStats() {
+        warn_deprecated("OneDim::jacobianTimeStats", "To be removed after"
+            " Cantera 3.2. Use solverStats() instead.");
         saveStats();
-        return m_jacElapsed;
+        return m_stats["jacobian_time"].asVector<double>();
     }
 
     //! Return CPU time spent on non-Jacobian function evaluations in each call
     //! to solve()
-    const vector<double>& evalTimeStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<double> evalTimeStats() {
+        warn_deprecated("OneDim::evalTimeStats", "To be removed after Cantera"
+            " 3.2. Use solverStats() instead.");
         saveStats();
-        return m_funcElapsed;
+        return m_stats["residual_time"].asVector<double>();
     }
 
     //! Return number of Jacobian evaluations made in each call to solve()
-    const vector<int>& jacobianCountStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<int> jacobianCountStats() {
+        warn_deprecated("OneDim::jacobianCountStats", "To be removed after"
+            " Cantera 3.2. Use solverStats() instead.");
         saveStats();
-        return m_jacEvals;
+        auto& v = m_stats["jacobian_evals"].asVector<long int>();
+        return vector<int>(v.begin(), v.end());
     }
 
     //! Return number of non-Jacobian function evaluations made in each call to
     //! solve()
-    const vector<int>& evalCountStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<int> evalCountStats() {
+        warn_deprecated("OneDim::evalCountStats", "To be removed after Cantera"
+            " 3.2. Use solverStats() instead.");
         saveStats();
-        return m_funcEvals;
+        auto& v = m_stats["residual_evals"].asVector<long int>();
+        return vector<int>(v.begin(), v.end());
     }
 
     //! Return number of time steps taken in each call to solve()
-    const vector<int>& timeStepStats() {
+    //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
+    vector<int> timeStepStats() {
+        warn_deprecated("OneDim::timeStepStats", "To be removed after Cantera"
+            " 3.2. Use solverStats() instead.");
         saveStats();
-        return m_timeSteps;
+        auto& v = m_stats["steps"].asVector<long int>();
+        return vector<int>(v.begin(), v.end());
     }
 
     //! Access internal work array.
@@ -245,6 +249,8 @@ public:
     }
 
 protected:
+    size_t gridSize() const override { return m_pts; }
+
     //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;
 
@@ -272,30 +278,6 @@ protected:
     //! Total number of points.
     size_t m_pts = 0;
 
-private:
-    //! @name Statistics
-    //! Solver stats are collected after successfully solving on a particular grid.
-    //! @{
-    int m_nevals = 0; //!< Number of calls to eval()
-    double m_evaltime = 0; //!< Total time [s] spent in eval()
-
-    vector<size_t> m_gridpts; //!< Number of grid points in this grid
-    vector<int> m_jacEvals; //!< Number of Jacobian evaluations on this grid
-    vector<double> m_jacElapsed; //!< Time [s] spent evaluating Jacobians on this grid
-
-    //! Number of residual function evaluations on this grid (not counting evaluations
-    //! used to construct Jacobians).
-    vector<int> m_funcEvals;
-
-    //! Time [s] spent on residual function evaluations on this grid (not counting
-    //! evaluations used to construct Jacobians).
-    vector<double> m_funcElapsed;
-
-    //! Number of time steps taken in each call to solve() (for example, for each
-    //! successive grid refinement)
-    vector<int> m_timeSteps;
-
-    //! @}
 };
 
 }

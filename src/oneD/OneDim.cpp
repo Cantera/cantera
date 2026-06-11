@@ -9,6 +9,7 @@
 #include "cantera/base/AnyMap.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 
+#include <chrono>
 #include <fstream>
 #include <ctime>
 
@@ -129,49 +130,22 @@ double OneDim::weightedNorm(span<const double> step) const
 void OneDim::writeStats(int printTime)
 {
     saveStats();
+    auto& gridpts = m_stats["grid_points"].asVector<long int>();
+    auto& steps = m_stats["steps"].asVector<long int>();
+    auto& fevals = m_stats["residual_evals"].asVector<long int>();
+    auto& ftime = m_stats["residual_time"].asVector<double>();
+    auto& jevals = m_stats["jacobian_evals"].asVector<long int>();
+    auto& jtime = m_stats["jacobian_time"].asVector<double>();
     writelog("\nStatistics:\n\n Grid   Timesteps  Functions      Time  Jacobians      Time\n");
-    size_t n = m_gridpts.size();
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < gridpts.size(); i++) {
         if (printTime) {
             writelog("{:5d}       {:5d}     {:6d} {:9.4f}      {:5d} {:9.4f}\n",
-                     m_gridpts[i], m_timeSteps[i], m_funcEvals[i], m_funcElapsed[i],
-                     m_jacEvals[i], m_jacElapsed[i]);
+                     gridpts[i], steps[i], fevals[i], ftime[i], jevals[i], jtime[i]);
         } else {
             writelog("{:5d}       {:5d}     {:6d}        NA      {:5d}        NA\n",
-                     m_gridpts[i], m_timeSteps[i], m_funcEvals[i], m_jacEvals[i]);
+                     gridpts[i], steps[i], fevals[i], jevals[i]);
         }
     }
-}
-
-void OneDim::saveStats()
-{
-    if (m_jac) {
-        int nev = m_jac->nEvals();
-        if (nev > 0 && m_nevals > 0) {
-            m_gridpts.push_back(m_pts);
-            m_jacEvals.push_back(m_jac->nEvals());
-            m_jacElapsed.push_back(m_jac->elapsedTime());
-            m_funcEvals.push_back(m_nevals);
-            m_nevals = 0;
-            m_funcElapsed.push_back(m_evaltime);
-            m_evaltime = 0.0;
-            m_timeSteps.push_back(m_nsteps);
-            m_nsteps = 0;
-        }
-    }
-}
-
-void OneDim::clearStats()
-{
-    m_gridpts.clear();
-    m_jacEvals.clear();
-    m_jacElapsed.clear();
-    m_funcEvals.clear();
-    m_funcElapsed.clear();
-    m_timeSteps.clear();
-    m_nevals = 0;
-    m_evaltime = 0.0;
-    m_nsteps = 0;
 }
 
 void OneDim::resize()
@@ -245,7 +219,7 @@ Domain1D* OneDim::pointDomain(size_t i)
 
 void OneDim::eval(size_t j, span<const double> x, span<double> r, double rdt, int count)
 {
-    clock_t t0 = clock();
+    auto t0 = std::chrono::steady_clock::now();
     if (m_interrupt) {
         m_interrupt->eval(m_nevals);
     }
@@ -269,8 +243,8 @@ void OneDim::eval(size_t j, span<const double> x, span<double> r, double rdt, in
 
     // increment counter and time
     if (count) {
-        clock_t t1 = clock();
-        m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
+        m_evaltime += std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - t0).count();
         m_nevals++;
     }
 }
@@ -278,7 +252,7 @@ void OneDim::eval(size_t j, span<const double> x, span<double> r, double rdt, in
 void OneDim::evalJacobian(span<const double> x0)
 {
     m_jac->reset();
-    clock_t t0 = clock();
+    auto t0 = std::chrono::steady_clock::now();
     m_work1.resize(size());
     m_work2.resize(size());
     eval(npos, x0, m_work1, 0.0, 0);
@@ -329,7 +303,8 @@ void OneDim::evalJacobian(span<const double> x0)
         dom->evalJacobianAnalytic(x0, *m_jac);
     }
 
-    m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
+    m_jac->updateElapsed(std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count());
     m_jac->incrementEvals();
     m_jac->setAge(0);
 }
