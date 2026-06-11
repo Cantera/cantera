@@ -129,7 +129,6 @@ TEST(onedim, solver_stats)
 
     vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
     auto flame = newSim1D(domains);
-    int dom = static_cast<int>(flame->domainIndex("flow"));
 
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
     vector<double> value{uin, uin, uout, uout};
@@ -140,7 +139,6 @@ TEST(onedim, solver_stats)
         value = {yin[i], yin[i], yout[i], yout[i]};
         flow->setProfile(gas->speciesName(i), locs, value);
     }
-    flame->setRefineCriteria(dom, 15.0, 0.3, 0.5);
     flame->setFixedTemperature(0.85 * T + .15 * Tad);
     flow->solveEnergyEqn();
     flame->solve(0, false);
@@ -158,9 +156,15 @@ TEST(onedim, solver_stats)
     }
     // All arrays have one entry per grid.
     EXPECT_EQ(stats.at("steps").asVector<long int>().size(), n);
+    EXPECT_EQ(stats.at("residual_evals").asVector<long int>().size(), n);
     EXPECT_EQ(stats.at("residual_time").asVector<double>().size(), n);
+    EXPECT_EQ(stats.at("jacobian_evals").asVector<long int>().size(), n);
+    EXPECT_EQ(stats.at("jacobian_time").asVector<double>().size(), n);
+    EXPECT_EQ(stats.at("factorizations").asVector<long int>().size(), n);
     EXPECT_EQ(stats.at("factor_time").asVector<double>().size(), n);
+    EXPECT_EQ(stats.at("linear_solves").asVector<long int>().size(), n);
     EXPECT_EQ(stats.at("solve_time").asVector<double>().size(), n);
+    EXPECT_EQ(stats.at("total_time").asVector<double>().size(), n);
 
     auto jac = stats.at("jacobian_evals").asVector<long int>();
     auto fac = stats.at("factorizations").asVector<long int>();
@@ -178,6 +182,8 @@ TEST(onedim, solver_stats)
         EXPECT_GE(jacT[i], 0.0);
         EXPECT_GE(facT[i], 0.0);
         EXPECT_GE(solT[i], 0.0);
+        // a successfully solved grid must take nonzero wall time
+        EXPECT_GT(totT[i], 0.0);
         // total covers the timed categories (with non-negative remainder)
         EXPECT_GE(totT[i] + 1e-9,
                   resT[i] + jacT[i] + facT[i] + solT[i]);

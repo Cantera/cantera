@@ -152,8 +152,15 @@ public:
     //! Return solver statistics as a map of per-grid arrays. Keys:
     //! `grid_points`, `steps`, `residual_evals`, `residual_time`,
     //! `jacobian_evals`, `jacobian_time`, `factorizations`, `factor_time`,
-    //! `linear_solves`, `solve_time`, `total_time`. Calling this flushes the
-    //! statistics for the current grid.
+    //! `linear_solves`, `solve_time`, `total_time`.
+    //!
+    //! This method is non-const because it calls saveStats() to flush
+    //! statistics for the current (possibly not-yet-committed) grid before
+    //! returning.
+    //!
+    //! An entry whose `total_time` is 0 corresponds to a grid where the solve
+    //! attempt failed (threw) before completing; its other timing fields will
+    //! also be partial.
     const AnyMap& solverStats() {
         saveStats();
         return m_stats;
