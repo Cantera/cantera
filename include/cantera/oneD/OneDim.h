@@ -186,28 +186,28 @@ public:
     //! Return total grid size in each call to solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<size_t> gridSizeStats() {
-        warn_deprecated("OneDim::gridSizeStats", "To be removed after Cantera"
-            " 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::gridSizeStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         auto& v = m_stats["grid_points"].asVector<long int>();
         return vector<size_t>(v.begin(), v.end());
     }
 
-    //! Return CPU time spent evaluating Jacobians in each call to solve()
+    //! Return wall-clock time spent evaluating Jacobians in each call to solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<double> jacobianTimeStats() {
-        warn_deprecated("OneDim::jacobianTimeStats", "To be removed after"
-            " Cantera 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::jacobianTimeStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         return m_stats["jacobian_time"].asVector<double>();
     }
 
-    //! Return CPU time spent on non-Jacobian function evaluations in each call
-    //! to solve()
+    //! Return wall-clock time spent on non-Jacobian function evaluations in each
+    //! call to solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<double> evalTimeStats() {
-        warn_deprecated("OneDim::evalTimeStats", "To be removed after Cantera"
-            " 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::evalTimeStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         return m_stats["residual_time"].asVector<double>();
     }
@@ -215,8 +215,8 @@ public:
     //! Return number of Jacobian evaluations made in each call to solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<int> jacobianCountStats() {
-        warn_deprecated("OneDim::jacobianCountStats", "To be removed after"
-            " Cantera 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::jacobianCountStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         auto& v = m_stats["jacobian_evals"].asVector<long int>();
         return vector<int>(v.begin(), v.end());
@@ -226,8 +226,8 @@ public:
     //! solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<int> evalCountStats() {
-        warn_deprecated("OneDim::evalCountStats", "To be removed after Cantera"
-            " 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::evalCountStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         auto& v = m_stats["residual_evals"].asVector<long int>();
         return vector<int>(v.begin(), v.end());
@@ -236,8 +236,8 @@ public:
     //! Return number of time steps taken in each call to solve()
     //! @deprecated To be removed after %Cantera 3.2. Use solverStats() instead.
     vector<int> timeStepStats() {
-        warn_deprecated("OneDim::timeStepStats", "To be removed after Cantera"
-            " 3.2. Use solverStats() instead.");
+        warn_deprecated("OneDim::timeStepStats",
+            "To be removed after Cantera 3.2. Use solverStats() instead.");
         saveStats();
         auto& v = m_stats["steps"].asVector<long int>();
         return vector<int>(v.begin(), v.end());
