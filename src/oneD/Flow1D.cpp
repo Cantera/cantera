@@ -178,6 +178,11 @@ void Flow1D::resize(size_t ncomponents, size_t points)
     // analytic Jacobian workspace. m_ddC (sparse) is intentionally NOT sized
     // here: its pattern is built on the first netProductionRates_ddCi(m_ddC)
     // call. Reset it to empty so a grid/state change rebuilds a fresh pattern.
+    // Note: the pattern is assumed fixed for the lifetime of the grid. Changing
+    // the kinetics object's derivativeSettings() (e.g. toggling skip-third-bodies)
+    // to a *larger* pattern without an intervening resize() would leave m_ddC
+    // missing slots; callers must re-grid or re-create the domain after such a
+    // change. (Shrinking the pattern is safe.)
     m_ddC = Eigen::SparseMatrix<double>();
     m_dwdY.resize(m_nsp * m_nsp);
     m_dFm_dYp.resize(m_nsp * m_nsp);
@@ -1654,7 +1659,12 @@ void Flow1D::addSpeciesJacEntries(span<const double> x, size_t p, SystemJacobian
         for (size_t m = 0; m < K; m++) {
             size_t gcol = loc() + index(c_offset_Y + m, p);
             for (size_t k = 0; k < K; k++) {
-                if (blk[m * K + k] != 0.0) {
+                // Always emit the steady-state diagonal (j == p, k == m), even
+                // when it evaluates to exactly zero, so that MultiJac::m_ssdiag
+                // is refreshed for the banded solver's transient diagonal. This
+                // mirrors the forced-diagonal write in OneDim::evalJacobian's FD
+                // loop (the `m+iloc == ipt` term).
+                if (blk[m * K + k] != 0.0 || (j == p && k == m)) {
                     jac.setValue(loc() + index(c_offset_Y + k, j), gcol,
                                  blk[m * K + k]);
                 }
