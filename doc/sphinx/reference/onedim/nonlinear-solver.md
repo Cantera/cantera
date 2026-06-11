@@ -74,9 +74,54 @@ J_{i,j} = \frac{\partial F_i(x)}{\partial x_j}
 $$
 
 Moving across a row of the Jacobian matrix encodes how the value of the residual at
-a grid point changes with respect to each solution component. The Jacobian is
-approximated numerically in the 1D solver instead of having analytical
-relations derived for each governing equation.
+a grid point changes with respect to each solution component. By default the Jacobian
+is approximated numerically using finite differences, though an opt-in analytic mode
+is also available; see [](jacobian-evaluation-modes) for details.
+
+(jacobian-evaluation-modes)=
+### Jacobian Evaluation Modes
+
+Cantera provides two modes for evaluating the Jacobian, controlled per-domain via the
+{py:attr}`~cantera.Domain1D.jacobian_mode` property:
+
+**Finite-difference mode** (``'finite-difference'``, the default): all Jacobian columns
+are evaluated by perturbing each solution component and measuring the change in the
+residual. Transport properties (viscosity, thermal conductivity, diffusion coefficients)
+are frozen at their unperturbed values for efficiency.
+
+**Analytic mode** (``'analytic'``): the species ($Y_k$) Jacobian columns at interior
+grid points are computed analytically from the kinetics concentration-derivative
+functions, while the remaining columns (axial velocity $u$, scaled radial velocity
+$V$, temperature $T$, pressure eigenvalue $\Lambda$, and the axial mass flux $\dot{m}$
+for two-point-controlled flames) are still evaluated by finite differences. Transport
+properties are frozen in the same way as in finite-difference mode, so the two modes
+make equivalent approximations.
+
+```{versionadded} 4.0
+The ``'analytic'`` Jacobian mode was introduced in Cantera 4.0.
+```
+
+#### Automatic fallback to finite differences
+
+Even when analytic mode is requested, it falls back to finite differences for the
+affected domain if any of the following conditions hold:
+
+- The transport model is multicomponent (only mixture-averaged transport, with or
+  without Soret diffusion, supports analytic evaluation).
+- The kinetics object does not implement concentration derivatives (for example,
+  non-ideal-gas phases); this is probed once and a warning is issued if the fallback
+  is triggered.
+- The domain has fewer than 6 grid points.
+- The Jacobian is being evaluated for a sensitivity or adjoint calculation, which
+  forces a full update of all properties.
+
+In addition, analytic evaluation is only applied to interior grid points (indices 2
+through $N-3$); the first two and last two points of each domain always use finite
+differences.
+
+The fallback is transparent: the solver produces the same results regardless of whether
+the analytic or finite-difference path is taken; only the cost of Jacobian construction
+differs.
 
 ### Damped Newton Method
 
