@@ -2481,3 +2481,19 @@ class TestAnalyticConfigMatrix:
         sim.right_control_point_temperature -= 10
         sim.solve(loglevel=0, refine_grid=False)
         compare_modes(sim)
+
+
+class TestAnalyticSolve:
+    def test_full_solve_matches_fd(self):
+        speeds = {}
+        for mode in ("finite-difference", "analytic"):
+            gas = ct.Solution("gri30.yaml")
+            gas.TP = 300, ct.one_atm
+            gas.set_equivalence_ratio(1.0, "CH4:1.0", "O2:1.0, N2:3.76")
+            sim = ct.FreeFlame(gas, width=0.03)
+            sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
+            sim.flame.jacobian_mode = mode
+            sim.solve(loglevel=0, auto=True)
+            speeds[mode] = sim.velocity[0]
+        assert speeds["analytic"] == pytest.approx(
+            speeds["finite-difference"], rel=1e-4)
