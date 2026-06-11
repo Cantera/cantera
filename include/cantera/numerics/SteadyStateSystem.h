@@ -187,6 +187,18 @@ public:
         m_solveTime += wallTime;
         m_linearSolves++;
     }
+
+    //! Update the transient term of the Jacobian (forming and factorizing
+    //! @f$ M = I - \gamma J @f$) and record the elapsed wall-clock time as a
+    //! factorization in the solver statistics. Used at every factorization site
+    //! so that `factor_time` accounts for steady and time-stepping factorizations
+    //! alike.
+    void factorizeJacobian() {
+        auto t0 = std::chrono::steady_clock::now();
+        m_jac->updateTransient(m_rdt, m_mask);
+        recordFactorization(std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - t0).count());
+    }
     //! @}
 
     //! Reciprocal of the time step.

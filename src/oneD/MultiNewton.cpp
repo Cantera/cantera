@@ -230,10 +230,7 @@ int MultiNewton::solve(span<const double> x0, span<double> x1,
         if (forceNewJac) {
             r.evalJacobian(m_x);
             try {
-                auto tf0 = std::chrono::steady_clock::now();
-                jac->updateTransient(rdt, r.transientMask());
-                r.recordFactorization(std::chrono::duration<double>(
-                    std::chrono::steady_clock::now() - tf0).count());
+                r.factorizeJacobian();
             } catch (CanteraError& err) {
                 // Allow solver to continue after failure to factorize the steady-state
                 // Jacobian by returning to time stepping mode
