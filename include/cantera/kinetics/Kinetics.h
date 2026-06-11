@@ -1140,8 +1140,9 @@ public:
     //! subsequent calls overwrite the stored values in place with no allocation.
     //! Pass a default-constructed matrix after changing derivativeSettings() to
     //! a setting that may produce a larger pattern; passing a stale non-empty
-    //! matrix whose pattern is missing required nonzero slots produces silent
-    //! incorrect results.
+    //! matrix whose pattern is missing required nonzero slots produces incorrect
+    //! results (silently in optimized builds; detected and reported as an error
+    //! in debug builds).
     //! @param[in,out] jac  Sparse matrix to fill; pattern reused if non-empty.
     //! @since New in %Cantera 4.0.
     virtual void netProductionRates_ddCi(Eigen::SparseMatrix<double>& jac);

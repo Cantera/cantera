@@ -181,8 +181,10 @@ void Flow1D::resize(size_t ncomponents, size_t points)
     // Note: the pattern is assumed fixed for the lifetime of the grid. Changing
     // the kinetics object's derivativeSettings() (e.g. toggling skip-third-bodies)
     // to a *larger* pattern without an intervening resize() would leave m_ddC
-    // missing slots, producing silent incorrect Jacobian entries. Callers must
-    // re-grid or re-create the domain after such a change. (Shrinking is safe.)
+    // missing slots, producing incorrect Jacobian entries (silently in optimized
+    // builds; netProductionRates_ddCi() flags missing slots in debug builds).
+    // Callers must re-grid or re-create the domain after such a change.
+    // (Shrinking is safe.)
     m_ddC = Eigen::SparseMatrix<double>();
     m_dwdY.resize(m_nsp * m_nsp);
     m_dFm_dYp.resize(m_nsp * m_nsp);

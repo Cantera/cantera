@@ -732,6 +732,23 @@ void accumulateStoichProduct(const Eigen::SparseMatrix<double>& stoichMat,
             outVal[slot] += scatter[k];
             scatter[k] = 0.0;
         }
+#ifndef NDEBUG
+        // The fold loop above resets scatter[k] only for rows k that have a slot
+        // in out's column m. Any leftover nonzero therefore flags a product entry
+        // that out's sparsity pattern cannot store -- it would be silently dropped
+        // (and leak into the next column). Catch this in debug builds; reset so
+        // the error message is the only consequence.
+        for (size_t k = 0; k < scatter.size(); k++) {
+            if (scatter[k] != 0.0) {
+                int row = static_cast<int>(k);
+                scatter[k] = 0.0;
+                throw CanteraError("accumulateStoichProduct",
+                    "Supplied Jacobian sparsity pattern is missing a required "
+                    "nonzero slot at (row={}, col={}); the pattern is incompatible "
+                    "with the current mechanism and derivative settings.", row, m);
+            }
+        }
+#endif
     }
 }
 
