@@ -170,9 +170,9 @@ for i in range(n_max):
         'n_points': len(f.grid),
         'flame_width': width,
         'Tc_increment': temperature_increment,
-        'time_steps': sum(f.time_step_stats),
-        'eval_count': sum(f.eval_count_stats),
-        'cpu_time': sum(f.jacobian_time_stats + f.eval_time_stats),
+        'time_steps': sum(f.solver_stats["steps"]),
+        'eval_count': sum(f.solver_stats["residual_evals"]),
+        'cpu_time': sum(f.solver_stats["total_time"]),
         'errors': error_count
     })
 
