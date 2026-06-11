@@ -6,6 +6,7 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/utilities.h"
 
+#include <chrono>
 #include <ctime>
 
 using namespace std;
@@ -36,7 +37,10 @@ void MultiNewton::step(span<const double> x, span<double> step,
 
     auto jac = r.linearSolver();
     try {
+        auto ts0 = std::chrono::steady_clock::now();
         jac->solve(step, step);
+        r.recordLinearSolve(std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - ts0).count());
     } catch (CanteraError&) {
         if (jac->info() > 0) {
             // Positive value for "info" indicates the row where factorization failed
@@ -226,7 +230,10 @@ int MultiNewton::solve(span<const double> x0, span<double> x1,
         if (forceNewJac) {
             r.evalJacobian(m_x);
             try {
+                auto tf0 = std::chrono::steady_clock::now();
                 jac->updateTransient(rdt, r.transientMask());
+                r.recordFactorization(std::chrono::duration<double>(
+                    std::chrono::steady_clock::now() - tf0).count());
             } catch (CanteraError& err) {
                 // Allow solver to continue after failure to factorize the steady-state
                 // Jacobian by returning to time stepping mode
