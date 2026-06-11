@@ -7,8 +7,10 @@
 #define CT_STEADYSTATESYSTEM_H
 
 #include <cmath>
+#include <chrono>
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 #include "SystemJacobian.h"
 
 namespace Cantera
@@ -141,6 +143,44 @@ public:
     //! Get the the linear solver being used to hold the Jacobian matrix and solve
     //! linear systems as part of each Newton iteration.
     shared_ptr<SystemJacobian> linearSolver() const { return m_jac; }
+
+    //! @name Solver statistics
+    //! Per-grid solver statistics, collected after each successful solve on a
+    //! grid. Times are wall-clock seconds.
+    //! @{
+
+    //! Return solver statistics as a map of per-grid arrays. Keys:
+    //! `grid_points`, `steps`, `residual_evals`, `residual_time`,
+    //! `jacobian_evals`, `jacobian_time`, `factorizations`, `factor_time`,
+    //! `linear_solves`, `solve_time`, `total_time`. Calling this flushes the
+    //! statistics for the current grid.
+    const AnyMap& solverStats() {
+        saveStats();
+        return m_stats;
+    }
+
+    //! Commit statistics for the current grid into #m_stats and reset the
+    //! staging counters. A no-op unless at least one Jacobian evaluation and
+    //! one residual evaluation have occurred since the last commit.
+    virtual void saveStats();
+
+    //! Clear all saved solver statistics and reset the staging counters.
+    virtual void clearStats();
+
+    //! Record wall-clock time [s] spent factorizing the Jacobian. Called by
+    //! the Newton solver.
+    void recordFactorization(double wallTime) {
+        m_factorTime += wallTime;
+        m_factorizations++;
+    }
+
+    //! Record wall-clock time [s] spent in a linear solve. Called by the
+    //! Newton solver.
+    void recordLinearSolve(double wallTime) {
+        m_solveTime += wallTime;
+        m_linearSolves++;
+    }
+    //! @}
 
     //! Reciprocal of the time step.
     double rdt() const {
@@ -315,6 +355,11 @@ public:
     virtual void clearDebugFile() {}
 
 protected:
+    //! Value reported as `grid_points` in solver statistics. Overridden by
+    //! subclasses with a meaningful grid-point count; defaults to the total
+    //! number of unknowns.
+    virtual size_t gridSize() const { return m_size; }
+
     enum class TimeStepGrowthStrategy {
         fixed,
         steadyNorm,
@@ -397,6 +442,23 @@ protected:
 
     int m_nsteps = 0; //!< Number of time steps taken in the current call to solve()
     int m_nsteps_max = 500; //!< Maximum number of timesteps allowed per call to solve()
+
+    //! @name Solver-statistics storage
+    //! @{
+
+    //! Committed per-grid statistics. Each key holds an array indexed by grid.
+    //! Schema is established in clearStats().
+    AnyMap m_stats;
+
+    //! Staging accumulators for the current grid (committed by saveStats()).
+    int m_nevals = 0; //!< Standalone residual evaluations (not Jacobian fill)
+    double m_evaltime = 0.0; //!< Wall time [s] in standalone residual evals
+    int m_factorizations = 0; //!< Jacobian factorizations on the current grid
+    double m_factorTime = 0.0; //!< Wall time [s] factorizing the Jacobian
+    int m_linearSolves = 0; //!< Linear solves on the current grid
+    double m_solveTime = 0.0; //!< Wall time [s] in linear solves
+    double m_gridTime = 0.0; //!< Total wall time [s] solving on the current grid
+    //! @}
 
     //! Threshold for ignoring small elements in Jacobian
     double m_jacobianThreshold = 0.0;
