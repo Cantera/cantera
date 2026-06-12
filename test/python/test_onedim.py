@@ -2431,9 +2431,9 @@ def compare_modes(sim, rtol=1e-3):
     worst = 0.0
     # global index of component 0 at point p == start of point p's column block
     pt0 = lambda p: flame.global_component_index(flame.component_name(0), p)
-    # claimed columns: species at points 2 .. n_pts-3 inclusive, matching
-    # Flow1D::hasAnalyticJacobian (j >= 2 && j + 3 <= m_points)
-    for p in range(2, n_pts - 2):
+    # claimed columns: species at points 1 .. n_pts-2 inclusive, matching
+    # Flow1D::hasAnalyticJacobian (j >= 1 && j + 2 <= m_points)
+    for p in range(1, n_pts - 1):
         cols = slice(flame.global_component_index(first_species, p),
                      pt0(p) + n_comp)
         fd = J_fd[:, cols]
@@ -2441,8 +2441,8 @@ def compare_modes(sim, rtol=1e-3):
         scale = max(np.abs(fd).max(), 1e-7)
         worst = max(worst, np.abs(an - fd).max() / scale)
         assert np.abs(an - fd).max() < rtol * scale, f"point {p}"
-    # unclaimed columns must be bit-identical (same FD path)
-    for p in (0, 1, n_pts - 2, n_pts - 1):
+    # boundary columns (j == 0 and j == n_pts-1) always use FD; must be identical
+    for p in (0, n_pts - 1):
         cols = slice(pt0(p), pt0(p) + n_comp)
         assert np.array_equal(J_fd[:, cols], J_an[:, cols])
     return worst
@@ -2460,7 +2460,10 @@ class TestAnalyticVsFD:
 
 class TestAnalyticConfigurations:
     def test_radiation(self):
-        gas, sim = make_flame("gri30.yaml", "CH4:1.0", width=0.03)
+        # Use h2o2.yaml (small mechanism) on a fixed grid; H2O radiation is enough
+        # to exercise the analytic Jacobian radiation code path without the expense
+        # of a full GRI solve.
+        gas, sim = make_flame()
         sim.flame.radiation_enabled = True
         sim.solve(loglevel=0, refine_grid=False)
         compare_modes(sim)

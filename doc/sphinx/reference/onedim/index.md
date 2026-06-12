@@ -30,6 +30,10 @@ differences in the boundary conditions applied.
 : This page describes the hybrid time-stepping--steady-state damped Newton solver that
   is used to solve the discretized governing equations.
 
+[](analytic-jacobian)
+: This page derives the analytic Jacobian formulas used by the opt-in analytic
+  Jacobian mode.
+
 [](grid-refinement)
 : This page describes the grid refinement strategy used to ensure that the solution is
   well-resolved.
@@ -40,5 +44,6 @@ differences in the boundary conditions applied.
 governing-equations
 discretization
 nonlinear-solver
+analytic-jacobian
 grid-refinement
 ```

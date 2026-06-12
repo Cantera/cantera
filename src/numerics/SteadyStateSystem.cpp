@@ -7,6 +7,8 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/numerics/Func1.h"
 
+#include <chrono>
+
 using namespace std;
 
 namespace Cantera
@@ -21,6 +23,14 @@ SteadyStateSystem::SteadyStateSystem()
 
 SteadyStateSystem::~SteadyStateSystem()
 {
+}
+
+void SteadyStateSystem::factorizeJacobian()
+{
+    auto t0 = std::chrono::steady_clock::now();
+    m_jac->updateTransient(m_rdt, m_mask);
+    recordFactorization(std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count());
 }
 
 void SteadyStateSystem::saveStats()
@@ -95,11 +105,6 @@ void SteadyStateSystem::solve(int loglevel)
     int nsteps = m_steps[istep];
     m_nsteps = 0;
     double dt = m_tstep;
-    // Lambda to accumulate elapsed wall time before any return from this call.
-    auto accumulateGridTime = [&]() {
-        m_gridTime += std::chrono::duration<double>(
-            std::chrono::steady_clock::now() - tStart).count();
-    };
 
     while (true) {
         // Keep the attempt_counter in the range of [1, max_history]
@@ -136,7 +141,8 @@ void SteadyStateSystem::solve(int loglevel)
             *m_state = m_xnew;
             writeDebugInfo("NewtonSuccess", "After successful Newton solve",
                            loglevel, m_attempt_counter);
-            accumulateGridTime();
+            m_gridTime += std::chrono::duration<double>(
+                std::chrono::steady_clock::now() - tStart).count();
             return;
         } else {
             debuglog("\nNewton steady-state solve failed.\n", loglevel);

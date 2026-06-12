@@ -7,7 +7,6 @@
 #define CT_STEADYSTATESYSTEM_H
 
 #include <cmath>
-#include <chrono>
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/AnyMap.h"
@@ -193,12 +192,7 @@ public:
     //! factorization in the solver statistics. Used at every factorization site
     //! so that `factor_time` accounts for steady and time-stepping factorizations
     //! alike.
-    void factorizeJacobian() {
-        auto t0 = std::chrono::steady_clock::now();
-        m_jac->updateTransient(m_rdt, m_mask);
-        recordFactorization(std::chrono::duration<double>(
-            std::chrono::steady_clock::now() - t0).count());
-    }
+    void factorizeJacobian();
     //! @}
 
     //! Reciprocal of the time step.
@@ -463,13 +457,15 @@ protected:
     int m_nsteps_max = 500; //!< Maximum number of timesteps allowed per call to solve()
 
     //! @name Solver-statistics storage
+    //! `m_stats` holds committed per-grid statistics (arrays indexed by grid);
+    //! the remaining members are staging accumulators for the current grid,
+    //! committed by saveStats().
     //! @{
 
     //! Committed per-grid statistics. Each key holds an array indexed by grid.
     //! Schema is established in clearStats().
     AnyMap m_stats;
 
-    //! Staging accumulators for the current grid (committed by saveStats()).
     int m_nevals = 0; //!< Standalone residual evaluations (not Jacobian fill)
     double m_evaltime = 0.0; //!< Wall time [s] in standalone residual evals
     int m_factorizations = 0; //!< Jacobian factorizations on the current grid

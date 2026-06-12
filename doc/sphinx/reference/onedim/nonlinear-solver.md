@@ -111,13 +111,15 @@ affected domain if any of the following conditions hold:
 - The kinetics object does not implement concentration derivatives (for example,
   non-ideal-gas phases); this is probed once and a warning is issued if the fallback
   is triggered.
-- The domain has fewer than 6 grid points.
+- The domain has fewer than 3 grid points.
 - The Jacobian is being evaluated for a sensitivity or adjoint calculation, which
   forces a full update of all properties.
 
-In addition, analytic evaluation is only applied to interior grid points (indices 2
-through $N-3$); the first two and last two points of each domain always use finite
-differences.
+In addition, analytic evaluation is only applied to interior grid points (indices 1
+through $N-2$, where $N$ is the number of grid points); the two boundary points of
+each domain always use finite differences. The boundary residuals are fixed-value
+constraints that have no dependence on neighboring species values, so there is no
+benefit to computing their Jacobian entries analytically.
 
 The fallback is transparent: the solver produces the same results regardless of whether
 the analytic or finite-difference path is taken; only the cost of Jacobian construction

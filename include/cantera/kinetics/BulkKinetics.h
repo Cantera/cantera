@@ -143,8 +143,8 @@ protected:
     //! Accumulate `sign * nu_net * d(rates-of-progress)/dC` into the
     //! already-patterned, compressed column-major sparse matrix `out`, mirroring
     //! calculateCompositionDerivatives() but scattering the stoichiometry-matrix
-    //! product directly into `out` via an O(K) dense scatter column. `out`'s
-    //! pattern must already cover every (k, m) the product can touch.
+    //! product directly into `out` using a dense length-K workspace per column.
+    //! `out`'s pattern must already cover every (k, m) the product can touch.
     void accumulateCompositionDerivatives(StoichManagerN& stoich,
                                           span<const double> in,
                                           Eigen::SparseMatrix<double>& out,

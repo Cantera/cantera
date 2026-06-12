@@ -181,13 +181,12 @@ void Flow1D::resize(size_t ncomponents, size_t points)
     // Note: the pattern is assumed fixed for the lifetime of the grid. Changing
     // the kinetics object's derivativeSettings() (e.g. toggling skip-third-bodies)
     // to a *larger* pattern without an intervening resize() would leave m_ddC
-    // missing slots; callers must re-grid or re-create the domain after such a
-    // change. (Shrinking the pattern is safe.)
+    // missing slots, producing silent incorrect Jacobian entries. Callers must
+    // re-grid or re-create the domain after such a change. (Shrinking is safe.)
     m_ddC = Eigen::SparseMatrix<double>();
     m_dwdY.resize(m_nsp * m_nsp);
     m_dFm_dYp.resize(m_nsp * m_nsp);
     m_dF0_dYp.resize(m_nsp * m_nsp);
-    m_jacScratch.resize(m_nsp * m_nsp);
     m_jacBlockWork.resize(m_nsp * m_nsp);
     m_jacXwork.resize(2 * m_nsp);
     m_jacColWork.resize(m_nsp);
@@ -486,7 +485,7 @@ void Flow1D::updateDiffFluxes(span<const double> x, size_t j0, size_t j1)
 double Flow1D::radiationPolyFactor(span<const double> x, size_t j, int s) const
 {
     // Polynomial coefficients for Planck-mean absorption, from the RADCAL program
-    // and TNF Workshop data. Index 0 = CO2, index 1 = H2O.
+    // and TNF Workshop data.
     static const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
                                     56.310, -5.8169};
     static const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
@@ -1470,13 +1469,12 @@ bool Flow1D::usingAnalyticJacobian() const
     probeAnalyticJacobian();
     return m_analyticJacCapable == 1
            && !m_do_multicomponent && !m_force_full_update
-           && m_points >= 6;
+           && m_points >= 3;
 }
 
 bool Flow1D::hasAnalyticJacobian(size_t j, size_t n) const
 {
-    return usingAnalyticJacobian()
-           && n >= c_offset_Y && j >= 2 && j + 3 <= m_points;
+    return usingAnalyticJacobian() && n >= c_offset_Y && j >= 1 && j + 2 <= m_points;
 }
 
 void Flow1D::evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& jac)
@@ -1493,17 +1491,17 @@ void Flow1D::evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& ja
     updateThermo(x, 0, m_points - 1);
     updateDiffFluxes(x, 0, m_points - 2);
 
-    for (size_t p = 2; p + 3 <= m_points; p++) {
+    for (size_t p = 1; p + 2 <= m_points; p++) {
         setGas(x, p);
         m_kin->netProductionRates_ddCi(m_ddC); // sparse, pattern reused across p
-        computeWdotDerivatives(x, p);
+        computeWdotDerivatives(p);
         addSpeciesJacEntries(x, p, jac);
         addEnergyJacEntries(x, p, jac);
         addFlowJacEntries(x, p, jac);
     }
 }
 
-void Flow1D::computeWdotDerivatives(span<const double> x, size_t j)
+void Flow1D::computeWdotDerivatives(size_t j)
 {
     // dwdot_k/dY_m = (rho * ddC[k][m] - wbar * (ddC . C)_k) / W_m
     // (constant T and P; perturbations of unnormalized Y)
@@ -1514,7 +1512,7 @@ void Flow1D::computeWdotDerivatives(span<const double> x, size_t j)
     m_thermo->getConcentrations(conc); // state was set by caller via setGas
     Eigen::Map<Eigen::MatrixXd> JY(m_dwdY.data(), K, K);
     Eigen::Map<const Eigen::VectorXd> c(conc.data(), K);
-    Eigen::VectorXd g = m_ddC * c; // sparse matvec
+    Eigen::VectorXd g = m_ddC * c;
     // dense rank-1 part for every column
     for (size_t m = 0; m < K; m++) {
         JY.col(m) = (-wbar / m_wt[m]) * g;
@@ -1527,17 +1525,14 @@ void Flow1D::computeWdotDerivatives(span<const double> x, size_t j)
     }
 }
 
-void Flow1D::fluxJacobian(span<const double> x, size_t q,
-                          span<double> dFdYq, span<double> dFdYq1)
+template <bool AtQ>
+void Flow1D::fluxJacobian(span<const double> x, size_t q, span<double> out)
 {
-    // dF_k(q)/dY_m at points q (output dFdYq) and q+1 (output dFdYq1), K×K
-    // column-major, with the flux prefactors m_diff frozen. Mirrors
-    // updateDiffFluxes() for the mixture-averaged, molar-gradient case;
-    // Soret and electric-field terms have no Y dependence.
+    // dF_k(q)/dY_m(q) if AtQ=true, dF_k(q)/dY_m(q+1) if AtQ=false.
+    // K×K column-major, flux prefactors m_diff frozen (frozen-transport approximation).
     size_t K = m_nsp;
     double dz = m_dz[q];
-    std::fill(dFdYq.begin(), dFdYq.end(), 0.0);
-    std::fill(dFdYq1.begin(), dFdYq1.end(), 0.0);
+    std::fill(out.begin(), out.end(), 0.0);
 
     const double* d = &m_diff[q * K]; // frozen diffusion prefactors
 
@@ -1548,15 +1543,22 @@ void Flow1D::fluxJacobian(span<const double> x, size_t q,
         for (size_t n = 0; n < K; n++) {
             S -= d[n] / dz * (Y(x, n, q) - Y(x, n, q + 1));
         }
-        for (size_t m = 0; m < K; m++) {
-            for (size_t k = 0; k < K; k++) {
-                double Ykq = Y(x, k, q);
-                double v = -Ykq * d[m] / dz;
-                if (k == m) {
-                    v += d[k] / dz + S;
+        if constexpr (AtQ) {
+            for (size_t m = 0; m < K; m++) {
+                for (size_t k = 0; k < K; k++) {
+                    double v = -Y(x, k, q) * d[m] / dz;
+                    if (k == m) {
+                        v += d[k] / dz + S;
+                    }
+                    out[m * K + k] = v;
                 }
-                dFdYq[m * K + k] = v;
-                dFdYq1[m * K + k] = (k == m ? -d[k] / dz : 0.0) + Ykq * d[m] / dz;
+            }
+        } else {
+            for (size_t m = 0; m < K; m++) {
+                for (size_t k = 0; k < K; k++) {
+                    out[m * K + k] = (k == m ? -d[k] / dz : 0.0)
+                                     + Y(x, k, q) * d[m] / dz;
+                }
             }
         }
         return;
@@ -1564,7 +1566,8 @@ void Flow1D::fluxJacobian(span<const double> x, size_t q,
 
     // X and wbar at the two end points (unnormalized convention, matching the
     // residual's X(x,k,j) accessor: X_n(p) = Y_n(p) * wbar_p / W_n)
-    double wbq = m_wtm[q], wbq1 = m_wtm[q + 1];
+    double wbq = m_wtm[q];
+    double wbq1 = m_wtm[q + 1];
     double* Xq = m_jacXwork.data();
     double* Xq1 = m_jacXwork.data() + K;
     for (size_t n = 0; n < K; n++) {
@@ -1581,21 +1584,24 @@ void Flow1D::fluxJacobian(span<const double> x, size_t q,
     }
 
     for (size_t m = 0; m < K; m++) {
-        double fq = wbq / m_wt[m];   // dX/dY scale at point q
-        double fq1 = wbq1 / m_wt[m]; // at point q+1
-        double dS_dYmq = -fq * (d[m] / dz - aq);
-        double dS_dYmq1 = fq1 * (d[m] / dz - aq1);
-        for (size_t k = 0; k < K; k++) {
-            double Ykq = Y(x, k, q);
-            // dF_k(q)/dY_m(q)
-            double v = (d[k] / dz) * fq * ((k == m) - Xq[k]) + Ykq * dS_dYmq;
-            if (k == m) {
-                v += S;
+        if constexpr (AtQ) {
+            double fq = wbq / m_wt[m]; // dX/dY scale at point q
+            double dS_dYmq = -fq * (d[m] / dz - aq);
+            for (size_t k = 0; k < K; k++) {
+                double v = (d[k] / dz) * fq * ((k == m) - Xq[k])
+                           + Y(x, k, q) * dS_dYmq;
+                if (k == m) {
+                    v += S;
+                }
+                out[m * K + k] = v;
             }
-            dFdYq[m * K + k] = v;
-            // dF_k(q)/dY_m(q+1)
-            dFdYq1[m * K + k] = -(d[k] / dz) * fq1 * ((k == m) - Xq1[k])
-                                + Ykq * dS_dYmq1;
+        } else {
+            double fq1 = wbq1 / m_wt[m]; // dX/dY scale at point q+1
+            double dS_dYmq1 = fq1 * (d[m] / dz - aq1);
+            for (size_t k = 0; k < K; k++) {
+                out[m * K + k] = -(d[k] / dz) * fq1 * ((k == m) - Xq1[k])
+                                 + Y(x, k, q) * dS_dYmq1;
+            }
         }
     }
 }
@@ -1603,13 +1609,20 @@ void Flow1D::fluxJacobian(span<const double> x, size_t q,
 void Flow1D::addSpeciesJacEntries(span<const double> x, size_t p, SystemJacobian& jac)
 {
     size_t K = m_nsp;
-    fluxJacobian(x, p - 1, m_jacScratch, m_dFm_dYp);
-    fluxJacobian(x, p, m_dF0_dYp, m_jacScratch);
+    // p-1 interval: d(F(p-1))/dY(p) = right-endpoint derivative (AtQ=false)
+    fluxJacobian<false>(x, p - 1, m_dFm_dYp);
+    // p interval: d(F(p))/dY(p) = left-endpoint derivative (AtQ=true)
+    fluxJacobian<true>(x, p, m_dF0_dYp);
 
     // rows at j = p-1, p, p+1; columns are Y_m at p. Accumulate the full K×K
     // block first, then emit each (row, col) entry exactly once (MultiJac::
     // setValue overwrites; EigenSparseJacobian sums duplicate triplets).
     for (size_t j = p - 1; j <= p + 1; j++) {
+        // Boundary residuals (j == 0 or j == m_points-1) have no dependence on
+        // interior Y; skip them rather than computing rDz2 out of bounds.
+        if (j == 0 || j + 1 == m_points) {
+            continue;
+        }
         double* blk = m_jacBlockWork.data(); // blk[m*K + k] = d rsd(Y_k, j)/d Y_m(p)
         std::fill(m_jacBlockWork.begin(), m_jacBlockWork.end(), 0.0);
         double rDz2 = 2.0 / ((z(j + 1) - z(j - 1)) * m_rho[j]);
