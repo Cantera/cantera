@@ -389,6 +389,46 @@ After the debugger reaches the error, the most useful command is the `where` com
 which will print a stack trace. The `up` command will move up the stack each time it is
 called and print the corresponding line of the source code.
 
+## Building and Debugging the C++ Samples
+
+The C++ samples in `samples/cxx` are not built by `scons build`. Build them explicitly
+with:
+```sh
+scons samples
+```
+They are also built automatically as a dependency when the corresponding tests are run.
+The resulting executables are placed in the build tree, for example
+`build/samples/cxx/bvp/blasius`. As with the C++ tests, running a sample directly
+requires that the operating system can find the Cantera shared library and data files;
+see [](sec-using-build-dir) for how to set `LD_LIBRARY_PATH` / `DYLD_LIBRARY_PATH` and
+`CANTERA_DATA`.
+
+When run as part of the test suite, each sample's output is compared against blessed
+reference files:
+```sh
+scons test-cxx-bvp          # build and run a single sample as a test
+scons test                  # run the full suite, including all samples
+```
+
+### Catching deprecated methods in samples and legacy tests
+
+When running the C++ samples and the legacy (`test_problems`) tests, SCons defines the
+`CANTERA_FATAL_DEPRECATION_WARNINGS` environment variable. When this variable is defined,
+Cantera turns deprecation warnings into exceptions (equivalent to calling
+{ct}`make_deprecation_warnings_fatal`), so that any use of a deprecated method aborts the
+program rather than printing a warning that goes unnoticed in the captured test output.
+The variable is read once, when Cantera is first initialized.
+
+To reproduce this behavior when running a sample directly — for instance, to find the
+source of a deprecated call under the debugger — define the variable before launching the
+program:
+```sh
+export CANTERA_FATAL_DEPRECATION_WARNINGS=1
+gdb --args build/samples/cxx/bvp/blasius
+```
+Leave the variable undefined to restore the default behavior, where deprecation warnings
+are printed but do not interrupt execution.
+
 ## Accessing Stack Traces
 
 Before resorting to running in the debugger, it can sometimes be helpful to get the
