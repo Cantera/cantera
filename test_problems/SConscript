@@ -19,6 +19,11 @@ localenv['ENV']['CANTERA_DATA'] = (Dir('#data').abspath + os.pathsep +
                                    Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
+# Turn deprecation warnings into errors so that legacy tests and C++ samples that
+# use deprecated methods cause the corresponding test to fail (see Application
+# constructor in src/base/application.cpp).
+localenv['ENV']['CANTERA_FATAL_DEPRECATION_WARNINGS'] = '1'
+
 PASSED_FILES = {}
 
 

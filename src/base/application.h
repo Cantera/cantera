@@ -299,7 +299,10 @@ public:
     }
 
     //! Turns deprecation warnings into exceptions. Activated within the test
-    //! suite to make sure that no deprecated methods are being used.
+    //! suite to make sure that no deprecated methods are being used. This is also
+    //! enabled process-wide when the environment variable
+    //! `CANTERA_FATAL_DEPRECATION_WARNINGS` is defined (the value is ignored), as
+    //! done by SCons when running the legacy tests and C++ samples.
     void make_deprecation_warnings_fatal() {
         m_fatal_deprecation_warnings = true;
     }
