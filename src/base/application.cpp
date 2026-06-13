@@ -85,6 +85,13 @@ Application::Application()
     // install a default logwriter that writes to standard output / standard error
     m_logwriter = make_unique<Logger>();
     setDefaultDirectories();
+    // if the environment variable CANTERA_FATAL_DEPRECATION_WARNINGS is defined,
+    // turn deprecation warnings into exceptions. The variable's value is ignored;
+    // only its presence matters. Used to ensure that tests and samples do not rely
+    // on deprecated methods.
+    if (getenv("CANTERA_FATAL_DEPRECATION_WARNINGS") != nullptr) {
+        make_deprecation_warnings_fatal();
+    }
 }
 
 Application* Application::Instance()
