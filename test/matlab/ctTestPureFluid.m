@@ -343,13 +343,12 @@ classdef ctTestPureFluid < ctTestCase
                 self.verifySubstring(ME.message, 'Illegal temperature value');
             end
 
-            % Test disabled pending fix of Github Issue #605
             try
                 self.fluid.TP = {300, 0.999 * psat};
                 t1 = self.fluid.satTemperature;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                % self.verifySubstring(ME.message, 'Illegal pressure value');
+                self.verifySubstring(ME.message, 'Illegal pressure value');
             end
         end
 

@@ -11,6 +11,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 #include <cmath>
+#include <limits>
 
 using namespace Cantera;
 
@@ -300,17 +301,15 @@ double Substance::x()
 double Substance::Tsat(double p)
 {
     double Tsave = T;
-    if (p <= 0. || p > Pcrit()) {
-        // @todo: this check should also fail below the triple point pressure
-        // (calculated as Ps() for Tmin() as it is not available as a numerical
-        // parameter). A bug causing low-temperature TP setters to fail for
-        // Heptane (GitHub issue #605) prevents this at the moment.
-        // Without this check, a calculation attempt fails with the less
-        // meaningful error "No convergence" below.
-        throw CanteraError("Substance::Tsat",
-                           "Illegal pressure value: {}", p);
-    }
+    // The minimum pressure is not stored as a numerical parameter, so it is evaluated
+    // as the saturation pressure at the minimum temperature. Note that minimum
+    // temperature and pressure are often defined at the triple point.
+    T = Tmin();
+    double Pmin = Ps();
     T = Tsave;
+    if (p <= 0. || p > Pcrit() || p < Pmin) {
+        throw CanteraError("Substance::Tsat", "Illegal pressure value: {}", p);
+    }
     Tsave = T;
 
     int LoopCount = 0;
@@ -801,9 +800,43 @@ void Substance::set_TPp(double Temp, double Pressure)
     T = Temp;
     v_here = vp();
 
+    // Track the previous iterate so that a sign change in the pressure residual
+    // can be detected and turned into a bracket (see below).
+    double v_prev = v_here;
+    double P_prev = 0.0;
+    double res_prev = 0.0;
+    bool have_prev = false;
+
     // loop
     while (P_here = Pp(),
             fabs(Pressure - P_here) >= ErrP* Pressure || LoopCount == 0) {
+        double res = P_here - Pressure;
+        if (have_prev && kbr == 0 && res*res_prev < 0.0) {
+            // The residual changed sign between the previous and current specific
+            // volume, so the root lies between them. On the steep liquid branch at low
+            // temperature the iteration can step across the (very thin) target band
+            // without the logic below ever recording a bracket, leaving the solver
+            // unable to converge. Capture the bracket explicitly so the in-bracket
+            // refinement below can proceed. Pressure decreases with specific volume
+            // here, so the smaller volume is the lower bound.
+            if (v_here < v_prev) {
+                Vmin = v_here;
+                Pmin = P_here;
+                Vmax = v_prev;
+                Pmax = P_prev;
+            } else {
+                Vmin = v_prev;
+                Pmin = P_prev;
+                Vmax = v_here;
+                Pmax = P_here;
+            }
+            kbr = 1;
+        }
+        v_prev = v_here;
+        P_prev = P_here;
+        res_prev = res;
+        have_prev = true;
+
         if (P_here < 0.0) {
             BracketSlope(Pressure);
         } else {
@@ -859,8 +892,16 @@ void Substance::set_TPp(double Temp, double Pressure)
             dv *= dvm/dva;
         }
         v_here += dv;
-        if (dv == 0.0) {
-            throw CanteraError("Substance::set_TPp", "dv = 0 and no convergence");
+        if (fabs(dv) <= 4.0*std::numeric_limits<double>::epsilon()*fabs(v_here)) {
+            // The volume step has dropped below the resolution of the specific volume
+            // in double precision, so no nearer representable volume brings the brings
+            // the pressure closer to the target. This is convergence to floating-point
+            // precision rather than a failure: it occurs on the nearly incompressible
+            // liquid branch at low temperature, where the saturation pressure is so
+            // small that the requested relative pressure tolerance is finer than one
+            // floating-point ULP of pressure, and when the initial density guess
+            // already sits at the root.
+            break;
         }
         Set(PropertyPair::TV, Temp, v_here);
         LoopCount++;
