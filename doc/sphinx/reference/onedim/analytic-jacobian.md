@@ -2,109 +2,227 @@
 
 ## Overview
 
-The [nonlinear solver](nonlinear-solver) for 1D flames evaluates the Jacobian
-$\mathbf{J}$ of the residual function at each Newton iteration. By default this is done
-by finite differences (perturbing each solution variable in turn), which requires $N_v$
-residual evaluations for a solution vector of length $N_v$. The analytic Jacobian mode
-(`domain.jacobian_mode = "analytic"`) instead computes the species-column blocks of
-$\mathbf{J}$ directly from the kinetics concentration derivatives, reducing the number of
-residual evaluations per Jacobian to $N_v - K \cdot (N-2)$, where $K$ is the number of
-species and $N$ is the number of grid points.
+The [nonlinear solver](nonlinear-solver) for 1D flames needs the Jacobian $\mathbf{J}$
+of the residual function to compute each Newton step. The Jacobian is reused across
+Newton steps and only re-evaluated when the steps stop making progress (see the
+[nonlinear solver](nonlinear-solver) page). Even so, each re-evaluation is one of the
+more expensive operations in the solution process, so reducing its cost is worthwhile.
 
-The derivation below covers the interior grid points $j = 1, \ldots, N-2$ (the two
-boundary points always use finite differences). All transport coefficients are treated as
-frozen at the base state, matching the frozen-transport approximation of the FD Jacobian.
+By default, the Jacobian is built by finite differences: each of the $N_v$ solution
+components is perturbed in turn and the resulting change in the residual gives one
+column of $\mathbf{J}$. Because the discretization is block tridiagonal --- the residual
+at grid point $j$ depends only on the solution at points $j-1$, $j$, and $j+1$ ---
+perturbing a variable at point $p$ changes the residual only at points $p-1$, $p$, and
+$p+1$. Each column therefore costs a *local* residual evaluation over three grid points,
+not a sweep of the whole domain.
+
+The analytic Jacobian mode (`domain.jacobian_mode = "analytic"`) replaces the
+finite-difference perturbation for the species mass-fraction columns at interior grid
+points with formulas derived from the kinetics composition derivatives. For a domain
+with $K$ species and $N$ grid points, the solution vector has length
+
+$$
+N_v = (K + c) N,
+$$
+
+where $c$ is the number of non-species components per grid point (the axial velocity
+$u$, scaled radial velocity $V$, temperature $T$, pressure eigenvalue $\Lambda$, and,
+for two-point-controlled flames, the axial mass flux). Of the $N_v$ columns, the
+analytic mode handles the $K\,(N-2)$ species columns at the $N-2$ interior points
+directly. The remaining
+
+$$
+N_v - K (N-2) = c N + 2K
+$$
+
+columns --- every non-species column, plus all columns at the two boundary points ---
+are still evaluated by finite differences. The relative savings therefore grow with the
+species fraction $K/(K+c)$ of the system, i.e. with the size of the mechanism.
+
+The derivation below covers the interior column points $p = 1, \ldots, N-2$ (the two
+boundary points always use finite differences). All transport coefficients are treated
+as frozen at the base state, matching the frozen-transport approximation of the
+finite-difference Jacobian, so the two modes make equivalent approximations.
+
+## Notation
+
+The notation follows the [discretization](discretization) page: grid points are denoted
+by a subscript, species mass fractions by $Y_{k,j}$ (species $k$ at grid point $j$) and
+mole fractions by $X_{k,j}$, with $W_k$ the molecular weight of species $k$ and
+$\overline{W}_j$ the mean molecular weight at point $j$. A Jacobian entry involves two
+grid points: the row (residual) point $j$ and the column (perturbed-variable) point $p$.
+We write the column we are computing as $\partial / \partial Y_{m,p}$ --- the derivative
+with respect to the mass fraction of species $m$ at point $p$. As in the
+finite-difference solver, this is an *unnormalized* perturbation: a single $Y_{m,p}$ is
+varied while the other mass fractions at point $p$ are held fixed (the mixture is not
+renormalized to sum to one). Summation indices over species are written as $n$, and
+$\delta_{km}$ is the Kronecker delta ($1$ if $k = m$, $0$ otherwise).
 
 ## Species residual
 
-The discretized species mass-fraction residual at interior point $j$ (using an upwind
-convection scheme and a central-difference diffusion flux) is:
+Using the mixture-averaged diffusive flux and an upwind convection scheme, the
+steady-state species residual that Cantera assembles at interior point $j$ is
 
 $$
-F_k^{(j)} = \rho_j \frac{\partial Y_k}{\partial t}
-  - \frac{2(\bar{F}_k^{(j)} - \bar{F}_k^{(j-1)})}{z_{j+1} - z_{j-1}}
-  - W_k \dot\omega_k^{(j)}
-  - [\text{convection}]_k^{(j)}
+F_{Y_k,j} = \frac{1}{\rho_j}\left[
+  W_k \dot\omega_{k,j}
+  - \rho_j u_j \left.\frac{\partial Y_k}{\partial z}\right|_j
+  - \zeta_j \bigl(j_{k,j+1/2} - j_{k,j-1/2}\bigr)
+\right],
 $$
 
-where $\bar{F}_k^{(j)} = \tfrac{1}{2}(F_k^{(j)} + F_k^{(j+1)})$ is the mean
-diffusive flux over the interval $(z_j, z_{j+1})$ and $F_k^{(j)}$ is the mixture-
-averaged diffusive mass flux at the right boundary of interval $j$:
+where $\zeta_j \equiv 2 / (z_{j+1} - z_{j-1})$ and $j_{k,j+1/2}$ is the diffusive mass
+flux of species $k$ at the midpoint between points $j$ and $j+1$, $\dot\omega_{k,j}$ is
+the net molar production rate, and the convection derivative $\partial Y_k/\partial
+z|_j$ is upwinded. (The transient term that the time-stepping solver adds to the
+diagonal is handled separately and is not part of the analytic species column.) Compared
+with the [discretization](discretization) page, this is the same residual divided
+through by $\rho_j$, which is the form actually assembled in {ct}`Flow1D::evalSpecies`
+and the reason the $1/\rho_j$ factors appear in the Jacobian below.
+
+With frozen transport, the midpoint flux is
 
 $$
-F_k^{(j)} = \frac{1}{\Delta z_j}\Bigl[
-  \bar{c}_j D_{kj} \bigl(X_k^{(j)} - X_k^{(j+1)}\bigr)
-  + Y_k^{(j)} S_j
-\Bigr]
+j_{k,j+1/2} =
+  \frac{\tilde{D}_{k,j+1/2}}{\Delta z_j}\bigl(X_{k,j} - X_{k,j+1}\bigr)
+  + Y_{k,j} S_{j+1/2},
 $$
 
-with $S_j = -\sum_n \tfrac{\bar{c}_j D_{nj}}{\Delta z_j}(X_n^{(j)} - X_n^{(j+1)})$.
-
-## Jacobian column for $Y_m$ at point $p$
-
-The column $\partial F / \partial Y_m(p)$ has nonzero blocks only in rows $j = p-1, p,
-p+1$ (because only the two adjacent diffusive fluxes $F^{(p-1)}$ and $F^{(p)}$ depend
-on $Y(p)$, plus the reaction term at $j = p$). The three blocks are:
+where
 
 $$
-\frac{\partial F_k^{(j)}}{\partial Y_m(p)} =
+S_{j+1/2} = -\sum_n \frac{\tilde{D}_{n,\,j+1/2}}{\Delta z_j}
+                    \bigl(X_{n,j} - X_{n,j+1}\bigr),
+$$
+
+and $\Delta z_j = z_{j+1} - z_j$. The notation $\tilde{D}_{k,\,j+1/2}$ is a reminder
+that this is not a bare diffusion coefficient but the composite *flux prefactor* that
+multiplies the mole-fraction gradient. For the default molar-gradient, mixture-averaged
+case it is
+
+$$
+\tilde{D}_{k,\,j+1/2} = \frac{\rho\, W_k}{\overline{W}}\, D_{k,\mathrm{mix}},
+$$
+
+evaluated at the midpoint state, where $D_{k,\mathrm{mix}}$ is the mixture-averaged
+diffusion coefficient of species $k$; it therefore carries units of a mass-flux density
+coefficient rather than $\mathrm{m^2/s}$. This is the quantity stored in
+{ct}`Flow1D::m_diff`, and (being a transport property) it is held frozen here. The term
+$Y_{k,j}\,S_{j+1/2}$ is the correction flux that enforces $\sum_k j_{k,\,j+1/2} = 0$.
+
+The mass-gradient form replaces each $X_{n,j}$ by $Y_{n,j}$, sets
+$\tilde{D}_{k,\,j+1/2} = \rho\, D_{k,\mathrm{mix}}^{\,\mathrm{mass}}$, and drops the
+$\overline{W}/W$ factors that appear in the derivatives below.
+
+## Jacobian column for $Y_{m,p}$
+
+The residual $F_{Y_k,j}$ depends on $Y_{m,p}$ through the two midpoint fluxes adjacent
+to point $p$ --- $j_{k,\,p-1/2}$ (which has point $p$ as its right endpoint) and
+$j_{k,\,p+1/2}$ (which has point $p$ as its left endpoint) --- and, when $j = p$,
+additionally through the reaction term, the upwinded convection term, and the $1/\rho_j$
+prefactor. The column therefore has nonzero entries only in rows $j = p-1,\, p,\, p+1$:
+
+$$
+\frac{\partial F_{Y_k,j}}{\partial Y_{m,p}} =
 \begin{cases}
--\frac{2}{\rho_{j} (z_{j+1}-z_{j-1})} \frac{\partial F_k^{(p-1)}}{\partial Y_m(p)}
-  & j = p-1 \\[4pt]
--\frac{2}{\rho_{j} (z_{j+1}-z_{j-1})}
-  \Bigl(\frac{\partial F_k^{(p)}}{\partial Y_m(p)}
-        - \frac{\partial F_k^{(p-1)}}{\partial Y_m(p)}\Bigr)
+\displaystyle
+-\frac{\zeta_j}{\rho_j} \frac{\partial j_{k,\,p-1/2}}{\partial Y_{m,p}}
+  & j = p-1 \\[12pt]
+\displaystyle
+-\frac{\zeta_j}{\rho_j}
+  \left(\frac{\partial j_{k,\,p+1/2}}{\partial Y_{m,p}}
+        - \frac{\partial j_{k,\,p-1/2}}{\partial Y_{m,p}}\right)
   + \frac{W_k}{\rho_j}\frac{\partial \dot\omega_k}{\partial Y_m}
-  + [\text{density chain}]_{km}^{(p)}
-  & j = p \\[4pt]
-+\frac{2}{\rho_{j} (z_{j+1}-z_{j-1})} \frac{\partial F_k^{(p)}}{\partial Y_m(p)}
+  + R_{km}^{(p)} + C_{km}^{(p)}
+  & j = p \\[12pt]
+\displaystyle
++\frac{\zeta_j}{\rho_j} \frac{\partial j_{k,\,p+1/2}}{\partial Y_{m,p}}
   & j = p+1
 \end{cases}
 $$
 
-Boundary rows $j = 0$ and $j = N-1$ are skipped because those residuals are boundary
-conditions that do not depend on interior species values.
-
-## Diffusive-flux Jacobian
-
-With frozen transport coefficients, the molar-gradient flux Jacobian at interval $q$
-with respect to $Y_m$ at endpoint $q$ (left, $\text{AtQ}=\text{true}$) is:
+Here $R_{km}^{(p)}$ is the *density chain rule* term: because
+$\rho_j = P\overline{W}_j/(RT_j)$ depends on composition through $\overline{W}_j$,
+the $1/\rho_j$ prefactor contributes
 
 $$
-\frac{\partial F_k^{(q)}}{\partial Y_m(q)} =
-  \frac{\bar{c} D_{kq}}{\Delta z_q} f_q \bigl(\delta_{km} - X_k^{(q)}\bigr)
-  + Y_k^{(q)} \frac{\partial S_q}{\partial Y_m(q)}
-  + \delta_{km} S_q
+R_{km}^{(p)} = \bigl(W_k\dot\omega_{k,p} - d_{k,p}\bigr)\,
+  \frac{\overline{W}_p}{W_m\,\rho_p},
+\qquad
+d_{k,p} = \frac{2\bigl(j_{k,\,p+1/2} - j_{k,\,p-1/2}\bigr)}{z_{p+1} - z_{p-1}},
 $$
 
-where $f_q = \bar{w}_q / W_m$ is the $\partial X / \partial Y$ scale factor,
-$\partial S_q / \partial Y_m(q) = -f_q(D_{mq}/\Delta z_q - a_q)$, and
-$a_q = \sum_n (D_{nq}/\Delta z_q) X_n^{(q)}$.
+obtained from $\partial(1/\rho_p)/\partial Y_{m,p} = \overline{W}_p / (W_m\,\rho_p)$
+acting on the reaction and diffusion parts of the residual numerator. (The convection
+part has no density chain rule contribution because the $\rho_j$ in $\rho_j u_j$ cancels
+the $1/\rho_j$ prefactor.) The convection term $C_{km}^{(p)}$ is the derivative of the
+upwinded $-u_j\,\partial Y_k/\partial z|_j$: it is species-diagonal ($k=m$) and
+contributes to whichever rows have point $p$ in their upwind difference stencil.
 
-The right-endpoint derivative (at $q+1$) has an analogous formula with $f_{q+1}$,
-$a_{q+1}$, and a sign flip. The implementation uses a template parameter to compute
-only the needed endpoint, avoiding redundant work.
+Boundary rows $j = 0$ and $j = N-1$ are skipped: those residuals are fixed-value
+constraints with no dependence on interior species values.
+
+## Diffusive-flux derivatives
+
+The two flux derivatives above are evaluated at the endpoints of the relevant interval.
+With frozen transport, differentiating $j_{k,\,j+1/2}$ with respect to the mass fraction
+at its _left_ endpoint (point $j$) gives
+
+$$
+\frac{\partial j_{k,\,j+1/2}}{\partial Y_{m,j}} =
+  \frac{\tilde{D}_{k,\,j+1/2}}{\Delta z_j}\, f_j\,\bigl(\delta_{km} - X_{k,j}\bigr)
+  + Y_{k,j}\,\frac{\partial S_{j+1/2}}{\partial Y_{m,j}}
+  + \delta_{km}\, S_{j+1/2},
+$$
+
+and with respect to the _right_ endpoint (point $j+1$),
+
+$$
+\frac{\partial j_{k,\,j+1/2}}{\partial Y_{m,j+1}} =
+  -\frac{\tilde{D}_{k,\,j+1/2}}{\Delta z_j}\, f_{j+1}\,\bigl(\delta_{km} - X_{k,j+1}\bigr)
+  + Y_{k,j}\,\frac{\partial S_{j+1/2}}{\partial Y_{m,j+1}},
+$$
+
+where the $f_j = \overline{W}_j / W_{m,j}$ is the $\partial X/\partial Y$ scale factor
+and the correction-flux derivatives are
+
+$$
+\frac{\partial S_{j+1/2}}{\partial Y_{m,j}} & =
+  -f_j\!\left(\frac{\tilde{D}_{m,\,j+1/2}}{\Delta z_j} - a_j\right),
+
+\frac{\partial S_{j+1/2}}{\partial Y_{m,j+1}} & =
+  +f_{j+1}\!\left(\frac{\tilde{D}_{m,\,j+1/2}}{\Delta z_j} - a_{j+1}\right),
+$$
+
+with $a_j = \sum_n (\tilde{D}_{n,\,j+1/2}/\Delta z_j)\, X_{n,j}$. The right-endpoint
+form has no $\delta_{km}\,S$ term because the $Y_{k,j}\,S_{j+1/2}$ part of the flux is
+anchored at the left endpoint. The implementation computes only the endpoint actually
+needed for each row.
 
 ## Reaction derivatives: $\partial\dot\omega_k / \partial Y_m$
 
-At constant $T$ and $P$, the chain rule from mole fractions to unnormalized mass
-fractions gives:
+At constant $T$ and $P$, the chain rule from molar concentrations $C_n = \rho Y_n / W_n$
+to the unnormalized mass fractions gives
 
 $$
 \frac{\partial \dot\omega_k}{\partial Y_m} =
   \frac{\rho}{W_m}\frac{\partial \dot\omega_k}{\partial C_m}
-  - \frac{\bar{w}}{W_m} \sum_n \frac{\partial \dot\omega_k}{\partial C_n} C_n
+  - \frac{\overline{W}}{W_m} \sum_n \frac{\partial \dot\omega_k}{\partial C_n}\, C_n.
 $$
 
-where $C_n = \rho Y_n / W_n$ is the molar concentration. The sparse matrix
-$\partial \dot\omega / \partial C$ is provided by
-`Kinetics::netProductionRates_ddCi()`, whose nonzero pattern is fixed for a given
-mechanism and is reused across grid points.
+The first term is the direct response to perturbing $C_m$; the second arises because
+$\rho$ and $\overline{W}$ themselves depend on the unnormalized $Y_m$. The sparse matrix
+$\partial \dot\omega / \partial C$ is supplied by
+{ct}`Kinetics::netProductionRates_ddCi()`, whose nonzero pattern is fixed for a given
+mechanism and is reused across all grid points.
 
-## Energy and flow residual columns
+## Energy and flow rows
 
-The energy-row block $\partial F_T^{(j)} / \partial Y_m(p)$ for $j \in \{p-1, p, p+1\}$
-is computed from the same diffusive-flux Jacobian blocks (via the enthalpy-flux term
-$\sum_k h_k F_k / W_k$) plus a density-chain correction and a reaction-heat term at
-$j = p$. The continuity and momentum rows receive only density-chain corrections
-($\partial \rho / \partial Y_m = -\rho \bar{w} / W_m$) from the same column $p$.
+The energy-row block $\partial F_{T,j} / \partial Y_{m,p}$
+(for $j \in \{p-1,\,p,\,p+1\}$) reuses the same diffusive-flux derivatives through the
+enthalpy-flux term $\sum_k h_k\, j_k/W_k$, and adds a density chain rule correction
+together with a reaction-heat term and (when enabled) a radiation term at $j = p$. The
+continuity and radial-momentum rows depend on the species mass fractions only through
+the density, so they receive only a density chain rule correction
+($\partial \rho_p / \partial Y_{m,p} = -\rho_p\,\overline{W}_p / W_m$) from the column
+at point $p$.
