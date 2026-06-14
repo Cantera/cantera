@@ -271,10 +271,28 @@ class TestPureFluid:
         with pytest.raises(ct.CanteraError, match='Illegal temperature'):
             self.water.TP = .999 * self.water.min_temp, ct.one_atm
             self.water.P_sat
-        # @todo: test disabled pending fix of GitHub issue #605
-        # with pytest.raises(ct.CanteraError, match='Illegal pressure value'):
-        #     self.water.TP = 300, .999 * psat
-        #     self.water.T_sat
+        with pytest.raises(ct.CanteraError, match='Illegal pressure value'):
+            self.water.TP = 300, .999 * psat
+            self.water.T_sat
+
+    @pytest.mark.parametrize("name", [
+        "water", "nitrogen", "methane", "hydrogen", "oxygen", "carbon-dioxide",
+        "heptane", "HFC-134a",
+    ])
+    def test_set_TP_near_min_temp(self, name):
+        # Setting a compressed-liquid state at the minimum temperature must
+        # converge for every pure fluid. Regression test for GitHub issue #605:
+        # Heptane failed for TP setters below ~204 K because, on the nearly
+        # incompressible liquid branch, the saturation pressure is so small
+        # that the set_TPp solver stepped across the (very thin) target band
+        # without recording a bracket and never converged. The solver now
+        # detects the residual sign change to bracket the root and accepts a
+        # root resolved to within floating-point precision.
+        fluid = ct.PureFluid("liquidvapor.yaml", name)
+        fluid.TP = fluid.min_temp, ct.one_atm
+        assert fluid.T == approx(fluid.min_temp)
+        assert fluid.P == approx(ct.one_atm)
+        assert fluid.density > 0
 
     def test_TPQ(self):
         self.water.TQ = 400, 0.8
