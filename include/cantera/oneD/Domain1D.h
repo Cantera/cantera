@@ -301,6 +301,15 @@ public:
     //! @since New in %Cantera 4.0.
     virtual void evalJacobianAnalytic(span<const double> x, SystemJacobian& jac) {}
 
+    //! Validate that an explicitly requested analytic Jacobian
+    //! (`jacobian_mode == "analytic"`) can be used for the current
+    //! configuration, throwing CanteraError otherwise. Called once per
+    //! Jacobian evaluation before the finite-difference column loop. The base
+    //! implementation does nothing; the `"auto"` and `"finite-difference"`
+    //! modes never raise.
+    //! @since New in %Cantera 4.0.
+    virtual void checkAnalyticJacobian() const {}
+
     /**
      * Set grid refinement criteria. @see Refiner::setCriteria.
      * @since New in %Cantera 3.2

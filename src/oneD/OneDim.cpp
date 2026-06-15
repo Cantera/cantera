@@ -255,6 +255,13 @@ void OneDim::evalJacobian(span<const double> x0)
     m_work1.resize(size());
     m_work2.resize(size());
     eval(npos, x0, m_work1, 0.0, 0);
+    // In explicit "analytic" mode, fail fast if analytic evaluation cannot be
+    // delivered, before doing a full finite-difference pass. (Base residual
+    // eval above leaves each domain's thermo state valid for the capability
+    // probe.)
+    for (auto& dom : m_dom) {
+        dom->checkAnalyticJacobian();
+    }
     vector<double> perturbed(x0.begin(), x0.end());
     size_t ipt = 0;
     for (size_t j = 0; j < points(); j++) {
