@@ -8,17 +8,10 @@ Newton steps and only re-evaluated when the steps stop making progress (see the
 [nonlinear solver](nonlinear-solver) page). Even so, each re-evaluation is one of the
 more expensive operations in the solution process, so reducing its cost is worthwhile.
 
-By default, the Jacobian is built by finite differences: each of the $N_v$ solution
-components is perturbed in turn and the resulting change in the residual gives one
-column of $\mathbf{J}$. Because the discretization is block tridiagonal --- the residual
-at grid point $j$ depends only on the solution at points $j-1$, $j$, and $j+1$ ---
-perturbing a variable at point $p$ changes the residual only at points $p-1$, $p$, and
-$p+1$. Each column therefore costs a *local* residual evaluation over three grid points,
-not a sweep of the whole domain.
-
-The analytic Jacobian mode (`domain.jacobian_mode = "analytic"`) replaces the
-finite-difference perturbation for the species mass-fraction columns at interior grid
-points with formulas derived from the kinetics composition derivatives. For a domain
+By default (`domain.jacobian_mode = "auto"`), the analytic Jacobian replaces the
+finite-difference perturbation for the species mass-fraction columns at interior
+grid points with formulas derived from the kinetics composition derivatives,
+falling back to finite differences for columns it does not cover. For a domain
 with $K$ species and $N$ grid points, the solution vector has length
 
 $$
@@ -38,6 +31,14 @@ $$
 columns --- every non-species column, plus all columns at the two boundary points ---
 are still evaluated by finite differences. The relative savings therefore grow with the
 species fraction $K/(K+c)$ of the system, i.e. with the size of the mechanism.
+
+Those finite-difference columns are built by perturbation: each component is
+perturbed in turn and the resulting change in the residual gives one column of
+$\mathbf{J}$. Because the discretization is block tridiagonal --- the residual
+at grid point $j$ depends only on the solution at points $j-1$, $j$, and $j+1$
+--- perturbing a variable at point $p$ changes the residual only at points
+$p-1$, $p$, and $p+1$. Each such column therefore costs a *local* residual
+evaluation over three grid points, not a sweep of the whole domain.
 
 The derivation below covers the interior column points $p = 1, \ldots, N-2$ (the two
 boundary points always use finite differences). All transport coefficients are treated

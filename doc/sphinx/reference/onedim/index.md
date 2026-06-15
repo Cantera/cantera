@@ -31,7 +31,7 @@ differences in the boundary conditions applied.
   is used to solve the discretized governing equations.
 
 [](analytic-jacobian)
-: This page derives the analytic Jacobian formulas used by the opt-in analytic
+: This page derives the analytic Jacobian formulas used by the default analytic
   Jacobian mode.
 
 [](grid-refinement)

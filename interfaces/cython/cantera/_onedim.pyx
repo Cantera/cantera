@@ -436,10 +436,16 @@ cdef class Domain1D:
 
     property jacobian_mode:
         """
-        Method used to evaluate this domain's Jacobian columns:
-        ``'finite-difference'`` (default) or ``'analytic'``. In ``'analytic'``
-        mode, domains that support it compute some Jacobian columns
-        analytically instead of by finite differences.
+        Method used to evaluate this domain's Jacobian columns: ``'auto'``
+        (default), ``'analytic'``, or ``'finite-difference'``.
+
+        In ``'auto'`` mode the domain computes the species Jacobian columns
+        analytically where supported and silently falls back to finite
+        differences otherwise. ``'analytic'`` behaves the same but raises an
+        exception if analytic evaluation was requested yet cannot be used --
+        because the kinetics object lacks the required composition derivatives,
+        or multicomponent transport is active. ``'finite-difference'`` always
+        uses finite differences.
 
         .. versionadded:: 4.0
         """
