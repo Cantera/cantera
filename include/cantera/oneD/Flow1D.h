@@ -438,6 +438,7 @@ public:
 
     bool hasAnalyticJacobian(size_t j, size_t n) const override;
     void evalJacobianAnalytic(span<const double> xGlobal, SystemJacobian& jac) override;
+    void checkAnalyticJacobian() const override;
 
 protected:
     AnyMap getMeta() const override;

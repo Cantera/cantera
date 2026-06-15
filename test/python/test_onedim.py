@@ -2424,6 +2424,34 @@ class TestJacobianMode:
                        or "inite-difference" in str(w.message)
                        for w in record)
 
+    def test_explicit_analytic_raises_unsupported_kinetics(self):
+        # Redlich-Kwong (non-ideal) phase: kinetics lacks composition derivatives
+        gas = ct.Solution("h2o2.yaml", "ohmech-RK")
+        gas.TP = 300, ct.one_atm
+        gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
+        sim = ct.FreeFlame(gas, width=0.02)
+        sim.flame.jacobian_mode = "analytic"
+        with pytest.raises(ct.CanteraError, match="composition derivatives"):
+            get_jacobian(sim)
+
+    def test_explicit_analytic_raises_multicomponent(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
+        sim = ct.FreeFlame(gas, width=0.02)
+        sim.flame.transport_model = "multicomponent"
+        sim.flame.jacobian_mode = "analytic"
+        with pytest.raises(ct.CanteraError, match="multicomponent"):
+            get_jacobian(sim)
+
+    def test_explicit_analytic_adjoint_no_raise(self):
+        # force_full_update is set internally during adjoint sensitivity; an
+        # explicit analytic request must NOT raise there - it silently uses FD.
+        gas, sim = make_flame("h2o2.yaml", "H2:1.0", width=0.02,
+                              jacobian_mode="analytic")
+        sens = sim.get_flame_speed_reaction_sensitivities()
+        assert len(sens) == gas.n_reactions
+
 
 class TestAnalyticVsFD:
     # All tests here solve a flame in a particular configuration, then compare

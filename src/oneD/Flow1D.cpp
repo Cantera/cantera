@@ -1474,6 +1474,34 @@ bool Flow1D::usingAnalyticJacobian() const
            && m_points >= 3;
 }
 
+void Flow1D::checkAnalyticJacobian() const
+{
+    if (m_jacobianMode != "analytic") {
+        // "auto" and "finite-difference" never raise; "auto" degrades silently.
+        return;
+    }
+    probeAnalyticJacobian();
+    if (m_analyticJacCapable != 1) {
+        throw CanteraError("Flow1D::checkAnalyticJacobian",
+            "The analytic Jacobian was explicitly requested "
+            "(jacobian_mode = 'analytic'), but the kinetics object does not "
+            "provide the required composition derivatives "
+            "(Kinetics::netProductionRates_ddCi). Set jacobian_mode = 'auto' to "
+            "fall back to finite differences automatically.");
+    }
+    if (m_do_multicomponent) {
+        throw CanteraError("Flow1D::checkAnalyticJacobian",
+            "The analytic Jacobian was explicitly requested "
+            "(jacobian_mode = 'analytic'), but it is not supported with "
+            "multicomponent transport. Set jacobian_mode = 'auto' to fall back "
+            "to finite differences automatically, or use mixture-averaged "
+            "transport.");
+    }
+    // force_full_update (adjoint sensitivity) and fewer than 3 grid points are
+    // transient/internal conditions: usingAnalyticJacobian() degrades to finite
+    // differences for them without raising.
+}
+
 bool Flow1D::hasAnalyticJacobian(size_t j, size_t n) const
 {
     return usingAnalyticJacobian() && n >= c_offset_Y && j >= 1 && j + 2 <= m_points;
