@@ -2400,9 +2400,10 @@ class TestJacobianMode:
     def test_mode_roundtrip(self):
         gas = ct.Solution("h2o2.yaml")
         flame = ct.FreeFlow(gas)
-        assert flame.jacobian_mode == "finite-difference"
-        flame.jacobian_mode = "analytic"
-        assert flame.jacobian_mode == "analytic"
+        assert flame.jacobian_mode == "auto"
+        for mode in ("finite-difference", "analytic", "auto"):
+            flame.jacobian_mode = mode
+            assert flame.jacobian_mode == mode
         with pytest.raises(ct.CanteraError, match="Unknown Jacobian mode"):
             flame.jacobian_mode = "automagic"
 

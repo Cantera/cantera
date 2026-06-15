@@ -261,13 +261,17 @@ public:
     }
 
     //! Set the method used to evaluate this domain's Jacobian columns.
-    //! @param mode  Either `"finite-difference"` (default) or `"analytic"`.
-    //!     In `"analytic"` mode, derived classes that implement analytic
-    //!     Jacobian elements (see hasAnalyticJacobian()) compute them directly
-    //!     instead of by finite-differencing the residual.
+    //! @param mode  One of `"auto"` (default), `"analytic"`, or
+    //!     `"finite-difference"`. In `"auto"` mode the domain uses analytic
+    //!     Jacobian columns where supported (see hasAnalyticJacobian()) and
+    //!     silently falls back to finite differences otherwise. `"analytic"`
+    //!     additionally raises a CanteraError if analytic evaluation was
+    //!     requested but cannot be used because the kinetics object lacks the
+    //!     required composition derivatives or multicomponent transport is
+    //!     active. `"finite-difference"` always uses finite differences.
     //! @since New in %Cantera 4.0.
     void setJacobianMode(const string& mode) {
-        if (mode != "finite-difference" && mode != "analytic") {
+        if (mode != "finite-difference" && mode != "analytic" && mode != "auto") {
             throw CanteraError("Domain1D::setJacobianMode",
                 "Unknown Jacobian mode '{}'", mode);
         }
@@ -753,7 +757,7 @@ protected:
     vector<string> m_name; //!< Names of solution components
     int m_bw = -1; //!< See bandwidth()
     bool m_force_full_update = false; //!< see forceFullUpdate()
-    string m_jacobianMode = "finite-difference"; //!< see setJacobianMode()
+    string m_jacobianMode = "auto"; //!< see setJacobianMode()
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;

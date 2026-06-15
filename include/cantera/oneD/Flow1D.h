@@ -951,6 +951,12 @@ protected:
     //! `true` if analytic Y-columns are active for this domain
     bool usingAnalyticJacobian() const;
 
+    //! `true` if the analytic Jacobian is requested, either explicitly
+    //! (`jacobian_mode == "analytic"`) or by the default (`"auto"`).
+    bool analyticRequested() const {
+        return m_jacobianMode == "auto" || m_jacobianMode == "analytic";
+    }
+
     //! Probe (once) whether the kinetics object supports the composition
     //! derivatives required for the analytic Jacobian, caching the result in
     //! #m_analyticJacCapable. Safe to call from const query methods.
