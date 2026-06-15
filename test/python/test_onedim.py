@@ -1205,6 +1205,12 @@ class TestDiffusionFlame:
         rho_o = flame.oxidizer_inlet.phase.density
         flame.fuel_inlet.mdot = 0.3
         flame.oxidizer_inlet.mdot = (0.3 / rho_f) * rho_o * 3.0
+        # These regrid tests assert exact solver step counts, which depend on
+        # the Jacobian method. Pin finite differences so the regridding behavior
+        # is deterministic regardless of the default Jacobian mode.
+        for d in flame.domains:
+            if hasattr(d, "jacobian_mode"):
+                d.jacobian_mode = "finite-difference"
         return flame
 
     @pytest.mark.slow_test
@@ -2451,6 +2457,16 @@ class TestJacobianMode:
                               jacobian_mode="analytic")
         sens = sim.get_flame_speed_reaction_sensitivities()
         assert len(sens) == gas.n_reactions
+
+    def test_explicit_analytic_raises_ion_flow(self):
+        # IonFlow overrides the species/flux physics without analytic
+        # derivatives, so the analytic Jacobian is not supported for ion flames.
+        gas = ct.Solution("ch4_ion.yaml")
+        gas.TPX = 300, ct.one_atm, "CH4:0.216, O2:2"
+        sim = ct.FreeFlame(gas, width=0.03)
+        sim.flame.jacobian_mode = "analytic"
+        with pytest.raises(ct.CanteraError, match="not implemented for this flow"):
+            get_jacobian(sim)
 
 
 class TestAnalyticVsFD:

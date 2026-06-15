@@ -118,6 +118,8 @@ species values, so there is no benefit to computing their entries analytically.
 
 Beyond that, the analytic path is not used for the affected domain when:
 
+- The domain is an ion flow ({ct}`IonFlow`), whose modified species transport
+  and electric-field coupling are not covered by the analytic species columns.
 - The transport model is multicomponent (only mixture-averaged transport, with
   or without Soret diffusion, supports analytic evaluation).
 - The kinetics object does not implement concentration derivatives (for example,
@@ -127,7 +129,7 @@ Beyond that, the analytic path is not used for the affected domain when:
 - The domain has fewer than 3 grid points.
 
 In ``'auto'`` mode every one of these is handled silently. In ``'analytic'``
-mode, the first two -- a genuine configuration choice by the user -- raise a
+mode, the first three -- genuine configuration choices by the user -- raise a
 ``CanteraError``; the last two, which are transient or internal solver states,
 still fall back silently so that, for example, adjoint sensitivity calculations
 keep working with an explicit analytic request.

@@ -958,6 +958,13 @@ protected:
         return m_jacobianMode == "auto" || m_jacobianMode == "analytic";
     }
 
+    //! `true` if this flow domain type provides analytic Jacobian species
+    //! columns consistent with its residual. Subclasses that override the
+    //! species residual or diffusive-flux physics without supplying matching
+    //! analytic derivatives (e.g. IonFlow) return `false`, so the analytic
+    //! Jacobian is not used for them.
+    virtual bool analyticJacobianSupported() const { return true; }
+
     //! Probe (once) whether the kinetics object supports the composition
     //! derivatives required for the analytic Jacobian, caching the result in
     //! #m_analyticJacCapable. Safe to call from const query methods.

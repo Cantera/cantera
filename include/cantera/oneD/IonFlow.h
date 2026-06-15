@@ -58,6 +58,11 @@ public:
 
 protected:
 
+    //! IonFlow overrides the species/flux residual with ion-drift and
+    //! electric-field coupling but provides no matching analytic Jacobian
+    //! derivatives, so analytic Jacobian evaluation is not supported.
+    bool analyticJacobianSupported() const override { return false; }
+
     /**
      * Evaluate the electric field equation residual by Gauss's law.
      *

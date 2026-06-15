@@ -1465,7 +1465,7 @@ void Flow1D::probeAnalyticJacobian() const
 
 bool Flow1D::usingAnalyticJacobian() const
 {
-    if (!analyticRequested()) {
+    if (!analyticRequested() || !analyticJacobianSupported()) {
         return false;
     }
     probeAnalyticJacobian();
@@ -1479,6 +1479,13 @@ void Flow1D::checkAnalyticJacobian() const
     if (m_jacobianMode != "analytic") {
         // "auto" and "finite-difference" never raise; "auto" degrades silently.
         return;
+    }
+    if (!analyticJacobianSupported()) {
+        throw CanteraError("Flow1D::checkAnalyticJacobian",
+            "The analytic Jacobian was explicitly requested "
+            "(jacobian_mode = 'analytic'), but it is not implemented for this "
+            "flow domain type. Set jacobian_mode = 'auto' to fall back to "
+            "finite differences automatically.");
     }
     probeAnalyticJacobian();
     if (m_analyticJacCapable != 1) {
