@@ -75,51 +75,62 @@ $$
 
 Moving across a row of the Jacobian matrix encodes how the value of the residual at
 a grid point changes with respect to each solution component. By default the Jacobian
-is approximated numerically using finite differences, though an opt-in analytic mode
-is also available; see [](jacobian-evaluation-modes) for details.
+uses analytic species-column derivatives where they are
+available, falling back to finite differences otherwise; see
+[](jacobian-evaluation-modes) for details.
 
 (jacobian-evaluation-modes)=
 ### Jacobian Evaluation Modes
 
-Cantera provides two modes for evaluating the Jacobian, controlled per-domain via the
-{py:attr}`~cantera.Domain1D.jacobian_mode` property:
+Cantera provides three modes for evaluating the Jacobian, controlled per-domain
+via the {py:attr}`~cantera.Domain1D.jacobian_mode` property:
 
-**Finite-difference mode** (``'finite-difference'``, the default): all Jacobian columns
-are evaluated by perturbing each solution component and measuring the change in the
-residual. Transport properties (viscosity, thermal conductivity, diffusion coefficients)
-are frozen at their unperturbed values for efficiency.
+**Automatic mode** (``'auto'``, the default): the species ($Y_k$) Jacobian
+columns at interior grid points are computed analytically where supported, and
+the domain silently falls back to finite differences for any column or
+configuration that analytic evaluation does not cover.
 
-**Analytic mode** (``'analytic'``): the species ($Y_k$) Jacobian columns at interior
-grid points are computed analytically from the kinetics concentration-derivative
-functions, while the remaining columns (axial velocity $u$, scaled radial velocity
-$V$, temperature $T$, pressure eigenvalue $\Lambda$, and the axial mass flux $\dot{m}$
-for two-point-controlled flames) are still evaluated by finite differences. Transport
-properties are frozen in the same way as in finite-difference mode, so the two modes
-make equivalent approximations.
+**Analytic mode** (``'analytic'``): the same analytic columns are used, but the
+solver raises an exception if analytic evaluation was explicitly requested yet
+cannot be delivered (see *Fallback to finite differences* below). Use this mode
+to be certain the analytic Jacobian is actually in effect.
+
+**Finite-difference mode** (``'finite-difference'``): all Jacobian columns are
+evaluated by perturbing each solution component and measuring the change in the
+residual.
+
+In all modes, transport properties (viscosity, thermal conductivity, diffusion
+coefficients) are frozen at their unperturbed values, so the analytic and
+finite-difference paths make equivalent approximations.
 
 ```{versionadded} 4.0
-The ``'analytic'`` Jacobian mode was introduced in Cantera 4.0.
+The analytic Jacobian and the ``'auto'``/``'analytic'``/``'finite-difference'``
+mode selection were introduced in Cantera 4.0.
 ```
 
-#### Automatic fallback to finite differences
+#### Fallback to finite differences
 
-Even when analytic mode is requested, it falls back to finite differences for the
-affected domain if any of the following conditions hold:
+Analytic evaluation is used only for the species columns at interior grid points
+(indices 1 through $N-2$, where $N$ is the number of grid points); the two
+boundary points and all non-species columns always use finite differences. The
+boundary residuals are fixed-value constraints with no dependence on neighboring
+species values, so there is no benefit to computing their entries analytically.
 
-- The transport model is multicomponent (only mixture-averaged transport, with or
-  without Soret diffusion, supports analytic evaluation).
+Beyond that, the analytic path is not used for the affected domain when:
+
+- The transport model is multicomponent (only mixture-averaged transport, with
+  or without Soret diffusion, supports analytic evaluation).
 - The kinetics object does not implement concentration derivatives (for example,
-  non-ideal-gas phases); this is probed once and a warning is issued if the fallback
-  is triggered.
-- The domain has fewer than 3 grid points.
-- The Jacobian is being evaluated for a sensitivity or adjoint calculation, which
+  non-ideal-gas phases).
+- The Jacobian is being evaluated for an adjoint sensitivity calculation, which
   forces a full update of all properties.
+- The domain has fewer than 3 grid points.
 
-In addition, analytic evaluation is only applied to interior grid points (indices 1
-through $N-2$, where $N$ is the number of grid points); the two boundary points of
-each domain always use finite differences. The boundary residuals are fixed-value
-constraints that have no dependence on neighboring species values, so there is no
-benefit to computing their Jacobian entries analytically.
+In ``'auto'`` mode every one of these is handled silently. In ``'analytic'``
+mode, the first two -- a genuine configuration choice by the user -- raise a
+``CanteraError``; the last two, which are transient or internal solver states,
+still fall back silently so that, for example, adjoint sensitivity calculations
+keep working with an explicit analytic request.
 
 The fallback is transparent: the solver produces the same results regardless of whether
 the analytic or finite-difference path is taken; only the cost of Jacobian construction
