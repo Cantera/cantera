@@ -1445,7 +1445,7 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
 
 void Flow1D::probeAnalyticJacobian() const
 {
-    if (m_jacobianMode != "analytic" || m_analyticJacCapable != -1) {
+    if (!analyticRequested() || m_analyticJacCapable != -1) {
         return;
     }
     // Probe once whether the kinetics object supports the composition
@@ -1455,9 +1455,9 @@ void Flow1D::probeAnalyticJacobian() const
     try {
         m_kin->netProductionRates_ddCi(m_ddC);
         m_analyticJacCapable = 1;
-    } catch (NotImplementedError& err) {
-        warn_user("Flow1D::probeAnalyticJacobian",
-            "Falling back to finite-difference Jacobian: {}", err.what());
+    } catch (NotImplementedError&) {
+        // Capability gap; "auto" falls back silently and an explicit
+        // "analytic" request raises in checkAnalyticJacobian().
         m_analyticJacCapable = 0;
         m_ddC = Eigen::SparseMatrix<double>();
     }
@@ -1465,7 +1465,7 @@ void Flow1D::probeAnalyticJacobian() const
 
 bool Flow1D::usingAnalyticJacobian() const
 {
-    if (m_jacobianMode != "analytic") {
+    if (!analyticRequested()) {
         return false;
     }
     probeAnalyticJacobian();
