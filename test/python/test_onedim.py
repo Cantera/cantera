@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from pytest import approx
 import re
+import warnings
 
 import cantera as ct
 
@@ -2406,6 +2407,22 @@ class TestJacobianMode:
             assert flame.jacobian_mode == mode
         with pytest.raises(ct.CanteraError, match="Unknown Jacobian mode"):
             flame.jacobian_mode = "automagic"
+
+    def test_auto_silent_fallback_no_warning(self):
+        # Non-ideal (Redlich-Kwong) kinetics lacks composition derivatives, so
+        # "auto" must silently use finite differences with no warning.
+        gas = ct.Solution("h2o2.yaml", "ohmech-RK")
+        gas.TP = 300, ct.one_atm
+        gas.set_equivalence_ratio(1.0, "H2:1.0", "O2:1.0, N2:3.76")
+        sim = ct.FreeFlame(gas, width=0.02)
+        assert sim.flame.jacobian_mode == "auto"
+        with warnings.catch_warnings(record=True) as record:
+            warnings.simplefilter("always")
+            J = get_jacobian(sim)
+        assert J.shape[0] == J.shape[1]
+        assert not any("alling back" in str(w.message)
+                       or "inite-difference" in str(w.message)
+                       for w in record)
 
 
 class TestAnalyticVsFD:
