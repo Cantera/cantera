@@ -1813,7 +1813,11 @@ cdef class ThermoPhase(_SolutionBase):
 
     # methods for plasma
     property Te:
-        """Get/Set electron Temperature [K]."""
+        """Get/Set electron Temperature [K].
+
+        Note that the electron temperature must be set before setting the gas
+        temperature and pressure/density to properly constrain the pressure.
+        """
         def __get__(self):
                 return self.thermo.electronTemperature()
 
