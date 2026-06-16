@@ -856,6 +856,9 @@ void PlasmaPhase::setState(const AnyMap& input_state)
     if (state.hasKey("Tg")) {
         state["T"] = state["Tg"];
     }
+
+    // Call the base class method to set the remaining state variables.
+    IdealGasPhase::setState(state);
 }
 
 double PlasmaPhase::jouleHeatingPower() const
