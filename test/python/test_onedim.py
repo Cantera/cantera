@@ -1944,6 +1944,7 @@ class TestBurnerFlame:
             gas = ct.Solution("h2o2.yaml")
             gas.TPX = T, ct.one_atm*P, {'H2':phi, 'O2':0.5, 'AR':1.5}
             sim = ct.BurnerFlame(gas=gas, width=width)
+            sim.set_refine_criteria(ratio=10, slope=0.8, curve=0.8, prune=0.2)
             sim.burner.mdot = gas.density * 0.15
             sim.solve(loglevel=0, auto=True)
             assert sim.T[1] > T
