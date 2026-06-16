@@ -778,22 +778,38 @@ TEST_P(TestConsistency, dhdP_const_T_eq_v_minus_T_dvdT_const_P)
     double dT = 1e-4 * T0;
     double v, h1, v_lo;
     try {
+        if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T0);
+        }
         v = phase->molarVolume();
         phase->setState_TP(T0, P0 - dP);
         h1 = phase->enthalpy_mole();
+        if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T0 - dT);
+        }
         phase->setState_TP(T0 - dT, P0);
         v_lo = phase->molarVolume();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
+
+    if (phase->type() == "plasma") {
+            phase->setElectronTemperature(T0);
+    }
     phase->setState_TP(T0, P0 + dP);
     double h2 = phase->enthalpy_mole();
     double dhdP = (h2 - h1) / (2 * dP);
 
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T0 + dT);
+    }
     phase->setState_TP(T0 + dT, P0);
     double v_hi = phase->molarVolume();
     double dvdT = (v_hi - v_lo) / (2 * dT);
 
+    if (phase->type() == "plasma") {
+        phase->setElectronTemperature(T0);
+    }
     phase->setState_TP(T0, P0); // restore cached state
     double rhs = v - T0 * dvdT;
     EXPECT_NEAR(dhdP, rhs,
