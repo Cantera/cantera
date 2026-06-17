@@ -167,6 +167,10 @@ plasma:
         relative to the acceptable error (1e-11). Skip for now.
       dhdP_const_T_eq_v_minus_T_dvdT_const_P/[345]:
         The differential methods are not yet implemented for two-temperature systems.
+      chem_potentials_to_activities/[345]:
+        The standard state is chosen to be defined the gas temperature, so divergences
+        arise when electron temperature is not equal to gas temperature.
+        See #2101 for details.
   states:
   # In the test cases below, set Te=T
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}, Te: 300}
