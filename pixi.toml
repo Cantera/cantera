@@ -30,6 +30,7 @@ typing-extensions = ">=4.15.0,<5"
 pytest = ">=9.0.2,<10"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 jinja2 = ">=3.1.6,<4"
+lxml = ">=6.1.1,<7"
 
 # Provide a self-consistent compiler toolchain matching the conda-forge-built
 # dependencies. The activation packages set CC/CXX/AR, which SConstruct honors. To build
