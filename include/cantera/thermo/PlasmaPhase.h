@@ -530,26 +530,37 @@ public:
     //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration. Units: m³/kmol.
     /*!
-     * This is defined as the concentration by which the generalized
-     * concentration is normalized to produce the activity. Since the activity
-     * for an ideal gas mixture is simply the mole fraction, for an ideal gas
-     * @f$ C^0_k = P/\hat R T @f$.
-     * For a multi-temperature system, this translates to:
-     * @f[
-     * \begin{align}
-     * C^0_k &= \frac{C_k}{a_k}
-     *       &= \frac{X_k \frac{P}{R \overline{T}}}{X_k}
-     *       &= \frac{P}{R \overline{T}}
-     * \end{align}
-     * @f]
-     * where @f$C_k@f$ is the molar concentration of species @f$k@f$ [in kmol/m³],
-     * @f$ a_k @f$ is the activity of species *k*, which is equal to the
-     * mole fraction @f$ X_k @f$.
+     * The standard concentration is chosen to be equal to @f[ C^0_k = \frac{P}{R T} @f]
+     * where @f$ P @f$ is the total pressure of the mixture,
+     * @f$ R @f$ is the gas constant, and @f$ T @f$ is the gas temperature.
      *
      * @param k Parameter indicating the species. The default
      *          is to assume this refers to species 0.
      */
+    //
     double standardConcentration(size_t k=0) const override;
+
+    //! Get the array of non-dimensional activities at the current solution
+    //! temperature, pressure, and solution concentration.
+    /*!
+     * Since @f$ a_k = C^a_k / C^0_k, @f$, where @f$ C^a_k = C_k @f$ is the
+     * generalized concentration, and @f$ C^0_k @f$ is the standard concentration
+     * defined above, the activities are equal to @f$ a_k = X_k T / \overline{T} @f$.
+     *
+     * @param a   Output vector of activities. Length: m_kk.
+     */
+    void getActivities(span<double> a) const override;
+
+    //! Get the array of non-dimensional activity coefficients at the current
+    //! solution temperature, pressure, and solution concentration.
+    /*!
+     * The activity coefficients are defined by @f$ \gamma_k = a_k / X_k @f$.
+     * With the current definition of the activities, the activity coefficients are
+     * equal to @f$ \gamma_k = T / \overline{T} @f$.
+     *
+     * @param ac Output vector of activity coefficients. Length: m_kk.
+     */
+    void getActivityCoefficients(span<double> ac) const override;
 
     //! @}
     //! @name Partial Molar Properties of the Solution

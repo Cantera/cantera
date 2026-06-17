@@ -720,7 +720,24 @@ double PlasmaPhase::pressure() const {
 
 double PlasmaPhase::standardConcentration(size_t k) const
 {
-    return pressure() / (GasConstant * meanTemperature());
+    return pressure() / (GasConstant * temperature());
+}
+
+void PlasmaPhase::getActivities(span<double> a) const
+{
+    double tmp = temperature() / meanTemperature();
+    for (size_t k = 0; k < nSpecies(); k++) {
+        a[k] = tmp * moleFraction(k);
+    }
+}
+
+void PlasmaPhase::getActivityCoefficients(span<double> ac) const
+{
+    checkArraySize("PlasmaPhase::getActivityCoefficients", ac.size(), m_kk);
+    double tmp = temperature() / meanTemperature();
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = tmp;
+    }
 }
 
 
