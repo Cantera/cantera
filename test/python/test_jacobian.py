@@ -737,6 +737,59 @@ class TestThreeBodyNoDefault(EdgeCases):
         }
 
 
+class TestMultiplierConsistency:
+    """Reaction-rate derivatives must remain consistent with the rates themselves
+    when a non-unity reaction multiplier is set.
+
+    A global multiplier ``m`` scales every rate of progress by ``m``, so every
+    composition derivative must scale by ``m`` as well.
+    """
+
+    @pytest.fixture
+    def gas(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        # composition with trace radicals; h2o2 includes a falloff reaction
+        # "2 OH (+M) <=> H2O2 (+M)" and a three-body "H + O + M <=> OH + M"
+        gas.TPX = 800, 2 * ct.one_atm, \
+            [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.3, 0.1]
+        return gas
+
+    @staticmethod
+    def _dense(matrix):
+        return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
+
+    @pytest.mark.parametrize("multiplier", [0.1, 1e-4])
+    @pytest.mark.parametrize("prop", [
+        "forward_rates_of_progress_ddCi",  # composition derivative (ddM path)
+        "net_production_rates_ddCi",        # used by the analytic 1D Jacobian
+        "forward_rates_of_progress_ddC",    # total-concentration derivative
+        "forward_rates_of_progress_ddT",    # temperature derivative
+        "forward_rates_of_progress_ddP",    # pressure derivative
+    ])
+    def test_derivative_scales_with_multiplier(self, gas, prop, multiplier):
+        gas.set_multiplier(1.0)
+        base = self._dense(getattr(gas, prop))
+        gas.set_multiplier(multiplier)
+        scaled = self._dense(getattr(gas, prop))
+        nz = base != 0.0
+        assert scaled[nz] == approx(multiplier * base[nz], rel=1e-6)
+
+    @pytest.mark.parametrize("multiplier", [0.1, 1e-4])
+    def test_ddP_scales_with_multiplier(self, multiplier):
+        # pressure-dependent rate types (PLOG, Chebyshev) evaluate their
+        # P-derivative by an internal finite difference, exercising the same
+        # reference-rate-constant path as the falloff/third-body case.
+        gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
+        gas.TPX = 2000, 5 * ct.one_atm, \
+            [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
+        gas.set_multiplier(1.0)
+        base = self._dense(gas.forward_rates_of_progress_ddP)
+        gas.set_multiplier(multiplier)
+        scaled = self._dense(gas.forward_rates_of_progress_ddP)
+        nz = base != 0.0
+        assert scaled[nz] == approx(multiplier * base[nz], rel=1e-6)
+
+
 class FromScratchCases(RateExpressionTests):
 
     @pytest.fixture(scope='class')

@@ -605,10 +605,13 @@ void BulkKinetics::applyEquilibriumConstants_ddT(span<double> drkcn)
 
 void BulkKinetics::process_ddT(span<const double> in, span<double> drop)
 {
-    // apply temperature derivative
+    // apply temperature derivative. The reference rate constant must be the
+    // multiplier-free m_kf0: rate handlers that evaluate the derivative by an internal
+    // finite difference compare against a perturbed constant that omits the reaction
+    // multiplier
     copy(in.begin(), in.end(), drop.begin());
     for (auto& rates : m_rateHandlers) {
-        rates->processRateConstants_ddT(drop, m_rfn, m_jac_rtol_delta);
+        rates->processRateConstants_ddT(drop, m_kf0, m_jac_rtol_delta);
     }
 }
 
@@ -617,7 +620,7 @@ void BulkKinetics::process_ddP(span<const double> in, span<double> drop)
     // apply pressure derivative
     copy(in.begin(), in.end(), drop.begin());
     for (auto& rates : m_rateHandlers) {
-        rates->processRateConstants_ddP(drop, m_rfn, m_jac_rtol_delta);
+        rates->processRateConstants_ddP(drop, m_kf0, m_jac_rtol_delta);
     }
 }
 
@@ -648,8 +651,9 @@ void BulkKinetics::process_ddC(StoichManagerN& stoich, span<const double> in,
     if (!m_jac_skip_falloff) {
         m_multi_concm.scaleM(in, asSpan(outM), m_concm, ctot_inv);
         for (auto& rates : m_rateHandlers) {
-            // processing step assigns zeros to entries not dependent on M
-            rates->processRateConstants_ddM(asSpan(outM), m_rfn, m_jac_rtol_delta);
+            // processing step assigns zeros to entries not dependent on M; use
+            // the multiplier-free m_kf0 reference (see process_ddT)
+            rates->processRateConstants_ddM(asSpan(outM), m_kf0, m_jac_rtol_delta);
         }
         out += outM;
     }
@@ -687,7 +691,7 @@ Eigen::SparseMatrix<double> BulkKinetics::calculateCompositionDerivatives(
     if (!m_jac_skip_falloff) {
         for (auto& rates : m_rateHandlers) {
             // processing step does not modify entries not dependent on M
-            rates->processRateConstants_ddM(outV, m_rfn, m_jac_rtol_delta, false);
+            rates->processRateConstants_ddM(outV, m_kf0, m_jac_rtol_delta, false);
         }
     }
 
@@ -777,8 +781,9 @@ void BulkKinetics::accumulateCompositionDerivatives(
     stoich.multiply(m_act_conc, outV);
     if (!m_jac_skip_falloff) {
         for (auto& rates : m_rateHandlers) {
-            // processing step does not modify entries not dependent on M
-            rates->processRateConstants_ddM(outV, m_rfn, m_jac_rtol_delta, false);
+            // processing step does not modify entries not dependent on M; use
+            // the multiplier-free m_kf0 reference.
+            rates->processRateConstants_ddM(outV, m_kf0, m_jac_rtol_delta, false);
         }
     }
     // derivatives handled by ThirdBodyCalc
