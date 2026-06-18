@@ -159,6 +159,15 @@ plt.show()
 # too coarse for the steady-state solver to converge. The ``time_step_regrid`` option
 # lets the solver refine the grid and retry when a timestepping sequence has reached
 # ``max_time_step_count``.
+#
+# These cases pin the finite-difference Jacobian
+# (``jacobian_mode = "finite-difference"``) rather
+# than using the default analytic Jacobian. While the analytic Jacobian is more accurate
+# and generally substantially faster, for high-pressure diffusion flames like this
+# one, the finite-difference Jacobian can be more robust: the (small) differences
+# between the two steer the pseudo-transient timestepping onto different paths, and here
+# the finite-difference path grows the timestep more freely and reaches steady state
+# within the modest regrid and timestep budgets used below.
 diffusion_width = 30e-3
 diffusion_initial_points = 20
 diffusion_fuel_mdot = 0.3
@@ -176,6 +185,7 @@ def make_regrid_flame(
     flame = ct.CounterflowDiffusionFlame(
         gas, grid=np.linspace(0.0, diffusion_width, diffusion_initial_points)
     )
+    flame.flame.jacobian_mode = "finite-difference"
     flame.max_time_step_count = max_time_step_count
     flame.set_refine_criteria(ratio=2.0, slope=0.06, curve=0.08, prune=0.02)
     flame.time_step_regrid = regrid_max
