@@ -7,7 +7,7 @@ function output = call(funcName, varargin)
     output = double(output);
 
     if ismember(output, ct.impl.errorCode)
-        error('Cantera:ctError', ct.impl.getError());
+        error('Cantera:ctError', '%s', ct.impl.getError());
     end
 
 end
