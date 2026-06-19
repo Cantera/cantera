@@ -807,7 +807,7 @@ class BurnerFlame(FlameBase):
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group)
-        if data:
+        if data is not None:
             return
 
         self.gas.TPY = self.burner.T, self.P, self.burner.Y
@@ -939,7 +939,7 @@ class CounterflowDiffusionFlame(FlameBase):
             If ``data`` is provided, this option is ignored.
         """
         super().set_initial_guess(data=data, group=group)
-        if data:
+        if data is not None:
             return
         if mode not in ("stoich", "linear"):
             raise ValueError("mode must be 'stoich' or 'linear'")
@@ -1295,7 +1295,7 @@ class ImpingingJet(FlameBase):
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group, products=products)
-        if data:
+        if data is not None:
             return
 
         Y0 = self.inlet.Y
@@ -1376,7 +1376,7 @@ class CounterflowPremixedFlame(FlameBase):
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group, equilibrate=equilibrate)
-        if data:
+        if data is not None:
             return
 
         Yu = self.reactants.Y
@@ -1476,7 +1476,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group)
-        if data:
+        if data is not None:
             return
 
         if self.reactants.mdot == 0:
