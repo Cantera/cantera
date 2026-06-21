@@ -104,12 +104,26 @@ build = ">=1.2.2.post1, <2"
 scikit-build-core = ">=0.12.1, <0.13"
 pyodide-build = ">=0.33.0, <0.34"
 
+# Native (non-Pyodide) build of the scikit-build-core/CMake sdist wheel. Layers the
+# CMake toolchain onto the `core` dependencies so the sdist build route can be exercised
+# on the platforms (Windows, macOS) that the Linux dev box can't. On Windows this must be
+# run from a shell where the MSVC toolchain is activated (e.g. via vcvars64.bat), since
+# cmake's Ninja generator needs `cl`/`link` on PATH.
+[feature.wheel.dependencies]
+cmake = ">=3.27,<4"
+ninja = ">=1.13.2,<2"
+
+[feature.wheel.pypi-dependencies]
+build = ">=1.2.2.post1, <2"
+scikit-build-core = ">=0.12.1, <0.13"
+
 [environments]
 default = { features = ["core", "devtools", "docs", "samples"], no-default-feature = true }
 core = { features = ["core"], no-default-feature = true }
 docs = { features = ["core", "docs", "samples"], no-default-feature = true }
 devtools = { features = ["core", "devtools"], no-default-feature = true }
 pyodide = { features = ["pyodide"], no-default-feature = true }
+wheel = { features = ["core", "wheel"], no-default-feature = true }
 
 [feature.docs.tasks]
 docs = "scons sphinx doxygen"
