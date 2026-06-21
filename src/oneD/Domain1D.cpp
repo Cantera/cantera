@@ -6,7 +6,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/Domain1D.h"
-#include "cantera/oneD/MultiJac.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/numerics/MultiJac.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/Solution.h"
