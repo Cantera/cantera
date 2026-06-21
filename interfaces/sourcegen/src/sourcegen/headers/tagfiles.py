@@ -19,7 +19,7 @@ from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
 from ..dataclasses import ArgList, Param, Func
-from .._helpers import with_unpack_iter
+from .._helpers import with_unpack_iter, strip_cantera, short_name
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,16 +43,18 @@ class TagInfo:
     kind: str = ""  #: Member kind
 
     @classmethod
-    def from_xml(cls: Self, qualified_name: str, xml: str) -> Self:
+    def from_xml(cls: Self, qualified_name: str, xml: ET.Element | str) -> Self:
         """Create tag information based on XML data."""
         base = ""
         if "::" in qualified_name:
-            base = qualified_name.split("::", 1)[0]
+            base = qualified_name.rsplit("::", 1)[0]
 
-        xml_tree = ET.fromstring(xml)
+        xml_tree = ET.fromstring(xml) if isinstance(xml, str) else xml
+        name_node = xml_tree.find("name")
+        name = short_name(name_node.text) if name_node is not None else ""
         return cls(base,
                    xml_tree.find("type").text,
-                   xml_tree.find("name").text,
+                   name,
                    xml_tree.find("arglist").text,
                    xml_tree.find("anchorfile").text.replace(".html", ".xml"),
                    xml_tree.find("anchor").text,
@@ -93,7 +95,7 @@ class TagDetails(TagInfo):
 class TagFileParser:
     """Class handling contents of Doxygen tag file."""
 
-    _known: dict[str, str]  #: Dictionary of known functions and corresponding XML tags
+    _known: dict[str, list[ET.Element]]  #: Dictionary of known functions and corresponding XML elements
 
     def __init__(self, root: str, bases: dict[str, str]) -> None:
         if Path(root).is_dir():
@@ -116,66 +118,70 @@ class TagFileParser:
 
     def _parse_doxyfile(self, doxygen_tags: str, bases: Sequence[str]) -> None:
         """Retrieve class and function information from Cantera namespace."""
+        from collections import defaultdict
+        bases = [b for b in bases if b]
 
-        def xml_compounds(kind: str, names: Sequence[str]) -> dict[str, str]:
-            regex = re.compile(rf'<compound kind="{kind}"[\s\S]*?</compound>')
-            found = []
-            compounds = {}
-            for compound in re.findall(regex, doxygen_tags):
-                qualified_name = ET.fromstring(compound).find("name").text
-                compound_name = qualified_name.split(":")[-1]
-                if compound_name in names:
-                    found.append(compound_name)
-                    compounds[compound_name] = compound
-                    if not (set(names) - set(found)):
-                        return compounds
-            missing = '", "'.join(set(names) - set(found))
-            msg = f"Missing {kind!r} compound(s):\n    {missing!r}\nusing regex "
-            msg += f"{regex}. Continuing with remaining compounds: \n    {found!r}"
-            _LOGGER.error(msg)
+        root = ET.fromstring(doxygen_tags)
+        compounds = root.findall("compound")
 
-        # Parse content of namespace Cantera
-        namespace = xml_compounds("namespace", ["Cantera"])["Cantera"]
-        qualified_names = []
-        xml_tree = ET.fromstring(namespace).findall("class")
-        for element in xml_tree:
-            if element.attrib.get("kind", "") == "class":
-                qualified_names.append(element.text)
-        class_names = [_.split(":")[-1] for _ in qualified_names]
+        class_compounds = {}
+        all_class_names = set()
+        for compound in compounds:
+            kind = compound.attrib.get("kind")
+            if kind in ("class", "struct"):
+                qname = compound.find("name").text or ""
+                name = strip_cantera(qname)
+                all_class_names.add(name)
+                if name in bases:
+                    class_compounds[name] = compound
 
-        # Handle exceptions for unknown/undocumented classes
-        unknown = set(bases) - set(class_names)
-        if "', '".join(unknown):
-            unknown = "', '".join(unknown)
+        unknown = set(bases) - all_class_names
+        if unknown:
+            unknown_str = "', '".join(unknown)
             msg = ("Class(es) in configuration file are missing "
-                   f"from tag file: {unknown!r}")
+                   f"from tag file: {unknown_str!r}")
             _LOGGER.critical(msg)
             exit(1)
 
-        # Parse content of classes that are specified by the configuration file
-        class_names = set(bases) & set(class_names)
-        classes = xml_compounds("class", class_names)
+        self._known = defaultdict(list)
+        signatures = defaultdict(set)
 
-        def xml_members(kind: str, text: str, prefix: str = "") -> dict[str, str]:
-            regex = re.compile(rf'<member kind="{kind}"[\s\S]*?</member>')
-            functions = {}
-            for func in re.findall(regex, text):
-                func_name = f'{prefix}{ET.fromstring(func).find("name").text}'
-                if func_name in functions:
-                    # tag file may contain duplicates
-                    if func not in functions[func_name]:
-                        functions[func_name].append(func)
-                else:
-                    functions[func_name] = [func]
-            return functions
+        def member_signature(member: ET.Element) -> str:
+            al = member.find("arglist")
+            if al is not None and al.text:
+                try:
+                    return ArgList.from_xml(al.text).short_str()
+                except ValueError:
+                    return al.text
+            return ""
 
-        # Get known functions from namespace and methods from classes
-        self._known = xml_members("function", namespace)
-        self._known.update(xml_members("variable", namespace))
-        for name, cls in classes.items():
+        def merge_known(members: dict[str, list[ET.Element]]) -> None:
+            for name, list_of_members in members.items():
+                for member in list_of_members:
+                    sig = member_signature(member)
+                    if sig not in signatures[name]:
+                        self._known[name].append(member)
+                        signatures[name].add(sig)
+
+        def get_members(compound: ET.Element, prefix: str = "") -> dict[str, list[ET.Element]]:
+            members = {}
+            for member in compound.findall("member"):
+                kind = member.attrib.get("kind")
+                if kind in ("function", "variable"):
+                    raw_name = member.find("name").text or ""
+                    name = strip_cantera(raw_name)
+                    func_name = f"{prefix}{name}"
+                    members.setdefault(func_name, []).append(member)
+            return members
+
+        for compound in compounds:
+            kind = compound.attrib.get("kind")
+            if kind in ("namespace", "group"):
+                merge_known(get_members(compound))
+
+        for name, cls in class_compounds.items():
             prefix = f"{name}::"
-            self._known.update(xml_members("function", cls, prefix))
-            self._known.update(xml_members("variable", cls, prefix))
+            merge_known(get_members(cls, prefix))
 
     def exists(self, cxx_member: str) -> bool:
         """Check whether Doxygen tag exists."""
@@ -187,6 +193,11 @@ class TagFileParser:
             name_ = f"{base}::{name}"
             if self.exists(name_):
                 return name_
+            if "::" in base:
+                ns = base.rsplit("::", 1)[0]
+                name_ns = f"{ns}::{name}"
+                if self.exists(name_ns):
+                    return name_ns
         if self.exists(name):
             return name
         if permissive:
@@ -206,8 +217,8 @@ class TagFileParser:
         if len(self._known[cxx_member]) > 1:
             # Disambiguate functions with same name
             # TODO: current approach does not use information on default arguments
-            known_args = [ET.fromstring(xml).find("arglist").text
-                          for xml in self._known[cxx_member]]
+            known_args = [el.find("arglist").text
+                          for el in self._known[cxx_member]]
             known_args = [ArgList.from_xml(al).short_str() for al in known_args]
             args = re.findall(re.compile(r"(?<=\().*(?=\))"), func_string)
             if not args and "()" in known_args:
