@@ -35,7 +35,7 @@ TEST(onedim, freeflame)
     double Tad = gas->temperature();
 
     // flow
-    auto flow = newFlow1D("free-flow", sol, "flow");
+    auto flow = OneD::newFlow1D("free-flow", sol, "flow");
 
     // grid
     int nz = 21;
@@ -43,18 +43,18 @@ TEST(onedim, freeflame)
     flow->setupUniformGrid(nz, lz);
 
     // inlet
-    auto inlet = newBoundary1D("inlet", sol);
+    auto inlet = OneD::newBoundary1D("inlet", sol);
     inlet->setMoleFractions(X);
     inlet->setMdot(uin * rho_in);
     inlet->setTemperature(T);
 
     // outlet
-    auto outlet = newBoundary1D("outlet", sol);
+    auto outlet = OneD::newBoundary1D("outlet", sol);
     double uout = inlet->mdot() / rho_out;
 
     // set up simulation
-    vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
-    auto flame = newSim1D(domains);
+    vector<shared_ptr<OneD::Domain1D>> domains { inlet, flow, outlet };
+    auto flame = OneD::newSim1D(domains);
     int dom = static_cast<int>(flame->domainIndex("flow"));
     ASSERT_EQ(dom, 1);
 
@@ -117,17 +117,17 @@ TEST(onedim, solver_stats)
     double rho_out = gas->density();
     double Tad = gas->temperature();
 
-    auto flow = newFlow1D("free-flow", sol, "flow");
+    auto flow = OneD::newFlow1D("free-flow", sol, "flow");
     flow->setupUniformGrid(21, 0.02);
 
-    auto inlet = newBoundary1D("inlet", sol);
+    auto inlet = OneD::newBoundary1D("inlet", sol);
     inlet->setMoleFractions(X);
     inlet->setMdot(uin * rho_in);
     inlet->setTemperature(T);
-    auto outlet = newBoundary1D("outlet", sol);
+    auto outlet = OneD::newBoundary1D("outlet", sol);
     double uout = inlet->mdot() / rho_out;
 
-    vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
+    vector<shared_ptr<OneD::Domain1D>> domains { inlet, flow, outlet };
     auto flame = newSim1D(domains);
 
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
@@ -194,11 +194,11 @@ TEST(onedim, flame_types)
 {
     auto sol = newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
 
-    auto free = newDomain<Flow1D>("free-flow", sol, "flow");
+    auto free = OneD::newDomain<OneD::Flow1D>("free-flow", sol, "flow");
     ASSERT_EQ(free->domainType(), "free-flow");
-    auto symm = newDomain<Flow1D>("axisymmetric-flow", sol, "flow");
+    auto symm = OneD::newDomain<OneD::Flow1D>("axisymmetric-flow", sol, "flow");
     ASSERT_EQ(symm->domainType(), "axisymmetric-flow");
-    auto burner = newDomain<Flow1D>("unstrained-flow", sol, "flow");
+    auto burner = OneD::newDomain<OneD::Flow1D>("unstrained-flow", sol, "flow");
     ASSERT_EQ(burner->domainType(), "unstrained-flow");
 
     ASSERT_THROW(burner->componentName(200), IndexError);
@@ -210,11 +210,11 @@ TEST(onedim, ion_flame_types)
     auto sol = newSolution("ch4_ion.yaml");
     ASSERT_EQ(sol->transport()->transportModel(), "ionized-gas");
 
-    auto free = newDomain<IonFlow>("free-flow", sol, "flow");
+    auto free = OneD::newDomain<OneD::IonFlow>("free-flow", sol, "flow");
     ASSERT_EQ(free->domainType(), "free-ion-flow");
-    auto symm = newDomain<IonFlow>("axisymmetric-flow", sol, "flow");
+    auto symm = OneD::newDomain<OneD::IonFlow>("axisymmetric-flow", sol, "flow");
     ASSERT_EQ(symm->domainType(), "axisymmetric-ion-flow");
-    auto burner = newDomain<IonFlow>("unstrained-flow", sol, "flow");
+    auto burner = OneD::newDomain<OneD::IonFlow>("unstrained-flow", sol, "flow");
     ASSERT_EQ(burner->domainType(), "unstrained-ion-flow");
 }
 
