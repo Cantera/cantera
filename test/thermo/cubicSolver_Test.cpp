@@ -23,13 +23,6 @@ public:
     shared_ptr<ThermoPhase> test_phase;
 };
 
-#ifdef __MINGW32__
-TEST_F(cubicSolver_Test, solve_cubic_DISABLED)
-{
-    // the following test fails on mingw: EXPECT_NEAR(nSolnValues, -2, 1.e-6);
-    // where the positive root is found instead
-}
-#else
 TEST_F(cubicSolver_Test, solve_cubic)
 {
     /* This tests validates the cubic solver by considering CO2 as an example.
@@ -41,7 +34,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     * Three different states are considered as follows:
     * 1. T = 300 T, P = 1 bar => Vapor (1 real root of the cubic equation)
     * 2. T = 300 K, P = 80 bar => Supercritical (1 real root of the cubic equation)
-    * 3. T = Tc, P = Pc => Near critical region
+    * 3. T = Tc, P = Pc => Critical point
     */
 
     // Define a Peng-Robinson phase
@@ -99,14 +92,15 @@ TEST_F(cubicSolver_Test, solve_cubic)
     p = peng_robinson_phase->pressure();
     EXPECT_NEAR(p, pres, 1);
 
-    //Near critical point -> nSolnValues = -2
+    // At the critical point, the cubic has one distinct real root with
+    // multiplicity three, and there is no distinct liquid-only branch.
     temp = Tcrit;
     //calculate alpha
     alpha = pow(1 + kappa * (1 - sqrt(temp / Tcrit)), 2);
     //Find cubic roots
     nSolnValues = peng_robinson_phase->solveCubic(Tcrit, pCrit, a_coeff, b_coeff, alpha * a_coeff, Vroot);
     EXPECT_NEAR(expected_result[2], Vroot[0], 1.e-6);
-    EXPECT_NEAR(nSolnValues, -2, 1.e-6);
+    EXPECT_EQ(nSolnValues, 1);
 
     // Obtain pressure using EoS and compare against the given pressure value
     set_r(1.0);
@@ -126,5 +120,4 @@ TEST_F(cubicSolver_Test, solve_cubic_nonphysical_single_root_when_b_zero)
         peng_robinson_phase->solveCubic(300.0, 1.0e5, 2.0e7, 0.0, 2.0e7, Vroot),
         CanteraError);
 }
-#endif
 };
