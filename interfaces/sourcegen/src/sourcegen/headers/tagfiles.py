@@ -293,10 +293,6 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
         msg = f"No XML matches found for {tag_info.qualified_name!r}"
         _LOGGER.error(msg)
         return TagDetails()
-    if len(matches) != 1:
-        msg = f"Inconclusive XML matches found for {tag_info.qualified_name!r}"
-        _LOGGER.warning(msg)
-        matches = matches[:1]
 
     def replace_xml_tags(entry: str) -> str:
         # Replace stray XML markup that causes problems for doxygen parsing.
@@ -315,6 +311,25 @@ def tag_lookup(xml_path: Path, tag_info: TagInfo) -> TagDetails:
             entry = re.sub(rf"</?{tag}\b[^>]*>", markdown, entry, flags=re.DOTALL)
 
         return entry
+
+    if len(matches) != 1:
+        filtered_matches = []
+        for match in matches:
+            try:
+                xml_tree = ET.fromstring(replace_xml_tags(match))
+                qname_node = xml_tree.find("qualifiedname")
+                if qname_node is not None and qname_node.text:
+                    qname = strip_cantera(qname_node.text)
+                    if qname == tag_info.qualified_name:
+                        filtered_matches.append(match)
+            except Exception:
+                pass
+        if len(filtered_matches) == 1:
+            matches = filtered_matches
+        else:
+            msg = f"Inconclusive XML matches found for {tag_info.qualified_name!r}"
+            _LOGGER.warning(msg)
+            matches = matches[:1]
 
     def xml_parameterlist(xml_tree: ET) -> list[Param]:
         # Resolve/flatten parameter list
