@@ -21,6 +21,30 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
     VERBATIM)
 endforeach()
 
+# Cython pure-Python-syntax modules use the .py extension rather than .pyx
+# (enhancement #241). Here they are cythonized and compiled into the merged _cantera
+# extension just like the .pyx files, so that e.g. ``cantera.jacobians`` is provided by
+# PyInit_jacobians and resolved via the CythonPackageMetaPathFinder in _cantera.pyx.
+# (The SConscript-based build instead compiles each as a standalone extension linked
+# against the shared libcantera; that is not viable here because cantera_lib is a static
+# library, which would be duplicated -- along with Cantera's global state -- in each
+# extension. Both layouts expose the same importable ``cantera.jacobians`` module.)
+# The raw .py source is excluded from the wheel (see pyproject.toml) so that it does not
+# shadow the compiled module on import.
+set(PURE_CY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/jacobians.py")
+foreach(CY_SOURCE IN LISTS PURE_CY_SOURCES)
+  cmake_path(GET CY_SOURCE FILENAME CY_PATH)
+  cmake_path(REPLACE_EXTENSION CY_PATH ".cpp" OUTPUT_VARIABLE CPP_OUTPUT)
+  cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CPP_OUTPUT} OUTPUT_VARIABLE CPP_OUTPUT)
+  list(APPEND CY_OUTPUTS ${CPP_OUTPUT})
+  add_custom_command(
+    OUTPUT ${CPP_OUTPUT}
+    COMMENT "Making ${CPP_OUTPUT} from ${CY_SOURCE}"
+    COMMAND Python::Interpreter -m cython ${CY_SOURCE} --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
+    DEPENDS ${CY_SOURCE}
+    VERBATIM)
+endforeach()
+
 # The extension manager is compiled here rather than with the rest of the
 # Cantera source code because it needs delegator.h, built by the Cython step
 # above.

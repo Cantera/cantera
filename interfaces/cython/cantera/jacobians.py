@@ -4,13 +4,17 @@
 # distutils: language = c++
 # cython: language_level=3
 
-from typing import Any, ClassVar, Literal
+# External names are imported under "private" (underscore-prefixed) aliases so that they
+# are not re-exported into the top-level ``cantera`` namespace via ``from .jacobians
+# import *`` (checked by test_namespace_cleanliness), matching the convention used in the
+# other Cython submodules.
+from typing import Any as _Any, ClassVar as _ClassVar, Literal as _Literal
 
 import cython
 from cython.cimports.cantera._utils import stringify, pystr
 from cython.cimports.cantera.kinetics import get_from_sparse
 
-from ._types import Array
+from ._types import Array as _Array
 
 # dictionary to store reaction rate classes
 _class_registry: dict = {}
@@ -22,10 +26,10 @@ class SystemJacobian:
     Common base class for Jacobian matrices used in the solution of nonlinear systems.
     Wraps C++ class :ct:`SystemJacobian`.
     """
-    _type: ClassVar[str] = "SystemJacobian"
-    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "GMRES"
+    _type: _ClassVar[str] = "SystemJacobian"
+    linear_solver_type: _ClassVar[_Literal["GMRES", "direct"]] = "GMRES"
 
-    def __cinit__(self, *args: Any, init: bool = True, **kwargs: Any) -> None:
+    def __cinit__(self, *args: _Any, init: bool = True, **kwargs: _Any) -> None:
         if init:
             self._cinit(*args, **kwargs)
 
@@ -58,7 +62,7 @@ class SystemJacobian:
         return jac
 
     @property
-    def side(self) -> Literal["none", "left", "right", "both"]:
+    def side(self) -> _Literal["none", "left", "right", "both"]:
         """
         Get/Set the side of the system matrix where the preconditioner is applied.
         Options are "none", "left", "right", or "both". Not all options are supported
@@ -67,7 +71,7 @@ class SystemJacobian:
         return pystr(self.jac.preconditionerSide())
 
     @side.setter
-    def side(self, side: Literal["none", "left", "right", "both"]) -> None:
+    def side(self, side: _Literal["none", "left", "right", "both"]) -> None:
         self.jac.setPreconditionerSide(stringify(side))
 
 
@@ -77,7 +81,7 @@ class EigenSparseJacobian(SystemJacobian):
     Base class for system Jacobians that use Eigen sparse matrices for storage.
     Wraps C++ class :ct:`EigenSparseJacobian`.
     """
-    _type: ClassVar[str] = "eigen-sparse"
+    _type: _ClassVar[str] = "eigen-sparse"
 
     def print_contents(self) -> None:
         cython.cast(
@@ -85,7 +89,7 @@ class EigenSparseJacobian(SystemJacobian):
         ).printPreconditioner()
 
     @property
-    def matrix(self) -> Array:
+    def matrix(self) -> _Array:
         """Property to retrieve the latest internal preconditioner matrix."""
         smat: CxxSparseMatrix = cython.cast(
             cython.pointer(CxxEigenSparseJacobian), self.jac
@@ -93,7 +97,7 @@ class EigenSparseJacobian(SystemJacobian):
         return get_from_sparse(smat, smat.rows(), smat.cols())
 
     @property
-    def jacobian(self) -> Array:
+    def jacobian(self) -> _Array:
         """Property to retrieve the latest Jacobian."""
         smat: CxxSparseMatrix = cython.cast(
             cython.pointer(CxxEigenSparseJacobian), self.jac
@@ -107,13 +111,13 @@ class EigenSparseDirectJacobian(EigenSparseJacobian):
     A system matrix solver that uses Eigen's sparse direct (LU) algorithm. Wraps C++
     class :ct:`EigenSparseDirectJacobian`.
     """
-    _type: ClassVar[str] = "eigen-sparse-direct"
+    _type: _ClassVar[str] = "eigen-sparse-direct"
 
 
 @cython.cclass
 class AdaptivePreconditioner(EigenSparseJacobian):
-    _type: ClassVar[str] = "Adaptive"
-    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "GMRES"
+    _type: _ClassVar[str] = "Adaptive"
+    linear_solver_type: _ClassVar[_Literal["GMRES", "direct"]] = "GMRES"
 
     @property
     def threshold(self) -> float:
@@ -199,5 +203,5 @@ class BandedJacobian(SystemJacobian):
     A system matrix solver that uses a direct banded linear solver. Wraps C++
     class :ct:`MultiJac`.
     """
-    _type: ClassVar[str] = "banded-direct"
-    linear_solver_type: ClassVar[Literal["GMRES", "direct"]] = "direct"
+    _type: _ClassVar[str] = "banded-direct"
+    linear_solver_type: _ClassVar[_Literal["GMRES", "direct"]] = "direct"

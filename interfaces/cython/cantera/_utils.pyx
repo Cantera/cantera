@@ -165,8 +165,6 @@ _DimensionalValue = _namedtuple('_DimensionalValue',
                                 ('value', 'units', 'activation_energy'),
                                 defaults=[False])
 
-cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
-
 
 cdef class AnyMap(dict):
     """
