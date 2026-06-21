@@ -224,6 +224,10 @@ Test('cxx-custom', 'cxx_samples', '#build/samples/cxx/custom/custom', None,
 Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
      'cxx_demo_blessed.txt',
      threshold=1e-10, tolerance=2e-4, slow=True)
+# Test is significantly slower than others
+Test('cxx-derivative-speed', 'cxx_samples',
+     '#build/samples/cxx/jacobian/derivative_speed', None,
+     options='--test h2o2', slow=True)
 Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],

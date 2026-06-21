@@ -249,6 +249,9 @@ jobs:
       run: |
         export DYLD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
+    - name: Build untested samples
+      # Compile samples that are not registered as tests.
+      run: scons samples
     - name: Upload shared library
       uses: actions/upload-artifact@v7
       if: matrix.python-version == '3.12'
