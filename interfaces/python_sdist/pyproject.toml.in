@@ -82,7 +82,11 @@ HDF5_ROOT = { env = "HDF5_ROOT" }
 exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
 
 [tool.scikit-build.wheel]
-exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]
+# jacobians.py is a Cython pure-Python-syntax module compiled into the _cantera
+# extension (see cantera/CMakeLists.txt); exclude the source so it does not shadow the
+# compiled module on import.
+exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt",
+           "cantera/jacobians.py"]
 
 [tool.cibuildwheel]
 build-frontend = { name="build[uv]", args=["-vv"] }

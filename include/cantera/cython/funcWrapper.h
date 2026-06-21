@@ -162,7 +162,35 @@ private:
     void* m_pyobj;
 };
 
-extern PyObject* pyCanteraError;
+//! Return the Python ``CanteraError`` class, used by translate_exception() to raise a
+//! ``CanteraError`` from C++ code.
+//!
+//! The class object is fetched on first use from its single canonical definition in the
+//! ``cantera._utils`` module and cached. Resolving it this way (rather than referencing a
+//! shared C symbol) keeps each Python extension module self-contained: a shared symbol
+//! previously required loading the main extension with ``RTLD_GLOBAL`` on POSIX and could
+//! not be linked across DLL boundaries on Windows (enhancement #241). Because the lookup
+//! is automatic, any extension that includes this header can raise ``CanteraError``
+//! without registering anything.
+inline PyObject* getCanteraError() {
+    // Cached per extension module; CanteraError is a singleton class object, so the
+    // borrowed reference held here remains valid for the lifetime of the module.
+    static PyObject* cls = nullptr;
+    if (cls == nullptr) {
+        PyObject* mod = PyImport_ImportModule("cantera._utils");
+        if (mod != nullptr) {
+            cls = PyObject_GetAttrString(mod, "CanteraError");
+            Py_DECREF(mod);
+        }
+        if (cls == nullptr) {
+            // Fall back to RuntimeError (the base class of CanteraError) if the lookup
+            // fails, ensuring a valid exception type is always returned.
+            PyErr_Clear();
+            cls = PyExc_RuntimeError;
+        }
+    }
+    return cls;
+}
 
 //! Take a function which requires Python function information (as a PyFuncInfo
 //! object) and capture that object to generate a function that does not require
@@ -222,7 +250,7 @@ inline int translate_exception()
     } catch (const Cantera::ArraySizeError& exn) {
         PyErr_SetString(PyExc_ValueError, exn.what());
     } catch (const Cantera::CanteraError& exn) {
-        PyErr_SetString(pyCanteraError, exn.what());
+        PyErr_SetString(getCanteraError(), exn.what());
     } catch (const std::exception& exn) {
         PyErr_SetString(PyExc_RuntimeError, exn.what());
     } catch (...) {
