@@ -1,6 +1,8 @@
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
 
+#include <stddef.h>
+
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value
 {CANTERA_VERSION!s}
@@ -10,13 +12,17 @@
 
 //------------------------ Fortran settings -------------------//
 
-// define types doublereal, integer, and ftnlen to match the
-// corresponding Fortran data types on your system. The defaults
-// are OK for most systems
+// Define types used for C/C++ interfaces to Fortran and Fortran-derived
+// libraries. The hidden length type used for CHARACTER arguments is not
+// necessarily the same for all ABI boundaries: Cantera's Fortran interface is
+// compiled with the selected Fortran compiler, where GCC 8 and newer pass these
+// lengths as size_t, while LAPACK/BLAS may be an external library with a
+// different ABI.
 
 typedef double doublereal;   // Fortran double precision
 typedef int integer;      // Fortran integer
-typedef int ftnlen;       // Fortran hidden string length type
+typedef int ftnlen;       // LAPACK/f2c hidden CHARACTER length type
+typedef size_t ftnlen_t;  // Cantera Fortran hidden CHARACTER length type
 
 // Fortran compilers pass character strings in argument lists by
 // adding a hidden argument with the length of the string. Some
