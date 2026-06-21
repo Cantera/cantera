@@ -143,10 +143,20 @@ endif()
 
 configure_file("../include/cantera/base/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/../include/cantera/base/config.h")
 
-add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
+add_library(cantera_lib SHARED ${CT_LIB_SOURCES})
 target_include_directories(cantera_lib PRIVATE "../include")
 target_include_directories(cantera_lib SYSTEM PRIVATE "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
-set_target_properties(cantera_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(cantera_lib PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    # Cantera's headers don't annotate the public API with dllexport/dllimport, so
+    # have CMake generate a .def exporting all symbols from the shared library (the
+    # SCons build achieves the same result with a filtered dumpbin-generated .def).
+    WINDOWS_EXPORT_ALL_SYMBOLS ON)
+# pythonShim.cpp (embedded interpreter support) calls into the Python C API, so the
+# shared library must resolve those symbols at link time on Windows. Python::Module
+# links the Python import library on Windows and adds nothing on POSIX, where the
+# symbols are provided by the interpreter hosting the extension.
+target_link_libraries(cantera_lib PRIVATE Python::Module)
 target_link_libraries(cantera_lib PUBLIC
     yaml-cpp::yaml-cpp
     fmt::fmt
@@ -166,3 +176,11 @@ target_link_libraries(cantera_lib PUBLIC
 if(CT_USE_HDF5)
   target_link_libraries(cantera_lib PUBLIC HighFive)
 endif()
+
+# Ship the shared libcantera inside the package, beside the extension modules that link
+# against it. On Windows the loader searches the directory containing the .pyd for
+# dependent DLLs; on Linux/macOS the extensions carry an RPATH of $ORIGIN/@loader_path
+# (set where the extensions are defined).
+install(TARGETS cantera_lib
+    LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera
+    RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
