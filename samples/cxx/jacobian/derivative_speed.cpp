@@ -36,7 +36,7 @@ void statistics(vector<double> times, size_t loops, size_t runs)
 }
 
 //! timer for standard getters
-void timeit_array(void (Kinetics::*function)(double*),
+void timeit_array(void (Kinetics::*function)(span<double>),
                   Kinetics* kin,
                   ThermoPhase& gas,
                   size_t siz,
@@ -54,7 +54,7 @@ void timeit_array(void (Kinetics::*function)(double*),
         auto t1 = std::chrono::high_resolution_clock::now();
         for (size_t i = 0.; i < loops; ++i) {
             gas.setState_TP(T + i * deltaT, pressure);
-            (kin->*function)(out.data());
+            (kin->*function)(out);
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         times.push_back(
