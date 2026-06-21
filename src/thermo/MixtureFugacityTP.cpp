@@ -14,6 +14,7 @@
 #include "cantera/base/global.h"
 
 #include <algorithm>
+#include <limits>
 
 using namespace std;
 
@@ -785,7 +786,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     double xN = - bn /(3 * an);
 
     // Derive the value of delta**2. This is a key quantity that determines the number of turning points
-    double delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
+    double deltaNumerator = bn * bn - 3 * an * cn;
+    double delta2 = deltaNumerator / (9 * an * an);
     double delta = 0.0;
 
     // Calculate a couple of ratios
@@ -818,11 +820,29 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     }
 
     double h = 2.0 * an * delta * delta2;
-    double yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn; // y_N term
+    double yTerm1 = 2.0 * bn * bn * bn / (27.0 * an * an);
+    double yTerm2 = -bn * cn / (3.0 * an);
+    double yN = yTerm1 + yTerm2 + dn; // y_N term
     double disc = yN * yN - h2; // discriminant
 
+    // At a triple root, both terms of the depressed cubic are zero. Detect
+    // cancellation relative to the terms used to calculate them so that the
+    // result does not depend on compiler-specific floating-point evaluation.
+    // The factor of 64 allows for roundoff accumulated across the arithmetic
+    // operations; the scales below convert this relative tolerance to an
+    // absolute tolerance for each cancellation residual.
+    double cancellationTol = 64 * std::numeric_limits<double>::epsilon();
+    double deltaScale = max(fabs(bn * bn), fabs(3 * an * cn));
+    double yScale = max({fabs(yTerm1), fabs(yTerm2), fabs(dn)});
+    bool tripleRoot = (fabs(deltaNumerator) <= cancellationTol * deltaScale
+                       && fabs(yN) <= cancellationTol * yScale);
+    if (tripleRoot) {
+        delta = 0.0;
+        disc = 0.0;
+    }
+
     //check if y = h
-    if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
+    if (!tripleRoot && fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
             throw CanteraError("MixtureFugacityTP::solveCubic",
                 "value of yN and h are too high, unrealistic roots may be obtained");
@@ -833,6 +853,11 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     if (disc < -1e-14) {
         // disc<0 then we have three distinct roots.
         nSolnValues = 3;
+    } else if (tripleRoot) {
+        // At the critical point, the cubic has one distinct real root with
+        // multiplicity three. Report one usable root since there is no
+        // meaningful liquid/gas branch distinction.
+        nSolnValues = 1;
     } else if (fabs(disc) < 1e-14) {
         // disc=0 then we have two distinct roots (third one is repeated root)
         nSolnValues = 2;
@@ -895,15 +920,13 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
         }
     } else if (disc == 0.0) {
         //Three equal roots are obtained, that is, alpha = beta = gamma
-        if (yN < 1e-18 && h < 1e-18) {
+        if (tripleRoot) {
             // yN = 0.0 and h = 0 (that is, disc = 0)
             Vroot[0] = xN;
-            Vroot[1] = xN;
-            Vroot[2] = xN;
         } else {
             // h and yN need to figure out whether delta^3 is positive or negative
             if (yN > 0.0) {
-                tmp = pow(yN/(2*an), 1./3.);
+                tmp = cbrt(yN / (2 * an));
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
                     throw CanteraError("MixtureFugacityTP::solveCubic",
@@ -912,9 +935,10 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
             } else {
-                tmp = pow(yN/(2*an), 1./3.);
-                // In this case, tmp and delta must be equal.
-                if (fabs(tmp - delta) > 1.0E-9) {
+                tmp = cbrt(yN / (2 * an));
+                // In this case, tmp and delta have equal magnitudes and
+                // opposite signs.
+                if (fabs(tmp + delta) > 1.0E-9) {
                     throw CanteraError("MixtureFugacityTP::solveCubic",
                         "Inconsistency in solver: solver is ill-conditioned.");
                 }
