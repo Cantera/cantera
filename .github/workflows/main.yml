@@ -226,9 +226,13 @@ jobs:
         cache-dependency-path: requirements.txt
     - name: Install Brew dependencies
       run: brew install --display-times boost libomp hdf5 doxygen
+        ${{ matrix.python-version == '3.13' && 'gfortran' || '' }}
     - name: Set Include folder
       run:
         echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+    - name: Configure gfortran
+      if: matrix.python-version == '3.13'
+      run: echo "$(brew --prefix gcc)/bin" >> "$GITHUB_PATH"
     - name: Upgrade pip
       run: python -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -236,6 +240,7 @@ jobs:
     - name: Build Cantera
       run: scons build env_vars=all system_fmt=n -j3 debug=n --debug=time
         boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
+        ${{ matrix.python-version == '3.13' && 'f90_interface=y FORTRAN=gfortran' || '' }}
     - name: Build Tests
       run: scons -j3 build-tests --debug=time
     - name: Run compiled tests
