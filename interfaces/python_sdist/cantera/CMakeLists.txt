@@ -22,21 +22,15 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
 endforeach()
 
 # Cython pure-Python-syntax modules use the .py extension rather than .pyx
-# (enhancement #241). Here they are cythonized and compiled into the merged _cantera
-# extension just like the .pyx files, so that e.g. ``cantera.jacobians`` is provided by
-# PyInit_jacobians and resolved via the CythonPackageMetaPathFinder in _cantera.pyx.
-# (The SConscript-based build instead compiles each as a standalone extension linked
-# against the shared libcantera; that is not viable here because cantera_lib is a static
-# library, which would be duplicated -- along with Cantera's global state -- in each
-# extension. Both layouts expose the same importable ``cantera.jacobians`` module.)
-# The raw .py source is excluded from the wheel (see pyproject.toml) so that it does not
-# shadow the compiled module on import.
-set(PURE_CY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/jacobians.py")
-foreach(CY_SOURCE IN LISTS PURE_CY_SOURCES)
-  cmake_path(GET CY_SOURCE FILENAME CY_PATH)
-  cmake_path(REPLACE_EXTENSION CY_PATH ".cpp" OUTPUT_VARIABLE CPP_OUTPUT)
-  cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CPP_OUTPUT} OUTPUT_VARIABLE CPP_OUTPUT)
-  list(APPEND CY_OUTPUTS ${CPP_OUTPUT})
+# (enhancement #241). Each is cythonized and built as its own standalone extension linked
+# against the shared libcantera (see below), mirroring the SConscript build. This lets the
+# .py source ship beside the compiled module: CPython prefers the extension on import,
+# while the .py serves tracebacks, IDEs, and type checkers. Here we only run Cython; the
+# extensions are defined after _cantera so the cantera_lib target is available to link.
+set(PURE_CY_MODULES jacobians)
+foreach(MODULE IN LISTS PURE_CY_MODULES)
+  set(CY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE}.py")
+  set(CPP_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp")
   add_custom_command(
     OUTPUT ${CPP_OUTPUT}
     COMMENT "Making ${CPP_OUTPUT} from ${CY_SOURCE}"
@@ -44,6 +38,15 @@ foreach(CY_SOURCE IN LISTS PURE_CY_SOURCES)
     DEPENDS ${CY_SOURCE}
     VERBATIM)
 endforeach()
+
+# Extensions linking the shared libcantera find it beside themselves in the package dir.
+function(set_extension_rpath target)
+  if(APPLE)
+    set_target_properties(${target} PROPERTIES INSTALL_RPATH "@loader_path")
+  elseif(NOT WIN32)
+    set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN")
+  endif()
+endfunction()
 
 # The extension manager is compiled here rather than with the rest of the
 # Cantera source code because it needs delegator.h, built by the Cython step
@@ -60,3 +63,16 @@ python_add_library(_cantera MODULE ${CY_OUTPUTS} WITH_SOABI)
 target_include_directories(_cantera PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
 target_compile_definitions(_cantera PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 target_link_libraries(_cantera PRIVATE ext_manager cantera_lib)
+set_extension_rpath(_cantera)
+
+# Build each pure-Python Cython module as its own extension linked to the shared
+# libcantera. The compiled module is installed into the package; its .py source ships
+# alongside it (see pyproject.toml) and is shadowed at import time by the extension.
+foreach(MODULE IN LISTS PURE_CY_MODULES)
+  python_add_library(${MODULE} MODULE "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp" WITH_SOABI)
+  target_include_directories(${MODULE} PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
+  target_compile_definitions(${MODULE} PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
+  target_link_libraries(${MODULE} PRIVATE cantera_lib)
+  set_extension_rpath(${MODULE})
+  install(TARGETS ${MODULE} DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
+endforeach()
