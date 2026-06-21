@@ -66,9 +66,9 @@ Transport* _ftrans(const integer* n)
 
 } // unnamed namespace
 
-string f2string(const char* s, ftnlen n)
+string f2string(const char* s, ftnlen_t n)
 {
-    int k;
+    ftnlen_t k;
     string ss = "";
     for (k = 0; k < n; k++) {
         if (s[k] == '\0') {
@@ -85,7 +85,7 @@ string f2string(const char* s, ftnlen n)
 extern "C" {
 
     status_t cantera_error_(const char* proc, const char* msg,
-                            ftnlen proclen, ftnlen msglen)
+                            ftnlen_t proclen, ftnlen_t msglen)
     {
         string sproc = f2string(proc, proclen);
         string smsg = f2string(msg, msglen);
@@ -100,13 +100,13 @@ extern "C" {
     //--------------- Phase ---------------------//
 
     status_t phase_getname_(const integer* n, char* nm,
-                            ftnlen lennm)
+                            ftnlen_t lennm)
     {
         try {
             string pnm = _fph(n)->name();
-            int lout = std::min(lennm, (int) pnm.size());
+            ftnlen_t lout = std::min(lennm, pnm.size());
             std::copy(pnm.c_str(), pnm.c_str() + lout, nm);
-            for (int nn = lout; nn < lennm; nn++) {
+            for (ftnlen_t nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
         } catch (...) {
@@ -189,7 +189,7 @@ extern "C" {
         }
     }
 
-    integer phase_elementindex_(const integer* n, char* nm, ftnlen lennm)
+    integer phase_elementindex_(const integer* n, char* nm, ftnlen_t lennm)
     {
         try {
             string elnm = f2string(nm, lennm);
@@ -199,7 +199,7 @@ extern "C" {
         }
     }
 
-    integer phase_speciesindex_(const integer* n, char* nm, ftnlen lennm)
+    integer phase_speciesindex_(const integer* n, char* nm, ftnlen_t lennm)
     {
         try {
             string spnm = f2string(nm, lennm);
@@ -265,7 +265,7 @@ extern "C" {
         return 0;
     }
 
-    status_t phase_setmolefractionsbyname_(const integer* n, char* x, ftnlen lx)
+    status_t phase_setmolefractionsbyname_(const integer* n, char* x, ftnlen_t lx)
     {
         try {
             ThermoPhase* p = _fph(n);
@@ -291,7 +291,7 @@ extern "C" {
         return 0;
     }
 
-    status_t phase_setmassfractionsbyname_(const integer* n, char* y, ftnlen leny)
+    status_t phase_setmassfractionsbyname_(const integer* n, char* y, ftnlen_t leny)
     {
         try {
             ThermoPhase* p = _fph(n);
@@ -326,13 +326,13 @@ extern "C" {
         return 0;
     }
 
-    status_t phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen lennm)
+    status_t phase_getspeciesname_(const integer* n, integer* k, char* nm, ftnlen_t lennm)
     {
         try {
             string spnm = _fph(n)->speciesName(*k-1);
-            int lout = std::min(lennm, (int) spnm.size());
+            ftnlen_t lout = std::min(lennm, spnm.size());
             std::copy(spnm.c_str(), spnm.c_str() + lout, nm);
-            for (int nn = lout; nn < lennm; nn++) {
+            for (ftnlen_t nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
         } catch (...) {
@@ -341,13 +341,13 @@ extern "C" {
         return 0;
     }
 
-    status_t phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen lennm)
+    status_t phase_getelementname_(const integer* n, integer* m, char* nm, ftnlen_t lennm)
     {
         try {
             string elnm = _fph(n)->elementName(*m-1);
-            int lout = std::min(lennm, (int) elnm.size());
+            ftnlen_t lout = std::min(lennm, elnm.size());
             std::copy(elnm.c_str(), elnm.c_str() + lout, nm);
-            for (int nn = lout; nn < lennm; nn++) {
+            for (ftnlen_t nn = lout; nn < lennm; nn++) {
                 nm[nn] = ' ';
             }
         } catch (...) {
@@ -367,7 +367,7 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-    integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
+    integer th_newfromfile_(char* filename, char* phasename, ftnlen_t lenf, ftnlen_t lenp)
     {
         try {
             auto th = newThermo(f2string(filename, lenf),
@@ -378,7 +378,7 @@ extern "C" {
         }
     }
 
-    integer th_geteostype_(const integer* n, char* buf, ftnlen lenbuf)
+    integer th_geteostype_(const integer* n, char* buf, ftnlen_t lenbuf)
     {
         try {
             return copyString(_fth(n)->type(), buf, lenbuf);
@@ -565,7 +565,7 @@ extern "C" {
         return 0;
     }
 
-    status_t th_equil_(const integer* n, char* XY, char* solver, double* rtol, int* max_steps, int* max_iter, int* estimate_equil, int* log_level, ftnlen lenxy, ftnlen lensolver)
+    status_t th_equil_(const integer* n, char* XY, char* solver, double* rtol, int* max_steps, int* max_iter, int* estimate_equil, int* log_level, ftnlen_t lenxy, ftnlen_t lensolver)
     {
         try {
             _fth(n)->equilibrate(f2string(XY,lenxy), f2string(solver,lensolver), *rtol, *max_steps, *max_iter, *estimate_equil, *log_level);
@@ -681,7 +681,7 @@ extern "C" {
     integer kin_newfromfile_(const char* filename, const char* phasename,
                              integer* reactingPhase, const integer* neighbor1,
                              const integer* neighbor2, const integer* neighbor3,
-                             const integer* neighbor4, ftnlen nlen, ftnlen plen)
+                             const integer* neighbor4, ftnlen_t nlen, ftnlen_t plen)
     {
         try {
             vector<shared_ptr<ThermoPhase>> phases;
@@ -706,7 +706,7 @@ extern "C" {
     }
 
     //-------------------------------------
-    integer kin_gettype_(const integer* n, char* buf, ftnlen buflen)
+    integer kin_gettype_(const integer* n, char* buf, ftnlen_t buflen)
     {
         try {
             return copyString(_fkin(n)->kineticsType(), buf, buflen);
@@ -725,7 +725,7 @@ extern "C" {
     }
 
     integer kin_speciesindex_(const integer* n, const char* nm, const char* ph,
-                              ftnlen lennm, ftnlen lenph)
+                              ftnlen_t lennm, ftnlen_t lenph)
     {
         try {
             return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm)) + 1;
@@ -763,7 +763,7 @@ extern "C" {
         }
     }
 
-    integer kin_phaseindex_(const integer* n, const char* ph, ftnlen lenph)
+    integer kin_phaseindex_(const integer* n, const char* ph, ftnlen_t lenph)
     {
         try {
             return _fkin(n)->phaseIndex(f2string(ph, lenph));
@@ -790,13 +790,13 @@ extern "C" {
         }
     }
 
-    status_t kin_getreactiontype_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
+    status_t kin_getreactiontype_(const integer* n, integer* i, char* buf, ftnlen_t lenbuf)
     {
         try {
             string r = _fkin(n)->reaction(*i-1)->type();
-            int lout = std::min(lenbuf, (int) r.size());
+            ftnlen_t lout = std::min(lenbuf, r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
-            for (int nn = lout; nn < lenbuf; nn++) {
+            for (ftnlen_t nn = lout; nn < lenbuf; nn++) {
                 buf[nn] = ' ';
             }
         } catch (...) {
@@ -900,14 +900,14 @@ extern "C" {
         return 0;
     }
 
-    status_t kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
+    status_t kin_getreactionstring_(const integer* n, integer* i, char* buf, ftnlen_t lenbuf)
     {
         try {
             Kinetics* k = _fkin(n);
             string r = k->reaction(*i-1)->equation();
-            int lout = std::min(lenbuf, (int) r.size());
+            ftnlen_t lout = std::min(lenbuf, r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
-            for (int nn = lout; nn < lenbuf; nn++) {
+            for (ftnlen_t nn = lout; nn < lenbuf; nn++) {
                 buf[nn] = ' ';
             }
         } catch (...) {
@@ -945,7 +945,7 @@ extern "C" {
     //------------------- Transport ---------------------------
 
     integer newtransport_(char* model, integer* ith,
-                          integer* loglevel, ftnlen lenmodel)
+                          integer* loglevel, ftnlen_t lenmodel)
     {
         try {
             string mstr = f2string(model, lenmodel);
@@ -957,7 +957,7 @@ extern "C" {
         }
     }
 
-    integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
+    integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen_t lenmodel)
     {
         try {
             auto t = _fthermo(ith);
@@ -1064,16 +1064,16 @@ extern "C" {
     //-------------------- Functions ---------------------------
 
     status_t ctphase_report_(const integer* nth,
-                             char* buf, integer* show_thermo, ftnlen buflen)
+                             char* buf, integer* show_thermo, ftnlen_t buflen)
     {
         try {
             bool stherm = (*show_thermo != 0);
             string s = _fth(nth)->report(stherm);
-            if (int(s.size()) > buflen - 1) {
+            if (s.size() >= buflen) {
                 return -(s.size() + 1);
             }
             copy(s.begin(), s.end(), buf);
-            for (int nn = s.size(); nn < buflen; nn++) {
+            for (ftnlen_t nn = s.size(); nn < buflen; nn++) {
                 buf[nn] = ' ';
             }
             return 0;
@@ -1082,14 +1082,14 @@ extern "C" {
         }
     }
 
-    status_t ctgetcanteraerror_(char* buf, ftnlen buflen)
+    status_t ctgetcanteraerror_(char* buf, ftnlen_t buflen)
     {
         try {
             string e;
             e = Application::Instance()->lastErrorMessage();
-            int n = std::min((int) e.size(), buflen-1);
+            ftnlen_t n = std::min(e.size(), buflen - 1);
             copy(e.begin(), e.begin() + n, buf);
-            for (int nn = n; nn < buflen; nn++) {
+            for (ftnlen_t nn = n; nn < buflen; nn++) {
                 buf[nn] = ' ';
             }
         } catch (...) {

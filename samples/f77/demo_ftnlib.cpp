@@ -80,7 +80,7 @@ extern "C" {
      * program ck2yaml first to convert it into Cantera format.)
      */
     void newidealgasmix_(char* file, char* id, char* transport,
-                         ftnlen lenfile, ftnlen lenid, ftnlen lentr)
+                         ftnlen_t lenfile, ftnlen_t lenid, ftnlen_t lentr)
     {
         string trmodel = "";
         try {
@@ -114,7 +114,7 @@ extern "C" {
         return _kin->nReactions();
     }
 
-    void getspeciesname_(integer* k, char* name, ftnlen n)
+    void getspeciesname_(integer* k, char* name, ftnlen_t n)
     {
         int ik = *k - 1;
         std::fill(name, name + n, ' ');
@@ -138,7 +138,7 @@ extern "C" {
 
     /// subroutine setState_TPX_String(T, P, X)
     void setstate_tpx_string_(double* T, double* P,
-                              char* X, ftnlen lenx)
+                              char* X, ftnlen_t lenx)
     {
         try {
             _gas->setState_TPX(*T, *P, string(X, lenx));
@@ -261,7 +261,7 @@ extern "C" {
         _gas->getMassFractions(span<double>(y, _gas->nSpecies()));
     }
 
-    void equilibrate_(char* opt, ftnlen lenopt)
+    void equilibrate_(char* opt, ftnlen_t lenopt)
     {
         try {
             if (lenopt != 2) {
@@ -277,7 +277,7 @@ extern "C" {
 
     //---------------- kinetics -------------------------
 
-    void getreactioneqn_(integer* i, char* eqn, ftnlen n)
+    void getreactioneqn_(integer* i, char* eqn, ftnlen_t n)
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
