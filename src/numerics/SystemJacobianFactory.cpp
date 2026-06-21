@@ -6,7 +6,7 @@
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
 #include "cantera/numerics/EigenSparseDirectJacobian.h"
-#include "cantera/oneD/MultiJac.h"
+#include "cantera/numerics/MultiJac.h"
 
 namespace Cantera
 {

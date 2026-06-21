@@ -33,7 +33,7 @@ cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera"
         void setIlutDropTol(double droptol)
         double ilutDropTol()
 
-cdef extern from "cantera/oneD/MultiJac.h" namespace "Cantera":
+cdef extern from "cantera/numerics/MultiJac.h" namespace "Cantera":
     cdef cppclass CxxMultiJac "Cantera::MultiJac" (CxxSystemJacobian):
         CxxMultiJac() except +translate_exception
 
