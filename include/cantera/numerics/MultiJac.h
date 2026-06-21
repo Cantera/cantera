@@ -8,7 +8,6 @@
 
 #include "cantera/numerics/BandMatrix.h"
 #include "cantera/numerics/SystemJacobian.h"
-#include "OneDim.h"
 
 namespace Cantera
 {
