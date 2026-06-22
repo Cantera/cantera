@@ -20,3 +20,19 @@ enable_incomplete_feature = "TypeForm"
 [[tool.mypy.overrides]]
 module = "graphviz.*"
 follow_untyped_imports = true
+
+# Cython pure-Python-syntax modules (see ``pure_py_modules`` in
+# ``interfaces/cython/SConscript``). Their ``.py`` source is real Cython, not real
+# Python: it references C++-level names injected by the companion ``.pxd``
+# (``Cxx*``, ``shared_ptr``, ...) and ``cdef`` helpers that have no Python-visible
+# existence, so mypy cannot interpret them as Python. mypy also cannot verify that the
+# annotations are *correct* for these modules (the C boundary is invisible to it); that
+# is the job of the Cython compiler (which enforces the C-level type contracts) and the
+# runtime test suite. They are therefore treated as opaque here, exactly as the ``.pyx``
+# modules are. The *published* type surface that the shipped ``.py`` exports is still
+# exercised by the rest of the suite: ``stubtest`` checks that it matches the runtime
+# extension, and ``pyright --verifytypes`` checks it for completeness. Keep this list in
+# sync with ``pure_py_modules``.
+[[tool.mypy.overrides]]
+module = ["cantera.jacobians"]
+ignore_errors = true
