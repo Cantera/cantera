@@ -22,12 +22,10 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
 endforeach()
 
 # Cython pure-Python-syntax modules use the .py extension rather than .pyx
-# (enhancement #241). Each is cythonized and built as its own standalone extension linked
-# against the shared libcantera (see below), mirroring the SConscript build. This lets the
-# .py source ship beside the compiled module: CPython prefers the extension on import,
-# while the .py serves tracebacks, IDEs, and type checkers. Here we only run Cython; the
-# extensions are defined after _cantera so the cantera_lib target is available to link.
+# (enhancement #241). Cythonize each to a .cpp here; how it is compiled depends on the
+# platform (see below).
 set(PURE_CY_MODULES jacobians)
+set(PURE_CY_OUTPUTS)
 foreach(MODULE IN LISTS PURE_CY_MODULES)
   set(CY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE}.py")
   set(CPP_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp")
@@ -37,9 +35,21 @@ foreach(MODULE IN LISTS PURE_CY_MODULES)
     COMMAND Python::Interpreter -m cython ${CY_SOURCE} --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
     DEPENDS ${CY_SOURCE}
     VERBATIM)
+  list(APPEND PURE_CY_OUTPUTS ${CPP_OUTPUT})
 endforeach()
 
-# Extensions linking the shared libcantera find it beside themselves in the package dir.
+if(CANTERA_PYODIDE)
+  # On Pyodide the standalone-extension + shared-libcantera layout isn't usable (see
+  # src/CMakeLists.txt), so compile the pure-Python modules INTO the merged _cantera
+  # extension, just like the .pyx modules. cantera.<module> is then provided by
+  # PyInit_<module> within _cantera and resolved by the CythonPackageMetaPathFinder in
+  # _cantera.pyx; the raw .py is excluded from the Pyodide wheel (see pyproject.toml.in)
+  # so it doesn't shadow the merged module on import.
+  list(APPEND CY_OUTPUTS ${PURE_CY_OUTPUTS})
+endif()
+
+# Give an extension an RPATH so it finds the shared libcantera beside itself in the
+# package directory. (Not used on Pyodide, where libcantera is static and merged in.)
 function(set_extension_rpath target)
   if(APPLE)
     set_target_properties(${target} PROPERTIES INSTALL_RPATH "@loader_path")
@@ -63,16 +73,20 @@ python_add_library(_cantera MODULE ${CY_OUTPUTS} WITH_SOABI)
 target_include_directories(_cantera PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
 target_compile_definitions(_cantera PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
 target_link_libraries(_cantera PRIVATE ext_manager cantera_lib)
-set_extension_rpath(_cantera)
+if(NOT CANTERA_PYODIDE)
+  set_extension_rpath(_cantera)
 
-# Build each pure-Python Cython module as its own extension linked to the shared
-# libcantera. The compiled module is installed into the package; its .py source ships
-# alongside it (see pyproject.toml) and is shadowed at import time by the extension.
-foreach(MODULE IN LISTS PURE_CY_MODULES)
-  python_add_library(${MODULE} MODULE "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp" WITH_SOABI)
-  target_include_directories(${MODULE} PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
-  target_compile_definitions(${MODULE} PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
-  target_link_libraries(${MODULE} PRIVATE cantera_lib)
-  set_extension_rpath(${MODULE})
-  install(TARGETS ${MODULE} DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
-endforeach()
+  # On native platforms, build each pure-Python Cython module as its own extension linked
+  # to the shared libcantera. The compiled module is installed into the package; its .py
+  # source ships alongside it (auto-included by scikit-build) and is shadowed at import
+  # time by the extension. (On Pyodide these modules are merged into _cantera instead --
+  # see the cythonize step above.)
+  foreach(MODULE IN LISTS PURE_CY_MODULES)
+    python_add_library(${MODULE} MODULE "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp" WITH_SOABI)
+    target_include_directories(${MODULE} PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
+    target_compile_definitions(${MODULE} PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
+    target_link_libraries(${MODULE} PRIVATE cantera_lib)
+    set_extension_rpath(${MODULE})
+    install(TARGETS ${MODULE} DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
+  endforeach()
+endif()

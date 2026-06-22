@@ -98,6 +98,10 @@ pip = ">=26.0.1,<27"
 cmake = ">=3.27,<4"
 ninja = ">=1.13.2,<2"
 nodejs = ">=25.2.1,<25.8"
+# pyodide-build shells out to `make` to read Makefile.envs when initializing the
+# emscripten cross-build environment. CI runners have a system make; provide it here so
+# the environment is self-contained on machines that don't.
+make = ">=4.3,<5"
 
 [feature.pyodide.pypi-dependencies]
 build = ">=1.2.2.post1, <2"
