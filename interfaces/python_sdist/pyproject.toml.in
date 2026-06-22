@@ -88,6 +88,15 @@ exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
 # read it; CPython prefers the extension over the source on import.
 exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]
 
+[[tool.scikit-build.overrides]]
+# On Pyodide the pure-Python Cython modules are merged into _cantera rather than built as
+# standalone extensions, because emscripten can't share C++ RTTI/data symbols across side
+# modules (see interfaces/python_sdist/src/CMakeLists.txt). Exclude their raw .py sources
+# from the Pyodide wheel so they don't shadow the merged PyInit_<module> on import.
+if.env.CANTERA_PYODIDE = "ON"
+inherit.wheel.exclude = "append"
+wheel.exclude = ["cantera/jacobians.py"]
+
 [tool.cibuildwheel]
 build-frontend = { name="build[uv]", args=["-vv"] }
 archs = "auto64"

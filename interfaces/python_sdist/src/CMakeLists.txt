@@ -143,7 +143,21 @@ endif()
 
 configure_file("../include/cantera/base/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/../include/cantera/base/config.h")
 
-add_library(cantera_lib SHARED ${CT_LIB_SOURCES})
+# On native platforms (Linux/macOS/Windows) libcantera is SHARED, so the Cython
+# pure-Python-syntax modules (enhancement #241) can be standalone extensions that link it
+# and ship their .py source beside the compiled .so. On Pyodide this split layout is not
+# viable: each extension and libcantera would be an emscripten "side module", and
+# emscripten cannot resolve C++ vague-linkage *data* symbols (RTTI typeinfo / vtables,
+# which exception handling depends on) across the side-module boundary -- loading
+# _cantera fails with e.g. "bad export type for 'typeinfo for Cantera::CanteraError'".
+# So on Pyodide we fall back to a STATIC libcantera merged into a single _cantera
+# extension (see cantera/CMakeLists.txt; full writeup in the developer notes). Revisit if
+# emscripten's dynamic linking of data symbols improves.
+if(CANTERA_PYODIDE)
+  add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
+else()
+  add_library(cantera_lib SHARED ${CT_LIB_SOURCES})
+endif()
 target_include_directories(cantera_lib PRIVATE "../include")
 target_include_directories(cantera_lib SYSTEM PRIVATE "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
 set_target_properties(cantera_lib PROPERTIES
@@ -157,9 +171,9 @@ set_target_properties(cantera_lib PROPERTIES
 # links the Python import library on Windows and adds nothing on POSIX, where the
 # symbols are provided by the interpreter hosting the extension.
 target_link_libraries(cantera_lib PRIVATE Python::Module)
-target_link_libraries(cantera_lib PUBLIC
+
+set(CT_DEPS
     yaml-cpp::yaml-cpp
-    fmt::fmt
     Eigen3::Eigen
     SUNDIALS::core
     SUNDIALS::nvecserial
@@ -170,17 +184,36 @@ target_link_libraries(cantera_lib PUBLIC
     SUNDIALS::sunmatrixsparse
     SUNDIALS::sunlinsolspgmr
     SUNDIALS::sunnonlinsolnewton
-    ${SUNDIALS_LIBRARIES}
-)
-
+    ${SUNDIALS_LIBRARIES})
 if(CT_USE_HDF5)
-  target_link_libraries(cantera_lib PUBLIC HighFive)
+  list(APPEND CT_DEPS HighFive)
 endif()
 
-# Ship the shared libcantera inside the package, beside the extension modules that link
-# against it. On Windows the loader searches the directory containing the .pyd for
-# dependent DLLs; on Linux/macOS the extensions carry an RPATH of $ORIGIN/@loader_path
-# (set where the extensions are defined).
-install(TARGETS cantera_lib
-    LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera
-    RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
+if(CANTERA_PYODIDE)
+  # Static libcantera is merged into the single _cantera extension, which therefore links
+  # the third-party deps transitively. Link them (and fmt) PUBLIC so the merged extension
+  # picks them up.
+  target_link_libraries(cantera_lib PUBLIC ${CT_DEPS} fmt::fmt)
+else()
+  # Shared libcantera: bake the deps in (PRIVATE) so the consumer extensions link only
+  # cantera_lib rather than carrying a duplicate copy of each static archive (e.g. the
+  # whole SUNDIALS stack) -- this mirrors the SCons build and matters as more modules are
+  # split out (thermo, kinetics, oneD, ...). The deps' headers are still part of
+  # Cantera's public API, so propagate their *compile* usage requirements (include
+  # directories and compile definitions such as SUNDIALS_STATIC_DEFINE) to consumers via
+  # $<COMPILE_ONLY>, which evaluates to nothing on any link line (CMake >= 3.27).
+  target_link_libraries(cantera_lib PRIVATE ${CT_DEPS})
+  target_link_libraries(cantera_lib PUBLIC "$<COMPILE_ONLY:${CT_DEPS}>")
+  # fmt is the exception: Cantera's public headers contain templated/inlined fmt calls, so
+  # consumers reference fmt's compiled symbols and must link their own copy, as the SCons
+  # build does. fmt is small and self-contained, so the duplicate is cheap.
+  target_link_libraries(cantera_lib PUBLIC fmt::fmt)
+
+  # Ship the shared libcantera inside the package, beside the extension modules that link
+  # against it. On Windows the loader searches the directory containing the .pyd for
+  # dependent DLLs; on Linux/macOS the extensions carry an RPATH of $ORIGIN/@loader_path
+  # (set where the extensions are defined).
+  install(TARGETS cantera_lib
+      LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera
+      RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
+endif()
