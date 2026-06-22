@@ -10,8 +10,18 @@ cantera._types.*
 # Exclude all dunder methods except for __init__
 # cantera\.((_|\w)+\.)+__(?!init__$)[a-zA-Z0-9_]*__
 
-# Exclude specific dunder methods
-cantera\.((_|\w)+\.)+__(.*cython|test|pyx_capi|mutable_keys|readonly_keys|conditional_annotations)__
+# Exclude specific dunder methods. ``__cinit__`` is a Cython constructor that is folded
+# into the runtime type's initializer and so is never present as a separate method.
+cantera\.((_|\w)+\.)+__(.*cython|cinit|test|pyx_capi|mutable_keys|readonly_keys|conditional_annotations)__
+
+# Cython pure-Python-syntax modules (see ``pure_py_modules`` in SConscript) ship their
+# annotated .py source as the type stub. That source contains names that mypy sees but
+# that are compiled away and so are absent from the runtime extension: the ``import
+# cython`` shim, ``cdef`` helpers cimported from other modules, and ``@cython.cfunc``
+# methods (C-level only). These are expected stub-vs-runtime differences.
+cantera\.\w+\.cython
+cantera\.\w+\.(stringify|pystr|get_from_sparse)
+cantera\.jacobians\.SystemJacobian\.wrap
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
