@@ -1,15 +1,19 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 import numpy as np
-cimport numpy as np
 
-from .solutionbase cimport *
-from .ctcxx cimport span
-from .thermo cimport *
-from ._utils cimport *
+import cython
+from cython.cimports.cantera._utils import stringify, pystr
+from cython.cimports.cantera.solutionbase import _SolutionBase
+from cython.cimports.cantera.thermo import ThermoPhase
 
-cdef class Mixture:
+
+@cython.cclass
+class Mixture:
     """
     Class Mixture represents mixtures of one or more phases of matter.  To
     construct a mixture, supply a list of phases to the constructor, each
@@ -52,12 +56,12 @@ cdef class Mixture:
         self.mix = new CxxMultiPhase()
         self._phases = []
 
-        cdef _SolutionBase phase
+        phase: _SolutionBase
         if isinstance(phases[0], _SolutionBase):
             # Assign default composition to the list of phases
-            phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
+            phases = [(p, 1 if i == 0 else 0) for i, p in enumerate(phases)]
 
-        for phase,moles in phases:
+        for phase, moles in phases:
             self.mix.addPhase(phase.base.thermo(), moles)
             self._phases.append(phase)
 
@@ -80,7 +84,7 @@ cdef class Mixture:
         """
         self.mix.updatePhases()
         s = []
-        for i,phase in enumerate(self._phases):
+        for i, phase in enumerate(self._phases):
             s.append('************ Phase {0} ************'.format(phase.name))
             s.append('Moles:  {0}'.format(self.phase_moles(i)))
             s.append(phase.report(threshold=threshold))
@@ -90,12 +94,13 @@ cdef class Mixture:
     def __call__(self):
         print(self.report())
 
-    property n_elements:
+    @property
+    def n_elements(self):
         """Total number of elements present in the mixture."""
-        def __get__(self):
-            return self.mix.nElements()
+        return self.mix.nElements()
 
-    cpdef int element_index(self, element) except *:
+    @cython.ccall
+    def element_index(self, element) -> cython.int:
         """Index of element with name 'element'.
 
             >>> mix.element_index('H')
@@ -105,25 +110,25 @@ cdef class Mixture:
             return self.mix.elementIndex(stringify(element), True)
 
         if isinstance(element, (int, float)):
-            return self.mix.checkElementIndex(<int>element)
+            return self.mix.checkElementIndex(cython.cast(cython.int, element))
 
         raise TypeError("'element' must be a string or a number. "
                         f"Got {element!r}.")
 
-    property n_species:
+    @property
+    def n_species(self):
         """Number of species."""
-        def __get__(self):
-            return self.mix.nSpecies()
+        return self.mix.nSpecies()
 
     def species_name(self, k):
         """Name of the species with index ``k``. Note that index numbers
         are assigned in order as phases are added."""
         return pystr(self.mix.speciesName(k))
 
-    property species_names:
+    @property
+    def species_names(self):
         """ Get the names of the species from all phases in the mixture """
-        def __get__(self):
-            return [self.species_name(k) for k in range(self.n_species)]
+        return [self.species_name(k) for k in range(self.n_species)]
 
     def species_index(self, phase, species):
         """
@@ -155,10 +160,10 @@ cdef class Mixture:
             raise IndexError('Species index ({0}) out of range (0 < {1})'.format(k, self.n_species))
         return self.mix.nAtoms(k, self.element_index(m))
 
-    property n_phases:
+    @property
+    def n_phases(self):
         """Number of phases"""
-        def __get__(self):
-            return len(self._phases)
+        return len(self._phases)
 
     def phase(self, n):
         """ Return the ThermoPhase object for phase number ``n`` in the mixture. """
@@ -180,51 +185,55 @@ cdef class Mixture:
                     return i
         raise KeyError("No such phase: '{0}'".format(p))
 
-    property phase_names:
+    @property
+    def phase_names(self):
         """Names of all phases in the order added."""
-        def __get__(self):
-            return [phase.name for phase in self._phases]
+        return [phase.name for phase in self._phases]
 
-    property T:
+    @property
+    def T(self):
         """
         Get or set the Temperature [K] of all phases in the mixture. When set,
         the pressure of the mixture is held fixed.
         """
-        def __get__(self):
-            return self.mix.temperature()
-        def __set__(self, T):
-            self.mix.setTemperature(T)
+        return self.mix.temperature()
 
-    property min_temp:
+    @T.setter
+    def T(self, T):
+        self.mix.setTemperature(T)
+
+    @property
+    def min_temp(self):
         """
         The minimum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
         considered in determining min_temp.
         """
-        def __get__(self):
-            return self.mix.minTemp()
+        return self.mix.minTemp()
 
-    property max_temp:
+    @property
+    def max_temp(self):
         """
         The maximum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
         considered in determining max_temp.
         """
-        def __get__(self):
-            return self.mix.maxTemp()
+        return self.mix.maxTemp()
 
-    property P:
+    @property
+    def P(self):
         """Get or set the Pressure [Pa] of all phases in the mixture. When set,
          the temperature of the mixture is held fixed."""
-        def __get__(self):
-            return self.mix.pressure()
-        def __set__(self, P):
-            self.mix.setPressure(P)
+        return self.mix.pressure()
 
-    property charge:
+    @P.setter
+    def P(self, P):
+        self.mix.setPressure(P)
+
+    @property
+    def charge(self):
         """The total charge in Coulombs, summed over all phases."""
-        def __get__(self):
-            return self.mix.charge()
+        return self.mix.charge()
 
     def phase_charge(self, p):
         """The charge of phase ``p`` in Coulombs."""
@@ -246,7 +255,8 @@ cdef class Mixture:
         """
         self.mix.setPhaseMoles(self.phase_index(p), moles)
 
-    property species_moles:
+    @property
+    def species_moles(self):
         """
         Get or set the number of moles of each species. May be set either as a
         string or as an array. If an array is used, it must be dimensioned at
@@ -256,20 +266,21 @@ cdef class Mixture:
 
         >>> mix.species_moles = 'C(s):1.0, CH4:2.0, O2:0.2'
         """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            for k in range(self.n_species):
-                data[k] = self.mix.speciesMoles(k)
-            return data
+        data = np.empty(self.n_species)
+        for k in range(self.n_species):
+            data[k] = self.mix.speciesMoles(k)
+        return data
 
-        def __set__(self, moles):
-            if isinstance(moles, (str, bytes)):
-                self.mix.setMolesByName(stringify(moles))
-                return
+    @species_moles.setter
+    def species_moles(self, moles):
+        if isinstance(moles, (str, bytes)):
+            self.mix.setMolesByName(stringify(moles))
+            return
 
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(moles, dtype=np.double)
-            self.mix.setMoles(span[double](&data[0], data.size))
+        data = np.ascontiguousarray(moles, dtype=np.double)
+        cdata: cython.double[::1] = data
+        self.mix.setMoles(span[cython.double](cython.address(cdata[0]),
+                                              cython.cast(cython.size_t, data.size)))
 
     def element_moles(self, e):
         """
@@ -278,13 +289,15 @@ cdef class Mixture:
         """
         return self.mix.elementMoles(self.element_index(e))
 
-    property chemical_potentials:
+    @property
+    def chemical_potentials(self):
         """The chemical potentials of all species [J/kmol]."""
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            cdef span[double] view = span[double](&data[0], <size_t>self.n_species)
-            self.mix.getChemPotentials(view)
-            return data
+        data = np.empty(self.n_species)
+        cdata: cython.double[::1] = data
+        view: span[cython.double] = span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, self.n_species))
+        self.mix.getChemPotentials(view)
+        return data
 
     def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=50000,
                     max_iter=100, estimate_equil=0, log_level=0):
