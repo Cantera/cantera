@@ -1,13 +1,19 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 from collections.abc import Sequence as _Sequence
 import numbers as _numbers
 import numpy as np
 
-from ._utils cimport *
+import cython
+from cython.cimports.cantera._utils import stringify, pystr, python_to_anyvalue
 
-cdef class Units:
+
+@cython.cclass
+class Units:
     """
     A representation of the units associated with a dimensional quantity.
 
@@ -59,34 +65,43 @@ cdef class Units:
         """
         return self.units.factor()
 
+    @cython.cfunc
     @staticmethod
-    cdef Units copy(CxxUnits other):
+    def copy(other: CxxUnits) -> Units:
         """Copy a C++ Units object to a Python object."""
-        cdef Units units = Units()
+        units: Units = Units()
         units.units = CxxUnits(other)
         return units
 
 
-cdef class UnitStack:
+@cython.cclass
+class UnitStack:
     def __cinit__(self):
         self.stack = CxxUnitStack(CxxUnits())
 
+    @cython.cfunc
     @staticmethod
-    cdef UnitStack copy(const CxxUnitStack& other):
-        """Copy a C++ UnitStack object to a Python object."""
-        cdef UnitStack stack = UnitStack()
+    def copy(other: CxxUnitStack) -> UnitStack:
+        """Copy a C++ UnitStack object to a Python object.
+
+        Note: the ``&`` (C++ reference) was dropped for pure-Python Cython compatibility
+        (pure-Python syntax has no spelling for reference parameters). Rvalue callers
+        get copy elision; ``copy()`` already copies into a new ``CxxUnitStack``.
+        """
+        stack: UnitStack = UnitStack()
         stack.stack = CxxUnitStack(other)
         return stack
 
     def product(self):
-        cdef CxxUnits units = self.stack.product()
+        units: CxxUnits = self.stack.product()
         return Units.copy(units)
 
     def join(self, exponent):
         self.stack.join(exponent)
 
 
-cdef class UnitSystem:
+@cython.cclass
+class UnitSystem:
     """
     Unit system used for YAML input and output.
 
@@ -127,28 +142,31 @@ cdef class UnitSystem:
     def __repr__(self):
         return f"<UnitSystem at {id(self):0x}>"
 
-    cdef _set_unitSystem(self, shared_ptr[CxxUnitSystem] units):
+    @cython.cfunc
+    def _set_unitSystem(self, units: shared_ptr[CxxUnitSystem]):
         self._unitsystem = units
         self.unitsystem = self._unitsystem.get()
 
     def defaults(self):
-        cdef stdmap[string, string] cxxunits = self.unitsystem.defaults()
-        cdef pair[string, string] item
+        cxxunits: stdmap[string, string] = self.unitsystem.defaults()
+        item: pair[string, string]
         return {pystr(item.first): pystr(item.second) for item in cxxunits}
 
-    property units:
+    @property
+    def units(self):
         """
         Units used by the unit system
         """
-        def __get__(self):
-            cdef stdmap[string, string] cxxunits = self.unitsystem.defaults()
-            cdef pair[string, string] item
-            return {pystr(item.first): pystr(item.second) for item in cxxunits}
-        def __set__(self, units):
-            cdef stdmap[string, string] cxxunits
-            for dimension, unit in units.items():
-                cxxunits[stringify(dimension)] = stringify(unit)
-            self.unitsystem.setDefaults(cxxunits)
+        cxxunits: stdmap[string, string] = self.unitsystem.defaults()
+        item: pair[string, string]
+        return {pystr(item.first): pystr(item.second) for item in cxxunits}
+
+    @units.setter
+    def units(self, units):
+        cxxunits: stdmap[string, string]
+        for dimension, unit in units.items():
+            cxxunits[stringify(dimension)] = stringify(unit)
+        self.unitsystem.setDefaults(cxxunits)
 
     def convert_to(self, quantity, dest):
         """
@@ -164,14 +182,14 @@ cdef class UnitSystem:
 
         *dest* can be a string or `Units` object specifying the destination units.
         """
-        cdef double value
-        cdef CxxAnyValue val_units
+        value: cython.double
+        val_units: CxxAnyValue
         if isinstance(quantity, str):
             val_units = python_to_anyvalue(quantity)
             if isinstance(dest, str):
                 return self.unitsystem.convert(val_units, stringify(dest))
             elif isinstance(dest, Units):
-                return self.unitsystem.convert(val_units, (<Units>dest).units)
+                return self.unitsystem.convert(val_units, cython.cast(Units, dest).units)
             else:
                 raise TypeError("'dest' must be a string or 'Units' object")
         elif isinstance(quantity, _numbers.Real):
@@ -179,7 +197,7 @@ cdef class UnitSystem:
             if isinstance(dest, str):
                 return self.unitsystem.convertTo(value, stringify(dest))
             elif isinstance(dest, Units):
-                return self.unitsystem.convertTo(value, (<Units>dest).units)
+                return self.unitsystem.convertTo(value, cython.cast(Units, dest).units)
             else:
                 raise TypeError("'dest' must be a string or 'Units' object")
         elif isinstance(quantity, np.ndarray):
@@ -189,7 +207,7 @@ cdef class UnitSystem:
         else:
             raise TypeError("'quantity' must be either a string or a number")
 
-    def convert_activation_energy_to(self, quantity, str dest):
+    def convert_activation_energy_to(self, quantity, dest: str):
         """
         Convert *quantity* to the activation energy units defined by *dest*, using this
         `UnitSystem` to define the default units of *quantity*. *quantity* can be one of
@@ -206,8 +224,8 @@ cdef class UnitSystem:
         must be interpretable as unit of energy per unit quantity (for example, J/kmol),
         energy (for example, eV) or temperature (K).
         """
-        cdef double value
-        cdef CxxAnyValue val_units
+        value: cython.double
+        val_units: CxxAnyValue
         if isinstance(quantity, str):
             val_units = python_to_anyvalue(quantity)
             return self.unitsystem.convertActivationEnergy(val_units, stringify(dest))
@@ -230,7 +248,7 @@ cdef class UnitSystem:
         standalone rate constants, where the destination units are not actually known,
         and where the units may be specified using `Units` or `UnitStack` objects.
         """
-        cdef Units dest_units
+        dest_units: Units
         if isinstance(dest, Units):
             dest_units = dest
         elif isinstance(dest, UnitStack):
@@ -240,7 +258,7 @@ cdef class UnitSystem:
         else:
             raise TypeError("'dest' must be a string, Units, or UnitStack object")
 
-        cdef CxxAnyValue val_units
+        val_units: CxxAnyValue
         if isinstance(quantity, (str, _numbers.Real)):
             val_units = python_to_anyvalue(quantity)
             return self.unitsystem.convertRateCoeff(val_units, dest_units.units)

@@ -47,7 +47,10 @@ cdef class Units:
 cdef class UnitStack:
     cdef CxxUnitStack stack
     @staticmethod
-    cdef UnitStack copy(const CxxUnitStack&)
+    # ``&`` dropped: pure-Python Cython syntax has no spelling for C++ reference params.
+    # By-value is safe here because copy() makes a fresh CxxUnitStack(other) copy;
+    # rvalue callers (delegator.pyx) get copy elision (C++17 guaranteed).
+    cdef UnitStack copy(CxxUnitStack)
 
 
 cdef class UnitSystem:
