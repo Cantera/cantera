@@ -96,7 +96,8 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
 # #241). Each ships its .py source alongside the compiled extension: the extension wins
 # CPython import precedence, while the .py serves tracebacks, IDEs, and type checkers.
 pure_py_modules = ["_utils", "jacobians", "constants", "units", "func1", "reactionpath",
-                   "yamlwriter", "speciesthermo", "mixture", "transport", "solutionbase"]
+                   "yamlwriter", "speciesthermo", "mixture", "transport", "solutionbase",
+                   "kinetics"]
 pure_py_ext = []
 for _name in pure_py_modules:
     if _name == "_utils":

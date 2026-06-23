@@ -1,24 +1,31 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 from ctypes import c_int as _c_int
 import warnings
-cimport numpy as np
 import numpy as np
 
-from .reaction cimport *
-from ._utils cimport *
-from .ctcxx cimport span
+import cython
+import cython.cimports.numpy as cnp  # Required: triggers import_array() for PyArray_SIZE
+from cython.cimports.cantera.reaction import CustomRate, ExtensibleRate, Reaction
+from cython.cimports.cantera._utils import stringify, pystr, anymap_to_py, py_to_anymap
+from cython.cimports.cantera.solutionbase import _SolutionBase
 from . import _utils
 
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # such as class Solution. [Cython 0.16]
-cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
+@cython.cfunc
+def get_species_array(kin: Kinetics, method: kineticsMethod1d) -> np.ndarray:
+    data = np.empty(kin.n_total_species)
     if kin.n_total_species == 0:
         return data
-    cdef span[double] view = span[double](&data[0], <size_t>data.size)
+    cdata: cython.double[::1] = data
+    view: span[cython.double] = span[cython.double](
+        cython.address(cdata[0]), cython.cast(cython.size_t, data.size))
     method(kin.kinetics, view)
     # @todo: Fix _selected_species to work with interface kinetics
     if kin._selected_species.size:
@@ -26,44 +33,64 @@ cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     else:
         return data
 
-cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_reactions)
+
+@cython.cfunc
+def get_reaction_array(kin: Kinetics, method: kineticsMethod1d) -> np.ndarray:
+    data = np.empty(kin.n_reactions)
     if kin.n_reactions == 0:
         return data
-    cdef span[double] view = span[double](&data[0], <size_t>data.size)
+    cdata: cython.double[::1] = data
+    view: span[cython.double] = span[cython.double](
+        cython.address(cdata[0]), cython.cast(cython.size_t, data.size))
     method(kin.kinetics, view)
     return data
 
-cdef np.ndarray get_dense(CxxSparseMatrix& smat):
-    cdef size_t length = smat.nonZeros()
+
+@cython.cfunc
+def get_dense(smat: CxxSparseMatrix) -> np.ndarray:
+    length: cython.size_t = smat.nonZeros()
     if length == 0:
         return np.zeros((smat.rows(), 0))
 
     # index/value triplets
-    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=_c_int)
-    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(length, dtype=_c_int)
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(length)
+    rows = np.empty(length, dtype=_c_int)
+    cols = np.empty(length, dtype=_c_int)
+    data = np.empty(length)
 
-    size = CxxSparseTriplets(smat, &rows[0], &cols[0], &data[0], length)
+    crows: cython.int[::1] = rows
+    ccols: cython.int[::1] = cols
+    cdata: cython.double[::1] = data
+
+    size = CxxSparseTriplets(smat, cython.address(crows[0]), cython.address(ccols[0]),
+                             cython.address(cdata[0]), length)
     out = np.zeros((smat.rows(), smat.cols()))
-    for i in xrange(length):
+    for i in range(length):
         out[rows[i], cols[i]] = data[i]
     return out
 
-cdef get_sparse(CxxSparseMatrix& smat):
+
+@cython.cfunc
+def get_sparse(smat: CxxSparseMatrix):
     # pointers to values and inner indices of CSC storage
-    cdef size_t length = smat.nonZeros()
-    cdef np.ndarray[np.double_t, ndim=1] value = np.empty(length)
-    cdef np.ndarray[int, ndim=1, mode="c"] inner = np.empty(length, dtype=_c_int)
+    length: cython.size_t = smat.nonZeros()
+    value = np.empty(length)
+    inner = np.empty(length, dtype=_c_int)
 
     # pointers outer indices of CSC storage
-    cdef size_t ncols = smat.outerSize()
-    cdef np.ndarray[int, ndim=1, mode="c"] outer = np.empty(ncols + 1, dtype=_c_int)
+    ncols: cython.size_t = smat.outerSize()
+    outer = np.empty(ncols + 1, dtype=_c_int)
 
-    CxxSparseCscData(smat, &value[0], &inner[0], &outer[0])
+    cvalue: cython.double[::1] = value
+    cinner: cython.int[::1] = inner
+    couter: cython.int[::1] = outer
+
+    CxxSparseCscData(smat, cython.address(cvalue[0]), cython.address(cinner[0]),
+                     cython.address(couter[0]))
     return value, inner, outer
 
-cdef get_from_sparse(CxxSparseMatrix& smat, int rows, int cols):
+
+@cython.cfunc
+def get_from_sparse(smat: CxxSparseMatrix, rows: cython.int, cols: cython.int):
     if _utils._USE_SPARSE:
         tup = get_sparse(smat)
         return _utils._scipy_sparse.csc_matrix(tup, shape=(rows, cols))
@@ -71,7 +98,8 @@ cdef get_from_sparse(CxxSparseMatrix& smat, int rows, int cols):
         return get_dense(smat)
 
 
-cdef class Kinetics(_SolutionBase):
+@cython.cclass
+class Kinetics(_SolutionBase):
     """
     Instances of class `Kinetics` are responsible for evaluating reaction rates
     of progress, species production rates, and other quantities pertaining to
@@ -88,30 +116,30 @@ cdef class Kinetics(_SolutionBase):
                 "associated thermo phase.\nAll 'Kinetics' methods should be accessed "
                 "from a 'Solution' object.")
 
-    property kinetics_model:
+    @property
+    def kinetics_model(self):
         """
         Return type of kinetics.
         """
-        def __get__(self):
-            return pystr(self.kinetics.kineticsType())
+        return pystr(self.kinetics.kineticsType())
 
-    property n_total_species:
+    @property
+    def n_total_species(self):
         """
         Total number of species in all phases participating in the kinetics
         mechanism.
         """
-        def __get__(self):
-            return self.kinetics.nTotalSpecies()
+        return self.kinetics.nTotalSpecies()
 
-    property n_reactions:
+    @property
+    def n_reactions(self):
         """Number of reactions in the reaction mechanism."""
-        def __get__(self):
-            return self.kinetics.nReactions()
+        return self.kinetics.nReactions()
 
-    property n_phases:
+    @property
+    def n_phases(self):
         """Number of phases in the reaction mechanism."""
-        def __get__(self):
-            return self.kinetics.nPhases()
+        return self.kinetics.nPhases()
 
     def _check_phase_index(self, n):
         if not 0 <= n < self.n_phases:
@@ -125,13 +153,13 @@ cdef class Kinetics(_SolutionBase):
         if not 0 <= n < self.n_total_species:
             raise ValueError("Kinetics Species index ({0}) out of range".format(n))
 
-    def kinetics_species_index(self, species, int phase=0):
+    def kinetics_species_index(self, species, phase: cython.int = 0):
         """
         The index of species ``species`` of phase ``phase`` within arrays returned
         by methods of class `Kinetics`. If ``species`` is a string, the ``phase``
         argument is unused.
         """
-        cdef int k
+        k: cython.int
         if isinstance(species, (str, bytes)):
             return self.kinetics.kineticsSpeciesIndex(stringify(species))
         else:
@@ -147,16 +175,16 @@ cdef class Kinetics(_SolutionBase):
         """
         return pystr(self.kinetics.kineticsSpeciesName(k))
 
-    property kinetics_species_names:
+    @property
+    def kinetics_species_names(self):
         """
         A list of all species names, corresponding to the arrays returned by
         methods of class `Kinetics`.
         """
-        def __get__(self):
-            return [self.kinetics_species_name(k)
-                    for k in range(self.n_total_species)]
+        return [self.kinetics_species_name(k)
+                for k in range(self.n_total_species)]
 
-    def reaction(self, int i_reaction):
+    def reaction(self, i_reaction: cython.int):
         """
         Return a `Reaction` object representing the reaction with index
         ``i_reaction``. Changes to this object do not affect the `Kinetics` or
@@ -172,7 +200,7 @@ cdef class Kinetics(_SolutionBase):
         """
         return [self.reaction(i) for i in range(self.n_reactions)]
 
-    def modify_reaction(self, int irxn, Reaction rxn):
+    def modify_reaction(self, irxn: cython.int, rxn: Reaction):
         """
         Modify the `Reaction` with index ``irxn`` to have the same rate parameters as
         ``rxn``. ``rxn`` must have the same reactants and products and use the same rate
@@ -182,14 +210,14 @@ cdef class Kinetics(_SolutionBase):
         """
         self.kinetics.modifyReaction(irxn, rxn._reaction)
 
-    def add_reaction(self, Reaction rxn):
+    def add_reaction(self, rxn: Reaction):
         """ Add a new reaction to this phase. """
         self.kinetics.addReaction(rxn._reaction)
         if isinstance(rxn.rate, (CustomRate, ExtensibleRate)):
             # prevent premature garbage collection
             self._custom_rates.append(rxn.rate)
 
-    def multiplier(self, int i_reaction):
+    def multiplier(self, i_reaction: cython.int):
         """
         A scaling factor applied to the rate coefficient for reaction
         ``i_reaction``. Can be used to carry out sensitivity analysis or to
@@ -198,7 +226,7 @@ cdef class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return self.kinetics.multiplier(i_reaction)
 
-    def set_multiplier(self, double value, int i_reaction=-1):
+    def set_multiplier(self, value: cython.double, i_reaction: cython.int = -1):
         """
         Set the multiplier for for reaction ``i_reaction`` to ``value``.
         If ``i_reaction`` is not specified, then the multiplier for all reactions
@@ -229,12 +257,12 @@ cdef class Kinetics(_SolutionBase):
         else:
             return [self.reaction(i).equation for i in indices]
 
-    def reactant_stoich_coeff(self, k_spec, int i_reaction):
+    def reactant_stoich_coeff(self, k_spec, i_reaction: cython.int):
         """
         The stoichiometric coefficient of species ``k_spec`` as a reactant in
         reaction ``i_reaction``.
         """
-        cdef int k
+        k: cython.int
         if isinstance(k_spec, (str, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
@@ -244,12 +272,12 @@ cdef class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return self.kinetics.reactantStoichCoeff(k, i_reaction)
 
-    def product_stoich_coeff(self, k_spec, int i_reaction):
+    def product_stoich_coeff(self, k_spec, i_reaction: cython.int):
         """
         The stoichiometric coefficient of species ``k_spec`` as a product in
         reaction ``i_reaction``.
         """
-        cdef int k
+        k: cython.int
         if isinstance(k_spec, (str, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
@@ -259,7 +287,8 @@ cdef class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return self.kinetics.productStoichCoeff(k, i_reaction)
 
-    property reactant_stoich_coeffs:
+    @property
+    def reactant_stoich_coeffs(self):
         """
         The array of reactant stoichiometric coefficients. Element ``[k,i]`` of
         this array is the reactant stoichiometric coefficient of species ``k`` in
@@ -271,11 +300,11 @@ cdef class Kinetics(_SolutionBase):
 
             Method was changed to a property in Cantera 3.0.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.reactantStoichCoeffs(),
-                                   self.n_total_species, self.n_reactions)
+        return get_from_sparse(self.kinetics.reactantStoichCoeffs(),
+                               self.n_total_species, self.n_reactions)
 
-    property product_stoich_coeffs:
+    @property
+    def product_stoich_coeffs(self):
         """
         The array of product stoichiometric coefficients. Element ``[k,i]`` of
         this array is the product stoichiometric coefficient of species ``k`` in
@@ -287,11 +316,11 @@ cdef class Kinetics(_SolutionBase):
 
             Method was changed to a property in Cantera 3.0.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.productStoichCoeffs(),
-                                   self.n_total_species, self.n_reactions)
+        return get_from_sparse(self.kinetics.productStoichCoeffs(),
+                               self.n_total_species, self.n_reactions)
 
-    property product_stoich_coeffs_reversible:
+    @property
+    def product_stoich_coeffs_reversible(self):
         """
         The array of product stoichiometric coefficients of reversible reactions.
         Element ``[k,i]`` of this array is the product stoichiometric coefficient
@@ -299,40 +328,40 @@ cdef class Kinetics(_SolutionBase):
 
         For sparse output, set ``ct.use_sparse(True)``.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.revProductStoichCoeffs(),
-                                   self.n_total_species, self.n_reactions)
+        return get_from_sparse(self.kinetics.revProductStoichCoeffs(),
+                               self.n_total_species, self.n_reactions)
 
-    property forward_rates_of_progress:
+    @property
+    def forward_rates_of_progress(self):
         """
         Forward rates of progress for the reactions. [kmol/m³/s] for bulk
         phases or [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRatesOfProgress)
+        return get_reaction_array(self, kin_getFwdRatesOfProgress)
 
-    property reverse_rates_of_progress:
+    @property
+    def reverse_rates_of_progress(self):
         """
         Reverse rates of progress for the reactions. [kmol/m³/s] for bulk
         phases or [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getRevRatesOfProgress)
+        return get_reaction_array(self, kin_getRevRatesOfProgress)
 
-    property net_rates_of_progress:
+    @property
+    def net_rates_of_progress(self):
         """
         Net rates of progress for the reactions. [kmol/m³/s] for bulk phases
         or [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getNetRatesOfProgress)
+        return get_reaction_array(self, kin_getNetRatesOfProgress)
 
-    property equilibrium_constants:
+    @property
+    def equilibrium_constants(self):
         """Equilibrium constants in concentration units for all reactions."""
-        def __get__(self):
-            return get_reaction_array(self, kin_getEquilibriumConstants)
+        return get_reaction_array(self, kin_getEquilibriumConstants)
 
-    property forward_rate_constants:
+    @property
+    def forward_rate_constants(self):
         """
         Forward rate constants for all reactions.
 
@@ -341,10 +370,10 @@ cdef class Kinetics(_SolutionBase):
         they are part of the reaction rate definition; for a legacy implementation that
         includes third-body concentrations, see `use_legacy_rate_constants`.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRateConstants)
+        return get_reaction_array(self, kin_getFwdRateConstants)
 
-    property reverse_rate_constants:
+    @property
+    def reverse_rate_constants(self):
         """
         Reverse rate constants for all reactions.
 
@@ -353,34 +382,34 @@ cdef class Kinetics(_SolutionBase):
         they are part of the reaction rate definition; for a legacy implementation that
         includes third-body concentrations, see `use_legacy_rate_constants`.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getRevRateConstants)
+        return get_reaction_array(self, kin_getRevRateConstants)
 
-    property creation_rates:
+    @property
+    def creation_rates(self):
         """
         Creation rates for each species. [kmol/m³/s] for bulk phases or
         [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getCreationRates)
+        return get_species_array(self, kin_getCreationRates)
 
-    property destruction_rates:
+    @property
+    def destruction_rates(self):
         """
         Destruction rates for each species. [kmol/m³/s] for bulk phases or
         [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getDestructionRates)
+        return get_species_array(self, kin_getDestructionRates)
 
-    property net_production_rates:
+    @property
+    def net_production_rates(self):
         """
         Net production rates for each species. [kmol/m³/s] for bulk phases or
         [kmol/m²/s] for surface phases.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getNetProductionRates)
+        return get_species_array(self, kin_getNetProductionRates)
 
-    property derivative_settings:
+    @property
+    def derivative_settings(self):
         """
         Property setting behavior of derivative evaluation.
 
@@ -418,30 +447,32 @@ cdef class Kinetics(_SolutionBase):
         - `rtol-delta` (double): relative tolerance used to perturb properties
           when calculating numerical derivatives. The default value is 1e-8.
         """
-        def __get__(self):
-            cdef CxxAnyMap settings
-            self.kinetics.getDerivativeSettings(settings)
-            return anymap_to_py(settings)
-        def __set__(self, settings):
-            self.kinetics.setDerivativeSettings(py_to_anymap(settings))
+        settings: CxxAnyMap
+        self.kinetics.getDerivativeSettings(settings)
+        return anymap_to_py(settings)
 
-    property forward_rate_constants_ddT:
+    @derivative_settings.setter
+    def derivative_settings(self, settings):
+        self.kinetics.setDerivativeSettings(py_to_anymap(settings))
+
+    @property
+    def forward_rate_constants_ddT(self):
         """
         Calculate derivatives for forward rate constants with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRateConstants_ddT)
+        return get_reaction_array(self, kin_getFwdRateConstants_ddT)
 
-    property forward_rate_constants_ddP:
+    @property
+    def forward_rate_constants_ddP(self):
         """
         Calculate derivatives for forward rate constants with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRateConstants_ddP)
+        return get_reaction_array(self, kin_getFwdRateConstants_ddP)
 
-    property forward_rate_constants_ddC:
+    @property
+    def forward_rate_constants_ddC(self):
         """
         Calculate derivatives for forward rate constants with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -451,26 +482,26 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRateConstants_ddC)
+        return get_reaction_array(self, kin_getFwdRateConstants_ddC)
 
-    property forward_rates_of_progress_ddT:
+    @property
+    def forward_rates_of_progress_ddT(self):
         """
         Calculate derivatives for forward rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddT)
+        return get_reaction_array(self, kin_getFwdRatesOfProgress_ddT)
 
-    property forward_rates_of_progress_ddP:
+    @property
+    def forward_rates_of_progress_ddP(self):
         """
         Calculate derivatives for forward rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddP)
+        return get_reaction_array(self, kin_getFwdRatesOfProgress_ddP)
 
-    property forward_rates_of_progress_ddC:
+    @property
+    def forward_rates_of_progress_ddC(self):
         """
         Calculate derivatives for forward rates-of-progress with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -480,10 +511,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddC)
+        return get_reaction_array(self, kin_getFwdRatesOfProgress_ddC)
 
-    property forward_rates_of_progress_ddX:
+    @property
+    def forward_rates_of_progress_ddX(self):
         """
         Calculate derivatives for forward rates-of-progress with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -497,11 +528,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddX(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddX(),
+                               self.n_reactions, self.n_total_species)
 
-    property forward_rates_of_progress_ddCi:
+    @property
+    def forward_rates_of_progress_ddCi(self):
         """
         Calculate derivatives for forward rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
@@ -518,27 +549,27 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddCi(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddCi(),
+                               self.n_reactions, self.n_total_species)
 
-    property reverse_rates_of_progress_ddT:
+    @property
+    def reverse_rates_of_progress_ddT(self):
         """
         Calculate derivatives for reverse rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getRevRatesOfProgress_ddT)
+        return get_reaction_array(self, kin_getRevRatesOfProgress_ddT)
 
-    property reverse_rates_of_progress_ddP:
+    @property
+    def reverse_rates_of_progress_ddP(self):
         """
         Calculate derivatives for reverse rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getRevRatesOfProgress_ddP)
+        return get_reaction_array(self, kin_getRevRatesOfProgress_ddP)
 
-    property reverse_rates_of_progress_ddC:
+    @property
+    def reverse_rates_of_progress_ddC(self):
         """
         Calculate derivatives for reverse rates-of-progress with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -548,10 +579,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getRevRatesOfProgress_ddC)
+        return get_reaction_array(self, kin_getRevRatesOfProgress_ddC)
 
-    property reverse_rates_of_progress_ddX:
+    @property
+    def reverse_rates_of_progress_ddX(self):
         """
         Calculate derivatives for reverse rates-of-progress with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -565,11 +596,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.revRatesOfProgress_ddX(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.revRatesOfProgress_ddX(),
+                               self.n_reactions, self.n_total_species)
 
-    property reverse_rates_of_progress_ddCi:
+    @property
+    def reverse_rates_of_progress_ddCi(self):
         """
         Calculate derivatives for reverse rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
@@ -586,27 +617,27 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.revRatesOfProgress_ddCi(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.revRatesOfProgress_ddCi(),
+                               self.n_reactions, self.n_total_species)
 
-    property net_rates_of_progress_ddT:
+    @property
+    def net_rates_of_progress_ddT(self):
         """
         Calculate derivatives for net rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getNetRatesOfProgress_ddT)
+        return get_reaction_array(self, kin_getNetRatesOfProgress_ddT)
 
-    property net_rates_of_progress_ddP:
+    @property
+    def net_rates_of_progress_ddP(self):
         """
         Calculate derivatives for net rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getNetRatesOfProgress_ddP)
+        return get_reaction_array(self, kin_getNetRatesOfProgress_ddP)
 
-    property net_rates_of_progress_ddC:
+    @property
+    def net_rates_of_progress_ddC(self):
         """
         Calculate derivatives for net rates-of-progress with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -616,10 +647,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getNetRatesOfProgress_ddC)
+        return get_reaction_array(self, kin_getNetRatesOfProgress_ddC)
 
-    property net_rates_of_progress_ddX:
+    @property
+    def net_rates_of_progress_ddX(self):
         """
         Calculate derivatives for net rates-of-progress with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -633,11 +664,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.netRatesOfProgress_ddX(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.netRatesOfProgress_ddX(),
+                               self.n_reactions, self.n_total_species)
 
-    property net_rates_of_progress_ddCi:
+    @property
+    def net_rates_of_progress_ddCi(self):
         """
         Calculate derivatives for net rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
@@ -653,27 +684,27 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.netRatesOfProgress_ddCi(),
-                                   self.n_reactions, self.n_total_species)
+        return get_from_sparse(self.kinetics.netRatesOfProgress_ddCi(),
+                               self.n_reactions, self.n_total_species)
 
-    property creation_rates_ddT:
+    @property
+    def creation_rates_ddT(self):
         """
         Calculate derivatives of species creation rates with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getCreationRates_ddT)
+        return get_species_array(self, kin_getCreationRates_ddT)
 
-    property creation_rates_ddP:
+    @property
+    def creation_rates_ddP(self):
         """
         Calculate derivatives of species creation rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getCreationRates_ddP)
+        return get_species_array(self, kin_getCreationRates_ddP)
 
-    property creation_rates_ddC:
+    @property
+    def creation_rates_ddC(self):
         """
         Calculate derivatives of species creation rates with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -683,10 +714,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getCreationRates_ddC)
+        return get_species_array(self, kin_getCreationRates_ddC)
 
-    property creation_rates_ddX:
+    @property
+    def creation_rates_ddX(self):
         """
         Calculate derivatives for species creation rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -700,11 +731,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.creationRates_ddX(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.creationRates_ddX(),
+                               self.n_total_species, self.n_total_species)
 
-    property creation_rates_ddCi:
+    @property
+    def creation_rates_ddCi(self):
         """
         Calculate derivatives for species creation rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
@@ -723,27 +754,27 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.creationRates_ddCi(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.creationRates_ddCi(),
+                               self.n_total_species, self.n_total_species)
 
-    property destruction_rates_ddT:
+    @property
+    def destruction_rates_ddT(self):
         """
         Calculate derivatives of species destruction rates with respect to temperature
         at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getDestructionRates_ddT)
+        return get_species_array(self, kin_getDestructionRates_ddT)
 
-    property destruction_rates_ddP:
+    @property
+    def destruction_rates_ddP(self):
         """
         Calculate derivatives of species destruction rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getDestructionRates_ddP)
+        return get_species_array(self, kin_getDestructionRates_ddP)
 
-    property destruction_rates_ddC:
+    @property
+    def destruction_rates_ddC(self):
         """
         Calculate derivatives of species destruction rates with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -753,10 +784,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getDestructionRates_ddC)
+        return get_species_array(self, kin_getDestructionRates_ddC)
 
-    property destruction_rates_ddX:
+    @property
+    def destruction_rates_ddX(self):
         """
         Calculate derivatives for species destruction rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -770,11 +801,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.destructionRates_ddX(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.destructionRates_ddX(),
+                               self.n_total_species, self.n_total_species)
 
-    property destruction_rates_ddCi:
+    @property
+    def destruction_rates_ddCi(self):
         """
         Calculate derivatives for species destruction rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
@@ -791,27 +822,27 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.destructionRates_ddCi(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.destructionRates_ddCi(),
+                               self.n_total_species, self.n_total_species)
 
-    property net_production_rates_ddT:
+    @property
+    def net_production_rates_ddT(self):
         """
         Calculate derivatives of species net production rates with respect to
         temperature at constant pressure, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getNetProductionRates_ddT)
+        return get_species_array(self, kin_getNetProductionRates_ddT)
 
-    property net_production_rates_ddP:
+    @property
+    def net_production_rates_ddP(self):
         """
         Calculate derivatives of species net production rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getNetProductionRates_ddP)
+        return get_species_array(self, kin_getNetProductionRates_ddP)
 
-    property net_production_rates_ddC:
+    @property
+    def net_production_rates_ddC(self):
         """
         Calculate derivatives of species net production rates with respect to molar
         density at constant temperature, pressure and mole fractions.
@@ -821,10 +852,10 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_species_array(self, kin_getNetProductionRates_ddC)
+        return get_species_array(self, kin_getNetProductionRates_ddC)
 
-    property net_production_rates_ddX:
+    @property
+    def net_production_rates_ddX(self):
         """
         Calculate derivatives for species net production rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -838,11 +869,11 @@ cdef class Kinetics(_SolutionBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.netProductionRates_ddX(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.netProductionRates_ddX(),
+                               self.n_total_species, self.n_total_species)
 
-    property net_production_rates_ddCi:
+    @property
+    def net_production_rates_ddCi(self):
         """
         Calculate derivatives for species net production rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
@@ -859,67 +890,67 @@ cdef class Kinetics(_SolutionBase):
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return get_from_sparse(self.kinetics.netProductionRates_ddCi(),
-                                   self.n_total_species, self.n_total_species)
+        return get_from_sparse(self.kinetics.netProductionRates_ddCi(),
+                               self.n_total_species, self.n_total_species)
 
-    property delta_enthalpy:
+    @property
+    def delta_enthalpy(self):
         """Change in enthalpy for each reaction [J/kmol]."""
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaEnthalpy)
+        return get_reaction_array(self, kin_getDeltaEnthalpy)
 
-    property delta_gibbs:
+    @property
+    def delta_gibbs(self):
         """Change in Gibbs free energy for each reaction [J/kmol]."""
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaGibbs)
+        return get_reaction_array(self, kin_getDeltaGibbs)
 
-    property delta_entropy:
+    @property
+    def delta_entropy(self):
         """Change in entropy for each reaction [J/kmol/K]."""
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaEntropy)
+        return get_reaction_array(self, kin_getDeltaEntropy)
 
-    property delta_standard_enthalpy:
+    @property
+    def delta_standard_enthalpy(self):
         """
         Change in standard-state enthalpy (independent of composition) for
         each reaction [J/kmol].
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaSSEnthalpy)
+        return get_reaction_array(self, kin_getDeltaSSEnthalpy)
 
-    property third_body_concentrations:
+    @property
+    def third_body_concentrations(self):
         """
         Effective third-body concentrations used by individual reactions; values
         are only defined for reactions involving third-bodies and are set to
         not-a-number otherwise.
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getThirdBodyConcentrations)
+        return get_reaction_array(self, kin_getThirdBodyConcentrations)
 
-    property delta_standard_gibbs:
+    @property
+    def delta_standard_gibbs(self):
         """
         Change in standard-state Gibbs free energy (independent of composition)
         for each reaction [J/kmol].
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaSSGibbs)
+        return get_reaction_array(self, kin_getDeltaSSGibbs)
 
-    property delta_standard_entropy:
+    @property
+    def delta_standard_entropy(self):
         """
         Change in standard-state entropy (independent of composition) for
         each reaction [J/kmol/K].
         """
-        def __get__(self):
-            return get_reaction_array(self, kin_getDeltaSSEntropy)
+        return get_reaction_array(self, kin_getDeltaSSEntropy)
 
-    property heat_release_rate:
+    @property
+    def heat_release_rate(self):
         """
         Get the total volumetric heat release rate [W/m³].
         """
-        def __get__(self):
-            return - np.sum(self.partial_molar_enthalpies *
-                            self.net_production_rates, 0)
+        return - np.sum(self.partial_molar_enthalpies *
+                        self.net_production_rates, 0)
 
-    property heat_production_rates:
+    @property
+    def heat_production_rates(self):
         """
         Get the volumetric heat production rates [W/m³] on a per-reaction
         basis. The sum over all reactions results in the total volumetric heat
@@ -928,11 +959,11 @@ cdef class Kinetics(_SolutionBase):
 
         >>> gas.heat_production_rates[1]  # heat production rate of the 2nd reaction
         """
-        def __get__(self):
-            return - self.net_rates_of_progress * self.delta_enthalpy
+        return - self.net_rates_of_progress * self.delta_enthalpy
 
 
-cdef class InterfaceKinetics(Kinetics):
+@cython.cclass
+class InterfaceKinetics(Kinetics):
     """
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
@@ -953,21 +984,24 @@ cdef class InterfaceKinetics(Kinetics):
             self._phase_indices[name] = i
             self._phase_indices[i] = i
 
-    def advance_coverages(self, double dt, double rtol=1e-7, double atol=1e-14,
-                          double max_step_size=0, int max_steps=20000,
-                          int max_error_test_failures=7):
+    def advance_coverages(self, dt: cython.double, rtol: cython.double = 1e-7,
+                          atol: cython.double = 1e-14,
+                          max_step_size: cython.double = 0,
+                          max_steps: cython.int = 20000,
+                          max_error_test_failures: cython.int = 7):
         """
         This method carries out a time-accurate advancement of the surface
         coverages for a specified amount of time.
         """
-        (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(
+        cython.cast(cython.pointer(CxxInterfaceKinetics), self.kinetics).advanceCoverages(
             dt, rtol, atol, max_step_size, max_steps, max_error_test_failures)
 
     def advance_coverages_to_steady_state(self, loglevel=0):
         """
         This method advances the surface coverages to steady state.
         """
-        (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem(loglevel)
+        cython.cast(cython.pointer(CxxInterfaceKinetics),
+                    self.kinetics).solvePseudoSteadyStateProblem(loglevel)
 
     def phase_index(self, phase):
         """
@@ -985,7 +1019,7 @@ cdef class InterfaceKinetics(Kinetics):
         else:
             k2 = self.kinetics_species_index(0, p+1)
 
-        return slice(k1,k2)
+        return slice(k1, k2)
 
     def get_creation_rates(self, phase):
         """
@@ -1018,7 +1052,8 @@ cdef class InterfaceKinetics(Kinetics):
         phase ``phase`` (Units: A/m² for a surface, A/m for an edge reaction).
         """
         i_phase = self.phase_index(phase)
-        return (<CxxInterfaceKinetics*>self.kinetics).interfaceCurrent(i_phase)
+        return cython.cast(cython.pointer(CxxInterfaceKinetics),
+                           self.kinetics).interfaceCurrent(i_phase)
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
