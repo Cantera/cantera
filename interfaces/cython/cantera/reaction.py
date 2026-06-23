@@ -1,23 +1,31 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cimport numpy as np
+# distutils: language = c++
+# cython: language_level=3
+
 import numpy as np
 import warnings
-from cython.operator cimport dereference as deref
 
-from .kinetics cimport Kinetics
-from ._utils cimport *
+import cython
+import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
+
+from cython.cimports.cantera.kinetics import Kinetics
+from cython.cimports.cantera._utils import (
+    stringify, pystr, anymap_to_py, py_to_anymap, comp_map, comp_map_to_dict,
+    AnyMapFromYamlString, AnyMapFromYamlFile)
+from cython.cimports.cantera.units import Units, UnitStack
+from cython.cimports.cantera.delegator import (
+    CxxDelegatorPtr, assign_delegates,
+    CxxPythonHandle, CxxExternalHandle)
 from ._utils import CanteraError
-from .ctcxx cimport span
-from .units cimport *
-from .delegator cimport *
 
 # dictionary to store reaction rate classes
-cdef dict _reaction_rate_class_registry = {}
+_reaction_rate_class_registry: dict = {}
 
 
-cdef class ReactionRate:
+@cython.cclass
+class ReactionRate:
     """
     Base class for ReactionRate objects.
 
@@ -29,24 +37,25 @@ cdef class ReactionRate:
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self):0x}>"
 
-    def __call__(self, double temperature):
+    def __call__(self, temperature: cython.double):
         """
         Evaluate rate expression based on temperature.
         """
         return self.rate.eval(temperature)
 
-    property type:
+    @property
+    def type(self):
         """ Get the C++ ReactionRate type """
-        def __get__(self):
-            return pystr(self.rate.type())
+        return pystr(self.rate.type())
 
-    property sub_type:
+    @property
+    def sub_type(self):
         """ Get the C++ ReactionRate sub-type """
-        def __get__(self):
-            return pystr(self.rate.subType())
+        return pystr(self.rate.subType())
 
+    @cython.cfunc
     @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRate] rate):
+    def wrap(rate: shared_ptr[CxxReactionRate]):
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
@@ -62,14 +71,14 @@ cdef class ReactionRate:
             register_subclasses(ReactionRate)
 
         # Check for delegated rate, which will already have a Python wrapper
-        cdef CxxDelegator* drate = dynamic_cast[CxxDelegatorPtr](rate.get())
-        cdef CxxPythonHandle* handle
+        drate: cython.pointer(CxxDelegator) = dynamic_cast[CxxDelegatorPtr](rate.get())
+        handle: cython.pointer(CxxPythonHandle)
 
-        if drate != NULL:
+        if drate != cython.NULL:
             handle = dynamic_pointer_cast[CxxPythonHandle, CxxExternalHandle](
                 drate.getExternalHandle(stringify("python"))).get()
-            if handle != NULL and handle.get() != NULL:
-                py_rate = <ReactionRate>(<PyObject*>handle.get())
+            if handle != cython.NULL and handle.get() != cython.NULL:
+                py_rate = cython.cast(ReactionRate, cython.cast(cython.p_void, handle.get()))
                 py_rate._rate = rate
                 return py_rate
             else:
@@ -83,13 +92,14 @@ cdef class ReactionRate:
         cls = _reaction_rate_class_registry.get(rate_type, ReactionRate)
 
         # wrap C++ reaction rate
-        cdef ReactionRate rr
+        rr: ReactionRate
         rr = cls(init=False)
         rr._rate = rate
         rr.set_cxx_object()
         return rr
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
 
     @classmethod
@@ -111,7 +121,7 @@ cdef class ReactionRate:
                 f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
                 "should be called from base class 'ReactionRate'")
 
-        cdef CxxAnyMap any_map = py_to_anymap(data, hyphenize=hyphenize)
+        any_map: CxxAnyMap = py_to_anymap(data, hyphenize=hyphenize)
         cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
@@ -136,17 +146,17 @@ cdef class ReactionRate:
                 f"Class method 'from_yaml' was invoked from '{cls.__name__}' but "
                 "should be called from base class 'ReactionRate'")
 
-        cdef CxxAnyMap any_map
+        any_map: CxxAnyMap
         any_map = AnyMapFromYamlString(stringify(text))
         cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
-    property input_data:
+    @property
+    def input_data(self):
         """
         Get input data for this reaction rate with its current parameter values.
         """
-        def __get__(self):
-            return anymap_to_py(self.rate.parameters())
+        return anymap_to_py(self.rate.parameters())
 
     @property
     def conversion_units(self) -> Units:
@@ -157,7 +167,8 @@ cdef class ReactionRate:
         return Units.copy(self.rate.conversionUnits())
 
 
-cdef class ArrheniusRateBase(ReactionRate):
+@cython.cclass
+class ArrheniusRateBase(ReactionRate):
     """
     Base class collecting commonly used features of Arrhenius-type rate objects.
     Objects should be instantiated by specialized classes, for example `ArrheniusRate`,
@@ -192,40 +203,43 @@ cdef class ArrheniusRateBase(ReactionRate):
             raise TypeError(f"Invalid parameters {par_string}")
         self.set_cxx_object()
 
-    property pre_exponential_factor:
+    @property
+    def pre_exponential_factor(self):
         """
         The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
-        def __get__(self):
-            return self.base.preExponentialFactor()
+        return self.base.preExponentialFactor()
 
-    property temperature_exponent:
+    @property
+    def temperature_exponent(self):
         """
         The temperature exponent ``b``.
         """
-        def __get__(self):
-            return self.base.temperatureExponent()
+        return self.base.temperatureExponent()
 
-    property activation_energy:
+    @property
+    def activation_energy(self):
         """
         The activation energy ``E`` [J/kmol].
         """
-        def __get__(self):
-            return self.base.activationEnergy()
+        return self.base.activationEnergy()
 
-    property allow_negative_pre_exponential_factor:
+    @property
+    def allow_negative_pre_exponential_factor(self):
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
         """
-        def __get__(self):
-            return self.base.allowNegativePreExponentialFactor()
-        def __set__(self, cbool allow):
-            self.base.setAllowNegativePreExponentialFactor(allow)
+        return self.base.allowNegativePreExponentialFactor()
+
+    @allow_negative_pre_exponential_factor.setter
+    def allow_negative_pre_exponential_factor(self, allow: cbool):
+        self.base.setAllowNegativePreExponentialFactor(allow)
 
 
-cdef class ArrheniusRate(ArrheniusRateBase):
+@cython.cclass
+class ArrheniusRate(ArrheniusRateBase):
     r"""
     A reaction rate coefficient which depends on temperature only and follows
     the modified Arrhenius form:
@@ -252,15 +266,18 @@ cdef class ArrheniusRate(ArrheniusRateBase):
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxArrheniusRate(A, b, Ea))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusRate*>self.rate
+        self.base = cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
 
-    cdef CxxArrheniusRate* cxx_object(self):
-        return <CxxArrheniusRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxArrheniusRate):
+        return cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
 
 
-cdef class BlowersMaselRate(ArrheniusRateBase):
+@cython.cclass
+class BlowersMaselRate(ArrheniusRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
@@ -279,22 +296,25 @@ cdef class BlowersMaselRate(ArrheniusRateBase):
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusBase*>self.rate
+        self.base = cython.cast(cython.pointer(CxxArrheniusBase), self.rate)
 
-    cdef CxxBlowersMaselRate* cxx_object(self):
-        return <CxxBlowersMaselRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxBlowersMaselRate):
+        return cython.cast(cython.pointer(CxxBlowersMaselRate), self.rate)
 
-    property bond_energy:
+    @property
+    def bond_energy(self):
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
         """
-        def __get__(self):
-            return self.cxx_object().bondEnergy()
+        return self.cxx_object().bondEnergy()
 
-    property delta_enthalpy:
+    @property
+    def delta_enthalpy(self):
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -308,13 +328,15 @@ cdef class BlowersMaselRate(ArrheniusRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.cxx_object().deltaH()
-        def __set__(self, double delta_H):
-            self.cxx_object().setDeltaH(delta_H)
+        return self.cxx_object().deltaH()
+
+    @delta_enthalpy.setter
+    def delta_enthalpy(self, delta_H: cython.double):
+        self.cxx_object().setDeltaH(delta_H)
 
 
-cdef class TwoTempPlasmaRate(ArrheniusRateBase):
+@cython.cclass
+class TwoTempPlasmaRate(ArrheniusRateBase):
     r"""
     A reaction rate coefficient which depends on both gas and electron temperature
     with the form similar to the modified Arrhenius form. Specifically, the temperature
@@ -342,7 +364,7 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
                 Ea_electron = None
             self._cinit(input_data, A=A, b=b, Ea_gas=Ea_gas, Ea_electron=Ea_electron)
 
-    def __call__(self, double temperature, double elec_temp):
+    def __call__(self, temperature: cython.double, elec_temp: cython.double):
         """
         Evaluate rate expression based on temperature and enthalpy change of reaction.
         """
@@ -356,22 +378,25 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
     def _from_parameters(self, A, b, Ea_gas, Ea_electron):
         self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusBase*>self.rate
+        self.base = cython.cast(cython.pointer(CxxArrheniusBase), self.rate)
 
-    cdef CxxTwoTempPlasmaRate* cxx_object(self):
-        return <CxxTwoTempPlasmaRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxTwoTempPlasmaRate):
+        return cython.cast(cython.pointer(CxxTwoTempPlasmaRate), self.rate)
 
-    property activation_electron_energy:
+    @property
+    def activation_electron_energy(self):
         """
         The activation electron energy :math:`E_{a,e}` [J/kmol].
         """
-        def __get__(self):
-            return self.cxx_object().activationElectronEnergy()
+        return self.cxx_object().activationElectronEnergy()
 
 
-cdef class ElectronCollisionPlasmaRate(ReactionRate):
+@cython.cclass
+class ElectronCollisionPlasmaRate(ReactionRate):
     r"""
     A reaction rate coefficient which depends on electron collision cross section
     and electron energy distribution
@@ -392,7 +417,7 @@ cdef class ElectronCollisionPlasmaRate(ReactionRate):
                 raise TypeError("Invalid input parameters")
             self.set_cxx_object()
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data: dict):
         self._rate.reset(
             new CxxElectronCollisionPlasmaRate(py_to_anymap(input_data, hyphenize=True))
         )
@@ -402,47 +427,47 @@ cdef class ElectronCollisionPlasmaRate(ReactionRate):
         if len(energy_levels) != len(cross_sections):
             raise ValueError('Length of energy levels and '
                              'cross sections are different')
-        cdef np.ndarray[np.double_t, ndim=1] data_energy_levels = \
-            np.ascontiguousarray(energy_levels, dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] data_cross_sections = \
-            np.ascontiguousarray(cross_sections, dtype=np.double)
+        data_energy_levels = np.ascontiguousarray(energy_levels, dtype=np.double)
+        data_cross_sections = np.ascontiguousarray(cross_sections, dtype=np.double)
         input_data = {'type': 'electron-collision-plasma',
                       'energy-levels': data_energy_levels,
                       'cross-sections': data_cross_sections}
         self._from_dict(input_data)
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxElectronCollisionPlasmaRate*>self.rate
+        self.base = cython.cast(cython.pointer(CxxElectronCollisionPlasmaRate), self.rate)
 
-    property energy_levels:
+    @property
+    def energy_levels(self):
         """
         The energy levels [eV]. Each level corresponds to a cross section
         of `cross_sections`.
         """
-        def __get__(self):
-            cdef span[const_double] levels = self.base.energyLevels()
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(levels.size())
-            cdef size_t i
-            for i in range(levels.size()):
-                data[i] = levels[i]
-            return data
+        levels: span[const_double] = self.base.energyLevels()
+        data = np.empty(levels.size())
+        i: cython.size_t
+        for i in range(levels.size()):
+            data[i] = levels[i]
+        return data
 
-    property cross_sections:
+    @property
+    def cross_sections(self):
         """
         The cross sections [m2]. Each cross section corresponds to a energy
         level of `energy_levels`.
         """
-        def __get__(self):
-            cdef span[const_double] cross_sections = self.base.crossSections()
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(cross_sections.size())
-            cdef size_t i
-            for i in range(cross_sections.size()):
-                data[i] = cross_sections[i]
-            return data
+        cxsections: span[const_double] = self.base.crossSections()
+        data = np.empty(cxsections.size())
+        i: cython.size_t
+        for i in range(cxsections.size()):
+            data[i] = cxsections[i]
+        return data
 
 
-cdef class FalloffRate(ReactionRate):
+@cython.cclass
+class FalloffRate(ReactionRate):
     """
     Base class for parameterizations used to describe the fall-off in reaction rates
     due to intermolecular energy transfer.
@@ -476,89 +501,101 @@ cdef class FalloffRate(ReactionRate):
                     falloff_coeffs = ()
                 self.falloff_coeffs = falloff_coeffs
 
-    def __call__(self, double temperature, double concm):
+    def __call__(self, temperature: cython.double, concm: cython.double):
         """
         Evaluate rate expression based on temperature and third-body concentration.
         """
         return self.rate.eval(temperature, concm)
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate*>self.rate
+        self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
-    property low_rate:
+    @property
+    def low_rate(self):
         """ Get/Set the `ArrheniusRate` rate constant in the low-pressure limit """
-        def __get__(self):
-            # Copy the C++ ArrheniusRate object that is returned by reference
-            cdef CxxArrheniusRate* low = &self.falloff.lowRate()
-            cdef shared_ptr[CxxReactionRate] rate_ptr
-            rate_ptr.reset(new CxxArrheniusRate(deref(low)))
-            return ArrheniusRate.wrap(rate_ptr)
+        # Copy the C++ ArrheniusRate object that is returned by reference
+        low: cython.pointer(CxxArrheniusRate) = cython.address(self.falloff.lowRate())
+        rate_ptr: shared_ptr[CxxReactionRate]
+        rate_ptr.reset(new CxxArrheniusRate(low[0]))
+        return ArrheniusRate.wrap(rate_ptr)
 
-        def __set__(self, rate):
-            if isinstance(rate, ArrheniusRate):
-                self.falloff.setLowRate(
-                    deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
-            else:
-                raise TypeError("FalloffRate.low_rate setter: Expected 'ArrheniusRate'"
-                    f"but got '{type(rate).__name__}'")
+    @low_rate.setter
+    def low_rate(self, rate):
+        if isinstance(rate, ArrheniusRate):
+            self.falloff.setLowRate(
+                cython.cast(cython.pointer(CxxArrheniusRate),
+                    cython.cast(ArrheniusRate, rate).rate)[0])
+        else:
+            raise TypeError("FalloffRate.low_rate setter: Expected 'ArrheniusRate'"
+                f"but got '{type(rate).__name__}'")
 
-    property high_rate:
+    @property
+    def high_rate(self):
         """ Get/Set the `ArrheniusRate` rate constant in the high-pressure limit """
-        def __get__(self):
-            # Copy the C++ ArrheniusRate object that is returned by reference
-            cdef CxxArrheniusRate* high = &self.falloff.highRate()
-            cdef shared_ptr[CxxReactionRate] rate_ptr
-            rate_ptr.reset(new CxxArrheniusRate(deref(high)))
-            return ArrheniusRate.wrap(rate_ptr)
+        # Copy the C++ ArrheniusRate object that is returned by reference
+        high: cython.pointer(CxxArrheniusRate) = cython.address(self.falloff.highRate())
+        rate_ptr: shared_ptr[CxxReactionRate]
+        rate_ptr.reset(new CxxArrheniusRate(high[0]))
+        return ArrheniusRate.wrap(rate_ptr)
 
-        def __set__(self, rate):
-            if isinstance(rate, ArrheniusRate):
-                self.falloff.setHighRate(
-                    deref(<CxxArrheniusRate*>((<ArrheniusRate>rate).rate)))
-            else:
-                raise TypeError("FalloffRate.high_rate setter: Expected 'ArrheniusRate'"
-                    f"but got '{type(rate).__name__}'")
+    @high_rate.setter
+    def high_rate(self, rate):
+        if isinstance(rate, ArrheniusRate):
+            self.falloff.setHighRate(
+                cython.cast(cython.pointer(CxxArrheniusRate),
+                    cython.cast(ArrheniusRate, rate).rate)[0])
+        else:
+            raise TypeError("FalloffRate.high_rate setter: Expected 'ArrheniusRate'"
+                f"but got '{type(rate).__name__}'")
 
-    property falloff_coeffs:
+    @property
+    def falloff_coeffs(self):
         """ The array of coefficients used to define this falloff function. """
-        def __get__(self):
-            cdef size_t n = self.falloff.nParameters()
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n)
-            if n:
-                self.falloff.getFalloffCoeffs(span[double](&data[0], n))
-            return data
+        n: cython.size_t = self.falloff.nParameters()
+        data = np.empty(n)
+        if n:
+            cdata: cython.double[::1] = data
+            self.falloff.getFalloffCoeffs(span[cython.double](
+                cython.address(cdata[0]), cython.cast(cython.size_t, n)))
+        return data
 
-        def __set__(self, data):
-            cdef vector[double] cxxdata
-            for c in data:
-                cxxdata.push_back(c)
-            if cxxdata.size():
-                self.falloff.setFalloffCoeffs(
-                    span[double](&cxxdata[0], cxxdata.size()))
-            else:
-                self.falloff.setFalloffCoeffs(span[double]())
+    @falloff_coeffs.setter
+    def falloff_coeffs(self, data):
+        cxxdata: vector[cython.double]
+        for c in data:
+            cxxdata.push_back(c)
+        if cxxdata.size():
+            self.falloff.setFalloffCoeffs(
+                span[cython.double](cython.address(cxxdata[0]), cxxdata.size()))
+        else:
+            self.falloff.setFalloffCoeffs(span[cython.double]())
 
-    property allow_negative_pre_exponential_factor:
+    @property
+    def allow_negative_pre_exponential_factor(self):
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
         """
-        def __get__(self):
-            return self.falloff.allowNegativePreExponentialFactor()
-        def __set__(self, cbool allow):
-            self.falloff.setAllowNegativePreExponentialFactor(allow)
+        return self.falloff.allowNegativePreExponentialFactor()
 
-    property chemically_activated:
+    @allow_negative_pre_exponential_factor.setter
+    def allow_negative_pre_exponential_factor(self, allow: cbool):
+        self.falloff.setAllowNegativePreExponentialFactor(allow)
+
+    @property
+    def chemically_activated(self):
         """
         Get whether the object is a chemically-activated reaction rate.
         """
-        def __get__(self):
-            return self.falloff.chemicallyActivated()
-        def __set__(self, cbool activated):
-            self.falloff.setChemicallyActivated(activated)
+        return self.falloff.chemicallyActivated()
 
-    def falloff_function(self, double temperature, double conc3b):
+    @chemically_activated.setter
+    def chemically_activated(self, activated: cbool):
+        self.falloff.setChemicallyActivated(activated)
+
+    def falloff_function(self, temperature: cython.double, conc3b: cython.double):
         """
         Evaluate the falloff function based on temperature and third-body
         concentration.
@@ -566,7 +603,8 @@ cdef class FalloffRate(ReactionRate):
         return self.falloff.evalF(temperature, conc3b)
 
 
-cdef class LindemannRate(FalloffRate):
+@cython.cclass
+class LindemannRate(FalloffRate):
     r"""
     The Lindemann falloff parameterization.
 
@@ -579,12 +617,14 @@ cdef class LindemannRate(FalloffRate):
             new CxxLindemannRate(py_to_anymap(input_data, hyphenize=True))
         )
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate*>self.rate
+        self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
 
-cdef class TroeRate(FalloffRate):
+@cython.cclass
+class TroeRate(FalloffRate):
     r"""
     The 3- or 4-parameter Troe falloff function.
 
@@ -599,12 +639,14 @@ cdef class TroeRate(FalloffRate):
             new CxxTroeRate(py_to_anymap(input_data, hyphenize=True))
         )
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate*>self.rate
+        self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
 
-cdef class SriRate(FalloffRate):
+@cython.cclass
+class SriRate(FalloffRate):
     r"""
     The 3- or 5-parameter SRI falloff function.
 
@@ -619,12 +661,14 @@ cdef class SriRate(FalloffRate):
             new CxxSriRate(py_to_anymap(input_data, hyphenize=True))
         )
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate*>self.rate
+        self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
 
-cdef class TsangRate(FalloffRate):
+@cython.cclass
+class TsangRate(FalloffRate):
     r"""
     The Tsang falloff parameterization.
     """
@@ -635,12 +679,14 @@ cdef class TsangRate(FalloffRate):
             new CxxTsangRate(py_to_anymap(input_data, hyphenize=True))
         )
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate*>self.rate
+        self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
 
-cdef class PlogRate(ReactionRate):
+@cython.cclass
+class PlogRate(ReactionRate):
     r"""
     A pressure-dependent reaction rate parameterized by logarithmically
     interpolating between Arrhenius rate expressions at various pressures.
@@ -663,43 +709,48 @@ cdef class PlogRate(ReactionRate):
                 raise TypeError("Invalid parameter 'rates'")
             self.set_cxx_object()
 
-    def __call__(self, double temperature, double pressure):
+    def __call__(self, temperature: cython.double, pressure: cython.double):
         """
         Evaluate rate expression based on temperature and pressure.
         """
         return self.rate.eval(temperature, pressure)
 
-    cdef CxxPlogRate* cxx_object(self):
-        return <CxxPlogRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxPlogRate):
+        return cython.cast(cython.pointer(CxxPlogRate), self.rate)
 
-    property rates:
+    @property
+    def rates(self):
         """
         Get/Set the rate coefficients for this reaction, which are given as a
         list of (pressure, `ArrheniusRate`) tuples.
         """
-        def __get__(self):
-            rates = []
-            cdef multimap[double, CxxArrheniusRate] cxxrates
-            cdef pair[double, CxxArrheniusRate] p_rate
-            cdef shared_ptr[CxxReactionRate] rate_ptr
-            cxxrates = self.cxx_object().getRates()
-            for p_rate in cxxrates:
-                rate_ptr.reset(new CxxArrheniusRate(p_rate.second))
-                rates.append((p_rate.first, ArrheniusRate.wrap(rate_ptr)))
-            return rates
+        rates = []
+        cxxrates: multimap[cython.double, CxxArrheniusRate]
+        p_rate: pair[cython.double, CxxArrheniusRate]
+        rate_ptr: shared_ptr[CxxReactionRate]
+        cxxrates = self.cxx_object().getRates()
+        for p_rate in cxxrates:
+            rate_ptr.reset(new CxxArrheniusRate(p_rate.second))
+            rates.append((p_rate.first, ArrheniusRate.wrap(rate_ptr)))
+        return rates
 
-        def __set__(self, rates):
-            cdef multimap[double, CxxArrheniusRate] ratemap
-            cdef pair[double, CxxArrheniusRate] item
-            for p, rate in rates:
-                item.first = p
-                item.second = deref(<CxxArrheniusRate*>(<ArrheniusRate>rate).rate)
-                ratemap.insert(item)
+    @rates.setter
+    def rates(self, rates):
+        ratemap: multimap[cython.double, CxxArrheniusRate]
+        item: pair[cython.double, CxxArrheniusRate]
+        for p, rate in rates:
+            item.first = p
+            item.second = cython.cast(cython.pointer(CxxArrheniusRate),
+                cython.cast(ArrheniusRate, rate).rate)[0]
+            ratemap.insert(item)
 
-            self._rate.reset(new CxxPlogRate(ratemap))
-            self.rate = self._rate.get()
+        self._rate.reset(new CxxPlogRate(ratemap))
+        self.rate = self._rate.get()
 
-cdef class LinearBurkeRate(ReactionRate):
+
+@cython.cclass
+class LinearBurkeRate(ReactionRate):
     r"""
     A reaction rate dependent on both pressure and mixture composition that accounts for
     collisions between reactants and bath gas species.
@@ -718,10 +769,13 @@ cdef class LinearBurkeRate(ReactionRate):
                 raise ValueError("No input data provided")
             self.set_cxx_object()
 
-    cdef CxxLinearBurkeRate* cxx_object(self):
-        return <CxxLinearBurkeRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxLinearBurkeRate):
+        return cython.cast(cython.pointer(CxxLinearBurkeRate), self.rate)
 
-cdef class ChebyshevRate(ReactionRate):
+
+@cython.cclass
+class ChebyshevRate(ReactionRate):
     r"""
     A pressure-dependent reaction rate parameterized by a bivariate Chebyshev polynomial
     in temperature and pressure.
@@ -752,68 +806,74 @@ cdef class ChebyshevRate(ReactionRate):
                 raise TypeError("Invalid parameters")
             self.set_cxx_object()
 
-    def __call__(self, double temperature, double pressure):
+    def __call__(self, temperature: cython.double, pressure: cython.double):
         """
         Evaluate rate expression based on temperature and pressure.
         """
         return self.rate.eval(temperature, pressure)
 
-    cdef CxxArray2D _cxxarray2d(self, coeffs):
+    @cython.cfunc
+    def _cxxarray2d(self, coeffs) -> CxxArray2D:
         """ Internal function to assign coefficient matrix values """
-        cdef CxxArray2D data
+        data: CxxArray2D
         if isinstance(coeffs, np.ndarray):
             coeffs = coeffs.tolist()
         data.resize(len(coeffs), len(coeffs[0]))
-        cdef double value
-        cdef int i
-        cdef int j
-        for i,row in enumerate(coeffs):
-            for j,value in enumerate(row):
+        value: cython.double
+        i: cython.int
+        j: cython.int
+        for i, row in enumerate(coeffs):
+            for j, value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
 
         return data
 
-    cdef CxxChebyshevRate* cxx_object(self):
-        return <CxxChebyshevRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxChebyshevRate):
+        return cython.cast(cython.pointer(CxxChebyshevRate), self.rate)
 
-    property temperature_range:
+    @property
+    def temperature_range(self):
         """ Valid temperature range [K] for the Chebyshev fit """
-        def __get__(self):
-            return self.cxx_object().Tmin(), self.cxx_object().Tmax()
+        return self.cxx_object().Tmin(), self.cxx_object().Tmax()
 
-    property pressure_range:
+    @property
+    def pressure_range(self):
         """ Valid pressure range [Pa] for the Chebyshev fit """
-        def __get__(self):
-            return self.cxx_object().Pmin(), self.cxx_object().Pmax()
+        return self.cxx_object().Pmin(), self.cxx_object().Pmax()
 
-    property n_temperature:
+    @property
+    def n_temperature(self):
         """
         Number of temperatures over which the Chebyshev fit is computed.
         (same as number of rows of `data` property).
         """
-        def __get__(self):
-            return self.cxx_object().nTemperature()
+        return self.cxx_object().nTemperature()
 
-    property n_pressure:
+    @property
+    def n_pressure(self):
         """
         Number of pressures over which the Chebyshev fit is computed
         (same as number of columns of `data` property).
         """
-        def __get__(self):
-            return self.cxx_object().nPressure()
+        return self.cxx_object().nPressure()
 
-    property data:
+    @property
+    def data(self):
         """
         2D array of Chebyshev coefficients where rows and columns correspond to
         temperature and pressure dimensions over which the Chebyshev fit is computed.
         """
-        def __get__(self):
-            cdef CxxArray2D cxxcoeffs = self.cxx_object().data()
-            c = np.fromiter(cxxcoeffs.data(), np.double)
-            return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
+        # Must split declaration and assignment: 'data()' returns CxxArray2D&
+        # and assigning it to a typed local copies the value into a CxxArray2D
+        cxxcoeffs: CxxArray2D
+        cxxcoeffs = self.cxx_object().data()
+        c = np.fromiter(cxxcoeffs.data(), np.double)
+        return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
 
-cdef class CustomRate(ReactionRate):
+@cython.cclass
+class CustomRate(ReactionRate):
     r"""
     A custom rate coefficient which depends on temperature only.
 
@@ -840,8 +900,9 @@ cdef class CustomRate(ReactionRate):
                 raise TypeError(
                     f"Cannot convert input with type '{type(k)}' to rate expression.")
 
-    cdef CxxCustomFunc1Rate* cxx_object(self):
-        return <CxxCustomFunc1Rate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxCustomFunc1Rate):
+        return cython.cast(cython.pointer(CxxCustomFunc1Rate), self.rate)
 
     def set_rate_function(self, k):
         r"""
@@ -862,7 +923,8 @@ cdef class CustomRate(ReactionRate):
         self.cxx_object().setRateFunction(self._rate_func._func)
 
 
-cdef class ExtensibleRate(ReactionRate):
+@cython.cclass
+class ExtensibleRate(ReactionRate):
     """
     A base class for a user-defined reaction rate parameterization. Classes derived from
     this class should be decorated with the `extension` decorator to specify the name
@@ -899,7 +961,7 @@ cdef class ExtensibleRate(ReactionRate):
         if input_data is not None:
             self.set_parameters(input_data, UnitStack())
 
-    def set_parameters(self, params: AnyMap, rate_coeff_units: UnitStack) -> None:
+    def set_parameters(self, params, rate_coeff_units) -> None:
         """
         Responsible for setting rate parameters based on the input data. For example,
         for reactions created from YAML, ``params`` is the YAML reaction entry converted
@@ -913,7 +975,7 @@ cdef class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
 
-    def get_parameters(self, params: AnyMap) -> None:
+    def get_parameters(self, params) -> None:
         """
         Responsible for serializing the state of the ExtensibleRate object, using the
         same format as a YAML reaction entry. This is the inverse of `set_parameters`.
@@ -925,7 +987,7 @@ cdef class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_parameters")
 
-    def eval(self, data: ExtensibleRateData) -> float:
+    def eval(self, data) -> float:
         """
         Responsible for calculating the forward rate constant based on the current state
         of the phase, stored in an instance of a class derived from
@@ -942,17 +1004,19 @@ cdef class ExtensibleRate(ReactionRate):
         """
         pass
 
-    cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
-        cdef CxxDelegator* drate
-        cdef shared_ptr[CxxExternalHandle] handle
+    @cython.cfunc
+    def set_cxx_object(self, rate: cython.pointer(CxxReactionRate) = cython.NULL):
+        drate: cython.pointer(CxxDelegator)
+        handle: shared_ptr[CxxExternalHandle]
 
-        if rate is NULL:
+        if rate is cython.NULL:
             # Started with Python object first. Create the C++ object and attach to it.
             # In this case, the Python object owns the C++ object, via self._rate
             self._rate.reset(new CxxReactionRateDelegator())
             self.rate = self._rate.get()
             drate = dynamic_cast[CxxDelegatorPtr](self.rate)
-            handle.reset(new CxxPythonHandle(<PyObject*>self, True))
+            handle.reset(new CxxPythonHandle(
+                cython.cast(cython.pointer(PyObject), self), True))
             drate.holdExternalHandle(stringify('python'), handle)
         else:
             # Set up Python object from a C++ object that was created first. In this
@@ -962,11 +1026,12 @@ cdef class ExtensibleRate(ReactionRate):
             self.rate = rate
 
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
-        (<CxxReactionRateDelegator*>self.rate).setType(
+        cython.cast(cython.pointer(CxxReactionRateDelegator), self.rate).setType(
             stringify(self._reaction_rate_type))
 
 
-cdef class ExtensibleRateData:
+@cython.cclass
+class ExtensibleRateData:
     """
     A base class for data used when evaluating instances of `ExtensibleRate`. Classes
     derived from `ExtensibleRateData` are used to store common data needed to evaluate
@@ -994,17 +1059,19 @@ cdef class ExtensibleRateData:
         """
         raise NotImplementedError(f"{self.__class__.__name__}.update")
 
-    cdef set_cxx_object(self, CxxReactionDataDelegator* data):
+    @cython.cfunc
+    def set_cxx_object(self, data: cython.pointer(CxxReactionDataDelegator)):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](data))
 
 
-cdef class InterfaceRateBase(ArrheniusRateBase):
+@cython.cclass
+class InterfaceRateBase(ArrheniusRateBase):
     """
     Base class collecting commonly used features of Arrhenius-type rate objects
     that include coverage dependencies.
     """
 
-    def __call__(self, double temperature, np.ndarray coverages):
+    def __call__(self, temperature: cython.double, coverages: np.ndarray):
         """
         Evaluate rate expression based on temperature and surface coverages.
 
@@ -1013,12 +1080,13 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
             This method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        cdef vector[double] cxxdata
+        cxxdata: vector[cython.double]
         for c in coverages:
             cxxdata.push_back(c)
         return self.rate.eval(temperature, cxxdata)
 
-    property coverage_dependencies:
+    @property
+    def coverage_dependencies(self):
         """
         Get/set a dictionary containing adjustments to the Arrhenius rate expression
         dependent on surface species coverages. The keys of the dictionary are species
@@ -1027,26 +1095,27 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         factor [m, kmol, s units], the temperature exponent [nondimensional],
         and the activation energy [J/kmol], respectively.
         """
-        def __get__(self):
-            cdef CxxAnyMap cxx_deps
-            self.interface.getCoverageDependencies(cxx_deps)
-            return anymap_to_py(cxx_deps)
-        def __set__(self, deps):
-            cdef CxxAnyMap cxx_deps = py_to_anymap(deps)
+        cxx_deps: CxxAnyMap
+        self.interface.getCoverageDependencies(cxx_deps)
+        return anymap_to_py(cxx_deps)
 
-            self.interface.setCoverageDependencies(cxx_deps)
+    @coverage_dependencies.setter
+    def coverage_dependencies(self, deps):
+        cxx_deps: CxxAnyMap = py_to_anymap(deps)
+        self.interface.setCoverageDependencies(cxx_deps)
 
     def set_species(self, species):
         """
         Set association with an ordered list of all species associated with an
         `InterfaceKinetics` object.
         """
-        cdef vector[string] cxxvector
+        cxxvector: vector[string]
         for s in species:
             cxxvector.push_back(stringify(s))
         self.interface.setSpecies(cxxvector)
 
-    property site_density:
+    @property
+    def site_density(self):
         """
         Site density [kmol/m²].
 
@@ -1060,27 +1129,29 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.interface.siteDensity()
-        def __set__(self, double site_density):
-            self.interface.setSiteDensity(site_density)
+        return self.interface.siteDensity()
 
-    property uses_electrochemistry:
+    @site_density.setter
+    def site_density(self, site_density: cython.double):
+        self.interface.setSiteDensity(site_density)
+
+    @property
+    def uses_electrochemistry(self):
         """
         Return boolean flag indicating whether rate involves a charge transfer.
         """
-        def __get__(self):
-            return self.interface.usesElectrochemistry()
+        return self.interface.usesElectrochemistry()
 
-    property beta:
+    @property
+    def beta(self):
         """
         Return the charge transfer beta parameter
         """
-        def __get__(self):
-            return self.interface.beta()
+        return self.interface.beta()
 
 
-cdef class InterfaceArrheniusRate(InterfaceRateBase):
+@cython.cclass
+class InterfaceArrheniusRate(InterfaceRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and interface coverage
     """
@@ -1097,16 +1168,19 @@ cdef class InterfaceArrheniusRate(InterfaceRateBase):
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxInterfaceArrheniusRate(A, b, Ea))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusRate*>self.rate
-        self.interface = <CxxInterfaceRateBase*>self.cxx_object()
+        self.base = cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
+        self.interface = cython.cast(cython.pointer(CxxInterfaceRateBase), self.cxx_object())
 
-    cdef CxxInterfaceArrheniusRate* cxx_object(self):
-        return <CxxInterfaceArrheniusRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxInterfaceArrheniusRate):
+        return cython.cast(cython.pointer(CxxInterfaceArrheniusRate), self.rate)
 
 
-cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
+@cython.cclass
+class InterfaceBlowersMaselRate(InterfaceRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
@@ -1125,23 +1199,26 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxInterfaceBlowersMaselRate(A, b, Ea0, w))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusRate*>self.rate
-        self.interface = <CxxInterfaceRateBase*>self.cxx_object()
+        self.base = cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
+        self.interface = cython.cast(cython.pointer(CxxInterfaceRateBase), self.cxx_object())
 
-    cdef CxxInterfaceBlowersMaselRate* cxx_object(self):
-        return <CxxInterfaceBlowersMaselRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxInterfaceBlowersMaselRate):
+        return cython.cast(cython.pointer(CxxInterfaceBlowersMaselRate), self.rate)
 
-    property bond_energy:
+    @property
+    def bond_energy(self):
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
         """
-        def __get__(self):
-            return self.cxx_object().bondEnergy()
+        return self.cxx_object().bondEnergy()
 
-    property delta_enthalpy:
+    @property
+    def delta_enthalpy(self):
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -1155,41 +1232,48 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.cxx_object().deltaH()
-        def __set__(self, double delta_H):
-            self.cxx_object().setDeltaH(delta_H)
+        return self.cxx_object().deltaH()
+
+    @delta_enthalpy.setter
+    def delta_enthalpy(self, delta_H: cython.double):
+        self.cxx_object().setDeltaH(delta_H)
 
 
-cdef class StickRateBase(InterfaceRateBase):
+@cython.cclass
+class StickRateBase(InterfaceRateBase):
     """
     Base class collecting commonly used features of Arrhenius-type sticking rate
     objects that include coverage dependencies.
     """
 
-    property motz_wise_correction:
+    @property
+    def motz_wise_correction(self):
         """
         Get/Set a boolean indicating whether to use the correction factor developed by
         Motz & Wise for reactions with high (near-unity) sticking coefficients when
         converting the sticking coefficient to a rate coefficient.
         """
-        def __get__(self):
-            return self.stick.motzWiseCorrection()
-        def __set__(self, cbool motz_wise):
-            self.stick.setMotzWiseCorrection(motz_wise)
+        return self.stick.motzWiseCorrection()
 
-    property sticking_species:
+    @motz_wise_correction.setter
+    def motz_wise_correction(self, motz_wise: cbool):
+        self.stick.setMotzWiseCorrection(motz_wise)
+
+    @property
+    def sticking_species(self):
         """
         The name of the sticking species. Needed only for reactions with
         multiple non-surface reactant species, where the sticking species is
         ambiguous.
         """
-        def __get__(self):
-            return pystr(self.stick.stickingSpecies())
-        def __set__(self, species):
-            self.stick.setStickingSpecies(stringify(species))
+        return pystr(self.stick.stickingSpecies())
 
-    property sticking_order:
+    @sticking_species.setter
+    def sticking_species(self, species):
+        self.stick.setStickingSpecies(stringify(species))
+
+    @property
+    def sticking_order(self):
         """
         The exponent applied to site density (sticking order).
 
@@ -1201,12 +1285,14 @@ cdef class StickRateBase(InterfaceRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.stick.stickingOrder()
-        def __set__(self, double order):
-            self.stick.setStickingOrder(order)
+        return self.stick.stickingOrder()
 
-    property sticking_weight:
+    @sticking_order.setter
+    def sticking_order(self, order: cython.double):
+        self.stick.setStickingOrder(order)
+
+    @property
+    def sticking_weight(self):
         """
         The molecular weight of the sticking species.
 
@@ -1218,13 +1304,15 @@ cdef class StickRateBase(InterfaceRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.stick.stickingWeight()
-        def __set__(self, double weight):
-            self.stick.setStickingWeight(weight)
+        return self.stick.stickingWeight()
+
+    @sticking_weight.setter
+    def sticking_weight(self, weight: cython.double):
+        self.stick.setStickingWeight(weight)
 
 
-cdef class StickingArrheniusRate(StickRateBase):
+@cython.cclass
+class StickingArrheniusRate(StickRateBase):
     r"""
     A surface sticking rate expression based on the Arrhenius parameterization
     """
@@ -1241,17 +1329,20 @@ cdef class StickingArrheniusRate(StickRateBase):
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxStickingArrheniusRate(A, b, Ea))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusRate*>self.rate
-        self.stick = <CxxStickingCoverage*>self.cxx_object()
-        self.interface = <CxxInterfaceRateBase*>self.stick
+        self.base = cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
+        self.stick = cython.cast(cython.pointer(CxxStickingCoverage), self.cxx_object())
+        self.interface = cython.cast(cython.pointer(CxxInterfaceRateBase), self.stick)
 
-    cdef CxxStickingArrheniusRate* cxx_object(self):
-        return <CxxStickingArrheniusRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxStickingArrheniusRate):
+        return cython.cast(cython.pointer(CxxStickingArrheniusRate), self.rate)
 
 
-cdef class StickingBlowersMaselRate(StickRateBase):
+@cython.cclass
+class StickingBlowersMaselRate(StickRateBase):
     r"""
     A surface sticking rate expression based on the Blowers-Masel parameterization
     """
@@ -1268,24 +1359,27 @@ cdef class StickingBlowersMaselRate(StickRateBase):
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxStickingBlowersMaselRate(A, b, Ea0, w))
 
-    cdef set_cxx_object(self):
+    @cython.cfunc
+    def set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrheniusRate*>self.rate
-        self.stick = <CxxStickingCoverage*>self.cxx_object()
-        self.interface = <CxxInterfaceRateBase*>self.stick
+        self.base = cython.cast(cython.pointer(CxxArrheniusRate), self.rate)
+        self.stick = cython.cast(cython.pointer(CxxStickingCoverage), self.cxx_object())
+        self.interface = cython.cast(cython.pointer(CxxInterfaceRateBase), self.stick)
 
-    cdef CxxStickingBlowersMaselRate* cxx_object(self):
-        return <CxxStickingBlowersMaselRate*>self.rate
+    @cython.cfunc
+    def cxx_object(self) -> cython.pointer(CxxStickingBlowersMaselRate):
+        return cython.cast(cython.pointer(CxxStickingBlowersMaselRate), self.rate)
 
-    property bond_energy:
+    @property
+    def bond_energy(self):
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
         """
-        def __get__(self):
-            return self.cxx_object().bondEnergy()
+        return self.cxx_object().bondEnergy()
 
-    property delta_enthalpy:
+    @property
+    def delta_enthalpy(self):
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -1299,13 +1393,15 @@ cdef class StickingBlowersMaselRate(StickRateBase):
             This property is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        def __get__(self):
-            return self.cxx_object().deltaH()
-        def __set__(self, double delta_H):
-            self.cxx_object().setDeltaH(delta_H)
+        return self.cxx_object().deltaH()
+
+    @delta_enthalpy.setter
+    def delta_enthalpy(self, delta_H: cython.double):
+        self.cxx_object().setDeltaH(delta_H)
 
 
-cdef class ThirdBody:
+@cython.cclass
+class ThirdBody:
     r"""
     Class representing third-body collision partners in three-body or falloff reactions.
 
@@ -1336,47 +1432,52 @@ cdef class ThirdBody:
         if default_efficiency is not None:
             self.default_efficiency = default_efficiency
 
+    @cython.cfunc
     @staticmethod
-    cdef wrap(shared_ptr[CxxThirdBody] third_body):
+    def wrap(third_body: shared_ptr[CxxThirdBody]):
         tb = ThirdBody(init=False)
         tb._third_body = third_body
         tb.third_body = tb._third_body.get()
         return tb
 
-    property name:
+    @property
+    def name(self):
         """
         Get the name of the third-body collider used in the reaction equation.
         """
-        def __get__(self):
-            return pystr(self.third_body.name())
+        return pystr(self.third_body.name())
 
-    property mass_action:
+    @property
+    def mass_action(self):
         """
         Retrieve flag indicating whether third-body collider participates
         in the law of mass action.
         """
-        def __get__(self):
-            return self.third_body.mass_action
+        return self.third_body.mass_action
 
-    property efficiencies:
+    @property
+    def efficiencies(self):
         """
         Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
         where the keys are the species names and the values are the efficiencies.
         """
-        def __get__(self):
-            return comp_map_to_dict(self.third_body.efficiencies)
-        def __set__(self, eff):
-            self.third_body.efficiencies = comp_map(eff)
+        return comp_map_to_dict(self.third_body.efficiencies)
 
-    property default_efficiency:
+    @efficiencies.setter
+    def efficiencies(self, eff):
+        self.third_body.efficiencies = comp_map(eff)
+
+    @property
+    def default_efficiency(self):
         """
         Get/Set the default third-body efficiency for this reaction, used for species
         not in `efficiencies`.
         """
-        def __get__(self):
-            return self.third_body.default_efficiency
-        def __set__(self, default_eff):
-            self.third_body.default_efficiency = default_eff
+        return self.third_body.default_efficiency
+
+    @default_efficiency.setter
+    def default_efficiency(self, default_eff):
+        self.third_body.default_efficiency = default_eff
 
     def efficiency(self, species):
         """
@@ -1386,7 +1487,8 @@ cdef class ThirdBody:
         return self.third_body.efficiency(stringify(species))
 
 
-cdef class Reaction:
+@cython.cclass
+class Reaction:
     """
     A class which stores data about a reaction and its rate parameterization so
     that it can be added to a `Kinetics` object.
@@ -1449,7 +1551,7 @@ cdef class Reaction:
         if not init:
             return
 
-        cdef ReactionRate _rate
+        _rate: ReactionRate
         if isinstance(rate, ReactionRate):
             _rate = rate
         elif rate is None:
@@ -1471,7 +1573,7 @@ cdef class Reaction:
         else:
             raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
 
-        cdef ThirdBody _third_body
+        _third_body: ThirdBody
         if isinstance(third_body, ThirdBody):
             _third_body = third_body
         elif isinstance(third_body, str):
@@ -1508,13 +1610,14 @@ cdef class Reaction:
         self.reaction = self._reaction.get()
         self._rate = _rate
 
+    @cython.cfunc
     @staticmethod
-    cdef wrap(shared_ptr[CxxReaction] reaction):
+    def wrap(reaction: shared_ptr[CxxReaction]):
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
         # wrap C++ reaction
-        cdef Reaction R
+        R: Reaction
         R = Reaction(init=False)
         R._reaction = reaction
         R.reaction = R._reaction.get()
@@ -1522,7 +1625,7 @@ cdef class Reaction:
         return R
 
     @classmethod
-    def from_dict(cls, data, Kinetics kinetics, hyphenize=True):
+    def from_dict(cls, data, kinetics: Kinetics, hyphenize=True):
         """
         Create a `Reaction` object from a dictionary corresponding to its YAML
         representation. By default, underscores in keys are replaced by hyphens.
@@ -1542,12 +1645,12 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        cdef CxxAnyMap any_map = py_to_anymap(data, hyphenize=hyphenize)
-        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
+        any_map: CxxAnyMap = py_to_anymap(data, hyphenize=hyphenize)
+        cxx_reaction = CxxNewReaction(any_map, kinetics.kinetics[0])
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
-    def from_yaml(cls, text, Kinetics kinetics):
+    def from_yaml(cls, text, kinetics: Kinetics):
         """
         Create a `Reaction` object from its YAML string representation.
 
@@ -1566,12 +1669,12 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        cdef CxxAnyMap any_map = AnyMapFromYamlString(stringify(text))
-        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
+        any_map: CxxAnyMap = AnyMapFromYamlString(stringify(text))
+        cxx_reaction = CxxNewReaction(any_map, kinetics.kinetics[0])
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
-    def list_from_file(filename, Kinetics kinetics, section="reactions"):
+    def list_from_file(filename, kinetics: Kinetics, section="reactions"):
         """
         Create a list of Reaction objects from all of the reactions defined in a
         YAML file. Reactions from the section ``section`` will be returned.
@@ -1581,45 +1684,46 @@ cdef class Reaction:
         """
         root = AnyMapFromYamlFile(stringify(str(filename)))
         cxx_reactions = CxxGetReactions(root[stringify(section)],
-                                        deref(kinetics.kinetics))
+                                        kinetics.kinetics[0])
         return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
-    def list_from_yaml(text, Kinetics kinetics):
+    def list_from_yaml(text, kinetics: Kinetics):
         """
         Create a list of `Reaction` objects from all the reactions defined in a
         YAML string.
         """
         root = AnyMapFromYamlString(stringify(text))
         cxx_reactions = CxxGetReactions(root[stringify("items")],
-                                        deref(kinetics.kinetics))
+                                        kinetics.kinetics[0])
         return [Reaction.wrap(r) for r in cxx_reactions]
 
-    property reactant_string:
+    @property
+    def reactant_string(self):
         """
         A string representing the reactants side of the chemical equation for
         this reaction. Determined automatically based on `reactants`.
         """
-        def __get__(self):
-            return pystr(self.reaction.reactantString())
+        return pystr(self.reaction.reactantString())
 
-    property product_string:
+    @property
+    def product_string(self):
         """
         A string representing the products side of the chemical equation for
         this reaction. Determined automatically based on `products`.
         """
-        def __get__(self):
-            return pystr(self.reaction.productString())
+        return pystr(self.reaction.productString())
 
-    property equation:
+    @property
+    def equation(self):
         """
         A string giving the chemical equation for this reaction. Determined
         automatically based on `reactants` and `products`.
         """
-        def __get__(self):
-            return pystr(self.reaction.equation())
+        return pystr(self.reaction.equation())
 
-    property reactants:
+    @property
+    def reactants(self):
         """
         Get/Set the reactants in this reaction as a dict where the keys are
         species names and the values, are the stoichiometric coefficients, for example
@@ -1628,10 +1732,10 @@ cdef class Reaction:
 
         .. versionchanged:: 3.1  This is a read-only property
         """
-        def __get__(self):
-            return comp_map_to_dict(self.reaction.reactants)
+        return comp_map_to_dict(self.reaction.reactants)
 
-    property products:
+    @property
+    def products(self):
         """
         Get/Set the products in this reaction as a dict where the keys are
         species names and the values, are the stoichiometric coefficients, for example
@@ -1640,13 +1744,13 @@ cdef class Reaction:
 
         .. versionchanged:: 3.1  This is a read-only property
         """
-        def __get__(self):
-            return comp_map_to_dict(self.reaction.products)
+        return comp_map_to_dict(self.reaction.products)
 
     def __contains__(self, species):
         return species in self.reactants or species in self.products
 
-    property orders:
+    @property
+    def orders(self):
         """
         Get/Set the reaction order with respect to specific species as a dict
         with species names as the keys and orders as the values, or as a
@@ -1654,90 +1758,102 @@ cdef class Reaction:
         the reaction order for each reactant species equal to each its
         stoichiometric coefficient.
         """
-        def __get__(self):
-            return comp_map_to_dict(self.reaction.orders)
-        def __set__(self, orders):
-            self.reaction.orders = comp_map(orders)
+        return comp_map_to_dict(self.reaction.orders)
 
-    property ID:
+    @orders.setter
+    def orders(self, orders):
+        self.reaction.orders = comp_map(orders)
+
+    @property
+    def ID(self):
         """
         Get/Set the identification string for the reaction, which can be used in
         filtering operations.
         """
-        def __get__(self):
-            return pystr(self.reaction.id)
-        def __set__(self, ID):
-            self.reaction.id = stringify(ID)
+        return pystr(self.reaction.id)
 
-    property reaction_type:
+    @ID.setter
+    def ID(self, ID):
+        self.reaction.id = stringify(ID)
+
+    @property
+    def reaction_type(self):
         """
         Retrieve the native type name of the reaction.
         """
-        def __get__(self):
-            return pystr(self.reaction.type())
+        return pystr(self.reaction.type())
 
-    property rate:
+    @property
+    def rate(self):
         """ Get/Set the reaction rate evaluator for this reaction. """
-        def __get__(self):
-            return self._rate
+        return self._rate
 
-        def __set__(self, rate):
-            if isinstance(rate, ReactionRate):
-                self._rate = rate
-            elif callable(rate):
-                self._rate = CustomRate(rate)
-            else:
-                raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
-            self.reaction.setRate(self._rate._rate)
+    @rate.setter
+    def rate(self, rate):
+        if isinstance(rate, ReactionRate):
+            self._rate = rate
+        elif callable(rate):
+            self._rate = CustomRate(rate)
+        else:
+            raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
+        self.reaction.setRate(self._rate._rate)
 
-    property reversible:
+    @property
+    def reversible(self):
         """
         Get/Set a flag which is `True` if this reaction is reversible or `False`
         otherwise.
         """
-        def __get__(self):
-            return self.reaction.reversible
-        def __set__(self, reversible):
-            self.reaction.reversible = reversible
+        return self.reaction.reversible
 
-    property duplicate:
+    @reversible.setter
+    def reversible(self, reversible):
+        self.reaction.reversible = reversible
+
+    @property
+    def duplicate(self):
         """
         Get/Set a flag which is `True` if this reaction is marked as a duplicate
         or `False` otherwise.
         """
-        def __get__(self):
-            return self.reaction.duplicate
-        def __set__(self, duplicate):
-             self.reaction.duplicate = duplicate
+        return self.reaction.duplicate
 
-    property allow_nonreactant_orders:
+    @duplicate.setter
+    def duplicate(self, duplicate):
+        self.reaction.duplicate = duplicate
+
+    @property
+    def allow_nonreactant_orders(self):
         """
         Get/Set a flag which is `True` if reaction orders can be specified for
         non-reactant species. Default is `False`.
         """
-        def __get__(self):
-            return self.reaction.allow_nonreactant_orders
-        def __set__(self, allow):
-            self.reaction.allow_nonreactant_orders = allow
+        return self.reaction.allow_nonreactant_orders
 
-    property allow_negative_orders:
+    @allow_nonreactant_orders.setter
+    def allow_nonreactant_orders(self, allow):
+        self.reaction.allow_nonreactant_orders = allow
+
+    @property
+    def allow_negative_orders(self):
         """
         Get/Set a flag which is `True` if negative reaction orders are allowed.
         Default is `False`.
         """
-        def __get__(self):
-            return self.reaction.allow_negative_orders
-        def __set__(self, allow):
-            self.reaction.allow_negative_orders = allow
+        return self.reaction.allow_negative_orders
 
-    property input_data:
+    @allow_negative_orders.setter
+    def allow_negative_orders(self, allow):
+        self.reaction.allow_negative_orders = allow
+
+    @property
+    def input_data(self):
         """
         Get input data for this reaction with its current parameter values,
         along with any user-specified data provided with its input (YAML)
         definition.
         """
-        def __get__(self):
-            return anymap_to_py(self.reaction.parameters(True))
+        return anymap_to_py(self.reaction.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -1761,22 +1877,22 @@ cdef class Reaction:
     def __str__(self):
         return self.equation
 
-    property rate_coeff_units:
+    @property
+    def rate_coeff_units(self):
         """Get reaction rate coefficient units"""
-        def __get__(self):
-            cdef CxxUnits rate_units = self.reaction.rate_units
-            return Units.copy(rate_units)
+        rate_units: CxxUnits = self.reaction.rate_units
+        return Units.copy(rate_units)
 
-    property third_body:
+    @property
+    def third_body(self):
         """
         Returns a `ThirdBody` object if `Reaction` uses a third body collider, and
         ``None`` otherwise.
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            if self.reaction.usesThirdBody():
-                return ThirdBody.wrap(self.reaction.thirdBody())
+        if self.reaction.usesThirdBody():
+            return ThirdBody.wrap(self.reaction.thirdBody())
 
     @property
     def third_body_name(self):
