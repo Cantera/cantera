@@ -1,11 +1,16 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from .solutionbase cimport *
-from ._utils cimport *
-from cython.operator import dereference as deref
+# distutils: language = c++
+# cython: language_level=3
 
-cdef class YamlWriter:
+import cython
+from cython.cimports.cantera.solutionbase import _SolutionBase
+from cython.cimports.cantera._utils import stringify, pystr
+
+
+@cython.cclass
+class YamlWriter:
     """
     A class for generating full YAML input files from multiple Solution objects
     """
@@ -13,11 +18,11 @@ cdef class YamlWriter:
         self._writer.reset(new CxxYamlWriter())
         self.writer = self._writer.get()
 
-    def set_header(self, _SolutionBase soln):
+    def set_header(self, soln: _SolutionBase):
         """ Include top-level information for the specified Solution object """
         self.writer.setHeader(soln.base.header())
 
-    def add_solution(self, _SolutionBase soln):
+    def add_solution(self, soln: _SolutionBase):
         """ Include a phase definition for the specified Solution object """
         self.writer.addPhase(soln._base)
 
@@ -35,24 +40,33 @@ cdef class YamlWriter:
         """
         return pystr(self.writer.toYamlString())
 
-    property precision:
+    @property
+    def precision(self):
         """
         For output floating point values, set the maximum number of digits to
         the right of the decimal point. The default is 15 digits.
         """
-        def __set__(self, int precision):
-            self.writer.setPrecision(precision)
+        raise AttributeError("unreadable attribute 'precision'")
 
-    property skip_user_defined:
+    @precision.setter
+    def precision(self, precision: cython.int):
+        self.writer.setPrecision(precision)
+
+    @property
+    def skip_user_defined(self):
         """
         By default user-defined data present in the input is preserved on
         output. This method can be used to skip output of user-defined data
         fields which are not directly used by Cantera.
         """
-        def __set__(self, pybool skip):
-            self.writer.skipUserDefined(skip)
+        raise AttributeError("unreadable attribute 'skip_user_defined'")
 
-    property output_units:
+    @skip_user_defined.setter
+    def skip_user_defined(self, skip: pybool):
+        self.writer.skipUserDefined(skip)
+
+    @property
+    def output_units(self):
         """
         Set the units to be used in the output file. Dimensions not specified
         will use Cantera's defaults.
@@ -62,13 +76,17 @@ cdef class YamlWriter:
             quantity, pressure, energy, activation-energy), and the values are
             corresponding units such as kg, mm, s, kmol, Pa, cal, and eV.
         """
-        def __set__(self, units):
-            if not isinstance(units, UnitSystem):
-                units = UnitSystem(units)
-            self.writer.setUnitSystem(deref(YamlWriter._get_unitsystem(units).get()))
+        raise AttributeError("unreadable attribute 'output_units'")
 
+    @output_units.setter
+    def output_units(self, units):
+        if not isinstance(units, UnitSystem):
+            units = UnitSystem(units)
+        self.writer.setUnitSystem(YamlWriter._get_unitsystem(units).get()[0])
+
+    @cython.cfunc
     @staticmethod
-    cdef shared_ptr[CxxUnitSystem] _get_unitsystem(UnitSystem units):
+    def _get_unitsystem(units: UnitSystem) -> shared_ptr[CxxUnitSystem]:
         return units._unitsystem
 
     def __reduce__(self):
