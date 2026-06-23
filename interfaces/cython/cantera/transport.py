@@ -1,44 +1,68 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cimport numpy as np
+# distutils: language = c++
+# cython: language_level=3
+
 import numpy as np
 
-from ._utils cimport *
-from .thermo cimport ThermoPhase
+import cython
+import cython.cimports.numpy as cnp
+from cython.cimports.cantera._utils import (stringify, pystr, anymap_to_py,
+                                            py_to_anymap)
+from cython.cimports.cantera.solutionbase import _SolutionBase
+from cython.cimports.cantera.thermo import ThermoPhase
+
 
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # such as class Solution. [Cython 0.16]
-cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(tran.thermo.nSpecies())
-    method(tran.transport, span[double](&data[0], data.size))
+@cython.cfunc
+def get_transport_1d(tran: Transport, method: transportMethod1d) -> np.ndarray:
+    data = np.empty(tran.thermo.nSpecies())
+    cdata: cython.double[::1] = data
+    method(tran.transport, span[cython.double](
+        cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
     if tran._selected_species.size:
         return data[tran._selected_species]
     else:
         return data
 
-cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
-    cdef size_t kk = tran.thermo.nSpecies()
+
+@cython.cfunc
+def get_transport_2d(tran: Transport, method: transportMethod2d) -> np.ndarray:
+    kk: cython.size_t = tran.thermo.nSpecies()
     # getMultiDiffCoeffs returns an array using Fortran ordering
-    cdef np.ndarray[np.double_t, ndim=2, mode='fortran'] data = np.empty((kk, kk), order='F')
-    method(tran.transport, kk, span[double](&data[0,0], kk * kk))
+    data = np.empty((kk, kk), order='F')
+    cdata: cython.double[::1, :] = data
+    method(tran.transport, kk, span[cython.double](
+        cython.address(cdata[0, 0]), cython.cast(cython.size_t, kk * kk)))
     return data
 
-cdef np.ndarray get_transport_polynomial(
-        Transport tran, transportPolyMethod1i method, int index, int n_coeffs):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
-    method(tran.transport, index, span[double](&data[0], data.size))
+
+@cython.cfunc
+def get_transport_polynomial(tran: Transport, method: transportPolyMethod1i,
+                             index: cython.int, n_coeffs: cython.int) -> np.ndarray:
+    data = np.empty(n_coeffs)
+    cdata: cython.double[::1] = data
+    method(tran.transport, index, span[cython.double](
+        cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
     return data
 
-cdef np.ndarray get_binary_transport_polynomial(
-        Transport tran, transportPolyMethod2i method, int indexi, int indexj,
-        int n_coeffs):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
-    method(tran.transport, indexi, indexj, span[double](&data[0], data.size))
+
+@cython.cfunc
+def get_binary_transport_polynomial(tran: Transport, method: transportPolyMethod2i,
+                                    indexi: cython.int, indexj: cython.int,
+                                    n_coeffs: cython.int) -> np.ndarray:
+    data = np.empty(n_coeffs)
+    cdata: cython.double[::1] = data
+    method(tran.transport, indexi, indexj, span[cython.double](
+        cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
     return data
 
-cdef class GasTransportData:
+
+@cython.cclass
+class GasTransportData:
     """
     Transport data for a single gas-phase species which can be used in
     mixture-averaged or multicomponent transport models.
@@ -56,11 +80,14 @@ cdef class GasTransportData:
                 diameter, well_depth, dipole, polarizability,
                 rotational_relaxation, acentric_factor,
                 dispersion_coefficient, quadrupole_polarizability))
-            self.data = <CxxGasTransportData*?>self._data.get()
+            self.data = cython.cast(cython.pointer(CxxGasTransportData),
+                                    self._data.get(), typecheck=True)
 
-    cdef _assign(self, shared_ptr[CxxTransportData] other):
+    @cython.cfunc
+    def _assign(self, other: shared_ptr[CxxTransportData]):
         self._data = other
-        self.data = <CxxGasTransportData*?>self._data.get()
+        self.data = cython.cast(cython.pointer(CxxGasTransportData),
+                                self._data.get(), typecheck=True)
 
     def set_customary_units(self, geometry, diameter, well_depth, dipole=0.0,
                             polarizability=0.0, rotational_relaxation=0.0,
@@ -75,13 +102,13 @@ cdef class GasTransportData:
             dipole, polarizability, rotational_relaxation, acentric_factor,
             dispersion_coefficient, quadrupole_polarizability)
 
-    property input_data:
+    @property
+    def input_data(self):
         """
         Get input data defining this GasTransportData object, along with any
         user-specified data provided with its input (YAML) definition.
         """
-        def __get__(self):
-            return anymap_to_py(self.data.parameters(True))
+        return anymap_to_py(self.data.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -99,78 +126,97 @@ cdef class GasTransportData:
         """
         self.data.input.clear()
 
-    property geometry:
+    @property
+    def geometry(self):
         """
         Get/Set the string specifying the molecular geometry. One of `atom`,
         `linear`, or `nonlinear`.
         """
-        def __get__(self):
-            return pystr(self.data.geometry)
-        def __set__(self, geometry):
-            self.data.geometry = stringify(geometry)
+        return pystr(self.data.geometry)
 
-    property diameter:
+    @geometry.setter
+    def geometry(self, geometry):
+        self.data.geometry = stringify(geometry)
+
+    @property
+    def diameter(self):
         """ Get/Set the Lennard-Jones collision diameter [m] """
-        def __get__(self):
-            return self.data.diameter
-        def __set__(self, diameter):
-            self.data.diameter = diameter
+        return self.data.diameter
 
-    property well_depth:
+    @diameter.setter
+    def diameter(self, diameter):
+        self.data.diameter = diameter
+
+    @property
+    def well_depth(self):
         """ Get/Set the Lennard-Jones well depth [J] """
-        def __get__(self):
-            return self.data.well_depth
-        def __set__(self, well_depth):
-            self.data.well_depth = well_depth
+        return self.data.well_depth
 
-    property dipole:
+    @well_depth.setter
+    def well_depth(self, well_depth):
+        self.data.well_depth = well_depth
+
+    @property
+    def dipole(self):
         """ Get/Set the permanent dipole moment of the molecule [Coulomb-m]. """
-        def __get__(self):
-            return self.data.dipole
-        def __set__(self, dipole):
-            self.data.dipole = dipole
+        return self.data.dipole
 
-    property polarizability:
+    @dipole.setter
+    def dipole(self, dipole):
+        self.data.dipole = dipole
+
+    @property
+    def polarizability(self):
         """Get/Set the polarizability of the molecule [m³]."""
-        def __get__(self):
-            return self.data.polarizability
-        def __set__(self, polarizability):
-            self.data.polarizability = polarizability
+        return self.data.polarizability
 
-    property rotational_relaxation:
+    @polarizability.setter
+    def polarizability(self, polarizability):
+        self.data.polarizability = polarizability
+
+    @property
+    def rotational_relaxation(self):
         """
         Get/Set the rotational relaxation number (the number of collisions it
         takes to equilibrate the rotational degrees of freedom with the
         temperature).
         """
-        def __get__(self):
-            return self.data.rotational_relaxation
-        def __set__(self, rotational_relaxation):
-            self.data.rotational_relaxation = rotational_relaxation
+        return self.data.rotational_relaxation
 
-    property acentric_factor:
+    @rotational_relaxation.setter
+    def rotational_relaxation(self, rotational_relaxation):
+        self.data.rotational_relaxation = rotational_relaxation
+
+    @property
+    def acentric_factor(self):
         """Get/Set Pitzer's acentric factor [dimensionless]."""
-        def __get__(self):
-            return self.data.acentric_factor
-        def __set__(self, acentric_factor):
-            self.data.acentric_factor = acentric_factor
+        return self.data.acentric_factor
 
-    property dispersion_coefficient:
+    @acentric_factor.setter
+    def acentric_factor(self, acentric_factor):
+        self.data.acentric_factor = acentric_factor
+
+    @property
+    def dispersion_coefficient(self):
         """Get/Set dispersion coefficient [m⁵]."""
-        def __get__(self):
-            return self.data.dispersion_coefficient
-        def __set__(self, dispersion_coefficient):
-            self.data.dispersion_coefficient = dispersion_coefficient
+        return self.data.dispersion_coefficient
 
-    property quadrupole_polarizability:
+    @dispersion_coefficient.setter
+    def dispersion_coefficient(self, dispersion_coefficient):
+        self.data.dispersion_coefficient = dispersion_coefficient
+
+    @property
+    def quadrupole_polarizability(self):
         """Get/Set quadrupole polarizability [m⁵]."""
-        def __get__(self):
-            return self.data.quadrupole_polarizability
-        def __set__(self, quadrupole_polarizability):
-            self.data.quadrupole_polarizability = quadrupole_polarizability
+        return self.data.quadrupole_polarizability
+
+    @quadrupole_polarizability.setter
+    def quadrupole_polarizability(self, quadrupole_polarizability):
+        self.data.quadrupole_polarizability = quadrupole_polarizability
 
 
-cdef class Transport(_SolutionBase):
+@cython.cclass
+class Transport(_SolutionBase):
     """
     This class is used to compute transport properties for a phase of matter.
 
@@ -184,7 +230,8 @@ cdef class Transport(_SolutionBase):
                 "associated thermo phase.\nAll 'Transport' methods should be accessed "
                 "from a 'Solution' object.")
 
-    property transport_model:
+    @property
+    def transport_model(self):
         """
         Get/Set the string specifying the transport model, such as `multicomponent`,
         `mixture-averaged`, or `unity-Lewis-number`.
@@ -192,90 +239,90 @@ cdef class Transport(_SolutionBase):
         Setting a new transport model deletes the underlying C++ Transport
         object and replaces it with a new one implementing the specified model.
         """
-        def __get__(self):
-            return pystr(self.transport.transportModel())
+        return pystr(self.transport.transportModel())
 
-        def __set__(self, model):
-            self.base.setTransportModel(stringify(model))
+    @transport_model.setter
+    def transport_model(self, model):
+        self.base.setTransportModel(stringify(model))
 
-    property CK_mode:
+    @property
+    def CK_mode(self):
         """Boolean to indicate if the chemkin interpretation is used."""
-        def __get__(self):
-            return self.transport.CKMode()
+        return self.transport.CKMode()
 
-    property viscosity:
+    @property
+    def viscosity(self):
         """Viscosity [Pa-s]."""
-        def __get__(self):
-            return self.transport.viscosity()
+        return self.transport.viscosity()
 
-    property species_viscosities:
+    @property
+    def species_viscosities(self):
         """Pure species viscosities [Pa-s]"""
-        def __get__(self):
-            return get_transport_1d(self, tran_getSpeciesViscosities)
+        return get_transport_1d(self, tran_getSpeciesViscosities)
 
-    property electrical_conductivity:
+    @property
+    def electrical_conductivity(self):
         """Electrical conductivity. [S/m]."""
-        def __get__(self):
-            return self.transport.electricalConductivity()
+        return self.transport.electricalConductivity()
 
-    property thermal_conductivity:
+    @property
+    def thermal_conductivity(self):
         """
         Thermal conductivity. [W/m/K]
         """
-        def __get__(self):
-            return self.transport.thermalConductivity()
+        return self.transport.thermalConductivity()
 
-    property mix_diff_coeffs:
+    @property
+    def mix_diff_coeffs(self):
         """
         Mixture-averaged diffusion coefficients [m²/s] relating the
         mass-averaged diffusive fluxes (with respect to the mass averaged
         velocity) to gradients in the species mole fractions.
         """
-        def __get__(self):
-            return get_transport_1d(self, tran_getMixDiffCoeffs)
+        return get_transport_1d(self, tran_getMixDiffCoeffs)
 
-    property mix_diff_coeffs_mass:
+    @property
+    def mix_diff_coeffs_mass(self):
         """
         Mixture-averaged diffusion coefficients [m²/s] relating the
         diffusive mass fluxes to gradients in the species mass fractions.
         """
-        def __get__(self):
-            return get_transport_1d(self, tran_getMixDiffCoeffsMass)
+        return get_transport_1d(self, tran_getMixDiffCoeffsMass)
 
-    property mix_diff_coeffs_mole:
+    @property
+    def mix_diff_coeffs_mole(self):
         """
         Mixture-averaged diffusion coefficients [m²/s] relating the
         molar diffusive fluxes to gradients in the species mole fractions.
         """
-        def __get__(self):
-            return get_transport_1d(self, tran_getMixDiffCoeffsMole)
+        return get_transport_1d(self, tran_getMixDiffCoeffsMole)
 
-    property thermal_diff_coeffs:
+    @property
+    def thermal_diff_coeffs(self):
         """
         Return a one-dimensional array of the species thermal diffusion
         coefficients [kg/m/s].
         """
-        def __get__(self):
-            return get_transport_1d(self, tran_getThermalDiffCoeffs)
+        return get_transport_1d(self, tran_getThermalDiffCoeffs)
 
-    property multi_diff_coeffs:
+    @property
+    def multi_diff_coeffs(self):
         """Multicomponent diffusion coefficients, D[i,j], the diffusion
         coefficient for species i due to concentration gradients in
         species j [m**2/s]."""
-        def __get__(self):
-            return get_transport_2d(self, tran_getMultiDiffCoeffs)
+        return get_transport_2d(self, tran_getMultiDiffCoeffs)
 
-    property binary_diff_coeffs:
+    @property
+    def binary_diff_coeffs(self):
         """Binary diffusion coefficients [m²/s]."""
-        def __get__(self):
-            return get_transport_2d(self, tran_getBinaryDiffCoeffs)
+        return get_transport_2d(self, tran_getBinaryDiffCoeffs)
 
-    property mobilities:
+    @property
+    def mobilities(self):
         """
         Electrical mobilities of charged species [m²/s/V].
         """
-        def __get__(self):
-            return get_transport_1d(self, tran_getMobilities)
+        return get_transport_1d(self, tran_getMobilities)
 
     def get_viscosity_polynomial(self, i):
         """
@@ -313,14 +360,20 @@ cdef class Transport(_SolutionBase):
         :ct:`GasTransport::fitCollisionIntegrals`.
         """
         n_values = 7 if self.transport.CKMode() else 9
-        cdef np.ndarray[np.double_t, ndim=1] adata = np.empty(n_values)
-        cdef np.ndarray[np.double_t, ndim=1] bdata = np.empty(n_values)
-        cdef np.ndarray[np.double_t, ndim=1] cdata = np.empty(n_values)
+        adata = np.empty(n_values)
+        bdata = np.empty(n_values)
+        cdata_arr = np.empty(n_values)
+        acdata: cython.double[::1] = adata
+        bcdata: cython.double[::1] = bdata
+        ccdata: cython.double[::1] = cdata_arr
         self.transport.getCollisionIntegralPolynomial(i, j,
-            span[double](&adata[0], adata.size),
-            span[double](&bdata[0], bdata.size),
-            span[double](&cdata[0], cdata.size))
-        return adata, bdata, cdata
+            span[cython.double](cython.address(acdata[0]),
+                                cython.cast(cython.size_t, adata.size)),
+            span[cython.double](cython.address(bcdata[0]),
+                                cython.cast(cython.size_t, bdata.size)),
+            span[cython.double](cython.address(ccdata[0]),
+                                cython.cast(cython.size_t, cdata_arr.size)))
+        return adata, bdata, cdata_arr
 
     def set_viscosity_polynomial(self, i, values):
         """
@@ -333,10 +386,11 @@ cdef class Transport(_SolutionBase):
             raise ValueError(
                 f"""Array has incorrect length: expected {n_values} but
                 received {len(values)}.""")
-        cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
-                                                                        dtype=np.double)
+        data = np.ascontiguousarray(values, dtype=np.double)
+        cdata: cython.double[::1] = data
         tran_setViscosityPolynomial(self.transport, i,
-                                    span[double](&data[0], data.size))
+                                    span[cython.double](cython.address(cdata[0]),
+                                                        cython.cast(cython.size_t, data.size)))
 
     def set_thermal_conductivity_polynomial(self, i, values):
         """
@@ -349,10 +403,11 @@ cdef class Transport(_SolutionBase):
             raise ValueError(
                 f"""Array has incorrect length: expected {n_values} but
                 received {len(values)}.""")
-        cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
-                                                                        dtype=np.double)
+        data = np.ascontiguousarray(values, dtype=np.double)
+        cdata: cython.double[::1] = data
         tran_setConductivityPolynomial(self.transport, i,
-                                       span[double](&data[0], data.size))
+                                       span[cython.double](cython.address(cdata[0]),
+                                                           cython.cast(cython.size_t, data.size)))
 
     def set_binary_diff_coeffs_polynomial(self, i, j, values):
         """
@@ -365,10 +420,11 @@ cdef class Transport(_SolutionBase):
             raise ValueError(
                 f"""Array has incorrect length: expected {n_values} but
                 received {len(values)}.""")
-        cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values,
-                                                                        dtype=np.double)
+        data = np.ascontiguousarray(values, dtype=np.double)
+        cdata: cython.double[::1] = data
         tran_setBinDiffusivityPolynomial(self.transport, i, j,
-                                        span[double](&data[0], data.size))
+                                         span[cython.double](cython.address(cdata[0]),
+                                                             cython.cast(cython.size_t, data.size)))
 
     def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues,
                                           actualT=False):
@@ -392,17 +448,22 @@ cdef class Transport(_SolutionBase):
             raise ValueError(
                 f"""Array has incorrect length: expected {n_values} but
                 received {len(cvalues)}.""")
-        cdef np.ndarray[np.double_t, ndim=1] adata = np.ascontiguousarray(avalues,
-                                                                        dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] bdata = np.ascontiguousarray(bvalues,
-                                                                        dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] cdata = np.ascontiguousarray(cvalues,
-                                                                        dtype=np.double)
+        adata = np.ascontiguousarray(avalues, dtype=np.double)
+        bdata = np.ascontiguousarray(bvalues, dtype=np.double)
+        cdata_arr = np.ascontiguousarray(cvalues, dtype=np.double)
+        acdata: cython.double[::1] = adata
+        bcdata: cython.double[::1] = bdata
+        ccdata: cython.double[::1] = cdata_arr
         self.transport.setCollisionIntegralPolynomial(i, j,
-            span[double](&adata[0], adata.size), span[double](&bdata[0], bdata.size),
-            span[double](&cdata[0], cdata.size), actualT)
+            span[cython.double](cython.address(acdata[0]),
+                                cython.cast(cython.size_t, adata.size)),
+            span[cython.double](cython.address(bcdata[0]),
+                                cython.cast(cython.size_t, bdata.size)),
+            span[cython.double](cython.address(ccdata[0]),
+                                cython.cast(cython.size_t, cdata_arr.size)), actualT)
 
-    property transport_fitting_errors:
+    @property
+    def transport_fitting_errors(self):
         """
         Get error metrics about any functional fits calculated for pure species
         transport properties. See :ct:`GasTransport::fitDiffCoeffs` and
@@ -415,11 +476,12 @@ cdef class Transport(_SolutionBase):
 
         .. versionadded:: 3.1
         """
-        def __get__(self):
-            cdef CxxAnyMap stats = self.transport.fittingErrors()
-            return anymap_to_py(stats)
+        stats: CxxAnyMap = self.transport.fittingErrors()
+        return anymap_to_py(stats)
 
-cdef class DustyGasTransport(Transport):
+
+@cython.cclass
+class DustyGasTransport(Transport):
     """
     Implements the "dusty gas" model for transport in porous media.
 
@@ -432,40 +494,60 @@ cdef class DustyGasTransport(Transport):
         self.transport = self.base.transport().get()
         super().__init__(*args, **kwargs)
 
-    property porosity:
+    @property
+    def porosity(self):
         """Porosity of the porous medium [dimensionless]."""
-        def __set__(self, value):
-            (<CxxDustyGasTransport*>self.transport).setPorosity(value)
+        raise AttributeError("unreadable attribute 'porosity'")
 
-    property tortuosity:
+    @porosity.setter
+    def porosity(self, value):
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).setPorosity(value)
+
+    @property
+    def tortuosity(self):
         """Tortuosity of the porous medium [dimensionless]."""
-        def __set__(self, value):
-            (<CxxDustyGasTransport*>self.transport).setTortuosity(value)
+        raise AttributeError("unreadable attribute 'tortuosity'")
 
-    property mean_pore_radius:
+    @tortuosity.setter
+    def tortuosity(self, value):
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).setTortuosity(value)
+
+    @property
+    def mean_pore_radius(self):
         """Mean pore radius of the porous medium [m]."""
-        def __set__(self, value):
-            (<CxxDustyGasTransport*>self.transport).setMeanPoreRadius(value)
+        raise AttributeError("unreadable attribute 'mean_pore_radius'")
 
-    property mean_particle_diameter:
+    @mean_pore_radius.setter
+    def mean_pore_radius(self, value):
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).setMeanPoreRadius(value)
+
+    @property
+    def mean_particle_diameter(self):
         """Mean particle diameter of the porous medium [m]."""
-        def __set__(self, value):
-            (<CxxDustyGasTransport*>self.transport).setMeanParticleDiameter(value)
+        raise AttributeError("unreadable attribute 'mean_particle_diameter'")
 
-    property permeability:
+    @mean_particle_diameter.setter
+    def mean_particle_diameter(self, value):
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).setMeanParticleDiameter(value)
+
+    @property
+    def permeability(self):
         """Permeability of the porous medium [m²]."""
-        def __set__(self, value):
-            (<CxxDustyGasTransport*>self.transport).setPermeability(value)
+        raise AttributeError("unreadable attribute 'permeability'")
 
-    property thermal_conductivity:
+    @permeability.setter
+    def permeability(self, value):
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).setPermeability(value)
+
+    @property
+    def thermal_conductivity(self):
         """
         Thermal conductivity. [W/m/K]
         Returns the thermal conductivity of the ideal gas object using the
         multicomponent model. The value is not specific to the dusty gas model.
         """
-        def __get__(self):
-            return (<CxxDustyGasTransport*>self.transport).gasTransport().thermalConductivity()
-
+        return cython.cast(cython.pointer(CxxDustyGasTransport),
+                           self.transport).gasTransport().thermalConductivity()
 
     def molar_fluxes(self, T1, T2, rho1, rho2, Y1, Y2, delta):
         """
@@ -488,9 +570,9 @@ cdef class DustyGasTransport(Transport):
             Distance [m] between the two points.
         """
 
-        cdef np.ndarray[np.double_t, ndim=1] state1 = np.empty(self.n_species + 2)
-        cdef np.ndarray[np.double_t, ndim=1] state2 = np.empty(self.n_species + 2)
-        cdef np.ndarray[np.double_t, ndim=1] fluxes = np.empty(self.n_species)
+        state1 = np.empty(self.n_species + 2)
+        state2 = np.empty(self.n_species + 2)
+        fluxes = np.empty(self.n_species)
 
         state1[0] = T1
         state1[1] = rho1
@@ -499,8 +581,16 @@ cdef class DustyGasTransport(Transport):
         state2[1] = rho2
         state2[2:] = Y2
 
-        (<CxxDustyGasTransport*>self.transport).getMolarFluxes(
-            span[const_double](&state1[0], state1.size),
-            span[const_double](&state2[0], state2.size), delta,
-            span[double](&fluxes[0], fluxes.size))
+        cstate1: cython.double[::1] = state1
+        cstate2: cython.double[::1] = state2
+        cfluxes: cython.double[::1] = fluxes
+
+        cython.cast(cython.pointer(CxxDustyGasTransport), self.transport).getMolarFluxes(
+            span[const_double](cython.address(cstate1[0]),
+                               cython.cast(cython.size_t, state1.size)),
+            span[const_double](cython.address(cstate2[0]),
+                               cython.cast(cython.size_t, state2.size)),
+            delta,
+            span[cython.double](cython.address(cfluxes[0]),
+                                cython.cast(cython.size_t, fluxes.size)))
         return fluxes
