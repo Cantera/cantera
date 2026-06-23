@@ -1,21 +1,25 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cimport numpy as np
+# distutils: language = c++
+# cython: language_level=3
+
 import numpy as np
 
-from ._utils cimport *
+import cython
+from cython.cimports.cantera._utils import anymap_to_py, py_to_anymap
 from .constants import gas_constant
-from .ctcxx cimport span
 
 # These match the definitions in speciesThermoTypes.h
-cdef int SPECIES_THERMO_CONSTANT_CP = 1
-cdef int SPECIES_THERMO_NASA2 = 4
-cdef int SPECIES_THERMO_SHOMATE2 = 8
-cdef int SPECIES_THERMO_NASA9MULTITEMP = 513
-cdef int SPECIES_THERMO_MU0_INTERP = 64
+SPECIES_THERMO_CONSTANT_CP = cython.declare(cython.int, 1)
+SPECIES_THERMO_NASA2 = cython.declare(cython.int, 4)
+SPECIES_THERMO_SHOMATE2 = cython.declare(cython.int, 8)
+SPECIES_THERMO_NASA9MULTITEMP = cython.declare(cython.int, 513)
+SPECIES_THERMO_MU0_INTERP = cython.declare(cython.int, 64)
 
-cdef class SpeciesThermo:
+
+@cython.cclass
+class SpeciesThermo:
     """
     Base class for representing the reference-state thermodynamic properties of
     a pure species. These properties are a function of temperature. Derived
@@ -40,52 +44,58 @@ cdef class SpeciesThermo:
 
         if not self._check_n_coeffs(len(coeffs)):
             raise ValueError("Coefficient array has incorrect length")
-        cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(
-            coeffs, dtype=np.double)
-        cdef span[double] view = span[double](&data[0], <size_t>data.size)
+        data = np.ascontiguousarray(coeffs, dtype=np.double)
+        cdata: cython.double[::1] = data
+        view: span[cython.double] = span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size))
         self._spthermo.reset(CxxNewSpeciesThermo(self.derived_type, T_low,
                                                  T_high, P_ref, view))
         self.spthermo = self._spthermo.get()
 
-    cdef _assign(self, shared_ptr[CxxSpeciesThermo] other):
+    @cython.cfunc
+    def _assign(self, other: shared_ptr[CxxSpeciesThermo]):
         self._spthermo = other
         self.spthermo = self._spthermo.get()
 
-    property min_temp:
+    @property
+    def min_temp(self):
         """ Minimum temperature [K] at which the parameterization is valid."""
-        def __get__(self):
-            return self.spthermo.minTemp()
+        return self.spthermo.minTemp()
 
-    property max_temp:
+    @property
+    def max_temp(self):
         """ Maximum temperature [K] at which the parameterization is valid."""
-        def __get__(self):
-            return self.spthermo.maxTemp()
+        return self.spthermo.maxTemp()
 
-    property reference_pressure:
+    @property
+    def reference_pressure(self):
         """ Reference pressure [Pa] for the parameterization."""
-        def __get__(self):
-            return self.spthermo.refPressure()
+        return self.spthermo.refPressure()
 
-    property n_coeffs:
+    @property
+    def n_coeffs(self):
         """ Number of parameters for the parameterization."""
-        def __get__(self):
-            return self.spthermo.nCoeffs()
+        return self.spthermo.nCoeffs()
 
-    property coeffs:
+    @property
+    def coeffs(self):
         """
         Array of coefficients for the parameterization. The length of this
         array and the meaning of each element depends on the specific
         parameterization.
         """
-        def __get__(self):
-            cdef size_t index = 0
-            cdef int thermo_type = 0
-            cdef double T_low = 0, T_high = 0, P_ref = 0
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_coeffs)
-            cdef span[double] view = span[double](&data[0], <size_t>self.n_coeffs)
-            self.spthermo.reportParameters(index, thermo_type, T_low,
-                                           T_high, P_ref, view)
-            return data
+        index: cython.size_t = 0
+        thermo_type: cython.int = 0
+        T_low: cython.double = 0
+        T_high: cython.double = 0
+        P_ref: cython.double = 0
+        data = np.empty(self.n_coeffs)
+        cdata: cython.double[::1] = data
+        view: span[cython.double] = span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, self.n_coeffs))
+        self.spthermo.reportParameters(index, thermo_type, T_low,
+                                       T_high, P_ref, view)
+        return data
 
     def _check_n_coeffs(self, n):
         """
@@ -94,13 +104,13 @@ cdef class SpeciesThermo:
         """
         raise NotImplementedError('Needs to be overloaded')
 
-    property input_data:
+    @property
+    def input_data(self):
         """
         Get input data defining this SpeciesThermo object, along with any user-specified
         data provided with its input (YAML) definition.
         """
-        def __get__(self):
-            return anymap_to_py(self.spthermo.parameters(True))
+        return anymap_to_py(self.spthermo.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -122,24 +132,31 @@ cdef class SpeciesThermo:
         """
         Molar heat capacity at constant pressure [J/kmol/K] at temperature *T*.
         """
-        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        cp_r: cython.double = 0
+        h_rt: cython.double = 0
+        s_r: cython.double = 0
         self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return cp_r * gas_constant
 
     def h(self, T):
         """ Molar enthalpy [J/kmol] at temperature *T* """
-        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        cp_r: cython.double = 0
+        h_rt: cython.double = 0
+        s_r: cython.double = 0
         self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return h_rt * gas_constant * T
 
     def s(self, T):
         """ Molar entropy [J/kmol/K] at temperature *T* """
-        cdef double cp_r = 0, h_rt = 0, s_r = 0
+        cp_r: cython.double = 0
+        h_rt: cython.double = 0
+        s_r: cython.double = 0
         self.spthermo.updatePropertiesTemp(T, cp_r, h_rt, s_r)
         return s_r * gas_constant
 
 
-cdef class ConstantCp(SpeciesThermo):
+@cython.cclass
+class ConstantCp(SpeciesThermo):
     r"""
     Thermodynamic properties for a species that has a constant specific heat
     capacity. This is a wrapper for the C++ class :ct:`ConstCpPoly`.
@@ -158,7 +175,8 @@ cdef class ConstantCp(SpeciesThermo):
         return n == 4
 
 
-cdef class Mu0Poly(SpeciesThermo):
+@cython.cclass
+class Mu0Poly(SpeciesThermo):
     """
     Thermodynamic properties for a species which is parameterized using an
     interpolation of the Gibbs free energy based on a piecewise constant heat
@@ -181,7 +199,8 @@ cdef class Mu0Poly(SpeciesThermo):
         return n > 3 and n % 2 == 0
 
 
-cdef class NasaPoly2(SpeciesThermo):
+@cython.cclass
+class NasaPoly2(SpeciesThermo):
     """
     Thermodynamic properties for a species which is parameterized using the
     7-coefficient NASA polynomial form in two temperature ranges. This is a
@@ -206,7 +225,8 @@ cdef class NasaPoly2(SpeciesThermo):
         return n == 15
 
 
-cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
+@cython.cclass
+class Nasa9PolyMultiTempRegion(SpeciesThermo):
     """
     Thermodynamic properties for a species which is parameterized using the
     9-coefficient NASA polynomial form encompassing multiple temperature ranges.
@@ -228,7 +248,8 @@ cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
         return n > 11 and ((n - 1) % 11) == 0
 
 
-cdef class ShomatePoly2(SpeciesThermo):
+@cython.cclass
+class ShomatePoly2(SpeciesThermo):
     """
     Thermodynamic properties for a species which is parameterized using the
     Shomate equation in two temperature ranges. This is a wrapper for the C++
@@ -254,12 +275,13 @@ cdef class ShomatePoly2(SpeciesThermo):
         return n == 15
 
 
-cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo):
+@cython.cfunc
+def wrapSpeciesThermo(spthermo: shared_ptr[CxxSpeciesThermo]):
     """
     Wrap a C++ SpeciesThermoInterpType object with a Python object of the
     correct derived type.
     """
-    cdef int thermo_type = spthermo.get().reportType()
+    thermo_type: cython.int = spthermo.get().reportType()
 
     if thermo_type == SPECIES_THERMO_NASA2:
         st = NasaPoly2(init=False)
