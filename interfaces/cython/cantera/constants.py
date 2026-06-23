@@ -1,10 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-#cython: language_level=3
-#distutils: language=c++
-
-from .constants cimport *
+# distutils: language = c++
+# cython: language_level=3
 
 #: Avogadro's constant, 1/kmol
 avogadro = CxxAvogadro
