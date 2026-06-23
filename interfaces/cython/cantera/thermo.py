@@ -1,26 +1,35 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 import warnings
 import weakref as _weakref
 import numbers as _numbers
 import numpy as np
-cimport numpy as np
 
-from .speciesthermo cimport *
-from .ctcxx cimport span
-from .kinetics cimport CxxKinetics
-from .transport cimport *
-from ._utils cimport *
+import cython
+import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
+
+from cython.cimports.cantera.speciesthermo import SpeciesThermo, wrapSpeciesThermo
+from cython.cimports.cantera.transport import GasTransportData
+from cython.cimports.cantera._utils import (
+    stringify, pystr, comp_map, comp_map_to_dict,
+    anymap_to_py, py_to_anymap,
+    AnyMapFromYamlString, AnyMapFromYamlFile, parseCompString)
 from ._utils import CanteraError
-from .units cimport *
+from cython.cimports.cantera.units import Units
+from cython.cimports.cantera.kinetics import CxxKinetics
 
-cdef enum ThermoBasisType:
-    mass_basis = 0
-    molar_basis = 1
+# Module-level C int constants replacing the private `cdef enum ThermoBasisType`
+mass_basis = cython.declare(cython.int, 0)
+molar_basis = cython.declare(cython.int, 1)
 
-ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
-ctypedef CxxSurfPhase* CxxSurfPhasePtr
+# ctypedef pointers — used with dynamic_cast
+CxxPlasmaPhasePtr = cython.typedef(cython.pointer(CxxPlasmaPhase))
+CxxSurfPhasePtr = cython.typedef(cython.pointer(CxxSurfPhase))
+
 
 class ThermoModelMethodError(Exception):
     """Exception raised for an invalid method used by a thermo model
@@ -35,7 +44,8 @@ class ThermoModelMethodError(Exception):
         super().__init__(f"This method is invalid for {self.thermo_model}")
 
 
-cdef class Species:
+@cython.cclass
+class Species:
     """
     A class which stores data about a single chemical species that may be
     needed to add it to a `Solution` or `Interface` object (and to the
@@ -98,7 +108,8 @@ cdef class Species:
         if size is not None:
             self.species.size = size
 
-    cdef _assign(self, shared_ptr[CxxSpecies] other):
+    @cython.cfunc
+    def _assign(self, other: shared_ptr[CxxSpecies]):
         self._species = other
         self.species = self._species.get()
 
@@ -121,7 +132,7 @@ cdef class Species:
         :param data:
             A dictionary corresponding to the YAML representation.
         """
-        cdef CxxAnyMap any_map = py_to_anymap(data)
+        any_map: CxxAnyMap = py_to_anymap(data)
         cxx_species = CxxNewSpecies(any_map)
         species = Species(init=False)
         species._assign(cxx_species)
@@ -162,76 +173,79 @@ cdef class Species:
             species.append(b)
         return species
 
-    property name:
+    @property
+    def name(self):
         """ The name of the species. """
-        def __get__(self):
-            return pystr(self.species.name)
+        return pystr(self.species.name)
 
-    property composition:
+    @property
+    def composition(self):
         """
         A dict containing the elemental composition of the species. Keys are
         element names; values are the corresponding atomicities.
         """
-        def __get__(self):
-            return comp_map_to_dict(self.species.composition)
+        return comp_map_to_dict(self.species.composition)
 
-    property charge:
+    @property
+    def charge(self):
         """
         The electrical charge on the species, in units of the elementary charge.
         """
-        def __get__(self):
-            return self.species.charge
+        return self.species.charge
 
-    property size:
+    @property
+    def size(self):
         """ The effective size [m] of the species. """
-        def __get__(self):
-            return self.species.size
+        return self.species.size
 
-    property molecular_weight:
+    @property
+    def molecular_weight(self):
         """The molecular weight [amu] of the species.
 
         .. versionadded:: 3.0
         """
-        def __get__(self):
-            return self.species.molecularWeight()
+        return self.species.molecularWeight()
 
-    property thermo:
+    @property
+    def thermo(self):
         """
         Get/Set the species reference-state thermodynamic data, as an instance
         of class `SpeciesThermo`.
         """
-        def __get__(self):
-            if self.species.thermo.get() != NULL:
-                return wrapSpeciesThermo(self.species.thermo)
-            else:
-                return None
+        if self.species.thermo.get() != cython.NULL:
+            return wrapSpeciesThermo(self.species.thermo)
+        else:
+            return None
 
-        def __set__(self, SpeciesThermo spthermo):
-            self.species.thermo = spthermo._spthermo
+    @thermo.setter
+    def thermo(self, spthermo: SpeciesThermo):
+        self.species.thermo = spthermo._spthermo
 
-    property transport:
+    @property
+    def transport(self):
         """
         Get/Set the species transport parameters, as an instance of class
         `GasTransportData`.
         """
-        def __get__(self):
-            if self.species.transport.get() != NULL:
-                data = GasTransportData(init=False)
-                data._assign(self.species.transport)
-                return data
-            else:
-                return None
-        def __set__(self, GasTransportData tran):
-            self.species.transport = tran._data
+        if self.species.transport.get() != cython.NULL:
+            data = GasTransportData(init=False)
+            data._assign(self.species.transport)
+            return data
+        else:
+            return None
 
-    property input_data:
+    @transport.setter
+    def transport(self, tran: GasTransportData):
+        self.species.transport = tran._data
+
+    @property
+    def input_data(self):
         """
         Get input data defining this Species, along with any user-specified data
         provided with its input (YAML) definition.
         """
-        def __get__(self):
-            cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
-            return anymap_to_py(self.species.parameters(phase))
+        phase: cython.pointer(CxxThermoPhase) = self._phase.thermo if self._phase else cython.NULL
+        return anymap_to_py(self.species.parameters(phase))
 
     def update_user_data(self, data):
         """
@@ -253,7 +267,8 @@ cdef class Species:
         return '<Species {}>'.format(self.name)
 
 
-cdef class ThermoPhase(_SolutionBase):
+@cython.cclass
+class ThermoPhase(_SolutionBase):
     """
     A phase with an equation of state.
 
@@ -279,23 +294,23 @@ cdef class ThermoPhase(_SolutionBase):
         self._enable_plasma = False
         if dynamic_cast[CxxPlasmaPhasePtr](self.thermo):
             self._enable_plasma = True
-            self.plasma = <CxxPlasmaPhase*>self.thermo
+            self.plasma = cython.cast(cython.pointer(CxxPlasmaPhase), self.thermo)
 
-    property thermo_model:
+    @property
+    def thermo_model(self):
         """
         Return thermodynamic model describing phase.
         """
-        def __get__(self):
-            return pystr(self.thermo.type())
+        return pystr(self.thermo.type())
 
-    property phase_of_matter:
+    @property
+    def phase_of_matter(self):
         """
         Get the thermodynamic phase (gas, liquid, etc.) at the current conditions.
         """
-        def __get__(self):
-            return pystr(self.thermo.phaseOfMatter())
+        return pystr(self.thermo.phaseOfMatter())
 
-    def report(self, show_thermo=True, float threshold=1e-14):
+    def report(self, show_thermo=True, threshold: cython.float = 1e-14):
         """
         Generate a report describing the thermodynamic state of this phase. To
         print the report to the terminal, simply call the phase object. The
@@ -316,61 +331,62 @@ cdef class ThermoPhase(_SolutionBase):
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
 
-    property is_pure:
+    @property
+    def is_pure(self):
         """
         Returns true if the phase represents a pure (fixed composition) substance
         """
-        def __get__(self):
-            return self.thermo.isPure()
+        return self.thermo.isPure()
 
-    property has_phase_transition:
+    @property
+    def has_phase_transition(self):
         """
         Returns true if the phase represents a substance with phase transitions
         """
-        def __get__(self):
-            return self.thermo.hasPhaseTransition()
+        return self.thermo.hasPhaseTransition()
 
-    property is_compressible:
+    @property
+    def is_compressible(self):
         """
         Returns true if the density of the phase is an independent variable defining
         the thermodynamic state of a substance
         """
-        def __get__(self):
-            return self.thermo.isCompressible()
+        return self.thermo.isCompressible()
 
     @property
     def _native_mode(self):
         """  Return string acronym representing native state """
         return pystr(self.thermo.nativeMode())
 
-    property _native_state:
+    @property
+    def _native_state(self):
         """
         Default properties defining a state
         """
-        def __get__(self):
-            cdef pair[string, size_t] item
-            native = {pystr(item.first): item.second for item in self.thermo.nativeState()}
-            return tuple([i for i, j in sorted(native.items(), key=lambda kv: kv[1])])
+        item: pair[string, cython.size_t]
+        native = {pystr(item.first): item.second for item in self.thermo.nativeState()}
+        return tuple([i for i, j in sorted(native.items(), key=lambda kv: kv[1])])
 
-    property _full_states:
+    @property
+    def _full_states(self):
         """
         Sets of parameters which set the full thermodynamic state
         """
-        def __get__(self):
-            states = self.thermo.fullStates()
-            states = [pystr(s) for s in states]
-            return {frozenset(k): k for k in states}
+        states = self.thermo.fullStates()
+        states = [pystr(s) for s in states]
+        return {frozenset(k): k for k in states}
 
-    property _partial_states:
+    @property
+    def _partial_states(self):
         """
         Sets of parameters which set a valid partial thermodynamic state
         """
-        def __get__(self):
-            states = self.thermo.partialStates()
-            states = [pystr(s) for s in states]
-            return {frozenset(k): k for k in states}
+        states = self.thermo.partialStates()
+        states = [pystr(s) for s in states]
+        return {frozenset(k): k for k in states}
 
-    property basis:
+    @property
+    def basis(self):
         """
         Determines whether intensive thermodynamic properties are treated on a
         ``mass`` (per kg) or ``molar`` (per kmol) basis. This affects the values
@@ -378,38 +394,40 @@ cdef class ThermoPhase(_SolutionBase):
         and `cp`, as well as the values used with the state-setting properties
         such as `HPX` and `UV`.
         """
-        def __get__(self):
-            if self.thermo_basis == mass_basis:
-                return 'mass'
-            else:
-                return 'molar'
+        if self.thermo_basis == mass_basis:
+            return 'mass'
+        else:
+            return 'molar'
 
-        def __set__(self, value):
-            if value == 'mass':
-                self.thermo_basis = mass_basis
-            elif value == 'molar':
-                self.thermo_basis = molar_basis
-            else:
-                raise ValueError("Valid choices are 'mass' or 'molar'."
-                                 " Got {!r}.".format(value))
+    @basis.setter
+    def basis(self, value):
+        if value == 'mass':
+            self.thermo_basis = mass_basis
+        elif value == 'molar':
+            self.thermo_basis = molar_basis
+        else:
+            raise ValueError("Valid choices are 'mass' or 'molar'."
+                             " Got {!r}.".format(value))
 
-    cdef double _mass_factor(self):
+    @cython.cfunc
+    def _mass_factor(self) -> cython.double:
         """ Conversion factor from current basis to kg """
         if self.thermo_basis == molar_basis:
             return self.thermo.meanMolecularWeight()
         else:
             return 1.0
 
-    cdef double _mole_factor(self):
+    @cython.cfunc
+    def _mole_factor(self) -> cython.double:
         """ Conversion factor from current basis to moles """
         if self.thermo_basis == mass_basis:
             return 1.0/self.thermo.meanMolecularWeight()
         else:
             return 1.0
 
-    def equilibrate(self, XY, solver='auto', double rtol=1e-9,
-                    int max_steps=50000, int max_iter=100, int estimate_equil=0,
-                    int log_level=0):
+    def equilibrate(self, XY, solver='auto', rtol: cython.double = 1e-9,
+                    max_steps: cython.int = 50000, max_iter: cython.int = 100,
+                    estimate_equil: cython.int = 0, log_level: cython.int = 0):
         """
         Set to a state of chemical equilibrium holding property pair
         ``XY`` constant.
@@ -452,12 +470,13 @@ cdef class ThermoPhase(_SolutionBase):
 
     ####### Composition, species, and elements ########
 
-    property n_elements:
+    @property
+    def n_elements(self):
         """Number of elements."""
-        def __get__(self):
-            return self.thermo.nElements()
+        return self.thermo.nElements()
 
-    cpdef int element_index(self, element) except *:
+    @cython.ccall
+    def element_index(self, element) -> cython.int:
         """
         The index of element ``element``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
@@ -466,7 +485,7 @@ cdef class ThermoPhase(_SolutionBase):
         if isinstance(element, (str, bytes)):
             return self.thermo.elementIndex(stringify(element), True)
         if isinstance(element, (int, float)):
-            return self.thermo.checkElementIndex(<int>element)
+            return self.thermo.checkElementIndex(cython.cast(cython.int, element))
 
         raise TypeError("'element' must be a string or a number. "
                         f"Got {element!r}.")
@@ -475,46 +494,47 @@ cdef class ThermoPhase(_SolutionBase):
         """Name of the element with index ``m``."""
         return pystr(self.thermo.elementName(m))
 
-    property element_names:
+    @property
+    def element_names(self):
         """A list of all the element names."""
-        def __get__(self):
-            return [self.element_name(m) for m in range(self.n_elements)]
+        return [self.element_name(m) for m in range(self.n_elements)]
 
     def atomic_weight(self, m):
         """Atomic weight [kg/kmol] of element ``m``"""
         return self.thermo.atomicWeight(self.element_index(m))
 
-    property atomic_weights:
+    @property
+    def atomic_weights(self):
         """Array of atomic weight [kg/kmol] for each element in the mixture."""
-        def __get__(self):
-            return np.array([self.thermo.atomicWeight(m) for m in range(self.n_elements)])
+        return np.array([self.thermo.atomicWeight(m) for m in range(self.n_elements)])
 
-    property n_species:
+    @property
+    def n_species(self):
         """Number of species."""
-        def __get__(self):
-            return self.thermo.nSpecies()
+        return self.thermo.nSpecies()
 
-    property n_selected_species:
+    @property
+    def n_selected_species(self):
         """
         Number of species selected for output (by slicing of Solution object)
         """
-        def __get__(self):
-            return self._selected_species.size or self.n_species
+        return self._selected_species.size or self.n_species
 
     def species_name(self, k):
         """Name of the species with index ``k``."""
         return pystr(self.thermo.speciesName(k))
 
-    property species_names:
+    @property
+    def species_names(self):
         """A list of all the species names."""
-        def __get__(self):
-            if self._selected_species.size:
-                indices = self._selected_species
-            else:
-                indices = range(self.n_species)
-            return [self.species_name(k) for k in indices]
+        if self._selected_species.size:
+            indices = self._selected_species
+        else:
+            indices = range(self.n_species)
+        return [self.species_name(k) for k in indices]
 
-    cpdef int species_index(self, species) except *:
+    @cython.ccall
+    def species_index(self, species) -> cython.int:
         """
         The index of species ``species``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
@@ -523,16 +543,18 @@ cdef class ThermoPhase(_SolutionBase):
         if isinstance(species, (str, bytes)):
             return self.thermo.speciesIndex(stringify(species), True)
         if isinstance(species, (int, float)):
-            return self.thermo.checkSpeciesIndex(<int>species)
+            return self.thermo.checkSpeciesIndex(cython.cast(cython.int, species))
         raise TypeError("'species' must be a string or a number."
                         f" Got {species!r}.")
 
-    property case_sensitive_species_names:
+    @property
+    def case_sensitive_species_names(self):
         """Enforce case-sensitivity for look up of species names"""
-        def __get__(self):
-            return self.thermo.caseSensitiveSpecies()
-        def __set__(self, val):
-            self.thermo.setCaseSensitiveSpecies(bool(val))
+        return self.thermo.caseSensitiveSpecies()
+
+    @case_sensitive_species_names.setter
+    def case_sensitive_species_names(self, val):
+        self.thermo.setCaseSensitiveSpecies(bool(val))
 
     def species(self, k=None):
         """
@@ -550,13 +572,13 @@ cdef class ThermoPhase(_SolutionBase):
         if isinstance(k, (str, bytes)):
             s._assign(self.thermo.species(stringify(k)))
         elif isinstance(k, (int, float)):
-            s._assign(self.thermo.species(<int>k))
+            s._assign(self.thermo.species(cython.cast(cython.int, k)))
         else:
             raise TypeError("Argument must be a string or a number."
                             " Got {!r}.".format(k))
         return s
 
-    def modify_species(self, k, Species species):
+    def modify_species(self, k, species: Species):
         """
         Modify the thermodynamic data associated with a species. The species name,
         elemental composition, and type of thermo parameterization must be unchanged.
@@ -565,7 +587,7 @@ cdef class ThermoPhase(_SolutionBase):
         if self.kinetics:
             self.kinetics.invalidateCache()
 
-    def add_species(self, Species species):
+    def add_species(self, species: Species):
         """
         Add a new species to this phase. Missing elements will be added
         automatically.
@@ -611,17 +633,21 @@ cdef class ThermoPhase(_SolutionBase):
         return self.thermo.nAtoms(self.species_index(species),
                                   self.element_index(element))
 
-    cdef np.ndarray _getArray1(self, thermoMethod1d method):
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-        method(self.thermo, span[double](&data[0], data.size))
+    @cython.cfunc
+    def _getArray1(self, method: thermoMethod1d) -> np.ndarray:
+        data = np.empty(self.n_species)
+        cdata: cython.double[::1] = data
+        method(self.thermo, span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
         if self._selected_species.size:
             return data[self._selected_species]
         else:
             return data
 
-    cdef void _setArray1(self, thermoMethod1d method, values) except *:
-        cdef np.ndarray[np.double_t, ndim=1] data
-        cdef span[double] view
+    @cython.cfunc
+    def _setArray1(self, method: thermoMethod1d, values) -> cython.void:
+        data: np.ndarray
+        view: span[cython.double]
 
         values = np.squeeze(values)
         if values.ndim == 0:
@@ -638,24 +664,27 @@ cdef class ThermoPhase(_SolutionBase):
             if len(self._selected_species):
                 msg += ' or {}'.format(len(self._selected_species))
             raise ValueError('Array has incorrect length. ' + msg + '.')
-        method(self.thermo, span[double](&data[0], data.size))
+        cdata: cython.double[::1] = data
+        method(self.thermo, span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
 
-    property molecular_weights:
+    @property
+    def molecular_weights(self):
         """Array of species molecular weights (molar masses) [kg/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getMolecularWeights)
+        return self._getArray1(thermo_getMolecularWeights)
 
-    property charges:
+    @property
+    def charges(self):
         """Array of species charges [elem. charge]."""
-        def __get__(self):
-            return self._getArray1(thermo_getCharges)
+        return self._getArray1(thermo_getCharges)
 
-    property mean_molecular_weight:
+    @property
+    def mean_molecular_weight(self):
         """The mean molecular weight (molar mass) [kg/kmol]."""
-        def __get__(self):
-            return self.thermo.meanMolecularWeight()
+        return self.thermo.meanMolecularWeight()
 
-    property Y:
+    @property
+    def Y(self):
         """
         Get/Set the species mass fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
@@ -666,17 +695,19 @@ cdef class ThermoPhase(_SolutionBase):
             >>> phase.Y
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
         """
-        def __get__(self):
-            return self._getArray1(thermo_getMassFractions)
-        def __set__(self, Y):
-            if isinstance(Y, (str, bytes)):
-                self.thermo.setMassFractionsByName(stringify(Y))
-            elif isinstance(Y, dict):
-                self.thermo.setMassFractionsByName(comp_map(Y))
-            else:
-                self._setArray1(thermo_setMassFractions, Y)
+        return self._getArray1(thermo_getMassFractions)
 
-    property X:
+    @Y.setter
+    def Y(self, Y):
+        if isinstance(Y, (str, bytes)):
+            self.thermo.setMassFractionsByName(stringify(Y))
+        elif isinstance(Y, dict):
+            self.thermo.setMassFractionsByName(comp_map(Y))
+        else:
+            self._setArray1(thermo_setMassFractions, Y)
+
+    @property
+    def X(self):
         """
         Get/Set the species mole fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
@@ -687,25 +718,28 @@ cdef class ThermoPhase(_SolutionBase):
             >>> phase.X
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
         """
-        def __get__(self):
-            return self._getArray1(thermo_getMoleFractions)
-        def __set__(self, X):
-            if isinstance(X, (str, bytes)):
-                self.thermo.setMoleFractionsByName(stringify(X))
-            elif isinstance(X, dict):
-                self.thermo.setMoleFractionsByName(comp_map(X))
-            else:
-                self._setArray1(thermo_setMoleFractions, X)
+        return self._getArray1(thermo_getMoleFractions)
 
-    property concentrations:
+    @X.setter
+    def X(self, X):
+        if isinstance(X, (str, bytes)):
+            self.thermo.setMoleFractionsByName(stringify(X))
+        elif isinstance(X, dict):
+            self.thermo.setMoleFractionsByName(comp_map(X))
+        else:
+            self._setArray1(thermo_setMoleFractions, X)
+
+    @property
+    def concentrations(self):
         """
         Get/Set the species concentrations. Units are kmol/m³ for bulk phases, kmol/m²
         for surface phases, and kmol/m for edge phases.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getConcentrations)
-        def __set__(self, C):
-            self._setArray1(thermo_setConcentrations, C)
+        return self._getArray1(thermo_getConcentrations)
+
+    @concentrations.setter
+    def concentrations(self, C):
+        self._setArray1(thermo_setConcentrations, C)
 
     def __composition_to_array(self, comp, basis):
         """take a mixture composition in mole or mass fraction as string,
@@ -776,13 +810,16 @@ cdef class ThermoPhase(_SolutionBase):
             dilution or ``fraction=None``. May be given as string or dictionary (for
             example ``fraction={"fuel":0.7}``).
         """
-        cdef np.ndarray[np.double_t, ndim=1] fuel_comp = np.ascontiguousarray(
+        fuel_comp = np.ascontiguousarray(
                 self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] ox_comp = np.ascontiguousarray(
+        ox_comp = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
-
-        cdef span[double] fuel_view = span[double](&fuel_comp[0], fuel_comp.size)
-        cdef span[double] ox_view = span[double](&ox_comp[0], ox_comp.size)
+        fuel_cdata: cython.double[::1] = fuel_comp
+        ox_cdata: cython.double[::1] = ox_comp
+        fuel_view: span[cython.double] = span[cython.double](
+            cython.address(fuel_cdata[0]), cython.cast(cython.size_t, fuel_comp.size))
+        ox_view: span[cython.double] = span[cython.double](
+            cython.address(ox_cdata[0]), cython.cast(cython.size_t, ox_comp.size))
         self.thermo.setEquivalenceRatio(phi, fuel_view, ox_view,
                                         ThermoBasis.mass if basis == "mass"
                                                          else ThermoBasis.molar)
@@ -816,7 +853,7 @@ cdef class ThermoPhase(_SolutionBase):
             raise ValueError("The fraction must specify 'fuel', 'oxidizer' or "
                              "'diluent'")
 
-        cdef np.ndarray[np.double_t, ndim=1] diluent_comp = np.ascontiguousarray(
+        diluent_comp = np.ascontiguousarray(
                 self.__composition_to_array(diluent, basis), dtype=np.double)
 
         # this function changes the composition and fixes temperature and pressure
@@ -905,13 +942,14 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis: determines if ``fuel`` and ``oxidizer`` are given in mole
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
         """
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
-
-        cdef span[double] fuel_view = span[double](&f[0], f.size)
-        cdef span[double] ox_view = span[double](&o[0], o.size)
+        f = np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
+        o = np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
+        fcdata: cython.double[::1] = f
+        ocdata: cython.double[::1] = o
+        fuel_view: span[cython.double] = span[cython.double](
+            cython.address(fcdata[0]), cython.cast(cython.size_t, f.size))
+        ox_view: span[cython.double] = span[cython.double](
+            cython.address(ocdata[0]), cython.cast(cython.size_t, o.size))
         self.thermo.setMixtureFraction(mixture_fraction, fuel_view, ox_view,
             ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
@@ -975,13 +1013,16 @@ cdef class ThermoPhase(_SolutionBase):
                 self.TPY = T_orig, P_orig, Y_orig
             return phi
 
-        cdef np.ndarray[np.double_t, ndim=1] f = np.ascontiguousarray(
+        f = np.ascontiguousarray(
                 self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = np.ascontiguousarray(
+        o = np.ascontiguousarray(
                 self.__composition_to_array(oxidizer, basis), dtype=np.double)
-
-        cdef span[double] fuel_view = span[double](&f[0], f.size)
-        cdef span[double] ox_view = span[double](&o[0], o.size)
+        fcdata: cython.double[::1] = f
+        ocdata: cython.double[::1] = o
+        fuel_view: span[cython.double] = span[cython.double](
+            cython.address(fcdata[0]), cython.cast(cython.size_t, f.size))
+        ox_view: span[cython.double] = span[cython.double](
+            cython.address(ocdata[0]), cython.cast(cython.size_t, o.size))
         phi = self.thermo.equivalenceRatio(fuel_view, ox_view,
             ThermoBasis.mass if basis == "mass" else ThermoBasis.molar)
         if include_species is not None:
@@ -1038,18 +1079,20 @@ cdef class ThermoPhase(_SolutionBase):
             mass fraction (given by element name or element index) or as
             the Bilger mixture fraction (default)
         """
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
+        f = np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
+        o = np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
         if isinstance(element, (str, bytes)):
             e_name = element
         else:
             e_name = self.element_name(self.element_index(element))
 
-        cdef span[double] fuel_view = span[double](&f[0], f.size)
-        cdef span[double] ox_view = span[double](&o[0], o.size)
+        fcdata: cython.double[::1] = f
+        ocdata: cython.double[::1] = o
+        fuel_view: span[cython.double] = span[cython.double](
+            cython.address(fcdata[0]), cython.cast(cython.size_t, f.size))
+        ox_view: span[cython.double] = span[cython.double](
+            cython.address(ocdata[0]), cython.cast(cython.size_t, o.size))
         return self.thermo.mixtureFraction(
             fuel_view, ox_view,
             ThermoBasis.mass if basis=='mass' else ThermoBasis.molar,
@@ -1077,13 +1120,14 @@ cdef class ThermoPhase(_SolutionBase):
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
 
         """
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
-
-        cdef span[double] fuel_view = span[double](&f[0], f.size)
-        cdef span[double] ox_view = span[double](&o[0], o.size)
+        f = np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
+        o = np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
+        fcdata: cython.double[::1] = f
+        ocdata: cython.double[::1] = o
+        fuel_view: span[cython.double] = span[cython.double](
+            cython.address(fcdata[0]), cython.cast(cython.size_t, f.size))
+        ox_view: span[cython.double] = span[cython.double](
+            cython.address(ocdata[0]), cython.cast(cython.size_t, o.size))
         return self.thermo.stoichAirFuelRatio(fuel_view, ox_view,
             ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
 
@@ -1134,13 +1178,14 @@ cdef class ThermoPhase(_SolutionBase):
         Useful primarily when calculating derivatives with respect to ``Y[k]`` by
         finite difference.
         """
-        cdef np.ndarray[np.double_t, ndim=1] data
         if len(Y) == self.n_species:
             data = np.ascontiguousarray(Y, dtype=np.double)
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(Y), self.n_species))
-        self.thermo.setMassFractions_NoNorm(span[double](&data[0], data.size))
+        cdata: cython.double[::1] = data
+        self.thermo.setMassFractions_NoNorm(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
 
     def set_unnormalized_mole_fractions(self, X):
         """
@@ -1148,636 +1193,685 @@ cdef class ThermoPhase(_SolutionBase):
         Useful primarily when calculating derivatives with respect to ``X[k]``
         by finite difference.
         """
-        cdef np.ndarray[np.double_t, ndim=1] data
         if len(X) == self.n_species:
             data = np.ascontiguousarray(X, dtype=np.double)
         else:
             raise ValueError("Array has incorrect length."
                 " Got {}, expected {}.".format(len(X), self.n_species))
-        self.thermo.setMoleFractions_NoNorm(span[double](&data[0], data.size))
+        cdata: cython.double[::1] = data
+        self.thermo.setMoleFractions_NoNorm(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
 
-    def mass_fraction_dict(self, double threshold=0.0):
+    def mass_fraction_dict(self, threshold: cython.double = 0.0):
         """
         Return a dictionary giving the mass fraction for each species by name where the
         mass fraction is greater than ``threshold``.
         """
-        cdef pair[string,double] item
+        item: pair[string, cython.double]
         Y = self.thermo.getMassFractionsByName(threshold)
         return {pystr(item.first):item.second for item in Y}
 
-    def mole_fraction_dict(self, double threshold=0.0):
+    def mole_fraction_dict(self, threshold: cython.double = 0.0):
         """
         Return a dictionary giving the mole fraction for each species by name where the
         mole fraction is greater than ``threshold``.
         """
-        cdef pair[string,double] item
+        item: pair[string, cython.double]
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
 
     ######## Read-only thermodynamic properties ########
 
-    property P:
+    @property
+    def P(self):
         """Pressure [Pa]."""
-        def __get__(self):
-            return self.thermo.pressure()
+        return self.thermo.pressure()
 
-    property T:
+    @property
+    def T(self):
         """Temperature [K]."""
-        def __get__(self):
-            return self.thermo.temperature()
+        return self.thermo.temperature()
 
-    property density:
+    @property
+    def density(self):
         """Density [kg/m³ or kmol/m³] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.density() / self._mass_factor()
+        return self.thermo.density() / self._mass_factor()
 
-    property density_mass:
+    @property
+    def density_mass(self):
         """(Mass) density [kg/m³]."""
-        def __get__(self):
-            return self.thermo.density()
+        return self.thermo.density()
 
-    property density_mole:
+    @property
+    def density_mole(self):
         """Molar density [kmol/m³]."""
-        def __get__(self):
-            return self.thermo.molarDensity()
+        return self.thermo.molarDensity()
 
-    property v:
+    @property
+    def v(self):
         """Specific volume [m³/kg or m³/kmol] depending on `basis`."""
-        def __get__(self):
-            return self._mass_factor() / self.thermo.density()
+        return self._mass_factor() / self.thermo.density()
 
-    property volume_mass:
+    @property
+    def volume_mass(self):
         """Specific volume [m³/kg]."""
-        def __get__(self):
-            return 1.0 / self.thermo.density()
+        return 1.0 / self.thermo.density()
 
-    property volume_mole:
+    @property
+    def volume_mole(self):
         """Molar volume [m³/kmol]."""
-        def __get__(self):
-            return self.thermo.molarVolume()
+        return self.thermo.molarVolume()
 
-    property u:
+    @property
+    def u(self):
         """Internal energy in [J/kg or J/kmol]."""
-        def __get__(self):
-            return self.thermo.intEnergy_mole() * self._mole_factor()
+        return self.thermo.intEnergy_mole() * self._mole_factor()
 
-    property int_energy_mole:
+    @property
+    def int_energy_mole(self):
         """Molar internal energy [J/kmol]."""
-        def __get__(self):
-            return self.thermo.intEnergy_mole()
+        return self.thermo.intEnergy_mole()
 
-    property int_energy_mass:
+    @property
+    def int_energy_mass(self):
         """Specific internal energy [J/kg]."""
-        def __get__(self):
-            return self.thermo.intEnergy_mass()
+        return self.thermo.intEnergy_mass()
 
-    property h:
+    @property
+    def h(self):
         """Enthalpy [J/kg or J/kmol] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.enthalpy_mole() * self._mole_factor()
+        return self.thermo.enthalpy_mole() * self._mole_factor()
 
-    property enthalpy_mole:
+    @property
+    def enthalpy_mole(self):
         """Molar enthalpy [J/kmol]."""
-        def __get__(self):
-            return self.thermo.enthalpy_mole()
+        return self.thermo.enthalpy_mole()
 
-    property enthalpy_mass:
+    @property
+    def enthalpy_mass(self):
         """Specific enthalpy [J/kg]."""
-        def __get__(self):
-            return self.thermo.enthalpy_mass()
+        return self.thermo.enthalpy_mass()
 
-    property s:
+    @property
+    def s(self):
         """Entropy [J/kg/K or J/kmol/K] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.entropy_mole() * self._mole_factor()
+        return self.thermo.entropy_mole() * self._mole_factor()
 
-    property entropy_mole:
+    @property
+    def entropy_mole(self):
         """Molar entropy [J/kmol/K]."""
-        def __get__(self):
-            return self.thermo.entropy_mole()
+        return self.thermo.entropy_mole()
 
-    property entropy_mass:
+    @property
+    def entropy_mass(self):
         """Specific entropy [J/kg/K]."""
-        def __get__(self):
-            return self.thermo.entropy_mass()
+        return self.thermo.entropy_mass()
 
-    property g:
+    @property
+    def g(self):
         """Gibbs free energy [J/kg or J/kmol] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.gibbs_mole() * self._mole_factor()
+        return self.thermo.gibbs_mole() * self._mole_factor()
 
-    property gibbs_mole:
+    @property
+    def gibbs_mole(self):
         """Molar Gibbs free energy [J/kmol]."""
-        def __get__(self):
-            return self.thermo.gibbs_mole()
+        return self.thermo.gibbs_mole()
 
-    property gibbs_mass:
+    @property
+    def gibbs_mass(self):
         """Specific Gibbs free energy [J/kg]."""
-        def __get__(self):
-            return self.thermo.gibbs_mass()
+        return self.thermo.gibbs_mass()
 
-    property cv:
+    @property
+    def cv(self):
         """
         Heat capacity at constant volume and composition
         [J/kg/K or J/kmol/K depending on `basis`].
         """
-        def __get__(self):
-            return self.thermo.cv_mole() * self._mole_factor()
+        return self.thermo.cv_mole() * self._mole_factor()
 
-    property cv_mole:
+    @property
+    def cv_mole(self):
         """Molar heat capacity at constant volume and composition [J/kmol/K]."""
-        def __get__(self):
-            return self.thermo.cv_mole()
+        return self.thermo.cv_mole()
 
-    property cv_mass:
+    @property
+    def cv_mass(self):
         """Specific heat capacity at constant volume and composition [J/kg/K]."""
-        def __get__(self):
-            return self.thermo.cv_mass()
+        return self.thermo.cv_mass()
 
-    property cp:
+    @property
+    def cp(self):
         """
         Heat capacity at constant pressure and composition.
         [J/kg/K or J/kmol/K depending on `basis`]
         """
-        def __get__(self):
-            return self.thermo.cp_mole() * self._mole_factor()
+        return self.thermo.cp_mole() * self._mole_factor()
 
-    property cp_mole:
+    @property
+    def cp_mole(self):
         """Molar heat capacity at constant pressure and composition [J/kmol/K]."""
-        def __get__(self):
-            return self.thermo.cp_mole()
+        return self.thermo.cp_mole()
 
-    property cp_mass:
+    @property
+    def cp_mass(self):
         """Specific heat capacity at constant pressure and composition [J/kg/K]."""
-        def __get__(self):
-            return self.thermo.cp_mass()
+        return self.thermo.cp_mass()
 
-    property critical_temperature:
+    @property
+    def critical_temperature(self):
         """Critical temperature [K]."""
-        def __get__(self):
-            return self.thermo.critTemperature()
+        return self.thermo.critTemperature()
 
-    property critical_pressure:
+    @property
+    def critical_pressure(self):
         """Critical pressure [Pa]."""
-        def __get__(self):
-            return self.thermo.critPressure()
+        return self.thermo.critPressure()
 
-    property critical_density:
+    @property
+    def critical_density(self):
         """Critical density [kg/m³ or kmol/m³] depending on `basis`."""
-        def __get__(self):
-            return self.thermo.critDensity() / self._mass_factor()
+        return self.thermo.critDensity() / self._mass_factor()
 
-    property P_sat:
+    @property
+    def P_sat(self):
         """Saturation pressure [Pa] at the current temperature."""
-        def __get__(self):
-            return self.thermo.satPressure(self.T)
+        return self.thermo.satPressure(self.T)
 
-    property T_sat:
+    @property
+    def T_sat(self):
         """Saturation temperature [K] at the current pressure."""
-        def __get__(self):
-            return self.thermo.satTemperature(self.P)
+        return self.thermo.satTemperature(self.P)
 
-    property auxiliary_data:
+    @property
+    def auxiliary_data(self):
         """
         Intermediate or model-specific parameters used by particular
         derived classes.
         """
-        def __get__(self):
-            cdef CxxAnyMap values = self.thermo.getAuxiliaryData()
-            return anymap_to_py(values)
+        values: CxxAnyMap = self.thermo.getAuxiliaryData()
+        return anymap_to_py(values)
 
     ######## Methods to get/set the complete thermodynamic state ########
 
-    property state_size:
+    @property
+    def state_size(self):
         """
         Return size of vector defining internal state of the phase.
         """
-        def __get__(self):
-            return self.thermo.stateSize()
+        return self.thermo.stateSize()
 
-    property state:
+    @property
+    def state(self):
         """
         Get/Set the full thermodynamic state as a single array, arranged as
         [temperature, density, mass fractions] for most phases. Useful mainly
         in cases where it is desired to store many states in a multidimensional
         array.
         """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.state_size)
-            self.thermo.saveState(span[double](&state[0], len(state)))
-            return state
+        state = np.empty(self.state_size)
+        cstate: cython.double[::1] = state
+        self.thermo.saveState(span[cython.double](
+            cython.address(cstate[0]), cython.cast(cython.size_t, len(state))))
+        return state
 
-        def __set__(self, state):
-            cdef np.ndarray[np.double_t, ndim=1] cstate = np.asarray(state)
-            self.thermo.restoreState(span[double](&cstate[0], len(cstate)))
+    @state.setter
+    def state(self, state):
+        cstate_arr = np.asarray(state)
+        cstate: cython.double[::1] = cstate_arr
+        self.thermo.restoreState(span[cython.double](
+            cython.address(cstate[0]), cython.cast(cython.size_t, len(cstate_arr))))
 
-    property TD:
+    @property
+    def TD(self):
         """Get/Set temperature [K] and density [kg/m³ or kmol/m³]."""
-        def __get__(self):
-            return self.T, self.density
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            D = values[1] if values[1] is not None else self.density
-            self.thermo.setState_TD(T, D * self._mass_factor())
+        return self.T, self.density
 
-    property TDX:
+    @TD.setter
+    def TD(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        D = values[1] if values[1] is not None else self.density
+        self.thermo.setState_TD(T, D * self._mass_factor())
+
+    @property
+    def TDX(self):
         """
         Get/Set temperature [K], density [kg/m³ or kmol/m³], and mole fractions.
         """
-        def __get__(self):
-            return self.T, self.density, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            D = values[1] if values[1] is not None else self.density
-            self.X = values[2]
-            self.thermo.setState_TD(T, D * self._mass_factor())
+        return self.T, self.density, self.X
 
-    property TDY:
+    @TDX.setter
+    def TDX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        D = values[1] if values[1] is not None else self.density
+        self.X = values[2]
+        self.thermo.setState_TD(T, D * self._mass_factor())
+
+    @property
+    def TDY(self):
         """
         Get/Set temperature [K] and density [kg/m³ or kmol/m³], and mass fractions.
         """
-        def __get__(self):
-            return self.T, self.density, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            D = values[1] if values[1] is not None else self.density
-            self.Y = values[2]
-            self.thermo.setState_TD(T, D * self._mass_factor())
+        return self.T, self.density, self.Y
 
-    property TP:
+    @TDY.setter
+    def TDY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        D = values[1] if values[1] is not None else self.density
+        self.Y = values[2]
+        self.thermo.setState_TD(T, D * self._mass_factor())
+
+    @property
+    def TP(self):
         """Get/Set temperature [K] and pressure [Pa]."""
-        def __get__(self):
-            return self.T, self.P
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_TP(T, P)
+        return self.T, self.P
 
-    property TPX:
+    @TP.setter
+    def TP(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        P = values[1] if values[1] is not None else self.P
+        self.thermo.setState_TP(T, P)
+
+    @property
+    def TPX(self):
         """Get/Set temperature [K], pressure [Pa], and mole fractions."""
-        def __get__(self):
-            return self.T, self.P, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            self.X = values[2]
-            self.thermo.setState_TP(T, P)
+        return self.T, self.P, self.X
 
-    property TPY:
+    @TPX.setter
+    def TPX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        P = values[1] if values[1] is not None else self.P
+        self.X = values[2]
+        self.thermo.setState_TP(T, P)
+
+    @property
+    def TPY(self):
         """Get/Set temperature [K], pressure [Pa], and mass fractions."""
-        def __get__(self):
-            return self.T, self.P, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            self.Y = values[2]
-            self.thermo.setState_TP(T, P)
+        return self.T, self.P, self.Y
 
-    property UV:
+    @TPY.setter
+    def TPY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        T = values[0] if values[0] is not None else self.T
+        P = values[1] if values[1] is not None else self.P
+        self.Y = values[2]
+        self.thermo.setState_TP(T, P)
+
+    @property
+    def UV(self):
         """
         Get/Set internal energy [J/kg or J/kmol] and specific volume [m³/kg or m³/kmol].
         """
-        def __get__(self):
-            return self.u, self.v
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            U = values[0] if values[0] is not None else self.u
-            V = values[1] if values[1] is not None else self.v
-            self.thermo.setState_UV(U / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.u, self.v
 
-    property UVX:
+    @UV.setter
+    def UV(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        U = values[0] if values[0] is not None else self.u
+        V = values[1] if values[1] is not None else self.v
+        self.thermo.setState_UV(U / self._mass_factor(),
+                                V / self._mass_factor())
+
+    @property
+    def UVX(self):
         """
         Get/Set internal energy [J/kg or J/kmol], specific volume [m³/kg or m³/kmol],
         and mole fractions.
         """
-        def __get__(self):
-            return self.u, self.v, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            U = values[0] if values[0] is not None else self.u
-            V = values[1] if values[1] is not None else self.v
-            self.X = values[2]
-            self.thermo.setState_UV(U / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.u, self.v, self.X
 
-    property UVY:
+    @UVX.setter
+    def UVX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        U = values[0] if values[0] is not None else self.u
+        V = values[1] if values[1] is not None else self.v
+        self.X = values[2]
+        self.thermo.setState_UV(U / self._mass_factor(),
+                                V / self._mass_factor())
+
+    @property
+    def UVY(self):
         """
         Get/Set internal energy [J/kg or J/kmol], specific volume [m³/kg or m³/kmol],
         and mass fractions.
         """
-        def __get__(self):
-            return self.u, self.v, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            U = values[0] if values[0] is not None else self.u
-            V = values[1] if values[1] is not None else self.v
-            self.Y = values[2]
-            self.thermo.setState_UV(U / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.u, self.v, self.Y
 
-    property DP:
+    @UVY.setter
+    def UVY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        U = values[0] if values[0] is not None else self.u
+        V = values[1] if values[1] is not None else self.v
+        self.Y = values[2]
+        self.thermo.setState_UV(U / self._mass_factor(),
+                                V / self._mass_factor())
+
+    @property
+    def DP(self):
         """Get/Set density [kg/m³] and pressure [Pa]."""
-        def __get__(self):
-            return self.density, self.P
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            D = values[0] if values[0] is not None else self.density
-            P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+        return self.density, self.P
 
-    property DPX:
+    @DP.setter
+    def DP(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        D = values[0] if values[0] is not None else self.density
+        P = values[1] if values[1] is not None else self.P
+        self.thermo.setState_DP(D*self._mass_factor(), P)
+
+    @property
+    def DPX(self):
         """Get/Set density [kg/m³], pressure [Pa], and mole fractions."""
-        def __get__(self):
-            return self.density, self.P, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            D = values[0] if values[0] is not None else self.density
-            P = values[1] if values[1] is not None else self.P
-            self.X = values[2]
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+        return self.density, self.P, self.X
 
-    property DPY:
+    @DPX.setter
+    def DPX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        D = values[0] if values[0] is not None else self.density
+        P = values[1] if values[1] is not None else self.P
+        self.X = values[2]
+        self.thermo.setState_DP(D*self._mass_factor(), P)
+
+    @property
+    def DPY(self):
         """Get/Set density [kg/m³], pressure [Pa], and mass fractions."""
-        def __get__(self):
-            return self.density, self.P, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            D = values[0] if values[0] is not None else self.density
-            P = values[1] if values[1] is not None else self.P
-            self.Y = values[2]
-            self.thermo.setState_DP(D*self._mass_factor(), P)
+        return self.density, self.P, self.Y
 
-    property HP:
+    @DPY.setter
+    def DPY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        D = values[0] if values[0] is not None else self.density
+        P = values[1] if values[1] is not None else self.P
+        self.Y = values[2]
+        self.thermo.setState_DP(D*self._mass_factor(), P)
+
+    @property
+    def HP(self):
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
-        def __get__(self):
-            return self.h, self.P
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            H = values[0] if values[0] is not None else self.h
-            P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_HP(H / self._mass_factor(), P)
+        return self.h, self.P
 
-    property HPX:
+    @HP.setter
+    def HP(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        H = values[0] if values[0] is not None else self.h
+        P = values[1] if values[1] is not None else self.P
+        self.thermo.setState_HP(H / self._mass_factor(), P)
+
+    @property
+    def HPX(self):
         """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mole fractions."""
-        def __get__(self):
-            return self.h, self.P, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            H = values[0] if values[0] is not None else self.h
-            P = values[1] if values[1] is not None else self.P
-            self.X = values[2]
-            self.thermo.setState_HP(H / self._mass_factor(), P)
+        return self.h, self.P, self.X
 
-    property HPY:
+    @HPX.setter
+    def HPX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        H = values[0] if values[0] is not None else self.h
+        P = values[1] if values[1] is not None else self.P
+        self.X = values[2]
+        self.thermo.setState_HP(H / self._mass_factor(), P)
+
+    @property
+    def HPY(self):
         """Get/Set enthalpy [J/kg or J/kmol], pressure [Pa] and mass fractions."""
-        def __get__(self):
-            return self.h, self.P, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            H = values[0] if values[0] is not None else self.h
-            P = values[1] if values[1] is not None else self.P
-            self.Y = values[2]
-            self.thermo.setState_HP(H / self._mass_factor(), P)
+        return self.h, self.P, self.Y
 
-    property SP:
+    @HPY.setter
+    def HPY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        H = values[0] if values[0] is not None else self.h
+        P = values[1] if values[1] is not None else self.P
+        self.Y = values[2]
+        self.thermo.setState_HP(H / self._mass_factor(), P)
+
+    @property
+    def SP(self):
         """Get/Set entropy [J/kg/K or J/kmol/K] and pressure [Pa]."""
-        def __get__(self):
-            return self.s, self.P
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_SP(S / self._mass_factor(), P)
+        return self.s, self.P
 
-    property SPX:
+    @SP.setter
+    def SP(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        P = values[1] if values[1] is not None else self.P
+        self.thermo.setState_SP(S / self._mass_factor(), P)
+
+    @property
+    def SPX(self):
         """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mole fractions."""
-        def __get__(self):
-            return self.s, self.P, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            P = values[1] if values[1] is not None else self.P
-            self.X = values[2]
-            self.thermo.setState_SP(S / self._mass_factor(), P)
+        return self.s, self.P, self.X
 
-    property SPY:
+    @SPX.setter
+    def SPX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        P = values[1] if values[1] is not None else self.P
+        self.X = values[2]
+        self.thermo.setState_SP(S / self._mass_factor(), P)
+
+    @property
+    def SPY(self):
         """Get/Set entropy [J/kg/K or J/kmol/K], pressure [Pa], and mass fractions."""
-        def __get__(self):
-            return self.s, self.P, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            P = values[1] if values[1] is not None else self.P
-            self.Y = values[2]
-            self.thermo.setState_SP(S / self._mass_factor(), P)
+        return self.s, self.P, self.Y
 
-    property SV:
+    @SPY.setter
+    def SPY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        P = values[1] if values[1] is not None else self.P
+        self.Y = values[2]
+        self.thermo.setState_SP(S / self._mass_factor(), P)
+
+    @property
+    def SV(self):
         """
         Get/Set entropy [J/kg/K or J/kmol/K] and specific volume [m³/kg or m³/kmol].
         """
-        def __get__(self):
-            return self.s, self.v
-        def __set__(self, values):
-            assert len(values) == 2, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            V = values[1] if values[1] is not None else self.v
-            self.thermo.setState_SV(S / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.s, self.v
 
-    property SVX:
+    @SV.setter
+    def SV(self, values):
+        assert len(values) == 2, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        V = values[1] if values[1] is not None else self.v
+        self.thermo.setState_SV(S / self._mass_factor(),
+                                V / self._mass_factor())
+
+    @property
+    def SVX(self):
         """
         Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol], and
         mole fractions.
         """
-        def __get__(self):
-            return self.s, self.v, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            V = values[1] if values[1] is not None else self.v
-            self.X = values[2]
-            self.thermo.setState_SV(S / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.s, self.v, self.X
 
-    property SVY:
+    @SVX.setter
+    def SVX(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        V = values[1] if values[1] is not None else self.v
+        self.X = values[2]
+        self.thermo.setState_SV(S / self._mass_factor(),
+                                V / self._mass_factor())
+
+    @property
+    def SVY(self):
         """
         Get/Set entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or m³/kmol], and
         mass fractions.
         """
-        def __get__(self):
-            return self.s, self.v, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            S = values[0] if values[0] is not None else self.s
-            V = values[1] if values[1] is not None else self.v
-            self.Y = values[2]
-            self.thermo.setState_SV(S / self._mass_factor(),
-                                    V / self._mass_factor())
+        return self.s, self.v, self.Y
+
+    @SVY.setter
+    def SVY(self, values):
+        assert len(values) == 3, 'incorrect number of values'
+        S = values[0] if values[0] is not None else self.s
+        V = values[1] if values[1] is not None else self.v
+        self.Y = values[2]
+        self.thermo.setState_SV(S / self._mass_factor(),
+                                V / self._mass_factor())
 
     # partial molar / non-dimensional properties
-    property partial_molar_enthalpies:
+    @property
+    def partial_molar_enthalpies(self):
         """Array of species partial molar enthalpies [J/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarEnthalpies)
+        return self._getArray1(thermo_getPartialMolarEnthalpies)
 
-    property partial_molar_entropies:
+    @property
+    def partial_molar_entropies(self):
         """Array of species partial molar entropies [J/kmol/K]."""
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarEntropies)
+        return self._getArray1(thermo_getPartialMolarEntropies)
 
-    property partial_molar_int_energies:
+    @property
+    def partial_molar_int_energies(self):
         """Array of species partial molar internal energies [J/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarIntEnergies)
+        return self._getArray1(thermo_getPartialMolarIntEnergies)
 
-    property partial_molar_int_energies_TV:
+    @property
+    def partial_molar_int_energies_TV(self):
         r"""
         Array of species `\tilde{u}_k = (\partial U/\partial n_k)_{T,V,n_{j\ne k}}`
         values [J/kmol].
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarIntEnergies_TV)
+        return self._getArray1(thermo_getPartialMolarIntEnergies_TV)
 
-    property chemical_potentials:
+    @property
+    def chemical_potentials(self):
         """Array of species chemical potentials [J/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getChemPotentials)
+        return self._getArray1(thermo_getChemPotentials)
 
-    property electrochemical_potentials:
+    @property
+    def electrochemical_potentials(self):
         """Array of species electrochemical potentials [J/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getElectrochemPotentials)
+        return self._getArray1(thermo_getElectrochemPotentials)
 
-    property partial_molar_cp:
+    @property
+    def partial_molar_cp(self):
         """
         Array of species partial molar specific heat capacities at constant
         pressure [J/kmol/K].
         """
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarCp)
+        return self._getArray1(thermo_getPartialMolarCp)
 
-    property partial_molar_cv_TV:
+    @property
+    def partial_molar_cv_TV(self):
         r"""
         Array of species `\tilde{c}_{v,k} = (\partial \tilde{u}_k/\partial T)_{V,n}`
         values [J/kmol/K].
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarCv_TV)
+        return self._getArray1(thermo_getPartialMolarCv_TV)
 
-    property partial_molar_volumes:
+    @property
+    def partial_molar_volumes(self):
         """Array of species partial molar volumes [m³/kmol]."""
-        def __get__(self):
-            return self._getArray1(thermo_getPartialMolarVolumes)
+        return self._getArray1(thermo_getPartialMolarVolumes)
 
-    property standard_enthalpies_RT:
+    @property
+    def standard_enthalpies_RT(self):
         """
         Array of nondimensional species standard-state enthalpies at the
         current temperature and pressure.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getEnthalpy_RT)
+        return self._getArray1(thermo_getEnthalpy_RT)
 
-    property standard_entropies_R:
+    @property
+    def standard_entropies_R(self):
         """
         Array of nondimensional species standard-state entropies at the
         current temperature and pressure.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getEntropy_R)
+        return self._getArray1(thermo_getEntropy_R)
 
-    property standard_int_energies_RT:
+    @property
+    def standard_int_energies_RT(self):
         """
         Array of nondimensional species standard-state internal energies at the
         current temperature and pressure.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getIntEnergy_RT)
+        return self._getArray1(thermo_getIntEnergy_RT)
 
-    property standard_gibbs_RT:
+    @property
+    def standard_gibbs_RT(self):
         """
         Array of nondimensional species standard-state Gibbs free energies at
         the current temperature and pressure.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getGibbs_RT)
+        return self._getArray1(thermo_getGibbs_RT)
 
-    property standard_cp_R:
+    @property
+    def standard_cp_R(self):
         """
         Array of nondimensional species standard-state specific heat capacities
         at constant pressure at the current temperature and pressure.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getCp_R)
+        return self._getArray1(thermo_getCp_R)
 
-    property activities:
+    @property
+    def activities(self):
         """
         Array of nondimensional activities. Returns either molar or molal
         activities depending on the convention of the thermodynamic model.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getActivities)
+        return self._getArray1(thermo_getActivities)
 
-    property activity_coefficients:
+    @property
+    def activity_coefficients(self):
         """
         Array of nondimensional, molar activity coefficients.
         """
-        def __get__(self):
-            return self._getArray1(thermo_getActivityCoefficients)
+        return self._getArray1(thermo_getActivityCoefficients)
 
     ######## Miscellaneous properties ########
-    property isothermal_compressibility:
+    @property
+    def isothermal_compressibility(self):
         """Isothermal compressibility [1/Pa]."""
-        def __get__(self):
-            return self.thermo.isothermalCompressibility()
+        return self.thermo.isothermalCompressibility()
 
-    property thermal_expansion_coeff:
+    @property
+    def thermal_expansion_coeff(self):
         """Thermal expansion coefficient [1/K]."""
-        def __get__(self):
-            return self.thermo.thermalExpansionCoeff()
+        return self.thermo.thermalExpansionCoeff()
 
-    property internal_pressure:
+    @property
+    def internal_pressure(self):
         """
         Internal pressure [Pa].
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            return self.thermo.internalPressure()
+        return self.thermo.internalPressure()
 
-    property sound_speed:
+    @property
+    def sound_speed(self):
         """Speed of sound [m/s]."""
-        def __get__(self):
-            return self.thermo.soundSpeed()
+        return self.thermo.soundSpeed()
 
-    property min_temp:
+    @property
+    def min_temp(self):
         """
         Minimum temperature for which the thermodynamic data for the phase are
         valid.
         """
-        def __get__(self):
-            return self.thermo.minTemp()
+        return self.thermo.minTemp()
 
-    property max_temp:
+    @property
+    def max_temp(self):
         """
         Maximum temperature for which the thermodynamic data for the phase are
         valid.
         """
-        def __get__(self):
-            return self.thermo.maxTemp()
+        return self.thermo.maxTemp()
 
-    property enforce_temperature_limits:
+    @property
+    def enforce_temperature_limits(self):
         """
         Get/set whether temperature limits are enforced in iterative solvers.
 
@@ -1788,68 +1882,75 @@ cdef class ThermoPhase(_SolutionBase):
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            return self.thermo.temperatureLimitsEnforced()
-        def __set__(self, enable):
-            self.thermo.setTemperatureLimitsEnforced(enable)
+        return self.thermo.temperatureLimitsEnforced()
 
-    property reference_pressure:
+    @enforce_temperature_limits.setter
+    def enforce_temperature_limits(self, enable):
+        self.thermo.setTemperatureLimitsEnforced(enable)
+
+    @property
+    def reference_pressure(self):
         """Reference state pressure [Pa]."""
-        def __get__(self):
-            return self.thermo.refPressure()
+        return self.thermo.refPressure()
 
-    property electric_potential:
+    @property
+    def electric_potential(self):
         """Get/Set the electric potential [V] for this phase."""
-        def __get__(self):
-            return self.thermo.electricPotential()
-        def __set__(self, double value):
-            self.thermo.setElectricPotential(value)
+        return self.thermo.electricPotential()
 
-    property standard_concentration_units:
+    @electric_potential.setter
+    def electric_potential(self, value: cython.double):
+        self.thermo.setElectricPotential(value)
+
+    @property
+    def standard_concentration_units(self):
         """Get standard concentration units for this phase."""
-        def __get__(self):
-            cdef CxxUnits units = self.thermo.standardConcentrationUnits()
-            return Units.copy(units)
+        units: CxxUnits = self.thermo.standardConcentrationUnits()
+        return Units.copy(units)
 
     # methods for plasma
-    property Te:
+    @property
+    def Te(self):
         """Get/Set electron Temperature [K].
 
         Note that the electron temperature must be set before setting the gas
         temperature and pressure/density to properly constrain the pressure.
         """
-        def __get__(self):
-                return self.thermo.electronTemperature()
+        return self.thermo.electronTemperature()
 
-        def __set__(self, value):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setElectronTemperature(value)
 
-    property Pe:
+    @Te.setter
+    def Te(self, value):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setElectronTemperature(value)
+
+    @property
+    def Pe(self):
         """Get electron Pressure [Pa]."""
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.electronPressure()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.electronPressure()
 
-    property reduced_electric_field:
+    @property
+    def reduced_electric_field(self):
         """
         Get/Set the reduced electric field (E/N) [V·m²].
 
         .. versionadded:: 3.2
         """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.reducedElectricField()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.reducedElectricField()
 
-        def __set__(self, value):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setReducedElectricField(value)
+    @reduced_electric_field.setter
+    def reduced_electric_field(self, value):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setReducedElectricField(value)
 
-    property electric_field:
+    @property
+    def electric_field(self):
         """
         Get/Set the electric field (E) [V/m].
 
@@ -1858,15 +1959,15 @@ cdef class ThermoPhase(_SolutionBase):
 
         .. versionadded:: 3.2
         """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.electricField()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.electricField()
 
-        def __set__(self, value):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setElectricField(value)
+    @electric_field.setter
+    def electric_field(self, value):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setElectricField(value)
 
     def set_discretized_electron_energy_distribution(self, levels, distribution):
         """
@@ -1885,24 +1986,26 @@ cdef class ThermoPhase(_SolutionBase):
         if (len(levels) != len(distribution)):
             raise ValueError('Length of levels and distribution are different')
 
-        cdef np.ndarray[np.double_t, ndim=1] data_levels = \
-            np.ascontiguousarray(levels, dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] data_dist = \
-            np.ascontiguousarray(distribution, dtype=np.double)
+        data_levels = np.ascontiguousarray(levels, dtype=np.double)
+        data_dist = np.ascontiguousarray(distribution, dtype=np.double)
+        cdata_levels: cython.double[::1] = data_levels
+        cdata_dist: cython.double[::1] = data_dist
         self.plasma.setDiscretizedElectronEnergyDist(
-            span[double](&data_levels[0], data_levels.size),
-            span[double](&data_dist[0], data_dist.size))
+            span[cython.double](cython.address(cdata_levels[0]),
+                                cython.cast(cython.size_t, data_levels.size)),
+            span[cython.double](cython.address(cdata_dist[0]),
+                                cython.cast(cython.size_t, data_dist.size)))
 
-    property mean_temperature:
+    @property
+    def mean_temperature(self):
         """Get the mean temperature of the plasma [K].
         This is a mole-weighted average of the electron and heavy species temperatures.
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.meanTemperature()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.meanTemperature()
 
     def update_electron_energy_distribution(self):
         """
@@ -1916,122 +2019,137 @@ cdef class ThermoPhase(_SolutionBase):
                             f'thermo model: {self.thermo_model}.')
         self.plasma.updateElectronEnergyDistribution()
 
-    property n_electron_energy_levels:
+    @property
+    def n_electron_energy_levels(self):
         """ Number of electron energy levels """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.nElectronEnergyLevels()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.nElectronEnergyLevels()
 
-    property electron_energy_levels:
+    @property
+    def electron_energy_levels(self):
         """ Electron energy levels [eV]"""
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
-                self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyLevels(span[double](&data[0], data.size))
-            return data
-        def __set__(self, levels):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(levels, dtype=np.double)
-            self.plasma.setElectronEnergyLevels(span[double](&data[0], data.size))
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        data = np.empty(self.n_electron_energy_levels)
+        cdata: cython.double[::1] = data
+        self.plasma.getElectronEnergyLevels(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
+        return data
 
-    property electron_energy_distribution:
+    @electron_energy_levels.setter
+    def electron_energy_levels(self, levels):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        data = np.ascontiguousarray(levels, dtype=np.double)
+        cdata: cython.double[::1] = data
+        self.plasma.setElectronEnergyLevels(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
+
+    @property
+    def electron_energy_distribution(self):
         """ Electron energy distribution """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
-                self.n_electron_energy_levels)
-            self.plasma.getElectronEnergyDistribution(span[double](&data[0], data.size))
-            return data
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        data = np.empty(self.n_electron_energy_levels)
+        cdata: cython.double[::1] = data
+        self.plasma.getElectronEnergyDistribution(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
+        return data
 
-    property isotropic_shape_factor:
+    @property
+    def isotropic_shape_factor(self):
         """ Shape factor of isotropic-velocity distribution for electron energy """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.isotropicShapeFactor()
-        def __set__(self, x):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setIsotropicShapeFactor(x)
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.isotropicShapeFactor()
 
-    property electron_energy_distribution_type:
+    @isotropic_shape_factor.setter
+    def isotropic_shape_factor(self, x):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setIsotropicShapeFactor(x)
+
+    @property
+    def electron_energy_distribution_type(self):
         """ Electron energy distribution type """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return pystr(self.plasma.electronEnergyDistributionType())
-        def __set__(self, distribution_type):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setElectronEnergyDistributionType(stringify(distribution_type))
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return pystr(self.plasma.electronEnergyDistributionType())
 
-    property mean_electron_energy:
+    @electron_energy_distribution_type.setter
+    def electron_energy_distribution_type(self, distribution_type):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setElectronEnergyDistributionType(stringify(distribution_type))
+
+    @property
+    def mean_electron_energy(self):
         """ Mean electron energy [eV] """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.meanElectronEnergy()
-        def __set__(self, double energy):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setMeanElectronEnergy(energy)
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.meanElectronEnergy()
 
-    property quadrature_method:
+    @mean_electron_energy.setter
+    def mean_electron_energy(self, energy: cython.double):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setMeanElectronEnergy(energy)
+
+    @property
+    def quadrature_method(self):
         """ Quadrature method """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return pystr(self.plasma.quadratureMethod())
-        def __set__(self, method):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setQuadratureMethod(stringify(method))
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return pystr(self.plasma.quadratureMethod())
 
-    property normalize_electron_energy_distribution_enabled:
+    @quadrature_method.setter
+    def quadrature_method(self, method):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.setQuadratureMethod(stringify(method))
+
+    @property
+    def normalize_electron_energy_distribution_enabled(self):
         """ Automatically normalize electron energy distribution """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.normalizeElectronEnergyDistEnabled()
-        def __set__(self, enable):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.enableNormalizeElectronEnergyDist(enable)
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.normalizeElectronEnergyDistEnabled()
 
-    property electron_species_name:
+    @normalize_electron_energy_distribution_enabled.setter
+    def normalize_electron_energy_distribution_enabled(self, enable):
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        self.plasma.enableNormalizeElectronEnergyDist(enable)
+
+    @property
+    def electron_species_name(self):
         """ Electron species name """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return pystr(self.plasma.electronSpeciesName())
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return pystr(self.plasma.electronSpeciesName())
 
-    property elastic_power_loss:
+    @property
+    def elastic_power_loss(self):
         """
         Elastic power loss (W/m³)
 
         .. versionadded:: 3.2
         """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.elasticPowerLoss()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.elasticPowerLoss()
 
-    property electron_mobility:
+    @property
+    def electron_mobility(self):
         """
         Electron mobility [m²/V/s]
 
         .. versionadded:: 4.0
         """
-        def __get__(self):
-            if not self._enable_plasma:
-                raise ThermoModelMethodError(self.thermo_model)
-            return self.plasma.electronMobility()
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+        return self.plasma.electronMobility()
 
     def set_electron_energy_distribution_parameters(self, params):
         """
@@ -2104,57 +2222,65 @@ cdef class ThermoPhase(_SolutionBase):
         if not self._enable_plasma:
             raise ThermoModelMethodError(self.thermo_model)
 
-        cdef CxxAnyMap any_map = py_to_anymap(params)
+        any_map: CxxAnyMap = py_to_anymap(params)
         self.plasma.setElectronEnergyDistributionParameters(any_map)
 
-cdef class InterfacePhase(ThermoPhase):
+
+@cython.cclass
+class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):
         if not kwargs.get("init", True):
             return
         if not dynamic_cast[CxxSurfPhasePtr](self.thermo):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
-        self.surf = <CxxSurfPhase*>(self.thermo)
+        self.surf = cython.cast(cython.pointer(CxxSurfPhase), self.thermo)
 
-    property adjacent:
+    @property
+    def adjacent(self):
         """
         A dictionary containing higher-dimensional phases adjacent to this interface,
         for example bulk phases adjacent to a surface.
         """
-        def __get__(self):
-            return self._adjacent
+        return self._adjacent
 
-    property site_density:
+    @property
+    def site_density(self):
         """
         Get/Set the site density. [kmol/m²] for surface phases; [kmol/m] for
         edge phases.
         """
-        def __get__(self):
-            return self.surf.siteDensity()
-        def __set__(self, double value):
-            self.surf.setSiteDensity(value)
+        return self.surf.siteDensity()
 
-    property coverages:
+    @site_density.setter
+    def site_density(self, value: cython.double):
+        self.surf.setSiteDensity(value)
+
+    @property
+    def coverages(self):
         """Get/Set the fraction of sites covered by each species."""
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_species)
-            self.surf.getCoverages(span[double](&data[0], data.size))
-            if self._selected_species.size:
-                return data[self._selected_species]
-            else:
-                return data
+        data = np.empty(self.n_species)
+        cdata: cython.double[::1] = data
+        self.surf.getCoverages(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
+        if self._selected_species.size:
+            return data[self._selected_species]
+        else:
+            return data
 
-        def __set__(self, theta):
-            if isinstance(theta, (dict, str, bytes)):
-                self.surf.setCoveragesByName(comp_map(theta))
-                return
+    @coverages.setter
+    def coverages(self, theta):
+        if isinstance(theta, (dict, str, bytes)):
+            self.surf.setCoveragesByName(comp_map(theta))
+            return
 
-            if len(theta) != self.n_species:
-                raise ValueError("Array has incorrect length."
-                    " Got {}, expected {}".format(len(theta), self.n_species))
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(theta, dtype=np.double)
-            self.surf.setCoverages(span[double](&data[0], data.size))
+        if len(theta) != self.n_species:
+            raise ValueError("Array has incorrect length."
+                " Got {}, expected {}".format(len(theta), self.n_species))
+        data = np.ascontiguousarray(theta, dtype=np.double)
+        cdata: cython.double[::1] = data
+        self.surf.setCoverages(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
 
     def set_unnormalized_coverages(self, cov):
         """
@@ -2162,188 +2288,212 @@ cdef class InterfacePhase(ThermoPhase):
         Useful primarily when calculating derivatives with respect to cov[k] by
         finite difference.
         """
-        cdef np.ndarray[np.double_t, ndim=1] data
         if len(cov) == self.n_species:
             data = np.ascontiguousarray(cov, dtype=np.double)
         else:
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(cov), self.n_species))
-        self.surf.setCoveragesNoNorm(span[double](&data[0], data.size))
+        cdata: cython.double[::1] = data
+        self.surf.setCoveragesNoNorm(span[cython.double](
+            cython.address(cdata[0]), cython.cast(cython.size_t, data.size)))
 
 
-cdef class PureFluid(ThermoPhase):
+@cython.cclass
+class PureFluid(ThermoPhase):
     """
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
 
-    property Q:
+    @property
+    def Q(self):
         """
         Get/Set vapor fraction (quality). Can be set only when in the two-phase
         region.
         """
-        def __get__(self):
-            return self.thermo.vaporFraction()
-        def __set__(self, Q):
-            if (self.P >= self.critical_pressure or
-                abs(self.P-self.P_sat)/self.P > 1e-4):
-                raise ValueError('Cannot set vapor quality outside the '
-                                 'two-phase region')
-            self.thermo.setState_Psat(self.P, Q)
+        return self.thermo.vaporFraction()
 
-    property TQ:
+    @Q.setter
+    def Q(self, Q):
+        if (self.P >= self.critical_pressure or
+            abs(self.P-self.P_sat)/self.P > 1e-4):
+            raise ValueError('Cannot set vapor quality outside the '
+                             'two-phase region')
+        self.thermo.setState_Psat(self.P, Q)
+
+    @property
+    def TQ(self):
         """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
-        def __get__(self):
-            return self.T, self.Q
-        def __set__(self, values):
-            T = values[0] if values[0] is not None else self.T
-            Q = values[1] if values[1] is not None else self.Q
-            self.thermo.setState_Tsat(T, Q)
+        return self.T, self.Q
 
-    property PQ:
+    @TQ.setter
+    def TQ(self, values):
+        T = values[0] if values[0] is not None else self.T
+        Q = values[1] if values[1] is not None else self.Q
+        self.thermo.setState_Tsat(T, Q)
+
+    @property
+    def PQ(self):
         """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
-        def __get__(self):
-            return self.P, self.Q
-        def __set__(self, values):
-            P = values[0] if values[0] is not None else self.P
-            Q = values[1] if values[1] is not None else self.Q
-            self.thermo.setState_Psat(P, Q)
+        return self.P, self.Q
 
-    property ST:
+    @PQ.setter
+    def PQ(self, values):
+        P = values[0] if values[0] is not None else self.P
+        Q = values[1] if values[1] is not None else self.Q
+        self.thermo.setState_Psat(P, Q)
+
+    @property
+    def ST(self):
         """Get/Set the entropy [J/kg/K] and temperature [K] of a PureFluid."""
-        def __get__(self):
-            return self.s, self.T
-        def __set__(self, values):
-            S = values[0] if values[0] is not None else self.s
-            T = values[1] if values[1] is not None else self.T
-            self.thermo.setState_ST(S / self._mass_factor(), T)
+        return self.s, self.T
 
-    property TV:
+    @ST.setter
+    def ST(self, values):
+        S = values[0] if values[0] is not None else self.s
+        T = values[1] if values[1] is not None else self.T
+        self.thermo.setState_ST(S / self._mass_factor(), T)
+
+    @property
+    def TV(self):
         """
         Get/Set the temperature [K] and specific volume [m³/kg] of a PureFluid.
         """
-        def __get__(self):
-            return self.T, self.v
-        def __set__(self, values):
-            T = values[0] if values[0] is not None else self.T
-            V = values[1] if values[1] is not None else self.v
-            self.thermo.setState_TV(T, V / self._mass_factor())
+        return self.T, self.v
 
-    property PV:
+    @TV.setter
+    def TV(self, values):
+        T = values[0] if values[0] is not None else self.T
+        V = values[1] if values[1] is not None else self.v
+        self.thermo.setState_TV(T, V / self._mass_factor())
+
+    @property
+    def PV(self):
         """
         Get/Set the pressure [Pa] and specific volume [m³/kg] of a PureFluid.
         """
-        def __get__(self):
-            return self.P, self.v
-        def __set__(self, values):
-            P = values[0] if values[0] is not None else self.P
-            V = values[1] if values[1] is not None else self.v
-            self.thermo.setState_PV(P, V / self._mass_factor())
+        return self.P, self.v
 
-    property UP:
+    @PV.setter
+    def PV(self, values):
+        P = values[0] if values[0] is not None else self.P
+        V = values[1] if values[1] is not None else self.v
+        self.thermo.setState_PV(P, V / self._mass_factor())
+
+    @property
+    def UP(self):
         """
         Get/Set the specific internal energy [J/kg] and the
         pressure [Pa] of a PureFluid.
         """
-        def __get__(self):
-            return self.u, self.P
-        def __set__(self, values):
-            U = values[0] if values[0] is not None else self.u
-            P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_UP(U / self._mass_factor(), P)
+        return self.u, self.P
 
-    property VH:
+    @UP.setter
+    def UP(self, values):
+        U = values[0] if values[0] is not None else self.u
+        P = values[1] if values[1] is not None else self.P
+        self.thermo.setState_UP(U / self._mass_factor(), P)
+
+    @property
+    def VH(self):
         """
         Get/Set the specific volume [m³/kg] and the specific
         enthalpy [J/kg] of a PureFluid.
         """
-        def __get__(self):
-            return self.v, self.h
-        def __set__(self, values):
-            V = values[0] if values[0] is not None else self.v
-            H = values[1] if values[1] is not None else self.h
-            self.thermo.setState_VH(V/self._mass_factor(), H/self._mass_factor())
+        return self.v, self.h
 
-    property TH:
+    @VH.setter
+    def VH(self, values):
+        V = values[0] if values[0] is not None else self.v
+        H = values[1] if values[1] is not None else self.h
+        self.thermo.setState_VH(V/self._mass_factor(), H/self._mass_factor())
+
+    @property
+    def TH(self):
         """
         Get/Set the temperature [K] and the specific enthalpy [J/kg]
         of a PureFluid.
         """
-        def __get__(self):
-            return self.T, self.h
-        def __set__(self, values):
-            T = values[0] if values[0] is not None else self.T
-            H = values[1] if values[1] is not None else self.h
-            self.thermo.setState_TH(T, H / self._mass_factor())
+        return self.T, self.h
 
-    property SH:
+    @TH.setter
+    def TH(self, values):
+        T = values[0] if values[0] is not None else self.T
+        H = values[1] if values[1] is not None else self.h
+        self.thermo.setState_TH(T, H / self._mass_factor())
+
+    @property
+    def SH(self):
         """
         Get/Set the specific entropy [J/kg/K] and the specific
         enthalpy [J/kg] of a PureFluid.
         """
-        def __get__(self):
-            return self.s, self.h
-        def __set__(self, values):
-            S = values[0] if values[0] is not None else self.s
-            H = values[1] if values[1] is not None else self.h
-            self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
+        return self.s, self.h
 
-    property TDQ:
+    @SH.setter
+    def SH(self, values):
+        S = values[0] if values[0] is not None else self.s
+        H = values[1] if values[1] is not None else self.h
+        self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
+
+    @property
+    def TDQ(self):
         """
         Get the temperature [K], density [kg/m³ or kmol/m³], and vapor fraction.
         """
-        def __get__(self):
-            return self.T, self.density, self.Q
+        return self.T, self.density, self.Q
 
-    property TPQ:
+    @property
+    def TPQ(self):
         """
         Get/Set the temperature [K], pressure [Pa], and vapor fraction of a
         PureFluid.
 
         An Exception is raised if the thermodynamic state is not consistent.
         """
-        def __get__(self):
-            return self.T, self.P, self.Q
-        def __set__(self, values):
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            Q = values[2] if values[2] is not None else self.Q
-            self.thermo.setState_TPQ(T, P, Q)
+        return self.T, self.P, self.Q
 
-    property UVQ:
+    @TPQ.setter
+    def TPQ(self, values):
+        T = values[0] if values[0] is not None else self.T
+        P = values[1] if values[1] is not None else self.P
+        Q = values[2] if values[2] is not None else self.Q
+        self.thermo.setState_TPQ(T, P, Q)
+
+    @property
+    def UVQ(self):
         """
         Get the internal energy [J/kg or J/kmol], specific volume
         [m³/kg or m³/kmol], and vapor fraction.
         """
-        def __get__(self):
-            return self.u, self.v, self.Q
+        return self.u, self.v, self.Q
 
-    property DPQ:
+    @property
+    def DPQ(self):
         """Get the density [kg/m³], pressure [Pa], and vapor fraction."""
-        def __get__(self):
-            return self.density, self.P, self.Q
+        return self.density, self.P, self.Q
 
-    property HPQ:
+    @property
+    def HPQ(self):
         """
         Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
         """
-        def __get__(self):
-            return self.h, self.P, self.Q
+        return self.h, self.P, self.Q
 
-    property SPQ:
+    @property
+    def SPQ(self):
         """
         Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
         """
-        def __get__(self):
-            return self.s, self.P, self.Q
+        return self.s, self.P, self.Q
 
-    property SVQ:
+    @property
+    def SVQ(self):
         """
         Get the entropy [J/kg/K or J/kmol/K], specific volume [m³/kg or
         m³/kmol], and vapor fraction.
         """
-        def __get__(self):
-            return self.s, self.v, self.Q
+        return self.s, self.v, self.Q
 
 
 class Element:
@@ -2412,9 +2562,9 @@ class Element:
             self._weight = getElementWeight(stringify(arg))
         elif isinstance(arg, int):
             self._atomic_number = arg
-            self._name = pystr(getElementName(<int>arg))
-            self._symbol = pystr(getElementSymbol(<int>arg))
-            self._weight = getElementWeight(<int>arg)
+            self._name = pystr(getElementName(cython.cast(cython.int, arg)))
+            self._symbol = pystr(getElementSymbol(cython.cast(cython.int, arg)))
+            self._weight = getElementWeight(cython.cast(cython.int, arg))
         else:
             raise TypeError('The input argument to Element must be a string '
                             'or an integer')
