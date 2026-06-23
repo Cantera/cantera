@@ -1,15 +1,21 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 import sys as _sys
-cimport numpy as np
 import numpy as np
 import warnings
 
-from ._utils cimport *
+import cython
+from cython.cimports.cantera._utils import stringify, pystr
 
 
-cdef double func_callback(double t, void* obj, void** err) except? 0.0:
+@cython.cfunc
+@cython.exceptval(0.0, check=True)
+def func_callback(t: cython.double, obj: cython.p_void,
+                  err: cython.pp_void) -> cython.double:
     """
     This function is called from C/C++ to evaluate a `Func1` object ``obj``,
     returning the value of the function at ``t``. If an exception occurs while
@@ -17,18 +23,19 @@ cdef double func_callback(double t, void* obj, void** err) except? 0.0:
     two-element array ``err``.
     """
     try:
-        return (<Func1>obj).callable(t)
+        return cython.cast(Func1, obj).callable(t)
     except BaseException as e:
         exc_type, exc_value = _sys.exc_info()[:2]
 
         # Stash the exception info to prevent it from being garbage collected
-        (<Func1>obj).exception = exc_type, exc_value
-        err[0] = <void*>exc_type
-        err[1] = <void*>exc_value
+        cython.cast(Func1, obj).exception = exc_type, exc_value
+        err[0] = cython.cast(cython.p_void, exc_type)
+        err[1] = cython.cast(cython.p_void, exc_value)
         return 0.0
 
 
-cdef class Func1:
+@cython.cclass
+class Func1:
     """
     This class is used as a wrapper for a function of one variable,
     :math:`y = f(t)`, that is defined in Python and can be called by the
@@ -111,7 +118,7 @@ cdef class Func1:
             self._set_callback(c)
             return
 
-        cdef shared_ptr[CxxFunc1] cxx_func
+        cxx_func: shared_ptr[CxxFunc1]
         if isinstance(c, str):
             cxx_func = Func1._make_cxx_func1(stringify(c), args)
             self._func = cxx_func
@@ -137,9 +144,10 @@ cdef class Func1:
                 "'Func1' objects must be constructed from a number or "
                 "a callable object") from None
 
-    cpdef void _set_callback(self, c) except *:
+    @cython.ccall
+    def _set_callback(self, c) -> cython.void:
         self.callable = c
-        self._func.reset(new CxxFunc1Py(func_callback, <void*>self))
+        self._func.reset(new CxxFunc1Py(func_callback, cython.cast(cython.p_void, self)))
         self.func = self._func.get()
 
     @property
@@ -151,13 +159,14 @@ cdef class Func1:
         """
         return pystr(self.func.type())
 
+    @cython.cfunc
     @staticmethod
-    cdef shared_ptr[CxxFunc1] _make_cxx_func1(string cxx_string, tuple args) except *:
+    def _make_cxx_func1(cxx_string: string, args: tuple) -> shared_ptr[CxxFunc1]:
         """Create C++ functor from type specifier and arguments."""
-        cdef shared_ptr[CxxFunc1] func
-        cdef Func1 f0
-        cdef Func1 f1
-        cdef vector[double] arr
+        func: shared_ptr[CxxFunc1]
+        f0: Func1
+        f1: Func1
+        arr: vector[cython.double]
         func1_type = pystr(CxxCheckFunc1(cxx_string))
         if func1_type == "undefined":
             functor_type = pystr(cxx_string)
@@ -212,10 +221,11 @@ cdef class Func1:
             raise ValueError("Invalid arguments")
         return func
 
+    @cython.cfunc
     @staticmethod
-    cdef Func1 _make_func1(shared_ptr[CxxFunc1] func):
+    def _make_func1(func: shared_ptr[CxxFunc1]) -> Func1:
         """Create Python Func1 from C++ functor."""
-        cdef Func1 out = Func1(None, init=False)
+        out: Func1 = Func1(None, init=False)
         out._func = func
         out.func = out._func.get()
         return out
@@ -223,49 +233,49 @@ cdef class Func1:
     def __add__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
 
     def __radd__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(f1._func, self._func))
 
     def __sub__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
 
     def __rsub__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func))
 
     def __mul__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
 
     def __rmul__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(f1._func, self._func))
 
     def __truediv__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
 
     def __rtruediv__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)
-        cdef Func1 f1 = other
+        f1: Func1 = other
         return Func1._make_func1(CxxNewRatioFunction(f1._func, self._func))
 
     @property
@@ -302,7 +312,8 @@ cdef class Func1:
         raise NotImplementedError(msg)
 
 
-cdef class Tabulated1(Func1):
+@cython.cclass
+class Tabulated1(Func1):
     """
     A `Tabulated1` object representing a tabulated function is defined by
     sample points and corresponding function values. Inputs are specified by
@@ -333,11 +344,11 @@ cdef class Tabulated1(Func1):
     """
 
     def __init__(self, time, fval, method='linear'):
-        cdef vector[double] arr
+        arr: vector[cython.double]
         for v in time:
             arr.push_back(v)
         for v in fval:
             arr.push_back(v)
-        cdef string cxx_string = stringify(f"tabulated-{method}")
+        cxx_string: string = stringify(f"tabulated-{method}")
         self._func = CxxNewFunc1(cxx_string, arr)
         self.func = self._func.get()
