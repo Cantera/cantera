@@ -1,15 +1,20 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# distutils: language = c++
+# cython: language_level=3
+
 import os
 import warnings
-from cpython.ref cimport PyObject
-from libcpp.utility cimport move
 import numbers as _numbers
 import importlib as _importlib
 from collections import namedtuple as _namedtuple
+
 import numpy as np
-from .units cimport Units
+
+import cython
+from cython.cimports.libcpp.utility import move
+from cython.cimports.cantera.units import Units
 
 
 _scipy_sparse = None
@@ -27,21 +32,27 @@ def _import_scipy_sparse():
         from scipy import sparse as _scipy_sparse
 
 
-cdef unique_ptr[CxxPythonLogger] _logger = make_unique[CxxPythonLogger]()
+_logger = cython.declare(unique_ptr[CxxPythonLogger],
+                         make_unique[CxxPythonLogger]())
 CxxSetLogger(move(_logger))
 
-cdef string stringify(x) except *:
+
+@cython.cfunc
+def stringify(x) -> string:
     """ Converts Python strings to std::string. """
     if x is None:
         return stringify("")
     if isinstance(x, bytes):
-        return string(<bytes>x)
+        return string(cython.cast(bytes, x))
     else:
         tmp = bytes(x.encode())
         return string(tmp)
 
-cdef pystr(string x):
+
+@cython.cfunc
+def pystr(x: string):
     return x.decode()
+
 
 def add_data_directory(directory):
     """Add a directory to search for Cantera data files."""
@@ -112,10 +123,10 @@ def suppress_deprecation_warnings():
                             message='.*Cantera.*')  # for warnings in Cython code
     Cxx_suppress_deprecation_warnings()
 
-def suppress_thermo_warnings(pybool suppress=True):
+def suppress_thermo_warnings(suppress: pybool = True):
     Cxx_suppress_thermo_warnings(suppress)
 
-def use_legacy_rate_constants(pybool legacy):
+def use_legacy_rate_constants(legacy: pybool):
     """
     Set definition used for rate constant calculation.
 
@@ -139,18 +150,23 @@ def hdf_support():
         out.append("native")
     return set(out)
 
-cdef Composition comp_map(X) except *:
+
+@cython.cfunc
+def comp_map(X) -> Composition:
     if isinstance(X, (str, bytes)):
         return parseCompString(stringify(X))
 
     # assume X is dict-like
-    cdef Composition m
-    for species,value in (<object>X).items():
+    m: Composition
+    for species, value in cython.cast(object, X).items():
         m[stringify(species)] = value
     return m
 
-cdef comp_map_to_dict(Composition m):
-    return {pystr(species):value for species,value in (<object>m).items()}
+
+@cython.cfunc
+def comp_map_to_dict(m: Composition):
+    return {pystr(species): value
+            for species, value in cython.cast(object, m).items()}
 
 class CanteraError(RuntimeError):
     @staticmethod
@@ -166,7 +182,8 @@ _DimensionalValue = _namedtuple('_DimensionalValue',
                                 defaults=[False])
 
 
-cdef class AnyMap(dict):
+@cython.cclass
+class AnyMap(dict):
     """
     A key-value store representing objects defined in Cantera's YAML input format.
 
@@ -174,10 +191,11 @@ cdef class AnyMap(dict):
     converting values between different unit systems. See :ref:`sec-yaml-units` for
     details on how units are handled in YAML input files.
     """
-    def __cinit__(self, *args, **kwawrgs):
+    def __cinit__(self, *args, **kwargs):
         self.unitsystem = UnitSystem()
 
-    cdef _set_CxxUnitSystem(self, shared_ptr[CxxUnitSystem] units):
+    @cython.cfunc
+    def _set_CxxUnitSystem(self, units: shared_ptr[CxxUnitSystem]):
         self.unitsystem._set_unitSystem(units)
 
     def default_units(self):
@@ -188,7 +206,7 @@ cdef class AnyMap(dict):
         """Get the `UnitSystem` applicable to this `AnyMap`."""
         return self.unitsystem
 
-    def convert(self, str key, dest):
+    def convert(self, key: str, dest):
         """
         Convert the value corresponding to the specified *key* to the units defined by
         *dest*. *dest* may be a string or a `Units` object.
@@ -203,7 +221,7 @@ cdef class AnyMap(dict):
         """
         return self.unitsystem.convert_activation_energy_to(self[key], dest)
 
-    def convert_rate_coeff(self, str key, dest):
+    def convert_rate_coeff(self, key: str, dest):
         """
         Convert the value corresponding to the specified *key* to the units defined by
         *dest*, with special handling for `UnitStack` input and potentially-undefined
@@ -211,7 +229,7 @@ cdef class AnyMap(dict):
         """
         return self.unitsystem.convert_rate_coeff_to(self[key], dest)
 
-    def set_quantity(self, str key, value, src):
+    def set_quantity(self, key: str, value, src):
         """
         Set the element *key* of this map to the specified value, converting from the
         units defined by *src* to the correct unit system for this map when serializing
@@ -219,7 +237,7 @@ cdef class AnyMap(dict):
         """
         self[key] = _DimensionalValue(value, src)
 
-    def set_activation_energy(self, str key, value, src):
+    def set_activation_energy(self, key: str, value, src):
         """
         Set the element *key* of this map to the specified value, converting from the
         activation energy units defined by *src* to the correct unit system for this map
@@ -228,9 +246,28 @@ cdef class AnyMap(dict):
         self[key] = _DimensionalValue(value, src, True)
 
 
-cdef anyvalue_to_python(string name, CxxAnyValue& v):
-    cdef CxxAnyMap a
-    cdef CxxAnyValue b
+# anyvalue_to_python / anymap_to_py take their argument by value so that the cross-module
+# cimport signature is expressible in pure-Python syntax (which has no C++ reference
+# spelling). To avoid deep-copying nested children at every level of the recursion, the
+# by-value entry points immediately take the address of their (now local) argument and
+# delegate to the pointer-based workers below, which descend without further copies --
+# matching the original reference-based .pyx (each vector element is still copied once into
+# its loop variable, exactly as before).
+
+@cython.cfunc
+def anyvalue_to_python(name: string, v: CxxAnyValue):
+    return _anyvalue_to_py(name, cython.address(v))
+
+
+@cython.cfunc
+def anymap_to_py(m: CxxAnyMap):
+    return _anymap_to_py(cython.address(m))
+
+
+@cython.cfunc
+def _anyvalue_to_py(name: string, v: cython.pointer(CxxAnyValue)):
+    a: CxxAnyMap
+    b: CxxAnyValue
     if v.empty():
         # It is not possible to determine the associated type; return None
         return None
@@ -250,9 +287,10 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
                             "from AnyValue of held type '{}'".format(
                                 pystr(name), v.type_str()))
     elif v.isType[CxxAnyMap]():
-        return anymap_to_py(v.asType[CxxAnyMap]())
+        return _anymap_to_py(cython.address(v.asType[CxxAnyMap]()))
     elif v.isType[vector[CxxAnyMap]]():
-        return [anymap_to_py(a) for a in v.asType[vector[CxxAnyMap]]()]
+        return [_anymap_to_py(cython.address(a))
+                for a in v.asType[vector[CxxAnyMap]]()]
     elif v.isType[vector[double]]():
         return v.asType[vector[double]]()
     elif v.isType[vector[string]]():
@@ -262,7 +300,7 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
     elif v.isType[vector[cbool]]():
         return v.asType[vector[cbool]]()
     elif v.isType[vector[CxxAnyValue]]():
-        return [anyvalue_to_python(name, b)
+        return [_anyvalue_to_py(name, cython.address(b))
                 for b in v.asType[vector[CxxAnyValue]]()]
     elif v.isType[vector[vector[double]]]():
         return v.asType[vector[vector[double]]]()
@@ -279,34 +317,42 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
                             pystr(name), v.type_str()))
 
 
-cdef anymap_to_py(CxxAnyMap& m):
-    cdef pair[string,CxxAnyValue] item
+@cython.cfunc
+def _anymap_to_py(m: cython.pointer(CxxAnyMap)):
+    item: pair[string, CxxAnyValue]
     m.applyUnits()
-    cdef AnyMap out = AnyMap()
+    out: AnyMap = AnyMap()
     out._set_CxxUnitSystem(m.unitsShared())
     for item in m.ordered():
-        out[pystr(item.first)] = anyvalue_to_python(item.first, item.second)
+        out[pystr(item.first)] = _anyvalue_to_py(item.first, cython.address(item.second))
     return out
 
 
-cdef void setQuantity(CxxAnyMap& m, str k, v: _DimensionalValue) except *:
-    cdef CxxAnyValue testval = python_to_anyvalue(v.value)
-    cdef CxxAnyValue target
+# Returns the AnyValue by value (rather than writing through a ``CxxAnyMap&`` out-param as
+# the original ``setQuantity`` did): pure-Python Cython syntax cannot spell a C++ reference
+# parameter, so the caller assigns the result into the map instead.
+@cython.cfunc
+@cython.exceptval(check=True)
+def _make_quantity(v) -> CxxAnyValue:
+    testval: CxxAnyValue = python_to_anyvalue(v.value)
+    target: CxxAnyValue
     if isinstance(v.units, str):
         if testval.isScalar():
             target.setQuantity(testval.asType[double](), stringify(v.units),
-                               <cbool?>v.activation_energy)
+                               cython.cast(cbool, v.activation_energy))
         else:
             target.setQuantity(testval.asVector[double](), stringify(v.units))
     elif isinstance(v.units, Units):
-        target.setQuantity(testval.asType[double](), (<Units>v.units).units)
+        target.setQuantity(testval.asType[double](),
+                           cython.cast(Units, v.units).units)
     else:
         raise TypeError(f'Expected a string or Units object. Got {type(v.units)}')
-    m[stringify(k)] = target
+    return target
 
 
-cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
-    cdef CxxAnyMap m
+@cython.cfunc
+def py_to_anymap(data, hyphenize: cbool = False) -> CxxAnyMap:
+    m: CxxAnyMap
     if hyphenize:
         # replace "_" by "-": while Python dictionaries typically use "_" in key names,
         # the YAML convention uses "-" in field names
@@ -319,12 +365,14 @@ cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
 
     for k, v in data.items():
         if isinstance(v, _DimensionalValue):
-            setQuantity(m, k, v)
+            m[stringify(k)] = _make_quantity(v)
         else:
             m[stringify(k)] = python_to_anyvalue(v, k)
     return m
 
-cdef get_types(item):
+
+@cython.cfunc
+def get_types(item):
     """ Helper function used by python_to_anyvalue """
     if not len(item):
         # Empty list, so no specific type can be inferred
@@ -383,8 +431,10 @@ cdef get_types(item):
         else:
             return None, 1
 
-cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
-    cdef CxxAnyValue v
+
+@cython.cfunc
+def python_to_anyvalue(item, name=None) -> CxxAnyValue:
+    v: CxxAnyValue
     if name is not None:
         v.setKey(stringify(name))
     if isinstance(item, dict):
@@ -420,11 +470,11 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
     elif isinstance(item, (str, np.str_, np.bytes_)):
         v = stringify(item)
     elif isinstance(item, (bool, np.bool_)):
-        v = <cbool>(item)
+        v = cython.cast(cbool, item)
     elif isinstance(item, (int, np.int32, np.int64)):
-        v = <long int>(item)
+        v = cython.cast(cython.long, item)
     elif isinstance(item, (float, np.float32, np.float64)):
-        v = <double>(item)
+        v = cython.cast(cython.double, item)
     elif item is None:
         pass  # None corresponds to "empty" AnyValue
     elif name is not None:
@@ -437,88 +487,104 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
 
 # Helper functions for converting specific types to AnyValue
 
-cdef vector[CxxAnyValue] list_to_anyvalue(data) except *:
-    cdef vector[CxxAnyValue] v
+@cython.cfunc
+@cython.exceptval(check=True)
+def list_to_anyvalue(data) -> vector[CxxAnyValue]:
+    v: vector[CxxAnyValue]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
         v[i] = python_to_anyvalue(item)
     return v
 
-cdef vector[double] list_double_to_anyvalue(data):
-    cdef vector[double] v
+@cython.cfunc
+def list_double_to_anyvalue(data) -> vector[cython.double]:
+    v: vector[cython.double]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
-        v[i] = <double>item
+        v[i] = cython.cast(cython.double, item)
     return v
 
-cdef vector[long] list_int_to_anyvalue(data):
-    cdef vector[long] v
+@cython.cfunc
+def list_int_to_anyvalue(data) -> vector[cython.long]:
+    v: vector[cython.long]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
-        v[i] = <long int>item
+        v[i] = cython.cast(cython.long, item)
     return v
 
-cdef vector[cbool] list_bool_to_anyvalue(data):
-    cdef vector[cbool] v
+@cython.cfunc
+def list_bool_to_anyvalue(data) -> vector[cbool]:
+    v: vector[cbool]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
-        v[i] = <cbool>item
+        v[i] = cython.cast(cbool, item)
     return v
 
-cdef vector[string] list_string_to_anyvalue(data):
-    cdef vector[string] v
+@cython.cfunc
+def list_string_to_anyvalue(data) -> vector[string]:
+    v: vector[string]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
         v[i] = stringify(item)
     return v
 
-cdef vector[CxxAnyMap] list_dict_to_anyvalue(data) except *:
-    cdef vector[CxxAnyMap] v
+@cython.cfunc
+@cython.exceptval(check=True)
+def list_dict_to_anyvalue(data) -> vector[CxxAnyMap]:
+    v: vector[CxxAnyMap]
     v.resize(len(data))
-    cdef size_t i
+    i: cython.size_t
     for i, item in enumerate(data):
         v[i] = py_to_anymap(item)
     return v
 
-cdef vector[vector[double]] list2_double_to_anyvalue(data):
-    cdef vector[vector[double]] v
+@cython.cfunc
+def list2_double_to_anyvalue(data) -> vector[vector[cython.double]]:
+    v: vector[vector[cython.double]]
     v.resize(len(data))
-    cdef size_t i, j
+    i: cython.size_t
+    j: cython.size_t
     for i, item in enumerate(data):
         v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
-            v[i][j] = <double>jtem
+            v[i][j] = cython.cast(cython.double, jtem)
     return v
 
-cdef vector[vector[long]] list2_int_to_anyvalue(data):
-    cdef vector[vector[long]] v
+@cython.cfunc
+def list2_int_to_anyvalue(data) -> vector[vector[cython.long]]:
+    v: vector[vector[cython.long]]
     v.resize(len(data))
-    cdef size_t i, j
+    i: cython.size_t
+    j: cython.size_t
     for i, item in enumerate(data):
         v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
-            v[i][j] = <long int>jtem
+            v[i][j] = cython.cast(cython.long, jtem)
     return v
 
-cdef vector[vector[cbool]] list2_bool_to_anyvalue(data):
-    cdef vector[vector[cbool]] v
+@cython.cfunc
+def list2_bool_to_anyvalue(data) -> vector[vector[cbool]]:
+    v: vector[vector[cbool]]
     v.resize(len(data))
-    cdef size_t i, j
+    i: cython.size_t
+    j: cython.size_t
     for i, item in enumerate(data):
         v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
-            v[i][j] = <cbool>jtem
+            v[i][j] = cython.cast(cbool, jtem)
     return v
 
-cdef vector[vector[string]] list2_string_to_anyvalue(data):
-    cdef vector[vector[string]] v
+@cython.cfunc
+def list2_string_to_anyvalue(data) -> vector[vector[string]]:
+    v: vector[vector[string]]
     v.resize(len(data))
-    cdef size_t i, j
+    i: cython.size_t
+    j: cython.size_t
     for i, item in enumerate(data):
         v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
@@ -527,11 +593,11 @@ cdef vector[vector[string]] list2_string_to_anyvalue(data):
 
 def _py_to_any_to_py(dd):
     # used for internal testing purposes only
-    cdef string name = stringify("test")
-    cdef CxxAnyValue vv = python_to_anyvalue(dd)
+    name: string = stringify("test")
+    vv: CxxAnyValue = python_to_anyvalue(dd)
     return anyvalue_to_python(name, vv), pystr(vv.type_str())
 
 def _py_to_anymap_to_py(pp):
     # used for internal testing purposes only
-    cdef CxxAnyMap m = py_to_anymap(pp)
+    m: CxxAnyMap = py_to_anymap(pp)
     return anymap_to_py(m)
