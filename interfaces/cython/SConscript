@@ -63,12 +63,7 @@ if env['debug']:
 # Build the Python module
 cython_obj = []
 for pyxfile in multi_glob(localenv, "cantera", "pyx"):
-    if pyxfile.name == "_utils.pyx":
-        # Define GIT_COMMIT only in _utils.pyx to avoid unnecessary recompilations
-        cython_env = localenv.Clone()
-        cython_env.Append(CPPDEFINES={'GIT_COMMIT': '\\"{0}\\"'.format(env['git_commit'])})
-    else:
-        cython_env = localenv
+    cython_env = localenv
 
     cython_output = f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}"
     if pyxfile.name == "delegator.pyx":
@@ -100,23 +95,29 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
 # Cython pure-Python-syntax modules built as their own extensions (PoC, enhancement
 # #241). Each ships its .py source alongside the compiled extension: the extension wins
 # CPython import precedence, while the .py serves tracebacks, IDEs, and type checkers.
-pure_py_modules = ["jacobians"]
+pure_py_modules = ["_utils", "jacobians"]
 pure_py_ext = []
 for _name in pure_py_modules:
-    _cythonized = localenv.Command(
+    if _name == "_utils":
+        # Define GIT_COMMIT only for _utils to avoid unnecessary recompilations
+        _pyenv = localenv.Clone()
+        _pyenv.Append(CPPDEFINES={'GIT_COMMIT': '\\"{0}\\"'.format(env['git_commit'])})
+    else:
+        _pyenv = localenv
+    _cythonized = _pyenv.Command(
         f"cantera/{_name}.cpp", f"cantera/{_name}.py",
         f'''${{python_cmd}} -c "import setuptools; import Cython.Build; '''
         f'''Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
     )
-    for _pxd in multi_glob(localenv, "cantera", "pxd"):
-        localenv.Depends(_cythonized, _pxd)
-    _obj = localenv.SharedObject(f"#build/temp-py/{_name}", _cythonized[0])
-    _modext = localenv.LoadableModule(
+    for _pxd in multi_glob(_pyenv, "cantera", "pxd"):
+        _pyenv.Depends(_cythonized, _pxd)
+    _obj = _pyenv.SharedObject(f"#build/temp-py/{_name}", _cythonized[0])
+    _modext = _pyenv.LoadableModule(
         f"cantera/{_name}{module_ext}", _obj,
         LIBPREFIX="", SHLIBSUFFIX=module_ext, SHLIBPREFIX="",
         LIBSUFFIXES=[module_ext])
-    if env["OS"] != "Windows":
-        localenv.Depends(_modext, localenv["cantera_shlib"])
+    # Each of these extensions links against the Cantera shared library
+    _pyenv.Depends(_modext, localenv["cantera_shlib"])
     pure_py_ext.append(_modext)
 
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
