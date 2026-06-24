@@ -1,30 +1,26 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-import inspect as _inspect
-import sys as _sys
-import importlib as _importlib
-
-from libc.stdlib cimport malloc
-from libc.string cimport strcpy
-
-from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap
-from .units cimport Units, UnitStack
-# from .reaction import ExtensibleRate, ExtensibleRateData
-from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
-    CxxReactionRateDelegator, CxxReactionDataDelegator)
-from .solutionbase cimport CxxSolution, _assign_Solution
-from cython.operator import dereference as deref
-
-from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
-
+# This module holds the parts of the delegate machinery that must be implemented in
+# native Cython syntax because they rely on C++ reference parameters, which have no
+# spelling in Cython's pure-Python syntax:
+#
+# - The ``callback_*`` wrapper functions, which call Python delegate methods from C++.
+#   Their signatures match the function-pointer arguments of the ``pyOverride`` overloads
+#   (see ``funcWrapper.h`` and ``delegator.pxd``) and are passed to ``pyOverride`` from
+#   ``delegator.assign_delegates``.
+# - The ``ct_*`` functions, declared ``public`` so that they can be called from
+#   ``PythonExtensionManager.cpp`` (via the generated ``_delegate_callbacks.h`` header).
+#
+# The higher-level Python logic (the ``extension`` decorator and ``assign_delegates``)
+# lives in the pure-Python ``delegator.py`` module.
+#
 # ## Implementation for each delegated function type
 #
 # Besides the C++ functions implemented in the `Delegator` class, each delegated
 # function type requires several additional components in Cython:
-# - A declaration for the overload of `Delegator::setDelegate` in `_cantera.pxd`.
-# - A declaration of the `pyOverride` function in `_cantera.pxd`. Although the
+# - A declaration for the overload of `Delegator::setDelegate` in `delegator.pxd`.
+# - A declaration of the `pyOverride` function in `delegator.pxd`. Although the
 #   `pyOverride` function is templated and does not need to be modified for each type,
 #   each version of this function must be separately declared because Cython doesn't
 #   understand variadic templates. The signature that needs to be declared has:
@@ -35,23 +31,12 @@ from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
 #   - as its first argument, a `PyObject*`
 #   - as its second argument, a function pointer corresponding to the return value but
 #     with a `PyFuncInfo&` added as the first argument
-# - A `cdef ` "callback" wrapper function implemented in `delegator.pyx`, whose
-#   signature matches the second argument to `pyOverride` as described above, and
-#   implements the behavior described below.
-# - A case in the `elif callback == ...` tree in the `assign_delegates` function, which
-#   creates the C++ function object wrapper for a Python method and calls
-#   `Delegator::setDelegate`
-#
-# ## Implementation for specific delegated functions
-#
-# Beyond the C++ implementation required in a class derived from `Delegator`, each
-# delegated function needs only to have an entry in the corresponding Python class's
-# `delegatable_methods` class variable. This variable is a mapping where the keys are
-# the base names (without the `before_` / `replace_` / `after_` prefixes) of the
-# delegate functions, using Python naming conventions, and the values are tuples of the
-# corresponding C++ member function names and the matching signature of the C++ member
-# function. These signatures should match the ones checked in the `assign_delegates`
-# method.
+# - A `cdef ` "callback" wrapper function implemented in this module, whose signature
+#   matches the second argument to `pyOverride` as described above, and implements the
+#   behavior described below.
+# - A case in the `elif callback == ...` tree in the `assign_delegates` function (in
+#   `delegator.py`), which creates the C++ function object wrapper for a Python method
+#   and calls `Delegator::setDelegate`
 
 # ## Wrapper functions for calling Python functions from C++
 #
@@ -85,6 +70,27 @@ from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
 #
 # See `funcWrapper.h` for the definition of the `PyFuncInfo` class and the `pyOverride`
 # function.
+
+import sys as _sys
+import importlib as _importlib
+
+from libc.stdlib cimport malloc
+from libc.string cimport strcpy
+
+from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap
+from .units cimport Units, UnitStack
+from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
+    CxxReactionRateDelegator, CxxReactionDataDelegator)
+from .solutionbase cimport CxxSolution, _assign_Solution
+from .delegator cimport CxxExtensionManager, CxxExtensionManagerFactory
+
+from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
+
+cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
+    cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
+        @staticmethod
+        void registerSelf()
+
 
 # Wrapper for functions of type void()
 cdef void callback_v(PyFuncInfo& funcInfo) noexcept:
@@ -258,152 +264,6 @@ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, double arg1,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
-    """
-    Use methods defined in the Python class ``obj`` as delegates for the C++
-    object ``delegator``. This function should be called in the ``__init__``
-    method of classes where the wrapped C++ type is derived from the C++
-    ``Delegator`` class.
-
-    Methods that can be delegated are described by the ``delegatable_methods``
-    dict of ``obj``.
-
-    * The keys are the base names of the Python delegate methods. For methods where
-      delegation is _optional_, the name is prefixed with ``before_``, ``after_``, or
-      ``replace_`` in a specific implementation of a delegated class. For example, for
-      the base name ``eval``, the delegate class can define one of these methods:
-      ``before_eval``, ``after_eval``, or ``replace_eval``. For methods where delegation
-      is _required_, no prefix is used.
-
-    * The values are tuples of two or three elements, where the first element is the
-      name of the corresponding C++ method, and the second element indicates the
-      signature of the delegate function, such as ``void(double*)``. The third element,
-      if present, indicates that the delegate is required, how it is executed with
-      respect to the base class method (that is, ``before``, ``after``, or ``replace``).
-    """
-    delegator.setDelegatorName(stringify(obj.__class__.__name__))
-
-    # Find all delegate methods, and make sure there aren't multiple
-    # conflicting implementations
-    cdef string cxx_name
-    cdef string cxx_when
-    obj._delegates = []
-    valid_names = set()
-    for name, options in obj.delegatable_methods.items():
-        valid_names.add(name)
-        if len(options) == 3:
-            # Delegate with pre-selected mode, without using prefix on method name
-            when = options[2]
-            method = getattr(obj, name)
-        else:
-            when = None
-
-        replace = 'replace_{}'.format(name)
-        if hasattr(obj, replace):
-            when = 'replace'
-            method = getattr(obj, replace)
-
-        before = 'before_{}'.format(name)
-        if hasattr(obj, before):
-            if when is not None:
-                raise CanteraError(
-                    "Only one delegate supported for '{}'".format(name))
-            when = 'before'
-            method = getattr(obj, before)
-
-        after = 'after_{}'.format(name)
-        if hasattr(obj, after):
-            if when is not None:
-                raise CanteraError(
-                    "Only one delegate supported for '{}'".format(name))
-            when = 'after'
-            method = getattr(obj, after)
-
-        if when is None:
-            continue
-
-        cxx_name = stringify(options[0])
-        callback = options[1].replace(' ', '')
-
-        # Make sure that the number of arguments needed by the C++ function
-        # corresponds to the number of arguments accepted by the Python delegate
-        if callback.endswith("()"):
-            callback_args = 0
-        else:
-            callback_args = callback.count(",") + 1
-
-        signature = _inspect.signature(method)
-        params = signature.parameters.values()
-        min_args = len([p for p in params if p.default is p.empty])
-        max_args = len([p for p in params if p.kind is not p.KEYWORD_ONLY])
-
-        if not (min_args <= callback_args <= max_args):
-            raise ValueError(f"Function with signature {name}{signature}\n"
-                "does not have the right number of arguments to be used as a delegate "
-                f"for a function with the signature\n{callback}")
-
-        cxx_when = stringify(when)
-        if callback == 'void()':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v), cxx_when)
-        elif callback == 'void(double)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_d), cxx_when)
-        elif callback == 'void(AnyMap&)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_AMr), cxx_when)
-        elif callback == 'void(AnyMap&,UnitStack&)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_cAMr_cUSr), cxx_when)
-        elif callback == 'void(string,void*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_csr_vp), cxx_when)
-        elif callback == 'void(double*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_dp), cxx_when)
-        elif callback == 'void(bool)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_b), cxx_when)
-        elif callback == 'void(double,double*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_d_dp), cxx_when)
-        elif callback == 'void(double*,double*,double*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
-        elif callback == 'void(SparseTriplets&)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_vETr), cxx_when)
-        elif callback == 'double(void*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_d_vp), cxx_when)
-        elif callback == 'string(size_t)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_s_sz), cxx_when)
-        elif callback == 'size_t(string)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_sz_csr), cxx_when)
-        elif callback == 'void(double,double*,double*)':
-            delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_d_dp_dp), cxx_when)
-        else:
-            raise ValueError("Don't know how to set delegates for functions "
-                f"with signature '{callback}'")
-
-        # A Python object needs to hold references to the bound methods to prevent them
-        # from being deleted, while still being eventually reachable by the garbage
-        # collector
-        obj._delegates.append(method)
-
-    # Check for methods on the base object that have no matching delegate
-    for name in dir(obj):
-        if (name.startswith("before_") or name.startswith("after_") or
-            name.startswith("replace_")):
-            base_name = name.split("_", 1)[1]
-            if base_name not in valid_names:
-                raise ValueError(f"'{base_name}' is not a delegatable method")
-
-    return 0
-
 
 # Specifications for ReactionRate delegators that have not yet been registered with
 # ReactionRateFactory. This list is read by PythonExtensionManager::registerRateBuilders
@@ -507,76 +367,3 @@ extensibleRate_t.tp_clear = clear_ExtensibleRate
 
 
 CxxPythonExtensionManager.registerSelf()
-
-def extension(*, name, data=None):
-    """
-    A decorator for declaring Cantera extensions that should be registered with
-    the corresponding factory classes to create objects with the specified *name*.
-
-    This decorator can be used in combination with an ``extensions`` section in a YAML
-    input file to trigger registration of extensions marked with this decorator,
-    For example, consider an input file containing top level ``extensions`` and
-    ``reactions`` sections such as:
-
-    .. code:: yaml
-
-        extensions:
-        - type: python
-          name: my_cool_module
-
-        ...  # phases and species sections
-
-        reactions:
-        - equation: O + H2 <=> H + OH  # Reaction 3
-          type: cool-rate
-          A: 3.87e+04
-          b: 2.7
-          Ea: 6260.0
-
-    and a Python module ``my_cool_module.py``::
-
-        import cantera as ct
-
-        class CoolRateData(ct.ExtensibleRateData):
-            def update(self, soln):
-                ...
-
-        @ct.extension(name="cool-rate", data=CoolRateData)
-        class CoolRate(ct.ExtensibleRate):
-            def set_parameters(self, params, units):
-                ...
-            def eval(self, data):
-                ...
-
-    Loading this input file from any Cantera user interface would cause Cantera to load
-    the ``my_cool_module.py`` module and register the ``CoolRate`` and ``CoolRateData``
-    classes to handle reactions whose ``type`` in the YAML file is set to ``cool-rate``.
-
-    .. versionadded:: 3.0
-    """
-    def decorator(cls):
-        cdef shared_ptr[CxxExtensionManager] mgr = (
-            CxxExtensionManagerFactory.build(stringify("python")))
-
-        if issubclass(cls, ExtensibleRate):
-            cls._reaction_rate_type = name
-            # Registering immediately supports the case where the main
-            # application is Python
-            mgr.get().registerRateBuilder(
-                stringify(cls.__module__), stringify(cls.__name__), stringify(name))
-
-            # Deferred registration supports the case where the main application
-            # is not Python
-            _rate_delegators.append((cls.__module__, cls.__name__, name))
-
-            # Register the ReactionData delegator
-            if not issubclass(data, ExtensibleRateData):
-                raise ValueError("'data' must inherit from 'ExtensibleRateData'")
-            mgr.get().registerRateDataBuilder(
-                stringify(data.__module__), stringify(data.__name__), stringify(name))
-            _rate_data_delegators.append((data.__module__, data.__name__, name))
-        else:
-            raise TypeError(f"{cls} is not extensible")
-        return cls
-
-    return decorator

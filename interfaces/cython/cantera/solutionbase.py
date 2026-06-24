@@ -19,7 +19,8 @@ from cython.cimports.cantera.reaction import Reaction, CustomRate, ExtensibleRat
 from cython.cimports.cantera._utils import (
     stringify, pystr, anymap_to_py, py_to_anymap,
     anyvalue_to_python, python_to_anyvalue, AnyMapFromYamlString)
-from cython.cimports.cantera.delegator import pyOverride, callback_v, CxxPythonHandle
+from cython.cimports.cantera.delegator import pyOverride, CxxPythonHandle
+from cython.cimports.cantera._delegate_callbacks import callback_v
 from cython.cimports.cantera.yamlwriter import YamlWriter
 
 CxxSurfPhasePtr = cython.typedef(cython.pointer(CxxSurfPhase))

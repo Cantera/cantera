@@ -66,8 +66,8 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
     cython_env = localenv
 
     cython_output = f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}"
-    if pyxfile.name == "delegator.pyx":
-        cython_output = [cython_output, "cantera/delegator.h"]
+    if pyxfile.name == "_delegate_callbacks.pyx":
+        cython_output = [cython_output, "cantera/_delegate_callbacks.h"]
 
     cythonized = cython_env.Command(
          cython_output, pyxfile,
@@ -80,7 +80,8 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
         f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized[0])
     cython_obj.append(obj)
 
-copy_header = localenv.Command('#src/extensions/delegator.h', '#build/python/cantera/delegator.h',
+copy_header = localenv.Command('#src/extensions/_delegate_callbacks.h',
+                               '#build/python/cantera/_delegate_callbacks.h',
                                Copy('$TARGET', '$SOURCE'))
 ext_manager = localenv.SharedObject("#src/extensions/PythonExtensionManager.cpp")
 
@@ -97,7 +98,7 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
 # CPython import precedence, while the .py serves tracebacks, IDEs, and type checkers.
 pure_py_modules = ["_utils", "jacobians", "constants", "units", "func1", "reactionpath",
                    "yamlwriter", "speciesthermo", "mixture", "transport", "solutionbase",
-                   "kinetics", "reaction", "thermo", "reactor", "_onedim"]
+                   "kinetics", "reaction", "thermo", "reactor", "_onedim", "delegator"]
 pure_py_ext = []
 for _name in pure_py_modules:
     if _name == "_utils":

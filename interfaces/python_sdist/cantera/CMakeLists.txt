@@ -7,7 +7,7 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
   cmake_path(REPLACE_EXTENSION CY_PATH ".cpp" OUTPUT_VARIABLE CPP_OUTPUT)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CPP_OUTPUT} OUTPUT_VARIABLE CPP_OUTPUT)
   list(APPEND CY_OUTPUTS ${CPP_OUTPUT})
-  if(${CY_SOURCE} MATCHES "delegator.pyx$")
+  if(${CY_SOURCE} MATCHES "_delegate_callbacks.pyx$")
     cmake_path(REPLACE_EXTENSION CPP_OUTPUT ".h" OUTPUT_VARIABLE DELEGATOR_H)
     list(APPEND CPP_OUTPUT ${DELEGATOR_H})
     add_custom_target(DELEGATOR_H_EXT ALL DEPENDS ${DELEGATOR_H})
@@ -59,7 +59,7 @@ function(set_extension_rpath target)
 endfunction()
 
 # The extension manager is compiled here rather than with the rest of the
-# Cantera source code because it needs delegator.h, built by the Cython step
+# Cantera source code because it needs _delegate_callbacks.h, built by the Cython step
 # above.
 add_library(ext_manager ../src/extensions/PythonExtensionManager.cpp)
 target_include_directories(ext_manager PRIVATE
