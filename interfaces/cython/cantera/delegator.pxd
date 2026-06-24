@@ -85,19 +85,6 @@ cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
         shared_ptr[CxxExtensionManager] build(string&)
 
 
-cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
-    cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager" (CxxExtensionManager):
-        @staticmethod
-        void registerSelf()
-
-
-cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
-    cdef cppclass CxxExtensionManagerFactory "Cantera::ExtensionManagerFactory":
-        @staticmethod
-        shared_ptr[CxxExtensionManager] build(string&)
-
-
 ctypedef CxxDelegator* CxxDelegatorPtr
 
 cdef int assign_delegates(object, CxxDelegator*) except -1
-cdef void callback_v(PyFuncInfo& funcInfo) noexcept

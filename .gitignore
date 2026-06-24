@@ -19,7 +19,7 @@ include/cantera/base/system.h.gch
 include/cantera/ext/
 interfaces/matlab/+ct/+impl/ctMatlab/
 interfaces/matlab/+ct/+impl/definectMatlab.m
-src/extensions/delegator.h
+src/extensions/_delegate_callbacks.h
 stage/
 .sconsign.dblite
 .sconf_temp
