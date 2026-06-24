@@ -5,11 +5,31 @@
 # cython: language_level=3
 
 from collections.abc import Sequence as _Sequence
+from typing import TypedDict as _TypedDict, overload as _overload
 import numbers as _numbers
 import numpy as np
 
 import cython
 from cython.cimports.cantera._utils import stringify, pystr, python_to_anyvalue
+from cython.cimports.libcpp.memory import make_shared
+
+from ._types import Array as _Array
+
+_UnitDict = _TypedDict(
+    "_UnitDict",
+    {
+        "activation-energy": str,
+        "current": str,
+        "energy": str,
+        "length": str,
+        "mass": str,
+        "pressure": str,
+        "quantity": str,
+        "temperature": str,
+        "time": str,
+    },
+    total=False,
+)
 
 
 @cython.cclass
@@ -29,6 +49,12 @@ class Units:
     def __cinit__(self, name=None):
         if name:
             self.units = CxxUnits(stringify(name), True)
+
+    def __init__(self, name: str | None = None) -> None:
+        # The C++ object is constructed in __cinit__; this typed __init__ exists so
+        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
+        # constructor signature.
+        pass
 
     def __repr__(self) -> str:
         return f"<Units({str(self)}) at {id(self):0x}>"
@@ -92,11 +118,11 @@ class UnitStack:
         stack.stack = CxxUnitStack(other)
         return stack
 
-    def product(self):
+    def product(self) -> Units:
         units: CxxUnits = self.stack.product()
         return Units.copy(units)
 
-    def join(self, exponent):
+    def join(self, exponent: float) -> None:
         self.stack.join(exponent)
 
 
@@ -134,12 +160,18 @@ class UnitSystem:
 
     """
     def __cinit__(self, units=None):
-        self._unitsystem.reset(new CxxUnitSystem())
+        self._unitsystem = make_shared[CxxUnitSystem]()
         self.unitsystem = self._unitsystem.get()
         if units:
             self.units = units
 
-    def __repr__(self):
+    def __init__(self, units: _UnitDict | None = None) -> None:
+        # The C++ object is constructed in __cinit__; this typed __init__ exists so
+        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
+        # constructor signature.
+        pass
+
+    def __repr__(self) -> str:
         return f"<UnitSystem at {id(self):0x}>"
 
     @cython.cfunc
@@ -147,13 +179,13 @@ class UnitSystem:
         self._unitsystem = units
         self.unitsystem = self._unitsystem.get()
 
-    def defaults(self):
+    def defaults(self) -> _UnitDict:
         cxxunits: stdmap[string, string] = self.unitsystem.defaults()
         item: pair[string, string]
         return {pystr(item.first): pystr(item.second) for item in cxxunits}
 
     @property
-    def units(self):
+    def units(self) -> _UnitDict:
         """
         Units used by the unit system
         """
@@ -162,12 +194,19 @@ class UnitSystem:
         return {pystr(item.first): pystr(item.second) for item in cxxunits}
 
     @units.setter
-    def units(self, units):
+    def units(self, units: _UnitDict) -> None:
         cxxunits: stdmap[string, string]
         for dimension, unit in units.items():
             cxxunits[stringify(dimension)] = stringify(unit)
         self.unitsystem.setDefaults(cxxunits)
 
+    @_overload
+    def convert_to(self, quantity: str | float, dest: str | Units) -> float: ...
+    @_overload
+    def convert_to(self, quantity: _Array, dest: str | Units) -> _Array: ...
+    @_overload
+    def convert_to(self, quantity: list[str | float] | tuple[str | float, ...],
+                   dest: str | Units) -> list[float]: ...
     def convert_to(self, quantity, dest):
         """
         Convert *quantity* to the units defined by *dest*, using this `UnitSystem` to
@@ -207,6 +246,16 @@ class UnitSystem:
         else:
             raise TypeError("'quantity' must be either a string or a number")
 
+    @_overload
+    def convert_activation_energy_to(
+        self, quantity: str | float, dest: str | Units) -> float: ...
+    @_overload
+    def convert_activation_energy_to(
+        self, quantity: _Array, dest: str | Units) -> _Array: ...
+    @_overload
+    def convert_activation_energy_to(
+        self, quantity: list[str | float] | tuple[str | float, ...],
+        dest: str | Units) -> list[float]: ...
     def convert_activation_energy_to(self, quantity, dest: str):
         """
         Convert *quantity* to the activation energy units defined by *dest*, using this
@@ -240,6 +289,16 @@ class UnitSystem:
         else:
             raise TypeError("'quantity' must be either a string or a number")
 
+    @_overload
+    def convert_rate_coeff_to(
+        self, quantity: str | float, dest: str | Units | UnitStack) -> float: ...
+    @_overload
+    def convert_rate_coeff_to(
+        self, quantity: _Array, dest: str | Units | UnitStack) -> _Array: ...
+    @_overload
+    def convert_rate_coeff_to(
+        self, quantity: list[str | float] | tuple[str | float, ...],
+        dest: str | Units | UnitStack) -> list[float]: ...
     def convert_rate_coeff_to(self, quantity, dest):
         """
         Convert a *quantity* representing a rate coefficient to the units defined by

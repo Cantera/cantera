@@ -39,5 +39,5 @@ follow_untyped_imports = true
 [[tool.mypy.overrides]]
 module = ["cantera.jacobians", "cantera.func1", "cantera.constants",
           "cantera.yamlwriter", "cantera.reactionpath", "cantera.speciesthermo",
-          "cantera._cantera"]
+          "cantera.units", "cantera._cantera"]
 ignore_errors = true
