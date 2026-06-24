@@ -21,6 +21,19 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
     VERBATIM)
 endforeach()
 
+# The aggregator module _cantera uses pure-Python (.py) Cython syntax (enhancement #241)
+# but is always compiled INTO the merged _cantera extension (it hosts the metapath finder
+# and the PyInit functions for the .pyx modules merged here), so cythonize it alongside the
+# .pyx sources rather than as a standalone pure-Python module.
+set(CANTERA_AGG_CPP "${CMAKE_CURRENT_BINARY_DIR}/_cantera.cpp")
+add_custom_command(
+  OUTPUT ${CANTERA_AGG_CPP}
+  COMMENT "Making ${CANTERA_AGG_CPP} from _cantera.py"
+  COMMAND Python::Interpreter -m cython "${CMAKE_CURRENT_SOURCE_DIR}/_cantera.py" --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/_cantera.py"
+  VERBATIM)
+list(APPEND CY_OUTPUTS ${CANTERA_AGG_CPP})
+
 # Cython pure-Python-syntax modules use the .py extension rather than .pyx
 # (enhancement #241). Cythonize each to a .cpp here; how it is compiled depends on the
 # platform (see below).

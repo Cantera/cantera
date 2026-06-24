@@ -32,7 +32,10 @@ follow_untyped_imports = true
 # modules are. The *published* type surface that the shipped ``.py`` exports is still
 # exercised by the rest of the suite: ``stubtest`` checks that it matches the runtime
 # extension, and ``pyright --verifytypes`` checks it for completeness. Keep this list in
-# sync with ``pure_py_modules``.
+# sync with ``pure_py_modules``. ``cantera._cantera`` (the aggregator, also shipped as a
+# Cython-compiled ``.py``) is included for the same reason: adding the annotations mypy
+# wants would make Cython 3 emit runtime type coercion, so its ``.py`` is treated as
+# opaque too.
 [[tool.mypy.overrides]]
-module = ["cantera.jacobians"]
+module = ["cantera.jacobians", "cantera._cantera"]
 ignore_errors = true

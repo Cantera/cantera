@@ -1,8 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-#cython: language_level=3
-#distutils: language=c++
+# distutils: language = c++
+# cython: language_level=3
 
 import sys as _sys
 import importlib as _importlib
@@ -27,7 +27,7 @@ class CythonPackageMetaPathFinder(_MetaPathFinder):
 # Inject custom finder/loaders into sys.meta_path:
 _sys.meta_path.append(CythonPackageMetaPathFinder("cantera."))
 
-# Import the contents of the individual .pyx files
+# Import the contents of the individual modules
 from ._utils import *
 from ._onedim import *
 from .solutionbase import *
