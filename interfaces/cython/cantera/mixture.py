@@ -4,12 +4,28 @@
 # distutils: language = c++
 # cython: language_level=3
 
+from collections.abc import Sequence as _Sequence
+from typing import Literal as _Literal, overload as _overload
+
 import numpy as np
 
 import cython
 from cython.cimports.cantera._utils import stringify, pystr
 from cython.cimports.cantera.solutionbase import _SolutionBase
-from cython.cimports.cantera.thermo import ThermoPhase
+from cython.cimports.libcpp.memory import make_shared
+
+# ThermoPhase is imported as an ordinary Python import (under an underscore alias to keep
+# it out of ``from .mixture import *``) so that its use in the public annotations is
+# resolvable by mypy/pyright; the runtime class object also serves the isinstance check
+# in phase_index (mixture needs no C-level access to ThermoPhase).
+from .thermo import ThermoPhase as _ThermoPhase
+from ._types import (
+    Array as _Array,
+    ArrayLike as _ArrayLike,
+    EquilibriumSolver as _EquilibriumSolver,
+    LogLevel as _LogLevel,
+    PropertyPair as _PropertyPair,
+)
 
 
 @cython.cclass
@@ -53,7 +69,8 @@ class Mixture:
     phases objects whenever it requires phase properties.
     """
     def __cinit__(self, phases):
-        self.mix = new CxxMultiPhase()
+        self._mix = make_shared[CxxMultiPhase]()
+        self.mix = self._mix.get()
         self._phases = []
 
         phase: _SolutionBase
@@ -70,10 +87,16 @@ class Mixture:
             self.P = self._phases[0].P
             self.T = self._phases[0].T
 
-    def __dealloc__(self):
-        del self.mix
+    def __init__(
+        self,
+        phases: _Sequence[tuple[_ThermoPhase, float]] | _Sequence[_ThermoPhase],
+    ) -> None:
+        # The C++ object is constructed in __cinit__; this typed __init__ exists so that
+        # mypy/pyright (which do not recognize Cython's __cinit__) publish the constructor
+        # signature. Construction is documented in the class docstring above.
+        pass
 
-    def report(self, threshold=1e-14):
+    def report(self, threshold: float = 1e-14) -> str:
         """
         Generate a report describing the thermodynamic state of this mixture. To
         print the report to the screen, simply call the mixture object. The
@@ -91,16 +114,16 @@ class Mixture:
 
         return '\n'.join(s)
 
-    def __call__(self):
+    def __call__(self) -> None:
         print(self.report())
 
     @property
-    def n_elements(self):
+    def n_elements(self) -> int:
         """Total number of elements present in the mixture."""
         return self.mix.nElements()
 
     @cython.ccall
-    def element_index(self, element) -> cython.int:
+    def element_index(self, element: str | int) -> cython.int:
         """Index of element with name 'element'.
 
             >>> mix.element_index('H')
@@ -116,21 +139,21 @@ class Mixture:
                         f"Got {element!r}.")
 
     @property
-    def n_species(self):
+    def n_species(self) -> int:
         """Number of species."""
         return self.mix.nSpecies()
 
-    def species_name(self, k):
+    def species_name(self, k: cython.int) -> str:
         """Name of the species with index ``k``. Note that index numbers
         are assigned in order as phases are added."""
         return pystr(self.mix.speciesName(k))
 
     @property
-    def species_names(self):
+    def species_names(self) -> list[str]:
         """ Get the names of the species from all phases in the mixture """
         return [self.species_name(k) for k in range(self.n_species)]
 
-    def species_index(self, phase, species):
+    def species_index(self, phase: _ThermoPhase | str | int, species: str | int) -> int:
         """
         :param phase:
             Phase object, index or name
@@ -148,7 +171,7 @@ class Mixture:
 
         return self.mix.speciesIndex(k, p)
 
-    def n_atoms(self, k, m):
+    def n_atoms(self, k: int, m: str | int) -> float:
         """
         Number of atoms of element ``m`` in the species with global index ``k``.
         The element may be referenced either by name or by index.
@@ -161,17 +184,17 @@ class Mixture:
         return self.mix.nAtoms(k, self.element_index(m))
 
     @property
-    def n_phases(self):
+    def n_phases(self) -> int:
         """Number of phases"""
         return len(self._phases)
 
-    def phase(self, n):
+    def phase(self, n: int) -> _ThermoPhase:
         """ Return the ThermoPhase object for phase number ``n`` in the mixture. """
         return self._phases[n]
 
-    def phase_index(self, p):
+    def phase_index(self, p: _ThermoPhase | str | int) -> int:
         """Index of the phase named ``p``."""
-        if isinstance(p, ThermoPhase):
+        if isinstance(p, _ThermoPhase):
             p = p.name
 
         if isinstance(p, (int, float)):
@@ -186,12 +209,12 @@ class Mixture:
         raise KeyError("No such phase: '{0}'".format(p))
 
     @property
-    def phase_names(self):
+    def phase_names(self) -> list[str]:
         """Names of all phases in the order added."""
         return [phase.name for phase in self._phases]
 
     @property
-    def T(self):
+    def T(self) -> float:
         """
         Get or set the Temperature [K] of all phases in the mixture. When set,
         the pressure of the mixture is held fixed.
@@ -199,11 +222,11 @@ class Mixture:
         return self.mix.temperature()
 
     @T.setter
-    def T(self, T):
+    def T(self, T: float) -> None:
         self.mix.setTemperature(T)
 
     @property
-    def min_temp(self):
+    def min_temp(self) -> float:
         """
         The minimum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
@@ -212,7 +235,7 @@ class Mixture:
         return self.mix.minTemp()
 
     @property
-    def max_temp(self):
+    def max_temp(self) -> float:
         """
         The maximum temperature for which all species in multi-species
         solutions have valid thermo data. Stoichiometric phases are not
@@ -221,24 +244,28 @@ class Mixture:
         return self.mix.maxTemp()
 
     @property
-    def P(self):
+    def P(self) -> float:
         """Get or set the Pressure [Pa] of all phases in the mixture. When set,
          the temperature of the mixture is held fixed."""
         return self.mix.pressure()
 
     @P.setter
-    def P(self, P):
+    def P(self, P: float) -> None:
         self.mix.setPressure(P)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """The total charge in Coulombs, summed over all phases."""
         return self.mix.charge()
 
-    def phase_charge(self, p):
+    def phase_charge(self, p: _ThermoPhase | str | int) -> float:
         """The charge of phase ``p`` in Coulombs."""
         return self.mix.phaseCharge(self.phase_index(p))
 
+    @_overload
+    def phase_moles(self, p: _ThermoPhase | str | int) -> float: ...
+    @_overload
+    def phase_moles(self, p: None = None) -> list[float]: ...
     def phase_moles(self, p=None):
         """
         Moles in phase ``p``, if ``p`` is specified, otherwise the number of
@@ -249,14 +276,14 @@ class Mixture:
         else:
             return self.mix.phaseMoles(self.phase_index(p))
 
-    def set_phase_moles(self, p, moles):
+    def set_phase_moles(self, p: _ThermoPhase | str | int, moles: float) -> None:
         """
         Set the number of moles of phase ``p`` to ``moles``.
         """
         self.mix.setPhaseMoles(self.phase_index(p), moles)
 
     @property
-    def species_moles(self):
+    def species_moles(self) -> _Array:
         """
         Get or set the number of moles of each species. May be set either as a
         string or as an array. If an array is used, it must be dimensioned at
@@ -272,7 +299,7 @@ class Mixture:
         return data
 
     @species_moles.setter
-    def species_moles(self, moles):
+    def species_moles(self, moles: str | _ArrayLike) -> None:
         if isinstance(moles, (str, bytes)):
             self.mix.setMolesByName(stringify(moles))
             return
@@ -282,7 +309,7 @@ class Mixture:
         self.mix.setMoles(span[cython.double](cython.address(cdata[0]),
                                               cython.cast(cython.size_t, data.size)))
 
-    def element_moles(self, e):
+    def element_moles(self, e: str | int) -> float:
         """
         Total number of moles of element ``e``, summed over all species.
         The element may be referenced either by index number or by name.
@@ -290,7 +317,7 @@ class Mixture:
         return self.mix.elementMoles(self.element_index(e))
 
     @property
-    def chemical_potentials(self):
+    def chemical_potentials(self) -> _Array:
         """The chemical potentials of all species [J/kmol]."""
         data = np.empty(self.n_species)
         cdata: cython.double[::1] = data
@@ -299,8 +326,10 @@ class Mixture:
         self.mix.getChemPotentials(view)
         return data
 
-    def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=50000,
-                    max_iter=100, estimate_equil=0, log_level=0):
+    def equilibrate(self, XY: _PropertyPair, solver: _EquilibriumSolver = "auto",
+                    rtol: float = 1e-9, max_steps: int = 50000, max_iter: int = 100,
+                    estimate_equil: _Literal[-1, 0, 1] = 0,
+                    log_level: _LogLevel = 0) -> None:
         """
         Set to a state of chemical equilibrium holding property pair ``XY``
         constant. This method uses a version of the VCS algorithm to find the
