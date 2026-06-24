@@ -37,5 +37,6 @@ follow_untyped_imports = true
 # wants would make Cython 3 emit runtime type coercion, so its ``.py`` is treated as
 # opaque too.
 [[tool.mypy.overrides]]
-module = ["cantera.jacobians", "cantera.func1", "cantera.constants", "cantera._cantera"]
+module = ["cantera.jacobians", "cantera.func1", "cantera.constants",
+          "cantera.yamlwriter", "cantera._cantera"]
 ignore_errors = true

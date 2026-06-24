@@ -20,11 +20,12 @@ cantera\.((_|\w)+\.)+__(.*cython|cinit|test|pyx_capi|mutable_keys|readonly_keys|
 # cython`` shim, ``cdef`` helpers cimported from other modules, and ``@cython.cfunc``
 # methods (C-level only). These are expected stub-vs-runtime differences.
 cantera\.\w+\.cython
-cantera\.\w+\.(stringify|pystr|get_from_sparse)
+cantera\.\w+\.(stringify|pystr|get_from_sparse|make_shared)
 cantera\.jacobians\.SystemJacobian\.wrap
 cantera\.func1\.func_callback
 cantera\.func1\.Func1\._make_cxx_func1
 cantera\.func1\.Func1\._make_func1
+cantera\.yamlwriter\.YamlWriter\._get_unitsystem
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
