@@ -4,9 +4,20 @@
 # distutils: language = c++
 # cython: language_level=3
 
+# Sibling cdef classes used in the public annotations are imported as ordinary
+# Python imports (resolvable by mypy/pyright); the companion yamlwriter.pxd cimports
+# the same names so Cython still sees them as C-level extension types. Names that do
+# not already start with an underscore are aliased to an underscore-prefixed name so
+# they are not re-exported by ``from .yamlwriter import *`` (test_namespace_cleanliness).
+# typing_extensions is a hard runtime dependency, so ``Never`` is imported directly.
+from typing_extensions import Never as _Never
+
 import cython
-from cython.cimports.cantera.solutionbase import _SolutionBase
 from cython.cimports.cantera._utils import stringify, pystr
+from cython.cimports.libcpp.memory import make_shared
+
+from .solutionbase import _SolutionBase
+from .units import UnitSystem as _UnitSystem
 
 
 @cython.cclass
@@ -15,25 +26,25 @@ class YamlWriter:
     A class for generating full YAML input files from multiple Solution objects
     """
     def __cinit__(self):
-        self._writer.reset(new CxxYamlWriter())
+        self._writer = make_shared[CxxYamlWriter]()
         self.writer = self._writer.get()
 
-    def set_header(self, soln: _SolutionBase):
+    def set_header(self, soln: _SolutionBase) -> None:
         """ Include top-level information for the specified Solution object """
         self.writer.setHeader(soln.base.header())
 
-    def add_solution(self, soln: _SolutionBase):
+    def add_solution(self, soln: _SolutionBase) -> None:
         """ Include a phase definition for the specified Solution object """
         self.writer.addPhase(soln._base)
 
-    def to_file(self, filename):
+    def to_file(self, filename: str) -> None:
         """
         Write the definitions for the added phases, species and reactions to
         the specified file.
         """
         self.writer.toYamlFile(stringify(filename))
 
-    def to_string(self):
+    def to_string(self) -> str:
         """
         Return a YAML string that contains the definitions for the added phases,
         species, and reactions.
@@ -41,7 +52,7 @@ class YamlWriter:
         return pystr(self.writer.toYamlString())
 
     @property
-    def precision(self):
+    def precision(self) -> _Never:
         """
         For output floating point values, set the maximum number of digits to
         the right of the decimal point. The default is 15 digits.
@@ -49,11 +60,11 @@ class YamlWriter:
         raise AttributeError("unreadable attribute 'precision'")
 
     @precision.setter
-    def precision(self, precision: cython.int):
+    def precision(self, precision: int) -> None:
         self.writer.setPrecision(precision)
 
     @property
-    def skip_user_defined(self):
+    def skip_user_defined(self) -> _Never:
         """
         By default user-defined data present in the input is preserved on
         output. This method can be used to skip output of user-defined data
@@ -62,11 +73,11 @@ class YamlWriter:
         raise AttributeError("unreadable attribute 'skip_user_defined'")
 
     @skip_user_defined.setter
-    def skip_user_defined(self, skip: pybool):
+    def skip_user_defined(self, skip: bool) -> None:
         self.writer.skipUserDefined(skip)
 
     @property
-    def output_units(self):
+    def output_units(self) -> _Never:
         """
         Set the units to be used in the output file. Dimensions not specified
         will use Cantera's defaults.
@@ -79,7 +90,7 @@ class YamlWriter:
         raise AttributeError("unreadable attribute 'output_units'")
 
     @output_units.setter
-    def output_units(self, units):
+    def output_units(self, units: _UnitSystem) -> None:
         if not isinstance(units, UnitSystem):
             units = UnitSystem(units)
         self.writer.setUnitSystem(YamlWriter._get_unitsystem(units).get()[0])
@@ -89,8 +100,8 @@ class YamlWriter:
     def _get_unitsystem(units: UnitSystem) -> shared_ptr[CxxUnitSystem]:
         return units._unitsystem
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         raise NotImplementedError('YamlWriter object is not picklable')
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('YamlWriter object is not copyable')

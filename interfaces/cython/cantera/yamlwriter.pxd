@@ -6,6 +6,7 @@
 
 from .ctcxx cimport *
 from .units cimport *
+from .solutionbase cimport _SolutionBase
 
 cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
     cdef cppclass CxxSolution "Cantera::Solution"
