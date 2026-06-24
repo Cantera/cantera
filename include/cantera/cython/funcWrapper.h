@@ -162,6 +162,18 @@ private:
     void* m_pyobj;
 };
 
+//! Create a `Func1Py` wrapping a Python callback and return it as a ``shared_ptr``.
+//!
+//! This factory exists so that the Cython layer can construct a `Func1Py` without the
+//! C++ ``new`` operator. ``new`` is not valid Python syntax, and its presence would
+//! prevent the pure-Python ``.py`` source from being parsed by the Python-based type
+//! checkers (mypy/stubtest), which is what allows the module to ship its annotations
+//! inline instead of in a separate ``.pyi`` stub.
+inline std::shared_ptr<Cantera::Func1> newFunc1Py(callback_wrapper callback, void* pyobj)
+{
+    return std::make_shared<Func1Py>(callback, pyobj);
+}
+
 //! Return the Python ``CanteraError`` class, used by translate_exception() to raise a
 //! ``CanteraError`` from C++ code.
 //!
