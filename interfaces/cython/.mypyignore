@@ -22,6 +22,9 @@ cantera\.((_|\w)+\.)+__(.*cython|cinit|test|pyx_capi|mutable_keys|readonly_keys|
 cantera\.\w+\.cython
 cantera\.\w+\.(stringify|pystr|get_from_sparse)
 cantera\.jacobians\.SystemJacobian\.wrap
+cantera\.func1\.func_callback
+cantera\.func1\.Func1\._make_cxx_func1
+cantera\.func1\.Func1\._make_func1
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.

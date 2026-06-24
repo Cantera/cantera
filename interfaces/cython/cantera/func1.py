@@ -8,8 +8,18 @@ import sys as _sys
 import numpy as np
 import warnings
 
+# External typing names are imported under "private" (underscore-prefixed) aliases so
+# that they are not re-exported into the top-level ``cantera`` namespace via ``from
+# .func1 import *`` (checked by test_namespace_cleanliness), matching the convention used
+# in the other Cython submodules.
+from collections.abc import Callable as _Callable, Iterable as _Iterable
+from typing import Any as _Any, Literal as _Literal
+from typing_extensions import Never as _Never
+
 import cython
 from cython.cimports.cantera._utils import stringify, pystr
+
+_Func1Like = str | _Callable[[float], float] | float
 
 
 @cython.cfunc
@@ -109,7 +119,7 @@ class Func1:
         self.exception = None
         self.callable = None
 
-    def __init__(self, c, *args, init=True):
+    def __init__(self, c: _Func1Like, *args: _Any, init: bool = True) -> None:
         if init is False:
             # used by 'create' classmethod
             return
@@ -147,11 +157,11 @@ class Func1:
     @cython.ccall
     def _set_callback(self, c) -> cython.void:
         self.callable = c
-        self._func.reset(new CxxFunc1Py(func_callback, cython.cast(cython.p_void, self)))
+        self._func = CxxNewFunc1Py(func_callback, cython.cast(cython.p_void, self))
         self.func = self._func.get()
 
     @property
-    def type(self):
+    def type(self) -> str:
         """
         Return the type of the underlying C++ functor object.
 
@@ -230,56 +240,56 @@ class Func1:
         out.func = out._func.get()
         return out
 
-    def __add__(self, other):
+    def __add__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
 
-    def __radd__(self, other):
+    def __radd__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(f1._func, self._func))
 
-    def __sub__(self, other):
+    def __sub__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func))
 
-    def __mul__(self, other):
+    def __mul__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(f1._func, self._func))
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other: _Func1Like, /) -> "Func1":
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewRatioFunction(f1._func, self._func))
 
     @property
-    def cxx_type(self):
+    def cxx_type(self) -> str:
         """
         Return the type of the underlying C++ functor object.
 
@@ -289,7 +299,7 @@ class Func1:
         # (names demangled on some Windows systems start with 'class ')
         return pystr(self.func.typeName()).split()[-1]
 
-    def write(self, name="x"):
+    def write(self, name: str = "x") -> str:
         """
         Write a :math:`LaTeX` expression representing a functor.
 
@@ -300,14 +310,14 @@ class Func1:
         """
         return pystr(self.func.write(stringify(name)))
 
-    def __call__(self, t):
+    def __call__(self, t: float) -> float:
         return self.func.eval(t)
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         msg = "'{}' objects are not picklable".format(type(self).__name__)
         raise NotImplementedError(msg)
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         msg = "'{}' objects are not copyable".format(type(self).__name__)
         raise NotImplementedError(msg)
 
@@ -343,7 +353,8 @@ class Tabulated1(Func1):
     .. versionadded:: 3.0
     """
 
-    def __init__(self, time, fval, method='linear'):
+    def __init__(self, time: _Iterable[float], fval: _Iterable[float],
+                 method: _Literal["linear", "previous"] = "linear") -> None:
         arr: vector[cython.double]
         for v in time:
             arr.push_back(v)
