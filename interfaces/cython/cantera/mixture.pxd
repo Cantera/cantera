@@ -51,6 +51,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
 
 
 cdef class Mixture:
+    cdef shared_ptr[CxxMultiPhase] _mix
     cdef CxxMultiPhase* mix
     cdef list _phases
     cpdef int element_index(self, element) except *
