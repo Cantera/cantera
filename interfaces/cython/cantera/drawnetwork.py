@@ -1,11 +1,44 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from __future__ import annotations as _annotations
+
+from collections.abc import Callable as _Callable, Iterable as _Iterable
 import importlib.metadata as _metadata
 from functools import wraps as _wraps
+from typing import (
+    TYPE_CHECKING as _TYPE_CHECKING,
+    Literal as _Literal,
+    ParamSpec as _ParamSpec,
+    Protocol as _Protocol,
+    TypeVar as _TypeVar,
+    cast as _cast,
+)
 
-_graphviz = None
-def _import_graphviz():
+if _TYPE_CHECKING:
+    from graphviz import Digraph as _Digraph
+
+    from .reactor import (
+        FlowDevice as _FlowDevice,
+        Reactor as _Reactor,
+        ReactorBase as _ReactorBase,
+        ReactorNet as _ReactorNet,
+        ReactorSurface as _ReactorSurface,
+        Wall as _Wall,
+    )
+
+_P = _ParamSpec("_P")
+_R = _TypeVar("_R")
+
+
+class _GraphvizModule(_Protocol):
+    Digraph: type[_Digraph]
+
+
+_graphviz: _GraphvizModule | None = None
+
+
+def _import_graphviz() -> None:
     # defer import of graphviz
     global _graphviz
     if _graphviz is not None:
@@ -17,13 +50,22 @@ def _import_graphviz():
                           "It can be installed using conda (``conda install "
                           "python-graphviz``) or pip (``pip install graphviz``)")
     else:
-        import graphviz as _graphviz
+        import graphviz
+
+        _graphviz = _cast("_GraphvizModule", graphviz)
 
 
-def _needs_graphviz(func):
+def _gv() -> _GraphvizModule:
+    if _graphviz is None:
+        _import_graphviz()
+    assert _graphviz is not None
+    return _graphviz
+
+
+def _needs_graphviz(func: _Callable[_P, _R]) -> _Callable[_P, _R]:
     # decorator function to load graphviz when needed
     @_wraps(func)
-    def inner(*args, **kwargs):
+    def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         if not _graphviz:
             _import_graphviz()
         return func(*args, **kwargs)
@@ -31,8 +73,15 @@ def _needs_graphviz(func):
 
 
 @_needs_graphviz
-def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=False,
-                 species=None, species_units="percent"):
+def draw_reactor(
+    r: _ReactorBase,
+    graph: _Digraph | None = None,
+    graph_attr: dict[str, str] | None = None,
+    node_attr: dict[str, str] | None = None,
+    print_state: bool = False,
+    species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+    species_units: _Literal["percent", "ppm"] = "percent",
+) -> _Digraph:
     """
     See `.ReactorBase.draw`.
 
@@ -40,15 +89,16 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
     """
 
     if not graph:
-        graph = _graphviz.Digraph(name=r.name, graph_attr=graph_attr)
+        graph = _gv().Digraph(name=r.name, graph_attr=graph_attr)
 
     # Priorities set directly in call overwrite object attributes
-    node_attr = {**r.node_attr, **(node_attr or {})}
+    node_attr = {**(r.node_attr or {}), **(node_attr or {})}
 
     # include full reactor state in representation if desired
     if print_state:
         T_label = f"T (K)\\n{r.T:.2f}"
         P_label = f"P (bar)\\n{r.phase.P*1e-5:.3f}"
+        species_list: _Iterable[str]
 
         if species == True or species == "X":
             s_dict = r.phase.mole_fraction_dict(1e-4)
@@ -65,7 +115,7 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
             s_label = "X"
         else:
             s_dict = {}
-            species_list = []
+            species_list = ()
             s_label = ""
         s_percents = "\\n".join([f"{s}: {s_dict[s]*100:.2f}" for s in species_list])
         s_ppm = "\\n".join([f"{s}: {s_dict[s]*1e6:.1f}" for s in species_list])
@@ -94,27 +144,37 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
 
 
 @_needs_graphviz
-def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
-                     heat_flow_attr=None, mass_flow_attr=None,
-                     moving_wall_edge_attr=None, surface_edge_attr=None,
-                     show_wall_velocity=True, print_state=False, species=None,
-                     species_units="percent"):
+def draw_reactor_net(
+    n: _ReactorNet,
+    graph_attr: dict[str, str] | None = None,
+    node_attr: dict[str, str] | None = None,
+    edge_attr: dict[str, str] | None = None,
+    heat_flow_attr: dict[str, str] | None = None,
+    mass_flow_attr: dict[str, str] | None = None,
+    moving_wall_edge_attr: dict[str, str] | None = None,
+    surface_edge_attr: dict[str, str] | None = None,
+    show_wall_velocity: bool = True,
+    print_state: bool = False,
+    species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+    species_units: _Literal["percent", "ppm"] = "percent",
+) -> _Digraph:
     """
     See `.ReactorNet.draw`.
 
     .. versionadded:: 3.1
     """
 
-    graph = _graphviz.Digraph(graph_attr=graph_attr, node_attr=node_attr,
-                              edge_attr=edge_attr)
+    graph: _Digraph = _gv().Digraph(
+        graph_attr=graph_attr, node_attr=node_attr, edge_attr=edge_attr
+    )
 
     # collect elements as set to avoid duplicates
-    reactors = set(n.reactors)
-    flow_controllers = set()
-    walls = set()
-    drawn_reactors = set()
+    reactors: set[_Reactor] = set(n.reactors)
+    flow_controllers: set[_FlowDevice] = set()
+    walls: set[_Wall] = set()
+    drawn_reactors: set[_Reactor] = set()
 
-    reactor_groups = {}
+    reactor_groups: dict[str, set[_Reactor]] = {}
     for r in reactors:
         if r.group_name not in reactor_groups:
             reactor_groups[r.group_name] = set()
@@ -123,7 +183,7 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
     reactor_groups.pop("", None)
     if reactor_groups:
         for name, group in reactor_groups.items():
-            sub = _graphviz.Digraph(name=f"cluster_{name}", graph_attr=graph_attr)
+            sub = _gv().Digraph(name=f"cluster_{name}", graph_attr=graph_attr)
             for r in group:
                 draw_reactor(r, sub, print_state=print_state, species=species,
                              species_units=species_units)
@@ -147,7 +207,7 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
                          species_units=species_units)
 
     # some Reactors or Reservoirs only exist as connecting nodes
-    connected_reactors = set()
+    connected_reactors: set[_ReactorBase] = set()
     for fc in flow_controllers:
         connected_reactors.update((fc.upstream, fc.downstream))
     for w in walls:
@@ -160,24 +220,31 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
 
     # remove already drawn reactors and draw new reactors
     connected_reactors -= drawn_reactors
-    for r in connected_reactors:
-        draw_reactor(r, graph, print_state=print_state, species=species,
+    for connected in connected_reactors:
+        draw_reactor(connected, graph, print_state=print_state, species=species,
                      species_units=species_units)
 
     fc_edge_attr = {**(edge_attr or {}), **(mass_flow_attr or {})}
-    draw_flow_controllers(flow_controllers, graph, edge_attr=fc_edge_attr)
+    draw_flow_controllers(list(flow_controllers), graph, edge_attr=fc_edge_attr)
     w_edge_attr = {**(edge_attr or {}), "color": "red", "style": "dashed",
                    **(heat_flow_attr or {})}
-    draw_walls(walls, graph, edge_attr=w_edge_attr,
+    draw_walls(list(walls), graph, edge_attr=w_edge_attr,
                moving_wall_edge_attr=moving_wall_edge_attr,
                show_wall_velocity=show_wall_velocity)
 
     return graph
 
 
-def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
-                 surface_edge_attr=None, print_state=False, species=None,
-                 species_units="percent"):
+def draw_surface(
+    surface: _ReactorSurface,
+    graph: _Digraph | None = None,
+    graph_attr: dict[str, str] | None = None,
+    node_attr: dict[str, str] | None = None,
+    surface_edge_attr: dict[str, str] | None = None,
+    print_state: bool = False,
+    species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+    species_units: _Literal["percent", "ppm"] = "percent",
+) -> _Digraph:
     """
     See `.ReactorSurface.draw`.
 
@@ -191,15 +258,20 @@ def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
     edge_attr = {"style": "dotted", "arrowhead": "none",
                  **(surface_edge_attr or {})}
 
-    graph.node(name, **dict(node_attr or {}, **surface.node_attr))
+    graph.node(name, **{**(node_attr or {}), **(surface.node_attr or {})})
     graph.edge(r.name, name, **edge_attr)
 
     return graph
 
 
 @_needs_graphviz
-def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_attr=None,
-                          edge_attr=None):
+def draw_flow_controllers(
+    flow_controllers: list[_FlowDevice],
+    graph: _Digraph | None = None,
+    graph_attr: dict[str, str] | None = None,
+    node_attr: dict[str, str] | None = None,
+    edge_attr: dict[str, str] | None = None,
+) -> _Digraph:
     """
     See `.FlowDevice.draw`.
 
@@ -210,27 +282,27 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
     """
 
     if not graph:
-        graph = _graphviz.Digraph(graph_attr=graph_attr, node_attr=node_attr)
+        graph = _gv().Digraph(graph_attr=graph_attr, node_attr=node_attr)
     # assume overwrite if single connection is drawn
     edge_attr_overwrite = (edge_attr or {}) if len(flow_controllers) == 1 else {}
 
     # using a while loop instead of iterating over all connections allows to remove
     # duplicate connections once they have been detected.
-    flow_controllers = set(flow_controllers)
-    while flow_controllers:
-        fc = flow_controllers.pop()
+    remaining_flow_controllers: set[_FlowDevice] = set(flow_controllers)
+    while remaining_flow_controllers:
+        fc = remaining_flow_controllers.pop()
 
         r_in, r_out = fc.upstream, fc.downstream
 
         # find "duplicate" flow controllers that connect the same two objects to
         # eventually draw them as a single connection
-        duplicates = set()
-        for fc_ in flow_controllers:
+        duplicates: set[_FlowDevice] = set()
+        for fc_ in remaining_flow_controllers:
             if fc_.upstream is r_in and fc_.downstream is r_out:
                 duplicates.add(fc_)
 
         # remove duplicates from the set of the flow elements still to be drawn
-        flow_controllers -= duplicates
+        remaining_flow_controllers -= duplicates
 
         assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
 
@@ -244,14 +316,21 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
 
         graph.edge(inflow_name, outflow_name,
                    **{"label": f"{fc.name}\\nṁ = {rate:.2g} kg/s",
-                      **edge_attr, **fc.edge_attr, **edge_attr_overwrite})
+                      **(edge_attr or {}), **fc.edge_attr, **edge_attr_overwrite})
 
     return graph
 
 
 @_needs_graphviz
-def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=None,
-               moving_wall_edge_attr=None, show_wall_velocity=True):
+def draw_walls(
+    walls: list[_Wall],
+    graph: _Digraph | None = None,
+    graph_attr: dict[str, str] | None = None,
+    node_attr: dict[str, str] | None = None,
+    edge_attr: dict[str, str] | None = None,
+    moving_wall_edge_attr: dict[str, str] | None = None,
+    show_wall_velocity: bool = True,
+) -> _Digraph:
     """
     See `.Wall.draw`.
 
@@ -261,29 +340,30 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
     .. versionadded:: 3.1
     """
     if not graph:
-        graph = _graphviz.Digraph(graph_attr=graph_attr, node_attr=node_attr)
+        graph = _gv().Digraph(graph_attr=graph_attr, node_attr=node_attr)
     # assume overwrite if single connection is drawn
     edge_attr_overwrite = (edge_attr or {}) if len(walls) == 1 else {}
 
     # using a while loop instead of iterating over all connections allows to remove
     # duplicate connections once they have been detected.
-    walls = set(walls)
-    while walls:
-        w = walls.pop()
+    remaining_walls: set[_Wall] = set(walls)
+    while remaining_walls:
+        w = remaining_walls.pop()
 
         r_in, r_out = w.left_reactor, w.right_reactor
 
         # find "duplicate"walls that connect the same two objects to eventually draw
         # them as a single connection
-        duplicates, inv_duplicates = set(), set()
-        for w_ in walls:
+        duplicates: set[_Wall] = set()
+        inv_duplicates: set[_Wall] = set()
+        for w_ in remaining_walls:
             if w_.left_reactor is r_in and w_.right_reactor is r_out:
                 duplicates.add(w_)
             elif w_.right_reactor is r_in and w_.left_reactor is r_out:
                 inv_duplicates.add(w_)
 
         # remove duplicates from the set of the walls still to be drawn
-        walls -= duplicates | inv_duplicates
+        remaining_walls -= duplicates | inv_duplicates
 
         assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
 
@@ -304,7 +384,7 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
 
         # sum up heat rate/mass flow rate while considering the direction
         rate = (w.heat_rate + sum(dupe.heat_rate for dupe in duplicates)
-                - sum(idupe.heat_Rate for idupe in inv_duplicates))
+                - sum(idupe.heat_rate for idupe in inv_duplicates))
 
         # just show wall velocity if there is no heat flow
         if rate == 0 and vel > 0:
