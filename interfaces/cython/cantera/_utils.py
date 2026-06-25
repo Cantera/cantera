@@ -9,12 +9,20 @@ import warnings
 import numbers as _numbers
 import importlib as _importlib
 from collections import namedtuple as _namedtuple
+from pathlib import Path as _Path
 
 import numpy as np
 
 import cython
 from cython.cimports.libcpp.utility import move
-from cython.cimports.cantera.units import Units
+
+from ._types import Array as _Array, ArrayLike as _ArrayLike
+from .units import (
+    Units as _Units,
+    UnitStack as _UnitStack,
+    UnitSystem as _UnitSystem,
+    _UnitDict,
+)
 
 
 _scipy_sparse = None
@@ -54,36 +62,36 @@ def pystr(x: string):
     return x.decode()
 
 
-def add_data_directory(directory):
+def add_data_directory(directory: _Path | str) -> None:
     """Add a directory to search for Cantera data files."""
     CxxAddDataDirectory(stringify(str(directory)))
 
-def get_data_directories():
+def get_data_directories() -> list[str]:
     """ Get a list of the directories Cantera searches for data files. """
     return pystr(CxxGetDataDirectories(stringify(os.pathsep))).split(os.pathsep)
 
-__sundials_version__ = pystr(get_sundials_version())
+__sundials_version__: str = pystr(get_sundials_version())
 
-__version__ = pystr(CxxVersion())
+__version__: str = pystr(CxxVersion())
 
 if __version__ != pystr(get_cantera_version_py()):
     raise ImportError("Mismatch between Cantera Python module version "
         f"({pystr(get_cantera_version_py())}) and Cantera shared library "
         f"version ({__version__})")
 
-__git_commit__ = pystr(CxxGitCommit())
+__git_commit__: str = pystr(CxxGitCommit())
 
 if __git_commit__ != pystr(get_cantera_git_commit_py()):
     raise ImportError("Mismatch between Cantera Python module Git commit "
         f"({pystr(get_cantera_git_commit_py())}) and Cantera shared library "
         f"git commit ({__git_commit__})")
 
-_USE_SPARSE = False
+_USE_SPARSE: bool = False
 
-def debug_mode_enabled():
+def debug_mode_enabled() -> bool:
     return CxxDebugModeEnabled()
 
-def print_stack_trace_on_segfault():
+def print_stack_trace_on_segfault() -> None:
     """
     Enable printing a stack trace if a segfault occurs. Not recommended for general
     use as it is possible for this to deadlock.
@@ -92,11 +100,11 @@ def print_stack_trace_on_segfault():
     """
     CxxPrintStackTraceOnSegfault()
 
-def appdelete():
+def appdelete() -> None:
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
 
-def use_sparse(sparse=True):
+def use_sparse(sparse: bool = True) -> None:
     """
     Enable sparse output using `scipy.sparse`. Sparse output requires a working
     *SciPy* installation. Use pip or conda to install ``scipy`` to enable this method.
@@ -109,24 +117,24 @@ def use_sparse(sparse=True):
             raise
     _USE_SPARSE = sparse
 
-def make_deprecation_warnings_fatal():
+def make_deprecation_warnings_fatal() -> None:
     warnings.filterwarnings('error', category=DeprecationWarning,
                             module='cantera')  # for warnings in Python code
     warnings.filterwarnings('error', category=DeprecationWarning,
                             message='.*Cantera.*')  # for warnings in Cython code
     Cxx_make_deprecation_warnings_fatal()
 
-def suppress_deprecation_warnings():
+def suppress_deprecation_warnings() -> None:
     warnings.filterwarnings('ignore', category=DeprecationWarning,
                             module='cantera')  # for warnings in Python code
     warnings.filterwarnings('ignore', category=DeprecationWarning,
                             message='.*Cantera.*')  # for warnings in Cython code
     Cxx_suppress_deprecation_warnings()
 
-def suppress_thermo_warnings(suppress: pybool = True):
+def suppress_thermo_warnings(suppress: pybool = True) -> None:
     Cxx_suppress_thermo_warnings(suppress)
 
-def use_legacy_rate_constants(legacy: pybool):
+def use_legacy_rate_constants(legacy: pybool) -> None:
     """
     Set definition used for rate constant calculation.
 
@@ -138,7 +146,7 @@ def use_legacy_rate_constants(legacy: pybool):
     """
     Cxx_use_legacy_rate_constants(legacy)
 
-def hdf_support():
+def hdf_support() -> set[str]:
     """
     Returns list of libraries that include HDF support:
     - 'native': if Cantera was compiled with C++ HighFive HDF5 support.
@@ -170,7 +178,7 @@ def comp_map_to_dict(m: Composition):
 
 class CanteraError(RuntimeError):
     @staticmethod
-    def set_stack_trace_depth(depth):
+    def set_stack_trace_depth(depth: int) -> None:
         """
         Set the number of stack frames to include when a `CanteraError` is displayed. By
         default, or if the depth is set to 0, no stack information will be shown.
@@ -192,28 +200,28 @@ class AnyMap(dict):
     details on how units are handled in YAML input files.
     """
     def __cinit__(self, *args, **kwargs):
-        self.unitsystem = UnitSystem()
+        self.unitsystem = _UnitSystem()
 
     @cython.cfunc
-    def _set_CxxUnitSystem(self, units: shared_ptr[CxxUnitSystem]):
+    def _set_CxxUnitSystem(self, units: shared_ptr[CxxUnitSystem]) -> cython.void:
         self.unitsystem._set_unitSystem(units)
 
-    def default_units(self):
+    def default_units(self) -> _UnitDict:
         return self.unitsystem.defaults()
 
     @property
-    def units(self):
+    def units(self) -> _UnitSystem:
         """Get the `UnitSystem` applicable to this `AnyMap`."""
         return self.unitsystem
 
-    def convert(self, key: str, dest):
+    def convert(self, key: str, dest: str | _Units) -> float | _Array | list[float]:
         """
         Convert the value corresponding to the specified *key* to the units defined by
         *dest*. *dest* may be a string or a `Units` object.
         """
         return self.unitsystem.convert_to(self[key], dest)
 
-    def convert_activation_energy(self, key, dest):
+    def convert_activation_energy(self, key: str, dest: str | _Units) -> float:
         """
         Convert the value corresponding to the specified *key* to the units defined by
         *dest*. *dest* may be a string or a `Units` object defining units that are
@@ -221,7 +229,7 @@ class AnyMap(dict):
         """
         return self.unitsystem.convert_activation_energy_to(self[key], dest)
 
-    def convert_rate_coeff(self, key: str, dest):
+    def convert_rate_coeff(self, key: str, dest: str | _Units | _UnitStack) -> float:
         """
         Convert the value corresponding to the specified *key* to the units defined by
         *dest*, with special handling for `UnitStack` input and potentially-undefined
@@ -229,7 +237,7 @@ class AnyMap(dict):
         """
         return self.unitsystem.convert_rate_coeff_to(self[key], dest)
 
-    def set_quantity(self, key: str, value, src):
+    def set_quantity(self, key: str, value: _ArrayLike, src: str | _Units) -> None:
         """
         Set the element *key* of this map to the specified value, converting from the
         units defined by *src* to the correct unit system for this map when serializing
@@ -237,7 +245,7 @@ class AnyMap(dict):
         """
         self[key] = _DimensionalValue(value, src)
 
-    def set_activation_energy(self, key: str, value, src):
+    def set_activation_energy(self, key: str, value: float, src: str | _Units) -> None:
         """
         Set the element *key* of this map to the specified value, converting from the
         activation energy units defined by *src* to the correct unit system for this map
@@ -342,9 +350,9 @@ def _make_quantity(v) -> CxxAnyValue:
                                cython.cast(cbool, v.activation_energy))
         else:
             target.setQuantity(testval.asVector[double](), stringify(v.units))
-    elif isinstance(v.units, Units):
+    elif isinstance(v.units, _Units):
         target.setQuantity(testval.asType[double](),
-                           cython.cast(Units, v.units).units)
+                           cython.cast(_Units, v.units).units)
     else:
         raise TypeError(f'Expected a string or Units object. Got {type(v.units)}')
     return target
