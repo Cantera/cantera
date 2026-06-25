@@ -41,6 +41,9 @@ cantera\.transport\.GasTransportData\._assign
 # Compile-time-only cimports (no runtime attribute) and a Literal type alias that
 # stubtest misreports as "not a Union" -- all expected stub-vs-runtime differences.
 cantera\.transport\.(ThermoPhase|cnp|_GeometryOptions)
+# kinetics: compile-time-only cimports + module-level @cython.cfunc helpers.
+cantera\.kinetics\.(Reaction|CustomRate|ExtensibleRate|cnp)
+cantera\.kinetics\.(get_species_array|get_reaction_array|get_dense|get_sparse)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
