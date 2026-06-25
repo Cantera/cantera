@@ -36,6 +36,11 @@ cantera\.speciesthermo\.SpeciesThermo\._assign
 cantera\.units\.Units\.copy
 cantera\.units\.UnitStack\.copy
 cantera\.units\.UnitSystem\._set_unitSystem
+cantera\.transport\.get_(transport_1d|transport_2d|transport_polynomial|binary_transport_polynomial)
+cantera\.transport\.GasTransportData\._assign
+# Compile-time-only cimports (no runtime attribute) and a Literal type alias that
+# stubtest misreports as "not a Union" -- all expected stub-vs-runtime differences.
+cantera\.transport\.(ThermoPhase|cnp|_GeometryOptions)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
