@@ -20,7 +20,11 @@ cantera\.((_|\w)+\.)+__(.*cython|cinit|test|pyx_capi|mutable_keys|readonly_keys|
 # cython`` shim, ``cdef`` helpers cimported from other modules, and ``@cython.cfunc``
 # methods (C-level only). These are expected stub-vs-runtime differences.
 cantera\.\w+\.cython
-cantera\.\w+\.(stringify|pystr|get_from_sparse|make_shared|anymap_to_py|py_to_anymap|python_to_anyvalue)
+cantera\.\w+\.(stringify|pystr|get_from_sparse|make_shared|move|anymap_to_py|py_to_anymap|python_to_anyvalue)
+cantera\._utils\._DimensionalValue\.__replace__
+cantera\._utils\.(anyvalue_to_python|comp_map|comp_map_to_dict|get_types)
+cantera\._utils\.list2?_(bool|double|int|string)_to_anyvalue
+cantera\._utils\.list_(dict_to|to)_anyvalue
 cantera\.jacobians\.SystemJacobian\.wrap
 cantera\.func1\.func_callback
 cantera\.func1\.Func1\._make_cxx_func1

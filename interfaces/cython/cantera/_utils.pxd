@@ -8,7 +8,7 @@ from libcpp.unordered_map cimport unordered_map
 from libcpp.memory cimport unique_ptr, make_unique
 
 from .ctcxx cimport *
-from .units cimport UnitSystem, CxxUnits
+from .units cimport UnitSystem as _UnitSystem, Units as _Units, CxxUnits
 
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
@@ -104,8 +104,8 @@ cdef extern from "cantera/cython/utils_utils.h":
     cdef void CxxSetLogger "setLogger" (unique_ptr[CxxPythonLogger])
 
 cdef class AnyMap(dict):
-    cdef _set_CxxUnitSystem(self, shared_ptr[CxxUnitSystem] units)
-    cdef UnitSystem unitsystem
+    cdef void _set_CxxUnitSystem(self, shared_ptr[CxxUnitSystem] units)
+    cdef _UnitSystem unitsystem
 
 cdef string stringify(x) except *
 cdef pystr(string x)
