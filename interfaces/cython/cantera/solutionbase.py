@@ -5,12 +5,25 @@
 # cython: language_level=3
 
 import numpy as np
-from pathlib import PurePath as _PurePath
+from pathlib import PurePath as _PurePath, Path as _Path
 from shutil import get_terminal_size as _get_terminal_size
+from collections.abc import Sequence as _Sequence, Iterable as _Iterable
+from typing import (Any as _Any, Literal as _Literal, TypeAlias as _TypeAlias,
+                    TypedDict as _TypedDict, overload as _overload, TYPE_CHECKING)
+from typing_extensions import Never as _Never, Self as _Self
 import warnings
+
+if TYPE_CHECKING:
+    from .thermo import (Species as _Species, ThermoPhase as _ThermoPhase,
+                         _ThermoType)
+    from .reaction import Reaction as _Reaction
+    from .kinetics import _KineticsType
+    from .transport import _TransportModel
+    from .units import UnitSystem as _UnitSystem, _UnitDict
 
 import cython
 import cython.cimports.numpy as cnp
+from cython.cimports.libcpp.memory import make_shared, static_pointer_cast
 from cython.cimports.cantera.thermo import (
     ThermoPhase, InterfacePhase, Species, CxxSurfPhase)
 from cython.cimports.cantera.kinetics import Kinetics
@@ -23,7 +36,32 @@ from cython.cimports.cantera.delegator import pyOverride, CxxPythonHandle
 from cython.cimports.cantera._delegate_callbacks import callback_v
 from cython.cimports.cantera.yamlwriter import YamlWriter
 
-CxxSurfPhasePtr = cython.typedef(cython.pointer(CxxSurfPhase))
+from ._types import (Array as _Array, ArrayLike as _ArrayLike, Basis as _Basis,
+                     CompressionLevel as _CompressionLevel)
+
+_CxxSurfPhasePtr = cython.typedef(cython.pointer(CxxSurfPhase))
+
+# A ``str`` alias used for component/``extra`` names: these are published as ``str``
+# but flow in as ``numpy.str_`` (a ``str`` subclass) from array operations. A bare
+# ``str`` annotation would make Cython's annotation_typing reject the subclass (Cython
+# is deliberately stricter than PEP 484); routing through an alias keeps the published
+# type ``str`` while accepting subclasses, matching the pre-merge runtime behavior.
+_Str: _TypeAlias = str
+
+_SortingType: _TypeAlias = _Literal["alphabetical", "molar-mass"] | None
+
+_YamlHeader = _TypedDict(
+    "_YamlHeader",
+    {
+        "description": str,
+        "generator": str,
+        "input-files": list[str],
+        "cantera-version": str,
+        "git-commit": str,
+        "date": str,
+    },
+    total=False,
+)
 
 
 @cython.cclass
@@ -94,12 +132,25 @@ class _SolutionBase:
 
         self._selected_species = np.ndarray(0, dtype=np.intp)
 
-    def __init__(self, *args, **kwargs):
-        if isinstance(self, Transport) and kwargs.get("init", True):
+    def __init__(
+        self,
+        infile: _Path | str = "",
+        name: str = "",
+        adjacent: "_Sequence[_ThermoPhase]" = (),
+        *,
+        origin: "_SolutionBase | None" = None,
+        yaml: str | None = None,
+        thermo: str | None = None,
+        species: "_Sequence[_Species] | None" = (),
+        kinetics: str | None = None,
+        reactions: "_Sequence[_Reaction] | None" = (),
+        init: bool = True,
+        **kwargs: _Any,
+    ) -> None:
+        if isinstance(self, Transport) and init:
             assert self.transport is not cython.NULL
 
-        name = kwargs.get('name')
-        if name is not None:
+        if name:
             self.name = name
 
     def __del__(self):
@@ -109,7 +160,7 @@ class _SolutionBase:
                 cython.cast(cython.pointer(PyObject), self))
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         The name assigned to this object. The default value corresponds
         to the YAML input file phase entry.
@@ -117,18 +168,20 @@ class _SolutionBase:
         return pystr(self.base.name())
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self.base.setName(stringify(name))
 
     @property
-    def source(self):
+    def source(self) -> str:
         """
         The source of this object (such as a file name).
         """
         return pystr(self.base.source())
 
     @property
-    def composite(self):
+    def composite(
+        self,
+    ) -> "tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]":
         """
         Returns tuple of thermo/kinetics/transport models associated with
         this SolutionBase object.
@@ -253,7 +306,9 @@ class _SolutionBase:
             self.transport = self.base.transport().get()
 
     @property
-    def input_data(self):
+    def input_data(
+        self,
+    ) -> "dict[str, str | list[str] | dict[str, float | dict[str, float]]]":
         """
         Get input data corresponding to the current state of this Solution,
         along with any user-specified data provided with its input (YAML)
@@ -262,7 +317,7 @@ class _SolutionBase:
         return anymap_to_py(self.base.parameters(True))
 
     @property
-    def input_header(self):
+    def input_header(self) -> "_YamlHeader":
         """
         Retrieve input header data not associated with the current state of this
         Solution, which corresponds to fields at the root level of the YAML input
@@ -270,7 +325,7 @@ class _SolutionBase:
         """
         return anymap_to_py(self.base.header())
 
-    def update_user_data(self, data):
+    def update_user_data(self, data: "dict[str, _Any]") -> None:
         """
         Add the contents of the provided `dict` as additional fields when generating
         YAML phase definition files with `write_yaml` or in the data returned by
@@ -278,7 +333,7 @@ class _SolutionBase:
         """
         self.thermo.input().update(py_to_anymap(data), False)
 
-    def clear_user_data(self):
+    def clear_user_data(self) -> None:
         """
         Clear all saved input data, so that the data given by `input_data` or
         `write_yaml` will only include values generated by Cantera based on the
@@ -286,7 +341,7 @@ class _SolutionBase:
         """
         self.thermo.input().clear()
 
-    def update_user_header(self, data: dict):
+    def update_user_header(self, data: "dict[str, str | list[str]]") -> None:
         """
         Add the contents of the provided `dict` as additional top-level YAML fields
         when generating files with `write_yaml` or in the data returned by
@@ -294,7 +349,7 @@ class _SolutionBase:
         """
         self.base.header().update(py_to_anymap(data), False)
 
-    def clear_user_header(self):
+    def clear_user_header(self) -> None:
         """
         Clear all saved header data, so that the data given by `input_header` or
         `write_yaml` will only include values generated by Cantera based on the
@@ -302,6 +357,26 @@ class _SolutionBase:
         """
         self.base.header().clear()
 
+    @_overload
+    def write_yaml(
+        self,
+        filename: None = None,
+        phases: "_Sequence[_ThermoPhase] | _ThermoPhase | None" = None,
+        units: "_UnitSystem | _UnitDict | None" = None,
+        precision: int | None = None,
+        skip_user_defined: bool | None = None,
+        header: bool = True,
+    ) -> str: ...
+    @_overload
+    def write_yaml(
+        self,
+        filename: "str | _Path",
+        phases: "_Sequence[_ThermoPhase] | _ThermoPhase | None" = None,
+        units: "_UnitSystem | _UnitDict | None" = None,
+        precision: int | None = None,
+        skip_user_defined: bool | None = None,
+        header: bool = True,
+    ) -> None: ...
     def write_yaml(self, filename=None, phases=None, units=None, precision=None,
                    skip_user_defined=None, header=True):
         """
@@ -352,9 +427,16 @@ class _SolutionBase:
             return Y.to_string()
         Y.to_file(str(filename))
 
-    def write_chemkin(self, mechanism_path=None, thermo_path=None, transport_path=None,
-                      sort_species=None, sort_elements=None, overwrite=False,
-                      quiet=False):
+    def write_chemkin(
+        self,
+        mechanism_path: str | _Path | None = None,
+        thermo_path: str | _Path | None = None,
+        transport_path: str | _Path | None = None,
+        sort_species: _SortingType = None,
+        sort_elements: _SortingType = None,
+        overwrite: bool = False,
+        quiet: bool = False,
+    ) -> None:
         """
         Write this `~cantera.Solution` instance to one or more Chemkin-format files.
         See the documentation for `cantera.yaml2ck.convert` for information about the
@@ -374,7 +456,9 @@ class _SolutionBase:
         if not quiet:
             print(f"Wrote: {output_paths}")
 
-    def __getitem__(self, selection):
+    def __getitem__(
+        self, selection: "slice | str | int | _Iterable[str | int]", /
+    ) -> _Self:
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):
             selection = range(selection.start or 0,
@@ -384,7 +468,7 @@ class _SolutionBase:
         return copy
 
     @property
-    def selected_species(self):
+    def selected_species(self) -> list[int]:
         """
         Get/set the set of species that are included when returning results that have
         a value for each species, such as `species_names <cantera.ThermoPhase.species_names>`,
@@ -406,7 +490,9 @@ class _SolutionBase:
         return list(self._selected_species)
 
     @selected_species.setter
-    def selected_species(self, species):
+    def selected_species(
+        self, species: "str | int | _Sequence[str] | _Sequence[int]"
+    ) -> None:
         if isinstance(species, (str, int)):
             species = (species,)
         selection = [self.species_index(spec) for spec in species]
@@ -419,12 +505,12 @@ class _SolutionBase:
                 "Pickling of Interface objects is not implemented.")
         return self.write_yaml()
 
-    def __setstate__(self, pkl):
+    def __setstate__(self, pkl: str) -> None:
         """Restore Solution from pickled information."""
         yml = pkl
         self._cinit(yaml=yml)
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('Solution object is not copyable')
 
 # These cdef functions are declared as free functions to avoid creating layout
@@ -469,8 +555,9 @@ def _assign_Solution(soln: _SolutionBase, cxx_soln: shared_ptr[CxxSolution],
             soln._adjacent[name] = _wrap_Solution(adj_soln)
 
     handle: shared_ptr[CxxExternalHandle]
-    handle.reset(new CxxPythonHandle(
-        cython.cast(cython.pointer(PyObject), soln), not weak))
+    handle = static_pointer_cast[CxxExternalHandle, CxxPythonHandle](
+        make_shared[CxxPythonHandle](
+            cython.cast(cython.pointer(PyObject), soln), not weak))
     if hold:
         # Sliced Solution objects should not replace the existing handle
         soln.base.holdExternalHandle(stringify("python"), handle)
@@ -494,7 +581,7 @@ def _wrap_Solution(cxx_soln: shared_ptr[CxxSolution]) -> object:
     # make them available inside Cython
     from cantera import Solution, Interface
 
-    if dynamic_cast[CxxSurfPhasePtr](cxx_soln.get().thermo().get()):
+    if dynamic_cast[_CxxSurfPhasePtr](cxx_soln.get().thermo().get()):
         cls = Interface
     else:
         cls = Solution
@@ -526,7 +613,7 @@ class SolutionArrayBase:
 
     .. versionadded:: 3.0
     """
-    _phase = None
+    _phase = None  # type: _SolutionBase | None
 
     def __cinit__(self, phase: _SolutionBase, shape=(0,),
                   states=None, extra=None, meta=None, init=True):
@@ -541,6 +628,19 @@ class SolutionArrayBase:
         self._base = CxxNewSolutionArray(phase._base, size, cxx_meta)
         self.base = self._base.get()
 
+    def __init__(
+        self,
+        phase: _SolutionBase,
+        shape: int | tuple[int, ...] = (0,),
+        states: "_ArrayLike | None" = None,
+        extra: "str | _Sequence[str] | dict[str, _ArrayLike] | None" = None,
+        meta: "dict[str, _Any]" = {},
+        init: bool = True,
+    ) -> None:
+        """
+        Construct a `SolutionArrayBase`. The C++ object is created in ``__cinit__``.
+        """
+
     def _share(self, dest: SolutionArrayBase, selected):
         """ Share entries with new `SolutionArrayBase` object. """
         cxx_selected: vector[cython.int]
@@ -554,22 +654,28 @@ class SolutionArrayBase:
         return self.info(display=False)
 
     @property
-    def size(self):
+    def size(self) -> int:
         """ The number of elements in the `SolutionArrayBase`. """
         return self.base.size()
 
-    def _api_shape(self):
+    def _api_shape(self) -> tuple[int, ...]:
         """ Retrieve shape information available in C++ core. """
         cxx_shape: vector[cython.long] = self.base.apiShape()
         return tuple(int(dim) for dim in cxx_shape)
 
-    def _set_api_shape(self, shape):
+    def _set_api_shape(self, shape: _Sequence[int]) -> None:
         """ Pass shape used by derived `SolutionArray` to C++ core. """
         cxx_shape: vector[cython.long]
         for dim in shape:
             cxx_shape.push_back(dim)
         self.base.setApiShape(cxx_shape)
 
+    @_overload
+    def info(self, keys: "_Sequence[str] | None", rows: int, width: int | None,
+             display: "_Literal[False]") -> str: ...
+    @_overload
+    def info(self, keys: "_Sequence[str] | None" = None, rows: int = 10,
+             width: int | None = None, display: "_Literal[True]" = True) -> None: ...
     def info(self, keys=None, rows=10, width=None, display=True):
         """
         Display or return a concise summary of a `SolutionArray`.
@@ -609,21 +715,21 @@ class SolutionArrayBase:
         print(ret)
 
     @property
-    def meta(self):
+    def meta(self) -> "dict[str, _Any]":
         """
         Dictionary holding information describing the `SolutionArrayBase`.
         """
         return anymap_to_py(self.base.meta())
 
     @meta.setter
-    def meta(self, meta):
+    def meta(self, meta: "dict[str, _Any]") -> None:
         if isinstance(meta, dict):
             self.base.setMeta(py_to_anymap(meta))
         else:
             raise TypeError("Metadata needs to be a dictionary.")
 
     @property
-    def extra(self):
+    def extra(self) -> list[str]:
         """ Retrieve ordered list of auxiliary `SolutionArrayBase` components """
         cxx_name: vector[string] = self.base.listExtra()
         out = []
@@ -632,7 +738,7 @@ class SolutionArrayBase:
         return out
 
     @property
-    def component_names(self):
+    def component_names(self) -> list[str]:
         """
         Retrieve ordered list of all `SolutionArrayBase` components (defining
         thermodynamic state or auxiliary `extra` information)
@@ -643,82 +749,85 @@ class SolutionArrayBase:
             out.append(pystr(item))
         return out
 
-    def resize(self, size):
+    def resize(self, size: int | tuple[int, ...]) -> None:
         """ Resize `SolutionArrayBase` to given size """
         self.base.resize(size)
 
-    def _has_component(self, name):
+    def _has_component(self, name: _Str) -> bool:
         """ Check whether `SolutionArrayBase` has component """
         return self.base.hasComponent(stringify(name))
 
-    def _get_component(self, name):
+    def _get_component(self, name: _Str) -> "_Array":
         """ Retrieve `SolutionArrayBase` component by name """
         out = anyvalue_to_python(stringify(""), self.base.getComponent(stringify(name)))
         if out is None:
             return np.empty((0,))
         return np.array(out)
 
-    def _set_component(self, name, data):
+    def _set_component(self, name: _Str, data: "_Array") -> None:
         """ Set `SolutionArrayBase` component by name """
         self.base.setComponent(stringify(name), python_to_anyvalue(data))
 
-    def _set_loc(self, loc):
+    def _set_loc(self, loc: cython.int) -> None:
         """
         Set associated `Solution` object to state referenced by location within
         `SolutionArrayBase`.
         """
         return self.base.setLoc(loc)
 
-    def _update_state(self, loc):
+    def _update_state(self, loc: cython.int) -> None:
         """
         Set state at location within `SolutionArrayBase` to state of associated
         `Solution` object.
         """
         return self.base.updateState(loc)
 
-    def _get_state(self, loc):
+    def _get_state(self, loc: cython.int) -> "_Array":
         """ Retrieve the state vector for a given `SolutionArrayBase` location """
         cxx_data: vector[cython.double] = self.base.getState(loc)
         return np.fromiter(cxx_data, np.double)
 
-    def _set_state(self, loc, data):
+    def _set_state(self, loc: cython.int, data: "_Array") -> None:
         """ Set the state vector for a given `SolutionArrayBase` location """
         cxx_data: vector[cython.double]
         for item in data:
             cxx_data.push_back(item)
         self.base.setState(loc, cxx_data)
 
-    def _has_extra(self, name):
+    def _has_extra(self, name: _Str) -> bool:
         """ Check whether `SolutionArrayBase` has extra component """
         return self.base.hasExtra(stringify(name))
 
-    def _add_extra(self, name, back=True):
+    def _add_extra(self, name: _Str, back: bool = True) -> None:
         """ Add component to `SolutionArrayBase` and initialize to default value """
         self.base.addExtra(stringify(name), back)
 
-    def get_auxiliary(self, loc):
+    def get_auxiliary(self, loc: int) -> "dict[str, _Any]":
         """ Retrieve auxiliary data for a `SolutionArrayBase` location """
         return anymap_to_py(self.base.getAuxiliary(loc))
 
-    def set_auxiliary(self, loc, data):
+    def set_auxiliary(self, loc: int, data: "dict[str, _Any]") -> None:
         """ Set auxiliary data for a `SolutionArrayBase` location """
         self.base.setAuxiliary(loc, py_to_anymap(data))
 
-    def _append(self, state, extra):
+    def _append(self, state: "_Array", extra: "dict[str, _Any]") -> None:
         """ Append at end of `SolutionArrayBase` """
         cxx_state: vector[cython.double]
         for item in state:
             cxx_state.push_back(item)
         self.base.append(cxx_state, py_to_anymap(extra))
 
-    def _cxx_save(self, filename, name, sub, description,
-                  overwrite, compression, basis):
+    def _cxx_save(self, filename: str | _Path, name: str | None, sub: str | None,
+                  description: str | None, overwrite: bool,
+                  compression: "_CompressionLevel", basis: "_Basis | None") -> None:
         """ Interface `SolutionArray.save` with C++ core """
         self.base.save(
             stringify(str(filename)), stringify(name), stringify(sub),
             stringify(description), overwrite, compression, stringify(basis))
 
-    def _cxx_restore(self, filename, name, sub):
+    def _cxx_restore(
+        self, filename: str | _Path, name: str | None, sub: str | None
+    ) -> "dict[str, str]":
         """ Interface `SolutionArray.restore` with C++ core """
         header: CxxAnyMap
         header = self.base.restore(
