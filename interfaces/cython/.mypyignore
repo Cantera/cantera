@@ -44,6 +44,13 @@ cantera\.transport\.(ThermoPhase|cnp|_GeometryOptions)
 # kinetics: compile-time-only cimports + module-level @cython.cfunc helpers.
 cantera\.kinetics\.(Reaction|CustomRate|ExtensibleRate|cnp)
 cantera\.kinetics\.(get_species_array|get_reaction_array|get_dense|get_sparse)
+# solutionbase: compile-time-only cimports (no runtime attribute), a module-level
+# C typedef, and the module-level @cython.cfunc free functions.
+cantera\.solutionbase\.(cnp|static_pointer_cast|_CxxSurfPhasePtr)
+cantera\.solutionbase\.(ThermoPhase|InterfacePhase|Species|CxxSurfPhase|Kinetics|Transport)
+cantera\.solutionbase\.(Reaction|CustomRate|ExtensibleRate|pyOverride|CxxPythonHandle)
+cantera\.solutionbase\.(callback_v|YamlWriter|anyvalue_to_python|AnyMapFromYamlString)
+cantera\.solutionbase\.(_assign_Solution|_wrap_Solution)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.

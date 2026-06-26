@@ -40,6 +40,6 @@ follow_untyped_imports = true
 module = ["cantera.jacobians", "cantera.func1", "cantera.constants",
           "cantera.yamlwriter", "cantera.reactionpath", "cantera.speciesthermo",
           "cantera.units", "cantera.mixture", "cantera._utils",
-          "cantera.transport", "cantera.kinetics",
+          "cantera.transport", "cantera.kinetics", "cantera.solutionbase",
           "cantera._cantera"]
 ignore_errors = true
