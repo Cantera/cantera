@@ -18,7 +18,6 @@ import numpy as np
 
 import cython
 import cython.cimports.numpy as cnp
-from cython.cimports.libcpp.memory import make_shared
 from cython.cimports.cantera._utils import (stringify, pystr, anymap_to_py,
                                             py_to_anymap)
 from .solutionbase import _SolutionBase

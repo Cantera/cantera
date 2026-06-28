@@ -17,7 +17,6 @@ import numpy as np
 
 import cython
 import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
-from cython.cimports.libcpp.memory import make_shared
 
 from cython.cimports.cantera.speciesthermo import SpeciesThermo, wrapSpeciesThermo
 from cython.cimports.cantera.transport import GasTransportData

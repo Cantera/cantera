@@ -11,7 +11,6 @@ import numpy as np
 
 import cython
 from cython.cimports.cantera._utils import stringify, pystr, python_to_anyvalue
-from cython.cimports.libcpp.memory import make_shared
 
 from ._types import Array as _Array
 

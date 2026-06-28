@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 import cython
 import cython.cimports.numpy as cnp
-from cython.cimports.libcpp.memory import make_shared, static_pointer_cast
+from cython.cimports.libcpp.memory import static_pointer_cast
 from cython.cimports.cantera.thermo import (
     ThermoPhase, InterfacePhase, Species, CxxSurfPhase)
 from cython.cimports.cantera.kinetics import Kinetics

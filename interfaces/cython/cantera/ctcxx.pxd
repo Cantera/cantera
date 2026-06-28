@@ -120,3 +120,13 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
     cdef cppclass CxxUnits "Cantera::Units"
     cdef cppclass CxxUnitSystem "Cantera::UnitSystem"
+
+
+cdef extern from "<memory>" namespace "std":
+    # Construct a shared_ptr while translating C++ (Cantera) exceptions to their
+    # Python equivalents. This deliberately shadows ``libcpp.memory.make_shared``
+    # (declared with a plain ``except +``, which would surface a ``CanteraError``
+    # thrown by a C++ constructor as a generic ``RuntimeError``). Pure-Python
+    # modules pick this up via ``from .ctcxx cimport *`` and must NOT also import
+    # ``libcpp.memory.make_shared``. ``translate_exception`` is declared above.
+    shared_ptr[T] make_shared[T](...) except +translate_exception
