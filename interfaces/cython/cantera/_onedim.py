@@ -4,6 +4,23 @@
 # distutils: language = c++
 # cython: language_level=3
 
+import warnings
+from shutil import get_terminal_size as _get_terminal_size
+from pathlib import Path as _Path
+from collections.abc import Callable as _Callable, Sequence as _Sequence
+from typing import (
+    Any as _Any,
+    ClassVar as _ClassVar,
+    Literal as _Literal,
+    TypeAlias as _TypeAlias,
+    TypedDict as _TypedDict,
+    overload as _overload,
+    TYPE_CHECKING,
+)
+from typing_extensions import Never as _Never
+
+import numpy as np
+
 import cython
 from cython.cimports.cython import view  # for view.array (sized-pointer→memoryview idiom)
 import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
@@ -11,18 +28,75 @@ from cython.cimports.cantera._utils import stringify, pystr, anymap_to_py
 
 from ._utils import CanteraError
 from .interrupts import no_op
-import warnings
-from shutil import get_terminal_size as _get_terminal_size
-import numpy as np
+from .solutionbase import _SolutionBase
+from .transport import _TransportModel
+
+from ._types import (
+    Array as _Array, ArrayLike as _ArrayLike, Basis as _Basis,
+    CompositionLike as _CompositionLike, CompressionLevel as _CompressionLevel,
+    LogLevel as _LogLevel, RefineCriteria as _RefineCriteria)
+
+if TYPE_CHECKING:
+    from .func1 import Func1 as _Func1
+
+# Parametrized generics (tuple[...]) are coerced by Cython's annotation_typing just
+# like bare builtins, rejecting a list where a tuple was published; route through a
+# TypeAlias (not coerced) to keep the runtime accepting any sequence, as before
+# (thermo.py's _TPQSetter precedent).
+_BoundsPair: _TypeAlias = tuple[float, float]
+
+# `anymap_to_py` may return an `AnyMap` (a `dict` subclass) rather than a plain
+# `dict`; an inline `dict[str, str]` return annotation is coerced by Cython 3 and
+# rejects that subclass instance at runtime (regression caught by
+# test_onedim.py's save/restore tests). Route through a TypeAlias (not coerced),
+# matching the `_BoundsPair` precedent above.
+_RestoreMetadata: _TypeAlias = dict[str, str]
+
+_ToleranceSettings = _TypedDict(
+    "_ToleranceSettings",
+    {
+        "transient-abstol": float,
+        "steady-abstol": float,
+        "transient-reltol": float,
+        "steady-reltol": float,
+    },
+)
+
+class _PhaseSettings(_TypedDict):
+    name: str
+    source: str
+
+class _FixedPointSettings(_TypedDict):
+    location: float
+    temperature: float
+
+_Domain1DSettings = _TypedDict(
+    "_Domain1DSettings",
+    {
+        "type": str,
+        "points": int,
+        "tolerances": _ToleranceSettings,
+        "transport-model": _TransportModel,
+        "phase": _PhaseSettings,
+        "radiation-enabled": bool,
+        "energy-enabled": bool,
+        "Soret-enabled": bool,
+        "flux-gradient-basis": _Literal[0, 1],
+        "refine-criteria": _RefineCriteria,
+        "fixed-point": _FixedPointSettings,
+    },
+)
 
 
 @cython.cclass
 class Domain1D:
-    _domain_type = "none"
+    _domain_type: _ClassVar[str] = "none"
+    have_user_tolerances: bool
+
     def __cinit__(self, phase: _SolutionBase, *args, **kwargs):
         self.domain = cython.NULL
 
-    def __init__(self, phase, *args, **kwargs):
+    def __init__(self, phase: _SolutionBase, *args: _Any, **kwargs: _Any) -> None:
         if self.domain is cython.NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
@@ -30,14 +104,14 @@ class Domain1D:
         self.set_default_tolerances()
 
     @property
-    def phase(self):
+    def phase(self) -> _SolutionBase:
         """
         Phase describing the domain (that is, a gas phase or surface phase).
         """
         return self.gas
 
     @property
-    def index(self):
+    def index(self) -> int:
         """
         Index of this domain in a stack. Returns -1 if this domain is not part
         of a stack.
@@ -45,23 +119,25 @@ class Domain1D:
         return self.domain.domainIndex()
 
     @property
-    def domain_type(self):
+    def domain_type(self) -> str:
         """
         String indicating the domain implemented.
         """
         return pystr(self.domain.domainType())
 
     @property
-    def n_components(self):
+    def n_components(self) -> int:
         """Number of solution components at each grid point."""
         return self.domain.nComponents()
 
     @property
-    def n_points(self):
+    def n_points(self) -> int:
         """Number of grid points belonging to this domain."""
         return self.domain.nPoints()
 
-    def _to_array(self, dest: SolutionArrayBase, normalize: cbool):
+    def _to_array(
+        self, dest: SolutionArrayBase, normalize: cbool
+    ) -> SolutionArrayBase:
         """
         Retrieve domain data as a `SolutionArray` object. Service method used by
         `FlameBase.to_array`, which adds information not available in Cython.
@@ -72,7 +148,7 @@ class Domain1D:
         dest.base = dest._base.get()
         return dest
 
-    def _from_array(self, arr: SolutionArrayBase):
+    def _from_array(self, arr: SolutionArrayBase) -> None:
         """
         Restore domain data from a `SolutionArray` object. Service method used by
         `FlameBase.from_array`.
@@ -81,20 +157,20 @@ class Domain1D:
         """
         self.domain.fromArray(arr._base)
 
-    def component_name(self, n: cython.int):
+    def component_name(self, n: cython.int) -> str:
         """Name of the nth component."""
         return pystr(self.domain.componentName(n))
 
     @property
-    def component_names(self):
+    def component_names(self) -> list[str]:
         """List of the names of all components of this domain."""
         return [self.component_name(n) for n in range(self.n_components)]
 
-    def component_index(self, name: str):
+    def component_index(self, name: str) -> int:
         """Index of the component with name 'name'"""
         return self.domain.componentIndex(stringify(name))
 
-    def global_component_index(self, component: str, point: int):
+    def global_component_index(self, component: str, point: int) -> int:
         """
         The index of the component named ``component`` at grid point ``point``
         within the global solution vector of a containing `Sim1D`. Mirrors
@@ -104,10 +180,26 @@ class Domain1D:
         """
         return self.domain.globalComponentIndex(stringify(component), point)
 
-    def _has_component(self, name: str):
+    def _has_component(self, name: str) -> bool:
         """Check whether `Domain1D` has component"""
         return self.domain.hasComponent(stringify(name))
 
+    @_overload
+    def info(
+        self,
+        keys: "_Sequence[str] | None" = None,
+        rows: int = 10,
+        width: int | None = None,
+        display: _Literal[False] = False,
+    ) -> str: ...
+    @_overload
+    def info(
+        self,
+        keys: "_Sequence[str] | None" = None,
+        rows: int = 10,
+        width: int | None = None,
+        display: bool = True,
+    ) -> None: ...
     def info(self, keys=None, rows=10, width=None, display=True):
         """
         Display or return a concise summary of a `Domain1D`.
@@ -139,7 +231,7 @@ class Domain1D:
             return ret
         print(ret)
 
-    def update_state(self, loc: cython.int):
+    def update_state(self, loc: cython.int) -> None:
         """
         Set the state of the `Solution` object used for calculations to the temperature
         and composition at the point with index ``point``.
@@ -147,7 +239,7 @@ class Domain1D:
         self.domain.updateState(loc)
 
     @property
-    def grid(self):
+    def grid(self) -> _Array:
         """The grid for this domain."""
         grid_span: span[const_double] = self.domain.grid()
         # Non-owning memoryview over the C++ span data (pure-Python spelling of the
@@ -159,13 +251,13 @@ class Domain1D:
         return np.array(garr, copy=True)
 
     @grid.setter
-    def grid(self, grid):
+    def grid(self, grid: _ArrayLike) -> None:
         grid_vec: vector[cython.double]
         for g in grid:
             grid_vec.push_back(g)
         self.domain.setupGrid(span[const_double](grid_vec.data(), grid_vec.size()))
 
-    def value(self, component: str):
+    def value(self, component: str) -> float:
         """
         Component value at a boundary.
 
@@ -178,7 +270,7 @@ class Domain1D:
         """
         return self.domain.value(stringify(component))
 
-    def set_value(self, component: str, value):
+    def set_value(self, component: str, value: float) -> None:
         """
         Set the value of one component at a boundary.
 
@@ -193,7 +285,7 @@ class Domain1D:
         """
         return self.domain.setValue(stringify(component), value)
 
-    def values(self, component: str):
+    def values(self, component: str) -> _Array:
         """
         Retrieve spatial profile of a component.
 
@@ -207,7 +299,7 @@ class Domain1D:
         values: vector[cython.double] = self.domain.values(stringify(component))
         return np.asarray(values)
 
-    def set_values(self, component: str, values):
+    def set_values(self, component: str, values: _Array) -> None:
         """
         Specify spatial profile of a component.
 
@@ -226,7 +318,7 @@ class Domain1D:
                               span[const_double](cython.address(cvalues[0]),
                                                 cython.cast(cython.size_t, values_arr.size)))
 
-    def residuals(self, component: str):
+    def residuals(self, component: str) -> _Array:
         """
         Retrieve internal work array value at one point. After calling `Sim1D.eval`,
         this array contains the values of the residual function.
@@ -241,7 +333,9 @@ class Domain1D:
         values: vector[cython.double] = self.domain.residuals(stringify(component))
         return np.asarray(values)
 
-    def set_profile(self, component, positions, values):
+    def set_profile(
+        self, component: str, positions: _Sequence[float], values: _Sequence[float]
+    ) -> None:
         """
         Set an initial estimate for a profile of one component in one domain.
 
@@ -267,7 +361,7 @@ class Domain1D:
         val_span: span[const_double] = span[const_double](val_vec.data(), val_vec.size())
         self.domain.setProfile(stringify(component), pos_span, val_span)
 
-    def set_flat_profile(self, component, value):
+    def set_flat_profile(self, component: str, value: float) -> None:
         """
         Set a flat profile for a component.
 
@@ -282,7 +376,16 @@ class Domain1D:
         """
         self.domain.setFlatProfile(stringify(component), value)
 
-    def set_bounds(self, *, default=None, Y=None, **kwargs):
+    # Parametrized generics (tuple[...]) are coerced by Cython's annotation_typing
+    # just like bare builtins; route through a TypeAlias to avoid rejecting e.g. a
+    # list where a tuple was published (see thermo.py's _TPQSetter precedent).
+    def set_bounds(
+        self,
+        *,
+        default: "_BoundsPair | None" = None,
+        Y: "_BoundsPair | None" = None,
+        **kwargs: "_BoundsPair",
+    ) -> None:
         """
         Set the lower and upper bounds on the solution.
 
@@ -306,8 +409,15 @@ class Domain1D:
         for name,(lower,upper) in kwargs.items():
             self.domain.setBounds(self.component_index(name), lower, upper)
 
-    def set_steady_tolerances(self, *, default=None, Y=None, abs=None, rel=None,
-                              **kwargs):
+    def set_steady_tolerances(
+        self,
+        *,
+        default: "_BoundsPair | None" = None,
+        Y: "_BoundsPair | None" = None,
+        abs: "_BoundsPair | None" = None,
+        rel: "_BoundsPair | None" = None,
+        **kwargs: "_BoundsPair",
+    ) -> None:
         """
         Set the error tolerances for the steady-state problem.
 
@@ -341,8 +451,15 @@ class Domain1D:
             self.domain.setSteadyTolerances(rtol, atol,
                                             self.component_index(name))
 
-    def set_transient_tolerances(self, *, default=None, Y=None, abs=None,
-                                 rel=None, **kwargs):
+    def set_transient_tolerances(
+        self,
+        *,
+        default: "_BoundsPair | None" = None,
+        Y: "_BoundsPair | None" = None,
+        abs: "_BoundsPair | None" = None,
+        rel: "_BoundsPair | None" = None,
+        **kwargs: "_BoundsPair",
+    ) -> None:
         """
         Set the error tolerances for the steady-state problem.
 
@@ -376,7 +493,7 @@ class Domain1D:
             self.domain.setTransientTolerances(rtol, atol,
                                                self.component_index(name))
 
-    def set_default_tolerances(self):
+    def set_default_tolerances(self) -> None:
         """
         Set all tolerances to their default values
         """
@@ -384,7 +501,7 @@ class Domain1D:
         self.set_transient_tolerances(default=(1e-4, 1e-11))
         self.have_user_tolerances = False
 
-    def bounds(self, component):
+    def bounds(self, component: str) -> tuple[float, float]:
         """
         Return the (lower, upper) bounds for a solution component.
 
@@ -394,7 +511,7 @@ class Domain1D:
         n = self.component_index(component)
         return self.domain.lowerBound(n), self.domain.upperBound(n)
 
-    def tolerances(self, component):
+    def tolerances(self, component: str) -> tuple[float, float]:
         """
         Return the (relative, absolute) error tolerances for a solution
         component.
@@ -404,6 +521,10 @@ class Domain1D:
         k = self.component_index(component)
         return self.domain.rtol(k), self.domain.atol(k)
 
+    @_overload
+    def steady_reltol(self, component: str) -> float: ...
+    @_overload
+    def steady_reltol(self, component: None = None) -> _Array: ...
     def steady_reltol(self, component=None):
         """
         Return the relative error tolerance for the steady state problem for a
@@ -415,6 +536,10 @@ class Domain1D:
         else:
             return self.domain.steady_rtol(self.component_index(component))
 
+    @_overload
+    def steady_abstol(self, component: str) -> float: ...
+    @_overload
+    def steady_abstol(self, component: None = None) -> _Array: ...
     def steady_abstol(self, component=None):
         """
         Return the absolute error tolerance for the steady state problem for a
@@ -426,6 +551,10 @@ class Domain1D:
         else:
             return self.domain.steady_atol(self.component_index(component))
 
+    @_overload
+    def transient_reltol(self, component: str) -> float: ...
+    @_overload
+    def transient_reltol(self, component: None = None) -> _Array: ...
     def transient_reltol(self, component=None):
         """
         Return the relative error tolerance for the transient problem for a
@@ -437,6 +566,10 @@ class Domain1D:
         else:
             return self.domain.transient_rtol(self.component_index(component))
 
+    @_overload
+    def transient_abstol(self, component: str) -> float: ...
+    @_overload
+    def transient_abstol(self, component: None = None) -> _Array: ...
     def transient_abstol(self, component=None):
         """
         Return the absolute error tolerance for the transient problem for a
@@ -466,26 +599,26 @@ class Domain1D:
         return pystr(self.domain.jacobianMode())
 
     @jacobian_mode.setter
-    def jacobian_mode(self, mode: str):
+    def jacobian_mode(self, mode: str) -> None:
         self.domain.setJacobianMode(stringify(mode))
 
     @property
-    def name(self):
+    def name(self) -> str:
         """ The name / id of this domain """
         return pystr(self.domain.id())
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self.domain.setID(stringify(name))
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         raise NotImplementedError('Domain1D object is not picklable')
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('Domain1D object is not copyable')
 
     @property
-    def settings(self):
+    def settings(self) -> _Domain1DSettings:
         """
         Return comprehensive dictionary describing type, name, and simulation settings
         that are specific to domain types.
@@ -516,31 +649,31 @@ class Boundary1D(Domain1D):
             self.domain = self._domain.get()
             self.boundary = cython.cast(cython.pointer(CxxBoundary1D), self.domain)
 
-    def __init__(self, phase, name=None):
+    def __init__(self, phase: _SolutionBase, name: str | None = None) -> None:
         if self.boundary is cython.NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         Domain1D.__init__(self, phase, name=name)
 
     @property
-    def T(self):
+    def T(self) -> float:
         """ The temperature [K] at this boundary. """
         return self.boundary.temperature()
 
     @T.setter
-    def T(self, T):
+    def T(self, T: float) -> None:
         self.boundary.setTemperature(T)
 
     @property
-    def mdot(self):
+    def mdot(self) -> float:
         """The mass flow rate per unit area [kg/s/m²]"""
         return self.boundary.mdot()
 
     @mdot.setter
-    def mdot(self, mdot):
+    def mdot(self, mdot: float) -> None:
         self.boundary.setMdot(mdot)
 
     @property
-    def X(self):
+    def X(self) -> _Array:
         """
         Species mole fractions at this boundary. May be set as either a string
         or as an array.
@@ -549,7 +682,7 @@ class Boundary1D(Domain1D):
         return self.gas.X
 
     @X.setter
-    def X(self, X):
+    def X(self, X: _CompositionLike) -> None:
         self.gas.TPX = None, None, X
         data = np.ascontiguousarray(self.gas.X, dtype=np.double)
         cdata: cython.double[::1] = data
@@ -557,7 +690,7 @@ class Boundary1D(Domain1D):
                                                           cython.cast(cython.size_t, data.size)))
 
     @property
-    def Y(self):
+    def Y(self) -> _Array:
         """
         Species mass fractions at this boundary. May be set as either a string
         or as an array.
@@ -570,19 +703,19 @@ class Boundary1D(Domain1D):
         return Y
 
     @Y.setter
-    def Y(self, Y):
+    def Y(self, Y: _CompositionLike) -> None:
         self.gas.TPY = self.gas.T, self.gas.P, Y
         self.X = self.gas.X
 
     @property
-    def spread_rate(self):
+    def spread_rate(self) -> float:
         """
         Get/set the tangential velocity gradient [1/s] at this boundary.
         """
         return self.boundary.spreadRate()
 
     @spread_rate.setter
-    def spread_rate(self, s):
+    def spread_rate(self, s: float) -> None:
         self.boundary.setSpreadRate(s)
 
 
@@ -638,7 +771,7 @@ class ReactingSurface1D(Boundary1D):
     """
     _domain_type = "reacting-surface"
 
-    def __init__(self, phase: _SolutionBase, name=None):
+    def __init__(self, phase: _SolutionBase, name: str | None = None) -> None:
         gas = None
         for val in phase._adjacent.values():
             if val.phase_of_matter == "gas":
@@ -651,19 +784,19 @@ class ReactingSurface1D(Boundary1D):
         self.surface = phase
 
     @property
-    def phase(self):
+    def phase(self) -> _SolutionBase:
         """
         Get the `Interface` object representing species and reactions on the surface
         """
         return self.surface
 
     @property
-    def coverage_enabled(self):
+    def coverage_enabled(self) -> bool:
         """Controls whether or not to solve the surface coverage equations."""
         return cython.cast(cython.pointer(CxxReactingSurf1D), self.domain).coverageEnabled()
 
     @coverage_enabled.setter
-    def coverage_enabled(self, value):
+    def coverage_enabled(self, value: bool) -> None:
         cython.cast(cython.pointer(CxxReactingSurf1D), self.domain).enableCoverageEquations(
             cython.cast(cbool, value))
 
@@ -677,12 +810,12 @@ class FlowBase(Domain1D):
         self.domain = self._domain.get()
         self.flow = cython.cast(cython.pointer(CxxFlow1D), self.domain)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: _Any, **kwargs: _Any) -> None:
         super().__init__(*args, **kwargs)
         self.P = self.gas.P
         self.flow.solveEnergyEqn()
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str, /) -> _Array:
         # used to access fields by alias rather than canonical names;
         # also provides access to species that are valid Python identifiers
         # (replicates SolutionArray behavior)
@@ -698,16 +831,16 @@ class FlowBase(Domain1D):
             f"{self.__class__.__name__!r} object has no attribute {name!r}")
 
     @property
-    def P(self):
+    def P(self) -> float:
         """Pressure [Pa]"""
         return self.flow.pressure()
 
     @P.setter
-    def P(self, P):
+    def P(self, P: float) -> None:
         self.flow.setPressure(P)
 
     @property
-    def T(self):
+    def T(self) -> _Array:
         """
         Array containing the temperature [K] at each grid point.
 
@@ -716,7 +849,7 @@ class FlowBase(Domain1D):
         return self.values("T")
 
     @property
-    def velocity(self):
+    def velocity(self) -> _Array:
         """
         Array containing the velocity [m/s] normal to the flame at each point.
 
@@ -725,7 +858,7 @@ class FlowBase(Domain1D):
         return self.values("velocity")
 
     @property
-    def spread_rate(self):
+    def spread_rate(self) -> _Array:
         """
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point. Note: This value is named
@@ -736,7 +869,7 @@ class FlowBase(Domain1D):
         return self.values("spread_rate")
 
     @property
-    def radial_pressure_gradient(self):
+    def radial_pressure_gradient(self) -> _Array:
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named ``Lambda`` in the C++ code and is only
@@ -747,7 +880,7 @@ class FlowBase(Domain1D):
         return self.values("Lambda")
 
     @property
-    def electric_field(self):
+    def electric_field(self) -> _Array:
         """
         Array containing the electric field strength at each point.
         Note: This value is named ``eField`` in the C++ code and is only defined if
@@ -758,7 +891,7 @@ class FlowBase(Domain1D):
         return self.values("eField")
 
     @property
-    def oxidizer_velocity(self):
+    def oxidizer_velocity(self) -> _Array:
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
         each point.
@@ -770,7 +903,7 @@ class FlowBase(Domain1D):
         return self.values("Uo")
 
     @property
-    def transport_model(self):
+    def transport_model(self) -> str:
         """
         Get/set the transport model used for calculating transport properties.
 
@@ -779,12 +912,12 @@ class FlowBase(Domain1D):
         return pystr(self.flow.transportModel())
 
     @transport_model.setter
-    def transport_model(self, model):
+    def transport_model(self, model: str) -> None:
         self.flow.setTransportModel(stringify(model))
         # ensure that transport remains accessible
         self.gas.transport = self.gas.base.transport().get()
 
-    def set_default_tolerances(self):
+    def set_default_tolerances(self) -> None:
         """
         Set all tolerances to their default values
         """
@@ -803,7 +936,7 @@ class FlowBase(Domain1D):
         self.have_user_tolerances = False
 
     @property
-    def soret_enabled(self):
+    def soret_enabled(self) -> bool:
         """
         Determines whether or not to include diffusive mass fluxes due to the
         Soret effect. Enabling this option only works for multicomponent and
@@ -812,11 +945,11 @@ class FlowBase(Domain1D):
         return self.flow.withSoret()
 
     @soret_enabled.setter
-    def soret_enabled(self, enable):
+    def soret_enabled(self, enable: bool) -> None:
         self.flow.enableSoret(cython.cast(cbool, enable))
 
     @property
-    def flux_gradient_basis(self):
+    def flux_gradient_basis(self) -> _Basis:
         """
         Get/Set whether or not species diffusive fluxes are computed with
         respect to their mass fraction gradients ('mass')
@@ -829,7 +962,7 @@ class FlowBase(Domain1D):
             return 'mass'
 
     @flux_gradient_basis.setter
-    def flux_gradient_basis(self, basis):
+    def flux_gradient_basis(self, basis: _Basis) -> None:
         if basis == 'molar':
             self.flow.setFluxGradientBasis(ThermoBasis.molar)
         elif basis == 'mass':
@@ -839,18 +972,18 @@ class FlowBase(Domain1D):
                              " Got {!r}.".format(basis))
 
     @property
-    def energy_enabled(self):
+    def energy_enabled(self) -> bool:
         """ Determines whether or not to solve the energy equation."""
         return self.flow.doEnergy(0)
 
     @energy_enabled.setter
-    def energy_enabled(self, enable):
+    def energy_enabled(self, enable: bool) -> None:
         if enable:
             self.flow.solveEnergyEqn()
         else:
             self.flow.fixTemperature()
 
-    def set_fixed_temp_profile(self, pos, T):
+    def set_fixed_temp_profile(self, pos: _ArrayLike, T: _ArrayLike) -> None:
         """Set the fixed temperature profile. This profile is used
         whenever the energy equation is disabled.
 
@@ -872,7 +1005,7 @@ class FlowBase(Domain1D):
         yspan: span[const_double] = span[const_double](y.data(), y.size())
         self.flow.setFixedTempProfile(xspan, yspan)
 
-    def get_settings3(self):
+    def get_settings3(self) -> _Domain1DSettings:
         """
         Temporary method returning new behavior of settings getter.
 
@@ -881,28 +1014,28 @@ class FlowBase(Domain1D):
         return self.settings
 
     @property
-    def boundary_emissivities(self):
+    def boundary_emissivities(self) -> tuple[float, float]:
         """ Set/get boundary emissivities. """
         return self.flow.leftEmissivity(), self.flow.rightEmissivity()
 
     @boundary_emissivities.setter
-    def boundary_emissivities(self, epsilon: tuple):
+    def boundary_emissivities(self, epsilon: "_BoundsPair") -> None:
         if len(epsilon) != 2:
             raise ValueError('Setting the boundary emissivities requires a '
                              'tuple of length 2.')
         self.flow.setBoundaryEmissivities(epsilon[0], epsilon[1])
 
     @property
-    def radiation_enabled(self):
+    def radiation_enabled(self) -> bool:
         """ Determines whether or not to include radiative heat transfer """
         return self.flow.radiationEnabled()
 
     @radiation_enabled.setter
-    def radiation_enabled(self, do_radiation):
+    def radiation_enabled(self, do_radiation: bool) -> None:
         self.flow.enableRadiation(cython.cast(cbool, do_radiation))
 
     @property
-    def radiative_heat_loss(self):
+    def radiative_heat_loss(self) -> _Array:
         """
         Return radiative heat loss (only non-zero if radiation is enabled).
         """
@@ -912,7 +1045,7 @@ class FlowBase(Domain1D):
             data[j] = self.flow.radiativeHeatLoss(j)
         return data
 
-    def set_free_flow(self):
+    def set_free_flow(self) -> None:
         """
         Set flow configuration for freely-propagating flames, using an internal
         point with a fixed temperature as the condition to determine the inlet
@@ -920,7 +1053,7 @@ class FlowBase(Domain1D):
         """
         self.flow.setFreeFlow()
 
-    def set_axisymmetric_flow(self):
+    def set_axisymmetric_flow(self) -> None:
         """
         Set flow configuration for axisymmetric counterflow or burner-stabilized
         flames, using specified inlet mass fluxes.
@@ -928,7 +1061,7 @@ class FlowBase(Domain1D):
         self.flow.setAxisymmetricFlow()
 
     @property
-    def type(self):
+    def type(self) -> str:
         """
         Return the type of flow domain being represented.
 
@@ -940,7 +1073,7 @@ class FlowBase(Domain1D):
         return pystr(self.flow.domainType())
 
     @property
-    def electric_field_enabled(self):
+    def electric_field_enabled(self) -> bool:
         """
         Determines whether or not to solve the electric field equation (only relevant
         if transport model is ``ionized-gas``).
@@ -948,47 +1081,47 @@ class FlowBase(Domain1D):
         return self.flow.doElectricField()
 
     @electric_field_enabled.setter
-    def electric_field_enabled(self, enable):
+    def electric_field_enabled(self, enable: bool) -> None:
         if enable:
             self.flow.solveElectricField()
         else:
             self.flow.fixElectricField()
 
     @property
-    def left_control_point_temperature(self):
+    def left_control_point_temperature(self) -> float:
         """ Get/Set the left control point temperature [K] """
         return self.flow.leftControlPointTemperature()
 
     @left_control_point_temperature.setter
-    def left_control_point_temperature(self, T):
+    def left_control_point_temperature(self, T: float) -> None:
         self.flow.setLeftControlPointTemperature(T)
 
     @property
-    def right_control_point_temperature(self):
+    def right_control_point_temperature(self) -> float:
         """ Get/Set the right control point temperature [K] """
         return self.flow.rightControlPointTemperature()
 
     @right_control_point_temperature.setter
-    def right_control_point_temperature(self, T):
+    def right_control_point_temperature(self, T: float) -> None:
         self.flow.setRightControlPointTemperature(T)
 
     @property
-    def left_control_point_coordinate(self):
+    def left_control_point_coordinate(self) -> float:
         """ Get the left control point coordinate [m] """
         return self.flow.leftControlPointCoordinate()
 
     @property
-    def right_control_point_coordinate(self):
+    def right_control_point_coordinate(self) -> float:
         """ Get the right control point coordinate [m] """
         return self.flow.rightControlPointCoordinate()
 
     @property
-    def two_point_control_enabled(self):
+    def two_point_control_enabled(self) -> bool:
         """ Get/Set the state of the two-point flame control """
         return self.flow.twoPointControlEnabled()
 
     @two_point_control_enabled.setter
-    def two_point_control_enabled(self, enable):
+    def two_point_control_enabled(self, enable: bool) -> None:
         self.flow.enableTwoPointControl(cython.cast(cbool, enable))
 
 
@@ -1062,7 +1195,11 @@ class Sim1D:
     Domains are ordered left-to-right, with domain number 0 at the left.
     """
 
-    def __init__(self, domains, *args, **kwargs):
+    domains: "tuple[Domain1D, ...]"
+
+    def __init__(
+        self, domains: _Sequence[Domain1D], *args: _Any, **kwargs: _Any
+    ) -> None:
         cxx_domains: vector[shared_ptr[CxxDomain1D]]
         d: Domain1D
         for d in domains:
@@ -1076,7 +1213,7 @@ class Sim1D:
         self._initial_guess_args = ()
         self._initial_guess_kwargs = {}
 
-    def set_interrupt(self, f):
+    def set_interrupt(self, f: "_Callable[[float], float] | None") -> None:
         """
         Set an interrupt function to be called each time that :ct:`OneDim::eval` is
         called. The signature of ``f`` is ``float f(float)``. The default
@@ -1093,7 +1230,7 @@ class Sim1D:
         self._interrupt = f
         self.sim.setInterrupt(self._interrupt.func)
 
-    def set_time_step_callback(self, f):
+    def set_time_step_callback(self, f: "_Callable[[float], float] | None") -> None:
         """
         Set a callback function to be called after each successful timestep.
         The signature of ``f`` is ``float f(float)``. The argument passed to ``f`` is
@@ -1109,7 +1246,7 @@ class Sim1D:
         self._time_step_callback = f
         self.sim.setTimeStepCallback(self._time_step_callback.func)
 
-    def set_steady_callback(self, f):
+    def set_steady_callback(self, f: "_Callable[[float], float] | None") -> None:
         """
         Set a callback function to be called after each successful steady-state
         solve, before regridding. The signature of ``f`` is ``float f(float)``. The
@@ -1125,7 +1262,7 @@ class Sim1D:
         self._steady_callback = f
         self.sim.setSteadyCallback(self._steady_callback.func)
 
-    def domain_index(self, dom):
+    def domain_index(self, dom: Domain1D | str | int) -> int:
         """
         Get the index of a domain, specified either by name or as a Domain1D object.
         """
@@ -1148,7 +1285,7 @@ class Sim1D:
 
         return idom, kcomp
 
-    def eval(self, rdt=0.0):
+    def eval(self, rdt: float = 0.0) -> None:
         """
         Evaluate the governing equations using the current solution estimate,
         storing the residual in the array which is accessible with the
@@ -1159,7 +1296,7 @@ class Sim1D:
         """
         self.sim.eval(rdt)
 
-    def eval_jacobian(self):
+    def eval_jacobian(self) -> None:
         """
         Evaluate the steady-state Jacobian at the current solution estimate.
         The result can be examined through the `linear_solver` object, e.g. the
@@ -1169,7 +1306,7 @@ class Sim1D:
         """
         self.sim.evalSSJacobian()
 
-    def show(self):
+    def show(self) -> None:
         """
         Print the current solution.
 
@@ -1181,7 +1318,7 @@ class Sim1D:
             self.set_initial_guess()
         self.sim.show()
 
-    def set_time_step(self, stepsize, n_steps):
+    def set_time_step(self, stepsize: float, n_steps: _Sequence[int]) -> None:
         """Set the sequence of time steps to try when Newton fails.
 
         :param stepsize:
@@ -1197,7 +1334,7 @@ class Sim1D:
         self.sim.setTimeStep(stepsize, span[int](data))
 
     @property
-    def max_time_step_count(self):
+    def max_time_step_count(self) -> int:
         """
         Get/Set the maximum number of time steps allowed before reaching the
         steady-state solution
@@ -1205,10 +1342,12 @@ class Sim1D:
         return self.sim.maxTimeStepCount()
 
     @max_time_step_count.setter
-    def max_time_step_count(self, nmax):
+    def max_time_step_count(self, nmax: int) -> None:
         self.sim.setMaxTimeStepCount(nmax)
 
-    def set_jacobian_perturbation(self, relative, absolute, threshold):
+    def set_jacobian_perturbation(
+        self, relative: float, absolute: float, threshold: float
+    ) -> None:
         """
         Configure perturbations used to evaluate finite difference Jacobian
 
@@ -1223,7 +1362,7 @@ class Sim1D:
         self.sim.setJacobianPerturbation(relative, absolute, threshold)
 
     @property
-    def linear_solver(self):
+    def linear_solver(self) -> SystemJacobian:
         """
         Get/Set the the linear solver used to hold the Jacobian matrix and solve linear
         systems as part of each Newton iteration. The default is a banded, direct
@@ -1232,10 +1371,10 @@ class Sim1D:
         return SystemJacobian.wrap(self.sim.linearSolver())
 
     @linear_solver.setter
-    def linear_solver(self, precon: SystemJacobian):
+    def linear_solver(self, precon: SystemJacobian) -> None:
         self.sim.setLinearSolver(precon._base)
 
-    def set_initial_guess(self, *args, **kwargs):
+    def set_initial_guess(self, *args: _Any, **kwargs: _Any) -> None:
         """
         Store arguments for initial guess and prepare storage for solution.
         """
@@ -1252,14 +1391,16 @@ class Sim1D:
         self.sim.resize()
         self.sim.getInitialSoln()
 
-    def extinct(self):
+    def extinct(self) -> bool:
         """
         Method overloaded for some flame types to indicate if the flame has been
         extinguished. Base class method always returns 'False'
         """
         return False
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(
+        self, loglevel: _LogLevel = 1, refine_grid: bool = True, auto: bool = False
+    ) -> None:
         """
         Solve the problem.
 
@@ -1450,15 +1591,21 @@ class Sim1D:
         if have_user_tolerances or solve_multi or soret_doms:
             self.sim.solve(loglevel, cython.cast(cbool, refine_grid))
 
-    def refine(self, loglevel=1):
+    def refine(self, loglevel: _LogLevel = 1) -> None:
         """
         Refine the grid, adding points where solution is not adequately
         resolved.
         """
         self.sim.refine(loglevel)
 
-    def set_refine_criteria(self, domain, ratio=10.0, slope=0.8, curve=0.8,
-                          prune=0.05):
+    def set_refine_criteria(
+        self,
+        domain: Domain1D | str | int,
+        ratio: float = 10.0,
+        slope: float = 0.8,
+        curve: float = 0.8,
+        prune: float = 0.05,
+    ) -> None:
         """
         Set the criteria used to refine one domain.
 
@@ -1486,7 +1633,7 @@ class Sim1D:
         idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
 
-    def get_refine_criteria(self, domain):
+    def get_refine_criteria(self, domain: Domain1D | str | int) -> _RefineCriteria:
         """
         Get a dictionary of the criteria used to refine one domain. The items in
         the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
@@ -1503,7 +1650,9 @@ class Sim1D:
         c = self.sim.getRefineCriteria(idom)
         return {'ratio': c[0], 'slope': c[1], 'curve': c[2], 'prune': c[3]}
 
-    def set_grid_min(self, dz, domain=None):
+    def set_grid_min(
+        self, dz: float, domain: Domain1D | str | int | None = None
+    ) -> None:
         """
         Set the minimum grid spacing on ``domain``. If ``domain`` is `None`, then
         set the grid spacing for all domains.
@@ -1514,7 +1663,7 @@ class Sim1D:
             idom = self.domain_index(domain)
         self.sim.setGridMin(idom, dz)
 
-    def set_max_jac_age(self, ss_age, ts_age):
+    def set_max_jac_age(self, ss_age: int, ts_age: int) -> None:
         """
         Set the maximum number of times the Jacobian will be used before it
         must be re-evaluated.
@@ -1526,7 +1675,7 @@ class Sim1D:
         """
         self.sim.setJacAge(ss_age, ts_age)
 
-    def set_time_step_factor(self, tfactor):
+    def set_time_step_factor(self, tfactor: float) -> None:
         """
         Set the factor by which the time step will be decreased after an
         unsuccessful step.
@@ -1537,7 +1686,7 @@ class Sim1D:
         self.sim.setTimeStepFactor(tfactor)
 
     @property
-    def time_step_growth_factor(self):
+    def time_step_growth_factor(self) -> float:
         """
         Get/Set the factor by which the time step will be increased after a
         successful step when the Jacobian is reused.
@@ -1552,11 +1701,11 @@ class Sim1D:
         return self.sim.timeStepGrowthFactor()
 
     @time_step_growth_factor.setter
-    def time_step_growth_factor(self, tfactor):
+    def time_step_growth_factor(self, tfactor: float) -> None:
         self.sim.setTimeStepGrowthFactor(tfactor)
 
     @property
-    def time_step_growth_strategy(self):
+    def time_step_growth_strategy(self) -> str:
         """
         Get/Set the strategy used to grow the time step after a successful
         step that reuses the Jacobian.
@@ -1579,11 +1728,11 @@ class Sim1D:
         return pystr(self.sim.timeStepGrowthStrategy())
 
     @time_step_growth_strategy.setter
-    def time_step_growth_strategy(self, strategy):
+    def time_step_growth_strategy(self, strategy: str) -> None:
         self.sim.setTimeStepGrowthStrategy(stringify(strategy))
 
     @property
-    def time_step_regrid(self):
+    def time_step_regrid(self) -> int:
         """
         Get/Set the maximum number of regrid attempts after a time step
         failure.
@@ -1598,19 +1747,19 @@ class Sim1D:
         return self.sim.timeStepRegridMax()
 
     @time_step_regrid.setter
-    def time_step_regrid(self, max_tries):
+    def time_step_regrid(self, max_tries: int) -> None:
         self.sim.setTimeStepRegridMax(max_tries)
 
-    def set_min_time_step(self, tsmin):
+    def set_min_time_step(self, tsmin: float) -> None:
         """ Set the minimum time step. """
         self.sim.setMinTimeStep(tsmin)
 
-    def set_max_time_step(self, tsmax):
+    def set_max_time_step(self, tsmax: float) -> None:
         """ Set the maximum time step. """
         self.sim.setMaxTimeStep(tsmax)
 
     @property
-    def fixed_temperature(self):
+    def fixed_temperature(self) -> float:
         """
         Set the temperature used to fix the spatial location of a freely
         propagating flame.
@@ -1618,18 +1767,18 @@ class Sim1D:
         return self.sim.fixedTemperature()
 
     @fixed_temperature.setter
-    def fixed_temperature(self, T):
+    def fixed_temperature(self, T: float) -> None:
         self.sim.setFixedTemperature(T)
 
     @property
-    def fixed_temperature_location(self):
+    def fixed_temperature_location(self) -> float:
         """
         Return the location of the point where temperature is fixed for a freely
         propagating flame.
         """
         return self.sim.fixedTemperatureLocation()
 
-    def set_left_control_point(self, T):
+    def set_left_control_point(self, T: float) -> None:
         """
         Set the left control point using the specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
@@ -1640,7 +1789,7 @@ class Sim1D:
         """
         self.sim.setLeftControlPoint(T)
 
-    def set_right_control_point(self, T):
+    def set_right_control_point(self, T: float) -> None:
         """
         Set the right control point using a specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
@@ -1651,8 +1800,17 @@ class Sim1D:
         """
         self.sim.setRightControlPoint(T)
 
-    def save(self, filename='soln.yaml', name='solution', description=None,
-             loglevel=None, *, overwrite=False, compression=0, basis=None):
+    def save(
+        self,
+        filename: _Path | str = 'soln.yaml',
+        name: str = 'solution',
+        description: str | None = None,
+        loglevel: _LogLevel | None = None,
+        *,
+        overwrite: bool = False,
+        compression: _CompressionLevel = 0,
+        basis: _Basis | _Literal["X", "Y"] | None = None,
+    ) -> None:
         """
         Save current simulation data to a data file (CSV, YAML or HDF).
 
@@ -1698,7 +1856,12 @@ class Sim1D:
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), overwrite, compression, stringify(basis))
 
-    def restore(self, filename='soln.yaml', name='solution', loglevel=None):
+    def restore(
+        self,
+        filename: _Path | str = 'soln.yaml',
+        name: str = 'solution',
+        loglevel: _LogLevel | None = None,
+    ) -> _RestoreMetadata:
         """Retrieve data and settings from a previously saved simulation.
 
         This method restores a simulation object from YAML or HDF data previously saved
@@ -1728,7 +1891,7 @@ class Sim1D:
         self._initialized = True
         return anymap_to_py(header)
 
-    def restore_time_stepping_solution(self):
+    def restore_time_stepping_solution(self) -> None:
         """
         Set the current solution vector to the last successful time-stepping
         solution. This can be used to examine the solver progress after a failed
@@ -1736,7 +1899,7 @@ class Sim1D:
         """
         self.sim.restoreTimeSteppingSolution()
 
-    def restore_steady_solution(self):
+    def restore_steady_solution(self) -> None:
         """
         Set the current solution vector to the last successful steady-state
         solution. This can be used to examine the solver progress after a
@@ -1744,7 +1907,7 @@ class Sim1D:
         """
         self.sim.restoreSteadySolution()
 
-    def show_stats(self, print_time=True):
+    def show_stats(self, print_time: bool = True) -> None:
         """
         Show the statistics for the last solution.
 
@@ -1753,13 +1916,20 @@ class Sim1D:
         """
         self.sim.writeStats(print_time)
 
-    def clear_stats(self):
+    def clear_stats(self) -> None:
         """
         Clear solver statistics.
         """
         self.sim.clearStats()
 
-    def solve_adjoint(self, perturb, n_params, dgdx, g=None, dp=1e-5):
+    def solve_adjoint(
+        self,
+        perturb: "_Callable[[Sim1D, int, float], None]",
+        n_params: int,
+        dgdx: _Array,
+        g: "_Callable[[Sim1D], float] | None" = None,
+        dp: float = 1e-5,
+    ) -> None:
         """
         Find the sensitivities of an objective function using an adjoint method.
 
@@ -1845,7 +2015,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())
 
     @property
-    def grid_size_stats(self):
+    def grid_size_stats(self) -> list[int]:
         """
         Return total grid size in each call to solve().
 
@@ -1858,7 +2028,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())["grid_points"]
 
     @property
-    def jacobian_time_stats(self):
+    def jacobian_time_stats(self) -> list[int]:
         """
         Return CPU time spent evaluating Jacobians in each call to solve().
 
@@ -1871,7 +2041,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())["jacobian_time"]
 
     @property
-    def jacobian_count_stats(self):
+    def jacobian_count_stats(self) -> list[int]:
         """
         Return number of Jacobian evaluations made in each call to solve().
 
@@ -1884,7 +2054,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())["jacobian_evals"]
 
     @property
-    def eval_time_stats(self):
+    def eval_time_stats(self) -> list[float]:
         """
         Return CPU time spent on non-Jacobian function evaluations in each call
         to solve().
@@ -1898,7 +2068,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())["residual_time"]
 
     @property
-    def eval_count_stats(self):
+    def eval_count_stats(self) -> list[int]:
         """
         Return number of non-Jacobian function evaluations made in each call to
         solve().
@@ -1912,7 +2082,7 @@ class Sim1D:
         return anymap_to_py(self.sim.solverStats())["residual_evals"]
 
     @property
-    def time_step_stats(self):
+    def time_step_stats(self) -> list[int]:
         """
         Return number of time steps taken in each call to solve().
 
@@ -1924,12 +2094,12 @@ class Sim1D:
             DeprecationWarning)
         return anymap_to_py(self.sim.solverStats())["steps"]
 
-    def set_max_grid_points(self, domain, npmax):
+    def set_max_grid_points(self, domain: Domain1D | str | int, npmax: int) -> None:
         """ Set the maximum number of grid points in the specified domain. """
         idom = self.domain_index(domain)
         self.sim.setMaxGridPoints(idom, npmax)
 
-    def get_max_grid_points(self, domain):
+    def get_max_grid_points(self, domain: Domain1D | str | int) -> int:
         """ Get the maximum number of grid points in the specified domain. """
         idom = self.domain_index(domain)
         return self.sim.maxGridPoints(idom)
