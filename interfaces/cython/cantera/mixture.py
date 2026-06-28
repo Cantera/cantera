@@ -12,7 +12,6 @@ import numpy as np
 import cython
 from cython.cimports.cantera._utils import stringify, pystr
 from cython.cimports.cantera.solutionbase import _SolutionBase
-from cython.cimports.libcpp.memory import make_shared
 
 # ThermoPhase is imported as an ordinary Python import (under an underscore alias to keep
 # it out of ``from .mixture import *``) so that its use in the public annotations is

@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 import cython
 import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
 
-from cython.cimports.libcpp.memory import make_shared
 from cython.cimports.cantera.kinetics import Kinetics
 from cython.cimports.cantera._utils import (
     stringify, pystr, anymap_to_py, py_to_anymap, comp_map, comp_map_to_dict,

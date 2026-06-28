@@ -14,7 +14,6 @@ from typing_extensions import Never as _Never
 
 import cython
 from cython.cimports.cantera._utils import stringify, pystr
-from cython.cimports.libcpp.memory import make_shared
 
 from .solutionbase import _SolutionBase
 from .units import UnitSystem as _UnitSystem
