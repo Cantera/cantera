@@ -51,6 +51,14 @@ cantera\.solutionbase\.(ThermoPhase|InterfacePhase|Species|CxxSurfPhase|Kinetics
 cantera\.solutionbase\.(Reaction|CustomRate|ExtensibleRate|pyOverride|CxxPythonHandle)
 cantera\.solutionbase\.(callback_v|YamlWriter|anyvalue_to_python|AnyMapFromYamlString)
 cantera\.solutionbase\.(_assign_Solution|_wrap_Solution)
+# reaction: compile-time-only cimports and @cython.cfunc helpers.
+cantera\.reaction\.(Kinetics|Units|UnitStack|cnp|CxxDelegatorPtr|assign_delegates|CxxPythonHandle|CxxExternalHandle)
+cantera\.reaction\.(comp_map|comp_map_to_dict)
+cantera\.reaction\.(ReactionRate|ArrheniusRate|BlowersMaselRate|TwoTempPlasmaRate)\.(wrap|set_cxx_object|cxx_object)
+cantera\.reaction\.(ElectronCollisionPlasmaRate|FalloffRate|LindemannRate|TroeRate|SriRate|TsangRate)\.(set_cxx_object|cxx_object)
+cantera\.reaction\.(PlogRate|LinearBurkeRate|ChebyshevRate|CustomRate)\.(cxx_object|_cxxarray2d)
+cantera\.reaction\.(ExtensibleRate|ExtensibleRateData|InterfaceArrheniusRate|InterfaceBlowersMaselRate)\.(set_cxx_object|cxx_object)
+cantera\.reaction\.(StickingArrheniusRate|StickingBlowersMaselRate|ThirdBody|Reaction)\.(wrap|set_cxx_object|cxx_object)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
