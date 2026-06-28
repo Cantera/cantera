@@ -67,6 +67,8 @@ cantera\.thermo\._QuadratureMethod
 cantera\.thermo\.(comp_map|comp_map_to_dict|mass_basis|molar_basis|parseCompString|wrapSpeciesThermo)
 cantera\.thermo\.Species\._assign
 cantera\.thermo\.ThermoPhase\.(_getArray1|_setArray1|_mass_factor|_mole_factor)
+# _onedim: compile-time-only cimports (no runtime attribute).
+cantera\._onedim\.(cnp|view)
 # composite: `SolutionArray._phase` is published as `_P` (a TypeVar bound to
 # `ThermoPhase`, never actually `None` for an initialized instance), but its
 # runtime class-level default (inherited from `SolutionArrayBase`, before
