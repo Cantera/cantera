@@ -5,11 +5,22 @@
 # cython: language_level=3
 
 import numpy as np
+from collections.abc import (Callable as _Callable, Iterable as _Iterable,
+                             Sequence as _Sequence)
+from typing import (Any as _Any, ClassVar as _ClassVar, Generic as _Generic,
+                    TypeAlias as _TypeAlias, TYPE_CHECKING,
+                    TypedDict as _TypedDict, TypeVar as _TypeVar)
+from typing_extensions import NotRequired as _NotRequired
 import warnings
+
+if TYPE_CHECKING:
+    from .composite import Solution as _Solution
+    from .kinetics import Kinetics as _Kinetics
 
 import cython
 import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
 
+from cython.cimports.libcpp.memory import make_shared
 from cython.cimports.cantera.kinetics import Kinetics
 from cython.cimports.cantera._utils import (
     stringify, pystr, anymap_to_py, py_to_anymap, comp_map, comp_map_to_dict,
@@ -18,7 +29,99 @@ from cython.cimports.cantera.units import Units, UnitStack
 from cython.cimports.cantera.delegator import (
     CxxDelegatorPtr, assign_delegates,
     CxxPythonHandle, CxxExternalHandle)
-from ._utils import CanteraError
+from ._types import Array as _Array, ArrayLike as _ArrayLike
+from ._utils import AnyMap as _AnyMap, CanteraError
+from .func1 import _Func1Like
+from .units import Units as _Units, UnitStack as _UnitStack
+
+
+class _ArrheniusParameters(_TypedDict):
+    A: float
+    b: float
+    Ea: float
+
+
+class _BlowersMaselParameters(_TypedDict):
+    A: float
+    b: float
+    Ea0: float
+    w: float
+
+
+class _TwoTempPlasmaParameters(_TypedDict):
+    A: float
+    b: float
+    Ea_gas: float
+    Ea_electron: float
+
+
+class _ElectronCollisionPlasmaParameters(_TypedDict):
+    energy_levels: list[float]
+    cross_sections: list[float]
+
+
+class _PlogParameters(_ArrheniusParameters):
+    P: float
+
+
+_ReactionRateParameters: _TypeAlias = (
+    _ArrheniusParameters
+    | _BlowersMaselParameters
+    | _TwoTempPlasmaParameters
+    | _ElectronCollisionPlasmaParameters
+    | _PlogParameters
+)
+
+
+class _TroeParameters(_TypedDict):
+    A: float
+    T3: float
+    T1: float
+    T2: _NotRequired[float]
+
+
+class _CoverageParameters(_TypedDict):
+    a: float
+    m: float
+    E: float
+
+
+_T = _TypeVar("_T")
+
+# Published as ``str`` while preserving the pre-merge runtime behavior of
+# accepting string subclasses and path-like objects at selected call sites.
+_Str: _TypeAlias = str
+
+
+class _ReactionRateInput(_TypedDict, _Generic[_T], total=False):
+    type: str
+    rate_constant: _T
+    efficiencies: dict[str, float]
+    Troe: _TroeParameters
+    coverage_dependencies: dict[str, _CoverageParameters]
+
+
+class _ReactionInput(_ReactionRateInput[_T]):
+    equation: str
+
+
+class _FalloffRateInput(_TypedDict, total=False):
+    type: str
+    low_P_rate_constant: _ArrheniusParameters
+    high_P_rate_constant: _ArrheniusParameters
+    Troe: _TroeParameters
+
+
+class _PlogRateInput(_TypedDict, total=False):
+    type: str
+    rate_constants: _Sequence[_PlogParameters]
+
+
+class _ChebyshevRateInput(_TypedDict, total=False):
+    type: str
+    pressure_range: _Sequence[float]
+    temperature_range: _Sequence[float]
+    data: _Array
 
 # dictionary to store reaction rate classes
 _reaction_rate_class_registry: dict = {}
@@ -32,24 +135,24 @@ class ReactionRate:
     ReactionRate objects are used to calculate reaction rates and are associated
     with a Reaction object.
     """
-    _reaction_rate_type = ""
+    _reaction_rate_type: _ClassVar[str] = ""
 
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self):0x}>"
 
-    def __call__(self, temperature: cython.double):
+    def __call__(self, temperature: cython.double) -> float:
         """
         Evaluate rate expression based on temperature.
         """
         return self.rate.eval(temperature)
 
     @property
-    def type(self):
+    def type(self) -> str:
         """ Get the C++ ReactionRate type """
         return pystr(self.rate.type())
 
     @property
-    def sub_type(self):
+    def sub_type(self) -> str:
         """ Get the C++ ReactionRate sub-type """
         return pystr(self.rate.subType())
 
@@ -103,7 +206,11 @@ class ReactionRate:
         self.rate = self._rate.get()
 
     @classmethod
-    def from_dict(cls, data, hyphenize=True):
+    def from_dict(
+        cls,
+        data: _ReactionRateInput[_ReactionRateParameters],
+        hyphenize: bool = True,
+    ) -> "ReactionRate":
         """
         Create a `ReactionRate` object from a dictionary corresponding to its YAML
         representation. By default, underscores in keys are replaced by hyphens.
@@ -126,7 +233,7 @@ class ReactionRate:
         return ReactionRate.wrap(cxx_rate)
 
     @classmethod
-    def from_yaml(cls, text):
+    def from_yaml(cls, text: str) -> "ReactionRate":
         """
         Create a `ReactionRate` object from its YAML string representation.
 
@@ -152,14 +259,14 @@ class ReactionRate:
         return ReactionRate.wrap(cxx_rate)
 
     @property
-    def input_data(self):
+    def input_data(self) -> _ReactionRateInput[_ReactionRateParameters]:
         """
         Get input data for this reaction rate with its current parameter values.
         """
         return anymap_to_py(self.rate.parameters())
 
     @property
-    def conversion_units(self) -> Units:
+    def conversion_units(self) -> _Units:
         """
         Get the units for converting the leading term in the reaction rate expression
         to different unit systems.
@@ -204,7 +311,7 @@ class ArrheniusRateBase(ReactionRate):
         self.set_cxx_object()
 
     @property
-    def pre_exponential_factor(self):
+    def pre_exponential_factor(self) -> float:
         """
         The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
@@ -212,21 +319,21 @@ class ArrheniusRateBase(ReactionRate):
         return self.base.preExponentialFactor()
 
     @property
-    def temperature_exponent(self):
+    def temperature_exponent(self) -> float:
         """
         The temperature exponent ``b``.
         """
         return self.base.temperatureExponent()
 
     @property
-    def activation_energy(self):
+    def activation_energy(self) -> float:
         """
         The activation energy ``E`` [J/kmol].
         """
         return self.base.activationEnergy()
 
     @property
-    def allow_negative_pre_exponential_factor(self):
+    def allow_negative_pre_exponential_factor(self) -> bool:
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
@@ -234,7 +341,7 @@ class ArrheniusRateBase(ReactionRate):
         return self.base.allowNegativePreExponentialFactor()
 
     @allow_negative_pre_exponential_factor.setter
-    def allow_negative_pre_exponential_factor(self, allow: cbool):
+    def allow_negative_pre_exponential_factor(self, allow: bool) -> None:
         self.base.setAllowNegativePreExponentialFactor(allow)
 
 
@@ -260,11 +367,22 @@ class ArrheniusRate(ArrheniusRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxArrheniusRate(py_to_anymap(input_data)))
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea: float | None = None,
+        input_data: _ReactionRateInput[_ArrheniusParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        pass
 
-    def _from_parameters(self, A, b, Ea):
-        self._rate.reset(new CxxArrheniusRate(A, b, Ea))
+    def _from_dict(self, input_data: _ReactionRateInput[_ArrheniusParameters]) -> None:
+        self._rate = make_shared[CxxArrheniusRate](py_to_anymap(input_data))
+
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea: cython.double) -> None:
+        self._rate = make_shared[CxxArrheniusRate](A, b, Ea)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -290,11 +408,23 @@ class BlowersMaselRate(ArrheniusRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxBlowersMaselRate(py_to_anymap(input_data)))
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea0: float | None = None,
+        w: float | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
 
-    def _from_parameters(self, A, b, Ea0, w):
-        self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
+    def _from_dict(self, input_data: _ReactionRateInput[_BlowersMaselParameters]) -> None:
+        self._rate = make_shared[CxxBlowersMaselRate](py_to_anymap(input_data))
+
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea0: cython.double, w: cython.double) -> None:
+        self._rate = make_shared[CxxBlowersMaselRate](A, b, Ea0, w)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -306,7 +436,7 @@ class BlowersMaselRate(ArrheniusRateBase):
         return cython.cast(cython.pointer(CxxBlowersMaselRate), self.rate)
 
     @property
-    def bond_energy(self):
+    def bond_energy(self) -> float:
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
@@ -314,7 +444,7 @@ class BlowersMaselRate(ArrheniusRateBase):
         return self.cxx_object().bondEnergy()
 
     @property
-    def delta_enthalpy(self):
+    def delta_enthalpy(self) -> float:
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -331,7 +461,7 @@ class BlowersMaselRate(ArrheniusRateBase):
         return self.cxx_object().deltaH()
 
     @delta_enthalpy.setter
-    def delta_enthalpy(self, delta_H: cython.double):
+    def delta_enthalpy(self, delta_H: float) -> None:
         self.cxx_object().setDeltaH(delta_H)
 
 
@@ -364,19 +494,34 @@ class TwoTempPlasmaRate(ArrheniusRateBase):
                 Ea_electron = None
             self._cinit(input_data, A=A, b=b, Ea_gas=Ea_gas, Ea_electron=Ea_electron)
 
-    def __call__(self, temperature: cython.double, elec_temp: cython.double):
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea_gas: float = 0.0,
+        Ea_electron: float = 0.0,
+        input_data: _ReactionRateInput[_TwoTempPlasmaParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
+
+    def __call__(self, temperature: cython.double, elec_temp: cython.double) -> float:
         """
         Evaluate rate expression based on temperature and enthalpy change of reaction.
         """
         return self.rate.eval(temperature, elec_temp)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(
-            new CxxTwoTempPlasmaRate(py_to_anymap(input_data, hyphenize=True))
+    def _from_dict(
+        self, input_data: _ReactionRateInput[_TwoTempPlasmaParameters]
+    ) -> None:
+        self._rate = make_shared[CxxTwoTempPlasmaRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
-    def _from_parameters(self, A, b, Ea_gas, Ea_electron):
-        self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea_gas: cython.double,
+                         Ea_electron: cython.double) -> None:
+        self._rate = make_shared[CxxTwoTempPlasmaRate](A, b, Ea_gas, Ea_electron)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -388,7 +533,7 @@ class TwoTempPlasmaRate(ArrheniusRateBase):
         return cython.cast(cython.pointer(CxxTwoTempPlasmaRate), self.rate)
 
     @property
-    def activation_electron_energy(self):
+    def activation_electron_energy(self) -> float:
         """
         The activation electron energy :math:`E_{a,e}` [J/kmol].
         """
@@ -417,12 +562,24 @@ class ElectronCollisionPlasmaRate(ReactionRate):
                 raise TypeError("Invalid input parameters")
             self.set_cxx_object()
 
-    def _from_dict(self, input_data: dict):
-        self._rate.reset(
-            new CxxElectronCollisionPlasmaRate(py_to_anymap(input_data, hyphenize=True))
+    def __init__(
+        self,
+        energy_levels: _ArrayLike | None = None,
+        cross_sections: _ArrayLike | None = None,
+        input_data: _ReactionRateInput[_ElectronCollisionPlasmaParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
+
+    def _from_dict(
+        self, input_data: _ReactionRateInput[_ElectronCollisionPlasmaParameters]
+    ) -> None:
+        self._rate = make_shared[CxxElectronCollisionPlasmaRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
-    def _from_parameters(self, energy_levels, cross_sections):
+    def _from_parameters(self, energy_levels: _ArrayLike,
+                         cross_sections: _ArrayLike) -> None:
         # check length
         if len(energy_levels) != len(cross_sections):
             raise ValueError('Length of energy levels and '
@@ -440,7 +597,7 @@ class ElectronCollisionPlasmaRate(ReactionRate):
         self.base = cython.cast(cython.pointer(CxxElectronCollisionPlasmaRate), self.rate)
 
     @property
-    def energy_levels(self):
+    def energy_levels(self) -> _Array:
         """
         The energy levels [eV]. Each level corresponds to a cross section
         of `cross_sections`.
@@ -453,7 +610,7 @@ class ElectronCollisionPlasmaRate(ReactionRate):
         return data
 
     @property
-    def cross_sections(self):
+    def cross_sections(self) -> _Array:
         """
         The cross sections [m2]. Each cross section corresponds to a energy
         level of `energy_levels`.
@@ -501,7 +658,17 @@ class FalloffRate(ReactionRate):
                     falloff_coeffs = ()
                 self.falloff_coeffs = falloff_coeffs
 
-    def __call__(self, temperature: cython.double, concm: cython.double):
+    def __init__(
+        self,
+        low: ArrheniusRate | None = None,
+        high: ArrheniusRate | None = None,
+        falloff_coeffs: _Sequence[float] | None = None,
+        input_data: _ReactionRateInput[_FalloffRateInput] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
+
+    def __call__(self, temperature: cython.double, concm: cython.double) -> float:
         """
         Evaluate rate expression based on temperature and third-body concentration.
         """
@@ -513,16 +680,16 @@ class FalloffRate(ReactionRate):
         self.falloff = cython.cast(cython.pointer(CxxFalloffRate), self.rate)
 
     @property
-    def low_rate(self):
+    def low_rate(self) -> ArrheniusRate:
         """ Get/Set the `ArrheniusRate` rate constant in the low-pressure limit """
         # Copy the C++ ArrheniusRate object that is returned by reference
         low: cython.pointer(CxxArrheniusRate) = cython.address(self.falloff.lowRate())
         rate_ptr: shared_ptr[CxxReactionRate]
-        rate_ptr.reset(new CxxArrheniusRate(low[0]))
+        rate_ptr = make_shared[CxxArrheniusRate](low[0])
         return ArrheniusRate.wrap(rate_ptr)
 
     @low_rate.setter
-    def low_rate(self, rate):
+    def low_rate(self, rate: ArrheniusRate) -> None:
         if isinstance(rate, ArrheniusRate):
             self.falloff.setLowRate(
                 cython.cast(cython.pointer(CxxArrheniusRate),
@@ -532,16 +699,16 @@ class FalloffRate(ReactionRate):
                 f"but got '{type(rate).__name__}'")
 
     @property
-    def high_rate(self):
+    def high_rate(self) -> ArrheniusRate:
         """ Get/Set the `ArrheniusRate` rate constant in the high-pressure limit """
         # Copy the C++ ArrheniusRate object that is returned by reference
         high: cython.pointer(CxxArrheniusRate) = cython.address(self.falloff.highRate())
         rate_ptr: shared_ptr[CxxReactionRate]
-        rate_ptr.reset(new CxxArrheniusRate(high[0]))
+        rate_ptr = make_shared[CxxArrheniusRate](high[0])
         return ArrheniusRate.wrap(rate_ptr)
 
     @high_rate.setter
-    def high_rate(self, rate):
+    def high_rate(self, rate: ArrheniusRate) -> None:
         if isinstance(rate, ArrheniusRate):
             self.falloff.setHighRate(
                 cython.cast(cython.pointer(CxxArrheniusRate),
@@ -551,7 +718,7 @@ class FalloffRate(ReactionRate):
                 f"but got '{type(rate).__name__}'")
 
     @property
-    def falloff_coeffs(self):
+    def falloff_coeffs(self) -> _Array:
         """ The array of coefficients used to define this falloff function. """
         n: cython.size_t = self.falloff.nParameters()
         data = np.empty(n)
@@ -562,7 +729,7 @@ class FalloffRate(ReactionRate):
         return data
 
     @falloff_coeffs.setter
-    def falloff_coeffs(self, data):
+    def falloff_coeffs(self, data: _Iterable[float]) -> None:
         cxxdata: vector[cython.double]
         for c in data:
             cxxdata.push_back(c)
@@ -573,7 +740,7 @@ class FalloffRate(ReactionRate):
             self.falloff.setFalloffCoeffs(span[cython.double]())
 
     @property
-    def allow_negative_pre_exponential_factor(self):
+    def allow_negative_pre_exponential_factor(self) -> bool:
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
@@ -581,21 +748,22 @@ class FalloffRate(ReactionRate):
         return self.falloff.allowNegativePreExponentialFactor()
 
     @allow_negative_pre_exponential_factor.setter
-    def allow_negative_pre_exponential_factor(self, allow: cbool):
+    def allow_negative_pre_exponential_factor(self, allow: bool) -> None:
         self.falloff.setAllowNegativePreExponentialFactor(allow)
 
     @property
-    def chemically_activated(self):
+    def chemically_activated(self) -> bool:
         """
         Get whether the object is a chemically-activated reaction rate.
         """
         return self.falloff.chemicallyActivated()
 
     @chemically_activated.setter
-    def chemically_activated(self, activated: cbool):
+    def chemically_activated(self, activated: bool) -> None:
         self.falloff.setChemicallyActivated(activated)
 
-    def falloff_function(self, temperature: cython.double, conc3b: cython.double):
+    def falloff_function(self, temperature: cython.double,
+                         conc3b: cython.double) -> float:
         """
         Evaluate the falloff function based on temperature and third-body
         concentration.
@@ -613,8 +781,8 @@ class LindemannRate(FalloffRate):
     _reaction_rate_type = "Lindemann"
 
     def _from_dict(self, input_data):
-        self._rate.reset(
-            new CxxLindemannRate(py_to_anymap(input_data, hyphenize=True))
+        self._rate = make_shared[CxxLindemannRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
     @cython.cfunc
@@ -635,8 +803,8 @@ class TroeRate(FalloffRate):
     _reaction_rate_type = "Troe"
 
     def _from_dict(self, input_data):
-        self._rate.reset(
-            new CxxTroeRate(py_to_anymap(input_data, hyphenize=True))
+        self._rate = make_shared[CxxTroeRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
     @cython.cfunc
@@ -657,8 +825,8 @@ class SriRate(FalloffRate):
     _reaction_rate_type = "SRI"
 
     def _from_dict(self, input_data):
-        self._rate.reset(
-            new CxxSriRate(py_to_anymap(input_data, hyphenize=True))
+        self._rate = make_shared[CxxSriRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
     @cython.cfunc
@@ -675,8 +843,8 @@ class TsangRate(FalloffRate):
     _reaction_rate_type = "Tsang"
 
     def _from_dict(self, input_data):
-        self._rate.reset(
-            new CxxTsangRate(py_to_anymap(input_data, hyphenize=True))
+        self._rate = make_shared[CxxTsangRate](
+            py_to_anymap(input_data, hyphenize=True)
         )
 
     @cython.cfunc
@@ -700,16 +868,24 @@ class PlogRate(ReactionRate):
 
         elif init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxPlogRate(py_to_anymap(input_data)))
+                self._rate = make_shared[CxxPlogRate](py_to_anymap(input_data))
             elif rates is None:
-                self._rate.reset(new CxxPlogRate(py_to_anymap({})))
+                self._rate = make_shared[CxxPlogRate](py_to_anymap({}))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameter 'rates'")
             self.set_cxx_object()
 
-    def __call__(self, temperature: cython.double, pressure: cython.double):
+    def __init__(
+        self,
+        rates: list[tuple[float, ArrheniusRate]] | None = None,
+        input_data: _PlogRateInput | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
+
+    def __call__(self, temperature: cython.double, pressure: cython.double) -> float:
         """
         Evaluate rate expression based on temperature and pressure.
         """
@@ -720,7 +896,7 @@ class PlogRate(ReactionRate):
         return cython.cast(cython.pointer(CxxPlogRate), self.rate)
 
     @property
-    def rates(self):
+    def rates(self) -> list[tuple[float, ArrheniusRate]]:
         """
         Get/Set the rate coefficients for this reaction, which are given as a
         list of (pressure, `ArrheniusRate`) tuples.
@@ -731,12 +907,12 @@ class PlogRate(ReactionRate):
         rate_ptr: shared_ptr[CxxReactionRate]
         cxxrates = self.cxx_object().getRates()
         for p_rate in cxxrates:
-            rate_ptr.reset(new CxxArrheniusRate(p_rate.second))
+            rate_ptr = make_shared[CxxArrheniusRate](p_rate.second)
             rates.append((p_rate.first, ArrheniusRate.wrap(rate_ptr)))
         return rates
 
     @rates.setter
-    def rates(self, rates):
+    def rates(self, rates: _Iterable[tuple[float, ArrheniusRate]]) -> None:
         ratemap: multimap[cython.double, CxxArrheniusRate]
         item: pair[cython.double, CxxArrheniusRate]
         for p, rate in rates:
@@ -745,7 +921,7 @@ class PlogRate(ReactionRate):
                 cython.cast(ArrheniusRate, rate).rate)[0]
             ratemap.insert(item)
 
-        self._rate.reset(new CxxPlogRate(ratemap))
+        self._rate = make_shared[CxxPlogRate](ratemap)
         self.rate = self._rate.get()
 
 
@@ -762,7 +938,7 @@ class LinearBurkeRate(ReactionRate):
 
         if init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxLinearBurkeRate(py_to_anymap(input_data)))
+                self._rate = make_shared[CxxLinearBurkeRate](py_to_anymap(input_data))
             elif input_data:
                 raise TypeError("'input_data' must be a dict")
             else:
@@ -787,26 +963,37 @@ class ChebyshevRate(ReactionRate):
 
         if init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxChebyshevRate(py_to_anymap(input_data)))
+                self._rate = make_shared[CxxChebyshevRate](py_to_anymap(input_data))
             elif all([arg is not None
                     for arg in [temperature_range, pressure_range, data]]):
-                Tmin = temperature_range[0]
-                Tmax = temperature_range[1]
-                Pmin = pressure_range[0]
-                Pmax = pressure_range[1]
-                self._rate.reset(
-                    new CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data))
+                Tmin: cython.double = temperature_range[0]
+                Tmax: cython.double = temperature_range[1]
+                Pmin: cython.double = pressure_range[0]
+                Pmax: cython.double = pressure_range[1]
+                cxxdata: CxxArray2D = self._cxxarray2d(data)
+                self._rate = make_shared[CxxChebyshevRate](
+                    Tmin, Tmax, Pmin, Pmax, cxxdata
                     )
             elif all([arg is None
                     for arg in [temperature_range, pressure_range, data, input_data]]):
-                self._rate.reset(new CxxChebyshevRate(py_to_anymap({})))
+                self._rate = make_shared[CxxChebyshevRate](py_to_anymap({}))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameters")
             self.set_cxx_object()
 
-    def __call__(self, temperature: cython.double, pressure: cython.double):
+    def __init__(
+        self,
+        temperature_range: _Sequence[float] | None = None,
+        pressure_range: _Sequence[float] | None = None,
+        data: _ArrayLike | None = None,
+        input_data: _ChebyshevRateInput | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
+
+    def __call__(self, temperature: cython.double, pressure: cython.double) -> float:
         """
         Evaluate rate expression based on temperature and pressure.
         """
@@ -833,17 +1020,17 @@ class ChebyshevRate(ReactionRate):
         return cython.cast(cython.pointer(CxxChebyshevRate), self.rate)
 
     @property
-    def temperature_range(self):
+    def temperature_range(self) -> tuple[float, float]:
         """ Valid temperature range [K] for the Chebyshev fit """
         return self.cxx_object().Tmin(), self.cxx_object().Tmax()
 
     @property
-    def pressure_range(self):
+    def pressure_range(self) -> tuple[float, float]:
         """ Valid pressure range [Pa] for the Chebyshev fit """
         return self.cxx_object().Pmin(), self.cxx_object().Pmax()
 
     @property
-    def n_temperature(self):
+    def n_temperature(self) -> int:
         """
         Number of temperatures over which the Chebyshev fit is computed.
         (same as number of rows of `data` property).
@@ -851,7 +1038,7 @@ class ChebyshevRate(ReactionRate):
         return self.cxx_object().nTemperature()
 
     @property
-    def n_pressure(self):
+    def n_pressure(self) -> int:
         """
         Number of pressures over which the Chebyshev fit is computed
         (same as number of columns of `data` property).
@@ -859,7 +1046,7 @@ class ChebyshevRate(ReactionRate):
         return self.cxx_object().nPressure()
 
     @property
-    def data(self):
+    def data(self) -> _Array:
         """
         2D array of Chebyshev coefficients where rows and columns correspond to
         temperature and pressure dimensions over which the Chebyshev fit is computed.
@@ -892,7 +1079,7 @@ class CustomRate(ReactionRate):
     def __cinit__(self, k=None, init=True):
 
         if init:
-            self._rate.reset(new CxxCustomFunc1Rate())
+            self._rate = make_shared[CxxCustomFunc1Rate]()
             self.set_cxx_object()
             try:
                 self.set_rate_function(k)
@@ -900,11 +1087,14 @@ class CustomRate(ReactionRate):
                 raise TypeError(
                     f"Cannot convert input with type '{type(k)}' to rate expression.")
 
+    def __init__(self, k: _Func1Like | None = None, init: bool = True) -> None:
+        """Published constructor signature."""
+
     @cython.cfunc
     def cxx_object(self) -> cython.pointer(CxxCustomFunc1Rate):
         return cython.cast(cython.pointer(CxxCustomFunc1Rate), self.rate)
 
-    def set_rate_function(self, k):
+    def set_rate_function(self, k: _Func1Like) -> None:
         r"""
         Set the function describing a custom reaction rate::
 
@@ -945,7 +1135,7 @@ class ExtensibleRate(ReactionRate):
 
     _reaction_rate_type = "extensible"
 
-    delegatable_methods = {
+    delegatable_methods: dict[str, tuple[str, str, str]] = {
         "eval": ("evalFromStruct", "double(void*)", "replace"),
         "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)", "after"),
         "get_parameters": ("getParameters", "void(AnyMap&)", "replace"),
@@ -961,7 +1151,7 @@ class ExtensibleRate(ReactionRate):
         if input_data is not None:
             self.set_parameters(input_data, UnitStack())
 
-    def set_parameters(self, params, rate_coeff_units) -> None:
+    def set_parameters(self, params: _AnyMap, rate_coeff_units: _UnitStack) -> None:
         """
         Responsible for setting rate parameters based on the input data. For example,
         for reactions created from YAML, ``params`` is the YAML reaction entry converted
@@ -975,7 +1165,7 @@ class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
 
-    def get_parameters(self, params) -> None:
+    def get_parameters(self, params: _AnyMap) -> None:
         """
         Responsible for serializing the state of the ExtensibleRate object, using the
         same format as a YAML reaction entry. This is the inverse of `set_parameters`.
@@ -987,7 +1177,7 @@ class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_parameters")
 
-    def eval(self, data) -> float:
+    def eval(self, data: "ExtensibleRateData") -> float:
         """
         Responsible for calculating the forward rate constant based on the current state
         of the phase, stored in an instance of a class derived from
@@ -995,7 +1185,7 @@ class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.eval")
 
-    def validate(self, equation: str, soln: "Solution") -> None:
+    def validate(self, equation: str, soln: "_Solution") -> None:
         """
         Responsible for validating that the rate expression is configured with valid
         parameters. This may depend on properties of the Solution, for example
@@ -1012,11 +1202,11 @@ class ExtensibleRate(ReactionRate):
         if rate is cython.NULL:
             # Started with Python object first. Create the C++ object and attach to it.
             # In this case, the Python object owns the C++ object, via self._rate
-            self._rate.reset(new CxxReactionRateDelegator())
+            self._rate = make_shared[CxxReactionRateDelegator]()
             self.rate = self._rate.get()
             drate = dynamic_cast[CxxDelegatorPtr](self.rate)
-            handle.reset(new CxxPythonHandle(
-                cython.cast(cython.pointer(PyObject), self), True))
+            handle = make_shared[CxxPythonHandle](
+                cython.cast(cython.pointer(PyObject), self), True)
             drate.holdExternalHandle(stringify('python'), handle)
         else:
             # Set up Python object from a C++ object that was created first. In this
@@ -1043,11 +1233,11 @@ class ExtensibleRateData:
 
     .. versionadded:: 3.0
     """
-    delegatable_methods = {
+    delegatable_methods: dict[str, tuple[str, str, str]] = {
         "update": ("update", "double(void*)", "replace")
     }
 
-    def update(self, soln):
+    def update(self, soln: "_Solution") -> bool:
         """
         This method takes a `Solution` object and stores any thermodynamic data (for
         example, temperature and pressure) needed to evaluate all reactions of the
@@ -1071,7 +1261,7 @@ class InterfaceRateBase(ArrheniusRateBase):
     that include coverage dependencies.
     """
 
-    def __call__(self, temperature: cython.double, coverages: np.ndarray):
+    def __call__(self, temperature: cython.double, coverages: _Array) -> float:
         """
         Evaluate rate expression based on temperature and surface coverages.
 
@@ -1086,7 +1276,7 @@ class InterfaceRateBase(ArrheniusRateBase):
         return self.rate.eval(temperature, cxxdata)
 
     @property
-    def coverage_dependencies(self):
+    def coverage_dependencies(self) -> dict[str, _CoverageParameters]:
         """
         Get/set a dictionary containing adjustments to the Arrhenius rate expression
         dependent on surface species coverages. The keys of the dictionary are species
@@ -1100,11 +1290,11 @@ class InterfaceRateBase(ArrheniusRateBase):
         return anymap_to_py(cxx_deps)
 
     @coverage_dependencies.setter
-    def coverage_dependencies(self, deps):
+    def coverage_dependencies(self, deps: dict[str, _CoverageParameters]) -> None:
         cxx_deps: CxxAnyMap = py_to_anymap(deps)
         self.interface.setCoverageDependencies(cxx_deps)
 
-    def set_species(self, species):
+    def set_species(self, species: _Iterable[str]) -> None:
         """
         Set association with an ordered list of all species associated with an
         `InterfaceKinetics` object.
@@ -1115,7 +1305,7 @@ class InterfaceRateBase(ArrheniusRateBase):
         self.interface.setSpecies(cxxvector)
 
     @property
-    def site_density(self):
+    def site_density(self) -> float:
         """
         Site density [kmol/m²].
 
@@ -1132,18 +1322,18 @@ class InterfaceRateBase(ArrheniusRateBase):
         return self.interface.siteDensity()
 
     @site_density.setter
-    def site_density(self, site_density: cython.double):
+    def site_density(self, site_density: float) -> None:
         self.interface.setSiteDensity(site_density)
 
     @property
-    def uses_electrochemistry(self):
+    def uses_electrochemistry(self) -> bool:
         """
         Return boolean flag indicating whether rate involves a charge transfer.
         """
         return self.interface.usesElectrochemistry()
 
     @property
-    def beta(self):
+    def beta(self) -> float:
         """
         Return the charge transfer beta parameter
         """
@@ -1162,11 +1352,22 @@ class InterfaceArrheniusRate(InterfaceRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxInterfaceArrheniusRate(py_to_anymap(input_data)))
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea: float | None = None,
+        input_data: _ReactionRateInput[_ArrheniusParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
 
-    def _from_parameters(self, A, b, Ea):
-        self._rate.reset(new CxxInterfaceArrheniusRate(A, b, Ea))
+    def _from_dict(self, input_data: _ReactionRateInput[_ArrheniusParameters]) -> None:
+        self._rate = make_shared[CxxInterfaceArrheniusRate](py_to_anymap(input_data))
+
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea: cython.double) -> None:
+        self._rate = make_shared[CxxInterfaceArrheniusRate](A, b, Ea)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -1193,11 +1394,25 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxInterfaceBlowersMaselRate(py_to_anymap(input_data)))
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea0: float | None = None,
+        w: float | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
 
-    def _from_parameters(self, A, b, Ea0, w):
-        self._rate.reset(new CxxInterfaceBlowersMaselRate(A, b, Ea0, w))
+    def _from_dict(
+        self, input_data: _ReactionRateInput[_BlowersMaselParameters]
+    ) -> None:
+        self._rate = make_shared[CxxInterfaceBlowersMaselRate](py_to_anymap(input_data))
+
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea0: cython.double, w: cython.double) -> None:
+        self._rate = make_shared[CxxInterfaceBlowersMaselRate](A, b, Ea0, w)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -1210,7 +1425,7 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         return cython.cast(cython.pointer(CxxInterfaceBlowersMaselRate), self.rate)
 
     @property
-    def bond_energy(self):
+    def bond_energy(self) -> float:
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
@@ -1218,7 +1433,7 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         return self.cxx_object().bondEnergy()
 
     @property
-    def delta_enthalpy(self):
+    def delta_enthalpy(self) -> float:
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -1235,7 +1450,7 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         return self.cxx_object().deltaH()
 
     @delta_enthalpy.setter
-    def delta_enthalpy(self, delta_H: cython.double):
+    def delta_enthalpy(self, delta_H: float) -> None:
         self.cxx_object().setDeltaH(delta_H)
 
 
@@ -1247,7 +1462,7 @@ class StickRateBase(InterfaceRateBase):
     """
 
     @property
-    def motz_wise_correction(self):
+    def motz_wise_correction(self) -> bool:
         """
         Get/Set a boolean indicating whether to use the correction factor developed by
         Motz & Wise for reactions with high (near-unity) sticking coefficients when
@@ -1256,11 +1471,11 @@ class StickRateBase(InterfaceRateBase):
         return self.stick.motzWiseCorrection()
 
     @motz_wise_correction.setter
-    def motz_wise_correction(self, motz_wise: cbool):
+    def motz_wise_correction(self, motz_wise: bool) -> None:
         self.stick.setMotzWiseCorrection(motz_wise)
 
     @property
-    def sticking_species(self):
+    def sticking_species(self) -> str:
         """
         The name of the sticking species. Needed only for reactions with
         multiple non-surface reactant species, where the sticking species is
@@ -1269,11 +1484,11 @@ class StickRateBase(InterfaceRateBase):
         return pystr(self.stick.stickingSpecies())
 
     @sticking_species.setter
-    def sticking_species(self, species):
+    def sticking_species(self, species: str) -> None:
         self.stick.setStickingSpecies(stringify(species))
 
     @property
-    def sticking_order(self):
+    def sticking_order(self) -> float:
         """
         The exponent applied to site density (sticking order).
 
@@ -1288,11 +1503,11 @@ class StickRateBase(InterfaceRateBase):
         return self.stick.stickingOrder()
 
     @sticking_order.setter
-    def sticking_order(self, order: cython.double):
+    def sticking_order(self, order: float) -> None:
         self.stick.setStickingOrder(order)
 
     @property
-    def sticking_weight(self):
+    def sticking_weight(self) -> float:
         """
         The molecular weight of the sticking species.
 
@@ -1307,7 +1522,7 @@ class StickRateBase(InterfaceRateBase):
         return self.stick.stickingWeight()
 
     @sticking_weight.setter
-    def sticking_weight(self, weight: cython.double):
+    def sticking_weight(self, weight: float) -> None:
         self.stick.setStickingWeight(weight)
 
 
@@ -1323,11 +1538,12 @@ class StickingArrheniusRate(StickRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxStickingArrheniusRate(py_to_anymap(input_data)))
+    def _from_dict(self, input_data: _ReactionRateInput[_ArrheniusParameters]) -> None:
+        self._rate = make_shared[CxxStickingArrheniusRate](py_to_anymap(input_data))
 
-    def _from_parameters(self, A, b, Ea):
-        self._rate.reset(new CxxStickingArrheniusRate(A, b, Ea))
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea: cython.double) -> None:
+        self._rate = make_shared[CxxStickingArrheniusRate](A, b, Ea)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -1353,11 +1569,25 @@ class StickingBlowersMaselRate(StickRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, input_data):
-        self._rate.reset(new CxxStickingBlowersMaselRate(py_to_anymap(input_data)))
+    def __init__(
+        self,
+        A: float | None = None,
+        b: float | None = None,
+        Ea0: float | None = None,
+        w: float | None = None,
+        input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
 
-    def _from_parameters(self, A, b, Ea0, w):
-        self._rate.reset(new CxxStickingBlowersMaselRate(A, b, Ea0, w))
+    def _from_dict(
+        self, input_data: _ReactionRateInput[_BlowersMaselParameters]
+    ) -> None:
+        self._rate = make_shared[CxxStickingBlowersMaselRate](py_to_anymap(input_data))
+
+    def _from_parameters(self, A: cython.double, b: cython.double,
+                         Ea0: cython.double, w: cython.double) -> None:
+        self._rate = make_shared[CxxStickingBlowersMaselRate](A, b, Ea0, w)
 
     @cython.cfunc
     def set_cxx_object(self):
@@ -1371,7 +1601,7 @@ class StickingBlowersMaselRate(StickRateBase):
         return cython.cast(cython.pointer(CxxStickingBlowersMaselRate), self.rate)
 
     @property
-    def bond_energy(self):
+    def bond_energy(self) -> float:
         """
         Average bond dissociation energy of the bond being formed and broken
         in the reaction ``E`` [J/kmol].
@@ -1379,7 +1609,7 @@ class StickingBlowersMaselRate(StickRateBase):
         return self.cxx_object().bondEnergy()
 
     @property
-    def delta_enthalpy(self):
+    def delta_enthalpy(self) -> float:
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
@@ -1396,7 +1626,7 @@ class StickingBlowersMaselRate(StickRateBase):
         return self.cxx_object().deltaH()
 
     @delta_enthalpy.setter
-    def delta_enthalpy(self, delta_H: cython.double):
+    def delta_enthalpy(self, delta_H: float) -> None:
         self.cxx_object().setDeltaH(delta_H)
 
 
@@ -1423,7 +1653,7 @@ class ThirdBody:
                   efficiencies=None, default_efficiency=None, init=True):
         if not init:
             return
-        self._third_body.reset(new CxxThirdBody(stringify(collider)))
+        self._third_body = make_shared[CxxThirdBody](stringify(collider))
         self.third_body = self._third_body.get()
 
         if efficiencies is not None:
@@ -1431,6 +1661,16 @@ class ThirdBody:
 
         if default_efficiency is not None:
             self.default_efficiency = default_efficiency
+
+    def __init__(
+        self,
+        collider: _Str = "M",
+        *,
+        efficiencies: dict[str, float] | None = None,
+        default_efficiency: float | None = None,
+        init: bool = True,
+    ) -> None:
+        """Published constructor signature."""
 
     @cython.cfunc
     @staticmethod
@@ -1441,14 +1681,14 @@ class ThirdBody:
         return tb
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Get the name of the third-body collider used in the reaction equation.
         """
         return pystr(self.third_body.name())
 
     @property
-    def mass_action(self):
+    def mass_action(self) -> bool:
         """
         Retrieve flag indicating whether third-body collider participates
         in the law of mass action.
@@ -1456,7 +1696,7 @@ class ThirdBody:
         return self.third_body.mass_action
 
     @property
-    def efficiencies(self):
+    def efficiencies(self) -> dict[str, float]:
         """
         Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
         where the keys are the species names and the values are the efficiencies.
@@ -1464,11 +1704,11 @@ class ThirdBody:
         return comp_map_to_dict(self.third_body.efficiencies)
 
     @efficiencies.setter
-    def efficiencies(self, eff):
+    def efficiencies(self, eff: dict[str, float]) -> None:
         self.third_body.efficiencies = comp_map(eff)
 
     @property
-    def default_efficiency(self):
+    def default_efficiency(self) -> float:
         """
         Get/Set the default third-body efficiency for this reaction, used for species
         not in `efficiencies`.
@@ -1476,10 +1716,10 @@ class ThirdBody:
         return self.third_body.default_efficiency
 
     @default_efficiency.setter
-    def default_efficiency(self, default_eff):
+    def default_efficiency(self, default_eff: float) -> None:
         self.third_body.default_efficiency = default_eff
 
-    def efficiency(self, species):
+    def efficiency(self, species: _Str) -> float:
         """
         Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
@@ -1582,26 +1822,26 @@ class Reaction:
         if reactants and products:
             # create from reactant and product compositions
             if third_body:
-                self._reaction.reset(
-                    new CxxReaction(comp_map(reactants), comp_map(products),
-                    _rate._rate, _third_body._third_body)
+                self._reaction = make_shared[CxxReaction](
+                    comp_map(reactants), comp_map(products),
+                    _rate._rate, _third_body._third_body
                 )
             else:
-                self._reaction.reset(
-                    new CxxReaction(comp_map(reactants), comp_map(products),
-                    _rate._rate)
+                self._reaction = make_shared[CxxReaction](
+                    comp_map(reactants), comp_map(products),
+                    _rate._rate
                 )
         elif equation:
             # create from reaction equation
             if third_body:
-                self._reaction.reset(
-                    new CxxReaction(stringify(equation),
-                    _rate._rate, _third_body._third_body)
+                self._reaction = make_shared[CxxReaction](
+                    stringify(equation),
+                    _rate._rate, _third_body._third_body
                 )
             else:
-                self._reaction.reset(
-                    new CxxReaction(stringify(equation),
-                    _rate._rate)
+                self._reaction = make_shared[CxxReaction](
+                    stringify(equation),
+                    _rate._rate
                 )
         else:
             # create default object
@@ -1609,6 +1849,22 @@ class Reaction:
 
         self.reaction = self._reaction.get()
         self._rate = _rate
+
+    def __init__(
+        self,
+        reactants: dict[str, float] | _Str | None = None,
+        products: dict[str, float] | _Str | None = None,
+        rate: ReactionRate
+        | _ReactionRateInput[_ReactionRateParameters]
+        | _ArrheniusParameters
+        | _Callable[[float], float]
+        | None = None,
+        *,
+        equation: _Str | None = None,
+        init: bool = True,
+        third_body: ThirdBody | _Str | None = None,
+    ) -> None:
+        """Published constructor signature."""
 
     @cython.cfunc
     @staticmethod
@@ -1625,7 +1881,12 @@ class Reaction:
         return R
 
     @classmethod
-    def from_dict(cls, data, kinetics: Kinetics, hyphenize=True):
+    def from_dict(
+        cls,
+        data: _ReactionRateInput[_ReactionRateParameters],
+        kinetics: "_Kinetics",
+        hyphenize: bool = True,
+    ) -> "Reaction":
         """
         Create a `Reaction` object from a dictionary corresponding to its YAML
         representation. By default, underscores in keys are replaced by hyphens.
@@ -1646,11 +1907,11 @@ class Reaction:
             involved in the reaction.
         """
         any_map: CxxAnyMap = py_to_anymap(data, hyphenize=hyphenize)
-        cxx_reaction = CxxNewReaction(any_map, kinetics.kinetics[0])
+        cxx_reaction = CxxNewReaction(any_map, cython.cast(Kinetics, kinetics).kinetics[0])
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
-    def from_yaml(cls, text, kinetics: Kinetics):
+    def from_yaml(cls, text: _Str, kinetics: "_Kinetics") -> "Reaction":
         """
         Create a `Reaction` object from its YAML string representation.
 
@@ -1670,11 +1931,12 @@ class Reaction:
             involved in the reaction.
         """
         any_map: CxxAnyMap = AnyMapFromYamlString(stringify(text))
-        cxx_reaction = CxxNewReaction(any_map, kinetics.kinetics[0])
+        cxx_reaction = CxxNewReaction(any_map, cython.cast(Kinetics, kinetics).kinetics[0])
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
-    def list_from_file(filename, kinetics: Kinetics, section="reactions"):
+    def list_from_file(filename: _Str, kinetics: "_Kinetics",
+                       section: _Str = "reactions") -> list["Reaction"]:
         """
         Create a list of Reaction objects from all of the reactions defined in a
         YAML file. Reactions from the section ``section`` will be returned.
@@ -1684,22 +1946,22 @@ class Reaction:
         """
         root = AnyMapFromYamlFile(stringify(str(filename)))
         cxx_reactions = CxxGetReactions(root[stringify(section)],
-                                        kinetics.kinetics[0])
+                                        cython.cast(Kinetics, kinetics).kinetics[0])
         return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
-    def list_from_yaml(text, kinetics: Kinetics):
+    def list_from_yaml(text: _Str, kinetics: "_Kinetics") -> list["Reaction"]:
         """
         Create a list of `Reaction` objects from all the reactions defined in a
         YAML string.
         """
         root = AnyMapFromYamlString(stringify(text))
         cxx_reactions = CxxGetReactions(root[stringify("items")],
-                                        kinetics.kinetics[0])
+                                        cython.cast(Kinetics, kinetics).kinetics[0])
         return [Reaction.wrap(r) for r in cxx_reactions]
 
     @property
-    def reactant_string(self):
+    def reactant_string(self) -> str:
         """
         A string representing the reactants side of the chemical equation for
         this reaction. Determined automatically based on `reactants`.
@@ -1707,7 +1969,7 @@ class Reaction:
         return pystr(self.reaction.reactantString())
 
     @property
-    def product_string(self):
+    def product_string(self) -> str:
         """
         A string representing the products side of the chemical equation for
         this reaction. Determined automatically based on `products`.
@@ -1715,7 +1977,7 @@ class Reaction:
         return pystr(self.reaction.productString())
 
     @property
-    def equation(self):
+    def equation(self) -> str:
         """
         A string giving the chemical equation for this reaction. Determined
         automatically based on `reactants` and `products`.
@@ -1723,7 +1985,7 @@ class Reaction:
         return pystr(self.reaction.equation())
 
     @property
-    def reactants(self):
+    def reactants(self) -> dict[str, float]:
         """
         Get/Set the reactants in this reaction as a dict where the keys are
         species names and the values, are the stoichiometric coefficients, for example
@@ -1735,7 +1997,7 @@ class Reaction:
         return comp_map_to_dict(self.reaction.reactants)
 
     @property
-    def products(self):
+    def products(self) -> dict[str, float]:
         """
         Get/Set the products in this reaction as a dict where the keys are
         species names and the values, are the stoichiometric coefficients, for example
@@ -1746,11 +2008,11 @@ class Reaction:
         """
         return comp_map_to_dict(self.reaction.products)
 
-    def __contains__(self, species):
+    def __contains__(self, species: _Str, /) -> bool:
         return species in self.reactants or species in self.products
 
     @property
-    def orders(self):
+    def orders(self) -> dict[str, float]:
         """
         Get/Set the reaction order with respect to specific species as a dict
         with species names as the keys and orders as the values, or as a
@@ -1761,11 +2023,11 @@ class Reaction:
         return comp_map_to_dict(self.reaction.orders)
 
     @orders.setter
-    def orders(self, orders):
+    def orders(self, orders: dict[str, float]) -> None:
         self.reaction.orders = comp_map(orders)
 
     @property
-    def ID(self):
+    def ID(self) -> str:
         """
         Get/Set the identification string for the reaction, which can be used in
         filtering operations.
@@ -1773,23 +2035,23 @@ class Reaction:
         return pystr(self.reaction.id)
 
     @ID.setter
-    def ID(self, ID):
+    def ID(self, ID: _Str) -> None:
         self.reaction.id = stringify(ID)
 
     @property
-    def reaction_type(self):
+    def reaction_type(self) -> str:
         """
         Retrieve the native type name of the reaction.
         """
         return pystr(self.reaction.type())
 
     @property
-    def rate(self):
+    def rate(self) -> ReactionRate:
         """ Get/Set the reaction rate evaluator for this reaction. """
         return self._rate
 
     @rate.setter
-    def rate(self, rate):
+    def rate(self, rate: ReactionRate | _Callable[[float], float]) -> None:
         if isinstance(rate, ReactionRate):
             self._rate = rate
         elif callable(rate):
@@ -1799,7 +2061,7 @@ class Reaction:
         self.reaction.setRate(self._rate._rate)
 
     @property
-    def reversible(self):
+    def reversible(self) -> bool:
         """
         Get/Set a flag which is `True` if this reaction is reversible or `False`
         otherwise.
@@ -1807,11 +2069,11 @@ class Reaction:
         return self.reaction.reversible
 
     @reversible.setter
-    def reversible(self, reversible):
+    def reversible(self, reversible: bool) -> None:
         self.reaction.reversible = reversible
 
     @property
-    def duplicate(self):
+    def duplicate(self) -> bool:
         """
         Get/Set a flag which is `True` if this reaction is marked as a duplicate
         or `False` otherwise.
@@ -1819,11 +2081,11 @@ class Reaction:
         return self.reaction.duplicate
 
     @duplicate.setter
-    def duplicate(self, duplicate):
+    def duplicate(self, duplicate: bool) -> None:
         self.reaction.duplicate = duplicate
 
     @property
-    def allow_nonreactant_orders(self):
+    def allow_nonreactant_orders(self) -> bool:
         """
         Get/Set a flag which is `True` if reaction orders can be specified for
         non-reactant species. Default is `False`.
@@ -1831,11 +2093,11 @@ class Reaction:
         return self.reaction.allow_nonreactant_orders
 
     @allow_nonreactant_orders.setter
-    def allow_nonreactant_orders(self, allow):
+    def allow_nonreactant_orders(self, allow: bool) -> None:
         self.reaction.allow_nonreactant_orders = allow
 
     @property
-    def allow_negative_orders(self):
+    def allow_negative_orders(self) -> bool:
         """
         Get/Set a flag which is `True` if negative reaction orders are allowed.
         Default is `False`.
@@ -1843,11 +2105,11 @@ class Reaction:
         return self.reaction.allow_negative_orders
 
     @allow_negative_orders.setter
-    def allow_negative_orders(self, allow):
+    def allow_negative_orders(self, allow: bool) -> None:
         self.reaction.allow_negative_orders = allow
 
     @property
-    def input_data(self):
+    def input_data(self) -> _ReactionRateInput[_ReactionRateParameters]:
         """
         Get input data for this reaction with its current parameter values,
         along with any user-specified data provided with its input (YAML)
@@ -1855,7 +2117,7 @@ class Reaction:
         """
         return anymap_to_py(self.reaction.parameters(True))
 
-    def update_user_data(self, data):
+    def update_user_data(self, data: dict[str, str | float]) -> None:
         """
         Add the contents of the provided `dict` as additional fields when generating
         YAML phase definition files with `Solution.write_yaml` or in the data returned
@@ -1863,7 +2125,7 @@ class Reaction:
         """
         self.reaction.input.update(py_to_anymap(data), False)
 
-    def clear_user_data(self):
+    def clear_user_data(self) -> None:
         """
         Clear all saved input data, so that the data given by `input_data` or
         `Solution.write_yaml` will only include values generated by Cantera based on
@@ -1878,13 +2140,13 @@ class Reaction:
         return self.equation
 
     @property
-    def rate_coeff_units(self):
+    def rate_coeff_units(self) -> _Units:
         """Get reaction rate coefficient units"""
         rate_units: CxxUnits = self.reaction.rate_units
         return Units.copy(rate_units)
 
     @property
-    def third_body(self):
+    def third_body(self) -> ThirdBody | None:
         """
         Returns a `ThirdBody` object if `Reaction` uses a third body collider, and
         ``None`` otherwise.
@@ -1895,7 +2157,7 @@ class Reaction:
             return ThirdBody.wrap(self.reaction.thirdBody())
 
     @property
-    def third_body_name(self):
+    def third_body_name(self) -> str | None:
         """
         Returns name of `ThirdBody` collider if `Reaction` uses a third body collider,
         and ``None`` otherwise.
