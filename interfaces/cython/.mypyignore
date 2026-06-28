@@ -67,6 +67,26 @@ cantera\.thermo\._QuadratureMethod
 cantera\.thermo\.(comp_map|comp_map_to_dict|mass_basis|molar_basis|parseCompString|wrapSpeciesThermo)
 cantera\.thermo\.Species\._assign
 cantera\.thermo\.ThermoPhase\.(_getArray1|_setArray1|_mass_factor|_mole_factor)
+# composite: `SolutionArray._phase` is published as `_P` (a TypeVar bound to
+# `ThermoPhase`, never actually `None` for an initialized instance), but its
+# runtime class-level default (inherited from `SolutionArrayBase`, before
+# `__init__` assigns the real phase) is the singleton `None`; a TypeVar cannot
+# be reconciled with that by stubtest.
+cantera\.composite\.SolutionArray\._phase
+# composite: SolutionArray's single-property state/output accessors are read-only
+# `property` objects installed at runtime by the `_make_functions()`/`setattr`
+# loops (which overwrite the class body unconditionally). The merged `.py` declares
+# them as bare class-level annotations: this publishes the correct *type* but cannot
+# express read-only-ness, because mypy strict rejects every compact read-only
+# spelling here (`Final[...]` requires an initializer; an empty-body `@property` trips
+# `[empty-body]`), and a real `@property` stub would need a ~3-line body x116. The
+# read-write/read-only mismatch is therefore allowlisted (the multi-letter combined
+# state props like TP/TPX are genuinely read-write and are NOT listed).
+cantera\.composite\.SolutionArray\.(P|P_sat|Q|T|T_sat|Te|X|Y|activities|activity_coefficients|binary_diff_coeffs|chemical_potentials|concentrations|coverages|cp|cp_mass|cp_mole|creation_rates|creation_rates_ddC|creation_rates_ddCi|creation_rates_ddP|creation_rates_ddT|creation_rates_ddX|critical_density)
+cantera\.composite\.SolutionArray\.(critical_pressure|critical_temperature|cv|cv_mass|cv_mole|delta_enthalpy|delta_entropy|delta_gibbs|delta_standard_enthalpy|delta_standard_entropy|delta_standard_gibbs|density|density_mass|density_mole|destruction_rates|destruction_rates_ddC|destruction_rates_ddCi|destruction_rates_ddP|destruction_rates_ddT|destruction_rates_ddX|electric_potential|electrical_conductivity|electrochemical_potentials|enthalpy_mass)
+cantera\.composite\.SolutionArray\.(enthalpy_mole|entropy_mass|entropy_mole|equilibrium_constants|forward_rate_constants|forward_rate_constants_ddC|forward_rate_constants_ddP|forward_rate_constants_ddT|forward_rates_of_progress|forward_rates_of_progress_ddC|forward_rates_of_progress_ddP|forward_rates_of_progress_ddT|g|gibbs_mass|gibbs_mole|h|heat_production_rates|heat_release_rate|int_energy_mass|int_energy_mole|internal_pressure|isothermal_compressibility|mean_molecular_weight|mix_diff_coeffs)
+cantera\.composite\.SolutionArray\.(mix_diff_coeffs_mass|mix_diff_coeffs_mole|mobilities|multi_diff_coeffs|net_production_rates|net_production_rates_ddC|net_production_rates_ddCi|net_production_rates_ddP|net_production_rates_ddT|net_production_rates_ddX|net_rates_of_progress|net_rates_of_progress_ddC|net_rates_of_progress_ddP|net_rates_of_progress_ddT|partial_molar_cp|partial_molar_cv_TV|partial_molar_enthalpies|partial_molar_entropies|partial_molar_int_energies|partial_molar_int_energies_TV|partial_molar_volumes|phase_of_matter|reverse_rate_constants|reverse_rates_of_progress)
+cantera\.composite\.SolutionArray\.(reverse_rates_of_progress_ddC|reverse_rates_of_progress_ddP|reverse_rates_of_progress_ddT|s|sound_speed|species_viscosities|standard_cp_R|standard_enthalpies_RT|standard_entropies_R|standard_gibbs_RT|standard_int_energies_RT|thermal_conductivity|thermal_diff_coeffs|thermal_expansion_coeff|third_body_concentrations|u|v|viscosity|volume_mass|volume_mole)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.

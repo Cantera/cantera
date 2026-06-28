@@ -3,16 +3,58 @@
 from __future__ import annotations as _annotations
 
 import importlib as _importlib
+from collections.abc import Callable as _Callable, Sequence as _Sequence
+from pathlib import Path as _Path
 from tempfile import NamedTemporaryFile as _NamedTemporaryFile
 from os import unlink as _unlink
+from typing import (
+    Any as _Any,
+    Generic as _Generic,
+    Literal as _Literal,
+    TYPE_CHECKING,
+    TypedDict as _TypedDict,
+    TypeVar as _TypeVar,
+    cast as _cast,
+    overload as _overload,
+)
+
 import numpy as np
+from typing_extensions import Never as _Never, Unpack as _Unpack, override as _override
+
 from ._cantera import (
     DustyGasTransport, InterfaceKinetics, InterfacePhase, Kinetics, PureFluid,
     SolutionArrayBase, ThermoPhase, Transport,
 )
+from ._types import (
+    Array as _Array,
+    ArrayLike as _ArrayLike,
+    ArrayPureFluidStateSetter as _ArrayPureFluidStateSetter,
+    ArrayState2Setter as _ArrayState2Setter,
+    ArrayStateSetter as _ArrayStateSetter,
+    Basis as _Basis,
+    CompositionLike as _CompositionLike,
+    CompressionLevel as _CompressionLevel,
+    EquilibriumSolver as _EquilibriumSolver,
+    Index as _Index,
+    LogLevel as _LogLevel,
+    PropertyPair as _PropertyPair,
+    State2Setter as _State2Setter,
+    StateDefinition as _StateDefinition,
+    StateSetter as _StateSetter,
+)
 
-_pandas = None
-def _import_pandas():
+if TYPE_CHECKING:
+    from pandas import DataFrame as _DataFrame
+
+    from .kinetics import _DerivativeSettings, _KineticsType
+    from .reaction import Reaction as _Reaction
+    from .solutionbase import _SortingType, _YamlHeader
+    from .thermo import Species, _PhaseOfMatter, _QuadratureMethod, _ThermoType
+    from .transport import _TransportFittingErrors, _TransportModel
+    from .units import Units, UnitSystem as _UnitSystem, _UnitDict
+
+_pandas: _Any = None
+def _import_pandas() -> None:
     # defer import of pandas
     global _pandas
     if _pandas is not None:
@@ -23,6 +65,26 @@ def _import_pandas():
         raise ImportError('Method requires a working pandas installation.')
     else:
         import pandas as _pandas
+
+_T = _TypeVar("_T")
+
+
+class _EquivRatioFraction(_TypedDict, _Generic[_T], total=False):
+    fuel: _T
+    oxidizer: _T
+    diluent: _T
+
+
+# Generic representing a valid "phase" input for ``SolutionArray``. Bound to
+# `ThermoPhase` (rather than the more minimal `_SolutionBase`) because
+# `SolutionArray`'s implementation directly uses several `ThermoPhase`-only
+# members (``state``, ``_full_states``, ``_partial_states``, ``_native_state``,
+# ``equilibrate``, ``set_unnormalized_mole_fractions``,
+# ``set_unnormalized_mass_fractions``, ``set_equivalence_ratio``,
+# ``set_mixture_fraction``). All valid phase types accepted by `SolutionArray` at
+# runtime (`Solution`, `Interface`, `DustyGas`, `PureFluid`) derive from
+# `ThermoPhase` (directly or via `InterfacePhase`).
+_P = _TypeVar("_P", bound="ThermoPhase", covariant=True)
 
 
 class Solution(Transport, Kinetics, ThermoPhase):
@@ -215,11 +277,36 @@ class Quantity:
     """
     __slots__ = ("state", "_phase", "_id", "mass", "constant", "_weakref_proxy")
 
-    def __init__(self, phase, mass=None, moles=None, constant='UV'):
+    state: _Array
+    _phase: Solution
+    _id: int
+    mass: float
+    constant: _PropertyPair
+    _weakref_proxy: "_WeakrefProxy"
+
+    # Bare (unassigned) annotations for the subset of the dynamically-added
+    # pass-through attributes (see note near the end of the class body) that are
+    # referenced directly by this class's own methods below. A bare annotation
+    # does not add an entry to ``Quantity.__dict__``, so it does not trip the
+    # ``setattr`` loop's "skip if already defined" guard, unlike a real
+    # `@property` declaration would.
+    Y: _Array
+    basis: _Basis
+    P: float
+
+    def __init__(
+        self,
+        phase: Solution,
+        mass: float | None = None,
+        moles: float | None = None,
+        constant: _PropertyPair = "UV",
+    ) -> None:
         self.state = phase.state
         self._phase = phase
         self._weakref_proxy = _WeakrefProxy()
-        phase._references[self._weakref_proxy] = True
+        # `_references` is set to a `WeakKeyDictionary` by `ThermoPhase.__init__`
+        # (in the Cython-opaque `thermo.py`/`solutionbase.py`, hence the cast).
+        _cast("_Any", phase._references)[self._weakref_proxy] = True
 
         # A unique key to prevent adding phases with different species
         # definitions
@@ -239,7 +326,7 @@ class Quantity:
         self.constant = constant
 
     @property
-    def phase(self):
+    def phase(self) -> Solution:
         """
         Get the underlying `Solution` object, with the state set to match the
         wrapping `Quantity` object.
@@ -248,76 +335,103 @@ class Quantity:
         return self._phase
 
     @property
-    def moles(self):
+    def moles(self) -> float:
         """ Get/Set the number of moles [kmol] represented by the `Quantity`. """
         return self.mass / self.phase.mean_molecular_weight
 
     @moles.setter
-    def moles(self, n):
+    def moles(self, n: float) -> None:
         self.mass = n * self.phase.mean_molecular_weight
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """Get the total volume [m³] represented by the `Quantity`."""
         return self.mass * self.phase.volume_mass
 
     @property
-    def int_energy(self):
+    def int_energy(self) -> float:
         """ Get the total internal energy [J] represented by the `Quantity`. """
         return self.mass * self.phase.int_energy_mass
 
     @property
-    def enthalpy(self):
+    def enthalpy(self) -> float:
         """ Get the total enthalpy [J] represented by the `Quantity`. """
         return self.mass * self.phase.enthalpy_mass
 
     @property
-    def entropy(self):
+    def entropy(self) -> float:
         """ Get the total entropy [J/K] represented by the `Quantity`. """
         return self.mass * self.phase.entropy_mass
 
     @property
-    def gibbs(self):
+    def gibbs(self) -> float:
         """
         Get the total Gibbs free energy [J] represented by the `Quantity`.
         """
         return self.mass * self.phase.gibbs_mass
 
-    def equilibrate(self, XY=None, *args, **kwargs):
+    def equilibrate(
+        self,
+        XY: _PropertyPair | None = None,
+        solver: _EquilibriumSolver = "auto",
+        rtol: float = 1e-9,
+        max_steps: int = 50000,
+        max_iter: int = 100,
+        estimate_equil: int = 0,
+        log_level: _LogLevel = 0,
+    ) -> None:
         """
         Set the state to equilibrium. By default, the property pair
         `self.constant` is held constant. See `ThermoPhase.equilibrate`.
         """
         if XY is None:
             XY = self.constant
-        self.phase.equilibrate(XY, *args, **kwargs)
+        self.phase.equilibrate(XY, solver, rtol, max_steps, max_iter, estimate_equil,
+                               log_level)
         self.state = self._phase.state
 
-    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis="mole", *, diluent=None,
-                              fraction=None):
+    def set_equivalence_ratio(
+        self,
+        phi: float,
+        fuel: _CompositionLike,
+        oxidizer: _CompositionLike,
+        basis: _Basis = "mole",
+        *,
+        diluent: _CompositionLike | None = None,
+        fraction: str | _EquivRatioFraction[float] | None = None,
+    ) -> None:
         self._phase.state = self.state
+        # `ThermoPhase.set_equivalence_ratio` (Cython-opaque) declares `fraction` as
+        # a plain `dict[Literal[...], float]`, which a `total=False` TypedDict is not
+        # structurally assignable to even though it is compatible at runtime.
         self._phase.set_equivalence_ratio(phi, fuel, oxidizer, basis, diluent=diluent,
-                                          fraction=fraction)
+                                          fraction=_cast(_Any, fraction))
         self.state = self._phase.state
     set_equivalence_ratio.__doc__ = Solution.set_equivalence_ratio.__doc__
 
-    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
+    def set_mixture_fraction(
+        self,
+        mixture_fraction: float,
+        fuel: _CompositionLike,
+        oxidizer: _CompositionLike,
+        basis: _Basis = "mole",
+    ) -> None:
         self._phase.state = self.state
         self._phase.set_mixture_fraction(mixture_fraction, fuel, oxidizer, basis)
         self.state = self._phase.state
     set_mixture_fraction.__doc__ = Solution.set_mixture_fraction.__doc__
 
-    def __imul__(self, other):
+    def __imul__(self, other: float, /) -> "Quantity":
         self.mass *= other
         return self
 
-    def __mul__(self, other):
+    def __mul__(self, other: float, /) -> "Quantity":
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: float, /) -> "Quantity":
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: "Quantity", /) -> "Quantity":
         if self._id != other._id:
             raise ValueError(
                 'Cannot add Quantities with different phase '
@@ -355,31 +469,311 @@ class Quantity:
         self.mass = m
         return self
 
-    def __add__(self, other):
+    def __add__(self, other: "Quantity", /) -> "Quantity":
         newquantity = Quantity(self.phase, mass=self.mass, constant=self.constant)
         newquantity += other
         return newquantity
 
-# Synonyms for total properties
-Quantity.V = Quantity.volume
-Quantity.U = Quantity.int_energy
-Quantity.H = Quantity.enthalpy
-Quantity.S = Quantity.entropy
-Quantity.G = Quantity.gibbs
+    # Synonyms for total properties. The literal properties below are type-only
+    # declarations: the assignments that follow the class body overwrite them at
+    # runtime with the *bound* property objects (verified equivalent; see also the
+    # dynamically-added pass-through properties below, which use the same pattern).
+    @property
+    def V(self) -> float:  # type: ignore[empty-body]
+        ...
+
+    @property
+    def U(self) -> float:  # type: ignore[empty-body]
+        ...
+
+    @property
+    def H(self) -> float:  # type: ignore[empty-body]
+        ...
+
+    @property
+    def S(self) -> float:  # type: ignore[empty-body]
+        ...
+
+    @property
+    def G(self) -> float:  # type: ignore[empty-body]
+        ...
+
+    # Dynamically-added properties/methods acting as pass-throughs to Solution
+    # class (assigned via the ``setattr`` loop following this class). That loop
+    # only assigns an attribute if it is not already present in
+    # ``Quantity.__dict__``, so it is NOT safe to declare these as literal
+    # `@property`/`def` members here (doing so puts the name in ``__dict__`` and
+    # silently disables the loop's installation of the real implementation --
+    # this was tried and reverted; see git history). A *bare* (unassigned) class
+    # variable annotation, however, only populates ``__annotations__`` and not
+    # ``__dict__``, so it is invisible to the loop's guard while still telling
+    # type checkers (and `stubtest`) the published type of each dynamic
+    # attribute. That is the technique used below. Unlike `SolutionArray` (whose
+    # equivalent loop unconditionally overwrites and so can use real
+    # `@property`/`def` declarations instead), `Quantity` requires this
+    # annotation-only form.
+    name: str
+    source: str
+    composite: tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]
+    input_data: dict[str, str | list[str] | dict[str, float | dict[str, float]]]
+    input_header: _YamlHeader
+    update_user_data: _Callable[..., None]
+    clear_user_data: _Callable[..., None]
+    update_user_header: _Callable[..., None]
+    clear_user_header: _Callable[..., None]
+    write_yaml: _Callable[..., str | None]
+    write_chemkin: _Callable[..., None]
+    selected_species: list[int]
+    transport_model: _TransportModel
+    CK_mode: bool
+    viscosity: float
+    species_viscosities: _Array
+    electrical_conductivity: float
+    thermal_conductivity: float
+    mix_diff_coeffs: _Array
+    mix_diff_coeffs_mass: _Array
+    mix_diff_coeffs_mole: _Array
+    thermal_diff_coeffs: _Array
+    multi_diff_coeffs: _Array
+    binary_diff_coeffs: _Array
+    mobilities: _Array
+    get_viscosity_polynomial: _Callable[..., _Array]
+    get_thermal_conductivity_polynomial: _Callable[..., _Array]
+    get_binary_diff_coeffs_polynomial: _Callable[..., _Array]
+    get_collision_integral_polynomials: _Callable[..., tuple[_Array, _Array, _Array]]
+    set_viscosity_polynomial: _Callable[..., None]
+    set_thermal_conductivity_polynomial: _Callable[..., None]
+    set_binary_diff_coeffs_polynomial: _Callable[..., None]
+    set_collision_integral_polynomial: _Callable[..., None]
+    transport_fitting_errors: _TransportFittingErrors
+    kinetics_model: str
+    n_total_species: int
+    n_reactions: int
+    n_phases: int
+    kinetics_species_index: _Callable[..., int]
+    kinetics_species_name: _Callable[..., str]
+    kinetics_species_names: list[str]
+    reaction: _Callable[..., _Reaction]
+    reactions: _Callable[..., list[_Reaction]]
+    modify_reaction: _Callable[..., None]
+    add_reaction: _Callable[..., None]
+    multiplier: _Callable[..., float]
+    set_multiplier: _Callable[..., None]
+    reaction_equations: _Callable[..., list[str]]
+    reactant_stoich_coeff: _Callable[..., float]
+    product_stoich_coeff: _Callable[..., float]
+    reactant_stoich_coeffs: _Array
+    product_stoich_coeffs: _Array
+    product_stoich_coeffs_reversible: _Array
+    forward_rates_of_progress: _Array
+    reverse_rates_of_progress: _Array
+    net_rates_of_progress: _Array
+    equilibrium_constants: _Array
+    forward_rate_constants: _Array
+    reverse_rate_constants: _Array
+    creation_rates: _Array
+    destruction_rates: _Array
+    net_production_rates: _Array
+    derivative_settings: _DerivativeSettings
+    forward_rate_constants_ddT: _Array
+    forward_rate_constants_ddP: _Array
+    forward_rate_constants_ddC: _Array
+    forward_rates_of_progress_ddT: _Array
+    forward_rates_of_progress_ddP: _Array
+    forward_rates_of_progress_ddC: _Array
+    forward_rates_of_progress_ddX: _Array
+    forward_rates_of_progress_ddCi: _Array
+    reverse_rates_of_progress_ddT: _Array
+    reverse_rates_of_progress_ddP: _Array
+    reverse_rates_of_progress_ddC: _Array
+    reverse_rates_of_progress_ddX: _Array
+    reverse_rates_of_progress_ddCi: _Array
+    net_rates_of_progress_ddT: _Array
+    net_rates_of_progress_ddP: _Array
+    net_rates_of_progress_ddC: _Array
+    net_rates_of_progress_ddX: _Array
+    net_rates_of_progress_ddCi: _Array
+    creation_rates_ddT: _Array
+    creation_rates_ddP: _Array
+    creation_rates_ddC: _Array
+    creation_rates_ddX: _Array
+    creation_rates_ddCi: _Array
+    destruction_rates_ddT: _Array
+    destruction_rates_ddP: _Array
+    destruction_rates_ddC: _Array
+    destruction_rates_ddX: _Array
+    destruction_rates_ddCi: _Array
+    net_production_rates_ddT: _Array
+    net_production_rates_ddP: _Array
+    net_production_rates_ddC: _Array
+    net_production_rates_ddX: _Array
+    net_production_rates_ddCi: _Array
+    delta_enthalpy: _Array
+    delta_gibbs: _Array
+    delta_entropy: _Array
+    delta_standard_enthalpy: _Array
+    third_body_concentrations: _Array
+    delta_standard_gibbs: _Array
+    delta_standard_entropy: _Array
+    heat_release_rate: float
+    heat_production_rates: _Array
+    thermo_model: _ThermoType
+    phase_of_matter: _PhaseOfMatter
+    report: _Callable[..., str]
+    is_pure: bool
+    has_phase_transition: bool
+    is_compressible: bool
+    enforce_temperature_limits: bool
+    n_elements: int
+    element_index: _Callable[..., int]
+    element_name: _Callable[..., str]
+    element_names: list[str]
+    atomic_weight: _Callable[..., float]
+    atomic_weights: _Array
+    n_species: int
+    n_selected_species: int
+    species_name: _Callable[..., str]
+    species_names: list[str]
+    species_index: _Callable[..., int]
+    case_sensitive_species_names: bool
+    species: _Callable[..., Species]
+    modify_species: _Callable[..., None]
+    add_species: _Callable[..., None]
+    add_species_alias: _Callable[..., None]
+    find_isomers: _Callable[..., list[str]]
+    n_atoms: _Callable[..., int]
+    molecular_weights: _Array
+    charges: _Array
+    mean_molecular_weight: float
+    X: _Array
+    concentrations: _Array
+    equivalence_ratio: _Callable[..., float]
+    mixture_fraction: _Callable[..., float]
+    stoich_air_fuel_ratio: _Callable[..., float]
+    elemental_mass_fraction: _Callable[..., float]
+    elemental_mole_fraction: _Callable[..., float]
+    mass_fraction_dict: _Callable[..., dict[str, float]]
+    mole_fraction_dict: _Callable[..., dict[str, float]]
+    T: float
+    density: float
+    density_mass: float
+    density_mole: float
+    v: float
+    volume_mass: float
+    volume_mole: float
+    u: float
+    int_energy_mole: float
+    int_energy_mass: float
+    h: float
+    enthalpy_mole: float
+    enthalpy_mass: float
+    s: float
+    entropy_mole: float
+    entropy_mass: float
+    g: float
+    gibbs_mole: float
+    gibbs_mass: float
+    cv: float
+    cv_mole: float
+    cv_mass: float
+    cp: float
+    cp_mole: float
+    cp_mass: float
+    critical_temperature: float
+    critical_pressure: float
+    critical_density: float
+    P_sat: float
+    T_sat: float
+    auxiliary_data: dict[str, _Any]
+    state_size: int
+    TD: tuple[float, float]
+    TDX: tuple[float, float, _Array]
+    TDY: tuple[float, float, _Array]
+    TP: tuple[float, float]
+    TPX: tuple[float, float, _Array]
+    TPY: tuple[float, float, _Array]
+    UV: tuple[float, float]
+    UVX: tuple[float, float, _Array]
+    UVY: tuple[float, float, _Array]
+    DP: tuple[float, float]
+    DPX: tuple[float, float, _Array]
+    DPY: tuple[float, float, _Array]
+    HP: tuple[float, float]
+    HPX: tuple[float, float, _Array]
+    HPY: tuple[float, float, _Array]
+    SP: tuple[float, float]
+    SPX: tuple[float, float, _Array]
+    SPY: tuple[float, float, _Array]
+    SV: tuple[float, float]
+    SVX: tuple[float, float, _Array]
+    SVY: tuple[float, float, _Array]
+    partial_molar_enthalpies: _Array
+    partial_molar_entropies: _Array
+    partial_molar_int_energies: _Array
+    partial_molar_int_energies_TV: _Array
+    chemical_potentials: _Array
+    electrochemical_potentials: _Array
+    partial_molar_cp: _Array
+    partial_molar_cv_TV: _Array
+    partial_molar_volumes: _Array
+    standard_enthalpies_RT: _Array
+    standard_entropies_R: _Array
+    standard_int_energies_RT: _Array
+    standard_gibbs_RT: _Array
+    standard_cp_R: _Array
+    activities: _Array
+    activity_coefficients: _Array
+    isothermal_compressibility: float
+    thermal_expansion_coeff: float
+    internal_pressure: float
+    sound_speed: float
+    min_temp: float
+    max_temp: float
+    reference_pressure: float
+    electric_potential: float
+    standard_concentration_units: Units
+    Te: float
+    Pe: float
+    reduced_electric_field: float
+    electric_field: float
+    set_discretized_electron_energy_distribution: _Callable[..., None]
+    mean_temperature: float
+    update_electron_energy_distribution: _Callable[..., None]
+    n_electron_energy_levels: int
+    electron_energy_levels: _Array
+    electron_energy_distribution: _Array
+    isotropic_shape_factor: float
+    electron_energy_distribution_type: str
+    mean_electron_energy: float
+    quadrature_method: _QuadratureMethod
+    normalize_electron_energy_distribution_enabled: bool
+    electron_species_name: str
+    elastic_power_loss: float
+    electron_mobility: float
+    set_electron_energy_distribution_parameters: _Callable[..., None]
+
+# Synonyms for total properties. These class-level re-assignments overwrite the
+# type-only `...`-body declarations above with the *bound* property objects
+# (verified equivalent at runtime; see the comment above those declarations).
+Quantity.V = Quantity.volume  # type: ignore[method-assign]
+Quantity.U = Quantity.int_energy  # type: ignore[method-assign]
+Quantity.H = Quantity.enthalpy  # type: ignore[method-assign]
+Quantity.S = Quantity.entropy  # type: ignore[method-assign]
+Quantity.G = Quantity.gibbs  # type: ignore[method-assign]
 
 # Add properties to act as pass-throughs for attributes of class Solution
-def _prop(attr):
-    def getter(self):
+def _prop(attr: str) -> property:
+    def getter(self: Quantity) -> _Any:
         return getattr(self.phase, attr)
 
-    def setter(self, value):
+    def setter(self: Quantity, value: _Any) -> None:
         setattr(self.phase, attr, value)
         self.state = self._phase.state
 
     return property(getter, setter, doc=getattr(Solution, attr).__doc__)
 
-def _method(orig):
-    def f(self, *args, **kwargs):
+def _method(orig: _Callable[..., _Any]) -> _Callable[..., _Any]:
+    def f(self: Quantity, *args: _Any, **kwargs: _Any) -> _Any:
         return orig(self.phase, *args, **kwargs)
     f.__doc__ = orig.__doc__
     return f
@@ -397,7 +791,7 @@ for _attr in dir(Solution):
             setattr(Quantity, _attr, _prop(_attr))
 
 
-class SolutionArray(SolutionArrayBase):
+class SolutionArray(SolutionArrayBase, _Generic[_P]):
     """
     A class providing a convenient interface for representing many thermodynamic
     states using the same `Solution` object and computing properties for that
@@ -508,7 +902,21 @@ class SolutionArray(SolutionArrayBase):
         slicing support.
     """
 
-    _scalar = [
+    # `SolutionArrayBase` (the runtime base class) sets `_phase = None` as a
+    # class-level default before `__init__` assigns the real phase instance;
+    # match that here so `stubtest` sees the same runtime default. `_P` itself
+    # is never `None` for an initialized `SolutionArray`.
+    _phase: _P = None  # type: ignore[assignment]
+    # `_indices` is `list[int]` for 1D SolutionArrays or `list[tuple[int, ...]]` for
+    # higher-dimensional ones (see the `shape` setter); `_output_dummy` mirrors that
+    # shape as either a `list[int]` (1D case, aliases `_indices` for `len()`/
+    # broadcasting purposes only) or an `ndarray` (higher-dimensional case). Loosely
+    # typed as `Any` since the iteration/indexing patterns below mix both forms in
+    # ways that defeat precise static typing without extensive casting.
+    _indices: _Any
+    _output_dummy: _Any
+
+    _scalar: list[str] = [
         # From ThermoPhase
         'mean_molecular_weight', 'P', 'T', 'Te', 'density', 'density_mass',
         'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
@@ -524,8 +932,8 @@ class SolutionArray(SolutionArrayBase):
         # From Transport
         'viscosity', 'electrical_conductivity', 'thermal_conductivity',
     ]
-    _strings = ['phase_of_matter']
-    _n_species = [
+    _strings: list[str] = ['phase_of_matter']
+    _n_species: list[str] = [
         # from ThermoPhase
         'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
         'partial_molar_entropies', 'partial_molar_int_energies',
@@ -540,7 +948,7 @@ class SolutionArray(SolutionArrayBase):
     ]
 
     # From Kinetics (differs from Solution.n_species for Interface phases)
-    _n_total_species = [
+    _n_total_species: list[str] = [
         'creation_rates', 'destruction_rates', 'net_production_rates',
         'creation_rates_ddC', 'creation_rates_ddP', 'creation_rates_ddT',
         'destruction_rates_ddC', 'destruction_rates_ddP', 'destruction_rates_ddT',
@@ -548,13 +956,13 @@ class SolutionArray(SolutionArrayBase):
         'net_production_rates_ddT'
     ]
 
-    _n_species2 = [
+    _n_species2: list[str] = [
         'multi_diff_coeffs', 'binary_diff_coeffs', 'creation_rates_ddX',
         'destruction_rates_ddX', 'net_production_rates_ddX', 'creation_rates_ddCi',
         'destruction_rates_ddCi', 'net_production_rates_ddCi'
     ]
 
-    _n_reactions = [
+    _n_reactions: list[str] = [
         'forward_rates_of_progress', 'reverse_rates_of_progress',
         'net_rates_of_progress', 'equilibrium_constants',
         'forward_rate_constants', 'reverse_rate_constants',
@@ -569,9 +977,9 @@ class SolutionArray(SolutionArrayBase):
         'reverse_rates_of_progress_ddP', 'reverse_rates_of_progress_ddP',
         'reverse_rates_of_progress_ddT', 'third_body_concentrations',
     ]
-    _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
+    _call_scalar: list[str] = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
-    _passthrough = [
+    _passthrough: list[str] = [
         # from ThermoPhase
         'name', 'source', 'basis', 'n_elements', 'element_index',
         'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
@@ -588,13 +996,219 @@ class SolutionArray(SolutionArrayBase):
         'transport_model',
     ]
 
-    _interface_passthrough = ['site_density']
-    _interface_n_species = ['coverages']
+    _interface_passthrough: list[str] = ['site_density']
+    _interface_n_species: list[str] = ['coverages']
 
-    _purefluid_scalar = ['Q']
+    _purefluid_scalar: list[str] = ['Q']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None,
-                 init=True):
+    # Dynamically-added properties/methods acting as pass-throughs to the
+    # underlying phase (assigned via the ``setattr`` loops/`_make_functions()`
+    # following this class). Unlike `Quantity`'s equivalent loop (which only
+    # installs an attribute if not already present in `Quantity.__dict__`),
+    # these loops unconditionally overwrite, so real class-level annotations
+    # here are safe and do not shadow the runtime implementations.
+    TD: tuple[_Array, _Array]
+    TDX: tuple[_Array, _Array, _Array]
+    TDY: tuple[_Array, _Array, _Array]
+    TP: tuple[_Array, _Array]
+    TPX: tuple[_Array, _Array, _Array]
+    TPY: tuple[_Array, _Array, _Array]
+    UV: tuple[_Array, _Array]
+    UVX: tuple[_Array, _Array, _Array]
+    UVY: tuple[_Array, _Array, _Array]
+    DP: tuple[_Array, _Array]
+    DPX: tuple[_Array, _Array, _Array]
+    DPY: tuple[_Array, _Array, _Array]
+    HP: tuple[_Array, _Array]
+    HPX: tuple[_Array, _Array, _Array]
+    HPY: tuple[_Array, _Array, _Array]
+    SP: tuple[_Array, _Array]
+    SPX: tuple[_Array, _Array, _Array]
+    SPY: tuple[_Array, _Array, _Array]
+    SV: tuple[_Array, _Array]
+    SVX: tuple[_Array, _Array, _Array]
+    SVY: tuple[_Array, _Array, _Array]
+    TQ: tuple[_Array, _Array]
+    PQ: tuple[_Array, _Array]
+    ST: tuple[_Array, _Array]
+    TV: tuple[_Array, _Array]
+    PV: tuple[_Array, _Array]
+    UP: tuple[_Array, _Array]
+    VH: tuple[_Array, _Array]
+    TH: tuple[_Array, _Array]
+    SH: tuple[_Array, _Array]
+    TDQ: tuple[_Array, _Array, _Array]
+    TPQ: tuple[_Array, _Array, _Array]
+    UVQ: tuple[_Array, _Array, _Array]
+    DPQ: tuple[_Array, _Array, _Array]
+    HPQ: tuple[_Array, _Array, _Array]
+    SPQ: tuple[_Array, _Array, _Array]
+    SVQ: tuple[_Array, _Array, _Array]
+    mean_molecular_weight: _Array
+    P: _Array
+    T: _Array
+    Te: _Array
+    density: _Array
+    density_mass: _Array
+    density_mole: _Array
+    v: _Array
+    volume_mass: _Array
+    volume_mole: _Array
+    u: _Array
+    int_energy_mole: _Array
+    int_energy_mass: _Array
+    h: _Array
+    enthalpy_mole: _Array
+    enthalpy_mass: _Array
+    s: _Array
+    entropy_mole: _Array
+    entropy_mass: _Array
+    g: _Array
+    gibbs_mole: _Array
+    gibbs_mass: _Array
+    cv: _Array
+    cv_mole: _Array
+    cv_mass: _Array
+    cp: _Array
+    cp_mole: _Array
+    cp_mass: _Array
+    critical_temperature: _Array
+    critical_pressure: _Array
+    critical_density: _Array
+    P_sat: _Array
+    T_sat: _Array
+    isothermal_compressibility: _Array
+    thermal_expansion_coeff: _Array
+    internal_pressure: _Array
+    sound_speed: _Array
+    electric_potential: _Array
+    heat_release_rate: _Array
+    viscosity: _Array
+    electrical_conductivity: _Array
+    thermal_conductivity: _Array
+    phase_of_matter: _PhaseOfMatter
+    Y: _Array
+    X: _Array
+    concentrations: _Array
+    partial_molar_enthalpies: _Array
+    partial_molar_entropies: _Array
+    partial_molar_int_energies: _Array
+    partial_molar_int_energies_TV: _Array
+    chemical_potentials: _Array
+    electrochemical_potentials: _Array
+    partial_molar_cp: _Array
+    partial_molar_cv_TV: _Array
+    partial_molar_volumes: _Array
+    standard_enthalpies_RT: _Array
+    standard_entropies_R: _Array
+    standard_int_energies_RT: _Array
+    standard_gibbs_RT: _Array
+    standard_cp_R: _Array
+    activities: _Array
+    activity_coefficients: _Array
+    mix_diff_coeffs: _Array
+    mix_diff_coeffs_mass: _Array
+    mix_diff_coeffs_mole: _Array
+    thermal_diff_coeffs: _Array
+    mobilities: _Array
+    species_viscosities: _Array
+    creation_rates: _Array
+    destruction_rates: _Array
+    net_production_rates: _Array
+    creation_rates_ddC: _Array
+    creation_rates_ddP: _Array
+    creation_rates_ddT: _Array
+    destruction_rates_ddC: _Array
+    destruction_rates_ddP: _Array
+    destruction_rates_ddT: _Array
+    net_production_rates_ddC: _Array
+    net_production_rates_ddP: _Array
+    net_production_rates_ddT: _Array
+    multi_diff_coeffs: _Array
+    binary_diff_coeffs: _Array
+    creation_rates_ddX: _Array
+    destruction_rates_ddX: _Array
+    net_production_rates_ddX: _Array
+    creation_rates_ddCi: _Array
+    destruction_rates_ddCi: _Array
+    net_production_rates_ddCi: _Array
+    forward_rates_of_progress: _Array
+    reverse_rates_of_progress: _Array
+    net_rates_of_progress: _Array
+    equilibrium_constants: _Array
+    forward_rate_constants: _Array
+    reverse_rate_constants: _Array
+    delta_enthalpy: _Array
+    delta_gibbs: _Array
+    delta_entropy: _Array
+    delta_standard_enthalpy: _Array
+    delta_standard_gibbs: _Array
+    delta_standard_entropy: _Array
+    heat_production_rates: _Array
+    forward_rate_constants_ddC: _Array
+    forward_rate_constants_ddP: _Array
+    forward_rate_constants_ddT: _Array
+    forward_rates_of_progress_ddC: _Array
+    forward_rates_of_progress_ddP: _Array
+    forward_rates_of_progress_ddT: _Array
+    net_rates_of_progress_ddC: _Array
+    net_rates_of_progress_ddP: _Array
+    net_rates_of_progress_ddT: _Array
+    reverse_rates_of_progress_ddC: _Array
+    reverse_rates_of_progress_ddP: _Array
+    reverse_rates_of_progress_ddT: _Array
+    third_body_concentrations: _Array
+    elemental_mass_fraction: _Callable[..., _Array]
+    elemental_mole_fraction: _Callable[..., _Array]
+    name: str
+    source: str
+    basis: _Basis
+    n_elements: int
+    element_index: _Callable[..., int]
+    element_name: _Callable[..., str]
+    element_names: list[str]
+    atomic_weight: _Callable[..., float]
+    atomic_weights: _Array
+    n_species: int
+    species_name: _Callable[..., str]
+    species_names: list[str]
+    species_index: _Callable[..., int]
+    species: _Callable[..., "Species | list[Species]"]
+    n_atoms: _Callable[..., int]
+    molecular_weights: _Array
+    min_temp: float
+    max_temp: float
+    reference_pressure: float
+    charges: _Array
+    n_total_species: int
+    n_reactions: int
+    n_phases: int
+    kinetics_species_index: _Callable[..., int]
+    reaction: _Callable[..., "_Reaction"]
+    reactions: _Callable[..., "list[_Reaction]"]
+    modify_reaction: _Callable[..., None]
+    multiplier: _Callable[..., float]
+    set_multiplier: _Callable[..., None]
+    reaction_equations: _Callable[..., list[str]]
+    reactant_stoich_coeff: _Callable[..., float]
+    product_stoich_coeff: _Callable[..., float]
+    reactant_stoich_coeffs: _Array
+    product_stoich_coeffs: _Array
+    product_stoich_coeffs_reversible: _Array
+    transport_model: str
+    site_density: _Array
+    coverages: _Array
+    Q: _Array
+
+    def __init__(
+        self,
+        phase: _P,
+        shape: int | tuple[int, ...] = (0,),
+        states: _ArrayLike | None = None,
+        extra: str | _Sequence[str] | _Array | dict[str, _ArrayLike] | None = None,
+        meta: dict[str, _Any] | None = None,
+        init: bool = True,
+    ) -> None:
         self._phase = phase
         if not init:
             return
@@ -609,7 +1223,7 @@ class SolutionArray(SolutionArrayBase):
         else:
             self.shape = tuple(shape)
 
-        def check_extra(name):
+        def check_extra(name: _Any) -> None:
             if not isinstance(name, str):
                 raise TypeError(
                     f"Unable to create extra component, passed value '{name!r}' "
@@ -626,7 +1240,7 @@ class SolutionArray(SolutionArrayBase):
                 if not np.shape(v):
                     # initialize with scalar
                     self._add_extra(name)
-                    self._set_component(name, v)
+                    self._set_component(name, _cast("_Array", v))
                 elif (self.shape[0] == 1 or np.array(v).shape[:ndim] == self.shape):
                     arr = np.array(v)
                     if arr.dtype == object:
@@ -664,11 +1278,11 @@ class SolutionArray(SolutionArrayBase):
                     "the names of the components and values are the initial "
                     "values.") from None
 
-            for name in iter_extra:
-                check_extra(name)
-                self._add_extra(name)
+            for extra_name in iter_extra:
+                check_extra(extra_name)
+                self._add_extra(_cast(str, extra_name))
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: _Index, /) -> "SolutionArray[_P]":
         selected = np.arange(self.size).reshape(self.shape)[index]
         out = SolutionArray(self._phase, init=False)
         if hasattr(selected, "__len__"):
@@ -678,7 +1292,7 @@ class SolutionArray(SolutionArrayBase):
         out.shape = selected.shape
         return out
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> _Any:
         if (not self._has_component(name) and
             self._has_component(name.replace("_", "-"))):
             name = name.replace("_", "-")
@@ -687,19 +1301,19 @@ class SolutionArray(SolutionArrayBase):
             out.setflags(write=False)
             return out.reshape(self.shape + out.shape[1:])
         elif name in self.__dict__:
-            super().__getattr__(name)
+            super().__getattr__(name)  # type: ignore[misc]
         else:
             raise AttributeError(
                 f"{self.__class__.__name__!r} object has no attribute '{name}'")
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: _Any) -> None:
         if (not self._has_component(name) and
             self._has_component(name.replace("_", "-"))):
             name = name.replace("_", "-")
         if self._has_extra(name):
             if not self.shape:
                 # scalar
-                self._set_component(name, [value])
+                self._set_component(name, _cast("_Array", [value]))
                 return
             new = np.array(value)
             if not new.shape:
@@ -714,7 +1328,7 @@ class SolutionArray(SolutionArrayBase):
         else:
             super().__setattr__(name, value)
 
-    def __call__(self, *species):
+    def __call__(self, *species: str) -> "SolutionArray[_P]":
         out = SolutionArray(self._phase[species], init=False)
         self._share(out, range(self.size))
         out.shape = self.shape
@@ -742,7 +1356,7 @@ class SolutionArray(SolutionArrayBase):
         return self._api_shape()
 
     @shape.setter
-    def shape(self, shp):
+    def shape(self, shp: tuple[int, ...]) -> None:
         self._set_api_shape(shp)
         if len(shp) == 1:
             self._indices = list(range(shp[0]))
@@ -751,7 +1365,12 @@ class SolutionArray(SolutionArrayBase):
             self._indices = list(np.ndindex(shp))
             self._output_dummy = np.empty(shp)
 
-    def append(self, state=None, normalize=True, **kwargs):
+    def append(
+        self,
+        state: _ArrayLike | None = None,
+        normalize: bool = True,
+        **kwargs: _Unpack[_StateDefinition],
+    ) -> None:
         """
         Append an element to the array with the specified state. Elements can
         only be appended in cases where the array of states is one-dimensional.
@@ -780,9 +1399,15 @@ class SolutionArray(SolutionArrayBase):
         if len(self.shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
 
+        # `kwargs` is published as a `TypedDict` (literal-key) surface for the sake
+        # of documenting/checking valid call sites, but its keys are manipulated
+        # dynamically (popped, intersected with `extra`, etc.) below; treat it as a
+        # plain `dict[str, Any]` for that purpose.
+        kwargs_dict = _cast("dict[str, _Any]", kwargs)
+
         # This check must go before we start appending to any arrays so that
         # array lengths don't get out of sync.
-        missing_extra_kwargs = set(self.extra) - set(kwargs.keys())
+        missing_extra_kwargs = set(self.extra) - set(kwargs_dict.keys())
         if missing_extra_kwargs:
             raise TypeError(
                 "Missing keyword arguments for extra values: "
@@ -797,13 +1422,13 @@ class SolutionArray(SolutionArrayBase):
         # all at once.
         extra_temp = {}
         for name in self.extra:
-            extra_temp[name] = kwargs.pop(name)
+            extra_temp[name] = kwargs_dict.pop(name)
 
         if state is not None:
             self._phase.state = state
 
-        elif len(kwargs) == 1:
-            attr, value = kwargs.popitem()
+        elif len(kwargs_dict) == 1:
+            attr, value = kwargs_dict.popitem()
             if frozenset(attr) not in self._phase._full_states:
                 raise KeyError(f"'{attr}' does not specify a full thermodynamic state")
             if normalize or attr.endswith("Q"):
@@ -819,26 +1444,26 @@ class SolutionArray(SolutionArrayBase):
 
         else:
             try:
-                attr = self._phase._full_states[frozenset(kwargs)]
+                attr = self._phase._full_states[frozenset(_cast("_Any", kwargs_dict))]
             except KeyError:
                 raise KeyError(
                     "{} is not a valid combination of properties for setting "
-                    "the thermodynamic state".format(tuple(kwargs))
+                    "the thermodynamic state".format(tuple(kwargs_dict))
                 ) from None
             if normalize or attr.endswith("Q"):
-                setattr(self._phase, attr, [kwargs[a] for a in attr])
+                setattr(self._phase, attr, [kwargs_dict[a] for a in attr])
             else:
                 if attr.endswith("X"):
-                    self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
+                    self._phase.set_unnormalized_mole_fractions(kwargs_dict.pop("X"))
                 elif attr.endswith("Y"):
-                    self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
+                    self._phase.set_unnormalized_mass_fractions(kwargs_dict.pop("Y"))
                 attr = attr[:-1]
-                setattr(self._phase, attr, [kwargs[a] for a in attr])
+                setattr(self._phase, attr, [kwargs_dict[a] for a in attr])
 
         self._append(self._phase.state, extra_temp)
         self._indices.append(len(self._indices))
 
-    def sort(self, col, reverse=False):
+    def sort(self, col: str, reverse: bool = False) -> None:
         """
         Sort SolutionArray by column ``col``.
 
@@ -859,14 +1484,30 @@ class SolutionArray(SolutionArrayBase):
             v = self._get_component(k)
             self._set_component(k, v[indices])
 
-    def equilibrate(self, *args, **kwargs):
+    def equilibrate(
+        self,
+        XY: _PropertyPair | None = None,
+        solver: _EquilibriumSolver = "auto",
+        rtol: float = 1e-9,
+        max_steps: int = 50000,
+        max_iter: int = 100,
+        estimate_equil: int = 0,
+        log_level: _LogLevel = 0,
+    ) -> None:
         """ See `ThermoPhase.equilibrate` """
         for loc in range(self.size):
             self._set_loc(loc)
-            self._phase.equilibrate(*args, **kwargs)
+            # `XY` is published as optional for parity with `Quantity.equilibrate`,
+            # but unlike that method there is no substitution of a default here;
+            # passing `None` fails at runtime in `ThermoPhase.equilibrate`, matching
+            # pre-merge (and `.pyi`-published) behavior.
+            self._phase.equilibrate(XY, solver, rtol, max_steps, max_iter,  # type: ignore[arg-type]
+                                    estimate_equil, log_level)
             self._update_state(loc)
 
-    def restore_data(self, data, normalize=True):
+    def restore_data(
+        self, data: dict[str, _Array], normalize: bool = True
+    ) -> None:
         """
         Restores a `SolutionArray` based on ``data`` specified in an ordered
         dictionary. Thus, this method allows to restore data exported by
@@ -888,7 +1529,10 @@ class SolutionArray(SolutionArrayBase):
         """
 
         # check arguments
-        if not isinstance(data, dict) or len(data) == 0:
+        # `data`'s static type is already `dict[str, Array]`, but this runtime
+        # check still matters because annotations are not enforced at the
+        # boundary for callers passing in arbitrary objects.
+        if not isinstance(data, dict) or len(data) == 0:  # type: ignore[redundant-expr]
             raise ValueError("'SolutionArray.restore_data' requires a "
                              "non-empty data dictionary")
         labels = list(data.keys())
@@ -917,13 +1561,17 @@ class SolutionArray(SolutionArrayBase):
                 "to be restored".format(self.shape[0], rows)
             )
 
-        # get full state information (may differ depending on ThermoPhase type)
-        states = list(self._phase._full_states.values())
+        # get full state information (may differ depending on ThermoPhase type).
+        # `states` is treated as a plain `list[str]` from here on, since the rest
+        # of this function manipulates its entries with generic string operations
+        # (slicing, `rstrip`, membership tests) that lose the narrow `Literal`
+        # typing published by `_full_states`/`_partial_states`.
+        states: list[str] = list(self._phase._full_states.values())
 
         # add partial and/or potentially non-unique state definitions
         states += list(self._phase._partial_states.values())
 
-        def join(species):
+        def join(species: str) -> _Any:
             """ Join tabular species composition data if present """
             prefix = '{}_'.format(species)
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
@@ -988,12 +1636,12 @@ class SolutionArray(SolutionArrayBase):
                 "S": ("s", f"entropy_{basis}")}
         for st in states:
             # identify property specifiers
-            state = [{st[i]: p for p in prop[st[i]] if p in labels}
-                     for i in range(len(st))]
-            if all(state):
+            state_dicts = [{st[i]: p for p in prop[st[i]] if p in labels}
+                           for i in range(len(st))]
+            if all(state_dicts):
                 # all property identifiers match
                 mode = st + mode
-                state = [list(st.values())[0] for st in state]
+                state = [list(d.values())[0] for d in state_dicts]
                 break
         if len(mode) == 1:
             raise ValueError(
@@ -1026,7 +1674,7 @@ class SolutionArray(SolutionArrayBase):
         if self.shape == (0,):
             self.shape = (rows,)
         else:
-            self.resize(np.prod(self.shape))
+            self.resize(int(np.prod(self.shape)))
 
         # restore data
         if normalize or mode.endswith("Q"):
@@ -1056,7 +1704,16 @@ class SolutionArray(SolutionArrayBase):
                 self._add_extra(key)
             self._set_component(key, value)
 
-    def set_equivalence_ratio(self, phi, *args, **kwargs):
+    def set_equivalence_ratio(
+        self,
+        phi: float | _Array,
+        fuel: _CompositionLike,
+        oxidizer: _CompositionLike,
+        basis: _Basis = "mole",
+        *,
+        diluent: _CompositionLike | None = None,
+        fraction: str | _EquivRatioFraction[float | _Array] | None = None,
+    ) -> None:
         """
         See `ThermoPhase.set_equivalence_ratio`
 
@@ -1067,14 +1724,26 @@ class SolutionArray(SolutionArrayBase):
         # If ``phi`` is lower-dimensional than the SolutionArray's shape (for
         # example, a scalar), broadcast it to have the right number of
         # dimensions.
-        phi, _ = np.broadcast_arrays(phi, self._output_dummy)
+        phi_arr, _ = np.broadcast_arrays(phi, self._output_dummy)
 
         for loc, index in enumerate(self._indices):
             self._set_loc(loc)
-            self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
+            # `ThermoPhase.set_equivalence_ratio` (Cython-opaque) declares `fraction`
+            # as a plain `dict[Literal[...], float]`, which a `total=False`
+            # TypedDict is not structurally assignable to even though it is
+            # compatible at runtime.
+            self._phase.set_equivalence_ratio(phi_arr[index], fuel, oxidizer, basis,
+                                              diluent=diluent,
+                                              fraction=_cast(_Any, fraction))
             self._update_state(loc)
 
-    def set_mixture_fraction(self, mixture_fraction, *args, **kwargs):
+    def set_mixture_fraction(
+        self,
+        mixture_fraction: float | _Array,
+        fuel: _CompositionLike,
+        oxidizer: _CompositionLike,
+        basis: _Basis = "mole",
+    ) -> None:
         """
         See `ThermoPhase.set_mixture_fraction`
 
@@ -1085,14 +1754,22 @@ class SolutionArray(SolutionArrayBase):
         # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's
         # shape (for example, a scalar), broadcast it to have the right number
         # of dimensions.
-        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, self._output_dummy)
+        mixture_fraction_arr, _ = np.broadcast_arrays(
+            mixture_fraction, self._output_dummy)
 
         for loc, index in enumerate(self._indices):
             self._set_loc(loc)
-            self._phase.set_mixture_fraction(mixture_fraction[index], *args, **kwargs)
+            self._phase.set_mixture_fraction(mixture_fraction_arr[index], fuel,
+                                             oxidizer, basis)
             self._update_state(loc)
 
-    def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
+    def collect_data(
+        self,
+        cols: _Sequence[str] | None = None,
+        tabular: bool = False,
+        threshold: int = 0,
+        species: _Literal["X", "Y"] | None = None,
+    ) -> dict[str, _Array]:
         """
         Returns the data specified by ``cols`` in a dictionary, where keys correspond
         to `SolutionArray` attributes to be exported.
@@ -1118,27 +1795,34 @@ class SolutionArray(SolutionArrayBase):
             raise AttributeError("Tabular output of collect_data only works "
                                  "for 1D SolutionArray")
 
+        # `cols`/`species` are manipulated below with generic string/tuple
+        # operations (slicing, concatenation, membership tests) that lose the
+        # narrow `Literal`/`Sequence` typing published for these parameters;
+        # treat them as plain `tuple[str, ...]` / `str | None` from here on.
+        cols_tuple: tuple[str, ...] = tuple(cols) if cols is not None else ()
+        species_str: str | None = species
+
         # Create default columns (including complete state information)
         if cols is None:
-            cols = ('extra',) + self._phase._native_state
+            cols_tuple = ('extra',) + self._phase._native_state
 
-        if species is None:
-            species = cols[-1]
+        if species_str is None:
+            species_str = cols_tuple[-1]
         else:
-            cols = cols[:-1] + (species,)
+            cols_tuple = cols_tuple[:-1] + (species_str,)
 
         # Expand cols to include the individual items in 'extra'
-        expanded_cols = []
-        for c in cols:
+        expanded_cols_list: list[str] = []
+        for c in cols_tuple:
             if c == 'extra':
-                expanded_cols.extend(self.extra)
+                expanded_cols_list.extend(self.extra)
             else:
-                expanded_cols.append(c)
+                expanded_cols_list.append(c)
 
         expanded_cols = tuple(['density' if c == 'D' else c
-                               for c in expanded_cols])
+                               for c in expanded_cols_list])
 
-        def split(c, d):
+        def split(c: str, d: _Array) -> list[tuple[str, _Array]]:
             """ Split attribute arrays into columns for tabular output """
             # Determine labels for the items in the current group of columns
             if c in self._n_species:
@@ -1147,7 +1831,7 @@ class SolutionArray(SolutionArrayBase):
                 collabels = ['{} {}'.format(c, r)
                              for r in self.reaction_equations()]
             elif c in species_names:
-                collabels = ['{}_{}'.format(species, c)]
+                collabels = ['{}_{}'.format(species_str, c)]
             elif c in self.extra and d.ndim > 1:
                 raise NotImplementedError(
                     "Detected multi-dimensional extra column '{}': "
@@ -1168,11 +1852,11 @@ class SolutionArray(SolutionArrayBase):
                 return [(collabels[0], d)]
 
         data = []
-        attrs = self.__dir__() + self.component_names
+        attrs = list(self.__dir__()) + list(self.component_names)
         species_names = set(self.species_names)
         for c in expanded_cols:
             if c in species_names:
-                d = getattr(self(c), species)
+                d = getattr(self(c), species_str)
             elif c in attrs:
                 d = getattr(self, c)
             else:
@@ -1186,7 +1870,7 @@ class SolutionArray(SolutionArrayBase):
 
         return dict(data)
 
-    def read_csv(self, filename, normalize=True):
+    def read_csv(self, filename: str, normalize: bool = True) -> None:
         """
         Read a CSV file named ``filename`` and restore data to the `SolutionArray`
         using `restore_data`. This method allows for recreation of data
@@ -1207,10 +1891,15 @@ class SolutionArray(SolutionArrayBase):
         # fall back to numpy; this works unless CSV file contains escaped entries
         data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                 dtype=None, names=True, encoding=None)
-        data_dict = {label: data[label] for label in data.dtype.names}
+        data_dict = {label: data[label] for label in (data.dtype.names or ())}
         self.restore_data(data_dict, normalize)
 
-    def to_pandas(self, cols=None, *args, **kwargs):
+    def to_pandas(
+        self,
+        cols: _Sequence[str] | None = None,
+        threshold: int = 0,
+        species: _Literal["X", "Y"] | None = None,
+    ) -> "_DataFrame":
         """
         Returns the data specified by ``cols`` in a single `pandas.DataFrame`.
 
@@ -1221,12 +1910,13 @@ class SolutionArray(SolutionArrayBase):
         if not _pandas:
             _import_pandas()
 
-        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
+        data_dict = self.collect_data(cols=cols, tabular=True, threshold=threshold,
+                                      species=species)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
-        return _pandas.DataFrame(data=data, columns=labels)
+        return _cast("_DataFrame", _pandas.DataFrame(data=data, columns=labels))
 
-    def from_pandas(self, df, normalize=True):
+    def from_pandas(self, df: "_DataFrame", normalize: bool = True) -> None:
         """
         Restores `SolutionArray` data from a `pandas.DataFrame` ``df``.
 
@@ -1242,8 +1932,17 @@ class SolutionArray(SolutionArrayBase):
             data_dict[label] = df[label].to_numpy()
         self.restore_data(data_dict, normalize)
 
-    def save(self, fname, name=None, sub=None, description=None, *,
-             overwrite=False, compression=0, basis=None):
+    def save(
+        self,
+        fname: str | _Path,
+        name: str | None = None,
+        sub: str | None = None,
+        description: str | None = None,
+        *,
+        overwrite: bool = False,
+        compression: _CompressionLevel = 0,
+        basis: _Basis | None = None,
+    ) -> None:
         """
         Save current `SolutionArray` contents to a data file.
 
@@ -1288,7 +1987,9 @@ class SolutionArray(SolutionArrayBase):
         """
         self._cxx_save(fname, name, sub, description, overwrite, compression, basis)
 
-    def restore(self, fname, name=None, sub=None):
+    def restore(
+        self, fname: str | _Path, name: str | None = None, sub: str | None = None
+    ) -> dict[str, str]:
         """
         Restore `SolutionArray` data and header information from a container file.
 
@@ -1314,7 +2015,7 @@ class SolutionArray(SolutionArrayBase):
         self.shape = self._api_shape()
         return meta
 
-    def _to_picklable(self):
+    def _to_picklable(self) -> dict[str, _Any]:
         with _NamedTemporaryFile(suffix=".yaml", delete=False) as t_file:
             # Context manager ensures that temporary file is properly created
             temp_file = t_file.name
@@ -1332,8 +2033,11 @@ class SolutionArray(SolutionArrayBase):
         }
 
     @classmethod
-    def _from_pickle(cls, state):
-        phase = state.get("phase")  # Recreate Solution object from pickled state
+    def _from_pickle(cls, state: dict[str, _Any]) -> "SolutionArray[_P]":
+        # Recreate Solution object from pickled state. The pickled dict is
+        # untyped (`Any`), so the actual phase type cannot be statically
+        # verified against `_P` here; this is inherent to unpickling.
+        phase = _cast("_P", state.get("phase"))
 
         # Restore SolutionArray
         arr = cls(phase)
@@ -1349,17 +2053,21 @@ class SolutionArray(SolutionArrayBase):
 
         return arr
 
-    def __reduce__(self):
-        return (self.__class__._from_pickle, (self._to_picklable(),))
+    @_override
+    def __reduce__(self) -> "_Never":
+        return (self.__class__._from_pickle, (self._to_picklable(),))  # type: ignore[return-value,misc]
 
-    def __copy__(self):
+    def __copy__(self) -> "SolutionArray[_P]":
         return self.__class__._from_pickle(self._to_picklable())
 
 
-def _state2_prop(name, doc_source):
+def _state2_prop(
+    name: str, doc_source: _Any
+) -> tuple[_Callable[[_Any], tuple[_Array, _Array]],
+           _Callable[[_Any, _Sequence[_Any]], None]]:
     # Factory for creating properties which consist of a tuple of two variables,
     # such as 'TP' or 'SV'
-    def getter(self):
+    def getter(self: "SolutionArray[_Any]") -> tuple[_Array, _Array]:
         a = np.empty(self.shape)
         b = np.empty(self.shape)
         for loc, index in enumerate(self._indices):
@@ -1367,7 +2075,7 @@ def _state2_prop(name, doc_source):
             a[index], b[index] = getattr(self._phase, name)
         return a, b
 
-    def setter(self, AB):
+    def setter(self: "SolutionArray[_Any]", AB: _Sequence[_Any]) -> None:
         if len(AB) != 2:
             raise ValueError("Expected 2 elements, got {}".format(len(AB)))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
@@ -1379,10 +2087,13 @@ def _state2_prop(name, doc_source):
     return getter, setter
 
 
-def _state3_prop(name, doc_source, scalar=False):
+def _state3_prop(
+    name: str, doc_source: _Any, scalar: bool = False
+) -> tuple[_Callable[[_Any], tuple[_Array, _Array, _Array]],
+           _Callable[[_Any, _Sequence[_Any]], None]]:
     # Factory for creating properties which consist of a tuple of three
     # variables, such as 'TPY' or 'UVX'
-    def getter(self):
+    def getter(self: "SolutionArray[_Any]") -> tuple[_Array, _Array, _Array]:
         a = np.empty(self.shape)
         b = np.empty(self.shape)
         if scalar:
@@ -1394,7 +2105,7 @@ def _state3_prop(name, doc_source, scalar=False):
             a[index], b[index], c[index] = getattr(self._phase, name)
         return a, b, c
 
-    def setter(self, ABC):
+    def setter(self: "SolutionArray[_Any]", ABC: _Sequence[_Any]) -> None:
         if len(ABC) != 3:
             raise ValueError("Expected 3 elements, got {}".format(len(ABC)))
         A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
@@ -1416,10 +2127,10 @@ def _state3_prop(name, doc_source, scalar=False):
 
     return getter, setter
 
-def _make_functions():
+def _make_functions() -> None:
     # this is wrapped in a function to avoid polluting the module namespace
 
-    names = []
+    names: list[str] = []
     for ph, ext in [(ThermoPhase, 'XY'), (PureFluid, 'Q')]:
 
         # all state setters/getters are combination of letters
@@ -1435,6 +2146,8 @@ def _make_functions():
             if name in names:
                 continue
             names.append(name)
+            getter: _Callable[..., _Any]
+            setter: _Callable[..., _Any]
             if len(name) == 2:
                 getter, setter = _state2_prop(name, ph)
             elif len(name) == 3:
@@ -1445,33 +2158,38 @@ def _make_functions():
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
-    def empty_scalar(self):
+    def empty_scalar(self: "SolutionArray[_Any]") -> _Array:
         return np.empty(self.shape)
 
-    def empty_strings(self):
+    def empty_strings(self: "SolutionArray[_Any]") -> _Array:
         # The maximum length of strings assigned by built-in methods is
         # currently limited to 50 characters; an attempt to assign longer
         # character arrays will result in truncated strings.
         return np.empty(self.shape, dtype='U50')
 
-    def empty_species(self):
+    def empty_species(self: "SolutionArray[_Any]") -> _Array:
         return np.empty(self.shape + (self._phase.n_selected_species,))
 
-    def empty_total_species(self):
+    def empty_total_species(self: "SolutionArray[_Any]") -> _Array:
         n_tot = self._phase.n_total_species
         # account for deselected species
         n_tot -= self._phase.n_species - self._phase.n_selected_species
         return np.empty(self.shape + (n_tot,))
 
-    def empty_species2(self):
+    def empty_species2(self: "SolutionArray[_Any]") -> _Array:
         return np.empty(self.shape + (self._phase.n_species, self._phase.n_species))
 
-    def empty_reactions(self):
+    def empty_reactions(self: "SolutionArray[_Any]") -> _Array:
         return np.empty(self.shape + (self._phase.n_reactions,))
 
     # Factory for creating read-only properties
-    def make_prop(name, get_container, doc_source, block_interface=False):
-        def getter(self):
+    def make_prop(
+        name: str,
+        get_container: _Callable[["SolutionArray[_Any]"], _Array],
+        doc_source: _Any,
+        block_interface: bool = False,
+    ) -> property:
+        def getter(self: "SolutionArray[_Any]") -> _Array:
             if block_interface and isinstance(self._phase, Interface):
                 # used to block Interface methods that require synchronized updates of
                 # linked phases
@@ -1510,8 +2228,10 @@ def _make_functions():
         setattr(SolutionArray, name, make_prop(name, empty_reactions, Solution, True))
 
     # Factory for creating wrappers for functions which return a value
-    def caller(name, get_container):
-        def wrapper(self, *args, **kwargs):
+    def caller(
+        name: str, get_container: _Callable[["SolutionArray[_Any]"], _Array]
+    ) -> _Callable[..., _Array]:
+        def wrapper(self: "SolutionArray[_Any]", *args: _Any, **kwargs: _Any) -> _Array:
             v = get_container(self)
             for loc, index in enumerate(self._indices):
                 self._set_loc(loc)
@@ -1525,17 +2245,17 @@ def _make_functions():
     # Factory for creating properties to pass through state-independent
     # functions and properties unmodified. Having a setter is ok even for read-
     # only properties, since the wrapped class will just raise an exception
-    def passthrough_prop(name, doc_source):
-        def getter(self):
+    def passthrough_prop(name: str, doc_source: _Any) -> property:
+        def getter(self: "SolutionArray[_Any]") -> _Any:
             return getattr(self._phase, name)
 
-        def setter(self, value):
+        def setter(self: "SolutionArray[_Any]", value: _Any) -> None:
             setattr(self._phase, name, value)
 
         return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
-    def passthrough_method(orig):
-        def f(self, *args, **kwargs):
+    def passthrough_method(orig: _Callable[..., _Any]) -> _Callable[..., _Any]:
+        def f(self: "SolutionArray[_Any]", *args: _Any, **kwargs: _Any) -> _Any:
             return orig(self._phase, *args, **kwargs)
         f.__doc__ = orig.__doc__
         return f
