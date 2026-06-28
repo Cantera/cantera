@@ -59,6 +59,14 @@ cantera\.reaction\.(ElectronCollisionPlasmaRate|FalloffRate|LindemannRate|TroeRa
 cantera\.reaction\.(PlogRate|LinearBurkeRate|ChebyshevRate|CustomRate)\.(cxx_object|_cxxarray2d)
 cantera\.reaction\.(ExtensibleRate|ExtensibleRateData|InterfaceArrheniusRate|InterfaceBlowersMaselRate)\.(set_cxx_object|cxx_object)
 cantera\.reaction\.(StickingArrheniusRate|StickingBlowersMaselRate|ThirdBody|Reaction)\.(wrap|set_cxx_object|cxx_object)
+# thermo: compile-time-only cimports (no runtime attribute), a module-level C typedef,
+# a Literal type alias that stubtest misreports as "not a Union", and module-level
+# @cython.cfunc free functions / cdef-class helper methods.
+cantera\.thermo\.(CxxKinetics|CxxPlasmaPhasePtr|CxxSurfPhasePtr|GasTransportData|SpeciesThermo|Units|cnp)
+cantera\.thermo\._QuadratureMethod
+cantera\.thermo\.(comp_map|comp_map_to_dict|mass_basis|molar_basis|parseCompString|wrapSpeciesThermo)
+cantera\.thermo\.Species\._assign
+cantera\.thermo\.ThermoPhase\.(_getArray1|_setArray1|_mass_factor|_mole_factor)
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.
