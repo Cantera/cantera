@@ -136,10 +136,7 @@ void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, do
 
 void EEDFTwoTermApproximation::setCustomGrid(span<const double> levels)
 {
-    if (levels.size() < 2) {
-        throw CanteraError("EEDFTwoTermApproximation::setCustomGrid",
-            "Energy grid must contain at least two edge points.");
-    }
+    checkArraySize("EEDFTwoTermApproximation::setCustomGrid", levels.size(), 2);
 
     m_points = levels.size() - 1;
 
