@@ -125,7 +125,6 @@ public:
      * decades by which the EEDF decays between the low- and high-energy ends of
      * the grid. The number of grid cells is kept fixed.
      *
-     * @param enabled          True to enable grid adaptation.
      * @param minDecayDecades  Minimum acceptable EEDF tail decay in decades. If
      *                         the decay is smaller, the maximum grid energy is
      *                         increased.
@@ -138,7 +137,7 @@ public:
      *                         EEDF solve.
      */
     //! @since New in %Cantera 4.0
-    void setGridAdaptationParameters(bool enabled, double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations);
+    void setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations);
 
     //! Return the electron energy grid edges [eV].
     /*!

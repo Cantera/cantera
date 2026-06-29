@@ -277,9 +277,9 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         maxIterations = static_cast<size_t>(
                             adapt["max_iterations"].asInt());
                     }
+                    m_eedfSolver->enableGridAdaptation(enabled);
                     m_eedfSolver->setGridAdaptationParameters(
-                        enabled, minDecayDecades, maxDecayDecades, updateFactor,
-                        maxIterations);
+                        minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
                 } else {
                     m_eedfSolver->enableGridAdaptation(false);
                 }
