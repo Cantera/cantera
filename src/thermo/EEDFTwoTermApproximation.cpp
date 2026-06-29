@@ -13,6 +13,7 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
+#include <numbers>
 
 namespace Cantera
 {
@@ -236,7 +237,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 
                 if (m_firstguess == "maxwell") {
                     for (size_t j = 0; j < m_points; j++) {
-                        m_f0(j) = 2.0 * std::sqrt(1.0 / Pi) *
+                        m_f0(j) = 2.0 * std::numbers::inv_sqrtpi *
                             std::pow(m_init_kTe, -1.5) *
                             std::exp(-m_gridCenter[j] / m_init_kTe);
                     }
