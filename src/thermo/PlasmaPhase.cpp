@@ -153,14 +153,14 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             if (eedf.hasKey("shape-factor")) {
                 setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
             } else {
-                throw CanteraError("PlasmaPhase::setParameters",
+                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                     "isotropic type requires shape-factor key.");
             }
             if (eedf.hasKey("mean-electron-energy")) {
                 double energy = eedf.convert("mean-electron-energy", "eV");
                 setMeanElectronEnergy(energy);
             } else {
-                throw CanteraError("PlasmaPhase::setParameters",
+                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                     "isotropic type requires electron-temperature key.");
             }
             if (eedf.hasKey("energy-levels")) {
@@ -170,11 +170,11 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             setIsotropicElectronEnergyDistribution();
         } else if (m_distributionType == "discretized") {
             if (!eedf.hasKey("energy-levels")) {
-                throw CanteraError("PlasmaPhase::setParameters",
+                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                     "Cannot find key energy-levels.");
             }
             if (!eedf.hasKey("distribution")) {
-                throw CanteraError("PlasmaPhase::setParameters",
+                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                     "Cannot find key distribution.");
             }
             if (eedf.hasKey("normalize")) {
@@ -194,13 +194,13 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 m_nPoints = levels.size();
             } else {
                 if (!eedf.hasKey("initial-max-energy-level")) {
-                    throw CanteraError("PlasmaPhase::setParameters",
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                         "Boltzmann-two-term requires either 'energy-levels' or "
                         "'initial-max-energy-level'.");
                 }
 
                 if (!eedf.hasKey("grid-cell-count")) {
-                    throw CanteraError("PlasmaPhase::setParameters",
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                         "Boltzmann-two-term requires either 'energy-levels' or "
                         "'grid-cell-count'.");
                 }
@@ -210,12 +210,12 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                     eedf["grid-cell-count"].asInt());
 
                 if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
-                    throw CanteraError("PlasmaPhase::setParameters",
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                         "initial-max-energy-level must be finite and greater than zero.");
                 }
 
                 if (nGridCells == 0) {
-                    throw CanteraError("PlasmaPhase::setParameters",
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                         "grid-cell-count must be greater than zero.");
                 }
 
@@ -233,7 +233,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                     if (eedf.hasKey("geometric-grid-ratio")) {
                         double ratio = eedf["geometric-grid-ratio"].asDouble();
                         if (!std::isfinite(ratio) || ratio <= 1.0) {
-                            throw CanteraError("PlasmaPhase::setParameters",
+                            throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                                 "geometric-grid-ratio must be finite and greater than 1.0.");
                         }
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
@@ -241,7 +241,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
                     }
                 } else {
-                    throw CanteraError("PlasmaPhase::setParameters",
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                         "energy-levels-distribution should be linear, quadratic "
                         "or geometric.");
                 }
@@ -250,7 +250,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                     double maxwellianThreshold =
                         eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
                     if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
-                        throw CanteraError("PlasmaPhase::setParameters",
+                        throw InputFileError("PlasmaPhase::setParameters", phaseNode,
                             "reduced-field-threshold-before-maxwellian-Td must be "
                             "finite and non-negative.");
                     }
