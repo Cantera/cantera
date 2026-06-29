@@ -42,5 +42,5 @@ module = ["cantera.jacobians", "cantera.func1", "cantera.constants",
           "cantera.units", "cantera.mixture", "cantera._utils",
           "cantera.transport", "cantera.kinetics", "cantera.solutionbase",
           "cantera.reaction", "cantera.thermo", "cantera._onedim",
-          "cantera._cantera"]
+          "cantera.reactor", "cantera._cantera"]
 ignore_errors = true
