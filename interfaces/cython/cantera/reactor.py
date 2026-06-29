@@ -8,6 +8,18 @@ import warnings
 import numbers as _numbers
 import numpy as np
 
+from collections.abc import Callable as _Callable, Iterable as _Iterable, \
+    Sequence as _Sequence
+from typing import (
+    Any as _Any,
+    ClassVar as _ClassVar,
+    Literal as _Literal,
+    TypeAlias as _TypeAlias,
+    overload as _overload,
+    TYPE_CHECKING,
+)
+from typing_extensions import Never as _Never
+
 import cython
 import cython.cimports.numpy as cnp  # Required: triggers import_array() for numpy C-API
 from cython.cimports.cython import view
@@ -17,7 +29,21 @@ from cython.cimports.cantera._utils import (
 from cython.cimports.cantera.delegator import CxxDelegatorPtr, assign_delegates
 from cython.cimports.cantera.solutionbase import _SolutionBase, _wrap_Solution
 
+from ._types import Array as _Array, ArrayLike as _ArrayLike, LogLevel as _LogLevel
+from .func1 import _Func1Like
+
+if TYPE_CHECKING:
+    from graphviz import Digraph as _Digraph
+    from .composite import Solution as _Solution
+    from .kinetics import _DerivativeSettings
+
 from .drawnetwork import *
+
+# `anymap_to_py` may return an `AnyMap` (a `dict` subclass) rather than a plain
+# `dict`; an inline `dict[str, int]` return annotation is coerced by Cython 3 and
+# rejects that subclass instance at runtime. Route through a TypeAlias (not coerced),
+# matching the `_onedim._RestoreMetadata` precedent.
+_SolverStats: _TypeAlias = dict[str, int]
 
 
 @cython.cclass
@@ -25,7 +51,9 @@ class ReactorBase:
     """
     Common base class for reactors and reservoirs.
     """
-    reactor_type = "none"
+    reactor_type: _ClassVar[str] = "none"
+    node_attr: dict[str, str] | None
+
     def __cinit__(self, phase: _SolutionBase, *args, name="(none)", clone=True,
                   **kwargs):
         if not isinstance(self, ReactorSurface):
@@ -33,8 +61,10 @@ class ReactorBase:
                                         phase._base, clone, stringify(name))
             self.rbase = self._rbase.get()
 
-    def __init__(self, phase: _SolutionBase = None, *args,
-                 clone=True, name="(none)", volume=None, node_attr=None):
+    def __init__(self, phase: _SolutionBase | None = None, *args: _Any,
+                 clone: bool | None = None, name: str = "(none)",
+                 volume: float | None = None,
+                 node_attr: dict[str, str] | None = None) -> None:
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -47,20 +77,20 @@ class ReactorBase:
         self.node_attr = node_attr or {}
 
     @property
-    def type(self):
+    def type(self) -> str:
         """The type of the reactor."""
         return pystr(self.rbase.type())
 
     @property
-    def name(self):
+    def name(self) -> str:
         """The name of the reactor."""
         return pystr(self.rbase.name())
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self.rbase.setName(stringify(name))
 
-    def component_index(self, name):
+    def component_index(self, name: str) -> int:
         """
         Returns the index of the component named ``name`` in the system. This determines
         the index of the component in the vector of sensitivity coefficients. ``name``
@@ -72,7 +102,7 @@ class ReactorBase:
             raise IndexError('No such component: {!r}'.format(name))
         return k
 
-    def component_name(self, i: cython.int):
+    def component_name(self, i: cython.int) -> str:
         """
         Returns the name of the component with index ``i`` within the array of
         variables returned by `get_state`. This is the inverse of
@@ -81,7 +111,7 @@ class ReactorBase:
         return pystr(self.rbase.componentName(i))
 
     @property
-    def n_vars(self):
+    def n_vars(self) -> int:
         """
         The number of state variables in the reactor.
         Equal to:
@@ -94,7 +124,7 @@ class ReactorBase:
         """
         return self.rbase.neq()
 
-    def get_state(self):
+    def get_state(self) -> _Array:
         """
         Get the state vector of the reactor.
 
@@ -125,7 +155,7 @@ class ReactorBase:
                                         cython.cast(cython.size_t, y.size)))
         return y
 
-    def get_state_dae(self):
+    def get_state_dae(self) -> tuple[_Array, _Array]:
         """
         Get the state vector and its time derivative for reactors formulated as DAEs
         (namely, `FlowReactor`).
@@ -142,7 +172,7 @@ class ReactorBase:
         return y, yp
 
     @property
-    def atol(self):
+    def atol(self) -> _Array | None:
         """
         Absolute tolerances for this reactor's local state variables.
 
@@ -161,7 +191,7 @@ class ReactorBase:
         return None
 
     @atol.setter
-    def atol(self, values):
+    def atol(self, values: _ArrayLike | None) -> None:
         if values is None:
             self.rbase.clearAbsoluteTolerances()
             return
@@ -173,7 +203,7 @@ class ReactorBase:
             span[const_double](cython.address(cdata[0]),
                                cython.cast(cython.size_t, data.size)))
 
-    def syncState(self):
+    def syncState(self) -> None:
         """
         Set the state of the Reactor to match that of the associated
         `ThermoPhase` object. After calling syncState(), call
@@ -187,7 +217,7 @@ class ReactorBase:
         self.rbase.syncState()
 
     @property
-    def phase(self):
+    def phase(self) -> "_Solution":
         """
         The `Solution` object representing the reactor's contents.
 
@@ -197,35 +227,35 @@ class ReactorBase:
         return self._phase
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """The volume [m³] of the reactor."""
         return self.rbase.volume()
 
     @volume.setter
-    def volume(self, value: cython.double):
-        self.rbase.setInitialVolume(value)
+    def volume(self, volume: cython.double) -> None:
+        self.rbase.setInitialVolume(volume)
 
     @property
-    def T(self):
+    def T(self) -> float:
         """The temperature [K] of the reactor's contents."""
         return self.phase.T
 
     @property
-    def density(self):
+    def density(self) -> float:
         """The density [kg/m³ or kmol/m³] of the reactor's contents."""
         return self.phase.density
 
     @property
-    def mass(self):
+    def mass(self) -> float:
         """The mass of the reactor's contents."""
         return self.phase.density_mass * self.volume
 
     @property
-    def Y(self):
+    def Y(self) -> _Array:
         """The mass fractions of the reactor's contents."""
         return self.phase.Y
 
-    def add_sensitivity_reaction(self, m: cython.int):
+    def add_sensitivity_reaction(self, m: cython.int) -> None:
         """
         Specifies that the sensitivity of the state variables with respect to
         reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
@@ -236,48 +266,51 @@ class ReactorBase:
 
     # Flow devices & walls
     @property
-    def inlets(self):
+    def inlets(self) -> list["FlowDevice"]:
         """List of flow devices installed as inlets to this reactor"""
         return self._inlets
 
     @property
-    def outlets(self):
+    def outlets(self) -> list["FlowDevice"]:
         """List of flow devices installed as outlets to this reactor"""
         return self._outlets
 
     @property
-    def walls(self):
+    def walls(self) -> list["Wall"]:
         """List of walls installed on this reactor"""
         return self._walls
 
     @property
-    def surfaces(self):
+    def surfaces(self) -> list["ReactorSurface"]:
         """List of reacting surfaces installed on this reactor"""
         return self._surfaces
 
-    def _add_inlet(self, inlet):
+    def _add_inlet(self, inlet: "FlowDevice") -> None:
         """
         Store a reference to ``inlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._inlets.append(inlet)
 
-    def _add_outlet(self, outlet):
+    def _add_outlet(self, outlet: "FlowDevice") -> None:
         """
         Store a reference to ``outlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._outlets.append(outlet)
 
-    def _add_wall(self, wall):
+    def _add_wall(self, wall: "Wall") -> None:
         """
         Store a reference to ``wall`` to prevent it from being prematurely
         garbage collected.
         """
         self._walls.append(wall)
 
-    def draw(self, graph=None, *, graph_attr=None, node_attr=None, print_state=False,
-             species=None, species_units="percent"):
+    def draw(self, graph: "_Digraph | None" = None, *,
+              graph_attr: dict[str, str] | None = None,
+              node_attr: dict[str, str] | None = None, print_state: bool = False,
+              species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+              species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
         """
         Draw as ``graphviz`` ``dot`` node. The node is added to an existing ``graph`` if
         provided. Optionally include current reactor state in the node.
@@ -311,10 +344,10 @@ class ReactorBase:
         return draw_reactor(self, graph, graph_attr, node_attr, print_state, species,
                             species_units)
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         raise NotImplementedError('Reactor object is not picklable')
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('Reactor object is not copyable')
 
 
@@ -326,13 +359,15 @@ class Reactor(ReactorBase):
     chemically-inert walls. These properties may all be changed by adding
     appropriate components such as `Wall`, `MassFlowController` and `Valve`.
     """
-    reactor_type = "Reactor"
+    reactor_type: _ClassVar[str] = "Reactor"
+    group_name: str
 
     def __cinit__(self, *args, **kwargs):
         self.reactor = cython.cast(cython.pointer(CxxReactor), self.rbase)
 
-    def __init__(self, phase, *,
-                 clone=True, name="(none)", energy='on', group_name="", **kwargs):
+    def __init__(self, phase: "_Solution", *, clone: bool | None = None,
+                 name: str = "(none)", energy: _Literal["on", "off"] = "on",
+                 group_name: str = "", **kwargs: _Any) -> None:
         """
         :param phase:
             A `Solution` object representing the Reactor contents
@@ -389,7 +424,7 @@ class Reactor(ReactorBase):
         self.group_name = group_name
 
     @property
-    def chemistry_enabled(self):
+    def chemistry_enabled(self) -> bool:
         """
         `True` when the reactor composition is allowed to change due to
         chemical reactions in this reactor. When this is `False`, the
@@ -398,11 +433,11 @@ class Reactor(ReactorBase):
         return self.reactor.chemistryEnabled()
 
     @chemistry_enabled.setter
-    def chemistry_enabled(self, value: pybool):
+    def chemistry_enabled(self, value: pybool) -> None:
         self.reactor.setChemistryEnabled(value)
 
     @property
-    def energy_enabled(self):
+    def energy_enabled(self) -> bool:
         """
         `True` when the energy equation is being solved for this reactor.
         When this is `False`, the reactor temperature is held constant.
@@ -410,10 +445,10 @@ class Reactor(ReactorBase):
         return self.reactor.energyEnabled()
 
     @energy_enabled.setter
-    def energy_enabled(self, value: pybool):
+    def energy_enabled(self, value: pybool) -> None:
         self.reactor.setEnergyEnabled(value)
 
-    def add_sensitivity_species_enthalpy(self, k):
+    def add_sensitivity_species_enthalpy(self, k) -> None:
         """
         Specifies that the sensitivity of the state variables with respect to
         species ``k`` should be computed. The reactor must be part of a network
@@ -422,7 +457,7 @@ class Reactor(ReactorBase):
         self.reactor.addSensitivitySpeciesEnthalpy(self.phase.species_index(k))
 
     @property
-    def jacobian(self):
+    def jacobian(self) -> _Array:
         """
         Get the local, reactor-specific Jacobian or an approximation thereof
 
@@ -440,7 +475,7 @@ class Reactor(ReactorBase):
         return get_from_sparse(self.reactor.jacobian(), self.n_vars, self.n_vars)
 
     @property
-    def finite_difference_jacobian(self):
+    def finite_difference_jacobian(self) -> _Array:
         """
         Get the reactor-specific Jacobian, calculated using a finite difference method.
 
@@ -452,7 +487,7 @@ class Reactor(ReactorBase):
         return get_from_sparse(self.reactor.finiteDifferenceJacobian(),
                                self.n_vars, self.n_vars)
 
-    def set_advance_limit(self, name, limit):
+    def set_advance_limit(self, name: str, limit: float | None) -> None:
         """
         Limit absolute change of component ``name`` during `ReactorNet.advance`.
         (positive ``limit`` values are considered; negative values disable a
@@ -552,16 +587,16 @@ class FlowReactor(Reactor):
     reactor_type = "FlowReactor"
 
     @property
-    def mass_flow_rate(self):
+    def mass_flow_rate(self) -> _Never:
         """ Mass flow rate [kg/s] """
         raise AttributeError("unreadable attribute 'mass_flow_rate'")
 
     @mass_flow_rate.setter
-    def mass_flow_rate(self, value: cython.double):
+    def mass_flow_rate(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxFlowReactor), self.reactor).setMassFlowRate(value)
 
     @property
-    def area(self):
+    def area(self) -> float:
         """
         Get/set the area of the reactor [m²].
 
@@ -571,11 +606,11 @@ class FlowReactor(Reactor):
         return cython.cast(cython.pointer(CxxFlowReactor), self.reactor).area()
 
     @area.setter
-    def area(self, area):
+    def area(self, area: float) -> None:
         cython.cast(cython.pointer(CxxFlowReactor), self.reactor).setArea(area)
 
     @property
-    def speed(self):
+    def speed(self) -> float:
         """ Speed [m/s] of the flow in the reactor at the current position """
         return cython.cast(cython.pointer(CxxFlowReactor), self.reactor).speed()
 
@@ -644,9 +679,9 @@ class ExtensibleReactor(Reactor):
         column indices are global within the containing reactor network.
     """
 
-    reactor_type = "ExtensibleReactor"
+    reactor_type: _ClassVar[str] = "ExtensibleReactor"
 
-    delegatable_methods = {
+    delegatable_methods: dict[str, tuple[str, str]] = {
         'initialize': ('initialize', 'void(double)'),
         'get_state': ('getState', 'void(double*)'),
         'update_state': ('updateState', 'void(double*)'),
@@ -657,6 +692,8 @@ class ExtensibleReactor(Reactor):
         'component_index': ('componentIndex', 'size_t(string)'),
         'get_jacobian_elements': ('getJacobianElements', 'void(SparseTriplets&)'),
     }
+
+    surface_production_rates: _Array
 
     def __cinit__(self, *args, **kwargs):
         self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
@@ -670,23 +707,23 @@ class ExtensibleReactor(Reactor):
         sarr.data = cython.cast(cython.p_char, sdot.data())
         self.surface_production_rates = sarr
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: _Any, **kwargs: _Any) -> None:
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
         super().__init__(*args, **kwargs)
 
     @property
-    def n_vars(self):
+    def n_vars(self) -> int:
         """
         Get/Set the number of state variables in the reactor.
         """
         return self.reactor.neq()
 
     @n_vars.setter
-    def n_vars(self, n):
+    def n_vars(self, n: int) -> None:
         self.accessor.setNEq(n)
 
     @property
-    def expansion_rate(self):
+    def expansion_rate(self) -> float:
         """
         Get/Set the net rate of volume change (for example, from moving walls) [m³/s]
 
@@ -695,11 +732,11 @@ class ExtensibleReactor(Reactor):
         return self.accessor.expansionRate()
 
     @expansion_rate.setter
-    def expansion_rate(self, vdot):
+    def expansion_rate(self, vdot: float) -> None:
         self.accessor.setExpansionRate(vdot)
 
     @property
-    def heat_rate(self):
+    def heat_rate(self) -> float:
         """
         Get/Set the net heat transfer rate (for example, through walls) [W]
 
@@ -708,7 +745,7 @@ class ExtensibleReactor(Reactor):
         return self.accessor.heatRate()
 
     @heat_rate.setter
-    def heat_rate(self, qdot):
+    def heat_rate(self, qdot: float) -> None:
         self.accessor.setHeatRate(qdot)
 
 
@@ -819,7 +856,7 @@ class ReactorSurface(ReactorBase):
     .. versionchanged:: 3.3
        Changed the default value of the ``clone`` to ``True``.
     """
-    reactor_type = "ReactorSurface"
+    reactor_type: _ClassVar[str] = "ReactorSurface"
 
     def __cinit__(self, phase: _SolutionBase, r, *, clone=True, name="(none)",
                   kind=None, **kwargs):
@@ -856,8 +893,10 @@ class ReactorSurface(ReactorBase):
         self.rbase = self._rbase.get()
         self.surface = cython.cast(cython.pointer(CxxReactorSurface), self.rbase)
 
-    def __init__(self, phase=None, r=None, *, kind=None, clone=True,
-                 name="(none)", A=None, node_attr=None):
+    def __init__(self, phase: _SolutionBase | None = None, r: "Reactor | None" = None,
+                 *, kind=None, clone: bool | None = None, name: str = "(none)",
+                 A: float | None = None,
+                 node_attr: dict[str, str] | None = None) -> None:
         super().__init__(phase, name=name)
 
         if A is not None:
@@ -865,16 +904,16 @@ class ReactorSurface(ReactorBase):
         self.node_attr = node_attr or {'shape': 'underline'}
 
     @property
-    def area(self):
+    def area(self) -> float:
         """Area on which reactions can occur [m²]."""
         return self.surface.area()
 
     @area.setter
-    def area(self, A):
+    def area(self, A: float) -> None:
         self.surface.setArea(A)
 
     @property
-    def coverages(self):
+    def coverages(self) -> _Array:
         """
         The fraction of sites covered by each surface species.
         """
@@ -883,7 +922,7 @@ class ReactorSurface(ReactorBase):
         return self._phase.coverages
 
     @coverages.setter
-    def coverages(self, coverages):
+    def coverages(self, coverages: _Array) -> None:
         if self._phase is None:
             raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
@@ -899,7 +938,7 @@ class ReactorSurface(ReactorBase):
                                               cython.cast(cython.size_t, data.size)))
 
     @property
-    def reactor(self):
+    def reactor(self) -> "Reactor":
         """
         Return the `Reactor` object the surface is connected to.
 
@@ -913,7 +952,7 @@ class ReactorSurface(ReactorBase):
         return self._reactors[0]
 
     @property
-    def reactors(self):
+    def reactors(self) -> list["Reactor"]:
         """
         A list of of `Reactor` objects containing phases that participate in reactions
         on this surface.
@@ -922,9 +961,13 @@ class ReactorSurface(ReactorBase):
         """
         return self._reactors
 
-    def draw(self, graph=None, *, graph_attr=None, node_attr=None,
-             surface_edge_attr=None, print_state=False, species=None,
-             species_units="percent"):
+    def draw(self, graph: "_Digraph | None" = None, *,
+              graph_attr: dict[str, str] | None = None,
+              node_attr: dict[str, str] | None = None,
+              surface_edge_attr: dict[str, str] | None = None,
+              print_state: bool = False,
+              species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+              species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
         """
         Draw the surface as a ``graphviz`` ``dot`` node connected to its reactor.
         The node is added to an existing ``graph`` if provided.
@@ -967,10 +1010,10 @@ class ReactorSurface(ReactorBase):
 
 @cython.cclass
 class FlowReactorSurface(ReactorSurface):
-    reactor_type = "FlowReactorSurface"
+    reactor_type: _ClassVar[str] = "FlowReactorSurface"
 
     @property
-    def initial_atol(self):
+    def initial_atol(self) -> float:
         """
         Get/Set the steady-state tolerances used to determine the initial surface
         species coverages.
@@ -978,11 +1021,11 @@ class FlowReactorSurface(ReactorSurface):
         return cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).initialAtol()
 
     @initial_atol.setter
-    def initial_atol(self, atol):
+    def initial_atol(self, atol: float) -> None:
         cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).setInitialAtol(atol)
 
     @property
-    def initial_rtol(self):
+    def initial_rtol(self) -> float:
         """
         Get/Set the steady-state tolerances used to determine the initial surface
         species coverages.
@@ -990,11 +1033,11 @@ class FlowReactorSurface(ReactorSurface):
         return cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).initialRtol()
 
     @initial_rtol.setter
-    def initial_rtol(self, rtol):
+    def initial_rtol(self, rtol: float) -> None:
         cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).setInitialRtol(rtol)
 
     @property
-    def initial_max_steps(self):
+    def initial_max_steps(self) -> int:
         """
         Get/Set the maximum number of integrator steps used to determine the initial
         surface species coverages.
@@ -1002,11 +1045,11 @@ class FlowReactorSurface(ReactorSurface):
         return cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).initialMaxSteps()
 
     @initial_max_steps.setter
-    def initial_max_steps(self, nsteps):
+    def initial_max_steps(self, nsteps: int) -> None:
         cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).setInitialMaxSteps(nsteps)
 
     @property
-    def initial_max_error_failures(self):
+    def initial_max_error_failures(self) -> int:
         """
         Get/Set the maximum number of integrator error failures allowed when determining
         the initial surface species coverages.
@@ -1014,7 +1057,7 @@ class FlowReactorSurface(ReactorSurface):
         return cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).initialMaxErrorFailures()
 
     @initial_max_error_failures.setter
-    def initial_max_error_failures(self, nsteps):
+    def initial_max_error_failures(self, nsteps: int) -> None:
         cython.cast(cython.pointer(CxxFlowReactorSurface), self.surface).setInitialMaxErrorFailures(nsteps)
 
 
@@ -1035,9 +1078,9 @@ class ExtensibleReactorSurface(ReactorSurface):
     - ``component_index(name: string) -> int``
     """
 
-    reactor_type = "ExtensibleReactorSurface"
+    reactor_type: _ClassVar[str] = "ExtensibleReactorSurface"
 
-    delegatable_methods = {
+    delegatable_methods: dict[str, tuple[str, str]] = {
         'initialize': ('initialize', 'void(double)'),
         'get_state': ('getState', 'void(double*)'),
         'update_state': ('updateState', 'void(double*)'),
@@ -1046,7 +1089,9 @@ class ExtensibleReactorSurface(ReactorSurface):
         'component_index': ('componentIndex', 'size_t(string)'),
     }
 
-    def __init__(self, *args, **kwargs):
+    surface_production_rates: _Array
+
+    def __init__(self, *args: _Any, **kwargs: _Any) -> None:
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
         sdot: span[cython.double] = \
             dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
@@ -1060,14 +1105,14 @@ class ExtensibleReactorSurface(ReactorSurface):
         super().__init__(*args, **kwargs)
 
     @property
-    def n_vars(self):
+    def n_vars(self) -> int:
         """
         Get/Set the number of state variables in the reactor.
         """
         return self.reactor.neq()
 
     @n_vars.setter
-    def n_vars(self, n):
+    def n_vars(self, n) -> None:
         dynamic_cast[CxxReactorAccessorPtr](self.rbase).setNEq(n)
 
 
@@ -1077,7 +1122,7 @@ class ExtensibleMoleReactorSurface(ExtensibleReactorSurface):
     A variant of `ExtensibleReactorSurface` where the base behavior corresponds to the
     :ct:`MoleReactorSurface` class.
     """
-    reactor_type = "ExtensibleMoleReactorSurface"
+    reactor_type: _ClassVar[str] = "ExtensibleMoleReactorSurface"
 
 
 @cython.cclass
@@ -1085,7 +1130,8 @@ class ConnectorNode:
     """
     Common base class for walls and flow devices.
     """
-    node_type = "none"
+    node_type: _ClassVar[str] = "none"
+    edge_attr: dict[str, str]
 
     def __cinit__(self, left: ReactorBase = None, right: ReactorBase = None, *,
                   upstream: ReactorBase = None, downstream: ReactorBase = None,
@@ -1101,23 +1147,23 @@ class ConnectorNode:
         raise TypeError(f"Invalid reactor types: {r0} and {r1}.")
 
     @property
-    def type(self):
+    def type(self) -> str:
         """The type of the connector."""
         return pystr(self.node.type())
 
     @property
-    def name(self):
+    def name(self) -> str:
         """The name of the connector."""
         return pystr(self.node.name())
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self.node.setName(stringify(name))
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         raise NotImplementedError('Reactor object is not picklable')
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('Reactor object is not copyable')
 
 
@@ -1129,8 +1175,11 @@ class WallBase(ConnectorNode):
     def __cinit__(self, *args, **kwargs):
         self.wall = cython.cast(cython.pointer(CxxWallBase), self.node)
 
-    def __init__(self, left, right, *, name="(none)", A=None, K=None, U=None,
-                 Q=None, velocity=None, edge_attr=None):
+    def __init__(self, left: ReactorBase, right: ReactorBase, *, name: str = "(none)",
+                 A: float | None = None, K: float | None = None, U: float | None = None,
+                 Q: _Callable[[float], float] | None = None,
+                 velocity: _Callable[[float], float] | None = None,
+                 edge_attr: dict[str, str] | None = None) -> None:
         """
         :param left:
             Reactor or reservoir on the left. Required.
@@ -1185,16 +1234,16 @@ class WallBase(ConnectorNode):
         self._right_reactor = right
 
     @property
-    def area(self):
+    def area(self) -> float:
         """The wall area [m²]."""
         return self.wall.area()
 
     @area.setter
-    def area(self, value: cython.double):
+    def area(self, value: cython.double) -> None:
         self.wall.setArea(value)
 
     @property
-    def left_reactor(self):
+    def left_reactor(self) -> ReactorBase:
         """
         Return the `Reactor` or `Reservoir` object left of the wall.
 
@@ -1203,7 +1252,7 @@ class WallBase(ConnectorNode):
         return self._left_reactor
 
     @property
-    def right_reactor(self):
+    def right_reactor(self) -> ReactorBase:
         """
         Return the `Reactor` or `Reservoir` object right of the wall.
 
@@ -1212,7 +1261,7 @@ class WallBase(ConnectorNode):
         return self._right_reactor
 
     @property
-    def expansion_rate(self):
+    def expansion_rate(self) -> float:
         """
         Get the rate of volumetric change [m³/s] associated with the wall at the
         current reactor network time. A positive value corresponds to the left-hand
@@ -1223,7 +1272,7 @@ class WallBase(ConnectorNode):
         return self.wall.expansionRate()
 
     @property
-    def heat_rate(self):
+    def heat_rate(self) -> float:
         """
         Get the total heat flux [W] through the wall  at the current reactor network
         time. A positive value corresponds to heat flowing from the left-hand reactor
@@ -1233,8 +1282,12 @@ class WallBase(ConnectorNode):
         """
         return self.wall.heatRate()
 
-    def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None,
-             moving_wall_edge_attr=None, show_wall_velocity=True):
+    def draw(self, graph: "_Digraph | None" = None, *,
+              graph_attr: dict[str, str] | None = None,
+              node_attr: dict[str, str] | None = None,
+              edge_attr: dict[str, str] | None = None,
+              moving_wall_edge_attr: dict[str, str] | None = None,
+              show_wall_velocity: bool = True) -> "_Digraph":
         """
         Draw as connection between left and right reactor or reservoir using
         ``graphviz``.
@@ -1301,10 +1354,10 @@ class Wall(WallBase):
     :math:`q_0(t)` is a specified function of time. The heat flux is positive
     when heat flows from the reactor on the left to the reactor on the right.
     """
-    node_type = "Wall"
+    node_type: _ClassVar[str] = "Wall"
 
     @property
-    def expansion_rate_coeff(self):
+    def expansion_rate_coeff(self) -> float:
         """
         The coefficient *K* [m/s/Pa] that determines the velocity of the wall
         as a function of the pressure difference between the adjacent reactors.
@@ -1312,29 +1365,29 @@ class Wall(WallBase):
         return cython.cast(cython.pointer(CxxWall), self.wall).getExpansionRateCoeff()
 
     @expansion_rate_coeff.setter
-    def expansion_rate_coeff(self, val: cython.double):
+    def expansion_rate_coeff(self, val: cython.double) -> None:
         cython.cast(cython.pointer(CxxWall), self.wall).setExpansionRateCoeff(val)
 
     @property
-    def heat_transfer_coeff(self):
+    def heat_transfer_coeff(self) -> float:
         """The overall heat transfer coefficient [W/m²/K]."""
         return cython.cast(cython.pointer(CxxWall), self.wall).getHeatTransferCoeff()
 
     @heat_transfer_coeff.setter
-    def heat_transfer_coeff(self, value: cython.double):
+    def heat_transfer_coeff(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxWall), self.wall).setHeatTransferCoeff(value)
 
     @property
-    def emissivity(self):
+    def emissivity(self) -> float:
         """The emissivity (nondimensional)"""
         return cython.cast(cython.pointer(CxxWall), self.wall).getEmissivity()
 
     @emissivity.setter
-    def emissivity(self, value: cython.double):
+    def emissivity(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxWall), self.wall).setEmissivity(value)
 
     @property
-    def velocity(self):
+    def velocity(self) -> float:
         """
         The wall velocity [m/s]. May be either set to a constant or an arbitrary
         function of time. See `Func1`.
@@ -1344,7 +1397,7 @@ class Wall(WallBase):
         return cython.cast(cython.pointer(CxxWall), self.wall).velocity()
 
     @velocity.setter
-    def velocity(self, v):
+    def velocity(self, v: _Func1Like) -> None:
         f: Func1
         if isinstance(v, Func1):
             f = v
@@ -1355,7 +1408,7 @@ class Wall(WallBase):
         cython.cast(cython.pointer(CxxWall), self.wall).setVelocity(f._func)
 
     @property
-    def heat_flux(self):
+    def heat_flux(self) -> float:
         """
         Heat flux [W/m²] across the wall. May be either set to a constant or
         an arbitrary function of time. See `Func1`.
@@ -1365,7 +1418,7 @@ class Wall(WallBase):
         return cython.cast(cython.pointer(CxxWall), self.wall).heatFlux()
 
     @heat_flux.setter
-    def heat_flux(self, q):
+    def heat_flux(self, q: _Func1Like) -> None:
         f: Func1
         if isinstance(q, Func1):
             f = q
@@ -1391,7 +1444,9 @@ class FlowDevice(ConnectorNode):
     def __cinit__(self, *args, **kwargs):
         self.dev = cython.cast(cython.pointer(CxxFlowDevice), self.node)
 
-    def __init__(self, upstream, downstream, *, name="(none)", edge_attr=None):
+    def __init__(self, upstream: ReactorBase, downstream: ReactorBase, *,
+                 name: str = "(none)",
+                 edge_attr: dict[str, str] | None = None) -> None:
         assert self.dev != cython.NULL
         self._rate_func = None
         self.edge_attr = edge_attr or {}
@@ -1402,7 +1457,7 @@ class FlowDevice(ConnectorNode):
         self._downstream = downstream
 
     @property
-    def upstream(self):
+    def upstream(self) -> ReactorBase:
         """
         Return the `Reactor` or `Reservoir` object upstream of the flow device.
 
@@ -1411,7 +1466,7 @@ class FlowDevice(ConnectorNode):
         return self._upstream
 
     @property
-    def downstream(self):
+    def downstream(self) -> ReactorBase:
         """
         Return the `Reactor` or `Reservoir` object downstream of the flow device.
 
@@ -1420,7 +1475,7 @@ class FlowDevice(ConnectorNode):
         return self._downstream
 
     @property
-    def mass_flow_rate(self):
+    def mass_flow_rate(self) -> float:
         """
         Get the mass flow rate [kg/s] through this device at the current reactor
         network time.
@@ -1428,7 +1483,7 @@ class FlowDevice(ConnectorNode):
         return self.dev.massFlowRate()
 
     @property
-    def pressure_function(self):
+    def pressure_function(self) -> float:
         r"""
         The relationship between mass flow rate and the pressure drop across a flow
         device. The mass flow rate [kg/s] is calculated given the pressure drop [Pa] and
@@ -1446,7 +1501,7 @@ class FlowDevice(ConnectorNode):
         return self.dev.evalPressureFunction()
 
     @pressure_function.setter
-    def pressure_function(self, k):
+    def pressure_function(self, k: _Func1Like) -> None:
         f: Func1
         if isinstance(k, Func1):
             f = k
@@ -1456,7 +1511,7 @@ class FlowDevice(ConnectorNode):
         self.dev.setPressureFunction(f._func)
 
     @property
-    def time_function(self):
+    def time_function(self) -> float:
         r"""
         The time dependence of a flow device. The mass flow rate [kg/s] is calculated
         for a Flow device, and multiplied by a function of time, which returns 1.0
@@ -1473,7 +1528,7 @@ class FlowDevice(ConnectorNode):
         return self.dev.evalTimeFunction()
 
     @time_function.setter
-    def time_function(self, k):
+    def time_function(self, k: _Func1Like) -> None:
         g: Func1
         if isinstance(k, Func1):
             g = k
@@ -1483,7 +1538,7 @@ class FlowDevice(ConnectorNode):
         self.dev.setTimeFunction(g._func)
 
     @property
-    def device_coefficient(self):
+    def device_coefficient(self) -> float:
         """
         Device coefficient (defined by derived class).
 
@@ -1497,10 +1552,13 @@ class FlowDevice(ConnectorNode):
         return self.dev.deviceCoefficient()
 
     @device_coefficient.setter
-    def device_coefficient(self, value: cython.double):
+    def device_coefficient(self, value: cython.double) -> None:
         self.dev.setDeviceCoefficient(value)
 
-    def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None):
+    def draw(self, graph: "_Digraph | None" = None, *,
+              graph_attr: dict[str, str] | None = None,
+              node_attr: dict[str, str] | None = None,
+              edge_attr: dict[str, str] | None = None) -> "_Digraph":
         """
         Draw as connection between upstream and downstream reactor or reservoir using
         ``graphviz``.
@@ -1553,14 +1611,16 @@ class MassFlowController(FlowDevice):
     that this capability should be used with caution, since no account is
     taken of the work required to do this.
     """
-    node_type = "MassFlowController"
+    node_type: _ClassVar[str] = "MassFlowController"
 
-    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., edge_attr=None):
+    def __init__(self, upstream: ReactorBase, downstream: ReactorBase, *,
+                 name: str = "(none)", mdot: _Func1Like = 1.,
+                 edge_attr: dict[str, str] | None = None) -> None:
         super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         self.mass_flow_rate = mdot
 
     @property
-    def mass_flow_coeff(self):
+    def mass_flow_coeff(self) -> float:
         r"""Set the mass flow rate [kg/s] through the mass flow controller
         as a constant, which may be modified by a function of time, see
         `time_function`.
@@ -1572,11 +1632,11 @@ class MassFlowController(FlowDevice):
         return cython.cast(cython.pointer(CxxMassFlowController), self.dev).getMassFlowCoeff()
 
     @mass_flow_coeff.setter
-    def mass_flow_coeff(self, value: cython.double):
+    def mass_flow_coeff(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxMassFlowController), self.dev).setMassFlowCoeff(value)
 
     @property
-    def mass_flow_rate(self):
+    def mass_flow_rate(self) -> float:
         r"""
         Set the mass flow rate [kg/s] through this controller to be either
         a constant or an arbitrary function of time. See `Func1`, or get its
@@ -1591,7 +1651,7 @@ class MassFlowController(FlowDevice):
         return self.dev.massFlowRate()
 
     @mass_flow_rate.setter
-    def mass_flow_rate(self, m):
+    def mass_flow_rate(self, m: _Func1Like) -> None:
         if isinstance(m, _numbers.Real):
             cython.cast(cython.pointer(CxxMassFlowController), self.dev).setMassFlowRate(m)
         else:
@@ -1631,9 +1691,11 @@ class Valve(FlowDevice):
     value, very small pressure differences will result in flow between the
     reactors that counteracts the pressure difference.
     """
-    node_type = "Valve"
+    node_type: _ClassVar[str] = "Valve"
 
-    def __init__(self, upstream, downstream, *, name="(none)", K=1., edge_attr=None):
+    def __init__(self, upstream: ReactorBase, downstream: ReactorBase, *,
+                 name: str = "(none)", K: _Func1Like = 1.,
+                 edge_attr: dict[str, str] | None = None) -> None:
         super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         if isinstance(K, _numbers.Real):
             self.valve_coeff = K
@@ -1642,7 +1704,7 @@ class Valve(FlowDevice):
             self.pressure_function = K
 
     @property
-    def valve_coeff(self):
+    def valve_coeff(self) -> float:
         r"""Set valve coefficient, that is, the proportionality constant between mass
         flow rate and pressure drop [kg/s/Pa].
 
@@ -1653,7 +1715,7 @@ class Valve(FlowDevice):
         return cython.cast(cython.pointer(CxxValve), self.dev).getValveCoeff()
 
     @valve_coeff.setter
-    def valve_coeff(self, value: cython.double):
+    def valve_coeff(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxValve), self.dev).setValveCoeff(value)
 
 
@@ -1677,10 +1739,11 @@ class PressureController(FlowDevice):
 
     where :math:`f` is the arbitrary function of a single argument.
     """
-    node_type = "PressureController"
+    node_type: _ClassVar[str] = "PressureController"
 
-    def __init__(self, upstream, downstream, *,
-                 name="(none)", primary=None, K=1., edge_attr=None):
+    def __init__(self, upstream: ReactorBase, downstream: ReactorBase, *,
+                 name: str = "(none)", primary: FlowDevice | None = None,
+                 K: _Func1Like = 1., edge_attr: dict[str, str] | None = None) -> None:
         super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         if primary is not None:
             self.primary = primary
@@ -1691,7 +1754,7 @@ class PressureController(FlowDevice):
             self.pressure_function = K
 
     @property
-    def pressure_coeff(self):
+    def pressure_coeff(self) -> float:
         """
         Get/set the proportionality constant :math:`K_v` [kg/s/Pa] between the
         pressure drop and the mass flow rate.
@@ -1699,11 +1762,11 @@ class PressureController(FlowDevice):
         return cython.cast(cython.pointer(CxxPressureController), self.dev).getPressureCoeff()
 
     @pressure_coeff.setter
-    def pressure_coeff(self, value: cython.double):
+    def pressure_coeff(self, value: cython.double) -> None:
         cython.cast(cython.pointer(CxxPressureController), self.dev).setPressureCoeff(value)
 
     @property
-    def primary(self):
+    def primary(self) -> _Never:
         """
         Primary `FlowDevice` used to compute this device's mass flow rate.
 
@@ -1712,7 +1775,7 @@ class PressureController(FlowDevice):
         raise NotImplementedError("PressureController.primary")
 
     @primary.setter
-    def primary(self, d: FlowDevice):
+    def primary(self, d: FlowDevice) -> None:
         self.dev.setPrimary(d._node)
 
 
@@ -1731,7 +1794,7 @@ class ReactorNet:
     >>> reactor_network = ReactorNet([r1, r2])
     >>> reactor_network.advance(time)
     """
-    def __init__(self, reactors=()):
+    def __init__(self, reactors: _Sequence[Reactor] = ()) -> None:
         self._reactors = []  # prevents premature garbage collection
         cxx_reactors: vector[shared_ptr[CxxReactorBase]]
         r: ReactorBase
@@ -1743,7 +1806,7 @@ class ReactorNet:
         self._net = CxxNewReactorNet(reactors_span)
         self.net = self._net.get()
 
-    def advance(self, t: cython.double, apply_limit: pybool = True):
+    def advance(self, t: cython.double, apply_limit: pybool = True) -> float:
         """
         Advance the state of the reactor network from the current time/distance towards
         the specified value ``t`` of the independent variable, which depends on the type
@@ -1758,14 +1821,14 @@ class ReactorNet:
         """
         return self.net.advance(t, apply_limit)
 
-    def step(self):
+    def step(self) -> float:
         """
         Take a single internal step. The time/distance after taking the step is
         returned.
         """
         return self.net.step()
 
-    def solve_steady(self, loglevel: cython.int = 0):
+    def solve_steady(self, loglevel: _LogLevel = 0) -> None:
         """
         Solve directly for the steady-state solution. This approach is generally more
         efficient than time marching to the steady-state (using the
@@ -1804,7 +1867,7 @@ class ReactorNet:
         """
         self.net.solveSteady(loglevel)
 
-    def steady_jacobian(self, rdt: cython.float = 0.0):
+    def steady_jacobian(self, rdt: cython.float = 0.0) -> _Array:
         """
         Get the Jacobian used by the steady-state solver.
 
@@ -1817,7 +1880,7 @@ class ReactorNet:
         return get_from_sparse(self.net.steadyJacobian(rdt), self.n_vars, self.n_vars)
 
     @property
-    def jacobian(self):
+    def jacobian(self) -> _Array:
         """
         Get the analytical preconditioner Jacobian for the reactor network as a
         sparse matrix.
@@ -1848,7 +1911,7 @@ class ReactorNet:
         return get_from_sparse(self.net.jacobian(), self.n_vars, self.n_vars)
 
     @property
-    def finite_difference_jacobian(self):
+    def finite_difference_jacobian(self) -> _Array:
         """
         Get the system Jacobian for the reactor network, calculated using finite
         differences, as a sparse matrix.
@@ -1868,13 +1931,13 @@ class ReactorNet:
         return get_from_sparse(self.net.finiteDifferenceJacobian(),
                                self.n_vars, self.n_vars)
 
-    def initialize(self):
+    def initialize(self) -> None:
         """
         Force initialization of the integrator after initial setup.
         """
         self.net.initialize()
 
-    def reinitialize(self):
+    def reinitialize(self) -> None:
         """
         Reinitialize the integrator after making changing to the state of the
         system. Changes to Reactor contents will automatically trigger
@@ -1883,7 +1946,7 @@ class ReactorNet:
         self.net.reinitialize()
 
     @property
-    def reactors(self):
+    def reactors(self) -> list[Reactor]:
         """
         List of all reactors that are part of the reactor network.
 
@@ -1892,14 +1955,14 @@ class ReactorNet:
         return self._reactors
 
     @property
-    def time(self):
+    def time(self) -> float:
         """
         The current time [s], for reactor networks that are solved in the time domain.
         """
         return self.net.time()
 
     @property
-    def distance(self):
+    def distance(self) -> float:
         """
         The current distance [m] along the length of the reactor network, for reactors
         that are solved as a function of space.
@@ -1907,7 +1970,7 @@ class ReactorNet:
         return self.net.distance()
 
     @property
-    def initial_time(self):
+    def initial_time(self) -> float:
         """
         The initial time of the integrator. When set, integration is restarted from this
         time using the current state as the initial condition. Default: 0.0 s.
@@ -1917,11 +1980,11 @@ class ReactorNet:
         return self.net.getInitialTime()
 
     @initial_time.setter
-    def initial_time(self, t: cython.double):
+    def initial_time(self, t: cython.double) -> None:
         self.net.setInitialTime(t)
 
     @property
-    def max_time_step(self):
+    def max_time_step(self) -> float:
         """
         Get/set the maximum time step *t* [s] that the integrator is
         allowed to use. The default value is set to zero, so that no time
@@ -1930,11 +1993,11 @@ class ReactorNet:
         return self.net.maxTimeStep()
 
     @max_time_step.setter
-    def max_time_step(self, t: cython.double):
+    def max_time_step(self, t: cython.double) -> None:
         self.net.setMaxTimeStep(t)
 
     @property
-    def max_err_test_fails(self):
+    def max_err_test_fails(self) -> _Never:
         """
         The maximum number of error test failures permitted by the CVODES integrator
         in a single step. The default is 10.
@@ -1942,11 +2005,11 @@ class ReactorNet:
         raise AttributeError("unreadable attribute 'max_err_test_fails'")
 
     @max_err_test_fails.setter
-    def max_err_test_fails(self, n):
+    def max_err_test_fails(self, n: int) -> None:
         self.net.setMaxErrTestFails(n)
 
     @property
-    def max_nonlinear_iterations(self):
+    def max_nonlinear_iterations(self) -> int:
         """
         Get/Set the maximum number of nonlinear solver iterations permitted by the
         SUNDIALS solver in one solve attempt. The default value is 4.
@@ -1954,11 +2017,11 @@ class ReactorNet:
         return self.net.integrator().maxNonlinIterations()
 
     @max_nonlinear_iterations.setter
-    def max_nonlinear_iterations(self, n: cython.int):
+    def max_nonlinear_iterations(self, n: cython.int) -> None:
         self.net.integrator().setMaxNonlinIterations(n)
 
     @property
-    def max_nonlinear_convergence_failures(self):
+    def max_nonlinear_convergence_failures(self) -> int:
         """
         Get/Set the maximum number of nonlinear solver convergence failures permitted in
         one step of the SUNDIALS integrator. The default value is 10.
@@ -1966,11 +2029,11 @@ class ReactorNet:
         return self.net.integrator().maxNonlinConvFailures()
 
     @max_nonlinear_convergence_failures.setter
-    def max_nonlinear_convergence_failures(self, n: cython.int):
+    def max_nonlinear_convergence_failures(self, n: cython.int) -> None:
         self.net.integrator().setMaxNonlinConvFailures(n)
 
     @property
-    def include_algebraic_in_error_test(self):
+    def include_algebraic_in_error_test(self) -> bool:
         """
         Get/Set whether to include algebraic variables in the in the local error test.
         Applicable only to DAE systems. The default is `True`.
@@ -1978,11 +2041,11 @@ class ReactorNet:
         return self.net.integrator().algebraicInErrorTest()
 
     @include_algebraic_in_error_test.setter
-    def include_algebraic_in_error_test(self, yesno: pybool):
+    def include_algebraic_in_error_test(self, yesno: pybool) -> None:
         self.net.integrator().includeAlgebraicInErrorTest(yesno)
 
     @property
-    def max_order(self):
+    def max_order(self) -> _Literal[1, 2, 3, 4, 5]:
         """
         Get/Set the maximum order of the linear multistep method. The default value and
         maximum is 5.
@@ -1990,11 +2053,11 @@ class ReactorNet:
         return self.net.integrator().maxOrder()
 
     @max_order.setter
-    def max_order(self, n: cython.int):
+    def max_order(self, n: _Literal[1, 2, 3, 4, 5]) -> None:
         self.net.integrator().setMaxOrder(n)
 
     @property
-    def max_steps(self):
+    def max_steps(self) -> int:
         """
         The maximum number of internal integration steps that CVODES
         is allowed to take before reaching the next output point.
@@ -2002,11 +2065,11 @@ class ReactorNet:
         return self.net.maxSteps()
 
     @max_steps.setter
-    def max_steps(self, nsteps):
+    def max_steps(self, nsteps: int) -> None:
         self.net.setMaxSteps(nsteps)
 
     @property
-    def rtol(self):
+    def rtol(self) -> float:
         """
         The relative error tolerance used while integrating the reactor
         equations.
@@ -2014,11 +2077,11 @@ class ReactorNet:
         return self.net.rtol()
 
     @rtol.setter
-    def rtol(self, tol):
+    def rtol(self, tol: float) -> None:
         self.net.setRelativeTolerance(tol)
 
     @property
-    def atol(self):
+    def atol(self) -> float:
         """
         The scalar absolute error tolerance used while integrating the reactor
         equations. This value is used for state variables that do not have
@@ -2029,36 +2092,36 @@ class ReactorNet:
         return self.net.atol()
 
     @atol.setter
-    def atol(self, tol):
+    def atol(self, tol: float | None) -> None:
         if tol is None:
             self.net.clearAbsoluteTolerance()
         else:
             self.net.setAbsoluteTolerance(tol)
 
     @property
-    def rtol_sensitivity(self):
+    def rtol_sensitivity(self) -> float:
         """
         The relative error tolerance for sensitivity analysis.
         """
         return self.net.rtolSensitivity()
 
     @rtol_sensitivity.setter
-    def rtol_sensitivity(self, tol):
+    def rtol_sensitivity(self, tol: float) -> None:
         self.net.setSensitivityTolerances(tol, -1)
 
     @property
-    def atol_sensitivity(self):
+    def atol_sensitivity(self) -> float:
         """
         The absolute error tolerance for sensitivity analysis.
         """
         return self.net.atolSensitivity()
 
     @atol_sensitivity.setter
-    def atol_sensitivity(self, tol):
+    def atol_sensitivity(self, tol: float) -> None:
         self.net.setSensitivityTolerances(-1, tol)
 
     @property
-    def verbose(self):
+    def verbose(self) -> bool:
         """
         If `True`, verbose debug information will be printed during
         integration. The default is `False`.
@@ -2066,10 +2129,10 @@ class ReactorNet:
         return pybool(self.net.verbose())
 
     @verbose.setter
-    def verbose(self, v: pybool):
+    def verbose(self, v: pybool) -> None:
         self.net.setVerbose(v)
 
-    def global_component_index(self, name, reactor: cython.int):
+    def global_component_index(self, name: str, reactor: cython.int) -> int:
         """
         Returns the index of a component named ``name`` of a reactor with index
         ``reactor`` within the global state vector. That is, this determines the
@@ -2080,7 +2143,7 @@ class ReactorNet:
         """
         return self.net.globalComponentIndex(stringify(name), reactor)
 
-    def component_name(self, i: cython.int):
+    def component_name(self, i: cython.int) -> str:
         """
         Return the name of the i-th component of the global state vector. The
         name returned includes both the name of the reactor and the specific
@@ -2088,7 +2151,8 @@ class ReactorNet:
         """
         return pystr(self.net.componentName(i))
 
-    def sensitivity(self, component, p: cython.int, r: cython.int = 0):
+    def sensitivity(self, component: int | str, p: cython.int,
+                     r: cython.int = 0) -> float:
         """
         Returns the sensitivity of the solution variable ``component`` in
         reactor ``r`` with respect to the parameter ``p``. ``component`` can be a
@@ -2103,7 +2167,7 @@ class ReactorNet:
         elif isinstance(component, (str, bytes)):
             return self.net.sensitivity(stringify(component), p, r)
 
-    def sensitivities(self):
+    def sensitivities(self) -> _Array:
         r"""
         Returns the sensitivities of all of the solution variables with respect
         to all of the registered parameters. The normalized sensitivity
@@ -2147,21 +2211,21 @@ class ReactorNet:
                 data[k, p] = self.net.sensitivity(k, p)
         return data
 
-    def sensitivity_parameter_name(self, p: cython.int):
+    def sensitivity_parameter_name(self, p: cython.int) -> str:
         """
         Name of the sensitivity parameter with index ``p``.
         """
         return pystr(self.net.sensitivityParameterName(p))
 
     @property
-    def n_sensitivity_params(self):
+    def n_sensitivity_params(self) -> int:
         """
         The number of registered sensitivity parameters.
         """
         return self.net.nparams()
 
     @property
-    def n_vars(self):
+    def n_vars(self) -> int:
         """
         The number of state variables in the system. This is the sum of the
         number of variables for each `Reactor` and `Wall` in the system.
@@ -2177,7 +2241,7 @@ class ReactorNet:
         """
         return self.net.neq()
 
-    def get_state(self):
+    def get_state(self) -> _Array:
         """
         Get the combined state vector of the reactor network.
 
@@ -2192,7 +2256,7 @@ class ReactorNet:
                                       cython.cast(cython.size_t, y.size)))
         return y
 
-    def get_state_dae(self):
+    def get_state_dae(self) -> tuple[_Array, _Array]:
         """
         Get the combined state vector and its time derivative for reactor networks
         formulated as DAEs (namely, those containing `FlowReactor`).
@@ -2211,7 +2275,7 @@ class ReactorNet:
             span[double](cython.address(cyp[0]), cython.cast(cython.size_t, yp.size)))
         return y, yp
 
-    def get_derivative(self, k):
+    def get_derivative(self, k: int) -> _Array:
         """
         Get the k-th derivative of the state vector of the reactor network with respect
         to the independent integrator variable (time/distance).
@@ -2225,7 +2289,7 @@ class ReactorNet:
         return dky
 
     @property
-    def advance_limits(self):
+    def advance_limits(self) -> _Array:
         """
         Get or set absolute limits for state changes during `ReactorNet.advance`
         (positive values are considered; negative values disable a previously
@@ -2239,7 +2303,7 @@ class ReactorNet:
         return limits
 
     @advance_limits.setter
-    def advance_limits(self, limits):
+    def advance_limits(self, limits: _ArrayLike | None) -> None:
         if limits is None:
             limits = -1. * np.ones([self.n_vars])
         elif len(limits) != self.n_vars:
@@ -2250,6 +2314,18 @@ class ReactorNet:
         self.net.setAdvanceLimits(span[double](cython.address(cdata[0]),
                                               cython.cast(cython.size_t, data.size)))
 
+    @_overload
+    def advance_to_steady_state(self, max_steps: int, residual_threshold: float,
+                                atol: float,
+                                return_residuals: _Literal[False] = False) -> None: ...
+    @_overload
+    def advance_to_steady_state(self, max_steps: int, residual_threshold: float,
+                                atol: float,
+                                return_residuals: _Literal[True]) -> _Array: ...
+    @_overload
+    def advance_to_steady_state(self, max_steps: int = 10000,
+                                residual_threshold: float = 0.0, atol: float = 0.0,
+                                return_residuals: bool = False) -> _Array | None: ...
     def advance_to_steady_state(self, max_steps: cython.int = 10000,
                                 residual_threshold: cython.double = 0.,
                                 atol: cython.double = 0.,
@@ -2312,26 +2388,26 @@ class ReactorNet:
         if return_residuals:
             return residuals[:step + 1]
 
-    def __reduce__(self):
+    def __reduce__(self) -> _Never:
         raise NotImplementedError('ReactorNet object is not picklable')
 
-    def __copy__(self):
+    def __copy__(self) -> _Never:
         raise NotImplementedError('ReactorNet object is not copyable')
 
     @property
-    def preconditioner(self):
+    def preconditioner(self) -> SystemJacobian:
         """Preconditioner associated with integrator"""
         raise AttributeError("unreadable attribute 'preconditioner'")
 
     @preconditioner.setter
-    def preconditioner(self, precon: SystemJacobian):
+    def preconditioner(self, precon: SystemJacobian) -> None:
         # set preconditioner
         self.net.setPreconditioner(precon._base)
         # set problem type as default of preconditioner
         self.linear_solver_type = precon.linear_solver_type
 
     @property
-    def linear_solver_type(self):
+    def linear_solver_type(self) -> _Literal["DENSE", "GMRES", "BAND", "DIAG"]:
         """
             The type of linear solver used in integration.
 
@@ -2346,18 +2422,20 @@ class ReactorNet:
         return pystr(self.net.linearSolverType())
 
     @linear_solver_type.setter
-    def linear_solver_type(self, linear_solver_type):
+    def linear_solver_type(
+            self, linear_solver_type: _Literal["DENSE", "GMRES", "BAND", "DIAG"]
+    ) -> None:
         self.net.setLinearSolverType(stringify(linear_solver_type))
 
     @property
-    def solver_stats(self):
+    def solver_stats(self) -> _SolverStats:
         """ODE solver stats from integrator"""
         stats: CxxAnyMap
         stats = self.net.solverStats()
         return anymap_to_py(stats)
 
     @property
-    def derivative_settings(self):
+    def derivative_settings(self) -> _Never:
         """
         Apply derivative settings to all reactors in the network.
         See also `Kinetics.derivative_settings`.
@@ -2365,13 +2443,19 @@ class ReactorNet:
         raise AttributeError("unreadable attribute 'derivative_settings'")
 
     @derivative_settings.setter
-    def derivative_settings(self, settings):
+    def derivative_settings(self, settings: "_DerivativeSettings") -> None:
         self.net.setDerivativeSettings(py_to_anymap(settings))
 
-    def draw(self, *, graph_attr=None, node_attr=None, edge_attr=None,
-             heat_flow_attr=None, mass_flow_attr=None, moving_wall_edge_attr=None,
-             surface_edge_attr=None, show_wall_velocity=True, print_state=False,
-             species=None, species_units="percent"):
+    def draw(self, *, graph_attr: dict[str, str] | None = None,
+             node_attr: dict[str, str] | None = None,
+             edge_attr: dict[str, str] | None = None,
+             heat_flow_attr: dict[str, str] | None = None,
+             mass_flow_attr: dict[str, str] | None = None,
+             moving_wall_edge_attr: dict[str, str] | None = None,
+             surface_edge_attr: dict[str, str] | None = None,
+             show_wall_velocity: bool = True, print_state: bool = False,
+             species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
+             species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
         """
         Draw as ``graphviz.graphs.DiGraph``. Connecting flow controllers and
         walls are depicted as arrows.
