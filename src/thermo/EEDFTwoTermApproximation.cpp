@@ -28,7 +28,7 @@ EEDFTwoTermApproximation::EEDFTwoTermApproximation(PlasmaPhase* s)
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
-void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
+void EEDFTwoTermApproximation::setLinearGrid(double kTe_max, size_t ncell)
 {
     m_points = ncell;
     m_gridCenter.resize(m_points);
@@ -44,7 +44,7 @@ void EEDFTwoTermApproximation::setLinearGrid(double& kTe_max, size_t& ncell)
 }
 
 
-void EEDFTwoTermApproximation::setQuadraticGrid(double& kTe_max, size_t& ncell)
+void EEDFTwoTermApproximation::setQuadraticGrid(double kTe_max, size_t ncell)
 {
     m_points = ncell;
 
@@ -67,7 +67,7 @@ void EEDFTwoTermApproximation::setQuadraticGrid(double& kTe_max, size_t& ncell)
     setGridCache();
 }
 
-void EEDFTwoTermApproximation::setGeometricGrid(double& kTe_max, size_t& ncell, double ratio)
+void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, double ratio)
 {
     m_points = ncell;
 

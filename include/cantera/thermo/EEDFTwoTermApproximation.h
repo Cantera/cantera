@@ -72,20 +72,20 @@ public:
     //! @since New in %Cantera 4.0
     //! @param kTe_max: maximum grid energy in eV
     //! @param ncell: number of cell to discretize the grid.
-    void setLinearGrid(double& kTe_max, size_t& ncell);
+    void setLinearGrid(double kTe_max, size_t ncell);
     
     //! Sets a quadratic energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
     //! @since New in %Cantera 4.0
     //! @param kTe_max: maximum grid energy in eV
     //! @param ncell: number of cell to discretize the grid.
-    void setQuadraticGrid(double& kTe_max, size_t& ncell);
+    void setQuadraticGrid(double kTe_max, size_t ncell);
 
     //! Sets a geometric energy grid for the EEDF solver, defined by the maximum energy and the number of grid cells.
     //! @since New in %Cantera 4.0
     //! @param kTe_max: maximum grid energy in eV
     //! @param ncell: number of cell to discretize the grid.
     //! @param ratio: the geometric growth ratio.
-    void setGeometricGrid(double& kTe_max, size_t& ncell, double ratio = 1.01);
+    void setGeometricGrid(double kTe_max, size_t ncell, double ratio = 1.01);
 
     //! Sets a custom energy grid for the EEDF solver, defined by the user-provided vector of energy levels.
     void setCustomGrid(span<const double> levels);
