@@ -165,6 +165,10 @@ public:
         return m_electronMobility;
     }
 
+    //! Runs the energy grid adaptation script when this feature is activated.
+    //! @since New in %Cantera 4.0
+    void adaptEnergyGrid();
+
 protected:
 
     //! Formerly options for the EEDF solver
