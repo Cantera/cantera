@@ -93,16 +93,6 @@ public:
     //! Build or rebuild the grid-dependent cache used for scattering matrices.
     void setGridCache();
 
-    //! Set the type of generated electron energy grid.
-    /*!
-     * Supported values are "linear", "quadratic", and "geometric".
-     *
-     * @param gridType  Type of grid spacing to use when generating or adapting
-     *                  the electron energy grid.
-     */
-    //! @since New in %Cantera 4.0
-    void setGridType(const string& gridType);
-
     //! Set the initial grid parameters used by generated EEDF grids.
     /*!
      * These values are used when creating linear, quadratic, or geometric grids,
@@ -111,9 +101,12 @@ public:
      * @param initialMaxEnergy  Maximum electron energy of the initial grid [eV].
      * @param nGridCells        Number of grid cells. The number of grid edges is
      *                          nGridCells + 1.
+     * @param gridType          Type of grid spacing to use when generating or adapting
+     *                          the electron energy grid. Supported values are "linear", 
+     *                          "quadratic", and "geometric".
      */
     //! @since New in %Cantera 4.0
-    void setInitialGridParameters(double initialMaxEnergy, size_t nGridCells);
+    void setInitialGridParameters(double initialMaxEnergy, size_t nGridCells, const string& gridType);
 
     //! Enable or disable automatic grid adaptation for the EEDF solver energy grid.
     //! @since New in %Cantera 4.0
