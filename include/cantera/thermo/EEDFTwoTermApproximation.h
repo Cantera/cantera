@@ -165,9 +165,6 @@ public:
         return m_electronMobility;
     }
 
-    //! Runs the energy grid adaptation script when this feature is activated.
-    //! @since New in %Cantera 4.0
-    void adaptEnergyGrid();
 
 protected:
 
@@ -193,9 +190,6 @@ protected:
 
     //! The threshold for species mole fractions
     double m_moleFractionThreshold = 0.01;
-
-    //! The first guess for the EEDF
-    std::string m_firstguess = "maxwell";
 
     //! The initial electron temperature [eV]
     double m_init_kTe = 2.0;
@@ -395,6 +389,13 @@ protected:
     //! Updates the grid according to the grid type and the new maximum energy when running grid adaptation. 
     //! @since New in %Cantera 4.0
     void updateGrid(double maxEnergy);
+
+    //! Runs the energy grid adaptation script when this feature is activated.
+    //! @since New in %Cantera 4.0
+    void adaptEnergyGrid();
+
+    //! Sets a Maxwellian distribution on the 
+    void setMaxwellianDistribution(double kTe);
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera
