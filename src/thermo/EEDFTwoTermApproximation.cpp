@@ -181,15 +181,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     updateCrossSections();
 
     if (!m_has_EEDF) {
-        if (m_firstguess == "maxwell") {
-            for (size_t j = 0; j < m_points; j++) {
-                m_f0(j) = 2.0 * std::numbers::inv_sqrtpi * pow(m_init_kTe, -3. / 2.) *
-                          exp(-m_gridCenter[j] / m_init_kTe);
-            }
-        } else {
-            throw CanteraError("EEDFTwoTermApproximation::calculateDistributionFunction",
-                               " unknown EEDF first guess");
-        }
+        setMaxwellianDistribution(m_init_kTe);
     }
 
     converge(m_f0);
@@ -218,7 +210,6 @@ void EEDFTwoTermApproximation::adaptEnergyGrid(){
     for (size_t n = 0; n < m_maxGridAdaptIterations; n++) {
         double fLeft = std::max(std::abs(m_f0(0)), fFloor);
         double fRight = std::max(std::abs(m_f0(m_points - 1)), fFloor);
-
         double decades = std::log10(fLeft) - std::log10(fRight);
 
         if (!std::isfinite(decades)) {
@@ -229,49 +220,47 @@ void EEDFTwoTermApproximation::adaptEnergyGrid(){
         if (decades < m_minEedfDecay) {
             // The right boundary is too low: the tail has not decayed enough.
             double newMaxEnergy = m_kTeMax * (1.0 + m_gridUpdateFactor);
-
             updateGrid(newMaxEnergy);
-
-            if (m_firstguess == "maxwell") {
-                for (size_t j = 0; j < m_points; j++) {
-                    m_f0(j) = 2.0 * std::numbers::inv_sqrtpi *
-                        std::pow(m_init_kTe, -1.5) *
-                        std::exp(-m_gridCenter[j] / m_init_kTe);
-                }
-                m_f0 /= norm(m_f0, m_gridCenter);
-            } else {
-                throw CanteraError("EEDFTwoTermApproximation::adaptEnergyGrid",
-                    "Unknown EEDF first guess.");
-            }
-
+            setMaxwellianDistribution(m_init_kTe);
             updateCrossSections();
             converge(m_f0);
 
         } else if (decades > m_maxEedfDecay) {
             // The right boundary is unnecessarily high.
             double newMaxEnergy = m_kTeMax / (1.0 + m_gridUpdateFactor);
-
             updateGrid(newMaxEnergy);
-
-            if (m_firstguess == "maxwell") {
-                for (size_t j = 0; j < m_points; j++) {
-                    m_f0(j) = 2.0 * std::numbers::inv_sqrtpi *
-                        std::pow(m_init_kTe, -1.5) *
-                        std::exp(-m_gridCenter[j] / m_init_kTe);
-                }
-                m_f0 /= norm(m_f0, m_gridCenter);
-            } else {
-                throw CanteraError("EEDFTwoTermApproximation::adaptEnergyGrid",
-                    "Unknown EEDF first guess.");
-            }
-
+            setMaxwellianDistribution(m_init_kTe);
             updateCrossSections();
             converge(m_f0);
-
+            
         } else {
             break;
         }
     }
+}
+
+void EEDFTwoTermApproximation::setMaxwellianDistribution(double kTe)
+{
+    if (!std::isfinite(kTe) || kTe <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setMaxwellianDistribution",
+            "Invalid electron temperature for Maxwellian EEDF: {}", kTe);
+    }
+
+    const double prefactor = 2.0 * std::numbers::inv_sqrtpi
+        * std::pow(kTe, -1.5);
+
+    for (size_t j = 0; j < m_points; j++) {
+        m_f0(j) = prefactor * std::exp(-m_gridCenter[j] / kTe);
+    }
+
+    double fNorm = norm(m_f0, m_gridCenter);
+
+    if (!std::isfinite(fNorm) || fNorm <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setMaxwellianDistribution",
+            "Invalid normalization factor for Maxwellian EEDF.");
+    }
+
+    m_f0 /= fNorm;
 }
 
 void EEDFTwoTermApproximation::converge(Eigen::VectorXd& f0)
