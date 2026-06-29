@@ -219,7 +219,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "initial_number_of_energy_grid_cells must be greater than zero.");
                 }
 
-                string energyLevelsDistribution = "Linear";
+                string energyLevelsDistribution = "linear";
                 if (eedf.hasKey("energy_levels_distribution")) {
                     energyLevelsDistribution =
                         eedf["energy_levels_distribution"].asString();
@@ -231,11 +231,11 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 m_eedfSolver->setGridType(energyLevelsDistribution);
                 m_eedfSolver->setInitialGridParameters(initialMaxEnergy, nGridCells);
 
-                if (energyLevelsDistribution == "Linear") {
+                if (energyLevelsDistribution == "linear") {
                     m_eedfSolver->setLinearGrid(initialMaxEnergy, nGridCells);
-                } else if (energyLevelsDistribution == "Quadratic") {
+                } else if (energyLevelsDistribution == "quadratic") {
                     m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
-                } else if (energyLevelsDistribution == "Geometric") {
+                } else if (energyLevelsDistribution == "geometric") {
                     if (eedf.hasKey("geometric_grid_ratio")) {
                         double ratio = eedf["geometric_grid_ratio"].asDouble();
                         if (!std::isfinite(ratio) || ratio <= 1.0) {
@@ -250,8 +250,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                     }
                 } else {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "energy_levels_distribution should be Linear, Quadratic "
-                        "or Geometric.");
+                        "energy_levels_distribution should be linear, quadratic "
+                        "or geometric.");
                 }
 
                 if (eedf.hasKey("reduced_field_threshold_before_maxwellian_Td")) {

@@ -788,11 +788,11 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
 
 void EEDFTwoTermApproximation::setGridType(const string& gridType)
 {
-    if (gridType != "Linear" &&
-        gridType != "Quadratic" &&
-        gridType != "Geometric") {
+    if (gridType != "linear" &&
+        gridType != "quadratic" &&
+        gridType != "geometric") {
         throw CanteraError("EEDFTwoTermApproximation::setGridType",
-            "Unknown energy grid type '{}'. Expected Linear, Quadratic or Geometric.",
+            "Unknown energy grid type '{}'. Expected linear, quadratic or geometric.",
             gridType);
     }
 
@@ -854,11 +854,11 @@ void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
 
     m_kTeMax = maxEnergy;
 
-    if (m_gridType == "Linear") {
+    if (m_gridType == "linear") {
         setLinearGrid(m_kTeMax, m_initialGridCells);
-    } else if (m_gridType == "Quadratic") {
+    } else if (m_gridType == "quadratic") {
         setQuadraticGrid(m_kTeMax, m_initialGridCells);
-    } else if (m_gridType == "Geometric") {
+    } else if (m_gridType == "geometric") {
         setGeometricGrid(m_kTeMax, m_initialGridCells);
     } else {
         throw CanteraError("EEDFTwoTermApproximation::updateGrid",
