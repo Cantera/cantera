@@ -785,11 +785,7 @@ void EEDFTwoTermApproximation::enableGridAdaptation(bool enabled)
     m_adaptGrid = enabled;
 }
 
-void EEDFTwoTermApproximation::setGridAdaptationParameters(bool enabled,
-                                                           double minDecayDecades,
-                                                           double maxDecayDecades,
-                                                           double updateFactor,
-                                                           size_t maxIterations)
+void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations)
 {
     if (!std::isfinite(minDecayDecades) || !std::isfinite(maxDecayDecades) ||
         minDecayDecades <= 0.0 || maxDecayDecades <= minDecayDecades) {
@@ -807,7 +803,6 @@ void EEDFTwoTermApproximation::setGridAdaptationParameters(bool enabled,
             "max_iterations must be greater than zero.");
     }
 
-    m_adaptGrid = enabled;
     m_minEedfDecay = minDecayDecades;
     m_maxEedfDecay = maxDecayDecades;
     m_gridUpdateFactor = updateFactor;
