@@ -2024,7 +2024,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property electron_mobility:
         """
-        Electron mobility (m^2/(V.s))
+        Electron mobility [m²/V/s]
 
         .. versionadded:: 4.0
         """
