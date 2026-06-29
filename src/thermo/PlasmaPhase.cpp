@@ -1012,19 +1012,6 @@ double PlasmaPhase::jouleHeatingPower() const
     return sigma * E * E; // W/m^3
 }
 
-double PlasmaPhase::inelasticPower()
-{
-    // Joule heating: sigma * E^2 [W/m^3]
-    const double qJ = jouleHeatingPower();
-    checkFinite(qJ);
-
-    // Elastic + inelastic recoil power loss [W/m^3]
-    double qElastic = elasticPowerLoss();
-    checkFinite(qElastic);
-
-    return qJ - qElastic;
-}
-
 double PlasmaPhase::intrinsicHeating()
 {
     // Joule heating: sigma * E^2 [W/m^3]
@@ -1033,6 +1020,4 @@ double PlasmaPhase::intrinsicHeating()
 
     return qJ;
 }
-
-
 }
