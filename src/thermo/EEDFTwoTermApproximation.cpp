@@ -180,14 +180,21 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     updateMoleFractions();
     updateCrossSections();
 
-    if (!m_has_EEDF) {
-        setMaxwellianDistribution(m_init_kTe);
-    }
+    const double EN = m_phase->reducedElectricField();
 
-    converge(m_f0);
+    if (EN <= m_threshold_to_maxwellian*1e-21) { // the multiplication is to have the threshold in SI units since it is defined in Td.
+        const double kTgas = Boltzmann * m_phase->temperature() / ElectronCharge;
+        setMaxwellianDistribution(kTgas);
+    } else {
+        if (!m_has_EEDF) {
+            setMaxwellianDistribution(m_init_kTe);
+        }
 
-    if (m_adaptGrid) {
-        adaptEnergyGrid();
+        converge(m_f0);
+
+        if (m_adaptGrid) {
+            adaptEnergyGrid();
+        }
     }
 
     // write the EEDF at grid edges
@@ -232,7 +239,7 @@ void EEDFTwoTermApproximation::adaptEnergyGrid(){
             setMaxwellianDistribution(m_init_kTe);
             updateCrossSections();
             converge(m_f0);
-            
+
         } else {
             break;
         }

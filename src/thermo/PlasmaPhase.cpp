@@ -254,6 +254,18 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "or Geometric.");
                 }
 
+                if (eedf.hasKey("reduced_field_threshold_before_maxwellian_Td")) {
+                    double maxwellianThreshold =
+                        eedf["reduced_field_threshold_before_maxwellian_Td"].asDouble();
+                    if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
+                        throw CanteraError("PlasmaPhase::setParameters",
+                            "reduced_field_threshold_before_maxwellian_Td must be "
+                            "finite and non-negative.");
+                    }
+                    m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
+                        maxwellianThreshold);
+                }
+
                 if (eedf.hasKey("energy_grid_adaptation")) {
                     const AnyMap adapt = eedf["energy_grid_adaptation"].as<AnyMap>();
                     bool enabled = true;

@@ -164,7 +164,12 @@ public:
     double getElectronMobility() const {
         return m_electronMobility;
     }
-
+    //! Sets the threshold in reduced electric field below which a Maxwellian is imposed instead of computing the EEDF.
+    //! @param threshold    The threshold in Td.
+    //! @since New in %Cantera 4.0
+    void setReducedElectricFieldThresholdForMaxwellian(double threshold){
+        m_threshold_to_maxwellian = threshold;
+    }
 
 protected:
 
@@ -396,6 +401,11 @@ protected:
 
     //! Sets a Maxwellian distribution on the 
     void setMaxwellianDistribution(double kTe);
+
+    //! The threshold in reduced electric field below which no EEDF will be computed,
+    //! but a Maxwellian at the gas temperature will be imposed instead. 
+    //! It is expressed in Townsend, and defaults to 1 Td. [Td]
+    double m_threshold_to_maxwellian = 1;
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera
