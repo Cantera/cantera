@@ -272,23 +272,10 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                     if (adapt.hasKey("enabled")) {
                         enabled = adapt["enabled"].asBool();
                     }
-                    double minDecayDecades = 8.0;
-                    if (adapt.hasKey("min_decay_decades")) {
-                        minDecayDecades = adapt["min_decay_decades"].asDouble();
-                    }
-                    double maxDecayDecades = 14.0;
-                    if (adapt.hasKey("max_decay_decades")) {
-                        maxDecayDecades = adapt["max_decay_decades"].asDouble();
-                    }
-                    double updateFactor = 0.25;
-                    if (adapt.hasKey("update_factor")) {
-                        updateFactor = adapt["update_factor"].asDouble();
-                    }
-                    size_t maxIterations = 5;
-                    if (adapt.hasKey("max_iterations")) {
-                        maxIterations = static_cast<size_t>(
-                            adapt["max_iterations"].asInt());
-                    }
+                    double minDecayDecades = adapt.getDouble("min_decay_decades", 8.0);
+                    double maxDecayDecades = adapt.getDouble("max_decay_decades", 14.0);
+                    double updateFactor = adapt.getDouble("update_factor", 0.25);
+                    size_t maxIterations = adapt.getInt("max_iterations", 5);
                     m_eedfSolver->enableGridAdaptation(enabled);
                     m_eedfSolver->setGridAdaptationParameters(
                         minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
