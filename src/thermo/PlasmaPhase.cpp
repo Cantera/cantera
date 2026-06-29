@@ -193,38 +193,38 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 m_eedfSolver->enableGridAdaptation(false);
                 m_nPoints = levels.size();
             } else {
-                if (!eedf.hasKey("initial_max_energy_level")) {
+                if (!eedf.hasKey("initial-max-energy-level")) {
                     throw CanteraError("PlasmaPhase::setParameters",
                         "Boltzmann-two-term requires either 'energy-levels' or "
-                        "'initial_max_energy_level'.");
+                        "'initial-max-energy-level'.");
                 }
 
-                if (!eedf.hasKey("initial_number_of_energy_grid_cells")) {
+                if (!eedf.hasKey("initial-number-of-energy-grid-cells")) {
                     throw CanteraError("PlasmaPhase::setParameters",
                         "Boltzmann-two-term requires either 'energy-levels' or "
-                        "'initial_number_of_energy_grid_cells'.");
+                        "'initial-number-of-energy-grid-cells'.");
                 }
 
-                double initialMaxEnergy = eedf["initial_max_energy_level"].asDouble();
+                double initialMaxEnergy = eedf["initial-max-energy-level"].asDouble();
                 size_t nGridCells = static_cast<size_t>(
-                    eedf["initial_number_of_energy_grid_cells"].asInt());
+                    eedf["initial-number-of-energy-grid-cells"].asInt());
 
                 if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "initial_max_energy_level must be finite and greater than zero.");
+                        "initial-max-energy-level must be finite and greater than zero.");
                 }
 
                 if (nGridCells == 0) {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "initial_number_of_energy_grid_cells must be greater than zero.");
+                        "initial-number-of-energy-grid-cells must be greater than zero.");
                 }
 
                 string energyLevelsDistribution = "linear";
-                if (eedf.hasKey("energy_levels_distribution")) {
+                if (eedf.hasKey("energy-levels-distribution")) {
                     energyLevelsDistribution =
-                        eedf["energy_levels_distribution"].asString();
+                        eedf["energy-levels-distribution"].asString();
                 } else {
-                    writelog("No energy_levels_distribution key found in the input file. "
+                    writelog("No energy-levels-distribution key found in the input file. "
                             "Defaulting to linear grid.\n");
                 }
 
@@ -236,46 +236,46 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 } else if (energyLevelsDistribution == "quadratic") {
                     m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
                 } else if (energyLevelsDistribution == "geometric") {
-                    if (eedf.hasKey("geometric_grid_ratio")) {
-                        double ratio = eedf["geometric_grid_ratio"].asDouble();
+                    if (eedf.hasKey("geometric-grid-ratio")) {
+                        double ratio = eedf["geometric-grid-ratio"].asDouble();
                         if (!std::isfinite(ratio) || ratio <= 1.0) {
                             throw CanteraError("PlasmaPhase::setParameters",
-                                "geometric_grid_ratio must be finite and greater than 1.0.");
+                                "geometric-grid-ratio must be finite and greater than 1.0.");
                         }
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
                     } else {
-                        writelog("No geometric_grid_ratio key found for geometric grid in the input file. "
+                        writelog("No geometric-grid-ratio key found for geometric grid in the input file. "
                                 "Defaulting to a geometric ratio of 1.01.\n");
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
                     }
                 } else {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "energy_levels_distribution should be linear, quadratic "
+                        "energy-levels-distribution should be linear, quadratic "
                         "or geometric.");
                 }
 
-                if (eedf.hasKey("reduced_field_threshold_before_maxwellian_Td")) {
+                if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
                     double maxwellianThreshold =
-                        eedf["reduced_field_threshold_before_maxwellian_Td"].asDouble();
+                        eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
                     if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
                         throw CanteraError("PlasmaPhase::setParameters",
-                            "reduced_field_threshold_before_maxwellian_Td must be "
+                            "reduced-field-threshold-before-maxwellian-Td must be "
                             "finite and non-negative.");
                     }
                     m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
                         maxwellianThreshold);
                 }
 
-                if (eedf.hasKey("energy_grid_adaptation")) {
-                    const AnyMap adapt = eedf["energy_grid_adaptation"].as<AnyMap>();
+                if (eedf.hasKey("energy-grid-adaptation")) {
+                    const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
                     bool enabled = true;
                     if (adapt.hasKey("enabled")) {
                         enabled = adapt["enabled"].asBool();
                     }
-                    double minDecayDecades = adapt.getDouble("min_decay_decades", 8.0);
-                    double maxDecayDecades = adapt.getDouble("max_decay_decades", 14.0);
-                    double updateFactor = adapt.getDouble("update_factor", 0.25);
-                    size_t maxIterations = adapt.getInt("max_iterations", 5);
+                    double minDecayDecades = adapt.getDouble("min-decay-decades", 8.0);
+                    double maxDecayDecades = adapt.getDouble("max-decay-decades", 14.0);
+                    double updateFactor = adapt.getDouble("update-factor", 0.25);
+                    size_t maxIterations = adapt.getInt("max-iterations", 5);
                     m_eedfSolver->enableGridAdaptation(enabled);
                     m_eedfSolver->setGridAdaptationParameters(
                         minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
