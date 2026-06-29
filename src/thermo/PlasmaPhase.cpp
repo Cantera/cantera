@@ -219,14 +219,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "grid-cell-count must be greater than zero.");
                 }
 
-                string energyLevelsDistribution = "linear";
-                if (eedf.hasKey("energy-levels-distribution")) {
-                    energyLevelsDistribution =
-                        eedf["energy-levels-distribution"].asString();
-                } else {
-                    writelog("No energy-levels-distribution key found in the input file. "
-                            "Defaulting to linear grid.\n");
-                }
+                string energyLevelsDistribution =
+                    eedf.getString("energy-levels-distribution", "linear");
 
                 m_eedfSolver->setInitialGridParameters(
                     initialMaxEnergy, nGridCells, energyLevelsDistribution);
@@ -244,8 +238,6 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         }
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
                     } else {
-                        writelog("No geometric-grid-ratio key found for geometric grid in the input file. "
-                                "Defaulting to a geometric ratio of 1.01.\n");
                         m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
                     }
                 } else {
