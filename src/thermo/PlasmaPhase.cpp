@@ -228,8 +228,8 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                             "Defaulting to linear grid.\n");
                 }
 
-                m_eedfSolver->setGridType(energyLevelsDistribution);
-                m_eedfSolver->setInitialGridParameters(initialMaxEnergy, nGridCells);
+                m_eedfSolver->setInitialGridParameters(
+                    initialMaxEnergy, nGridCells, energyLevelsDistribution);
 
                 if (energyLevelsDistribution == "linear") {
                     m_eedfSolver->setLinearGrid(initialMaxEnergy, nGridCells);

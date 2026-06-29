@@ -786,22 +786,7 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
     return numericalQuadrature(m_quadratureMethod, p, grid);
 }
 
-
-void EEDFTwoTermApproximation::setGridType(const string& gridType)
-{
-    if (gridType != "linear" &&
-        gridType != "quadratic" &&
-        gridType != "geometric") {
-        throw CanteraError("EEDFTwoTermApproximation::setGridType",
-            "Unknown energy grid type '{}'. Expected linear, quadratic or geometric.",
-            gridType);
-    }
-
-    m_gridType = gridType;
-}
-
-void EEDFTwoTermApproximation::setInitialGridParameters(double initialMaxEnergy,
-                                                        size_t nGridCells)
+void EEDFTwoTermApproximation::setInitialGridParameters(double initialMaxEnergy, size_t nGridCells, const string& gridType)
 {
     if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
         throw CanteraError("EEDFTwoTermApproximation::setInitialGridParameters",
@@ -813,8 +798,17 @@ void EEDFTwoTermApproximation::setInitialGridParameters(double initialMaxEnergy,
             "nGridCells must be greater than zero.");
     }
 
+    if (gridType != "linear" &&
+        gridType != "quadratic" &&
+        gridType != "geometric") {
+        throw CanteraError("EEDFTwoTermApproximation::setInitialGridParameters",
+            "Unknown energy grid type '{}'. Expected linear, quadratic or geometric.",
+            gridType);
+    }
+
     m_kTeMax = initialMaxEnergy;
     m_initialGridCells = nGridCells;
+    m_gridType = gridType;
 }
 
 void EEDFTwoTermApproximation::enableGridAdaptation(bool enabled)
