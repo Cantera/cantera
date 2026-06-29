@@ -95,7 +95,7 @@ public:
 
     //! Set the type of generated electron energy grid.
     /*!
-     * Supported values are "Linear", "Quadratic", and "Geometric".
+     * Supported values are "linear", "quadratic", and "geometric".
      *
      * @param gridType  Type of grid spacing to use when generating or adapting
      *                  the electron energy grid.
@@ -105,7 +105,7 @@ public:
 
     //! Set the initial grid parameters used by generated EEDF grids.
     /*!
-     * These values are used when creating Linear, Quadratic, or Geometric grids,
+     * These values are used when creating linear, quadratic, or geometric grids,
      * and are also reused during grid adaptation.
      *
      * @param initialMaxEnergy  Maximum electron energy of the initial grid [eV].
@@ -367,8 +367,8 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
     
-    //! Energy grid spacing type. Initialised with Linear but can also be Quadratic or Geometric.
-    string m_gridType = "Linear";
+    //! Energy grid spacing type. Initialised with linear but can also be quadratic or geometric.
+    string m_gridType = "linear";
 
     //! Maximum value of the energy grid in eV. Initialised at 60 eV. [eV]
     double m_kTeMax = 60.0;
