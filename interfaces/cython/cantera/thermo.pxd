@@ -216,7 +216,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void updateElectronEnergyDistribution() except +translate_exception
         double elasticPowerLoss() except +translate_exception
         double meanTemperature()
-        double electronMobility()
+        double electronMobility() except +translate_exception
 
 
 cdef extern from "cantera/cython/thermo_utils.h":
