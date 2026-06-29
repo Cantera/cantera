@@ -36,7 +36,9 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     size_t nGridCells = 301;
     m_nPoints = nGridCells + 1;
     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
-    m_electronEnergyLevels = asVectorXd(m_eedfSolver->getGridEdge());
+    auto levels = m_eedfSolver->getGridEdge();
+    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
+        levels.data(), static_cast<Eigen::Index>(levels.size()));
     m_electronEnergyDist.setZero(m_nPoints);
 }
 
@@ -278,9 +280,11 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 m_nPoints = nGridCells + 1;
             }
 
-            m_nPoints = m_eedfSolver->getGridEdge().size();
+            auto levels = m_eedfSolver->getGridEdge();
+            m_nPoints = levels.size();
+            auto nPoints = static_cast<Eigen::Index>(m_nPoints);
             m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-                m_eedfSolver->getGridEdge().data(), m_nPoints);
+                levels.data(), nPoints);
             m_electronEnergyDist.resize(m_nPoints);
             m_electronEnergyDist.setZero();
 
@@ -335,12 +339,13 @@ void PlasmaPhase::updateElectronEnergyDistribution()
             }
 
             m_nPoints = levels.size();
+            auto nPoints = static_cast<Eigen::Index>(m_nPoints);
 
             m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-                levels.data(), m_nPoints);
+                levels.data(), nPoints);
 
             m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(
-                y.data(), m_nPoints);
+                y.data(), nPoints);
 
             electronEnergyLevelChanged();
         } else {

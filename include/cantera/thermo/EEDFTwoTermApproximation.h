@@ -10,6 +10,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/eigen_sparse.h"
+#include <span>
 
 namespace Cantera
 {
@@ -134,12 +135,12 @@ public:
 
     //! Return the electron energy grid edges [eV].
     /*!
-     * The returned vector contains m_points + 1 values corresponding to cell
+     * The returned span contains m_points + 1 values corresponding to cell
      * boundaries.
      */
     //! @since New in %Cantera 4.0
-    vector<double> getGridEdge() const {
-        return m_gridEdge;
+    std::span<const double> getGridEdge() const {
+        return {m_gridEdge.data(), m_gridEdge.size()};
     }
 
     //! Return the EEDF values interpolated at the electron energy grid edges.
