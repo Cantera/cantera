@@ -89,6 +89,23 @@ cantera\.composite\.SolutionArray\.(critical_pressure|critical_temperature|cv|cv
 cantera\.composite\.SolutionArray\.(enthalpy_mole|entropy_mass|entropy_mole|equilibrium_constants|forward_rate_constants|forward_rate_constants_ddC|forward_rate_constants_ddP|forward_rate_constants_ddT|forward_rates_of_progress|forward_rates_of_progress_ddC|forward_rates_of_progress_ddP|forward_rates_of_progress_ddT|g|gibbs_mass|gibbs_mole|h|heat_production_rates|heat_release_rate|int_energy_mass|int_energy_mole|internal_pressure|isothermal_compressibility|mean_molecular_weight|mix_diff_coeffs)
 cantera\.composite\.SolutionArray\.(mix_diff_coeffs_mass|mix_diff_coeffs_mole|mobilities|multi_diff_coeffs|net_production_rates|net_production_rates_ddC|net_production_rates_ddCi|net_production_rates_ddP|net_production_rates_ddT|net_production_rates_ddX|net_rates_of_progress|net_rates_of_progress_ddC|net_rates_of_progress_ddP|net_rates_of_progress_ddT|partial_molar_cp|partial_molar_cv_TV|partial_molar_enthalpies|partial_molar_entropies|partial_molar_int_energies|partial_molar_int_energies_TV|partial_molar_volumes|phase_of_matter|reverse_rate_constants|reverse_rates_of_progress)
 cantera\.composite\.SolutionArray\.(reverse_rates_of_progress_ddC|reverse_rates_of_progress_ddP|reverse_rates_of_progress_ddT|s|sound_speed|species_viscosities|standard_cp_R|standard_enthalpies_RT|standard_entropies_R|standard_gibbs_RT|standard_int_energies_RT|thermal_conductivity|thermal_diff_coeffs|thermal_expansion_coeff|third_body_concentrations|u|v|viscosity|volume_mass|volume_mole)
+# onedim: FlameBase's gas-property pass-throughs are read-only `property` objects
+# installed at runtime by the `_array_property()`/`setattr` loops following the
+# class body (which overwrite the class body unconditionally). The merged `.py`
+# declares them as bare class-level annotations: this publishes the correct
+# *type* but cannot express read-only-ness (same constraint as
+# `composite.SolutionArray` above), so the read-write/read-only mismatch is
+# allowlisted here too.
+cantera\.onedim\.FlameBase\.(X|Y|activities|activity_coefficients|chemical_potentials|concentrations|cp|cp_mass|cp_mole|creation_rates|creation_rates_ddC|creation_rates_ddP|creation_rates_ddT|cv|cv_mass|cv_mole|delta_enthalpy|delta_entropy|delta_gibbs|delta_standard_enthalpy|delta_standard_entropy|delta_standard_gibbs|density|density_mass|density_mole|destruction_rates|destruction_rates_ddC|destruction_rates_ddP|destruction_rates_ddT|electrochemical_potentials|enthalpy_mass|enthalpy_mole|entropy_mass|entropy_mole|equilibrium_constants)
+cantera\.onedim\.FlameBase\.(forward_rate_constants|forward_rate_constants_ddC|forward_rate_constants_ddP|forward_rate_constants_ddT|forward_rates_of_progress|forward_rates_of_progress_ddC|forward_rates_of_progress_ddP|forward_rates_of_progress_ddT|g|gibbs_mass|gibbs_mole|h|heat_production_rates|heat_release_rate|int_energy|int_energy_mass|int_energy_mole|internal_pressure|isothermal_compressibility|mean_molecular_weight|mix_diff_coeffs|mix_diff_coeffs_mass|mix_diff_coeffs_mole|mobilities)
+cantera\.onedim\.FlameBase\.(net_production_rates|net_production_rates_ddC|net_production_rates_ddP|net_production_rates_ddT|net_rates_of_progress|net_rates_of_progress_ddC|net_rates_of_progress_ddP|net_rates_of_progress_ddT|partial_molar_cp|partial_molar_cv_TV|partial_molar_enthalpies|partial_molar_entropies|partial_molar_int_energies|partial_molar_int_energies_TV|partial_molar_volumes|reverse_rate_constants|reverse_rates_of_progress|reverse_rates_of_progress_ddC|reverse_rates_of_progress_ddP|reverse_rates_of_progress_ddT)
+cantera\.onedim\.FlameBase\.(s|sound_speed|species_viscosities|standard_cp_R|standard_enthalpies_RT|standard_entropies_R|standard_gibbs_RT|standard_int_energies_RT|thermal_conductivity|thermal_diff_coeffs|thermal_expansion_coeff|third_body_concentrations|viscosity|volume|volume_mass|volume_mole)
+# onedim: `DomainTooNarrow`/`FlameBlowoff` are exception classes defined inside
+# `FreeFlame.solve`/`BurnerFlame.solve` (used only to break out of the steady
+# callback). stubtest's static analysis of the merged `.py` (which doubles as
+# its own stub) sees these as class definitions and expects them at module
+# scope, but they are function-local and never bound to `cantera.onedim`.
+cantera\.onedim\.(DomainTooNarrow|FlameBlowoff)(@\d+)?
 
 # Current output of stubtest --generate-allowlist
 # TODO: Remove many of these after dropping support for mypy 1.19 and older.

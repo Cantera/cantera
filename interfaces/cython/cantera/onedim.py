@@ -1,24 +1,47 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
+from __future__ import annotations as _annotations
 
 from math import erf as _erf
 from pathlib import Path as _Path
+from collections.abc import Iterable as _Iterable, Sequence as _Sequence
+from typing import Any as _Any, Literal as _Literal, TYPE_CHECKING, cast as _cast
 import warnings
 import numpy as np
 
 from ._onedim import (
-    AxisymmetricFlow, FreeFlow, Inlet1D, Outlet1D, ReactingSurface1D, Sim1D,
-    Surface1D, SymmetryPlane1D, UnstrainedFlow,
+    AxisymmetricFlow, Domain1D, FreeFlow, FlowBase as _FlowBase, Inlet1D, Outlet1D,
+    ReactingSurface1D, Sim1D, Surface1D, SymmetryPlane1D, UnstrainedFlow,
+)
+from ._types import (
+    Array as _Array, ArrayLike as _ArrayLike, Basis as _Basis,
+    CompositionLike as _CompositionLike, LogLevel as _LogLevel,
+    RefineCriteria as _RefineCriteria,
 )
 from ._utils import CanteraError, __git_commit__, __version__, hdf_support
 from .composite import Solution, SolutionArray
+from .kinetics import Kinetics
+
+if TYPE_CHECKING:
+    from pandas import DataFrame as _DataFrame
 
 
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
 
-    def __init__(self, domains, gas, grid=None):
+    gas: Solution
+    #: Concrete type is narrowed by each subclass (FreeFlow/UnstrainedFlow/
+    #: AxisymmetricFlow), all of which are set in the subclass `__init__`
+    #: before `FlameBase.__init__` is called.
+    flame: "_FlowBase"
+
+    def __init__(
+        self,
+        domains: _Iterable[Domain1D],
+        gas: Solution,
+        grid: _ArrayLike | None = None,
+    ) -> None:
         """
         :param gas:
             object to use to evaluate all gas properties and reaction rates
@@ -28,13 +51,19 @@ class FlameBase(Sim1D):
         if grid is None:
             grid = np.linspace(0.0, 0.1, 6)
         self.flame.grid = grid
-        super().__init__(domains)
+        super().__init__(list(domains))
 
         #: The `Solution` object representing the species and reactions in the flame
         self.gas = gas
         self.flame.P = gas.P
 
-    def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
+    def set_refine_criteria(  # type: ignore[override]
+        self,
+        ratio: float = 10.0,
+        slope: float = 0.8,
+        curve: float = 0.8,
+        prune: float = 0.0,
+    ) -> None:
         """
         Set the criteria used for grid refinement.
 
@@ -59,7 +88,7 @@ class FlameBase(Sim1D):
         """
         super().set_refine_criteria(self.flame, ratio, slope, curve, prune)
 
-    def get_refine_criteria(self):
+    def get_refine_criteria(self) -> _RefineCriteria:  # type: ignore[override]
         """
         Get a dictionary of the criteria used for grid refinement. The items in
         the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
@@ -71,7 +100,13 @@ class FlameBase(Sim1D):
         """
         return super().get_refine_criteria(self.flame)
 
-    def set_initial_guess(self, *args, data=None, group=None, **kwargs):
+    def set_initial_guess(
+        self,
+        *args: _Any,
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+        **kwargs: _Any,
+    ) -> None:
         """
         Set the initial guess for the solution, and load restart data if
         provided. Derived classes extend this function to set approximations
@@ -133,7 +168,10 @@ class FlameBase(Sim1D):
             xi = (grid - grid[0]) / (grid[-1] - grid[0])
             T = arr.T
             T += (left.T - T[0]) * (1 - xi) + (right.T - T[-1]) * xi
-            arr.TP = T, self.P
+            # `SolutionArray.TP`'s setter broadcasts a scalar pressure against
+            # the array, but the published property type matches the getter
+            # (tuple[Array, Array]); see composite.py's `_state2_prop`.
+            arr.TP = T, self.P  # type: ignore[assignment]
 
             # adjust velocities
             u = arr.velocity
@@ -147,7 +185,7 @@ class FlameBase(Sim1D):
         elif isinstance(left, Inlet1D):
             # adjust temperatures
             T = arr.T
-            arr.TP = T + left.T - T[0], self.P
+            arr.TP = T + left.T - T[0], self.P  # type: ignore[assignment]
 
             # adjust velocities
             if not self.flame.domain_type.startswith("free"):
@@ -158,7 +196,7 @@ class FlameBase(Sim1D):
         self.from_array(arr)
 
     @property
-    def max_grid_points(self):
+    def max_grid_points(self) -> int:
         """
         Get/Set the maximum number of grid points used in the solution of
         this flame.
@@ -166,11 +204,11 @@ class FlameBase(Sim1D):
         return super().get_max_grid_points(self.flame)
 
     @max_grid_points.setter
-    def max_grid_points(self, npmax):
+    def max_grid_points(self, npmax: int) -> None:
         super().set_max_grid_points(self.flame, npmax)
 
     @property
-    def transport_model(self):
+    def transport_model(self) -> str:
         """
         Get/Set the transport model used by the `Solution` object used for this
         simulation.
@@ -178,20 +216,20 @@ class FlameBase(Sim1D):
         return self.flame.transport_model
 
     @transport_model.setter
-    def transport_model(self, model):
+    def transport_model(self, model: str) -> None:
         self.flame.transport_model = model
 
     @property
-    def energy_enabled(self):
+    def energy_enabled(self) -> bool:
         """ Get/Set whether or not to solve the energy equation."""
         return self.flame.energy_enabled
 
     @energy_enabled.setter
-    def energy_enabled(self, enable):
+    def energy_enabled(self, enable: bool) -> None:
         self.flame.energy_enabled = enable
 
     @property
-    def soret_enabled(self):
+    def soret_enabled(self) -> bool:
         """
         Get/Set whether or not to include diffusive mass fluxes due to the
         Soret effect. Enabling this option works only when using the
@@ -200,11 +238,11 @@ class FlameBase(Sim1D):
         return self.flame.soret_enabled
 
     @soret_enabled.setter
-    def soret_enabled(self, enable):
+    def soret_enabled(self, enable: bool) -> None:
         self.flame.soret_enabled = enable
 
     @property
-    def flux_gradient_basis(self):
+    def flux_gradient_basis(self) -> _Basis:
         """
         Get/Set whether or not species diffusive fluxes are computed with
         respect to their mass fraction gradients ('mass')
@@ -214,59 +252,59 @@ class FlameBase(Sim1D):
         return self.flame.flux_gradient_basis
 
     @flux_gradient_basis.setter
-    def flux_gradient_basis(self, basis):
+    def flux_gradient_basis(self, basis: _Basis) -> None:
         self.flame.flux_gradient_basis = basis
 
     @property
-    def radiation_enabled(self):
+    def radiation_enabled(self) -> bool:
         """
         Get/Set whether or not to include radiative heat transfer
         """
         return self.flame.radiation_enabled
 
     @radiation_enabled.setter
-    def radiation_enabled(self, enable):
+    def radiation_enabled(self, enable: bool) -> None:
         self.flame.radiation_enabled = enable
 
     @property
-    def boundary_emissivities(self):
+    def boundary_emissivities(self) -> tuple[float, float]:
         """ Set/get boundary emissivities. """
         return self.flame.boundary_emissivities
 
     @boundary_emissivities.setter
-    def boundary_emissivities(self, epsilon):
+    def boundary_emissivities(self, epsilon: _Sequence[float]) -> None:
         if len(epsilon) != 2:
             raise ValueError("Boundary emissivities must both be set at the same time.")
         self.flame.boundary_emissivities = epsilon[0], epsilon[1]
 
     @property
-    def grid(self):
+    def grid(self) -> _Array:
         """ Array of grid point positions along the flame. """
         return self.flame.grid
 
     @property
-    def P(self):
+    def P(self) -> float:
         """ Get/Set the pressure of the flame [Pa] """
         return self.flame.P
 
     @P.setter
-    def P(self, P):
+    def P(self, P: float) -> None:
         self.flame.P = P
 
     @property
-    def T(self):
+    def T(self) -> _Array:
         """ Array containing the temperature [K] at each grid point. """
         return self.flame.values("T")
 
     @property
-    def velocity(self):
+    def velocity(self) -> _Array:
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
         return self.flame.values("velocity")
 
     @property
-    def spread_rate(self):
+    def spread_rate(self) -> _Array:
         """
         Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
@@ -274,7 +312,7 @@ class FlameBase(Sim1D):
         return self.flame.values("spreadRate")
 
     @property
-    def L(self):
+    def L(self) -> _Array:
         """
         Array containing the radial pressure gradient (1/r)(dP/dr) [N/m⁴] at
         each point. Note: This value is named ``Lambda`` in the C++ code.
@@ -282,7 +320,7 @@ class FlameBase(Sim1D):
         return self.flame.values("Lambda")
 
     @property
-    def E(self):
+    def E(self) -> _Array:
         """
         Array containing the electric field strength at each point.
         Note: This value is named ``eField`` in the C++ code and is only defined if
@@ -291,7 +329,7 @@ class FlameBase(Sim1D):
         return self.flame.values("eField")
 
     @property
-    def Uo(self):
+    def Uo(self) -> _Array:
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
         each point.
@@ -301,34 +339,34 @@ class FlameBase(Sim1D):
         return self.flame.values("Uo")
 
     @property
-    def left_control_point_temperature(self):
+    def left_control_point_temperature(self) -> float:
         """ Get/Set the left control point temperature [K] """
         return self.flame.left_control_point_temperature
 
     @left_control_point_temperature.setter
-    def left_control_point_temperature(self, T):
+    def left_control_point_temperature(self, T: float) -> None:
         self.flame.left_control_point_temperature = T
 
     @property
-    def left_control_point_coordinate(self):
+    def left_control_point_coordinate(self) -> float:
         """ Get the left control point coordinate [m] """
         return self.flame.left_control_point_coordinate
 
     @property
-    def right_control_point_temperature(self):
+    def right_control_point_temperature(self) -> float:
         """ Get/Set the right control point temperature [K] """
         return self.flame.right_control_point_temperature
 
     @right_control_point_temperature.setter
-    def right_control_point_temperature(self, T):
+    def right_control_point_temperature(self, T: float) -> None:
         self.flame.right_control_point_temperature = T
 
     @property
-    def right_control_point_coordinate(self):
+    def right_control_point_coordinate(self) -> float:
         """ Get the right control point coordinate [m] """
         return self.flame.right_control_point_coordinate
 
-    def elemental_mass_fraction(self, m):
+    def elemental_mass_fraction(self, m: str) -> _Array:
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
         :math:`m` at each grid point, which is defined as:
@@ -352,7 +390,7 @@ class FlameBase(Sim1D):
             vals[i] = self.gas.elemental_mass_fraction(m)
         return vals
 
-    def elemental_mole_fraction(self, m):
+    def elemental_mole_fraction(self, m: str) -> _Array:
         r"""
         Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
         :math:`m` at each grid point, which is defined as:
@@ -375,7 +413,9 @@ class FlameBase(Sim1D):
             vals[i] = self.gas.elemental_mole_fraction(m)
         return vals
 
-    def to_array(self, domain=None, normalize=False):
+    def to_array(
+        self, domain: Domain1D | str | int | None = None, normalize: bool = False
+    ) -> SolutionArray[Solution]:
         """
         Retrieve domain data as a `SolutionArray` object.
 
@@ -390,12 +430,16 @@ class FlameBase(Sim1D):
             domain = self.flame
         else:
             domain = self.domains[self.domain_index(domain)]
-        dest = SolutionArray(domain.phase, init=False)
+        # `Domain1D.phase` is published as `_SolutionBase`, but at runtime it is
+        # always the `Solution` instance this flame was constructed with.
+        dest = SolutionArray(_cast(Solution, domain.phase), init=False)
         dest = domain._to_array(dest, normalize)
         dest.shape = dest._api_shape()
-        return dest
+        return _cast("SolutionArray[Solution]", dest)
 
-    def from_array(self, arr, domain=None):
+    def from_array(
+        self, arr: SolutionArray[Solution], domain: Domain1D | str | int | None = None
+    ) -> None:
         """
         Restore the solution vector from a `SolutionArray` object.
 
@@ -412,7 +456,7 @@ class FlameBase(Sim1D):
             domain = self.domains[self.domain_index(domain)]
         domain._from_array(arr)
 
-    def to_pandas(self, species='X', normalize=True):
+    def to_pandas(self, species: _Literal["X", "Y"] = "X", normalize: bool = True) -> _Array:
         """
         Return the solution vector as a `pandas.DataFrame`.
 
@@ -428,10 +472,12 @@ class FlameBase(Sim1D):
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        return self.to_array(normalize=normalize).to_pandas(cols=cols)
+        # Pre-existing discrepancy carried over from the stub: this actually
+        # returns a `pandas.DataFrame`, not an `Array` (see SolutionArray.to_pandas).
+        return self.to_array(normalize=normalize).to_pandas(cols=cols)  # type: ignore[return-value]
 
     @property
-    def electric_field_enabled(self):
+    def electric_field_enabled(self) -> bool:
         """
         Get/Set whether or not to solve the Poisson's equation.
 
@@ -442,22 +488,129 @@ class FlameBase(Sim1D):
         return self.flame.electric_field_enabled
 
     @electric_field_enabled.setter
-    def electric_field_enabled(self, enable):
+    def electric_field_enabled(self, enable: bool) -> None:
         self.flame.electric_field_enabled = enable
 
     @property
-    def two_point_control_enabled(self):
+    def two_point_control_enabled(self) -> bool:
         """
         Get/Set whether or not to active two point flame control.
         """
         return self.flame.two_point_control_enabled
 
     @two_point_control_enabled.setter
-    def two_point_control_enabled(self, enable):
+    def two_point_control_enabled(self, enable: bool) -> None:
         self.flame.two_point_control_enabled = enable
 
+    # Dynamically-added properties acting as pass-throughs to the `gas` object
+    # at each grid point (installed via the ``setattr``/`_array_property` loops
+    # following this class). Those loops unconditionally overwrite the class
+    # body, so a bare (unassigned) class-level annotation is safe here: it only
+    # populates ``__annotations__`` (telling type checkers/`stubtest` the
+    # published type of each dynamic attribute) without creating a `__dict__`
+    # entry that would shadow the runtime-installed `property` object. mypy
+    # strict rejects every compact read-only spelling for these properties
+    # (`Final[...]` needs an initializer, an empty-body `@property` trips
+    # `[empty-body]`), so the read-write/read-only mismatch is allowlisted in
+    # ``.mypyignore`` instead (mirrors `composite.SolutionArray`).
+    density: _Array
+    density_mass: _Array
+    density_mole: _Array
+    volume_mass: _Array
+    volume_mole: _Array
+    int_energy_mole: _Array
+    int_energy_mass: _Array
+    h: _Array
+    enthalpy_mole: _Array
+    enthalpy_mass: _Array
+    s: _Array
+    entropy_mole: _Array
+    entropy_mass: _Array
+    g: _Array
+    gibbs_mole: _Array
+    gibbs_mass: _Array
+    cv: _Array
+    cv_mole: _Array
+    cv_mass: _Array
+    cp: _Array
+    cp_mole: _Array
+    cp_mass: _Array
+    isothermal_compressibility: _Array
+    thermal_expansion_coeff: _Array
+    internal_pressure: _Array
+    sound_speed: _Array
+    viscosity: _Array
+    thermal_conductivity: _Array
+    heat_release_rate: _Array
+    mean_molecular_weight: _Array
+    volume: _Array
+    int_energy: _Array
+    X: _Array
+    Y: _Array
+    concentrations: _Array
+    partial_molar_enthalpies: _Array
+    partial_molar_entropies: _Array
+    partial_molar_int_energies: _Array
+    partial_molar_int_energies_TV: _Array
+    chemical_potentials: _Array
+    electrochemical_potentials: _Array
+    partial_molar_cp: _Array
+    partial_molar_cv_TV: _Array
+    partial_molar_volumes: _Array
+    standard_enthalpies_RT: _Array
+    standard_entropies_R: _Array
+    standard_int_energies_RT: _Array
+    standard_gibbs_RT: _Array
+    standard_cp_R: _Array
+    creation_rates: _Array
+    destruction_rates: _Array
+    net_production_rates: _Array
+    creation_rates_ddC: _Array
+    creation_rates_ddP: _Array
+    creation_rates_ddT: _Array
+    destruction_rates_ddC: _Array
+    destruction_rates_ddP: _Array
+    destruction_rates_ddT: _Array
+    net_production_rates_ddC: _Array
+    net_production_rates_ddP: _Array
+    net_production_rates_ddT: _Array
+    mix_diff_coeffs: _Array
+    mix_diff_coeffs_mass: _Array
+    mix_diff_coeffs_mole: _Array
+    thermal_diff_coeffs: _Array
+    activities: _Array
+    activity_coefficients: _Array
+    mobilities: _Array
+    species_viscosities: _Array
+    forward_rates_of_progress: _Array
+    reverse_rates_of_progress: _Array
+    net_rates_of_progress: _Array
+    equilibrium_constants: _Array
+    forward_rate_constants: _Array
+    reverse_rate_constants: _Array
+    delta_enthalpy: _Array
+    delta_gibbs: _Array
+    delta_entropy: _Array
+    delta_standard_enthalpy: _Array
+    delta_standard_gibbs: _Array
+    delta_standard_entropy: _Array
+    heat_production_rates: _Array
+    third_body_concentrations: _Array
+    forward_rate_constants_ddC: _Array
+    forward_rate_constants_ddP: _Array
+    forward_rate_constants_ddT: _Array
+    forward_rates_of_progress_ddC: _Array
+    forward_rates_of_progress_ddP: _Array
+    forward_rates_of_progress_ddT: _Array
+    net_rates_of_progress_ddC: _Array
+    net_rates_of_progress_ddP: _Array
+    net_rates_of_progress_ddT: _Array
+    reverse_rates_of_progress_ddC: _Array
+    reverse_rates_of_progress_ddP: _Array
+    reverse_rates_of_progress_ddT: _Array
 
-def _trim(docstring):
+
+def _trim(docstring: str | None) -> str:
     """Remove block indentation from a docstring."""
     if not docstring:
         return ''
@@ -478,13 +631,13 @@ def _trim(docstring):
     return '\n'.join(trimmed).strip('\n')
 
 
-def _array_property(attr, size=None):
+def _array_property(attr: str, size: str | None = None) -> property:
     """
     Generate a property that retrieves values at each point in the flame. The
     'size' argument is the attribute name of the gas object used to set the
     leading dimension of the resulting array.
     """
-    def getter(self):
+    def getter(self: "FlameBase") -> _Array:
         if size is None:
             # 1D array for scalar property
             vals = np.empty(self.flame.n_points)
@@ -503,9 +656,6 @@ def _array_property(attr, size=None):
     else:
         extradoc = "\nReturns an array of size `%s` x `n_points`." % size
 
-    basedoc = getattr(Solution, attr).__doc__
-
-
     doc = _trim(getattr(Solution, attr).__doc__) +'\n' + extradoc
     return property(getter, doc=doc)
 
@@ -520,8 +670,8 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'thermal_conductivity',
               'heat_release_rate', 'mean_molecular_weight']:
     setattr(FlameBase, _attr, _array_property(_attr))
-FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
-FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
+setattr(FlameBase, 'volume', _array_property('v'))  # avoid confusion with velocity gradient 'V'
+setattr(FlameBase, 'int_energy', _array_property('u'))  # avoid collision with velocity 'u'
 
 # Add properties with values for each species
 for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
@@ -566,7 +716,13 @@ class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    inlet: Inlet1D
+    outlet: Outlet1D
+    flame: FreeFlow
+
+    def __init__(
+        self, gas: Solution, grid: _ArrayLike | None = None, width: float | None = None
+    ) -> None:
         """
         A domain of type `FreeFlow` named 'flame' will be created to represent
         the flame. The three domains comprising the stack are stored as ``self.inlet``,
@@ -603,7 +759,12 @@ class FreeFlame(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0], data=None, group=None):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        locs: _ArrayLike = [0.0, 0.3, 0.5, 1.0],
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+    ) -> None:
         """
         Set the initial guess for the solution. By default, the adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
@@ -616,6 +777,7 @@ class FreeFlame(FlameBase):
             profiles. Profiles rise linearly between the second and third
             location. Locations are given as a fraction of the entire domain
         """
+        locs_arr: _Array = np.asarray(locs, dtype=float)
         super().set_initial_guess(data=data, group=group)
         if data is not None:
             # set fixed temperature
@@ -641,8 +803,9 @@ class FreeFlame(FlameBase):
         Yeq = self.gas.Y
         u1 = self.inlet.mdot / self.gas.density
 
-        self.flame.set_profile('velocity', locs, [u0, u0, u1, u1])
-        self.flame.set_profile('T', locs, [T0, T0, Teq, Teq])
+        locs_list: list[float] = locs_arr.tolist()
+        self.flame.set_profile('velocity', locs_list, [u0, u0, u1, u1])
+        self.flame.set_profile('T', locs_list, [T0, T0, Teq, Teq])
 
         # Pick the location of the fixed temperature point, using an existing
         # point if a reasonable choice exists
@@ -658,9 +821,11 @@ class FreeFlame(FlameBase):
 
         for n in range(self.gas.n_species):
             self.flame.set_profile(self.gas.species_name(n),
-                             locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
+                             locs_list, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(
+        self, loglevel: _LogLevel = 1, refine_grid: bool = True, auto: bool = False
+    ) -> None:
         """
         Solve the problem.
 
@@ -689,7 +854,7 @@ class FreeFlame(FlameBase):
 
         class DomainTooNarrow(Exception): pass
 
-        def check_width(t):
+        def check_width(t: float) -> float:
             T = self.T
             x = self.grid
             mRef = (T[-1] - T[0]) / (x[-1] - x[0])
@@ -724,7 +889,7 @@ class FreeFlame(FlameBase):
 
         self.set_steady_callback(original_callback)
 
-    def get_flame_speed_reaction_sensitivities(self):
+    def get_flame_speed_reaction_sensitivities(self) -> _Array:
         r"""
         Compute the normalized sensitivities of the laminar flame speed
         :math:`S_u` with respect to the reaction rate constants :math:`k_i`:
@@ -734,8 +899,8 @@ class FreeFlame(FlameBase):
             s_i = \frac{k_i}{S_u} \frac{dS_u}{dk_i}
         """
 
-        def g(sim):
-            return sim.velocity[0]
+        def g(sim: "FreeFlame") -> float:
+            return float(sim.velocity[0])
 
         Nvars = sum(D.n_components * D.n_points for D in self.domains)
 
@@ -747,17 +912,32 @@ class FreeFlame(FlameBase):
 
         Su0 = g(self)
 
-        def perturb(sim, i, dp):
+        def perturb(sim: "FreeFlame", i: int, dp: float) -> None:
             sim.gas.set_multiplier(1+dp, i)
 
-        return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
+        # Pre-existing discrepancy carried over from the stub: `Sim1D.solve_adjoint`
+        # is published as `-> None`, but at runtime it returns an `ndarray`.
+        # `perturb`'s first parameter is narrowed to `FreeFlame` (the only type
+        # actually passed here), which is compatible at runtime but not under
+        # strict variance rules for callback parameters.
+        result = self.solve_adjoint(  # type: ignore[func-returns-value]
+            perturb,  # type: ignore[arg-type]
+            self.gas.n_reactions, dgdx
+        )
+        return result / Su0  # type: ignore[operator,return-value]
 
 
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    burner: Inlet1D
+    outlet: Outlet1D
+    flame: UnstrainedFlow
+
+    def __init__(
+        self, gas: Solution, grid: _ArrayLike | None = None, width: float | None = None
+    ) -> None:
         """
         :param gas:
             `Solution` used to evaluate all gas properties and reaction rates.
@@ -796,7 +976,11 @@ class BurnerFlame(FlameBase):
         self.burner.T = gas.T
         self.burner.X = gas.X
 
-    def set_initial_guess(self, data=None, group=None):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+    ) -> None:
         """
         Set the initial guess for the solution. By default, the adiabatic flame
         temperature and equilibrium composition are computed for the burner
@@ -828,7 +1012,9 @@ class BurnerFlame(FlameBase):
             self.flame.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(
+        self, loglevel: _LogLevel = 1, refine_grid: bool = True, auto: bool = False
+    ) -> None:
         """
         Solve the problem.
 
@@ -854,7 +1040,7 @@ class BurnerFlame(FlameBase):
         class FlameBlowoff(Exception): pass
 
         if auto:
-            def check_blowoff(t):
+            def check_blowoff(t: float) -> float:
                 T = self.T
                 n = max(3, len(self.T) // 5)
 
@@ -890,7 +1076,13 @@ class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    fuel_inlet: Inlet1D
+    oxidizer_inlet: Inlet1D
+    flame: AxisymmetricFlow
+
+    def __init__(
+        self, gas: Solution, grid: _ArrayLike | None = None, width: float | None = None
+    ) -> None:
         """
         :param gas:
             `Solution` used to evaluate all gas properties and reaction rates.
@@ -925,7 +1117,12 @@ class CounterflowDiffusionFlame(FlameBase):
 
         super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
 
-    def set_initial_guess(self, data=None, group=None, mode="stoich"):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+        mode: _Literal["stoich", "linear"] = "stoich",
+    ) -> None:
         """
         Set the initial guess for the solution. By default, the initial guess
         is generated by assuming infinitely-fast chemistry. Alternatively, a
@@ -983,9 +1180,9 @@ class CounterflowDiffusionFlame(FlameBase):
             self.flame.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
             self.flame.set_profile('spreadRate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
             self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
-            self.flame.set_profile('T', zrel, T)
+            self.flame.set_profile('T', list(zrel), list(T))
             for k, spec in enumerate(self.gas.species_names):
-                self.flame.set_profile(spec, zrel, Y[:,k])
+                self.flame.set_profile(spec, list(zrel), list(Y[:, k]))
             return
 
         afr = self.gas.stoich_air_fuel_ratio(Yin_f, Yin_o, 'mass')
@@ -1028,14 +1225,16 @@ class CounterflowDiffusionFlame(FlameBase):
         self.flame.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
         self.flame.set_profile('spreadRate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.flame.set_profile("Lambda", [0.0, 1.0], [L, L])
-        self.flame.set_profile('T', zrel, T)
-        for k,spec in enumerate(self.gas.species_names):
-            self.flame.set_profile(spec, zrel, Y[:,k])
+        self.flame.set_profile('T', list(zrel), list(T))
+        for k, spec in enumerate(self.gas.species_names):
+            self.flame.set_profile(spec, list(zrel), list(Y[:, k]))
 
-    def extinct(self):
-        return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
+    def extinct(self) -> bool:
+        return bool(max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10)
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(
+        self, loglevel: _LogLevel = 1, refine_grid: bool = True, auto: bool = False
+    ) -> None:
         """
         Solve the problem.
 
@@ -1086,7 +1285,19 @@ class CounterflowDiffusionFlame(FlameBase):
                           'oxidizer inlet. Consider increasing the ratio of the '
                           'oxidizer inlet mass flux to the fuel inlet mass flux.')
 
-    def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
+    def strain_rate(
+        self,
+        definition: _Literal[
+            "mean",
+            "max",
+            "stoichiometric",
+            "potential_flow_fuel",
+            "potential_flow_oxidizer",
+        ],
+        fuel: _CompositionLike | None = None,
+        oxidizer: _CompositionLike = "O2",
+        stoich: float | None = None,
+    ) -> float:
         r"""
         Return the axial strain rate of the counterflow diffusion flame in 1/s.
 
@@ -1142,10 +1353,12 @@ class CounterflowDiffusionFlame(FlameBase):
             .. math:: a_{o} = \sqrt{-\frac{\Lambda}{\rho_{o}}}
         """
         if definition == 'mean':
-            return - (self.velocity[-1] - self.velocity[0]) / self.grid[-1]
+            return float(- (self.velocity[-1] - self.velocity[0]) / self.grid[-1])
 
         elif definition == 'max':
-            return np.max(np.abs(np.gradient(self.velocity) / np.gradient(self.grid)))
+            return float(
+                np.max(np.abs(np.gradient(self.velocity) / np.gradient(self.grid)))
+            )
 
         elif definition == 'stoichiometric':
             if fuel is None:
@@ -1153,30 +1366,40 @@ class CounterflowDiffusionFlame(FlameBase):
             if oxidizer != 'O2' and stoich is None:
                 raise KeyError('Required argument "stoich" not defined')
 
+            # `fuel`/`oxidizer` are published as `CompositionLike` (matching the
+            # stub), but `n_atoms`/`species_index` require a species name; this
+            # method only ever supports passing fuel/oxidizer by name.
+            fuel_name = _cast(str, fuel)
+            oxidizer_name = _cast(str, oxidizer)
+
             if stoich is None:
                 # oxidizer is O2
-                stoich = - 0.5 * self.gas.n_atoms(fuel, 'O')
+                stoich = - 0.5 * self.gas.n_atoms(fuel_name, 'O')
                 if 'H' in self.gas.element_names:
-                    stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
+                    stoich += 0.25 * self.gas.n_atoms(fuel_name, 'H')
                 if 'C' in self.gas.element_names:
-                    stoich += self.gas.n_atoms(fuel, 'C')
+                    stoich += self.gas.n_atoms(fuel_name, 'C')
 
             d_u_d_z = np.gradient(self.velocity) / np.gradient(self.grid)
-            phi = (self.X[self.gas.species_index(fuel)] * stoich /
-                   np.maximum(self.X[self.gas.species_index(oxidizer)], 1e-20))
+            phi = (self.X[self.gas.species_index(fuel_name)] * stoich /
+                   np.maximum(self.X[self.gas.species_index(oxidizer_name)], 1e-20))
             z_stoich = np.interp(-1., -phi, self.grid)
-            return np.abs(np.interp(z_stoich, self.grid, d_u_d_z))
+            return float(np.abs(np.interp(z_stoich, self.grid, d_u_d_z)))
 
         elif definition == 'potential_flow_fuel':
-            return np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[0])
+            return float(
+                np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[0])
+            )
 
         elif definition == 'potential_flow_oxidizer':
-            return np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[-1])
+            return float(
+                np.sqrt(- self.flame.radial_pressure_gradient[0] / self.density[-1])
+            )
 
         else:
             raise ValueError('Definition "' + definition + '" is not available')
 
-    def mixture_fraction(self, m):
+    def mixture_fraction(self, m: str | int) -> _Array:
         r"""
         Compute the mixture fraction based on element ``m`` or from the
         Bilger mixture fraction by setting ``m="Bilger"``
@@ -1222,7 +1445,7 @@ class CounterflowDiffusionFlame(FlameBase):
         return vals
 
     @property
-    def equivalence_ratio(self):
+    def equivalence_ratio(self) -> _Array:
         self.flame.update_state(0)
         Yf = self.gas.Y
         self.flame.update_state(self.flame.n_points - 1)
@@ -1239,7 +1462,17 @@ class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
 
-    def __init__(self, gas, grid=None, width=None, surface=None):
+    inlet: Inlet1D
+    flame: AxisymmetricFlow
+    surface: Surface1D | ReactingSurface1D
+
+    def __init__(
+        self,
+        gas: Solution,
+        grid: _ArrayLike | None = None,
+        width: float | None = None,
+        surface: Kinetics | None = None,
+    ) -> None:
         """
         :param gas:
             `Solution` used to evaluate all gas properties and reaction rates.
@@ -1277,7 +1510,10 @@ class ImpingingJet(FlameBase):
             self.surface.T = gas.T
         else:
             self.surface = ReactingSurface1D(name='surface', phase=surface)
-            self.surface.T = surface.T
+            # Pre-existing discrepancy carried over from the stub: `surface` is
+            # published as `Kinetics`, which does not declare `.T`, but in
+            # practice a `Solution`-like phase object is passed here.
+            self.surface.T = surface.T  # type: ignore[attr-defined]
 
         super().__init__((self.inlet, self.flame, self.surface), gas, grid)
 
@@ -1285,7 +1521,12 @@ class ImpingingJet(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self, products='inlet', data=None, group=None):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        products: _Literal["inlet", "equil"] = "inlet",
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+    ) -> None:
         """
         Set the initial guess for the solution. If products = 'equil', then
         the equilibrium composition at the adiabatic flame temperature will be
@@ -1307,18 +1548,18 @@ class ImpingingJet(FlameBase):
             self.gas.equilibrate('HP')
             Teq = self.gas.T
             Yeq = self.gas.Y
-            locs = np.array([0.0, 0.3, 0.7, 1.0])
+            locs = [0.0, 0.3, 0.7, 1.0]
             self.flame.set_profile('T', locs, [T0, Teq, Teq, self.surface.T])
             for k in range(self.gas.n_species):
                 self.flame.set_profile(self.gas.species_name(k), locs,
                                        [Y0[k], Yeq[k], Yeq[k], Yeq[k]])
         else:
-            locs = np.array([0.0, 1.0])
+            locs = [0.0, 1.0]
             self.flame.set_profile('T', locs, [T0, self.surface.T])
             for k in range(self.gas.n_species):
                 self.flame.set_profile(self.gas.species_name(k), locs, [Y0[k], Y0[k]])
 
-        locs = np.array([0.0, 1.0])
+        locs = [0.0, 1.0]
         self.flame.set_profile("velocity", locs, [u0, 0.0])
         self.flame.set_profile("spreadRate", locs, [0.0, 0.0])
 
@@ -1327,7 +1568,13 @@ class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None):
+    reactants: Inlet1D
+    products: Inlet1D
+    flame: AxisymmetricFlow
+
+    def __init__(
+        self, gas: Solution, grid: _ArrayLike | None = None, width: float | None = None
+    ) -> None:
         """
         :param gas:
             `Solution` used to evaluate all gas properties and reaction rates.
@@ -1365,7 +1612,12 @@ class CounterflowPremixedFlame(FlameBase):
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
 
-    def set_initial_guess(self, equilibrate=True, data=None, group=None):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        equilibrate: bool = True,
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+    ) -> None:
         """
         Set the initial guess for the solution.
 
@@ -1406,7 +1658,7 @@ class CounterflowPremixedFlame(FlameBase):
             raise CanteraError("Mass flow for reactants and/or products "
                                "must be positive")
 
-        locs = np.array([0.0, 0.4, 0.6, 1.0])
+        locs = [0.0, 0.4, 0.6, 1.0]
         self.flame.set_profile('T', locs, [Tu, Tu, Teq, Tb])
         for k in range(self.gas.n_species):
             self.flame.set_profile(self.gas.species_name(k), locs,
@@ -1433,7 +1685,13 @@ class CounterflowTwinPremixedFlame(FlameBase):
     """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None):
+    reactants: Inlet1D
+    flame: AxisymmetricFlow
+    products: SymmetryPlane1D
+
+    def __init__(
+        self, gas: Solution, grid: _ArrayLike | None = None, width: float | None = None
+    ) -> None:
         """
         :param gas:
             `Solution` used to evaluate all gas properties and reaction rates.
@@ -1468,7 +1726,11 @@ class CounterflowTwinPremixedFlame(FlameBase):
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
 
-    def set_initial_guess(self, data=None, group=None):
+    def set_initial_guess(  # type: ignore[override]
+        self,
+        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        group: str | None = None,
+    ) -> None:
         """
         Set the initial guess for the solution based on an equilibrium solution.
         Alternatively, a previously calculated result can be supplied as an
@@ -1492,7 +1754,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
         Tb = self.gas.T
         Yb = self.gas.Y
 
-        locs = np.array([0.0, 0.4, 0.6, 1.0])
+        locs = [0.0, 0.4, 0.6, 1.0]
         self.flame.set_profile('T', locs, [Tu, Tu, Tb, Tb])
         for k in range(self.gas.n_species):
             self.flame.set_profile(self.gas.species_name(k), locs,
