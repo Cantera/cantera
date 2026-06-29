@@ -406,6 +406,9 @@ protected:
     //! but a Maxwellian at the gas temperature will be imposed instead. 
     //! It is expressed in Townsend, and defaults to 1 Td. [Td]
     double m_threshold_to_maxwellian = 1;
+
+    //! In the case where a geometric grid is employed, this stores the corresponding geometric ratio.
+    double m_geometric_ratio = 1.01;
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera

@@ -133,6 +133,7 @@ void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, do
     }
 
     setGridCache();
+    m_geometric_ratio = ratio;
 }
 
 void EEDFTwoTermApproximation::setCustomGrid(span<const double> levels)
@@ -859,7 +860,7 @@ void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
     } else if (m_gridType == "quadratic") {
         setQuadraticGrid(m_kTeMax, m_initialGridCells);
     } else if (m_gridType == "geometric") {
-        setGeometricGrid(m_kTeMax, m_initialGridCells);
+        setGeometricGrid(m_kTeMax, m_initialGridCells, m_geometric_ratio);
     } else {
         throw CanteraError("EEDFTwoTermApproximation::updateGrid",
             "Unknown energy grid type '{}'.", m_gridType);
