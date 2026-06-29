@@ -199,15 +199,15 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "'initial-max-energy-level'.");
                 }
 
-                if (!eedf.hasKey("initial-number-of-energy-grid-cells")) {
+                if (!eedf.hasKey("grid-cell-count")) {
                     throw CanteraError("PlasmaPhase::setParameters",
                         "Boltzmann-two-term requires either 'energy-levels' or "
-                        "'initial-number-of-energy-grid-cells'.");
+                        "'grid-cell-count'.");
                 }
 
                 double initialMaxEnergy = eedf["initial-max-energy-level"].asDouble();
                 size_t nGridCells = static_cast<size_t>(
-                    eedf["initial-number-of-energy-grid-cells"].asInt());
+                    eedf["grid-cell-count"].asInt());
 
                 if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
                     throw CanteraError("PlasmaPhase::setParameters",
@@ -216,7 +216,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 
                 if (nGridCells == 0) {
                     throw CanteraError("PlasmaPhase::setParameters",
-                        "initial-number-of-energy-grid-cells must be greater than zero.");
+                        "grid-cell-count must be greater than zero.");
                 }
 
                 string energyLevelsDistribution = "linear";
