@@ -69,29 +69,67 @@ void EEDFTwoTermApproximation::setQuadraticGrid(double kTe_max, size_t ncell)
 
 void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, double ratio)
 {
-    m_points = ncell;
+    // First, a few checks to make sure the parameters are valid.
+    if (ncell == 0) {
+        throw CanteraError("EEDFTwoTermApproximation::setDirectGeometricGrid",
+            "Number of cells must be positive.");
+    }
 
+    if (kTe_max <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setDirectGeometricGrid",
+            "Maximum electron energy must be positive.");
+    }
+
+    if (ratio <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setDirectGeometricGrid",
+            "Geometric ratio must be positive.");
+    }
+
+    if (std::abs(ratio - 1.0) < 1e-14) {
+        setLinearGrid(kTe_max, ncell);
+        return;
+    }
+
+    if (ratio < 1.0) {
+        throw CanteraError("EEDFTwoTermApproximation::setDirectGeometricGrid",
+            "For an increasing direct geometric grid, ratio must be larger than 1.");
+    }
+
+    m_points = ncell;
     m_gridCenter.resize(m_points);
     m_gridEdge.resize(m_points + 1);
     m_f0.resize(m_points);
     m_f0_edge.resize(m_points + 1);
 
-    double denominator = std::pow(ratio, m_points) - 1.0;
+    // The zero-energy boundary cannot belong to a positive geometric
+    // progression. Therefore the first grid point is set to 0 and we impose a geometric
+    // progression only from the second grid point only. This second grid point is computed
+    // to match the requested number of cells, maximum grid energy and geometric ratio as follows:
+    //
+    // E_1 = kTe_max / ratio^(N - 1)
+    //
+    // and then the progression is defined as follows:
+    //
+    // E_0 = 0
+    // E_j = E_1 * ratio^(j - 1), j = 1, ..., N
+    // E_N = kTe_max
 
-    if (std::abs(denominator) < 1e-14) {
-        throw CanteraError("EEDFTwoTermApproximation::setGeometricGrid",
-            "Invalid geometric-grid ratio.");
+    m_gridEdge[0] = 0.0;
+
+    double firstEdge = kTe_max / std::pow(ratio, static_cast<double>(m_points - 1));
+
+    m_gridEdge[1] = firstEdge;
+
+    for (size_t j = 2; j <= m_points; j++) {
+        m_gridEdge[j] = m_gridEdge[j - 1] * ratio;
     }
+
+    // Avoid any rounding errors on the final boundary by imposing the requested value:
+    m_gridEdge[m_points] = kTe_max;
 
     for (size_t j = 0; j < m_points; j++) {
-        m_gridEdge[j] = kTe_max * (std::pow(ratio, j) - 1.0) / denominator;
-
-        m_gridCenter[j] = kTe_max
-            * (std::pow(ratio, j + 0.5) - 1.0)
-            / denominator;
+        m_gridCenter[j] = 0.5 * (m_gridEdge[j] + m_gridEdge[j + 1]);
     }
-
-    m_gridEdge[m_points] = kTe_max;
 
     setGridCache();
 }
