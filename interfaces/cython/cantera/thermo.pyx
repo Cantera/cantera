@@ -2032,6 +2032,79 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.electronMobility()
+    
+    def set_electron_energy_distribution_parameters(self, params):
+        """
+        Set parameters for the electron energy distribution of a plasma phase.
+
+        The argument is a mapping using the same keys as the
+        ``electron-energy-distribution`` YAML entry. The mapping must contain
+        the key ``type``. Supported values are ``isotropic``, ``discretized``,
+        and ``Boltzmann-two-term``.
+
+        Examples
+        --------
+        Isotropic distribution::
+
+            gas.set_electron_energy_distribution_parameters({
+                "type": "isotropic",
+                "shape-factor": 2.0,
+                "mean-electron-energy": "1.0 eV",
+                "energy-levels": [0.0, 0.1, 1.0, 10.0],
+            })
+
+        Discretized distribution::
+
+            gas.set_electron_energy_distribution_parameters({
+                "type": "discretized",
+                "energy-levels": [0.0, 0.1, 1.0, 10.0],
+                "distribution": [0.0, 0.2, 0.7, 0.01],
+                "normalize": False,
+            })
+
+        Boltzmann two-term distribution with a generated grid::
+
+            gas.set_electron_energy_distribution_parameters({
+                "type": "Boltzmann-two-term",
+                "initial-max-energy-level": "60 eV",
+                "grid-cell-count": 301,
+                "energy-levels-distribution": "linear",
+                "reduced-field-threshold-before-maxwellian-Td": 1.0,
+            })
+
+        Boltzmann two-term distribution with an explicit grid::
+
+            gas.set_electron_energy_distribution_parameters({
+                "type": "Boltzmann-two-term",
+                "energy-levels": [0.0, 0.1, 1.0, 10.0],
+                "reduced-field-threshold-before-maxwellian-Td": 1.0,
+            })
+
+        Boltzmann two-term distribution with grid adaptation::
+
+            gas.set_electron_energy_distribution_parameters({
+                "type": "Boltzmann-two-term",
+                "initial-max-energy-level": "60 eV",
+                "grid-cell-count": 301,
+                "energy-grid-adaptation": {
+                    "enabled": True,
+                    "min-decay-decades": 10.0,
+                    "max-decay-decades": 12.0,
+                    "update-factor": 0.1,
+                    "max-iterations": 1000,
+                },
+            })
+
+        Changing the electron energy distribution model or grid invalidates the
+        previously stored electron energy distribution.
+        
+        .. versionadded:: 4.0
+        """
+        if not self._enable_plasma:
+            raise ThermoModelMethodError(self.thermo_model)
+
+        cdef CxxAnyMap any_map = py_to_anymap(params)
+        self.plasma.setElectronEnergyDistributionParameters(any_map)
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
