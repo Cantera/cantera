@@ -71,6 +71,11 @@ cantera\.thermo\.ThermoPhase\.(_getArray1|_setArray1|_mass_factor|_mole_factor)
 cantera\._onedim\.(cnp|view)
 # reactor: compile-time-only cimports (no runtime attribute).
 cantera\.reactor\.(CxxDelegatorPtr|assign_delegates|cnp|comp_map|view)
+# delegator: compile-time-only cimports (the ``ExtensibleRate``/``ExtensibleRateData``
+# types used for ``issubclass`` and the native-Cython ``callback_*`` wrappers from
+# ``_delegate_callbacks``) plus the ``@cython.cfunc`` ``assign_delegates`` helper; all
+# are compiled away and absent from the runtime extension.
+cantera\.delegator\.(ExtensibleRate|ExtensibleRateData|assign_delegates|callback_\w+)
 # composite: `SolutionArray._phase` is published as `_P` (a TypeVar bound to
 # `ThermoPhase`, never actually `None` for an initialized instance), but its
 # runtime class-level default (inherited from `SolutionArrayBase`, before

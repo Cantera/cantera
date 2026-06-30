@@ -6,6 +6,7 @@
 
 import cython
 import inspect as _inspect
+from typing import TYPE_CHECKING
 
 from cython.cimports.cantera._utils import stringify
 from ._utils import CanteraError
@@ -14,6 +15,18 @@ from cython.cimports.cantera._delegate_callbacks import (
     callback_v, callback_v_d, callback_v_b, callback_v_AMr, callback_v_cAMr_cUSr,
     callback_v_csr_vp, callback_v_dp, callback_v_d_dp, callback_v_dp_dp_dp,
     callback_v_vETr, callback_d_vp, callback_s_sz, callback_sz_csr, callback_v_d_dp_dp)
+
+if TYPE_CHECKING:
+    # ``ExtensibleRate`` / ``ExtensibleRateData`` are cimported above for the runtime
+    # ``issubclass`` checks; the type checkers cannot follow the ``cython.cimports``
+    # path, so re-import them here under aliases (used only in the string annotations
+    # below). A plain top-level Python import would create a cycle: ``delegator`` is
+    # initialized before ``reaction`` in ``_cantera``.
+    from collections.abc import Callable as _Callable
+    from .reaction import (
+        ExtensibleRate as _ExtensibleRate,
+        ExtensibleRateData as _ExtensibleRateData,
+    )
 
 # ## Implementation for specific delegated functions
 #
@@ -202,7 +215,9 @@ def assign_delegates(obj, delegator: cython.pointer(CxxDelegator)) -> cython.int
     return 0
 
 
-def extension(*, name, data=None):
+def extension(
+    *, name: str, data: "type[_ExtensibleRateData] | None" = None
+) -> "_Callable[[type[_ExtensibleRate]], type[_ExtensibleRate]]":
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
