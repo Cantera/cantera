@@ -37,7 +37,9 @@ list(APPEND CY_OUTPUTS ${CANTERA_AGG_CPP})
 # Cython pure-Python-syntax modules use the .py extension rather than .pyx
 # (enhancement #241). Cythonize each to a .cpp here; how it is compiled depends on the
 # platform (see below).
-set(PURE_CY_MODULES jacobians)
+set(PURE_CY_MODULES _utils jacobians constants units func1 reactionpath
+                    yamlwriter speciesthermo mixture transport solutionbase
+                    kinetics reaction thermo reactor _onedim delegator)
 set(PURE_CY_OUTPUTS)
 foreach(MODULE IN LISTS PURE_CY_MODULES)
   set(CY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE}.py")
