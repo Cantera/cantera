@@ -163,7 +163,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 setMeanElectronEnergy(energy);
             } else {
                 throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                    "isotropic type requires electron-temperature key.");
+                    "isotropic type requires mean-electron-energy key.");
             }
             if (eedf.hasKey("energy-levels")) {
                 auto levels = eedf["energy-levels"].asVector<double>();
@@ -248,18 +248,6 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                         "or geometric.");
                 }
 
-                if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
-                    double maxwellianThreshold =
-                        eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
-                    if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
-                        throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                            "reduced-field-threshold-before-maxwellian-Td must be "
-                            "finite and non-negative.");
-                    }
-                    m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
-                        maxwellianThreshold);
-                }
-
                 if (eedf.hasKey("energy-grid-adaptation")) {
                     const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
                     bool enabled = true;
@@ -278,6 +266,18 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 }
 
                 m_nPoints = nGridCells + 1;
+            }
+
+            if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
+                double maxwellianThreshold =
+                    eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
+                if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
+                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
+                        "reduced-field-threshold-before-maxwellian-Td must be finite "
+                        "and non-negative.");
+                }
+                m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
+                    maxwellianThreshold);
             }
 
             auto levels = m_eedfSolver->getGridEdge();
