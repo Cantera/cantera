@@ -12,6 +12,7 @@
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/EEDFTwoTermApproximation.h"
 #include "cantera/numerics/eigen_sparse.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -384,6 +385,60 @@ public:
     void endEquilibrate() override;
 
     double intrinsicHeating() override;
+
+    //! Set parameters for the electron energy distribution.
+    /*!
+    * This method configures the electron energy distribution using the same
+    * mapping as the YAML `electron-energy-distribution` entry for a plasma phase.
+    *
+    * The mapping must contain the key `type`, which selects the electron energy
+    * distribution model. Supported values are:
+    *
+    * - `isotropic`
+    * - `discretized`
+    * - `Boltzmann-two-term`
+    *
+    * For `isotropic`, the mapping must contain:
+    *
+    * - `shape-factor`
+    * - `mean-electron-energy`
+    *
+    * The optional key `energy-levels` may be used to specify the energy grid.
+    *
+    * For `discretized`, the mapping must contain:
+    *
+    * - `energy-levels`
+    * - `distribution`
+    *
+    * The optional key `normalize` controls whether the distribution is normalized.
+    *
+    * For `Boltzmann-two-term`, the mapping may specify either:
+    *
+    * - `energy-levels`, defining an explicit fixed grid; or
+    * - `initial-max-energy-level` and `grid-cell-count`, defining a generated grid.
+    *
+    * Generated grids may also use:
+    *
+    * - `energy-levels-distribution`, with supported values `linear`, `quadratic`,
+    *   and `geometric`. If omitted, `linear` is used.
+    * - `geometric-grid-ratio`, used only for `geometric` grids.
+    * - `energy-grid-adaptation`, a mapping controlling automatic grid adaptation 
+    * (see PlasmaPhase yaml file documentation for further details on energy-grid-adaptation).
+    *
+    * The optional key `reduced-field-threshold-before-maxwellian-Td` applies to
+    * `Boltzmann-two-term` for both explicit and generated grids: below this threshold, 
+    * a gas-temperature maxwellian is imposed.
+    *
+    * This method updates the electron energy levels and electron energy
+    * distribution stored by `PlasmaPhase`. Changing the EEDF model or grid
+    * invalidates the previously stored EEDF.
+    *
+    * @param eedf  Mapping using the same keys as the YAML
+    *              `electron-energy-distribution` entry.
+    *
+    * @since New in Cantera 4.0
+    */
+    void setElectronEnergyDistributionParameters(const AnyMap& eedf);
 
 
     //! @}
