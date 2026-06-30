@@ -2,7 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from ._cantera import *
-from ._utils import __version__, __sundials_version__, __git_commit__
+from ._utils import __version__ as __version__
+from ._utils import __sundials_version__ as __sundials_version__
+from ._utils import __git_commit__ as __git_commit__
 from .composite import *
 from .liquidvapor import *
 from .onedim import *
@@ -16,4 +18,8 @@ warnings.filterwarnings('default', module='cantera')
 add_data_directory(Path(__file__).parent / "data")
 add_data_directory('.')  # Move current working directory to the front of the path
 
-del warnings, Path, np, os
+# ``np`` and ``os`` are leaked into this namespace by ``from ._cantera import *`` (the
+# aggregated submodules import them at module level); delete them so they are not
+# re-exported as ``cantera.np`` / ``cantera.os``. The type checkers do not track names
+# introduced by the star-import, hence the ignore.
+del warnings, Path, np, os  # type: ignore[name-defined]
