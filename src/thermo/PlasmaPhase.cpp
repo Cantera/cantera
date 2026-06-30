@@ -145,152 +145,173 @@ void PlasmaPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["electron-energy-distribution"] = std::move(eedf);
 }
 
+void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
+{
+    const string routineName = "PlasmaPhase::setElectronEnergyDistributionParameters";
+    if (!eedf.hasKey("type")) {
+        throw InputFileError(routineName, eedf,
+            "The electron energy distribution mapping requires the key 'type'.");
+    }
+
+    m_distributionType = eedf["type"].asString();
+    if (m_distributionType == "isotropic") {
+        if (m_eedfSolver) {
+            m_eedfSolver.reset();
+        }
+        if (eedf.hasKey("shape-factor")) {
+            setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
+        } else {
+            throw InputFileError(routineName, eedf,
+                "isotropic type requires shape-factor key.");
+        }
+        if (eedf.hasKey("mean-electron-energy")) {
+            double energy = eedf.convert("mean-electron-energy", "eV");
+            setMeanElectronEnergy(energy);
+        } else {
+            throw InputFileError(routineName, eedf,
+                "isotropic type requires mean-electron-energy key.");
+        }
+        if (eedf.hasKey("energy-levels")) {
+            auto levels = eedf["energy-levels"].asVector<double>();
+            setElectronEnergyLevels(levels);
+        }
+        setIsotropicElectronEnergyDistribution();
+    } else if (m_distributionType == "discretized") {
+        if (m_eedfSolver) {
+            m_eedfSolver.reset();
+        }
+        if (!eedf.hasKey("energy-levels")) {
+            throw InputFileError(routineName, eedf,
+                "Cannot find key energy-levels.");
+        }
+        if (!eedf.hasKey("distribution")) {
+            throw InputFileError(routineName, eedf,
+                "Cannot find key distribution.");
+        }
+        if (eedf.hasKey("normalize")) {
+            enableNormalizeElectronEnergyDist(eedf["normalize"].asBool());
+        }
+        auto levels = eedf["energy-levels"].asVector<double>();
+        auto distribution = eedf["distribution"].asVector<double>(levels.size());
+        setDiscretizedElectronEnergyDist(levels, distribution);
+    } else if (m_distributionType == "Boltzmann-two-term") {
+        if (!m_eedfSolver) {
+            m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
+        }
+
+        if (eedf.hasKey("energy-levels")) {
+            auto levels = eedf["energy-levels"].asVector<double>();
+            m_eedfSolver->setCustomGrid(levels);
+            m_eedfSolver->enableGridAdaptation(false);
+            m_nPoints = levels.size();
+        } else {
+            if (!eedf.hasKey("initial-max-energy-level")) {
+                throw InputFileError(routineName, eedf,
+                    "Boltzmann-two-term requires either 'energy-levels' or "
+                    "'initial-max-energy-level'.");
+            }
+
+            if (!eedf.hasKey("grid-cell-count")) {
+                throw InputFileError(routineName, eedf,
+                    "Boltzmann-two-term requires either 'energy-levels' or "
+                    "'grid-cell-count'.");
+            }
+
+            double initialMaxEnergy = eedf["initial-max-energy-level"].asDouble();
+            size_t nGridCells = static_cast<size_t>(eedf["grid-cell-count"].asInt());
+
+            if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
+                throw InputFileError(routineName, eedf,
+                    "initial-max-energy-level must be finite and greater than zero.");
+            }
+
+            if (nGridCells == 0) {
+                throw InputFileError(routineName, eedf,
+                    "grid-cell-count must be greater than zero.");
+            }
+
+            string energyLevelsDistribution =
+                eedf.getString("energy-levels-distribution", "linear");
+
+            m_eedfSolver->setInitialGridParameters(
+                initialMaxEnergy, nGridCells, energyLevelsDistribution);
+
+            if (energyLevelsDistribution == "linear") {
+                m_eedfSolver->setLinearGrid(initialMaxEnergy, nGridCells);
+            } else if (energyLevelsDistribution == "quadratic") {
+                m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
+            } else if (energyLevelsDistribution == "geometric") {
+                if (eedf.hasKey("geometric-grid-ratio")) {
+                    double ratio = eedf["geometric-grid-ratio"].asDouble();
+                    if (!std::isfinite(ratio) || ratio <= 1.0) {
+                        throw InputFileError(routineName, eedf,
+                            "geometric-grid-ratio must be finite and greater than 1.0.");
+                    }
+                    m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
+                } else {
+                    m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
+                }
+            } else {
+                throw InputFileError(routineName, eedf,
+                    "energy-levels-distribution should be linear, quadratic or geometric.");
+            }
+
+            if (eedf.hasKey("energy-grid-adaptation")) {
+                const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
+                bool enabled = true;
+                if (adapt.hasKey("enabled")) {
+                    enabled = adapt["enabled"].asBool();
+                }
+                double minDecayDecades = adapt.getDouble("min-decay-decades", 10.0);
+                double maxDecayDecades = adapt.getDouble("max-decay-decades", 12.0);
+                double updateFactor = adapt.getDouble("update-factor", 0.1);
+                size_t maxIterations = adapt.getInt("max-iterations", 1000);
+                m_eedfSolver->enableGridAdaptation(enabled);
+                m_eedfSolver->setGridAdaptationParameters(
+                    minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
+            } else {
+                m_eedfSolver->enableGridAdaptation(false);
+            }
+
+            m_nPoints = nGridCells + 1;
+        }
+
+        if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
+            double maxwellianThreshold =
+                eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
+            if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
+                throw InputFileError(routineName, eedf,
+                    "reduced-field-threshold-before-maxwellian-Td must be finite "
+                    "and non-negative.");
+            }
+            m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
+                maxwellianThreshold);
+        }
+
+        auto levels = m_eedfSolver->getGridEdge();
+        m_nPoints = levels.size();
+        auto nPoints = static_cast<Eigen::Index>(m_nPoints);
+        m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
+            levels.data(), nPoints);
+        m_electronEnergyDist.resize(m_nPoints);
+        m_electronEnergyDist.setZero();
+
+        checkElectronEnergyLevels();
+        electronEnergyLevelChanged();
+    } else {
+        throw InputFileError(routineName, eedf,
+            "Unknown electron energy distribution type '{}'. Supported types are "
+            "'isotropic', 'discretized', and 'Boltzmann-two-term'.",
+            m_distributionType);
+    }
+}
+
 void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     IdealGasPhase::setParameters(phaseNode, rootNode);
     if (phaseNode.hasKey("electron-energy-distribution")) {
         const AnyMap eedf = phaseNode["electron-energy-distribution"].as<AnyMap>();
-        m_distributionType = eedf["type"].asString();
-        if (m_distributionType == "isotropic") {
-            if (eedf.hasKey("shape-factor")) {
-                setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
-            } else {
-                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                    "isotropic type requires shape-factor key.");
-            }
-            if (eedf.hasKey("mean-electron-energy")) {
-                double energy = eedf.convert("mean-electron-energy", "eV");
-                setMeanElectronEnergy(energy);
-            } else {
-                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                    "isotropic type requires mean-electron-energy key.");
-            }
-            if (eedf.hasKey("energy-levels")) {
-                auto levels = eedf["energy-levels"].asVector<double>();
-                setElectronEnergyLevels(levels);
-            }
-            setIsotropicElectronEnergyDistribution();
-        } else if (m_distributionType == "discretized") {
-            if (!eedf.hasKey("energy-levels")) {
-                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                    "Cannot find key energy-levels.");
-            }
-            if (!eedf.hasKey("distribution")) {
-                throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                    "Cannot find key distribution.");
-            }
-            if (eedf.hasKey("normalize")) {
-                enableNormalizeElectronEnergyDist(eedf["normalize"].asBool());
-            }
-            auto levels = eedf["energy-levels"].asVector<double>();
-            auto distribution = eedf["distribution"].asVector<double>(levels.size());
-            setDiscretizedElectronEnergyDist(levels, distribution);
-        } else if (m_distributionType == "Boltzmann-two-term") {
-            m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
-
-            if (eedf.hasKey("energy-levels")) {
-                // User-provided grid edges are explicit and fixed by default.
-                auto levels = eedf["energy-levels"].asVector<double>();
-                m_eedfSolver->setCustomGrid(levels);
-                m_eedfSolver->enableGridAdaptation(false);
-                m_nPoints = levels.size();
-            } else {
-                if (!eedf.hasKey("initial-max-energy-level")) {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "Boltzmann-two-term requires either 'energy-levels' or "
-                        "'initial-max-energy-level'.");
-                }
-
-                if (!eedf.hasKey("grid-cell-count")) {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "Boltzmann-two-term requires either 'energy-levels' or "
-                        "'grid-cell-count'.");
-                }
-
-                double initialMaxEnergy = eedf["initial-max-energy-level"].asDouble();
-                size_t nGridCells = static_cast<size_t>(
-                    eedf["grid-cell-count"].asInt());
-
-                if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "initial-max-energy-level must be finite and greater than zero.");
-                }
-
-                if (nGridCells == 0) {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "grid-cell-count must be greater than zero.");
-                }
-
-                string energyLevelsDistribution =
-                    eedf.getString("energy-levels-distribution", "linear");
-
-                m_eedfSolver->setInitialGridParameters(
-                    initialMaxEnergy, nGridCells, energyLevelsDistribution);
-
-                if (energyLevelsDistribution == "linear") {
-                    m_eedfSolver->setLinearGrid(initialMaxEnergy, nGridCells);
-                } else if (energyLevelsDistribution == "quadratic") {
-                    m_eedfSolver->setQuadraticGrid(initialMaxEnergy, nGridCells);
-                } else if (energyLevelsDistribution == "geometric") {
-                    if (eedf.hasKey("geometric-grid-ratio")) {
-                        double ratio = eedf["geometric-grid-ratio"].asDouble();
-                        if (!std::isfinite(ratio) || ratio <= 1.0) {
-                            throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                                "geometric-grid-ratio must be finite and greater than 1.0.");
-                        }
-                        m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells, ratio);
-                    } else {
-                        m_eedfSolver->setGeometricGrid(initialMaxEnergy, nGridCells);
-                    }
-                } else {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "energy-levels-distribution should be linear, quadratic "
-                        "or geometric.");
-                }
-
-                if (eedf.hasKey("energy-grid-adaptation")) {
-                    const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
-                    bool enabled = true;
-                    if (adapt.hasKey("enabled")) {
-                        enabled = adapt["enabled"].asBool();
-                    }
-                    double minDecayDecades = adapt.getDouble("min-decay-decades", 10.0);
-                    double maxDecayDecades = adapt.getDouble("max-decay-decades", 12.0);
-                    double updateFactor = adapt.getDouble("update-factor", 0.1);
-                    size_t maxIterations = adapt.getInt("max-iterations", 1000);
-                    m_eedfSolver->enableGridAdaptation(enabled);
-                    m_eedfSolver->setGridAdaptationParameters(
-                        minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
-                } else {
-                    m_eedfSolver->enableGridAdaptation(false);
-                }
-
-                m_nPoints = nGridCells + 1;
-            }
-
-            if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
-                double maxwellianThreshold =
-                    eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
-                if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
-                    throw InputFileError("PlasmaPhase::setParameters", phaseNode,
-                        "reduced-field-threshold-before-maxwellian-Td must be finite "
-                        "and non-negative.");
-                }
-                m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
-                    maxwellianThreshold);
-            }
-
-            auto levels = m_eedfSolver->getGridEdge();
-            m_nPoints = levels.size();
-            auto nPoints = static_cast<Eigen::Index>(m_nPoints);
-            m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-                levels.data(), nPoints);
-            m_electronEnergyDist.resize(m_nPoints);
-            m_electronEnergyDist.setZero();
-
-            checkElectronEnergyLevels();
-            electronEnergyLevelChanged();
-        }
+        setElectronEnergyDistributionParameters(eedf);
     }
 
     if (rootNode.hasKey("electron-collisions")) {
