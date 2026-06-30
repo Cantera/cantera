@@ -820,7 +820,7 @@ Additional fields:
 : A mapping with the following fields:
 
   `type`
-  : String specifying the type of the electron energy distribution to be used.
+  : Required string specifying the type of the electron energy distribution to be used.
     Supported model strings are:
 
     - `isotropic`
@@ -830,24 +830,94 @@ Additional fields:
   `shape-factor`
   : A constant in the isotropic distribution, which is shown as x in the detailed
     description of this class. The value needs to be a positive number. This field is
-    only used with `isotropic`. Defaults to 2.0.
+    only used with `isotropic` and is required for it. Defaults to 2.0.
 
   `mean-electron-energy`
   : Mean electron energy of the isotropic distribution. The default sets the electron
     temperature equal gas temperature and uses the corresponding electron energy as mean
-    electron energy. This field is only used with `isotropic`.
+    electron energy. This field is only used with `isotropic` and is required for it.
 
   `energy-levels`
-  : A list of values specifying the electron energy levels. The default uses 1001 equal
-    spaced points from 0 to 1 eV.
+  : A list of values specifying the electron energy grid. For `isotropic` and
+    `discretized`, this field gives the energy levels at which the distribution is
+    represented. For `Boltzmann-two-term`, this field defines an explicit fixed
+    grid. When this field is provided with `Boltzmann-two-term`, automatic grid
+    adaptation is disabled and the generated-grid options are not used.
 
   `distribution`
-  : A list of values specifying the discretized electron energy distribution. This field
-    is only used with `discretized`.
+  : A list of values specifying the discretized electron energy distribution.
+    This field is required (and only used) with `discretized` and must have the same length as
+    `energy-levels`.
 
   `normalize`
   : A flag specifying whether normalizing the discretized electron energy distribution
     or not. This field is only used with `discretized`. Defaults to `true`.
+
+  `initial-max-energy-level`
+  : The maximum energy level to be represented by the energy grid provided by the user via parameters. 
+    Must be used in conjunction with `grid-cell-count` and `energy-levels-distribution` to define an energy
+    grid via parameters. May be bound to change automatically should the option `energy-grid-adaptation` be employed.
+    The value must be finite and greater than 0. This field must be used with `Boltzmann-two-term` if `energy-levels` 
+    is not provided.
+
+  `grid-cell-count`
+  : The number of cells to be used to define the energy grid provided via parameters. Must be used in conjunction 
+    with `initial-max-energy-level` and `energy_levels_distribution` to define an energy grid. 
+    The value must be finite and greater than 0. This field must be used with `Boltzmann-two-term` if `energy-levels` 
+    is not provided.
+
+  `energy-levels-distribution`
+  : The type of sequence defining the energy levels. Three options are accepted: "linear", "quadratic", "geometric".
+    Must be used in conjunction with `grid-cell-count` and `initial-max-energy-level` to define an energy
+    grid via parameters. This field can be used with `Boltzmann-two-term` if `energy-levels` 
+    is not provided. If not used but `grid-cell-count` and `initial-max-energy-level` are present, it defaults
+    to "linear". If the option `energy-grid-adaptation` is employed, this distribution type will be 
+    applied to every new grid iteration. In the case of a "geometric" grid, the geometric grid ratio can be controlled
+    with the yaml parameter `geometric-grid-ratio`, which defaults to 1.01 if unless otherwise specified.
+
+  `geometric-grid-ratio`
+  : Optional parameter when using `grid-cell-count`, `initial-max-energy-level`, and `energy-levels-distribution` 
+    with the "geometric" option to define the energy grid on which the EEDF will be solved. The value must be finite 
+    and greater than 1.0. Defaults to 1.01 if not specified otherwise.
+  
+  `reduced-field-threshold-before-maxwellian-Td`
+  : Optional field allowing to choose below which value of reduced electric field the solver will not try 
+    to converge anymore the EEDF but instead will impose a maxwellian distribution at the gas temperature.
+    This is necessary due to solver convergence issues at low reduced electric fields. 
+    This value must be specified in Townsend [Td]. 
+    This field is only used with `Boltzmann-two-term`. If not specified, it defaults to 1 Td.
+  
+  `energy-grid-adaptation`
+  : A mapping specifying options for automatic adaptation of the electron energy
+    grid used by the `Boltzmann-two-term` solver. Grid adaptation adjusts the
+    maximum grid energy based on the decay of the EEDF tail while keeping the
+    number of grid cells and the distribution type fixed. This feature requires 
+    the energy grid to be specified using `grid-cell-count`, 
+    `initial-max-energy-level`, and `energy-levels-distribution`. It can be
+    controlled using the following parameters:
+
+    `enabled`
+    : A boolean flag specifying whether automatic grid adaptation is enabled.
+      Defaults to `false`.
+
+    `min-decay-decades`
+    : Minimum acceptable decay of the EEDF tail, in decades. If the EEDF decays
+      by fewer decades than this value, the maximum grid energy is increased.
+      Defaults to 10.
+
+    `max-decay-decades`
+    : Maximum acceptable decay of the EEDF tail, in decades. If the EEDF decays
+      by more decades than this value, the maximum grid energy is decreased.
+      Defaults to 12.
+
+    `update-factor`
+    : Relative factor used to increase or decrease the maximum grid energy during
+      adaptation. Defaults to 0.1.
+
+    `max-iterations`
+    : Maximum number of grid adaptation iterations allowed for each EEDF solve.
+      Defaults to 1000.
+  
 
 Examples:
 
@@ -870,7 +940,67 @@ Examples:
     type: discretized
     energy-levels: [0.0, 0.1, 1.0, 10.0]
     distribution: [0.0, 0.2, 0.7, 0.01]
-    normalize: False
+    normalize: false
+
+- name: Boltzmann-two-term-electron-energy-plasma-custom-grid
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+    reduced-field-threshold-before-maxwellian-Td: 1
+
+- name: Boltzmann-two-term-electron-energy-plasma-fixed-linear-grid
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-levels-distribution: linear
+    reduced-field-threshold-before-maxwellian-Td: 1
+
+- name: Boltzmann-two-term-electron-energy-plasma-fixed-quadratic-grid
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-levels-distribution: quadratic
+    reduced-field-threshold-before-maxwellian-Td: 1
+
+- name: Boltzmann-two-term-electron-energy-plasma-fixed-geometric-grid
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-levels-distribution: geometric
+    geometric-grid-ratio: 1.01
+    reduced-field-threshold-before-maxwellian-Td: 1
+
+- name: Boltzmann-two-term-electron-energy-plasma-adaptive-linear-grid
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-levels-distribution: linear
+    reduced-field-threshold-before-maxwellian-Td: 1
+    energy-grid-adaptation:
+      enabled: true
+      min-decay-decades: 10
+      max-decay-decades: 12
+      update-factor: 0.1
+      max-iterations: 1000  
 ```
 
 See also {ref}`sec-yaml-electron-collisions`,
