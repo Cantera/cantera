@@ -82,20 +82,31 @@ HDF5_ROOT = { env = "HDF5_ROOT" }
 exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
 
 [tool.scikit-build.wheel]
-# jacobians.py is a Cython pure-Python-syntax module built as its own standalone
-# extension linked against the shared libcantera (see cantera/CMakeLists.txt). The .py
-# source ships alongside the compiled module so IDEs, type checkers, and tracebacks can
-# read it; CPython prefers the extension over the source on import.
+# jacobians.py and the other pure-Python-syntax modules listed in PURE_CY_MODULES
+# (cantera/CMakeLists.txt) are each built as their own standalone extension linked
+# against the shared libcantera. The .py source ships alongside the compiled module so
+# IDEs, type checkers, and tracebacks can read it; CPython prefers the extension over
+# the source on import.
 exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]
 
 [[tool.scikit-build.overrides]]
 # On Pyodide the pure-Python Cython modules are merged into _cantera rather than built as
 # standalone extensions, because emscripten can't share C++ RTTI/data symbols across side
 # modules (see interfaces/python_sdist/src/CMakeLists.txt). Exclude their raw .py sources
-# from the Pyodide wheel so they don't shadow the merged PyInit_<module> on import.
+# from the Pyodide wheel so they don't shadow the merged PyInit_<module> on import. This
+# list must be kept in sync with PURE_CY_MODULES in cantera/CMakeLists.txt -- a module
+# left off this list ships only as inert .py source on Pyodide (no compiled backing,
+# merged or standalone), so importing it fails as soon as it hits Cython-only syntax.
 if.env.CANTERA_PYODIDE = "ON"
 inherit.wheel.exclude = "append"
-wheel.exclude = ["cantera/jacobians.py"]
+wheel.exclude = [
+    "cantera/_utils.py", "cantera/jacobians.py", "cantera/constants.py",
+    "cantera/units.py", "cantera/func1.py", "cantera/reactionpath.py",
+    "cantera/yamlwriter.py", "cantera/speciesthermo.py", "cantera/mixture.py",
+    "cantera/transport.py", "cantera/solutionbase.py", "cantera/kinetics.py",
+    "cantera/reaction.py", "cantera/thermo.py", "cantera/reactor.py",
+    "cantera/_onedim.py", "cantera/delegator.py",
+]
 
 [tool.cibuildwheel]
 build-frontend = { name="build[uv]", args=["-vv"] }
