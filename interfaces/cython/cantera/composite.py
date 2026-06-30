@@ -21,10 +21,15 @@ from typing import (
 import numpy as np
 from typing_extensions import Never as _Never, Unpack as _Unpack, override as _override
 
-from ._cantera import (
-    DustyGasTransport, InterfaceKinetics, InterfacePhase, Kinetics, PureFluid,
-    SolutionArrayBase, ThermoPhase, Transport,
-)
+# Import the concrete base classes from their defining modules rather than from the
+# ``_cantera`` aggregator. They are needed at runtime (used as base classes below), and
+# importing them directly also lets the type checkers resolve them: a name re-exported
+# through ``_cantera``'s ``from .X import *`` chain resolves to ``Unknown`` in pyright,
+# which would make ``Solution``'s inherited ``ThermoPhase``/``Kinetics`` members invisible.
+from .kinetics import InterfaceKinetics, Kinetics
+from .solutionbase import SolutionArrayBase
+from .thermo import InterfacePhase, PureFluid, ThermoPhase
+from .transport import DustyGasTransport, Transport
 from ._types import (
     Array as _Array,
     ArrayLike as _ArrayLike,
