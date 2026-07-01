@@ -13,10 +13,6 @@ import cython
 from cython.cimports.cantera._utils import stringify, pystr
 from cython.cimports.cantera.solutionbase import _SolutionBase
 
-# ThermoPhase is imported as an ordinary Python import (under an underscore alias to keep
-# it out of ``from .mixture import *``) so that its use in the public annotations is
-# resolvable by mypy/pyright; the runtime class object also serves the isinstance check
-# in phase_index (mixture needs no C-level access to ThermoPhase).
 from .thermo import ThermoPhase as _ThermoPhase
 from ._types import (
     Array as _Array,
@@ -92,7 +88,7 @@ class Mixture:
     ) -> None:
         # The C++ object is constructed in __cinit__; this typed __init__ exists so that
         # mypy/pyright (which do not recognize Cython's __cinit__) publish the constructor
-        # signature. Construction is documented in the class docstring above.
+        # signature.
         pass
 
     def report(self, threshold: float = 1e-14) -> str:

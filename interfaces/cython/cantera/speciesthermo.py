@@ -72,10 +72,6 @@ class SpeciesThermo:
     def __init__(self, T_low: float | None = None, T_high: float | None = None,
                  P_ref: float | None = None, coeffs: _ArrayLike | None = None,
                  *args: _Any, init: bool = True, **kwargs: _Any) -> None:
-        # The C++ object is constructed in __cinit__; this typed __init__ exists so
-        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
-        # constructor signature. Constructor parameters are documented in the class
-        # docstring above.
         pass
 
     @cython.cfunc
@@ -119,8 +115,7 @@ class SpeciesThermo:
         cdata: cython.double[::1] = data
         view: span[cython.double] = span[cython.double](
             cython.address(cdata[0]), cython.cast(cython.size_t, self.n_coeffs))
-        self.spthermo.reportParameters(index, thermo_type, T_low,
-                                       T_high, P_ref, view)
+        self.spthermo.reportParameters(index, thermo_type, T_low, T_high, P_ref, view)
         return data
 
     def _check_n_coeffs(self, n: int) -> bool:

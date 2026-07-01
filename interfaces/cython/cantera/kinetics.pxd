@@ -147,4 +147,4 @@ cdef class InterfaceKinetics(Kinetics):
 
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
-cdef get_from_sparse(CxxSparseMatrix, int, int)  # by-value for pure-Python compat (no T& in annotations)
+cdef get_from_sparse(CxxSparseMatrix, int, int)

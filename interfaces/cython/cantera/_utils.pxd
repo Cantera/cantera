@@ -114,9 +114,6 @@ cdef comp_map_to_dict(Composition m)
 cdef Composition comp_map(X) except *
 
 cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=*) except *
-# Argument passed by value rather than by reference: pure-Python Cython syntax (used in
-# the paired _utils.py) cannot spell a C++ reference parameter, and these helpers only
-# read or locally mutate a copy of the argument, so by-value is behavior-preserving.
 cdef anymap_to_py(CxxAnyMap m)
 
 cdef CxxAnyValue python_to_anyvalue(item, name=*) except *

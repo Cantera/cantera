@@ -21,10 +21,10 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
     VERBATIM)
 endforeach()
 
-# The aggregator module _cantera uses pure-Python (.py) Cython syntax (enhancement #241)
-# but is always compiled INTO the merged _cantera extension (it hosts the metapath finder
-# and the PyInit functions for the .pyx modules merged here), so cythonize it alongside the
-# .pyx sources rather than as a standalone pure-Python module.
+# The aggregator module _cantera uses pure-Python (.py) Cython syntax but is always
+# compiled INTO the merged _cantera extension (it hosts the metapath finder and the
+# PyInit functions for the .pyx modules merged here), so cythonize it alongside the .pyx
+# sources rather than as a standalone pure-Python module.
 set(CANTERA_AGG_CPP "${CMAKE_CURRENT_BINARY_DIR}/_cantera.cpp")
 add_custom_command(
   OUTPUT ${CANTERA_AGG_CPP}
@@ -34,8 +34,7 @@ add_custom_command(
   VERBATIM)
 list(APPEND CY_OUTPUTS ${CANTERA_AGG_CPP})
 
-# Cython pure-Python-syntax modules use the .py extension rather than .pyx
-# (enhancement #241). Cythonize each to a .cpp here; how it is compiled depends on the
+# Cythonize each Cython pure-Python-syntax modules. How they are compiled depends on the
 # platform (see below).
 set(PURE_CY_MODULES _utils jacobians constants units func1 reactionpath
                     yamlwriter speciesthermo mixture transport solutionbase
@@ -54,12 +53,12 @@ foreach(MODULE IN LISTS PURE_CY_MODULES)
 endforeach()
 
 if(CANTERA_PYODIDE)
-  # On Pyodide the standalone-extension + shared-libcantera layout isn't usable (see
-  # src/CMakeLists.txt), so compile the pure-Python modules INTO the merged _cantera
-  # extension, just like the .pyx modules. cantera.<module> is then provided by
-  # PyInit_<module> within _cantera and resolved by the CythonPackageMetaPathFinder in
-  # _cantera.pyx; the raw .py is excluded from the Pyodide wheel (see pyproject.toml.in)
-  # so it doesn't shadow the merged module on import.
+  # On Pyodide the standalone-extension + shared-libcantera layout isn't usable,
+  # so compile the pure-Python modules INTO the merged _cantera extension.
+  # cantera.<module> is then provided by PyInit_<module> within _cantera and
+  # resolved by the CythonPackageMetaPathFinder in _cantera.py; the raw .py is excluded
+  # from the Pyodide wheel (see pyproject.toml.in) so it doesn't shadow the merged
+  # module on import.
   list(APPEND CY_OUTPUTS ${PURE_CY_OUTPUTS})
 endif()
 

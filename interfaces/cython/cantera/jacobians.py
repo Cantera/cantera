@@ -4,10 +4,8 @@
 # distutils: language = c++
 # cython: language_level=3
 
-# External names are imported under "private" (underscore-prefixed) aliases so that they
-# are not re-exported into the top-level ``cantera`` namespace via ``from .jacobians
-# import *`` (checked by test_namespace_cleanliness), matching the convention used in the
-# other Cython submodules.
+# External names are imported under "private" aliases so that they are not re-exported
+# into the top-level ``cantera`` namespace via ``from .jacobians import *``
 from typing import Any as _Any, ClassVar as _ClassVar, Literal as _Literal
 
 import cython
@@ -166,9 +164,6 @@ class AdaptivePreconditioner(EigenSparseJacobian):
 
     @ilut_fill_factor.setter
     def ilut_fill_factor(self, val: int) -> None:
-        # NOTE: in pure-Python Cython, argument annotations are real C types, so this
-        # must match the C++ signature ``setIlutFillFactor(int)`` (the old .pyi loosely
-        # typed it ``float``, which is fine as a stub but a compile error as source).
         cython.cast(
             cython.pointer(CxxAdaptivePreconditioner), self.jac
         ).setIlutFillFactor(val)

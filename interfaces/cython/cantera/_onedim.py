@@ -41,15 +41,12 @@ if TYPE_CHECKING:
 
 # Parametrized generics (tuple[...]) are coerced by Cython's annotation_typing just
 # like bare builtins, rejecting a list where a tuple was published; route through a
-# TypeAlias (not coerced) to keep the runtime accepting any sequence, as before
-# (thermo.py's _TPQSetter precedent).
+# TypeAlias (not coerced) to keep the runtime accepting any sequence
 _BoundsPair: _TypeAlias = tuple[float, float]
 
 # `anymap_to_py` may return an `AnyMap` (a `dict` subclass) rather than a plain
 # `dict`; an inline `dict[str, str]` return annotation is coerced by Cython 3 and
-# rejects that subclass instance at runtime (regression caught by
-# test_onedim.py's save/restore tests). Route through a TypeAlias (not coerced),
-# matching the `_BoundsPair` precedent above.
+# rejects that subclass instance at runtime. Route through a TypeAlias (not coerced).
 _RestoreMetadata: _TypeAlias = dict[str, str]
 
 _ToleranceSettings = _TypedDict(
@@ -242,8 +239,6 @@ class Domain1D:
     def grid(self) -> _Array:
         """The grid for this domain."""
         grid_span: span[const_double] = self.domain.grid()
-        # Non-owning memoryview over the C++ span data (pure-Python spelling of the
-        # .pyx `<double[:grid_span.size()]> grid_span.data()` sized pointer cast).
         garr: view.array = view.array(shape=(grid_span.size(),),
                                       itemsize=cython.sizeof(cython.double), format="d",
                                       allocate_buffer=False)
@@ -376,9 +371,6 @@ class Domain1D:
         """
         self.domain.setFlatProfile(stringify(component), value)
 
-    # Parametrized generics (tuple[...]) are coerced by Cython's annotation_typing
-    # just like bare builtins; route through a TypeAlias to avoid rejecting e.g. a
-    # list where a tuple was published (see thermo.py's _TPQSetter precedent).
     def set_bounds(
         self,
         *,

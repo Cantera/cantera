@@ -32,9 +32,6 @@ class ReactionPathDiagram:
         according to the net reaction rates determined by the `Kinetics` object
         ``phase``.
         """
-        # The C++ diagram is constructed in __cinit__; this typed __init__ exists so
-        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
-        # constructor signature.
 
     @property
     def show_details(self) -> bool:

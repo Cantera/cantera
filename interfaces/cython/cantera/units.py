@@ -50,9 +50,6 @@ class Units:
             self.units = CxxUnits(stringify(name), True)
 
     def __init__(self, name: str | None = None) -> None:
-        # The C++ object is constructed in __cinit__; this typed __init__ exists so
-        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
-        # constructor signature.
         pass
 
     def __repr__(self) -> str:
@@ -107,12 +104,7 @@ class UnitStack:
     @cython.cfunc
     @staticmethod
     def copy(other: CxxUnitStack) -> UnitStack:
-        """Copy a C++ UnitStack object to a Python object.
-
-        Note: the ``&`` (C++ reference) was dropped for pure-Python Cython compatibility
-        (pure-Python syntax has no spelling for reference parameters). Rvalue callers
-        get copy elision; ``copy()`` already copies into a new ``CxxUnitStack``.
-        """
+        """Copy a C++ UnitStack object to a Python object."""
         stack: UnitStack = UnitStack()
         stack.stack = CxxUnitStack(other)
         return stack
@@ -165,9 +157,6 @@ class UnitSystem:
             self.units = units
 
     def __init__(self, units: _UnitDict | None = None) -> None:
-        # The C++ object is constructed in __cinit__; this typed __init__ exists so
-        # that mypy/pyright (which do not recognize Cython's __cinit__) publish the
-        # constructor signature.
         pass
 
     def __repr__(self) -> str:

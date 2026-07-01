@@ -416,7 +416,7 @@ class BlowersMaselRate(ArrheniusRateBase):
         input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def _from_dict(self, input_data: _ReactionRateInput[_BlowersMaselParameters]) -> None:
         self._rate = make_shared[CxxBlowersMaselRate](py_to_anymap(input_data))
@@ -502,7 +502,7 @@ class TwoTempPlasmaRate(ArrheniusRateBase):
         input_data: _ReactionRateInput[_TwoTempPlasmaParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def __call__(self, temperature: cython.double, elec_temp: cython.double) -> float:
         """
@@ -568,7 +568,7 @@ class ElectronCollisionPlasmaRate(ReactionRate):
         input_data: _ReactionRateInput[_ElectronCollisionPlasmaParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def _from_dict(
         self, input_data: _ReactionRateInput[_ElectronCollisionPlasmaParameters]
@@ -665,7 +665,7 @@ class FalloffRate(ReactionRate):
         input_data: _ReactionRateInput[_FalloffRateInput] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def __call__(self, temperature: cython.double, concm: cython.double) -> float:
         """
@@ -882,7 +882,7 @@ class PlogRate(ReactionRate):
         input_data: _PlogRateInput | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def __call__(self, temperature: cython.double, pressure: cython.double) -> float:
         """
@@ -990,7 +990,7 @@ class ChebyshevRate(ReactionRate):
         input_data: _ChebyshevRateInput | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def __call__(self, temperature: cython.double, pressure: cython.double) -> float:
         """
@@ -1050,10 +1050,7 @@ class ChebyshevRate(ReactionRate):
         2D array of Chebyshev coefficients where rows and columns correspond to
         temperature and pressure dimensions over which the Chebyshev fit is computed.
         """
-        # Must split declaration and assignment: 'data()' returns CxxArray2D&
-        # and assigning it to a typed local copies the value into a CxxArray2D
-        cxxcoeffs: CxxArray2D
-        cxxcoeffs = self.cxx_object().data()
+        cxxcoeffs: CxxArray2D = self.cxx_object().data()
         c = np.fromiter(cxxcoeffs.data(), np.double)
         return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
@@ -1087,7 +1084,7 @@ class CustomRate(ReactionRate):
                     f"Cannot convert input with type '{type(k)}' to rate expression.")
 
     def __init__(self, k: _Func1Like | None = None, init: bool = True) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     @cython.cfunc
     def cxx_object(self) -> cython.pointer(CxxCustomFunc1Rate):
@@ -1359,7 +1356,7 @@ class InterfaceArrheniusRate(InterfaceRateBase):
         input_data: _ReactionRateInput[_ArrheniusParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def _from_dict(self, input_data: _ReactionRateInput[_ArrheniusParameters]) -> None:
         self._rate = make_shared[CxxInterfaceArrheniusRate](py_to_anymap(input_data))
@@ -1402,7 +1399,7 @@ class InterfaceBlowersMaselRate(InterfaceRateBase):
         input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def _from_dict(
         self, input_data: _ReactionRateInput[_BlowersMaselParameters]
@@ -1577,7 +1574,7 @@ class StickingBlowersMaselRate(StickRateBase):
         input_data: _ReactionRateInput[_BlowersMaselParameters] | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     def _from_dict(
         self, input_data: _ReactionRateInput[_BlowersMaselParameters]
@@ -1669,7 +1666,7 @@ class ThirdBody:
         default_efficiency: float | None = None,
         init: bool = True,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     @cython.cfunc
     @staticmethod
@@ -1827,20 +1824,17 @@ class Reaction:
                 )
             else:
                 self._reaction = make_shared[CxxReaction](
-                    comp_map(reactants), comp_map(products),
-                    _rate._rate
+                    comp_map(reactants), comp_map(products), _rate._rate
                 )
         elif equation:
             # create from reaction equation
             if third_body:
                 self._reaction = make_shared[CxxReaction](
-                    stringify(equation),
-                    _rate._rate, _third_body._third_body
+                    stringify(equation), _rate._rate, _third_body._third_body
                 )
             else:
                 self._reaction = make_shared[CxxReaction](
-                    stringify(equation),
-                    _rate._rate
+                    stringify(equation), _rate._rate
                 )
         else:
             # create default object
@@ -1863,7 +1857,7 @@ class Reaction:
         init: bool = True,
         third_body: ThirdBody | _Str | None = None,
     ) -> None:
-        """Published constructor signature."""
+        pass  # Placeholder for constructor type annotations
 
     @cython.cfunc
     @staticmethod
