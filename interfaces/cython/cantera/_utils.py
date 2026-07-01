@@ -254,13 +254,12 @@ class AnyMap(dict):
         self[key] = _DimensionalValue(value, src, True)
 
 
-# anyvalue_to_python / anymap_to_py take their argument by value so that the cross-module
-# cimport signature is expressible in pure-Python syntax (which has no C++ reference
-# spelling). To avoid deep-copying nested children at every level of the recursion, the
-# by-value entry points immediately take the address of their (now local) argument and
-# delegate to the pointer-based workers below, which descend without further copies --
-# matching the original reference-based .pyx (each vector element is still copied once into
-# its loop variable, exactly as before).
+# anyvalue_to_python / anymap_to_py take their argument by value so that the
+# cross-module cimport signature is expressible in pure-Python syntax (which as of
+# Cython 3.2.5 has no C++ reference spelling). To avoid deep-copying nested children at
+# every level of the recursion, the by-value entry points immediately take the address
+# of their (now local) argument and delegate to the pointer-based workers below, which
+# descend without further copies.
 
 @cython.cfunc
 def anyvalue_to_python(name: string, v: CxxAnyValue):

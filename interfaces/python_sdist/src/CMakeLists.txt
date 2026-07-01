@@ -143,16 +143,15 @@ endif()
 
 configure_file("../include/cantera/base/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/../include/cantera/base/config.h")
 
-# On native platforms (Linux/macOS/Windows) libcantera is SHARED, so the Cython
-# pure-Python-syntax modules (enhancement #241) can be standalone extensions that link it
-# and ship their .py source beside the compiled .so. On Pyodide this split layout is not
-# viable: each extension and libcantera would be an emscripten "side module", and
-# emscripten cannot resolve C++ vague-linkage *data* symbols (RTTI typeinfo / vtables,
-# which exception handling depends on) across the side-module boundary -- loading
-# _cantera fails with e.g. "bad export type for 'typeinfo for Cantera::CanteraError'".
-# So on Pyodide we fall back to a STATIC libcantera merged into a single _cantera
-# extension (see cantera/CMakeLists.txt; full writeup in the developer notes). Revisit if
-# emscripten's dynamic linking of data symbols improves.
+# On native platforms (Linux/macOS/Windows) libcantera is a SHARED library, so the
+# Cython pure-Python-syntax modules can be standalone extensions that link it and ship
+# their .py source beside the compiled .so. On Pyodide this split layout is not viable:
+# each extension and libcantera would be an emscripten "side module", and emscripten
+# cannot resolve C++ vague-linkage *data* symbols (RTTI typeinfo / vtables, which
+# exception handling depends on) across the side-module boundary. So on Pyodide we fall
+# back to a STATIC libcantera merged into a single _cantera extension (see
+# cantera/CMakeLists.txt). Revisit if emscripten's dynamic linking of data symbols
+# improves.
 if(CANTERA_PYODIDE)
   add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
 else()
@@ -163,8 +162,7 @@ target_include_directories(cantera_lib SYSTEM PRIVATE "${Python_INCLUDE_DIRS}" "
 set_target_properties(cantera_lib PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     # Cantera's headers don't annotate the public API with dllexport/dllimport, so
-    # have CMake generate a .def exporting all symbols from the shared library (the
-    # SCons build achieves the same result with a filtered dumpbin-generated .def).
+    # have CMake generate a .def exporting all symbols from the shared library
     WINDOWS_EXPORT_ALL_SYMBOLS ON)
 # pythonShim.cpp (embedded interpreter support) calls into the Python C API, so the
 # shared library must resolve those symbols at link time on Windows. Python::Module

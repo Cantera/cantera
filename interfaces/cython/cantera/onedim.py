@@ -512,7 +512,7 @@ class FlameBase(Sim1D):
     # strict rejects every compact read-only spelling for these properties
     # (`Final[...]` needs an initializer, an empty-body `@property` trips
     # `[empty-body]`), so the read-write/read-only mismatch is allowlisted in
-    # ``.mypyignore`` instead (mirrors `composite.SolutionArray`).
+    # ``.mypyignore`` instead.
     density: _Array
     density_mass: _Array
     density_mole: _Array

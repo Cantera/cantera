@@ -8,10 +8,8 @@ import sys as _sys
 import numpy as np
 import warnings
 
-# External typing names are imported under "private" (underscore-prefixed) aliases so
-# that they are not re-exported into the top-level ``cantera`` namespace via ``from
-# .func1 import *`` (checked by test_namespace_cleanliness), matching the convention used
-# in the other Cython submodules.
+# External typing names are imported under "private" aliases so that they are not
+# re-exported into the top-level ``cantera`` namespace via ``from .func1 import *``
 from collections.abc import Callable as _Callable, Iterable as _Iterable
 from typing import Any as _Any, Literal as _Literal
 from typing_extensions import Never as _Never

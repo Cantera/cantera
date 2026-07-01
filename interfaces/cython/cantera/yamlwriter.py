@@ -4,12 +4,6 @@
 # distutils: language = c++
 # cython: language_level=3
 
-# Sibling cdef classes used in the public annotations are imported as ordinary
-# Python imports (resolvable by mypy/pyright); the companion yamlwriter.pxd cimports
-# the same names so Cython still sees them as C-level extension types. Names that do
-# not already start with an underscore are aliased to an underscore-prefixed name so
-# they are not re-exported by ``from .yamlwriter import *`` (test_namespace_cleanliness).
-# typing_extensions is a hard runtime dependency, so ``Never`` is imported directly.
 from typing_extensions import Never as _Never
 
 import cython

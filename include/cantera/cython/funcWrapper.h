@@ -162,29 +162,13 @@ private:
     void* m_pyobj;
 };
 
-//! Create a `Func1Py` wrapping a Python callback and return it as a ``shared_ptr``.
-//!
-//! This factory exists so that the Cython layer can construct a `Func1Py` without the
-//! C++ ``new`` operator. ``new`` is not valid Python syntax, and its presence would
-//! prevent the pure-Python ``.py`` source from being parsed by the Python-based type
-//! checkers (mypy/stubtest), which is what allows the module to ship its annotations
-//! inline instead of in a separate ``.pyi`` stub.
-inline std::shared_ptr<Cantera::Func1> newFunc1Py(callback_wrapper callback, void* pyobj)
-{
-    return std::make_shared<Func1Py>(callback, pyobj);
-}
-
 //! Return the Python ``CanteraError`` class, used by translate_exception() to raise a
 //! ``CanteraError`` from C++ code.
 //!
 //! The class object is fetched on first use from its single canonical definition in the
-//! ``cantera._utils`` module and cached. Resolving it this way (rather than referencing a
-//! shared C symbol) keeps each Python extension module self-contained: a shared symbol
-//! previously required loading the main extension with ``RTLD_GLOBAL`` on POSIX and could
-//! not be linked across DLL boundaries on Windows (enhancement #241). Because the lookup
-//! is automatic, any extension that includes this header can raise ``CanteraError``
-//! without registering anything.
-inline PyObject* getCanteraError() {
+//! ``cantera._utils`` module and cached. Resolving it this way keeps each Python
+// extension module self-contained.
+inline PyObject* getCanteraErrorClass() {
     // Cached per extension module; CanteraError is a singleton class object, so the
     // borrowed reference held here remains valid for the lifetime of the module.
     static PyObject* cls = nullptr;
@@ -262,7 +246,7 @@ inline int translate_exception()
     } catch (const Cantera::ArraySizeError& exn) {
         PyErr_SetString(PyExc_ValueError, exn.what());
     } catch (const Cantera::CanteraError& exn) {
-        PyErr_SetString(getCanteraError(), exn.what());
+        PyErr_SetString(getCanteraErrorClass(), exn.what());
     } catch (const std::exception& exn) {
         PyErr_SetString(PyExc_RuntimeError, exn.what());
     } catch (...) {

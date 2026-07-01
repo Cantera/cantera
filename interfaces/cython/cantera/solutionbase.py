@@ -41,11 +41,8 @@ from ._types import (Array as _Array, ArrayLike as _ArrayLike, Basis as _Basis,
 
 _CxxSurfPhasePtr = cython.typedef(cython.pointer(CxxSurfPhase))
 
-# A ``str`` alias used for component/``extra`` names: these are published as ``str``
-# but flow in as ``numpy.str_`` (a ``str`` subclass) from array operations. A bare
-# ``str`` annotation would make Cython's annotation_typing reject the subclass (Cython
-# is deliberately stricter than PEP 484); routing through an alias keeps the published
-# type ``str`` while accepting subclasses, matching the pre-merge runtime behavior.
+# Alias to prevent Cython from rejecting numpy.str_ for functions that take str
+# arguments.
 _Str: _TypeAlias = str
 
 _SortingType: _TypeAlias = _Literal["alphabetical", "molar-mass"] | None
@@ -637,9 +634,7 @@ class SolutionArrayBase:
         meta: "dict[str, _Any]" = {},
         init: bool = True,
     ) -> None:
-        """
-        Construct a `SolutionArrayBase`. The C++ object is created in ``__cinit__``.
-        """
+        pass
 
     def _share(self, dest: SolutionArrayBase, selected):
         """ Share entries with new `SolutionArrayBase` object. """

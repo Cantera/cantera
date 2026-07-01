@@ -39,10 +39,7 @@ if TYPE_CHECKING:
 
 from .drawnetwork import *
 
-# `anymap_to_py` may return an `AnyMap` (a `dict` subclass) rather than a plain
-# `dict`; an inline `dict[str, int]` return annotation is coerced by Cython 3 and
-# rejects that subclass instance at runtime. Route through a TypeAlias (not coerced),
-# matching the `_onedim._RestoreMetadata` precedent.
+# Non-coercing alias for AnyMap used by ReactorNet.solver_stats
 _SolverStats: _TypeAlias = dict[str, int]
 
 
@@ -152,7 +149,7 @@ class ReactorBase:
         y = np.zeros(self.n_vars)
         cy: cython.double[::1] = y
         self.rbase.getState(span[double](cython.address(cy[0]),
-                                        cython.cast(cython.size_t, y.size)))
+                                         cython.cast(cython.size_t, y.size)))
         return y
 
     def get_state_dae(self) -> tuple[_Array, _Array]:
@@ -699,8 +696,6 @@ class ExtensibleReactor(Reactor):
         self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
         sdot: span[cython.double] = \
             dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
-        # Non-owning memoryview over the C++ span data (pure-Python spelling of the
-        # .pyx `<double[:sdot.size()]> sdot.data()` sized pointer cast).
         sarr: view.array = view.array(shape=(sdot.size(),),
                                       itemsize=cython.sizeof(cython.double), format="d",
                                       allocate_buffer=False)
@@ -1095,8 +1090,6 @@ class ExtensibleReactorSurface(ReactorSurface):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
         sdot: span[cython.double] = \
             dynamic_cast[CxxReactorAccessorPtr](self.rbase).surfaceProductionRates()
-        # Non-owning memoryview over the C++ span data (pure-Python spelling of the
-        # .pyx `<double[:sdot.size()]> sdot.data()` sized pointer cast).
         sarr: view.array = view.array(shape=(sdot.size(),),
                                       itemsize=cython.sizeof(cython.double), format="d",
                                       allocate_buffer=False)
@@ -2253,7 +2246,7 @@ class ReactorNet:
         y = np.zeros(self.n_vars)
         cy: cython.double[::1] = y
         self.net.getState(span[double](cython.address(cy[0]),
-                                      cython.cast(cython.size_t, y.size)))
+                                       cython.cast(cython.size_t, y.size)))
         return y
 
     def get_state_dae(self) -> tuple[_Array, _Array]:

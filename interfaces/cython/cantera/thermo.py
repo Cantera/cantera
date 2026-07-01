@@ -43,9 +43,8 @@ if TYPE_CHECKING:
     from .composite import Solution as _Solution
     from .reaction import Reaction as _Reaction
 
-# TypeAlias to str is NOT coerced by Cython's annotation_typing (unlike a bare `str`
-# annotation, which rejects subclasses such as numpy.str_); use this for params that
-# are forwarded to `stringify()` (which itself accepts any str-like object).
+# Alias to prevent Cython from rejecting numpy.str_ or other types derived from str
+# for functions that should allow any string-like type
 _Str: _TypeAlias = str
 
 # Avoid fixed options unless we can find a way to support custom extensions:
@@ -90,9 +89,7 @@ _PhaseOfMatter: _TypeAlias = str
 
 _QuadratureMethod: _TypeAlias = _Literal["simpson", "trapezoidal"]
 
-# Parametrized generics (tuple[...]) are coerced by Cython's annotation_typing just
-# like bare builtins, rejecting a list where a tuple was published; route through a
-# TypeAlias (not coerced) to keep the runtime accepting any sequence, as before.
+# Type alias relaxes Cython's strict checking and allows any type of sequence
 _TPQSetter: _TypeAlias = tuple[float | None, float | None, float | None]
 
 _SpeciesInput = _TypedDict(
@@ -109,7 +106,6 @@ _SpeciesInput = _TypedDict(
     total=False,
 )
 
-# Module-level C int constants replacing the private `cdef enum ThermoBasisType`
 mass_basis = cython.declare(cython.int, 0)
 molar_basis = cython.declare(cython.int, 1)
 

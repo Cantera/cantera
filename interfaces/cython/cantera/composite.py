@@ -481,8 +481,7 @@ class Quantity:
 
     # Synonyms for total properties. The literal properties below are type-only
     # declarations: the assignments that follow the class body overwrite them at
-    # runtime with the *bound* property objects (verified equivalent; see also the
-    # dynamically-added pass-through properties below, which use the same pattern).
+    # runtime with the *bound* property objects.
     @property
     def V(self) -> float:  # type: ignore[empty-body]
         ...
@@ -504,19 +503,7 @@ class Quantity:
         ...
 
     # Dynamically-added properties/methods acting as pass-throughs to Solution
-    # class (assigned via the ``setattr`` loop following this class). That loop
-    # only assigns an attribute if it is not already present in
-    # ``Quantity.__dict__``, so it is NOT safe to declare these as literal
-    # `@property`/`def` members here (doing so puts the name in ``__dict__`` and
-    # silently disables the loop's installation of the real implementation --
-    # this was tried and reverted; see git history). A *bare* (unassigned) class
-    # variable annotation, however, only populates ``__annotations__`` and not
-    # ``__dict__``, so it is invisible to the loop's guard while still telling
-    # type checkers (and `stubtest`) the published type of each dynamic
-    # attribute. That is the technique used below. Unlike `SolutionArray` (whose
-    # equivalent loop unconditionally overwrites and so can use real
-    # `@property`/`def` declarations instead), `Quantity` requires this
-    # annotation-only form.
+    # class (assigned via the ``setattr`` loop following this class)
     name: str
     source: str
     composite: tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]
@@ -758,8 +745,7 @@ class Quantity:
     set_electron_energy_distribution_parameters: _Callable[..., None]
 
 # Synonyms for total properties. These class-level re-assignments overwrite the
-# type-only `...`-body declarations above with the *bound* property objects
-# (verified equivalent at runtime; see the comment above those declarations).
+# type-only `...`-body declarations above with the *bound* property objects.
 Quantity.V = Quantity.volume  # type: ignore[method-assign]
 Quantity.U = Quantity.int_energy  # type: ignore[method-assign]
 Quantity.H = Quantity.enthalpy  # type: ignore[method-assign]
@@ -1008,10 +994,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
 
     # Dynamically-added properties/methods acting as pass-throughs to the
     # underlying phase (assigned via the ``setattr`` loops/`_make_functions()`
-    # following this class). Unlike `Quantity`'s equivalent loop (which only
-    # installs an attribute if not already present in `Quantity.__dict__`),
-    # these loops unconditionally overwrite, so real class-level annotations
-    # here are safe and do not shadow the runtime implementations.
+    # following this class).
     TD: tuple[_Array, _Array]
     TDX: tuple[_Array, _Array, _Array]
     TDY: tuple[_Array, _Array, _Array]
@@ -1502,11 +1485,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         """ See `ThermoPhase.equilibrate` """
         for loc in range(self.size):
             self._set_loc(loc)
-            # `XY` is published as optional for parity with `Quantity.equilibrate`,
-            # but unlike that method there is no substitution of a default here;
-            # passing `None` fails at runtime in `ThermoPhase.equilibrate`, matching
-            # pre-merge (and `.pyi`-published) behavior.
-            self._phase.equilibrate(XY, solver, rtol, max_steps, max_iter,  # type: ignore[arg-type]
+            self._phase.equilibrate(XY, solver, rtol, max_steps, max_iter,
                                     estimate_equil, log_level)
             self._update_state(loc)
 
@@ -1534,9 +1513,6 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         """
 
         # check arguments
-        # `data`'s static type is already `dict[str, Array]`, but this runtime
-        # check still matters because annotations are not enforced at the
-        # boundary for callers passing in arbitrary objects.
         if not isinstance(data, dict) or len(data) == 0:  # type: ignore[redundant-expr]
             raise ValueError("'SolutionArray.restore_data' requires a "
                              "non-empty data dictionary")
@@ -1567,10 +1543,6 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
             )
 
         # get full state information (may differ depending on ThermoPhase type).
-        # `states` is treated as a plain `list[str]` from here on, since the rest
-        # of this function manipulates its entries with generic string operations
-        # (slicing, `rstrip`, membership tests) that lose the narrow `Literal`
-        # typing published by `_full_states`/`_partial_states`.
         states: list[str] = list(self._phase._full_states.values())
 
         # add partial and/or potentially non-unique state definitions

@@ -80,10 +80,10 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
         f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized[0])
     cython_obj.append(obj)
 
-# The aggregator module _cantera uses Cython pure-Python (.py) syntax (enhancement #241),
-# but unlike the standalone pure_py_modules below it is cythonized and compiled INTO the
-# merged _cantera extension here: it hosts the CythonPackageMetaPathFinder and provides
-# the PyInit functions for the remaining .pyx modules merged into this extension. Its .py
+# The aggregator module _cantera uses Cython pure-Python (.py) syntax, but unlike the
+# standalone pure_py_modules below it is cythonized and compiled INTO the merged
+# _cantera extension here: it hosts the CythonPackageMetaPathFinder and provides the
+# PyInit functions for the remaining .pyx modules merged into this extension. Its .py
 # source ships alongside the extension to serve tracebacks, IDEs, and type checkers.
 _cantera_cpp = localenv.Command(
     "cantera/_cantera.cpp", "cantera/_cantera.py",
@@ -106,12 +106,14 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
                               cython_obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
                               SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
-# Cython pure-Python-syntax modules built as their own extensions (PoC, enhancement
-# #241). Each ships its .py source alongside the compiled extension: the extension wins
-# CPython import precedence, while the .py serves tracebacks, IDEs, and type checkers.
-pure_py_modules = ["_utils", "jacobians", "constants", "units", "func1", "reactionpath",
-                   "yamlwriter", "speciesthermo", "mixture", "transport", "solutionbase",
-                   "kinetics", "reaction", "thermo", "reactor", "_onedim", "delegator"]
+# Cython pure-Python-syntax modules built as their own extensions. Each ships its .py
+# source alongside the compiled extension: the extension wins CPython import precedence,
+# while the .py serves tracebacks, IDEs, and type checkers.
+pure_py_modules = [
+    "constants", "delegator", "func1", "jacobians", "kinetics", "mixture", "_onedim",
+    "reaction", "reactionpath", "reactor", "solutionbase", "speciesthermo", "thermo",
+    "transport", "units", "_utils", "yamlwriter"
+]
 pure_py_ext = []
 for _name in pure_py_modules:
     if _name == "_utils":
