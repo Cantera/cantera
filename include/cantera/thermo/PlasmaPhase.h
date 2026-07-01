@@ -74,6 +74,48 @@ class ElectronCollisionPlasmaRate;
  *   @f]
  * where @f$ i @f$ is the index of discrete energy levels, or Simpson's rule.
  *
+ * ## Thermodynamic consistency of the two-temperature model
+ *
+ * When the electron temperature @f$ T_\text{e} @f$ differs from the heavy-species
+ * temperature @f$ T @f$, this phase does not satisfy all of Cantera's standard-state
+ * consistency relations simultaneously: one of them is deliberately left unsatisfied.
+ * This is a consequence of two design commitments that this implementation makes, both
+ * of which are individually reasonable but which cannot be reconciled once
+ * @f$ T_\text{e} \neq T @f$:
+ *
+ * 1. **Kinetics uses true concentrations.** The generalized (activity) concentrations
+ *    that drive the law of mass action are kept equal to the true molar concentrations,
+ *    @f$ C^a_k = C_k @f$, so that reaction rates depend on actual number densities.
+ *    Together with the standard concentration @f$ C^0_k = P/RT @f$ (the gas
+ *    temperature, for all species; see #standardConcentration()), this requires the
+ *    reported activities to be
+ *    @f[ a_k = \frac{C^a_k}{C^0_k} = X_k \frac{T}{\overline{T}}, @f]
+ *    where @f$ \overline{T} @f$ is the mole-fraction-weighted mean temperature (see
+ *    #meanTemperature()). This is what #getActivities() returns.
+ *
+ * 2. **Chemical potentials keep the ideal-gas form.** The chemical potentials retain
+ *    the usual ideal-gas composition dependence,
+ *    @f$ \mu_k = \mu^0_k(T_k) + R T_k \ln X_k @f$,
+ *    with each species evaluated at its own temperature @f$ T_k @f$ (@f$ T @f$ for
+ *    heavy species, @f$ T_\text{e} @f$ for electrons; see #getChemPotentials() and
+ *    #getStandardChemPotentials()). This is equivalent to an activity of @f$ X_k @f$.
+ *
+ * When @f$ T_\text{e} \neq T @f$, these two demands imply different values for the
+ * activities -- @f$ X_k\,T/\overline{T} @f$ versus @f$ X_k @f$ -- which differ by the
+ * factor @f$ T/\overline{T} @f$. #getActivities() reports the first;
+ * #getChemPotentials() embodies the second; and the identity
+ * @f$ \mu_k = \mu^0_k + R T_k \ln a_k @f$ is therefore the relation left unsatisfied.
+ * This is why the consistency test `chem_potentials_to_activities` is a known failure
+ * for two-temperature states.
+ *
+ * The practical consequence of this inconsistency is limited. It formally perturbs any
+ * *chemical* equilibrium computed for the phase, but the concept of chemical
+ * equilibrium in the absence of *thermal* equilibrium (@f$ T_\text{e} \neq T @f$) is
+ * itself ill-posed, so the perturbed quantity has little physical meaning in exactly
+ * the regime where the inconsistency appears. The trade-offs and potential approaches
+ * for a fully-consistent implementation are documented in
+ * https://github.com/Cantera/enhancements/issues/258#issuecomment-4857093158.
+ *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
  * @todo Implement electron Boltzmann equation solver to solve EEDF.
@@ -534,18 +576,31 @@ public:
      * where @f$ P @f$ is the total pressure of the mixture,
      * @f$ R @f$ is the gas constant, and @f$ T @f$ is the gas temperature.
      *
+     * @note The gas temperature @f$ T @f$ (not the electron temperature or the
+     *     mean temperature) is used for *all* species, including electrons.
+     *     Consequently @f$ C^0_\text{e} = P/RT \neq 1/V^0_\text{e} = P/R T_\text{e} @f$
+     *     when @f$ T_\text{e} \neq T @f$. This is intentional: the reciprocal
+     *     relation @f$ C^0_k = 1/V^0_k @f$ is a coincidence of the
+     *     single-temperature ideal gas and is not a thermodynamic requirement.
+     *     See the class documentation.
+     *
      * @param k Parameter indicating the species. The default
      *          is to assume this refers to species 0.
      */
-    //
     double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities at the current solution
     //! temperature, pressure, and solution concentration.
     /*!
-     * Since @f$ a_k = C^a_k / C^0_k, @f$, where @f$ C^a_k = C_k @f$ is the
-     * generalized concentration, and @f$ C^0_k @f$ is the standard concentration
-     * defined above, the activities are equal to @f$ a_k = X_k T / \overline{T} @f$.
+     * Since @f$ a_k = C^a_k / C^0_k @f$, where @f$ C^a_k = C_k @f$ is the true molar
+     * concentration, and @f$ C^0_k @f$ is the standard concentration defined above,
+     * the activities are equal to @f$ a_k = X_k T / \overline{T} @f$.
+     *
+     * @note These activities are defined for consistency with the kinetics
+     *     (law-of-mass-action) concentrations and, when @f$ T_\text{e} \neq T @f$,
+     *     differ by a factor of @f$ T/\overline{T} @f$ from the activities implied by
+     *     the chemical-potential model (@f$ a_k = X_k @f$). See the class documentation
+     *     for a discussion of this intentional inconsistency.
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
