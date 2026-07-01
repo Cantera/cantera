@@ -3,6 +3,10 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+# pyright: reportUndefinedVariable=false, reportUnboundVariable=false
+# pyright: reportInvalidTypeArguments=false, reportAssignmentType=false
+# pyright: reportIndexIssue=false, reportInvalidTypeForm=false
 
 from pathlib import Path as _Path
 from typing import Any as _Any, Literal as _Literal

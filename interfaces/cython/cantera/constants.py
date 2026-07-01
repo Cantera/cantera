@@ -3,6 +3,7 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportUndefinedVariable=false
 
 #: Avogadro's constant, 1/kmol
 avogadro: float = CxxAvogadro

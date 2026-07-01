@@ -3,6 +3,10 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+# pyright: reportUndefinedVariable=false, reportUnboundVariable=false
+# pyright: reportInvalidTypeArguments=false, reportAssignmentType=false
+# pyright: reportIndexIssue=false, reportInvalidTypeForm=false
 
 # External names are imported under "private" aliases so that they are not re-exported
 # into the top-level ``cantera`` namespace via ``from .jacobians import *``

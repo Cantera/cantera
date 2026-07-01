@@ -3,6 +3,10 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+# pyright: reportUndefinedVariable=false, reportUnboundVariable=false
+# pyright: reportInvalidTypeArguments=false, reportAssignmentType=false
+# pyright: reportIndexIssue=false, reportInvalidTypeForm=false
 
 from collections.abc import Sequence as _Sequence
 from typing import TypedDict as _TypedDict, overload as _overload
