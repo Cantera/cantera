@@ -16,9 +16,33 @@
 #include <iostream>
 #include <iomanip>
 #include <numeric>
+#include <string>
 #include "cantera/core.h"
 
 using namespace Cantera;
+
+struct BenchmarkCase
+{
+    string name;
+    string mech;
+    string phase;
+    string fuel;
+};
+
+const vector<BenchmarkCase> benchmarkCases{
+    {"h2o2", "h2o2.yaml", "ohmech", "H2"},
+    {"gri30", "gri30.yaml", "gri30", "CH4"},
+    {"ndodecane", "nDodecane_Reitz.yaml", "nDodecane_IG", "c12h26"},
+};
+
+void printUsage(const string& programName)
+{
+    std::cout << "Usage: " << programName << " [--test all";
+    for (const auto& test : benchmarkCases) {
+        std::cout << "|" << test.name;
+    }
+    std::cout << "]\n";
+}
 
 void statistics(vector<double> times, size_t loops, size_t runs)
 {
@@ -208,14 +232,35 @@ void benchmark(const string& mech, const string& phase, const string& fuel)
     timeit_matrix(&Kinetics::netProductionRates_ddX, &kin, gas);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    string test = "all";
+    if (argc == 2) {
+        test = argv[1];
+    } else if (argc == 3 && string(argv[1]) == "--test") {
+        test = argv[2];
+    } else if (argc != 1) {
+        printUsage(argv[0]);
+        return 1;
+    }
+
     std::cout << "Benchmark tests for derivative evaluations." << std::endl;
     std::cout << std::endl;
-    benchmark("h2o2.yaml", "ohmech", "H2");
-    std::cout << std::endl;
-    benchmark("gri30.yaml", "gri30", "CH4");
-    std::cout << std::endl;
-    benchmark("nDodecane_Reitz.yaml", "nDodecane_IG", "c12h26");
+
+    bool found = test == "all";
+    for (const auto& benchmarkCase : benchmarkCases) {
+        if (test == "all" || test == benchmarkCase.name) {
+            benchmark(benchmarkCase.mech, benchmarkCase.phase, benchmarkCase.fuel);
+            std::cout << std::endl;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        std::cout << "Unknown benchmark test '" << test << "'.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
     return 0;
 }
