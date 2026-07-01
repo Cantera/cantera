@@ -3,6 +3,10 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+# pyright: reportUndefinedVariable=false, reportUnboundVariable=false
+# pyright: reportInvalidTypeArguments=false, reportAssignmentType=false
+# pyright: reportIndexIssue=false, reportInvalidTypeForm=false
 
 import warnings
 from shutil import get_terminal_size as _get_terminal_size

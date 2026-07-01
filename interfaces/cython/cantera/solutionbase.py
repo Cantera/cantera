@@ -3,6 +3,10 @@
 
 # distutils: language = c++
 # cython: language_level=3
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+# pyright: reportUndefinedVariable=false, reportUnboundVariable=false
+# pyright: reportInvalidTypeArguments=false, reportAssignmentType=false
+# pyright: reportIndexIssue=false, reportInvalidTypeForm=false
 
 import numpy as np
 from pathlib import PurePath as _PurePath, Path as _Path
