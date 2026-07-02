@@ -139,3 +139,13 @@ function net_rates_of_progress_ddX(g::KineticsLike)
     buf = get_array(nr * ns, (len, b) -> LibCantera.kin_getNetRatesOfProgress_ddX(_kinetics_handle(g), len, b))
     return reshape(buf, nr, ns)
 end
+
+"""
+    heat_release_rate(gas) -> Float64
+
+Volumetric heat release rate [W/m^3], `-Σ_k h_k · ẇ_k`, where `h_k` are the
+partial molar enthalpies and `ẇ_k` the net production rates.  Matches Python's
+`gas.heat_release_rate` (the CLib exposes no direct getter).
+"""
+heat_release_rate(g::Solution) =
+    -sum(partial_molar_enthalpies(g) .* net_production_rates(g))

@@ -93,3 +93,17 @@ end  # _have(:reactornet_neq)
     rm(path; force=true)
     close!(net); close!(r); close!(gas)
 end
+
+# Scalar thermo/kinetics getters that fill the last parity gaps vs. Python.
+# Reference values from Python Cantera 3.2.0, gri30 at (1200 K, 1 atm,
+# CH4:1, O2:2, N2:7.52).
+@testset "Extra scalar getters (Python parity)" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1200.0, one_atm, "CH4:1.0, O2:2.0, N2:7.52")
+    @test isothermal_compressibility(gas) ≈ 9.869232667160127e-06 rtol=1e-8
+    @test thermal_expansion_coeff(gas)    ≈ 0.0008333333333333334 rtol=1e-8
+    @test max_temp(gas) ≈ 3000.0
+    @test min_temp(gas) ≈ 300.0
+    @test heat_release_rate(gas) ≈ -2068.555280246291 rtol=1e-8
+    close!(gas)
+end

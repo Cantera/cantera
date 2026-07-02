@@ -79,6 +79,22 @@ for (jl, c) in (
     @eval $jl(g::ThermoLike) = checkd(LibCantera.$c(_thermo_handle(g)))
 end
 
+"Isothermal compressibility [1/Pa]."
+isothermal_compressibility(g::ThermoLike) =
+    checkd(LibCantera.thermo_isothermalCompressibility(_thermo_handle(g)))
+
+"Thermal (volumetric) expansion coefficient [1/K]."
+thermal_expansion_coeff(g::ThermoLike) =
+    checkd(LibCantera.thermo_thermalExpansionCoeff(_thermo_handle(g)))
+
+# The CLib getters take a species index; passing -1 (C++ `npos`) requests the
+# phase-wide limit, matching the default `maxTemp()`/`minTemp()` in Python.
+"Maximum temperature [K] for which the phase's thermo data are valid."
+max_temp(g::ThermoLike) = checkd(LibCantera.thermo_maxTemp(_thermo_handle(g), Int32(-1)))
+
+"Minimum temperature [K] for which the phase's thermo data are valid."
+min_temp(g::ThermoLike) = checkd(LibCantera.thermo_minTemp(_thermo_handle(g), Int32(-1)))
+
 # ---- composition ------------------------------------------------------------
 
 "Molecular weights of all species [kg/kmol]."
