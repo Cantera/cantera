@@ -67,6 +67,7 @@ export temperature, pressure, density, molar_density,
        enthalpy_mass, enthalpy_mole, internal_energy_mass, internal_energy_mole,
        entropy_mass, entropy_mole, gibbs_mass, gibbs_mole,
        cp_mass, cp_mole, cv_mass, cv_mole,
+       isothermal_compressibility, thermal_expansion_coeff,
        partial_molar_enthalpies, partial_molar_entropies,
        partial_molar_int_energies, partial_molar_cp, partial_molar_volumes,
        chemical_potentials, electrochemical_potentials,
@@ -95,7 +96,8 @@ export n_reactions, n_total_species, reaction_equation, reaction_equations,
        net_production_rates_ddT!, net_production_rates_ddP!, net_production_rates_ddC!,
        creation_rates_ddT!, creation_rates_ddP!, creation_rates_ddC!,
        destruction_rates_ddT!, destruction_rates_ddP!, destruction_rates_ddC!,
-       net_rates_of_progress_ddT!, net_rates_of_progress_ddP!, net_rates_of_progress_ddC!
+       net_rates_of_progress_ddT!, net_rates_of_progress_ddP!, net_rates_of_progress_ddC!,
+       heat_release_rate
 
 # transport
 export viscosity, thermal_conductivity, electrical_conductivity,
