@@ -102,6 +102,11 @@ recipes:
 - name: getPartialMolarCp
 - name: getPartialMolarCv_TV
 - name: getPartialMolarVolumes
+- name: getEnthalpy_RT  # standard-state species enthalpies h^0_k/RT
+- name: getEntropy_R  # standard-state species entropies s^0_k/R
+- name: getGibbs_RT  # standard-state species Gibbs energies g^0_k/RT
+- name: getIntEnergy_RT  # standard-state species internal energies u^0_k/RT
+- name: getCp_R  # standard-state species heat capacities cp^0_k/R
 - name: setState_TPX  # New in Cantera 3.2
   wraps: setState_TPX(double, double, span<const double>)
 - name: setState_TPX_byName  # New in Cantera 3.2
