@@ -212,6 +212,22 @@ function set_equivalence_ratio!(g::ThermoLike, phi, fuel::AbstractString,
     return g
 end
 
+# ---- standard-state (per species) -------------------------------------------
+
+for (jl, c, doc) in (
+        (:standard_enthalpies_RT,   :thermo_getEnthalpy_RT,  "enthalpies h°_k/RT"),
+        (:standard_entropies_R,     :thermo_getEntropy_R,    "entropies s°_k/R"),
+        (:standard_gibbs_RT,        :thermo_getGibbs_RT,     "Gibbs energies g°_k/RT"),
+        (:standard_int_energies_RT, :thermo_getIntEnergy_RT, "internal energies u°_k/RT"),
+        (:standard_cp_R,            :thermo_getCp_R,         "heat capacities cp°_k/R"),
+    )
+    @eval begin
+        @doc $("Nondimensional standard-state species " * doc * ".")
+        $jl(g::ThermoLike) =
+            get_array(n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+    end
+end
+
 # ---- composition ------------------------------------------------------------
 
 "Molecular weights of all species [kg/kmol]."

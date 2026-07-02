@@ -238,6 +238,26 @@ function thermo_getPartialMolarVolumes(handle, vbarLen, vbar)
     ccall((:thermo_getPartialMolarVolumes, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, vbarLen, vbar)
 end
 
+function thermo_getEnthalpy_RT(handle, hrtLen, hrt)
+    ccall((:thermo_getEnthalpy_RT, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, hrtLen, hrt)
+end
+
+function thermo_getEntropy_R(handle, srLen, sr)
+    ccall((:thermo_getEntropy_R, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, srLen, sr)
+end
+
+function thermo_getGibbs_RT(handle, grtLen, grt)
+    ccall((:thermo_getGibbs_RT, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, grtLen, grt)
+end
+
+function thermo_getIntEnergy_RT(handle, urtLen, urt)
+    ccall((:thermo_getIntEnergy_RT, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, urtLen, urt)
+end
+
+function thermo_getCp_R(handle, cprLen, cpr)
+    ccall((:thermo_getCp_R, libcantera[]), Int32, (Int32, Int32, Ptr{Float64},), handle, cprLen, cpr)
+end
+
 function thermo_setState_TPX(handle, t, p, xLen, x)
     ccall((:thermo_setState_TPX, libcantera[]), Int32, (Int32, Float64, Float64, Int32, Ptr{Float64},), handle, t, p, xLen, x)
 end
