@@ -68,6 +68,12 @@ export temperature, pressure, density, molar_density,
        entropy_mass, entropy_mole, gibbs_mass, gibbs_mole,
        cp_mass, cp_mole, cv_mass, cv_mole,
        isothermal_compressibility, thermal_expansion_coeff,
+       reference_pressure, electric_potential, set_electric_potential!,
+       sound_speed, volume_mass, volume_mole,
+       critical_temperature, critical_pressure, critical_density,
+       vapor_fraction, sat_temperature, sat_pressure,
+       element_index, atomic_weights, atomic_weight, charges,
+       elemental_mole_fraction, elemental_mass_fraction, equivalence_ratio,
        partial_molar_enthalpies, partial_molar_entropies,
        partial_molar_int_energies, partial_molar_cp, partial_molar_volumes,
        chemical_potentials, electrochemical_potentials,
@@ -76,7 +82,7 @@ export temperature, pressure, density, molar_density,
 
 # thermo: state setters
 export set_TP!, set_TPX!, set_TPY!, set_HP!, set_UV!, set_SP!, set_SV!,
-       set_TD!, set_DP!, equilibrate!
+       set_TD!, set_DP!, equilibrate!, set_equivalence_ratio!
 
 # kinetics
 export n_reactions, n_total_species, reaction_equation, reaction_equations,
@@ -97,7 +103,14 @@ export n_reactions, n_total_species, reaction_equation, reaction_equations,
        creation_rates_ddT!, creation_rates_ddP!, creation_rates_ddC!,
        destruction_rates_ddT!, destruction_rates_ddP!, destruction_rates_ddC!,
        net_rates_of_progress_ddT!, net_rates_of_progress_ddP!, net_rates_of_progress_ddC!,
-       heat_release_rate
+       heat_release_rate,
+       reactant_stoich_coeff, product_stoich_coeff,
+       reactant_stoich_coeffs, product_stoich_coeffs,
+       multiplier, set_multiplier!,
+       delta_standard_enthalpy, delta_standard_gibbs, delta_standard_entropy,
+       forward_rates_of_progress_ddT, forward_rates_of_progress_ddP,
+       forward_rates_of_progress_ddC, reverse_rates_of_progress_ddT,
+       reverse_rates_of_progress_ddP, reverse_rates_of_progress_ddC
 
 # transport
 export viscosity, thermal_conductivity, electrical_conductivity,

@@ -107,3 +107,34 @@ end
     @test heat_release_rate(gas) ≈ -2068.555280246291 rtol=1e-8
     close!(gas)
 end
+
+# Wrapped/derived getters closing the remaining Python parity gaps.
+# Reference values from Python Cantera 3.2.0, gri30 at (1200 K, 1 atm,
+# CH4:1, O2:2, N2:7.52).
+@testset "Wrapped parity getters" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1200.0, one_atm, "CH4:1.0, O2:2.0, N2:7.52")
+    @test sound_speed(gas)        ≈ 678.3425211864376 rtol=1e-8
+    @test volume_mass(gas)        ≈ 3.5633881599749238 rtol=1e-10
+    @test volume_mole(gas)        ≈ 98.46883929715162 rtol=1e-10
+    @test reference_pressure(gas) ≈ 101325.0
+    @test electric_potential(gas) ≈ 0.0
+    @test equivalence_ratio(gas)  ≈ 1.0 rtol=1e-10
+    iC = element_index(gas, "C")
+    @test elemental_mass_fraction(gas, iC) ≈ 0.04131690114779184 rtol=1e-10
+    @test elemental_mole_fraction(gas, iC) ≈ 0.0415973377703827  rtol=1e-10
+    @test atomic_weights(gas) ≈ [15.999, 1.008, 12.011, 14.007, 39.95] rtol=1e-8
+    @test all(charges(gas) .== 0.0)
+    # kinetics
+    kCH4 = species_index(gas, "CH4")
+    @test sum(reactant_stoich_coeffs(gas)[kCH4, :]) ≈ 6.0
+    @test size(product_stoich_coeffs(gas)) == (n_species(gas), n_reactions(gas))
+    @test delta_standard_enthalpy(gas)[1] ≈ -506662565.3788193 rtol=1e-8
+    @test forward_rates_of_progress_ddT(gas)[1] ≈ 0.0 atol=1e-30
+    @test multiplier(gas, 1) ≈ 1.0
+    set_multiplier!(gas, 1, 2.0); @test multiplier(gas, 1) ≈ 2.0
+    # set_equivalence_ratio! round-trip
+    set_equivalence_ratio!(gas, 0.5, "CH4:1", "O2:1, N2:3.76")
+    @test equivalence_ratio(gas) ≈ 0.5 rtol=1e-8
+    close!(gas)
+end
