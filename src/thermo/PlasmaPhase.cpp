@@ -258,17 +258,16 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
 
             if (eedf.hasKey("energy-grid-adaptation")) {
                 const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
-                bool enabled = true;
-                if (adapt.hasKey("enabled")) {
-                    enabled = adapt["enabled"].asBool();
-                }
+                bool enabled = adapt.getBool("enabled", true);
+                bool maxwellianReset = adapt.getBool("maxwellian-reset", true);
                 double minDecayDecades = adapt.getDouble("min-decay-decades", 10.0);
                 double maxDecayDecades = adapt.getDouble("max-decay-decades", 12.0);
                 double updateFactor = adapt.getDouble("update-factor", 0.1);
                 size_t maxIterations = adapt.getInt("max-iterations", 1000);
                 m_eedfSolver->enableGridAdaptation(enabled);
                 m_eedfSolver->setGridAdaptationParameters(
-                    minDecayDecades, maxDecayDecades, updateFactor, maxIterations);
+                    minDecayDecades, maxDecayDecades, updateFactor, maxIterations,
+                    maxwellianReset);
             } else {
                 m_eedfSolver->enableGridAdaptation(false);
             }

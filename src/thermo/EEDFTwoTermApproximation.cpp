@@ -212,6 +212,54 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     return 0;
 }
 
+double EEDFTwoTermApproximation::linearInterpBounded(double x, span<const double> xpts, span<const double> fpts, double below_value, double above_value)
+{
+    AssertThrowMsg(!xpts.empty(), "linearInterpBounded", "x data empty");
+    AssertThrowMsg(!fpts.empty(), "linearInterpBounded", "f(x) data empty");
+    AssertThrowMsg(xpts.size() == fpts.size(), "linearInterpBounded",
+        "len(xpts) = {}, len(fpts) = {}", xpts.size(), fpts.size());
+
+    if (x < xpts.front()) {
+        return below_value;
+    }
+
+    if (x > xpts.back()) {
+        return above_value;
+    }
+
+    return linearInterp(x, xpts, fpts);
+}
+
+void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(const Eigen::VectorXd& oldGridCenter, const Eigen::VectorXd& oldF0)
+{
+    if (oldGridCenter.size() != oldF0.size() || oldGridCenter.size() < 2) {
+        throw CanteraError("EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid",
+            "Previous EEDF and grid must have matching sizes of at least two points.");
+    }
+
+    const double fFloor = 1e-300;
+
+    vector<double> oldGrid(oldGridCenter.data(),
+        oldGridCenter.data() + oldGridCenter.size());
+
+    vector<double> oldF(oldF0.data(),
+        oldF0.data() + oldF0.size());
+
+    for (size_t j = 0; j < m_points; j++) {
+        m_f0(j) = std::max(fFloor,
+            linearInterpBounded(m_gridCenter[j], oldGrid, oldF, fFloor, fFloor));
+    }
+
+    double fnorm = norm(m_f0, m_gridCenter);
+
+    if (!std::isfinite(fnorm) || fnorm <= 0.0) {
+        throw CanteraError("EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid",
+            "Invalid norm after projecting previous EEDF onto the adapted grid.");
+    }
+
+    m_f0 /= fnorm;
+}
+
 void EEDFTwoTermApproximation::adaptEnergyGrid(){
     const double fFloor = 1e-300;
 
@@ -228,16 +276,28 @@ void EEDFTwoTermApproximation::adaptEnergyGrid(){
         if (decades < m_minEedfDecay) {
             // The right boundary is too low: the tail has not decayed enough.
             double newMaxEnergy = m_kTeMax * (1.0 + m_gridUpdateFactor);
+            Eigen::VectorXd oldGridCenter = m_gridCenter;
+            Eigen::VectorXd oldF0 = m_f0;
             updateGrid(newMaxEnergy);
-            setMaxwellianDistribution(m_init_kTe);
+            if (m_maxwellianReset) {
+                setMaxwellianDistribution(m_init_kTe);
+            } else {
+                projectPreviousEEDFOnCurrentGrid(oldGridCenter, oldF0);
+            }
             updateCrossSections();
             converge(m_f0);
 
         } else if (decades > m_maxEedfDecay) {
             // The right boundary is unnecessarily high.
             double newMaxEnergy = m_kTeMax / (1.0 + m_gridUpdateFactor);
+            Eigen::VectorXd oldGridCenter = m_gridCenter;
+            Eigen::VectorXd oldF0 = m_f0;
             updateGrid(newMaxEnergy);
-            setMaxwellianDistribution(m_init_kTe);
+            if (m_maxwellianReset) {
+                setMaxwellianDistribution(m_init_kTe);
+            } else {
+                projectPreviousEEDFOnCurrentGrid(oldGridCenter, oldF0);
+            }
             updateCrossSections();
             converge(m_f0);
 
@@ -816,7 +876,7 @@ void EEDFTwoTermApproximation::enableGridAdaptation(bool enabled)
     m_adaptGrid = enabled;
 }
 
-void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations)
+void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations, bool maxwellian_reset)
 {
     if (!std::isfinite(minDecayDecades) || !std::isfinite(maxDecayDecades) ||
         minDecayDecades <= 0.0 || maxDecayDecades <= minDecayDecades) {
@@ -838,6 +898,7 @@ void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecade
     m_maxEedfDecay = maxDecayDecades;
     m_gridUpdateFactor = updateFactor;
     m_maxGridAdaptIterations = maxIterations;
+    m_maxwellianReset = maxwellian_reset;
 }
 
 void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
