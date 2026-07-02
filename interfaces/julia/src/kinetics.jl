@@ -211,3 +211,12 @@ for (jl, c) in (
     @eval $jl(g::KineticsLike) =
         get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
 end
+
+"""
+    heat_production_rates(gas) -> Vector{Float64}
+
+Per-reaction volumetric heat production rates [W/m^3], `-q_i · Δh_i` (net rate
+of progress times reaction enthalpy).  Their sum equals [`heat_release_rate`](@ref).
+"""
+heat_production_rates(g::KineticsLike) =
+    -net_rates_of_progress(g) .* delta_enthalpy(g)

@@ -138,3 +138,34 @@ end
     @test equivalence_ratio(gas) ≈ 0.5 rtol=1e-8
     close!(gas)
 end
+
+# Standard-state properties are CLib functions added on this branch (ctthermo
+# recipes); skip against a libcantera that predates them.
+if !_have(:thermo_getCp_R)
+    @info "Skipping standard-state tests: linked libcantera lacks ctthermo standard-state recipes."
+else
+@testset "Standard-state properties (Python parity)" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1200.0, one_atm, "CH4:1.0, O2:2.0, N2:7.52")
+    k = species_index(gas, "CH4")
+    @test standard_cp_R(gas)[k]            ≈ 9.790762829272001  rtol=1e-8
+    @test standard_enthalpies_RT(gas)[k]   ≈ -2.0465605875189334 rtol=1e-8
+    @test standard_entropies_R(gas)[k]     ≈ 31.561123052390712 rtol=1e-8
+    @test standard_gibbs_RT(gas)[k]        ≈ -33.607683639909645 rtol=1e-8
+    @test standard_int_energies_RT(gas)[k] ≈ -3.0465605875189334 rtol=1e-8
+    # G/RT = H/RT - S/R identity
+    @test standard_gibbs_RT(gas)[k] ≈ standard_enthalpies_RT(gas)[k] - standard_entropies_R(gas)[k] rtol=1e-10
+    close!(gas)
+end
+end  # _have(:thermo_getCp_R)
+
+@testset "heat_production_rates" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1200.0, one_atm, "CH4:1.0, O2:2.0, N2:7.52")
+    hpr = heat_production_rates(gas)
+    @test length(hpr) == n_reactions(gas)
+    # sum over reactions equals the total heat release rate
+    @test sum(hpr) ≈ heat_release_rate(gas) rtol=1e-10
+    @test sum(hpr) ≈ -2068.5552802462907 rtol=1e-8
+    close!(gas)
+end
