@@ -44,6 +44,81 @@ recipes:
 - name: getCreationRates
 - name: getDestructionRates
 - name: getNetProductionRates
+# Analytic derivatives of kinetic rates (new in this interface work).  Each
+# wraps a `span<double>` getter on Kinetics and follows the standard array-out
+# CLib pattern.  The `_ddX` composition Jacobians are omitted because they
+# return sparse (Eigen) matrices that the flat-array CLib cannot represent.
+- name: getFwdRatesOfProgress_ddT
+- name: getFwdRatesOfProgress_ddP
+- name: getFwdRatesOfProgress_ddC
+- name: getRevRatesOfProgress_ddT
+- name: getRevRatesOfProgress_ddP
+- name: getRevRatesOfProgress_ddC
+- name: getNetRatesOfProgress_ddT
+- name: getNetRatesOfProgress_ddP
+- name: getNetRatesOfProgress_ddC
+- name: getCreationRates_ddT
+- name: getCreationRates_ddP
+- name: getCreationRates_ddC
+- name: getDestructionRates_ddT
+- name: getDestructionRates_ddP
+- name: getDestructionRates_ddC
+- name: getNetProductionRates_ddT
+- name: getNetProductionRates_ddP
+- name: getNetProductionRates_ddC
+# Dense composition Jacobians.  The C++ getters return Eigen sparse matrices; we
+# densify into a flat column-major buffer (length nTotalSpecies^2) so the result
+# fits the flat-array CLib contract and can be reshaped by callers.
+- name: getNetProductionRates_ddX
+  brief: Dense composition Jacobian d(net production rate)/dX, column-major (n x n).
+  what: method
+  declaration: int32_t kin_getNetProductionRates_ddX(int32_t handle, int32_t bufLen, double* buf);
+  parameters:
+    handle: Handle to queried Kinetics object.
+    bufLen: Length of the reserved array; must be at least nTotalSpecies squared.
+    buf: Output buffer, filled column-major with the dense Jacobian.
+  code: |-
+    auto& obj = KineticsCabinet::at(handle);
+    auto mat = obj->netProductionRates_ddX();
+    int32_t rows = static_cast<int32_t>(mat.rows());
+    int32_t cols = static_cast<int32_t>(mat.cols());
+    int32_t need = rows * cols;
+    if (buf && bufLen >= need) {
+        for (int32_t idx = 0; idx < need; ++idx) {
+            buf[idx] = 0.0;
+        }
+        for (int k = 0; k < mat.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
+                buf[it.col() * rows + it.row()] = it.value();
+            }
+        }
+    }
+    return need;
+- name: getNetRatesOfProgress_ddX
+  brief: Dense reaction composition Jacobian d(net rate of progress)/dX, column-major.
+  what: method
+  declaration: int32_t kin_getNetRatesOfProgress_ddX(int32_t handle, int32_t bufLen, double* buf);
+  parameters:
+    handle: Handle to queried Kinetics object.
+    bufLen: Length of the reserved array; must be at least nReactions times nTotalSpecies.
+    buf: Output buffer, filled column-major with the dense Jacobian.
+  code: |-
+    auto& obj = KineticsCabinet::at(handle);
+    auto mat = obj->netRatesOfProgress_ddX();
+    int32_t rows = static_cast<int32_t>(mat.rows());
+    int32_t cols = static_cast<int32_t>(mat.cols());
+    int32_t need = rows * cols;
+    if (buf && bufLen >= need) {
+        for (int32_t idx = 0; idx < need; ++idx) {
+            buf[idx] = 0.0;
+        }
+        for (int k = 0; k < mat.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
+                buf[it.col() * rows + it.row()] = it.value();
+            }
+        }
+    }
+    return need;
 - name: multiplier
 - name: setMultiplier
 - name: isReversible

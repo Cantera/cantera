@@ -23,6 +23,10 @@ recipes:
 - name: atol
 - name: sensitivity
   wraps: sensitivity(const string&, size_t, int)
+- name: neq  # number of state variables / network components
+- name: getState  # current state vector, length neq()
+- name: componentName  # name of state-vector component i
+  uses: neq
 # service functions
 - name: del
 - name: cabinetSize
