@@ -917,6 +917,14 @@ Additional fields:
     `max-iterations`
     : Maximum number of grid adaptation iterations allowed for each EEDF solve.
       Defaults to 1000.
+    
+    'maxwellian-reset'
+    : A boolean flag specifying whether, at each iteration of grid adaptation, the 
+      solver should take an maxwellian inital guess (if true) or the previous
+      solution projected on the new grid (if false).
+      Defaults to 'true'. Using it with 'false' is recommended only for users knowing 
+      what they are doing since it can allow for a calculation speed up but the code
+      may be a bit more unstable if the initial grid is too far from the one needed.
   
 
 Examples:
@@ -1001,6 +1009,7 @@ Examples:
       max-decay-decades: 12
       update-factor: 0.1
       max-iterations: 1000  
+      maxwellian-reset: true
 ```
 
 See also {ref}`sec-yaml-electron-collisions`,

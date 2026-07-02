@@ -129,9 +129,12 @@ public:
      *                         maximum grid energy during adaptation.
      * @param maxIterations    Maximum number of grid adaptation iterations per
      *                         EEDF solve.
+     * @param maxwellian_reset Boolean flag to reset the EEDF to a Maxwellian
+     *                         distribution at the gas temperature when grid 
+     *                         adaptation is activated.
      */
     //! @since New in %Cantera 4.0
-    void setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations);
+    void setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations, bool maxwellian_reset);
 
     //! Return the electron energy grid edges [eV].
     /*!
@@ -396,6 +399,15 @@ protected:
     //! Sets a Maxwellian distribution on the 
     void setMaxwellianDistribution(double kTe);
 
+    //! Projects a previously converged EEDF onto the current energy grid.
+    //! Used as first guess after grid adaptation when Maxwellian reset is disabled.
+    //! @since New in %Cantera 4.0
+    void projectPreviousEEDFOnCurrentGrid(const Eigen::VectorXd& oldGridCenter, const Eigen::VectorXd& oldF0);
+
+    //! An extension of the linearInterp function that returns specified values when the input is
+    //! out of bounds instead of returning one of the extremities of the list.
+    double linearInterpBounded(double x, span<const double> xpts, span<const double> fpts, double below_value, double above_value);
+
     //! The threshold in reduced electric field below which no EEDF will be computed,
     //! but a Maxwellian at the gas temperature will be imposed instead. 
     //! It is expressed in Townsend, and defaults to 1 Td. [Td]
@@ -403,6 +415,11 @@ protected:
 
     //! In the case where a geometric grid is employed, this stores the corresponding geometric ratio.
     double m_geometric_ratio = 1.01;
+
+    //! Boolean flag to reset the EEDF to a Maxwellian distribution at the gas temperature when the grid is adapted.
+    //! This is a base parameter for the non-pro user for code solidity. It can be disabled by the user and in this
+    //! case the previous EEDF will be projected onto the new grid instead of being reset to a Maxwellian.
+    bool m_maxwellianReset = true;
 }; // end of class EEDFTwoTermApproximation
 
 } // end of namespace Cantera

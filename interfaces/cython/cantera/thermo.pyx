@@ -2092,6 +2092,7 @@ cdef class ThermoPhase(_SolutionBase):
                     "max-decay-decades": 12.0,
                     "update-factor": 0.1,
                     "max-iterations": 1000,
+                    "maxwellian-reset":true
                 },
             })
 
