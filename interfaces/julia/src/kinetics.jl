@@ -149,3 +149,65 @@ partial molar enthalpies and `ẇ_k` the net production rates.  Matches Python's
 """
 heat_release_rate(g::Solution) =
     -sum(partial_molar_enthalpies(g) .* net_production_rates(g))
+
+# ---- stoichiometry ----------------------------------------------------------
+
+"Stoichiometric coefficient of reactant species `k` (1-based) in reaction `i` (1-based)."
+reactant_stoich_coeff(g::KineticsLike, k::Integer, i::Integer) =
+    checkd(LibCantera.kin_reactantStoichCoeff(_kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
+
+"Stoichiometric coefficient of product species `k` (1-based) in reaction `i` (1-based)."
+product_stoich_coeff(g::KineticsLike, k::Integer, i::Integer) =
+    checkd(LibCantera.kin_productStoichCoeff(_kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
+
+"`nSpecies × nReactions` matrix of reactant stoichiometric coefficients."
+function reactant_stoich_coeffs(g::KineticsLike)
+    ns = _nsp(g); nr = _nrxn(g)
+    [reactant_stoich_coeff(g, k, i) for k in 1:ns, i in 1:nr]
+end
+
+"`nSpecies × nReactions` matrix of product stoichiometric coefficients."
+function product_stoich_coeffs(g::KineticsLike)
+    ns = _nsp(g); nr = _nrxn(g)
+    [product_stoich_coeff(g, k, i) for k in 1:ns, i in 1:nr]
+end
+
+# ---- reaction multipliers ---------------------------------------------------
+
+"Rate multiplier for reaction `i` (1-based)."
+multiplier(g::KineticsLike, i::Integer) =
+    checkd(LibCantera.kin_multiplier(_kinetics_handle(g), Int32(i - 1)))
+
+"Set the rate multiplier for reaction `i` (1-based)."
+function set_multiplier!(g::KineticsLike, i::Integer, v)
+    check(LibCantera.kin_setMultiplier(_kinetics_handle(g), Int32(i - 1), Float64(v)))
+    return g
+end
+
+# ---- standard-state reaction deltas -----------------------------------------
+
+"Standard-state enthalpy change for each reaction [J/kmol]."
+delta_standard_enthalpy(g::KineticsLike) =
+    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSEnthalpy(_kinetics_handle(g), n, b))
+
+"Standard-state Gibbs free energy change for each reaction [J/kmol]."
+delta_standard_gibbs(g::KineticsLike) =
+    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSGibbs(_kinetics_handle(g), n, b))
+
+"Standard-state entropy change for each reaction [J/kmol/K]."
+delta_standard_entropy(g::KineticsLike) =
+    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSEntropy(_kinetics_handle(g), n, b))
+
+# ---- forward/reverse rate-of-progress derivatives ---------------------------
+
+for (jl, c) in (
+        (:forward_rates_of_progress_ddT, :kin_getFwdRatesOfProgress_ddT),
+        (:forward_rates_of_progress_ddP, :kin_getFwdRatesOfProgress_ddP),
+        (:forward_rates_of_progress_ddC, :kin_getFwdRatesOfProgress_ddC),
+        (:reverse_rates_of_progress_ddT, :kin_getRevRatesOfProgress_ddT),
+        (:reverse_rates_of_progress_ddP, :kin_getRevRatesOfProgress_ddP),
+        (:reverse_rates_of_progress_ddC, :kin_getRevRatesOfProgress_ddC),
+    )
+    @eval $jl(g::KineticsLike) =
+        get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+end

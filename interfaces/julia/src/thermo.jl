@@ -95,6 +95,123 @@ max_temp(g::ThermoLike) = checkd(LibCantera.thermo_maxTemp(_thermo_handle(g), In
 "Minimum temperature [K] for which the phase's thermo data are valid."
 min_temp(g::ThermoLike) = checkd(LibCantera.thermo_minTemp(_thermo_handle(g), Int32(-1)))
 
+"Reference pressure [Pa] used for standard-state thermo data."
+reference_pressure(g::ThermoLike) = checkd(LibCantera.thermo_refPressure(_thermo_handle(g)))
+
+"Electric potential [V] of the phase."
+electric_potential(g::ThermoLike) =
+    checkd(LibCantera.thermo_electricPotential(_thermo_handle(g)))
+
+"Set the electric potential [V] of the phase."
+function set_electric_potential!(g::ThermoLike, v)
+    check(LibCantera.thermo_setElectricPotential(_thermo_handle(g), Float64(v)))
+    return g
+end
+
+"Speed of sound [m/s] (`sqrt(cp/cv · p/ρ)`)."
+sound_speed(g::ThermoLike) = sqrt(cp_mass(g) / cv_mass(g) * pressure(g) / density(g))
+
+"Specific volume [m^3/kg]."
+volume_mass(g::ThermoLike) = 1.0 / density(g)
+
+"Molar volume [m^3/kmol]."
+volume_mole(g::ThermoLike) = mean_molecular_weight(g) / density(g)
+
+# ---- critical / saturation properties (raise for ideal-gas phases) ----------
+
+"Critical temperature [K]."
+critical_temperature(g::ThermoLike) = checkd(LibCantera.thermo_critTemperature(_thermo_handle(g)))
+"Critical pressure [Pa]."
+critical_pressure(g::ThermoLike) = checkd(LibCantera.thermo_critPressure(_thermo_handle(g)))
+"Critical density [kg/m^3]."
+critical_density(g::ThermoLike) = checkd(LibCantera.thermo_critDensity(_thermo_handle(g)))
+"Vapor fraction (quality) of a two-phase state."
+vapor_fraction(g::ThermoLike) = checkd(LibCantera.thermo_vaporFraction(_thermo_handle(g)))
+"Saturation temperature [K] at pressure `p` [Pa]."
+sat_temperature(g::ThermoLike, p) = checkd(LibCantera.thermo_satTemperature(_thermo_handle(g), Float64(p)))
+"Saturation pressure [Pa] at temperature `T` [K]."
+sat_pressure(g::ThermoLike, T) = checkd(LibCantera.thermo_satPressure(_thermo_handle(g), Float64(T)))
+
+# ---- elements / atoms -------------------------------------------------------
+
+"""
+    element_index(gas, name) -> Int
+
+1-based index of element `name`, or `0` if it is not present.
+"""
+function element_index(g::ThermoLike, nm::AbstractString)
+    idx = LibCantera.thermo_elementIndex(_thermo_handle(g), nm)
+    idx == -1 && return 0
+    return Int(idx) + 1
+end
+
+"Number of atoms of element `m` (1-based) in species `k` (1-based)."
+n_atoms(g::ThermoLike, k::Integer, m::Integer) =
+    checkd(LibCantera.thermo_nAtoms(_thermo_handle(g), Int32(k - 1), Int32(m - 1)))
+
+"Atomic weights of all elements [kg/kmol]."
+atomic_weights(g::ThermoLike) =
+    get_array(n_elements(g), (n, b) -> LibCantera.thermo_atomicWeights(_thermo_handle(g), n, b))
+
+"Atomic weight of element `m` (1-based) [kg/kmol]."
+atomic_weight(g::ThermoLike, m::Integer) = atomic_weights(g)[m]
+
+"Species electric charges (per elementary charge)."
+charges(g::ThermoLike) =
+    get_array(n_species(g), (n, b) -> LibCantera.thermo_getCharges(_thermo_handle(g), n, b))
+
+"""
+    elemental_mole_fraction(gas, m) -> Float64
+
+Mole fraction of element `m` (1-based) — moles of that element per mole of all
+elements in the mixture.
+"""
+function elemental_mole_fraction(g::ThermoLike, m::Integer)
+    X = mole_fractions(g); ne = n_elements(g); nsp = n_species(g)
+    num = sum(n_atoms(g, k, m) * X[k] for k in 1:nsp)
+    den = sum(sum(n_atoms(g, k, j) * X[k] for k in 1:nsp) for j in 1:ne)
+    return num / den
+end
+
+"""
+    elemental_mass_fraction(gas, m) -> Float64
+
+Mass fraction of element `m` (1-based) in the mixture.
+"""
+function elemental_mass_fraction(g::ThermoLike, m::Integer)
+    X = mole_fractions(g); nsp = n_species(g)
+    num = atomic_weight(g, m) * sum(n_atoms(g, k, m) * X[k] for k in 1:nsp)
+    return num / mean_molecular_weight(g)
+end
+
+"""
+    equivalence_ratio(gas) -> Float64
+
+Fuel/air equivalence ratio from the elemental composition (C, H, O, S), using
+complete-combustion available-oxygen accounting: `φ = (2·Z_C + Z_H/2 + 2·Z_S) / Z_O`.
+"""
+function equivalence_ratio(g::ThermoLike)
+    Z(sym) = (i = element_index(g, sym); i == 0 ? 0.0 : elemental_mole_fraction(g, i))
+    ZO = Z("O")
+    ZO == 0 && return Inf
+    return (2Z("C") + Z("H") / 2 + 2Z("S")) / ZO
+end
+
+# ---- composition setters ----------------------------------------------------
+
+"""
+    set_equivalence_ratio!(gas, phi, fuel, oxidizer)
+
+Set the mixture composition to the given equivalence ratio `phi` for the given
+`fuel` and `oxidizer` compositions (name-value strings), holding T and p.
+"""
+function set_equivalence_ratio!(g::ThermoLike, phi, fuel::AbstractString,
+                                oxidizer::AbstractString)
+    check(LibCantera.thermo_setEquivalenceRatio(_thermo_handle(g), Float64(phi),
+                                                fuel, oxidizer))
+    return g
+end
+
 # ---- composition ------------------------------------------------------------
 
 "Molecular weights of all species [kg/kmol]."
