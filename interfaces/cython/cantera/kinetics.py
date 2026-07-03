@@ -241,10 +241,8 @@ class Kinetics(_SolutionBase):
         ``i_reaction``. Changes to this object do not affect the `Kinetics` or
         `Solution` object until the `modify_reaction` function is called.
         """
-        # Route through a C int so a negative index wraps to size_t and reaches the
-        # C++ range check (raising CanteraError) rather than a Python OverflowError.
-        cxi: cython.int = i_reaction
-        return Reaction.wrap(self.kinetics.reaction(cxi))
+        self._check_reaction_index(i_reaction)
+        return Reaction.wrap(self.kinetics.reaction(i_reaction))
 
     def reactions(self) -> "list[_Reaction]":
         """
