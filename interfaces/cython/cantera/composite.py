@@ -1474,7 +1474,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
 
     def equilibrate(
         self,
-        XY: _PropertyPair | None = None,
+        XY: _PropertyPair,
         solver: _EquilibriumSolver = "auto",
         rtol: float = 1e-9,
         max_steps: int = 50000,

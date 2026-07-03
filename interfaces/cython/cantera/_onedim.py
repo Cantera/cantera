@@ -1925,7 +1925,7 @@ class Sim1D:
         dgdx: _Array,
         g: "_Callable[[Sim1D], float] | None" = None,
         dp: float = 1e-5,
-    ) -> None:
+    ) -> _Array:
         """
         Find the sensitivities of an objective function using an adjoint method.
 
