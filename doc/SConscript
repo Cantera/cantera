@@ -77,7 +77,7 @@ if localenv['sphinx_docs']:
     # When .pyx files change, the compiled module's API surface may change in ways
     # that Sphinx's environment cache won't detect. Delete the cache so Sphinx
     # re-imports the module and regenerates the affected API pages.
-    pyx_files = multi_glob(env, '#interfaces/cython/cantera', 'pyx', 'pxd', 'pxi')
+    pyx_files = multi_glob(env, '#interfaces/cython/cantera', 'pyx', 'pxd', 'pxi', 'py')
     pyx_stamp = localenv.Command(
         '#build/doc/sphinx/pyx_stamp',
         pyx_files,
