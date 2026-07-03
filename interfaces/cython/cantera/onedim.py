@@ -19,7 +19,7 @@ from ._types import (
     RefineCriteria as _RefineCriteria,
 )
 from ._utils import CanteraError, __git_commit__, __version__, hdf_support
-from .composite import Solution, SolutionArray
+from .composite import Solution, SolutionArray, Interface
 from .kinetics import Kinetics
 
 if TYPE_CHECKING:
@@ -456,7 +456,7 @@ class FlameBase(Sim1D):
             domain = self.domains[self.domain_index(domain)]
         domain._from_array(arr)
 
-    def to_pandas(self, species: _Literal["X", "Y"] = "X", normalize: bool = True) -> _Array:
+    def to_pandas(self, species: _Literal["X", "Y"] = "X", normalize: bool = True) -> _DataFrame:
         """
         Return the solution vector as a `pandas.DataFrame`.
 
@@ -472,9 +472,7 @@ class FlameBase(Sim1D):
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        # Pre-existing discrepancy carried over from the stub: this actually
-        # returns a `pandas.DataFrame`, not an `Array` (see SolutionArray.to_pandas).
-        return self.to_array(normalize=normalize).to_pandas(cols=cols)  # type: ignore[return-value]
+        return self.to_array(normalize=normalize).to_pandas(cols=cols)
 
     @property
     def electric_field_enabled(self) -> bool:
@@ -915,16 +913,14 @@ class FreeFlame(FlameBase):
         def perturb(sim: "FreeFlame", i: int, dp: float) -> None:
             sim.gas.set_multiplier(1+dp, i)
 
-        # Pre-existing discrepancy carried over from the stub: `Sim1D.solve_adjoint`
-        # is published as `-> None`, but at runtime it returns an `ndarray`.
         # `perturb`'s first parameter is narrowed to `FreeFlame` (the only type
         # actually passed here), which is compatible at runtime but not under
         # strict variance rules for callback parameters.
-        result = self.solve_adjoint(  # type: ignore[func-returns-value]
+        result = self.solve_adjoint(
             perturb,  # type: ignore[arg-type]
             self.gas.n_reactions, dgdx
         )
-        return result / Su0  # type: ignore[operator,return-value]
+        return result / Su0
 
 
 class BurnerFlame(FlameBase):
@@ -1294,8 +1290,8 @@ class CounterflowDiffusionFlame(FlameBase):
             "potential_flow_fuel",
             "potential_flow_oxidizer",
         ],
-        fuel: _CompositionLike | None = None,
-        oxidizer: _CompositionLike = "O2",
+        fuel: str | None = None,
+        oxidizer: str = "O2",
         stoich: float | None = None,
     ) -> float:
         r"""
@@ -1366,23 +1362,17 @@ class CounterflowDiffusionFlame(FlameBase):
             if oxidizer != 'O2' and stoich is None:
                 raise KeyError('Required argument "stoich" not defined')
 
-            # `fuel`/`oxidizer` are published as `CompositionLike` (matching the
-            # stub), but `n_atoms`/`species_index` require a species name; this
-            # method only ever supports passing fuel/oxidizer by name.
-            fuel_name = _cast(str, fuel)
-            oxidizer_name = _cast(str, oxidizer)
-
             if stoich is None:
                 # oxidizer is O2
-                stoich = - 0.5 * self.gas.n_atoms(fuel_name, 'O')
+                stoich = - 0.5 * self.gas.n_atoms(fuel, 'O')
                 if 'H' in self.gas.element_names:
-                    stoich += 0.25 * self.gas.n_atoms(fuel_name, 'H')
+                    stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
                 if 'C' in self.gas.element_names:
-                    stoich += self.gas.n_atoms(fuel_name, 'C')
+                    stoich += self.gas.n_atoms(fuel, 'C')
 
             d_u_d_z = np.gradient(self.velocity) / np.gradient(self.grid)
-            phi = (self.X[self.gas.species_index(fuel_name)] * stoich /
-                   np.maximum(self.X[self.gas.species_index(oxidizer_name)], 1e-20))
+            phi = (self.X[self.gas.species_index(fuel)] * stoich /
+                   np.maximum(self.X[self.gas.species_index(oxidizer)], 1e-20))
             z_stoich = np.interp(-1., -phi, self.grid)
             return float(np.abs(np.interp(z_stoich, self.grid, d_u_d_z)))
 
@@ -1471,7 +1461,7 @@ class ImpingingJet(FlameBase):
         gas: Solution,
         grid: _ArrayLike | None = None,
         width: float | None = None,
-        surface: Kinetics | None = None,
+        surface: Interface | None = None,
     ) -> None:
         """
         :param gas:
@@ -1510,10 +1500,7 @@ class ImpingingJet(FlameBase):
             self.surface.T = gas.T
         else:
             self.surface = ReactingSurface1D(name='surface', phase=surface)
-            # Pre-existing discrepancy carried over from the stub: `surface` is
-            # published as `Kinetics`, which does not declare `.T`, but in
-            # practice a `Solution`-like phase object is passed here.
-            self.surface.T = surface.T  # type: ignore[attr-defined]
+            self.surface.T = surface.T
 
         super().__init__((self.inlet, self.flame, self.surface), gas, grid)
 
