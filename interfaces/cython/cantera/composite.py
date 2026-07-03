@@ -33,9 +33,6 @@ from .transport import DustyGasTransport, Transport
 from ._types import (
     Array as _Array,
     ArrayLike as _ArrayLike,
-    ArrayPureFluidStateSetter as _ArrayPureFluidStateSetter,
-    ArrayState2Setter as _ArrayState2Setter,
-    ArrayStateSetter as _ArrayStateSetter,
     Basis as _Basis,
     CompositionLike as _CompositionLike,
     CompressionLevel as _CompressionLevel,
@@ -43,9 +40,7 @@ from ._types import (
     Index as _Index,
     LogLevel as _LogLevel,
     PropertyPair as _PropertyPair,
-    State2Setter as _State2Setter,
     StateDefinition as _StateDefinition,
-    StateSetter as _StateSetter,
 )
 
 if TYPE_CHECKING:
@@ -56,7 +51,7 @@ if TYPE_CHECKING:
     from .solutionbase import _SortingType, _YamlHeader
     from .thermo import Species, _PhaseOfMatter, _QuadratureMethod, _ThermoType
     from .transport import _TransportFittingErrors, _TransportModel
-    from .units import Units, UnitSystem as _UnitSystem, _UnitDict
+    from .units import Units
 
 _pandas: _Any = None
 def _import_pandas() -> None:

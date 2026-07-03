@@ -159,7 +159,7 @@ class Func1:
     @cython.ccall
     def _set_callback(self, c) -> cython.void:
         self.callable = c
-        self._func = CxxNewFunc1Py(func_callback, cython.cast(cython.p_void, self))
+        self._func = make_shared[CxxFunc1Py](func_callback, cython.cast(cython.p_void, self))
         self.func = self._func.get()
 
     @property

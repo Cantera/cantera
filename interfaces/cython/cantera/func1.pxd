@@ -22,8 +22,6 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxFunc1Py "Func1Py" (CxxFunc1):
         CxxFunc1Py(callback_wrapper, void*)
 
-    cdef shared_ptr[CxxFunc1] CxxNewFunc1Py "newFunc1Py" (callback_wrapper, void*)
-
     cdef cppclass PyFuncInfo:
         PyFuncInfo()
         PyObject* func()

@@ -79,9 +79,9 @@ class TestKinetics:
         assert phase.reaction(2).rate.type == "Arrhenius"
         assert phase.reaction(21).reaction_type == "falloff-Troe"
 
-        with pytest.raises(ct.CanteraError, match="outside valid range"):
+        with pytest.raises(ValueError, match="out of range"):
             phase.reaction(33).reaction_type
-        with pytest.raises(ct.CanteraError, match="outside valid range"):
+        with pytest.raises(ValueError, match="out of range"):
             phase.reaction(-2).reaction_type
 
     def test_reaction_equations(self, phase):
