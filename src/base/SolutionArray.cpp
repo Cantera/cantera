@@ -806,7 +806,7 @@ void SolutionArray::setLoc(int loc, bool restore)
             "Unable to set location in empty SolutionArray.");
     } else if (loc < 0 || loc_ >= m_size) {
         throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size);
-    } else if (static_cast<size_t>(m_active[loc_]) == m_loc) {
+    } else if (!restore && static_cast<size_t>(m_active[loc_]) == m_loc) {
         return;
     }
     m_loc = static_cast<size_t>(m_active[loc_]);
