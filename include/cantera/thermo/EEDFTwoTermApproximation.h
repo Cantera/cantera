@@ -142,8 +142,8 @@ public:
      * boundaries.
      */
     //! @since New in %Cantera 4.0
-    std::span<const double> getGridEdge() const {
-        return {m_gridEdge.data(), m_gridEdge.size()};
+    span<const double> getGridEdge() const {
+        return m_gridEdge;
     }
 
     //! Return the EEDF values interpolated at the electron energy grid edges.
@@ -152,7 +152,7 @@ public:
      * Boltzmann-two-term EEDF solve.
      */
     //! @since New in %Cantera 4.0
-    vector<double> getEEDFEdge() const {
+    span<const double> getEEDFEdge() const {
         return m_f0_edge;
     }
 
