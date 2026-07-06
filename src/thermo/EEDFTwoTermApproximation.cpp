@@ -68,7 +68,8 @@ void EEDFTwoTermApproximation::setQuadraticGrid(double kTe_max, size_t ncell)
     setGridCache();
 }
 
-void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, double ratio)
+void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell,
+                                                double ratio)
 {
     // First, a few checks to make sure the parameters are valid.
     if (ncell == 0) {
@@ -102,10 +103,11 @@ void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, do
     m_f0.resize(m_points);
     m_f0_edge.resize(m_points + 1);
 
-    // The zero-energy boundary cannot belong to a positive geometric
-    // progression. Therefore the first grid point is set to 0 and we impose a geometric
-    // progression only from the second grid point only. This second grid point is computed
-    // to match the requested number of cells, maximum grid energy and geometric ratio as follows:
+    // The zero-energy boundary cannot belong to a positive geometric progression.
+    // Therefore the first grid point is set to 0 and we impose a geometric progression
+    // only from the second grid point only. This second grid point is computed to match
+    // the requested number of cells, maximum grid energy and geometric ratio as
+    // follows:
     //
     // E_1 = kTe_max / ratio^(N - 1)
     //
@@ -133,7 +135,7 @@ void EEDFTwoTermApproximation::setGeometricGrid(double kTe_max, size_t ncell, do
     }
 
     setGridCache();
-    m_geometric_ratio = ratio;
+    m_geometricRatio = ratio;
 }
 
 void EEDFTwoTermApproximation::setCustomGrid(span<const double> levels)
@@ -183,7 +185,8 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 
     const double EN = m_phase->reducedElectricField();
 
-    if (EN <= m_threshold_to_maxwellian*1e-21) { // the multiplication is to have the threshold in SI units since it is defined in Td.
+    // Multiplicative factor converts from Td to SI units
+    if (EN <= m_thresholdToMaxwellian*1e-21) {
         const double kTgas = Boltzmann * m_phase->temperature() / ElectronCharge;
         setMaxwellianDistribution(kTgas);
     } else {
@@ -212,7 +215,9 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
     return 0;
 }
 
-double EEDFTwoTermApproximation::linearInterpBounded(double x, span<const double> xpts, span<const double> fpts, double below_value, double above_value)
+double EEDFTwoTermApproximation::linearInterpBounded(
+    double x, span<const double> xpts, span<const double> fpts, double below_value,
+    double above_value)
 {
     AssertThrowMsg(!xpts.empty(), "linearInterpBounded", "x data empty");
     AssertThrowMsg(!fpts.empty(), "linearInterpBounded", "f(x) data empty");
@@ -230,7 +235,8 @@ double EEDFTwoTermApproximation::linearInterpBounded(double x, span<const double
     return linearInterp(x, xpts, fpts);
 }
 
-void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(const Eigen::VectorXd& oldGridCenter, const Eigen::VectorXd& oldF0)
+void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(
+    const Eigen::VectorXd& oldGridCenter, const Eigen::VectorXd& oldF0)
 {
     if (oldGridCenter.size() != oldF0.size() || oldGridCenter.size() < 2) {
         throw CanteraError("EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid",
@@ -260,7 +266,7 @@ void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(const Eigen::Vec
     m_f0 /= fnorm;
 }
 
-void EEDFTwoTermApproximation::adaptEnergyGrid(){
+void EEDFTwoTermApproximation::adaptEnergyGrid() {
     const double fFloor = 1e-300;
 
     for (size_t n = 0; n < m_maxGridAdaptIterations; n++) {
@@ -314,8 +320,7 @@ void EEDFTwoTermApproximation::setMaxwellianDistribution(double kTe)
             "Invalid electron temperature for Maxwellian EEDF: {}", kTe);
     }
 
-    const double prefactor = 2.0 * std::numbers::inv_sqrtpi
-        * std::pow(kTe, -1.5);
+    const double prefactor = 2.0 * std::numbers::inv_sqrtpi * std::pow(kTe, -1.5);
 
     for (size_t j = 0; j < m_points; j++) {
         m_f0(j) = prefactor * std::exp(-m_gridCenter[j] / kTe);
@@ -846,7 +851,8 @@ double EEDFTwoTermApproximation::norm(const Eigen::VectorXd& f, const Eigen::Vec
     return numericalQuadrature(m_quadratureMethod, p, grid);
 }
 
-void EEDFTwoTermApproximation::setInitialGridParameters(double initialMaxEnergy, size_t nGridCells, const string& gridType)
+void EEDFTwoTermApproximation::setInitialGridParameters(
+    double initialMaxEnergy, size_t nGridCells, const string& gridType)
 {
     if (!std::isfinite(initialMaxEnergy) || initialMaxEnergy <= 0.0) {
         throw CanteraError("EEDFTwoTermApproximation::setInitialGridParameters",
@@ -876,7 +882,9 @@ void EEDFTwoTermApproximation::enableGridAdaptation(bool enabled)
     m_adaptGrid = enabled;
 }
 
-void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecades, double maxDecayDecades, double updateFactor, size_t maxIterations, bool maxwellian_reset)
+void EEDFTwoTermApproximation::setGridAdaptationParameters(
+    double minDecayDecades, double maxDecayDecades, double updateFactor,
+    size_t maxIterations, bool maxwellianReset)
 {
     if (!std::isfinite(minDecayDecades) || !std::isfinite(maxDecayDecades) ||
         minDecayDecades <= 0.0 || maxDecayDecades <= minDecayDecades) {
@@ -898,7 +906,7 @@ void EEDFTwoTermApproximation::setGridAdaptationParameters(double minDecayDecade
     m_maxEedfDecay = maxDecayDecades;
     m_gridUpdateFactor = updateFactor;
     m_maxGridAdaptIterations = maxIterations;
-    m_maxwellianReset = maxwellian_reset;
+    m_maxwellianReset = maxwellianReset;
 }
 
 void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
@@ -915,7 +923,7 @@ void EEDFTwoTermApproximation::updateGrid(double maxEnergy)
     } else if (m_gridType == "quadratic") {
         setQuadraticGrid(m_kTeMax, m_initialGridCells);
     } else if (m_gridType == "geometric") {
-        setGeometricGrid(m_kTeMax, m_initialGridCells, m_geometric_ratio);
+        setGeometricGrid(m_kTeMax, m_initialGridCells, m_geometricRatio);
     } else {
         throw CanteraError("EEDFTwoTermApproximation::updateGrid",
             "Unknown energy grid type '{}'.", m_gridType);
