@@ -23,15 +23,10 @@ namespace {
 
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
-    initThermoFile(inputFile, id_);
-
-    // initial electron temperature
-    m_electronTemp = temperature();
-
-    // Initialize the Boltzmann Solver
+    // Initialize the Boltzmann solver and default energy grid before reading
+    // input so that isotropic/discretized EEDF setters have a valid grid.
     m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
 
-    // Set Energy Grid (Hardcoded Defaults for Now)
     double kTe_max = 60;
     size_t nGridCells = 301;
     m_nPoints = nGridCells + 1;
@@ -40,6 +35,11 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
         levels.data(), static_cast<Eigen::Index>(levels.size()));
     m_electronEnergyDist.setZero(m_nPoints);
+
+    // initial electron temperature; may be updated by input file data
+    m_electronTemp = temperature();
+
+    initThermoFile(inputFile, id_);
 }
 
 PlasmaPhase::~PlasmaPhase()
@@ -155,9 +155,6 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
 
     m_distributionType = eedf["type"].asString();
     if (m_distributionType == "isotropic") {
-        if (m_eedfSolver) {
-            m_eedfSolver.reset();
-        }
         if (eedf.hasKey("shape-factor")) {
             setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
         } else {
@@ -177,9 +174,6 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
         }
         setIsotropicElectronEnergyDistribution();
     } else if (m_distributionType == "discretized") {
-        if (m_eedfSolver) {
-            m_eedfSolver.reset();
-        }
         if (!eedf.hasKey("energy-levels")) {
             throw InputFileError(routineName, eedf,
                 "Cannot find key energy-levels.");
@@ -195,10 +189,6 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
         auto distribution = eedf["distribution"].asVector<double>(levels.size());
         setDiscretizedElectronEnergyDist(levels, distribution);
     } else if (m_distributionType == "Boltzmann-two-term") {
-        if (!m_eedfSolver) {
-            m_eedfSolver = make_unique<EEDFTwoTermApproximation>(this);
-        }
-
         if (eedf.hasKey("energy-levels")) {
             auto levels = eedf["energy-levels"].asVector<double>();
             m_eedfSolver->setCustomGrid(levels);
