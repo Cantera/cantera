@@ -31,9 +31,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     size_t nGridCells = 301;
     m_nPoints = nGridCells + 1;
     m_eedfSolver->setLinearGrid(kTe_max, nGridCells);
-    auto levels = m_eedfSolver->getGridEdge();
-    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-        levels.data(), static_cast<Eigen::Index>(levels.size()));
+    m_electronEnergyLevels = asVectorXd(m_eedfSolver->getGridEdge());
     m_electronEnergyDist.setZero(m_nPoints);
 
     // initial electron temperature; may be updated by input file data
@@ -197,14 +195,14 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
         } else {
             if (!eedf.hasKey("initial-max-energy-level")) {
                 throw InputFileError(routineName, eedf,
-                    "Boltzmann-two-term requires either 'energy-levels' or "
-                    "'initial-max-energy-level'.");
+                    "Boltzmann-two-term requires either "
+                    "'energy-levels' or 'initial-max-energy-level'.");
             }
 
             if (!eedf.hasKey("grid-cell-count")) {
                 throw InputFileError(routineName, eedf,
-                    "Boltzmann-two-term requires either 'energy-levels' or "
-                    "'grid-cell-count'.");
+                    "Boltzmann-two-term requires either 'energy-levels' "
+                    "or 'grid-cell-count'.");
             }
 
             double initialMaxEnergy = eedf["initial-max-energy-level"].asDouble();
@@ -273,17 +271,15 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
                     "reduced-field-threshold-before-Maxwellian must be finite "
                     "and non-negative.");
             }
+            // The input to this function is expected to be in Townsend.
             m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(
                 maxwellianThreshold);
         }
 
         auto levels = m_eedfSolver->getGridEdge();
         m_nPoints = levels.size();
-        auto nPoints = static_cast<Eigen::Index>(m_nPoints);
-        m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-            levels.data(), nPoints);
-        m_electronEnergyDist.resize(m_nPoints);
-        m_electronEnergyDist.setZero();
+        m_electronEnergyLevels = asVectorXd(levels);
+        m_electronEnergyDist.setZero(static_cast<Eigen::Index>(m_nPoints));
 
         checkElectronEnergyLevels();
         electronEnergyLevelChanged();
