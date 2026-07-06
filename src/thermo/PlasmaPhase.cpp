@@ -221,7 +221,7 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
             }
 
             string energyLevelsDistribution =
-                eedf.getString("energy-levels-distribution", "linear");
+                eedf.getString("energy-level-spacing", "linear");
 
             m_eedfSolver->setInitialGridParameters(
                 initialMaxEnergy, nGridCells, energyLevelsDistribution);
@@ -243,13 +243,13 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
                 }
             } else {
                 throw InputFileError(routineName, eedf,
-                    "energy-levels-distribution should be linear, quadratic or geometric.");
+                    "energy-level-spacing should be linear, quadratic or geometric.");
             }
 
             if (eedf.hasKey("energy-grid-adaptation")) {
                 const AnyMap adapt = eedf["energy-grid-adaptation"].as<AnyMap>();
                 bool enabled = adapt.getBool("enabled", true);
-                bool maxwellianReset = adapt.getBool("maxwellian-reset", true);
+                bool maxwellianReset = adapt.getBool("Maxwellian-reset", true);
                 double minDecayDecades = adapt.getDouble("min-decay-decades", 10.0);
                 double maxDecayDecades = adapt.getDouble("max-decay-decades", 12.0);
                 double updateFactor = adapt.getDouble("update-factor", 0.1);
@@ -265,12 +265,12 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
             m_nPoints = nGridCells + 1;
         }
 
-        if (eedf.hasKey("reduced-field-threshold-before-maxwellian-Td")) {
+        if (eedf.hasKey("reduced-field-threshold-before-Maxwellian")) {
             double maxwellianThreshold =
-                eedf["reduced-field-threshold-before-maxwellian-Td"].asDouble();
+                eedf.convert("reduced-field-threshold-before-Maxwellian", "Td");
             if (!std::isfinite(maxwellianThreshold) || maxwellianThreshold < 0.0) {
                 throw InputFileError(routineName, eedf,
-                    "reduced-field-threshold-before-maxwellian-Td must be finite "
+                    "reduced-field-threshold-before-Maxwellian must be finite "
                     "and non-negative.");
             }
             m_eedfSolver->setReducedElectricFieldThresholdForMaxwellian(

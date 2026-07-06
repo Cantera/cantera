@@ -2032,7 +2032,7 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.electronMobility()
-    
+
     def set_electron_energy_distribution_parameters(self, params):
         """
         Set parameters for the electron energy distribution of a plasma phase.
@@ -2068,8 +2068,8 @@ cdef class ThermoPhase(_SolutionBase):
                 "type": "Boltzmann-two-term",
                 "initial-max-energy-level": "60 eV",
                 "grid-cell-count": 301,
-                "energy-levels-distribution": "linear",
-                "reduced-field-threshold-before-maxwellian-Td": 1.0,
+                "energy-level-spacing": "linear",
+                "reduced-field-threshold-before-Maxwellian": "1.0 Td",
             })
 
         Boltzmann two-term distribution with an explicit grid::
@@ -2077,7 +2077,7 @@ cdef class ThermoPhase(_SolutionBase):
             gas.set_electron_energy_distribution_parameters({
                 "type": "Boltzmann-two-term",
                 "energy-levels": [0.0, 0.1, 1.0, 10.0],
-                "reduced-field-threshold-before-maxwellian-Td": 1.0,
+                "reduced-field-threshold-before-Maxwellian": "1.0 Td",
             })
 
         Boltzmann two-term distribution with grid adaptation::
@@ -2092,13 +2092,13 @@ cdef class ThermoPhase(_SolutionBase):
                     "max-decay-decades": 12.0,
                     "update-factor": 0.1,
                     "max-iterations": 1000,
-                    "maxwellian-reset":true
+                    "Maxwellian-reset": true
                 },
             })
 
         Changing the electron energy distribution model or grid invalidates the
         previously stored electron energy distribution.
-        
+
         .. versionadded:: 4.0
         """
         if not self._enable_plasma:
