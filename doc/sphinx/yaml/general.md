@@ -64,7 +64,7 @@ Supported compound units are:
 - Force: `N`, `dyn`
 - Pressure: `Pa`, `atm`, `bar`, `dyn/cm^2`
 - Volume: `m^3`, `m³`, `liter`, `L`, `l`, `cc`
-- Other electrical units: `ohm`, `V`, `coulomb`
+- Other electrical units: `ohm`, `V`, `coulomb`, `townsend`, `Td`
 
 Units can be specified on individual input values by placing them after the value,
 separated by a space:

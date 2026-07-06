@@ -76,6 +76,8 @@ const map<string, Units> knownUnits{
     {"ohm", Units(1.0, 1, 2, -3, 0, -2)}, // kg*m^2/s^3/A^2
     {"V", Units(1.0, 1, 2, -3, 0, -1)}, // kg*m^2/s^3/A
     {"coulomb", Units(1.0, 0, 0, 1, 0, 1)}, // A*s
+    {"townsend", Units(1.0e-21, 1, 4, -3, 0, -1)}, // V*m^2
+    {"Td", Units(1.0e-21, 1, 4, -3, 0, -1)}, // V*m^2
 
     //! Activation energy units [M*L^2/T^2/Q]
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},

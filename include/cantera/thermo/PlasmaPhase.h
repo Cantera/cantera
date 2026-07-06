@@ -419,15 +419,16 @@ public:
     *
     * Generated grids may also use:
     *
-    * - `energy-levels-distribution`, with supported values `linear`, `quadratic`,
+    * - `energy-level-spacing`, with supported values `linear`, `quadratic`,
     *   and `geometric`. If omitted, `linear` is used.
     * - `geometric-grid-ratio`, used only for `geometric` grids.
-    * - `energy-grid-adaptation`, a mapping controlling automatic grid adaptation 
-    * (see PlasmaPhase yaml file documentation for further details on energy-grid-adaptation).
+    * - `energy-grid-adaptation`, a mapping controlling automatic grid adaptation (see
+    *   the [`plasma` input documentation](../reference/yaml/phases.html) for further
+    *   details on energy-grid adaptation).
     *
-    * The optional key `reduced-field-threshold-before-maxwellian-Td` applies to
-    * `Boltzmann-two-term` for both explicit and generated grids: below this threshold, 
-    * a gas-temperature maxwellian is imposed.
+    * The optional key `reduced-field-threshold-before-Maxwellian` applies to
+    * `Boltzmann-two-term` for both explicit and generated grids: below this threshold,
+    * a gas-temperature Maxwellian is imposed.
     *
     * This method updates the electron energy levels and electron energy
     * distribution stored by `PlasmaPhase`. Changing the EEDF model or grid
