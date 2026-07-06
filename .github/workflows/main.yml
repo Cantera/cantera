@@ -70,7 +70,7 @@ jobs:
           save-wheel: false
       fail-fast: false
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -154,7 +154,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -210,7 +210,7 @@ jobs:
             python-version: '3.14'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -269,7 +269,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -314,7 +314,7 @@ jobs:
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
+      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -327,7 +327,7 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
+      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -395,7 +395,7 @@ jobs:
     steps:
       # Only need pyproject.toml for type checker settings
       - name: Checkout the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -479,7 +479,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout the repository
         with:
           submodules: recursive
@@ -617,13 +617,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout the repository
         with:
           submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -725,7 +725,7 @@ jobs:
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
       # folder, so no need to do a recursive checkout
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout the repository
         with:
           persist-credentials: false
@@ -822,7 +822,7 @@ jobs:
           fmt-ver: 12
       fail-fast: false
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout the repository
         with:
           submodules: recursive
@@ -886,7 +886,7 @@ jobs:
           fmt-ver: '12.0'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -959,7 +959,7 @@ jobs:
         python-version: ["3.12", "3.13", "3.14"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Checkout the repository
         with:
           submodules: recursive
@@ -978,7 +978,7 @@ jobs:
             pandas graphviz pytest pytest-xdist typing_extensions Jinja2
             pytest-github-actions-annotate-failures
       - name: Restore Boost cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
@@ -1040,7 +1040,7 @@ jobs:
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev \
         doxygen
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -1080,7 +1080,7 @@ jobs:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         submodules: recursive
@@ -1095,7 +1095,7 @@ jobs:
         python -m pip install -U pip setuptools wheel
         python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2 typing-extensions
     - name: Restore Boost cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       id: cache-boost
       with:
         path: ${{env.BOOST_ROOT}}
@@ -1158,7 +1158,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -1274,7 +1274,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         persist-credentials: false
@@ -1357,7 +1357,7 @@ jobs:
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@e4b102448122ec2be10a72d3e0d83f6039711460 # v3.1.2
+      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1368,6 +1368,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@4c375221b861dd3f7ea9b31704a3cf45d35073f1 # v3.1.2
+      uses: matlab-actions/run-tests@ae0e80cb44fdec28d35d0831d8acf38ee4fdf91a # v3.2.0
       with:
         select-by-folder: test/matlab
