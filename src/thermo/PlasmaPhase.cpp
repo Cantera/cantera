@@ -340,23 +340,9 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "Boltzmann-two-term") {
         auto ierr = m_eedfSolver->calculateDistributionFunction();
         if (ierr == 0) {
-            auto levels = m_eedfSolver->getGridEdge();
-            auto y = m_eedfSolver->getEEDFEdge();
-
-            if (levels.size() != y.size()) {
-                throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
-                    "Inconsistent EEDF solver output: grid edge size and EEDF edge size differ.");
-            }
-
-            m_nPoints = levels.size();
-            auto nPoints = static_cast<Eigen::Index>(m_nPoints);
-
-            m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(
-                levels.data(), nPoints);
-
-            m_electronEnergyDist = Eigen::Map<const Eigen::ArrayXd>(
-                y.data(), nPoints);
-
+            m_electronEnergyLevels = asVectorXd(m_eedfSolver->getGridEdge());
+            m_electronEnergyDist = asVectorXd(m_eedfSolver->getEEDFEdge());
+            m_nPoints = m_electronEnergyLevels.size();
             electronEnergyLevelChanged();
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
