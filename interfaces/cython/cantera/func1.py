@@ -242,49 +242,49 @@ class Func1:
         out.func = out._func.get()
         return out
 
-    def __add__(self, other: _Func1Like, /) -> "Func1":
+    def __add__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
 
-    def __radd__(self, other: _Func1Like, /) -> "Func1":
+    def __radd__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewSumFunction(f1._func, self._func))
 
-    def __sub__(self, other: _Func1Like, /) -> "Func1":
+    def __sub__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
 
-    def __rsub__(self, other: _Func1Like, /) -> "Func1":
+    def __rsub__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func))
 
-    def __mul__(self, other: _Func1Like, /) -> "Func1":
+    def __mul__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
 
-    def __rmul__(self, other: _Func1Like, /) -> "Func1":
+    def __rmul__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewProdFunction(f1._func, self._func))
 
-    def __truediv__(self, other: _Func1Like, /) -> "Func1":
+    def __truediv__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
         return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
 
-    def __rtruediv__(self, other: _Func1Like, /) -> "Func1":
+    def __rtruediv__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other

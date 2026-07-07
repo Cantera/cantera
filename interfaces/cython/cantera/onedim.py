@@ -34,7 +34,7 @@ class FlameBase(Sim1D):
     #: Concrete type is narrowed by each subclass (FreeFlow/UnstrainedFlow/
     #: AxisymmetricFlow), all of which are set in the subclass `__init__`
     #: before `FlameBase.__init__` is called.
-    flame: "_FlowBase"
+    flame: _FlowBase
 
     def __init__(
         self,
@@ -103,7 +103,7 @@ class FlameBase(Sim1D):
     def set_initial_guess(
         self,
         *args: _Any,
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
         **kwargs: _Any,
     ) -> None:
@@ -635,7 +635,7 @@ def _array_property(attr: str, size: str | None = None) -> property:
     'size' argument is the attribute name of the gas object used to set the
     leading dimension of the resulting array.
     """
-    def getter(self: "FlameBase") -> _Array:
+    def getter(self: FlameBase) -> _Array:
         if size is None:
             # 1D array for scalar property
             vals = np.empty(self.flame.n_points)
@@ -760,7 +760,7 @@ class FreeFlame(FlameBase):
     def set_initial_guess(  # type: ignore[override]
         self,
         locs: _ArrayLike = [0.0, 0.3, 0.5, 1.0],
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
     ) -> None:
         """
@@ -897,7 +897,7 @@ class FreeFlame(FlameBase):
             s_i = \frac{k_i}{S_u} \frac{dS_u}{dk_i}
         """
 
-        def g(sim: "FreeFlame") -> float:
+        def g(sim: FreeFlame) -> float:
             return float(sim.velocity[0])
 
         Nvars = sum(D.n_components * D.n_points for D in self.domains)
@@ -910,7 +910,7 @@ class FreeFlame(FlameBase):
 
         Su0 = g(self)
 
-        def perturb(sim: "FreeFlame", i: int, dp: float) -> None:
+        def perturb(sim: FreeFlame, i: int, dp: float) -> None:
             sim.gas.set_multiplier(1+dp, i)
 
         # `perturb`'s first parameter is narrowed to `FreeFlame` (the only type
@@ -974,7 +974,7 @@ class BurnerFlame(FlameBase):
 
     def set_initial_guess(  # type: ignore[override]
         self,
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
     ) -> None:
         """
@@ -1115,7 +1115,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
     def set_initial_guess(  # type: ignore[override]
         self,
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
         mode: _Literal["stoich", "linear"] = "stoich",
     ) -> None:
@@ -1511,7 +1511,7 @@ class ImpingingJet(FlameBase):
     def set_initial_guess(  # type: ignore[override]
         self,
         products: _Literal["inlet", "equil"] = "inlet",
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
     ) -> None:
         """
@@ -1602,7 +1602,7 @@ class CounterflowPremixedFlame(FlameBase):
     def set_initial_guess(  # type: ignore[override]
         self,
         equilibrate: bool = True,
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
     ) -> None:
         """
@@ -1715,7 +1715,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
 
     def set_initial_guess(  # type: ignore[override]
         self,
-        data: "SolutionArray[Solution] | _DataFrame | str | _Path | None" = None,
+        data: SolutionArray[Solution] | _DataFrame | str | _Path | None = None,
         group: str | None = None,
     ) -> None:
         """

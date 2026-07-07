@@ -220,8 +220,8 @@ def assign_delegates(obj, delegator: cython.pointer(CxxDelegator)) -> cython.int
 
 
 def extension(
-    *, name: str, data: "type[_ExtensibleRateData] | None" = None
-) -> "_Callable[[type[_ExtensibleRate]], type[_ExtensibleRate]]":
+    *, name: str, data: type[_ExtensibleRateData] | None = None
+) -> _Callable[[type[_ExtensibleRate]], type[_ExtensibleRate]]:
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
