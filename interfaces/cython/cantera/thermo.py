@@ -209,7 +209,7 @@ class Species:
         self.species = self._species.get()
 
     @staticmethod
-    def from_yaml(text: _Str) -> "Species":
+    def from_yaml(text: _Str) -> Species:
         """
         Create a `Species` object from its YAML string representation.
         """
@@ -219,7 +219,7 @@ class Species:
         return species
 
     @staticmethod
-    def from_dict(data: "_SpeciesInput") -> "Species":
+    def from_dict(data: _SpeciesInput) -> Species:
         """
         Create a `Species` object from a dictionary corresponding to its YAML
         representation.
@@ -234,7 +234,7 @@ class Species:
         return species
 
     @staticmethod
-    def list_from_file(filename: _Str, section: _Str = "species") -> "list[Species]":
+    def list_from_file(filename: _Str, section: _Str = "species") -> list[Species]:
         """
         Create a list of Species objects from all of the species defined in the section
         ``section`` of a YAML file. Directories on Cantera's input file path will be
@@ -249,7 +249,7 @@ class Species:
         return species
 
     @staticmethod
-    def list_from_yaml(text: _Str, section: _Str | None = None) -> "list[Species]":
+    def list_from_yaml(text: _Str, section: _Str | None = None) -> list[Species]:
         """
         Create a list of Species objects from all the species defined in a YAML
         string. If ``text`` is a YAML mapping, the ``section`` name of the list
@@ -334,7 +334,7 @@ class Species:
         self.species.transport = tran._data
 
     @property
-    def input_data(self) -> "_SpeciesInput":
+    def input_data(self) -> _SpeciesInput:
         """
         Get input data defining this Species, along with any user-specified data
         provided with its input (YAML) definition.
@@ -378,14 +378,14 @@ class ThermoPhase(_SolutionBase):
         self,
         infile: _Path | str = "",
         name: str = "",
-        adjacent: "_Sequence[ThermoPhase]" = (),
+        adjacent: _Sequence[ThermoPhase] = (),
         *,
         origin: _SolutionBase | None = None,
         yaml: str | None = None,
         thermo: str | None = None,
-        species: "_Sequence[Species] | None" = (),
+        species: _Sequence[Species] | None = (),
         kinetics: str | None = None,
-        reactions: "_Sequence[_Reaction] | None" = (),
+        reactions: _Sequence[_Reaction] | None = (),
         init: bool = True,
         **kwargs: _Any,
     ) -> None:
@@ -473,7 +473,7 @@ class ThermoPhase(_SolutionBase):
     @property
     def _native_state(
         self,
-    ) -> "tuple[_StateVariable, _StateVariable, _CompositionVariable]":
+    ) -> tuple[_StateVariable, _StateVariable, _CompositionVariable]:
         """
         Default properties defining a state
         """
@@ -484,7 +484,7 @@ class ThermoPhase(_SolutionBase):
     @property
     def _full_states(
         self,
-    ) -> "dict[frozenset[_StateVariable | _CompositionVariable], _FullState]":
+    ) -> dict[frozenset[_StateVariable | _CompositionVariable], _FullState]:
         """
         Sets of parameters which set the full thermodynamic state
         """
@@ -495,7 +495,7 @@ class ThermoPhase(_SolutionBase):
     @property
     def _partial_states(
         self,
-    ) -> "dict[frozenset[_StateVariable], _PropertyPair]":
+    ) -> dict[frozenset[_StateVariable], _PropertyPair]:
         """
         Sets of parameters which set a valid partial thermodynamic state
         """
@@ -677,10 +677,10 @@ class ThermoPhase(_SolutionBase):
         self.thermo.setCaseSensitiveSpecies(bool(val))
 
     @_overload
-    def species(self, k: None = None) -> "list[Species]": ...
+    def species(self, k: None = None) -> list[Species]: ...
     @_overload
-    def species(self, k: str | int) -> "Species": ...
-    def species(self, k: str | int | None = None) -> "Species | list[Species]":
+    def species(self, k: str | int) -> Species: ...
+    def species(self, k: str | int | None = None) -> Species | list[Species]:
         """
         Return the `Species` object for species ``k``, where ``k`` is either the
         species index or the species name. If ``k`` is not specified, a list of
@@ -2394,7 +2394,7 @@ class InterfacePhase(ThermoPhase):
         self.surf = cython.cast(cython.pointer(CxxSurfPhase), self.thermo)
 
     @property
-    def adjacent(self) -> "dict[str, _Solution]":
+    def adjacent(self) -> dict[str, _Solution]:
         """
         A dictionary containing higher-dimensional phases adjacent to this interface,
         for example bulk phases adjacent to a surface.

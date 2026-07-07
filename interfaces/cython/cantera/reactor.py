@@ -218,7 +218,7 @@ class ReactorBase:
         self.rbase.syncState()
 
     @property
-    def phase(self) -> "_Solution":
+    def phase(self) -> _Solution:
         """
         The `Solution` object representing the reactor's contents.
 
@@ -267,51 +267,51 @@ class ReactorBase:
 
     # Flow devices & walls
     @property
-    def inlets(self) -> list["FlowDevice"]:
+    def inlets(self) -> list[FlowDevice]:
         """List of flow devices installed as inlets to this reactor"""
         return self._inlets
 
     @property
-    def outlets(self) -> list["FlowDevice"]:
+    def outlets(self) -> list[FlowDevice]:
         """List of flow devices installed as outlets to this reactor"""
         return self._outlets
 
     @property
-    def walls(self) -> list["Wall"]:
+    def walls(self) -> list[Wall]:
         """List of walls installed on this reactor"""
         return self._walls
 
     @property
-    def surfaces(self) -> list["ReactorSurface"]:
+    def surfaces(self) -> list[ReactorSurface]:
         """List of reacting surfaces installed on this reactor"""
         return self._surfaces
 
-    def _add_inlet(self, inlet: "FlowDevice") -> None:
+    def _add_inlet(self, inlet: FlowDevice) -> None:
         """
         Store a reference to ``inlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._inlets.append(inlet)
 
-    def _add_outlet(self, outlet: "FlowDevice") -> None:
+    def _add_outlet(self, outlet: FlowDevice) -> None:
         """
         Store a reference to ``outlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._outlets.append(outlet)
 
-    def _add_wall(self, wall: "Wall") -> None:
+    def _add_wall(self, wall: Wall) -> None:
         """
         Store a reference to ``wall`` to prevent it from being prematurely
         garbage collected.
         """
         self._walls.append(wall)
 
-    def draw(self, graph: "_Digraph | None" = None, *,
+    def draw(self, graph: _Digraph | None = None, *,
               graph_attr: dict[str, str] | None = None,
               node_attr: dict[str, str] | None = None, print_state: bool = False,
               species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
-              species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
+              species_units: _Literal["percent", "ppm"] = "percent") -> _Digraph:
         """
         Draw as ``graphviz`` ``dot`` node. The node is added to an existing ``graph`` if
         provided. Optionally include current reactor state in the node.
@@ -366,7 +366,7 @@ class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = cython.cast(cython.pointer(CxxReactor), self.rbase)
 
-    def __init__(self, phase: "_Solution", *, clone: bool | None = None,
+    def __init__(self, phase: _Solution, *, clone: bool | None = None,
                  name: str = "(none)", energy: _Literal["on", "off"] = "on",
                  group_name: str = "", **kwargs: _Any) -> None:
         """
@@ -892,7 +892,7 @@ class ReactorSurface(ReactorBase):
         self.rbase = self._rbase.get()
         self.surface = cython.cast(cython.pointer(CxxReactorSurface), self.rbase)
 
-    def __init__(self, phase: _SolutionBase | None = None, r: "Reactor | None" = None,
+    def __init__(self, phase: _SolutionBase | None = None, r: Reactor | None = None,
                  *, kind=None, clone: bool | None = None, name: str = "(none)",
                  A: float | None = None,
                  node_attr: dict[str, str] | None = None) -> None:
@@ -937,7 +937,7 @@ class ReactorSurface(ReactorBase):
                                               cython.cast(cython.size_t, data.size)))
 
     @property
-    def reactor(self) -> "Reactor":
+    def reactor(self) -> Reactor:
         """
         Return the `Reactor` object the surface is connected to.
 
@@ -951,7 +951,7 @@ class ReactorSurface(ReactorBase):
         return self._reactors[0]
 
     @property
-    def reactors(self) -> list["Reactor"]:
+    def reactors(self) -> list[Reactor]:
         """
         A list of of `Reactor` objects containing phases that participate in reactions
         on this surface.
@@ -960,13 +960,13 @@ class ReactorSurface(ReactorBase):
         """
         return self._reactors
 
-    def draw(self, graph: "_Digraph | None" = None, *,
+    def draw(self, graph: _Digraph | None = None, *,
               graph_attr: dict[str, str] | None = None,
               node_attr: dict[str, str] | None = None,
               surface_edge_attr: dict[str, str] | None = None,
               print_state: bool = False,
               species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
-              species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
+              species_units: _Literal["percent", "ppm"] = "percent") -> _Digraph:
         """
         Draw the surface as a ``graphviz`` ``dot`` node connected to its reactor.
         The node is added to an existing ``graph`` if provided.
@@ -1279,12 +1279,12 @@ class WallBase(ConnectorNode):
         """
         return self.wall.heatRate()
 
-    def draw(self, graph: "_Digraph | None" = None, *,
+    def draw(self, graph: _Digraph | None = None, *,
               graph_attr: dict[str, str] | None = None,
               node_attr: dict[str, str] | None = None,
               edge_attr: dict[str, str] | None = None,
               moving_wall_edge_attr: dict[str, str] | None = None,
-              show_wall_velocity: bool = True) -> "_Digraph":
+              show_wall_velocity: bool = True) -> _Digraph:
         """
         Draw as connection between left and right reactor or reservoir using
         ``graphviz``.
@@ -1552,10 +1552,10 @@ class FlowDevice(ConnectorNode):
     def device_coefficient(self, value: cython.double) -> None:
         self.dev.setDeviceCoefficient(value)
 
-    def draw(self, graph: "_Digraph | None" = None, *,
+    def draw(self, graph: _Digraph | None = None, *,
               graph_attr: dict[str, str] | None = None,
               node_attr: dict[str, str] | None = None,
-              edge_attr: dict[str, str] | None = None) -> "_Digraph":
+              edge_attr: dict[str, str] | None = None) -> _Digraph:
         """
         Draw as connection between upstream and downstream reactor or reservoir using
         ``graphviz``.
@@ -2440,7 +2440,7 @@ class ReactorNet:
         raise AttributeError("unreadable attribute 'derivative_settings'")
 
     @derivative_settings.setter
-    def derivative_settings(self, settings: "_DerivativeSettings") -> None:
+    def derivative_settings(self, settings: _DerivativeSettings) -> None:
         self.net.setDerivativeSettings(py_to_anymap(settings))
 
     def draw(self, *, graph_attr: dict[str, str] | None = None,
@@ -2452,7 +2452,7 @@ class ReactorNet:
              surface_edge_attr: dict[str, str] | None = None,
              show_wall_velocity: bool = True, print_state: bool = False,
              species: _Literal["X", "Y"] | bool | _Iterable[str] | None = None,
-             species_units: _Literal["percent", "ppm"] = "percent") -> "_Digraph":
+             species_units: _Literal["percent", "ppm"] = "percent") -> _Digraph:
         """
         Draw as ``graphviz.graphs.DiGraph``. Connecting flow controllers and
         walls are depicted as arrows.

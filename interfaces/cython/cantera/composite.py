@@ -282,7 +282,7 @@ class Quantity:
     _id: int
     mass: float
     constant: _PropertyPair
-    _weakref_proxy: "_WeakrefProxy"
+    _weakref_proxy: _WeakrefProxy
 
     # Bare (unassigned) annotations for the subset of the dynamically-added
     # pass-through attributes (see note near the end of the class body) that are
@@ -421,17 +421,17 @@ class Quantity:
         self.state = self._phase.state
     set_mixture_fraction.__doc__ = Solution.set_mixture_fraction.__doc__
 
-    def __imul__(self, other: float, /) -> "Quantity":
+    def __imul__(self, other: float, /) -> Quantity:
         self.mass *= other
         return self
 
-    def __mul__(self, other: float, /) -> "Quantity":
+    def __mul__(self, other: float, /) -> Quantity:
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
-    def __rmul__(self, other: float, /) -> "Quantity":
+    def __rmul__(self, other: float, /) -> Quantity:
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
-    def __iadd__(self, other: "Quantity", /) -> "Quantity":
+    def __iadd__(self, other: Quantity, /) -> Quantity:
         if self._id != other._id:
             raise ValueError(
                 'Cannot add Quantities with different phase '
@@ -469,7 +469,7 @@ class Quantity:
         self.mass = m
         return self
 
-    def __add__(self, other: "Quantity", /) -> "Quantity":
+    def __add__(self, other: Quantity, /) -> Quantity:
         newquantity = Quantity(self.phase, mass=self.mass, constant=self.constant)
         newquantity += other
         return newquantity
@@ -1265,7 +1265,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
                 check_extra(extra_name)
                 self._add_extra(_cast(str, extra_name))
 
-    def __getitem__(self, index: _Index, /) -> "SolutionArray[_P]":
+    def __getitem__(self, index: _Index, /) -> SolutionArray[_P]:
         selected = np.arange(self.size).reshape(self.shape)[index]
         out = SolutionArray(self._phase, init=False)
         if hasattr(selected, "__len__"):
@@ -1311,7 +1311,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         else:
             super().__setattr__(name, value)
 
-    def __call__(self, *species: str) -> "SolutionArray[_P]":
+    def __call__(self, *species: str) -> SolutionArray[_P]:
         out = SolutionArray(self._phase[species], init=False)
         self._share(out, range(self.size))
         out.shape = self.shape
@@ -1871,7 +1871,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         cols: _Sequence[str] | None = None,
         threshold: int = 0,
         species: _Literal["X", "Y"] | None = None,
-    ) -> "_DataFrame":
+    ) -> _DataFrame:
         """
         Returns the data specified by ``cols`` in a single `pandas.DataFrame`.
 
@@ -1888,7 +1888,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         labels = list(data_dict.keys())
         return _cast("_DataFrame", _pandas.DataFrame(data=data, columns=labels))
 
-    def from_pandas(self, df: "_DataFrame", normalize: bool = True) -> None:
+    def from_pandas(self, df: _DataFrame, normalize: bool = True) -> None:
         """
         Restores `SolutionArray` data from a `pandas.DataFrame` ``df``.
 
@@ -2005,7 +2005,7 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         }
 
     @classmethod
-    def _from_pickle(cls, state: dict[str, _Any]) -> "SolutionArray[_P]":
+    def _from_pickle(cls, state: dict[str, _Any]) -> SolutionArray[_P]:
         # Recreate Solution object from pickled state. The pickled dict is
         # untyped (`Any`), so the actual phase type cannot be statically
         # verified against `_P` here; this is inherent to unpickling.
@@ -2026,10 +2026,10 @@ class SolutionArray(SolutionArrayBase, _Generic[_P]):
         return arr
 
     @_override
-    def __reduce__(self) -> "_Never":
+    def __reduce__(self) -> _Never:
         return (self.__class__._from_pickle, (self._to_picklable(),))  # type: ignore[return-value,misc]
 
-    def __copy__(self) -> "SolutionArray[_P]":
+    def __copy__(self) -> SolutionArray[_P]:
         return self.__class__._from_pickle(self._to_picklable())
 
 
@@ -2039,7 +2039,7 @@ def _state2_prop(
            _Callable[[_Any, _Sequence[_Any]], None]]:
     # Factory for creating properties which consist of a tuple of two variables,
     # such as 'TP' or 'SV'
-    def getter(self: "SolutionArray[_Any]") -> tuple[_Array, _Array]:
+    def getter(self: SolutionArray[_Any]) -> tuple[_Array, _Array]:
         a = np.empty(self.shape)
         b = np.empty(self.shape)
         for loc, index in enumerate(self._indices):
@@ -2047,7 +2047,7 @@ def _state2_prop(
             a[index], b[index] = getattr(self._phase, name)
         return a, b
 
-    def setter(self: "SolutionArray[_Any]", AB: _Sequence[_Any]) -> None:
+    def setter(self: SolutionArray[_Any], AB: _Sequence[_Any]) -> None:
         if len(AB) != 2:
             raise ValueError("Expected 2 elements, got {}".format(len(AB)))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
@@ -2065,7 +2065,7 @@ def _state3_prop(
            _Callable[[_Any, _Sequence[_Any]], None]]:
     # Factory for creating properties which consist of a tuple of three
     # variables, such as 'TPY' or 'UVX'
-    def getter(self: "SolutionArray[_Any]") -> tuple[_Array, _Array, _Array]:
+    def getter(self: SolutionArray[_Any]) -> tuple[_Array, _Array, _Array]:
         a = np.empty(self.shape)
         b = np.empty(self.shape)
         if scalar:
@@ -2077,7 +2077,7 @@ def _state3_prop(
             a[index], b[index], c[index] = getattr(self._phase, name)
         return a, b, c
 
-    def setter(self: "SolutionArray[_Any]", ABC: _Sequence[_Any]) -> None:
+    def setter(self: SolutionArray[_Any], ABC: _Sequence[_Any]) -> None:
         if len(ABC) != 3:
             raise ValueError("Expected 3 elements, got {}".format(len(ABC)))
         A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
@@ -2130,38 +2130,38 @@ def _make_functions() -> None:
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
-    def empty_scalar(self: "SolutionArray[_Any]") -> _Array:
+    def empty_scalar(self: SolutionArray[_Any]) -> _Array:
         return np.empty(self.shape)
 
-    def empty_strings(self: "SolutionArray[_Any]") -> _Array:
+    def empty_strings(self: SolutionArray[_Any]) -> _Array:
         # The maximum length of strings assigned by built-in methods is
         # currently limited to 50 characters; an attempt to assign longer
         # character arrays will result in truncated strings.
         return np.empty(self.shape, dtype='U50')
 
-    def empty_species(self: "SolutionArray[_Any]") -> _Array:
+    def empty_species(self: SolutionArray[_Any]) -> _Array:
         return np.empty(self.shape + (self._phase.n_selected_species,))
 
-    def empty_total_species(self: "SolutionArray[_Any]") -> _Array:
+    def empty_total_species(self: SolutionArray[_Any]) -> _Array:
         n_tot = self._phase.n_total_species
         # account for deselected species
         n_tot -= self._phase.n_species - self._phase.n_selected_species
         return np.empty(self.shape + (n_tot,))
 
-    def empty_species2(self: "SolutionArray[_Any]") -> _Array:
+    def empty_species2(self: SolutionArray[_Any]) -> _Array:
         return np.empty(self.shape + (self._phase.n_species, self._phase.n_species))
 
-    def empty_reactions(self: "SolutionArray[_Any]") -> _Array:
+    def empty_reactions(self: SolutionArray[_Any]) -> _Array:
         return np.empty(self.shape + (self._phase.n_reactions,))
 
     # Factory for creating read-only properties
     def make_prop(
         name: str,
-        get_container: _Callable[["SolutionArray[_Any]"], _Array],
+        get_container: _Callable[[SolutionArray[_Any]], _Array],
         doc_source: _Any,
         block_interface: bool = False,
     ) -> property:
-        def getter(self: "SolutionArray[_Any]") -> _Array:
+        def getter(self: SolutionArray[_Any]) -> _Array:
             if block_interface and isinstance(self._phase, Interface):
                 # used to block Interface methods that require synchronized updates of
                 # linked phases
@@ -2201,9 +2201,9 @@ def _make_functions() -> None:
 
     # Factory for creating wrappers for functions which return a value
     def caller(
-        name: str, get_container: _Callable[["SolutionArray[_Any]"], _Array]
+        name: str, get_container: _Callable[[SolutionArray[_Any]], _Array]
     ) -> _Callable[..., _Array]:
-        def wrapper(self: "SolutionArray[_Any]", *args: _Any, **kwargs: _Any) -> _Array:
+        def wrapper(self: SolutionArray[_Any], *args: _Any, **kwargs: _Any) -> _Array:
             v = get_container(self)
             for loc, index in enumerate(self._indices):
                 self._set_loc(loc)
@@ -2218,16 +2218,16 @@ def _make_functions() -> None:
     # functions and properties unmodified. Having a setter is ok even for read-
     # only properties, since the wrapped class will just raise an exception
     def passthrough_prop(name: str, doc_source: _Any) -> property:
-        def getter(self: "SolutionArray[_Any]") -> _Any:
+        def getter(self: SolutionArray[_Any]) -> _Any:
             return getattr(self._phase, name)
 
-        def setter(self: "SolutionArray[_Any]", value: _Any) -> None:
+        def setter(self: SolutionArray[_Any], value: _Any) -> None:
             setattr(self._phase, name, value)
 
         return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
     def passthrough_method(orig: _Callable[..., _Any]) -> _Callable[..., _Any]:
-        def f(self: "SolutionArray[_Any]", *args: _Any, **kwargs: _Any) -> _Any:
+        def f(self: SolutionArray[_Any], *args: _Any, **kwargs: _Any) -> _Any:
             return orig(self._phase, *args, **kwargs)
         f.__doc__ = orig.__doc__
         return f

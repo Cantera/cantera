@@ -213,7 +213,7 @@ class ReactionRate:
         cls,
         data: _ReactionRateInput[_ReactionRateParameters],
         hyphenize: bool = True,
-    ) -> "ReactionRate":
+    ) -> ReactionRate:
         """
         Create a `ReactionRate` object from a dictionary corresponding to its YAML
         representation. By default, underscores in keys are replaced by hyphens.
@@ -236,7 +236,7 @@ class ReactionRate:
         return ReactionRate.wrap(cxx_rate)
 
     @classmethod
-    def from_yaml(cls, text: str) -> "ReactionRate":
+    def from_yaml(cls, text: str) -> ReactionRate:
         """
         Create a `ReactionRate` object from its YAML string representation.
 
@@ -1177,7 +1177,7 @@ class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_parameters")
 
-    def eval(self, data: "ExtensibleRateData") -> float:
+    def eval(self, data: ExtensibleRateData) -> float:
         """
         Responsible for calculating the forward rate constant based on the current state
         of the phase, stored in an instance of a class derived from
@@ -1185,7 +1185,7 @@ class ExtensibleRate(ReactionRate):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.eval")
 
-    def validate(self, equation: str, soln: "_Solution") -> None:
+    def validate(self, equation: str, soln: _Solution) -> None:
         """
         Responsible for validating that the rate expression is configured with valid
         parameters. This may depend on properties of the Solution, for example
@@ -1237,7 +1237,7 @@ class ExtensibleRateData:
         "update": ("update", "double(void*)", "replace")
     }
 
-    def update(self, soln: "_Solution") -> bool:
+    def update(self, soln: _Solution) -> bool:
         """
         This method takes a `Solution` object and stores any thermodynamic data (for
         example, temperature and pressure) needed to evaluate all reactions of the
@@ -1881,9 +1881,9 @@ class Reaction:
     def from_dict(
         cls,
         data: _ReactionRateInput[_ReactionRateParameters],
-        kinetics: "_Kinetics",
+        kinetics: _Kinetics,
         hyphenize: bool = True,
-    ) -> "Reaction":
+    ) -> Reaction:
         """
         Create a `Reaction` object from a dictionary corresponding to its YAML
         representation. By default, underscores in keys are replaced by hyphens.
@@ -1908,7 +1908,7 @@ class Reaction:
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
-    def from_yaml(cls, text: _Str, kinetics: "_Kinetics") -> "Reaction":
+    def from_yaml(cls, text: _Str, kinetics: _Kinetics) -> Reaction:
         """
         Create a `Reaction` object from its YAML string representation.
 
@@ -1932,8 +1932,8 @@ class Reaction:
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
-    def list_from_file(filename: _Str, kinetics: "_Kinetics",
-                       section: _Str = "reactions") -> list["Reaction"]:
+    def list_from_file(filename: _Str, kinetics: _Kinetics,
+                       section: _Str = "reactions") -> list[Reaction]:
         """
         Create a list of Reaction objects from all of the reactions defined in a
         YAML file. Reactions from the section ``section`` will be returned.
@@ -1947,7 +1947,7 @@ class Reaction:
         return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
-    def list_from_yaml(text: _Str, kinetics: "_Kinetics") -> list["Reaction"]:
+    def list_from_yaml(text: _Str, kinetics: _Kinetics) -> list[Reaction]:
         """
         Create a list of `Reaction` objects from all the reactions defined in a
         YAML string.

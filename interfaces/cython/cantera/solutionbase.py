@@ -137,14 +137,14 @@ class _SolutionBase:
         self,
         infile: _Path | str = "",
         name: str = "",
-        adjacent: "_Sequence[_ThermoPhase]" = (),
+        adjacent: _Sequence[_ThermoPhase] = (),
         *,
-        origin: "_SolutionBase | None" = None,
+        origin: _SolutionBase | None = None,
         yaml: str | None = None,
         thermo: str | None = None,
-        species: "_Sequence[_Species] | None" = (),
+        species: _Sequence[_Species] | None = (),
         kinetics: str | None = None,
-        reactions: "_Sequence[_Reaction] | None" = (),
+        reactions: _Sequence[_Reaction] | None = (),
         init: bool = True,
         **kwargs: _Any,
     ) -> None:
@@ -182,7 +182,7 @@ class _SolutionBase:
     @property
     def composite(
         self,
-    ) -> "tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]":
+    ) -> tuple[_ThermoType | None, _KineticsType | None, _TransportModel | None]:
         """
         Returns tuple of thermo/kinetics/transport models associated with
         this SolutionBase object.
@@ -309,7 +309,7 @@ class _SolutionBase:
     @property
     def input_data(
         self,
-    ) -> "dict[str, str | list[str] | dict[str, float | dict[str, float]]]":
+    ) -> dict[str, str | list[str] | dict[str, float | dict[str, float]]]:
         """
         Get input data corresponding to the current state of this Solution,
         along with any user-specified data provided with its input (YAML)
@@ -318,7 +318,7 @@ class _SolutionBase:
         return anymap_to_py(self.base.parameters(True))
 
     @property
-    def input_header(self) -> "_YamlHeader":
+    def input_header(self) -> _YamlHeader:
         """
         Retrieve input header data not associated with the current state of this
         Solution, which corresponds to fields at the root level of the YAML input
@@ -326,7 +326,7 @@ class _SolutionBase:
         """
         return anymap_to_py(self.base.header())
 
-    def update_user_data(self, data: "dict[str, _Any]") -> None:
+    def update_user_data(self, data: dict[str, _Any]) -> None:
         """
         Add the contents of the provided `dict` as additional fields when generating
         YAML phase definition files with `write_yaml` or in the data returned by
@@ -342,7 +342,7 @@ class _SolutionBase:
         """
         self.thermo.input().clear()
 
-    def update_user_header(self, data: "dict[str, str | list[str]]") -> None:
+    def update_user_header(self, data: dict[str, str | list[str]]) -> None:
         """
         Add the contents of the provided `dict` as additional top-level YAML fields
         when generating files with `write_yaml` or in the data returned by
@@ -362,8 +362,8 @@ class _SolutionBase:
     def write_yaml(
         self,
         filename: None = None,
-        phases: "_Sequence[_ThermoPhase] | _ThermoPhase | None" = None,
-        units: "_UnitSystem | _UnitDict | None" = None,
+        phases: _Sequence[_ThermoPhase] | _ThermoPhase | None = None,
+        units: _UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -371,9 +371,9 @@ class _SolutionBase:
     @_overload
     def write_yaml(
         self,
-        filename: "str | _Path",
-        phases: "_Sequence[_ThermoPhase] | _ThermoPhase | None" = None,
-        units: "_UnitSystem | _UnitDict | None" = None,
+        filename: str | _Path,
+        phases: _Sequence[_ThermoPhase] | _ThermoPhase | None = None,
+        units: _UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
         header: bool = True,
@@ -458,7 +458,7 @@ class _SolutionBase:
             print(f"Wrote: {output_paths}")
 
     def __getitem__(
-        self, selection: "slice | str | int | _Iterable[str | int]", /
+        self, selection: slice | str | int | _Iterable[str | int], /
     ) -> _Self:
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):
@@ -492,7 +492,7 @@ class _SolutionBase:
 
     @selected_species.setter
     def selected_species(
-        self, species: "str | int | _Sequence[str] | _Sequence[int]"
+        self, species: str | int | _Sequence[str] | _Sequence[int]
     ) -> None:
         if isinstance(species, (str, int)):
             species = (species,)
@@ -633,9 +633,9 @@ class SolutionArrayBase:
         self,
         phase: _SolutionBase,
         shape: int | tuple[int, ...] = (0,),
-        states: "_ArrayLike | None" = None,
-        extra: "str | _Sequence[str] | dict[str, _ArrayLike] | None" = None,
-        meta: "dict[str, _Any]" = {},
+        states: _ArrayLike | None = None,
+        extra: str | _Sequence[str] | dict[str, _ArrayLike] | None = None,
+        meta: dict[str, _Any] = {},
         init: bool = True,
     ) -> None:
         pass
@@ -670,11 +670,11 @@ class SolutionArrayBase:
         self.base.setApiShape(cxx_shape)
 
     @_overload
-    def info(self, keys: "_Sequence[str] | None", rows: int, width: int | None,
-             display: "_Literal[False]") -> str: ...
+    def info(self, keys: _Sequence[str] | None, rows: int, width: int | None,
+             display: _Literal[False]) -> str: ...
     @_overload
-    def info(self, keys: "_Sequence[str] | None" = None, rows: int = 10,
-             width: int | None = None, display: "_Literal[True]" = True) -> None: ...
+    def info(self, keys: _Sequence[str] | None = None, rows: int = 10,
+             width: int | None = None, display: _Literal[True] = True) -> None: ...
     def info(self, keys=None, rows=10, width=None, display=True):
         """
         Display or return a concise summary of a `SolutionArray`.
@@ -714,14 +714,14 @@ class SolutionArrayBase:
         print(ret)
 
     @property
-    def meta(self) -> "dict[str, _Any]":
+    def meta(self) -> dict[str, _Any]:
         """
         Dictionary holding information describing the `SolutionArrayBase`.
         """
         return anymap_to_py(self.base.meta())
 
     @meta.setter
-    def meta(self, meta: "dict[str, _Any]") -> None:
+    def meta(self, meta: dict[str, _Any]) -> None:
         if isinstance(meta, dict):
             self.base.setMeta(py_to_anymap(meta))
         else:
@@ -756,14 +756,14 @@ class SolutionArrayBase:
         """ Check whether `SolutionArrayBase` has component """
         return self.base.hasComponent(stringify(name))
 
-    def _get_component(self, name: _Str) -> "_Array":
+    def _get_component(self, name: _Str) -> _Array:
         """ Retrieve `SolutionArrayBase` component by name """
         out = anyvalue_to_python(stringify(""), self.base.getComponent(stringify(name)))
         if out is None:
             return np.empty((0,))
         return np.array(out)
 
-    def _set_component(self, name: _Str, data: "_Array") -> None:
+    def _set_component(self, name: _Str, data: _Array) -> None:
         """ Set `SolutionArrayBase` component by name """
         self.base.setComponent(stringify(name), python_to_anyvalue(data))
 
@@ -781,12 +781,12 @@ class SolutionArrayBase:
         """
         return self.base.updateState(loc)
 
-    def _get_state(self, loc: cython.int) -> "_Array":
+    def _get_state(self, loc: cython.int) -> _Array:
         """ Retrieve the state vector for a given `SolutionArrayBase` location """
         cxx_data: vector[cython.double] = self.base.getState(loc)
         return np.fromiter(cxx_data, np.double)
 
-    def _set_state(self, loc: cython.int, data: "_Array") -> None:
+    def _set_state(self, loc: cython.int, data: _Array) -> None:
         """ Set the state vector for a given `SolutionArrayBase` location """
         cxx_data: vector[cython.double]
         for item in data:
@@ -809,7 +809,7 @@ class SolutionArrayBase:
         """ Set auxiliary data for a `SolutionArrayBase` location """
         self.base.setAuxiliary(loc, py_to_anymap(data))
 
-    def _append(self, state: "_Array", extra: "dict[str, _Any]") -> None:
+    def _append(self, state: _Array, extra: "dict[str, _Any]") -> None:
         """ Append at end of `SolutionArrayBase` """
         cxx_state: vector[cython.double]
         for item in state:
@@ -818,7 +818,7 @@ class SolutionArrayBase:
 
     def _cxx_save(self, filename: str | _Path, name: str | None, sub: str | None,
                   description: str | None, overwrite: bool,
-                  compression: "_CompressionLevel", basis: "_Basis | None") -> None:
+                  compression: _CompressionLevel, basis: _Basis | None) -> None:
         """ Interface `SolutionArray.save` with C++ core """
         self.base.save(
             stringify(str(filename)), stringify(name), stringify(sub),

@@ -188,7 +188,7 @@ class Domain1D:
     @_overload
     def info(
         self,
-        keys: "_Sequence[str] | None" = None,
+        keys: _Sequence[str] | None = None,
         rows: int = 10,
         width: int | None = None,
         display: _Literal[False] = False,
@@ -196,7 +196,7 @@ class Domain1D:
     @_overload
     def info(
         self,
-        keys: "_Sequence[str] | None" = None,
+        keys: _Sequence[str] | None = None,
         rows: int = 10,
         width: int | None = None,
         display: bool = True,
@@ -378,9 +378,9 @@ class Domain1D:
     def set_bounds(
         self,
         *,
-        default: "_BoundsPair | None" = None,
-        Y: "_BoundsPair | None" = None,
-        **kwargs: "_BoundsPair",
+        default: _BoundsPair | None = None,
+        Y: _BoundsPair | None = None,
+        **kwargs: _BoundsPair,
     ) -> None:
         """
         Set the lower and upper bounds on the solution.
@@ -408,11 +408,11 @@ class Domain1D:
     def set_steady_tolerances(
         self,
         *,
-        default: "_BoundsPair | None" = None,
-        Y: "_BoundsPair | None" = None,
-        abs: "_BoundsPair | None" = None,
-        rel: "_BoundsPair | None" = None,
-        **kwargs: "_BoundsPair",
+        default: _BoundsPair | None = None,
+        Y: _BoundsPair | None = None,
+        abs: _BoundsPair | None = None,
+        rel: _BoundsPair | None = None,
+        **kwargs: _BoundsPair,
     ) -> None:
         """
         Set the error tolerances for the steady-state problem.
@@ -450,11 +450,11 @@ class Domain1D:
     def set_transient_tolerances(
         self,
         *,
-        default: "_BoundsPair | None" = None,
-        Y: "_BoundsPair | None" = None,
-        abs: "_BoundsPair | None" = None,
-        rel: "_BoundsPair | None" = None,
-        **kwargs: "_BoundsPair",
+        default: _BoundsPair | None = None,
+        Y: _BoundsPair | None = None,
+        abs: _BoundsPair | None = None,
+        rel: _BoundsPair | None = None,
+        **kwargs: _BoundsPair,
     ) -> None:
         """
         Set the error tolerances for the steady-state problem.
@@ -1015,7 +1015,7 @@ class FlowBase(Domain1D):
         return self.flow.leftEmissivity(), self.flow.rightEmissivity()
 
     @boundary_emissivities.setter
-    def boundary_emissivities(self, epsilon: "_BoundsPair") -> None:
+    def boundary_emissivities(self, epsilon: _BoundsPair) -> None:
         if len(epsilon) != 2:
             raise ValueError('Setting the boundary emissivities requires a '
                              'tuple of length 2.')
@@ -1191,7 +1191,7 @@ class Sim1D:
     Domains are ordered left-to-right, with domain number 0 at the left.
     """
 
-    domains: "tuple[Domain1D, ...]"
+    domains: tuple[Domain1D, ...]
 
     def __init__(
         self, domains: _Sequence[Domain1D], *args: _Any, **kwargs: _Any
@@ -1209,7 +1209,7 @@ class Sim1D:
         self._initial_guess_args = ()
         self._initial_guess_kwargs = {}
 
-    def set_interrupt(self, f: "_Callable[[float], float] | None") -> None:
+    def set_interrupt(self, f: _Callable[[float], float] | None) -> None:
         """
         Set an interrupt function to be called each time that :ct:`OneDim::eval` is
         called. The signature of ``f`` is ``float f(float)``. The default
@@ -1226,7 +1226,7 @@ class Sim1D:
         self._interrupt = f
         self.sim.setInterrupt(self._interrupt.func)
 
-    def set_time_step_callback(self, f: "_Callable[[float], float] | None") -> None:
+    def set_time_step_callback(self, f: _Callable[[float], float] | None) -> None:
         """
         Set a callback function to be called after each successful timestep.
         The signature of ``f`` is ``float f(float)``. The argument passed to ``f`` is
@@ -1242,7 +1242,7 @@ class Sim1D:
         self._time_step_callback = f
         self.sim.setTimeStepCallback(self._time_step_callback.func)
 
-    def set_steady_callback(self, f: "_Callable[[float], float] | None") -> None:
+    def set_steady_callback(self, f: _Callable[[float], float] | None) -> None:
         """
         Set a callback function to be called after each successful steady-state
         solve, before regridding. The signature of ``f`` is ``float f(float)``. The
@@ -1920,10 +1920,10 @@ class Sim1D:
 
     def solve_adjoint(
         self,
-        perturb: "_Callable[[Sim1D, int, float], None]",
+        perturb: _Callable[[Sim1D, int, float], None],
         n_params: int,
         dgdx: _Array,
-        g: "_Callable[[Sim1D], float] | None" = None,
+        g: _Callable[[Sim1D], float] | None = None,
         dp: float = 1e-5,
     ) -> _Array:
         """

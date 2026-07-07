@@ -141,20 +141,20 @@ class Kinetics(_SolutionBase):
     a reaction mechanism.
     """
     #: List holding references to CustomRate objects (prevents garbage collection)
-    _custom_rates: "list[_CustomRate]" = []
+    _custom_rates: list[_CustomRate] = []
 
     def __init__(
         self,
         infile: _Path | str = "",
         name: str = "",
-        adjacent: "_Sequence[_ThermoPhase]" = (),
+        adjacent: _Sequence[_ThermoPhase] = (),
         *,
         origin: _SolutionBase | None = None,
         yaml: str | None = None,
         thermo: str | None = None,
-        species: "_Sequence[_Species] | None" = (),
+        species: _Sequence[_Species] | None = (),
         kinetics: str | None = None,
-        reactions: "_Sequence[_Reaction] | None" = (),
+        reactions: _Sequence[_Reaction] | None = (),
         init: bool = True,
         **kwargs: _Any,
     ) -> None:
@@ -235,7 +235,7 @@ class Kinetics(_SolutionBase):
         return [self.kinetics_species_name(k)
                 for k in range(self.n_total_species)]
 
-    def reaction(self, i_reaction: int) -> "_Reaction":
+    def reaction(self, i_reaction: int) -> _Reaction:
         """
         Return a `Reaction` object representing the reaction with index
         ``i_reaction``. Changes to this object do not affect the `Kinetics` or
@@ -244,7 +244,7 @@ class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return Reaction.wrap(self.kinetics.reaction(i_reaction))
 
-    def reactions(self) -> "list[_Reaction]":
+    def reactions(self) -> list[_Reaction]:
         """
         Return a list of all `Reaction` objects. Changes to these objects do not
         affect the `Kinetics` or `Solution` object until the `modify_reaction`
@@ -252,7 +252,7 @@ class Kinetics(_SolutionBase):
         """
         return [self.reaction(i) for i in range(self.n_reactions)]
 
-    def modify_reaction(self, irxn: int, rxn: "_Reaction") -> None:
+    def modify_reaction(self, irxn: int, rxn: _Reaction) -> None:
         """
         Modify the `Reaction` with index ``irxn`` to have the same rate parameters as
         ``rxn``. ``rxn`` must have the same reactants and products and use the same rate
@@ -262,7 +262,7 @@ class Kinetics(_SolutionBase):
         """
         self.kinetics.modifyReaction(irxn, cython.cast(Reaction, rxn)._reaction)
 
-    def add_reaction(self, rxn: "_Reaction") -> None:
+    def add_reaction(self, rxn: _Reaction) -> None:
         """ Add a new reaction to this phase. """
         self.kinetics.addReaction(cython.cast(Reaction, rxn)._reaction)
         if isinstance(rxn.rate, (CustomRate, ExtensibleRate)):
@@ -291,7 +291,7 @@ class Kinetics(_SolutionBase):
             self._check_reaction_index(i_reaction)
             self.kinetics.setMultiplier(i_reaction, value)
 
-    def reaction_equations(self, indices: "_Sequence[int] | None" = None) -> list[str]:
+    def reaction_equations(self, indices: _Sequence[int] | None = None) -> list[str]:
         """
         Returns a list containing the reaction equation for all reactions in the
         mechanism if ``indices`` is unspecified, or the equations for each
@@ -504,7 +504,7 @@ class Kinetics(_SolutionBase):
         return anymap_to_py(settings)
 
     @derivative_settings.setter
-    def derivative_settings(self, settings: "_DerivativeSettings") -> None:
+    def derivative_settings(self, settings: _DerivativeSettings) -> None:
         self.kinetics.setDerivativeSettings(py_to_anymap(settings))
 
     @property
@@ -1024,14 +1024,14 @@ class InterfaceKinetics(Kinetics):
         self,
         infile: _Path | str = "",
         name: str = "",
-        adjacent: "_Sequence[_ThermoPhase]" = (),
+        adjacent: _Sequence[_ThermoPhase] = (),
         *,
         origin: _SolutionBase | None = None,
         yaml: str | None = None,
         thermo: str | None = None,
-        species: "_Sequence[_Species] | None" = (),
+        species: _Sequence[_Species] | None = (),
         kinetics: str | None = None,
-        reactions: "_Sequence[_Reaction] | None" = (),
+        reactions: _Sequence[_Reaction] | None = (),
         init: bool = True,
         **kwargs: _Any,
     ) -> None:
@@ -1069,14 +1069,14 @@ class InterfaceKinetics(Kinetics):
         cython.cast(cython.pointer(CxxInterfaceKinetics),
                     self.kinetics).solvePseudoSteadyStateProblem(loglevel)
 
-    def phase_index(self, phase: "_ThermoPhase | str | int") -> int:
+    def phase_index(self, phase: _ThermoPhase | str | int) -> int:
         """
         Get the index of the phase ``phase``, where ``phase`` may specified using
         the phase object, the name, or the index itself.
         """
         return self._phase_indices[phase]
 
-    def _phase_slice(self, phase: "_ThermoPhase | str | int") -> slice:
+    def _phase_slice(self, phase: _ThermoPhase | str | int) -> slice:
         p = self.phase_index(phase)
         k1 = self.kinetics_species_index(0, p)
 
@@ -1087,7 +1087,7 @@ class InterfaceKinetics(Kinetics):
 
         return slice(k1, k2)
 
-    def get_creation_rates(self, phase: "_ThermoPhase | str | int") -> _Array:
+    def get_creation_rates(self, phase: _ThermoPhase | str | int) -> _Array:
         """
         Creation rates for each species in phase ``phase``. Use the
         `creation_rates` property to get the creation rates for species in all
@@ -1095,7 +1095,7 @@ class InterfaceKinetics(Kinetics):
         """
         return self.creation_rates[self._phase_slice(phase)]
 
-    def get_destruction_rates(self, phase: "_ThermoPhase | str | int") -> _Array:
+    def get_destruction_rates(self, phase: _ThermoPhase | str | int) -> _Array:
         """
         Destruction rates for each species in phase ``phase``. Use the
         `destruction_rates` property to get the destruction rates for species
@@ -1103,7 +1103,7 @@ class InterfaceKinetics(Kinetics):
         """
         return self.destruction_rates[self._phase_slice(phase)]
 
-    def get_net_production_rates(self, phase: "_ThermoPhase | str | int") -> _Array:
+    def get_net_production_rates(self, phase: _ThermoPhase | str | int) -> _Array:
         """
         Net production rates for each species in phase ``phase``. Use the
         `net_production_rates` property to get the net production rates for
@@ -1111,7 +1111,7 @@ class InterfaceKinetics(Kinetics):
         """
         return self.net_production_rates[self._phase_slice(phase)]
 
-    def interface_current(self, phase: "_ThermoPhase | str | int") -> float:
+    def interface_current(self, phase: _ThermoPhase | str | int) -> float:
         """
         The interface current is useful when charge transfer reactions occur at
         an interface. It is defined here as the net positive charge entering the
@@ -1124,8 +1124,8 @@ class InterfaceKinetics(Kinetics):
     def write_yaml(  # type: ignore[override]
         self,
         filename: _Path | str,
-        phases: "_Sequence[_ThermoPhase] | _ThermoPhase | None" = None,
-        units: "_UnitSystem | _UnitDict | None" = None,
+        phases: _Sequence[_ThermoPhase] | _ThermoPhase | None = None,
+        units: _UnitSystem | _UnitDict | None = None,
         precision: int | None = None,
         skip_user_defined: bool | None = None,
     ) -> None:
