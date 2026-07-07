@@ -347,6 +347,18 @@ class TestSolutionArray:
             assert orig.P == approx(loaded.P)
             assert orig.X == approx(loaded.X)
 
+    def test_update_state(self, gas):
+        arr1 = ct.SolutionArray(gas, (1,))
+        arr1.TPX = 300, ct.one_atm, {"H2": .5, "O2": .5}
+        T1, P1, X1 = arr1.TPX
+        arr2 = ct.SolutionArray(gas, (1,))
+        arr2.TPX = 500, 2.0 * ct.one_atm, {"N2": 1.0}
+        T2, P2, X2 = arr2.TPX
+        assert arr1.T == approx(T1)
+        assert arr1.T != approx(T2)
+        assert arr1.X == approx(X1)
+        assert arr1.X != approx(X2)
+
 @pytest.fixture(scope='class')
 def setup_solution_array_info_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
