@@ -892,7 +892,8 @@ class ReactorSurface(ReactorBase):
         self.rbase = self._rbase.get()
         self.surface = cython.cast(cython.pointer(CxxReactorSurface), self.rbase)
 
-    def __init__(self, phase: _SolutionBase | None = None, r: Reactor | None = None,
+    def __init__(self, phase: _SolutionBase | None = None,
+                 r: Reactor | _Sequence[Reactor] | None = None,
                  *, kind=None, clone: bool | None = None, name: str = "(none)",
                  A: float | None = None,
                  node_attr: dict[str, str] | None = None) -> None:
