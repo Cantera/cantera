@@ -65,7 +65,7 @@ namespace Cantera
  *
  * Additional implementation for each function type is specific to the programming
  * language that the delegate is written in. For the Python delegates, see additional
- * documentation in `delegator.pyx`.
+ * documentation in `delegator.py` and `_delegate_callbacks.pyx`.
  *
  * ## Implementation for specific delegated functions
  *
@@ -86,7 +86,7 @@ namespace Cantera
  *
  * Additional implementation for each function is specific to the programming language
  * that the delegate is written in. For Python delegates, see additional documentation
- * in `delegator.pyx`.
+ * in `delegator.py` and `_delegate_callbacks.pyx`.
  */
 class Delegator
 {
