@@ -161,10 +161,10 @@ above, both are used.
 * The minimum Python version that Cantera supports is Python 3.12, so code should only
   use features added in Python 3.12 or earlier
 * Please use double quotes in all new Python code
-* Type annotations are mandatory for any external interfaces:
-  * Utilize type annotations directly in all new pure Python code (`.py` files)
-  * For Cython code (`.pyx` files), add the annotations to the corresponding type stubs
-    (`.pyi` files)
+* Type annotations are required for any external interfaces. Utilize type annotations
+  directly in all new Python code, including Cython code written in using it's "pure
+  Python" mode.
+
   * See [](sec-python-type-annotations) for more information
 
 ### Sphinx comments
@@ -174,10 +174,10 @@ above, both are used.
 * All classes, member variables, and methods should include
   [Python docstrings](https://peps.python.org/pep-0257/#what-is-a-docstring)
 * New classes and global functions need to be added to one of the pages in
-  `doc/sphinx/python` so they will appear in the API reference. For a Cython class
-  defined in `.pyx` file, the argument list needs to be repeated as part of the
-  `.. autoclass::` declaration; for a function or pure Python class, the signature is
-  automatically read by Sphinx.
+  `doc/sphinx/python` so they will appear in the API reference. For a Cython class (any
+  `.py` file containing the directive `# cython: language_level=3` in its preamble), the
+  argument list needs to be repeated as part of the `.. autoclass::` declaration; for a
+  function or pure Python class, the signature is automatically read by Sphinx.
 * Docstrings should use annotations compatible with
   [autodoc](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html).
   For guidance, refer to existing Cantera documentation or online tutorials (see

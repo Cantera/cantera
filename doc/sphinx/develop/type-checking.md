@@ -10,24 +10,37 @@ A secondary benefit of type annotations is to facilitate static analysis of Cant
 Python code in order to catch potential typing-related errors using tools like
 [mypy](https://mypy.readthedocs.io/en/latest/index.html),
 [pyright](https://microsoft.github.io/pyright/), [ty](https://docs.astral.sh/ty/), and
-[pyrefly](https://pyrefly.org/). These are only able to analyze pure Python code, so
-they are of limited utility due to Cantera's extensive use of Cython syntax.
+[pyrefly](https://pyrefly.org/).
 
 ## Adding Type Annotations
 
-Annotations should be added directly to all pure Python code (`.py` files). For Cython
-code (`.pyx` files), annotation support is limited and optional; instead, type stubs
-(`.pyi` files) must be added and maintained to document the external interface. Any
-changes to the externally-facing API must include explicit type annotations. Type
-annotations of implementation details is optional but encouraged for pure Python code,
-and may be necessary in some situations to ensure the static type checks pass.
+Annotations should be added directly to all Python code. Any changes to the
+externally-facing API must include explicit type annotations. Type annotations of
+implementation details is optional but encouraged for pure Python code, and may be
+necessary in some situations to ensure the static type checks pass.
 
 Ensure the syntax and features support the lowest-support Python version (currently
 3.12), referencing the [Python](https://typing.python.org/en/latest/) and
 [mypy](https://mypy.readthedocs.io/en/latest/index.html) documentation for guidance and
-current best practices. Some additional recommendations which are more specific to
+current best practices. The supported feature set is further limited for those Python
+modules that are compiled by Cython (identifiable by the `cython: language_level=3`
+directive in their preamble). Some additional recommendations which are more specific to
 Cantera include:
 
+* Bare annotations using parameterized generics such as `tuple[...]` and `dict[str,str]`
+  are coerced by Cython's annotation typing, rejecting for example `list` or `AnyMap` (a
+  `dict` subclass), respectively. There are two options for workarounds.
+  * Route through a `TypeAlias` such as `_BoundsPair: _TypeAlias = tuple[float, float]`
+    which is not coerced and allows the runtime to accept any compatible type. One
+    downside of this is that Sphinx docs and editor tool tips just show _BoundsPair
+    rather than the more explicit type declaration.
+  * Put the type name in quotes, for example `"tuple[float, float]"`. The downside of
+    this approach is that it is not always clear why the quotes are necessary, and it
+    may be tempting to remove them for the sake of "cleaning up" the code.
+* Typing tools are unaware of the `__cinit__` method being a constructor. Therefore,
+  classes that do all there initialization in `__cinit__` need to have a placeholder
+  `__init__` method duplicating the arguments of `__cinit__` where type annotations can
+  be provided.
 * Type aliases should generally be prepended with an underscore.
 * Aliases and special functions such as parametric `TypeGuard`s which will be used in
   many parts of the code should be placed in `_types.py`.
