@@ -118,7 +118,10 @@ a mapping with fields:
 : The pre-exponential factor
 
 `b`
-: The temperature exponent, which is applied to the electron temperature
+: The electron temperature exponent
+
+`b-gas`
+: The gas temperature exponent
 
 `Ea-gas`
 : The activation energy term $E_{a,g}$ that is related to the gas temperature
@@ -129,7 +132,7 @@ a mapping with fields:
 or a corresponding four-element list. The following are equivalent:
 
 ```yaml
-{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol, b-gas: 0}
 [17283, -3.1, -5820 J/mol, 1081 J/mol]
 ```
 

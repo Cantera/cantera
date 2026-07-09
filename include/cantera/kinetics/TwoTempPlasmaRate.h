@@ -12,7 +12,7 @@
 namespace Cantera
 {
 
-//! Data container holding shared data specific to TwoTempPlasmaRate
+//! Data container holding shared data specific to TwoTempPlasmaRate.
 /**
  * The data container `TwoTempPlasmaData` holds precalculated data common to
  * all `TwoTempPlasmaRate` objects.
@@ -37,7 +37,6 @@ struct TwoTempPlasmaData : public ReactionData
     double logTe = 0.0; //!< logarithm of electron temperature
     double recipTe = 1.0; //!< inverse of electron temperature
 };
-
 
 //! Two temperature plasma reaction rate type depends on both
 //! gas temperature and electron temperature.
@@ -66,32 +65,45 @@ public:
 
     //! Constructor.
     /*!
-     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
+     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units.
      *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b   Electron temperature exponent (non-dimensional)
-     *  @param Ea  Activation energy in energy units [J/kmol]
-     *  @param EE  Activation electron energy in energy units [J/kmol]
-     *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0.
+     *  @param b   Electron temperature exponent (non-dimensional).
+     *  @param Ea  Activation energy in energy units [J/kmol].
+     *  @param EE  Activation electron energy in energy units [J/kmol].
+     *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0. 
+     *  @since New in %Cantera 4.0
      */
     TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg);
 
+    //! Constructor.
+    /*!
+     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units.
+     *      depend on the reaction order and the dimensionality (surface or bulk).
+     *  @param b   Electron temperature exponent (non-dimensional).
+     *  @param Ea  Activation energy in energy units [J/kmol]. Defaults to 0.
+     *  @param EE  Activation electron energy in energy units [J/kmol]. Defaults to 0.
+     */
     TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
 
+    //! Constructor based on an AnyMap object instead of all parameters directly.
     TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={});
 
+    //! Creates a new two-temperature-plasma reaction.
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>>();
     }
 
+    //! Returns the reaction type.
     const string type() const override {
         return "two-temperature-plasma";
     }
 
+    //! Check that the reaction does not have the 'reversible: true' attribute.
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
-    //! Evaluate reaction rate
+    //! Evaluates reaction rate.
     /*!
-     *  @param shared_data  data shared by all reactions of a given type
+     *  @param shared_data  data shared by all reactions of a given type.
      */
     double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation (in temperature units)
@@ -100,23 +112,24 @@ public:
                     * shared_data.recipTe * shared_data.recipT);
     }
 
-
     //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate
+    //! divided by reaction rate.
     /*!
      *  This method does not consider changes of electron temperature.
      *  A corresponding warning is raised.
-     *  @param shared_data  data shared by all reactions of a given type
+     *  @param shared_data  data shared by all reactions of a given type.
      */
     double ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const;
 
-    //! Return the electron activation energy *Ea* [J/kmol]
+    //! Return the electron activation energy *Ea* [J/kmol].
     double activationElectronEnergy() const {
         return m_E4_R * GasConstant;
     }
 
 protected:
-    double m_bg = 0.0; //!< Gas temperature exponent
+    //! Gas temperature exponent.
+    //! @since New in %Cantera 4.0
+    double m_bg = 0.0;
 };
 
 }
