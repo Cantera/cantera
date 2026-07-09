@@ -33,6 +33,31 @@ const string ModelMultiState = "multi-state-resolved";
 const string ModelStarikovskiy = "starikovskiy";
 const string ModelCastela = "castela";
 
+enum class VibModel {
+    Constant,
+    MultiStateResolved,
+    Starikovskiy,
+    Castela
+};
+
+VibModel parseVibrationModel(const string& model, const AnyMap& input,
+                             const string& where)
+{
+    if (model == ModelConstant) {
+        return VibModel::Constant;
+    } else if (model == ModelMultiState) {
+        return VibModel::MultiStateResolved;
+    } else if (model == ModelStarikovskiy) {
+        return VibModel::Starikovskiy;
+    } else if (model == ModelCastela) {
+        return VibModel::Castela;
+    }
+
+    throw InputFileError(where, input,
+        "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
+        "'starikovskiy', 'castela', or 'constant'.", model);
+}
+
 const AnyMap& getRateConstantMap(const AnyMap& node)
 {
     if (!node.hasKey("rate-constant")) {
@@ -493,126 +518,165 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //   vibration-model: starikovskiy
     //   vibration-model: castela
     //
-    // This is done in a spriti of class adaptability:
-    // Any user wishing to develop more advanced vibration models
-    // is welcome to add them in this class.
-    //
     // The default model is multi-state-resolved.
 
     m_vibration_model = node.getString("vibration-model", ModelMultiState);
-
     const auto& rateMap = getRateConstantMap(node);
 
-    if (m_vibration_model == ModelConstant) {
-        // Constant model:
-        //
-        //   k(T) = A
-        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
-
-        forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
-            {m_b_str, "n", m_B_str, m_C_str, m_D_str, m_m_str,
-            m_E_str, m_z_str, m_scaling_str});
-
-        configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
-        setGenericParameters(0.0, 0.0, 0.0, 2.0/3.0, 0.0, 1.0, 1.0);
+    switch (parseVibrationModel(m_vibration_model, node, WhereSetParameters)) {
+    case VibModel::Constant:
+        setConstantParameters(node, rateMap, rate_units);
+        break;
+    case VibModel::MultiStateResolved:
+        setMultiStateParameters(node, rateMap, rate_units);
+        break;
+    case VibModel::Starikovskiy:
+        setStarikovskiyParameters(node, rateMap, rate_units);
+        break;
+    case VibModel::Castela:
+        setCastelaParameters(node, rateMap, rate_units);
+        break;
     }
-    else if (m_vibration_model == ModelMultiState) {
-        // Detailed VV/VT model:
-        //
-        //   k(T) = scaling * A * exp(
-        //       b * log(T)
-        //       + B
-        //       + C * T^(-1/3)
-        //       + D * T^(-2/3)
-        //   )
-        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
-        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {"n", m_m_str, m_E_str, m_z_str});
+}
 
-        ArrheniusBase::setParameters(node, rate_units);
-        setGenericParameters(rateMap.getDouble(m_B_str, 0.0), rateMap.getDouble(m_C_str, 0.0),
-        rateMap.getDouble(m_D_str, 0.0), 2.0 / 3.0, 0.0, 1.0, rateMap.getDouble(m_scaling_str, 1.0));
-    }
-    else if (m_vibration_model == ModelStarikovskiy) {
-        // User-facing formula:
-        //
-        //   k(T) = A * T^n * exp(
-        //       K
-        //       + B * T^(-1/3)
-        //       + C * T^(-m)
-        //       + D * T^(-z)
-        //   )
-        //
-        // Internal mapping:
-        //
-        //   m_b = n
-        //   m_B = K
-        //   m_C = B
-        //   m_D = C
-        //   m_m = m
-        //   m_E = D
-        //   m_z = z
+void VibrationalRelaxationRate::setConstantParameters(
+    const AnyMap& node, const AnyMap& rateMap, const UnitStack& rate_units)
+{
+    // Constant model:
+    //
+    //   k(T) = A
+    requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
 
-        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
-        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_b_str, m_scaling_str});
+    forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
+        {m_b_str, "n", m_B_str, m_C_str, m_D_str, m_m_str,
+         m_E_str, m_z_str, m_scaling_str});
 
-        configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], rateMap.getDouble("n", 0.0));
-        setGenericParameters(rateMap.getDouble("K", 0.0), rateMap.getDouble("B", 0.0), rateMap.getDouble("C", 0.0),
-                             rateMap.getDouble("m", 1.0), rateMap.getDouble("D", 0.0), rateMap.getDouble("z", 1.0), 1.0);
+    configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
+    setGenericParameters(0.0, 0.0, 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
+}
 
-        if (m_m <= 0.0 || m_z <= 0.0) {
-            throw InputFileError(WhereSetParameters, node,
-                "The Starikovskiy exponents 'm' and 'z' must be positive.");
-        }
-    }
-    else if (m_vibration_model == ModelCastela) {
-        // Castela model:
-        //
-        // Original relaxation time:
-        //
-        //   tau_k = p0 / p_k
-        //           * exp[a_k * (T^(-1/3) - b_k) - 18.42]
-        //
-        // Equivalent bimolecular rate coefficient:
-        //
-        //   k_k(T) = R T / p0
-        //            * exp[18.42 + a_k b_k - a_k T^(-1/3)]
-        //
-        // Internal mapping:
-        //
-        //   A = R / p0
-        //   b = 1
-        //   B = 18.42 + a_k b_k
-        //   C = -a_k
-        //   D = 0
-        //   E = 0
-        //   scaling = 1
+void VibrationalRelaxationRate::setMultiStateParameters(
+    const AnyMap& node, const AnyMap& rateMap, const UnitStack& rate_units)
+{
+    // Detailed VV/VT model:
+    //
+    //   k(T) = scaling * A * exp(
+    //       b * log(T)
+    //       + B
+    //       + C * T^(-1/3)
+    //       + D * T^(-2/3)
+    //   )
+    requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
 
-        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {"a", "b"});
-        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str, "n", "K",
-                   m_B_str, m_C_str, m_D_str, m_m_str, m_E_str, m_z_str, m_scaling_str});
+    forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
+        {"n", m_m_str, m_E_str, m_z_str});
 
-        if (rateMap.hasKey(m_reference_pressure_str)) {
-            m_referencePressure = rateMap.convert(m_reference_pressure_str, "Pa");
-        } else {
-            m_referencePressure = OneAtm;
-        }
+    ArrheniusBase::setParameters(node, rate_units);
 
-        if (m_referencePressure <= 0.0) {
-            throw InputFileError(WhereSetParameters, node,
-                "Castela reference-pressure must be positive.");
-        }
+    setGenericParameters(
+        rateMap.getDouble(m_B_str, 0.0),
+        rateMap.getDouble(m_C_str, 0.0),
+        rateMap.getDouble(m_D_str, 0.0),
+        2.0 / 3.0,
+        0.0,
+        1.0,
+        rateMap.getDouble(m_scaling_str, 1.0));
+}
 
-        configureBaseFromInternalA(node, rate_units, GasConstant / m_referencePressure, 1.0);
-        m_castela_a = rateMap["a"].asDouble();
-        m_castela_b = rateMap["b"].asDouble();
-        setGenericParameters(18.42 + m_castela_a * m_castela_b, -m_castela_a, 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
-    }
-    else {
+void VibrationalRelaxationRate::setStarikovskiyParameters(
+    const AnyMap& node, const AnyMap& rateMap, const UnitStack& rate_units)
+{
+    // User-facing formula:
+    //
+    //   k(T) = A * T^n * exp(
+    //       K
+    //       + B * T^(-1/3)
+    //       + C * T^(-m)
+    //       + D * T^(-z)
+    //   )
+    //
+    // B, C, and D are signed coefficients read directly from YAML.
+    requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
+
+    forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
+        {m_b_str, m_scaling_str});
+
+    const double m = rateMap.getDouble("m", 1.0);
+    const double z = rateMap.getDouble("z", 1.0);
+
+    if (m <= 0.0 || z <= 0.0) {
         throw InputFileError(WhereSetParameters, node,
-            "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
-            "'starikovskiy', 'castela', or 'constant'.",
-            m_vibration_model);
+            "The Starikovskiy exponents 'm' and 'z' must be positive.");
     }
+
+    configureBaseFromYamlA(
+        node, rate_units, rateMap[m_A_str], rateMap.getDouble("n", 0.0));
+
+    setGenericParameters(
+        rateMap.getDouble("K", 0.0),
+        rateMap.getDouble("B", 0.0),
+        rateMap.getDouble("C", 0.0),
+        m,
+        rateMap.getDouble("D", 0.0),
+        z,
+        1.0);
+}
+
+void VibrationalRelaxationRate::setCastelaParameters(
+    const AnyMap& node, const AnyMap& rateMap, const UnitStack& rate_units)
+{
+    // Castela model:
+    //
+    // Original relaxation time:
+    //
+    //   tau_k = p0 / p_k
+    //           * exp[a_k * (T^(-1/3) - b_k) - 18.42]
+    //
+    // Equivalent bimolecular rate coefficient:
+    //
+    //   k_k(T) = R T / p0
+    //            * exp[18.42 + a_k b_k - a_k T^(-1/3)]
+    //
+    // Internal mapping:
+    //
+    //   A = R / p0
+    //   b = 1
+    //   B = 18.42 + a_k b_k
+    //   C = -a_k
+    //   D = 0
+    //   E = 0
+    //   scaling = 1
+    requireKeys(rateMap, m_vibration_model, WhereSetParameters, {"a", "b"});
+
+    forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
+        {m_A_str, "n", "K", m_B_str, m_C_str, m_D_str, m_m_str,
+         m_E_str, m_z_str, m_scaling_str});
+
+    m_castela_a = rateMap["a"].asDouble();
+    m_castela_b = rateMap["b"].asDouble();
+
+    if (rateMap.hasKey(m_reference_pressure_str)) {
+        m_referencePressure = rateMap.convert(m_reference_pressure_str, "Pa");
+    } else {
+        m_referencePressure = OneAtm;
+    }
+
+    if (m_referencePressure <= 0.0) {
+        throw InputFileError(WhereSetParameters, node,
+            "Castela reference-pressure must be positive.");
+    }
+
+    configureBaseFromInternalA(
+        node, rate_units, GasConstant / m_referencePressure, 1.0);
+
+    setGenericParameters(
+        18.42 + m_castela_a * m_castela_b,
+        -m_castela_a,
+        0.0,
+        2.0 / 3.0,
+        0.0,
+        1.0,
+        1.0);
 }
 
 void VibrationalRelaxationRate::getParameters(AnyMap& node) const
@@ -731,17 +795,19 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 
     const string family = inferRelaxingFamily(rxn);
 
-    if (m_vibration_model == ModelConstant) {
+    switch (parseVibrationModel(m_vibration_model, rxn.input, WhereSetContext)) {
+    case VibModel::Constant:
         validateSimpleRelaxationToGroundState(rxn, ModelConstant);
-    } else if (m_vibration_model == ModelCastela) {
+        break;
+    case VibModel::Castela:
         validateCastelaReaction(rxn);
-    } else if (m_vibration_model == ModelStarikovskiy) {
+        break;
+    case VibModel::Starikovskiy:
         validateSimpleRelaxationToGroundState(rxn, ModelStarikovskiy);
-    } else if (m_vibration_model == ModelMultiState) {
+        break;
+    case VibModel::MultiStateResolved:
         validateDetailedRelaxationReaction(rxn);
-    } else {
-        throw InputFileError(WhereSetContext, rxn.input,
-            "Unrecognized vibration-model '{}'.", m_vibration_model);
+        break;
     }
 
     registerVibrationalModelConsistency(

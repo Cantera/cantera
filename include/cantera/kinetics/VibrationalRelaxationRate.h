@@ -275,6 +275,22 @@ private:
     //! Sets parameters
     void setGenericParameters(double B, double C, double D, double m,
                           double E, double z, double scaling);
+    
+    //! Sub-function of setParameters relative to the 'constant' model
+    void setConstantParameters(const AnyMap& node, const AnyMap& rateMap,
+                           const UnitStack& rate_units);
+
+    //! Sub-function of setParameters relative to the 'multi-state-resolved' model
+    void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap,
+                                const UnitStack& rate_units);
+
+    //! Sub-function of setParameters relative to the 'starikovskiy' model
+    void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap,
+                                const UnitStack& rate_units);
+
+    //! Sub-function of setParameters relative to the 'castela' model
+    void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap,
+                            const UnitStack& rate_units);
 };
 
 }
