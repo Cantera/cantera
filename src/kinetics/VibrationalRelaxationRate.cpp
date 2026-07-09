@@ -258,8 +258,8 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
             "collider M is unchanged.", model);
     }
 
-    if (std::abs(compositionSum(rxn.reactants) - 2.0) > 1e-12
-        || std::abs(compositionSum(rxn.products) - 2.0) > 1e-12)
+    if (std::abs(compositionSum(rxn.reactants) - 2.0) > Tiny
+        || std::abs(compositionSum(rxn.products) - 2.0) > Tiny)
     {
         throw InputFileError(WhereSetContext, rxn.input,
             "vibration-model '{}' expects a bimolecular relaxation reaction "
@@ -291,10 +291,10 @@ void validateCastelaReaction(const Reaction& rxn)
         const double value = item.second;
 
         if (name == "N2") {
-            if (std::abs(value - 2.0) < 1e-12) {
+            if (std::abs(value - 2.0) < Tiny) {
                 collider = "N2";
             }
-        } else if (std::abs(value - 1.0) < 1e-12) {
+        } else if (std::abs(value - 1.0) < Tiny) {
             collider = name;
         }
     }
@@ -357,8 +357,8 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     }
 
     // The current detailed VV/VT formulation is bimolecular.
-    if (std::abs(compositionSum(rxn.reactants) - 2.0) > 1e-12
-        || std::abs(compositionSum(rxn.products) - 2.0) > 1e-12)
+    if (std::abs(compositionSum(rxn.reactants) - 2.0) > Tiny
+        || std::abs(compositionSum(rxn.products) - 2.0) > Tiny)
     {
         throw InputFileError(WhereSetContext, rxn.input,
             "Invalid detailed vibrational relaxation reaction: expected a "
@@ -510,7 +510,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
             m_E_str, m_z_str, m_scaling_str});
 
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
-        setGenericParameters(0.0, 0.0, 0.0, 2.3/3.0, 0.0, 1.0, 1.0);
+        setGenericParameters(0.0, 0.0, 0.0, 2.0/3.0, 0.0, 1.0, 1.0);
     }
     else if (m_vibration_model == ModelMultiState) {
         // Detailed VV/VT model:
@@ -599,7 +599,9 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         }
 
         configureBaseFromInternalA(node, rate_units, GasConstant / m_referencePressure, 1.0);
-        setGenericParameters(18.42 + rateMap["a"].asDouble() * rateMap["b"].asDouble(), -rateMap["a"].asDouble(), 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
+        m_castela_a = rateMap["a"].asDouble();
+        m_castela_b = rateMap["b"].asDouble();
+        setGenericParameters(18.42 + m_castela_a * m_castela_b, -m_castela_a, 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
     }
     else {
         throw InputFileError(WhereSetParameters, node,
@@ -633,7 +635,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     };
 
     if (m_vibration_model == ModelConstant) {
-        const double tol = 1e-12;
+        const double tol = Tiny;
 
         if (std::abs(m_b) > tol
             || std::abs(m_B) > tol
@@ -669,7 +671,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         rateNode["z"] = m_z;
     }
     else if (m_vibration_model == ModelCastela) {
-        const double tol = 1e-12;
+        const double tol = Tiny;
 
         if (std::abs(m_b - 1.0) > tol
             || std::abs(m_D) > tol
