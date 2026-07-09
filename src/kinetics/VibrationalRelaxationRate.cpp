@@ -528,14 +528,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
             m_E_str, m_z_str, m_scaling_str});
 
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
-
-        m_B = 0.0;
-        m_C = 0.0;
-        m_D = 0.0;
-        m_m = 2.0 / 3.0;
-        m_E = 0.0;
-        m_z = 1.0;
-        m_scaling = 1.0;
+        setGenericParameters(0.0, 0.0, 0.0, 2.3/3.0, 0.0, 1.0, 1.0);
     }
     else if (m_vibration_model == ModelMultiState) {
         // Detailed VV/VT model:
@@ -550,14 +543,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {"n", m_m_str, m_E_str, m_z_str});
 
         ArrheniusBase::setParameters(node, rate_units);
-
-        m_B = rateMap.getDouble(m_B_str, 0.0);
-        m_C = rateMap.getDouble(m_C_str, 0.0);
-        m_D = rateMap.getDouble(m_D_str, 0.0);
-        m_m = 2.0 / 3.0;
-        m_E = 0.0;
-        m_z = 1.0;
-        m_scaling = rateMap.getDouble(m_scaling_str, 1.0);
+        setGenericParameters(rateMap.getDouble(m_B_str, 0.0), rateMap.getDouble(m_C_str, 0.0),
+        rateMap.getDouble(m_D_str, 0.0), 2.0 / 3.0, 0.0, 1.0, rateMap.getDouble(m_scaling_str, 1.0));
     }
     else if (m_vibration_model == ModelStarikovskiy) {
         // User-facing formula:
@@ -582,16 +569,9 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
         forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_b_str, m_scaling_str});
 
-        const double n = rateMap.hasKey("n") ? rateMap["n"].asDouble() : 0.0;
-        configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], n);
-
-        m_B = rateMap.getDouble("K", 0.0);
-        m_C = rateMap.getDouble("B", 0.0);
-        m_D = rateMap.getDouble("C", 0.0);
-        m_m = rateMap.getDouble("m", 1.0);
-        m_E = rateMap.getDouble("D", 0.0);
-        m_z = rateMap.getDouble("z", 1.0);
-        m_scaling = 1.0;
+        configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], rateMap.getDouble("n", 0.0));
+        setGenericParameters(rateMap.getDouble("K", 0.0), rateMap.getDouble("B", 0.0), rateMap.getDouble("C", 0.0),
+                             rateMap.getDouble("m", 1.0), rateMap.getDouble("D", 0.0), rateMap.getDouble("z", 1.0), 1.0);
 
         if (m_m <= 0.0 || m_z <= 0.0) {
             throw InputFileError(WhereSetParameters, node,
@@ -625,9 +605,6 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str, "n", "K",
                    m_B_str, m_C_str, m_D_str, m_m_str, m_E_str, m_z_str, m_scaling_str});
 
-        m_castela_a = rateMap["a"].asDouble();
-        m_castela_b = rateMap["b"].asDouble();
-
         if (rateMap.hasKey(m_reference_pressure_str)) {
             m_referencePressure = rateMap.convert(m_reference_pressure_str, "Pa");
         } else {
@@ -639,16 +616,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
                 "Castela reference-pressure must be positive.");
         }
 
-        configureBaseFromInternalA(
-            node, rate_units, GasConstant / m_referencePressure, 1.0);
-
-        m_B = 18.42 + m_castela_a * m_castela_b;
-        m_C = -m_castela_a;
-        m_D = 0.0;
-        m_m = 2.0 / 3.0;
-        m_E = 0.0;
-        m_z = 1.0;
-        m_scaling = 1.0;
+        configureBaseFromInternalA(node, rate_units, GasConstant / m_referencePressure, 1.0);
+        setGenericParameters(18.42 + rateMap["a"].asDouble() * rateMap["b"].asDouble(), -rateMap["a"].asDouble(), 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
     }
     else {
         throw InputFileError(WhereSetParameters, node,
@@ -789,6 +758,18 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 
     registerVibrationalModelConsistency(
         kin, family, m_vibration_model, rxn.input);
+}
+
+void VibrationalRelaxationRate::setGenericParameters(
+    double B, double C, double D, double m, double E, double z, double scaling)
+{
+    m_B = B;
+    m_C = C;
+    m_D = D;
+    m_m = m;
+    m_E = E;
+    m_z = z;
+    m_scaling = scaling;
 }
 
 } // namespace Cantera
