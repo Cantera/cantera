@@ -71,10 +71,7 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_u
     : TwoTempPlasmaRate()
 {
     setParameters(node, rate_units);
-
-    if (node.hasKey("b-gas")) {
-        m_bg = node["b-gas"].asDouble();
-    }
+    m_bg = node.getDouble("b-gas", 0.0);
 }
 
 double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
