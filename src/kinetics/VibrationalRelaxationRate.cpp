@@ -1,4 +1,5 @@
 //! @file VibrationalRelaxationRate.cpp
+//! @since New in %Cantera 4.0
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
@@ -20,7 +21,6 @@ namespace Cantera
 
 namespace
 {
-
 void requireNoKey(const AnyMap& node, const string& key,
                   const string& model, const string& where)
 {
@@ -29,7 +29,6 @@ void requireNoKey(const AnyMap& node, const string& key,
             "Key '{}' is not allowed for vibration_model '{}'.", key, model);
     }
 }
-
 
 void requireKey(const AnyMap& node, const string& key,
                 const string& model, const string& where)
@@ -40,21 +39,19 @@ void requireKey(const AnyMap& node, const string& key,
     }
 }
 
-
 bool isVibrationalSpecies(const string& name)
 {
-    // Supported names:
+    // Supported names formats:
     //
     //   N2(v)
     //   O2(v0)
     //   O2(v1)
     //   O2(v12)
     //
-    // The old form O2(v=1) is intentionally not required.
+    // Style like O2(v=1) should not be used.
     const auto pos = name.find("(v");
     return pos != string::npos && !name.empty() && name.back() == ')';
 }
-
 
 string groundStateName(const string& name)
 {
@@ -65,13 +62,11 @@ string groundStateName(const string& name)
     return name.substr(0, pos);
 }
 
-
 string vibrationalFamilyName(const string& name)
 {
     // Collapse O2(v1), O2(v2), O2(v12), and O2(v) into O2(v).
     return groundStateName(name) + "(v)";
 }
-
 
 double compositionSum(const Composition& comp)
 {
@@ -81,7 +76,6 @@ double compositionSum(const Composition& comp)
     }
     return sum;
 }
-
 
 Composition replaceVibrationalSpeciesByGroundState(const Composition& comp)
 {
@@ -98,7 +92,6 @@ Composition replaceVibrationalSpeciesByGroundState(const Composition& comp)
     }
     return out;
 }
-
 
 bool sameComposition(const Composition& a, const Composition& b,
                      double tol = 1e-12)
@@ -134,7 +127,6 @@ bool sameComposition(const Composition& a, const Composition& b,
     return true;
 }
 
-
 std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 {
     std::vector<string> out;
@@ -150,7 +142,6 @@ std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 
     return out;
 }
-
 
 // Registry used to check that a given vibrational family uses exactly one
 // relaxation model inside one Kinetics object.
@@ -168,7 +159,6 @@ std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 //
 std::map<const Kinetics*, std::map<string, string>> s_modelByFamily;
 std::set<const Kinetics*> s_warnedMixedModels;
-
 
 void registerVibrationalModelConsistency(const Kinetics& kin,
                                           const string& family,
@@ -209,7 +199,6 @@ void registerVibrationalModelConsistency(const Kinetics& kin,
     }
 }
 
-
 string inferRelaxingFamily(const Reaction& rxn)
 {
     const auto vibReactants = vibrationalSpeciesInComposition(rxn.reactants);
@@ -222,7 +211,6 @@ string inferRelaxingFamily(const Reaction& rxn)
 
     return vibrationalFamilyName(vibReactants.front());
 }
-
 
 void validateSimpleRelaxationToGroundState(const Reaction& rxn,
                                            const string& model)
@@ -260,7 +248,6 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
             "of the form X(v) + M => X + M.", model);
     }
 }
-
 
 void validateCastelaReaction(const Reaction& rxn)
 {
@@ -300,7 +287,6 @@ void validateCastelaReaction(const Reaction& rxn)
             "'O2', and 'O'. Found collider '{}'.", collider);
     }
 }
-
 
 void validateDetailedRelaxationReaction(const Reaction& rxn)
 {
@@ -365,7 +351,6 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
 
 } // namespace
 
-
 bool DetailedVibData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     const double T = phase.temperature();
@@ -378,11 +363,9 @@ bool DetailedVibData::update(const ThermoPhase& phase, const Kinetics& kin)
     return true;
 }
 
-
 VibrationalRelaxationRate::VibrationalRelaxationRate()
 {
 }
-
 
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     double A, double B, double C, double D,
@@ -398,14 +381,12 @@ VibrationalRelaxationRate::VibrationalRelaxationRate(
 {
 }
 
-
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     const AnyMap& node, const UnitStack& rate_units)
     : VibrationalRelaxationRate()
 {
     setParameters(node, rate_units);
 }
-
 
 void VibrationalRelaxationRate::configureBaseFromInternalA(
     const AnyMap& node, const UnitStack& rate_units, double A, double b)
@@ -433,7 +414,6 @@ void VibrationalRelaxationRate::configureBaseFromInternalA(
     m_valid = true;
 }
 
-
 void VibrationalRelaxationRate::configureBaseFromYamlA(
     const AnyMap& node, const UnitStack& rate_units,
     const AnyValue& A, double b)
@@ -459,7 +439,6 @@ void VibrationalRelaxationRate::configureBaseFromYamlA(
     // Critical: ArrheniusBase::validate checks this flag.
     m_valid = true;
 }
-
 
 void VibrationalRelaxationRate::setParameters(const AnyMap& node,
                                               const UnitStack& rate_units)
@@ -696,7 +675,6 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     }
 }
 
-
 void VibrationalRelaxationRate::getParameters(AnyMap& node) const
 {
     if (!valid()) {
@@ -791,7 +769,6 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     node["rate-constant"] = std::move(rateNode);
 }
 
-
 double VibrationalRelaxationRate::ddTScaledFromStruct(
     const DetailedVibData& shared_data) const
 {
@@ -803,7 +780,6 @@ double VibrationalRelaxationRate::ddTScaledFromStruct(
            - m_m * m_D * std::pow(invT, m_m) * invT
            - m_z * m_E * std::pow(invT, m_z) * invT;
 }
-
 
 void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
