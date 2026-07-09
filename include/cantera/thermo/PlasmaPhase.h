@@ -1026,19 +1026,32 @@ private:
     //! Work array
     mutable std::vector<double> m_work;
 
+    //! A structure to describe species serving as mean vibrational energy reservoirs
     struct VibrationalReservoirSpecies {
-        size_t reservoirIndex = npos;
-        size_t baseSpeciesIndex = npos;
+        size_t reservoirIndex = npos; // index of the vibrational reservoir species
+        size_t baseSpeciesIndex = npos; // index of the corresponding ground state phase species
     };
 
+    //! Vector of species serving as mean vibrational energy reservoirs
     std::vector<VibrationalReservoirSpecies> m_vibrationalReservoirSpecies;
 
+    //! A boolean flag to update vibrational reservoir species
     bool m_vibrationalReservoirSpeciesNeedUpdate = true;
 
+    //! Threshold fraction of vibrational reservoirs to their ground state
+    //! above which they may be at risk of hindering phase chemistry.
     double m_vibrationalMoleFractionThreshold = 1e-2;
+
+    //! The absolute mole threshold below which a the chemistry is
+    //! assumed to be safe from alterations from vibrational reservoirs.
     double m_vibrationalAbsoluteMoleFractionThreshold = 1e-20;
 
+    //! Detects species serving as vibrational reservoirs and
+    //! adds them to m_vibrationalReservoirSpecies.
     void updateVibrationalReservoirSpecies();
+
+    //! A function to check that vibrational reservoir species
+    //! are not at risk to hinder phase chemistry.
     void checkVibrationalReservoirMoleFractions();
 };
 

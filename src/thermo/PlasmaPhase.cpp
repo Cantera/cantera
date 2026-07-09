@@ -20,6 +20,9 @@ namespace Cantera {
 namespace {
     const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
 
+    //! A function to check whether a phase species is actually a vibrational reservoir species
+    //! If the species is actually a reservoir species, the function sets the basename
+    //! at the given baseName adress.
     bool isVibrationalReservoirName(const string& name, string& baseName)
     {
         const string suffix = "(v)";
@@ -126,6 +129,8 @@ bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
         }
     }
 
+    // Adding species may introduce new `X(v)` reservoirs or their base species.
+    // Set the flag to true to run a check.
     if (added) {
         m_vibrationalReservoirSpeciesNeedUpdate = true;
     }
@@ -1027,6 +1032,7 @@ double PlasmaPhase::intrinsicHeating()
     const double qJ = jouleHeatingPower();
     checkFinite(qJ);
 
+    // set the check here to be updated at runtime
     checkVibrationalReservoirMoleFractions();
 
     return qJ;
@@ -1046,6 +1052,7 @@ void PlasmaPhase::updateVibrationalReservoirSpecies()
 
         size_t kBase = speciesIndex(baseName, false);
 
+        // Check that the base species of the vibrational reservoir actually exists in the phase.
         if (kBase == npos) {
             warn_user("PlasmaPhase::updateVibrationalReservoirSpecies",
                 "Species '{}' matches the fictive vibrational-reservoir naming "
@@ -1061,7 +1068,7 @@ void PlasmaPhase::updateVibrationalReservoirSpecies()
 
         m_vibrationalReservoirSpecies.push_back(reservoir);
     }
-
+    // the update being done, the flag can be set back to false.
     m_vibrationalReservoirSpeciesNeedUpdate = false;
 }
 
@@ -1075,33 +1082,39 @@ void PlasmaPhase::checkVibrationalReservoirMoleFractions()
         const size_t kReservoir = reservoir.reservoirIndex;
         const size_t kBase = reservoir.baseSpeciesIndex;
 
-        const double Xv = moleFraction(kReservoir);
-        const double Xb = moleFraction(kBase);
+        const double Xv = moleFraction(kReservoir); // mole fraction of the vibrational reservoir species
+        const double Xb = moleFraction(kBase); // mole fraction of the base species it is associated to
 
         const double pool = Xv + Xb;
 
+        // Ignore species pools that are too diluted to meaningfully affect chemistry.
         if (pool <= m_vibrationalAbsoluteMoleFractionThreshold) {
             continue;
         }
 
+        // Check that the fraction of vibrational species is not too high
+        // with respect to its base species. Should this fraction be too high, there
+        // is a risk for the phase chemistry to be altered by the reservoir:
+        // the code raises a warning to the user.
         const double reservoirFraction = Xv / pool;
 
         if (reservoirFraction > m_vibrationalMoleFractionThreshold) {
             const string& reservoirName = speciesName(kReservoir);
             const string& baseName = speciesName(kBase);
 
-            writelog("Warning: fictive vibrational reservoir species '{}' contains "
-                     "{:.3e} of the total '{}' pool. "
-                     "X({}) = {:.3e}, X({}) = {:.3e}, threshold = {:.3e}. "
-                     "Chemistry involving '{}' may be affected because part of the "
-                     "material is stored in an inert vibrational reservoir.\n",
-                     reservoirName,
-                     reservoirFraction,
-                     baseName,
-                     reservoirName, Xv,
-                     baseName, Xb,
-                     m_vibrationalMoleFractionThreshold,
-                     baseName);
+            warn_user("PlasmaPhase::checkVibrationalReservoirMoleFractions",
+                      "Warning: fictive vibrational reservoir species '{}' contains "
+                      "{:.3e} of the total '{}' pool. "
+                      "X({}) = {:.3e}, X({}) = {:.3e}, threshold = {:.3e}. "
+                      "Chemistry involving '{}' may be affected because part of the "
+                      "material is stored in an inert vibrational reservoir.\n",
+                      reservoirName,
+                      reservoirFraction,
+                      baseName,
+                      reservoirName, Xv,
+                      baseName, Xb,
+                      m_vibrationalMoleFractionThreshold,
+                      baseName);
         }
     }
 }
