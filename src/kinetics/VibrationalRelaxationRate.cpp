@@ -27,7 +27,7 @@ void requireNoKey(const AnyMap& node, const string& key,
 {
     if (node.hasKey(key)) {
         throw InputFileError(where, node,
-            "Key '{}' is not allowed for vibration_model '{}'.", key, model);
+            "Key '{}' is not allowed for vibration-model '{}'.", key, model);
     }
 }
 
@@ -36,7 +36,7 @@ void requireKey(const AnyMap& node, const string& key,
 {
     if (!node.hasKey(key)) {
         throw InputFileError(where, node,
-            "Missing required key '{}' for vibration_model '{}'.", key, model);
+            "Missing required key '{}' for vibration-model '{}'.", key, model);
     }
 }
 
@@ -177,7 +177,7 @@ void registerVibrationalModelConsistency(const Kinetics& kin,
     const auto existing = modelByFamily.find(family);
     if (existing != modelByFamily.end() && existing->second != model) {
         throw InputFileError("VibrationalRelaxationRate::setContext", input,
-            "Inconsistent vibration_model for vibrational family '{}'. "
+            "Inconsistent vibration-model for vibrational family '{}'. "
             "This family was already registered with model '{}', but the "
             "current reaction uses model '{}'. A given vibrational family "
             "must use exactly one relaxation model.",
@@ -227,13 +227,13 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
 
     if (vibReactants.size() != 1) {
         throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
-            "vibration_model '{}' expects exactly one vibrational reactant.",
+            "vibration-model '{}' expects exactly one vibrational reactant.",
             model);
     }
 
     if (!vibProducts.empty()) {
         throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
-            "vibration_model '{}' describes relaxation to the ground state "
+            "vibration-model '{}' describes relaxation to the ground state "
             "and therefore does not allow vibrational products.", model);
     }
 
@@ -251,7 +251,7 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
         || std::abs(compositionSum(rxn.products) - 2.0) > 1e-12)
     {
         throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
-            "vibration_model '{}' expects a bimolecular relaxation reaction "
+            "vibration-model '{}' expects a bimolecular relaxation reaction "
             "of the form X(v) + M => X + M.", model);
     }
 }
@@ -672,7 +672,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     }
     else {
         throw InputFileError("VibrationalRelaxationRate::setParameters", node,
-            "Unrecognized vibration_model '{}'. Expected 'multi-state-resolved', "
+            "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
     }
@@ -688,7 +688,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         node["negative-A"] = true;
     }
 
-    node["vibration_model"] = m_vibration_model;
+    node["vibration-model"] = m_vibration_model;
 
     AnyMap rateNode;
 
@@ -763,7 +763,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     }
     else {
         throw InputFileError("VibrationalRelaxationRate::getParameters", node,
-            "Unrecognized vibration_model '{}'. Expected 'multi-state-resolved', "
+            "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
     }
@@ -804,7 +804,7 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
         validateDetailedRelaxationReaction(rxn);
     } else {
         throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
-            "Unrecognized vibration_model '{}'.", m_vibration_model);
+            "Unrecognized vibration-model '{}'.", m_vibration_model);
     }
 
     registerVibrationalModelConsistency(

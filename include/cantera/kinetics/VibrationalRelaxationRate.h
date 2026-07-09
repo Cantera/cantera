@@ -59,9 +59,9 @@ struct DetailedVibData : public ReactionData
  * The selected physical model is specified separately using:
  * @code{.yaml}
  * type: vibrational-relaxation
- * vibration_model: multi-state-resolved
+ * vibration-model: multi-state-resolved
  * @endcode
- * Accepted values for `vibration_model` are `constant`,
+ * Accepted values for `vibration-model` are `constant`,
  * `multi-state-resolved`, `starikovskiy`, and `castela`.
  *
  * The `constant` model relaxes the vibrational species with a constant rate 
