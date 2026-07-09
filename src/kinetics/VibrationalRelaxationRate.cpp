@@ -33,6 +33,23 @@ const string ModelMultiState = "multi-state-resolved";
 const string ModelStarikovskiy = "starikovskiy";
 const string ModelCastela = "castela";
 
+const AnyMap& getRateConstantMap(const AnyMap& node)
+{
+    if (!node.hasKey("rate-constant")) {
+        throw InputFileError(WhereSetParameters, node,
+            "A vibrational-relaxation reaction requires a 'rate-constant' "
+            "mapping.");
+    }
+
+    const auto& rate = node["rate-constant"];
+
+    if (!rate.is<AnyMap>()) {
+        throw InputFileError(WhereSetParameters, node,
+            "The 'rate-constant' field must be a mapping.");
+    }
+
+    return rate.as<AnyMap>();
+}
 
 // helpers to check the correctness of a chosen vibrational model input data.
 void requireNoKey(const AnyMap& node, const string& key,
@@ -484,20 +501,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
 
     m_vibration_model = node.getString("vibration-model", ModelMultiState);
 
-    if (!node.hasKey("rate-constant")) {
-        throw InputFileError(WhereSetParameters, node,
-            "A vibrational-relaxation reaction requires a 'rate-constant' "
-            "mapping.");
-    }
-
-    const auto& rate = node["rate-constant"];
-
-    if (!rate.is<AnyMap>()) {
-        throw InputFileError(WhereSetParameters, node,
-            "The 'rate-constant' field must be a mapping.");
-    }
-
-    const auto& rateMap = rate.as<AnyMap>();
+    const auto& rateMap = getRateConstantMap(node);
 
     if (m_vibration_model == ModelConstant) {
         // Constant model:
@@ -635,7 +639,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     };
 
     if (m_vibration_model == ModelConstant) {
-        const double tol = Tiny;
+        const double tol = 1e-12;
 
         if (std::abs(m_b) > tol
             || std::abs(m_B) > tol
@@ -671,7 +675,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         rateNode["z"] = m_z;
     }
     else if (m_vibration_model == ModelCastela) {
-        const double tol = Tiny;
+        const double tol = 1e-12;
 
         if (std::abs(m_b - 1.0) > tol
             || std::abs(m_D) > tol
