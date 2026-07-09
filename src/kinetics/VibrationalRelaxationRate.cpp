@@ -471,7 +471,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //
     // The default model is multi-state-resolved.
 
-    node.getString("vibration-model", "multi-state-resolved");
+    m_vibration_model = node.getString("vibration-model", "multi-state-resolved");
 
     if (!node.hasKey("rate-constant")) {
         throw InputFileError("VibrationalRelaxationRate::setParameters", node,
