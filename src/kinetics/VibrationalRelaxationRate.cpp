@@ -53,6 +53,22 @@ void requireKey(const AnyMap& node, const string& key,
     }
 }
 
+void requireKeys(const AnyMap& node, const string& model,
+                 const string& where, std::initializer_list<string> keys)
+{
+    for (const auto& key : keys) {
+        requireKey(node, key, model, where);
+    }
+}
+
+void forbidKeys(const AnyMap& node, const string& model,
+                const string& where, std::initializer_list<string> keys)
+{
+    for (const auto& key : keys) {
+        requireNoKey(node, key, model, where);
+    }
+}
+
 // check whether a species is a vibrational excited species 
 // or a vibrational reservoir from its name
 bool isVibrationalSpecies(const string& name)
@@ -505,26 +521,11 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         // Constant model:
         //
         //   k(T) = A
-        requireKey(rateMap, m_A_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_b_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, "n", m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_B_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_C_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_D_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_m_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_E_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_z_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            WhereSetParameters);
+        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
+
+        forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
+            {m_b_str, "n", m_B_str, m_C_str, m_D_str, m_m_str,
+            m_E_str, m_z_str, m_scaling_str});
 
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
 
@@ -545,17 +546,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //       + C * T^(-1/3)
         //       + D * T^(-2/3)
         //   )
-
-        requireKey(rateMap, m_A_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, "n", m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_m_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_E_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_z_str, m_vibration_model,
-            WhereSetParameters);
+        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
+        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {"n", m_m_str, m_E_str, m_z_str});
 
         ArrheniusBase::setParameters(node, rate_units);
 
@@ -587,12 +579,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //   m_E = D
         //   m_z = z
 
-        requireKey(rateMap, m_A_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_b_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            WhereSetParameters);
+        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
+        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_b_str, m_scaling_str});
 
         const double n = rateMap.hasKey("n") ? rateMap["n"].asDouble() : 0.0;
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], n);
@@ -633,30 +621,9 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //   E = 0
         //   scaling = 1
 
-        requireKey(rateMap, "a", m_vibration_model,
-            WhereSetParameters);
-        requireKey(rateMap, "b", m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_A_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, "n", m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, "K", m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_B_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_C_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_D_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_m_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_E_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_z_str, m_vibration_model,
-            WhereSetParameters);
-        requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            WhereSetParameters);
+        requireKeys(rateMap, m_vibration_model, WhereSetParameters, {"a", "b"});
+        forbidKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str, "n", "K",
+                   m_B_str, m_C_str, m_D_str, m_m_str, m_E_str, m_z_str, m_scaling_str});
 
         m_castela_a = rateMap["a"].asDouble();
         m_castela_b = rateMap["b"].asDouble();
