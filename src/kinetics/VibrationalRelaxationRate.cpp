@@ -22,7 +22,7 @@ namespace Cantera
 namespace
 {
 
-constexpr double Tiny = 1e-12;
+constexpr double VibTolerance = 1e-12;
 
 const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
 const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
@@ -170,7 +170,7 @@ Composition replaceVibrationalSpeciesByGroundState(const Composition& comp)
 }
 
 bool sameComposition(Composition diff, const Composition& b,
-                     double tol = Tiny)
+                     double tol = VibTolerance)
 {
     for (const auto& [name, value] : b) {
         diff[name] -= value;
@@ -300,8 +300,8 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
             "collider M is unchanged.", model);
     }
 
-    if (std::abs(compositionSum(rxn.reactants) - 2.0) > Tiny
-        || std::abs(compositionSum(rxn.products) - 2.0) > Tiny)
+    if (std::abs(compositionSum(rxn.reactants) - 2.0) > VibTolerance
+        || std::abs(compositionSum(rxn.products) - 2.0) > VibTolerance)
     {
         throw InputFileError(WhereSetContext, rxn.input,
             "vibration-model '{}' expects a bimolecular relaxation reaction "
@@ -333,10 +333,10 @@ void validateCastelaReaction(const Reaction& rxn)
         const double value = item.second;
 
         if (name == "N2") {
-            if (std::abs(value - 2.0) < Tiny) {
+            if (std::abs(value - 2.0) < VibTolerance) {
                 collider = "N2";
             }
-        } else if (std::abs(value - 1.0) < Tiny) {
+        } else if (std::abs(value - 1.0) < VibTolerance) {
             collider = name;
         }
     }
@@ -399,8 +399,8 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     }
 
     // The current detailed VV/VT formulation is bimolecular.
-    if (std::abs(compositionSum(rxn.reactants) - 2.0) > Tiny
-        || std::abs(compositionSum(rxn.products) - 2.0) > Tiny)
+    if (std::abs(compositionSum(rxn.reactants) - 2.0) > VibTolerance
+        || std::abs(compositionSum(rxn.products) - 2.0) > VibTolerance)
     {
         throw InputFileError(WhereSetContext, rxn.input,
             "Invalid detailed vibrational relaxation reaction: expected a "
@@ -693,84 +693,102 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
 
     AnyMap rateNode;
 
-    auto storePreExponentialFactor = [&](AnyMap& target, double A) {
-        if (conversionUnits().factor() != 0.0) {
-            target[m_A_str].setQuantity(A, conversionUnits());
-        } else {
-            target[m_A_str] = A;
-            target["__unconvertible__"] = true;
-        }
-    };
-
-    if (m_vibration_model == ModelConstant) {
-        const double tol = 1e-12;
-
-        if (std::abs(m_b) > tol
-            || std::abs(m_B) > tol
-            || std::abs(m_C) > tol
-            || std::abs(m_D) > tol
-            || std::abs(m_E) > tol)
-        {
-            throw InputFileError(WhereGetParameters, node,
-                "Cannot serialize this rate as 'constant': the internal "
-                "parameters contain temperature-dependent terms.");
-        }
-
-        storePreExponentialFactor(rateNode, m_scaling * m_A);
-    }
-    else if (m_vibration_model == ModelMultiState) {
-        storePreExponentialFactor(rateNode, m_A);
-
-        rateNode[m_b_str] = m_b;
-        rateNode[m_B_str] = m_B;
-        rateNode[m_C_str] = m_C;
-        rateNode[m_D_str] = m_D;
-        rateNode[m_scaling_str] = m_scaling;
-    }
-    else if (m_vibration_model == ModelStarikovskiy) {
-        storePreExponentialFactor(rateNode, m_A);
-
-        rateNode["n"] = m_b;
-        rateNode["K"] = m_B;
-        rateNode["B"] = m_C;
-        rateNode["C"] = m_D;
-        rateNode["m"] = m_m;
-        rateNode["D"] = m_E;
-        rateNode["z"] = m_z;
-    }
-    else if (m_vibration_model == ModelCastela) {
-        const double tol = 1e-12;
-
-        if (std::abs(m_b - 1.0) > tol
-            || std::abs(m_D) > tol
-            || std::abs(m_E) > tol
-            || std::abs(m_scaling - 1.0) > tol)
-        {
-            throw InputFileError(WhereGetParameters, node,
-                "Cannot serialize this rate as 'castela': the internal "
-                "parameters are not consistent with the Castela form. "
-                "Expected b = 1, D = 0, E = 0, and scaling = 1.");
-        }
-
-        if (m_referencePressure <= 0.0) {
-            throw InputFileError(WhereGetParameters, node,
-                "Cannot serialize this rate as 'castela': "
-                "reference-pressure must be positive.");
-        }
-
-        rateNode["a"] = m_castela_a;
-        rateNode["b"] = m_castela_b;
-        rateNode[m_reference_pressure_str].setQuantity(m_referencePressure, "Pa");
-    }
-    else {
-        throw InputFileError(WhereGetParameters, node,
-            "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
-            "'starikovskiy', 'castela', or 'constant'.",
-            m_vibration_model);
+    switch (parseVibrationModel(m_vibration_model, node, WhereGetParameters)) {
+    case VibModel::Constant:
+        getConstantParameters(node, rateNode);
+        break;
+    case VibModel::MultiStateResolved:
+        getMultiStateParameters(rateNode);
+        break;
+    case VibModel::Starikovskiy:
+        getStarikovskiyParameters(rateNode);
+        break;
+    case VibModel::Castela:
+        getCastelaParameters(node, rateNode);
+        break;
     }
 
     rateNode.setFlowStyle();
     node["rate-constant"] = std::move(rateNode);
+}
+
+void VibrationalRelaxationRate::storePreExponentialFactor(
+    AnyMap& target, double A) const
+{
+    if (conversionUnits().factor() != 0.0) {
+        target[m_A_str].setQuantity(A, conversionUnits());
+    } else {
+        target[m_A_str] = A;
+        target["__unconvertible__"] = true;
+    }
+}
+
+void VibrationalRelaxationRate::getConstantParameters(
+    AnyMap& node, AnyMap& rateNode) const
+{
+    if (std::abs(m_b) > VibTolerance
+        || std::abs(m_B) > VibTolerance
+        || std::abs(m_C) > VibTolerance
+        || std::abs(m_D) > VibTolerance
+        || std::abs(m_E) > VibTolerance)
+    {
+        throw InputFileError(WhereGetParameters, node,
+            "Cannot serialize this rate as 'constant': the internal "
+            "parameters contain temperature-dependent terms.");
+    }
+
+    storePreExponentialFactor(rateNode, m_scaling * m_A);
+}
+
+void VibrationalRelaxationRate::getMultiStateParameters(
+    AnyMap& rateNode) const
+{
+    storePreExponentialFactor(rateNode, m_A);
+
+    rateNode[m_b_str] = m_b;
+    rateNode[m_B_str] = m_B;
+    rateNode[m_C_str] = m_C;
+    rateNode[m_D_str] = m_D;
+    rateNode[m_scaling_str] = m_scaling;
+}
+
+void VibrationalRelaxationRate::getStarikovskiyParameters(
+    AnyMap& rateNode) const
+{
+    storePreExponentialFactor(rateNode, m_A);
+
+    rateNode["n"] = m_b;
+    rateNode["K"] = m_B;
+    rateNode["B"] = m_C;
+    rateNode["C"] = m_D;
+    rateNode["m"] = m_m;
+    rateNode["D"] = m_E;
+    rateNode["z"] = m_z;
+}
+
+void VibrationalRelaxationRate::getCastelaParameters(
+    AnyMap& node, AnyMap& rateNode) const
+{
+    if (std::abs(m_b - 1.0) > VibTolerance
+        || std::abs(m_D) > VibTolerance
+        || std::abs(m_E) > VibTolerance
+        || std::abs(m_scaling - 1.0) > VibTolerance)
+    {
+        throw InputFileError(WhereGetParameters, node,
+            "Cannot serialize this rate as 'castela': the internal "
+            "parameters are not consistent with the Castela form. "
+            "Expected b = 1, D = 0, E = 0, and scaling = 1.");
+    }
+
+    if (m_referencePressure <= 0.0) {
+        throw InputFileError(WhereGetParameters, node,
+            "Cannot serialize this rate as 'castela': "
+            "reference-pressure must be positive.");
+    }
+
+    rateNode["a"] = m_castela_a;
+    rateNode["b"] = m_castela_b;
+    rateNode[m_reference_pressure_str].setQuantity(m_referencePressure, "Pa");
 }
 
 double VibrationalRelaxationRate::ddTScaledFromStruct(
