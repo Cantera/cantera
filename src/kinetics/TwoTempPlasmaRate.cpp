@@ -74,8 +74,6 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_u
 
     if (node.hasKey("b-gas")) {
         m_bg = node["b-gas"].asDouble();
-    } else if (node.hasKey("b_gas")) {
-        m_bg = node["b_gas"].asDouble();
     }
 }
 
