@@ -21,6 +21,7 @@ namespace Cantera
 
 namespace
 {
+// helpers to check the correctness of chosen vibrational model.
 void requireNoKey(const AnyMap& node, const string& key,
                   const string& model, const string& where)
 {
@@ -39,6 +40,8 @@ void requireKey(const AnyMap& node, const string& key,
     }
 }
 
+// check whether a species is a vibrational excited species 
+// or a vibrational reservoir from its name
 bool isVibrationalSpecies(const string& name)
 {
     // Supported names formats:
@@ -53,6 +56,7 @@ bool isVibrationalSpecies(const string& name)
     return pos != string::npos && !name.empty() && name.back() == ')';
 }
 
+// find the name of the ground state of a vibrationally excited species.
 string groundStateName(const string& name)
 {
     const auto pos = name.find("(v");
@@ -64,7 +68,8 @@ string groundStateName(const string& name)
 
 string vibrationalFamilyName(const string& name)
 {
-    // Collapse O2(v1), O2(v2), O2(v12), and O2(v) into O2(v).
+    // Collapse O2(v1), O2(v2), O2(v12), and O2(v) into O2(v) as a "family
+    // name" to identify which species have the same ground state "parent". 
     return groundStateName(name) + "(v)";
 }
 
@@ -146,13 +151,15 @@ std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 // Registry used to check that a given vibrational family uses exactly one
 // relaxation model inside one Kinetics object.
 //
-// Allowed:
+// It is allowed for each "vibrational family" 
+// to have its own vibrational relaxation model:
 //
 //   N2(v)  -> constant
 //   O2(v)  -> multi-state-resolved
 //   NH3(v) -> starikovskiy
 //
-// Forbidden:
+// But it is forbidden for each reaction of the same "vibrational family"
+// to have different relaxation models:
 //
 //   N2(v) + O  -> castela
 //   N2(v) + N2 -> starikovskiy
@@ -300,7 +307,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     }
 
     // All vibrational species in a detailed relaxation reaction are required
-    // to belong to the same vibrational family.
+    // to belong to the same "vibrational family".
     const string family = vibrationalFamilyName(vibReactants.front());
 
     for (const auto& sp : vibReactants) {
@@ -349,7 +356,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     }
 }
 
-} // namespace
+} // end of namespace where all the helpers and safety functions are defined.
 
 bool DetailedVibData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
@@ -363,10 +370,12 @@ bool DetailedVibData::update(const ThermoPhase& phase, const Kinetics& kin)
     return true;
 }
 
+// Default constructor
 VibrationalRelaxationRate::VibrationalRelaxationRate()
 {
 }
 
+// Constructor
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     double A, double B, double C, double D,
     double b, double scaling, double m, double E, double z)
@@ -381,6 +390,7 @@ VibrationalRelaxationRate::VibrationalRelaxationRate(
 {
 }
 
+// AnyMap constructor
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     const AnyMap& node, const UnitStack& rate_units)
     : VibrationalRelaxationRate()
@@ -396,6 +406,7 @@ void VibrationalRelaxationRate::configureBaseFromInternalA(
     // We intentionally do not call ArrheniusBase::setParameters here because
     // some vibration models do not expose a standard YAML rate-constant with
     // both A and b. Castela is the main example.
+    // This is also done for future class extension compatibility.
     ReactionRate::setParameters(node, rate_units);
     setRateUnits(rate_units);
 
@@ -410,7 +421,7 @@ void VibrationalRelaxationRate::configureBaseFromInternalA(
         m_logA = NAN;
     }
 
-    // Critical: ArrheniusBase::validate checks this flag.
+    // ArrheniusBase::validate checks this flag.
     m_valid = true;
 }
 
@@ -436,7 +447,7 @@ void VibrationalRelaxationRate::configureBaseFromYamlA(
         m_logA = NAN;
     }
 
-    // Critical: ArrheniusBase::validate checks this flag.
+    // ArrheniusBase::validate checks this flag.
     m_valid = true;
 }
 
@@ -449,19 +460,18 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //
     // The physical model is selected separately by:
     //
-    //   vibration_model: constant
-    //   vibration_model: multi-state-resolved
-    //   vibration_model: starikovskiy
-    //   vibration_model: castela
+    //   vibration-model: constant
+    //   vibration-model: multi-state-resolved
+    //   vibration-model: starikovskiy
+    //   vibration-model: castela
     //
-    // For backward compatibility, the default model is multi-state-resolved.
-    m_vibration_model = "multi-state-resolved";
+    // This is done in a spriti of class adaptability:
+    // Any user wishing to develop more advanced vibration models
+    // is welcome to add them in this class.
+    //
+    // The default model is multi-state-resolved.
 
-    if (node.hasKey("vibration_model")) {
-        m_vibration_model = node["vibration_model"].asString();
-    } else if (node.hasKey("model")) {
-        m_vibration_model = node["model"].asString();
-    }
+    node.getString("vibration-model", "multi-state-resolved");
 
     if (!node.hasKey("rate-constant")) {
         throw InputFileError("VibrationalRelaxationRate::setParameters", node,
@@ -482,10 +492,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         // Constant model:
         //
         //   k(T) = A
-
         requireKey(rateMap, m_A_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
-
         requireNoKey(rateMap, m_b_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
         requireNoKey(rateMap, "n", m_vibration_model,
@@ -527,7 +535,6 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
 
         requireKey(rateMap, m_A_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
-
         requireNoKey(rateMap, "n", m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
         requireNoKey(rateMap, m_m_str, m_vibration_model,
@@ -539,15 +546,13 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
 
         ArrheniusBase::setParameters(node, rate_units);
 
-        m_B = rateMap.hasKey(m_B_str) ? rateMap[m_B_str].asDouble() : 0.0;
-        m_C = rateMap.hasKey(m_C_str) ? rateMap[m_C_str].asDouble() : 0.0;
-        m_D = rateMap.hasKey(m_D_str) ? rateMap[m_D_str].asDouble() : 0.0;
+        m_B = rateMap.getDouble(m_B_str, 0.0);
+        m_C = rateMap.getDouble(m_C_str, 0.0);
+        m_D = rateMap.getDouble(m_D_str, 0.0);
         m_m = 2.0 / 3.0;
         m_E = 0.0;
         m_z = 1.0;
-        m_scaling = rateMap.hasKey(m_scaling_str)
-            ? rateMap[m_scaling_str].asDouble()
-            : 1.0;
+        m_scaling = rateMap.getDouble(m_scaling_str, 1.0);
     }
     else if (m_vibration_model == "starikovskiy") {
         // User-facing formula:
@@ -571,7 +576,6 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
 
         requireKey(rateMap, m_A_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
-
         requireNoKey(rateMap, m_b_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
         requireNoKey(rateMap, m_scaling_str, m_vibration_model,
@@ -580,12 +584,12 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         const double n = rateMap.hasKey("n") ? rateMap["n"].asDouble() : 0.0;
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], n);
 
-        m_B = rateMap.hasKey("K") ? rateMap["K"].asDouble() : 0.0;
-        m_C = rateMap.hasKey("B") ? -rateMap["B"].asDouble() : 0.0;
-        m_D = rateMap.hasKey("C") ? rateMap["C"].asDouble() : 0.0;
-        m_m = rateMap.hasKey("m") ? rateMap["m"].asDouble() : 1.0;
-        m_E = rateMap.hasKey("D") ? rateMap["D"].asDouble() : 0.0;
-        m_z = rateMap.hasKey("z") ? rateMap["z"].asDouble() : 1.0;
+        m_B = rateMap.getDouble("K", 0.0);
+        m_C = rateMap.getDouble("B", 0.0);
+        m_D = rateMap.getDouble("C", 0.0);
+        m_m = rateMap.getDouble("m", 1.0);
+        m_E = rateMap.getDouble("D", 0.0);
+        m_z = rateMap.getDouble("z", 1.0);
         m_scaling = 1.0;
 
         if (m_m <= 0.0 || m_z <= 0.0) {
@@ -620,7 +624,6 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
             "VibrationalRelaxationRate::setParameters");
         requireKey(rateMap, "b", m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
-
         requireNoKey(rateMap, m_A_str, m_vibration_model,
             "VibrationalRelaxationRate::setParameters");
         requireNoKey(rateMap, "n", m_vibration_model,
