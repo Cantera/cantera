@@ -127,33 +127,15 @@ Composition replaceVibrationalSpeciesByGroundState(const Composition& comp)
     return out;
 }
 
-bool sameComposition(const Composition& a, const Composition& b,
-                     double tol = 1e-12)
+bool sameComposition(Composition diff, const Composition& b,
+                     double tol = Tiny)
 {
-    std::set<string> names;
-
-    for (const auto& item : a) {
-        names.insert(item.first);
-    }
-    for (const auto& item : b) {
-        names.insert(item.first);
+    for (const auto& [name, value] : b) {
+        diff[name] -= value;
     }
 
-    for (const auto& name : names) {
-        double av = 0.0;
-        double bv = 0.0;
-
-        const auto ait = a.find(name);
-        if (ait != a.end()) {
-            av = ait->second;
-        }
-
-        const auto bit = b.find(name);
-        if (bit != b.end()) {
-            bv = bit->second;
-        }
-
-        if (std::abs(av - bv) > tol) {
+    for (const auto& [name, value] : diff) {
+        if (std::abs(value) > tol) {
             return false;
         }
     }
