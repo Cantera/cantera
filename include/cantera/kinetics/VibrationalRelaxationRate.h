@@ -1,48 +1,9 @@
 //! @file VibrationalRelaxationRate.h
 //! Header for vibrational relaxation reaction rates in plasma kinetics.
-//!
+//! @since New in %Cantera 4.0
+
 //! This file is part of Cantera. See License.txt in the top-level directory or
 //! at https://cantera.org/license.txt for license and copyright information.
-
-
-//! It implements the relaxation rate of vibrationally excited species in plasma kinetics.
-//! Four models are currently supported by this class: 'constant', 'multi-state-resolved', 'starikovskiy', and 'castela'.
-
-//! The 'constant' model relaxes the vibrational species with a constant rate coefficient. It could just as well be an
-//! Arrhenius rate, but the constant model is provided for convenience and to avoid confusion with conventional Arrhenius rates.
-
-//! The 'multi-state-resolved' model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
-//! in the phase (Ex: N2(v=1-8)) and solves for their V-T and V-V relaxation. The scaling of the rates are based on the SSH theory
-//! detailed in Chapter 7 of the following book:
-//! Capitelli, M., Ferreira, C. M., Gordiets, B. F., & Osipov, A. I. (2013). 
-//! Plasma kinetics in atmospheric gases (Vol. 31). Springer Science & Business Media.
-//! The simplified version of the SSH theory implemented in this model is based on the harmonic oscillator approximation and can be found
-//! in the following paper (equations 18 and 19):
-//! Vasco Guerra et al 2019 Plasma Sources Sci. Technol. 28 073001
-//! The k10 rates are taken from //! Zhong, H. et al. (2023) “Understanding non-equilibrium N2O/NOx chemistry in plasma-assisted 
-//! low-temperature NH3 oxidation,” Combustion and Flame, 256, which itself took those rates from both the Capitelli book and 
-//! the article from Strikovskiy and Aleksandrov (2013), see more below.
-
-//! The 'castela' model is meant to be used only for N2 vibrational relaxation, by collisions with N2, O2 and O exclusively.
-//! It implements the mean vibrational energy relaxation model using a fictive cantera species.
-//! The Castela model is based on the following paper:
-//! Castela, M., Fiorina, B., Coussement, A., Gicquel, O., Darabiha, N., & Laux, C. O. (2016). 
-//! Modelling the impact of non-equilibrium discharges on reactive mixtures for simulations of 
-//! plasma-assisted ignition in turbulent flows. Combustion and flame, 166, 133-147.
-
-//! The so-called 'starikovskiy' model is an extension of the Castela model to several vibrational species and additional colliders.
-//! A lot of vibrational relaxation rates can be found in Table 1 of the following paper:
-//! Starikovskiy, A., & Aleksandrov, N. (2013). Plasma-assisted ignition and combustion. 
-//! Progress in Energy and Combustion Science, 39(1), 61-110.
-//! The rates for the vibrational relaxation of NH3 can be found in the reaction mechanism provided in supplementary material
-//! of the following paper:
-//! Zhong, H. et al. (2023) “Understanding non-equilibrium N2O/NOx chemistry in plasma-assisted low-temperature NH3 oxidation,” 
-//! Combustion and Flame, 256. 
-//! More rates for the vibrational relaxation of CH$ can be found in the following paper:
-//! Popov, N.A. (2016) “Kinetics of plasma-assisted combustion: Effect of non-equilibrium excitation on the ignition 
-//! and oxidation of combustible mixtures,” Plasma Sources Science and Technology. Institute of Physics Publishing. 
-
-
 
 #ifndef CT_VIBRATIONALRELAXATIONRATE_H
 #define CT_VIBRATIONALRELAXATIONRATE_H
@@ -53,12 +14,11 @@
 
 namespace Cantera
 {
-
 //! Shared temperature data for vibrational relaxation rates.
 struct DetailedVibData : public ReactionData
 {
     //! Update cached temperature-dependent data.
-    /*!
+    /**
      * @param phase Thermodynamic phase used to retrieve the gas temperature.
      * @param kin   Kinetics object. Not used here, but required by the
      *              ReactionData interface.
@@ -71,9 +31,8 @@ struct DetailedVibData : public ReactionData
     using ReactionData::update;
 };
 
-
-//! Vibrational relaxation reaction rate.
-/*!
+//! Vibrational relaxation reaction rate class definition.
+/**
  * This class provides a common implementation for several vibrational
  * relaxation models:
  *
@@ -107,12 +66,31 @@ struct DetailedVibData : public ReactionData
  * The selected physical model is specified separately using:
  *
  * @code{.yaml}
- * vibration_model: constant
+ * type: vibrational-relaxation
  * vibration_model: multi-state-resolved
- * vibration_model: starikovskiy
- * vibration_model: castela
  * @endcode
  *
+ * Accepted values for `vibration_model` are `constant`,
+ * `multi-state-resolved`, `starikovskiy`, and `castela`.
+ * 
+ * The `constant` model relaxes the vibrational species with a constant rate coefficient. It could just as well be an
+ * Arrhenius rate, but the constant model is provided for convenience and to avoid confusion with conventional Arrhenius rates
+ * for the YAML file user.
+ * 
+ * The `multi-state-resolved` model is meant to fully resolve vibrational relaxation by taking into account all vibrational species
+ * in the phase (for example: N2(v=1-8)) and solves for their V-T and V-V relaxation. The scaling of the rates is based on the SSH theory
+ * detailed in Chapter 7 of @cite capitelli2013. The simplified version of the SSH theory implemented in this model is based on the 
+ * harmonic oscillator approximation and can be found in equations 18 and 19 of @cite guerra2019.
+ * The @f$ k_{10} @f$ rates are taken from @cite zhong2023, @cite capitelli2013 and @cite starikovskiy2013.
+ * 
+ * The `castela` model is meant to be used only for N2 vibrational relaxation, by collisions with N2, O2 and O exclusively.
+ * It implements the mean vibrational energy relaxation model using a fictitious Cantera species and is based on @cite castela2016.
+ *
+ * The model coined `starikovskiy` is an extension of the Castela model to several vibrational species and additional colliders.
+ * Many vibrational relaxation rates can be found in Table 1 of @cite starikovskiy2013 (hence the model name). 
+ * The rates for the vibrational relaxation of NH3 can be found in the reaction mechanism provided in supplementary material of @cite zhong2023.
+ * More rates for the vibrational relaxation of @f$ \mathrm{CH_4} @f$ can be found in @cite popov2016. 
+ * 
  * Unit conventions:
  *
  * - `A` uses standard Cantera rate coefficient units. Its units depend on the
@@ -125,7 +103,9 @@ struct DetailedVibData : public ReactionData
  * The coefficients `B`, `C`, `D`, `E`, `m`, `z`, and `scaling` are read as
  * raw floating-point values. They are not converted by Cantera's unit system.
  *
+ * 
  * @ingroup arrheniusGroup
+ * @since New in %Cantera 4.0
  */
 class VibrationalRelaxationRate : public ArrheniusBase
 {
@@ -134,7 +114,7 @@ public:
     VibrationalRelaxationRate();
 
     //! Constructor using the internal generic representation.
-    /*!
+    /**
      * @param A       Pre-exponential factor.
      * @param B       Dimensionless constant in the exponential.
      * @param C       Coefficient multiplying T^(-1/3).
@@ -144,43 +124,49 @@ public:
      * @param m       Temperature exponent used by the D term.
      * @param E       Coefficient multiplying T^(-z).
      * @param z       Temperature exponent used by the E term.
+     * @since New in %Cantera 4.0
      */
     VibrationalRelaxationRate(double A, double B, double C, double D,
-                     double b, double scaling = 1.0,
-                     double m = 2.0 / 3.0,
-                     double E = 0.0, double z = 1.0);
+                              double b, double scaling = 1.0,
+                              double m = 2.0 / 3.0,
+                              double E = 0.0, double z = 1.0);
 
     //! Constructor based on AnyMap content.
-    explicit VibrationalRelaxationRate(const AnyMap& node,
-                              const UnitStack& rate_units = {});
+    //! @since New in %Cantera 4.0
+    explicit VibrationalRelaxationRate(const AnyMap& node, const UnitStack& rate_units = {});
 
     //! Set rate parameters from an AnyMap.
-    void setParameters(const AnyMap& node,
-                       const UnitStack& rate_units) override;
+    //! @since New in %Cantera 4.0
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Get rate parameters for YAML serialization.
+    //! @since New in %Cantera 4.0
     void getParameters(AnyMap& node) const override;
 
     //! Create a rate evaluator for this reaction rate type.
+    //! @since New in %Cantera 4.0
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<VibrationalRelaxationRate, DetailedVibData>>();
     }
 
     //! String identifying this reaction rate type.
+    //! @since New in %Cantera 4.0
     const string type() const override {
         return "vibrational-relaxation";
     }
 
     //! Set context of reaction rate evaluation.
-    /*!
+    /**
      * Vibrational relaxation rates are intended for irreversible
      * non-equilibrium plasma reactions. Reversible reactions are rejected
      * because the reverse rate cannot be obtained from conventional
      * thermochemistry for these models.
      */
+    //! @since New in %Cantera 4.0
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate the forward rate coefficient.
+    //! @since New in %Cantera 4.0
     double evalFromStruct(const DetailedVibData& shared_data) const {
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
@@ -195,7 +181,7 @@ public:
     }
 
     //! Evaluate the scaled temperature derivative.
-    /*!
+    /**
      * This returns:
      *
      * @f[
@@ -213,6 +199,7 @@ public:
      * - z E T^{-z-1}
      * @f]
      */
+    //! @since New in %Cantera 4.0
     double ddTScaledFromStruct(const DetailedVibData& shared_data) const;
 
 private:
@@ -247,9 +234,8 @@ private:
     double m_referencePressure = OneAtm;
 
     //! Selected vibrational relaxation model.
-    /*!
+    /**
      * Accepted values:
-     *
      * - `constant`
      * - `multi-state-resolved`
      * - `starikovskiy`
@@ -257,7 +243,7 @@ private:
      */
     string m_vibration_model = "multi-state-resolved";
 
-    //! YAML key names.
+    //! YAML variable names.
     string m_B_str = "B";
     string m_C_str = "C";
     string m_D_str = "D";
@@ -268,26 +254,23 @@ private:
     string m_reference_pressure_str = "reference-pressure";
 
     //! Configure the ArrheniusBase part from an already-converted internal A value.
-    /*!
-    * This is needed for models such as Castela, where the user-facing YAML does
-    * not contain a standard Arrhenius A coefficient.
-    */
-    void configureBaseFromInternalA(const AnyMap& node,
-                                    const UnitStack& rate_units,
+    /**
+     * This is needed for models such as Castela, where the user-facing YAML does
+     * not contain a standard Arrhenius A coefficient.
+     * @since New in %Cantera 4.0
+     */
+    void configureBaseFromInternalA(const AnyMap& node, const UnitStack& rate_units, 
                                     double A, double b);
 
     //! Configure the ArrheniusBase part from a YAML A value and an explicit b.
-    /*!
-    * This is needed for models such as constant and Starikovskiy, where the YAML
-    * does not contain the standard Arrhenius pair A / b.
-    */
-    void configureBaseFromYamlA(const AnyMap& node,
-                                const UnitStack& rate_units,
-                                const AnyValue& A,
-                                double b);
-
-    };
+    /**
+     * This is needed for models such as `constant` and `starikovskiy`, where the YAML
+     * does not contain the standard Arrhenius pair A / b.
+     * @since New in %Cantera 4.0
+     */
+    void configureBaseFromYamlA(const AnyMap& node, const UnitStack& rate_units, 
+                                const AnyValue& A, double b);
+};
 
 }
-
 #endif
