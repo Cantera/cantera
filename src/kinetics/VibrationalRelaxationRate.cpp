@@ -348,6 +348,22 @@ void validateCastelaReaction(const Reaction& rxn)
     }
 }
 
+void validateSameVibrationalFamily(const std::vector<string>& species,
+                                    const string& family,
+                                    const AnyMap& input,
+                                    const string& role)
+{
+    for (const auto& sp : species) {
+        const string spFamily = vibrationalFamilyName(sp);
+        if (spFamily != family) {
+            throw InputFileError(WhereSetContext, input,
+                "Invalid detailed vibrational relaxation reaction: all "
+                "vibrational {} must belong to the same vibrational "
+                "family. Found '{}' and '{}'.", role, family, spFamily);
+        }
+    }
+}
+
 void validateDetailedRelaxationReaction(const Reaction& rxn)
 {
     const auto vibReactants = vibrationalSpeciesInComposition(rxn.reactants);
@@ -363,25 +379,8 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     // to belong to the same "vibrational family".
     const string family = vibrationalFamilyName(vibReactants.front());
 
-    for (const auto& sp : vibReactants) {
-        const string spFamily = vibrationalFamilyName(sp);
-        if (spFamily != family) {
-            throw InputFileError(WhereSetContext, rxn.input,
-                "Invalid detailed vibrational relaxation reaction: all "
-                "vibrational reactants must belong to the same vibrational "
-                "family. Found '{}' and '{}'.", family, spFamily);
-        }
-    }
-
-    for (const auto& sp : vibProducts) {
-        const string spFamily = vibrationalFamilyName(sp);
-        if (spFamily != family) {
-            throw InputFileError(WhereSetContext, rxn.input,
-                "Invalid detailed vibrational relaxation reaction: all "
-                "vibrational products must belong to the same vibrational "
-                "family. Found '{}' and '{}'.", family, spFamily);
-        }
-    }
+    validateSameVibrationalFamily(vibReactants, family, rxn.input, "reactants");
+    validateSameVibrationalFamily(vibProducts, family, rxn.input, "products");
 
     // The reaction must conserve the ground-state composition once all
     // vibrational labels are removed.
