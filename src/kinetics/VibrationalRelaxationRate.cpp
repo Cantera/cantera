@@ -559,7 +559,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //
         //   k(T) = A * T^n * exp(
         //       K
-        //       - B * T^(-1/3)
+        //       + B * T^(-1/3)
         //       + C * T^(-m)
         //       + D * T^(-z)
         //   )
@@ -568,7 +568,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //
         //   m_b = n
         //   m_B = K
-        //   m_C = -B
+        //   m_C = B
         //   m_D = C
         //   m_m = m
         //   m_E = D
@@ -731,7 +731,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
 
         rateNode["n"] = m_b;
         rateNode["K"] = m_B;
-        rateNode["B"] = -m_C;
+        rateNode["B"] = m_C;
         rateNode["C"] = m_D;
         rateNode["m"] = m_m;
         rateNode["D"] = m_E;
