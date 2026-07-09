@@ -21,7 +21,20 @@ namespace Cantera
 
 namespace
 {
-// helpers to check the correctness of chosen vibrational model.
+
+constexpr double Tiny = 1e-12;
+
+const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
+const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
+const string WhereSetContext = "VibrationalRelaxationRate::setContext";
+
+const string ModelConstant = "constant";
+const string ModelMultiState = "multi-state-resolved";
+const string ModelStarikovskiy = "starikovskiy";
+const string ModelCastela = "castela";
+
+
+// helpers to check the correctness of a chosen vibrational model input data.
 void requireNoKey(const AnyMap& node, const string& key,
                   const string& model, const string& where)
 {
@@ -176,7 +189,7 @@ void registerVibrationalModelConsistency(const Kinetics& kin,
 
     const auto existing = modelByFamily.find(family);
     if (existing != modelByFamily.end() && existing->second != model) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", input,
+        throw InputFileError(WhereSetContext, input,
             "Inconsistent vibration-model for vibrational family '{}'. "
             "This family was already registered with model '{}', but the "
             "current reaction uses model '{}'. A given vibrational family "
@@ -201,7 +214,7 @@ void registerVibrationalModelConsistency(const Kinetics& kin,
             msg << "  - " << item.first << ": " << item.second << "\n";
         }
 
-        warn_user("VibrationalRelaxationRate::setContext", msg.str());
+        warn_user(WhereSetContext, msg.str());
         s_warnedMixedModels.insert(&kin);
     }
 }
@@ -211,7 +224,7 @@ string inferRelaxingFamily(const Reaction& rxn)
     const auto vibReactants = vibrationalSpeciesInComposition(rxn.reactants);
 
     if (vibReactants.empty()) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "A vibrational-relaxation reaction must contain at least one "
             "vibrational reactant, for example O2(v1), N2(v), or NH3(v1).");
     }
@@ -226,13 +239,13 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
     const auto vibProducts = vibrationalSpeciesInComposition(rxn.products);
 
     if (vibReactants.size() != 1) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "vibration-model '{}' expects exactly one vibrational reactant.",
             model);
     }
 
     if (!vibProducts.empty()) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "vibration-model '{}' describes relaxation to the ground state "
             "and therefore does not allow vibrational products.", model);
     }
@@ -241,7 +254,7 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
         replaceVibrationalSpeciesByGroundState(rxn.reactants);
 
     if (!sameComposition(relaxedReactants, rxn.products)) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "Invalid vibrational relaxation stoichiometry for model '{}'. "
             "Expected a reaction equivalent to X(v) + M => X + M, where the "
             "collider M is unchanged.", model);
@@ -250,7 +263,7 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
     if (std::abs(compositionSum(rxn.reactants) - 2.0) > 1e-12
         || std::abs(compositionSum(rxn.products) - 2.0) > 1e-12)
     {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "vibration-model '{}' expects a bimolecular relaxation reaction "
             "of the form X(v) + M => X + M.", model);
     }
@@ -258,13 +271,13 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
 
 void validateCastelaReaction(const Reaction& rxn)
 {
-    validateSimpleRelaxationToGroundState(rxn, "castela");
+    validateSimpleRelaxationToGroundState(rxn, ModelCastela);
 
     const auto vibReactants = vibrationalSpeciesInComposition(rxn.reactants);
     const string family = vibrationalFamilyName(vibReactants.front());
 
     if (family != "N2(v)") {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "The Castela relaxation model is only valid for N2 vibrational "
             "relaxation. Found vibrational family '{}'.", family);
     }
@@ -289,7 +302,7 @@ void validateCastelaReaction(const Reaction& rxn)
     }
 
     if (collider != "N2" && collider != "O2" && collider != "O") {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "The Castela relaxation model only supports colliders 'N2', "
             "'O2', and 'O'. Found collider '{}'.", collider);
     }
@@ -301,7 +314,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     const auto vibProducts = vibrationalSpeciesInComposition(rxn.products);
 
     if (vibReactants.empty()) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "A detailed vibrational relaxation reaction must contain at least "
             "one vibrational reactant.");
     }
@@ -313,7 +326,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     for (const auto& sp : vibReactants) {
         const string spFamily = vibrationalFamilyName(sp);
         if (spFamily != family) {
-            throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+            throw InputFileError(WhereSetContext, rxn.input,
                 "Invalid detailed vibrational relaxation reaction: all "
                 "vibrational reactants must belong to the same vibrational "
                 "family. Found '{}' and '{}'.", family, spFamily);
@@ -323,7 +336,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     for (const auto& sp : vibProducts) {
         const string spFamily = vibrationalFamilyName(sp);
         if (spFamily != family) {
-            throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+            throw InputFileError(WhereSetContext, rxn.input,
                 "Invalid detailed vibrational relaxation reaction: all "
                 "vibrational products must belong to the same vibrational "
                 "family. Found '{}' and '{}'.", family, spFamily);
@@ -339,7 +352,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
         replaceVibrationalSpeciesByGroundState(rxn.products);
 
     if (!sameComposition(collapsedReactants, collapsedProducts)) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "Invalid detailed vibrational relaxation reaction: replacing all "
             "vibrational species by their ground-state species does not "
             "conserve stoichiometry.");
@@ -349,7 +362,7 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
     if (std::abs(compositionSum(rxn.reactants) - 2.0) > 1e-12
         || std::abs(compositionSum(rxn.products) - 2.0) > 1e-12)
     {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "Invalid detailed vibrational relaxation reaction: expected a "
             "bimolecular reaction with two reactant molecules and two product "
             "molecules.");
@@ -471,10 +484,10 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //
     // The default model is multi-state-resolved.
 
-    m_vibration_model = node.getString("vibration-model", "multi-state-resolved");
+    m_vibration_model = node.getString("vibration-model", ModelMultiState);
 
     if (!node.hasKey("rate-constant")) {
-        throw InputFileError("VibrationalRelaxationRate::setParameters", node,
+        throw InputFileError(WhereSetParameters, node,
             "A vibrational-relaxation reaction requires a 'rate-constant' "
             "mapping.");
     }
@@ -482,36 +495,36 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     const auto& rate = node["rate-constant"];
 
     if (!rate.is<AnyMap>()) {
-        throw InputFileError("VibrationalRelaxationRate::setParameters", node,
+        throw InputFileError(WhereSetParameters, node,
             "The 'rate-constant' field must be a mapping.");
     }
 
     const auto& rateMap = rate.as<AnyMap>();
 
-    if (m_vibration_model == "constant") {
+    if (m_vibration_model == ModelConstant) {
         // Constant model:
         //
         //   k(T) = A
         requireKey(rateMap, m_A_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_b_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, "n", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_B_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_C_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_D_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_m_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_E_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_z_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
 
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
 
@@ -523,7 +536,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         m_z = 1.0;
         m_scaling = 1.0;
     }
-    else if (m_vibration_model == "multi-state-resolved") {
+    else if (m_vibration_model == ModelMultiState) {
         // Detailed VV/VT model:
         //
         //   k(T) = scaling * A * exp(
@@ -534,15 +547,15 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //   )
 
         requireKey(rateMap, m_A_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, "n", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_m_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_E_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_z_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
 
         ArrheniusBase::setParameters(node, rate_units);
 
@@ -554,7 +567,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         m_z = 1.0;
         m_scaling = rateMap.getDouble(m_scaling_str, 1.0);
     }
-    else if (m_vibration_model == "starikovskiy") {
+    else if (m_vibration_model == ModelStarikovskiy) {
         // User-facing formula:
         //
         //   k(T) = A * T^n * exp(
@@ -575,11 +588,11 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //   m_z = z
 
         requireKey(rateMap, m_A_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_b_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
 
         const double n = rateMap.hasKey("n") ? rateMap["n"].asDouble() : 0.0;
         configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], n);
@@ -593,11 +606,11 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         m_scaling = 1.0;
 
         if (m_m <= 0.0 || m_z <= 0.0) {
-            throw InputFileError("VibrationalRelaxationRate::setParameters", node,
+            throw InputFileError(WhereSetParameters, node,
                 "The Starikovskiy exponents 'm' and 'z' must be positive.");
         }
     }
-    else if (m_vibration_model == "castela") {
+    else if (m_vibration_model == ModelCastela) {
         // Castela model:
         //
         // Original relaxation time:
@@ -621,29 +634,29 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         //   scaling = 1
 
         requireKey(rateMap, "a", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireKey(rateMap, "b", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_A_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, "n", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, "K", m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_B_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_C_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_D_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_m_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_E_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_z_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
         requireNoKey(rateMap, m_scaling_str, m_vibration_model,
-            "VibrationalRelaxationRate::setParameters");
+            WhereSetParameters);
 
         m_castela_a = rateMap["a"].asDouble();
         m_castela_b = rateMap["b"].asDouble();
@@ -655,7 +668,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         }
 
         if (m_referencePressure <= 0.0) {
-            throw InputFileError("VibrationalRelaxationRate::setParameters", node,
+            throw InputFileError(WhereSetParameters, node,
                 "Castela reference-pressure must be positive.");
         }
 
@@ -671,7 +684,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
         m_scaling = 1.0;
     }
     else {
-        throw InputFileError("VibrationalRelaxationRate::setParameters", node,
+        throw InputFileError(WhereSetParameters, node,
             "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
@@ -701,7 +714,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         }
     };
 
-    if (m_vibration_model == "constant") {
+    if (m_vibration_model == ModelConstant) {
         const double tol = 1e-12;
 
         if (std::abs(m_b) > tol
@@ -710,14 +723,14 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
             || std::abs(m_D) > tol
             || std::abs(m_E) > tol)
         {
-            throw InputFileError("VibrationalRelaxationRate::getParameters", node,
+            throw InputFileError(WhereGetParameters, node,
                 "Cannot serialize this rate as 'constant': the internal "
                 "parameters contain temperature-dependent terms.");
         }
 
         storePreExponentialFactor(rateNode, m_scaling * m_A);
     }
-    else if (m_vibration_model == "multi-state-resolved") {
+    else if (m_vibration_model == ModelMultiState) {
         storePreExponentialFactor(rateNode, m_A);
 
         rateNode[m_b_str] = m_b;
@@ -726,7 +739,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         rateNode[m_D_str] = m_D;
         rateNode[m_scaling_str] = m_scaling;
     }
-    else if (m_vibration_model == "starikovskiy") {
+    else if (m_vibration_model == ModelStarikovskiy) {
         storePreExponentialFactor(rateNode, m_A);
 
         rateNode["n"] = m_b;
@@ -737,7 +750,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         rateNode["D"] = m_E;
         rateNode["z"] = m_z;
     }
-    else if (m_vibration_model == "castela") {
+    else if (m_vibration_model == ModelCastela) {
         const double tol = 1e-12;
 
         if (std::abs(m_b - 1.0) > tol
@@ -745,14 +758,14 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
             || std::abs(m_E) > tol
             || std::abs(m_scaling - 1.0) > tol)
         {
-            throw InputFileError("VibrationalRelaxationRate::getParameters", node,
+            throw InputFileError(WhereGetParameters, node,
                 "Cannot serialize this rate as 'castela': the internal "
                 "parameters are not consistent with the Castela form. "
                 "Expected b = 1, D = 0, E = 0, and scaling = 1.");
         }
 
         if (m_referencePressure <= 0.0) {
-            throw InputFileError("VibrationalRelaxationRate::getParameters", node,
+            throw InputFileError(WhereGetParameters, node,
                 "Cannot serialize this rate as 'castela': "
                 "reference-pressure must be positive.");
         }
@@ -762,7 +775,7 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
         rateNode[m_reference_pressure_str].setQuantity(m_referencePressure, "Pa");
     }
     else {
-        throw InputFileError("VibrationalRelaxationRate::getParameters", node,
+        throw InputFileError(WhereGetParameters, node,
             "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
             "'starikovskiy', 'castela', or 'constant'.",
             m_vibration_model);
@@ -787,23 +800,23 @@ double VibrationalRelaxationRate::ddTScaledFromStruct(
 void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     if (rxn.reversible) {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "Vibrational relaxation rates do not support reversible "
             "reactions.");
     }
 
     const string family = inferRelaxingFamily(rxn);
 
-    if (m_vibration_model == "constant") {
-        validateSimpleRelaxationToGroundState(rxn, "constant");
-    } else if (m_vibration_model == "castela") {
+    if (m_vibration_model == ModelConstant) {
+        validateSimpleRelaxationToGroundState(rxn, ModelConstant);
+    } else if (m_vibration_model == ModelCastela) {
         validateCastelaReaction(rxn);
-    } else if (m_vibration_model == "starikovskiy") {
-        validateSimpleRelaxationToGroundState(rxn, "starikovskiy");
-    } else if (m_vibration_model == "multi-state-resolved") {
+    } else if (m_vibration_model == ModelStarikovskiy) {
+        validateSimpleRelaxationToGroundState(rxn, ModelStarikovskiy);
+    } else if (m_vibration_model == ModelMultiState) {
         validateDetailedRelaxationReaction(rxn);
     } else {
-        throw InputFileError("VibrationalRelaxationRate::setContext", rxn.input,
+        throw InputFileError(WhereSetContext, rxn.input,
             "Unrecognized vibration-model '{}'.", m_vibration_model);
     }
 
