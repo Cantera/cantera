@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera
 using Test
 
@@ -21,7 +24,8 @@ using Test
     @test reaction_equations(gas)[1] == "2 O + M <=> O2 + M"
 
     # consistency identities that must hold for any mechanism
-    @test net_production_rates(gas) ≈ creation_rates(gas) .- destruction_rates(gas) rtol=1e-8
+    @test net_production_rates(gas) ≈
+          creation_rates(gas) .- destruction_rates(gas) rtol=1e-8
     @test net_rates_of_progress(gas) ≈
           forward_rates_of_progress(gas) .- reverse_rates_of_progress(gas) rtol=1e-10
     close!(gas)

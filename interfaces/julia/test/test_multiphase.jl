@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera
 using Test
 
@@ -5,7 +8,6 @@ using Test
 # single gri30 gas phase at 1200 K, 1 atm, CH4:1 O2:2 N2:7.52.
 
 const CT = Cantera
-const MECH = "gri30.yaml"
 
 @testset "MultiPhase" begin
     gas = Solution(MECH)

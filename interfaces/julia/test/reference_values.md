@@ -2,7 +2,7 @@
 
 The numeric reference values hard-coded in `runtests.jl` are produced with the
 **Python** Cantera interface (the reference implementation), so that the Julia
-interface is validated against Cantera's own results rather than against itself.
+interface is validated against Cantera's own results.
 
 They were generated with Cantera 3.2.0 and `gri30.yaml`. To regenerate:
 

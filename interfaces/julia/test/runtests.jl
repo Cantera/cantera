@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera
 using Test
 
@@ -103,7 +106,8 @@ const MECH = "gri30.yaml"
         @test rop_net ≈ rop_f .- rop_r rtol=1e-10
 
         # net production = creation - destruction
-        @test net_production_rates(gas) ≈ creation_rates(gas) .- destruction_rates(gas) rtol=1e-8
+        @test net_production_rates(gas) ≈
+              creation_rates(gas) .- destruction_rates(gas) rtol=1e-8
         close!(gas)
     end
 
@@ -147,41 +151,28 @@ const MECH = "gri30.yaml"
     end
 
     @testset "Analytic kinetic derivatives" begin
-        # These wrap native CLib getters added via interfaces/sourcegen (ctkin.yaml).
-        # They are only callable against a libcantera built with those recipes; on
-        # an older library the symbol is absent, so we detect and skip gracefully.
-        import Libdl
-        lib = Libdl.dlopen(Cantera.LibCantera.libcantera[])
-        have = Libdl.dlsym_e(lib, :kin_getNetProductionRates_ddT) != C_NULL
-
-        if have
-            gas = Solution(MECH)
-            set_TPX!(gas, 1400.0, one_atm, "CH4:1, O2:2, N2:7.52")
-            d = net_production_rates_ddT(gas)
-            @test length(d) == 53
-            @test all(isfinite, d)
-            # value check against the Python Cantera reference
-            @test d[species_index(gas, "CH4")] ≈ -3.3322745901816125e-6 rtol=1e-6
-            # in-place variant agrees
-            out = similar(d); net_production_rates_ddT!(out, gas)
-            @test out == d
-            close!(gas)
-        else
-            @info "Skipping analytic-derivative value checks: linked libcantera " *
-                  "predates the ctkin derivative recipes (rebuild Cantera from " *
-                  "this branch to enable)."
-            @test_skip false
-        end
+        gas = Solution(MECH)
+        set_TPX!(gas, 1400.0, one_atm, "CH4:1, O2:2, N2:7.52")
+        d = net_production_rates_ddT(gas)
+        @test length(d) == 53
+        @test all(isfinite, d)
+        # value check against the Python Cantera reference
+        @test d[species_index(gas, "CH4")] ≈ -3.3322745901816125e-6 rtol=1e-6
+        # in-place variant agrees
+        out = similar(d); net_production_rates_ddT!(out, gas)
+        @test out == d
+        close!(gas)
     end
 
-    # Extended-parity façades, each with its own detailed testset.
     include("test_mechanisms.jl")
-    include("test_gaps.jl")
+    include("test_thermo.jl")
+    include("test_kinetics.jl")
+    include("test_transport.jl")
+    include("test_reactor.jl")
+    include("test_solutionarray.jl")
     include("test_func1.jl")
     include("test_multiphase.jl")
     include("test_connectors.jl")
     include("test_rdiag.jl")
-    # 1-D flames: a fast coarse-grid smoke test by default; set CANTERA_EXACT_FLAME=1
-    # to additionally verify the flame speed against Python (~200 s solve).
     include("test_onedim.jl")
 end
