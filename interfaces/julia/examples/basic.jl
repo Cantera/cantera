@@ -1,7 +1,8 @@
 # Basic usage of the Cantera Julia interface.
 #
-# Run with:
-#   CANTERA_LIBRARY_PATH=/path/to/lib julia --project=interfaces/julia examples/basic.jl
+# Run from the repository root with:
+#   CANTERA_LIBRARY_PATH=/path/to/lib julia --project=interfaces/julia \
+#     interfaces/julia/examples/basic.jl
 
 using Cantera
 
