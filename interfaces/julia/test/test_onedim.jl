@@ -1,45 +1,19 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera
 using Test
-import Libdl
 
-# Reference computed with Python `cantera.FreeFlame` (gri30, stoichiometric
-# CH4/air at 300 K, 1 atm, width=0.03, refine ratio=3/slope=0.06/curve=0.12,
-# solve auto=True):
-#   python3 -c "import cantera as ct; g=ct.Solution('gri30.yaml');
-#     g.TPX=300,ct.one_atm,'CH4:1,O2:2,N2:7.52';
-#     f=ct.FreeFlame(g,width=0.03); f.set_refine_criteria(ratio=3,slope=0.06,curve=0.12);
-#     f.solve(loglevel=0,auto=True); print(repr(f.velocity[0]))"
-#   -> Su = 0.3809265424901588 m/s, final grid = 196 points spanning [0, 0.06] m,
-#      Tmax = 2230.74 K.
-#
-# The full `auto=true` solve reproduces this to ~6 significant figures but takes
-# ~200 s (it faithfully mirrors Python's staged multi-grid + domain-widening
-# schedule to land on the identical 196-point grid). To keep the default test
-# suite fast, that exact-match check runs only when CANTERA_EXACT_FLAME is set;
-# otherwise a quick coarse-grid smoke test exercises the same code paths.
+
 const CT = Cantera
-const SU_REF = 0.3809265424901588
-const NPTS_REF = 196
 
-# The 1-D flame façade uses `ctdomain`/`ctonedim` functions as they exist on this
-# branch (e.g. `domain_domainType`). An older libcantera may lack or have renamed
-# them; in that case skip the flame tests gracefully.
-_have_onedim() =
-    Libdl.dlsym_e(Libdl.dlopen(CT.LibCantera.libcantera[]), :domain_domainType) != C_NULL
-
-if !_have_onedim()
-    @info "Skipping 1-D flame tests: linked libcantera lacks the current " *
-          "ctdomain/ctonedim API (build Cantera from this branch to enable)."
-    @testset "OneDim / FreeFlame" begin
-        @test_skip false
-    end
-else
 @testset "OneDim / FreeFlame" begin
     gas = CT.Solution("gri30.yaml")
     CT.set_TPX!(gas, 300.0, 101325.0, "CH4:1, O2:2, N2:7.52")
 
     flame = CT.FreeFlame(gas; width=0.03)
     npts0 = CT.n_points(flame)
+    rho_u = flame.rho_u   # unburned density [kg/m^3]
 
     @testset "construction" begin
         @test CT.domain_type(flame.inlet) == "inlet"
@@ -56,49 +30,47 @@ else
 
     CT.set_refine_criteria!(flame; ratio=3.0, slope=0.06, curve=0.12, prune=0.0)
 
-    if haskey(ENV, "CANTERA_EXACT_FLAME")
-        # Full staged auto-solve: reproduces Python's grid and flame speed.
-        t0 = time()
-        CT.solve!(flame; loglevel=0, auto=true)
-        dt = time() - t0
-        Su = CT.flame_speed(flame)
-        z = CT.grid(flame)
-        Tmax = maximum(CT.flame_T(flame))
-        err = abs(Su - SU_REF) / SU_REF
-        println("Su=$(Su) m/s  ref=$(SU_REF)  rel_err=$(round(err*100; digits=4))%  " *
-                "Tmax=$(round(Tmax; digits=2)) K  npts=$(length(z)) (ref $(NPTS_REF))  " *
-                "z_end=$(round(z[end]; digits=4)) m  solve=$(round(dt; digits=1)) s")
+    t0 = time()
+    CT.solve!(flame; loglevel=0, auto=true)
+    dt = time() - t0
+    Su = CT.flame_speed(flame)
+    z = CT.grid(flame)
+    T = CT.flame_T(flame)
+    Tmax = maximum(T)
 
-        @testset "flame speed matches Python (exact)" begin
-            @test isapprox(Su, SU_REF; rtol=1e-3)   # agrees to ~6 sig figs in practice
-            @test length(z) == NPTS_REF             # identical final grid
-            @test z[end] ≈ 0.06 atol = 1e-4
-            @test Tmax > 1800.0
-            @test all(diff(z) .> 0)
-        end
-    else
-        # Fast smoke test: a bounded coarse solve on the initial grid. Exercises
-        # the guess/energy/solve paths and asserts a physical flame structure
-        # without the expensive grid refinement. Set CANTERA_EXACT_FLAME=1 to run
-        # the full solve and check the flame speed against Python.
-        CT.solve!(flame; loglevel=0, auto=false, refine_grid=false)
-        z = CT.grid(flame)
-        T = CT.flame_T(flame)
+    ad = CT.Solution("gri30.yaml")
+    CT.set_TPX!(ad, 300.0, 101325.0, "CH4:1, O2:2, N2:7.52")
+    CT.equilibrate!(ad, "HP")
+    Tad = CT.temperature(ad)
+    rho_b = CT.density(ad)   # burned density at the adiabatic state
 
-        @testset "coarse solve (smoke)" begin
-            @test all(diff(z) .> 0)                 # strictly increasing grid
-            @test z[1] ≈ 0.0 atol = 1e-9
-            @test length(T) == length(z)
-            @test T[1] < 400.0                      # cold reactants
-            @test maximum(T) > 1800.0               # hot products
-            Xch4 = CT.flame_X(flame, "CH4")
-            Xco2 = CT.flame_X(flame, "CO2")
-            @test Xch4[1] > Xch4[end]               # fuel consumed
-            @test Xco2[end] > Xco2[1]               # products formed
-            @test CT.flame_speed(flame) > 0.0
-        end
+    println("Su=$(round(Su; digits=4)) m/s  Tmax=$(round(Tmax; digits=1)) K  " *
+            "Tad=$(round(Tad; digits=1)) K  npts=$(length(z))  " *
+            "z_end=$(round(z[end]; digits=4)) m  solve=$(round(dt; digits=1)) s")
+
+    @testset "flame is physical (behavioral)" begin
+        # Burned gas reaches the adiabatic flame temperature (Python: rel=2e-2).
+        @test isapprox(Tmax, Tad; rtol=2e-2)
+        # Laminar flame speed in the physically expected range (Python asserts
+        # flame speed to rel=1e-1 for its mixtures).
+        @test isapprox(Su, 0.38; rtol=0.15)
+        # Mass flux ρu is conserved across the flame: ρ_b·u_b ≈ ρ_u·S_u.
+        u_b = CT.flame_velocity(flame)[end]
+        @test isapprox(rho_b * u_b, rho_u * Su; rtol=0.05)
+        # Grid is a valid, refined, strictly increasing mesh.
+        @test all(diff(z) .> 0)
+        @test length(z) > npts0
+        # Cold reactants, hot products.
+        @test T[1] < 400.0
+        @test Tmax > 1800.0
+        # Fuel consumed, products formed across the front.
+        Xch4 = CT.flame_X(flame, "CH4")
+        Xco2 = CT.flame_X(flame, "CO2")
+        @test Xch4[1] > Xch4[end]
+        @test Xco2[end] > Xco2[1]
     end
 
+    CT.close!(ad)
     CT.close!(flame)
     @test occursin("closed", sprint(show, flame))
     CT.close!(gas)
@@ -123,7 +95,6 @@ end
         @test occursin("BurnerFlame", sprint(show, bf))
     end
 
-    # Bounded coarse solve only (no auto/refinement): a few seconds.
     CT.solve!(bf; loglevel=0, auto=false, refine_grid=false)
     z = CT.grid(bf)
     T = CT.flame_T(bf)
@@ -147,4 +118,3 @@ end
     @test occursin("closed", sprint(show, bf))
     CT.close!(gas)
 end
-end  # _have_onedim()

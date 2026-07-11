@@ -1,13 +1,7 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera, Test
-# These names are exported once src/Cantera.jl is updated; import explicitly so
-# this file also runs standalone before the export list is edited.
-import Cantera: ReactionPathDiagram, build!, get_dot, get_data, get_log,
-    threshold, set_threshold!, bold_threshold, set_bold_threshold!,
-    normal_threshold, set_normal_threshold!, label_threshold, set_label_threshold!,
-    scale, set_scale!, arrow_width, set_arrow_width!, flow_type, set_flow_type!,
-    title, set_title!, font, set_font!, show_details, set_show_details!,
-    bold_color, set_bold_color!, normal_color, set_normal_color!,
-    dashed_color, set_dashed_color!, dot_options, set_dot_options!, display_only!
 
 @testset "ReactionPathDiagram" begin
     gas = Solution("gri30.yaml")
