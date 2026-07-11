@@ -1,7 +1,11 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Kinetics accessors.  All functions accept a `Solution` or a `Kinetics`.
 
 "Number of reactions in the mechanism."
-n_reactions(g::KineticsLike) = Int(check(LibCantera.kin_nReactions(_kinetics_handle(g))))
+n_reactions(g::KineticsLike) =
+    Int(check(LibCantera.kin_nReactions(_kinetics_handle(g))))
 
 "Total number of species across all phases in the Kinetics manager."
 n_total_species(g::KineticsLike) =
@@ -16,7 +20,8 @@ function reaction_equation(g::KineticsLike, i::Integer)
 end
 
 "Vector of all reaction equation strings."
-reaction_equations(g::KineticsLike) = [reaction_equation(g, i) for i in 1:n_reactions(g)]
+reaction_equations(g::KineticsLike) =
+    [reaction_equation(g, i) for i in 1:n_reactions(g)]
 
 "Whether reaction `i` (1-based) is reversible."
 is_reversible(g::KineticsLike, i::Integer) =
@@ -81,12 +86,8 @@ end
 # Derivatives are taken at constant volume/composition for `_ddT` and `_ddP`,
 # and with respect to molar concentration for `_ddC`, following Cantera's C++
 # convention.  The composition Jacobian (`_ddX`) returns a *sparse* matrix in
-# C++ and is not representable through the flat-array CLib; it is intentionally
-# not wrapped here.  See docs/src/differentiation.md.
-#
-# Runtime note: these require a `libcantera` built with the ctkin derivative
-# recipes (Cantera >= this branch).  Against an older library the underlying
-# symbol is absent and the call raises an error at call time.
+# C++; it is wrapped separately below, densified into a flat column-major
+# buffer to fit the array-out CLib convention.
 
 for (jl, c, len) in (
         (:net_production_rates_ddT, :kin_getNetProductionRates_ddT, :_nsp),
@@ -124,7 +125,9 @@ respect to species mole fractions, size nSpecies x nSpecies.
 """
 function net_production_rates_ddX(g::KineticsLike)
     n = _nsp(g)
-    buf = get_array(n * n, (len, b) -> LibCantera.kin_getNetProductionRates_ddX(_kinetics_handle(g), len, b))
+    buf = get_array(n * n,
+        (len, b) -> LibCantera.kin_getNetProductionRates_ddX(
+            _kinetics_handle(g), len, b))
     return reshape(buf, n, n)
 end
 
@@ -136,7 +139,9 @@ nReactions x nSpecies.
 """
 function net_rates_of_progress_ddX(g::KineticsLike)
     nr = _nrxn(g); ns = _nsp(g)
-    buf = get_array(nr * ns, (len, b) -> LibCantera.kin_getNetRatesOfProgress_ddX(_kinetics_handle(g), len, b))
+    buf = get_array(nr * ns,
+        (len, b) -> LibCantera.kin_getNetRatesOfProgress_ddX(
+            _kinetics_handle(g), len, b))
     return reshape(buf, nr, ns)
 end
 
@@ -152,13 +157,21 @@ heat_release_rate(g::Solution) =
 
 # ---- stoichiometry ----------------------------------------------------------
 
-"Stoichiometric coefficient of reactant species `k` (1-based) in reaction `i` (1-based)."
+"""
+Stoichiometric coefficient of reactant species `k` (1-based) in reaction `i`
+(1-based).
+"""
 reactant_stoich_coeff(g::KineticsLike, k::Integer, i::Integer) =
-    checkd(LibCantera.kin_reactantStoichCoeff(_kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
+    checkd(LibCantera.kin_reactantStoichCoeff(
+        _kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
 
-"Stoichiometric coefficient of product species `k` (1-based) in reaction `i` (1-based)."
+"""
+Stoichiometric coefficient of product species `k` (1-based) in reaction `i`
+(1-based).
+"""
 product_stoich_coeff(g::KineticsLike, k::Integer, i::Integer) =
-    checkd(LibCantera.kin_productStoichCoeff(_kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
+    checkd(LibCantera.kin_productStoichCoeff(
+        _kinetics_handle(g), Int32(k - 1), Int32(i - 1)))
 
 "`nSpecies × nReactions` matrix of reactant stoichiometric coefficients."
 function reactant_stoich_coeffs(g::KineticsLike)
@@ -188,15 +201,18 @@ end
 
 "Standard-state enthalpy change for each reaction [J/kmol]."
 delta_standard_enthalpy(g::KineticsLike) =
-    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSEnthalpy(_kinetics_handle(g), n, b))
+    get_array(_nrxn(g),
+        (n, b) -> LibCantera.kin_getDeltaSSEnthalpy(_kinetics_handle(g), n, b))
 
 "Standard-state Gibbs free energy change for each reaction [J/kmol]."
 delta_standard_gibbs(g::KineticsLike) =
-    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSGibbs(_kinetics_handle(g), n, b))
+    get_array(_nrxn(g),
+        (n, b) -> LibCantera.kin_getDeltaSSGibbs(_kinetics_handle(g), n, b))
 
 "Standard-state entropy change for each reaction [J/kmol/K]."
 delta_standard_entropy(g::KineticsLike) =
-    get_array(_nrxn(g), (n, b) -> LibCantera.kin_getDeltaSSEntropy(_kinetics_handle(g), n, b))
+    get_array(_nrxn(g),
+        (n, b) -> LibCantera.kin_getDeltaSSEntropy(_kinetics_handle(g), n, b))
 
 # ---- forward/reverse rate-of-progress derivatives ---------------------------
 
@@ -220,3 +236,31 @@ of progress times reaction enthalpy).  Their sum equals [`heat_release_rate`](@r
 """
 heat_production_rates(g::KineticsLike) =
     -net_rates_of_progress(g) .* delta_enthalpy(g)
+
+export n_reactions, n_total_species, reaction_equation, reaction_equations,
+       is_reversible,
+       forward_rate_constants, reverse_rate_constants, equilibrium_constants,
+       forward_rates_of_progress, reverse_rates_of_progress,
+       net_rates_of_progress, net_production_rates, net_production_rates!,
+       creation_rates, creation_rates!, destruction_rates, destruction_rates!,
+       forward_rates_of_progress!, reverse_rates_of_progress!,
+       net_rates_of_progress!, forward_rate_constants!, equilibrium_constants!,
+       delta_enthalpy, delta_gibbs, delta_entropy,
+       net_production_rates_ddT, net_production_rates_ddP, net_production_rates_ddC,
+       creation_rates_ddT, creation_rates_ddP, creation_rates_ddC,
+       destruction_rates_ddT, destruction_rates_ddP, destruction_rates_ddC,
+       net_rates_of_progress_ddT, net_rates_of_progress_ddP, net_rates_of_progress_ddC,
+       net_production_rates_ddX, net_rates_of_progress_ddX,
+       net_production_rates_ddT!, net_production_rates_ddP!, net_production_rates_ddC!,
+       creation_rates_ddT!, creation_rates_ddP!, creation_rates_ddC!,
+       destruction_rates_ddT!, destruction_rates_ddP!, destruction_rates_ddC!,
+       net_rates_of_progress_ddT!, net_rates_of_progress_ddP!,
+       net_rates_of_progress_ddC!,
+       heat_release_rate, heat_production_rates,
+       reactant_stoich_coeff, product_stoich_coeff,
+       reactant_stoich_coeffs, product_stoich_coeffs,
+       multiplier, set_multiplier!,
+       delta_standard_enthalpy, delta_standard_gibbs, delta_standard_entropy,
+       forward_rates_of_progress_ddT, forward_rates_of_progress_ddP,
+       forward_rates_of_progress_ddC, reverse_rates_of_progress_ddT,
+       reverse_rates_of_progress_ddP, reverse_rates_of_progress_ddC

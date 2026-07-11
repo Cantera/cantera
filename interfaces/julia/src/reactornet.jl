@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # ReactorNet: time integration of a network of reactors.
 
 """
@@ -13,7 +16,8 @@ mutable struct ReactorNet <: CanteraObject
     closed::Bool
 
     function ReactorNet(reactors::Vector{Reactor})
-        isempty(reactors) && throw(ArgumentError("ReactorNet needs at least one reactor"))
+        isempty(reactors) &&
+            throw(ArgumentError("ReactorNet needs at least one reactor"))
         handles = Int32[r.handle for r in reactors]
         h = check(LibCantera.reactornet_new(Int32(length(handles)), pointer(handles)))
         net = new(h, reactors, false)
@@ -126,11 +130,13 @@ n_components(net::ReactorNet) = Int(check(LibCantera.reactornet_neq(net.handle))
 Current network state vector, of length [`n_components`](@ref).
 """
 state(net::ReactorNet) =
-    get_array(n_components(net), (n, b) -> LibCantera.reactornet_getState(net.handle, n, b))
+    get_array(n_components(net),
+        (n, b) -> LibCantera.reactornet_getState(net.handle, n, b))
 
 "Name of state-vector component `i` (1-based)."
 function component_name(net::ReactorNet, i::Integer)
-    return get_string((n, b) -> LibCantera.reactornet_componentName(net.handle, Int32(i - 1), n, b))
+    return get_string(
+        (n, b) -> LibCantera.reactornet_componentName(net.handle, Int32(i - 1), n, b))
 end
 
 """
@@ -143,3 +149,8 @@ component_names(net::ReactorNet) = [component_name(net, i) for i in 1:n_componen
 Base.show(io::IO, net::ReactorNet) =
     print(io, net.closed ? "ReactorNet(<closed>)" :
           "ReactorNet($(length(net.reactors)) reactor(s), t=$(time(net)) s)")
+
+export ReactorNet,
+       advance!, step!, set_initial_time!, set_max_time_step!, set_tolerances!,
+       rtol, atol, set_sensitivity_tolerances!, sensitivity, state,
+       n_components, component_name, component_names

@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Reactor connectors: walls and flow devices.
 #
 # A connector links two reactors in a network.  Each Julia wrapper stores the
@@ -87,7 +90,8 @@ function Wall(left::Reactor, right::Reactor; A=1.0, U=0.0, K=0.0, Q=nothing,
     set_area!(w, A)
     U != 0 && set_heat_transfer_coeff!(w, U)
     K != 0 && set_expansion_rate_coeff!(w, K)
-    expansion_rate_coeff !== nothing && set_expansion_rate_coeff!(w, expansion_rate_coeff)
+    expansion_rate_coeff !== nothing &&
+        set_expansion_rate_coeff!(w, expansion_rate_coeff)
     emissivity !== nothing && set_emissivity!(w, emissivity)
     Q !== nothing && set_heat_flux!(w, Q)
     velocity !== nothing && set_velocity!(w, velocity)
@@ -151,7 +155,8 @@ end
 mass_flow_rate(d::FlowDevice) = checkd(LibCantera.flowdev_massFlowRate(d.handle))
 
 "Device coefficient of the flow device (meaning depends on the device type)."
-device_coefficient(d::FlowDevice) = checkd(LibCantera.flowdev_deviceCoefficient(d.handle))
+device_coefficient(d::FlowDevice) =
+    checkd(LibCantera.flowdev_deviceCoefficient(d.handle))
 
 "Set the device coefficient of the flow device."
 function set_device_coefficient!(d::FlowDevice, c)
@@ -185,7 +190,8 @@ A flow device that maintains a specified mass flow rate `mdot` [kg/s] from
 """
 function MassFlowController(upstream::Reactor, downstream::Reactor; mdot=0.0,
                             name::AbstractString="")
-    d = _new_connector(MassFlowController, "MassFlowController", upstream, downstream, name)
+    d = _new_connector(MassFlowController, "MassFlowController", upstream, downstream,
+                       name)
     mdot != 0 && set_mass_flow_rate!(d, mdot)
     return d
 end
@@ -217,7 +223,8 @@ A flow device that regulates the pressure difference across it relative to a
 """
 function PressureController(upstream::Reactor, downstream::Reactor; primary=nothing,
                            K=0.0, name::AbstractString="")
-    d = _new_connector(PressureController, "PressureController", upstream, downstream, name)
+    d = _new_connector(PressureController, "PressureController", upstream, downstream,
+                       name)
     K != 0 && set_device_coefficient!(d, K)
     primary !== nothing && set_primary!(d, primary)
     return d
@@ -230,3 +237,10 @@ for T in (:Wall, :MassFlowController, :Valve, :PressureController)
         print(io, c.closed ? string($(QuoteNode(T)), "(<closed>)") :
               string($(QuoteNode(T)), "(\"", name(c), "\")"))
 end
+
+export Connector, FlowDevice, Wall, MassFlowController, Valve, PressureController,
+       device_coefficient, set_device_coefficient!, set_pressure_function!,
+       set_time_function!, set_primary!, expansion_rate, heat_rate,
+       set_heat_transfer_coeff!, set_thermal_resistance!, set_expansion_rate_coeff!,
+       set_emissivity!, set_heat_flux!, set_velocity!, connector_type, set_name!,
+       mass_flow_rate, set_mass_flow_rate!, area, set_area!

@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Thermodynamic state, composition and property accessors.
 #
 # Every function accepts either a `Solution` or a `ThermoPhase` (collectively
@@ -87,16 +90,17 @@ isothermal_compressibility(g::ThermoLike) =
 thermal_expansion_coeff(g::ThermoLike) =
     checkd(LibCantera.thermo_thermalExpansionCoeff(_thermo_handle(g)))
 
-# The CLib getters take a species index; passing -1 (C++ `npos`) requests the
-# phase-wide limit, matching the default `maxTemp()`/`minTemp()` in Python.
 "Maximum temperature [K] for which the phase's thermo data are valid."
-max_temp(g::ThermoLike) = checkd(LibCantera.thermo_maxTemp(_thermo_handle(g), Int32(-1)))
+max_temp(g::ThermoLike) =
+    checkd(LibCantera.thermo_maxTemp(_thermo_handle(g), Int32(-1)))
 
 "Minimum temperature [K] for which the phase's thermo data are valid."
-min_temp(g::ThermoLike) = checkd(LibCantera.thermo_minTemp(_thermo_handle(g), Int32(-1)))
+min_temp(g::ThermoLike) =
+    checkd(LibCantera.thermo_minTemp(_thermo_handle(g), Int32(-1)))
 
 "Reference pressure [Pa] used for standard-state thermo data."
-reference_pressure(g::ThermoLike) = checkd(LibCantera.thermo_refPressure(_thermo_handle(g)))
+reference_pressure(g::ThermoLike) =
+    checkd(LibCantera.thermo_refPressure(_thermo_handle(g)))
 
 "Electric potential [V] of the phase."
 electric_potential(g::ThermoLike) =
@@ -120,17 +124,23 @@ volume_mole(g::ThermoLike) = mean_molecular_weight(g) / density(g)
 # ---- critical / saturation properties (raise for ideal-gas phases) ----------
 
 "Critical temperature [K]."
-critical_temperature(g::ThermoLike) = checkd(LibCantera.thermo_critTemperature(_thermo_handle(g)))
+critical_temperature(g::ThermoLike) =
+    checkd(LibCantera.thermo_critTemperature(_thermo_handle(g)))
 "Critical pressure [Pa]."
-critical_pressure(g::ThermoLike) = checkd(LibCantera.thermo_critPressure(_thermo_handle(g)))
+critical_pressure(g::ThermoLike) =
+    checkd(LibCantera.thermo_critPressure(_thermo_handle(g)))
 "Critical density [kg/m^3]."
-critical_density(g::ThermoLike) = checkd(LibCantera.thermo_critDensity(_thermo_handle(g)))
+critical_density(g::ThermoLike) =
+    checkd(LibCantera.thermo_critDensity(_thermo_handle(g)))
 "Vapor fraction (quality) of a two-phase state."
-vapor_fraction(g::ThermoLike) = checkd(LibCantera.thermo_vaporFraction(_thermo_handle(g)))
+vapor_fraction(g::ThermoLike) =
+    checkd(LibCantera.thermo_vaporFraction(_thermo_handle(g)))
 "Saturation temperature [K] at pressure `p` [Pa]."
-sat_temperature(g::ThermoLike, p) = checkd(LibCantera.thermo_satTemperature(_thermo_handle(g), Float64(p)))
+sat_temperature(g::ThermoLike, p) =
+    checkd(LibCantera.thermo_satTemperature(_thermo_handle(g), Float64(p)))
 "Saturation pressure [Pa] at temperature `T` [K]."
-sat_pressure(g::ThermoLike, T) = checkd(LibCantera.thermo_satPressure(_thermo_handle(g), Float64(T)))
+sat_pressure(g::ThermoLike, T) =
+    checkd(LibCantera.thermo_satPressure(_thermo_handle(g), Float64(T)))
 
 # ---- elements / atoms -------------------------------------------------------
 
@@ -151,14 +161,16 @@ n_atoms(g::ThermoLike, k::Integer, m::Integer) =
 
 "Atomic weights of all elements [kg/kmol]."
 atomic_weights(g::ThermoLike) =
-    get_array(n_elements(g), (n, b) -> LibCantera.thermo_atomicWeights(_thermo_handle(g), n, b))
+    get_array(n_elements(g),
+        (n, b) -> LibCantera.thermo_atomicWeights(_thermo_handle(g), n, b))
 
 "Atomic weight of element `m` (1-based) [kg/kmol]."
 atomic_weight(g::ThermoLike, m::Integer) = atomic_weights(g)[m]
 
 "Species electric charges (per elementary charge)."
 charges(g::ThermoLike) =
-    get_array(n_species(g), (n, b) -> LibCantera.thermo_getCharges(_thermo_handle(g), n, b))
+    get_array(n_species(g),
+        (n, b) -> LibCantera.thermo_getCharges(_thermo_handle(g), n, b))
 
 """
     elemental_mole_fraction(gas, m) -> Float64
@@ -218,7 +230,8 @@ for (jl, c, doc) in (
         (:standard_enthalpies_RT,   :thermo_getEnthalpy_RT,  "enthalpies h°_k/RT"),
         (:standard_entropies_R,     :thermo_getEntropy_R,    "entropies s°_k/R"),
         (:standard_gibbs_RT,        :thermo_getGibbs_RT,     "Gibbs energies g°_k/RT"),
-        (:standard_int_energies_RT, :thermo_getIntEnergy_RT, "internal energies u°_k/RT"),
+        (:standard_int_energies_RT, :thermo_getIntEnergy_RT,
+         "internal energies u°_k/RT"),
         (:standard_cp_R,            :thermo_getCp_R,         "heat capacities cp°_k/R"),
     )
     @eval begin
@@ -232,49 +245,66 @@ end
 
 "Molecular weights of all species [kg/kmol]."
 molecular_weights(g::ThermoLike) =
-    get_array(n_species(g), (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
+    get_array(n_species(g),
+        (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
 
 "In-place [`molecular_weights`](@ref)."
 molecular_weights!(out, g::ThermoLike) =
-    get_array!(out, (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
+    get_array!(out,
+        (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
 
 "Mole fractions of all species."
 mole_fractions(g::ThermoLike) =
-    get_array(n_species(g), (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
+    get_array(n_species(g),
+        (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
 
 "In-place [`mole_fractions`](@ref)."
 mole_fractions!(out, g::ThermoLike) =
-    get_array!(out, (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
+    get_array!(out,
+        (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
 
 "Mass fractions of all species."
 mass_fractions(g::ThermoLike) =
-    get_array(n_species(g), (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
+    get_array(n_species(g),
+        (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
 
 "In-place [`mass_fractions`](@ref)."
 mass_fractions!(out, g::ThermoLike) =
-    get_array!(out, (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
+    get_array!(out,
+        (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
 
 "Species concentrations [kmol/m^3]."
 concentrations(g::ThermoLike) =
-    get_array(n_species(g), (n, b) -> LibCantera.thermo_getConcentrations(_thermo_handle(g), n, b))
+    get_array(n_species(g),
+        (n, b) -> LibCantera.thermo_getConcentrations(_thermo_handle(g), n, b))
 
 # ---- partial molar / potentials --------------------------------------------
 
-for (jl, c) in (
-        (:partial_molar_enthalpies, :thermo_getPartialMolarEnthalpies),
-        (:partial_molar_entropies,  :thermo_getPartialMolarEntropies),
-        (:partial_molar_int_energies, :thermo_getPartialMolarIntEnergies),
-        (:partial_molar_cp,         :thermo_getPartialMolarCp),
-        (:partial_molar_volumes,    :thermo_getPartialMolarVolumes),
-        (:chemical_potentials,      :thermo_getChemPotentials),
-        (:electrochemical_potentials, :thermo_getElectrochemPotentials),
+for (jl, c, doc) in (
+        (:partial_molar_enthalpies, :thermo_getPartialMolarEnthalpies,
+            "Partial molar enthalpies of the species [J/kmol]."),
+        (:partial_molar_entropies,  :thermo_getPartialMolarEntropies,
+            "Partial molar entropies of the species [J/kmol/K]."),
+        (:partial_molar_int_energies, :thermo_getPartialMolarIntEnergies,
+            "Partial molar internal energies of the species [J/kmol]."),
+        (:partial_molar_cp,         :thermo_getPartialMolarCp,
+            "Partial molar heat capacities at constant pressure [J/kmol/K]."),
+        (:partial_molar_volumes,    :thermo_getPartialMolarVolumes,
+            "Partial molar volumes of the species [m^3/kmol]."),
+        (:chemical_potentials,      :thermo_getChemPotentials,
+            "Chemical potentials of the species [J/kmol]."),
+        (:electrochemical_potentials, :thermo_getElectrochemPotentials,
+            "Electrochemical potentials of the species [J/kmol]."),
     )
     bang = Symbol(jl, :!)
+    bang_doc = "In-place [`$jl`](@ref)."
     @eval begin
         $jl(g::ThermoLike) =
             get_array(n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+        @doc $doc $jl
         $bang(out, g::ThermoLike) =
             get_array!(out, (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -288,7 +318,8 @@ Set mole fractions from a numeric vector or a composition string
 """
 function set_mole_fractions!(g::ThermoLike, X::AbstractVector{<:Real})
     x = as_f64(X)
-    check(LibCantera.thermo_setMoleFractions(_thermo_handle(g), Int32(length(x)), pointer(x)))
+    check(LibCantera.thermo_setMoleFractions(_thermo_handle(g), Int32(length(x)),
+                                             pointer(x)))
     return g
 end
 function set_mole_fractions!(g::ThermoLike, X::AbstractString)
@@ -303,7 +334,8 @@ Set mass fractions from a numeric vector or a composition string.
 """
 function set_mass_fractions!(g::ThermoLike, Y::AbstractVector{<:Real})
     y = as_f64(Y)
-    check(LibCantera.thermo_setMassFractions(_thermo_handle(g), Int32(length(y)), pointer(y)))
+    check(LibCantera.thermo_setMassFractions(_thermo_handle(g), Int32(length(y)),
+                                             pointer(y)))
     return g
 end
 function set_mass_fractions!(g::ThermoLike, Y::AbstractString)
@@ -332,7 +364,8 @@ function set_TPX!(g::ThermoLike, T, P, X::AbstractVector{<:Real})
     return g
 end
 function set_TPX!(g::ThermoLike, T, P, X::AbstractString)
-    check(LibCantera.thermo_setState_TPX_byName(_thermo_handle(g), Float64(T), Float64(P), X))
+    check(LibCantera.thermo_setState_TPX_byName(_thermo_handle(g), Float64(T),
+                                                 Float64(P), X))
     return g
 end
 
@@ -349,7 +382,8 @@ function set_TPY!(g::ThermoLike, T, P, Y::AbstractVector{<:Real})
     return g
 end
 function set_TPY!(g::ThermoLike, T, P, Y::AbstractString)
-    check(LibCantera.thermo_setState_TPY_byName(_thermo_handle(g), Float64(T), Float64(P), Y))
+    check(LibCantera.thermo_setState_TPY_byName(_thermo_handle(g), Float64(T),
+                                                 Float64(P), Y))
     return g
 end
 
@@ -393,3 +427,33 @@ function report(g::ThermoLike; show_thermo::Bool=true, threshold=1e-14)
     return get_string((n, b) -> LibCantera.thermo_report(h, Int32(show_thermo),
                                                          Float64(threshold), n, b))
 end
+
+export report
+
+export n_species, n_elements, species_name, species_names, species_index,
+       element_name, element_names,
+       mole_fractions, mole_fractions!, mass_fractions, mass_fractions!,
+       set_mole_fractions!, set_mass_fractions!, molecular_weights,
+       molecular_weights!, concentrations, mean_molecular_weight
+
+export temperature, pressure, density, molar_density,
+       enthalpy_mass, enthalpy_mole, internal_energy_mass, internal_energy_mole,
+       entropy_mass, entropy_mole, gibbs_mass, gibbs_mole,
+       cp_mass, cp_mole, cv_mass, cv_mole,
+       isothermal_compressibility, thermal_expansion_coeff,
+       reference_pressure, electric_potential, set_electric_potential!,
+       standard_enthalpies_RT, standard_entropies_R, standard_gibbs_RT,
+       standard_int_energies_RT, standard_cp_R,
+       sound_speed, volume_mass, volume_mole,
+       critical_temperature, critical_pressure, critical_density,
+       vapor_fraction, sat_temperature, sat_pressure,
+       element_index, atomic_weights, atomic_weight, charges,
+       elemental_mole_fraction, elemental_mass_fraction, equivalence_ratio,
+       partial_molar_enthalpies, partial_molar_entropies,
+       partial_molar_int_energies, partial_molar_cp, partial_molar_volumes,
+       chemical_potentials, electrochemical_potentials,
+       partial_molar_enthalpies!, partial_molar_entropies!, partial_molar_cp!,
+       chemical_potentials!
+
+export set_TP!, set_TPX!, set_TPY!, set_HP!, set_UV!, set_SP!, set_SV!,
+       set_TD!, set_DP!, equilibrate!, set_equivalence_ratio!

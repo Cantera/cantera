@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Wrapper types and low-level handle helpers.
 #
 # Every Cantera CLib object is referenced by an `Int32` handle into a C++-side
@@ -11,8 +14,6 @@ Abstract supertype of all Julia wrappers around Cantera CLib objects.
 """
 abstract type CanteraObject end
 
-# Sub-phase wrappers.  These *borrow* handles owned by a [`Solution`](@ref); they
-# do not carry finalizers of their own (the owning Solution frees everything).
 """
     ThermoPhase
 
@@ -21,6 +22,7 @@ handle.
 """
 mutable struct ThermoPhase <: CanteraObject
     handle::Int32
+    parent::Any
 end
 
 """
@@ -30,6 +32,7 @@ Kinetics view of a [`Solution`](@ref).  Wraps a `Kinetics` CLib handle.
 """
 mutable struct Kinetics <: CanteraObject
     handle::Int32
+    parent::Any
 end
 
 """
@@ -39,10 +42,13 @@ Transport view of a [`Solution`](@ref).  Wraps a `Transport` CLib handle.
 """
 mutable struct Transport <: CanteraObject
     handle::Int32
+    parent::Any
 end
 
 "`handle(obj)` returns the raw CLib handle backing a wrapper (internal)."
 handle(o::CanteraObject) = o.handle
+
+export CanteraObject, ThermoPhase, Kinetics, Transport
 
 # ---- generic string / array marshalling ------------------------------------
 

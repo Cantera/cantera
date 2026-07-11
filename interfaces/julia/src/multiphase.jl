@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # MultiPhase mixtures.
 #
 # A `MultiPhase` holds one or more phases (each a `Solution`) together with the
@@ -213,7 +216,8 @@ end
 Chemical potentials [J/kmol] of all global species.
 """
 chemical_potentials(mp::MultiPhase) =
-    get_array(n_species(mp), (n, b) -> LibCantera.mix_getChemPotentials(mp.handle, n, b))
+    get_array(n_species(mp),
+        (n, b) -> LibCantera.mix_getChemPotentials(mp.handle, n, b))
 
 """
     equilibrate!(mp::MultiPhase, XY; solver="auto", rtol=1e-9, max_steps=1000,
@@ -238,3 +242,9 @@ function Base.show(io::IO, mp::MultiPhase)
               " species)")
     end
 end
+
+# note: `cp` is available as `Cantera.cp` to avoid the clash with `Base.cp`
+export MultiPhase, add_phase!, init!, update_phases!, n_phases,
+       set_temperature!, set_pressure!, min_temp, max_temp, charge,
+       enthalpy, entropy, gibbs, volume, phase_moles, set_phase_moles!,
+       species_moles, element_moles, mole_fraction, n_atoms, set_moles!

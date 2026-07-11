@@ -1,6 +1,9 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # One-dimensional flames (Domain1D / Sim1D).
 #
-# Façade over the `ctdomain` and `ctonedim` CLib libraries, mirroring
+# Parity wrapper over the `ctdomain` and `ctonedim` CLib libraries, mirroring
 # Python/MATLAB `FreeFlame`.  A [`FreeFlame`](@ref) owns three [`Domain1D`](@ref)
 # objects (inlet / flow / outlet) plus a `Sim1D` solver handle, and keeps a
 # reference to the gas [`Solution`](@ref) alive for their lifetime.
@@ -32,7 +35,8 @@ n_components(d::Domain1D) = Int(check(LibCantera.domain_nComponents(d.handle)))
 
 "Name of component `n` (1-based)."
 function component_name(d::Domain1D, n::Integer)
-    return get_string((bl, b) -> LibCantera.domain_componentName(d.handle, Int32(n - 1), bl, b))
+    return get_string(
+        (bl, b) -> LibCantera.domain_componentName(d.handle, Int32(n - 1), bl, b))
 end
 
 "Vector of all component names in the domain."
@@ -43,7 +47,8 @@ domain_type(d::Domain1D) =
     get_string((bl, b) -> LibCantera.domain_domainType(d.handle, bl, b))
 
 "Grid points of the domain [m]."
-grid(d::Domain1D) = get_array(n_points(d), (bl, b) -> LibCantera.domain_grid(d.handle, bl, b))
+grid(d::Domain1D) =
+    get_array(n_points(d), (bl, b) -> LibCantera.domain_grid(d.handle, bl, b))
 
 "Scalar value of `component` in a boundary domain (a single-point domain)."
 value(d::Domain1D, component::AbstractString) =
@@ -52,7 +57,8 @@ value(d::Domain1D, component::AbstractString) =
 "Per-point profile of `component` across the domain grid."
 function solution_profile(d::Domain1D, component::AbstractString)
     np = n_points(d)
-    return get_array(np, (n, b) -> LibCantera.domain_getValues(d.handle, component, n, b))
+    return get_array(np,
+        (n, b) -> LibCantera.domain_getValues(d.handle, component, n, b))
 end
 
 """
@@ -77,8 +83,10 @@ function set_flat_profile!(d::Domain1D, component::AbstractString, value)
 end
 
 "Set a uniform grid of `points` nodes spanning `[start, start+length]` [m]."
-function setup_uniform_grid!(d::Domain1D, points::Integer, length::Real, start::Real=0.0)
-    check(LibCantera.domain_setupUniformGrid(d.handle, Int32(points), Float64(length), Float64(start)))
+function setup_uniform_grid!(d::Domain1D, points::Integer, length::Real,
+                              start::Real=0.0)
+    check(LibCantera.domain_setupUniformGrid(d.handle, Int32(points), Float64(length),
+                                             Float64(start)))
     return d
 end
 
@@ -149,20 +157,22 @@ function FreeFlame(gas::Solution; width::Real=0.03)
     # Flow domain: operating pressure and the initial non-uniform flame grid.
     check(LibCantera.flow_setPressure(hflw, Float64(P)))
     z0 = _initial_flame_grid(width)
-    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)), pointer(z0)))
+    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)),
+                                                       pointer(z0)))
 
     # Inlet boundary: unburned temperature and composition.  The mass flux is
     # left at zero here; `set_initial_guess!` seeds it (mdot = 1*rho_u) exactly
     # as Python does.
     check(LibCantera.bdry_setTemperature(hin, Float64(Tu)))
     xu = as_f64(Xu)
-    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hin, Int32(length(xu)), pointer(xu)))
+    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hin, Int32(length(xu)),
+                                                            pointer(xu)))
 
     # Build the simulation from the three domain handles (order matters).
-    # GC.@preserve keeps `doms` alive across the ccall (only its raw pointer is
-    # passed, so the array must not be collected mid-call).
+    # GC.@preserve keeps `doms` alive across the ccall.s
     doms = Int32[hin, hflw, hout]
-    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)), pointer(doms)))
+    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)),
+                                                              pointer(doms)))
 
     flame = FreeFlame(gas, inlet, flow, outlet, hsim, rho_u, Tu, P, Yu, false)
     finalizer(close!, flame)
@@ -172,9 +182,6 @@ function FreeFlame(gas::Solution; width::Real=0.03)
 end
 
 # Replicates Python `FreeFlame.set_initial_guess` (locs = [0, 0.3, 0.5, 1.0]).
-# Builds the T/velocity/species profiles on the *current* flow grid from the
-# unburned inlet state and the HP-equilibrium (burned) state, and selects the
-# fixed-temperature anchor point with the same logic.
 function _set_initial_guess!(flame::FreeFlame)
     hflw = flame.flow.handle
     gas  = flame.gas
@@ -234,9 +241,11 @@ end
 Set the grid-refinement criteria on the flow domain (domain index 1).  Defaults
 match Python's `FlameBase.set_refine_criteria`.
 """
-function set_refine_criteria!(flame::FreeFlame; ratio=10.0, slope=0.8, curve=0.8, prune=0.0)
+function set_refine_criteria!(flame::FreeFlame; ratio=10.0, slope=0.8, curve=0.8,
+                               prune=0.0)
     check(LibCantera.sim1D_setRefineCriteria(flame.sim, Int32(1), Float64(ratio),
-                                             Float64(slope), Float64(curve), Float64(prune)))
+                                             Float64(slope), Float64(curve),
+                                             Float64(prune)))
     return flame
 end
 
@@ -357,11 +366,11 @@ end
 Solve the flame.
 
 With `auto=true` (the default) this reproduces Python's
-`FreeFlame.solve(auto=True)` exactly: the staged multi-grid schedule
-([`_staged_solve!`](@ref)) wrapped in a domain-widening loop.  After each staged
-solve the temperature gradients at the domain edges are checked; if the flame is
-too close to a boundary the grid is doubled (and refined) and the staged solve
-is repeated, up to 12 times.
+`FreeFlame.solve(auto=True)` exactly: an internal staged multi-grid schedule
+wrapped in a domain-widening loop.  After each staged solve the temperature
+gradients at the domain edges are checked; if the flame is too close to a
+boundary the grid is doubled (and refined) and the staged solve is repeated,
+up to 12 times.
 
 !!! note
     Python additionally installs the width check as a *steady-state callback*
@@ -374,7 +383,8 @@ is repeated, up to 12 times.
 With `auto=false` a single `sim1D_solve(loglevel, refine_grid)` is issued using
 the current refine criteria (advanced use).
 """
-function solve!(flame::FreeFlame; loglevel::Integer=0, refine_grid::Bool=true, auto::Bool=true)
+function solve!(flame::FreeFlame; loglevel::Integer=0, refine_grid::Bool=true,
+                 auto::Bool=true)
     flame.closed && throw(CanteraError("FreeFlame is closed"))
     ll = Int32(loglevel)
     sim = flame.sim
@@ -394,11 +404,14 @@ function solve!(flame::FreeFlame; loglevel::Integer=0, refine_grid::Bool=true, a
             break
         catch err
             err isa _DomainTooNarrow || rethrow()
-            # Too narrow: double the domain, refine, then re-run the staged solve.
+            # Too narrow: double the domain, then re-run the *staged* solve from
+            # scratch. Mirrors Python's `self.flame.grid *= 2; self.refine(...)`:
+            # `sim1D_refine` only adapts the grid (inserting points per the
+            # refine criteria), it does not solve. 
             znew = grid(flame.flow) .* 2
             GC.@preserve znew check(LibCantera.domain_setupGrid(flow,
                                         Int32(length(znew)), pointer(znew)))
-            refine_grid && _try_solve(sim, ll, true)
+            refine_grid && check(LibCantera.sim1D_refine(sim, ll))
         end
     end
     return flame
@@ -420,7 +433,8 @@ flame_T(flame::FreeFlame) = solution_profile(flame.flow, "T")
 flame_velocity(flame::FreeFlame) = solution_profile(flame.flow, "velocity")
 
 "Mole-fraction profile of `species` across the flame."
-flame_X(flame::FreeFlame, species::AbstractString) = solution_profile(flame.flow, species)
+flame_X(flame::FreeFlame, species::AbstractString) =
+    solution_profile(flame.flow, species)
 
 """
     flame_speed(flame) -> Float64
@@ -516,17 +530,20 @@ function BurnerFlame(gas::Solution; width::Real=0.03, mdot=nothing)
     # Flow domain: operating pressure and the initial non-uniform grid.
     check(LibCantera.flow_setPressure(hflw, Float64(P)))
     z0 = _initial_burner_grid(width)
-    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)), pointer(z0)))
+    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)),
+                                                       pointer(z0)))
 
     # Burner boundary: unburned temperature, composition, and prescribed mdot.
     check(LibCantera.bdry_setTemperature(hbrn, Float64(Tu)))
     xu = as_f64(Xu)
-    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hbrn, Int32(length(xu)), pointer(xu)))
+    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hbrn, Int32(length(xu)),
+                                                            pointer(xu)))
     md = mdot === nothing ? 0.4 * rho_u : Float64(mdot)
     check(LibCantera.bdry_setMdot(hbrn, md))
 
     doms = Int32[hbrn, hflw, hout]
-    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)), pointer(doms)))
+    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)),
+                                                              pointer(doms)))
 
     flame = BurnerFlame(gas, burner, flow, outlet, hsim, rho_u, Tu, P, Yu, false)
     finalizer(close!, flame)
@@ -536,8 +553,6 @@ function BurnerFlame(gas::Solution; width::Real=0.03, mdot=nothing)
 end
 
 # Replicates Python `BurnerFlame.set_initial_guess` (locs = [0, 0.2, 1.0]).
-# Builds T/velocity/species profiles from the unburned burner state and the
-# HP-equilibrium (burned) state.  There is no fixed-temperature anchor.
 function _set_initial_guess!(flame::BurnerFlame)
     hflw = flame.flow.handle
     gas  = flame.gas
@@ -598,13 +613,16 @@ function set_burner!(flame::BurnerFlame; T=nothing, X=nothing, mdot=nothing)
 end
 
 """
-    set_refine_criteria!(flame::BurnerFlame; ratio=10.0, slope=0.8, curve=0.8, prune=0.0)
+    set_refine_criteria!(flame::BurnerFlame; ratio=10.0, slope=0.8, curve=0.8,
+                          prune=0.0)
 
 Set the grid-refinement criteria on the flow domain (domain index 1).
 """
-function set_refine_criteria!(flame::BurnerFlame; ratio=10.0, slope=0.8, curve=0.8, prune=0.0)
+function set_refine_criteria!(flame::BurnerFlame; ratio=10.0, slope=0.8, curve=0.8,
+                               prune=0.0)
     check(LibCantera.sim1D_setRefineCriteria(flame.sim, Int32(1), Float64(ratio),
-                                             Float64(slope), Float64(curve), Float64(prune)))
+                                             Float64(slope), Float64(curve),
+                                             Float64(prune)))
     return flame
 end
 
@@ -657,7 +675,8 @@ schedule is used; with `auto=false` a single `sim1D_solve` is issued using the
 current refine criteria.  Unlike a free flame there is no flame-speed eigenvalue
 or fixed-temperature anchor; the burner mass flux is a fixed input.
 """
-function solve!(flame::BurnerFlame; loglevel::Integer=0, refine_grid::Bool=true, auto::Bool=true)
+function solve!(flame::BurnerFlame; loglevel::Integer=0, refine_grid::Bool=true,
+                 auto::Bool=true)
     flame.closed && throw(CanteraError("BurnerFlame is closed"))
     ll = Int32(loglevel)
     if !auto
@@ -677,7 +696,8 @@ solution_profile(flame::BurnerFlame, component::AbstractString) =
     solution_profile(flame.flow, component)
 flame_T(flame::BurnerFlame) = solution_profile(flame.flow, "T")
 flame_velocity(flame::BurnerFlame) = solution_profile(flame.flow, "velocity")
-flame_X(flame::BurnerFlame, species::AbstractString) = solution_profile(flame.flow, species)
+flame_X(flame::BurnerFlame, species::AbstractString) =
+    solution_profile(flame.flow, species)
 n_points(flame::BurnerFlame) = n_points(flame.flow)
 
 "Prescribed burner mass flux [kg/m^2/s]."
@@ -707,3 +727,10 @@ function Base.show(io::IO, flame::BurnerFlame)
         print(io, "BurnerFlame(", n_points(flame), " grid points)")
     end
 end
+
+export Domain1D, FreeFlame, BurnerFlame, set_burner!, burner_mdot,
+       n_points, n_components, component_name,
+       component_names, domain_type, grid, value, solution_profile, set_profile!,
+       set_flat_profile!, setup_uniform_grid!, setup_grid!, set_refine_criteria!,
+       solve!, flame_speed, flame_T, flame_X, flame_velocity,
+       set_fixed_temperature!, set_inlet!

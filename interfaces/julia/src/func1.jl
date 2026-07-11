@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Func1 -- functors of a single variable.
 #
 # Cantera's `Func1` objects wrap C++ function objects (sin, cos, polynomials,
@@ -49,7 +52,8 @@ Construct an advanced functor parametrized by an array of coefficients, e.g.
 """
 function Func1(type::AbstractString, coeffs::AbstractVector{<:Real})
     c = as_f64(coeffs)
-    return Func1(check(LibCantera.func1_newAdvanced(type, Int32(length(c)), pointer(c))))
+    return Func1(check(
+        LibCantera.func1_newAdvanced(type, Int32(length(c)), pointer(c))))
 end
 
 """
@@ -108,10 +112,14 @@ write(f::Func1, arg::AbstractString="t") =
     get_string((n, b) -> LibCantera.func1_write(f.handle, arg, n, b))
 
 # Arithmetic combinations build compound functors.
-Base.:+(f::Func1, g::Func1) = Func1(check(LibCantera.func1_newSumFunction(f.handle, g.handle)))
-Base.:-(f::Func1, g::Func1) = Func1(check(LibCantera.func1_newDiffFunction(f.handle, g.handle)))
-Base.:*(f::Func1, g::Func1) = Func1(check(LibCantera.func1_newProdFunction(f.handle, g.handle)))
-Base.:/(f::Func1, g::Func1) = Func1(check(LibCantera.func1_newRatioFunction(f.handle, g.handle)))
+Base.:+(f::Func1, g::Func1) =
+    Func1(check(LibCantera.func1_newSumFunction(f.handle, g.handle)))
+Base.:-(f::Func1, g::Func1) =
+    Func1(check(LibCantera.func1_newDiffFunction(f.handle, g.handle)))
+Base.:*(f::Func1, g::Func1) =
+    Func1(check(LibCantera.func1_newProdFunction(f.handle, g.handle)))
+Base.:/(f::Func1, g::Func1) =
+    Func1(check(LibCantera.func1_newRatioFunction(f.handle, g.handle)))
 
 function Base.show(io::IO, f::Func1)
     if f.closed
@@ -120,3 +128,5 @@ function Base.show(io::IO, f::Func1)
         print(io, "Func1(\"", func_type(f), "\": ", write(f), ")")
     end
 end
+
+export Func1, evaluate, derivative, func_type, constant_function

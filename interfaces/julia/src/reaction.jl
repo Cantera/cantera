@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Reaction object wrapper.  Reactions are usually accessed through a Kinetics
 # manager (see `reaction_equations`), but a standalone wrapper is provided for
 # completeness and parity with the CLib `ctrxn` library.
@@ -49,3 +52,5 @@ uses_third_body(r::Reaction) = check(LibCantera.rxn_usesThirdBody(r.handle)) != 
 
 Base.show(io::IO, r::Reaction) =
     print(io, "Reaction(\"", r.closed ? "<closed>" : equation(r), "\")")
+
+export Reaction, reaction, equation, reaction_type, uses_third_body
