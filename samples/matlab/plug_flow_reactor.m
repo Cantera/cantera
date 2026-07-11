@@ -94,6 +94,7 @@ dx = L / n;
 
 x_calc = 0:dx:L;
 nsp = gas_calc.nSpecies;
+Ru = ct.GasConstant;
 
 % Initialize arrays for T, Y, and rho at each location:
 T_calc = zeros(length(x_calc), 1);
@@ -125,7 +126,7 @@ for i = 2:length(x_calc)
     %--------------------------------------------------------------------------
     % These values are passed onto the ode15s solver
     [~, y] = ode15s(@PFR_solver, limits, inlet_soln, options, ...
-                    gas_calc, mdot_calc, A_in, dAdx, k, nsp);
+                    gas_calc, mdot_calc, A_in, dAdx, k, nsp, Ru);
 
     T_calc(i) = y(end, 2);
     rho_calc(i) = y(end, 1);
@@ -191,7 +192,7 @@ toc
 % The integrator integrates the derivatives spatially, to solve the density,
 % temperature, and species mass fraction profiles as a function of distance x.
 
-function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp)
+function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp, Ru)
     % Plug flow reactor governing equations
 
     rho = soln_vector(1);
@@ -211,7 +212,6 @@ function F = PFR_solver(x, soln_vector, gas, mdot, A_in, dAdx, k, nsp)
     gas.TDY = {T, rho, Y};
 
     MW_mix = gas.meanMolecularWeight;
-    Ru = ct.GasConstant;
     R = Ru / MW_mix;
     vx = mdot / (rho * A);
     P = rho * R * T;
