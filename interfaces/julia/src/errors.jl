@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Error handling for the Cantera CLib boundary.
 #
 # CLib functions signal failure with sentinel return values:
@@ -20,6 +23,8 @@ struct CanteraError <: Exception
 end
 
 Base.showerror(io::IO, e::CanteraError) = print(io, "CanteraError: ", e.msg)
+
+export CanteraError
 
 "Retrieve and clear the last error message stored by the Cantera CLib."
 function last_cantera_error()

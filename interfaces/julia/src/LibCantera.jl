@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 """
     LibCantera
 
@@ -91,20 +94,15 @@ end
 """
     default_data_directory() -> Union{String,Nothing}
 
-Best-effort discovery of Cantera's bundled data directory (containing
-`gri30.yaml`).  Used to register the directory with Cantera at load time so that
-mechanism files can be found by name.
+Best-effort discovery of this repository's `data` directory (containing
+`gri30.yaml`), for the case of running against a source checkout rather than
+an installed Cantera.  `CANTERA_DATA` and the conda `share/cantera/data`
+directory are already registered automatically by Cantera's
+`Application::setDefaultDirectories` and don't need to be added here.
 """
 function default_data_directory()
-    dirs = String[]
-    haskey(ENV, "CANTERA_DATA") && push!(dirs, ENV["CANTERA_DATA"])
-    if haskey(ENV, "CONDA_PREFIX")
-        push!(dirs, joinpath(ENV["CONDA_PREFIX"], "share", "cantera", "data"))
-    end
-    push!(dirs, normpath(joinpath(@__DIR__, "..", "..", "..", "data")))
-    for d in dirs
-        isdir(d) && isfile(joinpath(d, "gri30.yaml")) && return d
-    end
+    d = normpath(joinpath(@__DIR__, "..", "..", "..", "data"))
+    isdir(d) && isfile(joinpath(d, "gri30.yaml")) && return d
     return nothing
 end
 

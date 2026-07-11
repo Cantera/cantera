@@ -1,4 +1,7 @@
-# ReactionPathDiagram: a façade over the CLib `rdiag_*` reaction-path
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+# ReactionPathDiagram: a parity wrapper over the CLib `rdiag_*` reaction-path
 # diagram API (ctrdiag.h).  A diagram holds a handle into the CLib rdiag cabinet
 # and a reference to the Solution it was built from (to keep the underlying
 # Kinetics manager alive for the diagram's lifetime).
@@ -88,41 +91,60 @@ get_log(d::ReactionPathDiagram) =
 
 # ---- scalar (double) properties ---------------------------------------------
 
-for (getter, setter, cget, cset) in (
-        (:threshold,        :set_threshold!,        :rdiag_threshold,       :rdiag_setThreshold),
-        (:bold_threshold,   :set_bold_threshold!,   :rdiag_boldThreshold,   :rdiag_setBoldThreshold),
-        (:normal_threshold, :set_normal_threshold!, :rdiag_normalThreshold, :rdiag_setNormalThreshold),
-        (:label_threshold,  :set_label_threshold!,  :rdiag_labelThreshold,  :rdiag_setLabelThreshold),
-        (:scale,            :set_scale!,            :rdiag_scale,           :rdiag_setScale),
-        (:arrow_width,      :set_arrow_width!,      :rdiag_arrowWidth,      :rdiag_setArrowWidth),
+for (getter, setter, cget, cset, doc) in (
+        (:threshold, :set_threshold!, :rdiag_threshold, :rdiag_setThreshold,
+            "Minimum relative flux value that will be plotted."),
+        (:bold_threshold, :set_bold_threshold!, :rdiag_boldThreshold,
+            :rdiag_setBoldThreshold, "Minimum relative flux for bold lines."),
+        (:normal_threshold, :set_normal_threshold!, :rdiag_normalThreshold,
+            :rdiag_setNormalThreshold, "Maximum relative flux for dashed lines."),
+        (:label_threshold, :set_label_threshold!, :rdiag_labelThreshold,
+            :rdiag_setLabelThreshold, "Minimum relative flux for labels."),
+        (:scale, :set_scale!, :rdiag_scale, :rdiag_setScale,
+            "Scaling factor for the fluxes; -1 normalizes by the maximum net flux."),
+        (:arrow_width, :set_arrow_width!, :rdiag_arrowWidth, :rdiag_setArrowWidth,
+            "Arrow width; if negative, arrows scale with the flux value instead."),
     )
+    setter_doc = "Set [`$getter`](@ref)."
     @eval begin
         $getter(d::ReactionPathDiagram) = checkd(LibCantera.$cget(d.handle))
+        @doc $doc $getter
         function $setter(d::ReactionPathDiagram, v::Real)
             check(LibCantera.$cset(d.handle, Float64(v)))
             return d
         end
+        @doc $setter_doc $setter
     end
 end
 
 # ---- string properties ------------------------------------------------------
 
-for (getter, setter, cget, cset) in (
-        (:flow_type,   :set_flow_type!,   :rdiag_flowType,   :rdiag_setFlowType),
-        (:title,       :set_title!,       :rdiag_title,      :rdiag_setTitle),
-        (:font,        :set_font!,        :rdiag_font,       :rdiag_setFont),
-        (:bold_color,  :set_bold_color!,  :rdiag_boldColor,  :rdiag_setBoldColor),
-        (:normal_color,:set_normal_color!,:rdiag_normalColor,:rdiag_setNormalColor),
-        (:dashed_color,:set_dashed_color!,:rdiag_dashedColor,:rdiag_setDashedColor),
-        (:dot_options, :set_dot_options!, :rdiag_dotOptions, :rdiag_setDotOptions),
+for (getter, setter, cget, cset, doc) in (
+        (:flow_type, :set_flow_type!, :rdiag_flowType, :rdiag_setFlowType,
+            "Way flows are drawn: `\"NetFlow\"` or `\"OneWayFlow\"`."),
+        (:title, :set_title!, :rdiag_title, :rdiag_setTitle,
+            "Reaction path diagram title."),
+        (:font, :set_font!, :rdiag_font, :rdiag_setFont,
+            "Font used for the diagram."),
+        (:bold_color, :set_bold_color!, :rdiag_boldColor, :rdiag_setBoldColor,
+            "Color for bold lines."),
+        (:normal_color, :set_normal_color!, :rdiag_normalColor,
+            :rdiag_setNormalColor, "Color for normal-weight lines."),
+        (:dashed_color, :set_dashed_color!, :rdiag_dashedColor,
+            :rdiag_setDashedColor, "Color for dashed lines."),
+        (:dot_options, :set_dot_options!, :rdiag_dotOptions, :rdiag_setDotOptions,
+            "Options passed through to the `dot` program."),
     )
+    setter_doc = "Set [`$getter`](@ref)."
     @eval begin
         $getter(d::ReactionPathDiagram) =
             get_string((n, b) -> LibCantera.$cget(d.handle, n, b))
+        @doc $doc $getter
         function $setter(d::ReactionPathDiagram, v::AbstractString)
             check(LibCantera.$cset(d.handle, v))
             return d
         end
+        @doc $setter_doc $setter
     end
 end
 
@@ -156,3 +178,12 @@ function display_only!(d::ReactionPathDiagram, s::Symbol)
     s === :all || throw(ArgumentError("expected a species index or :all, got :$s"))
     return display_only!(d, -1)
 end
+
+export ReactionPathDiagram, build!, get_dot, get_data, get_log,
+       threshold, set_threshold!, bold_threshold, set_bold_threshold!,
+       normal_threshold, set_normal_threshold!, label_threshold,
+       set_label_threshold!, scale, set_scale!, arrow_width, set_arrow_width!,
+       flow_type, set_flow_type!, title, set_title!, font, set_font!,
+       show_details, set_show_details!, bold_color, set_bold_color!,
+       normal_color, set_normal_color!, dashed_color, set_dashed_color!,
+       dot_options, set_dot_options!, display_only!

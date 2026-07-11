@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # The Solution type: the primary user-facing object, mirroring Python's
 # `cantera.Solution`.  A Solution bundles a ThermoPhase, a Kinetics manager and
 # a Transport manager over a single phase, and owns their CLib handles.
@@ -26,11 +29,17 @@ mutable struct Solution <: CanteraObject
     function Solution(infile::AbstractString, name::AbstractString="";
                       transport::AbstractString="default")
         h = check(LibCantera.sol_newSolution(infile, name, transport))
+        return Solution(h)
+    end
+
+    # Internal: wrap an already-registered CLib Solution handle (e.g. one
+    # obtained from `reactor_phase`) without creating a new one.
+    function Solution(h::Integer)
         th = check(LibCantera.sol_thermo(h))
         # Kinetics/Transport may be absent for some phases; tolerate failures.
         kin = _try_handle(() -> LibCantera.sol_kinetics(h))
         tr = _try_handle(() -> LibCantera.sol_transport(h))
-        s = new(h, th, kin, tr, false)
+        s = new(Int32(h), th, kin, tr, false)
         finalizer(close!, s)
         return s
     end
@@ -109,21 +118,21 @@ const TransportLike = Union{Solution,Transport}
 
 Return the [`ThermoPhase`](@ref) view of `gas`.
 """
-thermo(s::Solution) = ThermoPhase(s.thermo)
+thermo(s::Solution) = ThermoPhase(s.thermo, s)
 
 """
     kinetics(gas::Solution) -> Kinetics
 
 Return the [`Kinetics`](@ref) view of `gas`.
 """
-kinetics(s::Solution) = Kinetics(_kinetics_handle(s))
+kinetics(s::Solution) = Kinetics(_kinetics_handle(s), s)
 
 """
     transport(gas::Solution) -> Transport
 
 Return the [`Transport`](@ref) view of `gas`.
 """
-transport(s::Solution) = Transport(_transport_handle(s))
+transport(s::Solution) = Transport(_transport_handle(s), s)
 
 """
     name(gas::Solution) -> String
@@ -139,3 +148,5 @@ Name of the active transport model.
 """
 transport_model(s::Solution) =
     get_string((n, b) -> LibCantera.sol_transportModel(s.handle, n, b))
+
+export Solution, close!, thermo, kinetics, transport, name, transport_model

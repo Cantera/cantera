@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Reactor wrappers.  A Reactor holds a handle into the CLib reactor cabinet and
 # a reference to the Solution it was built from (to keep it alive).
 
@@ -15,7 +18,7 @@ mutable struct Reactor <: CanteraObject
 end
 
 function _new_reactor(model::AbstractString, gas::Solution, name::AbstractString)
-    h = check(LibCantera.reactor_new(model, gas.handle, Int32(0), name))
+    h = check(LibCantera.reactor_new(model, gas.handle, Int32(1), name))
     r = Reactor(h, gas, false)
     finalizer(close!, r)
     return r
@@ -83,6 +86,16 @@ name(r::Reactor) = get_string((n, b) -> LibCantera.reactor_name(r.handle, n, b))
 "Reactor type string."
 reactor_type(r::Reactor) = get_string((n, b) -> LibCantera.reactor_type(r.handle, n, b))
 
+"""
+    reactor_phase(r::Reactor) -> Solution
+
+The `Solution` actually integrated by the reactor. This is the reactor's own
+clone of the phase it was constructed from (see [`IdealGasReactor`](@ref) and
+friends), and reflects its current state, unlike the original `Solution`
+passed to the constructor.
+"""
+reactor_phase(r::Reactor) = Solution(check(LibCantera.reactor_phase(r.handle)))
+
 "Mass fractions in the reactor."
 function mass_fractions(r::Reactor)
     nsp = n_species(r.solution)
@@ -147,8 +160,6 @@ function ReactorSurface(surf::Solution, reactor::Reactor; name::AbstractString="
     reactors = Int32[reactor.handle]
     h = check(LibCantera.reactor_newSurface(surf.handle, Int32(length(reactors)),
                                             pointer(reactors), Int32(0), name))
-    # Reuse the Reactor wrapper: a ReactorSurface is a ReactorBase in the CLib
-    # cabinet and is deleted with reactor_del.  Keep both phases alive.
     rs = Reactor(h, surf, false)
     finalizer(close!, rs)
     return rs
@@ -180,3 +191,9 @@ end
 
 "Number of sensitivity parameters associated with the reactor."
 n_sens_params(r::Reactor) = Int(check(LibCantera.reactor_nSensParams(r.handle)))
+
+export Reactor, IdealGasReactor, ConstPressureReactor, IdealGasConstPressureReactor,
+       set_energy_enabled!, set_chemistry_enabled!, set_initial_volume!,
+       mass, volume, reactor_phase
+export Reservoir, ReactorSurface, mass_flow_rate, set_mass_flow_rate!,
+       area, set_area!, add_sensitivity_reaction!, n_sens_params

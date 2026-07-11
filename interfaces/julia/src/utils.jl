@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # Library-level utility functions and physical constants.
 
 "One standard atmosphere [Pa]."
@@ -45,3 +48,7 @@ end
 
 "Reset all Cantera CLib storage, invalidating every existing handle."
 reset_storage() = (check(LibCantera.ct_resetStorage()); nothing)
+
+export one_atm, gas_constant, avogadro
+export cantera_version, git_commit, add_data_directory, suppress_thermo_warnings,
+       reset_storage

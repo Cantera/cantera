@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 # SolutionArray: a lightweight container for a batch of thermodynamic states of
 # a single phase, mirroring the common uses of Python's `cantera.SolutionArray`
 # (storing a reactor-integration history, a parameter sweep, or a flame profile
@@ -143,3 +146,5 @@ end
 
 Base.show(io::IO, sa::SolutionArray) =
     print(io, "SolutionArray(", length(sa), " states, ", n_species(sa.gas), " species)")
+
+export SolutionArray, restore!, set_state!, extract, write_csv
