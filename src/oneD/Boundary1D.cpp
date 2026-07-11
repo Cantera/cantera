@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0)

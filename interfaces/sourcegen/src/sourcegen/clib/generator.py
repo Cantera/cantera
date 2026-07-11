@@ -11,7 +11,7 @@ from jinja2 import Environment, BaseLoader
 
 from ..dataclasses import HeaderFile, Param, ArgList, Func, Recipe
 from ..generator import SourceGenerator
-from .._helpers import with_unpack_iter, escape_token
+from .._helpers import with_unpack_iter, escape_token, short_name
 
 
 _LOGGER = logging.getLogger()
@@ -345,7 +345,7 @@ class CLibSourceGenerator(SourceGenerator):
             error = ["-2", "ERR"]
 
         ret = {
-            "base": base, "handle": handle,
+            "base": short_name(base), "handle": handle,
             "before": before, "buffer": buffer, "after": after,
             "checks": checks, "error": error, "cxx_rbase": rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
@@ -365,7 +365,7 @@ class CLibSourceGenerator(SourceGenerator):
             # override auto-generated code
             if "reserved" in recipe.what:
                 template = loader.from_string(c_func.wraps)
-                after = template.render(cabinets=[kk for kk in self._clib_bases if kk])
+                after = template.render(cabinets=[short_name(kk) for kk in self._clib_bases if kk])
             else:
                 after = c_func.wraps
             template = loader.from_string(self._templates["clib-custom-code"])
@@ -448,7 +448,7 @@ class CLibSourceGenerator(SourceGenerator):
         declarations = "\n\n".join(declarations)
 
         preamble = self._config.preambles.get("default")
-        preamble_add = self._config.preambles.get(headers.base)
+        preamble_add = self._config.preambles.get(short_name(headers.base))
         if preamble_add:
             preamble += "\n" + preamble_add
 
@@ -489,19 +489,33 @@ class CLibSourceGenerator(SourceGenerator):
 
         if not headers.base:
             # main CLib file receives references to all cabinets
-            other = [kk for kk in self._clib_bases if kk]
-        elif headers.base in other:
-            other.remove(headers.base)
+            raw_other = self._clib_bases
+        else:
+            raw_other = other
+
+        base = short_name(headers.base)
+        other_sorted = sorted(
+            {short_name(obj) for obj in raw_other if obj} - {base}
+        )
+
+        uses_one_d = (
+            (headers.base and "OneD::" in headers.base) or
+            any("OneD::" in obj for obj in raw_other if obj) or
+            "OneD::" in implementations
+        )
+
         includes = []
-        for obj in [headers.base] + list(other):
-            includes += self._config.includes[obj]
+        for obj_stripped in [base] + other_sorted:
+            if obj_stripped in self._config.includes:
+                includes += self._config.includes[obj_stripped]
 
         t_file = Path(__file__).parent / "template_source.cpp.j2"
         template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, implementations=implementations,
-            prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
-            includes=includes, other=other, str_utils=str_utils)
+            prefix=headers.prefix, base=base, docstring=headers.docstring,
+            includes=includes, other=other_sorted, str_utils=str_utils,
+            uses_one_d=uses_one_d)
 
         out = Path(self._out_dir) / "src" / filename.name
         msg = f"  writing {filename.name!r}"

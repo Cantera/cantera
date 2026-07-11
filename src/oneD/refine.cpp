@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace Cantera
+namespace Cantera::OneD
 {
 Refiner::Refiner(Domain1D& domain) :
     m_domain(&domain)

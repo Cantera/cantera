@@ -62,7 +62,7 @@ public:
  * class.
  */
 class BoundaryValueProblem :
-    public Cantera::Domain1D,
+    public Cantera::OneD::Domain1D,
     public std::enable_shared_from_this<BoundaryValueProblem>
 {
 
@@ -90,8 +90,8 @@ public:
         resize(nv, np);
 
         // Add dummy terminator domains on either side of this one.
-        m_left = std::make_shared<Cantera::Empty1D>();
-        m_right = std::make_shared<Cantera::Empty1D>();
+        m_left = std::make_shared<Cantera::OneD::Empty1D>();
+        m_right = std::make_shared<Cantera::OneD::Empty1D>();
     }
 
     /**
@@ -107,8 +107,8 @@ public:
         resize(nv, np);
 
         // Add dummy terminator domains on either side of this one.
-        m_left = std::make_shared<Cantera::Empty1D>();
-        m_right = std::make_shared<Cantera::Empty1D>();
+        m_left = std::make_shared<Cantera::OneD::Empty1D>();
+        m_right = std::make_shared<Cantera::OneD::Empty1D>();
     }
 
     /**
@@ -198,9 +198,9 @@ public:
     }
 
 protected:
-    std::shared_ptr<Cantera::Domain1D> m_left; ///< dummy terminator
-    std::shared_ptr<Cantera::Domain1D> m_right; ///< dummy terminator
-    std::shared_ptr<Cantera::Sim1D> m_sim; ///< controller for solution
+    std::shared_ptr<Cantera::OneD::Domain1D> m_left; ///< dummy terminator
+    std::shared_ptr<Cantera::OneD::Domain1D> m_right; ///< dummy terminator
+    std::shared_ptr<Cantera::OneD::Sim1D> m_sim; ///< controller for solution
 
     /**
      * Set up the problem. Creates the solver instance, and sets
@@ -209,13 +209,13 @@ protected:
      * derived classes.
      */
     void start() {
-        std::vector<std::shared_ptr<Cantera::Domain1D>> domains {
+        std::vector<std::shared_ptr<Cantera::OneD::Domain1D>> domains {
             m_left, shared_from_this(), m_right
         };
 
         // create the Sim1D instance that will control the
         // solution process
-        m_sim = std::make_shared<Cantera::Sim1D>(domains);
+        m_sim = std::make_shared<Cantera::OneD::Sim1D>(domains);
 
         // set default grid refinement parameters
         m_sim->setRefineCriteria(1, max_grid_ratio, max_delta,

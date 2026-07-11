@@ -10,7 +10,7 @@
 
 #include "OneDim.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 /**
@@ -383,6 +383,7 @@ private:
  *     the pointer to the leftmost domain is domain[0], the pointer to the
  *     domain to its right is domain[1], etc.
  * @since New in %Cantera 3.2.
+ * @ingroup onedGroup
  */
 shared_ptr<Sim1D> newSim1D(vector<shared_ptr<Domain1D>>& domains);
 
