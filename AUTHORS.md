@@ -49,6 +49,7 @@ update, please report on Cantera's
 - **Ashwin Kumar** [@mgashwinkumar](https://github.com/mgashwinkumar) - Virginia Tech
 - **Jon Kristofer**
 - **Samesh Lakothia** [@sameshl](https://github.com/sameshl)
+- **Louis Libat** [@Fastaxx](https://github.com/Fastaxx) - Gustave Eiffel University
 - **Kyle Linevitch, Jr.** [@KyleLinevitchJr](https://github.com/KyleLinevitchJr)
 - **Christopher Leuth**
 - **Nicholas Malaya** [@nicholasmalaya](https://github.com/nicholasmalaya) - University of Texas at Austin
