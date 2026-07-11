@@ -33,8 +33,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # A single current Julia version keeps CI fast; widen if broader coverage
-        # is wanted (the interface only depends on stdlib, so version risk is low).
         julia-version: ['1']
     steps:
       - uses: actions/checkout@v4
@@ -54,15 +52,7 @@ jobs:
           # Build toolchain + C++ deps, plus sourcegen's Python deps (jinja2,
           # ruamel.yaml) which are needed to regenerate the CLib during the build.
           conda install -y scons cython "eigen" sundials fmt yaml-cpp hdf5 \
-            "boost-cpp" doxygen openblas jinja2 "ruamel.yaml" ccache
-
-      - name: Cache ccache objects
-        uses: actions/cache@v4
-        with:
-          path: ~/.ccache
-          key: ccache-libcantera-${{ hashFiles('src/**', 'include/**', 'interfaces/clib/**', 'interfaces/sourcegen/**') }}
-          restore-keys: |
-            ccache-libcantera-
+            "boost-cpp" doxygen openblas jinja2 "ruamel.yaml"
 
       - name: Build libcantera (shared)
         run: |
@@ -79,19 +69,20 @@ jobs:
           extra_lib_dirs = '${CONDA_PREFIX}/lib'
           boost_inc_dir = '${CONDA_PREFIX}/include'
           googletest = 'none'
-          CC = 'ccache gcc'
-          CXX = 'ccache g++'
           EOF
           # `scons build` regenerates the CLib from interfaces/sourcegen and
           # auto-generates the doxygen tag it needs (doxygen installed above).
-          # ccache (cached above) makes repeat builds much faster.
           scons build -j2
-          ccache -s || true
 
       - name: Set up Julia
         uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2.7.0
         with:
           version: ${{ matrix.julia-version }}
+
+      - name: Generate low-level CLib bindings
+        env:
+          CANTERA_CLIB_INCLUDE: ${{ github.workspace }}/interfaces/clib/include/cantera_clib
+        run: julia interfaces/julia/generate/generate_bindings.jl
 
       - name: Run tests
         env:
