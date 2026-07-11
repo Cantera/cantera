@@ -15,6 +15,13 @@ export CANTERA_LIBRARY_PATH=/path/to/cantera/lib   # or use a conda env
 export CANTERA_DATA=/path/to/cantera/data          # for gri30.yaml, etc.
 ```
 
+The low-level CLib bindings must be generate from the built `cantera_clib` 
+headers before first use (and again whenever those headers change):
+
+```bash
+julia interfaces/julia/generate/generate_bindings.jl
+```
+
 ```julia
 using Pkg
 Pkg.activate("interfaces/julia")
@@ -34,11 +41,9 @@ temperature(gas)          # ignited temperature [K]
 
 ## Documentation
 
-Build the API reference with [Documenter](https://documenter.juliadocs.org):
-
-```julia
-julia --project=docs docs/make.jl
-```
+Exported functions carry docstrings, accessible from the Julia REPL help mode
+(type `?` followed by the function name). See the [`examples/`](examples)
+directory for runnable usage.
 
 ## Status
 
