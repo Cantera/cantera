@@ -407,7 +407,7 @@ function solve!(flame::FreeFlame; loglevel::Integer=0, refine_grid::Bool=true,
             # Too narrow: double the domain, then re-run the *staged* solve from
             # scratch. Mirrors Python's `self.flame.grid *= 2; self.refine(...)`:
             # `sim1D_refine` only adapts the grid (inserting points per the
-            # refine criteria), it does not solve. 
+            # refine criteria), it does not solve.
             znew = grid(flame.flow) .* 2
             GC.@preserve znew check(LibCantera.domain_setupGrid(flow,
                                         Int32(length(znew)), pointer(znew)))
