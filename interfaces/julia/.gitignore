@@ -4,4 +4,4 @@ Manifest.toml
 /src/generated/
 
 # Documenter output.
-/docs/build/
+docs/build/
