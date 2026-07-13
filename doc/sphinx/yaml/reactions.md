@@ -129,11 +129,16 @@ a mapping with fields:
 
 `Ea-electron`
 : The activation energy term $E_{a,e}$ that is related to the electron temperature
+or a corresponding four-element list. 
 
-or a corresponding four-element list. The following are equivalent:
+`T-inv` 
+: Optional gas temperature scale for the term $\exp(-T/T_\mathrm{inv})$.
+If omitted or set to 0, this term is not included.
+
+The following are equivalent:
 
 ```yaml
-{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol, b-gas: 0}
+{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol, b-gas: 0, T-inv: 0}
 [17283, -3.1, -5820 J/mol, 1081 J/mol]
 ```
 (sec-vibrational-relaxation-constant-rate)=
