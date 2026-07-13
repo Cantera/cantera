@@ -65,21 +65,30 @@ mean_molecular_weight(g::ThermoLike) =
 
 # ---- molar / specific properties -------------------------------------------
 
-for (jl, c) in (
-        (:enthalpy_mass,        :thermo_enthalpy_mass),
-        (:enthalpy_mole,        :thermo_enthalpy_mole),
-        (:internal_energy_mass, :thermo_intEnergy_mass),
-        (:internal_energy_mole, :thermo_intEnergy_mole),
-        (:entropy_mass,         :thermo_entropy_mass),
-        (:entropy_mole,         :thermo_entropy_mole),
-        (:gibbs_mass,           :thermo_gibbs_mass),
-        (:gibbs_mole,           :thermo_gibbs_mole),
-        (:cp_mass,              :thermo_cp_mass),
-        (:cp_mole,              :thermo_cp_mole),
-        (:cv_mass,              :thermo_cv_mass),
-        (:cv_mole,              :thermo_cv_mole),
+for (jl, c, doc) in (
+        (:enthalpy_mass,        :thermo_enthalpy_mass,  "Specific enthalpy [J/kg]."),
+        (:enthalpy_mole,        :thermo_enthalpy_mole,  "Molar enthalpy [J/kmol]."),
+        (:internal_energy_mass, :thermo_intEnergy_mass,
+            "Specific internal energy [J/kg]."),
+        (:internal_energy_mole, :thermo_intEnergy_mole,
+            "Molar internal energy [J/kmol]."),
+        (:entropy_mass,         :thermo_entropy_mass,   "Specific entropy [J/kg/K]."),
+        (:entropy_mole,         :thermo_entropy_mole,   "Molar entropy [J/kmol/K]."),
+        (:gibbs_mass,           :thermo_gibbs_mass,     "Specific Gibbs free energy [J/kg]."),
+        (:gibbs_mole,           :thermo_gibbs_mole,     "Molar Gibbs free energy [J/kmol]."),
+        (:cp_mass,              :thermo_cp_mass,
+            "Specific heat capacity at constant pressure [J/kg/K]."),
+        (:cp_mole,              :thermo_cp_mole,
+            "Molar heat capacity at constant pressure [J/kmol/K]."),
+        (:cv_mass,              :thermo_cv_mass,
+            "Specific heat capacity at constant volume [J/kg/K]."),
+        (:cv_mole,              :thermo_cv_mole,
+            "Molar heat capacity at constant volume [J/kmol/K]."),
     )
-    @eval $jl(g::ThermoLike) = checkd(LibCantera.$c(_thermo_handle(g)))
+    @eval begin
+        $jl(g::ThermoLike) = checkd(LibCantera.$c(_thermo_handle(g)))
+        @doc $doc $jl
+    end
 end
 
 "Isothermal compressibility [1/Pa]."
@@ -388,17 +397,26 @@ function set_TPY!(g::ThermoLike, T, P, Y::AbstractString)
 end
 
 # Two-property setters that map directly onto CLib `setState_XY`.
-for (jl, c, a, b) in (
-        (:set_HP!, :thermo_setState_HP, :h, :p),
-        (:set_UV!, :thermo_setState_UV, :u, :v),
-        (:set_SP!, :thermo_setState_SP, :s, :p),
-        (:set_SV!, :thermo_setState_SV, :s, :v),
-        (:set_TD!, :thermo_setState_TD, :T, :rho),
-        (:set_DP!, :thermo_setState_DP, :rho, :p),
+for (jl, c, a, b, doc) in (
+        (:set_HP!, :thermo_setState_HP, :h, :p,
+            "Set specific enthalpy `h` [J/kg] and pressure `p` [Pa]."),
+        (:set_UV!, :thermo_setState_UV, :u, :v,
+            "Set specific internal energy `u` [J/kg] and specific volume `v` [m^3/kg]."),
+        (:set_SP!, :thermo_setState_SP, :s, :p,
+            "Set specific entropy `s` [J/kg/K] and pressure `p` [Pa]."),
+        (:set_SV!, :thermo_setState_SV, :s, :v,
+            "Set specific entropy `s` [J/kg/K] and specific volume `v` [m^3/kg]."),
+        (:set_TD!, :thermo_setState_TD, :T, :rho,
+            "Set temperature `T` [K] and density `rho` [kg/m^3]."),
+        (:set_DP!, :thermo_setState_DP, :rho, :p,
+            "Set density `rho` [kg/m^3] and pressure `p` [Pa]."),
     )
-    @eval function $jl(g::ThermoLike, $a, $b)
-        check(LibCantera.$c(_thermo_handle(g), Float64($a), Float64($b)))
-        return g
+    @eval begin
+        function $jl(g::ThermoLike, $a, $b)
+            check(LibCantera.$c(_thermo_handle(g), Float64($a), Float64($b)))
+            return g
+        end
+        @doc $doc $jl
     end
 end
 
