@@ -21,7 +21,7 @@ namespace {
     const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
 
     //! A function to check whether a phase species is actually a vibrational reservoir species
-    //! If the species is actually a reservoir species, the function sets the basename
+    //! If the species is actually a reservoir species, the function sets the base name
     //! at the given baseName adress.
     bool isVibrationalReservoirName(const string& name, string& baseName)
     {
