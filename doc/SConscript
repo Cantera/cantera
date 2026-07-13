@@ -135,6 +135,33 @@ if localenv['sphinx_docs']:
     if localenv['doxygen_docs']:
         localenv.Depends(sphinxdocs, docs)
 
+if localenv['julia_docs']:
+    juliaenv = localenv.Clone()
+    juliaenv['ENV']['CANTERA_CLIB_INCLUDE'] = Dir(
+        '#interfaces/clib/include/cantera_clib').abspath
+    juliaenv['ENV']['CANTERA_LIBRARY_PATH'] = Dir('#build/lib').abspath
+    juliaenv['ENV']['CANTERA_DATA'] = Dir('#data').abspath
+
+    julia_doc = build(juliaenv.Command(
+        "#build/doc/html/julia/index.html",
+        "#interfaces/julia/docs/make.jl",
+        [
+            Delete("build/doc/html/julia"),
+            "julia interfaces/julia/generate/generate_bindings.jl",
+            "julia --project=interfaces/julia/docs -e "
+            "'using Pkg; Pkg.develop(PackageSpec(path=\"interfaces/julia\")); "
+            "Pkg.instantiate()'",
+            "julia --project=interfaces/julia/docs $SOURCE",
+            Copy("build/doc/html/julia", "interfaces/julia/docs/build"),
+        ]
+    ))
+    env.Depends(julia_doc, env['cantera_shlib'])
+    env.Depends(julia_doc, multi_glob(env, '#interfaces/julia/src', 'jl') +
+                           multi_glob(env, '#interfaces/julia/docs/src', 'md'))
+    env.Alias('julia', julia_doc)
+    if localenv['sphinx_docs']:
+        env.Depends(sphinxdocs, julia_doc)
+
 doc_files = install(localenv.RecursiveInstall, '$inst_docdir',
                     '#build/doc/html', exclude=['\\.map', '\\.md5'])
 
