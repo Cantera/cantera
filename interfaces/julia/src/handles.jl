@@ -18,31 +18,33 @@ abstract type CanteraObject end
     ThermoPhase
 
 Thermodynamic-phase view of a [`Solution`](@ref).  Wraps a `ThermoPhase` CLib
-handle.
+handle and holds a reference to the owning `Solution`.
 """
-mutable struct ThermoPhase <: CanteraObject
+mutable struct ThermoPhase{P} <: CanteraObject
     handle::Int32
-    parent::Any
+    parent::P
 end
 
 """
     Kinetics
 
-Kinetics view of a [`Solution`](@ref).  Wraps a `Kinetics` CLib handle.
+Kinetics view of a [`Solution`](@ref).  Wraps a `Kinetics` CLib handle and holds
+a reference to the owning `Solution`.
 """
-mutable struct Kinetics <: CanteraObject
+mutable struct Kinetics{P} <: CanteraObject
     handle::Int32
-    parent::Any
+    parent::P
 end
 
 """
     Transport
 
-Transport view of a [`Solution`](@ref).  Wraps a `Transport` CLib handle.
+Transport view of a [`Solution`](@ref).  Wraps a `Transport` CLib handle and
+holds a reference to the owning `Solution`.
 """
-mutable struct Transport <: CanteraObject
+mutable struct Transport{P} <: CanteraObject
     handle::Int32
-    parent::Any
+    parent::P
 end
 
 "`handle(obj)` returns the raw CLib handle backing a wrapper (internal)."
