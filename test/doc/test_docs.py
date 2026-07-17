@@ -8,6 +8,7 @@ They are registered under the ``test-doc`` alias and are deliberately excluded
 from the main ``scons test`` suite: the docs build is routinely skipped, and
 these are cheap enough to run on demand.
 """
+import ast
 import json
 import re
 from pathlib import Path
@@ -63,4 +64,43 @@ def test_current_version_has_an_entry(versions):
     assert expected in {entry["version"] for entry in versions}, (
         f"no doc-versions.json entry has version {expected!r}; add one when "
         f"bumping cantera_version in SConstruct"
+    )
+
+
+def subst_dict_keys(sconscript):
+    """Return the keys of the `vars` dict literal in an SConscript file.
+
+    SConscript files are plain Python, so this reads the dict without
+    executing the file or standing up an SCons environment.
+    """
+    tree = ast.parse(sconscript.read_text())
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            continue
+        targets = [t.id for t in node.targets if isinstance(t, ast.Name)]
+        if "vars" in targets:
+            return {
+                key.value for key in node.value.keys
+                if isinstance(key, ast.Constant)
+            }
+    raise AssertionError(f"no 'vars' dict literal found in {sconscript}")
+
+
+@pytest.mark.parametrize("sconscript", SUBST_SCONSCRIPTS, ids=lambda p: str(p.name))
+def test_doxyfile_substitutions_are_complete(sconscript):
+    # Substfile silently leaves an unmatched @VAR@ in place, so a placeholder
+    # that only one of the two substitution sites defines produces a generated
+    # Doxyfile carrying a literal '@VAR@'. Both sites must define all of them.
+    placeholders = set(re.findall(r"@[A-Z_]+@", DOXYFILE_IN.read_text()))
+    missing = placeholders - subst_dict_keys(sconscript)
+    assert not missing, (
+        f"{sconscript.relative_to(CANTERA_ROOT)} does not substitute {missing}"
+    )
+
+
+def test_doxyfile_project_number_is_substituted():
+    text = DOXYFILE_IN.read_text()
+    assert re.search(r"^PROJECT_NUMBER\s*=\s*@CANTERA_VERSION@\s*$", text,
+                     re.MULTILINE), (
+        "PROJECT_NUMBER must be substituted from the build, not hardcoded"
     )
