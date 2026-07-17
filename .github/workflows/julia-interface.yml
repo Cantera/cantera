@@ -1,0 +1,89 @@
+# CI for the experimental Julia interface (interfaces/julia).
+#
+# Builds libcantera *from this checkout* (so the generated CLib matches the
+# bindings, including functions this branch adds/renames), then runs the Julia
+# test suite against the freshly built library on Linux.
+name: Julia interface
+
+on:
+  push:
+    paths:
+      - 'interfaces/julia/**'
+      - 'interfaces/sourcegen/**'
+      - 'interfaces/clib/**'
+      - '.github/workflows/julia-interface.yml'
+  pull_request:
+    paths:
+      - 'interfaces/julia/**'
+      - 'interfaces/sourcegen/**'
+      - 'interfaces/clib/**'
+      - '.github/workflows/julia-interface.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Julia ${{ matrix.julia-version }} on ubuntu-latest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up build dependencies (conda)
+        uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167 # v3.3.0
+        with:
+          miniforge-version: latest
+          activate-environment: build
+          python-version: '3.12'
+          channels: conda-forge
+
+      - name: Install Cantera build dependencies
+        run: |
+          # Build toolchain + C++ deps, plus sourcegen's Python deps (jinja2,
+          # ruamel.yaml) which are needed to regenerate the CLib during the build.
+          conda install -y scons cython "eigen" sundials fmt yaml-cpp hdf5 \
+            "boost-cpp" doxygen openblas jinja2 "ruamel.yaml"
+
+      - name: Build libcantera (shared)
+        run: |
+          cat > cantera.conf <<EOF
+          prefix = '${CONDA_PREFIX}'
+          python_package = 'n'
+          f90_interface = 'n'
+          system_eigen = 'y'
+          system_sundials = 'y'
+          system_fmt = 'y'
+          system_yamlcpp = 'y'
+          system_blas_lapack = 'y'
+          extra_inc_dirs = '${CONDA_PREFIX}/include'
+          extra_lib_dirs = '${CONDA_PREFIX}/lib'
+          boost_inc_dir = '${CONDA_PREFIX}/include'
+          googletest = 'none'
+          EOF
+          # `scons build` regenerates the CLib and the low-level Julia bindings
+          # from interfaces/sourcegen and auto-generates the doxygen tag it
+          # needs (doxygen installed above).
+          scons build -j2
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2.7.0
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Run tests
+        env:
+          CANTERA_LIBRARY_PATH: ${{ github.workspace }}/build/lib
+          CANTERA_DATA: ${{ github.workspace }}/data
+        run: |
+          julia --project=interfaces/julia -e 'using Pkg; Pkg.instantiate()'
+          julia --project=interfaces/julia interfaces/julia/test/runtests.jl

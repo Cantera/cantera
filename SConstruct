@@ -105,7 +105,7 @@ if os.name not in ["nt", "posix"]:
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
-                  "help", "msi", "samples", "sphinx", "doxygen", "dump",
+                  "help", "msi", "samples", "sphinx", "doxygen", "julia", "dump",
                   "sdist", "pyodide-wheel")
 
 # set default logging level
@@ -418,6 +418,11 @@ config_options = [
     BoolOption(
         "sphinx_docs",
         "Build HTML documentation for Cantera using Sphinx.",
+        False),
+    BoolOption(
+        "julia_docs",
+        """Build HTML documentation for the Julia interface using Documenter.
+           Requires Julia, a built libcantera, and the generated CLib bindings.""",
         False),
     BoolOption(
         "run_examples",
@@ -1016,6 +1021,8 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
+if 'julia' in COMMAND_LINE_TARGETS:
+    env['julia_docs'] = True
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
@@ -2009,6 +2016,8 @@ if env['f90_interface'] == 'y':
 # to run this for scons doxygen and scons sphinx
 if not {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS):
     SConscript("interfaces/clib/SConscript")
+    # The Julia bindings are scaffolded from the same CLib specifications
+    SConscript("interfaces/julia/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
@@ -2021,7 +2030,8 @@ if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if env['doxygen_docs'] or env['sphinx_docs'] or "install" in COMMAND_LINE_TARGETS:
+if (env['doxygen_docs'] or env['sphinx_docs'] or env['julia_docs']
+        or "install" in COMMAND_LINE_TARGETS):
     SConscript('doc/SConscript')
 
 # Sample programs (also used from test_problems/SConscript)

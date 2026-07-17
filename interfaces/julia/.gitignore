@@ -1,0 +1,7 @@
+# Julia resolves this per-environment; do not commit.
+Manifest.toml
+
+/src/generated/
+
+# Documenter output.
+docs/build/
