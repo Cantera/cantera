@@ -34,6 +34,7 @@ $extrastylesheet
 <script type="text/javascript">
     DoxygenAwesomeFragmentCopyButton.init()
 </script>
+<script type="text/javascript" src="$relpath^version-switcher.js"></script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -49,7 +50,6 @@ $extrastylesheet
   <!--BEGIN PROJECT_NAME-->
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">$projectname
-   <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER-->
    </div>
    <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
   </td>
@@ -71,13 +71,17 @@ $extrastylesheet
 </table>
 </div>
 <div>
-  <ul class="sm sm-dox" style="display: block;">
+  <ul class="sm sm-dox" style="display: flex;">
     <li><a href="$relpath^../install/index.html">Install</a></li>
     <li><a href="$relpath^../userguide/index.html">User Guide</a></li>
     <li><a href="$relpath^../examples/index.html">Examples</a></li>
     <li><a id="selected" href="$relpath^../reference/index.html">Reference</a></li>
     <li><a href="$relpath^../develop/index.html">Develop</a></li>
     <li><a href="/community.html">Community</a></li>
+    <li id="version-switcher">
+      <button id="version-switcher-button" aria-haspopup="true" aria-expanded="false">$projectnumber</button>
+      <ul id="version-switcher-menu" hidden></ul>
+    </li>
   </ul>
 </div>
 <!--END TITLEAREA-->
