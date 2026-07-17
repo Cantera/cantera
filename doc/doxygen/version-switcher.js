@@ -22,8 +22,22 @@
         return match ? match[0] : null;
     }
 
-    /** Doxygen's output is flat, so the current page is just the basename. */
-    function currentPage() {
+    /**
+     * The path of the current page relative to this version's Doxygen root.
+     *
+     * Doxygen is configured with CREATE_SUBDIRS, so most pages sit in a hash
+     * subdirectory rather than at the root: the basename alone would not
+     * resolve in another version. `$relpath^` is Doxygen's own relative path
+     * from this page back to the output root, so resolving it against the
+     * current URL yields that root, and the rest of the path locates the page
+     * within it. The subdirectory is derived from the page name, so it agrees
+     * across versions.
+     */
+    function currentPage(container) {
+        const root = new URL(container.dataset.relpath || "./", location.href).pathname;
+        if (location.pathname.startsWith(root)) {
+            return location.pathname.slice(root.length) || "index.html";
+        }
         return location.pathname.split("/").pop() || "index.html";
     }
 
@@ -43,8 +57,8 @@
         }
     }
 
-    function populate(entries, button, menu) {
-        const page = currentPage();
+    function populate(entries, container, button, menu) {
+        const page = currentPage(container);
         const versionMatch = shortVersion(button.textContent.trim());
 
         entries.filter((entry) => entry && entry.cxx_url).forEach((entry) => {
@@ -141,7 +155,7 @@
             return;
         }
 
-        if (populate(entries, button, menu)) {
+        if (populate(entries, container, button, menu)) {
             attachBehavior(container, button, menu);
             button.classList.add("has-menu");
         }
