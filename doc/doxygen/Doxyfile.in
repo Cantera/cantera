@@ -1344,7 +1344,8 @@ HTML_EXTRA_STYLESHEET  = ext/doxygen-awesome-css/doxygen-awesome.css \
 HTML_EXTRA_FILES       = ext/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
                          ext/doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
                          ext/doxygen-awesome-css/doxygen-awesome-interactive-toc.js \
-                         ext/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js
+                         ext/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
+                         doc/doxygen/version-switcher.js
 
 # The HTML_COLORSTYLE tag can be used to specify if the generated HTML output
 # should be rendered with a dark or light theme.
