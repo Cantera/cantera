@@ -83,3 +83,60 @@ div#top {
     color: var(--primary-color) !important;
     font-size: 16px;
 }
+
+/* Version switcher. The dropdown panel and its items inherit their colors,
+   border, shadow, and animation from doxygen-awesome's `.sm-dox ul` rules,
+   which follow the dark mode toggle. Only positioning is needed here, since
+   SmartMenus -- which would normally place the panel -- is not loaded. */
+#version-switcher {
+    /* Push to the far end of the nav bar, which header.html makes a flex
+       container for this purpose. */
+    margin-left: auto;
+    /* Positioning context for the dropdown. */
+    position: relative;
+}
+
+#version-switcher-button {
+    /* Match the nav bar links (.sm-dox a), which style anchors, not buttons */
+    background: none;
+    border: none;
+    color: var(--pst-color-text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 0 8px;
+}
+
+#version-switcher-button:hover {
+    color: var(--primary-color);
+}
+
+#version-switcher-button.has-menu::after {
+    /* Only added once the menu is populated, so a degraded button does not
+       advertise a dropdown that isn't there. */
+    content: " \25be";
+}
+
+#version-switcher-menu {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 10;
+    margin: 0;
+    list-style: none;
+    min-width: max-content;
+}
+
+#version-switcher-menu[hidden] {
+    display: none;
+}
+
+#version-switcher-menu a {
+    display: block;
+    white-space: nowrap;
+}
+
+#version-switcher-menu a[aria-current] {
+    font-weight: bold;
+}
