@@ -137,8 +137,6 @@ if localenv['sphinx_docs']:
 
 if localenv['julia_docs']:
     juliaenv = localenv.Clone()
-    juliaenv['ENV']['CANTERA_CLIB_INCLUDE'] = Dir(
-        '#interfaces/clib/include/cantera_clib').abspath
     juliaenv['ENV']['CANTERA_LIBRARY_PATH'] = Dir('#build/lib').abspath
     juliaenv['ENV']['CANTERA_DATA'] = Dir('#data').abspath
 
@@ -147,7 +145,6 @@ if localenv['julia_docs']:
         "#interfaces/julia/docs/make.jl",
         [
             Delete("build/doc/html/julia"),
-            "julia interfaces/julia/generate/generate_bindings.jl",
             "julia --project=interfaces/julia/docs -e "
             "'using Pkg; Pkg.develop(PackageSpec(path=\"interfaces/julia\")); "
             "Pkg.instantiate()'",

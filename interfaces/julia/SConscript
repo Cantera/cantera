@@ -1,0 +1,26 @@
+"""SConscript file for the generated Julia CLib bindings."""
+from pathlib import Path
+
+Import("env", "build")
+
+# Generated file names can be anticipated from the CLib specifications
+auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
+yaml_files = sorted(auto_path.glob("ct*.yaml"))
+generated_files = ["#interfaces/julia/src/generated/_manifest.jl"]
+generated_files.extend(
+    f"#interfaces/julia/src/generated/lib{yaml_file.stem}.jl"
+    for yaml_file in yaml_files)
+
+sourcegen = env.Command(
+    generated_files,
+    "#build/doc/Cantera.tag",
+    ("$python_cmd -m interfaces.sourcegen.src.sourcegen "
+     f"--api=julia --output={Path(Dir('#interfaces/julia').abspath)}")
+)
+env.Depends(sourcegen, [File(ff) for ff in yaml_files])
+env.Depends(sourcegen, env.Glob("#interfaces/sourcegen/src/sourcegen/*.py"))
+env.Depends(sourcegen, env.Glob("#interfaces/sourcegen/src/sourcegen/julia/*.*"))
+
+build(sourcegen)
+
+Return("sourcegen")

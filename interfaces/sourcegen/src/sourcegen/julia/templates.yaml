@@ -1,0 +1,9 @@
+# Definitions used for Jinja template replacement.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+julia-ccall-func: |-
+  function {{ name }}({{ arg_names }})
+      ccall((:{{ name }}, libcantera[]), {{ ret_type }}, {{ arg_types }}{{ call_args }})
+  end

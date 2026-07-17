@@ -1,0 +1,28 @@
+# Configuration for Julia code generation.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+# Ignore these files entirely:
+ignore_files: []
+
+# Ignore these specific functions:
+ignore_funcs: {}
+
+# C type crosswalks;
+# map C type names to the Julia types used in the `ccall` signature
+c_type_crosswalk:
+  void: "Cvoid"
+  int32_t: "Int32"
+  const int32_t: "Int32"
+  int64_t: "Int64"
+  const int64_t: "Int64"
+  double: "Float64"
+  const double: "Float64"
+  const char*: "Cstring"
+  char*: "Ptr{UInt8}"
+  const double*: "Ptr{Float64}"
+  double*: "Ptr{Float64}"
+  const int32_t*: "Ptr{Int32}"
+  int32_t*: "Ptr{Int32}"
+  LogCallback: "Ptr{Cvoid}"
