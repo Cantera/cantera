@@ -70,19 +70,15 @@ jobs:
           boost_inc_dir = '${CONDA_PREFIX}/include'
           googletest = 'none'
           EOF
-          # `scons build` regenerates the CLib from interfaces/sourcegen and
-          # auto-generates the doxygen tag it needs (doxygen installed above).
+          # `scons build` regenerates the CLib and the low-level Julia bindings
+          # from interfaces/sourcegen and auto-generates the doxygen tag it
+          # needs (doxygen installed above).
           scons build -j2
 
       - name: Set up Julia
         uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2.7.0
         with:
           version: ${{ matrix.julia-version }}
-
-      - name: Generate low-level CLib bindings
-        env:
-          CANTERA_CLIB_INCLUDE: ${{ github.workspace }}/interfaces/clib/include/cantera_clib
-        run: julia interfaces/julia/generate/generate_bindings.jl
 
       - name: Run tests
         env:

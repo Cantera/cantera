@@ -15,12 +15,8 @@ export CANTERA_LIBRARY_PATH=/path/to/cantera/lib   # or use a conda env
 export CANTERA_DATA=/path/to/cantera/data          # for gri30.yaml, etc.
 ```
 
-The low-level CLib bindings must be generated from the built `cantera_clib`
-headers before first use (and again whenever those headers change):
-
-```bash
-julia interfaces/julia/generate/generate_bindings.jl
-```
+The low-level CLib bindings are scaffolded by `scons build` and are kept up to
+date by the build process.
 
 ```julia
 using Pkg

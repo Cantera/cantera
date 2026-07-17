@@ -9,9 +9,9 @@ CLib API.  Everything here is an implementation detail: user code should use the
 API exported from the top-level [`Cantera`](@ref) module instead of the
 raw handle-based functions defined here.
 
-The wrapper functions in `generated/` are produced by
-`generate/generate_bindings.jl` from the `cantera_clib/*.h` headers and must not
-be hand-edited.  This module is responsible only for:
+The wrapper functions in `generated/` are scaffolded by `sourcegen` from the
+CLib specifications as part of the Cantera build process and must not be
+hand-edited.  This module is responsible only for:
 
   * locating the Cantera shared library (`libcantera`);
   * locating Cantera's data directory (for `gri30.yaml` and friends);

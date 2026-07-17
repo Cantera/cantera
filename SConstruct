@@ -2016,6 +2016,8 @@ if env['f90_interface'] == 'y':
 # to run this for scons doxygen and scons sphinx
 if not {"doxygen", "sphinx"} & set(COMMAND_LINE_TARGETS):
     SConscript("interfaces/clib/SConscript")
+    # The Julia bindings are scaffolded from the same CLib specifications
+    SConscript("interfaces/julia/SConscript")
 
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')

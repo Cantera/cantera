@@ -19,11 +19,10 @@ export CANTERA_LIBRARY_PATH=/path/to/cantera/lib   # or use a conda env
 export CANTERA_DATA=/path/to/cantera/data          # for gri30.yaml, etc.
 ```
 
-Generate the low-level CLib bindings from the built `cantera_clib` headers
-(again whenever those headers change), then instantiate the environment:
+The low-level CLib bindings are scaffolded by `scons build`, so only the
+environment needs to be instantiated:
 
 ```bash
-julia interfaces/julia/generate/generate_bindings.jl
 julia --project=interfaces/julia -e 'using Pkg; Pkg.instantiate()'
 ```
 

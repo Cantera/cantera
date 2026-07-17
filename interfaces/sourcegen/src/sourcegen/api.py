@@ -80,7 +80,7 @@ def create_argparser():
         help="show additional logging output",
     )
     parser.add_argument(
-        "--api", choices=["clib", "csharp", "yaml"],
+        "--api", choices=["clib", "csharp", "julia", "yaml"],
         help="language of generated Cantera API code",
     )
     parser.add_argument(
