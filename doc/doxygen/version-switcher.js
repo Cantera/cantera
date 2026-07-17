@@ -92,6 +92,25 @@
         });
     }
 
+    /**
+     * Move the switcher to the end of Doxygen's own header menu, so that it
+     * sits to the right of the search box, as it does on the rest of
+     * cantera.org. Doxygen generates that menu, so header.html cannot place
+     * the element there directly -- doxygen-awesome's dark mode toggle
+     * relocates itself for the same reason.
+     *
+     * The switcher and the search box both float right, and the first floated
+     * element lands rightmost, so it is inserted *before* the search box. If
+     * Doxygen's markup ever changes, the switcher stays in the nav bar.
+     */
+    function relocate(container) {
+        const menu = document.getElementById("main-menu");
+        const searchBox = document.getElementById("searchBoxPos2");
+        if (menu && searchBox) {
+            menu.insertBefore(container, searchBox);
+        }
+    }
+
     async function init() {
         const container = document.getElementById("version-switcher");
         const button = document.getElementById("version-switcher-button");
@@ -99,6 +118,8 @@
         if (!container || !button || !menu) {
             return;
         }
+
+        relocate(container);
 
         let entries;
         try {

@@ -55,8 +55,12 @@ html.dark-mode {
     margin-left: 4px;
 }
 
-ul#main-menu li a {
-    /* Hide Doxygen navigation tabs that are duplicated in the sidebar */
+ul#main-menu > li:not(#version-switcher) a {
+    /* Hide Doxygen navigation tabs that are duplicated in the sidebar. The
+       version switcher is moved into this menu by version-switcher.js, so its
+       subtree is excluded here to keep its own links visible; the child
+       combinator is required, since the switcher's menu entries sit in nested
+       list items that :not(#version-switcher) would otherwise match. */
     visibility: hidden;
     display: none !important;
 }
@@ -89,11 +93,15 @@ div#top {
    which follow the dark mode toggle. Only positioning is needed here, since
    SmartMenus -- which would normally place the panel -- is not loaded. */
 #version-switcher {
-    /* Push to the far end of the nav bar, which header.html makes a flex
-       container for this purpose. */
-    margin-left: auto;
     /* Positioning context for the dropdown. */
     position: relative;
+}
+
+ul#main-menu #version-switcher {
+    /* version-switcher.js moves the switcher into Doxygen's header menu and
+       inserts it before the search box; both float right, and the first
+       floated element lands rightmost, so this puts it right of the search. */
+    float: right;
 }
 
 #version-switcher-button {
