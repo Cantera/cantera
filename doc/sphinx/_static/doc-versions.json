@@ -2,49 +2,60 @@
     {
         "name": "4.0 (dev)",
         "version": "4.0",
-        "url": "/dev/"
+        "url": "/dev/",
+        "cxx_url": "/dev/cxx/"
     },
     {
         "name": "3.2.0 (stable)",
         "version": "3.2",
-        "url": "/3.2/"
+        "url": "/3.2/",
+        "cxx_url": "/3.2/cxx/"
     },
     {
         "name": "3.1.0",
         "version": "3.1",
-        "url": "/3.1/"
+        "url": "/3.1/",
+        "cxx_url": "/3.1/cxx/"
     },
     {
         "name": "3.0.0",
         "version": "3.0.0",
-        "url": "/3.0/sphinx/html/"
+        "url": "/3.0/sphinx/html/",
+        "cxx_url": "/3.0/doxygen/html/"
     },
     {
         "version": "2.6.0",
-        "url": "/2.6/sphinx/html/"
+        "url": "/2.6/sphinx/html/",
+        "cxx_url": "/2.6/doxygen/html/"
     },
     {
         "version": "2.5.1",
-        "url": "/2.5/sphinx/html/"
+        "url": "/2.5/sphinx/html/",
+        "cxx_url": "/2.5/doxygen/html/"
     },
     {
         "version": "2.4.0",
-        "url": "/2.4/sphinx/html/"
+        "url": "/2.4/sphinx/html/",
+        "cxx_url": "/2.4/doxygen/html/"
     },
     {
         "version": "2.3.0",
-        "url": "/2.3/sphinx/html/"
+        "url": "/2.3/sphinx/html/",
+        "cxx_url": "/2.3/doxygen/html/"
     },
     {
         "version": "2.2.1",
-        "url": "/2.2/sphinx/html/"
+        "url": "/2.2/sphinx/html/",
+        "cxx_url": "/2.2/doxygen/html/"
     },
     {
         "version": "2.1.2",
-        "url": "/2.1/sphinx/html/"
+        "url": "/2.1/sphinx/html/",
+        "cxx_url": "/2.1/doxygen/html/"
     },
     {
         "version": "2.0.2",
-        "url": "/2.0/sphinx/html/"
+        "url": "/2.0/sphinx/html/",
+        "cxx_url": "/2.0/doxygen/html/"
     }
 ]
