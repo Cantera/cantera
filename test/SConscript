@@ -243,6 +243,32 @@ if localenv['python_package'] == 'y':
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
+# Documentation consistency checks. These are not part of the main test suite
+# (nothing Depends on env['test_results']) because they cover the docs, which
+# are often not built. Run them explicitly with `scons test-doc`.
+def docTestRunner(target, source, env):
+    """SCons Action to run the documentation tests using pytest"""
+    code = subprocess.call(
+        [env.subst("$python_cmd"), "-m", "pytest", "-raP",
+         *(str(s) for s in source)],
+        env=dict(env["ENV"]),
+    )
+    if code:
+        test_results.failed["doc"] = 1
+    else:
+        test_results.passed["doc"] = 1
+        with open(target[0].path, "w") as passed_file:
+            passed_file.write(time.asctime() + "\n")
+
+docPassedFile = File("doc/doc.passed")
+PASSED_FILES["doc"] = str(docPassedFile)
+docTest = localenv.Command(docPassedFile, ["doc/test_docs.py"], docTestRunner)
+localenv.Alias("test-doc", docTest)
+env["testNames"].append("doc")
+if os.path.exists(docPassedFile.abspath):
+    Alias("test-reset",
+          localenv.Command("reset-doc", [], [Delete(docPassedFile.abspath)]))
+
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:
     if command.startswith('test-'):
