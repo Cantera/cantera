@@ -107,22 +107,39 @@
     }
 
     /**
-     * Move the switcher to the end of Doxygen's own header menu, so that it
-     * sits to the right of the search box, as it does on the rest of
-     * cantera.org. Doxygen generates that menu, so header.html cannot place
-     * the element there directly -- doxygen-awesome's dark mode toggle
-     * relocates itself for the same reason.
+     * Place the switcher to the right of the search box on wide screens, as it
+     * sits on the rest of cantera.org, and leave it in the nav bar otherwise.
      *
-     * The switcher and the search box both float right, and the first floated
-     * element lands rightmost, so it is inserted *before* the search box. If
-     * Doxygen's markup ever changes, the switcher stays in the nav bar.
+     * On wide screens the switcher is moved into Doxygen's own header menu, to
+     * the right of the search box. Doxygen generates that menu, so header.html
+     * cannot place the element there directly -- doxygen-awesome's dark mode
+     * toggle relocates itself for the same reason. The switcher and the search
+     * box both float right and the first floated element lands rightmost, so
+     * it is inserted *before* the search box.
+     *
+     * Below Doxygen's 768px breakpoint that header menu is hidden, so the
+     * switcher is returned to its original place in the nav bar, where it stays
+     * visible. Placement is re-evaluated when the viewport crosses the
+     * breakpoint. If Doxygen's markup ever changes, the switcher stays in the
+     * nav bar.
      */
     function relocate(container) {
-        const menu = document.getElementById("main-menu");
-        const searchBox = document.getElementById("searchBoxPos2");
-        if (menu && searchBox) {
-            menu.insertBefore(container, searchBox);
+        const wide = window.matchMedia("(min-width: 768px)");
+        const navHome = container.parentNode;
+        const navNext = container.nextSibling;
+
+        function place() {
+            const menu = document.getElementById("main-menu");
+            const searchBox = document.getElementById("searchBoxPos2");
+            if (wide.matches && menu && searchBox) {
+                menu.insertBefore(container, searchBox);
+            } else {
+                navHome.insertBefore(container, navNext);
+            }
         }
+
+        place();
+        wide.addEventListener("change", place);
     }
 
     async function init() {
