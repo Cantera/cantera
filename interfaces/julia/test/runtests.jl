@@ -32,6 +32,32 @@ const MECH = "gri30.yaml"
         close!(gas2)
     end
 
+    @testset "Sub-phase views keep their Solution alive" begin
+        # The views returned by `thermo`/`kinetics`/`transport` borrow handles
+        # owned by the Solution, so they hold a reference to it: collecting the
+        # Solution here would run its finalizer and free the handles the views
+        # are still using.  Each view is built from its own Solution and is the
+        # only thing referencing it, otherwise the views would keep each other's
+        # owner alive and a regression in any one of them would go unnoticed.
+        view(f) = let gas = Solution(MECH)
+            set_TPX!(gas, 1200.0, one_atm, "CH4:1, O2:2, N2:7.52")
+            f(gas)
+        end
+
+        tp = view(thermo)
+        kin = view(kinetics)
+        tr = view(transport)
+        GC.gc(); GC.gc()
+
+        for v in (tp, kin, tr)
+            @test v.parent isa Solution
+            @test !v.parent.closed
+        end
+        @test temperature(tp) ≈ 1200.0
+        @test n_reactions(kin) == 325
+        @test viscosity(tr) > 0
+    end
+
     @testset "Error handling" begin
         @test_throws CanteraError Solution("this_file_does_not_exist.yaml")
         gas = Solution(MECH)
