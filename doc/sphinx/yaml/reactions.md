@@ -346,14 +346,8 @@ Example:
 The `multi-state-resolved` vibrational relaxation rate expression is
 
 $$
-k_f =
-\mathrm{scaling} , A
-\exp \left(
-b \ln T
-+ B
-+ C T^{-1/3}
-+ D T^{-2/3}
-\right)
+k_f = \mathrm{scaling} , A T^b
+\exp \left(B + C T^{-1/3} + D T^{-2/3}\right)
 $$
 
 where $T$ is the gas temperature in K.
@@ -408,21 +402,15 @@ Example:
 The `castela` vibrational relaxation rate expression is based on the relaxation time
 
 $$
-\tau_k =
-\frac{p_0}{p_k}
-\exp \left[
-a_k \left(T^{-1/3} - b_k \right) - 18.42
-\right]
+\tau_k = \frac{p_0}{p_k}
+\exp \left[a_k \left(T^{-1/3} - b_k \right) - 18.42\right]
 $$
 
 and is converted internally to the equivalent bimolecular rate coefficient
 
 $$
-k_k(T) =
-\frac{R T}{p_0}
-\exp \left[
-18.42 + a_k b_k - a_k T^{-1/3}
-\right]
+k_k(T) = \frac{R T}{p_0}
+\exp \left[18.42 + a_k b_k - a_k T^{-1/3}\right]
 $$
 
 where $T$ is the gas temperature in K, $R$ is the gas constant, and $p_0$ is the
@@ -467,14 +455,8 @@ the means of a fictitious species N2(v) lumping together all N2 vibrational stat
 The `starikovskiy` vibrational relaxation rate expression is
 
 $$
-k_f =
-A T^n
-\exp \left(
-K
-+ B T^{-1/3}
-+ C T^{-m}
-+ D T^{-z}
-\right)
+k_f = A T^n
+\exp \left(K + B T^{-1/3} + C T^{-m} + D T^{-z} \right)
 $$
 
 where $T$ is the gas temperature in K.
