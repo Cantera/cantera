@@ -299,8 +299,8 @@ rate is therefore important to model. This class offers four options to
 model VT-relaxation rates:
 - [`constant`](subsec-vibrational-relaxation-constant-rate)
 - [`multi-state-resolved`](subsec-vibrational-relaxation-multi-state-resolved-rate)
-- [`castela`](subsec-vibrational-relaxation-castela-rate)
-- [`starikovskiy`](subsec-vibrational-relaxation-starikovskiy-rate)
+- [`Castela`](subsec-vibrational-relaxation-castela-rate)
+- [`Starikovskiy`](subsec-vibrational-relaxation-starikovskiy-rate)
 
 There are two fields common to all options: `vibration-model` which states
 which of the four options above is used, and `rate-constant` in which all 
@@ -397,9 +397,9 @@ Example:
 
 (subsec-vibrational-relaxation-castela-rate)=
 
-#### Vibrational relaxation: castela
+#### Vibrational relaxation: Castela
 
-The `castela` vibrational relaxation rate expression is based on the relaxation time
+The `Castela` vibrational relaxation rate expression is based on the relaxation time
 
 $$
 \tau_k = \frac{p_0}{p_k}
@@ -430,7 +430,7 @@ The rate parameters are specified as a mapping with fields:
 The parameter `A` is not specified by the user for this model. The internal
 pre-exponential factor is computed as $R / p_0$.
 
-The `castela` model is only valid for N2 vibrational relaxation and only supports
+The `Castela` model is only valid for N2 vibrational relaxation and only supports
 the colliders `N2`, `O2`, and `O`. It describes relaxation to the ground state, so
 the reaction must have the form `N2(v) + M => N2 + M`, where `M` is one of the
 supported colliders.
@@ -441,7 +441,7 @@ the means of a fictitious species N2(v) lumping together all N2 vibrational stat
 ```yaml
 - equation: N2(v) + O => N2 + O
   type: vibrational-relaxation
-  vibration-model: castela
+  vibration-model: Castela
   rate-constant:
     a: 72.4
     b: 0.015
@@ -450,9 +450,9 @@ the means of a fictitious species N2(v) lumping together all N2 vibrational stat
 
 (subsec-vibrational-relaxation-starikovskiy-rate)=
 
-#### Vibrational relaxation: starikovskiy
+#### Vibrational relaxation: Starikovskiy
 
-The `starikovskiy` vibrational relaxation rate expression is
+The `Starikovskiy` vibrational relaxation rate expression is
 
 $$
 k_f = A T^n
@@ -498,7 +498,7 @@ the YAML input.
 This model describes relaxation of one vibrationally excited reactant to its ground
 state by collision with an unchanged collider:
 
-This model is intended to extend the mean vibrational energy equation model from castela 
+This model is intended to extend the mean vibrational energy equation model from Castela 
 by allowing collisions with more potential colliders. It should be employend alongside a
 fictitious species X(v) lumping together all X molecule vibrational states for each molecule
 that the user wishes to descibe vibrationally.
@@ -509,7 +509,7 @@ Example:
 ```yaml
 - equation: N2(v) + O => N2 + O
   type: vibrational-relaxation
-  vibration-model: starikovskiy
+  vibration-model: Starikovskiy
   rate-constant: {A: 6.0221407600e+23, n: 1.0, K: -34.03, B: -33.11, C: 0.0, m: 1.0, D: 0.0, z: 1.0}
 ```
 

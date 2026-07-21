@@ -36,8 +36,8 @@ struct DetailedVibData : public ReactionData
  * relaxation models:
  * - `constant`
  * - `multi-state-resolved`
- * - `starikovskiy`
- * - `castela`
+ * - `Starikovskiy`
+ * - `Castela`
  * Internally, all models are mapped to the following generic expression:
  * @f[
  * k_f =
@@ -62,7 +62,7 @@ struct DetailedVibData : public ReactionData
  * vibration-model: multi-state-resolved
  * @endcode
  * Accepted values for `vibration-model` are `constant`,
- * `multi-state-resolved`, `starikovskiy`, and `castela`.
+ * `multi-state-resolved`, `Starikovskiy`, and `Castela`.
  *
  * The `constant` model relaxes the vibrational species with a constant rate 
  * coefficient. It could just as well be an Arrhenius rate, but the constant 
@@ -78,12 +78,12 @@ struct DetailedVibData : public ReactionData
  * 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are taken from
  * @cite zhong2023, @cite capitelli2013, and @cite starikovskiy2013.
  *
- * The `castela` model is meant to be used only for N2 vibrational relaxation,
+ * The `Castela` model is meant to be used only for N2 vibrational relaxation,
  * by collisions with N2, O2, and O exclusively. It implements the mean
  * vibrational energy relaxation model using a fictitious Cantera species and
  * is based on @cite castela2016.
  *
- * The `starikovskiy` model is an extension of the Castela model to several
+ * The `Starikovskiy` model is an extension of the Castela model to several
  * vibrational species and additional colliders. Many vibrational relaxation
  * rates can be found in Table 1 of @cite starikovskiy2013, hence the model
  * name. The rates for the vibrational relaxation of NH3 can be found in the
@@ -239,8 +239,8 @@ private:
      * Accepted values:
      * - `constant`
      * - `multi-state-resolved`
-     * - `starikovskiy`
-     * - `castela`
+     * - `Starikovskiy`
+     * - `Castela`
      */
     string m_vibration_model = "multi-state-resolved";
 
@@ -265,7 +265,7 @@ private:
 
     //! Configure the ArrheniusBase part from a YAML A value and an explicit b.
     /**
-     * This is needed for models such as `constant` and `starikovskiy`,
+     * This is needed for models such as `constant` and `Starikovskiy`,
      * where the YAML does not contain the standard Arrhenius pair A / b.
      * @since New in %Cantera 4.0
      */
@@ -284,11 +284,11 @@ private:
     void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap,
                                 const UnitStack& rate_units);
 
-    //! Sub-function of setParameters relative to the 'starikovskiy' model
+    //! Sub-function of setParameters relative to the 'Starikovskiy' model
     void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap,
                                 const UnitStack& rate_units);
 
-    //! Sub-function of setParameters relative to the 'castela' model
+    //! Sub-function of setParameters relative to the 'Castela' model
     void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap,
                             const UnitStack& rate_units);
 
@@ -300,10 +300,10 @@ private:
     //! Sub-function of getParameters relative to the 'multi-state-resolved' model
     void getMultiStateParameters(AnyMap& rateNode) const;
 
-    //! Sub-function of getParameters relative to the 'starikovskiy' model
+    //! Sub-function of getParameters relative to the 'Starikovskiy' model
     void getStarikovskiyParameters(AnyMap& rateNode) const;
 
-    //! Sub-function of getParameters relative to the 'castela' model
+    //! Sub-function of getParameters relative to the 'Castela' model
     void getCastelaParameters(AnyMap& node, AnyMap& rateNode) const;
 };
 

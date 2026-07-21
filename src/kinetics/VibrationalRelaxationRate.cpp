@@ -30,8 +30,8 @@ const string WhereSetContext = "VibrationalRelaxationRate::setContext";
 
 const string ModelConstant = "constant";
 const string ModelMultiState = "multi-state-resolved";
-const string ModelStarikovskiy = "starikovskiy";
-const string ModelCastela = "castela";
+const string ModelStarikovskiy = "Starikovskiy";
+const string ModelCastela = "Castela";
 
 enum class VibModel {
     Constant,
@@ -55,7 +55,7 @@ VibModel parseVibrationModel(const string& model, const AnyMap& input,
 
     throw InputFileError(where, input,
         "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
-        "'starikovskiy', 'castela', or 'constant'.", model);
+        "'Starikovskiy', 'Castela', or 'constant'.", model);
 }
 
 const AnyMap& getRateConstantMap(const AnyMap& node)
@@ -209,13 +209,13 @@ std::vector<string> vibrationalSpeciesInComposition(const Composition& comp)
 //
 //   N2(v)  -> constant
 //   O2(v)  -> multi-state-resolved
-//   NH3(v) -> starikovskiy
+//   NH3(v) -> Starikovskiy
 //
 // But it is forbidden for each reaction of the same "vibrational family"
 // to have different relaxation models:
 //
-//   N2(v) + O  -> castela
-//   N2(v) + N2 -> starikovskiy
+//   N2(v) + O  -> Castela
+//   N2(v) + N2 -> Starikovskiy
 //
 std::map<const Kinetics*, std::map<string, string>> s_modelByFamily;
 std::set<const Kinetics*> s_warnedMixedModels;
@@ -514,8 +514,8 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //
     //   vibration-model: constant
     //   vibration-model: multi-state-resolved
-    //   vibration-model: starikovskiy
-    //   vibration-model: castela
+    //   vibration-model: Starikovskiy
+    //   vibration-model: Castela
     //
     // The default model is multi-state-resolved.
 
@@ -774,14 +774,14 @@ void VibrationalRelaxationRate::getCastelaParameters(
         || std::abs(m_scaling - 1.0) > VibTolerance)
     {
         throw InputFileError(WhereGetParameters, node,
-            "Cannot serialize this rate as 'castela': the internal "
+            "Cannot serialize this rate as 'Castela': the internal "
             "parameters are not consistent with the Castela form. "
             "Expected b = 1, D = 0, E = 0, and scaling = 1.");
     }
 
     if (m_referencePressure <= 0.0) {
         throw InputFileError(WhereGetParameters, node,
-            "Cannot serialize this rate as 'castela': "
+            "Cannot serialize this rate as 'Castela': "
             "reference-pressure must be positive.");
     }
 
