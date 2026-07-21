@@ -159,8 +159,7 @@ The rate parameters are specified as a mapping with fields:
 : The pre-exponential factor. The units are the standard Cantera rate coefficient
 units for the reaction order and are converted using the unit system.
 
-No other rate parameters are allowed for this model. In particular, `b`, `n`, `B`,
-`C`, `D`, `m`, `E`, `z`, and `scaling` are not permitted.
+No other rate parameters are allowed for this model.
 
 This model describes relaxation of one vibrationally excited reactant to its ground
 state by collision with an unchanged collider:
@@ -214,8 +213,6 @@ $T$ is in K. Defaults to 0.0.
 `scaling`
 : Dimensionless multiplicative scaling factor applied to the rate coefficient.
 Defaults to 1.0.
-
-The parameters `n`, `m`, `E`, and `z` are not permitted for this model.
 
 This model is intended for detailed V-T and V-V relaxation reactions involving
 vibrationally resolved species. All vibrational species in the reaction must belong
@@ -275,8 +272,7 @@ The rate parameters are specified as a mapping with fields:
 : Reference pressure $p_0$. Defaults to 1 atm.
 
 The parameter `A` is not specified by the user for this model. The internal
-pre-exponential factor is computed as $R / p_0$. The parameters `A`, `n`, `K`, `B`,
-`C`, `D`, `m`, `E`, `z`, and `scaling` are not permitted.
+pre-exponential factor is computed as $R / p_0$.
 
 The `castela` model is only valid for N2 vibrational relaxation and only supports
 the colliders `N2`, `O2`, and `O`. It describes relaxation to the ground state, so
@@ -346,8 +342,6 @@ that $T$ is in K. Defaults to 0.0.
 
 `z`
 : Positive exponent used by the `D` term. Defaults to 1.0.
-
-The parameters `b` and `scaling` are not permitted for this model.
 
 The coefficients `B`, `C`, and `D` are signed values. For example, a negative
 coefficient multiplying $T^{-1/3}$ should be written directly as `B: -...` in
