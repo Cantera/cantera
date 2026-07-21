@@ -296,7 +296,7 @@ Example:
 In plasma phases, vibrationally excited species play an important role in 
 the process of slow gas heating. Their vibrational-translational (V-T) and 
 vibrational-vibrational (V-V) relaxation rates are therefore important to model.
-This class offers four options to model V-T and V-V relaxation rates:
+This reaction type offers four options to model V-T and V-V relaxation rates:
 - [`constant`](subsec-vibrational-relaxation-constant-rate)
 - [`multi-state-resolved`](subsec-vibrational-relaxation-multi-state-resolved-rate)
 - [`Castela`](subsec-vibrational-relaxation-castela-rate)
@@ -436,7 +436,9 @@ the reaction must have the form `N2(v) + M => N2 + M`, where `M` is one of the
 supported colliders.
 
 This model is intended to implement the mean vibrational energy equation model by
-the means of a fictitious species N2(v) lumping together all N2 vibrational states.
+means of a fictitious species N2(v) lumping together all N2 vibrational states.
+
+Example:
 
 ```yaml
 - equation: N2(v) + O => N2 + O
@@ -496,12 +498,12 @@ coefficient multiplying $T^{-1/3}$ should be written directly as `B: -...` in
 the YAML input.
 
 This model describes relaxation of one vibrationally excited reactant to its ground
-state by collision with an unchanged collider:
+state by collision with an unchanged collider.
 
 This model is intended to extend the mean vibrational energy equation model from Castela 
-by allowing collisions with more potential colliders. It should be employend alongside a
+by allowing collisions with more potential colliders. It should be employed alongside a
 fictitious species X(v) lumping together all X molecule vibrational states for each molecule
-that the user wishes to descibe vibrationally.
+that the user wishes to describe vibrationally.
 
 
 Example:
@@ -522,7 +524,7 @@ rate calculation is [described here](sec-electron-collision-plasma-rate). The ra
 parameters are specified using the following additional fields in the reaction entry:
 
 `energy-levels`
-: A list of electron energy levels [V]
+: A list of electron energy levels [eV]
 
 `cross-sections`
 : A list of collision cross sections [m²] for the reaction at the specified energy
