@@ -294,9 +294,9 @@ Example:
 (sec-yaml-vibrational-relaxation)=
 ### `vibrational-relaxation`
 In plasma phases, vibrationally excited species play an important role in 
-the process of slow gas heating. Their vibrational-translational relaxation
-rate is therefore important to model. This class offers four options to 
-model VT-relaxation rates:
+the process of slow gas heating. Their vibrational-translational (V-T) and 
+vibrational-vibrational (V-V) relaxation rates are therefore important to model.
+This class offers four options to model V-T and V-V relaxation rates:
 - [`constant`](subsec-vibrational-relaxation-constant-rate)
 - [`multi-state-resolved`](subsec-vibrational-relaxation-multi-state-resolved-rate)
 - [`Castela`](subsec-vibrational-relaxation-castela-rate)
