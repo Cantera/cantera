@@ -36,12 +36,12 @@ struct DetailedVibData : public ReactionData
  * relaxation models:
  * - `constant`
  * - `multi-state-resolved`
- * - `starikovskiy`
- * - `castela`
+ * - `Starikovskiy`
+ * - `Castela`
  * Internally, all models are mapped to the following generic expression:
  * @f[
  * k_f =
- * scaling \, A \,
+ * A \,
  * \exp \left(
  *     b \ln T
  *     + B
@@ -62,7 +62,7 @@ struct DetailedVibData : public ReactionData
  * vibration-model: multi-state-resolved
  * @endcode
  * Accepted values for `vibration-model` are `constant`,
- * `multi-state-resolved`, `starikovskiy`, and `castela`.
+ * `multi-state-resolved`, `Starikovskiy`, and `Castela`.
  *
  * The `constant` model relaxes the vibrational species with a constant rate 
  * coefficient. It could just as well be an Arrhenius rate, but the constant 
@@ -78,12 +78,12 @@ struct DetailedVibData : public ReactionData
  * 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are taken from
  * @cite zhong2023, @cite capitelli2013, and @cite starikovskiy2013.
  *
- * The `castela` model is meant to be used only for N2 vibrational relaxation,
+ * The `Castela` model is meant to be used only for N2 vibrational relaxation,
  * by collisions with N2, O2, and O exclusively. It implements the mean
  * vibrational energy relaxation model using a fictitious Cantera species and
  * is based on @cite castela2016.
  *
- * The `starikovskiy` model is an extension of the Castela model to several
+ * The `Starikovskiy` model is an extension of the Castela model to several
  * vibrational species and additional colliders. Many vibrational relaxation
  * rates can be found in Table 1 of @cite starikovskiy2013, hence the model
  * name. The rates for the vibrational relaxation of NH3 can be found in the
@@ -95,12 +95,12 @@ struct DetailedVibData : public ReactionData
  *
  * - `A` uses standard Cantera rate coefficient units. Its units depend on the
  *   reaction order and are converted by `ArrheniusBase`.
- * - `b`, `B`, `m`, `z`, and `scaling` are dimensionless.
+ * - `b`, `B`, `m`, `z` are dimensionless.
  * - `C` is interpreted as K^(1/3), assuming `T` is in K.
  * - `D` is interpreted as K^m, assuming `T` is in K.
  * - `E` is interpreted as K^z, assuming `T` is in K.
  *
- * The coefficients `B`, `C`, `D`, `E`, `m`, `z`, and `scaling` are read as
+ * The coefficients `B`, `C`, `D`, `E`, `m`, `z` are read as
  * raw floating-point values. They are not converted by Cantera's unit system.
  *
  * @ingroup arrheniusGroup
@@ -119,14 +119,13 @@ public:
      * @param C       Coefficient multiplying T^(-1/3).
      * @param D       Coefficient multiplying T^(-m).
      * @param b       Dimensionless temperature exponent.
-     * @param scaling Dimensionless scaling factor.
      * @param m       Temperature exponent used by the D term.
      * @param E       Coefficient multiplying T^(-z).
      * @param z       Temperature exponent used by the E term.
      * @since New in %Cantera 4.0
      */
     VibrationalRelaxationRate(double A, double B, double C, double D,
-                              double b, double scaling = 1.0,
+                              double b,
                               double m = 2.0 / 3.0,
                               double E = 0.0, double z = 1.0);
 
@@ -172,7 +171,7 @@ public:
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
 
-        return m_scaling * m_A * std::exp(
+        return m_A * std::exp(
             m_b * shared_data.logT
             + m_B
             + m_C * invT13
@@ -213,9 +212,6 @@ private:
     //! Coefficient multiplying T^(-m).
     double m_D = 0.0;
 
-    //! Dimensionless scaling factor.
-    double m_scaling = 1.0;
-
     //! Temperature exponent used by the D term.
     double m_m = 2.0 / 3.0;
 
@@ -239,8 +235,8 @@ private:
      * Accepted values:
      * - `constant`
      * - `multi-state-resolved`
-     * - `starikovskiy`
-     * - `castela`
+     * - `Starikovskiy`
+     * - `Castela`
      */
     string m_vibration_model = "multi-state-resolved";
 
@@ -248,7 +244,6 @@ private:
     string m_B_str = "B";
     string m_C_str = "C";
     string m_D_str = "D";
-    string m_scaling_str = "scaling";
     string m_m_str = "m";
     string m_E_str = "E";
     string m_z_str = "z";
@@ -265,7 +260,7 @@ private:
 
     //! Configure the ArrheniusBase part from a YAML A value and an explicit b.
     /**
-     * This is needed for models such as `constant` and `starikovskiy`,
+     * This is needed for models such as `constant` and `Starikovskiy`,
      * where the YAML does not contain the standard Arrhenius pair A / b.
      * @since New in %Cantera 4.0
      */
@@ -274,7 +269,7 @@ private:
 
     //! Sets parameters
     void setGenericParameters(double B, double C, double D, double m,
-                          double E, double z, double scaling);
+                          double E, double z);
     
     //! Sub-function of setParameters relative to the 'constant' model
     void setConstantParameters(const AnyMap& node, const AnyMap& rateMap,
@@ -284,11 +279,11 @@ private:
     void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap,
                                 const UnitStack& rate_units);
 
-    //! Sub-function of setParameters relative to the 'starikovskiy' model
+    //! Sub-function of setParameters relative to the 'Starikovskiy' model
     void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap,
                                 const UnitStack& rate_units);
 
-    //! Sub-function of setParameters relative to the 'castela' model
+    //! Sub-function of setParameters relative to the 'Castela' model
     void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap,
                             const UnitStack& rate_units);
 
@@ -300,10 +295,10 @@ private:
     //! Sub-function of getParameters relative to the 'multi-state-resolved' model
     void getMultiStateParameters(AnyMap& rateNode) const;
 
-    //! Sub-function of getParameters relative to the 'starikovskiy' model
+    //! Sub-function of getParameters relative to the 'Starikovskiy' model
     void getStarikovskiyParameters(AnyMap& rateNode) const;
 
-    //! Sub-function of getParameters relative to the 'castela' model
+    //! Sub-function of getParameters relative to the 'Castela' model
     void getCastelaParameters(AnyMap& node, AnyMap& rateNode) const;
 };
 
