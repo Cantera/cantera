@@ -430,12 +430,11 @@ VibrationalRelaxationRate::VibrationalRelaxationRate()
 // Constructor
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     double A, double B, double C, double D,
-    double b, double scaling, double m, double E, double z)
+    double b, double m, double E, double z)
     : ArrheniusBase(A, b, 0.0)
     , m_B(B)
     , m_C(C)
     , m_D(D)
-    , m_scaling(scaling)
     , m_m(m)
     , m_E(E)
     , m_z(z)
@@ -548,10 +547,10 @@ void VibrationalRelaxationRate::setConstantParameters(
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
         {m_b_str, "n", m_B_str, m_C_str, m_D_str, m_m_str,
-         m_E_str, m_z_str, m_scaling_str});
+         m_E_str, m_z_str});
 
     configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
-    setGenericParameters(0.0, 0.0, 0.0, 2.0 / 3.0, 0.0, 1.0, 1.0);
+    setGenericParameters(0.0, 0.0, 0.0, 2.0 / 3.0, 0.0, 1.0);
 }
 
 void VibrationalRelaxationRate::setMultiStateParameters(
@@ -559,7 +558,7 @@ void VibrationalRelaxationRate::setMultiStateParameters(
 {
     // Detailed VV/VT model:
     //
-    //   k(T) = scaling * A * exp(
+    //   k(T) = A * exp(
     //       b * log(T)
     //       + B
     //       + C * T^(-1/3)
@@ -578,8 +577,7 @@ void VibrationalRelaxationRate::setMultiStateParameters(
         rateMap.getDouble(m_D_str, 0.0),
         2.0 / 3.0,
         0.0,
-        1.0,
-        rateMap.getDouble(m_scaling_str, 1.0));
+        1.0);
 }
 
 void VibrationalRelaxationRate::setStarikovskiyParameters(
@@ -598,7 +596,7 @@ void VibrationalRelaxationRate::setStarikovskiyParameters(
     requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
-        {m_b_str, m_scaling_str});
+        {m_b_str});
 
     const double m = rateMap.getDouble("m", 1.0);
     const double z = rateMap.getDouble("z", 1.0);
@@ -617,8 +615,7 @@ void VibrationalRelaxationRate::setStarikovskiyParameters(
         rateMap.getDouble("C", 0.0),
         m,
         rateMap.getDouble("D", 0.0),
-        z,
-        1.0);
+        z);
 }
 
 void VibrationalRelaxationRate::setCastelaParameters(
@@ -644,12 +641,11 @@ void VibrationalRelaxationRate::setCastelaParameters(
     //   C = -a_k
     //   D = 0
     //   E = 0
-    //   scaling = 1
     requireKeys(rateMap, m_vibration_model, WhereSetParameters, {"a", "b"});
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
         {m_A_str, "n", "K", m_B_str, m_C_str, m_D_str, m_m_str,
-         m_E_str, m_z_str, m_scaling_str});
+         m_E_str, m_z_str});
 
     m_castela_a = rateMap["a"].asDouble();
     m_castela_b = rateMap["b"].asDouble();
@@ -674,7 +670,6 @@ void VibrationalRelaxationRate::setCastelaParameters(
         0.0,
         2.0 / 3.0,
         0.0,
-        1.0,
         1.0);
 }
 
@@ -736,7 +731,7 @@ void VibrationalRelaxationRate::getConstantParameters(
             "parameters contain temperature-dependent terms.");
     }
 
-    storePreExponentialFactor(rateNode, m_scaling * m_A);
+    storePreExponentialFactor(rateNode, m_A);
 }
 
 void VibrationalRelaxationRate::getMultiStateParameters(
@@ -748,7 +743,6 @@ void VibrationalRelaxationRate::getMultiStateParameters(
     rateNode[m_B_str] = m_B;
     rateNode[m_C_str] = m_C;
     rateNode[m_D_str] = m_D;
-    rateNode[m_scaling_str] = m_scaling;
 }
 
 void VibrationalRelaxationRate::getStarikovskiyParameters(
@@ -770,13 +764,12 @@ void VibrationalRelaxationRate::getCastelaParameters(
 {
     if (std::abs(m_b - 1.0) > VibTolerance
         || std::abs(m_D) > VibTolerance
-        || std::abs(m_E) > VibTolerance
-        || std::abs(m_scaling - 1.0) > VibTolerance)
+        || std::abs(m_E) > VibTolerance)
     {
         throw InputFileError(WhereGetParameters, node,
             "Cannot serialize this rate as 'Castela': the internal "
             "parameters are not consistent with the Castela form. "
-            "Expected b = 1, D = 0, E = 0, and scaling = 1.");
+            "Expected b = 1, D = 0, E = 0.");
     }
 
     if (m_referencePressure <= 0.0) {
@@ -832,7 +825,7 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 }
 
 void VibrationalRelaxationRate::setGenericParameters(
-    double B, double C, double D, double m, double E, double z, double scaling)
+    double B, double C, double D, double m, double E, double z)
 {
     m_B = B;
     m_C = C;
@@ -840,7 +833,6 @@ void VibrationalRelaxationRate::setGenericParameters(
     m_m = m;
     m_E = E;
     m_z = z;
-    m_scaling = scaling;
 }
 
 } // namespace Cantera

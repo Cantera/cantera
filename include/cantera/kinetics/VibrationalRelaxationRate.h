@@ -41,7 +41,7 @@ struct DetailedVibData : public ReactionData
  * Internally, all models are mapped to the following generic expression:
  * @f[
  * k_f =
- * scaling \, A \,
+ * A \,
  * \exp \left(
  *     b \ln T
  *     + B
@@ -95,12 +95,12 @@ struct DetailedVibData : public ReactionData
  *
  * - `A` uses standard Cantera rate coefficient units. Its units depend on the
  *   reaction order and are converted by `ArrheniusBase`.
- * - `b`, `B`, `m`, `z`, and `scaling` are dimensionless.
+ * - `b`, `B`, `m`, `z` are dimensionless.
  * - `C` is interpreted as K^(1/3), assuming `T` is in K.
  * - `D` is interpreted as K^m, assuming `T` is in K.
  * - `E` is interpreted as K^z, assuming `T` is in K.
  *
- * The coefficients `B`, `C`, `D`, `E`, `m`, `z`, and `scaling` are read as
+ * The coefficients `B`, `C`, `D`, `E`, `m`, `z` are read as
  * raw floating-point values. They are not converted by Cantera's unit system.
  *
  * @ingroup arrheniusGroup
@@ -119,14 +119,13 @@ public:
      * @param C       Coefficient multiplying T^(-1/3).
      * @param D       Coefficient multiplying T^(-m).
      * @param b       Dimensionless temperature exponent.
-     * @param scaling Dimensionless scaling factor.
      * @param m       Temperature exponent used by the D term.
      * @param E       Coefficient multiplying T^(-z).
      * @param z       Temperature exponent used by the E term.
      * @since New in %Cantera 4.0
      */
     VibrationalRelaxationRate(double A, double B, double C, double D,
-                              double b, double scaling = 1.0,
+                              double b,
                               double m = 2.0 / 3.0,
                               double E = 0.0, double z = 1.0);
 
@@ -172,7 +171,7 @@ public:
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
 
-        return m_scaling * m_A * std::exp(
+        return m_A * std::exp(
             m_b * shared_data.logT
             + m_B
             + m_C * invT13
@@ -213,9 +212,6 @@ private:
     //! Coefficient multiplying T^(-m).
     double m_D = 0.0;
 
-    //! Dimensionless scaling factor.
-    double m_scaling = 1.0;
-
     //! Temperature exponent used by the D term.
     double m_m = 2.0 / 3.0;
 
@@ -248,7 +244,6 @@ private:
     string m_B_str = "B";
     string m_C_str = "C";
     string m_D_str = "D";
-    string m_scaling_str = "scaling";
     string m_m_str = "m";
     string m_E_str = "E";
     string m_z_str = "z";
@@ -274,7 +269,7 @@ private:
 
     //! Sets parameters
     void setGenericParameters(double B, double C, double D, double m,
-                          double E, double z, double scaling);
+                          double E, double z);
     
     //! Sub-function of setParameters relative to the 'constant' model
     void setConstantParameters(const AnyMap& node, const AnyMap& rateMap,

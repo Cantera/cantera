@@ -346,7 +346,7 @@ Example:
 The `multi-state-resolved` vibrational relaxation rate expression is
 
 $$
-k_f = \mathrm{scaling} , A T^b
+k_f = A T^b
 \exp \left(B + C T^{-1/3} + D T^{-2/3}\right)
 $$
 
@@ -372,10 +372,6 @@ $T$ is in K. Defaults to 0.0.
 : Coefficient multiplying $T^{-2/3}$. This value is interpreted assuming that
 $T$ is in K. Defaults to 0.0.
 
-`scaling`
-: Dimensionless multiplicative scaling factor applied to the rate coefficient.
-Defaults to 1.0.
-
 This model is intended for detailed V-T and V-V relaxation reactions involving
 vibrationally resolved species. All vibrational species in the reaction must belong
 to the same vibrational family.
@@ -392,7 +388,6 @@ Example:
     B: -34.03
     C: 33.11
     D: 0.0
-    scaling: 2.0
 ```
 
 (subsec-vibrational-relaxation-castela-rate)=
