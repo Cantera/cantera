@@ -516,7 +516,7 @@ jobs:
           pip install ruamel.yaml scons numpy cython 'sphinx>=7.3.7,<7.4' sphinx-gallery \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             'pydata-sphinx-theme>=0.15.3,<0.16' 'sphinx-argparse<0.6' sphinx_design myst-nb \
-            sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
+            sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz pytest
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
         run: scons build -j4 debug=n optimize=y use_pch=n
@@ -545,6 +545,10 @@ jobs:
           name: docs
           retention-days: 14
         if: failure() || success()
+      - name: Run documentation consistency checks
+        # Runs after the docs artifact is uploaded so a failure here still
+        # leaves the built docs available for inspection, but blocks deployment.
+        run: scons test-doc
       - name: Determine whether to deploy
         id: deploy-conf
         if: github.event_name == 'push' && github.repository_owner == 'Cantera'
