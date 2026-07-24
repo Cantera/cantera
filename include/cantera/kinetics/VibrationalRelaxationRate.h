@@ -59,12 +59,13 @@ struct DetailedVibData : public ReactionData
  *
  * The `multi-state-resolved` model fully resolves vibrational relaxation by
  * taking into account all vibrational species in the phase, for example
- * `N2(v=1-8)`, and solves for their V-T and V-V relaxation. The scaling of the
- * rates is based on the SSH theory detailed in Chapter 7 of
- * @cite capitelli2000. The simplified SSH theory implemented here is based on
- * the harmonic oscillator approximation and can be found in equations 18 and
- * 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are taken from
- * @cite zhong2023, @cite capitelli2000, and @cite starikovskiy2013.
+ * `N2(v=1-8)`, and solves for their vibrational-translational (V-T) and 
+ * vibrational-vibrational (V-V) relaxation. The scaling of the
+ * rates is based on the Schwartz–Slawsky–Herzfeld (SSH) theory detailed 
+ * in Chapter 7 of @cite capitelli2000. The simplified SSH theory implemented 
+ * here is based on the harmonic oscillator approximation and can be found in 
+ * equations 18 and 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are 
+ * taken from @cite zhong2023, @cite capitelli2000, and @cite starikovskiy2013.
  *
  * The `Castela` model is meant to be used only for N2 vibrational relaxation,
  * by collisions with N2, O2, and O exclusively. It implements the mean
