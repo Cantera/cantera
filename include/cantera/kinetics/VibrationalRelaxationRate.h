@@ -15,7 +15,7 @@
 namespace Cantera
 {
 //! Shared temperature data for vibrational relaxation rates.
-struct DetailedVibData : public ReactionData
+struct VibrationalRelaxationData : public ReactionData
 {
     //! Update cached temperature-dependent data.
     /**
@@ -135,7 +135,7 @@ public:
     //! Create a rate evaluator for this reaction rate type.
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<VibrationalRelaxationRate,
-                                     DetailedVibData>>();
+                                     VibrationalRelaxationData>>();
     }
 
     //! String identifying this reaction rate type.
@@ -153,7 +153,7 @@ public:
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate the forward rate coefficient.
-    double evalFromStruct(const DetailedVibData& shared_data) const {
+    double evalFromStruct(const VibrationalRelaxationData& shared_data) const {
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
 
@@ -185,7 +185,7 @@ public:
      * - z E T^{-z-1}
      * @f]
      */
-    double ddTScaledFromStruct(const DetailedVibData& shared_data) const;
+    double ddTScaledFromStruct(const VibrationalRelaxationData& shared_data) const;
 
 private:
     //! Dimensionless constant in the exponential.
