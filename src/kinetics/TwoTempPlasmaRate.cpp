@@ -51,27 +51,19 @@ TwoTempPlasmaRate::TwoTempPlasmaRate()
     m_E4_str = "Ea-electron";
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
+TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg, double Tinv)
     : ArrheniusBase(A, b, Ea)
 {
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
     m_E4_R = EE / GasConstant;
-    m_bg = 0.0;
-    m_Tinv = 0.0;
-}
-
-TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg)
-    : TwoTempPlasmaRate(A, b, Ea, EE, bg, 0.0)
-{
-}
-
-TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE,
-                                     double bg, double Tinv)
-    : TwoTempPlasmaRate(A, b, Ea, EE)
-{
     m_bg = bg;
-    m_Tinv = Tinv;
+    if (Tinv != 0){
+        m_Tinv = Tinv;
+    } else{
+        m_Tinv = 0.0;
+    }
+    
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)

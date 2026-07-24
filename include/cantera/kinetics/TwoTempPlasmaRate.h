@@ -73,37 +73,13 @@ public:
      *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
      *      depend on the reaction order and the dimensionality (surface or bulk).
      *  @param b   Electron temperature exponent (non-dimensional).
-     *  @param Ea  Activation energy in energy units [J/kmol].
-     *  @param EE  Activation electron energy in energy units [J/kmol].
-     *  @param bg  Gas temperature exponent (non-dimensional). If not specified, defaults to 0. 
-     *  @since New in %Cantera 4.0
-     */
-    TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg);
-
-    //! Constructor.
-    /*!
-     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
-     *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b   Electron temperature exponent (non-dimensional).
      *  @param Ea  Activation energy in energy units [J/kmol]. Defaults to 0.
      *  @param EE  Activation electron energy in energy units [J/kmol]. Defaults to 0.
+     *  @param bg  Optional. Gas temperature exponent (non-dimensional). Defaults to 0.
+     *  @param Tinv Optional. Temperature scale for the term @f$ \exp(-T/T_\mathrm{inv}) @f$ [K].
+     *              If zero, this term is omitted. Defaults to 0.
      */
-    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
-
-    //! Constructor in the cases where T_inv is necessary.
-    /*!
-     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
-     *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b  Electron temperature exponent (non-dimensional).
-     *  @param Ea  Activation energy in energy units [J/kmol].
-     *  @param EE  Activation electron energy in energy units [J/kmol]. Defaults to 0.
-     *  @param bg  Gas temperature exponent (non-dimensional). Defaults to 0.
-     *  @param Tinv  Temperature scale for the term @f$ \exp(-T/T_\mathrm{inv}) @f$ [K].
-     *      If zero, this term is omitted. Defaults to 0.
-     *  @since New in %Cantera 4.0
-     */
-    TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg,
-                      double Tinv);
+    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0, double bg = 0.0, double Tinv = 0.0);
 
     //! Constructor based on an AnyMap object instead of all parameters directly.
     TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={});
