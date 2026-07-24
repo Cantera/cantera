@@ -9,12 +9,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/global.h"
 
-#include <cmath>
-#include <map>
-#include <set>
 #include <sstream>
 #include <utility>
-#include <vector>
 
 namespace Cantera
 {

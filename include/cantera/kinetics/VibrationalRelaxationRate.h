@@ -10,8 +10,6 @@
 
 #include "Arrhenius.h"
 
-#include <cmath>
-
 namespace Cantera
 {
 //! Shared temperature data for vibrational relaxation rates.
