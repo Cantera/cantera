@@ -410,6 +410,12 @@ void validateDetailedRelaxationReaction(const Reaction& rxn)
 
 } // end of namespace where all the helpers and safety functions are defined.
 
+void VibrationalRelaxationData::update(double T)
+{
+    ReactionData::update(T);
+    recipT13 = std::cbrt(recipT);
+}
+
 bool VibrationalRelaxationData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     const double T = phase.temperature();
@@ -418,7 +424,7 @@ bool VibrationalRelaxationData::update(const ThermoPhase& phase, const Kinetics&
         return false;
     }
 
-    ReactionData::update(T);
+    update(T);
     return true;
 }
 
@@ -786,13 +792,11 @@ void VibrationalRelaxationRate::getCastelaParameters(
 double VibrationalRelaxationRate::ddTScaledFromStruct(
     const VibrationalRelaxationData& shared_data) const
 {
-    const double invT = shared_data.recipT;
-    const double invT13 = std::cbrt(invT);
 
-    return m_b * invT
-           - (m_C / 3.0) * invT13 * invT
-           - m_m * m_D * std::pow(invT, m_m) * invT
-           - m_z * m_E * std::pow(invT, m_z) * invT;
+    return m_b * shared_data.recipT
+           - (m_C / 3.0) * shared_data.recipT13 * shared_data.recipT
+           - m_m * m_D * std::pow(shared_data.recipT, m_m) * shared_data.recipT
+           - m_z * m_E * std::pow(shared_data.recipT, m_z) * shared_data.recipT;
 }
 
 void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& kin)

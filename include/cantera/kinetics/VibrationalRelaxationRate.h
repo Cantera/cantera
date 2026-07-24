@@ -17,6 +17,9 @@ namespace Cantera
 //! Shared temperature data for vibrational relaxation rates.
 struct VibrationalRelaxationData : public ReactionData
 {
+    //! Update cached temperature-dependent data directly from temperature.
+    void update(double T) override;
+
     //! Update cached temperature-dependent data.
     /**
      * @param phase Thermodynamic phase used to retrieve the gas temperature.
@@ -28,6 +31,8 @@ struct VibrationalRelaxationData : public ReactionData
     bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
+
+    double recipT13 = 1.0; //!< @f$T^(-1/3)@f$
 };
 
 //! Vibrational relaxation reaction rate class definition.
@@ -152,15 +157,13 @@ public:
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     double evalFromStruct(const VibrationalRelaxationData& shared_data) const {
-        const double invT = shared_data.recipT;
-        const double invT13 = std::cbrt(invT);
-
+        
         return m_A * std::exp(
             m_b * shared_data.logT
             + m_B
-            + m_C * invT13
-            + m_D * std::pow(invT, m_m)
-            + m_E * std::pow(invT, m_z)
+            + m_C * shared_data.recipT13
+            + m_D * std::pow(shared_data.recipT, m_m)
+            + m_E * std::pow(shared_data.recipT, m_z)
         );
     }
 
