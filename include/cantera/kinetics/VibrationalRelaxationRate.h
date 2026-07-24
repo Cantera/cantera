@@ -107,11 +107,11 @@ public:
     /**
      * @param A       Pre-exponential factor.
      * @param B       Dimensionless constant in the exponential.
-     * @param C       Coefficient multiplying T^(-1/3).
-     * @param D       Coefficient multiplying T^(-m).
+     * @param C       Coefficient multiplying @f$ T^{-1/3} @f$.
+     * @param D       Coefficient multiplying @f$ T^{-m} @f$.
      * @param b       Dimensionless temperature exponent.
      * @param m       Temperature exponent used by the D term.
-     * @param E       Coefficient multiplying T^(-z).
+     * @param E       Coefficient multiplying @f$ T^{-z} @f$.
      * @param z       Temperature exponent used by the E term.
      */
     VibrationalRelaxationRate(double A, double B, double C, double D,
@@ -188,16 +188,16 @@ private:
     //! Dimensionless constant in the exponential.
     double m_B = 0.0;
 
-    //! Coefficient multiplying T^(-1/3).
+    //! Coefficient multiplying @f$ T^{-1/3} @f$.
     double m_C = 0.0;
 
-    //! Coefficient multiplying T^(-m).
+    //! Coefficient multiplying @f$ T^{-m} @f$.
     double m_D = 0.0;
 
     //! Temperature exponent used by the D term.
     double m_m = 2.0 / 3.0;
 
-    //! Coefficient multiplying T^(-z).
+    //! Coefficient multiplying @f$ T^{-z} @f$.
     double m_E = 0.0;
 
     //! Temperature exponent used by the E term.
