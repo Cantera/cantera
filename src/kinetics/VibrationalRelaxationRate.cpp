@@ -552,8 +552,8 @@ void VibrationalRelaxationRate::setConstantParameters(
     requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
-        {m_b_str, "n", m_B_str, m_C_str, m_D_str, m_m_str,
-         m_E_str, m_z_str});
+        {m_b_str, "n", "B", "C", "D", "m",
+         "E", "z"});
 
     configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
     setGenericParameters(0.0, 0.0, 0.0, 2.0 / 3.0, 0.0, 1.0);
@@ -573,14 +573,14 @@ void VibrationalRelaxationRate::setMultiStateParameters(
     requireKeys(rateMap, m_vibration_model, WhereSetParameters, {m_A_str});
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
-        {"n", m_m_str, m_E_str, m_z_str});
+        {"n", "m", "E", "z"});
 
     ArrheniusBase::setParameters(node, rate_units);
 
     setGenericParameters(
-        rateMap.getDouble(m_B_str, 0.0),
-        rateMap.getDouble(m_C_str, 0.0),
-        rateMap.getDouble(m_D_str, 0.0),
+        rateMap.getDouble("B", 0.0),
+        rateMap.getDouble("C", 0.0),
+        rateMap.getDouble("D", 0.0),
         2.0 / 3.0,
         0.0,
         1.0);
@@ -650,14 +650,14 @@ void VibrationalRelaxationRate::setCastelaParameters(
     requireKeys(rateMap, m_vibration_model, WhereSetParameters, {"a", "b"});
 
     forbidKeys(rateMap, m_vibration_model, WhereSetParameters,
-        {m_A_str, "n", "K", m_B_str, m_C_str, m_D_str, m_m_str,
-         m_E_str, m_z_str});
+        {m_A_str, "n", "K", "B", "C", "D", "m",
+         "E", "z"});
 
     m_castela_a = rateMap["a"].asDouble();
     m_castela_b = rateMap["b"].asDouble();
 
-    if (rateMap.hasKey(m_reference_pressure_str)) {
-        m_referencePressure = rateMap.convert(m_reference_pressure_str, "Pa");
+    if (rateMap.hasKey("reference-pressure")) {
+        m_referencePressure = rateMap.convert("reference-pressure", "Pa");
     } else {
         m_referencePressure = OneAtm;
     }
@@ -746,9 +746,9 @@ void VibrationalRelaxationRate::getMultiStateParameters(
     storePreExponentialFactor(rateNode, m_A);
 
     rateNode[m_b_str] = m_b;
-    rateNode[m_B_str] = m_B;
-    rateNode[m_C_str] = m_C;
-    rateNode[m_D_str] = m_D;
+    rateNode["B"] = m_B;
+    rateNode["C"] = m_C;
+    rateNode["D"] = m_D;
 }
 
 void VibrationalRelaxationRate::getStarikovskiyParameters(
@@ -786,7 +786,7 @@ void VibrationalRelaxationRate::getCastelaParameters(
 
     rateNode["a"] = m_castela_a;
     rateNode["b"] = m_castela_b;
-    rateNode[m_reference_pressure_str].setQuantity(m_referencePressure, "Pa");
+    rateNode["reference-pressure"].setQuantity(m_referencePressure, "Pa");
 }
 
 double VibrationalRelaxationRate::ddTScaledFromStruct(

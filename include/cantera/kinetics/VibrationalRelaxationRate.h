@@ -157,7 +157,7 @@ public:
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     double evalFromStruct(const VibrationalRelaxationData& shared_data) const {
-        
+
         return m_A * std::exp(
             m_b * shared_data.logT
             + m_B
@@ -224,15 +224,6 @@ private:
      * - `Castela`
      */
     string m_vibration_model = "multi-state-resolved";
-
-    //! YAML variable names.
-    string m_B_str = "B";
-    string m_C_str = "C";
-    string m_D_str = "D";
-    string m_m_str = "m";
-    string m_E_str = "E";
-    string m_z_str = "z";
-    string m_reference_pressure_str = "reference-pressure";
 
     //! Configure the ArrheniusBase part from an already-converted internal A value.
     /**
