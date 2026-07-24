@@ -96,7 +96,6 @@ struct DetailedVibData : public ReactionData
  * (../YAML/reactions.html#sec-yaml-vibrational-relaxation).
  *
  * @ingroup arrheniusGroup
- * @since New in %Cantera 4.0
  */
 class VibrationalRelaxationRate : public ArrheniusBase
 {
@@ -114,7 +113,6 @@ public:
      * @param m       Temperature exponent used by the D term.
      * @param E       Coefficient multiplying T^(-z).
      * @param z       Temperature exponent used by the E term.
-     * @since New in %Cantera 4.0
      */
     VibrationalRelaxationRate(double A, double B, double C, double D,
                               double b,
@@ -122,27 +120,22 @@ public:
                               double E = 0.0, double z = 1.0);
 
     //! Constructor based on AnyMap content.
-    //! @since New in %Cantera 4.0
     explicit VibrationalRelaxationRate(const AnyMap& node,
                                        const UnitStack& rate_units = {});
 
     //! Set rate parameters from an AnyMap.
-    //! @since New in %Cantera 4.0
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Get rate parameters for YAML serialization.
-    //! @since New in %Cantera 4.0
     void getParameters(AnyMap& node) const override;
 
     //! Create a rate evaluator for this reaction rate type.
-    //! @since New in %Cantera 4.0
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<VibrationalRelaxationRate,
                                      DetailedVibData>>();
     }
 
     //! String identifying this reaction rate type.
-    //! @since New in %Cantera 4.0
     const string type() const override {
         return "vibrational-relaxation";
     }
@@ -154,11 +147,9 @@ public:
      * because the reverse rate cannot be obtained from conventional
      * thermochemistry for these models.
      */
-    //! @since New in %Cantera 4.0
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate the forward rate coefficient.
-    //! @since New in %Cantera 4.0
     double evalFromStruct(const DetailedVibData& shared_data) const {
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
@@ -191,7 +182,6 @@ public:
      * - z E T^{-z-1}
      * @f]
      */
-    //! @since New in %Cantera 4.0
     double ddTScaledFromStruct(const DetailedVibData& shared_data) const;
 
 private:
@@ -245,7 +235,6 @@ private:
     /**
      * This is needed for models such as Castela, where the user-facing YAML does
      * not contain a standard Arrhenius A coefficient.
-     * @since New in %Cantera 4.0
      */
     void configureBaseFromInternalA(const AnyMap& node, const UnitStack& rate_units,
                                     double A, double b);
@@ -254,7 +243,6 @@ private:
     /**
      * This is needed for models such as `constant` and `Starikovskiy`,
      * where the YAML does not contain the standard Arrhenius pair A / b.
-     * @since New in %Cantera 4.0
      */
     void configureBaseFromYamlA(const AnyMap& node, const UnitStack& rate_units,
                                 const AnyValue& A, double b);
