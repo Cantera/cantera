@@ -80,14 +80,14 @@ struct VibrationalRelaxationData : public ReactionData
  * hence the model's name. The rates for the vibrational relaxation of NH₃ can be 
  * found in the reaction mechanism provided in the supplementary material of
  * Zhong et al. @cite zhong2023. More rates for the vibrational relaxation of
- * CH₄ @f$ can be found in Popov @cite popov2016.
+ * CH₄ can be found in Popov @cite popov2016.
  *
  * Unit conventions:
  *
  * - `A` uses standard Cantera rate coefficient units. Its units depend on the
  *   reaction order and are converted by `ArrheniusBase`.
  * - `b`, `B`, `m`, `z` are dimensionless.
- * - `C` is interpreted as @f$ K^{-1/3} @f$, assuming `T` is in K.
+ * - `C` is interpreted as @f$ K^{1/3} @f$, assuming `T` is in K.
  * - `D` is interpreted as @f$ K^{m} @f$, assuming `T` is in K.
  * - `E` is interpreted as @f$ K^{z} @f$, assuming `T` is in K.
  *
