@@ -19,6 +19,10 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
 #include "cantera/kinetics/VibrationalRelaxationRate.h"
+#include "cantera/kinetics/ConstantVibrationalRelaxationRate.h"
+#include "cantera/kinetics/MultiStateResolvedVibrationalRelaxationRate.h"
+#include "cantera/kinetics/StarikovskiyVibrationalRelaxationRate.h"
+#include "cantera/kinetics/CastelaVibrationalRelaxationRate.h"
 
 namespace Cantera
 {
@@ -41,9 +45,24 @@ ReactionRateFactory::ReactionRateFactory()
         return new TwoTempPlasmaRate(node, rate_units);
     });
 
-    // VibrationalRelaxationRate evaluator
-    reg("vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new VibrationalRelaxationRate(node, rate_units);
+    // Constant vibrational relaxation
+    reg("constant-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ConstantVibrationalRelaxationRate(node, rate_units);
+    });
+
+    // Multi-state-resolved vibrational relaxation rate
+    reg("multi-state-resolved-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new MultiStateResolvedVibrationalRelaxationRate(node, rate_units);
+    });
+
+    // Starikovskiy vibrational relaxation rate
+    reg("Starikovskiy-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new StarikovskiyVibrationalRelaxationRate(node, rate_units);
+    });
+
+    // Castela vibrational relaxation rate
+    reg("Castela-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new CastelaVibrationalRelaxationRate(node, rate_units);
     });
 
     // ElectronCollisionPlasmaRate evaluator

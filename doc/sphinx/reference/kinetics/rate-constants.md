@@ -476,6 +476,157 @@ Two-temperature plasma reactions can be defined in the YAML format by specifying
 providing the two activation energies as part of the `rate-constant`.
 :::
 
+(sec-vibrational-relaxation-rate)=
+## Vibrational Relaxation Rates
+
+Vibrationally excited species play an important role in energy transfer and
+gas heating in non-equilibrium plasmas. Cantera provides several rate
+parameterizations for modeling vibrational-translational (V-T) and
+vibrational-vibrational (V-V) relaxation processes of vibrationally
+excited species. These species would be generated via electron
+collision plasma reactions (see [](sec-electron-collision-plasma-rate)).
+
+Four vibrational relaxation rate parameterizations are available:
+
+- [](sec-constant-vibrational-relaxation-rate)
+- [](sec-multi-state-resolved-vibrational-relaxation-rate)
+- [](sec-castela-vibrational-relaxation-rate)
+- [](sec-starikovskiy-vibrational-relaxation-rate)
+
+Vibrational relaxation reactions are currently implemented as irreversible, 
+since a reverse rate cannot in general be obtained from conventional equilibrium 
+thermochemistry for these non-equilibrium models.
+
+(sec-constant-vibrational-relaxation-rate)=
+### Constant Vibrational Relaxation Rate
+
+The constant vibrational relaxation parameterization represents a
+constant relaxation rate coefficient,
+
+$$
+k_f = A.
+$$
+
+This parameterization can be used when a constant relaxation rate is
+a good approximation, or to carry out some tests / sensitivity analysis.
+
+:::{admonition} YAML Usage
+:class: tip
+Constant vibrational relaxation rates can be defined using the
+[`constant-vibrational-relaxation`](sec-yaml-constant-vibrational-relaxation)
+reaction `type`.
+:::
+
+(sec-multi-state-resolved-vibrational-relaxation-rate)=
+### Multi-State-Resolved Vibrational Relaxation Rate
+
+The multi-state-resolved parameterization is intended for mechanisms where
+individual vibrational levels are represented explicitly as separate species.
+It can therefore be used to describe both vibrational-translational (V-T) and
+vibrational-vibrational (V-V) energy transfer between resolved vibrational
+states.
+
+The rate coefficient is expressed as
+
+$$
+k_f = A T^b \exp\left(B + C T^{-1/3} + D T^{-2/3}\right),
+$$
+
+where $T$ is the gas temperature.
+
+The scaling of vibrational relaxation rates is based on the
+Schwartz-Slawsky-Herzfeld (SSH) theory described by {cite:t}`capitelli2000`.
+The simplified SSH treatment used for the vibrational-state scaling is based
+on the harmonic-oscillator approximation described by {cite:t}`guerra2019`.
+
+Reference rates for fundamental vibrational transitions can be obtained from,
+among others, {cite:t}`zhong2023`, {cite:t}`capitelli2000`, and
+{cite:t}`starikovskiy2013`.
+
+:::{admonition} YAML Usage
+:class: tip
+Multi-state-resolved vibrational relaxation rates can be defined using the
+[`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
+reaction `type`.
+:::
+
+(sec-castela-vibrational-relaxation-rate)=
+### Castela Vibrational Relaxation Rate
+
+The Castela parameterization implements the mean vibrational energy relaxation
+model described by {cite:t}`castela2016`. Instead of resolving individual
+vibrational states, the vibrational energy of N2 is represented using a
+fictitious vibrational species such as `N2(v)`.
+
+For collision partner $k$, the relaxation time is written as
+
+$$
+\tau_k = \frac{p_0}{p_k} \exp\left[a_k \left(T^{-1/3} - b_k\right) - 18.42\right],
+$$
+
+where $p_k$ is the partial pressure of the collision partner and $p_0$ is the
+reference pressure.
+
+For implementation as a bimolecular reaction rate in Cantera (assuming first order chemistry),
+this expression is converted to
+
+$$
+k_k(T) = \frac{RT}{p_0} \exp\left[18.42 + a_k b_k - a_k T^{-1/3}\right].
+$$
+
+The Castela model described by {cite:t}`castela2016` is intended for N2
+vibrational relaxation by collisions with N2, O2, and O.
+
+:::{admonition} YAML Usage
+:class: tip
+Castela vibrational relaxation rates can be defined using the
+[`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
+reaction `type`.
+:::
+
+(sec-starikovskiy-vibrational-relaxation-rate)=
+### Starikovskiy Vibrational Relaxation Rate
+
+The Starikovskiy parameterization extends mean-vibrational-energy relaxation
+models to additional molecular species and collision partners. It is suitable
+for mechanisms where the vibrational energy of a molecule is represented by a
+lumped fictitious species such as `N2(v)`, `O2(v)`, or `NH3(v)`, rather than by
+a set of individually resolved vibrational states.
+
+The rate coefficient is expressed as
+
+$$
+k_f = A T^n \exp\left(K + B T^{-1/3} + C T^{-m} + D T^{-z}\right),
+$$
+
+where $T$ is the gas temperature.
+
+A collection of vibrational relaxation rates is given by
+{cite:t}`starikovskiy2013`. Parameters for NH3 vibrational relaxation are also
+available from {cite:t}`zhong2023` (in the supplemetary materials), while CH4 
+vibrational relaxation rates are discussed by {cite:t}`popov2016`.
+
+:::{admonition} YAML Usage
+:class: tip
+Starikovskiy vibrational relaxation rates can be defined using the
+[`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
+reaction `type`.
+:::
+
+:::{caution}
+Cantera does not determine whether different vibrational relaxation
+parameterizations used in the same mechanism are physically compatible.
+
+In particular, care should be taken when combining a mean-vibrational-energy
+description, where the vibrational manifold is represented by a lumped species
+such as `N2(v)`, with a state-resolved description of the same molecule.
+The choice of vibrational relaxation model and the consistency between the
+different representations are the responsibility of the mechanism author.
+:::
+
+```{versionadded} 4.0
+```
+
 (sec-electron-collision-plasma-rate)=
 ## Electron Collision Plasma Reactions
 

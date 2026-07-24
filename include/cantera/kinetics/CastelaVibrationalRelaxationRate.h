@@ -1,0 +1,74 @@
+//! @file CastelaVibrationalRelaxationRate.h
+//! Castela vibrational relaxation reaction rate.
+//! @since New in %Cantera 4.0
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
+#ifndef CT_CASTELAVIBRATIONALRELAXATIONRATE_H
+#define CT_CASTELAVIBRATIONALRELAXATIONRATE_H
+
+#include "cantera/kinetics/MultiRate.h"
+#include "cantera/kinetics/VibrationalRelaxationRate.h"
+
+namespace Cantera
+{
+
+//! Castela vibrational relaxation rate implementation.
+/**
+ * Maps the Castela coefficients onto the common internal representation using
+ *
+ * @f[
+ * A = R/p_0,\qquad
+ * b = 1,\qquad
+ * B = 18.42 + a_k b_k,\qquad
+ * C = -a_k.
+ * @f]
+ *
+ * The remaining temperature-dependent coefficients are zero.
+ * 
+ * @ingroup otherRateGroup
+ */
+class CastelaVibrationalRelaxationRate final
+    : public VibrationalRelaxationRate
+{
+public:
+    CastelaVibrationalRelaxationRate() = default;
+
+    CastelaVibrationalRelaxationRate(double a, double b,
+        double referencePressure = OneAtm);
+
+    explicit CastelaVibrationalRelaxationRate(
+        const AnyMap& node, const UnitStack& rate_units = {});
+
+    void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
+
+    void getParameters(AnyMap& node) const override;
+
+    unique_ptr<MultiRateBase> newMultiRate() const override
+    {
+        return make_unique<
+            MultiRate<CastelaVibrationalRelaxationRate,
+                      VibrationalRelaxationData>>();
+    }
+
+    const string type() const override
+    {
+        return "Castela-vibrational-relaxation";
+    }
+
+private:
+    //! Castela coefficient a.
+    double m_castela_a = 0.0;
+
+    //! Castela coefficient b.
+    double m_castela_b = 0.0;
+
+    //! Reference pressure.
+    double m_referencePressure = OneAtm;
+};
+
+} // namespace Cantera
+
+#endif
