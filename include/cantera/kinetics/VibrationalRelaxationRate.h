@@ -62,23 +62,25 @@ struct DetailedVibData : public ReactionData
  * `N2(v=1-8)`, and solves for their vibrational-translational (V-T) and 
  * vibrational-vibrational (V-V) relaxation. The scaling of the
  * rates is based on the Schwartz–Slawsky–Herzfeld (SSH) theory detailed 
- * in Chapter 7 of @cite capitelli2000. The simplified SSH theory implemented 
- * here is based on the harmonic oscillator approximation and can be found in 
- * equations 18 and 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are 
- * taken from @cite zhong2023, @cite capitelli2000, and @cite starikovskiy2013.
+ * in Chapter 7 of Capitelli et al. @cite capitelli2000. The simplified SSH 
+ * theory implemented here is based on the harmonic oscillator approximation 
+ * and can be found in equations 18 and 19 of Guerra et al. @cite guerra2019. 
+ * The @f$ k_{10} @f$ rates are taken from Zhong et al. @cite zhong2023, 
+ * Capitelli et al. @cite capitelli2000, and Starikovskiy and 
+ * Aleksandrov @cite starikovskiy2013.
  *
  * The `Castela` model is meant to be used only for N2 vibrational relaxation,
  * by collisions with N2, O2, and O exclusively. It implements the mean
  * vibrational energy relaxation model using a fictitious Cantera species and
- * is based on @cite castela2016.
+ * is based on Castela et al. @cite castela2016.
  *
  * The `Starikovskiy` model is an extension of the Castela model to several
  * vibrational species and additional colliders. Many vibrational relaxation
- * rates can be found in Table 1 of @cite starikovskiy2013, hence the model
- * name. The rates for the vibrational relaxation of NH3 can be found in the
- * reaction mechanism provided in the supplementary material of
- * @cite zhong2023. More rates for the vibrational relaxation of
- * @f$ \mathrm{CH_4} @f$ can be found in @cite popov2016.
+ * rates can be found in Table 1 of Starikovskiy and Aleksandrov @cite starikovskiy2013, 
+ * hence the model's name. The rates for the vibrational relaxation of NH3 can be 
+ * found in the reaction mechanism provided in the supplementary material of
+ * Zhong et al. @cite zhong2023. More rates for the vibrational relaxation of
+ * @f$ \mathrm{CH_4} @f$ can be found in Popov @cite popov2016.
  *
  * Unit conventions:
  *
