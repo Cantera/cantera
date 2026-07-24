@@ -127,10 +127,8 @@ public:
     explicit VibrationalRelaxationRate(const AnyMap& node,
                                        const UnitStack& rate_units = {});
 
-    //! Set rate parameters from an AnyMap.
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Get rate parameters for YAML serialization.
     void getParameters(AnyMap& node) const override;
 
     //! Create a rate evaluator for this reaction rate type.
@@ -153,7 +151,6 @@ public:
      */
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
-    //! Evaluate the forward rate coefficient.
     double evalFromStruct(const VibrationalRelaxationData& shared_data) const {
         const double invT = shared_data.recipT;
         const double invT13 = std::cbrt(invT);
@@ -167,25 +164,24 @@ public:
         );
     }
 
-    //! Evaluate the scaled temperature derivative.
-    /**
-     * This returns:
-     *
-     * @f[
-     * \frac{1}{k_f} \frac{d k_f}{dT}
-     * =
-     * \frac{d \ln k_f}{dT}
-     * @f]
-     *
-     * For the internal generic expression, this is:
-     *
-     * @f[
-     * \frac{b}{T}
-     * - \frac{C}{3} T^{-4/3}
-     * - m D T^{-m-1}
-     * - z E T^{-z-1}
-     * @f]
-     */
+    // Evaluate the scaled temperature derivative.
+    //
+    // This returns:
+    //
+    // @f[
+    // \frac{1}{k_f} \frac{d k_f}{dT}
+    // =
+    // \frac{d \ln k_f}{dT}
+    // @f]
+    // 
+    // For the internal generic expression, this is:
+    //
+    // @f[
+    // \frac{b}{T}
+    // - \frac{C}{3} T^{-4/3}
+    // - m D T^{-m-1}
+    // - z E T^{-z-1}
+    // @f]
     double ddTScaledFromStruct(const VibrationalRelaxationData& shared_data) const;
 
 private:
