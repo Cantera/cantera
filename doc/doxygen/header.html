@@ -10,18 +10,31 @@
 <!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
 <link rel="shortcut icon" href="$relpath^../_static/images/favicon.png">
 <link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="$relpath^jquery.js"></script>
-<script type="text/javascript" src="$relpath^dynsections.js"></script>
+<script type="text/javascript">
+// Doxygen 1.17 no longer bundles jQuery, but doxygen-awesome's dark mode
+// toggle, paragraph links, and fragment copy button still use it -- only to run
+// a callback on DOM ready or window resize. Provide a minimal stand-in so those
+// features keep working without pulling in the full jQuery library.
+window.$ = window.jQuery = function (arg) {
+    function ready(fn) {
+        if (document.readyState !== "loading") { fn(); }
+        else { document.addEventListener("DOMContentLoaded", fn); }
+    }
+    if (typeof arg === "function") { ready(arg); return; }
+    return { ready: ready, resize: function (fn) { window.addEventListener("resize", fn); } };
+};
+</script>
 $treeview
 $search
 $mathjax
 <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
 $extrastylesheet
 <!-- ... other metadata & script includes ... -->
+<!-- Load the dark mode toggle for its element definition and theme setup, but
+     do not call its init(): it would append the toggle inside the search box.
+     version-switcher.js creates and places the toggle so the switcher can sit
+     between the search box and the toggle, matching the Sphinx pages. -->
 <script type="text/javascript" src="$relpath^doxygen-awesome-darkmode-toggle.js"></script>
-<script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init()
-</script>
 <script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript">
     DoxygenAwesomeParagraphLink.init()

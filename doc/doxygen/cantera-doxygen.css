@@ -70,6 +70,14 @@ div#top {
     justify-content: left;
 }
 
+#main-nav {
+    /* Doxygen's base stylesheet draws a border under #main-nav, which -- once
+       the nav links in this menu are hidden -- shows only as a stray line from
+       the end of the header links to the right edge. #top already draws the
+       full-width separator beneath the whole header, so drop this partial one. */
+    border-bottom: none;
+}
+
 /* Re-style the nav bar links to approximate pydata-sphinx-theme */
 .sm-dox a {
     color: var(--pst-color-text-muted) !important;
@@ -88,6 +96,25 @@ div#top {
     font-size: 16px;
 }
 
+@media screen and (min-width: 768px) {
+    ul#main-menu {
+        /* version-switcher.js places the version switcher and the dark mode
+           toggle in this menu as siblings of the search box (see there for why
+           the toggle is not left where doxygen-awesome puts it). Lay the menu
+           out as a centered row and order the three controls below, so they
+           share the search box's baseline and the toggle sits rightmost, as on
+           the Sphinx pages. */
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--spacing-small);
+    }
+
+    ul#main-menu > #searchBoxPos2 { order: 0; }
+    ul#main-menu > #version-switcher { order: 1; }
+    ul#main-menu > doxygen-awesome-dark-mode-toggle { order: 2; }
+}
+
 /* Version switcher. The dropdown panel and its items inherit their colors,
    border, shadow, and animation from doxygen-awesome's `.sm-dox ul` rules,
    which follow the dark mode toggle. Only positioning is needed here, since
@@ -97,32 +124,41 @@ div#top {
     position: relative;
 }
 
-ul#main-menu #version-switcher {
-    /* version-switcher.js moves the switcher into Doxygen's header menu and
-       inserts it before the search box; both float right, and the first
-       floated element lands rightmost, so this puts it right of the search. */
-    float: right;
+ul#main-menu > #version-switcher {
+    /* A flex item in the menu row above; center the button within it. */
+    display: flex;
+    align-items: center;
 }
 
 #version-switcher-button {
-    /* Match the nav bar links (.sm-dox a), which style anchors, not buttons */
-    background: none;
-    border: none;
+    /* Present the switcher as a bordered dropdown control, mirroring the search
+       box it sits beside rather than the plain nav-bar links. */
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--searchbar-height);
+    padding: 0 10px;
+    background: var(--searchbar-background);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-medium);
     color: var(--pst-color-text-muted);
     cursor: pointer;
     font-family: inherit;
     font-size: 16px;
-    padding: 0 8px;
+    white-space: nowrap;
 }
 
 #version-switcher-button:hover {
     color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 #version-switcher-button.has-menu::after {
     /* Only added once the menu is populated, so a degraded button does not
        advertise a dropdown that isn't there. */
-    content: " \25be";
+    content: "\25be";
+    margin-left: 6px;
+    font-size: 0.8em;
 }
 
 #version-switcher-menu {

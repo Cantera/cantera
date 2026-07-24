@@ -107,23 +107,51 @@
     }
 
     /**
-     * Place the switcher to the right of the search box on wide screens, as it
-     * sits on the rest of cantera.org, and leave it in the nav bar otherwise.
+     * Create the dark mode toggle ourselves rather than letting doxygen-awesome
+     * place it.
      *
-     * On wide screens the switcher is moved into Doxygen's own header menu, to
-     * the right of the search box. Doxygen generates that menu, so header.html
-     * cannot place the element there directly -- doxygen-awesome's dark mode
-     * toggle relocates itself for the same reason. The switcher and the search
-     * box both float right and the first floated element lands rightmost, so
-     * it is inserted *before* the search box.
-     *
-     * Below Doxygen's 768px breakpoint that header menu is hidden, so the
-     * switcher is returned to its original place in the nav bar, where it stays
-     * visible. Placement is re-evaluated when the viewport crosses the
-     * breakpoint. If Doxygen's markup ever changes, the switcher stays in the
-     * nav bar.
+     * doxygen-awesome's own init appends the toggle inside the search box's list
+     * item and re-appends it there on every resize. Doxygen rebuilds that item
+     * (on load and when it moves the search box between its wide and narrow
+     * positions), so anything else placed inside it -- such as the version
+     * switcher -- is discarded. Building the toggle here lets it sit as a sibling
+     * of the search box, so the switcher can go between the two. header.html
+     * loads doxygen-awesome's script for the element definition and theme setup
+     * but does not call its init; if that script is ever missing, this returns
+     * null and only the switcher is placed.
      */
-    function relocate(container) {
+    function createDarkModeToggle() {
+        if (typeof DoxygenAwesomeDarkModeToggle === "undefined") {
+            return null;
+        }
+        const toggle = document.createElement("doxygen-awesome-dark-mode-toggle");
+        toggle.title = DoxygenAwesomeDarkModeToggle.title;
+        toggle.updateIcon();
+        // Keep the icon in sync with the system preference and tab visibility,
+        // as doxygen-awesome's own init would.
+        window.matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", () => toggle.updateIcon());
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                toggle.updateIcon();
+            }
+        });
+        return toggle;
+    }
+
+    /**
+     * Place the switcher and dark mode toggle next to the search box on wide
+     * screens, as they sit on the rest of cantera.org, and in the nav bar
+     * otherwise.
+     *
+     * On wide screens both are moved into Doxygen's header menu as siblings of
+     * the search box; CSS orders the row search box, switcher, toggle, keeping
+     * the toggle rightmost as on the Sphinx pages. Below Doxygen's 768px
+     * breakpoint that menu is hidden, so they return to the nav bar, where they
+     * stay visible. Placement is re-evaluated when the viewport crosses the
+     * breakpoint. If Doxygen's markup ever changes, they stay in the nav bar.
+     */
+    function relocate(container, toggle) {
         const wide = window.matchMedia("(min-width: 768px)");
         const navHome = container.parentNode;
         const navNext = container.nextSibling;
@@ -132,9 +160,15 @@
             const menu = document.getElementById("main-menu");
             const searchBox = document.getElementById("searchBoxPos2");
             if (wide.matches && menu && searchBox) {
-                menu.insertBefore(container, searchBox);
+                menu.appendChild(container);
+                if (toggle) {
+                    menu.appendChild(toggle);
+                }
             } else {
                 navHome.insertBefore(container, navNext);
+                if (toggle) {
+                    navHome.insertBefore(toggle, container.nextSibling);
+                }
             }
         }
 
@@ -150,7 +184,7 @@
             return;
         }
 
-        relocate(container);
+        relocate(container, createDarkModeToggle());
 
         let entries;
         try {
