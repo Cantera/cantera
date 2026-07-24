@@ -130,14 +130,12 @@ protected:
     void getParameters(AnyMap& node) const override;
 
     //! Gas temperature exponent.
-    //! @since New in %Cantera 4.0
     double m_bg = 0.0;
 
     //! Reciprocate of the temperature scale for the optional term 
     //! @f$ \exp(-T/T_\mathrm{inv}) @f$.
     /*!
      * A value of zero disables this term.
-     * @since New in %Cantera 4.0
      */
     double m_recip_Tinv = 0.0; 
 };
