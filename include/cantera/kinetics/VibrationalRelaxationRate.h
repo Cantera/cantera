@@ -38,6 +38,7 @@ struct VibrationalRelaxationData : public ReactionData
  * - `multi-state-resolved`
  * - `Starikovskiy`
  * - `Castela`
+ * 
  * Internally, all models are mapped to the following generic expression:
  * @f[
  * k_f =
