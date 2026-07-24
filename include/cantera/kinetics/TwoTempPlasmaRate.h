@@ -103,17 +103,12 @@ public:
      */
     double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation energy in temperature units.
-        double logRate = m_bg * shared_data.logT
+        return m_A * std::exp(m_bg * shared_data.logT
                        + m_b * shared_data.logTe
                        - m_Ea_R * shared_data.recipT
                        + m_E4_R * (shared_data.electronTemp - shared_data.temperature)
-                             * shared_data.recipTe * shared_data.recipT;
-
-        if (m_Tinv != 0.0) {
-            logRate += -shared_data.temperature / m_Tinv;
-        }
-
-        return m_A * std::exp(logRate);
+                             * shared_data.recipTe * shared_data.recipT
+                       -shared_data.temperature*m_recip_Tinv);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -138,12 +133,13 @@ protected:
     //! @since New in %Cantera 4.0
     double m_bg = 0.0;
 
-    //! Temperature scale for the optional term @f$ \exp(-T/T_\mathrm{inv}) @f$.
+    //! Reciprocate of the temperature scale for the optional term 
+    //! @f$ \exp(-T/T_\mathrm{inv}) @f$.
     /*!
      * A value of zero disables this term.
      * @since New in %Cantera 4.0
      */
-    double m_Tinv = 0.0;
+    double m_recip_Tinv = 0.0; 
 };
 
 }

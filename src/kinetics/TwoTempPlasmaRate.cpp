@@ -59,11 +59,8 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, d
     m_E4_R = EE / GasConstant;
     m_bg = bg;
     if (Tinv != 0){
-        m_Tinv = Tinv;
-    } else{
-        m_Tinv = 0.0;
-    }
-    
+        m_recip_Tinv = 1.0/Tinv;
+    } // no else required here because m_recip_Tinv is otherwise initilised at 0.
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
@@ -71,7 +68,10 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_u
 {
     setParameters(node, rate_units);
     m_bg = node.getDouble("b-gas", 0.0);
-    m_Tinv = node.getDouble("T-inv", 0.0);
+    double Tinv = node.getDouble("T-inv", 0.0);
+    if (Tinv!=0){
+        m_recip_Tinv = 1.0/Tinv;
+    }
 }
 
 void TwoTempPlasmaRate::getParameters(AnyMap& node) const
@@ -84,8 +84,8 @@ void TwoTempPlasmaRate::getParameters(AnyMap& node) const
         rateNode["b-gas"] = m_bg;
     }
 
-    if (m_Tinv != 0.0) {
-        rateNode["T-inv"] = m_Tinv;
+    if (m_recip_Tinv != 0.0) {
+        rateNode["T-inv"] = 1.0/m_recip_Tinv;
     }
 
     rateNode.setFlowStyle();
@@ -95,14 +95,8 @@ double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_da
 {
     warn_user("TwoTempPlasmaRate::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of electron temperature.");
-    double derivative = m_bg * shared_data.recipT + (m_Ea_R - m_E4_R)
-                    * shared_data.recipT * shared_data.recipT;
-
-    if (m_Tinv != 0.0) {
-        derivative += -1.0 / m_Tinv;
-    }
-
-    return derivative;
+    return m_bg * shared_data.recipT + (m_Ea_R - m_E4_R)
+                    * shared_data.recipT * shared_data.recipT - m_recip_Tinv;
 }
 
 void TwoTempPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
