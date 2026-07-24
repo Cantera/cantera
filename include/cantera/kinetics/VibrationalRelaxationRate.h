@@ -52,18 +52,6 @@ struct DetailedVibData : public ReactionData
  * @f]
  * where `T` is the gas temperature in K.
  *
- * The YAML reaction type is:
- * @code{.yaml}
- * type: vibrational-relaxation
- * @endcode
- * The selected physical model is specified separately using:
- * @code{.yaml}
- * type: vibrational-relaxation
- * vibration-model: multi-state-resolved
- * @endcode
- * Accepted values for `vibration-model` are `constant`,
- * `multi-state-resolved`, `Starikovskiy`, and `Castela`.
- *
  * The `constant` model relaxes the vibrational species with a constant rate 
  * coefficient. It could just as well be an Arrhenius rate, but the constant 
  * model is provided for convenience and to avoid confusion with conventional 
@@ -73,10 +61,10 @@ struct DetailedVibData : public ReactionData
  * taking into account all vibrational species in the phase, for example
  * `N2(v=1-8)`, and solves for their V-T and V-V relaxation. The scaling of the
  * rates is based on the SSH theory detailed in Chapter 7 of
- * @cite capitelli2013. The simplified SSH theory implemented here is based on
+ * @cite capitelli2000. The simplified SSH theory implemented here is based on
  * the harmonic oscillator approximation and can be found in equations 18 and
  * 19 of @cite guerra2019. The @f$ k_{10} @f$ rates are taken from
- * @cite zhong2023, @cite capitelli2013, and @cite starikovskiy2013.
+ * @cite zhong2023, @cite capitelli2000, and @cite starikovskiy2013.
  *
  * The `Castela` model is meant to be used only for N2 vibrational relaxation,
  * by collisions with N2, O2, and O exclusively. It implements the mean
@@ -102,6 +90,10 @@ struct DetailedVibData : public ReactionData
  *
  * The coefficients `B`, `C`, `D`, `E`, `m`, `z` are read as
  * raw floating-point values. They are not converted by Cantera's unit system.
+ * 
+ * For further information on the YAML implementation of this class, please 
+ * refer to [the corresponding YAML documentation section]
+ * (../YAML/reactions.html#sec-yaml-vibrational-relaxation).
  *
  * @ingroup arrheniusGroup
  * @since New in %Cantera 4.0
